@@ -42,7 +42,7 @@ const webappServiceName = "kubei-service"
 
 
 func (orc *Orchestrator) getPodsImagesDetails(pods []corev1.Pod) (common.ImageNamespacesMap, common.NamespacedImageSecretMap, error) {
-	log.Infof("There are %d pods in the given namespaces scope\n", len(pods))
+	log.Infof("There are %d pods in the given namespaces scope", len(pods))
 	totalContainers := 0
 	imageNamespacesMap := make(common.ImageNamespacesMap)
 	namespacedImageSecretMap := make(common.NamespacedImageSecretMap)
