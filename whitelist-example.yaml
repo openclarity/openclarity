@@ -1,0 +1,12 @@
+//example taken from https://github.com/optiopay/klar/edit/master/whitelist-example.yaml. thanks!
+general:
+  - RHSA-2018:1345
+images:
+  centos:
+    - RHSA-2017:2479
+    - RHSA-2018:0805
+  alpine:
+    - CVE-2017-9671
+  fluent/fluent-bit:
+    - CVE-2017-14062
+    - CVE-2018-6485
