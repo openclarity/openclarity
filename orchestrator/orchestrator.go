@@ -1,5 +1,3 @@
-
-
 package orchestrator
 
 import (
@@ -36,11 +34,6 @@ type OrchestratorInterface interface {
 const line = "_________________________________________________________________________________________________________"
 const webappServiceName = "kubei-service"
 
-
-
-
-
-
 func (orc *Orchestrator) getPodsImagesDetails(pods []corev1.Pod) (common.ImageNamespacesMap, common.NamespacedImageSecretMap, error) {
 	log.Infof("There are %d pods in the given namespaces scope", len(pods))
 	totalContainers := 0
@@ -55,8 +48,6 @@ func (orc *Orchestrator) getPodsImagesDetails(pods []corev1.Pod) (common.ImageNa
 	log.Infof("There are %d different images in the given namespaces scope", len(containerImagesSet))
 	return imageNamespacesMap, namespacedImageSecretMap, nil
 }
-
-
 
 func (orc *Orchestrator) getImageDetails() (common.ImageNamespacesMap, common.NamespacedImageSecretMap, error) {
 	podList, err := orc.ExecutionConfig.Clientset.CoreV1().Pods(orc.ExecutionConfig.TargetNamespace).List(metav1.ListOptions{})
@@ -103,12 +94,11 @@ func (orc *Orchestrator) runJobsBatch(totalImages int, batch []string, batchNum 
 func (orc *Orchestrator) createJob(imageNamespace string, batchNum int, batch []string, startPoint int, scannedImageNames []string, namespacedImageSecretMap common.NamespacedImageSecretMap) error {
 	var ttlSecondsAfterFinished int32 = 300
 	jobName := orc.getKubernetesCompliantJobName(imageNamespace, batchNum)
-	labels := make(map[string]string)
-	labels["kubeiShouldScan"] = "false"
+
 	containers := orc.buildContainersPart(imageNamespace, batch, startPoint, scannedImageNames, namespacedImageSecretMap)
 	var backOffLimit int32
 	backOffLimit = 1
-	jobDefinition := orc.createJobDefinition(jobName, imageNamespace, labels, containers, backOffLimit, ttlSecondsAfterFinished)
+	jobDefinition := orc.createJobDefinition(jobName, imageNamespace, containers, backOffLimit, ttlSecondsAfterFinished)
 	_, err := orc.ExecutionConfig.Clientset.BatchV1().Jobs(imageNamespace).Create(jobDefinition)
 	if err != nil {
 		log.Errorf("failed to create jobs in namespace: %s. %v", imageNamespace, err)
@@ -117,7 +107,9 @@ func (orc *Orchestrator) createJob(imageNamespace string, batchNum int, batch []
 	return nil
 }
 
-func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace string, labels map[string]string, containers []corev1.Container, backOffLimit int32, ttlSecondsAfterFinished int32) *batchv1.Job {
+func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace string, containers []corev1.Container, backOffLimit int32, ttlSecondsAfterFinished int32) *batchv1.Job {
+	labels := map[string]string{"kubeiShouldScan": "false"}
+	annotations := map[string]string{"sidecar.istio.io/inject": "false"}
 	jobDefinition := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
@@ -127,7 +119,8 @@ func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace stri
 		Spec: batchv1.JobSpec{
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
+					Annotations: annotations,
+					Labels:      labels,
 				},
 				Spec: apiv1.PodSpec{
 					ServiceAccountName: "kubei",
@@ -141,8 +134,6 @@ func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace stri
 	}
 	return jobDefinition
 }
-
-
 
 func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []string, startPoint int, scannedImageNames []string, namespacedImageSecretMap common.NamespacedImageSecretMap) []corev1.Container {
 	var containers []apiv1.Container
@@ -158,10 +149,10 @@ func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []stri
 			containerName := orc.getKubernetesCompliantContainerName(common.ContainerImageName(image))
 			clairServiceAddress := "clairsvc." + orc.ExecutionConfig.KubeiNamespace
 			env := []corev1.EnvVar{
-				{Name: "CLAIR_ADDR", Value: clairServiceAddress,},
-				{Name: "CLAIR_OUTPUT", Value: orc.ExecutionConfig.ClairOutput,},
-				{Name: "KLAR_TRACE", Value: strconv.FormatBool(orc.ExecutionConfig.KlarTrace),},
-				{Name: "WHITELIST_FILE", Value: orc.ExecutionConfig.WhitelistFile,},
+				{Name: "CLAIR_ADDR", Value: clairServiceAddress},
+				{Name: "CLAIR_OUTPUT", Value: orc.ExecutionConfig.ClairOutput},
+				{Name: "KLAR_TRACE", Value: strconv.FormatBool(orc.ExecutionConfig.KlarTrace)},
+				{Name: "WHITELIST_FILE", Value: orc.ExecutionConfig.WhitelistFile},
 			}
 			if secretName != "" {
 				log.Debugf("Adding private registry credentials to image: %s", image)
@@ -364,6 +355,8 @@ func (orc *Orchestrator) testConnection(url string) bool {
 
 	if err != nil {
 		log.Debugf("Got error in namespaces uri : %v", err)
+		log.Info("clair is still unavailable. Trying again...")
+
 		return false
 	}
 
@@ -382,7 +375,7 @@ func Init(executionConfig *common.ExecutionConfiguration, dataUpdateLock *sync.M
 		ExecutionConfig:           executionConfig,
 		scanIssuesMessages:        scanIssuesMessages,
 		batchCompletedScansCount:  batchCompletedScansCount,
-		k8ContextService:          &common.K8ContextService{
+		k8ContextService: &common.K8ContextService{
 			ExecutionConfig:        executionConfig,
 			K8ContextSecretService: &common.K8ContextSecretService{},
 		},

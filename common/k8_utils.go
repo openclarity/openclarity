@@ -31,8 +31,6 @@ func AppendContainerImageNameIfMissing(list []ContainerImageName, candidate Cont
 	return list
 }
 
-
-
 func ContainsString(list []string, imageName string) bool {
 	for _, a := range list {
 		if a == imageName {
@@ -41,7 +39,6 @@ func ContainsString(list []string, imageName string) bool {
 	}
 	return false
 }
-
 
 func (kcs *K8ContextService) GetK8ContextFromContainer(orchestratorImageK8ExtendedContextMap ImageK8ExtendedContextMap, pod *corev1.Pod, imageNamespacesMap ImageNamespacesMap, namespacedImageSecretMap NamespacedImageSecretMap, containerImagesSet map[ContainerImageName]bool, totalContainers int) (ImageNamespacesMap, NamespacedImageSecretMap, map[ContainerImageName]bool, int) {
 	if kcs.shouldIgnore(pod) {
@@ -112,11 +109,6 @@ func (kcs *K8ContextService) GetPodImagePullSecrets(pod corev1.Pod) []corev1.Sec
 }
 
 func (kcs *K8ContextService) shouldIgnore(pod *corev1.Pod) bool {
-	if kcs.ExecutionConfig.IgnoreKubeSystem && pod.Namespace == "kube-system" {
-		log.Infof("Skipping scan of pod: %s from namespace: %s. Pod's ignore kube-system flag is true", pod.Name, pod.Namespace)
-		return true
-
-	}
 	if ContainsString(kcs.ExecutionConfig.IgnoreNamespaces, pod.Namespace) {
 		log.Infof("Skipping scan of pod: %s from namespace: %s. Namespace is in IGNORE_NAMESPACES list", pod.Name, pod.Namespace)
 		return true

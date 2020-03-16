@@ -13,10 +13,10 @@ import (
 
 func TestOrchestrator_buildContainersPart(t *testing.T) {
 	envVars := []corev1.EnvVar{
-		{Name: "CLAIR_ADDR", Value: "clairsvc.kubei",},
-		{Name: "CLAIR_OUTPUT", Value: "HIGH",},
-		{Name: "KLAR_TRACE", Value: "false",},
-		{Name: "WHITELIST_FILE", Value: "",},
+		{Name: "CLAIR_ADDR", Value: "clairsvc.kubei"},
+		{Name: "CLAIR_OUTPUT", Value: "HIGH"},
+		{Name: "KLAR_TRACE", Value: "false"},
+		{Name: "WHITELIST_FILE", Value: ""},
 	}
 
 	type fields struct {
@@ -45,8 +45,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 			name: "test create containers part",
 			fields: fields{
 				ImageK8ExtendedContextMap: common.ImageK8ExtendedContextMap{
-					common.ContainerImageName("image1"):
-					[]*common.K8ExtendedContext{
+					common.ContainerImageName("image1"): []*common.K8ExtendedContext{
 						{
 							Namespace: "ns1",
 							Container: "container1",
@@ -54,8 +53,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 							Secret:    "secret1",
 						},
 					},
-					common.ContainerImageName("image2"):
-					[]*common.K8ExtendedContext{
+					common.ContainerImageName("image2"): []*common.K8ExtendedContext{
 						{
 							Namespace: "ns1",
 							Container: "container2",
@@ -63,8 +61,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 							Secret:    "secret2",
 						},
 					},
-					common.ContainerImageName("image3"):
-					[]*common.K8ExtendedContext{
+					common.ContainerImageName("image3"): []*common.K8ExtendedContext{
 						{
 							Namespace: "ns1",
 							Container: "container3",
@@ -72,8 +69,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 							Secret:    "secret3",
 						},
 					},
-					common.ContainerImageName("image4"):
-					[]*common.K8ExtendedContext{
+					common.ContainerImageName("image4"): []*common.K8ExtendedContext{
 						{
 							Namespace: "ns2",
 							Container: "container3",
@@ -89,7 +85,6 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 					TargetNamespace:  "ns1",
 					ClairOutput:      "HIGH",
 					WhitelistFile:    "",
-					IgnoreKubeSystem: false,
 					IgnoreNamespaces: nil,
 					KlarTrace:        false,
 				},
@@ -141,7 +136,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 }
 
 func TestOrchestrator_createJobDefinition(t *testing.T) {
-	exampleLabels := map[string]string{"key1":"value1"}
+	exampleLabels := map[string]string{"key1": "value1"}
 	exampleBackoffLimit := int32(88)
 	exampleTtlSecondsAfterFinished := int32(99)
 	exampleContainers := []corev1.Container{
@@ -192,7 +187,7 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 		want   *batchv1.Job
 	}{
 		{
-			name: "test create job definition",
+			name:   "test create job definition",
 			fields: fields{},
 			args: args{
 				jobName:                 "some jobname",
@@ -206,7 +201,7 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "some jobname",
 					Namespace: "some imageNamespace",
-					Labels:exampleLabels,
+					Labels:    exampleLabels,
 				},
 				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
@@ -225,7 +220,6 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 				Status: batchv1.JobStatus{},
 			},
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -238,7 +232,7 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 				batchCompletedScansCount:  tt.fields.batchCompletedScansCount,
 			}
 
-			got :=  orc.createJobDefinition(tt.args.jobName, tt.args.imageNamespace, tt.args.labels, tt.args.containers, tt.args.backOffLimit, tt.args.ttlSecondsAfterFinished)
+			got := orc.createJobDefinition(tt.args.jobName, tt.args.imageNamespace, tt.args.labels, tt.args.containers, tt.args.backOffLimit, tt.args.ttlSecondsAfterFinished)
 			assert.Equal(t, got.Name, tt.want.Name)
 			assert.Equal(t, got.Namespace, tt.want.Namespace)
 			assert.DeepEqual(t, got.TypeMeta, tt.want.TypeMeta)

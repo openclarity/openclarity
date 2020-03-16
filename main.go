@@ -13,7 +13,6 @@ import (
 	"strings"
 )
 
-
 func getKubeClient() *kubernetes.Clientset {
 	// creates the in-cluster config
 	log.Infof("connecting....")
@@ -45,9 +44,7 @@ func getEnvVariableAsSlice(name string, defaultVal []string, sep string) []strin
 	return val
 }
 
-
-
-func  getVerbose() bool {
+func getVerbose() bool {
 	value := os.Getenv("VERBOSE")
 	if value == "" {
 		return false
@@ -110,18 +107,9 @@ func getArgs() (*common.ExecutionConfiguration, error) {
 		clairOutput = "MEDIUM" //default
 	}
 
-	ignoreKubeSystem := true //default
-	ignoreKubeSystemString := os.Getenv("IGNORE_KUBE_SYSTEM")
-	if ignoreKubeSystemString == "" {
-		log.Debugf("IGNORE_KUBE_SYSTEM is empty. defaulting to true")
-	} else {
-		ignoreKubeSystem, err = strconv.ParseBool(ignoreKubeSystemString)
-		if err != nil {
-			log.Warnf("IGNORE_KUBE_SYSTEM is invalid. defaulting to true")
-		}
-	}
-
 	ignoreNamespaces := getEnvVariableAsSlice("IGNORE_NAMESPACES", []string{}, ",")
+
+	log.Errorf("RAFI: will ignore ignoreNamespaces %+v", ignoreNamespaces)
 
 	klarTrace := false //default
 	klarTraceString := os.Getenv("KLAR_TRACE")
@@ -166,7 +154,6 @@ func getArgs() (*common.ExecutionConfiguration, error) {
 		KubeiNamespace:   os.Getenv("MY-POD-NAMESPACE"),
 		TargetNamespace:  targetNamespace,
 		ClairOutput:      clairOutput,
-		IgnoreKubeSystem: ignoreKubeSystem,
 		IgnoreNamespaces: ignoreNamespaces,
 		KlarTrace:        klarTrace,
 		WhitelistFile:    whitelistFile,
