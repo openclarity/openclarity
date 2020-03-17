@@ -25,20 +25,18 @@ const htmlPath = "/usr/local/portshift/" + htmlFileName
 //noinspection GoUnusedGlobalVariable
 var templates = template.Must(template.ParseFiles(htmlPath))
 
-
-
 type Webapp struct {
-	kubeiOrchestrator         *orchestrator.Orchestrator
-	goExecutionLock           *sync.Mutex
-	executionConfig           *common.ExecutionConfiguration
-	batchCompletedScansCount  *int32
-	showGoMsg                 bool
-	showGoWarning             bool
-	checkShowGoWarning        bool
-	lastScannedNamespace      string
-	existingData              []*common.ContextualVulnerability
-	numOfResults              int32
-	scanIssuesMessages        []string
+	kubeiOrchestrator        *orchestrator.Orchestrator
+	goExecutionLock          *sync.Mutex
+	executionConfig          *common.ExecutionConfiguration
+	batchCompletedScansCount *int32
+	showGoMsg                bool
+	showGoWarning            bool
+	checkShowGoWarning       bool
+	lastScannedNamespace     string
+	existingData             []*common.ContextualVulnerability
+	numOfResults             int32
+	scanIssuesMessages       *[]string
 }
 
 func (wa *Webapp) calculateTotals(vulnerabilities []*common.ExtendedContextualVulnerability) (int, int, int) {
@@ -129,10 +127,6 @@ func (wa *Webapp) extendVulnerabilitiesContext(data []*common.ContextualVulnerab
 	return extendedContextualVulnerabilities
 }
 
-
-
-
-
 func (wa *Webapp) readBodyData(req *http.Request, w http.ResponseWriter) *forwarding.ImageVulnerabilities {
 	decoder := json.NewDecoder(req.Body)
 	var bodyData *forwarding.ImageVulnerabilities
@@ -184,7 +178,6 @@ func (wa *Webapp) handleGoMsg() {
 	}()
 }
 
-
 /****************************************************** HANDLERS ******************************************************/
 
 func (wa *Webapp) addHandler(w http.ResponseWriter, r *http.Request) {
@@ -200,7 +193,7 @@ func (wa *Webapp) addHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Debugf("Received an 'add' request for image %s", newImageVulnerabilities.Image)
 	if !newImageVulnerabilities.Success {
-		wa.scanIssuesMessages = common.AppendStringIfMissing(wa.scanIssuesMessages, "Scan of image "+newImageVulnerabilities.Image+" has failed! See container logs for more info.")
+		*wa.scanIssuesMessages = common.AppendStringIfMissing(*wa.scanIssuesMessages, "Scan of image "+newImageVulnerabilities.Image+" has failed! See container logs for more info.")
 	} else {
 		log.Debugf("Scan of image %s is done!", newImageVulnerabilities.Image)
 	}
@@ -300,7 +293,6 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 
 /******************************************************* PUBLIC *******************************************************/
 
-
 func Init(executionConfiguration *common.ExecutionConfiguration) *Webapp {
 	var batchCompletedScansCount int32 = 0
 	var scanIssuesMessages []string
@@ -309,17 +301,17 @@ func Init(executionConfiguration *common.ExecutionConfiguration) *Webapp {
 	var imageK8ExtendedContextMap = make(common.ImageK8ExtendedContextMap)
 	kubeiOrchestrator := orchestrator.Init(executionConfiguration, &dataUpdateLock, imageK8ExtendedContextMap, &scanIssuesMessages, &batchCompletedScansCount)
 	return &Webapp{
-		kubeiOrchestrator:         kubeiOrchestrator,
-		goExecutionLock:           &goExecutionLock,
-		executionConfig:           executionConfiguration,
-		batchCompletedScansCount:  &batchCompletedScansCount,
-		showGoMsg:                 false,
-		showGoWarning:             false,
-		checkShowGoWarning:        false,
-		lastScannedNamespace:      "",
-		existingData:              nil,
-		numOfResults:              0,
-		scanIssuesMessages:        scanIssuesMessages,
+		kubeiOrchestrator:        kubeiOrchestrator,
+		goExecutionLock:          &goExecutionLock,
+		executionConfig:          executionConfiguration,
+		batchCompletedScansCount: &batchCompletedScansCount,
+		showGoMsg:                false,
+		showGoWarning:            false,
+		checkShowGoWarning:       false,
+		lastScannedNamespace:     "",
+		existingData:             nil,
+		numOfResults:             0,
+		scanIssuesMessages:       &scanIssuesMessages,
 	}
 }
 
