@@ -108,8 +108,7 @@ func getArgs() (*common.ExecutionConfiguration, error) {
 	}
 
 	ignoreNamespaces := getEnvVariableAsSlice("IGNORE_NAMESPACES", []string{}, ",")
-
-	log.Errorf("RAFI: will ignore ignoreNamespaces %+v", ignoreNamespaces)
+	log.Infof("will ignore ignoreNamespaces %+v", ignoreNamespaces)
 
 	klarTrace := false //default
 	klarTraceString := os.Getenv("KLAR_TRACE")
