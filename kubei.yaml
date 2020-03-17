@@ -21,9 +21,6 @@ rules:
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["list"]
-- apiGroups: [""]
-  resources: ["serviceaccounts"]
-  verbs: ["create", "delete"]     
 - apiGroups: ["batch"]
   resources: ["jobs"]
   verbs: ["create"]
@@ -169,7 +166,7 @@ spec:
       - name: "IGNORE_KUBE_SYSTEM" # defaults to true
         value: "false"   
       - name: "IGNORE_NAMESPACES" # a list of namespaces to ignore. defaults no namespace to ignore
-        value: "[istio-system]"  
+        value: "istio-system,kube-system"
       - name: "KLAR_TRACE" # should Klar run as in Trace log level. defaults to false
         value: "false"  
       - name: "WHITELIST_FILE" # path to the YAML file with the CVE whitelist. Look at whitelist-example.yaml for the file format. defaults to empty (= no file)
