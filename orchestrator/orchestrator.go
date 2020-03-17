@@ -59,7 +59,6 @@ func (orc *Orchestrator) getImageDetails() (common.ImageNamespacesMap, common.Na
 	imageNamespacesMap, namespacedImageSecretMap, err := orc.getPodsImagesDetails(pods)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get image details in namespace %s: %v", orc.ExecutionConfig.TargetNamespace, err)
-
 	}
 
 	orc.printAllImages()
@@ -123,9 +122,8 @@ func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace stri
 					Labels:      labels,
 				},
 				Spec: apiv1.PodSpec{
-					ServiceAccountName: "kubei",
-					Containers:         containers,
-					RestartPolicy:      apiv1.RestartPolicyNever,
+					Containers:    containers,
+					RestartPolicy: apiv1.RestartPolicyNever,
 				},
 			},
 			BackoffLimit:            &backOffLimit,
@@ -257,14 +255,6 @@ func (orc *Orchestrator) runJobs(imageNames []string, imageNamespace string, sca
 		batchNum++
 		log.Infof(line)
 	}
-
-	if imageNamespace != orc.ExecutionConfig.KubeiNamespace { //we dont delete the service account we created in the yaml
-		log.Debugf("deleting service account kubei in namespace %s", imageNamespace)
-		err := orc.ExecutionConfig.Clientset.CoreV1().ServiceAccounts(imageNamespace).Delete("kubei", nil)
-		if err != nil {
-			log.Errorf("failed to delete service account kubei in namespace %s: %v", imageNamespace, err)
-		}
-	}
 }
 
 func (orc *Orchestrator) printAllImages() {
@@ -317,10 +307,6 @@ func (orc *Orchestrator) executeScan() error {
 
 	for imageNamespace, imageNames := range imageNamespacesMap { //scan by namespace
 		if imageNamespace != orc.ExecutionConfig.KubeiNamespace { //if not our own namespace
-			err := orc.createKubeiServiceAccount(imageNamespace)
-			if err != nil {
-				return err
-			}
 			distinctUnscannedImages := orc.getDistinctUnscannedImagesForBatch(imageNames, scannedImageNames)
 			orc.runJobs(distinctUnscannedImages, imageNamespace, scannedImageNames, namespacedImageSecretMap)
 		}
