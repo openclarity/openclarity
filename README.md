@@ -2,9 +2,9 @@
 
 Kubei is a vulnerabilities scanning tool that allows users to get an accurate and immediate risk assessment of their kubernetes clusters. Kubei scans all images that are being used in a Kubernetes cluster, including images of application pods and system pods. It doesn’t scan the entire image registries and doesn’t require preliminary integration with CI/CD pipelines. 
 
-It’s a configurable tool which allows users to define the scope of the scan (target namespaces), it’s speed and the vulnerabilities level of interest.
+It is a configurable tool which allows users to define the scope of the scan (target namespaces), the speed, and the vulnerabilities level of interest.
 
-It provides a graphical UI which allows the viewer to identify where and what should be replaced in order to mitigate the discovered vulnerability. 
+It provides a graphical UI which allows the viewer to identify where and what should be replaced, in order to mitigate the discovered vulnerabilities. 
 
 
 ## Prerequisites 
@@ -38,7 +38,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 	
 	```kubectl -n kubei  port-forward kubei 5556:8080```
 
-3. In your browser, navigate to http://localhost:port/view/ and then click  'GO' to run a scan (for example: http://localhost:5556/view/)
+3. In your browser, navigate to http://localhost:port/view/ , and then click  'GO' to run a scan (for example: http://localhost:5556/view/)
 
 4. To check the state of Kubei, and the progress of ongoing scans, run the following command:
 
@@ -59,8 +59,6 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 ## Limitations 
 
-1. Supports Kubernetes Image Manifest V 2, Schema 2 (https://docs.docker.com/registry/spec/manifest-v2-2/). 
-
-It will fail to scan on earlier versions.
+1. Supports Kubernetes Image Manifest V 2, Schema 2 (https://docs.docker.com/registry/spec/manifest-v2-2/). It will fail to scan on earlier versions.
  
 2. The CVE database will update once a day.
