@@ -96,7 +96,7 @@ func (orc *Orchestrator) createJob(imageNamespace string, batchNum int, batch []
 
 	containers := orc.buildContainersPart(imageNamespace, batch, startPoint, scannedImageNames, namespacedImageSecretMap)
 	var backOffLimit int32
-	backOffLimit = 1
+	backOffLimit = 0
 	jobDefinition := orc.createJobDefinition(jobName, imageNamespace, containers, backOffLimit, ttlSecondsAfterFinished)
 	_, err := orc.ExecutionConfig.Clientset.BatchV1().Jobs(imageNamespace).Create(jobDefinition)
 	if err != nil {
