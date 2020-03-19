@@ -74,7 +74,11 @@ spec:
       labels:
         app: clair
     spec:
-      containers:    
+      initContainers:
+      - name: check-db-ready
+        image: postgres:9.6.5
+        command: ['sh', '-c',  'until pg_isready -h postgres -p 5432;  do echo waiting for database; sleep 2; done;']
+      containers:
       - name: clair
         image: gcr.io/portshift-release/clair/clair-local-scan
         ports:
