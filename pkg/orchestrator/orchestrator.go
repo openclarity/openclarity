@@ -5,7 +5,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
-	apiv1 "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -21,6 +20,14 @@ import (
 	"time"
 )
 
+type scanData struct {
+	k8sContext []*common.K8ExtendedContext
+	scanUUID uuid.UUID
+	result interface{}
+	resultChan chan bool
+	imageName string
+}
+
 type Orchestrator struct {
 	ImageK8ExtendedContextMap common.ImageK8ExtendedContextMap
 	DataUpdateLock            *sync.Mutex
@@ -29,6 +36,7 @@ type Orchestrator struct {
 	batchCompletedScansCount  *int32
 	k8ContextService          common.K8ContextServiceInterface
 	clientset                 kubernetes.Interface
+	imageToScanData map[string]*scanData
 }
 
 type OrchestratorInterface interface {
@@ -120,14 +128,14 @@ func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace stri
 			Labels:    labels,
 		},
 		Spec: batchv1.JobSpec{
-			Template: apiv1.PodTemplateSpec{
+			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: annotations,
 					Labels:      labels,
 				},
-				Spec: apiv1.PodSpec{
+				Spec: corev1.PodSpec{
 					Containers:    containers,
-					RestartPolicy: apiv1.RestartPolicyNever,
+					RestartPolicy: corev1.RestartPolicyNever,
 				},
 			},
 			BackoffLimit:            &backOffLimit,
@@ -138,7 +146,7 @@ func (orc *Orchestrator) createJobDefinition(jobName string, imageNamespace stri
 }
 
 func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []string, startPoint int, scannedImageNames []string, namespacedImageSecretMap common.NamespacedImageSecretMap) []corev1.Container {
-	var containers []apiv1.Container
+	var containers []corev1.Container
 	log.Infof("Processing batch of images:[")
 	orc.printBatch(batch, startPoint)
 	for _, image := range batch {
@@ -170,7 +178,7 @@ func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []stri
 				})
 			}
 			orchestratorPodNamespace := os.Getenv("MY-POD-NAMESPACE")
-			container := apiv1.Container{
+			container := corev1.Container{
 				Name:  containerName,
 				Image: "rafiportshift/portshift-klar:1.0.0",
 				Args:  []string{image, webappServiceName + "." + orchestratorPodNamespace},
