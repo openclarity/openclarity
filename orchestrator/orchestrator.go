@@ -9,7 +9,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kubei/common"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -315,43 +314,6 @@ func (orc *Orchestrator) executeScan() error {
 	return nil
 }
 
-func (orc *Orchestrator) waitForClairService() bool {
-	//status from clair V1 api
-	//https://coreos.com/clair/docs/latest/api_v1.html#get-namespaces
-	clairUrl := "http://clairsvc." + orc.ExecutionConfig.KubeiNamespace + ":6060/v1/namespaces"
-	log.Infof("Waiting for clairsvc to be ready. clairsvc URL: %v", clairUrl)
-	ready := orc.waitForServiceToBeReady(clairUrl)
-	return ready
-}
-
-func (orc *Orchestrator) waitForServiceToBeReady(url string) bool {
-	for i := 0; i < 30; i++ { //30 * 10s = 300s = 5m
-		if orc.testConnection(url) {
-			log.Infof("Service is ready! url: %s", url)
-			return true
-		}
-		time.Sleep(10 * time.Second)
-	}
-
-	return false
-}
-
-func (orc *Orchestrator) testConnection(url string) bool {
-	response, err := http.Get(url)
-
-	if err != nil {
-		log.Debugf("Got error in namespaces uri : %v", err)
-		log.Info("clair is still unavailable. Trying again...")
-
-		return false
-	}
-
-	defer response.Body.Close()
-
-	log.Infof("status code: %v", response.StatusCode)
-	return response.StatusCode == http.StatusOK
-}
-
 /******************************************************* PUBLIC *******************************************************/
 
 func Init(executionConfig *common.ExecutionConfiguration, dataUpdateLock *sync.Mutex, imageK8ExtendedContextMap common.ImageK8ExtendedContextMap, scanIssuesMessages *[]string, batchCompletedScansCount *int32) *Orchestrator {
@@ -369,12 +331,6 @@ func Init(executionConfig *common.ExecutionConfiguration, dataUpdateLock *sync.M
 }
 
 func (orc *Orchestrator) Scan() {
-	ready := orc.waitForClairService()
-	if !ready {
-		log.Error("Failed to execute scan. Clair is not answering...")
-		return
-	}
-
 	err := orc.executeScan()
 	if err != nil {
 		log.Errorf("Failed to execute scan. %v", err)

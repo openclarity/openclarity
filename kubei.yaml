@@ -13,7 +13,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: kubei-role
+  name: kubei
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
@@ -28,7 +28,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: kubei-binding
+  name: kubei
 subjects:
 - kind: ServiceAccount
   name: kubei
@@ -36,12 +36,12 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kubei-role
+  name: kubei
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: clairsvc
+  name: clair
   namespace: kubei
   labels:
     app: clair
@@ -50,10 +50,10 @@ spec:
   ports:
   - port: 6060
     protocol: TCP
-    name: clair-port0
+    name: apiserver
   - port: 6061
     protocol: TCP
-    name: clair-port1
+    name: health
   selector:
     app: clair
 ---
@@ -91,7 +91,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: db-port
+    - name: db
       port: 5432
       protocol: TCP
   selector:
@@ -119,8 +119,6 @@ spec:
         image: gcr.io/portshift-release/clair/clair-db
         ports:
         - containerPort: 5432
-          name: postgres-port
-          protocol: TCP       
 ---
 apiVersion: v1
 kind: Service
@@ -138,40 +136,59 @@ spec:
   selector:
     app: kubei
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: kubei
   namespace: kubei
   labels:
     app: kubei
 spec:
-    serviceAccountName: kubei
-    containers:
-    - name: kubei
-      image: gcr.io/development-infra-208909/kubei
-      env:
-      - name: "MY-POD-NAMESPACE" # immutable. 
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.namespace   
-      - name: "LISTENING_PORT" # defaults to 8080. 
-        value: "8080"   
-      - name: MAX_PARALLELISM # max number of scans that will run simultaneously. defaults to 1
-        value: "10"
-      - name: "TARGET_NAMESPACE" # empty = scan all namespaces
-        value: "" 
-      - name: "CLAIR_OUTPUT" # = minimum level of vulnerability to report. defaults to MEDIUM
-        value: "UNKNOWN"   
-      - name: "IGNORE_KUBE_SYSTEM" # defaults to true
-        value: "false"   
-      - name: "IGNORE_NAMESPACES" # a list of namespaces to ignore. defaults no namespace to ignore
-        value: "istio-system,kube-system"
-      - name: "KLAR_TRACE" # should Klar run as in Trace log level. defaults to false
-        value: "false"  
-      - name: "WHITELIST_FILE" # path to the YAML file with the CVE whitelist. Look at whitelist-example.yaml for the file format. defaults to empty (= no file)
-        value: ""   
-      ports:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubei
+  template:
+    metadata:
+      labels:
+        app: kubei
+    spec:
+      serviceAccountName: kubei
+      initContainers:
+      - name: init-clairsvc
+        image: yauritux/busybox-curl
+        args:
+          - /bin/sh
+          - -c
+          - >
+            set -x;
+            while [ $(curl -sw '%{http_code}' "http://clair.kubei:6060/v1/namespaces" -o /dev/null) -ne 200 ]; do
+              echo "waiting for clair to be ready";
+              sleep 15;
+            done
+      containers:
+      - name: kubei
+        image: gcr.io/development-infra-208909/kubei
+        env:
+        - name: "MY-POD-NAMESPACE" # immutable.
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: "LISTENING_PORT" # defaults to 8080.
+          value: "8080"
+        - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 1
+          value: "10"
+        - name: "TARGET_NAMESPACE" # empty = scan all namespaces
+          value: ""
+        - name: "CLAIR_OUTPUT" # = minimum level of vulnerability to report. defaults to MEDIUM
+          value: "UNKNOWN"
+        - name: "IGNORE_NAMESPACES" # a list of namespaces to ignore. defaults no namespace to ignore
+          value: "istio-system,kube-system"
+        - name: "KLAR_TRACE" # should Klar run as in Trace log level. defaults to false
+          value: "false"
+        - name: "WHITELIST_FILE" # path to the YAML file with the CVE whitelist. Look at whitelist-example.yaml for the file format. defaults to empty (= no file)
+          value: ""
+        ports:
         - containerPort: 8080
 
 
