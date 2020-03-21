@@ -25,7 +25,7 @@ RUN touch /usr/local/portshift/db
 
 RUN chmod +rw /usr/local/portshift/db
 
-COPY ./view.html /usr/local/portshift/
+COPY pkg/webapp/view.html /usr/local/portshift/
 
 RUN chmod +rw /usr/local/portshift/view.html
 
