@@ -12,8 +12,9 @@ type K8ContextServiceInterface interface {
 }
 
 type K8ContextService struct {
-	ExecutionConfig        *ExecutionConfiguration
+	Clientset              kubernetes.Interface
 	K8ContextSecretService K8ContextSecretServiceInterface
+	IgnoreNamespaceList    []string
 }
 
 type K8ContextSecretServiceInterface interface {
@@ -39,17 +40,6 @@ type ViewData struct {
 	ShowGoMsg            bool                               `json:"showGoMsg"`
 	ShowGoWarning        bool                               `json:"ShowGoWarning"`
 	LastScannedNamespace string                             `json:"lastScannedNamespace"`
-}
-
-type ExecutionConfiguration struct {
-	Clientset        *kubernetes.Clientset `json:"clientset"`
-	Parallelism      int                   `json:"parallelism"`
-	KubeiNamespace   string                `json:"kubeiNamespace"`
-	TargetNamespace  string                `json:"targetNamespace"`
-	ClairOutput      string                `json:"clairOutput"`
-	WhitelistFile    string                `json:"whitelistFile"`
-	IgnoreNamespaces []string              `json:"IgnoreNamespaces"`
-	KlarTrace        bool                  `json:"klarTrace"`
 }
 
 type ContextualVulnerability struct {

@@ -20,12 +20,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 		}
 	}).AnyTimes()
 
-
-	type fields struct {
-		ExecutionConfig *ExecutionConfiguration
-	}
-
-
 	type args struct {
 		orchestratorImageK8ExtendedContextMap ImageK8ExtendedContextMap
 		pod                                   *corev1.Pod
@@ -79,7 +73,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 
 	tests := []struct {
 		name                     string
-		fields                   fields
 		args                     args
 		imageNamespacesMap       ImageNamespacesMap
 		namespacedImageSecretMap NamespacedImageSecretMap
@@ -88,9 +81,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 	}{
 		{
 			name: "test image namespace map",
-			fields: fields{
-				ExecutionConfig: &ExecutionConfiguration{},
-			},
 			args:                     testInitialArgs,
 			imageNamespacesMap:       ImageNamespacesMap{"ns1": []ContainerImageName{"image1", "image2","image3"}},
 			namespacedImageSecretMap: nil,
@@ -99,9 +89,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 		},
 		{
 			name: "test namespaced image secret map",
-			fields: fields{
-				ExecutionConfig: &ExecutionConfiguration{},
-			},
 			args:                     testInitialArgs,
 			imageNamespacesMap:       nil,
 			namespacedImageSecretMap: NamespacedImageSecretMap{"image1_ns1": "secret 1", "image2_ns1": "secret 1", "image3_ns1": "secret 2"},
@@ -110,9 +97,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 		},
 		{
 			name: "test container images set (scan each image once)",
-			fields: fields{
-				ExecutionConfig: &ExecutionConfiguration{},
-			},
 			args:                     testInitialArgs,
 			imageNamespacesMap:       nil,
 			namespacedImageSecretMap: nil,
@@ -121,9 +105,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 		},
 		{
 			name: "test containers count (count container even if same image)",
-			fields: fields{
-				ExecutionConfig: &ExecutionConfiguration{},
-			},
 			args:                     testInitialArgs,
 			imageNamespacesMap:       nil,
 			namespacedImageSecretMap: nil,
@@ -135,7 +116,6 @@ func TestK8ContextService_GetK8ContextFromContainer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			kcs := &K8ContextService{
-				ExecutionConfig:        tt.fields.ExecutionConfig,
 				K8ContextSecretService: mockK8ContextSecretService,
 			}
 			got, got1, got2, got3 := kcs.GetK8ContextFromContainer(tt.args.orchestratorImageK8ExtendedContextMap, tt.args.pod, tt.args.imageNamespacesMap, tt.args.namespacedImageSecretMap, tt.args.containerImagesSet, tt.args.totalContainers)
