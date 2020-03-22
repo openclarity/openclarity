@@ -9,17 +9,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 	credprovsecrets "k8s.io/kubernetes/pkg/credentialprovider/secrets"
+	slice_utils "kubei/pkg/utils/slice"
 )
 
-func AppendStringIfMissing(list []string, candidate string) []string {
-	for _, ele := range list {
-		if ele == candidate {
-			return list
-		}
-	}
-	list = append(list, candidate)
-	return list
-}
+// ################################ TODO: remove this file!!! #######################################
 
 func AppendContainerImageNameIfMissing(list []ContainerImageName, candidate ContainerImageName) []ContainerImageName {
 	for _, ele := range list {
@@ -31,17 +24,8 @@ func AppendContainerImageNameIfMissing(list []ContainerImageName, candidate Cont
 	return list
 }
 
-func ContainsString(list []string, imageName string) bool {
-	for _, a := range list {
-		if a == imageName {
-			return true
-		}
-	}
-	return false
-}
-
 func (kcs *K8ContextService) GetK8ContextFromContainer(orchestratorImageK8ExtendedContextMap ImageK8ExtendedContextMap, pod *corev1.Pod, imageNamespacesMap ImageNamespacesMap, namespacedImageSecretMap NamespacedImageSecretMap, containerImagesSet map[ContainerImageName]bool, totalContainers int) (ImageNamespacesMap, NamespacedImageSecretMap, map[ContainerImageName]bool, int) {
-	if kcs.shouldIgnore(pod) {
+	if shouldIgnore(pod, kcs.IgnoreNamespaceList) {
 		return imageNamespacesMap, namespacedImageSecretMap, containerImagesSet, totalContainers
 	}
 
@@ -98,7 +82,7 @@ func (kcss *K8ContextSecretService) GetMatchingSecretName(secrets []corev1.Secre
 func (kcs *K8ContextService) GetPodImagePullSecrets(pod corev1.Pod) []corev1.Secret {
 	var secrets []corev1.Secret
 	for _, secretName := range pod.Spec.ImagePullSecrets {
-		secret, err := kcs.ExecutionConfig.Clientset.CoreV1().Secrets(pod.Namespace).Get(secretName.Name, metav1.GetOptions{})
+		secret, err := kcs.Clientset.CoreV1().Secrets(pod.Namespace).Get(secretName.Name, metav1.GetOptions{})
 		if err != nil {
 			log.Warnf("Failed to get secret %s in namespace %s. %+v", secretName.Name, pod.Namespace, err)
 			continue
@@ -108,8 +92,8 @@ func (kcs *K8ContextService) GetPodImagePullSecrets(pod corev1.Pod) []corev1.Sec
 	return secrets
 }
 
-func (kcs *K8ContextService) shouldIgnore(pod *corev1.Pod) bool {
-	if ContainsString(kcs.ExecutionConfig.IgnoreNamespaces, pod.Namespace) {
+func shouldIgnore(pod *corev1.Pod, ignoredNamespaces []string) bool {
+	if slice_utils.ContainsString(ignoredNamespaces, pod.Namespace) {
 		log.Infof("Skipping scan of pod: %s from namespace: %s. Namespace is in IGNORE_NAMESPACES list", pod.Name, pod.Namespace)
 		return true
 

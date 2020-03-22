@@ -6,6 +6,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kubei/pkg/common"
+	"kubei/pkg/config"
 	"strings"
 	"sync"
 	"testing"
@@ -22,7 +23,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 	type fields struct {
 		ImageK8ExtendedContextMap common.ImageK8ExtendedContextMap
 		DataUpdateLock            *sync.Mutex
-		ExecutionConfig           *common.ExecutionConfiguration
+		ExecutionConfig           *config.Config
 		k8ContextService          *common.K8ContextService
 		scanIssuesMessages        *[]string
 		batchCompletedScansCount  *int32
@@ -78,14 +79,13 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 						},
 					},
 				},
-				ExecutionConfig: &common.ExecutionConfiguration{
-					Clientset:        nil,
-					Parallelism:      0,
+				ExecutionConfig: &config.Config{
+					MaxScanParallelism:      0,
 					KubeiNamespace:   "kubei",
 					TargetNamespace:  "ns1",
-					ClairOutput:      "HIGH",
-					WhitelistFile:    "",
-					IgnoreNamespaces: nil,
+					ClairScanThreshold:      "HIGH",
+					WhitelistFilePath:    "",
+					IgnoredNamespaces: nil,
 					KlarTrace:        false,
 				},
 			},
@@ -118,7 +118,7 @@ func TestOrchestrator_buildContainersPart(t *testing.T) {
 			orc := &Orchestrator{
 				ImageK8ExtendedContextMap: tt.fields.ImageK8ExtendedContextMap,
 				DataUpdateLock:            tt.fields.DataUpdateLock,
-				ExecutionConfig:           tt.fields.ExecutionConfig,
+				config:                    tt.fields.ExecutionConfig,
 				k8ContextService:          tt.fields.k8ContextService,
 				scanIssuesMessages:        tt.fields.scanIssuesMessages,
 				batchCompletedScansCount:  tt.fields.batchCompletedScansCount,
@@ -166,7 +166,7 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 	type fields struct {
 		ImageK8ExtendedContextMap common.ImageK8ExtendedContextMap
 		DataUpdateLock            *sync.Mutex
-		ExecutionConfig           *common.ExecutionConfiguration
+		ExecutionConfig           *config.Config
 		k8ContextService          *common.K8ContextService
 		scanIssuesMessages        *[]string
 		batchCompletedScansCount  *int32
@@ -226,13 +226,13 @@ func TestOrchestrator_createJobDefinition(t *testing.T) {
 			orc := &Orchestrator{
 				ImageK8ExtendedContextMap: tt.fields.ImageK8ExtendedContextMap,
 				DataUpdateLock:            tt.fields.DataUpdateLock,
-				ExecutionConfig:           tt.fields.ExecutionConfig,
+				config:                    tt.fields.ExecutionConfig,
 				k8ContextService:          tt.fields.k8ContextService,
 				scanIssuesMessages:        tt.fields.scanIssuesMessages,
 				batchCompletedScansCount:  tt.fields.batchCompletedScansCount,
 			}
 
-			got := orc.createJobDefinition(tt.args.jobName, tt.args.imageNamespace, tt.args.labels, tt.args.containers, tt.args.backOffLimit, tt.args.ttlSecondsAfterFinished)
+			got := orc.createJobDefinition(tt.args.jobName, tt.args.imageNamespace, tt.args.containers, tt.args.backOffLimit, tt.args.ttlSecondsAfterFinished)
 			assert.Equal(t, got.Name, tt.want.Name)
 			assert.Equal(t, got.Namespace, tt.want.Namespace)
 			assert.DeepEqual(t, got.TypeMeta, tt.want.TypeMeta)

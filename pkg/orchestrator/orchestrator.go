@@ -8,7 +8,11 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"kubei/pkg/common"
+	"kubei/pkg/config"
+	k8s_utils "kubei/pkg/utils/k8s"
+	slice_utils "kubei/pkg/utils/slice"
 	"os"
 	"strconv"
 	"strings"
@@ -20,10 +24,11 @@ import (
 type Orchestrator struct {
 	ImageK8ExtendedContextMap common.ImageK8ExtendedContextMap
 	DataUpdateLock            *sync.Mutex
-	ExecutionConfig           *common.ExecutionConfiguration
+	config                    *config.Config
 	scanIssuesMessages        *[]string
 	batchCompletedScansCount  *int32
 	k8ContextService          common.K8ContextServiceInterface
+	clientset                 kubernetes.Interface
 }
 
 type OrchestratorInterface interface {
@@ -49,15 +54,15 @@ func (orc *Orchestrator) getPodsImagesDetails(pods []corev1.Pod) (common.ImageNa
 }
 
 func (orc *Orchestrator) getImageDetails() (common.ImageNamespacesMap, common.NamespacedImageSecretMap, error) {
-	podList, err := orc.ExecutionConfig.Clientset.CoreV1().Pods(orc.ExecutionConfig.TargetNamespace).List(metav1.ListOptions{})
+	podList, err := orc.clientset.CoreV1().Pods(orc.config.TargetNamespace).List(metav1.ListOptions{})
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to list pods in namespace %s: %v", orc.ExecutionConfig.TargetNamespace, err)
+		return nil, nil, fmt.Errorf("failed to list pods in namespace %s: %v", orc.config.TargetNamespace, err)
 	}
 
 	pods := podList.Items
 	imageNamespacesMap, namespacedImageSecretMap, err := orc.getPodsImagesDetails(pods)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get image details in namespace %s: %v", orc.ExecutionConfig.TargetNamespace, err)
+		return nil, nil, fmt.Errorf("failed to get image details in namespace %s: %v", orc.config.TargetNamespace, err)
 	}
 
 	orc.printAllImages()
@@ -67,7 +72,7 @@ func (orc *Orchestrator) getImageDetails() (common.ImageNamespacesMap, common.Na
 
 func (orc *Orchestrator) waitForServiceAccount(serviceAccountName string, namespace string) bool {
 	for i := 0; i < 30; i++ { //30 * 1s = 30s = 0.5m
-		response, _ := orc.ExecutionConfig.Clientset.CoreV1().ServiceAccounts(namespace).Get(serviceAccountName, metav1.GetOptions{})
+		response, _ := orc.clientset.CoreV1().ServiceAccounts(namespace).Get(serviceAccountName, metav1.GetOptions{})
 		if response != nil {
 			log.Debugf("Service account kubei in namespace %s is ready!", namespace)
 			return true
@@ -97,7 +102,7 @@ func (orc *Orchestrator) createJob(imageNamespace string, batchNum int, batch []
 	var backOffLimit int32
 	backOffLimit = 0
 	jobDefinition := orc.createJobDefinition(jobName, imageNamespace, containers, backOffLimit, ttlSecondsAfterFinished)
-	_, err := orc.ExecutionConfig.Clientset.BatchV1().Jobs(imageNamespace).Create(jobDefinition)
+	_, err := orc.clientset.BatchV1().Jobs(imageNamespace).Create(jobDefinition)
 	if err != nil {
 		log.Errorf("failed to create jobs in namespace: %s. %v", imageNamespace, err)
 		return err
@@ -137,19 +142,19 @@ func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []stri
 	log.Infof("Processing batch of images:[")
 	orc.printBatch(batch, startPoint)
 	for _, image := range batch {
-		if common.ContainsString(scannedImageNames, image) {
+		if slice_utils.ContainsString(scannedImageNames, image) {
 			continue
 		}
 		k8ExtendedContexts := orc.ImageK8ExtendedContextMap[common.ContainerImageName(image)]
 		if k8ExtendedContexts != nil {
 			secretName := namespacedImageSecretMap[image+"_"+imageNamespace]
 			containerName := orc.getKubernetesCompliantContainerName(common.ContainerImageName(image))
-			clairServiceAddress := "clairsvc." + orc.ExecutionConfig.KubeiNamespace
+			clairServiceAddress := "clairsvc." + orc.config.KubeiNamespace
 			env := []corev1.EnvVar{
 				{Name: "CLAIR_ADDR", Value: clairServiceAddress},
-				{Name: "CLAIR_OUTPUT", Value: orc.ExecutionConfig.ClairOutput},
-				{Name: "KLAR_TRACE", Value: strconv.FormatBool(orc.ExecutionConfig.KlarTrace)},
-				{Name: "WHITELIST_FILE", Value: orc.ExecutionConfig.WhitelistFile},
+				{Name: "CLAIR_OUTPUT", Value: orc.config.ClairScanThreshold},
+				{Name: "KLAR_TRACE", Value: strconv.FormatBool(orc.config.KlarTrace)},
+				{Name: "WHITELIST_FILE", Value: orc.config.WhitelistFilePath},
 			}
 			if secretName != "" {
 				log.Debugf("Adding private registry credentials to image: %s", image)
@@ -185,7 +190,7 @@ func (orc *Orchestrator) buildContainersPart(imageNamespace string, batch []stri
 func (orc *Orchestrator) getDistinctUnscannedImagesForBatch(batch []common.ContainerImageName, scannedImageNames []string) []string {
 	var distinctUnscannedImages []string
 	for _, imageName := range batch {
-		if !common.ContainsString(scannedImageNames, string(imageName)) && !common.ContainsString(distinctUnscannedImages, string(imageName)) {
+		if !slice_utils.ContainsString(scannedImageNames, string(imageName)) && !slice_utils.ContainsString(distinctUnscannedImages, string(imageName)) {
 			distinctUnscannedImages = append(distinctUnscannedImages, string(imageName))
 		}
 	}
@@ -234,8 +239,8 @@ func (orc *Orchestrator) waitForJobs(batchSize int, timeoutTime time.Time, batch
 func (orc *Orchestrator) runJobs(imageNames []string, imageNamespace string, scannedImageNames []string, namespacedImageSecretMap common.NamespacedImageSecretMap) {
 	totalImages := len(imageNames)
 	batchNum := 1
-	for i := 0; i < totalImages; i += orc.ExecutionConfig.Parallelism {
-		j := i + orc.ExecutionConfig.Parallelism
+	for i := 0; i < totalImages; i += orc.config.MaxScanParallelism {
+		j := i + orc.config.MaxScanParallelism
 		if j > totalImages {
 			j = totalImages
 		}
@@ -281,7 +286,7 @@ func (orc *Orchestrator) createKubeiServiceAccount(imageNamespace string) error 
 		},
 	}
 
-	_, err := orc.ExecutionConfig.Clientset.CoreV1().ServiceAccounts(imageNamespace).Create(kubeiServiceAccount)
+	_, err := orc.clientset.CoreV1().ServiceAccounts(imageNamespace).Create(kubeiServiceAccount)
 	if err != nil {
 		return fmt.Errorf("failed to create service account kubei in namespace %s: %v", imageNamespace, err)
 	}
@@ -305,7 +310,7 @@ func (orc *Orchestrator) executeScan() error {
 	}
 
 	for imageNamespace, imageNames := range imageNamespacesMap { //scan by namespace
-		if imageNamespace != orc.ExecutionConfig.KubeiNamespace { //if not our own namespace
+		if imageNamespace != orc.config.KubeiNamespace { //if not our own namespace
 			distinctUnscannedImages := orc.getDistinctUnscannedImagesForBatch(imageNames, scannedImageNames)
 			orc.runJobs(distinctUnscannedImages, imageNamespace, scannedImageNames, namespacedImageSecretMap)
 		}
@@ -316,18 +321,29 @@ func (orc *Orchestrator) executeScan() error {
 
 /******************************************************* PUBLIC *******************************************************/
 
-func Init(executionConfig *common.ExecutionConfiguration, dataUpdateLock *sync.Mutex, imageK8ExtendedContextMap common.ImageK8ExtendedContextMap, scanIssuesMessages *[]string, batchCompletedScansCount *int32) *Orchestrator {
+func Init(config *config.Config, dataUpdateLock *sync.Mutex, imageK8ExtendedContextMap common.ImageK8ExtendedContextMap, scanIssuesMessages *[]string, batchCompletedScansCount *int32) *Orchestrator {
 	return &Orchestrator{
 		ImageK8ExtendedContextMap: imageK8ExtendedContextMap,
 		DataUpdateLock:            dataUpdateLock,
-		ExecutionConfig:           executionConfig,
+		config:                    config,
 		scanIssuesMessages:        scanIssuesMessages,
 		batchCompletedScansCount:  batchCompletedScansCount,
-		k8ContextService: &common.K8ContextService{
-			ExecutionConfig:        executionConfig,
-			K8ContextSecretService: &common.K8ContextSecretService{},
-		},
 	}
+}
+
+func (orc *Orchestrator) Start() error {
+	clientset, err := k8s_utils.CreateClientset()
+	if err != nil {
+		return fmt.Errorf("Failed to create clientset: %v", err)
+	}
+	orc.clientset = clientset
+	orc.k8ContextService = &common.K8ContextService{
+		Clientset:                 clientset,
+		K8ContextSecretService: &common.K8ContextSecretService{},
+		IgnoreNamespaceList: orc.config.IgnoredNamespaces,
+	}
+
+	return nil
 }
 
 func (orc *Orchestrator) Scan() {

@@ -8,7 +8,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"html/template"
 	"kubei/pkg/common"
+	"kubei/pkg/config"
 	"kubei/pkg/orchestrator"
+	slice_utils "kubei/pkg/utils/slice"
 	"net/http"
 	"os"
 	"sort"
@@ -28,7 +30,7 @@ var templates = template.Must(template.ParseFiles(htmlPath))
 type Webapp struct {
 	kubeiOrchestrator        *orchestrator.Orchestrator
 	goExecutionLock          *sync.Mutex
-	executionConfig          *common.ExecutionConfiguration
+	executionConfig          *config.Config
 	batchCompletedScansCount *int32
 	showGoMsg                bool
 	showGoWarning            bool
@@ -193,7 +195,7 @@ func (wa *Webapp) addHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Debugf("Received an 'add' request for image %s", newImageVulnerabilities.Image)
 	if !newImageVulnerabilities.Success {
-		*wa.scanIssuesMessages = common.AppendStringIfMissing(*wa.scanIssuesMessages, "Scan of image "+newImageVulnerabilities.Image+" has failed! See container logs for more info.")
+		*wa.scanIssuesMessages = slice_utils.AppendStringIfMissing(*wa.scanIssuesMessages, "Scan of image "+newImageVulnerabilities.Image+" has failed! See container logs for more info.")
 	} else {
 		log.Debugf("Scan of image %s is done!", newImageVulnerabilities.Image)
 	}
@@ -293,17 +295,17 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 
 /******************************************************* PUBLIC *******************************************************/
 
-func Init(executionConfiguration *common.ExecutionConfiguration) *Webapp {
+func Init(config *config.Config) *Webapp {
 	var batchCompletedScansCount int32 = 0
 	var scanIssuesMessages []string
 	goExecutionLock := sync.Mutex{}
 	dataUpdateLock := sync.Mutex{}
 	var imageK8ExtendedContextMap = make(common.ImageK8ExtendedContextMap)
-	kubeiOrchestrator := orchestrator.Init(executionConfiguration, &dataUpdateLock, imageK8ExtendedContextMap, &scanIssuesMessages, &batchCompletedScansCount)
+	kubeiOrchestrator := orchestrator.Init(config, &dataUpdateLock, imageK8ExtendedContextMap, &scanIssuesMessages, &batchCompletedScansCount)
 	return &Webapp{
 		kubeiOrchestrator:        kubeiOrchestrator,
 		goExecutionLock:          &goExecutionLock,
-		executionConfig:          executionConfiguration,
+		executionConfig:          config,
 		batchCompletedScansCount: &batchCompletedScansCount,
 		showGoMsg:                false,
 		showGoWarning:            false,
@@ -317,6 +319,8 @@ func Init(executionConfiguration *common.ExecutionConfiguration) *Webapp {
 
 func (wa *Webapp) Run() {
 	log.Infof("RUNNING...")
+	wa.kubeiOrchestrator.Start()
+
 	http.HandleFunc("/add/", wa.addHandler)
 	http.HandleFunc("/view/", wa.viewHandler)
 	http.HandleFunc("/clear/", wa.clearHandler)
