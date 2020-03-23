@@ -9,7 +9,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 ## Prerequisites 
 
-1. Kubernetes cluster is ready and kubeconfig ( ```~/.kube/config```) is properly configured for the target cluster.
+1. A Kubernetes cluster is ready, and kubeconfig ( ```~/.kube/config```) is properly configured for the target cluster.
 
 ## Configurations 
 
@@ -17,7 +17,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 ![](images/kubei-config.png)   
 
-1. Set the scan scope. Set the parameter ```ignore namespaces``` to ignore specific namespaces.
+2. Set the scan scope. Set the parameter ```ignore namespaces``` to ignore specific namespaces.
 
 1. Set the scan speed. Expedite scanning by running parallel scanners. Set the ```max-parallelism``` field for the maximum number of simultaneous scanners.
 
