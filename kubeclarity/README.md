@@ -28,7 +28,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 1. Run the following command to deploy Kubei on the cluster:
 
     `
-    kubectl apply -f https://raw.githubusercontent.com/Portshift/kubei/master/deplyou/kubei.yaml
+    kubectl apply -f https://raw.githubusercontent.com/Portshift/kubei/master/deploy/kubei.yaml
     `
 
 2. Run the following command to verify that Kubi is up and running:
