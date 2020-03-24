@@ -23,7 +23,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 3. Set severity level threshold. Vulnerabilities with severity level higher than or equal to `SEVERITY_THRESHOLD` threshold will be reported. Supported levels are `Unknown`, `Negligible`, `Low`, `Medium`, `High`, `Critical`, `Defcon1`. Default is `Medium`.
 
-## Use 
+## Usage 
 
 1. Run the following command to deploy Kubei on the cluster:
 
