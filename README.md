@@ -31,7 +31,7 @@ It provides a graphical UI which allows the viewer to identify where and what sh
     kubectl apply -f https://raw.githubusercontent.com/Portshift/kubei/master/deploy/kubei.yaml
     `
 
-2. Run the following command to verify that Kubi is up and running:
+2. Run the following command to verify that Kubei is up and running:
 
     `
     kubectl -n kubei get pod -lapp=kubei
