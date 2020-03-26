@@ -3,10 +3,10 @@ package webapp
 import (
 	"fmt"
 	"github.com/Portshift/klar/clair"
+	"github.com/Portshift/kubei/pkg/config"
+	"github.com/Portshift/kubei/pkg/orchestrator"
 	log "github.com/sirupsen/logrus"
 	"html/template"
-	"kubei/pkg/config"
-	"kubei/pkg/orchestrator"
 	"net/http"
 	"sort"
 	"strings"
@@ -23,6 +23,7 @@ var templates = template.Must(template.ParseFiles(htmlPath))
 type Webapp struct {
 	orchestrator         *orchestrator.Orchestrator
 	executionConfig      *config.Config
+	scanConfig           *config.ScanConfig
 	showGoMsg            bool
 	showGoWarning        bool // Warning that previous results will be lost
 	checkShowGoWarning   bool
@@ -123,7 +124,7 @@ func sortVulnerabilities(data []*extendedContextualVulnerability) []*extendedCon
 
 func (wa *Webapp) convertOrchestratorResults(results []*orchestrator.ImageScanResult) []*extendedContextualVulnerability {
 	var extendedContextualVulnerabilities []*extendedContextualVulnerability
-	severityThreshold := getSeverityFromString(wa.executionConfig.SeverityThreshold)
+	severityThreshold := getSeverityFromString(wa.scanConfig.SeverityThreshold)
 	for _, result := range results {
 		metadata := extendedContextualMetadata{
 			Pod:       result.PodName,
@@ -141,7 +142,7 @@ func (wa *Webapp) convertOrchestratorResults(results []*orchestrator.ImageScanRe
 			for _, vulnerability := range result.Vulnerabilities {
 				if getSeverityFromString(vulnerability.Severity) > severityThreshold {
 					log.Debugf("Vulnerability severity below threshold. image=%+v, vulnerability=%+v, threshold=%+v",
-						metadata.Image, vulnerability, wa.executionConfig.SeverityThreshold)
+						metadata.Image, vulnerability, wa.scanConfig.SeverityThreshold)
 					continue
 				}
 				extendedContextualVulnerabilities = append(extendedContextualVulnerabilities, &extendedContextualVulnerability{
@@ -158,10 +159,10 @@ func (wa *Webapp) convertOrchestratorResults(results []*orchestrator.ImageScanRe
 }
 
 func (wa *Webapp) handleGoMsg() {
-	if wa.executionConfig.TargetNamespace == "" {
+	if wa.scanConfig.TargetNamespace == "" {
 		wa.lastScannedNamespace = "all namespaces"
 	} else {
-		wa.lastScannedNamespace = "namespace " + wa.executionConfig.TargetNamespace
+		wa.lastScannedNamespace = "namespace " + wa.scanConfig.TargetNamespace
 	}
 	wa.showGoMsg = true
 	go func() {
@@ -239,7 +240,7 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 	wa.handleGoMsg()
 
 	wa.orchestrator.Clear()
-	err := wa.orchestrator.Scan()
+	err := wa.orchestrator.Scan(wa.scanConfig)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
@@ -249,10 +250,11 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 
 /******************************************************* PUBLIC *******************************************************/
 
-func Init(config *config.Config) *Webapp {
+func Init(config *config.Config, scanConfig *config.ScanConfig) *Webapp {
 	return &Webapp{
 		orchestrator:         orchestrator.Create(config),
 		executionConfig:      config,
+		scanConfig:           scanConfig,
 		showGoMsg:            false,
 		showGoWarning:        false,
 		checkShowGoWarning:   false,
@@ -264,7 +266,7 @@ func Init(config *config.Config) *Webapp {
 func (wa *Webapp) Run() {
 	errChannel := make(chan error, 2)
 	go func() {
-		if err := wa.orchestrator.Start(); err != nil {
+		if err := wa.orchestrator.Start(); err != nil && err != http.ErrServerClosed {
 			errChannel <- fmt.Errorf("failed to start Orchestrator: %v", err)
 		}
 	}()

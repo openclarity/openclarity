@@ -1,18 +1,19 @@
 package orchestrator
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/klar/forwarding"
+	"github.com/Portshift/kubei/pkg/config"
+	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
+	slice_utils "github.com/Portshift/kubei/pkg/utils/slice"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"kubei/pkg/config"
-	k8s_utils "kubei/pkg/utils/k8s"
-	slice_utils "kubei/pkg/utils/slice"
 	"net/http"
 	"sync"
 	"sync/atomic"
@@ -23,12 +24,20 @@ type Orchestrator struct {
 	progress        ScanProgress
 	status          Status
 	config          *config.Config
+	scanConfig      *config.ScanConfig
 	clientset       kubernetes.Interface
+	server          *http.Server
 	sync.Mutex
 }
 
-type OrchestratorInterface interface {
-	Scan()
+type VulnerabilitiesScanner interface {
+	Start() error
+	Scan(scanConfig *config.ScanConfig) error
+	ScanProgress() ScanProgress
+	Status() Status
+	Results() *ScanResults
+	Clear()
+	Stop()
 }
 
 type imagePodContext struct {
@@ -36,6 +45,8 @@ type imagePodContext struct {
 	podName         string
 	namespace       string
 	imagePullSecret string
+	imageHash       string
+	podUid          string
 }
 
 type scanData struct {
@@ -70,26 +81,28 @@ func (o *Orchestrator) initScan() error {
 	o.status = ScanInit
 
 	// Get all target pods
-	podList, err := o.clientset.CoreV1().Pods(o.config.TargetNamespace).List(metav1.ListOptions{})
+	podList, err := o.clientset.CoreV1().Pods(o.scanConfig.TargetNamespace).List(metav1.ListOptions{})
 	if err != nil {
-		return fmt.Errorf("failed to list pods. namespace=%s: %v", o.config.TargetNamespace, err)
+		return fmt.Errorf("failed to list pods. namespace=%s: %v", o.scanConfig.TargetNamespace, err)
 	}
 
 	imageToScanData := make(map[string]*scanData)
 
 	// Populate the image to scanData map from all target pods
 	for _, pod := range podList.Items {
-		if shouldIgnorePod(&pod, o.config.IgnoredNamespaces) {
+		if shouldIgnorePod(&pod, o.scanConfig.IgnoredNamespaces) {
 			continue
 		}
 		secrets := k8s_utils.GetPodImagePullSecrets(o.clientset, pod)
-		for _, container := range pod.Spec.Containers {
+		for _, container := range pod.Status.ContainerStatuses {
 			// Create pod context
 			podContext := &imagePodContext{
 				containerName:   container.Name,
 				podName:         pod.GetName(),
+				podUid:          string(pod.GetUID()),
 				namespace:       pod.GetNamespace(),
-				imagePullSecret: k8s_utils.GetMatchingSecretName(secrets, container),
+				imagePullSecret: k8s_utils.GetMatchingSecretName(secrets, container.Image),
+				imageHash:       k8s_utils.ParseImageHash(container.ImageID),
 			}
 			if data, ok := imageToScanData[container.Image]; !ok {
 				// Image added for the first time, create scan data and append pod context
@@ -119,12 +132,17 @@ func (o *Orchestrator) initScan() error {
 }
 
 func Create(config *config.Config) *Orchestrator {
-	return &Orchestrator{
+	o := &Orchestrator{
 		progress: ScanProgress{},
 		status:   Idle,
 		config:   config,
+		server:   &http.Server{Addr: ":" + config.KlarResultListenPort},
 		Mutex:    sync.Mutex{},
 	}
+
+	http.HandleFunc("/result/", o.resultHttpHandler)
+
+	return o
 }
 
 func readResultBodyData(req *http.Request) (*forwarding.ImageVulnerabilities, error) {
@@ -204,17 +222,27 @@ func (o *Orchestrator) Start() error {
 	if err != nil {
 		return fmt.Errorf("failed to create clientset: %v", err)
 	}
-	o.clientset = clientset
 
+	o.clientset = clientset
 	// Start result server
-	http.HandleFunc("/result/", o.resultHttpHandler)
-	return http.ListenAndServe(":"+o.config.KlarResultListenPort, nil)
+	log.Infof("Starting Orchestrator server")
+	return o.server.ListenAndServe()
 }
 
-func (o *Orchestrator) Scan() error {
+func (o *Orchestrator) Stop() {
+	log.Infof("Stopping Orchestrator server")
+	if o.server != nil {
+		if err := o.server.Shutdown(context.Background()); err != nil {
+			log.Errorf("Failed to shutdown server: %v", err)
+		}
+	}
+}
+
+func (o *Orchestrator) Scan(scanConfig *config.ScanConfig) error {
 	o.Lock()
 	defer o.Unlock()
 
+	o.scanConfig = scanConfig
 	log.Infof("Start scanning...")
 	err := o.initScan()
 	if err != nil {
@@ -263,6 +291,8 @@ type ImageScanResult struct {
 	PodNamespace    string
 	ImageName       string
 	ContainerName   string
+	ImageHash       string
+	PodUid          string
 	Vulnerabilities []*clair.Vulnerability
 	Success         bool
 }
@@ -287,6 +317,8 @@ func (o *Orchestrator) Results() *ScanResults {
 				PodNamespace:    context.namespace,
 				ImageName:       scanD.imageName,
 				ContainerName:   context.containerName,
+				ImageHash:       context.imageHash,
+				PodUid:          context.podUid,
 				Vulnerabilities: scanD.result,
 				Success:         scanD.success,
 			})

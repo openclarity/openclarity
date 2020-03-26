@@ -1,40 +1,19 @@
-module kubei
+module github.com/Portshift/kubei
 
 go 1.13
 
 require (
-	github.com/Portshift/klar v1.9.10-0.20200322185238-4569552b9003
-	github.com/cloudflare/cfssl v0.0.0-20180726162950-56268a613adf // indirect
-	github.com/containers/storage v1.16.0 // indirect
-	github.com/coreos/rkt v1.30.0 // indirect
-	github.com/docker/distribution v2.7.1+incompatible
-	github.com/docker/docker v1.13.1 // indirect
-	github.com/docker/docker-credential-helpers v0.6.3 // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
-	github.com/docker/go-metrics v0.0.1 // indirect
-	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
-	github.com/fernet/fernet-go v0.0.0-20151007213151-1b2437bc582b // indirect
-	github.com/godbus/dbus v4.1.0+incompatible // indirect
-	github.com/golang/mock v1.2.0
-	github.com/google/certificate-transparency-go v1.0.21 // indirect
-	github.com/gorilla/mux v1.7.4 // indirect
-	github.com/guregu/null v3.0.2-0.20160228005316-41961cea0328+incompatible // indirect
-	github.com/heketi/rest v0.0.0-20180404230133-aa6a65207413 // indirect
-	github.com/heketi/utils v0.0.0-20170317161834-435bc5bdfa64 // indirect
-	github.com/lib/pq v0.0.0-20170324204654-2704adc878c2 // indirect
-	github.com/remind101/migrate v0.0.0-20160423010909-d22d647232c2 // indirect
+	github.com/Portshift/klar v1.9.10-0.20200324130907-00206514ae5e
+	github.com/containers/image v3.0.2+incompatible
 
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.3.2
-	github.com/tylerb/graceful v1.2.15 // indirect
-	github.com/xlab/handysort v0.0.0-20150421192137-fb3537ed64a1 // indirect
-	gotest.tools v2.2.0+incompatible
+	golang.org/x/sys v0.0.0-20191115151921-52ab43148777 // indirect
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.17.3
 	k8s.io/kubernetes v1.17.3
-	vbom.ml/util v0.0.0-20160121211510-db5cfe13f5cc // indirect
 )
 
 replace (
