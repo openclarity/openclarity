@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"github.com/docker/distribution/reference"
+	"github.com/containers/image/docker/reference"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -9,6 +9,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 	credprovsecrets "k8s.io/kubernetes/pkg/credentialprovider/secrets"
+	"strings"
 )
 
 const MaxK8sJobName = 63
@@ -42,7 +43,7 @@ func GetPodImagePullSecrets(clientset kubernetes.Interface, pod corev1.Pod) []*c
 	return secrets
 }
 
-func GetMatchingSecretName(secrets []*corev1.Secret, container corev1.Container) string {
+func GetMatchingSecretName(secrets []*corev1.Secret, imageName string) string {
 	for _, secret := range secrets {
 		slice := []corev1.Secret{*secret}
 		var singleSecretKeyRing = credentialprovider.NewDockerKeyring()
@@ -50,7 +51,7 @@ func GetMatchingSecretName(secrets []*corev1.Secret, container corev1.Container)
 		if err != nil {
 			return ""
 		}
-		namedImageRef, err := reference.ParseNormalizedNamed(container.Image)
+		namedImageRef, err := reference.ParseNormalizedNamed(imageName)
 		if err != nil {
 			return ""
 		}
@@ -61,4 +62,16 @@ func GetMatchingSecretName(secrets []*corev1.Secret, container corev1.Container)
 	}
 
 	return ""
+}
+
+// example: for "docker-pullable://gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa"
+// returns 6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
+func ParseImageHash(imageID string) string {
+	index := strings.LastIndex(imageID, ":")
+	if index == -1 {
+		log.Warnf("failed to parse image hash. image id=%v", imageID)
+		return ""
+	}
+
+	return imageID[index+1:]
 }
