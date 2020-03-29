@@ -158,7 +158,10 @@ func (o *Orchestrator) createJob(data *scanData) *batchv1.Job {
 	podContext := data.contexts[0]
 
 	labels := map[string]string{ignorePodScanLabelKey: ignorePodScanLabelValue}
-	annotations := map[string]string{"sidecar.istio.io/inject": "false"}
+	annotations := map[string]string{
+		"sidecar.istio.io/inject": "false",
+		"sidecar.portshift.io/inject": "false",
+	}
 
 	return &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
