@@ -219,7 +219,7 @@
             {{ end}}
             <td>{{ .Image }}</td>
             {{if .Succeeded}}
-                <td>{{ .Vulnerability.FeatureVersion }}</td>
+                <td>{{ .Vulnerability.FeatureName }}:{{ .Vulnerability.FeatureVersion }}</td>
             {{ else}}
                 <td></td>
             {{ end}}
