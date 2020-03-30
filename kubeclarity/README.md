@@ -11,6 +11,12 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 1. A Kubernetes cluster is ready, and kubeconfig ( `~/.kube/config`) is properly configured for the target cluster.
 
+## Required permissions
+
+1. Read secrets in cluster scope. This is required for getting image pull secrets for scanning private image repositories.
+2. List pods in cluster scope. This is required for calculating the target pods that need to be scanned.
+3. Create jobs in cluster scope. This is required for creating the jobs that will scan the target pods in their namespaces.
+
 ## Configurations 
 
 1. The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your cluster.
