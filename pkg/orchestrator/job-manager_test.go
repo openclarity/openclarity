@@ -1,6 +1,9 @@
 package orchestrator
 
-import "testing"
+import (
+	"k8s.io/apimachinery/pkg/util/validation"
+	"testing"
+)
 
 func Test_getSimpleImageName(t *testing.T) {
 	type args struct {
@@ -50,7 +53,45 @@ func Test_getSimpleImageName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getSimpleImageName(tt.args.imageName); got != tt.want {
-				t.Errorf("createJobName() = %v, want %v", got, tt.want)
+				t.Errorf("getSimpleImageName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_createJobName(t *testing.T) {
+	type args struct {
+		imageName string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "trim right '-' that left from the uuid after name was truncated due to max len",
+			args: args{
+				imageName: "stackdriver-logging-agent",
+			},
+		},
+		{
+			name: "lower case",
+			args: args{
+				imageName: "LowerCase",
+			},
+		},
+		{
+			name: "underscore",
+			args: args{
+				imageName: "under_score",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := createJobName(tt.args.imageName)
+			errs := validation.IsDNS1123Label(got)
+			if len(errs) != 0 {
+				t.Errorf("createJobName() = name is not valid. got=%v, errs=%+v", got, errs)
 			}
 		})
 	}

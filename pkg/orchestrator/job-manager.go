@@ -109,11 +109,33 @@ func getSimpleImageName(imageName string) string {
 	if tagStart != -1 {
 		imageName = imageName[:tagStart]
 	}
-	return strings.ReplaceAll(imageName, "_", "-")
+	return imageName
 }
 
+// Job names require their names to follow the DNS label standard as defined in RFC 1123
+// Note: job name is added as a label to the pod template spec so it should follow the DNS label standard and not just DNS-1123 subdomain
+//
+// This means the name must:
+// * contain at most 63 characters
+// * contain only lowercase alphanumeric characters or ‘-’
+// * start with an alphanumeric character
+// * end with an alphanumeric character
 func createJobName(imageName string) string {
-	return stringutils.TruncateString(jobContainerName+"-"+getSimpleImageName(imageName)+"-"+uuid.NewV4().String(), k8s.MaxK8sJobName)
+	jobName := jobContainerName+"-"+getSimpleImageName(imageName)+"-"+uuid.NewV4().String()
+
+	// contain at most 63 characters
+	jobName = stringutils.TruncateString(jobName, k8s.MaxK8sJobName)
+
+	// contain only lowercase alphanumeric characters or ‘-’
+	jobName = strings.ToLower(jobName)
+	jobName = strings.ReplaceAll(jobName, "_", "-")
+
+	// no need to validate start, we are using 'jobContainerName'
+
+	// end with an alphanumeric character
+	jobName = strings.TrimRight(jobName, "-")
+
+	return jobName
 }
 
 const jobContainerName = "klar-scanner"
