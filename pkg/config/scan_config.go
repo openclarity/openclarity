@@ -39,15 +39,12 @@ func setScanConfigDefaults() {
 func LoadScanConfig() *ScanConfig {
 	setScanConfigDefaults()
 
-	config := &ScanConfig{
+	return &ScanConfig{
 		MaxScanParallelism:    viper.GetInt(MaxParallelism),
 		TargetNamespace:       viper.GetString(TargetNamespace),
 		SeverityThreshold:     viper.GetString(SeverityThreshold),
 		IgnoredNamespaces:     strings.Split(viper.GetString(IgnoreNamespaces), ","),
 		JobResultTimeout:      viper.GetDuration(JobResultTimeout),
 		KlarImageName:         viper.GetString(KlarImageName),
-
 	}
-
-	return config
 }
