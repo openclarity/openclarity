@@ -226,6 +226,7 @@ func (o *Orchestrator) Start() error {
 	o.clientset = clientset
 	// Start result server
 	log.Infof("Starting Orchestrator server")
+
 	return o.server.ListenAndServe()
 }
 
