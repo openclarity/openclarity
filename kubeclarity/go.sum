@@ -29,6 +29,8 @@ github.com/Portshift/klar v1.9.10-0.20200322185238-4569552b9003 h1:qoa58ftcIUYHy
 github.com/Portshift/klar v1.9.10-0.20200322185238-4569552b9003/go.mod h1:iltyxul4HrWzrCvuNmAq+i9XCZSWMruJBThl8DYhBRw=
 github.com/Portshift/klar v1.9.10-0.20200324130907-00206514ae5e h1:N2UJ47JQdW5yBa2EnGQsoDNRzSDEvTtkTaLkbRBjhCQ=
 github.com/Portshift/klar v1.9.10-0.20200324130907-00206514ae5e/go.mod h1:iltyxul4HrWzrCvuNmAq+i9XCZSWMruJBThl8DYhBRw=
+github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc h1:v6dvSrMo5MP4mzYLwBivdheZM2BC96Esvt9dk/Pn4yQ=
+github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc/go.mod h1:mxk663bSG2NlsPQLN9rMeovpBLpVGQVkRpUBO17t2YY=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
@@ -81,6 +83,7 @@ github.com/coredns/corefile-migration v1.0.4/go.mod h1:OFwBp/Wc9dJt5cAZzHWMNhK1r
 github.com/coreos/bbolt v1.3.3/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/clair v2.0.1-0.20180717235726-b1cd09231990+incompatible h1:FiqjsPad/kOYwx1cIiV+/+qR0WUWkxLKwIUtPynT83A=
 github.com/coreos/clair v2.0.1-0.20180717235726-b1cd09231990+incompatible/go.mod h1:uXhHPWAoRqw0jJc2f8RrPCwRhIo9otQ8OEWUFtpCiwA=
+github.com/coreos/clair v2.1.0+incompatible/go.mod h1:uXhHPWAoRqw0jJc2f8RrPCwRhIo9otQ8OEWUFtpCiwA=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.17+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-etcd v2.0.0+incompatible/go.mod h1:Jez6KQU2B/sWsbdaef3ED8NzMklzPG4d5KIOhIy30Tk=
