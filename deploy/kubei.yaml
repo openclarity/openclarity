@@ -180,11 +180,11 @@ spec:
             done
       containers:
       - name: kubei
-        image: gcr.io/development-infra-208909/kubei:1.0.1
+        image: gcr.io/development-infra-208909/kubei:1.0.2
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
-          value: "gcr.io/development-infra-208909/klar:1.0.0"
+          value: "gcr.io/development-infra-208909/klar:1.0.1"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10
           value: "10"
         - name: "TARGET_NAMESPACE" # empty = scan all namespaces
