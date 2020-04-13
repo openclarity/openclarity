@@ -15,9 +15,23 @@ func Test_getSimpleImageName(t *testing.T) {
 		want string
 	}{
 		{
-			name: "",
+			name: "valid image name with tag and repo",
 			args: args{
 				imageName: "docker.io/nginx:1.10",
+			},
+			want: "nginx",
+		},
+		{
+			name: "valid image name with digest with repo",
+			args: args{
+				imageName: "docker.io/nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2",
+			},
+			want: "nginx",
+		},
+		{
+			name: "valid image name with digest no repo",
+			args: args{
+				imageName: "nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2",
 			},
 			want: "nginx",
 		},
