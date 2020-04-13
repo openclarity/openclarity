@@ -86,6 +86,13 @@ spec:
         ports:
         - containerPort: 6060
         - containerPort: 6061
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 6G
+          requests:
+            cpu: 700m
+            memory: 3G
 ---
 apiVersion: v1
 kind: Service
@@ -127,6 +134,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 5432
+        resources:
+          limits:
+            cpu: 1500m
+            memory: 1G
+          requests:
+            cpu: 500m
+            memory: 400Mi
 ---
 apiVersion: v1
 kind: Service
@@ -196,6 +210,10 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 8081
-
-
-
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 10m
+            memory: 20Mi
