@@ -65,7 +65,10 @@ func (o *Orchestrator) worker(queue chan *scanData, worknumber int, done, ks cha
 			err := o.runJob(data)
 			if err != nil {
 				log.Errorf("failed to run job: %v", err)
-				// todo: do we need to report it to the webapp?
+				o.Lock()
+				data.success = false
+				data.completed = true
+				o.Unlock()
 			} else {
 				o.waitForResult(data)
 			}
@@ -104,11 +107,20 @@ func (o *Orchestrator) runJob(data *scanData) error {
 // Due to K8s names constraint we will take the image name w/o the tag and repo
 func getSimpleImageName(imageName string) string {
 	repoEnd := strings.LastIndex(imageName, "/")
-	imageName = imageName[repoEnd+1 : len(imageName)]
-	tagStart := strings.LastIndex(imageName, ":")
-	if tagStart != -1 {
-		imageName = imageName[:tagStart]
+	imageName = imageName[repoEnd+1 :]
+
+	digestStart := strings.LastIndex(imageName, "@")
+	// remove digest if exists
+	if digestStart != -1 {
+		return imageName[:digestStart]
 	}
+
+	tagStart := strings.LastIndex(imageName, ":")
+	// remove tag if exists
+	if tagStart != -1 {
+		return imageName[:tagStart]
+	}
+
 	return imageName
 }
 
