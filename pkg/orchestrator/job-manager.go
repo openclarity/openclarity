@@ -109,7 +109,7 @@ func getSimpleImageName(imageName string) string {
 	repoEnd := strings.LastIndex(imageName, "/")
 	imageName = imageName[repoEnd+1 :]
 
-	digestStart := strings.LastIndex(imageName, "@sha256:")
+	digestStart := strings.LastIndex(imageName, "@")
 	// remove digest if exists
 	if digestStart != -1 {
 		return imageName[:digestStart]
