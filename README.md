@@ -19,15 +19,18 @@ It provides a graphical UI which allows the viewer to identify where and what sh
 
 ## Configurations 
 
-1. The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your cluster.
-
-![](images/kubei-config.png)   
+The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your cluster.
 
 1. Set the scan scope. Set the `IGNORE_NAMESPACES` env variable to ignore specific namespaces. Set `TARGET_NAMESPACE` to scan a specific namespace, or leave empty to scan all namespaces.
 
 2. Set the scan speed. Expedite scanning by running parallel scanners. Set the `MAX_PARALLELISM` env variable for the maximum number of simultaneous scanners.
 
 3. Set severity level threshold. Vulnerabilities with severity level higher than or equal to `SEVERITY_THRESHOLD` threshold will be reported. Supported levels are `Unknown`, `Negligible`, `Low`, `Medium`, `High`, `Critical`, `Defcon1`. Default is `Medium`.
+
+4. Set the delete job policy. Set the `DELETE_JOB_POLICY` env variable to define whether or not to delete completed scanner jobs. Supported values are:
+    * `All` - All jobs will be deleted.
+    * `Successful` - Only successful jobs will be deleted (default).
+    * `Never` - Jobs will never be deleted.
 
 ## Usage 
 
