@@ -10,6 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.3.2
 	golang.org/x/sys v0.0.0-20191115151921-52ab43148777 // indirect
+	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.17.3

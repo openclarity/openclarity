@@ -57,6 +57,7 @@ type scanData struct {
 	resultChan chan bool
 	success    bool
 	completed  bool
+	timeout    bool
 }
 
 const (
@@ -188,6 +189,11 @@ func (o *Orchestrator) handleResult(result *forwarding.ImageVulnerabilities) err
 
 	if result.ScanUUID != scanD.scanUUID {
 		log.Warnf("Scan UUID mismatch. image=%v, received=%v, expected=%v", result.Image, result.ScanUUID, scanD.scanUUID)
+		return nil
+	}
+
+	if scanD.timeout {
+		log.Warnf("Scan result after timeout - ignoring. image=%v, scan uuid=%v", result.Image, result.ScanUUID)
 		return nil
 	}
 

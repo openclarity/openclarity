@@ -3,12 +3,14 @@ package orchestrator
 import (
 	"fmt"
 	klar "github.com/Portshift/klar/kubernetes"
+	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/utils/k8s"
 	stringutils "github.com/Portshift/kubei/pkg/utils/string"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strconv"
 	"strings"
@@ -62,7 +64,7 @@ func (o *Orchestrator) worker(queue chan *scanData, worknumber int, done, ks cha
 	for {
 		select {
 		case data := <-queue:
-			err := o.runJob(data)
+			job, err := o.runJob(data)
 			if err != nil {
 				log.Errorf("failed to run job: %v", err)
 				o.Lock()
@@ -72,6 +74,8 @@ func (o *Orchestrator) worker(queue chan *scanData, worknumber int, done, ks cha
 			} else {
 				o.waitForResult(data)
 			}
+
+			o.deleteJobIfNeeded(job, data.success)
 			done <- true
 		case <-ks:
 			log.Debugf("worker #%v halted", worknumber)
@@ -88,20 +92,47 @@ func (o *Orchestrator) waitForResult(data *scanData) {
 		log.Infof("Image scanned result has arrived. image=%v", data.imageName)
 	case <-ticker.C:
 		log.Warnf("job was timeout. image=%v", data.imageName)
+		o.Lock()
+		data.success = false
+		data.timeout = true
+		data.completed = true
+		o.Unlock()
 	}
 }
 
-func (o *Orchestrator) runJob(data *scanData) error {
+func (o *Orchestrator) runJob(data *scanData) (*batchv1.Job, error) {
 	job := o.createJob(data)
 	log.Debugf("Created job=%+v", job)
 
 	log.Infof("Running job %s/%s to scan image %s", job.GetNamespace(), job.GetName(), data.imageName)
 	_, err := o.clientset.BatchV1().Jobs(job.GetNamespace()).Create(job)
 	if err != nil {
-		return fmt.Errorf("failed to create job: %v/%v. %v", job.GetName(), job.GetNamespace(), err)
+		return nil, fmt.Errorf("failed to create job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}
 
-	return nil
+	return job, nil
+}
+
+func (o *Orchestrator) deleteJobIfNeeded(job *batchv1.Job, isSuccessfulJob bool) {
+	switch o.scanConfig.DeleteJobPolicy {
+	case config.DeleteJobPolicyAll:
+		o.deleteJob(job)
+	case config.DeleteJobPolicySuccessful:
+		if isSuccessfulJob {
+			o.deleteJob(job)
+		}
+	}
+}
+
+func (o *Orchestrator) deleteJob(job *batchv1.Job) {
+	dpb := metav1.DeletePropagationBackground
+	deleteOptions := &metav1.DeleteOptions{PropagationPolicy: &dpb}
+
+	log.Infof("Deleting job %s/%s", job.GetNamespace(), job.GetName())
+	err := o.clientset.BatchV1().Jobs(job.GetNamespace()).Delete(job.GetName(), deleteOptions)
+	if err != nil && !errors.IsNotFound(err) {
+		log.Errorf("failed to delete job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
+	}
 }
 
 // Due to K8s names constraint we will take the image name w/o the tag and repo
@@ -191,7 +222,10 @@ func (o *Orchestrator) createJob(data *scanData) *batchv1.Job {
 	// We will scan each image once, based on the first pod context. The result will be applied for all other pods with this image.
 	podContext := data.contexts[0]
 
-	labels := map[string]string{ignorePodScanLabelKey: ignorePodScanLabelValue}
+	labels := map[string]string{
+		"app": jobContainerName,
+		ignorePodScanLabelKey: ignorePodScanLabelValue,
+	}
 	annotations := map[string]string{
 		"sidecar.istio.io/inject": "false",
 		"sidecar.portshift.io/inject": "false",

@@ -23,7 +23,7 @@ rules:
   verbs: ["list"]
 - apiGroups: ["batch"]
   resources: ["jobs"]
-  verbs: ["create"]
+  verbs: ["create","delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
@@ -207,6 +207,8 @@ spec:
           value: "MEDIUM"
         - name: "IGNORE_NAMESPACES" # a list of namespaces to ignore. defaults no namespace to ignore
           value: "istio-system,kube-system"
+        - name: "DELETE_JOB_POLICY"
+          value: "Successful"
         ports:
         - containerPort: 8080
         - containerPort: 8081
