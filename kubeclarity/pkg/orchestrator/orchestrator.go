@@ -94,7 +94,15 @@ func (o *Orchestrator) initScan() error {
 			continue
 		}
 		secrets := k8s_utils.GetPodImagePullSecrets(o.clientset, pod)
+
+		// Due to scenarios where image name in the `pod.Status.ContainerStatuses` is different
+		// from image name in the `pod.Spec.Containers` we will take only image id from `pod.Status.ContainerStatuses`.
+		containerNameToImageId := make(map[string]string)
 		for _, container := range pod.Status.ContainerStatuses {
+			containerNameToImageId[container.Name] = container.ImageID
+		}
+
+		for _, container := range pod.Spec.Containers {
 			// Create pod context
 			podContext := &imagePodContext{
 				containerName:   container.Name,
@@ -102,7 +110,7 @@ func (o *Orchestrator) initScan() error {
 				podUid:          string(pod.GetUID()),
 				namespace:       pod.GetNamespace(),
 				imagePullSecret: k8s_utils.GetMatchingSecretName(secrets, container.Image),
-				imageHash:       k8s_utils.ParseImageHash(container.ImageID),
+				imageHash:       getImageHash(containerNameToImageId, container),
 			}
 			if data, ok := imageToScanData[container.Image]; !ok {
 				// Image added for the first time, create scan data and append pod context
@@ -129,6 +137,22 @@ func (o *Orchestrator) initScan() error {
 	log.Infof("Total %d unique images to scan", o.progress.ImagesToScan)
 
 	return nil
+}
+
+func getImageHash(containerNameToImageId map[string]string, container corev1.Container) string {
+	imageID, ok := containerNameToImageId[container.Name]
+	if !ok {
+		log.Warnf("Image id is missing. container=%v ,image=%v", container.Name, container.Image)
+		return ""
+	}
+
+	imageHash := k8s_utils.ParseImageHash(imageID)
+	if imageHash == "" {
+		log.Warnf("Failed to parse image hash. container=%v ,image=%v, image id=%v", container.Name, container.Image, imageID)
+		return ""
+	}
+
+	return imageHash
 }
 
 func Create(config *config.Config) *Orchestrator {

@@ -69,7 +69,6 @@ func GetMatchingSecretName(secrets []*corev1.Secret, imageName string) string {
 func ParseImageHash(imageID string) string {
 	index := strings.LastIndex(imageID, ":")
 	if index == -1 {
-		log.Warnf("failed to parse image hash. image id=%v", imageID)
 		return ""
 	}
 
