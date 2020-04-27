@@ -5,6 +5,7 @@ import (
 	klar "github.com/Portshift/klar/kubernetes"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/utils/k8s"
+	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
 	stringutils "github.com/Portshift/kubei/pkg/utils/string"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -191,6 +192,9 @@ func (o *Orchestrator) createContainer(imageName, secretName string, scanUUID st
 		{Name: "RESULT_SERVICE_PATH", Value: o.config.KlarResultServicePath},
 		{Name: "SCAN_UUID", Value: scanUUID},
 	}
+
+	env = o.appendProxyEnvConfig(env)
+
 	if secretName != "" {
 		log.Debugf("Adding private registry credentials to image: %s", imageName)
 		env = append(env, corev1.EnvVar{
@@ -213,6 +217,30 @@ func (o *Orchestrator) createContainer(imageName, secretName string, scanUUID st
 		},
 		Env: env,
 	}
+}
+
+func (o *Orchestrator) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
+	if o.config.ScannerHttpsProxy == "" && o.config.ScannerHttpProxy == "" {
+		return env
+	}
+
+	if o.config.ScannerHttpsProxy != "" {
+		env = append(env, corev1.EnvVar{
+			Name: proxyconfig.HttpsProxyEnvCaps, Value: o.config.ScannerHttpsProxy,
+		})
+	}
+
+	if o.config.ScannerHttpProxy != "" {
+		env = append(env, corev1.EnvVar{
+			Name: proxyconfig.HttpProxyEnvCaps, Value: o.config.ScannerHttpProxy,
+		})
+	}
+
+	env = append(env, corev1.EnvVar{
+		Name: proxyconfig.NoProxyEnvCaps, Value: o.config.KlarResultServiceAddress + "," + o.config.ClairAddress,
+	})
+
+	return env
 }
 
 func (o *Orchestrator) createJob(data *scanData) *batchv1.Job {
