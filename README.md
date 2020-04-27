@@ -66,6 +66,9 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 
 ![](images/kubei-results.png)     
 
+## Running Kubei with an external HTTP/HTTPS proxy
+
+Uncomment and configure the proxy env variables for the Clair and Kubei deployments in `deploy/kubei.yaml`.
 
 ## Limitations 
 
