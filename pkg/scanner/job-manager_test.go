@@ -1,4 +1,4 @@
-package orchestrator
+package scanner
 
 import (
 	"k8s.io/apimachinery/pkg/util/validation"
