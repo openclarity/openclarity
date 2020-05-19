@@ -1,4 +1,4 @@
-package orchestrator
+package scanner
 
 import (
 	"fmt"
@@ -19,94 +19,123 @@ import (
 	"time"
 )
 
-func (o *Orchestrator) jobBatchManagement() {
+func (s *Scanner) jobBatchManagement() {
 	defer func() {
-		o.Lock()
-		o.status = Idle
-		o.Unlock()
+		s.Lock()
+		s.status = Idle
+		s.Unlock()
 	}()
 
-	if len(o.imageToScanData) == 0 {
-		log.Info("Nothing to scan")
+	s.Lock()
+	imageToScanData := s.imageToScanData
+	numberOfWorkers := s.scanConfig.MaxScanParallelism
+	imagesStartedToScan := &s.progress.ImagesStartedToScan
+	imagesCompletedToScan := &s.progress.ImagesCompletedToScan
+	s.Unlock()
+
+	if len(imageToScanData) == 0 {
+		log.WithFields(s.logFields).Info("Nothing to scan")
 		return
 	}
-	//channel for terminating the workers
-	killsignal := make(chan bool)
 
 	//queue of jobs
 	q := make(chan *scanData)
 	// done channel takes the result of the job
 	done := make(chan bool)
 
-	numberOfWorkers := o.scanConfig.MaxScanParallelism
+	fullScanDone := make(chan bool)
+
 	for i := 0; i < numberOfWorkers; i++ {
-		go o.worker(q, i, done, killsignal)
+		go s.worker(q, i, done, s.killSignal)
 	}
 
-	for _, data := range o.imageToScanData {
-		go func(data *scanData) {
-			q <- data
-			atomic.AddUint32(&o.progress.ImagesStartedToScan, 1)
-		}(data)
+	go func() {
+		for c := 0; c < len(imageToScanData); c++ {
+			select {
+			case <-done:
+				atomic.AddUint32(imagesCompletedToScan, 1)
+			case <-s.killSignal:
+				log.WithFields(s.logFields).Debugf("Scan process was canceled - stop waiting for finished jobs")
+				return
+			}
+		}
+
+		fullScanDone <- true
+	}()
+
+	for _, data := range imageToScanData {
+		go func(data *scanData, ks chan bool) {
+			select {
+			case q <- data:
+				atomic.AddUint32(imagesStartedToScan, 1)
+			case <-ks:
+				log.WithFields(s.logFields).Debugf("Scan process was canceled. image name=%v, scanUUID=%v", data.imageName, data.scanUUID)
+				return
+			}
+		}(data, s.killSignal)
 	}
 
-	for c := 0; c < len(o.imageToScanData); c++ {
-		<-done
-		atomic.AddUint32(&o.progress.ImagesCompletedToScan, 1)
+	select {
+	case <-s.killSignal:
+		log.WithFields(s.logFields).Info("Scan process was canceled")
+	case <-fullScanDone:
+		log.WithFields(s.logFields).Infof("All jobs has finished")
 	}
-
-	log.Infof("All jobs has finished")
-
-	// cleaning workers
-	close(killsignal)
 }
 
-func (o *Orchestrator) worker(queue chan *scanData, worknumber int, done, ks chan bool) {
+func (s *Scanner) worker(queue chan *scanData, worknumber int, done, ks chan bool) {
 	for {
 		select {
 		case data := <-queue:
-			job, err := o.runJob(data)
+			job, err := s.runJob(data)
 			if err != nil {
-				log.Errorf("failed to run job: %v", err)
-				o.Lock()
+				log.WithFields(s.logFields).Errorf("failed to run job: %v", err)
+				s.Lock()
 				data.success = false
 				data.completed = true
-				o.Unlock()
+				s.Unlock()
 			} else {
-				o.waitForResult(data)
+				s.waitForResult(data, ks)
 			}
 
-			o.deleteJobIfNeeded(job, data.success)
-			done <- true
+			s.deleteJobIfNeeded(job, data.success, data.completed)
+
+			select {
+			case done <- true:
+			case <-ks:
+				log.WithFields(s.logFields).Infof("Image scan was canceled. image=%v", data.imageName)
+			}
 		case <-ks:
-			log.Debugf("worker #%v halted", worknumber)
+			log.WithFields(s.logFields).Debugf("worker #%v halted", worknumber)
 			return
 		}
 	}
 }
 
-func (o *Orchestrator) waitForResult(data *scanData) {
-	log.Infof("Waiting for result. image=%+v", data.imageName)
-	ticker := time.NewTicker(o.scanConfig.JobResultTimeout)
+func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
+	log.WithFields(s.logFields).Infof("Waiting for result. image=%+v", data.imageName)
+	ticker := time.NewTicker(s.scanConfig.JobResultTimeout)
 	select {
 	case <-data.resultChan:
-		log.Infof("Image scanned result has arrived. image=%v", data.imageName)
+		log.WithFields(s.logFields).Infof("Image scanned result has arrived. image=%v", data.imageName)
 	case <-ticker.C:
-		log.Warnf("job was timeout. image=%v", data.imageName)
-		o.Lock()
+		log.WithFields(s.logFields).Warnf("job was timeout. image=%v", data.imageName)
+		s.Lock()
 		data.success = false
 		data.timeout = true
 		data.completed = true
-		o.Unlock()
+		s.Unlock()
+	case <-ks:
+		log.WithFields(s.logFields).Infof("Image scan was canceled. image=%v", data.imageName)
 	}
 }
 
-func (o *Orchestrator) runJob(data *scanData) (*batchv1.Job, error) {
-	job := o.createJob(data)
-	log.Debugf("Created job=%+v", job)
+func (s *Scanner) runJob(data *scanData) (*batchv1.Job, error) {
+	job := s.createJob(data)
+	log.WithFields(s.logFields).Debugf("Created job=%+v", job)
 
-	log.Infof("Running job %s/%s to scan image %s", job.GetNamespace(), job.GetName(), data.imageName)
-	_, err := o.clientset.BatchV1().Jobs(job.GetNamespace()).Create(job)
+	log.WithFields(s.logFields).Infof("Running job %s/%s to scan image %s", job.GetNamespace(), job.GetName(), data.imageName)
+	_, err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Create(job)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}
@@ -114,25 +143,35 @@ func (o *Orchestrator) runJob(data *scanData) (*batchv1.Job, error) {
 	return job, nil
 }
 
-func (o *Orchestrator) deleteJobIfNeeded(job *batchv1.Job, isSuccessfulJob bool) {
-	switch o.scanConfig.DeleteJobPolicy {
+func (s *Scanner) deleteJobIfNeeded(job *batchv1.Job, isSuccessfulJob, isCompletedJob bool) {
+	if job == nil {
+		return
+	}
+
+	// delete uncompleted jobs - scan process was canceled
+	if !isCompletedJob {
+		s.deleteJob(job)
+		return
+	}
+
+	switch s.scanConfig.DeleteJobPolicy {
 	case config.DeleteJobPolicyAll:
-		o.deleteJob(job)
+		s.deleteJob(job)
 	case config.DeleteJobPolicySuccessful:
 		if isSuccessfulJob {
-			o.deleteJob(job)
+			s.deleteJob(job)
 		}
 	}
 }
 
-func (o *Orchestrator) deleteJob(job *batchv1.Job) {
+func (s *Scanner) deleteJob(job *batchv1.Job) {
 	dpb := metav1.DeletePropagationBackground
 	deleteOptions := &metav1.DeleteOptions{PropagationPolicy: &dpb}
 
-	log.Infof("Deleting job %s/%s", job.GetNamespace(), job.GetName())
-	err := o.clientset.BatchV1().Jobs(job.GetNamespace()).Delete(job.GetName(), deleteOptions)
+	log.WithFields(s.logFields).Infof("Deleting job %s/%s", job.GetNamespace(), job.GetName())
+	err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Delete(job.GetName(), deleteOptions)
 	if err != nil && !errors.IsNotFound(err) {
-		log.Errorf("failed to delete job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
+		log.WithFields(s.logFields).Errorf("failed to delete job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}
 }
 
@@ -184,19 +223,19 @@ func createJobName(imageName string) string {
 
 const jobContainerName = "klar-scanner"
 
-func (o *Orchestrator) createContainer(imageName, secretName string, scanUUID string) corev1.Container {
+func (s *Scanner) createContainer(imageName, secretName string, scanUUID string) corev1.Container {
 	env := []corev1.EnvVar{
-		{Name: "CLAIR_ADDR", Value: o.config.ClairAddress},
-		{Name: "CLAIR_OUTPUT", Value: o.scanConfig.SeverityThreshold},
-		{Name: "KLAR_TRACE", Value: strconv.FormatBool(o.config.KlarTrace)},
-		{Name: "RESULT_SERVICE_PATH", Value: o.config.KlarResultServicePath},
+		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
+		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
+		{Name: "KLAR_TRACE", Value: strconv.FormatBool(s.config.KlarTrace)},
+		{Name: "RESULT_SERVICE_PATH", Value: s.config.KlarResultServicePath},
 		{Name: "SCAN_UUID", Value: scanUUID},
 	}
 
-	env = o.appendProxyEnvConfig(env)
+	env = s.appendProxyEnvConfig(env)
 
 	if secretName != "" {
-		log.Debugf("Adding private registry credentials to image: %s", imageName)
+		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
 		env = append(env, corev1.EnvVar{
 			Name: klar.ImagePullSecretEnvVar, ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
@@ -211,7 +250,7 @@ func (o *Orchestrator) createContainer(imageName, secretName string, scanUUID st
 
 	return corev1.Container{
 		Name:  jobContainerName,
-		Image: o.scanConfig.KlarImageName,
+		Image: s.scanConfig.KlarImageName,
 		Args: []string{
 			imageName,
 		},
@@ -219,31 +258,31 @@ func (o *Orchestrator) createContainer(imageName, secretName string, scanUUID st
 	}
 }
 
-func (o *Orchestrator) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
-	if o.config.ScannerHttpsProxy == "" && o.config.ScannerHttpProxy == "" {
+func (s *Scanner) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
+	if s.config.ScannerHttpsProxy == "" && s.config.ScannerHttpProxy == "" {
 		return env
 	}
 
-	if o.config.ScannerHttpsProxy != "" {
+	if s.config.ScannerHttpsProxy != "" {
 		env = append(env, corev1.EnvVar{
-			Name: proxyconfig.HttpsProxyEnvCaps, Value: o.config.ScannerHttpsProxy,
+			Name: proxyconfig.HttpsProxyEnvCaps, Value: s.config.ScannerHttpsProxy,
 		})
 	}
 
-	if o.config.ScannerHttpProxy != "" {
+	if s.config.ScannerHttpProxy != "" {
 		env = append(env, corev1.EnvVar{
-			Name: proxyconfig.HttpProxyEnvCaps, Value: o.config.ScannerHttpProxy,
+			Name: proxyconfig.HttpProxyEnvCaps, Value: s.config.ScannerHttpProxy,
 		})
 	}
 
 	env = append(env, corev1.EnvVar{
-		Name: proxyconfig.NoProxyEnvCaps, Value: o.config.KlarResultServiceAddress + "," + o.config.ClairAddress,
+		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.KlarResultServiceAddress + "," + s.config.ClairAddress,
 	})
 
 	return env
 }
 
-func (o *Orchestrator) createJob(data *scanData) *batchv1.Job {
+func (s *Scanner) createJob(data *scanData) *batchv1.Job {
 	var ttlSecondsAfterFinished int32 = 300
 	var backOffLimit int32 = 0
 
@@ -272,7 +311,7 @@ func (o *Orchestrator) createJob(data *scanData) *batchv1.Job {
 					Labels:      labels,
 				},
 				Spec: corev1.PodSpec{
-					Containers:    []corev1.Container{o.createContainer(data.imageName, podContext.imagePullSecret, data.scanUUID)},
+					Containers:    []corev1.Container{s.createContainer(data.imageName, podContext.imagePullSecret, data.scanUUID)},
 					RestartPolicy: corev1.RestartPolicyNever,
 				},
 			},

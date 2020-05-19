@@ -5,6 +5,8 @@ import (
 	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/orchestrator"
+	"github.com/Portshift/kubei/pkg/types"
+	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
 	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
@@ -122,7 +124,7 @@ func sortVulnerabilities(data []*extendedContextualVulnerability) []*extendedCon
 	return data
 }
 
-func (wa *Webapp) convertOrchestratorResults(results []*orchestrator.ImageScanResult) []*extendedContextualVulnerability {
+func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) []*extendedContextualVulnerability {
 	var extendedContextualVulnerabilities []*extendedContextualVulnerability
 	severityThreshold := getSeverityFromString(wa.scanConfig.SeverityThreshold)
 	for _, result := range results {
@@ -177,7 +179,7 @@ func (wa *Webapp) viewHandler(w http.ResponseWriter, _ *http.Request) {
 	log.Debug("Received a 'view' request...")
 
 	results := wa.orchestrator.Results()
-	extendedContextualVulnerabilities := wa.convertOrchestratorResults(results.ImageScanResults)
+	extendedContextualVulnerabilities := wa.convertImageScanResults(results.ImageScanResults)
 	totalCritical, totalHigh, totalDefcon1 := wa.calculateTotals(extendedContextualVulnerabilities)
 
 	if wa.checkShowGoWarning {
@@ -250,9 +252,14 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 
 /******************************************************* PUBLIC *******************************************************/
 
-func Init(config *config.Config, scanConfig *config.ScanConfig) *Webapp {
+func Init(config *config.Config, scanConfig *config.ScanConfig) (*Webapp, error) {
+	clientset, err := k8s_utils.CreateClientset()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create clientset: %v", err)
+	}
+
 	return &Webapp{
-		orchestrator:         orchestrator.Create(config),
+		orchestrator:         orchestrator.Create(config, clientset),
 		executionConfig:      config,
 		scanConfig:           scanConfig,
 		showGoMsg:            false,
@@ -260,7 +267,7 @@ func Init(config *config.Config, scanConfig *config.ScanConfig) *Webapp {
 		checkShowGoWarning:   false,
 		lastScannedNamespace: "",
 		Mutex:                sync.Mutex{},
-	}
+	}, nil
 }
 
 func (wa *Webapp) Run() {

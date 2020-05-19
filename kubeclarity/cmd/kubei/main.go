@@ -19,6 +19,14 @@ func main() {
 	scanConfig := config.LoadScanConfig()
 
 	initLog(conf.Verbose)
-	kubeiWebapp := webapp.Init(conf, scanConfig)
+
+	log.Debugf("config=%+v", conf)
+	log.Debugf("scanConfig=%+v", scanConfig)
+
+	kubeiWebapp, err := webapp.Init(conf, scanConfig)
+	if err != nil {
+		log.Fatalf("Failed to init webapp: %v", err)
+	}
+
 	kubeiWebapp.Run()
 }
