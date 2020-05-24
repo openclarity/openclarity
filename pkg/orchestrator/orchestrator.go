@@ -85,6 +85,8 @@ func (o *Orchestrator) Start() error {
 }
 
 func (o *Orchestrator) Stop() {
+	o.Clear()
+
 	log.Infof("Stopping Orchestrator server")
 	if o.server != nil {
 		if err := o.server.Shutdown(context.Background()); err != nil {
@@ -116,8 +118,6 @@ func (o *Orchestrator) Clear() {
 	log.Infof("Clearing Orchestrator")
 	o.scanner.Clear()
 	o.scanner = scanner.CreateScanner(o.config, o.clientset)
-
-	return
 }
 
 func (o *Orchestrator) getScanner() *scanner.Scanner {
