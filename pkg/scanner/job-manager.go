@@ -178,7 +178,7 @@ func (s *Scanner) deleteJob(job *batchv1.Job) {
 // Due to K8s names constraint we will take the image name w/o the tag and repo
 func getSimpleImageName(imageName string) string {
 	repoEnd := strings.LastIndex(imageName, "/")
-	imageName = imageName[repoEnd+1 :]
+	imageName = imageName[repoEnd+1:]
 
 	digestStart := strings.LastIndex(imageName, "@")
 	// remove digest if exists
@@ -204,7 +204,7 @@ func getSimpleImageName(imageName string) string {
 // * start with an alphanumeric character
 // * end with an alphanumeric character
 func createJobName(imageName string) string {
-	jobName := jobContainerName+"-"+getSimpleImageName(imageName)+"-"+uuid.NewV4().String()
+	jobName := jobContainerName + "-" + getSimpleImageName(imageName) + "-" + uuid.NewV4().String()
 
 	// contain at most 63 characters
 	jobName = stringutils.TruncateString(jobName, k8s.MaxK8sJobName)
@@ -290,11 +290,11 @@ func (s *Scanner) createJob(data *scanData) *batchv1.Job {
 	podContext := data.contexts[0]
 
 	labels := map[string]string{
-		"app": jobContainerName,
+		"app":                 jobContainerName,
 		ignorePodScanLabelKey: ignorePodScanLabelValue,
 	}
 	annotations := map[string]string{
-		"sidecar.istio.io/inject": "false",
+		"sidecar.istio.io/inject":     "false",
 		"sidecar.portshift.io/inject": "false",
 	}
 
