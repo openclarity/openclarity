@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"fmt"
 	klar "github.com/Portshift/klar/kubernetes"
 	"github.com/Portshift/kubei/pkg/config"
@@ -135,7 +136,7 @@ func (s *Scanner) runJob(data *scanData) (*batchv1.Job, error) {
 	log.WithFields(s.logFields).Debugf("Created job=%+v", job)
 
 	log.WithFields(s.logFields).Infof("Running job %s/%s to scan image %s", job.GetNamespace(), job.GetName(), data.imageName)
-	_, err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Create(job)
+	_, err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Create(context.TODO(), job, metav1.CreateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}
@@ -166,10 +167,10 @@ func (s *Scanner) deleteJobIfNeeded(job *batchv1.Job, isSuccessfulJob, isComplet
 
 func (s *Scanner) deleteJob(job *batchv1.Job) {
 	dpb := metav1.DeletePropagationBackground
-	deleteOptions := &metav1.DeleteOptions{PropagationPolicy: &dpb}
+	deleteOptions := metav1.DeleteOptions{PropagationPolicy: &dpb}
 
 	log.WithFields(s.logFields).Infof("Deleting job %s/%s", job.GetNamespace(), job.GetName())
-	err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Delete(job.GetName(), deleteOptions)
+	err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Delete(context.TODO(), job.GetName(), deleteOptions)
 	if err != nil && !errors.IsNotFound(err) {
 		log.WithFields(s.logFields).Errorf("failed to delete job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}

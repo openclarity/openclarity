@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"github.com/containers/image/docker/reference"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -32,7 +33,7 @@ func CreateClientset() (kubernetes.Interface, error) {
 func GetPodImagePullSecrets(clientset kubernetes.Interface, pod corev1.Pod) []*corev1.Secret {
 	var secrets []*corev1.Secret
 	for _, secretName := range pod.Spec.ImagePullSecrets {
-		secret, err := clientset.CoreV1().Secrets(pod.Namespace).Get(secretName.Name, metav1.GetOptions{})
+		secret, err := clientset.CoreV1().Secrets(pod.Namespace).Get(context.TODO(), secretName.Name, metav1.GetOptions{})
 		if err != nil {
 			log.Warnf("Failed to get secret %s in namespace %s. %+v", secretName.Name, pod.Namespace, err)
 			continue
