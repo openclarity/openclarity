@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"fmt"
 	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/klar/forwarding"
@@ -94,7 +95,7 @@ func (s *Scanner) initScan() error {
 	s.status = ScanInit
 
 	// Get all target pods
-	podList, err := s.clientset.CoreV1().Pods(s.scanConfig.TargetNamespace).List(metav1.ListOptions{})
+	podList, err := s.clientset.CoreV1().Pods(s.scanConfig.TargetNamespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to list pods. namespace=%s: %v", s.scanConfig.TargetNamespace, err)
 	}
