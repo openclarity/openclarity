@@ -63,6 +63,13 @@ func Test_getSimpleImageName(t *testing.T) {
 			},
 			want: "nginx",
 		},
+		{
+			name: "valid image name with digest with repo with tag",
+			args: args{
+				imageName: "solsson/kafka:2.2.1@sha256:450c6fdacae3f89ca28cecb36b2f120aad9b19583d68c411d551502ee8d0b09b",
+			},
+			want: "kafka",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
