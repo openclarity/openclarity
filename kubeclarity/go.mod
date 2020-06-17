@@ -4,12 +4,11 @@ go 1.13
 
 require (
 	github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc
-	github.com/containers/image v3.0.2+incompatible
+	github.com/containers/image/v5 v5.5.0
 
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.3.2
-	golang.org/x/sys v0.0.0-20191115151921-52ab43148777 // indirect
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.1
 	k8s.io/apimachinery v0.18.1
