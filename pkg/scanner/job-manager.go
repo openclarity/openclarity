@@ -8,6 +8,7 @@ import (
 	"github.com/Portshift/kubei/pkg/utils/k8s"
 	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
 	stringutils "github.com/Portshift/kubei/pkg/utils/string"
+	"github.com/containers/image/v5/docker/reference"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
@@ -179,22 +180,17 @@ func (s *Scanner) deleteJob(job *batchv1.Job) {
 
 // Due to K8s names constraint we will take the image name w/o the tag and repo
 func getSimpleImageName(imageName string) string {
-	repoEnd := strings.LastIndex(imageName, "/")
-	imageName = imageName[repoEnd+1:]
-
-	digestStart := strings.LastIndex(imageName, "@")
-	// remove digest if exists
-	if digestStart != -1 {
-		return imageName[:digestStart]
+	ref, err := reference.ParseNormalizedNamed(imageName)
+	if err != nil {
+		log.Errorf("failed to parse image name. name=%v: %v", imageName, err)
+		return imageName
 	}
 
-	tagStart := strings.LastIndex(imageName, ":")
-	// remove tag if exists
-	if tagStart != -1 {
-		return imageName[:tagStart]
-	}
+	refName := ref.Name()
+	// Take only image name from repo path (ex. solsson/kafka ==> kafka)
+	repoEnd := strings.LastIndex(refName, "/")
 
-	return imageName
+	return refName[repoEnd+1:]
 }
 
 // Job names require their names to follow the DNS label standard as defined in RFC 1123
