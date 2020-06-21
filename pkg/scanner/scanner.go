@@ -71,6 +71,7 @@ type scanData struct {
 	success    bool
 	completed  bool
 	timeout    bool
+	scanErrMsg string
 }
 
 const (
@@ -215,6 +216,7 @@ func (s *Scanner) Results() *types.ScanResults {
 				PodUid:          podContext.podUid,
 				Vulnerabilities: scanD.result,
 				Success:         scanD.success,
+				ScanErrMsg:      scanD.scanErrMsg,
 			})
 		}
 	}
@@ -253,12 +255,13 @@ func (s *Scanner) HandleResult(result *forwarding.ImageVulnerabilities) error {
 	scanD.completed = true
 	scanD.result = result.Vulnerabilities
 	scanD.success = result.Success
+	scanD.scanErrMsg = result.ScanErrMsg
 
 	if scanD.success && scanD.result == nil {
 		log.WithFields(s.logFields).Infof("No vulnerabilities found on image %v.", result.Image)
 	}
 	if !scanD.success {
-		log.WithFields(s.logFields).Warnf("Scan of image %v has failed! See klar-scan pod logs for more info.", result.Image)
+		log.WithFields(s.logFields).Warnf("Scan of image %v has failed: %v", result.Image, scanD.scanErrMsg)
 	}
 
 	select {

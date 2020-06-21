@@ -17,6 +17,7 @@ type ImageScanResult struct {
 	PodUid          string
 	Vulnerabilities []*clair.Vulnerability
 	Success         bool
+	ScanErrMsg      string
 }
 
 type ScanResults struct {
