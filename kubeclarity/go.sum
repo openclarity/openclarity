@@ -29,6 +29,9 @@ github.com/OpenPeeDeeP/depguard v1.0.0/go.mod h1:7/4sitnI9YlQgTLLk734QlzXT8DuHVn
 github.com/OpenPeeDeeP/depguard v1.0.1/go.mod h1:xsIw86fROiiwelg+jB2uM9PiKihMMmUx/1V+TNhjQvM=
 github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc h1:v6dvSrMo5MP4mzYLwBivdheZM2BC96Esvt9dk/Pn4yQ=
 github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc/go.mod h1:mxk663bSG2NlsPQLN9rMeovpBLpVGQVkRpUBO17t2YY=
+github.com/Portshift/klar v1.9.10-0.20200621124535-8fa69a898c91/go.mod h1:mxk663bSG2NlsPQLN9rMeovpBLpVGQVkRpUBO17t2YY=
+github.com/Portshift/klar v1.9.10-0.20200621151935-d38bc7cc4a0c h1:HpewDTFSoFcxlXy/lLy8QwPSmNtNTIvom6+ClGvGcvc=
+github.com/Portshift/klar v1.9.10-0.20200621151935-d38bc7cc4a0c/go.mod h1:mxk663bSG2NlsPQLN9rMeovpBLpVGQVkRpUBO17t2YY=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=

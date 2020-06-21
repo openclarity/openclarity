@@ -92,9 +92,11 @@ func (s *Scanner) worker(queue chan *scanData, worknumber int, done, ks chan boo
 		case data := <-queue:
 			job, err := s.runJob(data)
 			if err != nil {
-				log.WithFields(s.logFields).Errorf("failed to run job: %v", err)
+				errStr := fmt.Sprintf("failed to run job: %v", err)
+				log.WithFields(s.logFields).Errorf(errStr)
 				s.Lock()
 				data.success = false
+				data.scanErrMsg = errStr
 				data.completed = true
 				s.Unlock()
 			} else {
@@ -122,9 +124,11 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 	case <-data.resultChan:
 		log.WithFields(s.logFields).Infof("Image scanned result has arrived. image=%v", data.imageName)
 	case <-ticker.C:
-		log.WithFields(s.logFields).Warnf("job was timeout. image=%v", data.imageName)
+		errStr := fmt.Sprintf("job was timeout. image=%v", data.imageName)
+		log.WithFields(s.logFields).Warnf(errStr)
 		s.Lock()
 		data.success = false
+		data.scanErrMsg = errStr
 		data.timeout = true
 		data.completed = true
 		s.Unlock()
