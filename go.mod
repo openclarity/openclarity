@@ -3,7 +3,7 @@ module github.com/Portshift/kubei
 go 1.13
 
 require (
-	github.com/Portshift/klar v1.9.10-0.20200405074432-5741bb591edc
+	github.com/Portshift/klar v1.9.10-0.20200622082637-e4af1c6d1653
 	github.com/containers/image/v5 v5.5.0
 
 	github.com/satori/go.uuid v1.2.0
