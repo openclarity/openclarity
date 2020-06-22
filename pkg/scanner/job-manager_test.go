@@ -10,9 +10,10 @@ func Test_getSimpleImageName(t *testing.T) {
 		imageName string
 	}
 	tests := []struct {
-		name string
-		args args
-		want string
+		name    string
+		args    args
+		want    string
+		wantErr bool
 	}{
 		{
 			name: "valid image name with tag and repo",
@@ -70,11 +71,23 @@ func Test_getSimpleImageName(t *testing.T) {
 			},
 			want: "kafka",
 		},
+		{
+			name: "name ends with '/' - invalid reference format",
+			args: args{
+				imageName: "docker.io:8080/not/valid/:222",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getSimpleImageName(tt.args.imageName); got != tt.want {
-				t.Errorf("getSimpleImageName() = %v, want %v", got, tt.want)
+			got, err := getSimpleImageName(tt.args.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getSimpleImageName() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getSimpleImageName() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -85,8 +98,9 @@ func Test_createJobName(t *testing.T) {
 		imageName string
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{
 			name: "trim right '-' that left from the uuid after name was truncated due to max len",
@@ -95,21 +109,28 @@ func Test_createJobName(t *testing.T) {
 			},
 		},
 		{
-			name: "lower case",
-			args: args{
-				imageName: "LowerCase",
-			},
-		},
-		{
 			name: "underscore",
 			args: args{
 				imageName: "under_score",
 			},
 		},
+		{
+			name: "invalid image name",
+			args: args{
+				imageName: "InvAliD",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := createJobName(tt.args.imageName)
+			got, err := createJobName(tt.args.imageName)
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("createJobName() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				return
+			}
 			errs := validation.IsDNS1123Label(got)
 			if len(errs) != 0 {
 				t.Errorf("createJobName() = name is not valid. got=%v, errs=%+v", got, errs)
