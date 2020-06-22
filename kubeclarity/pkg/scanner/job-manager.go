@@ -134,11 +134,15 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 }
 
 func (s *Scanner) runJob(data *scanData) (*batchv1.Job, error) {
-	job := s.createJob(data)
+	job, err := s.createJob(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create job object. image name=%v: %v", data.imageName, err)
+	}
+
 	log.WithFields(s.logFields).Debugf("Created job=%+v", job)
 
 	log.WithFields(s.logFields).Infof("Running job %s/%s to scan image %s", job.GetNamespace(), job.GetName(), data.imageName)
-	_, err := s.clientset.BatchV1().Jobs(job.GetNamespace()).Create(context.TODO(), job, metav1.CreateOptions{})
+	_, err = s.clientset.BatchV1().Jobs(job.GetNamespace()).Create(context.TODO(), job, metav1.CreateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create job: %s/%s. %v", job.GetNamespace(), job.GetName(), err)
 	}
@@ -179,18 +183,17 @@ func (s *Scanner) deleteJob(job *batchv1.Job) {
 }
 
 // Due to K8s names constraint we will take the image name w/o the tag and repo
-func getSimpleImageName(imageName string) string {
+func getSimpleImageName(imageName string) (string, error) {
 	ref, err := reference.ParseNormalizedNamed(imageName)
 	if err != nil {
-		log.Errorf("failed to parse image name. name=%v: %v", imageName, err)
-		return imageName
+		return "", fmt.Errorf("failed to parse image name. name=%v: %v", imageName, err)
 	}
 
 	refName := ref.Name()
 	// Take only image name from repo path (ex. solsson/kafka ==> kafka)
 	repoEnd := strings.LastIndex(refName, "/")
 
-	return refName[repoEnd+1:]
+	return refName[repoEnd+1:], nil
 }
 
 // Job names require their names to follow the DNS label standard as defined in RFC 1123
@@ -201,8 +204,13 @@ func getSimpleImageName(imageName string) string {
 // * contain only lowercase alphanumeric characters or ‘-’
 // * start with an alphanumeric character
 // * end with an alphanumeric character
-func createJobName(imageName string) string {
-	jobName := jobContainerName + "-" + getSimpleImageName(imageName) + "-" + uuid.NewV4().String()
+func createJobName(imageName string) (string, error) {
+	simpleName, err := getSimpleImageName(imageName)
+	if err != nil {
+		return "", err
+	}
+
+	jobName := jobContainerName + "-" + simpleName + "-" + uuid.NewV4().String()
 
 	// contain at most 63 characters
 	jobName = stringutils.TruncateString(jobName, k8s.MaxK8sJobName)
@@ -216,7 +224,7 @@ func createJobName(imageName string) string {
 	// end with an alphanumeric character
 	jobName = strings.TrimRight(jobName, "-")
 
-	return jobName
+	return jobName, nil
 }
 
 const jobContainerName = "klar-scanner"
@@ -290,7 +298,7 @@ func (s *Scanner) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
 	return env
 }
 
-func (s *Scanner) createJob(data *scanData) *batchv1.Job {
+func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	var ttlSecondsAfterFinished int32 = 300
 	var backOffLimit int32 = 0
 
@@ -306,9 +314,15 @@ func (s *Scanner) createJob(data *scanData) *batchv1.Job {
 		"sidecar.portshift.io/inject": "false",
 	}
 
+	jobName, err := createJobName(data.imageName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create job name. namespace=%v, pod=%v, container=%v, image=%v: %v",
+			podContext.namespace, podContext.podName, podContext.containerName, data.imageName, err)
+	}
+
 	return &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      createJobName(data.imageName),
+			Name:      jobName,
 			Namespace: podContext.namespace,
 			Labels:    labels,
 		},
@@ -326,5 +340,5 @@ func (s *Scanner) createJob(data *scanData) *batchv1.Job {
 			BackoffLimit:            &backOffLimit,
 			TTLSecondsAfterFinished: &ttlSecondsAfterFinished,
 		},
-	}
+	}, nil
 }
