@@ -15,6 +15,7 @@ const (
 	KlarResultListenPort  = "KLAR_RESULT_LISTEN_PORT"
 	ScannerHttpsProxy     = "SCANNER_HTTPS_PROXY"
 	ScannerHttpProxy      = "SCANNER_HTTP_PROXY"
+	CredsSecretNamespace  = "CREDS_SECRET_NAMESPACE"
 )
 
 type Config struct {
@@ -27,6 +28,7 @@ type Config struct {
 	KlarResultServiceAddress string
 	ScannerHttpsProxy        string
 	ScannerHttpProxy         string
+	CredsSecretNamespace     string
 }
 
 func setConfigDefaults() {
@@ -38,6 +40,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ClairAddress, "clair.kubei")
 	viper.SetDefault(ScannerHttpsProxy, "")
 	viper.SetDefault(ScannerHttpProxy, "")
+	viper.SetDefault(CredsSecretNamespace, "kubei")
 
 	viper.AutomaticEnv()
 }
@@ -77,6 +80,7 @@ func LoadConfig() *Config {
 		KlarResultServiceAddress: getServiceAddress(klarResultServicePath),
 		ScannerHttpsProxy:        viper.GetString(ScannerHttpsProxy),
 		ScannerHttpProxy:         viper.GetString(ScannerHttpProxy),
+		CredsSecretNamespace:     viper.GetString(CredsSecretNamespace),
 	}
 
 	return config

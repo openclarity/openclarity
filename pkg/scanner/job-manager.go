@@ -266,12 +266,12 @@ func (s *Scanner) createContainer(imageName, secretName string, scanUUID string)
 		},
 		Env: env,
 		Resources: corev1.ResourceRequirements{
-			Limits:   corev1.ResourceList{
-				corev1.ResourceCPU: resource.MustParse("100m"),
+			Limits: corev1.ResourceList{
+				corev1.ResourceCPU:    resource.MustParse("100m"),
 				corev1.ResourceMemory: resource.MustParse("100Mi"),
 			},
 			Requests: corev1.ResourceList{
-				corev1.ResourceCPU: resource.MustParse("10m"),
+				corev1.ResourceCPU:    resource.MustParse("10m"),
 				corev1.ResourceMemory: resource.MustParse("10Mi"),
 			},
 		},
@@ -324,7 +324,7 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 			podContext.namespace, podContext.podName, podContext.containerName, data.imageName, err)
 	}
 
-	return &batchv1.Job{
+	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
 			Namespace: podContext.namespace,
@@ -344,5 +344,16 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 			BackoffLimit:            &backOffLimit,
 			TTLSecondsAfterFinished: &ttlSecondsAfterFinished,
 		},
-	}, nil
+	}
+
+	// Use private repo sa credentials only if there is no imagePullSecret
+	if podContext.imagePullSecret == "" {
+		for _, adder := range s.credentialAdders {
+			if adder.ShouldAdd() {
+				adder.Add(job)
+			}
+		}
+	}
+
+	return job, nil
 }
