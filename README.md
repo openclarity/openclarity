@@ -70,6 +70,46 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 
 Uncomment and configure the proxy env variables for the Clair and Kubei deployments in `deploy/kubei.yaml`.
 
+## Amazon ECR support
+
+Create an [AWS IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console) with `AmazonEC2ContainerRegistryFullAccess` permissions.
+
+Use the user credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`) to create the following secret:
+
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ecr-sa
+  namespace: kubei
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: $(echo -n 'XXXX'| base64 -w0)
+  AWS_SECRET_ACCESS_KEY: $(echo -n 'XXXX'| base64 -w0)
+  AWS_DEFAULT_REGION: $(echo -n 'XXXX'| base64 -w0)
+EOF
+```
+
+Note: 
+1. Secret name must be `ecr-sa`
+2. Secret data keys must be set to `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_DEFAULT_REGION`
+
+## Google GCR support
+
+Create a [Google service account](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) with `Artifact Registry Reader` permissions.
+
+Use the service account json file to create the following secret
+
+```
+kubectl -n kubei create secret generic --from-file=sa.json gcr-sa
+```
+
+Note:
+1. Secret name must be `gcr-sa` 
+1. `sa.json` must be the name of the service account json file when generating the secret
+2. Kubei is using [application default credentials](https://developers.google.com/identity/protocols/application-default-credentials). These only work when running Kubei from GCP.
+
 ## Limitations 
 
 1. Supports Kubernetes Image Manifest V 2, Schema 2 (https://docs.docker.com/registry/spec/manifest-v2-2/). It will fail to scan on earlier versions.
