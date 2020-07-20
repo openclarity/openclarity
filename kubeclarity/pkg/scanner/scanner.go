@@ -6,6 +6,7 @@ import (
 	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/klar/forwarding"
 	"github.com/Portshift/kubei/pkg/config"
+	"github.com/Portshift/kubei/pkg/scanner/creds"
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
 	slice_utils "github.com/Portshift/kubei/pkg/utils/slice"
@@ -28,26 +29,31 @@ const (
 )
 
 type Scanner struct {
-	imageToScanData map[string]*scanData
-	progress        types.ScanProgress
-	status          Status
-	config          *config.Config
-	scanConfig      *config.ScanConfig
-	killSignal      chan bool
-	clientset       kubernetes.Interface
-	logFields       log.Fields
+	imageToScanData  map[string]*scanData
+	progress         types.ScanProgress
+	status           Status
+	config           *config.Config
+	scanConfig       *config.ScanConfig
+	killSignal       chan bool
+	clientset        kubernetes.Interface
+	logFields        log.Fields
+	credentialAdders []creds.CredentialAdder
 	sync.Mutex
 }
 
 func CreateScanner(config *config.Config, clientset kubernetes.Interface) *Scanner {
 	s := &Scanner{
-		progress:   types.ScanProgress{},
-		status:     Idle,
-		config:     config,
-		killSignal: make(chan bool),
-		clientset:  clientset,
-		logFields:  log.Fields{"scanner id": uuid.NewV4().String()},
-		Mutex:      sync.Mutex{},
+		progress:         types.ScanProgress{},
+		status:           Idle,
+		config:           config,
+		killSignal:       make(chan bool),
+		clientset:        clientset,
+		logFields:        log.Fields{"scanner id": uuid.NewV4().String()},
+		credentialAdders: []creds.CredentialAdder{
+			creds.CreateECR(clientset, config.CredsSecretNamespace),
+			creds.CreateGCR(clientset, config.CredsSecretNamespace),
+		},
+		Mutex:            sync.Mutex{},
 	}
 
 	return s
