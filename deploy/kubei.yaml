@@ -77,7 +77,7 @@ spec:
     spec:
       initContainers:
       - name: check-db-ready
-        image: postgres:9.6.5
+        image: postgres:12-alpine
         command: ['sh', '-c',  'until pg_isready -h postgres -p 5432;  do echo waiting for database; sleep 2; done;']
       containers:
       - name: clair
