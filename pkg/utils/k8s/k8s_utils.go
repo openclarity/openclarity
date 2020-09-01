@@ -4,12 +4,14 @@ import (
 	"context"
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 	credprovsecrets "k8s.io/kubernetes/pkg/credentialprovider/secrets"
+	"k8s.io/utils/field"
 	"strings"
 )
 
@@ -74,4 +76,35 @@ func ParseImageHash(imageID string) string {
 	}
 
 	return imageID[index+1:]
+}
+
+// ContainerVisitorWithPath is called with each container and the field.Path to that container,
+// and returns true if visiting should continue.
+type ContainerVisitorWithPath func(container *v1.Container, path *field.Path) error
+
+// VisitContainersWithPath invokes the visitor function with a pointer to the spec
+// of every container in the given pod spec and the field.Path to that container.
+// If visitor returns false, visiting is short-circuited. VisitContainersWithPath returns true if visiting completes,
+func VisitContainersWithPath(podSpec *v1.PodSpec, visitor ContainerVisitorWithPath) error {
+	path := field.NewPath("spec", "initContainers")
+	for i := range podSpec.InitContainers {
+		if err := visitor(&podSpec.InitContainers[i], path.Index(i)); err != nil {
+			return err
+		}
+	}
+	path = field.NewPath("spec", "containers")
+	for i := range podSpec.Containers {
+		if err := visitor(&podSpec.Containers[i], path.Index(i)); err != nil {
+			return err
+		}
+	}
+
+	path = field.NewPath("spec", "ephemeralContainers")
+	for i := range podSpec.EphemeralContainers {
+		if err := visitor((*v1.Container)(&podSpec.EphemeralContainers[i].EphemeralContainerCommon), path.Index(i)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

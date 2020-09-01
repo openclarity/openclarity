@@ -15,6 +15,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/utils/field"
 	"sync"
 	"sync/atomic"
 )
@@ -122,8 +123,11 @@ func (s *Scanner) initScan() error {
 		for _, container := range pod.Status.ContainerStatuses {
 			containerNameToImageId[container.Name] = container.ImageID
 		}
+		for _, container := range pod.Status.InitContainerStatuses {
+			containerNameToImageId[container.Name] = container.ImageID
+		}
 
-		for _, container := range pod.Spec.Containers {
+		_ = k8s_utils.VisitContainersWithPath(&pod.Spec, func(container *corev1.Container, _ *field.Path) error {
 			// Create pod context
 			podContext := &imagePodContext{
 				containerName:   container.Name,
@@ -131,7 +135,7 @@ func (s *Scanner) initScan() error {
 				podUid:          string(pod.GetUID()),
 				namespace:       pod.GetNamespace(),
 				imagePullSecret: k8s_utils.GetMatchingSecretName(secrets, container.Image),
-				imageHash:       getImageHash(containerNameToImageId, container),
+				imageHash:       getImageHash(containerNameToImageId, *container),
 			}
 			if data, ok := imageToScanData[container.Image]; !ok {
 				// Image added for the first time, create scan data and append pod context
@@ -145,7 +149,8 @@ func (s *Scanner) initScan() error {
 				// Image already exist in map, just append the pod context
 				data.contexts = append(data.contexts, podContext)
 			}
-		}
+			return nil
+		})
 	}
 
 	s.imageToScanData = imageToScanData
