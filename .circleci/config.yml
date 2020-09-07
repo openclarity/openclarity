@@ -1,0 +1,44 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.14
+
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    steps:
+      - checkout
+
+      # specify any bash command here prefixed with `run: `
+      - run: make test
+
+  build_and_push:
+    docker:
+      - image: gcr.io/development-infra-208909/docker-18-git-go-1.13.5-builder
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker login -u _json_key -p "${GCR_REGISTRY_SERVICE_ACCOUNT}" http://gcr.io
+      - run: echo ${CIRCLE_TAG}
+      - run: >
+          if [ "${CIRCLE_TAG}" != "" ];
+          then
+            VERSION=${CIRCLE_TAG} make docker.push
+          else
+            make build
+          fi
+workflows:
+  test_build_and_push:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^[0-9]+(\.[0-9]+)*$/
+      - build_and_push:
+          requires:
+            - test
+          context: REG_CREDS
+          filters:
+            tags:
+              only: /^[0-9]+(\.[0-9]+)*$/
