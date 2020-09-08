@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	gcrSaSecretName      = "gcr-sa"
+	GcrSaSecretName      = "gcr-sa"
 	gcrSaSecretFileName  = "sa.json"
 	gcrVolumeName        = "gcr-sa"
 	gcrVolumeMountPath   = "/etc/gcr"
@@ -16,21 +16,24 @@ const (
 )
 
 type GCR struct {
-	clientset       kubernetes.Interface
-	isSecretExists  *bool
-	secretNamespace string
+	credsCommon
 }
+
+// ensure type implement the requisite interface
+var _ CredentialAdder = &GCR{}
 
 func CreateGCR(clientset kubernetes.Interface, secretNamespace string) *GCR {
 	return &GCR{
-		clientset:       clientset,
-		secretNamespace: secretNamespace,
+		credsCommon: credsCommon{
+			clientset:       clientset,
+			secretNamespace: secretNamespace,
+		},
 	}
 }
 
 func (g *GCR) ShouldAdd() bool {
 	if g.isSecretExists == nil {
-		found := isSecretExists(g.clientset, gcrSaSecretName, g.secretNamespace)
+		found := isSecretExists(g.clientset, GcrSaSecretName, g.secretNamespace)
 		g.isSecretExists = &found
 	}
 
@@ -48,7 +51,7 @@ func (g *GCR) Add(job *batchv1.Job) {
 		Name: gcrVolumeName,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
-				SecretName: gcrSaSecretName,
+				SecretName: GcrSaSecretName,
 				Items: []corev1.KeyToPath{
 					{
 						Key:  gcrSaSecretFileName,
