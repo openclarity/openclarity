@@ -7,64 +7,67 @@ import (
 )
 
 const (
-	awsAccessKeyId     = "AWS_ACCESS_KEY_ID"
-	awsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
-	awsDefaultRegion   = "AWS_DEFAULT_REGION"
-	ecrSaSecretName    = "ecr-sa"
+	AwsAccessKeyId     = "AWS_ACCESS_KEY_ID"
+	AwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+	AwsDefaultRegion   = "AWS_DEFAULT_REGION"
+	EcrSaSecretName    = "ecr-sa"
 )
 
 var ecrEnvs = []corev1.EnvVar{
 	{
-		Name: awsAccessKeyId,
+		Name: AwsAccessKeyId,
 		ValueFrom: &corev1.EnvVarSource{
 			SecretKeyRef: &corev1.SecretKeySelector{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: ecrSaSecretName,
+					Name: EcrSaSecretName,
 				},
-				Key: awsAccessKeyId,
+				Key: AwsAccessKeyId,
 			},
 		},
 	},
 	{
-		Name: awsSecretAccessKey,
+		Name: AwsSecretAccessKey,
 		ValueFrom: &corev1.EnvVarSource{
 			SecretKeyRef: &corev1.SecretKeySelector{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: ecrSaSecretName,
+					Name: EcrSaSecretName,
 				},
-				Key: awsSecretAccessKey,
+				Key: AwsSecretAccessKey,
 			},
 		},
 	},
 	{
-		Name: awsDefaultRegion,
+		Name: AwsDefaultRegion,
 		ValueFrom: &corev1.EnvVarSource{
 			SecretKeyRef: &corev1.SecretKeySelector{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: ecrSaSecretName,
+					Name: EcrSaSecretName,
 				},
-				Key: awsDefaultRegion,
+				Key: AwsDefaultRegion,
 			},
 		},
 	},
 }
 
 type ECR struct {
-	clientset       kubernetes.Interface
-	isSecretExists  *bool
-	secretNamespace string
+	credsCommon
 }
+
+// ensure type implement the requisite interface
+var _ CredentialAdder = &ECR{}
 
 func CreateECR(clientset kubernetes.Interface, secretNamespace string) *ECR {
 	return &ECR{
-		clientset:       clientset,
-		secretNamespace: secretNamespace,
+		credsCommon: credsCommon{
+			clientset:       clientset,
+			secretNamespace: secretNamespace,
+		},
 	}
 }
 
 func (e *ECR) ShouldAdd() bool {
 	if e.isSecretExists == nil {
-		found := isSecretExists(e.clientset, ecrSaSecretName, e.secretNamespace)
+		found := isSecretExists(e.clientset, EcrSaSecretName, e.secretNamespace)
 		e.isSecretExists = &found
 	}
 
@@ -72,7 +75,7 @@ func (e *ECR) ShouldAdd() bool {
 }
 
 // Klar is using google SDK to pull the user name ans password required to pull the image.
-// We need to set the following env variables from the `ecrSaSecretName` secret:
+// We need to set the following env variables from the `EcrSaSecretName` secret:
 // 1. AWS_ACCESS_KEY_ID
 // 2. AWS_SECRET_ACCESS_KEY
 // 3. AWS_DEFAULT_REGION
