@@ -50,6 +50,7 @@ func CreateScanner(config *config.Config, clientset kubernetes.Interface) *Scann
 		clientset:        clientset,
 		logFields:        log.Fields{"scanner id": uuid.NewV4().String()},
 		credentialAdders: []creds.CredentialAdder{
+			creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
 			creds.CreateECR(clientset, config.CredsSecretNamespace),
 			creds.CreateGCR(clientset, config.CredsSecretNamespace),
 		},

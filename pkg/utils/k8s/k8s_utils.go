@@ -2,29 +2,38 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/credentialprovider"
+	"k8s.io/client-go/tools/clientcmd"
 	credprovsecrets "k8s.io/kubernetes/pkg/credentialprovider/secrets"
 	"strings"
 )
 
 const MaxK8sJobName = 63
 
-func CreateClientset() (kubernetes.Interface, error) {
-	// creates the in-cluster config
-	config, err := rest.InClusterConfig()
+func CreateClientset(kubeconfigPath string) (kubernetes.Interface, error) {
+	// Create Kubernetes go-client clientset
+	var config *rest.Config
+	var err error
+
+	if kubeconfigPath != "" {
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	} else {
+		config, err = rest.InClusterConfig()
+	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to build config: %v", err)
 	}
 
+	// Create a rest client not targeting specific API version
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create a rest client: %v", err)
 	}
 
 	return clientset, nil
@@ -47,16 +56,15 @@ func GetPodImagePullSecrets(clientset kubernetes.Interface, pod corev1.Pod) []*c
 func GetMatchingSecretName(secrets []*corev1.Secret, imageName string) string {
 	for _, secret := range secrets {
 		slice := []corev1.Secret{*secret}
-		var singleSecretKeyRing = credentialprovider.NewDockerKeyring()
-		singleSecretKeyRing, err := credprovsecrets.MakeDockerKeyring(slice, singleSecretKeyRing)
-		if err != nil {
+		dockerKeyring, err := credprovsecrets.MakeDockerKeyring(slice, nil)
+		if err != nil || dockerKeyring == nil {
 			return ""
 		}
 		namedImageRef, err := reference.ParseNormalizedNamed(imageName)
 		if err != nil {
 			return ""
 		}
-		_, credentialsExist := singleSecretKeyRing.Lookup(namedImageRef.Name())
+		_, credentialsExist := dockerKeyring.Lookup(namedImageRef.Name())
 		if credentialsExist {
 			return secret.Name
 		}

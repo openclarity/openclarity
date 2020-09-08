@@ -253,7 +253,7 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 /******************************************************* PUBLIC *******************************************************/
 
 func Init(config *config.Config, scanConfig *config.ScanConfig) (*Webapp, error) {
-	clientset, err := k8s_utils.CreateClientset()
+	clientset, err := k8s_utils.CreateClientset("")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create clientset: %v", err)
 	}
