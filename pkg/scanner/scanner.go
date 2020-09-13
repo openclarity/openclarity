@@ -122,8 +122,13 @@ func (s *Scanner) initScan() error {
 		for _, container := range pod.Status.ContainerStatuses {
 			containerNameToImageId[container.Name] = container.ImageID
 		}
+		for _, container := range pod.Status.InitContainerStatuses {
+			containerNameToImageId[container.Name] = container.ImageID
+		}
 
-		for _, container := range pod.Spec.Containers {
+		containers := append(pod.Spec.Containers, pod.Spec.InitContainers...)
+
+		for _, container := range containers {
 			// Create pod context
 			podContext := &imagePodContext{
 				containerName:   container.Name,
