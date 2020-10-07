@@ -15,7 +15,7 @@ const (
 	IgnoreNamespaces  = "IGNORE_NAMESPACES"
 	JobResultTimeout  = "JOB_RESULT_TIMEOUT"
 	KlarImageName     = "KLAR_IMAGE_NAME"
-	DockleImageName     = "DOCKLE_IMAGE_NAME"
+	DockleImageName   = "DOCKLE_IMAGE_NAME"
 	DeleteJobPolicy   = "DELETE_JOB_POLICY"
 )
 
@@ -37,7 +37,7 @@ func setScanConfigDefaults() {
 	viper.SetDefault(SeverityThreshold, "MEDIUM")          // Minimum severity level to report
 	viper.SetDefault(IgnoreNamespaces, "")
 	viper.SetDefault(KlarImageName, "gcr.io/development-infra-208909/klar")
-	viper.SetDefault(DockleImageName, "gcr.io/development-infra-208909/dockle")
+	viper.SetDefault(DockleImageName, "gcr.io/development-infra-208909/dockle") // TODO
 	viper.SetDefault(JobResultTimeout, "10m")
 	viper.SetDefault(DeleteJobPolicy, DeleteJobPolicySuccessful)
 

@@ -8,7 +8,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.3.2
-	gitlab.com/portshift/dockle v0.2.5-0.20200817121339-84567864d61e
+	gitlab.com/portshift/dockle v0.2.5-0.20201007020739-24fbd822039b
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.1
 	k8s.io/apimachinery v0.18.1
@@ -16,7 +16,7 @@ require (
 	k8s.io/kubernetes v1.18.1
 )
 
-replace gitlab.com/portshift/dockle => /home/ak/go/src/gitlab.com/portshift/dockle
+//replace gitlab.com/portshift/dockle => /home/ak/go/src/gitlab.com/portshift/dockle
 
 // kubernetes v1.18.1
 replace (

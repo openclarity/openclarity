@@ -665,6 +665,8 @@ github.com/xlab/handysort v0.0.0-20150421192137-fb3537ed64a1/go.mod h1:QcJo0QPSf
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 gitlab.com/portshift/dockle v0.2.5-0.20200817121339-84567864d61e h1:PC8ULcFAI3OdT2SEne1sV5f4grXkq8x8kYycn4pnOcY=
 gitlab.com/portshift/dockle v0.2.5-0.20200817121339-84567864d61e/go.mod h1:a/Gob3nGuC6wxz+MSUbbQfdDtOvHik3L5X4UCNbyA4o=
+gitlab.com/portshift/dockle v0.2.5-0.20201007020739-24fbd822039b h1:MM/sSCMk01i3vwo4dNci7WHMuj44Ut6PXEpHNkXe/Jw=
+gitlab.com/portshift/dockle v0.2.5-0.20201007020739-24fbd822039b/go.mod h1:a/Gob3nGuC6wxz+MSUbbQfdDtOvHik3L5X4UCNbyA4o=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.4/go.mod h1:G5EMThwa9y8QZGBClrRx5EY+Yw9kAhnjy3bSjsnlVTQ=
 go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738/go.mod h1:dnLIgRNXwCJa5e+c6mIZCrds/GIG4ncV9HhK5PX7jPg=
