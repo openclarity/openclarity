@@ -6,6 +6,7 @@ go 1.13
 
 require (
 	github.com/Portshift/klar v1.9.10-0.20200622082637-e4af1c6d1653
+	github.com/Portshift/kubei v0.0.0-20200921115534-09e3ccd6e2b4
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
@@ -19,6 +20,8 @@ require (
 )
 
 //replace gitlab.com/portshift/dockle => /home/ak/go/src/gitlab.com/portshift/dockle
+
+replace github.com/Portshift/kubei => github.com/akpsgit/kubei v0.0.0-20201007155328-ed5348ad1cee
 
 // kubernetes v1.18.1
 replace (
