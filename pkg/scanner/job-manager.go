@@ -214,7 +214,7 @@ func createJobName(imageName string) (string, error) {
 		return "", err
 	}
 
-	jobName := jobContainerName + "-" + simpleName + "-" + uuid.NewV4().String()
+	jobName := jobName + "-" + simpleName + "-" + uuid.NewV4().String()
 
 	// contain at most 63 characters
 	jobName = stringutils.TruncateString(jobName, k8s.MaxK8sJobName)
@@ -223,7 +223,7 @@ func createJobName(imageName string) (string, error) {
 	jobName = strings.ToLower(jobName)
 	jobName = strings.ReplaceAll(jobName, "_", "-")
 
-	// no need to validate start, we are using 'jobContainerName'
+	// no need to validate start, we are using 'jobName'
 
 	// end with an alphanumeric character
 	jobName = strings.TrimRight(jobName, "-")
@@ -231,9 +231,12 @@ func createJobName(imageName string) (string, error) {
 	return jobName, nil
 }
 
-const jobContainerName = "klar-scanner"
+const vulnerabilitiesScannerContainerName = "klar-scanner"
+const dockerfileScannerContainerName = "dockle-scanner"
 
-func (s *Scanner) createContainer(imageName, secretName string, scanUUID string) corev1.Container {
+const jobName = "scanner"
+
+func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName string, scanUUID string) corev1.Container {
 	env := []corev1.EnvVar{
 		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
 		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
@@ -259,8 +262,52 @@ func (s *Scanner) createContainer(imageName, secretName string, scanUUID string)
 	}
 
 	return corev1.Container{
-		Name:  jobContainerName,
+		Name:  vulnerabilitiesScannerContainerName,
 		Image: s.scanConfig.KlarImageName,
+		Args: []string{
+			imageName,
+		},
+		Env: env,
+		Resources: corev1.ResourceRequirements{
+			Limits: corev1.ResourceList{
+				corev1.ResourceCPU:    resource.MustParse("100m"),
+				corev1.ResourceMemory: resource.MustParse("100Mi"),
+			},
+			Requests: corev1.ResourceList{
+				corev1.ResourceCPU:    resource.MustParse("10m"),
+				corev1.ResourceMemory: resource.MustParse("10Mi"),
+			},
+		},
+	}
+}
+
+//TODO: share code with klar container
+func (s *Scanner) createDockerfileScannerContainer(imageName, secretName string, scanUUID string) corev1.Container {
+	env := []corev1.EnvVar{
+		{Name: "RESULT_SERVICE_PATH", Value: s.config.DockleResultServicePath},
+		{Name: "SCAN_UUID", Value: scanUUID},
+	}
+
+	env = s.appendProxyEnvConfig(env)
+
+	//TODO: support private registries
+	//if secretName != "" {
+	//	log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
+	//	env = append(env, corev1.EnvVar{
+	//		Name: klar.ImagePullSecretEnvVar, ValueFrom: &corev1.EnvVarSource{
+	//			SecretKeyRef: &corev1.SecretKeySelector{
+	//				LocalObjectReference: corev1.LocalObjectReference{
+	//					Name: secretName,
+	//				},
+	//				Key: corev1.DockerConfigJsonKey,
+	//			},
+	//		},
+	//	})
+	//}
+
+	return corev1.Container{
+		Name:  dockerfileScannerContainerName,
+		Image: s.scanConfig.DockleImageName,
 		Args: []string{
 			imageName,
 		},
@@ -296,7 +343,7 @@ func (s *Scanner) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
 	}
 
 	env = append(env, corev1.EnvVar{
-		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.KlarResultServiceAddress + "," + s.config.ClairAddress,
+		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.ResultServiceAddress + "," + s.config.ClairAddress,
 	})
 
 	return env
@@ -310,7 +357,7 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	podContext := data.contexts[0]
 
 	labels := map[string]string{
-		"app":                 jobContainerName,
+		"app":                 jobName,
 		ignorePodScanLabelKey: ignorePodScanLabelValue,
 	}
 	annotations := map[string]string{
@@ -337,7 +384,10 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 					Labels:      labels,
 				},
 				Spec: corev1.PodSpec{
-					Containers:    []corev1.Container{s.createContainer(data.imageName, podContext.imagePullSecret, data.scanUUID)},
+					Containers:    []corev1.Container{
+						s.createVulnerabilitiesScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
+						s.createDockerfileScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
+					},
 					RestartPolicy: corev1.RestartPolicyNever,
 				},
 			},

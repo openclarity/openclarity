@@ -5,16 +5,18 @@ go 1.13
 require (
 	github.com/Portshift/klar v1.9.10-0.20200622082637-e4af1c6d1653
 	github.com/containers/image/v5 v5.5.0
-
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.3.2
+	gitlab.com/portshift/dockle v0.2.5-0.20200817121339-84567864d61e
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.1
 	k8s.io/apimachinery v0.18.1
-	k8s.io/client-go v0.18.1
+	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.18.1
 )
+
+replace gitlab.com/portshift/dockle => /home/ak/go/src/gitlab.com/portshift/dockle
 
 // kubernetes v1.18.1
 replace (

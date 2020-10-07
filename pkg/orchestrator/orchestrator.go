@@ -9,6 +9,7 @@ import (
 	"github.com/Portshift/kubei/pkg/scanner"
 	"github.com/Portshift/kubei/pkg/types"
 	log "github.com/sirupsen/logrus"
+	dockle_types "gitlab.com/portshift/dockle/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"net/http"
 	"sync"
@@ -36,11 +37,12 @@ func Create(config *config.Config, clientset kubernetes.Interface) *Orchestrator
 		scanner:   scanner.CreateScanner(config, clientset),
 		config:    config,
 		clientset: clientset,
-		server:    &http.Server{Addr: ":" + config.KlarResultListenPort},
+		server:    &http.Server{Addr: ":" + config.ResultListenPort},
 		Mutex:     sync.Mutex{},
 	}
 
 	http.HandleFunc("/result/", o.resultHttpHandler)
+	http.HandleFunc("/dockerfileScanResult/", o.dockerfileResultHttpHandler)
 
 	return o
 }
@@ -66,7 +68,39 @@ func (o *Orchestrator) resultHttpHandler(w http.ResponseWriter, r *http.Request)
 	log.Debugf("Result was received. image=%+v, success=%+v, scanUUID=%+v",
 		result.Image, result.Success, result.ScanUUID)
 
-	err = o.getScanner().HandleResult(result)
+	err = o.getScanner().HandleVulnerabilitiesResult(result)
+	if err != nil {
+		log.Errorf("Failed to handle result. err=%v, result=%+v", err, result)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	log.Debugf("Result was added successfully. image=%+v", result.Image)
+	w.WriteHeader(http.StatusAccepted)
+}
+
+func readDockerfileScanResultBodyData(req *http.Request) (*dockle_types.ImageAssessment, error) {
+	decoder := json.NewDecoder(req.Body)
+	var bodyData *dockle_types.ImageAssessment
+	err := decoder.Decode(&bodyData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode result: %v", err)
+	}
+
+	return bodyData, nil
+}
+
+func (o *Orchestrator) dockerfileResultHttpHandler(w http.ResponseWriter, r *http.Request) {
+	result, err := readDockerfileScanResultBodyData(r)
+	if err != nil || result == nil {
+		log.Errorf("Invalid result. err=%v, result=%+v", err, result)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	log.Debugf("Dockerfile scan result was received. image=%+v, success=%+v, scanUUID=%+v",
+		result.Image, result.Success, result.ScanUUID)
+
+	err = o.getScanner().HandleDockerfileResult(result)
 	if err != nil {
 		log.Errorf("Failed to handle result. err=%v, result=%+v", err, result)
 		w.WriteHeader(http.StatusBadRequest)

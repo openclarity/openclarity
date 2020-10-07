@@ -15,8 +15,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"strings"
 	"sync"
 	"sync/atomic"
+	dockle_types "gitlab.com/portshift/dockle/pkg/types"
 )
 
 type Status string
@@ -69,16 +71,67 @@ type imagePodContext struct {
 	podUid          string
 }
 
-type scanData struct {
-	imageName  string
-	contexts   []*imagePodContext // All the pods that contain this image
-	scanUUID   string
+type vulnerabilitiesScanResult struct {
 	result     []*clair.Vulnerability
-	resultChan chan bool
 	success    bool
 	completed  bool
-	timeout    bool
 	scanErrMsg string
+}
+
+type dockerfileScanResult struct {
+	result     dockle_types.AssessmentMap
+	success    bool
+	completed  bool
+	scanErrMsg string
+}
+
+type scanData struct {
+	imageName             string
+	contexts              []*imagePodContext // All the pods that contain this image
+	scanUUID              string
+	vulnerabilitiesResult vulnerabilitiesScanResult
+	dockerfileResult      dockerfileScanResult
+	shouldScanDockerfile  bool
+	resultChan            chan bool
+	success               bool
+	completed             bool
+	timeout               bool
+	scanErrMsg            string
+}
+
+func (sd *scanData) getErrMsg() string {
+	var errors []string
+
+	if len(sd.scanErrMsg) != 0 {
+		errors = append(errors, sd.scanErrMsg)
+	}
+	if len(sd.vulnerabilitiesResult.scanErrMsg) != 0 {
+		errors = append(errors, sd.vulnerabilitiesResult.scanErrMsg)
+	}
+	if len(sd.dockerfileResult.scanErrMsg) != 0 {
+		errors = append(errors, sd.dockerfileResult.scanErrMsg)
+	}
+
+	return strings.Join(errors, ", ")
+}
+
+func (sd *scanData) setVulnerabilitiesResult(result *vulnerabilitiesScanResult) {
+	sd.vulnerabilitiesResult = *result
+	sd.updateResult()
+}
+
+func (sd *scanData) setDockerfileResult(result *dockerfileScanResult) {
+	sd.dockerfileResult = *result
+	sd.updateResult()
+}
+
+func (sd *scanData) updateResult() {
+	if sd.vulnerabilitiesResult.completed && (!sd.shouldScanDockerfile || sd.dockerfileResult.completed) {
+		sd.completed = true
+	}
+	if sd.vulnerabilitiesResult.success && (!sd.shouldScanDockerfile || sd.dockerfileResult.success) {
+		sd.success = true
+	}
 }
 
 const (
@@ -145,6 +198,7 @@ func (s *Scanner) initScan() error {
 					imageName:  container.Image,
 					contexts:   []*imagePodContext{podContext},
 					scanUUID:   uuid.NewV4().String(),
+					shouldScanDockerfile: s.scanConfig.DockerfileScan,
 					resultChan: make(chan bool),
 				}
 			} else {
@@ -226,9 +280,10 @@ func (s *Scanner) Results() *types.ScanResults {
 				ContainerName:   podContext.containerName,
 				ImageHash:       podContext.imageHash,
 				PodUid:          podContext.podUid,
-				Vulnerabilities: scanD.result,
+				Vulnerabilities: scanD.vulnerabilitiesResult.result,
+				DockerfileScanResults: scanD.dockerfileResult.result,
 				Success:         scanD.success,
-				ScanErrMsg:      scanD.scanErrMsg,
+				ScanErrMsg:      scanD.getErrMsg(),
 			})
 		}
 	}
@@ -239,41 +294,99 @@ func (s *Scanner) Results() *types.ScanResults {
 	}
 }
 
-func (s *Scanner) HandleResult(result *forwarding.ImageVulnerabilities) error {
+func (s *Scanner) shouldIgnoreResult(scanD *scanData, resultScanUUID string, image string) bool {
+	if scanD == nil {
+		log.WithFields(s.logFields).Warnf("no scan data for image '%v', probably an old scan result - ignoring", image)
+		return true
+	}
+
+	if resultScanUUID != scanD.scanUUID {
+		log.WithFields(s.logFields).Warnf("Scan UUID mismatch, probably an old scan result - ignoring. image=%v, received=%v, expected=%v", image, resultScanUUID, scanD.scanUUID)
+		return true
+	}
+
+	if scanD.timeout {
+		log.WithFields(s.logFields).Warnf("Scan result after timeout - ignoring. image=%v, scan uuid=%v", image, resultScanUUID)
+		return true
+	}
+
+	if scanD.completed {
+		log.WithFields(s.logFields).Warnf("Duplicate result for image scan. image=%v, scan uuid=%v", image, resultScanUUID)
+		return true
+	}
+
+	return false
+}
+
+func (s *Scanner) HandleVulnerabilitiesResult(result *forwarding.ImageVulnerabilities) error {
 	s.Lock()
 	defer s.Unlock()
 
 	scanD, ok := s.imageToScanData[result.Image]
-	if !ok || scanD == nil {
-		log.WithFields(s.logFields).Warnf("no scan data for image '%v', probably an old scan result - ignoring", result.Image)
+	if !ok || s.shouldIgnoreResult(scanD, result.ScanUUID, result.Image) {
+		log.WithFields(s.logFields).Warnf("Ignoring vulnerabilities result for image '%v'", result.Image)
 		return nil
 	}
 
-	if result.ScanUUID != scanD.scanUUID {
-		log.WithFields(s.logFields).Warnf("Scan UUID mismatch, probably an old scan result - ignoring. image=%v, received=%v, expected=%v", result.Image, result.ScanUUID, scanD.scanUUID)
-		return nil
+	vulnerabilitiesResult := &vulnerabilitiesScanResult{
+		result:     result.Vulnerabilities,
+		success:    result.Success,
+		completed:  true,
+		scanErrMsg: result.ScanErrMsg,
 	}
 
-	if scanD.timeout {
-		log.WithFields(s.logFields).Warnf("Scan result after timeout - ignoring. image=%v, scan uuid=%v", result.Image, result.ScanUUID)
-		return nil
-	}
+	scanD.setVulnerabilitiesResult(vulnerabilitiesResult)
 
-	if scanD.completed {
-		log.WithFields(s.logFields).Warnf("Duplicate result for image scan. image=%v, scan uuid=%v", result.Image, result.ScanUUID)
-		return nil
-	}
-
-	scanD.completed = true
-	scanD.result = result.Vulnerabilities
-	scanD.success = result.Success
-	scanD.scanErrMsg = result.ScanErrMsg
-
-	if scanD.success && scanD.result == nil {
+	if scanD.vulnerabilitiesResult.success && scanD.vulnerabilitiesResult.result == nil {
 		log.WithFields(s.logFields).Infof("No vulnerabilities found on image %v.", result.Image)
 	}
-	if !scanD.success {
-		log.WithFields(s.logFields).Warnf("Scan of image %v has failed: %v", result.Image, scanD.scanErrMsg)
+	if !scanD.vulnerabilitiesResult.success {
+		log.WithFields(s.logFields).Warnf("Scan of image %v has failed: %v", result.Image, scanD.vulnerabilitiesResult.scanErrMsg)
+	}
+
+	if !scanD.completed {
+		log.WithFields(s.logFields).Info("Total scan is not yet completed for image %v", result.Image)
+		return nil
+	}
+
+	select {
+	case scanD.resultChan <- true:
+	default:
+		log.WithFields(s.logFields).Warnf("Failed to notify upon received result scan. image=%v, scan-uuid=%v", result.Image, result.ScanUUID)
+	}
+
+	return nil
+}
+
+func (s *Scanner) HandleDockerfileResult(result *dockle_types.ImageAssessment) error {
+	s.Lock()
+	defer s.Unlock()
+
+	scanD, ok := s.imageToScanData[result.Image]
+	if !ok || s.shouldIgnoreResult(scanD, result.ScanUUID, result.Image) {
+		log.WithFields(s.logFields).Warnf("Ignoring dockerfile result for image '%v'", result.Image)
+		return nil
+	}
+
+	dockerfileResult := &dockerfileScanResult{
+		result:     result.Assessment,
+		success:    result.Success,
+		completed:  true,
+		scanErrMsg: result.ScanErrMsg,
+	}
+
+	scanD.setDockerfileResult(dockerfileResult)
+
+	if scanD.dockerfileResult.success && len(scanD.dockerfileResult.result) == 0 {
+		log.WithFields(s.logFields).Infof("No checkpoints found on image %v.", result.Image)
+	}
+	if !scanD.dockerfileResult.success {
+		log.WithFields(s.logFields).Warnf("Scan of image %v has failed: %v", result.Image, scanD.dockerfileResult.scanErrMsg)
+	}
+
+	if !scanD.completed {
+		log.WithFields(s.logFields).Info("Total scan is not yet completed for image %v", result.Image)
+		return nil
 	}
 
 	select {
