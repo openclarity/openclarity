@@ -345,7 +345,7 @@ func (s *Scanner) HandleVulnerabilitiesResult(result *forwarding.ImageVulnerabil
 	}
 
 	if !scanD.completed {
-		log.WithFields(s.logFields).Info("Total scan is not yet completed for image %v", result.Image)
+		log.WithFields(s.logFields).Infof("Total scan is not yet completed for image %v", result.Image)
 		return nil
 	}
 
@@ -385,7 +385,7 @@ func (s *Scanner) HandleDockerfileResult(result *dockle_types.ImageAssessment) e
 	}
 
 	if !scanD.completed {
-		log.WithFields(s.logFields).Info("Total scan is not yet completed for image %v", result.Image)
+		log.WithFields(s.logFields).Infof("Total scan is not yet completed for image %v", result.Image)
 		return nil
 	}
 
