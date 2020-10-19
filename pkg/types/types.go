@@ -1,6 +1,9 @@
 package types
 
-import "github.com/Portshift/klar/clair"
+import (
+	"github.com/Portshift/klar/clair"
+	dockle_types "gitlab.com/portshift/dockle/pkg/types"
+)
 
 type ScanProgress struct {
 	ImagesToScan          uint32
@@ -9,15 +12,16 @@ type ScanProgress struct {
 }
 
 type ImageScanResult struct {
-	PodName         string
-	PodNamespace    string
-	ImageName       string
-	ContainerName   string
-	ImageHash       string
-	PodUid          string
-	Vulnerabilities []*clair.Vulnerability
-	Success         bool
-	ScanErrMsg      string
+	PodName               string
+	PodNamespace          string
+	ImageName             string
+	ContainerName         string
+	ImageHash             string
+	PodUid                string
+	Vulnerabilities       []*clair.Vulnerability
+	DockerfileScanResults dockle_types.AssessmentMap
+	Success               bool
+	ScanErrMsg            string
 }
 
 type ScanResults struct {

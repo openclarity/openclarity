@@ -19,13 +19,14 @@ const (
 )
 
 type ScanConfig struct {
-	MaxScanParallelism int
-	TargetNamespace    string
-	SeverityThreshold  string
-	KlarImageName      string
-	IgnoredNamespaces  []string
-	JobResultTimeout   time.Duration
-	DeleteJobPolicy    DeleteJobPolicyType
+	MaxScanParallelism   int
+	TargetNamespace      string
+	SeverityThreshold    string
+	KlarImageName        string
+	IgnoredNamespaces    []string
+	JobResultTimeout     time.Duration
+	DeleteJobPolicy      DeleteJobPolicyType
+	ShouldScanDockerFile bool
 }
 
 func setScanConfigDefaults() {
