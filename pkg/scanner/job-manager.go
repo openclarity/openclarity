@@ -388,7 +388,6 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 				Spec: corev1.PodSpec{
 					Containers:    []corev1.Container{
 						s.createVulnerabilitiesScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
-						s.createDockerfileScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
 					},
 					RestartPolicy: corev1.RestartPolicyNever,
 				},
@@ -396,6 +395,11 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 			BackoffLimit:            &backOffLimit,
 			TTLSecondsAfterFinished: &ttlSecondsAfterFinished,
 		},
+	}
+
+	if data.shouldScanDockerfile {
+		job.Spec.Template.Spec.Containers = append(job.Spec.Template.Spec.Containers,
+			s.createDockerfileScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID))
 	}
 
 	// Use private repo sa credentials only if there is no imagePullSecret
