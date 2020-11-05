@@ -3,9 +3,8 @@ module github.com/Portshift/kubei
 go 1.13
 
 require (
-	github.com/Portshift/klar v1.9.10-0.20200622082637-e4af1c6d1653
+	github.com/Portshift/klar v1.9.10-0.20201103090701-50a9d7378588
 	github.com/containers/image/v5 v5.5.0
-
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.3.2
