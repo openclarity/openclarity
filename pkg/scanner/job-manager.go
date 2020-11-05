@@ -3,7 +3,7 @@ package scanner
 import (
 	"context"
 	"fmt"
-	klar "github.com/Portshift/klar/kubernetes"
+	klar "github.com/Portshift/klar/docker/token/secret"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/utils/k8s"
 	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
