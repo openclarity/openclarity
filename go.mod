@@ -19,7 +19,7 @@ require (
 	k8s.io/kubernetes v1.18.1
 )
 
-replace github.com/Portshift/kubei => github.com/akpsgit/kubei master
+replace github.com/Portshift/kubei => github.com/akpsgit/kubei latest
 
 // kubernetes v1.18.1
 replace (
