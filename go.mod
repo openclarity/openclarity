@@ -5,13 +5,13 @@ module github.com/akpsgit/kubei
 go 1.13
 
 require (
+	github.com/Portshift/dockle v0.3.2-0.20201114234956-91bd5e4f219b // indirect
 	github.com/Portshift/klar v1.9.10-0.20201103090701-50a9d7378588
 	github.com/Portshift/kubei v0.0.0-20200921115534-09e3ccd6e2b4
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.3.2
-	gitlab.com/portshift/dockle v0.2.5-0.20201019084349-95175d28c803
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.1
 	k8s.io/apimachinery v0.18.1
@@ -19,7 +19,7 @@ require (
 	k8s.io/kubernetes v1.18.1
 )
 
-replace github.com/Portshift/kubei => github.com/akpsgit/kubei latest
+replace github.com/Portshift/kubei => github.com/akpsgit/kubei v0.0.0-20201108171426-37d9105b9bfe
 
 // kubernetes v1.18.1
 replace (

@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/Portshift/klar/clair"
-	dockle_types "gitlab.com/portshift/dockle/pkg/types"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 )
 
 type ScanProgress struct {

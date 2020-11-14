@@ -9,7 +9,7 @@ import (
 	"github.com/Portshift/kubei/pkg/scanner"
 	"github.com/Portshift/kubei/pkg/types"
 	log "github.com/sirupsen/logrus"
-	dockle_types "gitlab.com/portshift/dockle/pkg/types"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"net/http"
 	"sync"
