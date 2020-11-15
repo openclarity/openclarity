@@ -6,7 +6,7 @@ IMAGE_NAME ?= $(DOCKER_REGISTRY)/$(BINARY):$(VERSION)
 TARGET_OS ?= linux
 
 build:
-	GOOS=$(TARGET_OS) CGO_ENABLED=0 go build -o $(BINARY) $(SOURCE)
+	GOOS=$(TARGET_OS) CGO_ENABLED=0 go build -mod vendor -o $(BINARY) $(SOURCE)
 
 # builds the current dev docker version
 docker:

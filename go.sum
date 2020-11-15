@@ -36,6 +36,8 @@ github.com/OpenPeeDeeP/depguard v1.0.0/go.mod h1:7/4sitnI9YlQgTLLk734QlzXT8DuHVn
 github.com/OpenPeeDeeP/depguard v1.0.1/go.mod h1:xsIw86fROiiwelg+jB2uM9PiKihMMmUx/1V+TNhjQvM=
 github.com/Portshift/dockle v0.3.2-0.20201114234956-91bd5e4f219b h1:8On0Vf1/hnFn7q80moLWZh/Dr9X4dBy5+D5+HmqQl/w=
 github.com/Portshift/dockle v0.3.2-0.20201114234956-91bd5e4f219b/go.mod h1:Xk/jBIXkkswlmNUWTaHwVgdcu84M8TICTbsiC6R/wT4=
+github.com/Portshift/dockle v0.3.2-0.20201115130101-08fb857581af h1:V201SeEQHe8Gqotu9POL/qMdZX6xiMPmy6Nu9zs3x3w=
+github.com/Portshift/dockle v0.3.2-0.20201115130101-08fb857581af/go.mod h1:Xk/jBIXkkswlmNUWTaHwVgdcu84M8TICTbsiC6R/wT4=
 github.com/Portshift/klar v1.9.10-0.20201103090701-50a9d7378588 h1:BPGSvRzjTHGul/KTyhws5Xd5notnlzZdXXuh4miTO/U=
 github.com/Portshift/klar v1.9.10-0.20201103090701-50a9d7378588/go.mod h1:VvGEpxSqz8Y+TYPbxisrLmMiRQxvH2gd28zQHSI55vI=
 github.com/Portshift/klar v2.4.1+incompatible h1:E7HaYEb6Cj9qiNs8KWLd7t7ed/bEOc7Zfpd3kqFjwKk=
@@ -52,6 +54,8 @@ github.com/VividCortex/ewma v1.1.1/go.mod h1:2Tkkvm3sRDVXaiyucHiACn4cqf7DpdyLvmx
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
+github.com/akpsgit/kubei v0.0.0-20201108171426-37d9105b9bfe h1:G0mHCHVSo+b3BNxnEZEtG1sa2uFBI+JSdS91sOf7uTk=
+github.com/akpsgit/kubei v0.0.0-20201108171426-37d9105b9bfe/go.mod h1:RW8z7u6J1kYgq9cD6RBrAIeLd7WnM2hqIqpDePnfqGA=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883/go.mod h1:rCTlJbsFo29Kk6CurOXKm700vrz8f0KW0JNfpkRJY/8=
