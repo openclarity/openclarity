@@ -7,6 +7,9 @@ import (
 	"github.com/Portshift/kubei/pkg/orchestrator"
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
+	dockle_writer "github.com/Portshift/dockle/pkg/report"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
+	dockle_config "github.com/Portshift/dockle/config"
 	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
@@ -19,9 +22,6 @@ import (
 const htmlFileName = "view.html"
 const htmlPath = "/app/" + htmlFileName
 
-//noinspection GoUnusedGlobalVariable
-var templates = template.Must(template.ParseFiles(htmlPath))
-
 type Webapp struct {
 	orchestrator         *orchestrator.Orchestrator
 	executionConfig      *config.Config
@@ -30,31 +30,57 @@ type Webapp struct {
 	showGoWarning        bool // Warning that previous results will be lost
 	checkShowGoWarning   bool
 	lastScannedNamespace string
+	template             *template.Template
 	sync.Mutex
 }
 
-type extendedContextualMetadata struct {
-	Pod       string `json:"pod"`
+type containerInfo struct {
 	Container string `json:"container"`
 	Image     string `json:"image"`
+	Pod       string `json:"pod"`
 	Namespace string `json:"namespace"`
 	Succeeded bool   `json:"succeeded"`
 }
 
-type extendedContextualVulnerability struct {
-	extendedContextualMetadata
+type containerVulnerability struct {
+	containerInfo
 	Vulnerability *clair.Vulnerability `json:"vulnerability"`
 }
 
+type containerDockerfileVulnerability struct {
+	containerInfo
+	DockerfileVulnerability *dockerfileVulnerability `json:"dockerfileVulnerability"`
+}
+
+type dockerfileVulnerability struct {
+	Code        string `json:"code"`
+	Level       string `json:"level"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type viewVulnerabilities struct {
+	Vulnerabilities      []*containerVulnerability `json:"vulnerabilities,omitempty"`
+	Total                int                       `json:"total"`
+	TotalDefcon1         int                       `json:"totalDefcon1"`
+	TotalCritical        int                       `json:"totalCritical"`
+	TotalHigh            int                       `json:"totalHigh"`
+}
+
+type viewDockerfileVulnerabilities struct {
+	DockerfileVulnerabilities []*containerDockerfileVulnerability `json:"dockerfileVulnerabilities,omitempty"`
+	Total                     int                                 `json:"total"`
+	TotalFatal                int                                 `json:"totalFatal"`
+	TotalWarn                 int                                 `json:"totalWarn"`
+	TotalInfo                 int                                 `json:"totalInfo"`
+}
+
 type viewData struct {
-	Vulnerabilities      []*extendedContextualVulnerability `json:"vulnerabilities,omitempty"`
-	Total                int                                `json:"total"`
-	TotalDefcon1         int                                `json:"totalDefcon1"`
-	TotalCritical        int                                `json:"totalCritical"`
-	TotalHigh            int                                `json:"totalHigh"`
-	ShowGoMsg            bool                               `json:"showGoMsg"`
-	ShowGoWarning        bool                               `json:"ShowGoWarning"`
-	LastScannedNamespace string                             `json:"lastScannedNamespace"`
+	Vulnerabilities           *viewVulnerabilities           `json:"vulnerabilities,omitempty"`
+	DockerfileVulnerabilities *viewDockerfileVulnerabilities `json:"dockerfileVulnerabilities,omitempty"`
+	ShowGoMsg                 bool                           `json:"showGoMsg"`
+	ShowGoWarning             bool                           `json:"ShowGoWarning"`
+	LastScannedNamespace      string                         `json:"lastScannedNamespace"`
 }
 
 const (
@@ -67,7 +93,7 @@ const (
 	unknownVulnerability    = "UNKNOWN"
 )
 
-func (wa *Webapp) calculateTotals(vulnerabilities []*extendedContextualVulnerability) (totalCritical, totalHigh, totalDefcon1 int) {
+func calculateVulnerabilitiesTotals(vulnerabilities []*containerVulnerability) (totalCritical, totalHigh, totalDefcon1 int) {
 	for _, vul := range vulnerabilities {
 		if vul.Vulnerability == nil {
 			continue
@@ -79,6 +105,23 @@ func (wa *Webapp) calculateTotals(vulnerabilities []*extendedContextualVulnerabi
 			totalCritical++
 		case highVulnerability:
 			totalHigh++
+		}
+	}
+	return
+}
+
+func calculateDockerfileVulnerabilitiesTotals(dockerfileVulnerabilities []*containerDockerfileVulnerability) (totalFatal, totalWarn, totalinfo int) {
+	for _, vul := range dockerfileVulnerabilities {
+		if vul.DockerfileVulnerability == nil {
+			continue
+		}
+		switch dockle_config.ExitLevelMap[vul.DockerfileVulnerability.Level] {
+		case dockle_types.FatalLevel:
+			totalFatal++
+		case dockle_types.WarnLevel:
+			totalWarn++
+		case dockle_types.InfoLevel:
+			totalinfo++
 		}
 	}
 	return
@@ -106,8 +149,19 @@ func getSeverityFromString(severity string) int {
 	}
 }
 
+func formatDockerfileDescription(assessments dockle_types.AssessmentSlice) string {
+	ret := ""
+	for _, assessment := range assessments {
+		ret = ret + fmt.Sprintf("%s, ", assessment.Desc)
+	}
+
+	ret = strings.TrimSuffix(ret, ", ")
+
+	return ret
+}
+
 // sort by severity, if equals or no vulnerability sort by name
-func sortVulnerabilities(data []*extendedContextualVulnerability) []*extendedContextualVulnerability {
+func sortVulnerabilities(data []*containerVulnerability) []*containerVulnerability {
 	sort.Slice(data[:], func(i, j int) bool {
 		if data[i].Vulnerability == nil || data[j].Vulnerability == nil {
 			return data[i].Pod < data[j].Pod
@@ -124,11 +178,32 @@ func sortVulnerabilities(data []*extendedContextualVulnerability) []*extendedCon
 	return data
 }
 
-func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) []*extendedContextualVulnerability {
-	var extendedContextualVulnerabilities []*extendedContextualVulnerability
+// sort by severity, if equals or no dockerfile vulnerability sort by name
+func sortDockerfileVulnerabilities(data []*containerDockerfileVulnerability) []*containerDockerfileVulnerability {
+	sort.Slice(data[:], func(i, j int) bool {
+		if data[i].DockerfileVulnerability == nil || data[j].DockerfileVulnerability == nil {
+			return data[i].Pod < data[j].Pod
+		}
+
+		left := dockle_config.ExitLevelMap[data[i].DockerfileVulnerability.Level]
+		right := dockle_config.ExitLevelMap[data[j].DockerfileVulnerability.Level]
+		if left == right {
+			return data[i].Pod < data[j].Pod
+		}
+		return left > right
+	})
+
+	return data
+}
+
+
+func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*containerVulnerability, []*containerDockerfileVulnerability) {
+	var containerVulnerabilities []*containerVulnerability
+	var containerDockerfileVulnerabilities []*containerDockerfileVulnerability
+
 	severityThreshold := getSeverityFromString(wa.scanConfig.SeverityThreshold)
 	for _, result := range results {
-		metadata := extendedContextualMetadata{
+		metadata := containerInfo{
 			Pod:       result.PodName,
 			Container: result.ContainerName,
 			Image:     result.ImageName,
@@ -137,8 +212,8 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) []*e
 		}
 		// show failed scan
 		if !result.Success {
-			extendedContextualVulnerabilities = append(extendedContextualVulnerabilities, &extendedContextualVulnerability{
-				extendedContextualMetadata: metadata,
+			containerVulnerabilities = append(containerVulnerabilities, &containerVulnerability{
+				containerInfo: metadata,
 			})
 		} else {
 			for _, vulnerability := range result.Vulnerabilities {
@@ -147,17 +222,31 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) []*e
 						metadata.Image, vulnerability, wa.scanConfig.SeverityThreshold)
 					continue
 				}
-				extendedContextualVulnerabilities = append(extendedContextualVulnerabilities, &extendedContextualVulnerability{
-					extendedContextualMetadata: metadata,
-					Vulnerability:              vulnerability,
+				containerVulnerabilities = append(containerVulnerabilities, &containerVulnerability{
+					containerInfo: metadata,
+					Vulnerability: vulnerability,
+				})
+			}
+			for _, dfVulnerability := range result.DockerfileScanResults {
+				containerDockerfileVulnerabilities = append(containerDockerfileVulnerabilities, &containerDockerfileVulnerability{
+					containerInfo: metadata,
+					DockerfileVulnerability: &dockerfileVulnerability{
+						Code:        dfVulnerability.Code,
+						Level:       dockle_writer.AlertLabels[dfVulnerability.Level],
+						Title:       dockle_types.TitleMap[dfVulnerability.Code],
+						Description: formatDockerfileDescription(dfVulnerability.Assessments),
+					},
+
 				})
 			}
 		}
 	}
 
-	sortedResults := sortVulnerabilities(extendedContextualVulnerabilities)
+	sortedVulnerabilities := sortVulnerabilities(containerVulnerabilities)
+	sortedDockerfileVulnerabilities := sortDockerfileVulnerabilities(containerDockerfileVulnerabilities)
 
-	return sortedResults
+
+	return sortedVulnerabilities, sortedDockerfileVulnerabilities
 }
 
 func (wa *Webapp) handleGoMsg() {
@@ -179,19 +268,30 @@ func (wa *Webapp) viewHandler(w http.ResponseWriter, _ *http.Request) {
 	log.Debug("Received a 'view' request...")
 
 	results := wa.orchestrator.Results()
-	extendedContextualVulnerabilities := wa.convertImageScanResults(results.ImageScanResults)
-	totalCritical, totalHigh, totalDefcon1 := wa.calculateTotals(extendedContextualVulnerabilities)
+	vulnerabilities, dfVulnerabilities := wa.convertImageScanResults(results.ImageScanResults)
+	totalCritical, totalHigh, totalDefcon1 := calculateVulnerabilitiesTotals(vulnerabilities)
+	totalFatal, totalWarn, totalInfo := calculateDockerfileVulnerabilitiesTotals(dfVulnerabilities)
 
 	if wa.checkShowGoWarning {
 		wa.showGoWarning = results.Progress.ImagesCompletedToScan != 0
 	}
 
-	err := templates.ExecuteTemplate(w, htmlFileName, &viewData{
-		Vulnerabilities:      extendedContextualVulnerabilities,
-		Total:                len(extendedContextualVulnerabilities),
-		TotalDefcon1:         totalDefcon1,
-		TotalCritical:        totalCritical,
-		TotalHigh:            totalHigh,
+	err := wa.template.ExecuteTemplate(w, htmlFileName, &viewData{
+		Vulnerabilities:      &viewVulnerabilities{
+			Vulnerabilities:      vulnerabilities,
+			Total:                len(vulnerabilities),
+			TotalDefcon1:         totalDefcon1,
+			TotalCritical:        totalCritical,
+			TotalHigh:            totalHigh,
+		},
+		DockerfileVulnerabilities: &viewDockerfileVulnerabilities{
+			DockerfileVulnerabilities: dfVulnerabilities,
+			Total:                     len(dfVulnerabilities),
+			TotalFatal:                totalFatal,
+			TotalWarn:                 totalWarn,
+			TotalInfo:                 totalInfo,
+		},
+
 		ShowGoMsg:            wa.showGoMsg,
 		ShowGoWarning:        wa.showGoWarning,
 		LastScannedNamespace: wa.lastScannedNamespace,
@@ -266,6 +366,7 @@ func Init(config *config.Config, scanConfig *config.ScanConfig) (*Webapp, error)
 		showGoWarning:        false,
 		checkShowGoWarning:   false,
 		lastScannedNamespace: "",
+		template:             template.Must(template.ParseFiles(htmlPath)),
 		Mutex:                sync.Mutex{},
 	}, nil
 }

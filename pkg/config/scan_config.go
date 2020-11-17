@@ -9,13 +9,14 @@ import (
 )
 
 const (
-	MaxParallelism    = "MAX_PARALLELISM"
-	TargetNamespace   = "TARGET_NAMESPACE"
-	SeverityThreshold = "SEVERITY_THRESHOLD"
-	IgnoreNamespaces  = "IGNORE_NAMESPACES"
-	JobResultTimeout  = "JOB_RESULT_TIMEOUT"
-	KlarImageName     = "KLAR_IMAGE_NAME"
-	DeleteJobPolicy   = "DELETE_JOB_POLICY"
+	MaxParallelism       = "MAX_PARALLELISM"
+	TargetNamespace      = "TARGET_NAMESPACE"
+	SeverityThreshold    = "SEVERITY_THRESHOLD"
+	IgnoreNamespaces     = "IGNORE_NAMESPACES"
+	JobResultTimeout     = "JOB_RESULT_TIMEOUT"
+	KlarImageName        = "KLAR_IMAGE_NAME"
+	DeleteJobPolicy      = "DELETE_JOB_POLICY"
+	ShouldScanDockerFile = "SHOULD_SCAN_DOCKERFILE"
 )
 
 type ScanConfig struct {
@@ -37,6 +38,7 @@ func setScanConfigDefaults() {
 	viper.SetDefault(KlarImageName, "gcr.io/development-infra-208909/klar")
 	viper.SetDefault(JobResultTimeout, "10m")
 	viper.SetDefault(DeleteJobPolicy, DeleteJobPolicySuccessful)
+	viper.SetDefault(ShouldScanDockerFile, "true")
 
 	viper.AutomaticEnv()
 }
@@ -52,6 +54,7 @@ func LoadScanConfig() *ScanConfig {
 		IgnoredNamespaces:  strings.Split(viper.GetString(IgnoreNamespaces), ","),
 		JobResultTimeout:   viper.GetDuration(JobResultTimeout),
 		DeleteJobPolicy:    getDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
+		ShouldScanDockerFile: viper.GetBool(ShouldScanDockerFile),
 	}
 }
 

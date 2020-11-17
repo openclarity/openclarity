@@ -1,6 +1,6 @@
 ![](images/Kubei-logo.png)
 
-Kubei is a vulnerabilities scanning tool that allows users to get an accurate and immediate risk assessment of their kubernetes clusters. Kubei scans all images that are being used in a Kubernetes cluster, including images of application pods and system pods. It doesn’t scan the entire image registries and doesn’t require preliminary integration with CI/CD pipelines. 
+Kubei is a vulnerabilities scanning and CIS Docker benchmark tool that allows users to get an accurate and immediate risk assessment of their kubernetes clusters. Kubei scans all images that are being used in a Kubernetes cluster, including images of application pods and system pods. It doesn’t scan the entire image registries and doesn’t require preliminary integration with CI/CD pipelines. 
 
 It is a configurable tool which allows users to define the scope of the scan (target namespaces), the speed, and the vulnerabilities level of interest.
 
@@ -32,6 +32,8 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
     * `Successful` - Only successful jobs will be deleted (default).
     * `Never` - Jobs will never be deleted.
 
+5. Disable CIS Docker benchmark. Set the `SHOULD_SCAN_DOCKERFILE` env variable to `false`.
+
 ## Usage 
 
 1. Run the following command to deploy Kubei on the cluster:
@@ -46,7 +48,7 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
     kubectl -n kubei get pod -lapp=kubei
     `
     
-    ![](images/kubei-running.png) 
+    ![](images/kubei-running.png)
 
 3. Then, port forwarding into the Kubei webapp via the following command:
 
@@ -64,7 +66,9 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 
 6. Refresh the page (http://localhost:8080/view/) to update the results.
 
-![](images/kubei-results.png)     
+![](images/kubei-vulnerability-results.png)
+    
+![](images/kubei-cis-docker-results.png)    
 
 ## Running Kubei with an external HTTP/HTTPS proxy
 
