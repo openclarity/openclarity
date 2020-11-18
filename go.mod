@@ -1,6 +1,4 @@
-//module github.com/Portshift/kubei
-
-module github.com/akpsgit/kubei
+module github.com/Portshift/kubei
 
 go 1.13
 
