@@ -292,20 +292,21 @@ func (s *Scanner) createDockerfileScannerContainer(imageName, secretName string,
 
 	env = s.appendProxyEnvConfig(env)
 
-	//TODO: support private registries
-	//if secretName != "" {
-	//	log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
-	//	env = append(env, corev1.EnvVar{
-	//		Name: klar.ImagePullSecretEnvVar, ValueFrom: &corev1.EnvVarSource{
-	//			SecretKeyRef: &corev1.SecretKeySelector{
-	//				LocalObjectReference: corev1.LocalObjectReference{
-	//					Name: secretName,
-	//				},
-	//				Key: corev1.DockerConfigJsonKey,
-	//			},
-	//		},
-	//	})
-	//}
+
+	if secretName != "" {
+		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
+		// Dockle uses a klar package to access credentials
+		env = append(env, corev1.EnvVar{
+			Name: klar.ImagePullSecretEnvVar, ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: secretName,
+					},
+					Key: corev1.DockerConfigJsonKey,
+				},
+			},
+		})
+	}
 
 	return corev1.Container{
 		Name:  dockerfileScannerContainerName,
