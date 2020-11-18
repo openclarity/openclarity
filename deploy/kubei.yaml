@@ -206,9 +206,9 @@ spec:
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
-          value: "gcr.io/development-infra-208909/klar:1.0.5"
+          value: "gcr.io/development-infra-208909/klar:1.0.7"
         - name: "DOCKLE_IMAGE_NAME"
-          value: "gcr.io/development-infra-208909/dockle:4de31dc70c126fb55e28da46d7e497250a4db4e1"
+          value: "gcr.io/development-infra-208909/dockle:1.0.0"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10
           value: "10"
         - name: "TARGET_NAMESPACE" # empty = scan all namespaces

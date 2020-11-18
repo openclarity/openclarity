@@ -5,8 +5,8 @@ module github.com/akpsgit/kubei
 go 1.13
 
 require (
-	github.com/Portshift/dockle v0.0.1-ps
-	github.com/Portshift/klar v1.9.10-0.20201117231249-97be18dd7f8a
+	github.com/Portshift/dockle v0.3.2-0.20201118172756-4889c8016f40
+	github.com/Portshift/klar v1.9.10-0.20201118172109-371310ea259d
 	github.com/Portshift/kubei v0.0.0-20200921115534-09e3ccd6e2b4
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
