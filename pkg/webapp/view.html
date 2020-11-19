@@ -3,7 +3,7 @@
 <header>
     <style>
         a.go-btn {
-            background-color: #65D39C;
+            background-color: #21ab00;
             padding: 5px 10px;
             border-radius: 8px;
             color: white;
@@ -32,6 +32,20 @@
             font-weight: bold;
         }
         .page-header a.clear-btn:hover {
+            background-color: #1D58A4;
+        }
+        .page-header a.refresh-btn {
+            position: absolute;
+            right: 255px;
+            top: 40px;
+            background-color: #263184;
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .page-header a.refresh-btn:hover {
             background-color: #1D58A4;
         }
         .page-header a.go-btn {
@@ -140,7 +154,7 @@
         td.tooltip .tooltiptext {
             visibility: hidden;
             width: 150px;
-            background-color: black;
+            background-color: #626adb;
             color: #fff;
             text-align: center;
             border-radius: 6px;
@@ -154,79 +168,170 @@
         td.tooltip:hover .tooltiptext {
             visibility: visible;
         }
+
+        /* Style tab links */
+        .tablink {
+            background-color: #555;
+            color: white;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            font-size: 17px;
+            width: 50%;
+        }
+
+        .tablink:hover {
+            background-color: #777;
+        }
+
+        /* Style the tab content (and add height:100% for full page content) */
+        .tabcontent {
+            color: orange;
+            display: none;
+            padding: 100px 20px;
+            height: 100%;
+        }
     </style>
 </header>
 <body>
 <div class="page-header">
     <img src="https://www.portshift.io/wp-content/uploads/2018/11/platform-left-image.png" alt="Portshift" width="60" height="60">
     <h1>KUBEI Runtime Vulnerabilities Analyzer</h1>
+    <a class="refresh-btn" href="#" onclick="window.location.reload();">REFRESH</a>
     <a class="clear-btn" href="/clear">CLEAR RESULTS</a>
     <a class="go-btn" href="/go/verify">GO</a>
     {{if .ShowGoMsg}}
         <div class="go-msg"> Started scanning {{.LastScannedNamespace}}</div>
     {{end}}
 </div>
-<div class="metrics-items">
-    <div class="metrics-item">
-        <div class="metric-title">Total Vulnerabilities</div>
-        <div class="metric-count">{{ .Total }}</div>
+
+<button class="tablink" onclick="openPage('Vulnerabilitiy', this, '#c40b0b')" id="defaultOpen">Vulnerabilitiy scanning</button>
+<button class="tablink" onclick="openPage('Dockerfile', this, '#141eac')">CIS Docker benchmark</button>
+
+<div id="Vulnerabilitiy" class="tabcontent">
+    <div class="metrics-items">
+        <div class="metrics-item">
+            <div class="metric-title">Total Vulnerabilities</div>
+            <div class="metric-count">{{ .Vulnerabilities.Total }}</div>
+        </div>
+        <div class="metrics-item defcon1">
+            <div class="metric-title">Total Defcon1</div>
+            <div class="metric-count">{{ .Vulnerabilities.TotalDefcon1 }}</div>
+        </div>
+        <div class="metrics-item critical">
+            <div class="metric-title">Total Critical</div>
+            <div class="metric-count">{{ .Vulnerabilities.TotalCritical }}</div>
+        </div>
+        <div class="metrics-item high">
+            <div class="metric-title">Total High</div>
+            <div class="metric-count">{{ .Vulnerabilities.TotalHigh }}</div>
+        </div>
     </div>
-    <div class="metrics-item defcon1">
-        <div class="metric-title">Total Defcon1</div>
-        <div class="metric-count">{{ .TotalDefcon1 }}</div>
-    </div>
-    <div class="metrics-item critical">
-        <div class="metric-title">Total Critical</div>
-        <div class="metric-count">{{ .TotalCritical }}</div>
-    </div>
-    <div class="metrics-item high">
-        <div class="metric-title">Total High</div>
-        <div class="metric-count">{{ .TotalHigh }}</div>
-    </div>
-</div>
-<table>
-    <thead>
-    <tr>
-        <th>Pod Name</th>
-        <th>Container Name</th>
-        <th>Namespace</th>
-        <th>Succeeded</th>
-        <th>Name</th>
-        <th>Severity</th>
-        <th>Image Name</th>
-        <th>Found In</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{ range .Vulnerabilities}}
+    <table>
+        <thead>
         <tr>
-            <td>{{ .Pod }}</td>
-            <td>{{ .Container }}</td>
-            <td>{{ .Namespace }}</td>
-            {{if .Succeeded}}
-                <td>{{ .Succeeded }}</td>
-            {{ else}}
-                <td class="tooltip">{{ .Succeeded }}
-                    <span class="tooltiptext">Scan has failed! See klar-scan pod logs for more info.</span>
-                </td>
-            {{ end}}
-            {{if .Succeeded}}
-                <td><a href={{ .Vulnerability.Link }}>{{ .Vulnerability.Name }}</a></td>
-                <td>{{ .Vulnerability.Severity }}</td>
-            {{ else}}
-                <td></td>
-                <td></td>
-            {{ end}}
-            <td>{{ .Image }}</td>
-            {{if .Succeeded}}
-                <td>{{ .Vulnerability.FeatureName }}:{{ .Vulnerability.FeatureVersion }}</td>
-            {{ else}}
-                <td></td>
-            {{ end}}
+            <th>Pod Name</th>
+            <th>Container Name</th>
+            <th>Namespace</th>
+            <th>Succeeded</th>
+            <th>Name</th>
+            <th>Severity</th>
+            <th>Image Name</th>
+            <th>Found In</th>
         </tr>
-    {{ end}}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {{ range .Vulnerabilities.Vulnerabilities}}
+            <tr>
+                <td>{{ .Pod }}</td>
+                <td>{{ .Container }}</td>
+                <td>{{ .Namespace }}</td>
+                {{if .Succeeded}}
+                    <td>{{ .Succeeded }}</td>
+                {{ else}}
+                    <td class="tooltip">{{ .Succeeded }}
+                        <span class="tooltiptext">Scan has failed! See scanner pod logs for more info.</span>
+                    </td>
+                {{ end}}
+                {{if .Succeeded}}
+                    <td><a href={{ .Vulnerability.Link }}>{{ .Vulnerability.Name }}</a></td>
+                    <td>{{ .Vulnerability.Severity }}</td>
+                {{ else}}
+                    <td></td>
+                    <td></td>
+                {{ end}}
+                <td>{{ .Image }}</td>
+                {{if .Succeeded}}
+                    <td>{{ .Vulnerability.FeatureName }}:{{ .Vulnerability.FeatureVersion }}</td>
+                {{ else}}
+                    <td></td>
+                {{ end}}
+            </tr>
+        {{ end}}
+        </tbody>
+    </table>
+</div>
+
+<div id="Dockerfile" class="tabcontent">
+    <div class="metrics-items">
+        <div class="metrics-item">
+            <div class="metric-title">Total Dockerfile Vulnerabilities</div>
+            <div class="metric-count">{{ .DockerfileVulnerabilities.Total }}</div>
+        </div>
+        <div class="metrics-item defcon1">
+            <div class="metric-title">Total Fatal</div>
+            <div class="metric-count">{{ .DockerfileVulnerabilities.TotalFatal }}</div>
+        </div>
+        <div class="metrics-item critical">
+            <div class="metric-title">Total Warn</div>
+            <div class="metric-count">{{ .DockerfileVulnerabilities.TotalWarn }}</div>
+        </div>
+        <div class="metrics-item high">
+            <div class="metric-title">Total Info</div>
+            <div class="metric-count">{{ .DockerfileVulnerabilities.TotalInfo }}</div>
+        </div>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Pod Name</th>
+            <th>Container Name</th>
+            <th>Image Name</th>
+            <th>Namespace</th>
+            <th>Succeeded</th>
+            <th>Title</th>
+            <th>Level</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ range .DockerfileVulnerabilities.DockerfileVulnerabilities}}
+            <tr>
+                <td>{{ .Pod }}</td>
+                <td>{{ .Container }}</td>
+                <td>{{ .Image }}</td>
+                <td>{{ .Namespace }}</td>
+                {{if .Succeeded}}
+                    <td>{{ .Succeeded }}</td>
+                    <td>{{ .DockerfileVulnerability.Code }}:{{ .DockerfileVulnerability.Title }}</td>
+                    <td>{{ .DockerfileVulnerability.Level }}</td>
+                    <td>{{ .DockerfileVulnerability.Description }}</td>
+                {{ else}}
+                    <td class="tooltip">{{ .Succeeded }}
+                        <span class="tooltiptext">Scan has failed! See scanner pod logs for more info.</span>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                {{ end}}
+            </tr>
+        {{ end}}
+        </tbody>
+    </table>
+</div>
+
 {{if .ShowGoWarning}}
 <div class="modal-outer">
     <div class="modal-container">
@@ -239,5 +344,25 @@
     </div>
 </div>
 {{ end}}
+
+<script>
+    function openPage(pageName,elmnt,color) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablink");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].style.backgroundColor = "";
+        }
+        document.getElementById(pageName).style.display = "block";
+        elmnt.style.backgroundColor = color;
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+</script>
+
 </body>
 </html>
