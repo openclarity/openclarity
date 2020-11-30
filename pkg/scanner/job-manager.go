@@ -292,7 +292,6 @@ func (s *Scanner) createDockerfileScannerContainer(imageName, secretName string,
 
 	env = s.appendProxyEnvConfig(env)
 
-
 	if secretName != "" {
 		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
 		// Dockle uses a klar package to access credentials
@@ -387,10 +386,11 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 					Labels:      labels,
 				},
 				Spec: corev1.PodSpec{
-					Containers:    []corev1.Container{
+					Containers: []corev1.Container{
 						s.createVulnerabilitiesScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
 					},
-					RestartPolicy: corev1.RestartPolicyNever,
+					RestartPolicy:      corev1.RestartPolicyNever,
+					ServiceAccountName: s.scanConfig.ScannerServiceAccount,
 				},
 			},
 			BackoffLimit:            &backOffLimit,
