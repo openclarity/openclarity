@@ -202,7 +202,7 @@ spec:
             done
       containers:
       - name: kubei
-        image: gcr.io/development-infra-208909/kubei:1.0.7
+        image: gcr.io/development-infra-208909/kubei:1.0.8
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
