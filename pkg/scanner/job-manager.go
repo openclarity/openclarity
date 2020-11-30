@@ -241,6 +241,7 @@ func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName st
 		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
 		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
 		{Name: "KLAR_TRACE", Value: strconv.FormatBool(s.config.KlarTrace)},
+		{Name: "REGISTRY_INSECURE", Value: s.scanConfig.RegistryInsecure},
 		{Name: "RESULT_SERVICE_PATH", Value: s.config.KlarResultServicePath},
 		{Name: "SCAN_UUID", Value: scanUUID},
 	}

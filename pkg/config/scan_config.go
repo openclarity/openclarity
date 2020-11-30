@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	corev1 "k8s.io/api/core/v1"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,6 +19,7 @@ const (
 	DeleteJobPolicy       = "DELETE_JOB_POLICY"
 	ShouldScanDockerFile  = "SHOULD_SCAN_DOCKERFILE"
 	ScannerServiceAccount = "SCANNER_SERVICE_ACCOUNT"
+	RegistryInsecure      = "REGISTRY_INSECURE"
 )
 
 type ScanConfig struct {
@@ -30,6 +32,7 @@ type ScanConfig struct {
 	DeleteJobPolicy       DeleteJobPolicyType
 	ShouldScanDockerFile  bool
 	ScannerServiceAccount string
+	RegistryInsecure      string
 }
 
 func setScanConfigDefaults() {
@@ -41,12 +44,20 @@ func setScanConfigDefaults() {
 	viper.SetDefault(JobResultTimeout, "10m")
 	viper.SetDefault(DeleteJobPolicy, DeleteJobPolicySuccessful)
 	viper.SetDefault(ShouldScanDockerFile, "true")
+	viper.SetDefault(RegistryInsecure, "false")
 
 	viper.AutomaticEnv()
 }
 
 func LoadScanConfig() *ScanConfig {
 	setScanConfigDefaults()
+
+	shouldScanDockerFile := viper.GetBool(ShouldScanDockerFile)
+	registryInsecure, _ := strconv.ParseBool(viper.GetString(RegistryInsecure))
+	// Disable DockerFile scan if insecure registry is set - currently not supported
+	if registryInsecure {
+		shouldScanDockerFile = false
+	}
 
 	return &ScanConfig{
 		MaxScanParallelism:    viper.GetInt(MaxParallelism),
@@ -56,8 +67,9 @@ func LoadScanConfig() *ScanConfig {
 		IgnoredNamespaces:     strings.Split(viper.GetString(IgnoreNamespaces), ","),
 		JobResultTimeout:      viper.GetDuration(JobResultTimeout),
 		DeleteJobPolicy:       getDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
-		ShouldScanDockerFile:  viper.GetBool(ShouldScanDockerFile),
+		ShouldScanDockerFile:  shouldScanDockerFile,
 		ScannerServiceAccount: viper.GetString(ScannerServiceAccount),
+		RegistryInsecure:      viper.GetString(RegistryInsecure),
 	}
 }
 
