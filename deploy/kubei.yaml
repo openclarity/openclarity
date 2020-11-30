@@ -221,6 +221,8 @@ spec:
           value: "Successful"
         - name: "SCANNER_SERVICE_ACCOUNT" # Defaults to 'default' service account
           value: ""
+        - name: "REGISTRY_INSECURE" # Allow scanner to access insecure registries (HTTP only). Default is `false`.
+          value: "false"
 # uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
 #        - name: SCANNER_HTTPS_PROXY
 #          value: "{ PROXY_IP }:{ PROXY_PORT }"
