@@ -34,6 +34,10 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 
 5. Disable CIS Docker benchmark. Set the `SHOULD_SCAN_DOCKERFILE` env variable to `false`.
 
+6. Set the scanner service account. Set the `SCANNER_SERVICE_ACCOUNT` env variable to a service account name to be used by the scanner jobs. Defaults to `default` service account.
+
+7. Scan insecure registries. Set the `REGISTRY_INSECURE` env variable to allow the scanner to access insecure registries (HTTP only). Default is `false`. 
+
 ## Usage 
 
 1. Run the following command to deploy Kubei on the cluster:

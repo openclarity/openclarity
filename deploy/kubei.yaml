@@ -202,7 +202,7 @@ spec:
             done
       containers:
       - name: kubei
-        image: gcr.io/development-infra-208909/kubei:1.0.7
+        image: gcr.io/development-infra-208909/kubei:1.0.8
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
@@ -219,6 +219,10 @@ spec:
           value: "istio-system,kube-system"
         - name: "DELETE_JOB_POLICY"
           value: "Successful"
+        - name: "SCANNER_SERVICE_ACCOUNT" # Defaults to 'default' service account
+          value: ""
+        - name: "REGISTRY_INSECURE" # Allow scanner to access insecure registries (HTTP only). Default is `false`.
+          value: "false"
 # uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
 #        - name: SCANNER_HTTPS_PROXY
 #          value: "{ PROXY_IP }:{ PROXY_PORT }"

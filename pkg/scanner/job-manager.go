@@ -241,6 +241,7 @@ func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName st
 		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
 		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
 		{Name: "KLAR_TRACE", Value: strconv.FormatBool(s.config.KlarTrace)},
+		{Name: "REGISTRY_INSECURE", Value: s.scanConfig.RegistryInsecure},
 		{Name: "RESULT_SERVICE_PATH", Value: s.config.KlarResultServicePath},
 		{Name: "SCAN_UUID", Value: scanUUID},
 	}
@@ -291,7 +292,6 @@ func (s *Scanner) createDockerfileScannerContainer(imageName, secretName string,
 	}
 
 	env = s.appendProxyEnvConfig(env)
-
 
 	if secretName != "" {
 		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", imageName)
@@ -387,10 +387,11 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 					Labels:      labels,
 				},
 				Spec: corev1.PodSpec{
-					Containers:    []corev1.Container{
+					Containers: []corev1.Container{
 						s.createVulnerabilitiesScannerContainer(data.imageName, podContext.imagePullSecret, data.scanUUID),
 					},
-					RestartPolicy: corev1.RestartPolicyNever,
+					RestartPolicy:      corev1.RestartPolicyNever,
+					ServiceAccountName: s.scanConfig.ScannerServiceAccount,
 				},
 			},
 			BackoffLimit:            &backOffLimit,
