@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/Portshift/klar/clair"
+	"github.com/Portshift/klar/docker"
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 )
 
@@ -20,6 +21,7 @@ type ImageScanResult struct {
 	PodUid                string
 	Vulnerabilities       []*clair.Vulnerability
 	DockerfileScanResults dockle_types.AssessmentMap
+	LayerCommands         []*docker.FsLayerCommand
 	Success               bool
 	ScanErrMsg            string
 }
