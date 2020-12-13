@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Portshift/klar/clair"
+	"github.com/Portshift/klar/docker"
 	"github.com/Portshift/klar/forwarding"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/scanner/creds"
@@ -72,10 +73,11 @@ type imagePodContext struct {
 }
 
 type vulnerabilitiesScanResult struct {
-	result     []*clair.Vulnerability
-	success    bool
-	completed  bool
-	scanErrMsg string
+	result        []*clair.Vulnerability
+	layerCommands []*docker.FsLayerCommand
+	success       bool
+	completed     bool
+	scanErrMsg    string
 }
 
 type dockerfileScanResult struct {
@@ -282,6 +284,7 @@ func (s *Scanner) Results() *types.ScanResults {
 				PodUid:                podContext.podUid,
 				Vulnerabilities:       scanD.vulnerabilitiesResult.result,
 				DockerfileScanResults: scanD.dockerfileResult.result,
+				LayerCommands:         scanD.vulnerabilitiesResult.layerCommands,
 				Success:               scanD.success,
 				ScanErrMsg:            scanD.getErrMsg(),
 			})
@@ -329,10 +332,11 @@ func (s *Scanner) HandleVulnerabilitiesResult(result *forwarding.ImageVulnerabil
 	}
 
 	vulnerabilitiesResult := &vulnerabilitiesScanResult{
-		result:     result.Vulnerabilities,
-		success:    result.Success,
-		completed:  true,
-		scanErrMsg: result.ScanErrMsg,
+		result:        result.Vulnerabilities,
+		layerCommands: result.LayerCommands,
+		success:       result.Success,
+		completed:     true,
+		scanErrMsg:    result.ScanErrMsg,
 	}
 
 	scanD.setVulnerabilitiesResult(vulnerabilitiesResult)
