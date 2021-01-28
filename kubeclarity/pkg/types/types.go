@@ -1,9 +1,9 @@
 package types
 
 import (
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/klar/docker"
-	dockle_types "github.com/Portshift/dockle/pkg/types"
 )
 
 type ScanProgress struct {
@@ -23,7 +23,7 @@ type ImageScanResult struct {
 	DockerfileScanResults dockle_types.AssessmentMap
 	LayerCommands         []*docker.FsLayerCommand
 	Success               bool
-	ScanErrMsg            string
+	ScanErrors            []*ScanError
 }
 
 type ScanResults struct {
