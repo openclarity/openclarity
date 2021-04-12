@@ -1,6 +1,6 @@
 SOURCE := ./cmd/kubei/
 BINARY := kubei
-DOCKER_REGISTRY ?= gcr.io/development-infra-208909
+DOCKER_REGISTRY ?= gcr.io/eticloud/k8sec
 VERSION ?= $(shell git rev-parse HEAD)
 IMAGE_NAME ?= $(DOCKER_REGISTRY)/$(BINARY):$(VERSION)
 TARGET_OS ?= linux
