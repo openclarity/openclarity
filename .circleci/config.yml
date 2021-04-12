@@ -14,7 +14,10 @@ jobs:
 
   build_and_push:
     docker:
-      - image: gcr.io/development-infra-208909/docker-18-git-go-1.13.5-builder
+      - image: gcr.io/gcp-etigcp-nprd-12855/pipelines/docker-18-git-go-1.14.10-builder:v12
+        auth:
+          username: _json_key
+          password: $GCR_K8SEC_DEV_REGISTRY_SERVICE_ACCOUNT
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
