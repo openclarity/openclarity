@@ -81,7 +81,7 @@ spec:
         command: ['sh', '-c',  'until pg_isready -h postgres -p 5432;  do echo waiting for database; sleep 2; done;']
       containers:
       - name: clair
-        image: gcr.io/portshift-release/clair/clair-local-scan
+        image: gcr.io/eticloud/k8sec/clair-scan-server:2.1.6
         imagePullPolicy: Always
         ports:
         - containerPort: 6060
@@ -138,7 +138,7 @@ spec:
     spec:
       containers:
       - name: clair-db  
-        image: gcr.io/portshift-release/clair/clair-db
+        image: gcr.io/eticloud/k8sec/clair-db:12.2.ubi.6
         imagePullPolicy: Always
         ports:
         - containerPort: 5432
@@ -202,13 +202,13 @@ spec:
             done
       containers:
       - name: kubei
-        image: gcr.io/development-infra-208909/kubei:1.0.8
+        image: gcr.io/eticloud/k8sec/kubei:1.0.11
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
           value: "gcr.io/eticloud/k8sec/klar:1.0.12"
         - name: "DOCKLE_IMAGE_NAME"
-          value: "gcr.io/development-infra-208909/dockle:1.0.0"
+          value: "gcr.io/eticloud/k8sec/dockle:1.0.2"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10
           value: "10"
         - name: "TARGET_NAMESPACE" # empty = scan all namespaces
