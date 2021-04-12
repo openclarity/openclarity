@@ -14,12 +14,15 @@ jobs:
 
   build_and_push:
     docker:
-      - image: gcr.io/development-infra-208909/docker-18-git-go-1.13.5-builder
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+      - image: gcr.io/gcp-etigcp-nprd-12855/pipelines/docker-18-git-go-1.14.10-builder:v12
+        auth:
+          username: _json_key
+          password: $GCR_K8SEC_DEV_REGISTRY_SERVICE_ACCOUNT
+    working_directory: /home/ubuntu/go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker login -u _json_key -p "${GCR_REGISTRY_SERVICE_ACCOUNT}" http://gcr.io
+      - run: docker login -u _json_key -p "${GCR_ETI_CLOUD_REGISTRY_SERVICE_ACCOUNT}" http://gcr.io
       - run: echo ${CIRCLE_TAG}
       - run: >
           if [ "${CIRCLE_TAG}" != "" ];
@@ -38,7 +41,7 @@ workflows:
       - build_and_push:
           requires:
             - test
-          context: REG_CREDS
+          context: CISCO_REG_CREDS
           filters:
             tags:
               only: /^[0-9]+(\.[0-9]+)*$/
