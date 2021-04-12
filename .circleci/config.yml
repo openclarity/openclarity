@@ -18,7 +18,7 @@ jobs:
         auth:
           username: _json_key
           password: $GCR_K8SEC_DEV_REGISTRY_SERVICE_ACCOUNT
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /home/ubuntu/go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
       - setup_remote_docker
