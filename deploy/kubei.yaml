@@ -206,7 +206,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
-          value: "gcr.io/eticloud/k8sec/klar:1.0.15"
+          value: "gcr.io/eticloud/k8sec/klar:1.0.16"
         - name: "DOCKLE_IMAGE_NAME"
           value: "gcr.io/eticloud/k8sec/dockle:1.0.2"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10
