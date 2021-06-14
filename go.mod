@@ -3,9 +3,14 @@ module github.com/Portshift/kubei
 go 1.13
 
 require (
-	github.com/Portshift/dockle v0.3.2-0.20210128140613-34f88c241660
+	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
 	github.com/Portshift/klar v1.9.10-0.20210512152208-5239eb620120
 	github.com/containers/image/v5 v5.5.0
+	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
+	github.com/moul/http2curl v1.0.0 // indirect
+	github.com/optiopay/klar v2.4.0+incompatible // indirect
+	github.com/parnurzeal/gorequest v0.2.15 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.7.1
