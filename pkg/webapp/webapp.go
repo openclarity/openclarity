@@ -11,6 +11,7 @@ import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	dockle_config "github.com/Portshift/dockle/config"
 	log "github.com/sirupsen/logrus"
+	"encoding/json"
 	"html/template"
 	"net/http"
 	"sort"
@@ -350,6 +351,17 @@ func (wa *Webapp) goRunHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (wa *Webapp) progressHandler(w http.ResponseWriter, r *http.Request) {
+	progress := wa.orchestrator.ScanProgress()
+	jsonResp, err := json.Marshal(progress)
+	if err != nil {
+		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResp)
+}
+
+
 /******************************************************* PUBLIC *******************************************************/
 
 func Init(config *config.Config, scanConfig *config.ScanConfig) (*Webapp, error) {
@@ -384,6 +396,7 @@ func (wa *Webapp) Run() {
 	http.HandleFunc("/go/run/", wa.goRunHandler)
 	http.HandleFunc("/go/verify/", wa.goVerifyHandler)
 	http.HandleFunc("/go/cancel/", wa.goCancelHandler)
+	http.HandleFunc("/progress/", wa.progressHandler)
 	go func() {
 		if err := http.ListenAndServe(":"+wa.executionConfig.WebappPort, nil); err != nil {
 			errChannel <- fmt.Errorf("failed to start Webapp: %v", err)
