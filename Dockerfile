@@ -22,3 +22,5 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.url="https://github.com/Portshift/kubei" \
     org.label-schema.vcs-ref=$VCS_REF \
     org.label-schema.vcs-url="https://github.com/Portshift/kubei"
+
+USER 1000
