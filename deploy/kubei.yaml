@@ -38,25 +38,6 @@ roleRef:
   kind: ClusterRole
   name: kubei
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: clair
-  namespace: kubei
-  labels:
-    app: clair
-spec:
-  type: ClusterIP
-  ports:
-  - port: 6060
-    protocol: TCP
-    name: apiserver
-  - port: 6061
-    protocol: TCP
-    name: health
-  selector:
-    app: clair
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -78,6 +59,13 @@ spec:
       containers:
       - name: grype-server
         image: gcr.io/eticloud/k8sec/grype-server:2.1.6
+        args:
+          - run
+          - --log-level
+          - warning
+        env:
+          - name: DB_ROOT_DIR
+            value: "/tmp/"
         imagePullPolicy: Always
         ports:
         - containerPort: 9991
@@ -149,18 +137,6 @@ spec:
         kubeiShouldScan: "false"
     spec:
       serviceAccountName: kubei
-      initContainers:
-      - name: init-clairsvc
-        image: yauritux/busybox-curl
-        args:
-          - /bin/sh
-          - -c
-          - >
-            set -x;
-            while [ $(curl -sw '%{http_code}' "http://clair.kubei:6060/v1/namespaces" -o /dev/null) -ne 200 ]; do
-              echo "waiting for clair to be ready";
-              sleep 15;
-            done
       containers:
       - name: kubei
         image: gcr.io/eticloud/k8sec/kubei:1.0.13

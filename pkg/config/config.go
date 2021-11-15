@@ -48,7 +48,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ResultListenPort, "8081")
 	viper.SetDefault(KlarTrace, "false") // Run Klar in more verbose mode
 	viper.SetDefault(ClairAddress, "clair.kubei")
-	viper.SetDefault(GrypeAddress, "grype.kubei")
+	viper.SetDefault(GrypeAddress, "grype-server.kubei:9991")
 	viper.SetDefault(ScannerHttpsProxy, "")
 	viper.SetDefault(ScannerHttpProxy, "")
 	viper.SetDefault(CredsSecretNamespace, "kubei")
