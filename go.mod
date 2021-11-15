@@ -4,10 +4,8 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/grype-server v0.0.0-20211115000212-14757db5903c // indirect
-	github.com/Portshift/klar v1.9.10-0.20211115000805-0022099f2dbd
+	github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41
 	github.com/anchore/grype v0.24.1
-	github.com/aquasecurity/fanal v0.0.0-20201028122920-48a25d865182 // indirect
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
