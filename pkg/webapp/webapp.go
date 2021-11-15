@@ -2,14 +2,14 @@ package webapp
 
 import (
 	"fmt"
-	"github.com/Portshift/klar/clair"
+	dockle_config "github.com/Portshift/dockle/config"
+	dockle_writer "github.com/Portshift/dockle/pkg/report"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/orchestrator"
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
-	dockle_writer "github.com/Portshift/dockle/pkg/report"
-	dockle_types "github.com/Portshift/dockle/pkg/types"
-	dockle_config "github.com/Portshift/dockle/config"
+	grype_models "github.com/anchore/grype/grype/presenter/models"
 	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
@@ -44,7 +44,7 @@ type containerInfo struct {
 
 type containerVulnerability struct {
 	containerInfo
-	Vulnerability *clair.Vulnerability `json:"vulnerability"`
+	Vulnerability *grype_models.Match `json:"vulnerability"`
 }
 
 type containerDockerfileVulnerability struct {
@@ -93,12 +93,29 @@ const (
 	unknownVulnerability    = "UNKNOWN"
 )
 
+func getGrypeVulnerabilitySeverity(match *grype_models.Match) string {
+	if len(match.RelatedVulnerabilities) != 0 {
+		return match.RelatedVulnerabilities[0].Severity
+	} else {
+		return match.Vulnerability.Severity
+	}
+}
+
+func getGrypeVulnerabilityDescription(match *grype_models.Match) string {
+	if len(match.RelatedVulnerabilities) != 0 {
+		return match.RelatedVulnerabilities[0].Description
+	} else {
+		return match.Vulnerability.Description
+	}
+}
+
+
 func calculateVulnerabilitiesTotals(vulnerabilities []*containerVulnerability) (totalCritical, totalHigh, totalDefcon1 int) {
 	for _, vul := range vulnerabilities {
 		if vul.Vulnerability == nil {
 			continue
 		}
-		switch strings.ToUpper(vul.Vulnerability.Severity) {
+		switch strings.ToUpper(getGrypeVulnerabilitySeverity(vul.Vulnerability)) {
 		case defcon1Vulnerability:
 			totalDefcon1++
 		case criticalVulnerability:
@@ -167,8 +184,8 @@ func sortVulnerabilities(data []*containerVulnerability) []*containerVulnerabili
 			return data[i].Pod < data[j].Pod
 		}
 
-		left := getSeverityFromString(data[i].Vulnerability.Severity)
-		right := getSeverityFromString(data[j].Vulnerability.Severity)
+		left := getSeverityFromString(getGrypeVulnerabilitySeverity(data[i].Vulnerability))
+		right := getSeverityFromString(getGrypeVulnerabilitySeverity(data[j].Vulnerability))
 		if left == right {
 			return data[i].Pod < data[j].Pod
 		}
@@ -216,15 +233,15 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*
 				containerInfo: metadata,
 			})
 		} else {
-			for _, vulnerability := range result.Vulnerabilities {
-				if getSeverityFromString(vulnerability.Severity) > severityThreshold {
+			for _, vulnerability := range result.Vulnerabilities.Matches {
+				if getSeverityFromString(vulnerability.Vulnerability.Severity) > severityThreshold {
 					log.Debugf("Vulnerability severity below threshold. image=%+v, vulnerability=%+v, threshold=%+v",
 						metadata.Image, vulnerability, wa.scanConfig.SeverityThreshold)
 					continue
 				}
 				containerVulnerabilities = append(containerVulnerabilities, &containerVulnerability{
 					containerInfo: metadata,
-					Vulnerability: vulnerability,
+					Vulnerability: &vulnerability,
 				})
 			}
 			for _, dfVulnerability := range result.DockerfileScanResults {

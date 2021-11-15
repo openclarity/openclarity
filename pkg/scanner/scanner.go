@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	dockle_types "github.com/Portshift/dockle/pkg/types"
-	"github.com/Portshift/klar/clair"
 	"github.com/Portshift/klar/docker"
 	"github.com/Portshift/klar/forwarding"
 	klar_types "github.com/Portshift/klar/types"
@@ -13,6 +12,7 @@ import (
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
 	slice_utils "github.com/Portshift/kubei/pkg/utils/slice"
+	grype_models "github.com/anchore/grype/grype/presenter/models"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -73,7 +73,7 @@ type imagePodContext struct {
 }
 
 type vulnerabilitiesScanResult struct {
-	result        []*clair.Vulnerability
+	result        *grype_models.Document
 	layerCommands []*docker.FsLayerCommand
 	success       bool
 	completed     bool

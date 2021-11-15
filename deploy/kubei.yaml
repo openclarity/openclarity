@@ -60,95 +60,56 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: clair
+  name: grype-server
   namespace: kubei
   labels:
-    app: clair
+    app: grype-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: clair
+      app: grype-server
   template:
     metadata:
       labels:
-        app: clair
+        app: grype-server
         kubeiShouldScan: "false"
     spec:
-      initContainers:
-      - name: check-db-ready
-        image: postgres:12-alpine
-        command: ['sh', '-c',  'until pg_isready -h postgres -p 5432;  do echo waiting for database; sleep 2; done;']
       containers:
-      - name: clair
-        image: gcr.io/eticloud/k8sec/clair-scan-server:2.1.6
+      - name: grype-server
+        image: gcr.io/eticloud/k8sec/grype-server:2.1.6
         imagePullPolicy: Always
         ports:
-        - containerPort: 6060
-        - containerPort: 6061
+        - containerPort: 9991
         resources:
           limits:
-            cpu: 2000m
-            memory: 6G
+            cpu: 1000m
+            memory: 1G
           requests:
-            cpu: 700m
-            memory: 3G
+            cpu: 200m
+            memory: 200Mi
 # uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
 #        env:
 #        - name: HTTPS_PROXY
 #          value: "{ PROXY_IP }:{ PROXY_PORT }"
 #        - name: HTTP_PROXY
 #          value: "{ PROXY_IP }:{ PROXY_PORT }"
-#        - name: NO_PROXY
-#          value: "postgres"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: postgres
-  name: postgres
+    app: grype-server
+  name: grype-server
   namespace: kubei
 spec:
   type: ClusterIP
   ports:
-    - name: db
-      port: 5432
+    - name: grype-server
+      port: 9991
       protocol: TCP
   selector:
-    app: postgres
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: clair-postgres
-  namespace: kubei
-  labels:
-    app: postgres
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-        kubeiShouldScan: "false"
-    spec:
-      containers:
-      - name: clair-db  
-        image: gcr.io/eticloud/k8sec/clair-db:12.2.ubi.6
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5432
-        resources:
-          limits:
-            cpu: 1500m
-            memory: 1G
-          requests:
-            cpu: 500m
-            memory: 400Mi
+    app: grype-server
 ---
 apiVersion: v1
 kind: Service

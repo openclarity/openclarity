@@ -10,6 +10,7 @@ const (
 	Verbose                 = "VERBOSE"
 	ListeningPort           = "LISTENING_PORT"
 	ClairAddress            = "CLAIR_ADDR"
+	GrypeAddress            = "GRYPE_ADDR"
 	KlarTrace               = "KLAR_TRACE"
 	KlarResultServicePath   = "KLAR_RESULT_SERVICE_PATH"
 	DockleImageName         = "DOCKLE_IMAGE_NAME"
@@ -25,6 +26,7 @@ type Config struct {
 	Verbose                 bool
 	WebappPort              string
 	ClairAddress            string
+	GrypeAddress            string
 	KlarTrace               bool
 	KlarResultServicePath   string
 	DockleImageName         string
@@ -46,6 +48,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ResultListenPort, "8081")
 	viper.SetDefault(KlarTrace, "false") // Run Klar in more verbose mode
 	viper.SetDefault(ClairAddress, "clair.kubei")
+	viper.SetDefault(GrypeAddress, "grype.kubei")
 	viper.SetDefault(ScannerHttpsProxy, "")
 	viper.SetDefault(ScannerHttpProxy, "")
 	viper.SetDefault(CredsSecretNamespace, "kubei")
@@ -83,6 +86,7 @@ func LoadConfig() *Config {
 		Verbose:                 viper.GetBool(Verbose),
 		WebappPort:              viper.GetString(ListeningPort),
 		ClairAddress:            viper.GetString(ClairAddress),
+		GrypeAddress:            viper.GetString(GrypeAddress),
 		KlarTrace:               viper.GetBool(KlarTrace),
 		KlarResultServicePath:   klarResultServicePath,
 		DockleImageName:         viper.GetString(DockleImageName),
