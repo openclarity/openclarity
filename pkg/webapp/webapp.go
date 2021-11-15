@@ -93,29 +93,12 @@ const (
 	unknownVulnerability    = "UNKNOWN"
 )
 
-func getGrypeVulnerabilitySeverity(match *grype_models.Match) string {
-	if len(match.RelatedVulnerabilities) != 0 {
-		return match.RelatedVulnerabilities[0].Severity
-	} else {
-		return match.Vulnerability.Severity
-	}
-}
-
-func getGrypeVulnerabilityDescription(match *grype_models.Match) string {
-	if len(match.RelatedVulnerabilities) != 0 {
-		return match.RelatedVulnerabilities[0].Description
-	} else {
-		return match.Vulnerability.Description
-	}
-}
-
-
 func calculateVulnerabilitiesTotals(vulnerabilities []*containerVulnerability) (totalCritical, totalHigh, totalDefcon1 int) {
 	for _, vul := range vulnerabilities {
 		if vul.Vulnerability == nil {
 			continue
 		}
-		switch strings.ToUpper(getGrypeVulnerabilitySeverity(vul.Vulnerability)) {
+		switch strings.ToUpper(vul.Vulnerability.Vulnerability.Severity) {
 		case defcon1Vulnerability:
 			totalDefcon1++
 		case criticalVulnerability:
@@ -184,8 +167,8 @@ func sortVulnerabilities(data []*containerVulnerability) []*containerVulnerabili
 			return data[i].Pod < data[j].Pod
 		}
 
-		left := getSeverityFromString(getGrypeVulnerabilitySeverity(data[i].Vulnerability))
-		right := getSeverityFromString(getGrypeVulnerabilitySeverity(data[j].Vulnerability))
+		left := getSeverityFromString(data[i].Vulnerability.Vulnerability.Severity)
+		right := getSeverityFromString(data[j].Vulnerability.Vulnerability.Severity)
 		if left == right {
 			return data[i].Pod < data[j].Pod
 		}
