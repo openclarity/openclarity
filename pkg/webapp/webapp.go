@@ -2,6 +2,14 @@ package webapp
 
 import (
 	"fmt"
+	grype_models "github.com/anchore/grype/grype/presenter/models"
+	"html/template"
+	"net/http"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
 	dockle_config "github.com/Portshift/dockle/config"
 	dockle_writer "github.com/Portshift/dockle/pkg/report"
 	dockle_types "github.com/Portshift/dockle/pkg/types"
@@ -9,14 +17,7 @@ import (
 	"github.com/Portshift/kubei/pkg/orchestrator"
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
-	grype_models "github.com/anchore/grype/grype/presenter/models"
 	log "github.com/sirupsen/logrus"
-	"html/template"
-	"net/http"
-	"sort"
-	"strings"
-	"sync"
-	"time"
 )
 
 const htmlFileName = "view.html"
@@ -44,7 +45,15 @@ type containerInfo struct {
 
 type containerVulnerability struct {
 	containerInfo
-	Vulnerability *grype_models.Match `json:"vulnerability"`
+	Vulnerability *vulnerability
+}
+
+type vulnerability struct {
+	Link           string
+	Name           string
+	Severity       string
+	Package        string
+	PackageVersion string
 }
 
 type containerDockerfileVulnerability struct {
@@ -60,11 +69,11 @@ type dockerfileVulnerability struct {
 }
 
 type viewVulnerabilities struct {
-	Vulnerabilities      []*containerVulnerability `json:"vulnerabilities,omitempty"`
-	Total                int                       `json:"total"`
-	TotalDefcon1         int                       `json:"totalDefcon1"`
-	TotalCritical        int                       `json:"totalCritical"`
-	TotalHigh            int                       `json:"totalHigh"`
+	Vulnerabilities []*containerVulnerability `json:"vulnerabilities,omitempty"`
+	Total           int                       `json:"total"`
+	TotalDefcon1    int                       `json:"totalDefcon1"`
+	TotalCritical   int                       `json:"totalCritical"`
+	TotalHigh       int                       `json:"totalHigh"`
 }
 
 type viewDockerfileVulnerabilities struct {
@@ -98,7 +107,7 @@ func calculateVulnerabilitiesTotals(vulnerabilities []*containerVulnerability) (
 		if vul.Vulnerability == nil {
 			continue
 		}
-		switch strings.ToUpper(vul.Vulnerability.Vulnerability.Severity) {
+		switch strings.ToUpper(vul.Vulnerability.Severity) {
 		case defcon1Vulnerability:
 			totalDefcon1++
 		case criticalVulnerability:
@@ -167,8 +176,8 @@ func sortVulnerabilities(data []*containerVulnerability) []*containerVulnerabili
 			return data[i].Pod < data[j].Pod
 		}
 
-		left := getSeverityFromString(data[i].Vulnerability.Vulnerability.Severity)
-		right := getSeverityFromString(data[j].Vulnerability.Vulnerability.Severity)
+		left := getSeverityFromString(data[i].Vulnerability.Severity)
+		right := getSeverityFromString(data[j].Vulnerability.Severity)
 		if left == right {
 			return data[i].Pod < data[j].Pod
 		}
@@ -195,7 +204,6 @@ func sortDockerfileVulnerabilities(data []*containerDockerfileVulnerability) []*
 
 	return data
 }
-
 
 func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*containerVulnerability, []*containerDockerfileVulnerability) {
 	var containerVulnerabilities []*containerVulnerability
@@ -224,7 +232,7 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*
 				}
 				containerVulnerabilities = append(containerVulnerabilities, &containerVulnerability{
 					containerInfo: metadata,
-					Vulnerability: &vulnerability,
+					Vulnerability: convertVulnerability(&vulnerability),
 				})
 			}
 			for _, dfVulnerability := range result.DockerfileScanResults {
@@ -236,7 +244,6 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*
 						Title:       dockle_types.TitleMap[dfVulnerability.Code],
 						Description: formatDockerfileDescription(dfVulnerability.Assessments),
 					},
-
 				})
 			}
 		}
@@ -245,8 +252,24 @@ func (wa *Webapp) convertImageScanResults(results []*types.ImageScanResult) ([]*
 	sortedVulnerabilities := sortVulnerabilities(containerVulnerabilities)
 	sortedDockerfileVulnerabilities := sortDockerfileVulnerabilities(containerDockerfileVulnerabilities)
 
-
 	return sortedVulnerabilities, sortedDockerfileVulnerabilities
+}
+
+func convertVulnerability(match *grype_models.Match) *vulnerability {
+	if match == nil {
+		return nil
+	}
+	var link string
+	if len(match.Vulnerability.URLs) != 0 {
+		link = match.Vulnerability.URLs[0]
+	}
+	return &vulnerability{
+		Link:           link,
+		Name:           match.Vulnerability.ID,
+		Severity:       match.Vulnerability.Severity,
+		Package:        match.Artifact.Name,
+		PackageVersion: match.Artifact.Version,
+	}
 }
 
 func (wa *Webapp) handleGoMsg() {
@@ -277,12 +300,12 @@ func (wa *Webapp) viewHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	err := wa.template.ExecuteTemplate(w, htmlFileName, &viewData{
-		Vulnerabilities:      &viewVulnerabilities{
-			Vulnerabilities:      vulnerabilities,
-			Total:                len(vulnerabilities),
-			TotalDefcon1:         totalDefcon1,
-			TotalCritical:        totalCritical,
-			TotalHigh:            totalHigh,
+		Vulnerabilities: &viewVulnerabilities{
+			Vulnerabilities: vulnerabilities,
+			Total:           len(vulnerabilities),
+			TotalDefcon1:    totalDefcon1,
+			TotalCritical:   totalCritical,
+			TotalHigh:       totalHigh,
 		},
 		DockerfileVulnerabilities: &viewDockerfileVulnerabilities{
 			DockerfileVulnerabilities: dfVulnerabilities,
