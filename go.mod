@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41
+	github.com/Portshift/klar v1.9.10-0.20211123083344-28f647b14389
 	github.com/anchore/grype v0.24.1
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
@@ -16,10 +16,6 @@ require (
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.18.19
 )
-
-//replace github.com/Portshift/klar v1.9.10-0.20210512152208-5239eb620120 => /Users/alexeik/go/src/github.com/Portshift/klar
-
-//replace github.com/Portshift/grype-server/api v0.0.0 => /Users/alexeik/go/src/github.com/Portshift/grype-server/api
 
 // kubernetes v1.18.1
 replace (

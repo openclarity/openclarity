@@ -248,8 +248,7 @@ const jobName = "scanner"
 func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName string, scanUUID string) corev1.Container {
 	env := []corev1.EnvVar{
 		{Name: "GRYPE_ADDR", Value: s.config.GrypeAddress},
-		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
-		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
+		{Name: "SEVERITY_THRESHOLD", Value: s.scanConfig.SeverityThreshold},
 		{Name: "KLAR_TRACE", Value: strconv.FormatBool(s.config.KlarTrace)},
 		{Name: "REGISTRY_INSECURE", Value: s.scanConfig.RegistryInsecure},
 		{Name: "RESULT_SERVICE_PATH", Value: s.config.KlarResultServicePath},
@@ -356,7 +355,7 @@ func (s *Scanner) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
 	}
 
 	env = append(env, corev1.EnvVar{
-		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.ResultServiceAddress + "," + s.config.ClairAddress + "," + s.config.GrypeAddress,
+		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.ResultServiceAddress + "," + s.config.GrypeAddress,
 	})
 
 	return env
