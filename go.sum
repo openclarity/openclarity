@@ -112,11 +112,15 @@ github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4/go.mod h1:HiqNs
 github.com/Portshift/grype-server/api v0.0.0-20211115000212-14757db5903c/go.mod h1:/5hop1dhTvomC3w5T5HBmnhMYsk/AAEXHllnDSWMEFQ=
 github.com/Portshift/grype-server/api v0.0.0-20211115015416-a4e7c9a18079 h1:f9SK7jE+wPu6KDfFJa11Qv1TgKglAvyDJNQVOOZAmJk=
 github.com/Portshift/grype-server/api v0.0.0-20211115015416-a4e7c9a18079/go.mod h1:/5hop1dhTvomC3w5T5HBmnhMYsk/AAEXHllnDSWMEFQ=
+github.com/Portshift/grype-server/api v0.0.0-20211130120325-f3207a9c9ea1 h1:dAVCZCbbFCktC9oaWbpxx1rRvjjuiifP1eW9t4HLQac=
+github.com/Portshift/grype-server/api v0.0.0-20211130120325-f3207a9c9ea1/go.mod h1:9QJNVuh8EOzGAZDvQZu2mhHU1E+HrKVQboaVo2cck7U=
 github.com/Portshift/klar v1.9.10-0.20201118172109-371310ea259d/go.mod h1:BVPXethETeq6dYE/WjN8BRAu72fdABZyb4MbkjMbry0=
 github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41 h1:Oaa7BHdNBDVp12IXp3Z5Ayzva8f+sswsFZf1bGkRf6s=
 github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41/go.mod h1:dMxkXoMOPEh7hULZbzw5e1298F5iPMYiQR0vT4vYqAs=
 github.com/Portshift/klar v1.9.10-0.20211123083344-28f647b14389 h1:BrXqswnGANW25Acuk4cnL2Vw518ecFZ44LwPrgvKa0E=
 github.com/Portshift/klar v1.9.10-0.20211123083344-28f647b14389/go.mod h1:Vd/zZTj27phihrAm1zL5inl37cyfTcILApXDNB09uuE=
+github.com/Portshift/klar v1.9.10-0.20211130135640-f0fb9126320c h1:/U6Weo8ZbgPS43g7IdY+nSCuqpqjNZwSgRxBNxyv+uA=
+github.com/Portshift/klar v1.9.10-0.20211130135640-f0fb9126320c/go.mod h1:Omyq2Wjtt6lU5Na3Faz6yHB1yXo9cscF/JKR+plFP8o=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=

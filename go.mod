@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/klar v1.9.10-0.20211123083344-28f647b14389
+	github.com/Portshift/klar v1.9.10-0.20211130135640-f0fb9126320c
 	github.com/anchore/grype v0.24.1
 	github.com/containers/image/v5 v5.5.0
 	github.com/satori/go.uuid v1.2.0
