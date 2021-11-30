@@ -1,8 +1,9 @@
 package config
 
 import (
-	"gotest.tools/assert"
 	"testing"
+
+	"gotest.tools/assert"
 )
 
 func Test_getDeleteJobPolicyType(t *testing.T) {

@@ -38,6 +38,26 @@ roleRef:
   kind: ClusterRole
   name: kubei
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grype-server
+  name: grype-server
+  namespace: kubei
+spec:
+  type: ClusterIP
+  ports:
+    - name: grype-server
+      port: 9991
+      protocol: TCP
+    - name: health
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: grype-server
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,50 +74,73 @@ spec:
     metadata:
       labels:
         app: grype-server
-        kubeiShouldScan: "false"
+        kubeiShouldScan: 'false'
     spec:
+      initContainers:
+        - name: init-grype-server
+          image: yauritux/busybox-curl
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          args:
+            - /bin/sh
+            - '-c'
+            - >
+              set -x; while [ $(curl -sw '%{http_code}'
+              "http://grype-server.kubei:8080/healthz/ready" -o /dev/null) -ne
+              200 ]; do
+                echo "waiting for grype-server to be ready";
+                sleep 15;
+              done
       containers:
-      - name: grype-server
-        image: gcr.io/eticloud/k8sec/grype-server:2.1.6
-        args:
-          - run
-          - --log-level
-          - warning
-        env:
-          - name: DB_ROOT_DIR
-            value: "/tmp/"
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 9991
-        resources:
+        - name: grype-server
+          image: 'gcr.io/eticloud/k8sec/grype-server:2.1.6'
+          args:
+            - run
+            - '--log-level'
+            - warning
+          env:
+            - name: DB_ROOT_DIR
+              value: /tmp/
+            - name: HTTPS_PROXY
+              value: '{ PROXY_IP }:{ PROXY_PORT }'
+            - name: HTTP_PROXY
+              value: '{ PROXY_IP }:{ PROXY_PORT }'
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 9991
+          resources: null
           limits:
             cpu: 1000m
             memory: 1G
           requests:
             cpu: 200m
             memory: 200Mi
-# uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
-#        env:
-#        - name: HTTPS_PROXY
-#          value: "{ PROXY_IP }:{ PROXY_PORT }"
-#        - name: HTTP_PROXY
-#          value: "{ PROXY_IP }:{ PROXY_PORT }"
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: grype-server
-  name: grype-server
-  namespace: kubei
-spec:
-  type: ClusterIP
-  ports:
-    - name: grype-server
-      port: 9991
-      protocol: TCP
-  selector:
-    app: grype-server
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      securityContext:
+        fsGroup: 1001
 ---
 apiVersion: v1
 kind: Service

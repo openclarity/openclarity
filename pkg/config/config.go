@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"net/url"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 const (

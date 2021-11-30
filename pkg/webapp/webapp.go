@@ -2,13 +2,16 @@ package webapp
 
 import (
 	"fmt"
-	grype_models "github.com/anchore/grype/grype/presenter/models"
 	"html/template"
 	"net/http"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	grype_models "github.com/anchore/grype/grype/presenter/models"
+
+	log "github.com/sirupsen/logrus"
 
 	dockle_config "github.com/Portshift/dockle/config"
 	dockle_writer "github.com/Portshift/dockle/pkg/report"
@@ -17,7 +20,6 @@ import (
 	"github.com/Portshift/kubei/pkg/orchestrator"
 	"github.com/Portshift/kubei/pkg/types"
 	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
-	log "github.com/sirupsen/logrus"
 )
 
 const htmlFileName = "view.html"

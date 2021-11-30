@@ -1,10 +1,11 @@
 package creds
 
 import (
-	klar "github.com/Portshift/klar/docker/token/secret"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+
+	klar "github.com/Portshift/klar/docker/token/secret"
 )
 
 const (

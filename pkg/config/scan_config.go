@@ -1,12 +1,13 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	corev1 "k8s.io/api/core/v1"
 	"strconv"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	corev1 "k8s.io/api/core/v1"
 )
 
 const (

@@ -1,9 +1,10 @@
 package types
 
 import (
+	grype_models "github.com/anchore/grype/grype/presenter/models"
+
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/Portshift/klar/docker"
-	grype_models "github.com/anchore/grype/grype/presenter/models"
 )
 
 type ScanProgress struct {

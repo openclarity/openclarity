@@ -3,12 +3,11 @@ package scanner
 import (
 	"context"
 	"fmt"
-	klar "github.com/Portshift/klar/docker/token/secret"
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/types"
-	"github.com/Portshift/kubei/pkg/utils/k8s"
-	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
-	stringutils "github.com/Portshift/kubei/pkg/utils/string"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"time"
+
 	"github.com/containers/image/v5/docker/reference"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -17,10 +16,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strconv"
-	"strings"
-	"sync/atomic"
-	"time"
+
+	klar "github.com/Portshift/klar/docker/token/secret"
+	"github.com/Portshift/kubei/pkg/config"
+	"github.com/Portshift/kubei/pkg/types"
+	"github.com/Portshift/kubei/pkg/utils/k8s"
+	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
+	stringutils "github.com/Portshift/kubei/pkg/utils/string"
 )
 
 func (s *Scanner) jobBatchManagement() {
