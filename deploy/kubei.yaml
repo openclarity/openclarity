@@ -74,7 +74,7 @@ spec:
     metadata:
       labels:
         app: grype-server
-        kubeiShouldScan: 'false'
+        kubeiShouldScan: "false"
     spec:
       initContainers:
         - name: init-grype-server
@@ -101,7 +101,7 @@ spec:
               done
       containers:
         - name: grype-server
-          image: 'gcr.io/eticloud/k8sec/grype-server:2.1.6'
+          image: 'gcr.io/eticloud/k8sec/grype-server:v0.1.0'
           args:
             - run
             - '--log-level'
@@ -109,10 +109,11 @@ spec:
           env:
             - name: DB_ROOT_DIR
               value: /tmp/
-            - name: HTTPS_PROXY
-              value: '{ PROXY_IP }:{ PROXY_PORT }'
-            - name: HTTP_PROXY
-              value: '{ PROXY_IP }:{ PROXY_PORT }'
+            # uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
+#            - name: HTTPS_PROXY
+#              value: '{ PROXY_IP }:{ PROXY_PORT }'
+#            - name: HTTP_PROXY
+#              value: '{ PROXY_IP }:{ PROXY_PORT }'
           imagePullPolicy: Always
           securityContext:
             capabilities:

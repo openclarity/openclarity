@@ -24,7 +24,6 @@ jobs:
       - setup_remote_docker
       - run: docker login -u _json_key -p "${GCR_ETI_CLOUD_REGISTRY_SERVICE_ACCOUNT}" http://gcr.io
       - run: echo ${CIRCLE_TAG}
-      - run: VERSION=${CIRCLE_SHA1} make docker.push
       - run: >
           if [ "${CIRCLE_TAG}" != "" ];
           then

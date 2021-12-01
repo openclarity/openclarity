@@ -114,6 +114,8 @@ github.com/Portshift/grype-server/api v0.0.0-20211115015416-a4e7c9a18079 h1:f9SK
 github.com/Portshift/grype-server/api v0.0.0-20211115015416-a4e7c9a18079/go.mod h1:/5hop1dhTvomC3w5T5HBmnhMYsk/AAEXHllnDSWMEFQ=
 github.com/Portshift/grype-server/api v0.0.0-20211130120325-f3207a9c9ea1 h1:dAVCZCbbFCktC9oaWbpxx1rRvjjuiifP1eW9t4HLQac=
 github.com/Portshift/grype-server/api v0.0.0-20211130120325-f3207a9c9ea1/go.mod h1:9QJNVuh8EOzGAZDvQZu2mhHU1E+HrKVQboaVo2cck7U=
+github.com/Portshift/grype-server/api v0.0.0-20211201055142-73026dfd7327 h1:9sLBDcewgBBLMhwhDlYJWydLEwMjSpJ53C44R/W4U4Y=
+github.com/Portshift/grype-server/api v0.0.0-20211201055142-73026dfd7327/go.mod h1:9QJNVuh8EOzGAZDvQZu2mhHU1E+HrKVQboaVo2cck7U=
 github.com/Portshift/klar v1.9.10-0.20201118172109-371310ea259d/go.mod h1:BVPXethETeq6dYE/WjN8BRAu72fdABZyb4MbkjMbry0=
 github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41 h1:Oaa7BHdNBDVp12IXp3Z5Ayzva8f+sswsFZf1bGkRf6s=
 github.com/Portshift/klar v1.9.10-0.20211115041021-8325ac22ca41/go.mod h1:dMxkXoMOPEh7hULZbzw5e1298F5iPMYiQR0vT4vYqAs=
@@ -123,6 +125,8 @@ github.com/Portshift/klar v1.9.10-0.20211130135640-f0fb9126320c h1:/U6Weo8ZbgPS4
 github.com/Portshift/klar v1.9.10-0.20211130135640-f0fb9126320c/go.mod h1:Omyq2Wjtt6lU5Na3Faz6yHB1yXo9cscF/JKR+plFP8o=
 github.com/Portshift/klar v1.9.10-0.20211130171949-b6a0ea5b8331 h1:/K5tFhmDN1791682C0SHC2sfBWyKCWITh+ZiYBAvELc=
 github.com/Portshift/klar v1.9.10-0.20211130171949-b6a0ea5b8331/go.mod h1:Omyq2Wjtt6lU5Na3Faz6yHB1yXo9cscF/JKR+plFP8o=
+github.com/Portshift/klar v1.9.10-0.20211201174102-b9c0fd8da8de h1:gE3cYeUp8kXoJ/Yze+E265z4hJ6A8C+oQyuipRWi3mk=
+github.com/Portshift/klar v1.9.10-0.20211201174102-b9c0fd8da8de/go.mod h1:ma1MxKknvwZ+c0HxvB93SpJeZxFKGHHoIf+yvLrrLMw=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
