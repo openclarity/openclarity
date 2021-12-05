@@ -76,29 +76,6 @@ spec:
         app: grype-server
         kubeiShouldScan: "false"
     spec:
-      initContainers:
-        - name: init-grype-server
-          image: yauritux/busybox-curl
-          securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-            runAsGroup: 1001
-            runAsUser: 1001
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-          args:
-            - /bin/sh
-            - '-c'
-            - >
-              set -x; while [ $(curl -sw '%{http_code}'
-              "http://grype-server.kubei:8080/healthz/ready" -o /dev/null) -ne
-              200 ]; do
-                echo "waiting for grype-server to be ready";
-                sleep 15;
-              done
       containers:
         - name: grype-server
           image: 'gcr.io/eticloud/k8sec/grype-server:v0.1.0'
@@ -127,13 +104,13 @@ spec:
             readOnlyRootFilesystem: true
           ports:
             - containerPort: 9991
-          resources: null
-          limits:
-            cpu: 1000m
-            memory: 1G
-          requests:
-            cpu: 200m
-            memory: 200Mi
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1G
+            requests:
+              cpu: 200m
+              memory: 200Mi
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume
@@ -181,6 +158,29 @@ spec:
         kubeiShouldScan: "false"
     spec:
       serviceAccountName: kubei
+      initContainers:
+        - name: init-grype-server
+          image: yauritux/busybox-curl
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          args:
+            - /bin/sh
+            - '-c'
+            - >
+              set -x; while [ $(curl -sw '%{http_code}'
+              "http://grype-server.kubei:8080/healthz/ready" -o /dev/null) -ne
+              200 ]; do
+                echo "waiting for grype-server to be ready";
+                sleep 15;
+              done
       containers:
       - name: kubei
         image: gcr.io/eticloud/k8sec/kubei:1.0.13
