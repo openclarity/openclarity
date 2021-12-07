@@ -76,7 +76,7 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 
 ## Running Kubei with an external HTTP/HTTPS proxy
 
-Uncomment and configure the proxy env variables for the Clair and Kubei deployments in `deploy/kubei.yaml`.
+Uncomment and configure the proxy env variables for the Grype Server and Kubei deployments in `deploy/kubei.yaml`.
 
 ## Amazon ECR support
 

@@ -1,8 +1,9 @@
 package scanner
 
 import (
-	v1 "k8s.io/api/core/v1"
 	"testing"
+
+	v1 "k8s.io/api/core/v1"
 )
 
 func Test_getImageHash(t *testing.T) {

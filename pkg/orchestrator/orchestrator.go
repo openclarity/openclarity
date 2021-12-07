@@ -4,15 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"sync"
+
+	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes"
+
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/Portshift/klar/forwarding"
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/scanner"
 	"github.com/Portshift/kubei/pkg/types"
-	log "github.com/sirupsen/logrus"
-	dockle_types "github.com/Portshift/dockle/pkg/types"
-	"k8s.io/client-go/kubernetes"
-	"net/http"
-	"sync"
 )
 
 type Orchestrator struct {

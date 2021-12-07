@@ -20,18 +20,18 @@ func Test_sortDockerfileVulnerabilities(t *testing.T) {
 				data: []*containerDockerfileVulnerability{
 					{
 						containerInfo: containerInfo{
-							Pod:       "warn pod",
+							Pod: "warn pod",
 						},
 						DockerfileVulnerability: &dockerfileVulnerability{
-							Level:       "WARN",
+							Level: "WARN",
 						},
 					},
 					{
 						containerInfo: containerInfo{
-							Pod:       "fatal pod",
+							Pod: "fatal pod",
 						},
 						DockerfileVulnerability: &dockerfileVulnerability{
-							Level:       "FATAL",
+							Level: "FATAL",
 						},
 					},
 				},
@@ -39,18 +39,18 @@ func Test_sortDockerfileVulnerabilities(t *testing.T) {
 			want: []*containerDockerfileVulnerability{
 				{
 					containerInfo: containerInfo{
-						Pod:       "fatal pod",
+						Pod: "fatal pod",
 					},
 					DockerfileVulnerability: &dockerfileVulnerability{
-						Level:       "FATAL",
+						Level: "FATAL",
 					},
 				},
 				{
 					containerInfo: containerInfo{
-						Pod:       "warn pod",
+						Pod: "warn pod",
 					},
 					DockerfileVulnerability: &dockerfileVulnerability{
-						Level:       "WARN",
+						Level: "WARN",
 					},
 				},
 			},
@@ -61,18 +61,18 @@ func Test_sortDockerfileVulnerabilities(t *testing.T) {
 				data: []*containerDockerfileVulnerability{
 					{
 						containerInfo: containerInfo{
-							Pod:       "fatal pod",
+							Pod: "fatal pod",
 						},
 						DockerfileVulnerability: &dockerfileVulnerability{
-							Level:       "FATAL",
+							Level: "FATAL",
 						},
 					},
 					{
 						containerInfo: containerInfo{
-							Pod:       "warn pod",
+							Pod: "warn pod",
 						},
 						DockerfileVulnerability: &dockerfileVulnerability{
-							Level:       "WARN",
+							Level: "WARN",
 						},
 					},
 				},
@@ -80,18 +80,18 @@ func Test_sortDockerfileVulnerabilities(t *testing.T) {
 			want: []*containerDockerfileVulnerability{
 				{
 					containerInfo: containerInfo{
-						Pod:       "fatal pod",
+						Pod: "fatal pod",
 					},
 					DockerfileVulnerability: &dockerfileVulnerability{
-						Level:       "FATAL",
+						Level: "FATAL",
 					},
 				},
 				{
 					containerInfo: containerInfo{
-						Pod:       "warn pod",
+						Pod: "warn pod",
 					},
 					DockerfileVulnerability: &dockerfileVulnerability{
-						Level:       "WARN",
+						Level: "WARN",
 					},
 				},
 			},

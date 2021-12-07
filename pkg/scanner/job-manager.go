@@ -3,24 +3,26 @@ package scanner
 import (
 	"context"
 	"fmt"
-	klar "github.com/Portshift/klar/docker/token/secret"
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/utils/k8s"
-	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
-	stringutils "github.com/Portshift/kubei/pkg/utils/string"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"time"
+
 	"github.com/containers/image/v5/docker/reference"
 	uuid "github.com/satori/go.uuid"
-	"github.com/Portshift/kubei/pkg/types"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strconv"
-	"strings"
-	"sync/atomic"
-	"time"
+
+	klar "github.com/Portshift/klar/docker/token/secret"
+	"github.com/Portshift/kubei/pkg/config"
+	"github.com/Portshift/kubei/pkg/types"
+	"github.com/Portshift/kubei/pkg/utils/k8s"
+	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
+	stringutils "github.com/Portshift/kubei/pkg/utils/string"
 )
 
 func (s *Scanner) jobBatchManagement() {
@@ -247,8 +249,8 @@ const jobName = "scanner"
 
 func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName string, scanUUID string) corev1.Container {
 	env := []corev1.EnvVar{
-		{Name: "CLAIR_ADDR", Value: s.config.ClairAddress},
-		{Name: "CLAIR_OUTPUT", Value: s.scanConfig.SeverityThreshold},
+		{Name: "GRYPE_ADDR", Value: s.config.GrypeAddress},
+		{Name: "SEVERITY_THRESHOLD", Value: s.scanConfig.SeverityThreshold},
 		{Name: "KLAR_TRACE", Value: strconv.FormatBool(s.config.KlarTrace)},
 		{Name: "REGISTRY_INSECURE", Value: s.scanConfig.RegistryInsecure},
 		{Name: "RESULT_SERVICE_PATH", Value: s.config.KlarResultServicePath},
@@ -280,12 +282,12 @@ func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName st
 		Env: env,
 		Resources: corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{
-				corev1.ResourceCPU:    resource.MustParse("100m"),
-				corev1.ResourceMemory: resource.MustParse("100Mi"),
+				corev1.ResourceCPU:    resource.MustParse("1000m"),
+				corev1.ResourceMemory: resource.MustParse("1000Mi"),
 			},
 			Requests: corev1.ResourceList{
-				corev1.ResourceCPU:    resource.MustParse("10m"),
-				corev1.ResourceMemory: resource.MustParse("10Mi"),
+				corev1.ResourceCPU:    resource.MustParse("50m"),
+				corev1.ResourceMemory: resource.MustParse("50Mi"),
 			},
 		},
 	}
@@ -355,7 +357,7 @@ func (s *Scanner) appendProxyEnvConfig(env []corev1.EnvVar) []corev1.EnvVar {
 	}
 
 	env = append(env, corev1.EnvVar{
-		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.ResultServiceAddress + "," + s.config.ClairAddress,
+		Name: proxyconfig.NoProxyEnvCaps, Value: s.config.ResultServiceAddress + "," + s.config.GrypeAddress,
 	})
 
 	return env

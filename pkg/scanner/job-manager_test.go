@@ -1,8 +1,9 @@
 package scanner
 
 import (
-	"k8s.io/apimachinery/pkg/util/validation"
 	"testing"
+
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 func Test_getSimpleImageName(t *testing.T) {

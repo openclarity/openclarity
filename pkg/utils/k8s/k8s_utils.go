@@ -3,6 +3,8 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -11,7 +13,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	credprovsecrets "k8s.io/kubernetes/pkg/credentialprovider/secrets"
-	"strings"
 )
 
 const MaxK8sJobName = 63
