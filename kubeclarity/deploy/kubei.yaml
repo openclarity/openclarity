@@ -41,114 +41,84 @@ roleRef:
 apiVersion: v1
 kind: Service
 metadata:
-  name: clair
-  namespace: kubei
   labels:
-    app: clair
-spec:
-  type: ClusterIP
-  ports:
-  - port: 6060
-    protocol: TCP
-    name: apiserver
-  - port: 6061
-    protocol: TCP
-    name: health
-  selector:
-    app: clair
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: clair
-  namespace: kubei
-  labels:
-    app: clair
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: clair
-  template:
-    metadata:
-      labels:
-        app: clair
-        kubeiShouldScan: "false"
-    spec:
-      initContainers:
-      - name: check-db-ready
-        image: postgres:12-alpine
-        command: ['sh', '-c',  'until pg_isready -h postgres -p 5432;  do echo waiting for database; sleep 2; done;']
-      containers:
-      - name: clair
-        image: gcr.io/eticloud/k8sec/clair-scan-server:2.1.6
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 6060
-        - containerPort: 6061
-        resources:
-          limits:
-            cpu: 2000m
-            memory: 6G
-          requests:
-            cpu: 700m
-            memory: 3G
-# uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
-#        env:
-#        - name: HTTPS_PROXY
-#          value: "{ PROXY_IP }:{ PROXY_PORT }"
-#        - name: HTTP_PROXY
-#          value: "{ PROXY_IP }:{ PROXY_PORT }"
-#        - name: NO_PROXY
-#          value: "postgres"
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: postgres
-  name: postgres
+    app: grype-server
+  name: grype-server
   namespace: kubei
 spec:
   type: ClusterIP
   ports:
-    - name: db
-      port: 5432
+    - name: grype-server
+      port: 9991
       protocol: TCP
+    - name: health
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
-    app: postgres
+    app: grype-server
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: clair-postgres
+  name: grype-server
   namespace: kubei
   labels:
-    app: postgres
+    app: grype-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: grype-server
   template:
     metadata:
       labels:
-        app: postgres
+        app: grype-server
         kubeiShouldScan: "false"
     spec:
       containers:
-      - name: clair-db  
-        image: gcr.io/eticloud/k8sec/clair-db:12.2.ubi.6
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5432
-        resources:
-          limits:
-            cpu: 1500m
-            memory: 1G
-          requests:
-            cpu: 500m
-            memory: 400Mi
+        - name: grype-server
+          image: 'gcr.io/eticloud/k8sec/grype-server:v0.1.0'
+          args:
+            - run
+            - '--log-level'
+            - warning
+          env:
+            - name: DB_ROOT_DIR
+              value: /tmp/
+            # uncomment the following lines in case Kubei is running behind proxy. update PROXY_IP & PROXY_PORT according to your proxy settings
+#            - name: HTTPS_PROXY
+#              value: '{ PROXY_IP }:{ PROXY_PORT }'
+#            - name: HTTP_PROXY
+#              value: '{ PROXY_IP }:{ PROXY_PORT }'
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 9991
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1G
+            requests:
+              cpu: 200m
+              memory: 200Mi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      securityContext:
+        fsGroup: 1001
 ---
 apiVersion: v1
 kind: Service
@@ -189,24 +159,35 @@ spec:
     spec:
       serviceAccountName: kubei
       initContainers:
-      - name: init-clairsvc
-        image: yauritux/busybox-curl
-        args:
-          - /bin/sh
-          - -c
-          - >
-            set -x;
-            while [ $(curl -sw '%{http_code}' "http://clair.kubei:6060/v1/namespaces" -o /dev/null) -ne 200 ]; do
-              echo "waiting for clair to be ready";
-              sleep 15;
-            done
+        - name: init-grype-server
+          image: yauritux/busybox-curl
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          args:
+            - /bin/sh
+            - '-c'
+            - >
+              set -x; while [ $(curl -sw '%{http_code}'
+              "http://grype-server.kubei:8080/healthz/ready" -o /dev/null) -ne
+              200 ]; do
+                echo "waiting for grype-server to be ready";
+                sleep 15;
+              done
       containers:
       - name: kubei
-        image: gcr.io/eticloud/k8sec/kubei:1.0.13
+        image: gcr.io/eticloud/k8sec/kubei:1.0.14
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
-          value: "gcr.io/eticloud/k8sec/klar:1.0.17"
+          value: "gcr.io/eticloud/k8sec/klar:1.0.18"
         - name: "DOCKLE_IMAGE_NAME"
           value: "gcr.io/eticloud/k8sec/dockle:1.0.4"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10

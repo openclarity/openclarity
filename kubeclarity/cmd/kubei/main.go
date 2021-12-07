@@ -1,9 +1,10 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
+
 	"github.com/Portshift/kubei/pkg/config"
 	"github.com/Portshift/kubei/pkg/webapp"
-	log "github.com/sirupsen/logrus"
 )
 
 func initLog(verbose bool) {
