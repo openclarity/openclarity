@@ -42,7 +42,7 @@ func setConfigDefaults() {
 	viper.SetDefault(Verbose, "false")
 	viper.SetDefault(ListeningPort, "8080")
 	viper.SetDefault(KlarResultServicePath, "http://kubei.kubei:8081/result/")
-	viper.SetDefault(DockleTimeoutSec, "90")
+	viper.SetDefault(DockleTimeoutSec, "300")
 	viper.SetDefault(DockleResultServicePath, "http://kubei.kubei:8081/dockerfileScanResult/")
 	viper.SetDefault(ResultListenPort, "8081")
 	viper.SetDefault(KlarTrace, "false") // Run Klar in more verbose mode
