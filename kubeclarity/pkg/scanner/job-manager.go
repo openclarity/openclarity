@@ -297,7 +297,7 @@ func (s *Scanner) createVulnerabilitiesScannerContainer(imageName, secretName st
 func (s *Scanner) createDockerfileScannerContainer(imageName, secretName string, scanUUID string) corev1.Container {
 	env := []corev1.EnvVar{
 		{Name: "VERBOSE", Value: strconv.FormatBool(s.config.Verbose)},
-		{Name: "TIMEOUT", Value: s.config.DockleTimeoutSec},
+		{Name: "TIMEOUT_SEC", Value: s.config.DockleTimeoutSec},
 		{Name: "RESULT_SERVICE_PATH", Value: s.config.DockleResultServicePath},
 		{Name: "SCAN_UUID", Value: scanUUID},
 	}
