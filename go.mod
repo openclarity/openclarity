@@ -4,16 +4,18 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/grype-server/api v0.0.0-20211207093535-d9b3f40acb43 // indirect
-	github.com/Portshift/klar v1.9.10-0.20211207100106-146468df804c
-	github.com/anchore/grype v0.24.1
+	github.com/Portshift/grype-server/api v0.0.0-20220130174229-8f115ad37db5 // indirect
+	github.com/Portshift/klar v1.9.10-0.20220130175548-ce71db92adc5
+	github.com/anchore/grype v0.32.0
+	github.com/anchore/grype-db v0.0.0-20210928194208-f146397d6cd0 // indirect
 	github.com/containers/image/v5 v5.5.0
+	github.com/mitchellh/hashstructure v1.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/viper v1.7.1
+	github.com/spf13/viper v1.8.1
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.18.1
-	k8s.io/apimachinery v0.18.1
+	k8s.io/api v0.20.6
+	k8s.io/apimachinery v0.20.6
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.18.19
 )
