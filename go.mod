@@ -4,12 +4,10 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/grype-server/api v0.0.0-20220130174229-8f115ad37db5 // indirect
 	github.com/Portshift/klar v1.9.10-0.20220130175548-ce71db92adc5
 	github.com/anchore/grype v0.32.0
-	github.com/anchore/grype-db v0.0.0-20210928194208-f146397d6cd0 // indirect
 	github.com/containers/image/v5 v5.5.0
-	github.com/mitchellh/hashstructure v1.1.0 // indirect
+	github.com/googleapis/gnostic v0.2.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.8.1
