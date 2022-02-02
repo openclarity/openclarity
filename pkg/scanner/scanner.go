@@ -17,11 +17,12 @@ import (
 	"github.com/Portshift/klar/docker"
 	"github.com/Portshift/klar/forwarding"
 	klar_types "github.com/Portshift/klar/types"
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/scanner/creds"
-	"github.com/Portshift/kubei/pkg/types"
-	k8s_utils "github.com/Portshift/kubei/pkg/utils/k8s"
-	slice_utils "github.com/Portshift/kubei/pkg/utils/slice"
+
+	"github.com/cisco-open/kubei/pkg/config"
+	"github.com/cisco-open/kubei/pkg/scanner/creds"
+	"github.com/cisco-open/kubei/pkg/types"
+	k8s_utils "github.com/cisco-open/kubei/pkg/utils/k8s"
+	slice_utils "github.com/cisco-open/kubei/pkg/utils/slice"
 )
 
 type Status string

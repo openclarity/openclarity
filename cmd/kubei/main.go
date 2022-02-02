@@ -3,8 +3,8 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/webapp"
+	"github.com/cisco-open/kubei/pkg/config"
+	"github.com/cisco-open/kubei/pkg/webapp"
 )
 
 func initLog(verbose bool) {
