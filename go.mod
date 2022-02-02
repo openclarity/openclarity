@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
-	github.com/Portshift/klar v1.9.10-0.20220130175548-ce71db92adc5
+	github.com/Portshift/klar v1.9.10-0.20220202132318-de104f0cb49c
 	github.com/anchore/grype v0.32.0
 	github.com/containers/image/v5 v5.5.0
 	github.com/googleapis/gnostic v0.2.2 // indirect
