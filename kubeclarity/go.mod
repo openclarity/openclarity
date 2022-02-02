@@ -1,4 +1,4 @@
-module github.com/Portshift/kubei
+module github.com/cisco-open/kubei
 
 go 1.13
 
