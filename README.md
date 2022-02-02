@@ -43,7 +43,7 @@ The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your clust
 1. Run the following command to deploy Kubei on the cluster:
 
     `
-    kubectl apply -f https://raw.githubusercontent.com/Portshift/kubei/master/deploy/kubei.yaml
+    kubectl apply -f https://raw.githubusercontent.com/cisco-open/kubei/master/deploy/kubei.yaml
     `
 
 2. Run the following command to verify that Kubei is up and running:

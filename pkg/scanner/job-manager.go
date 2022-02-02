@@ -18,11 +18,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	klar "github.com/Portshift/klar/docker/token/secret"
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/types"
-	"github.com/Portshift/kubei/pkg/utils/k8s"
-	"github.com/Portshift/kubei/pkg/utils/proxyconfig"
-	stringutils "github.com/Portshift/kubei/pkg/utils/string"
+
+	"github.com/cisco-open/kubei/pkg/config"
+	"github.com/cisco-open/kubei/pkg/types"
+	"github.com/cisco-open/kubei/pkg/utils/k8s"
+	"github.com/cisco-open/kubei/pkg/utils/proxyconfig"
+	stringutils "github.com/cisco-open/kubei/pkg/utils/string"
 )
 
 func (s *Scanner) jobBatchManagement() {

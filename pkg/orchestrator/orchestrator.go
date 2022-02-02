@@ -12,9 +12,10 @@ import (
 
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/Portshift/klar/forwarding"
-	"github.com/Portshift/kubei/pkg/config"
-	"github.com/Portshift/kubei/pkg/scanner"
-	"github.com/Portshift/kubei/pkg/types"
+
+	"github.com/cisco-open/kubei/pkg/config"
+	"github.com/cisco-open/kubei/pkg/scanner"
+	"github.com/cisco-open/kubei/pkg/types"
 )
 
 type Orchestrator struct {
