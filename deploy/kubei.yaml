@@ -78,7 +78,7 @@ spec:
     spec:
       containers:
         - name: grype-server
-          image: 'gcr.io/eticloud/k8sec/grype-server:v0.1.0'
+          image: 'gcr.io/eticloud/k8sec/grype-server:v0.1.1'
           args:
             - run
             - '--log-level'
@@ -183,11 +183,11 @@ spec:
               done
       containers:
       - name: kubei
-        image: gcr.io/eticloud/k8sec/kubei:1.0.14
+        image: gcr.io/eticloud/k8sec/kubei:1.0.15
         imagePullPolicy: Always
         env:
         - name: "KLAR_IMAGE_NAME"
-          value: "gcr.io/eticloud/k8sec/klar:1.0.18"
+          value: "gcr.io/eticloud/k8sec/klar:1.0.19"
         - name: "DOCKLE_IMAGE_NAME"
           value: "gcr.io/eticloud/k8sec/dockle:1.0.4"
         - name: "MAX_PARALLELISM" # max number of scans that will run simultaneously. defaults to 10
