@@ -10,7 +10,7 @@ require (
 	github.com/googleapis/gnostic v0.2.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/viper v1.10.0
+	github.com/spf13/viper v1.10.1
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.20.6
 	k8s.io/apimachinery v0.20.6
