@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine AS builder
+FROM golang:1.17.7-alpine AS builder
 WORKDIR /go/src/kubei/
 COPY ./ ./
 RUN CGO_ENABLED=0 go build -o kubei ./cmd/kubei/
