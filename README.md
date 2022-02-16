@@ -1,6 +1,5 @@
 ![](images/Kubei-logo.png)
 
-
 Kubei is a vulnerabilities scanning and CIS Docker benchmark tool that allows users to get an accurate and immediate risk assessment of their kubernetes clusters. Kubei scans all images that are being used in a Kubernetes cluster, including images of application pods and system pods. It doesn’t scan the entire image registries and doesn’t require preliminary integration with CI/CD pipelines. 
 
 It is a configurable tool which allows users to define the scope of the scan (target namespaces), the speed, and the vulnerabilities level of interest.
