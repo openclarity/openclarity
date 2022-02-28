@@ -5,15 +5,14 @@ go 1.13
 require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
 	github.com/Portshift/klar v1.9.10-0.20220202132318-de104f0cb49c
-	github.com/anchore/grype v0.33.0
+	github.com/anchore/grype v0.33.1
 	github.com/containers/image/v5 v5.19.1
-	github.com/googleapis/gnostic v0.2.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.20.6
-	k8s.io/apimachinery v0.20.6
+	k8s.io/api v0.23.3
+	k8s.io/apimachinery v0.23.3
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.18.19
 )
