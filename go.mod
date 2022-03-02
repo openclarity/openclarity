@@ -6,7 +6,7 @@ require (
 	github.com/Portshift/dockle v0.3.2-0.20210614100546-7ad9b2364ef4
 	github.com/Portshift/klar v1.9.10-0.20220202132318-de104f0cb49c
 	github.com/anchore/grype v0.33.0
-	github.com/containers/image/v5 v5.19.1
+	github.com/containers/image/v5 v5.20.0
 	github.com/googleapis/gnostic v0.2.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
