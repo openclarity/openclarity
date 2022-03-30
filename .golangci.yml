@@ -8,7 +8,7 @@ linters-settings:
   golint:
     min-confidence: 0.1
   goimports:
-    local-prefixes: wwwin-github.cisco.com/eti
+    local-prefixes: github.com/cisco-open/kubei
   errorlint:
     # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
     errorf: false
