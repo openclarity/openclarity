@@ -1,9 +1,0 @@
-[req]
-req_extensions = v3_ca
-
-[ v3_ca ]
-basicConstraints = critical,CA:TRUE,pathlen:1
-subjectKeyIdentifier = hash
-authorityKeyIdentifier = keyid:always
-keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-
