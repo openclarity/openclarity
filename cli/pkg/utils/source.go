@@ -16,7 +16,7 @@
 package utils
 
 import (
-	sharedutils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 func SetSource(local bool, sourceType sharedutils.SourceType, source string) string {

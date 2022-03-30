@@ -23,8 +23,8 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	utils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/vulnerability"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	utils "github.com/cisco-open/kubei/shared/pkg/utils/vulnerability"
 )
 
 type Presenter struct {

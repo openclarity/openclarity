@@ -23,7 +23,7 @@ import (
 	"github.com/anchore/grype/grype/presenter/models"
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 func TestCreateResults(t *testing.T) {

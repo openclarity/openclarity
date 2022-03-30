@@ -22,7 +22,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 const (

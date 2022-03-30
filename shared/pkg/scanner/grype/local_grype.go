@@ -25,9 +25,9 @@ import (
 	"github.com/anchore/syft/syft/pkg/cataloger"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 type LocalScanner struct {

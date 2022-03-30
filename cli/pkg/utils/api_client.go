@@ -22,8 +22,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/config"
+	"github.com/cisco-open/kubei/api/client/client"
+	"github.com/cisco-open/kubei/cli/pkg/config"
 )
 
 func NewHTTPClient(conf *config.Backend) *client.KubeClarityAPIs {

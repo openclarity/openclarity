@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 // GetDashboardPackagesPerLicenseOKCode is the HTTP code returned for type GetDashboardPackagesPerLicenseOK

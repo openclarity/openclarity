@@ -22,10 +22,10 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/restapi/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
-	runtime_scan_models "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/backend/pkg/types"
+	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
 )
 
 const (

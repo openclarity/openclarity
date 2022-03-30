@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/client/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/models"
+	"github.com/cisco-open/kubei/sbom_db/api/client/client"
+	"github.com/cisco-open/kubei/sbom_db/api/client/client/operations"
+	"github.com/cisco-open/kubei/sbom_db/api/client/models"
 )
 
 type Setter interface {

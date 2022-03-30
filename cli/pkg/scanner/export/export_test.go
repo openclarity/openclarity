@@ -21,8 +21,8 @@ import (
 
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 func Test_getScannerInfo(t *testing.T) {

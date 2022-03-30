@@ -18,7 +18,7 @@ package types
 import (
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 type ResourceType string

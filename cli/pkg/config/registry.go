@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 const (

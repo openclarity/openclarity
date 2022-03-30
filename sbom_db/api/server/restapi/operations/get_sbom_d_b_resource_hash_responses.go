@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/server/models"
+	"github.com/cisco-open/kubei/sbom_db/api/server/models"
 )
 
 // GetSbomDBResourceHashOKCode is the HTTP code returned for type GetSbomDBResourceHashOK

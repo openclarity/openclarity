@@ -23,8 +23,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/config"
+	"github.com/cisco-open/kubei/cli/pkg"
+	"github.com/cisco-open/kubei/cli/pkg/config"
 )
 
 var (

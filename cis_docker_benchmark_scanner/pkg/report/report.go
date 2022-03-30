@@ -23,10 +23,10 @@ import (
 	transport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/client/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/config"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/client"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/client/operations"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
 )
 
 type Reporter interface {

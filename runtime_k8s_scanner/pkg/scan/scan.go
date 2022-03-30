@@ -20,11 +20,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	sharedscanner "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/job"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	sharedscanner "github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/job"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 type Scanner interface {

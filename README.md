@@ -72,7 +72,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
   * Merging of SBOM and vulnerabilities across different CI/CD stages
   * Export results to KubeClarity backend
 * API
-  * The API for KubeClarity can be found [here](https://wwwin-github.cisco.com/eti/scan-gazr/blob/master/api/swagger.yaml)
+  * The API for KubeClarity can be found [here](https://github.com/cisco-open/kubei/blob/master/api/swagger.yaml)
     
 ## High level architecture
 
@@ -90,7 +90,7 @@ KubeClarity vulnerability scanner integrates with the following scanners:
 * [Grype](https://github.com/anchore/grype)
 * [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
 
-The integrations with the SBOM generators can be found here [here](https://wwwin-github.cisco.com/eti/scan-gazr/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://wwwin-github.cisco.com/eti/scan-gazr/tree/master/shared/pkg/scanner). 
+The integrations with the SBOM generators can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/scanner). 
 To enable and configure the supported SBOM generators and vulnerability scanners, please check the "analyzer" and "scanner" config under the "vulnerability-scanner" section in Helm values.
 
 Contributions of integrations with additional tools are more than welcome!

@@ -22,7 +22,7 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
+	"github.com/cisco-open/kubei/backend/pkg/types"
 )
 
 func TestCreatePackage(t *testing.T) {

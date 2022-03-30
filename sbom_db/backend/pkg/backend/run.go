@@ -24,8 +24,8 @@ import (
 	"github.com/Portshift/go-utils/healthz"
 	log "github.com/sirupsen/logrus"
 
-	_config "wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/database"
+	_config "github.com/cisco-open/kubei/sbom_db/backend/pkg/config"
+	"github.com/cisco-open/kubei/sbom_db/backend/pkg/database"
 )
 
 const defaultChanSize = 100

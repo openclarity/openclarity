@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/scanner"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/version"
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/scanner"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 func run(c *cli.Context) {

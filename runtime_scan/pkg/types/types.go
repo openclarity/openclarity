@@ -18,7 +18,7 @@ package types
 import (
 	"k8s.io/apimachinery/pkg/labels"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
 )
 
 type Status string

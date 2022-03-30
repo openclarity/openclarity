@@ -24,8 +24,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/database"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
+	"github.com/cisco-open/kubei/backend/pkg/database"
+	"github.com/cisco-open/kubei/backend/pkg/types"
 )
 
 func Test_mergeResourcePkgIDToAnalyzersMaps(t *testing.T) {

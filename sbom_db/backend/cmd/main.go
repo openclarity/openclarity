@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/backend"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/version"
+	"github.com/cisco-open/kubei/sbom_db/backend/pkg/backend"
+	"github.com/cisco-open/kubei/sbom_db/backend/pkg/config"
+	"github.com/cisco-open/kubei/sbom_db/backend/pkg/version"
 )
 
 func run(c *cli.Context) {

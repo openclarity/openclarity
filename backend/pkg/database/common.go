@@ -26,7 +26,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 const (

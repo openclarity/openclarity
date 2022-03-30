@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner/pkg/scanner"
-	"wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner/pkg/version"
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/scanner"
+	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/version"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 func versionPrint(_ *cli.Context) {

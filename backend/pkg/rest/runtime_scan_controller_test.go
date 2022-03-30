@@ -23,9 +23,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/orchestrator"
-	_types "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/types"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/runtime_scan/pkg/orchestrator"
+	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
 )
 
 func Test_setOrUpdateScanFailDataForImage(t *testing.T) {

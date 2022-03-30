@@ -23,7 +23,7 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 func TestTablePresenter(t *testing.T) {

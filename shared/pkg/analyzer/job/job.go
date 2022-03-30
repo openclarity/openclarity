@@ -18,10 +18,10 @@ package job
 import (
 	"github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer/cdx_gomod"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer/syft"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer/cdx_gomod"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer/syft"
+	"github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
 )
 
 func CreateAnalyzerJob(analyzerName string, config *config.Config, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {

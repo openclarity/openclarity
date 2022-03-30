@@ -10,7 +10,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/api/server/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../server --name KubeClarityAPIs --spec ../../swagger.yaml --principal interface{}

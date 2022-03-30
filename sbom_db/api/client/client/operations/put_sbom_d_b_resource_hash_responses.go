@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/models"
+	"github.com/cisco-open/kubei/sbom_db/api/client/models"
 )
 
 // PutSbomDBResourceHashReader is a Reader for the PutSbomDBResourceHash structure.

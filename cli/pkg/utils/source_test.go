@@ -18,7 +18,7 @@ package utils
 import (
 	"testing"
 
-	sharedutils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 func TestSetSource(t *testing.T) {

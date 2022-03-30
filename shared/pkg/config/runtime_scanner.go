@@ -19,8 +19,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/creds"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/creds/secret"
+	"github.com/cisco-open/kubei/shared/pkg/utils/creds"
+	"github.com/cisco-open/kubei/shared/pkg/utils/creds/secret"
 )
 
 const (

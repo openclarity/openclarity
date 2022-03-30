@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 // NewPostApplicationsParams creates a new PostApplicationsParams object

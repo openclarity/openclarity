@@ -29,8 +29,8 @@ import (
 	"github.com/google/uuid"
 	purl "github.com/package-url/packageurl-go"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	cdx_helper "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/cyclonedx_helper"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
 )
 
 type propertiesInfo struct {

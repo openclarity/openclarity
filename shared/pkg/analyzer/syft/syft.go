@@ -26,12 +26,12 @@ import (
 	"github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image_helper"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer"
+	"github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
 const AnalyzerName = "syft"

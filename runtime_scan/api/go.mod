@@ -1,3 +1,3 @@
-module wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api
+module github.com/cisco-open/kubei/runtime_scan/api
 
 go 1.17

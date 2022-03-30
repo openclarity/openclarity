@@ -18,7 +18,7 @@ package types
 import (
 	"testing"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 func TestCVSSV3Metrics_getCVSSSeverity(t *testing.T) {

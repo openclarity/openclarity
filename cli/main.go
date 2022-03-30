@@ -16,7 +16,7 @@
 package main
 
 import (
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/cmd"
+	"github.com/cisco-open/kubei/cli/cmd"
 )
 
 func main() {

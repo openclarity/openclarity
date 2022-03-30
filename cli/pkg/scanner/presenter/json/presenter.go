@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"io"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 type Presenter struct {

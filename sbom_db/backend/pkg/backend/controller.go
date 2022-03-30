@@ -22,9 +22,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"gorm.io/gorm"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/server/restapi/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/database"
+	"github.com/cisco-open/kubei/sbom_db/api/server/models"
+	"github.com/cisco-open/kubei/sbom_db/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/sbom_db/backend/pkg/database"
 )
 
 var oopsResponse = &models.APIResponse{

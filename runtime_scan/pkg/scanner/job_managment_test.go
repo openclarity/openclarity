@@ -26,10 +26,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/kubernetes"
 
-	_config "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/config"
-	_creds "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/scanner/creds"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/types"
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
+	_creds "github.com/cisco-open/kubei/runtime_scan/pkg/scanner/creds"
+	"github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 func Test_getSimpleImageName(t *testing.T) {
@@ -412,13 +412,13 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{
 											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
+											SecretKeyRef: &corev1.SecretKeySelector{
+												LocalObjectReference: corev1.LocalObjectReference{
+													Name: "secretName",
 												},
+												Key: corev1.DockerConfigJsonKey,
 											},
+										},
 										},
 									},
 								},
@@ -426,13 +426,13 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{
 											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
+											SecretKeyRef: &corev1.SecretKeySelector{
+												LocalObjectReference: corev1.LocalObjectReference{
+													Name: "secretName",
 												},
+												Key: corev1.DockerConfigJsonKey,
 											},
+										},
 										},
 									},
 								},
@@ -477,13 +477,13 @@ func Test_setJobImagePullSecret(t *testing.T) {
 										{Name: "ENV1", Value: "123"},
 										{
 											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
+											SecretKeyRef: &corev1.SecretKeySelector{
+												LocalObjectReference: corev1.LocalObjectReference{
+													Name: "secretName",
 												},
+												Key: corev1.DockerConfigJsonKey,
 											},
+										},
 										},
 									},
 								},
@@ -492,13 +492,13 @@ func Test_setJobImagePullSecret(t *testing.T) {
 										{Name: "ENV2", Value: "456"},
 										{
 											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
+											SecretKeyRef: &corev1.SecretKeySelector{
+												LocalObjectReference: corev1.LocalObjectReference{
+													Name: "secretName",
 												},
+												Key: corev1.DockerConfigJsonKey,
 											},
+										},
 										},
 									},
 								},

@@ -29,13 +29,13 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/restapi/operations"
-	_config "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/config"
-	_creds "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/scanner/creds"
-	_types "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/types"
-	sliceutils "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/utils/slice"
-	k8sutils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/k8s"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi/operations"
+	_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
+	_creds "github.com/cisco-open/kubei/runtime_scan/pkg/scanner/creds"
+	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	sliceutils "github.com/cisco-open/kubei/runtime_scan/pkg/utils/slice"
+	k8sutils "github.com/cisco-open/kubei/shared/pkg/utils/k8s"
 )
 
 type Scanner struct {

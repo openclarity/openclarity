@@ -1,4 +1,4 @@
-module wwwin-github.cisco.com/eti/scan-gazr/shared
+module github.com/cisco-open/kubei/shared
 
 go 1.17
 

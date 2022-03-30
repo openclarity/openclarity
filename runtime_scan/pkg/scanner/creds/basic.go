@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 
-	shared "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
+	shared "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 const (

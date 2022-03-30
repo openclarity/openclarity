@@ -22,10 +22,10 @@ import (
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/creds/ecr"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/creds/gcr"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/creds/secret"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image"
+	"github.com/cisco-open/kubei/shared/pkg/utils/creds/ecr"
+	"github.com/cisco-open/kubei/shared/pkg/utils/creds/gcr"
+	"github.com/cisco-open/kubei/shared/pkg/utils/creds/secret"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image"
 )
 
 type CredExtractor struct {

@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/models"
+	"github.com/cisco-open/kubei/sbom_db/api/client/models"
 )
 
 // NewPutSbomDBResourceHashParams creates a new PutSbomDBResourceHashParams object,

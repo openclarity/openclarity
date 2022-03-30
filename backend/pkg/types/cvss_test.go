@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 func TestCVSS_ToCVSSBackendAPI(t *testing.T) {

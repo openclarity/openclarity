@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
 )
 
 // TODO: maybe we need to extend the unified config.

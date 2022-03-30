@@ -24,17 +24,17 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	_export "wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/scanner/export"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/scanner/presenter"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/utils"
-	sharedconfig "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	sharedscanner "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/job"
-	sharedutils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
-	cdx_helper "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/cyclonedx_helper"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image_helper"
+	_export "github.com/cisco-open/kubei/cli/pkg/scanner/export"
+	"github.com/cisco-open/kubei/cli/pkg/scanner/presenter"
+	"github.com/cisco-open/kubei/cli/pkg/utils"
+	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	sharedscanner "github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/job"
+	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
+	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
 // scanCmd represents the scan command.

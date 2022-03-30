@@ -18,10 +18,10 @@ package job
 import (
 	"github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/grype"
+	"github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/grype"
 )
 
 func CreateJob(scannerName string, config *config.Config, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {

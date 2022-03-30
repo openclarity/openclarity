@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/models"
+	"github.com/cisco-open/kubei/api/client/models"
 )
 
 // GetPackagesReader is a Reader for the GetPackages structure.

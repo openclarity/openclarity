@@ -19,8 +19,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/converter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/converter"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
 )
 
 // convertCmd represents the convert command.

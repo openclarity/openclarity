@@ -10,11 +10,11 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/bom"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/component"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/finding"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/project"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/bom"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/component"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/finding"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/project"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
 )
 
 // Default dependency track API HTTP client.

@@ -19,7 +19,7 @@ import (
 	transport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/client"
+	"github.com/cisco-open/kubei/sbom_db/api/client/client"
 )
 
 type Client struct {

@@ -24,8 +24,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 type componentKey string // Unique identification of a package (name and version)

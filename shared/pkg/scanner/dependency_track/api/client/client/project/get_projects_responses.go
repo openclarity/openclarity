@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/models"
 )
 
 // GetProjectsReader is a Reader for the GetProjects structure.

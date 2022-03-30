@@ -22,13 +22,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/client/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/utils"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	cdx_helper "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/cyclonedx_helper"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image_helper"
+	"github.com/cisco-open/kubei/api/client/client"
+	"github.com/cisco-open/kubei/api/client/client/operations"
+	"github.com/cisco-open/kubei/api/client/models"
+	"github.com/cisco-open/kubei/cli/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
 func Export(apiClient *client.KubeClarityAPIs, mergedResults *scanner.MergedResults, layerCommands []*image_helper.FsLayerCommand, id string) error {

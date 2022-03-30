@@ -35,7 +35,7 @@ ui: ## Build UI
 .PHONY: cli
 cli: ## Build CLI
 	@(echo "Building CLI ..." )
-	@(cd cli && go build -ldflags "-X wwwin-github.cisco.com/eti/scan-gazr/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
+	@(cd cli && go build -ldflags "-X github.com/cisco-open/kubei/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
 
 .PHONY: backend
 backend: ## Build Backend

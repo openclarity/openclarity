@@ -1,4 +1,4 @@
-module wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner
+module github.com/cisco-open/kubei/cis_docker_benchmark_scanner
 
 go 1.17
 
@@ -10,8 +10,8 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli v1.22.5
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api v0.0.0
-	wwwin-github.cisco.com/eti/scan-gazr/shared v0.0.0
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (
@@ -182,8 +182,8 @@ require (
 )
 
 replace (
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api v0.0.0 => ./../runtime_scan/api
-	wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api v0.0.0 => ./../sbom_db/api
-	wwwin-github.cisco.com/eti/scan-gazr/shared v0.0.0 => ./../shared
+	github.com/cisco-open/kubei/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0 => ./../runtime_scan/api
+	github.com/cisco-open/kubei/sbom_db/api v0.0.0 => ./../sbom_db/api
+	github.com/cisco-open/kubei/shared v0.0.0 => ./../shared
 )

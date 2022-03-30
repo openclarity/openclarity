@@ -26,9 +26,9 @@ import (
 	dockle_run "github.com/Portshift/dockle/pkg"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/cis_docker_benchmark_scanner/pkg/report"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/config"
+	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/report"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
 )
 
 func createDockleConfig(scanConfig *config.Config) *dockle_config.Config {

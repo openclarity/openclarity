@@ -24,16 +24,16 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/analyze"
-	_config "wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/report"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/sbomdb"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/scan"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/version"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer"
-	sharedconfig "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image_helper"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/analyze"
+	_config "github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/report"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/sbomdb"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/scan"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer"
+	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
 const (

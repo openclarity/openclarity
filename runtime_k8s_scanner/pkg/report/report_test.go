@@ -21,8 +21,8 @@ import (
 
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 func Test_createPackagesVulnerabilitiesScan(t *testing.T) {

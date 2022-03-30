@@ -22,7 +22,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	purl "github.com/package-url/packageurl-go"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/client/models"
+	"github.com/cisco-open/kubei/api/client/models"
 )
 
 func Test_getPackageInfo(t *testing.T) {

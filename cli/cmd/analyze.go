@@ -20,14 +20,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg"
-	_export "wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/analyzer/export"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/utils"
-	sharedanalyzer "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer/job"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	sharedutils "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/cli/pkg"
+	_export "github.com/cisco-open/kubei/cli/pkg/analyzer/export"
+	"github.com/cisco-open/kubei/cli/pkg/utils"
+	sharedanalyzer "github.com/cisco-open/kubei/shared/pkg/analyzer"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer/job"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 // analyzeCmd represents the analyze command.

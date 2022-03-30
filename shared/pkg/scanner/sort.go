@@ -18,7 +18,7 @@ package scanner
 import (
 	"sort"
 
-	vulutil "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/vulnerability"
+	vulutil "github.com/cisco-open/kubei/shared/pkg/utils/vulnerability"
 )
 
 // SortBySeverityAndCVSS sorts vulnerabilities by severity, CVSSv3.1, CVSSv3.0 and CVSSv2.0.

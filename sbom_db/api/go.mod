@@ -1,4 +1,4 @@
-module wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api
+module github.com/cisco-open/kubei/sbom_db/api
 
 go 1.17
 

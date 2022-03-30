@@ -18,9 +18,9 @@ package presenter
 import (
 	"io"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/scanner/presenter/json"
-	"wwwin-github.cisco.com/eti/scan-gazr/cli/pkg/scanner/presenter/table"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/cli/pkg/scanner/presenter/json"
+	"github.com/cisco-open/kubei/cli/pkg/scanner/presenter/table"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
 )
 
 // Presenter is an interface for formatting and presenting scan results.

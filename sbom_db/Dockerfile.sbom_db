@@ -16,9 +16,9 @@ ARG COMMIT_HASH
 # Copy and build backend code
 COPY backend .
 RUN go build -ldflags="-s -w \
-     -X 'wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/version.Version=${VERSION}' \
-     -X 'wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
-     -X 'wwwin-github.cisco.com/eti/scan-gazr/sbom_db/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o sbom_db ./cmd/main.go
+     -X 'github.com/cisco-open/kubei/sbom_db/backend/pkg/version.Version=${VERSION}' \
+     -X 'github.com/cisco-open/kubei/sbom_db/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/cisco-open/kubei/sbom_db/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o sbom_db ./cmd/main.go
 
 FROM alpine:3.15.0
 

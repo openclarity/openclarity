@@ -26,14 +26,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/client/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/analyzer"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	cdx_helper "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/cyclonedx_helper"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/image_helper"
+	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/client"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/client/operations"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/analyzer"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
+	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
 type Reporter interface {

@@ -23,9 +23,9 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
-	runtime_scan_models "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/backend/pkg/types"
+	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
 )
 
 type vulnerabilityInfo struct {

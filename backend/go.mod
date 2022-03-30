@@ -1,4 +1,4 @@
-module wwwin-github.cisco.com/eti/scan-gazr/backend
+module github.com/cisco-open/kubei/backend
 
 go 1.17
 
@@ -20,10 +20,10 @@ require (
 	gotest.tools v2.2.0+incompatible
 	k8s.io/apimachinery v0.23.4
 	k8s.io/client-go v0.23.4
-	wwwin-github.cisco.com/eti/scan-gazr/api v0.0.0
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan v0.0.0
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api v0.0.0
-	wwwin-github.cisco.com/eti/scan-gazr/shared v0.0.0
+	github.com/cisco-open/kubei/api v0.0.0
+	github.com/cisco-open/kubei/runtime_scan v0.0.0
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (
@@ -161,10 +161,10 @@ require (
 )
 
 replace (
-	wwwin-github.cisco.com/eti/scan-gazr/api v0.0.0 => ./../api
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan v0.0.0 => ./../runtime_scan
-	wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api v0.0.0 => ./../runtime_scan/api
-	wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api v0.0.0 => ./../sbom_db/api
-	wwwin-github.cisco.com/eti/scan-gazr/shared v0.0.0 => ./../shared
+	github.com/cisco-open/kubei/api v0.0.0 => ./../api
+	github.com/cisco-open/kubei/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
+	github.com/cisco-open/kubei/runtime_scan v0.0.0 => ./../runtime_scan
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0 => ./../runtime_scan/api
+	github.com/cisco-open/kubei/sbom_db/api v0.0.0 => ./../sbom_db/api
+	github.com/cisco-open/kubei/shared v0.0.0 => ./../shared
 )

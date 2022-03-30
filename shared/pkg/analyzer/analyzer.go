@@ -16,7 +16,7 @@
 package analyzer
 
 import (
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 type Results struct {

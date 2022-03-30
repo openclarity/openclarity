@@ -22,8 +22,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/api/server/restapi/operations"
 )
 
 const mostVulnerableLimit = 5

@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
 )
 
 // NewPostScanScanUUIDContentAnalysisParams creates a new PostScanScanUUIDContentAnalysisParams object

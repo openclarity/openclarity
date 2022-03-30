@@ -30,15 +30,15 @@ import (
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/config"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/job_manager"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/bom"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/project"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/scanner/dependency_track/api/client/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/cisco-open/kubei/shared/pkg/job_manager"
+	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/bom"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/project"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
+	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 const (

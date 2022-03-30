@@ -23,8 +23,8 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"gotest.tools/assert"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/formatter"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils"
+	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 func TestMergedResults_createComponentListFromMap(t *testing.T) {

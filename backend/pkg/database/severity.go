@@ -20,8 +20,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/backend/pkg/types"
 )
 
 type Severity int

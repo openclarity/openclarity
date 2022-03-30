@@ -23,9 +23,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/restapi/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/database"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/backend/pkg/database"
 )
 
 func (s *Server) GetPackages(params operations.GetPackagesParams) middleware.Responder {

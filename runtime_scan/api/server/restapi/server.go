@@ -25,7 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi/operations"
 )
 
 const (

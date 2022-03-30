@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/client/client/operations"
+	"github.com/cisco-open/kubei/sbom_db/api/client/client/operations"
 )
 
 // Default kube clarity s b o m d b a p is HTTP client.

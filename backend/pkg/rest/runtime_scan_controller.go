@@ -25,13 +25,13 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/models"
-	"wwwin-github.cisco.com/eti/scan-gazr/api/server/restapi/operations"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/database"
-	"wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/types"
-	runtime_scan_config "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/config"
-	_types "wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/pkg/types"
-	"wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/slice"
+	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/cisco-open/kubei/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/backend/pkg/database"
+	"github.com/cisco-open/kubei/backend/pkg/types"
+	runtime_scan_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
+	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	"github.com/cisco-open/kubei/shared/pkg/utils/slice"
 )
 
 /* ### Start Handlers #### */

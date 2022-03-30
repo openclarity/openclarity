@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/client/models"
+	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
 )
 
 // NewPostScanScanUUIDCisDockerBenchmarkResultsParams creates a new PostScanScanUUIDCisDockerBenchmarkResultsParams object,

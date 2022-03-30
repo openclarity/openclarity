@@ -25,7 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/sbom_db/api/server/restapi/operations"
+	"github.com/cisco-open/kubei/sbom_db/api/server/restapi/operations"
 )
 
 const (

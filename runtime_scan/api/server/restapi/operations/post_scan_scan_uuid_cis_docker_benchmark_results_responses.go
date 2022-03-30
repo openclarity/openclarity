@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"wwwin-github.cisco.com/eti/scan-gazr/runtime_scan/api/server/models"
+	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
 )
 
 // PostScanScanUUIDCisDockerBenchmarkResultsCreatedCode is the HTTP code returned for type PostScanScanUUIDCisDockerBenchmarkResultsCreated

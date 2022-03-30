@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	vulutil "wwwin-github.cisco.com/eti/scan-gazr/shared/pkg/utils/vulnerability"
+	vulutil "github.com/cisco-open/kubei/shared/pkg/utils/vulnerability"
 )
 
 func Test_getCVSSBaseScore(t *testing.T) {
