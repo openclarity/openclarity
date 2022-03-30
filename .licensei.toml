@@ -20,14 +20,6 @@ ignored = [
   "github.com/xi2/xz", # Public Domain - https://github.com/xi2/xz/blob/master/LICENSE
   "github.com/owenrumney/go-sarif", # The Unlicense - https://github.com/owenrumney/go-sarif/blob/main/LICENSE
   "github.com/goodwithtech/deckoder", # MIT - https://github.com/goodwithtech/deckoder/blob/master/LICENSE
-
-  "github.com/cisco-open/kubei/api", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/runtime_k8s_scanner", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/runtime_scan", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/runtime_scan/api", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/shared", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/sbom_db/api", # TODO: remove once opensource
-  "github.com/cisco-open/kubei/sbom_db/backend", # TODO: remove once opensource
 ]
 
 [header]
