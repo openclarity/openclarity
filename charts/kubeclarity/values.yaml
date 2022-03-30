@@ -11,7 +11,7 @@ global:
   docker:
     ## Configure registry
     ##
-    registry: "ghcr.io/kubeclarity"
+    registry: "ghcr.io/cisco-open"
 
 ## End of Global Values
 #######################################################################################
