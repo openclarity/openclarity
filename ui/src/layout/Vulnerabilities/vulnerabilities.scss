@@ -1,0 +1,9 @@
+@import 'utils/scss_variables.module.scss';
+
+.vulnerabilities-inner-app-link {
+    color: $color-grey-black;
+    
+    &:hover {
+        text-decoration: none !important;
+    }
+}

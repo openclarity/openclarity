@@ -1,0 +1,18 @@
+.arrow-icon {
+    width: 16px;
+    height: 16px;
+
+    &.right-arrow {
+        transform: rotate(180deg);
+    }
+    &.top-arrow {
+        transform: rotate(90deg);
+    }
+    &.bottom-arrow {
+        transform: rotate(-90deg);
+    }
+    &.small {
+        width: 10px;
+        height: 10px;
+    }
+}

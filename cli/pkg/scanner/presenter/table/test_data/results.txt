@@ -1,0 +1,4 @@
+NAME        INSTALLED  FIXED-IN    VULNERABILITY  SEVERITY  SCANNERS                                               
+pkg-name-1  pkg-ver-1  fix1, fix2  cve-1          CRITICAL  scanner-1(*), scanner-2(*), scanner-3(*), scanner-4(*)  
+pkg-name-2  pkg-ver-2              cve-2          HIGH      scanner-2(*), scanner-1(*)                              
+pkg-name-3  pkg-ver-3              cve-3          MEDIUM    scanner-1, scanner-4                                    

@@ -1,0 +1,68 @@
+FROM node:14-slim AS site-build
+
+WORKDIR /app/ui-build
+
+COPY ui .
+RUN npm i
+RUN npm run build
+
+
+FROM golang:1.17.3-alpine AS builder
+
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+
+RUN apk add --update --no-cache gcc g++ git
+
+# Copy api code
+WORKDIR /build
+COPY api ./api
+
+# Copy runtime_scan go.mod & go.sum & api code
+WORKDIR /build/runtime_scan
+COPY runtime_scan/go.* ./
+COPY runtime_scan/api ./api
+
+# Copy runtime_k8s_scanner go.mod & go.sum
+WORKDIR /build/runtime_k8s_scanner
+COPY runtime_k8s_scanner/go.* ./
+
+# Copy shared go.mod & go.sum
+WORKDIR /build/shared
+COPY shared/go.* ./
+RUN go mod download
+
+# Copy backend go.mod & go.sum
+WORKDIR /build/backend
+COPY backend/go.* ./
+RUN go mod download
+
+# Copy runtime_scan code
+WORKDIR /build
+COPY runtime_scan ./runtime_scan
+
+# Copy runtime_k8s_scanner code
+WORKDIR /build
+COPY runtime_k8s_scanner ./runtime_k8s_scanner
+
+# Copy shared code
+WORKDIR /build/shared
+COPY shared .
+
+# Copy and build backend code
+WORKDIR /build/backend
+COPY backend .
+RUN go build -ldflags="-s -w \
+     -X 'wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/version.Version=${VERSION}' \
+     -X 'wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'wwwin-github.cisco.com/eti/scan-gazr/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
+
+FROM alpine:3.15.0
+
+WORKDIR /app
+
+COPY --from=builder ["/build/backend/backend", "./backend"]
+COPY --from=site-build ["/app/ui-build/build", "site"]
+
+ENTRYPOINT ["/app/backend"]

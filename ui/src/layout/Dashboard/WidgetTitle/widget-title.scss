@@ -1,0 +1,8 @@
+@import 'utils/scss_variables.module.scss';
+
+.widget-title {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 24px;
+    color: $color-main;
+}

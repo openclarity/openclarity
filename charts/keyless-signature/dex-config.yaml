@@ -1,0 +1,44 @@
+service:
+  ports:
+    http:
+      port: 8888
+
+config:  
+  issuer: http://dex:8888/auth
+  
+  storage:
+    type: memory
+  
+  web:
+    http: 0.0.0.0:8888
+  
+  expiry:
+    signingKeys: "24h"
+    idTokens: "1m"
+    authRequests: "24h"
+  
+  oauth2:
+    responseTypes: [ "code" ]
+    alwaysShowLoginScreen: true
+    skipApprovalScreen: true
+  
+  connectors:
+  - type: mockCallback
+    id: https://any.valid.url/
+    name: AlwaysApprovesOIDCProvider
+  
+  - type: github
+    # Required field for connector id.
+    id: github
+    # Required field for connector name.
+    name: GitHub
+    config:
+      # Credentials can be string literals or pulled from the environment.
+      clientID: "github_client_id"
+      clientSecret: "github_client_secret"
+      redirectURI: http://dex:8888/auth/callback
+  
+  staticClients:
+    - id: sigstore
+      public: true
+      name: 'sigstore id'

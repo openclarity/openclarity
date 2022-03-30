@@ -1,0 +1,85 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "KubeClarity SBOM DB APIs"
+
+basePath: /api
+
+schemes:
+  - http
+  #- https
+
+consumes: [ "application/json" ]
+produces: [ "application/json" ]
+
+definitions:
+  ApiResponse:
+    description: 'An object that is returned in all cases of failures.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  SuccessResponse:
+    description: 'An object that is returned in cases of success that returns nothing.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  SBOM:
+    description: 'Software Bill Of Materials as stored in the DB.'
+    type: 'object'
+    properties:
+      sbom:
+        type: 'string'
+        format: 'byte'
+
+paths:
+  /sbomDB/{resourceHash}:
+    get:
+      summary: 'Get an SBOM from DB by resource hash.'
+      parameters:
+        - $ref: '#/parameters/resourceHash'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/SBOM'
+        '404':
+          description: 'SBOM not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+    put:
+      summary: 'Store an SBOM in DB for the given resource hash.'
+      parameters:
+        - $ref: '#/parameters/resourceHash'
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: '#/definitions/SBOM'
+      responses:
+        '201':
+          description: 'SBOM created in DB.'
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        default:
+          $ref: '#/responses/UnknownError'
+
+parameters:
+  resourceHash:
+    name: 'resourceHash'
+    in: 'path'
+    type: 'string'
+    required: true
+
+responses:
+  UnknownError:
+    description: 'Unknown error'
+    schema:
+      $ref: '#/definitions/ApiResponse'
+  Success:
+    description: 'Success message'
+    schema:
+      $ref: '#/definitions/SuccessResponse'

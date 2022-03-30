@@ -1,0 +1,26 @@
+@import 'utils/scss_variables.module.scss';
+
+.scan-configuration-container {
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+    background-color: $color-blue-light;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    
+    .scan-select-title {
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 14px;
+        letter-spacing: 0.36px;
+        text-transform: uppercase;
+    }
+    .runtime-scan-select {
+        margin-left: 20px;
+        width: calc(100% - 450px);
+    }
+    button {
+        margin-left: 20px;
+    }
+}

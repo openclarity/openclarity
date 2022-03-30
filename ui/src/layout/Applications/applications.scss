@@ -1,0 +1,56 @@
+$add-icon-size: 20px;
+
+.applications-table-page {
+    position: relative;
+
+    .new-application-button {
+        display: inline-flex;
+        align-items: center;
+        font-size: 10px;
+        line-height: 12px;
+        position: absolute;
+        top: 2px;
+        left: 150px;
+        cursor: pointer;
+
+        .icon {
+            width: $add-icon-size;
+            height: $add-icon-size;
+            margin-right: 5px;
+        }
+    }
+    .table-wrapper {
+        .application-row-actions {
+            display: flex;
+
+            > :not(:last-child) {
+                margin-right: 5px;
+            }
+        }
+        .labels-cell-display-wrapper {
+            display: flex;
+            flex-direction: column;
+            
+            .arrow-icon {
+                align-self: center;
+            }
+        }
+    }
+}
+
+.application-form-modal {
+    .modal-title {
+        margin-bottom: 30px !important;
+    }
+    .form-submit-button {
+        margin-top: 5px;
+    }
+}
+
+.application-details-container {
+    display: flex;
+
+    .title-value-display-column {
+        width: 33%;
+    }
+}

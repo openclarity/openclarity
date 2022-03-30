@@ -1,0 +1,11 @@
+@import 'utils/scss_variables.module.scss';
+
+.page-container {
+    background-color: white;
+    box-shadow: 0px 0px 10px rgba($color-shadow-dark, 0.12);
+    box-sizing: border-box;
+
+    &.with-padding {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,36 @@
+@import 'utils/scss_variables.module.scss';
+
+.label-tag {
+    background-color: $color-grey-dark;
+    color: white;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    height: 16px;
+    padding: 0 6px;
+    border-radius: 2px;
+}
+
+.labels-wrapper {
+    position: relative;
+    
+    &.wrap-labels {
+        float: left;
+
+        .label-tag-wrapper {
+            float: left;
+        }
+    }
+    .label-tag-wrapper {
+        position: relative;
+
+        &:not(:last-child) {
+            margin-right: 5px;
+        }
+        .label-tag {
+            display: inline;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+    }
+}

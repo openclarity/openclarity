@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "keyless-signature.fullname" . }}-fulcio
+  labels:
+    {{- include "keyless-signature.labels" . | nindent 4 }}
+    app: fulcio
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "keyless-signature.selectorLabels" . | nindent 6 }}
+      app: fulcio
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "keyless-signature.selectorLabels" . | nindent 8 }}
+        app: fulcio
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "keyless-signature.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-fulcio
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.fulcio.image.repository }}:{{ .Values.fulcio.image.tag }}"
+          imagePullPolicy: {{ .Values.ctfe.image.pullPolicy }}
+          args:
+            - "serve"
+            - "--port={{ .Values.fulcio.service.port }}"
+            - "--ca=fileca"
+            - "--fileca-key"
+            - "/var/run/fulcio-secrets/key.pem"
+            - "--fileca-cert"
+            - "/var/run/fulcio-secrets/cert.pem"
+            - "--fileca-key-passwd"
+            - "{{ .Values.fulcio.keyPass }}"
+            - "--ct-log-url=http://{{ include "keyless-signature.fullname" . }}-ctfe:{{ .Values.ctfe.service.port }}/sigstore"
+          ports:
+            - name: http
+              containerPort: {{ .Values.fulcio.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: fulcio-cert
+              mountPath: "/var/run/fulcio-secrets"
+              readOnly: true
+            - name: fulcio-config
+              mountPath: "/etc/fulcio-config"
+              readOnly: true
+      volumes:
+        - name: fulcio-cert
+          secret:
+            secretName: {{ include "keyless-signature.fullname" . }}
+            items:
+            - key: fulciokey
+              path: key.pem
+            - key: rootca
+              path: cert.pem
+        - name: fulcio-config
+          configMap:
+            name: {{ include "keyless-signature.fullname" . }}-fulcio
+            items:
+            - key: config
+              path: config.json      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

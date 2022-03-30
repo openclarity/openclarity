@@ -1,0 +1,178 @@
+# Default values for dependency-track.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# Since dependency-track 4.0, there are now two separate images. One for frontend, one for the apiserver.
+
+# -- global configuration
+global:
+  imageRegistry: docker.io
+  # imagePullSecrets:
+  #   - name: "myRegistryKeySecretName"
+
+# -- config of the frontend
+frontend:
+  enabled: false
+  replicaCount: 2
+  image:
+    repository: dependencytrack/frontend
+    tag: 4.3.1
+    pullPolicy: IfNotPresent
+  # https://github.com/DependencyTrack/frontend/issues/60
+  # configmap:
+  #  config: |
+  #    {
+  #      "API_BASE_URL": "",
+  #      "OIDC_ISSUER": "",
+  #      "OIDC_CLIENT_ID": "",
+  #      "OIDC_SCOPE": "openid profile email",
+  #      "OIDC_FLOW": ""
+  #    }
+  # --See https://docs.dependencytrack.org/getting-started/configuration/ for frontend ENV variables.
+  env:
+    - name: API_BASE_URL
+      value: ""
+    # See https://docs.dependencytrack.org/getting-started/configuration/ for frontend ENV variables.
+#  podSecurityContext:
+#    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+    # rootfs cannot be R/O because there is some messing around with file generation and whatnot
+    runAsUser: 101
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  emptyDir:
+    sizeLimit: 8Gi
+  resources:
+  # https://docs.dependencytrack.org/getting-started/deploy-docker/
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1
+      memory: 512Mi
+  nameOverride: ""
+  fullnameOverride: ""
+  initContainers: []
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: frontend-serviceaccount
+    # Annotations to add
+    # Example:
+    #  iam.gke.io/gcp-service-account: a@b.com
+    annotations: {}
+  livenessProbe:
+    enabled: true
+    path: "/"
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    enabled: true
+    path: "/"
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+
+
+# -- config of the apiserver
+apiserver:
+  enabled: true
+# Max: 1 - DT is not designed for HA
+  replicaCount: 1
+  image:
+    repository: dependencytrack/apiserver
+    tag: 4.3.6
+    pullPolicy: IfNotPresent
+  env: []
+  persistentVolume:
+    enabled: true
+    size: 8Gi
+    annotations: {}
+    storageClass: ""
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+  service:
+    type: LoadBalancer
+    port: 80
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  emptyDir:
+    sizeLimit: 8Gi
+  resources:
+  # https://docs.dependencytrack.org/getting-started/deploy-docker/
+    requests:
+      cpu: 1
+      memory: 4608Mi
+    limits:
+      cpu: 4
+      memory: 16Gi
+  nameOverride: ""
+  fullnameOverride: ""
+  initContainers: []
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: apiserver-serviceaccount
+    # Annotations to add
+    # Example:
+    #  iam.gke.io/gcp-service-account: a@b.com
+    annotations: {}
+  # See https://docs.dependencytrack.org/getting-started/configuration/ for backend configuration options.
+  livenessProbe:
+    enabled: true
+    path: "/api/version"
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    enabled: true
+    path: "/"
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+
+# -- configuration of ingress
+ingress:
+  enabled: true
+  tls:
+    enabled: true
+    secretName: "dtsecret"
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    ## allow large bom.xml uploads:
+    # nginx.ingress.kubernetes.io/proxy-body-size: 10m
+  host: dependency-track-apiserver.dependency-track
+
+# -- configuration of postgres
+postgresql:
+  enabled: true
+  postgresqlUsername: deptrack
+  postgresqlPassword: deptrack
+  postgresqlDatabase: deptrack
+

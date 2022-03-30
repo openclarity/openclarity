@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "keyless-signature.fullname" . }}-ctfe
+  labels:
+    {{- include "keyless-signature.labels" . | nindent 4 }}
+    app: ctfe
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "keyless-signature.selectorLabels" . | nindent 6 }}
+      app: ctfe
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "keyless-signature.selectorLabels" . | nindent 8 }}
+        app: ctfe
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "keyless-signature.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-ctfe
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.ctfe.image.repository }}:{{ .Values.ctfe.image.tag }}"
+          imagePullPolicy: {{ .Values.ctfe.image.pullPolicy }}
+          args: [
+            "--http_endpoint=0.0.0.0:{{ .Values.ctfe.service.port }}",
+            "--log_config=/ctfe-config/ct_server.cfg",
+            "--log_rpc_server", "rekor-trillian-log-server:8091",
+            "--alsologtostderr"
+          ]
+          ports:
+            - name: http
+              containerPort: {{ .Values.ctfe.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: keys
+            mountPath: "/ctfe-keys"
+            readOnly: true
+          - name: config
+            mountPath: "/ctfe-config"
+            readOnly: true
+      volumes:
+        - name: keys
+          secret:
+            secretName: {{ include "keyless-signature.fullname" . }}
+            items:
+            - key: private
+              path: privkey.pem
+            - key: public
+              path: pubkey.pem
+            - key: rootca
+              path: roots.pem
+        - name: config
+          configMap:
+            name: {{ include "keyless-signature.fullname" . }}-ctfe
+            items:
+            - key: config
+              path: ct_server.cfg
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,26 @@
+@import 'utils/scss_variables.module.scss';
+
+$indicator-size: 10px;
+
+.trend-legend-item {
+    display: flex;
+    align-items: center;
+
+    &.dark-mode .trend-legend-item-title {
+        margin-left: 5px;
+        font-size: 10px;
+        line-height: 12px;
+        color: white;
+    }
+    .trend-legend-item-indicatior {
+        width: $indicator-size;
+        height: $indicator-size;
+        border-radius: 50%;
+    }
+    .trend-legend-item-title {
+        margin-left: 10px;
+        font-size: 12px;
+        line-height: 14px;
+        color: $color-grey-dark;
+    }
+}

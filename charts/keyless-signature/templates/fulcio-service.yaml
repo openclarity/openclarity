@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "keyless-signature.fullname" . }}-fulcio
+  labels:
+    {{- include "keyless-signature.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.fulcio.service.type }}
+  ports:
+    - port: {{ .Values.fulcio.service.port }}
+      targetPort: {{ .Values.fulcio.service.port }}
+      protocol: TCP
+  selector:
+    {{- include "keyless-signature.selectorLabels" . | nindent 4 }}
+    app: fulcio

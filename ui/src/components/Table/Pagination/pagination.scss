@@ -1,0 +1,65 @@
+@import 'utils/scss_variables.module.scss';
+
+$icon-size: 14px;
+$box-size: 23px;
+
+.pagination-container {
+    height: $box-size;
+    font-size: 11px;
+    line-height: 16px;
+    color: $color-grey-black;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .pagination-results {
+        font-weight: bold;
+        font-size: 10px;
+        line-height: 12px;
+        text-transform: uppercase;
+        color: $color-grey-dark;
+    }
+    .pagination-navigation {
+        margin-left: 15px;
+        display: flex;
+
+        .pagination-item {
+            width: $box-size;
+            height: $box-size;
+            background-color: $color-grey-lighter;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            cursor: pointer;
+            
+            &:not(:last-child) {
+                margin-right: 4px;
+            }
+            &.pagination-arrow {
+                background-color: transparent;
+                color: $color-main;
+
+                .icon {
+                    width: $icon-size;
+                    height: $icon-size;
+                }
+                &.left .icon {
+                    transform: rotate(180deg);
+                }
+                &.disabled {
+                    cursor: not-allowed;
+                    color: $color-grey;
+                }
+            }
+            &.pagination-dots {
+                background-color: transparent;
+                cursor: auto;
+            }
+            &.is-active {
+                background-color: $color-main;
+                color: white;
+            }
+        }
+    }
+    
+}

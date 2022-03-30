@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "keyless-signature.fullname" . }}-ctfe
+  labels:
+    {{- include "keyless-signature.labels" . | nindent 4 }}
+data:
+  config: |
+    config {
+    	log_id: {{ .Values.ctfe.logID }}
+    	prefix: "sigstore"
+    	roots_pem_file: "/ctfe-keys/roots.pem"
+    	private_key: {
+    		[type.googleapis.com/keyspb.PEMKeyFile] {
+    			path: "/ctfe-keys/privkey.pem"
+    			password: "{{ .Values.ctfe.keyPass }}"
+    		}
+    	}
+    }

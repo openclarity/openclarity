@@ -1,0 +1,19 @@
+apiVersion: v2
+name: kubeclarity
+appVersion: latest
+description: Charts for KubeClarity deployment.
+version: latest
+#home: https://scanGazr.io/
+#icon:
+#sources:
+#  - https://github.com/scan-gazr/scan-gazr
+#maintainers:
+#  - name:
+#    url:
+type: application
+dependencies:
+  - name: postgresql
+    version: "10.12.2"
+    repository: https://charts.bitnami.com/bitnami
+    condition: kubeclarity-postgresql.enabled
+    alias: kubeclarity-postgresql

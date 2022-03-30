@@ -1,0 +1,84 @@
+@import 'utils/scss_variables.module.scss';
+
+$indecator-size: 10px;
+$legend-item-width: 120px;
+$legent-item-margin: 10px;
+
+.packages-pie-widget {
+    width: 270px;
+    height: $dashboard-widget-height;
+
+    .pie-content-wrapper {
+        display: flex;
+        justify-content: center;
+
+        .pie-content {
+            position: relative;
+            margin: 20px 0;
+            
+            .pie-label {
+                font-size: 10px;
+                fill: white;
+            }
+            .pie-total-display {
+                position: absolute;
+                transform: translate(-50%, -50%);
+                z-index: 1;
+                text-align: center;
+    
+                .pie-total-title {
+                    font-size: 10px;
+                    color: $color-grey;
+                }
+                .pie-total-count {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: $color-grey-dark;
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+            }
+        }
+    }
+    .pie-legend {
+        .pie-legend-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            
+            .legend-item {
+                display: flex;
+                align-items: center;
+                width: $legend-item-width;
+                margin-right: $legent-item-margin;
+
+                .legend-item-indecator {
+                    width: $indecator-size;
+                    height: $indecator-size;
+                    border-radius: 50%;
+                }
+                .legend-item-data {
+                    font-size: 10px;
+                    line-height: 12px;
+                    margin-left: 10px;
+    
+                    .legend-item-name {
+                        font-weight: bold;
+                        color: $color-grey-dark;
+                        
+                        &.clickable:hover {
+                            text-decoration: underline;
+                            cursor: pointer;
+                        }
+                    }
+                    .legend-item-name,
+                    .legend-item-count {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        width: calc(#{$legend-item-width} - 2 * #{$legent-item-margin} - #{$indecator-size});
+                    }
+                }
+            }
+        }
+    }
+}
