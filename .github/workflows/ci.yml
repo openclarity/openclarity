@@ -148,5 +148,8 @@ jobs:
       - name: Add Bitnami Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
+      - name: Run chart-testing debug (lint)
+        run: ct lint --debug --remote origin --target-branch kubeclarity --chart-dirs stable
+
       - name: Run chart-testing (lint)
         run: ct lint --check-version-increment=false --validate-maintainers=false
