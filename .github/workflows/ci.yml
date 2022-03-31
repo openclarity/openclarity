@@ -157,7 +157,7 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        run: ct lint --check-version-increment=false --validate-maintainers=false
+        run: ct lint --debug --check-version-increment=false --validate-maintainers=false
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
