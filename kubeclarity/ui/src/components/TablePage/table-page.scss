@@ -1,0 +1,17 @@
+@import 'utils/scss_variables.module.scss';
+
+.table-page-wrapper {
+    .table-page-content {
+        &.with-padding {
+            padding: $main-content-padding;
+        }
+        .table-wrapper {
+            &.with-padding {
+                padding: $main-content-padding;
+            }
+            .table-header-wrapper {
+                position: relative;
+            }
+        }
+    }
+}

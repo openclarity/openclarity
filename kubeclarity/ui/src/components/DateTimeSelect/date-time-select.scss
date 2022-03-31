@@ -1,0 +1,61 @@
+@import 'utils/scss_variables.module.scss';
+
+$icon-size: 10px;
+
+.date-time-select {
+    height: 20px;
+    
+    .react-datetime-picker__wrapper {
+        border: 1px solid $color-grey-light;
+        border-radius: 2px;
+        background-color: white;
+
+        .date-time-picket-icon {
+            width: $icon-size;
+            height: $icon-size;
+        }
+        .react-datetime-picker__inputGroup {
+            font-family: CiscoSansTT;
+            font-size: 10px;
+            line-height: 12px;
+            color: $color-grey-black;
+        }
+    }
+    .date-time-select-calendar {
+        width: 250px;
+        border: 1px solid $color-grey;
+        border-top: 2px solid $color-main-light;
+        margin-top: 3px;
+
+        .react-calendar__navigation__prev2-button,
+        .react-calendar__navigation__next2-button {
+            display: none;
+        }
+        .react-calendar__navigation__label {
+            font-family: CiscoSansTT;
+            font-size: 14px;
+            line-height: 18px;
+            font-weight: bold;
+            color: $color-grey-black;
+        }
+        .react-calendar__tile,
+        .react-calendar__month-view__weekdays__weekday {
+            font-family: CiscoSansTT;
+            font-size: 12px;
+            line-height: 18px;
+            color: $color-grey-black;
+            
+            &.react-calendar__tile--active,
+            &.react-calendar__tile--hasActive {
+                font-weight: bold;
+                background-color: $color-main-light;
+            }
+            &.react-calendar__tile--now {
+                background-color: $color-grey-light;
+            }
+            abbr {
+                text-decoration: none;
+            }
+        }
+    }
+}

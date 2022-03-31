@@ -1,0 +1,51 @@
+@import 'utils/scss_variables.module.scss';
+
+.ag-button {
+    border: none;
+    background-color: transparent;
+    height: 26px;
+    font-size: 12px;
+
+    &.ag-button--primary,
+    &.ag-button--secondary {
+        font-weight: bold;
+        line-height: 14px;
+        text-align: center;
+        text-transform: uppercase;
+        border-radius: 50px;
+        display: inline-block;
+        padding: 0px 20px;
+    }
+    &.ag-button--primary {
+        background-color: $color-main;
+        color: white;
+
+        &:disabled {
+            background-color: $color-grey;
+            color: $color-grey-light;
+        }
+    }
+    &.ag-button--secondary {
+        background-color: white;
+        color: $color-main;
+        border: 1px solid $color-main;
+        box-sizing: border-box;
+
+        &:disabled {
+            color: $color-grey-light;
+            border-color: $color-grey-light;
+        }
+    }
+    &.ag-button--tertiary {
+        line-height: 16px;
+        color: $color-main;
+        text-decoration: underline;
+        padding: 0;
+    }
+    &.clickable:not(:disabled) {
+        cursor: pointer;
+    }
+    &:disabled {
+        cursor: not-allowed;
+    }
+}

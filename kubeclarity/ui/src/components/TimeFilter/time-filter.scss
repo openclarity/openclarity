@@ -1,0 +1,10 @@
+.time-filter-wrapper {
+    display: flex;
+
+    > :not(:first-child) {
+        margin-left: 10px;
+    }
+    .dropdown-select {
+        width: 110px;
+    }
+}

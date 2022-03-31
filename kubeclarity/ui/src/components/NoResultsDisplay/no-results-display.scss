@@ -1,0 +1,17 @@
+@import 'utils/scss_variables.module.scss';
+
+.empty-results-display-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .no-results-title {
+        font-size: 18px;
+        line-height: 22px;
+        color: $color-main;
+        margin-bottom: 40px;
+    }
+    .no-results-image.is-small {
+        max-width: 110px;
+    }
+}

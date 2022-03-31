@@ -1,0 +1,7 @@
+@import 'utils/scss_variables.module.scss';
+
+.details-page-wrapper {
+    .details-page-content-wrapper {
+        padding: $main-content-padding;
+    }
+}

@@ -1,0 +1,15 @@
+@import 'utils/scss_variables.module.scss';
+
+.dashboard-page-wrapper {
+    margin: $main-content-padding;
+    min-width: 1380px;
+
+    .dashboard-widgets-line {
+        display: flex;
+        margin-bottom: $dashboard-padding;
+        
+        > :not(:last-child) {
+            margin-right: $dashboard-padding;
+        }
+    }
+}

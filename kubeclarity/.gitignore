@@ -1,2 +1,8 @@
-kubei
+**/*.so
 .idea/
+bin/
+.licensei.cache
+*.base64
+testconfig.yaml
+db.db
+goreleaser_artifacts/

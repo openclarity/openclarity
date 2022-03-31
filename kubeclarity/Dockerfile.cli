@@ -1,0 +1,39 @@
+FROM golang:1.17.3-alpine AS builder
+
+ARG COMMIT_HASH
+
+RUN apk add --update --no-cache ca-certificates git
+RUN apk add build-base
+
+WORKDIR /build
+COPY api ./api
+
+# Copy shared go.mod & go.sum
+WORKDIR /build/shared
+COPY shared/go.* ./
+RUN go mod download
+
+# Copy cli go.mod & go.sum
+WORKDIR /build/cli
+COPY cli/go.* ./
+RUN go mod download
+
+# Copy shared code
+WORKDIR /build/shared
+COPY shared .
+
+# Copy and build cli code
+WORKDIR /build/cli
+COPY cli .
+RUN go build -ldflags="-s -w \
+     -X 'github.com/cisco-open/kubei/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
+RUN go build -ldflags "${LDFLAGS}"  ./...
+
+FROM alpine:3.15.0
+
+WORKDIR /app
+
+COPY --from=builder /build/cli/cli ./cli
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+ENTRYPOINT ["/app/cli"]

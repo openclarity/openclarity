@@ -1,0 +1,54 @@
+@import 'utils/scss_variables.module.scss';
+
+$icon-size: 20px;
+$total-width: 70px;
+$total-width-narrow: 60px;
+$item-width: 30px;
+$item-width-narrow: 20px;
+
+.vulnerabilities-summary-display {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    font-size: 11px;
+    line-height: 16px;
+
+    &.narrow {
+        .vulnerability-summery-total {
+            width: $total-width-narrow;
+            min-width: $total-width-narrow;
+        }
+        .vulnerabilities-summary-item .vulnerability-count {
+            width: $item-width-narrow;
+            margin-right: 5px;
+        }
+    }
+    .vulnerability-summery-total {
+        width: $total-width;
+        min-width: $total-width;
+        margin-right: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .vulnerabilities-summary-item {
+        display: flex;
+        align-items: center;
+        
+        .vulnerability-icon {
+            height: $icon-size;
+            width: $icon-size;
+
+            &.zero-count {
+                opacity: 0.4;
+            }
+        }
+        .vulnerability-count {
+            margin: 0 10px 0 5px;
+            width: $item-width;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}

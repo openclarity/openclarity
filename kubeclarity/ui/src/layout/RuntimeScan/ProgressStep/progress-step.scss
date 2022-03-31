@@ -1,0 +1,70 @@
+@import 'utils/scss_variables.module.scss';
+
+$step-number-size: 30px;
+$step-inner-padding: 20px;
+$progress-icon-size: 18px;
+
+.progress-step-display {
+    .progress-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    
+        .progress-status-wrapper {
+            display: flex;
+            align-items: center;
+            width: 150px;
+            margin-left: 20px;
+    
+            .progress-status {
+                font-size: 14px;
+                line-height: 16px;
+            }
+            .status-icon {
+                margin-left: 5px;
+                color: $color-success;
+                width: $progress-icon-size;
+                height: $progress-icon-size;
+    
+                &.is-error {
+                    color: $color-error;
+                }
+            }
+        }
+    }
+    .progress-error-display-wrapper {
+        .progress-error-inticator {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            line-height: 14px;
+            color: $color-error;
+            margin-left: calc(#{$step-number-size} + #{$step-inner-padding});
+            margin-top: 40px;
+    
+            .icon {
+                width: $progress-icon-size;
+                height: $progress-icon-size;
+                margin-right: 12px;
+            }
+            .progress-error-details-link {
+                margin-left: 5px;
+            }
+        }
+        .progress-error-details {
+            background-color: $color-blue-light;
+            color: $color-main;
+            font-size: 10px;
+            line-height: 12px;
+            padding: 20px;
+            margin-top: 23px;
+            position: relative;
+    
+            .close-button {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+            }
+        }
+    }
+}
