@@ -126,7 +126,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: "0"
+          fetch-depth: 0
 
       - name: Replace version
         id: replace_version
@@ -148,8 +148,5 @@ jobs:
       - name: Add Bitnami Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
-      - name: Run chart-testing debug (lint)
-        run: ct lint --debug --remote origin --target-branch kubeclarity --chart-dirs stable
-
-      - name: Run chart-testing (lint)
-        run: ct lint --check-version-increment=false --validate-maintainers=false
+#      - name: Run chart-testing (lint)
+#        run: ct lint --check-version-increment=false --validate-maintainers=false
