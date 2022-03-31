@@ -97,12 +97,22 @@ Contributions of integrations with additional tools are more than welcome!
 
 ### Install KubeClarity in a K8s cluster using Helm:
 
-1. Check the configuration in `charts/kubeclarity/values.yaml` and update the required values if needed.
-
-2. Deploy KubeClarity with Helm:
+1. Add Helm repo
 
    ```shell
-   helm install --values charts/kubeclarity/values.yaml --create-namespace kubeclarity charts/kubeclarity -n kubeclarity
+   helm repo add kubeclarity https://cisco-open.github.io/kubei
+   ```
+2. Save KubeClarity default chart values
+    ```shell
+    helm show values kubeclarity/kubeclarity > values.yaml
+    ```
+
+3. Check the configuration in `values.yaml` and update the required values if needed
+
+4. Deploy KubeClarity with Helm
+
+   ```shell
+   helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity
    ```
 
 3. Port forward to KubeClarity UI:
