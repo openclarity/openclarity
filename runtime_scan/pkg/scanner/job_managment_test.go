@@ -419,6 +419,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 													Key: corev1.DockerConfigJsonKey,
 												},
 											},
+										},
 									},
 								},
 								{
@@ -432,6 +433,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 													Key: corev1.DockerConfigJsonKey,
 												},
 											},
+										},
 									},
 								},
 							},
@@ -482,6 +484,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 													Key: corev1.DockerConfigJsonKey,
 												},
 											},
+										},
 									},
 								},
 								{
@@ -496,6 +499,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 													Key: corev1.DockerConfigJsonKey,
 												},
 											},
+										},
 									},
 								},
 							},
