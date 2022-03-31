@@ -1,0 +1,12 @@
+.main-title {
+    font-size: 35px;
+    line-height: 41px;
+    font-weight: 200;
+    margin-bottom: 24px;
+    display: inline-block;
+
+    &.small {
+        font-size: 26px;
+        line-height: 30px;
+    }
+}

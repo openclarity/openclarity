@@ -1,0 +1,71 @@
+@import 'utils/scss_variables.module.scss';
+
+$vulnerability-title-width: 130px;
+$vulnerability-title-padding: 15px;
+$vulnerabilities-summery-size: 320px;
+
+.top-vulneraboilities-widget {
+    height: $dashboard-widget-height;
+    min-width: 503px;
+    flex-grow: 1;
+
+    .widget-tabs-header {
+        display: flex;
+        margin: 20px 0;
+
+        .widget-tab-item {
+            padding: 5px 20px;
+            width: 115px;
+            height: 24px;
+            border-radius: 100px;
+            box-sizing: border-box;
+            border: 1px solid $color-grey-light;
+            color: $color-main;
+            font-size: 10px;
+            font-weight: bold;
+            line-height: 12px;
+            text-transform: uppercase;
+            text-align: center;
+            cursor: pointer;
+
+            &:not(:last-child) {
+                margin-right: 10px;
+            }
+            &.selected {
+                border-color: $color-main;
+                color: white;
+                background-color: $color-main;
+            }
+        }
+    }
+    .widget-tab-content {
+        .vulneability-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            line-height: 16px;
+            padding: 10px 0;
+            
+            &.clickable {
+                cursor: pointer;
+            }
+            &:hover {
+                background-color: $color-blue-light;
+            }
+            &:not(:last-child) {
+                border-bottom: 1px solid $color-blue-lilac;
+            }
+            .vulneability-item-title {
+                margin-right: $vulnerability-title-padding;
+                max-width: calc(100% - #{$vulnerabilities-summery-size} - #{$vulnerability-title-padding});
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .vulnerabilities-summary-display {
+                width: $vulnerabilities-summery-size;
+                overflow: hidden;
+            }
+        }
+    }
+}

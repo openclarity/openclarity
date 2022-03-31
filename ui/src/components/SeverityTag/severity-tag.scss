@@ -1,0 +1,11 @@
+@import 'utils/scss_variables.module.scss';
+
+.severity-tag {
+    display: inline-block;
+    border-radius: 2px;
+    padding: 2px 8px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+}

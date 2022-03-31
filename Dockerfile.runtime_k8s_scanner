@@ -1,0 +1,46 @@
+FROM golang:1.17.3-alpine AS builder
+
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+
+RUN apk add --update --no-cache gcc g++ git
+
+# Copy runtime scan api code
+WORKDIR /build/runtime_scan
+COPY runtime_scan/api ./api
+
+# Copy sbom db api code
+WORKDIR /build/sbom_db
+COPY sbom_db/api ./api
+
+# Copy shared go.mod & go.sum
+WORKDIR /build/shared
+COPY shared/go.* ./
+RUN go mod download
+
+# Copy scanner go.mod & go.sum
+WORKDIR /build/runtime_k8s_scanner
+COPY runtime_k8s_scanner/go.* ./
+RUN go mod download
+
+# Copy shared code
+WORKDIR /build/shared
+COPY shared .
+
+# Copy and build scanner code
+WORKDIR /build/runtime_k8s_scanner
+COPY runtime_k8s_scanner .
+RUN go build -ldflags="-s -w \
+     -X 'github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version.Version=${VERSION}' \
+     -X 'github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+     -o runtime_k8s_scanner ./cmd/main.go
+
+FROM alpine:3.15.0
+
+WORKDIR /app
+
+COPY --from=builder ["/build/runtime_k8s_scanner/runtime_k8s_scanner", "./runtime_k8s_scanner"]
+
+ENTRYPOINT ["/app/runtime_k8s_scanner"]

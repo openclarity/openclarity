@@ -1,0 +1,14 @@
+@import 'utils/scss_variables.module.scss';
+
+.inner-app-link-wrapper {
+    .inner-app-link {
+        color: $color-main;
+        font-weight: bold;
+        cursor: pointer;
+        display: inline;
+    
+        &.underline:hover {
+            text-decoration: underline;
+        }
+    }
+}

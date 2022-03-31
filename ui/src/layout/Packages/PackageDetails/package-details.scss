@@ -1,0 +1,48 @@
+@import 'utils/scss_variables.module.scss';
+
+$section-padding: 30px;
+
+.package-tab-details {
+    display: flex;
+    overflow: hidden;
+
+    .package-details-section {
+        border-right: 1px solid $color-grey-lighter;
+        padding-right: $section-padding;
+
+        .title-value-display-row .title-value-display-wrapper {
+            min-width: 150px;
+
+            &:not(:last-child) {
+                margin-right: 20px;
+            }
+        }
+    }
+    .package-dependencies-section {
+        display: flex;
+        padding-left: $section-padding;
+
+        .title-value-display-wrapper {
+            min-width: 180px;
+            
+            &:not(:last-child) {
+                margin-right: 46px;
+            }
+        }
+    }
+}
+
+.package-tab-resources {
+    .filter-form .form-field-wrapper {
+        min-width: 156px;
+    }
+    .table-wrapper {
+        position: relative;
+
+        .pagination-container {
+            position: absolute;
+            top: -40px;
+            right: 0;
+        }
+    }
+}

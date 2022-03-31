@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    meta.helm.sh/release-name: dependency-track
+    meta.helm.sh/release-namespace: dependency-track
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+  finalizers:
+  - networking.gke.io/ingress-finalizer-V2
+  labels:
+    app.kubernetes.io/instance: dependency-track
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dependency-track
+    helm.sh/chart: dependency-track-1.1.5
+  name: dependency-track
+  namespace: dependency-track
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: dependency-track-apiserver.dependency-track
+    http:
+      paths:
+      - backend:
+          service:
+            name: dependency-track-apiserver
+            port:
+              number: 80
+        path: /api
+        pathType: Prefix
+      - backend:
+          service:
+            name: dependency-track-frontend
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - dependency-track-apiserver.dependency-track
+    secretName: dtsecret
+status:
+  loadBalancer: {}

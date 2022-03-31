@@ -1,0 +1,44 @@
+@import 'utils/scss_variables.module.scss';
+
+$loader-border-radius: 20px;
+
+.progress-bar-wrapper {
+    display: flex;
+    width: 100%;
+
+    .progress-bar-container {
+        position: relative;
+        height: 14px;
+        background-color: $color-grey-lighter;
+        border-radius: $loader-border-radius;
+        width: 100%;
+    
+        &.is-small {
+            height: 6px;
+            border-radius: 0;
+
+            .progress-bar-filler {
+                border-radius: 0;
+
+                &.done {
+                    border-radius: 0;
+                }
+            }
+        }
+        .progress-bar-filler {
+            background-color: $color-success;
+            border-top-left-radius: $loader-border-radius;
+            border-bottom-left-radius: $loader-border-radius;
+            height: 100%;
+    
+            &.done {
+                border-radius: $loader-border-radius;
+            }
+        }
+    }
+    .progress-bar-title {
+        margin-left: 10px;
+        font-size: 14px;
+        line-height: 16px;
+    }
+}

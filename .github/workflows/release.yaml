@@ -1,0 +1,188 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  GO_VERSION: 1.17
+
+jobs:
+  verification:
+    name: Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Check licenses
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make license-check
+
+      - name: Run verification
+        run: make check
+
+  release:
+    needs: verification
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build KubeClarity
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: ghcr.io/cisco-open/kubeclarity:${{ github.ref_name }}
+          file: Dockerfile.backend
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Build CIS Docker Benchmark Scanner
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: ghcr.io/cisco-open/kubeclarity-cis-docker-benchmark-scanner:${{ github.ref_name }}
+          file: Dockerfile.cis_docker_benchmark_scanner
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}          
+
+      - name: Build Runtime K8s Vulnerability Scanner
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: ghcr.io/cisco-open/kubeclarity-runtime-k8s-scanner:${{ github.ref_name }}
+          file: Dockerfile.runtime_k8s_scanner
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Build SBOM DB
+        uses: docker/build-push-action@v2
+        with:
+          context: sbom_db
+          tags: ghcr.io/cisco-open/kubeclarity-sbom-db:${{ github.ref_name }}
+          file: sbom_db/Dockerfile.sbom_db
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Build CLI
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: ghcr.io/cisco-open/kubeclarity-cli:${{ github.ref_name }}
+          file: Dockerfile.cli
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: v0.178.0
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  helm_release:
+    needs: release
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Replace release version
+        id: replace_version
+        run: find . -type f -name "values.yaml" -o -name "Chart.yaml" |
+          xargs sed -i -e s/latest/${{ github.ref_name }}/g
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.1.0
+
+      - name: Add Bitnami Repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+
+      - name: Run chart-testing (lint)
+        run: ct lint --check-version-increment=false --validate-maintainers=false
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.2.1
+        with:
+          charts_dir: charts
+          config: charts/cr.yaml
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

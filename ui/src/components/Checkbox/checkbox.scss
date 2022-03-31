@@ -1,0 +1,59 @@
+@import 'utils/scss_variables.module.scss';
+
+$checkbox-size: 20px;
+
+.ag-checkbox-wrapper {
+    position: relative;
+
+    .ag-checkbox {
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+    
+        .checkmark {
+            position: relative;
+            height: $checkbox-size;
+            min-height: $checkbox-size;
+            width: $checkbox-size;
+            min-width: $checkbox-size;
+            box-sizing: border-box;
+            background-color: white;
+            border: 1px solid $color-grey-light;
+            margin-right: 10px;
+    
+            &:after {
+                content: "";
+                position: absolute;
+                display: none;
+                left: 6px;
+                top: 1px;
+                width: 5px;
+                height: 12px;
+                border: solid $color-main-light;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+            &.half-selected:after {
+                left: 3px;
+                top: 8px;
+                height: 2px;
+                width: 12px;
+                border: none;
+                background-color: $color-main-light;
+                transform: rotate(0deg);
+            }
+        }
+        input {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+    
+            &:checked ~ .checkmark {
+                &:after {
+                    display: block;
+                }
+            }
+            
+        }
+    }
+}

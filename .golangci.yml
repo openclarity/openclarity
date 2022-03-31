@@ -1,0 +1,56 @@
+run:
+  skip-dirs:
+    - api
+    - ui
+  timeout: 5m
+
+linters-settings:
+  golint:
+    min-confidence: 0.1
+  goimports:
+    local-prefixes: github.com/cisco-open/kubei
+  errorlint:
+    # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
+    errorf: false
+  gomoddirectives:
+    # Allow local `replace` directives. Default is false.
+    replace-local: true
+  gosec:
+    # To specify a set of rules to explicitly exclude.
+    # Available rules: https://github.com/securego/gosec#available-rules
+#    excludes:
+#      - G404 # Insecure random number source (rand)
+  forbidigo:
+    # Forbid the following identifiers (identifiers are written using regexp):
+    forbid:
+      - ^print.*$
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - funlen
+    - dupl
+    - nestif
+    - wsl
+    - lll
+    - interfacer
+    - exhaustivestruct
+    - nlreturn
+    - gocritic
+    - gochecknoglobals
+    - testpackage
+    - goerr113
+    - paralleltest
+    - godox # Allow TODOs
+    - tagliatelle # Allow json(camel)
+    - scopelint # deprecated
+    - golint # deprecated
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - govet

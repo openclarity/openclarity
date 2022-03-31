@@ -1,84 +1,217 @@
-![](images/Kubei-logo.png)
+# KubeClarity
 
-Kubei is a vulnerabilities scanning and CIS Docker benchmark tool that allows users to get an accurate and immediate risk assessment of their kubernetes clusters. Kubei scans all images that are being used in a Kubernetes cluster, including images of application pods and system pods. It doesn’t scan the entire image registries and doesn’t require preliminary integration with CI/CD pipelines. 
+![](images/kubeclarity-logo.png)
 
-It is a configurable tool which allows users to define the scope of the scan (target namespaces), the speed, and the vulnerabilities level of interest.
+KubeClarity is a tool for detection and management of Software Bill Of Materials (SBOM) and vulnerabilities of container images and filesystems. It scans both runtime K8s clusters and CI/CD pipelines for enhanced software supply chain security.
 
-It provides a graphical UI which allows the viewer to identify where and what should be replaced, in order to mitigate the discovered vulnerabilities. 
+## SBOM & vulnerability detection challenges
+
+* Effective vulnerability scanning requires an accurate Software Bill Of Materials (SBOM) detection:
+  * Various programming languages and package managers
+  * Various OS distributions
+  * Package dependency information is usually stripped upon build
+* Which one is the best scanner/SBOM analyzer?
+* What should we scan: Git repos, builds, container images or runtime?
+* Each scanner/analyzer has its own format - how to compare the results?
+* How to manage the discovered SBOM and vulnerabilities?
+* How are my applications affected by a newly discovered vulnerability?
+
+## Solution
+
+* Separate vulnerability scanning into 2 phases:
+  * Content analysis to generate SBOM
+  * Scan the SBOM for vulnerabilities
+* Create a pluggable infrastructure to:
+  * Run several content analyzers in parallel
+  * Run several vulnerability scanners in parallel
+* Scan and merge results between different CI stages using KubeClarity CLI
+* Runtime K8s scan to detect vulnerabilities discovered post-deployment
+* Group scanned resources (images/directories) under defined applications to navigate the object tree dependencies (applications, resources, packages, vulnerabilities)
 
 
-## Prerequisites 
+![](images/dashboard-screen.png)
 
-1. A Kubernetes cluster is ready, and kubeconfig ( `~/.kube/config`) is properly configured for the target cluster.
+## Features
 
-## Required permissions
+* Dashboard
+  * Fixable vulnerabilities per severity
+  * Top 5 vulnerable elements (applications, resources, packages)
+  * New vulnerabilities trends
+  * Package count per license type
+  * Package count per programming language
+  * General counters
+* Applications
+  * Automatic application detection in K8s runtime
+  * Create/edit/delete applications
+  * Per application, navigation to related:
+    * Resources (images/directories)
+    * Packages  
+    * Vulnerabilities
+    * Licenses in use by the resources
+* Application Resources (images/directories)
+  * Per resource, navigation to related:
+    * Applications
+    * Packages
+    * Vulnerabilities
+* Packages
+    * Per package, navigation to related:
+        * Applications
+        * Linkable list of resources and the detecting SBOM analyzers
+        * Vulnerabilities
+* Vulnerabilities
+    * Per vulnerability, navigation to related:
+        * Applications
+        * Resources
+        * List of detecting scanners
+* K8s Runtime scan
+  * Automatic detection of target namespaces
+  * Scan progress and result navigation per affected element (applications, resources, packages, vulnerabilities)
+* CLI (CI/CD)
+  * SBOM generation using multiple integrated content analyzers (Syft, cyclonedx-gomod)
+  * SBOM/image/directory vulnerability scanning using multiple integrated scanners (Grype, Dependency-track)
+  * Merging of SBOM and vulnerabilities across different CI/CD stages
+  * Export results to KubeClarity backend
+* API
+  * The API for KubeClarity can be found [here](https://github.com/cisco-open/kubei/blob/master/api/swagger.yaml)
+    
+## High level architecture
+
+![](images/architecture.png)
+
+
+## Getting started
+
+### Integration with SBOM generators and vulnerability scanners
+KubeClarity content analyzer integrates with the following SBOM generators:
+* [Syft](https://github.com/anchore/syft)
+* [Cyclonedx-gomod](https://github.com/CycloneDX/cyclonedx-gomod)
+
+KubeClarity vulnerability scanner integrates with the following scanners:
+* [Grype](https://github.com/anchore/grype)
+* [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
+
+The integrations with the SBOM generators can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/scanner). 
+To enable and configure the supported SBOM generators and vulnerability scanners, please check the "analyzer" and "scanner" config under the "vulnerability-scanner" section in Helm values.
+
+Contributions of integrations with additional tools are more than welcome!
+
+### Install KubeClarity in a K8s cluster using Helm:
+
+1. Check the configuration in `charts/kubeclarity/values.yaml` and update the required values if needed.
+
+2. Deploy KubeClarity with Helm:
+
+   ```shell
+   helm install --values charts/kubeclarity/values.yaml --create-namespace kubeclarity charts/kubeclarity -n kubeclarity
+   ```
+
+3. Port forward to KubeClarity UI:
+
+   ```shell
+   kubectl port-forward -n kubeclarity svc/kubeclarity-kubeclarity 9999:8080
+   ```
+
+4. Open KubeClarity UI in the browser: <http://localhost:9999/>
+
+### Required K8s permissions
 
 1. Read secrets in cluster scope. This is required for getting image pull secrets for scanning private image repositories.
-2. List pods in cluster scope. This is required for calculating the target pods that need to be scanned.
-3. Create jobs in cluster scope. This is required for creating the jobs that will scan the target pods in their namespaces.
+2. Read config maps in cluster scope. This is required for getting the configured template of the scanner job.
+3. List pods in cluster scope. This is required for calculating the target pods that need to be scanned.
+4. List namespaces. This is required for fetching the target namespaces to scan in K8s runtime scan UI.
+5. Create & delete jobs in cluster scope. This is required for managing the jobs that will scan the target pods in their namespaces.
 
-## Configurations 
+### Build and run locally with demo data
 
-The file `deploy/kubei.yaml` is used to deploy and configure Kubei on your cluster.
-
-1. Set the scan scope. Set the `IGNORE_NAMESPACES` env variable to ignore specific namespaces. Set `TARGET_NAMESPACE` to scan a specific namespace, or leave empty to scan all namespaces.
-
-2. Set the scan speed. Expedite scanning by running parallel scanners. Set the `MAX_PARALLELISM` env variable for the maximum number of simultaneous scanners.
-
-3. Set severity level threshold. Vulnerabilities with severity level higher than or equal to `SEVERITY_THRESHOLD` threshold will be reported. Supported levels are `Unknown`, `Negligible`, `Low`, `Medium`, `High`, `Critical`, `Defcon1`. Default is `Medium`.
-
-4. Set the delete job policy. Set the `DELETE_JOB_POLICY` env variable to define whether or not to delete completed scanner jobs. Supported values are:
-    * `All` - All jobs will be deleted.
-    * `Successful` - Only successful jobs will be deleted (default).
-    * `Never` - Jobs will never be deleted.
-
-5. Disable CIS Docker benchmark. Set the `SHOULD_SCAN_DOCKERFILE` env variable to `false`.
-
-6. Set the scanner service account. Set the `SCANNER_SERVICE_ACCOUNT` env variable to a service account name to be used by the scanner jobs. Defaults to `default` service account.
-
-7. Scan insecure registries. Set the `REGISTRY_INSECURE` env variable to allow the scanner to access insecure registries (HTTP only). Default is `false`. 
-
-## Usage 
-
-1. Run the following command to deploy Kubei on the cluster:
-
-    `
-    kubectl apply -f https://raw.githubusercontent.com/cisco-open/kubei/main/deploy/kubei.yaml
-    `
-
-2. Run the following command to verify that Kubei is up and running:
-
-    `
-    kubectl -n kubei get pod -lapp=kubei
-    `
+1. Build UI & backend and start the backend locally (2 options):
+    1. Using docker:
+        1. Build UI and backend (the image tag is set using VERSION):
+           ```shell
+           VERSION=test make docker-backend
+           ```
+        2. Run the backend using demo data:
+           ```shell
+           docker run -p 8080:8080 -e FAKE_DATA=true -e ENABLE_DB_INFO_LOGS=true -e DATABASE_DRIVER=LOCAL ghcr.io/kubeclarity/kubeclarity:test run
+           ```
+    2. Local build:
+        1. Build UI and backend
+           ```shell
+           make ui && make backend
+           ```
+        2. Copy the built site:
+           ```shell
+           cp -r ./ui/build ./site
+           ```
+        3. Run the backend locally using demo data:
+           ```shell
+           DATABASE_DRIVER=LOCAL FAKE_DATA=true ENABLE_DB_INFO_LOGS=true ./backend/bin/backend run
+           ```
     
-    ![](images/kubei-running.png)
+2. Open KubeClarity UI in the browser: <http://localhost:8080/>
 
-3. Then, port forwarding into the Kubei webapp via the following command:
+## CLI
+KubeClarity includes a CLI that can be run locally and especially useful for CI/CD pipelines. 
+It allows to analyze images and directories to generate SBOM, and scan it for vulnerabilities.
+The results can be exported to KubeClarity backend.
 
-    `
-    kubectl -n kubei port-forward $(kubectl -n kubei get pods -lapp=kubei -o jsonpath='{.items[0].metadata.name}') 8080 
-    `    
+### Compilation
+```
+make cli
+```
 
-4. In your browser, navigate to http://localhost:8080/view/ , and then click  'GO' to run a scan.
+### SBOM generation using multiple integrated content analyzers
 
-5. To check the state of Kubei, and the progress of ongoing scans, run the following command:
+```
+# A list of the content analyzers to use can be configured using the ANALYZER_LIST env variable seperated by a space (e.g ANALYZER_LIST="syft gomod")
+./cli/bin/cli analyze <image/directory name> --input-type <dir|file|image(default)> -o <output file or stdout>
 
-    `
-	kubectl -n kubei logs $(kubectl -n kubei get pods -lapp=kubei -o jsonpath='{.items[0].metadata.name}')  
-    `
+# For example:
+ANALYZER_LIST="syft" ./cli/bin/cli analyze nginx:latest -o nginx.sbom
+```
 
-6. Refresh the page (http://localhost:8080/view/) to update the results.
+### Vulnerability scanning using multiple integrated scanners
+```
+# A list of the vulnerability scanners to use can be configured using the SCANNERS_LIST env variable seperated by a space (e.g SCANNERS_LIST="grype dependency-track")
+./cli/bin/cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
 
-![](images/kubei-vulnerability-results.png)
-    
-![](images/kubei-cis-docker-results.png)    
+# For example:
+SCANNERS_LIST="grype" ./cli/bin/cli scan nginx.sbom --input-type sbom 
+```
 
-## Running Kubei with an external HTTP/HTTPS proxy
 
-Uncomment and configure the proxy env variables for the Grype Server and Kubei deployments in `deploy/kubei.yaml`.
+### Export results to KubeClarity backend
+To export CLI results to the KubeClarity backend, need to use an application ID as defined by the KubeClarity backend.
+The application ID can be found in the Applications screen in the UI or using the KubeClarity API.
 
-## Amazon ECR support
+#### Exporting SBOM:
+```
+# The SBOM can be exported to KubeClarity backend by setting the BACKEND_HOST env variable and the -e flag.
+# Note: Until TLS is supported, BACKEND_DISABLE_TLS=true should be set.
+BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true ./cli/bin/cli analyze <image> --application-id <application ID> -e -o <SBOM output file>
+
+# For example:
+BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true ./cli/bin/cli analyze nginx:latest --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e -o nginx.sbom
+```
+
+#### Exporting vulnerability scan results:
+```
+# The vulnerability scan result can be exported to KubeClarity backend by setting the BACKEND_HOST env variable and the -e flag.
+# Note: Until TLS is supported, BACKEND_DISABLE_TLS=true should be set.
+
+BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true ./cli/bin/cli scan <image> --application-id <application ID> -e
+
+# For example:
+SCANNERS_LIST="grype" BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true ./cli/bin/cli scan nginx.sbom --input-type sbom  --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e
+```
+
+### Merging of SBOM and vulnerabilities across different CI/CD stages
+```
+TBD
+```
+
+## Private registries support for K8s runtime scan
+
+### Amazon ECR
 
 Create an [AWS IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console) with `AmazonEC2ContainerRegistryFullAccess` permissions.
 
@@ -90,7 +223,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ecr-sa
-  namespace: kubei
+  namespace: kubeclarity
 type: Opaque
 data:
   AWS_ACCESS_KEY_ID: $(echo -n 'XXXX'| base64 -w0)
@@ -99,27 +232,44 @@ data:
 EOF
 ```
 
-Note: 
+Note:
 1. Secret name must be `ecr-sa`
 2. Secret data keys must be set to `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_DEFAULT_REGION`
 
-## Google GCR support
+### Google GCR
 
 Create a [Google service account](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) with `Artifact Registry Reader` permissions.
 
 Use the service account json file to create the following secret
 
 ```
-kubectl -n kubei create secret generic --from-file=sa.json gcr-sa
+kubectl -n kubeclarity create secret generic --from-file=sa.json gcr-sa
 ```
 
 Note:
-1. Secret name must be `gcr-sa` 
+1. Secret name must be `gcr-sa`
 1. `sa.json` must be the name of the service account json file when generating the secret
-2. Kubei is using [application default credentials](https://developers.google.com/identity/protocols/application-default-credentials). These only work when running Kubei from GCP.
+2. KubeClarity is using [application default credentials](https://developers.google.com/identity/protocols/application-default-credentials). These only work when running KubeClarity from GCP.
 
-## Limitations 
+## Limitations
 
-1. Supports Kubernetes Image Manifest V 2, Schema 2 (https://docs.docker.com/registry/spec/manifest-v2-2/). It will fail to scan on earlier versions.
- 
-2. The CVE database will update once a day.
+1. Supports Docker Image Manifest V2, Schema 2 (https://docs.docker.com/registry/spec/manifest-v2-2/). It will fail to scan earlier versions.
+
+## Roadmap
+* Integration with additional content analyzers (SBOM generators)
+* Integration with additional vulnerability scanners
+* CIS Docker benchmark in UI
+* Image signing using [Cosign](https://github.com/sigstore/cosign)
+* CI/CD metadata signing and attestation using [Cosign](https://github.com/sigstore/cosign) and [in-toto](https://github.com/in-toto/in-toto) (supply chain security)
+* System settings and user management
+
+## Contributing
+
+Pull requests and bug reports are welcome.
+
+For larger changes please create an Issue in GitHub first to discuss your
+proposed changes and possible implications.
+
+## License
+
+[Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)

@@ -1,0 +1,1875 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "KubeClarity APIs"
+
+basePath: /api
+
+schemes:
+  - http
+  #- https
+
+consumes: [ "application/json" ]
+produces: [ "application/json" ]
+
+definitions:
+  ApiResponse:
+    description: 'An object that is returned in all cases of failures.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  SuccessResponse:
+    description: 'An object that is returned in cases of success that returns nothing.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  ApplicationsSortKey:
+    type: string
+    enum: &ApplicationsSortKey
+      - applicationName
+      - applicationType
+      - vulnerabilities
+      - applicationResources
+      - packages
+
+  ApplicationResourcesSortKey:
+    type: string
+    enum: &ApplicationResourcesSortKey
+      - resourceName
+      - resourceHash
+      - resourceType
+      - vulnerabilities
+      - applications
+      - packages
+
+  PackagesSortKey:
+    type: string
+    enum: &PackagesSortKey
+      - packageName
+      - applications
+      - applicationResources
+      - language
+      - vulnerabilities
+      - version
+      - license
+
+  PackagesApplicationResourcesSortKey:
+    type: string
+    enum: &PackagesApplicationResourcesSortKey
+      - resourceName
+      - resourceHash
+
+  VulnerabilitiesSortKey:
+    type: string
+    enum: &VulnerabilitiesSortKey
+      - vulnerabilityName
+      - packageName
+      - packageVersion
+      - severity
+      - applications
+      - applicationResources
+      - fixVersion
+      - source
+
+  ApplicationType:
+    type: string
+    enum: &ApplicationType
+      - POD
+      - DIRECTORY
+      - LAMBDA
+
+  ResourceType:
+    type: string
+    enum: &ResourceType
+      - IMAGE
+      - DIRECTORY
+      - FILE
+
+  ResourceLayerCommand:
+    type: 'object'
+    description: 'Container image layer with command.'
+    properties:
+      command:
+        type: 'string'
+      layer:
+        type: 'string'
+
+  AttackVector:
+    type: string
+    enum:
+      - NETWORK
+      - ADJACENT
+      - LOCAL
+      - PHYSICAL
+
+  AttackComplexity:
+    type: string
+    enum:
+      - LOW
+      - HIGH
+
+  PrivilegesRequired:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  UserInteraction:
+    type: string
+    enum:
+      - NONE
+      - REQUIRED
+
+  Scope:
+    type: string
+    enum:
+      - UNCHANGED
+      - CHANGED
+
+  Confidentiality:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  Integrity:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  Availability:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  VulnerabilityCount:
+    type: object
+    properties:
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      count:
+        type: 'integer'
+        format: 'uint32'
+
+  VulnerabilitiesWithFix:
+    type: object
+    description: 'Vulnerabilities count per severity (with fix and total).'
+    properties:
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      countWithFix:
+        type: 'integer'
+        format: 'uint32'
+      countTotal:
+        type: 'integer'
+        format: 'uint32'
+
+  VulnerabilitySeverity:
+    type: string
+    enum: &VulnerabilitySeverity
+      - CRITICAL
+      - HIGH
+      - MEDIUM
+      - LOW
+      - NEGLIGIBLE
+
+  VulnerabilitySource:
+    type: string
+    enum: &VulnerabilitySource
+      - CICD
+      - RUNTIME
+
+  ApplicationInfo:
+    type: 'object'
+    required:
+      - name
+      - type
+    properties:
+      id:
+        description: 'ID of the application as created by the backend.'
+        type: 'string'
+      name:
+        type: 'string'
+      type:
+        $ref: '#/definitions/ApplicationType'
+      labels:
+        type: 'array'
+        items:
+          type: 'string'
+          description: 'label in the format of key=value'
+      environments:
+        type: 'array'
+        items:
+          type: 'string'
+
+  Application:
+    type: 'object'
+    properties:
+      id:
+        type: 'string'
+      applicationName:
+        type: 'string'
+      applicationType:
+        $ref: '#/definitions/ApplicationType'
+      labels:
+        type: 'array'
+        items:
+          type: 'string'
+          description: 'label in the format of key=value'
+      vulnerabilities:
+        description: 'vulnerability count per severity'
+        type: 'array'
+        items:
+          $ref: '#/definitions/VulnerabilityCount'
+      environments:
+        type: 'array'
+        items:
+          type: 'string'
+      applicationResources:
+        type: 'integer'
+        format: 'uint32'
+      packages:
+        type: 'integer'
+        format: 'uint32'
+
+  ApplicationEx:
+    type: 'object'
+    properties:
+      application:
+        $ref: '#/definitions/Application'
+      licenses:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ApplicationResource:
+    type: 'object'
+    properties:
+      id:
+        type: 'string'
+      resourceName:
+        type: 'string'
+      resourceHash:
+        type: 'string'
+      resourceType:
+        $ref: '#/definitions/ResourceType'
+      vulnerabilities:
+        type: 'array'
+        items:
+          $ref: '#/definitions/VulnerabilityCount'
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      packages:
+        type: 'integer'
+        format: 'uint32'
+      reportingSBOMAnalyzers:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ApplicationResourceEx:
+    type: 'object'
+    properties:
+      applicationResource:
+        $ref: '#/definitions/ApplicationResource'
+      licenses:
+        type: 'array'
+        items:
+          type: 'string'
+
+  Package:
+    type: 'object'
+    properties:
+      id:
+        type: 'string'
+      packageName:
+        type: 'string'
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      applicationResources:
+        type: 'integer'
+        format: 'uint32'
+      language:
+        type: 'string'
+      vulnerabilities:
+        type: 'array'
+        items:
+          $ref: '#/definitions/VulnerabilityCount'
+      version:
+        type: 'string'
+      license:
+        type: 'string'
+
+  PackageApplicationResources:
+    type: 'object'
+    properties:
+      packageID:
+        type: 'string'
+      resourceID:
+        type: 'string'
+      resourceName:
+        type: 'string'
+      resourceHash:
+        type: 'string'
+      reportingSBOMAnalyzers:
+        type: 'array'
+        items:
+          type: 'string'
+
+  Vulnerability:
+    type: 'object'
+    properties:
+      id:
+        description: 'Unique ID for the vulnerabilityID and packageID combination.'
+        type: 'string'
+      vulnerabilityID:
+        type: 'string'
+      vulnerabilityName:
+        type: 'string'
+      packageName:
+        type: 'string'
+      packageVersion:
+        type: 'string'
+      packageID:
+        type: 'string'
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      cvssSeverity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      cvssBaseScore:
+        type: 'number'
+      applicationResources:
+        type: 'integer'
+        format: 'uint32'
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      fixVersion:
+        type: 'string'
+      reportingScanners:
+        type: 'array'
+        items:
+          type: 'string'
+      source:
+        $ref: '#/definitions/VulnerabilitySource'
+
+  VulnerabilityEx:
+    type: 'object'
+    properties:
+      vulnerability:
+        $ref: '#/definitions/Vulnerability'
+      scanDate:
+        type: 'string'
+        format: 'date-time'
+      description:
+        type: 'string'
+      links:
+        type: 'array'
+        items:
+          type: 'string'
+      cvss:
+        $ref: '#/definitions/CVSS'
+
+  CVSS:
+    type: 'object'
+    properties:
+      cvssV3Vector:
+        $ref: '#/definitions/CVSSV3Vector'
+      cvssV3Metrics:
+        $ref: '#/definitions/CVSSV3Metrics'
+
+  CVSSV3Metrics:
+    type: 'object'
+    properties:
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      baseScore:
+        type: 'number'
+      exploitabilityScore:
+        type: 'number'
+      impactScore:
+        type: 'number'
+
+  CVSSV3Vector:
+    type: 'object'
+    properties:
+      vector:
+        type: 'string'
+      attackVector:
+        $ref: '#/definitions/AttackVector'
+      attackComplexity:
+        $ref: '#/definitions/AttackComplexity'
+      privilegesRequired:
+        $ref: '#/definitions/PrivilegesRequired'
+      userInteraction:
+        $ref: '#/definitions/UserInteraction'
+      scope:
+        $ref: '#/definitions/Scope'
+      confidentiality:
+        $ref: '#/definitions/Confidentiality'
+      integrity:
+        $ref: '#/definitions/Integrity'
+      availability:
+        $ref: '#/definitions/Availability'
+
+  ApplicationContentAnalysis:
+    type: 'object'
+    properties:
+      resources:
+        type: 'array'
+        items:
+          $ref: '#/definitions/ResourceContentAnalysis'
+
+  ResourceContentAnalysis:
+    type: 'object'
+    properties:
+      resource:
+        $ref: '#/definitions/ResourceInfo'
+      packages:
+        type: 'array'
+        items:
+          $ref: '#/definitions/PackageContentAnalysis'
+
+  PackageContentAnalysis:
+    type: 'object'
+    properties:
+      package:
+        $ref: '#/definitions/PackageInfo'
+      analyzers:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ApplicationVulnerabilityScan:
+    type: 'object'
+    properties:
+      resources:
+        type: 'array'
+        items:
+          $ref: '#/definitions/ResourceVulnerabilityScan'
+
+  ResourceVulnerabilityScan:
+    type: 'object'
+    properties:
+      resource:
+        $ref: '#/definitions/ResourceInfo'
+      packageVulnerabilities:
+        type: 'array'
+        items:
+          $ref: '#/definitions/PackageVulnerabilityScan'
+      resourceLayerCommands:
+        type: 'array'
+        items:
+          $ref: '#/definitions/ResourceLayerCommand'
+
+  PackageVulnerabilityScan:
+    type: 'object'
+    properties:
+      package:
+        $ref: '#/definitions/PackageInfo'
+      vulnerabilityName:
+        type: 'string'
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      fixVersion:
+        type: 'string'
+      description:
+        type: 'string'
+      links:
+        type: 'array'
+        items:
+          type: 'string'
+      cvss:
+        $ref: '#/definitions/CVSS'
+      scanners:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ResourceInfo:
+    type: 'object'
+    properties:
+      resourceName:
+        type: 'string'
+      resourceHash:
+        type: 'string'
+      resourceType:
+        $ref: '#/definitions/ResourceType'
+
+  PackageInfo:
+    type: 'object'
+    properties:
+      name:
+        type: 'string'
+      language:
+        type: 'string'
+      version:
+        type: 'string'
+      license:
+        type: 'string'
+
+  PackagesCountPerLicense:
+    type: object
+    properties:
+      license:
+        type: 'string'
+      count:
+        type: 'integer'
+        format: 'uint32'
+
+  PackagesCountPerLanguage:
+    type: object
+    properties:
+      language:
+        type: 'string'
+      count:
+        type: 'integer'
+        format: 'uint32'
+
+  DashboardCounters:
+    type: object
+    properties:
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      resources:
+        type: 'integer'
+        format: 'uint32'
+      packages:
+        type: 'integer'
+        format: 'uint32'
+
+  RuntimeScanCounters:
+    type: object
+    properties:
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      resources:
+        type: 'integer'
+        format: 'uint32'
+      packages:
+        type: 'integer'
+        format: 'uint32'
+      vulnerabilities:
+        type: 'integer'
+        format: 'uint32'
+
+  MostVulnerable:
+    type: object
+    properties:
+      applications:
+        type: 'array'
+        items:
+          $ref: '#/definitions/Application'
+      resources:
+        type: 'array'
+        items:
+          $ref: '#/definitions/ApplicationResource'
+      packages:
+        type: 'array'
+        items:
+          $ref: '#/definitions/Package'
+
+  NewVulnerabilitiesTrend:
+    type: 'object'
+    properties:
+      numOfVuls:
+        type: 'array'
+        items:
+          $ref: '#/definitions/VulnerabilityCount'
+      time:
+        type: 'string'
+        format: date-time
+
+  RuntimeScanConfig:
+    type: object
+    properties:
+      namespaces:
+        type: 'array'
+        items:
+          type: 'string'  #empty = all
+
+  Progress:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/RuntimeScanStatus'
+      scanned:
+        description: "Percentage of scanned images from total images (0-100)"
+        type: integer
+        minimum: 0
+      scannedNamespaces:
+        type: 'array'
+        items:
+          type: 'string'
+
+  RuntimeScanResults:
+    type: object
+    properties:
+      counters:
+        $ref: '#/definitions/RuntimeScanCounters'
+      vulnerabilityPerSeverity:
+        type: 'array'
+        items:
+          $ref: '#/definitions/VulnerabilityCount'
+      failures:
+        type: 'array'
+        items:
+          $ref: '#/definitions/RuntimeScanFailure'
+
+  RuntimeScanFailure:
+    type: object
+    properties:
+      message:
+        type: 'string'
+
+  RuntimeScanStatus:
+    description: 'Status of a runtime scan'
+    type: 'string'
+    readOnly: true
+    enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - DONE
+
+  Namespace:
+    type: object
+    properties:
+      name:
+        type: 'string'
+
+paths:
+  /namespaces:
+    get:
+      summary: 'Get list of namespaces in kubernetes cluster'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/Namespace'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/scan/start:
+    put:
+      summary: 'Start a runtime scan'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            description: 'Runtime scan configuration'
+            $ref: '#/definitions/RuntimeScanConfig'
+      responses:
+        '201':
+          description: 'Success'
+          schema:
+            $ref: '#/responses/Success'
+        '400':
+          description: 'Scan failed to start'
+          schema:
+            type: 'string'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/scan/stop:
+    put:
+      summary: 'Stop a runtime scan'
+      responses:
+        '201':
+          description: 'Success'
+          schema:
+            $ref: '#/responses/Success'
+        '400':
+          description: 'Scan failed to stop'
+          schema:
+            type: 'string'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/scan/progress:
+    get:
+      summary: 'Get scan progress'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/Progress'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/scan/results:
+    get:
+      summary: 'Get scan results'
+      parameters:
+        - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/RuntimeScanResults'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/vulnerabilitiesWithFix:
+    get:
+      summary: 'Get vulnerabilities with fix available per severity'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/VulnerabilitiesWithFix'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/packagesPerLicense:
+    get:
+      summary: 'Get packages count per license type'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/PackagesCountPerLicense'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/packagesPerLanguage:
+    get:
+      summary: 'Get packages count per language'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/PackagesCountPerLanguage'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/counters:
+    get:
+      summary: 'Get number of applications, resources, packages and vulnerabilities'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/DashboardCounters'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/mostVulnerable:
+    get:
+      summary: 'Get top 5 most vulnerable applications, resources and packages'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/MostVulnerable'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /dashboard/trends/vulnerabilities:
+    get:
+      summary: 'Get new vulnerabilities trend'
+      parameters:
+        - $ref: '#/parameters/startTime'
+        - $ref: '#/parameters/endTime'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/NewVulnerabilitiesTrend'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applications:
+    get:
+      summary: 'Get applications'
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/applicationsSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/applicationNameIsFilter'
+        - $ref: '#/parameters/applicationNameIsNotFilter'
+        - $ref: '#/parameters/applicationNameStartsWithFilter'
+        - $ref: '#/parameters/applicationNameEndsWithFilter'
+        - $ref: '#/parameters/applicationNameContainsFilter'
+        - $ref: '#/parameters/applicationTypeIsFilter'
+        - $ref: '#/parameters/applicationLabelsContainElementsFilter'
+        - $ref: '#/parameters/applicationLabelsDoesntContainElementsFilter'
+        - $ref: '#/parameters/applicationEnvsContainElementsFilter'
+        - $ref: '#/parameters/applicationEnvsDoesntContainElementsFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/applicationResourcesIsFilter'
+        - $ref: '#/parameters/applicationResourcesIsNotFilter'
+        - $ref: '#/parameters/applicationResourcesGteFilter'
+        - $ref: '#/parameters/applicationResourcesLteFilter'
+        - $ref: '#/parameters/packagesIsFilter'
+        - $ref: '#/parameters/packagesIsNotFilter'
+        - $ref: '#/parameters/packagesGteFilter'
+        - $ref: '#/parameters/packagesLteFilter'
+        # system filters
+        - $ref: '#/parameters/applicationResourceID'
+        - $ref: '#/parameters/packageID'
+        - $ref: '#/parameters/currentRuntimeScan'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total applications count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of applications in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/Application'
+        default:
+          $ref: '#/responses/UnknownError'
+    post:
+      summary: 'Create application'
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ApplicationInfo"
+      responses:
+        '201':
+          description: 'New application was created.'
+          schema:
+            $ref: '#/definitions/ApplicationInfo'
+#        '401':
+#          description: 'Unauthorized.'
+        '409':
+          description: 'Application already exist.'
+          schema:
+            $ref: '#/definitions/ApplicationInfo'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applications/{id}:
+    get:
+      summary: 'Get Application.'
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/ApplicationEx'
+        default:
+          $ref: '#/responses/UnknownError'
+    delete:
+      summary: 'Delete Application.'
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '204':
+          description: 'Success'
+#        '401':
+#          description: 'Unauthorized.'
+        '404':
+          description: 'Application not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+    put:
+      summary: 'Update Application.'
+      parameters:
+        - $ref: '#/parameters/id'
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ApplicationInfo"
+      responses:
+        '200':
+          description: 'Update Application successful.'
+          schema:
+            $ref: '#/definitions/ApplicationInfo'
+#        '401':
+#          description: 'Unauthorized.'
+        '404':
+          description: 'Application not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applicationResources:
+    get:
+      summary: 'Get application resources'
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/applicationResourcesSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/resourceNameIsFilter'
+        - $ref: '#/parameters/resourceNameIsNotFilter'
+        - $ref: '#/parameters/resourceNameStartsWithFilter'
+        - $ref: '#/parameters/resourceNameEndsWithFilter'
+        - $ref: '#/parameters/resourceNameContainsFilter'
+        - $ref: '#/parameters/resourceHashIsFilter'
+        - $ref: '#/parameters/resourceHashIsNotFilter'
+        - $ref: '#/parameters/resourceHashStartsWithFilter'
+        - $ref: '#/parameters/resourceHashEndsWithFilter'
+        - $ref: '#/parameters/resourceHashContainsFilter'
+        - $ref: '#/parameters/resourceTypeIsFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/applicationsIsFilter'
+        - $ref: '#/parameters/applicationsIsNotFilter'
+        - $ref: '#/parameters/applicationsGteFilter'
+        - $ref: '#/parameters/applicationsLteFilter'
+        - $ref: '#/parameters/packagesIsFilter'
+        - $ref: '#/parameters/packagesIsNotFilter'
+        - $ref: '#/parameters/packagesGteFilter'
+        - $ref: '#/parameters/packagesLteFilter'
+        - $ref: '#/parameters/reportingSBOMAnalyzersContainElementsFilter'
+        - $ref: '#/parameters/reportingSBOMAnalyzersDoesntContainElementsFilter'
+        # system filters
+        - $ref: '#/parameters/applicationID'
+        - $ref: '#/parameters/packageID'
+        - $ref: '#/parameters/currentRuntimeScan'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total application resources count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of application resources in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/ApplicationResource'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applicationResources/{id}:
+    get:
+      summary: 'Get Application Resource'
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/ApplicationResourceEx'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /packages:
+    get:
+      summary: 'Get packages'
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/packagesSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/packageNameIsFilter'
+        - $ref: '#/parameters/packageNameIsNotFilter'
+        - $ref: '#/parameters/packageNameStartsWithFilter'
+        - $ref: '#/parameters/packageNameEndsWithFilter'
+        - $ref: '#/parameters/packageNameContainsFilter'
+        - $ref: '#/parameters/applicationsIsFilter'
+        - $ref: '#/parameters/applicationsIsNotFilter'
+        - $ref: '#/parameters/applicationsGteFilter'
+        - $ref: '#/parameters/applicationsLteFilter'
+        - $ref: '#/parameters/applicationResourcesIsFilter'
+        - $ref: '#/parameters/applicationResourcesIsNotFilter'
+        - $ref: '#/parameters/applicationResourcesGteFilter'
+        - $ref: '#/parameters/applicationResourcesLteFilter'
+        - $ref: '#/parameters/languageIsFilter'
+        - $ref: '#/parameters/languageIsNotFilter'
+        - $ref: '#/parameters/languageStartsWithFilter'
+        - $ref: '#/parameters/languageEndsWithFilter'
+        - $ref: '#/parameters/languageContainsFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/packageVersionIsFilter'
+        - $ref: '#/parameters/packageVersionIsNotFilter'
+        - $ref: '#/parameters/packageVersionStartsWithFilter'
+        - $ref: '#/parameters/packageVersionEndsWithFilter'
+        - $ref: '#/parameters/packageVersionContainsFilter'
+        - $ref: '#/parameters/licenseIsFilter'
+        - $ref: '#/parameters/licenseIsNotFilter'
+        - $ref: '#/parameters/licenseStartsWithFilter'
+        - $ref: '#/parameters/licenseEndsWithFilter'
+        - $ref: '#/parameters/licenseContainsFilter'
+        # system filters
+        - $ref: '#/parameters/applicationID'
+        - $ref: '#/parameters/applicationResourceID'
+        - $ref: '#/parameters/currentRuntimeScan'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total packages count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of packages in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/Package'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /packages/{id}:
+    get:
+      summary: 'Get Package.'
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/Package'
+        '404':
+          description: 'Package ID not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /packages/{id}/applicationResources:
+    get:
+      summary: 'Get Package application resources'
+      parameters:
+        - $ref: '#/parameters/id'
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/packagesApplicationResourcesSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/resourceNameIsFilter'
+        - $ref: '#/parameters/resourceNameIsNotFilter'
+        - $ref: '#/parameters/resourceNameStartsWithFilter'
+        - $ref: '#/parameters/resourceNameEndsWithFilter'
+        - $ref: '#/parameters/resourceNameContainsFilter'
+        - $ref: '#/parameters/resourceHashIsFilter'
+        - $ref: '#/parameters/resourceHashIsNotFilter'
+        - $ref: '#/parameters/resourceHashStartsWithFilter'
+        - $ref: '#/parameters/resourceHashEndsWithFilter'
+        - $ref: '#/parameters/resourceHashContainsFilter'
+        - $ref: '#/parameters/reportingSBOMAnalyzersContainElementsFilter'
+        - $ref: '#/parameters/reportingSBOMAnalyzersDoesntContainElementsFilter'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total package application resources count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of package application resources in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/PackageApplicationResources'
+        '404':
+          description: 'Package ID not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /vulnerabilities:
+    get:
+      summary: 'Get vulnerabilities'
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/vulnerabilitiesSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/vulnerabilityNameIsFilter'
+        - $ref: '#/parameters/vulnerabilityNameIsNotFilter'
+        - $ref: '#/parameters/vulnerabilityNameStartsWithFilter'
+        - $ref: '#/parameters/vulnerabilityNameEndsWithFilter'
+        - $ref: '#/parameters/vulnerabilityNameContainsFilter'
+        - $ref: '#/parameters/packageNameIsFilter'
+        - $ref: '#/parameters/packageNameIsNotFilter'
+        - $ref: '#/parameters/packageNameStartsWithFilter'
+        - $ref: '#/parameters/packageNameEndsWithFilter'
+        - $ref: '#/parameters/packageNameContainsFilter'
+        - $ref: '#/parameters/packageVersionIsFilter'
+        - $ref: '#/parameters/packageVersionIsNotFilter'
+        - $ref: '#/parameters/packageVersionStartsWithFilter'
+        - $ref: '#/parameters/packageVersionEndsWithFilter'
+        - $ref: '#/parameters/packageVersionContainsFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityIsFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityIsNotFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+        - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/applicationResourcesIsFilter'
+        - $ref: '#/parameters/applicationResourcesIsNotFilter'
+        - $ref: '#/parameters/applicationResourcesGteFilter'
+        - $ref: '#/parameters/applicationResourcesLteFilter'
+        - $ref: '#/parameters/applicationsIsFilter'
+        - $ref: '#/parameters/applicationsIsNotFilter'
+        - $ref: '#/parameters/applicationsGteFilter'
+        - $ref: '#/parameters/applicationsLteFilter'
+        - $ref: '#/parameters/hasFixVersion'
+        - $ref: '#/parameters/reportingScannersContainElementsFilter'
+        - $ref: '#/parameters/reportingScannersDoesntContainElementsFilter'
+        - $ref: '#/parameters/vulnerabilitySourceIsFilter'
+        # system filters
+        - $ref: '#/parameters/applicationID'
+        - $ref: '#/parameters/applicationResourceID'
+        - $ref: '#/parameters/currentRuntimeScan'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total vulnerabilities count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of vulnerabilities in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/Vulnerability'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /vulnerabilities/{vul_id}/{pkg_id}:
+    get:
+      summary: 'Get a vulnerability of a specific package'
+      parameters:
+        - $ref: '#/parameters/vul_id'
+        - $ref: '#/parameters/pkg_id'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/VulnerabilityEx'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applications/vulnerabilityScan/{id}:
+    post:
+      summary: 'Report a vulnerability scan for a specific application'
+      parameters:
+        - $ref: '#/parameters/id'
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ApplicationVulnerabilityScan'
+      responses:
+        '201':
+          description: 'Application vulnerability scan successfully reported.'
+#        '401':
+#          description: 'Unauthorized'
+        '404':
+          description: 'Application not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /applications/contentAnalysis/{id}:
+    post:
+      summary: 'Report a content analysis for a specific application'
+      parameters:
+        - $ref: '#/parameters/id'
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ApplicationContentAnalysis'
+      responses:
+        '201':
+          description: 'Application content analysis successfully reported.'
+        #        '401':
+        #          description: 'Unauthorized'
+        '404':
+          description: 'Application not found.'
+        default:
+          $ref: '#/responses/UnknownError'
+
+parameters:
+  startTime:
+    name: 'startTime'
+    description: 'Start time of the query'
+    in: 'query'
+    type: 'string'
+    format: date-time
+    required: true
+
+  endTime:
+    name: 'endTime'
+    description: 'End time of the query'
+    in: 'query'
+    type: 'string'
+    format: date-time
+    required: true
+
+  id:
+    name: 'id'
+    in: 'path'
+    type: 'string'
+    required: true
+
+  vul_id:
+    name: 'vul_id'
+    in: 'path'
+    type: 'string'
+    required: true
+
+  pkg_id:
+    name: 'pkg_id'
+    in: 'path'
+    type: 'string'
+    required: true
+
+  sortDir:
+    name: 'sortDir'
+    description: 'Sorting direction'
+    in: 'query'
+    type: 'string'
+    enum:
+      - ASC
+      - DESC
+    required: false
+    default: 'ASC'
+
+  page:
+    name: 'page'
+    description: 'Page number of the query'
+    in: 'query'
+    type: 'integer'
+    required: true
+
+  pageSize:
+    name: 'pageSize'
+    description: 'Maximum items to return'
+    in: 'query'
+    type: 'integer'
+    required: true
+    minimum: 1
+    maximum: 50
+
+  applicationID:
+    name: 'applicationID'
+    description: 'application ID system filter, not visible to the user. 
+    only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  applicationResourceID:
+    name: 'applicationResourceID'
+    description: 'application resource ID system filter, not visible to the user. 
+    only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  packageID:
+    name: 'packageID'
+    description: 'package ID system filter, not visible to the user. 
+    only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  currentRuntimeScan:
+    name: 'currentRuntimeScan'
+    description: 'current runtime scan system filter, not visible to the user. 
+    only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed'
+    in: 'query'
+    type: 'boolean'
+    required: false
+
+  applicationsSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *ApplicationsSortKey
+    required: true
+
+  applicationResourcesSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *ApplicationResourcesSortKey
+    required: true
+
+  packagesSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *PackagesSortKey
+    required: true
+
+  packagesApplicationResourcesSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *PackagesApplicationResourcesSortKey
+    required: true
+
+  vulnerabilitiesSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *VulnerabilitiesSortKey
+    required: true
+
+  applicationNameIsFilter:
+    name: 'applicationName[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationNameIsNotFilter:
+    name: 'applicationName[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationNameStartsWithFilter:
+    name: 'applicationName[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  applicationNameEndsWithFilter:
+    name: 'applicationName[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  applicationNameContainsFilter:
+    name: 'applicationName[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationLabelsContainElementsFilter:
+    name: 'applicationLabels[containElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationLabelsDoesntContainElementsFilter:
+    name: 'applicationLabels[doesntContainElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationEnvsContainElementsFilter:
+    name: 'applicationEnvs[containElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationEnvsDoesntContainElementsFilter:
+    name: 'applicationEnvs[doesntContainElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceNameIsFilter:
+    name: 'resourceName[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceNameIsNotFilter:
+    name: 'resourceName[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceNameStartsWithFilter:
+    name: 'resourceName[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  resourceNameEndsWithFilter:
+    name: 'resourceName[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  resourceNameContainsFilter:
+    name: 'resourceName[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceHashIsFilter:
+    name: 'resourceHash[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceHashIsNotFilter:
+    name: 'resourceHash[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  resourceHashStartsWithFilter:
+    name: 'resourceHash[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  resourceHashEndsWithFilter:
+    name: 'resourceHash[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  resourceHashContainsFilter:
+    name: 'resourceHash[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  vulnerabilityNameIsFilter:
+    name: 'vulnerabilityName[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  vulnerabilityNameIsNotFilter:
+    name: 'vulnerabilityName[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  vulnerabilityNameStartsWithFilter:
+    name: 'vulnerabilityName[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  vulnerabilityNameEndsWithFilter:
+    name: 'vulnerabilityName[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  vulnerabilityNameContainsFilter:
+    name: 'vulnerabilityName[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageNameIsFilter:
+    name: 'packageName[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageNameIsNotFilter:
+    name: 'packageName[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageNameStartsWithFilter:
+    name: 'packageName[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  packageNameEndsWithFilter:
+    name: 'packageName[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  packageNameContainsFilter:
+    name: 'packageName[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+
+  languageIsFilter:
+    name: 'language[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  languageIsNotFilter:
+    name: 'language[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  languageStartsWithFilter:
+    name: 'language[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  languageEndsWithFilter:
+    name: 'language[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  languageContainsFilter:
+    name: 'language[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageVersionIsFilter:
+    name: 'packageVersion[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageVersionIsNotFilter:
+    name: 'packageVersion[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  packageVersionStartsWithFilter:
+    name: 'packageVersion[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  packageVersionEndsWithFilter:
+    name: 'packageVersion[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  packageVersionContainsFilter:
+    name: 'packageVersion[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  licenseIsFilter:
+    name: 'license[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  licenseIsNotFilter:
+    name: 'license[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  licenseStartsWithFilter:
+    name: 'license[start]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  licenseEndsWithFilter:
+    name: 'license[end]'
+    in: 'query'
+    type: 'string'
+    required: false
+
+  licenseContainsFilter:
+    name: 'license[contains]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  applicationTypeIsFilter:
+    name: 'applicationType[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+      enum: *ApplicationType
+    required: false
+
+  resourceTypeIsFilter:
+    name: 'resourceType[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+      enum: *ResourceType
+    required: false
+
+  vulnerabilitySeverityIsFilter:
+    name: 'vulnerabilitySeverity[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+      enum: *VulnerabilitySeverity
+    required: false
+
+  vulnerabilitySeverityIsNotFilter:
+    name: 'vulnerabilitySeverity[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+      enum: *VulnerabilitySeverity
+    required: false
+
+  vulnerabilitySeverityGteFilter:
+    name: 'vulnerabilitySeverity[gte]'
+    in: 'query'
+    type: 'string'
+    enum: *VulnerabilitySeverity
+    required: false
+
+  vulnerabilitySeverityLteFilter:
+    name: 'vulnerabilitySeverity[lte]'
+    in: 'query'
+    type: 'string'
+    enum: *VulnerabilitySeverity
+    required: false
+
+  applicationsIsFilter:
+    name: 'applications[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  applicationsIsNotFilter:
+    name: 'applications[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  applicationsGteFilter:
+    name: 'applications[gte]'
+    description: "greater than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  applicationsLteFilter:
+    name: 'applications[lte]'
+    description: "less than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  hasFixVersion:
+    name: 'hasFixVersion[is]'
+    in: 'query'
+    type: 'boolean'
+    required: false
+
+  applicationResourcesIsFilter:
+    name: 'applicationResources[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  applicationResourcesIsNotFilter:
+    name: 'applicationResources[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  applicationResourcesGteFilter:
+    name: 'applicationResources[gte]'
+    description: "greater than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  applicationResourcesLteFilter:
+    name: 'applicationResources[lte]'
+    description: "less than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  packagesIsFilter:
+    name: 'packages[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  packagesIsNotFilter:
+    name: 'packages[isNot]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'integer'
+    required: false
+
+  packagesGteFilter:
+    name: 'packages[gte]'
+    description: "greater than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  packagesLteFilter:
+    name: 'packages[lte]'
+    description: "less than or equal"
+    in: 'query'
+    type: 'integer'
+    required: false
+
+  reportingSBOMAnalyzersContainElementsFilter:
+    name: 'reportingSBOMAnalyzers[containElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  reportingSBOMAnalyzersDoesntContainElementsFilter:
+    name: 'reportingSBOMAnalyzers[doesntContainElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  reportingScannersContainElementsFilter:
+    name: 'reportingScanners[containElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  reportingScannersDoesntContainElementsFilter:
+    name: 'reportingScanners[doesntContainElements]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+    required: false
+
+  vulnerabilitySourceIsFilter:
+    name: 'vulnerabilitySource[is]'
+    in: 'query'
+    type: 'array'
+    items:
+      type: 'string'
+      enum: *VulnerabilitySource
+    required: false
+
+responses:
+  UnknownError:
+    description: 'unknown error'
+    schema:
+      $ref: '#/definitions/ApiResponse'
+  Success:
+    description: 'success message'
+    schema:
+      $ref: '#/definitions/SuccessResponse'

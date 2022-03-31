@@ -1,0 +1,117 @@
+@import 'utils/scss_variables.module.scss';
+
+$cell-padding: 10px;
+
+.table-wrapper {
+    .pagination-container {
+        margin-bottom: 20px;
+    }
+    .no-pagination-results-total {
+        font-size: 14px;
+        line-height: 19px;
+        color: $color-grey-black;
+        display: flex;
+        justify-content: flex-end;
+        padding: 30px 30px 0 0;
+    }
+    .table {
+        color: $color-grey-black;
+
+        .table-head {
+            font-weight: bold;
+            font-size: 9px;
+            line-height: 14px;
+            letter-spacing: 0.27px;
+            text-transform: uppercase;
+            color: $color-main;
+            background-color: $color-grey-off-white;
+
+            .table-tr {
+                border-bottom: 2px solid $color-grey-lighter;
+                
+                .table-th {
+                    padding: $cell-padding;
+                    margin: auto 0;
+
+                    .resizer {
+                        right: 0;
+                        width: 10px;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                        touch-action: none;
+                    }
+                    .table-sort-icon {
+                        width: 9px;
+                        height: 9px;
+                        margin-left: 5px;
+
+                        &:not(.sorted) {
+                            display: none;
+                        }
+                        &.rotate {
+                            transform: rotate(180deg);
+                        }
+                    }
+                    &:hover {
+                        .table-sort-icon {
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+        }
+        .table-body {
+            font-size: 11px;
+            line-height: 16px;
+
+            .empty-results-display-wrapper {
+                margin: 60px 0;
+            }
+            .table-loading {
+                position: relative;
+                height: 200px;
+            }
+            .table-tr {
+                border-bottom: 1px solid $color-grey-lighter;
+
+                &:hover,
+                &.marked {
+                    background-color: $color-blue-light;
+
+                    &.clickable {
+                        cursor: pointer;
+                    }
+                }
+                &:hover {
+                    .actions-column-container {
+                        visibility: visible !important;
+                    }
+                }
+                .table-td {
+                    padding: $cell-padding;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    overflow-x: hidden;
+
+                    .actions-column-container {
+                        visibility: hidden;
+
+                        .icon {
+                            color: $color-main;
+                        }
+                    }
+                }
+            }
+
+            //----- table utils -----
+            .table-empty-value {
+                color: $color-grey;
+            }
+            .status-indicator-icon {
+                color: $color-success;
+            }
+        }
+    }
+}

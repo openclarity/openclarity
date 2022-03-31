@@ -1,0 +1,41 @@
+@import 'utils/scss_variables.module.scss';
+
+$step-number-size: 30px;
+$step-inner-padding: 20px;
+
+.step-display-wrapper {
+    padding: 30px 0;
+    
+    &:not(:first-child) {
+        border-top: 1px solid $color-grey-light;
+    }
+    .step-display {
+        display: flex;
+        align-items: center;
+    
+        .step-number {
+            min-width: $step-number-size;
+            min-height: $step-number-size;
+            border-radius: 50%;
+            background-color: $color-main;
+            color: white;
+            font-size: 11px;
+            line-height: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .step-title {
+            color: $color-main;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 16px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin: 0 $step-inner-padding;
+        }
+        .step-content {
+            width: 100%;
+        }
+    }
+}

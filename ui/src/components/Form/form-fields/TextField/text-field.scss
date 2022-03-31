@@ -1,0 +1,35 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-wrapper.text-field {
+    &.small .form-field {
+        height: $field-height-small;
+        font-size: 10px;
+        line-height: 12px;
+    }
+    .form-field {
+        color: $color-grey-black;
+        border: 1px solid $color-grey-light;
+        border-radius: 2px;
+        padding: 2px 8px;
+        box-sizing: border-box;
+        outline: none;
+        font-size: 14px;
+        line-height: 18px;
+        font-family: CiscoSansTT;
+        background-color: white;
+        height: $field-height;
+
+        &::placeholder {
+            color: $color-grey-dark;
+        }
+        &:disabled {
+            background-color: white;
+            color: $color-grey;
+            cursor: not-allowed;
+
+            &::placeholder {
+                color: $color-grey;
+            }
+        }
+    }
+}

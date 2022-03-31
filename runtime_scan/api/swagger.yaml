@@ -1,0 +1,388 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "KubeClarity Runtime Scan APIs"
+
+basePath: /api
+
+schemes:
+  - http
+  #- https
+
+consumes: [ "application/json" ]
+produces: [ "application/json" ]
+
+definitions:
+  ApiResponse:
+    description: 'An object that is returned in all cases of failures.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  SuccessResponse:
+    description: 'An object that is returned in cases of success that returns nothing.'
+    type: 'object'
+    properties:
+      message:
+        type: 'string'
+
+  ImageContentAnalysis:
+    type: 'object'
+    properties:
+      imageID:
+        type: string
+      resourceContentAnalysis:
+        $ref: '#/definitions/ResourceContentAnalysis'
+
+  ResourceContentAnalysis:
+    type: 'object'
+    properties:
+      resource:
+        $ref: '#/definitions/ResourceInfo'
+      packages:
+        type: 'array'
+        items:
+          $ref: '#/definitions/PackageContentAnalysis'
+
+  PackageContentAnalysis:
+    type: 'object'
+    properties:
+      package:
+        $ref: '#/definitions/PackageInfo'
+      analyzers:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ImageVulnerabilityScan:
+    type: 'object'
+    properties:
+      imageID:
+        type: string
+      resourceVulnerabilityScan:
+        $ref: '#/definitions/ResourceVulnerabilityScan'
+
+  CISDockerBenchmarkScan:
+    type: 'object'
+    properties:
+      imageID:
+        type: 'string'
+      cisDockerBenchmarkScanResult:
+        $ref: '#/definitions/CISDockerBenchmarkScanResult'
+
+  CISDockerBenchmarkScanResult:
+    type: 'object'
+    properties:
+      result:
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkCodeInfo'
+      status:
+        $ref: '#/definitions/ScanStatus'
+      error:
+        $ref: '#/definitions/ScanError'
+
+  CISDockerBenchmarkAssessment:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      level:
+        type: 'number'
+        format: integer
+      filename:
+        type: 'string'
+      desc:
+        type: 'string'
+
+  CISDockerBenchmarkCodeInfo:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      level:
+        type: 'number'
+        format: integer
+      assessments:
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkAssessment'
+
+  ResourceVulnerabilityScan:
+    type: 'object'
+    properties:
+      resource:
+        $ref: '#/definitions/ResourceInfo'
+      packageVulnerabilities:
+        type: 'array'
+        items:
+          $ref: '#/definitions/PackageVulnerabilityScan'
+      resourceLayerCommands:
+        type: 'array'
+        items:
+          $ref: '#/definitions/ResourceLayerCommand'
+      status:
+        $ref: '#/definitions/ScanStatus'
+      error:
+        $ref: '#/definitions/ScanError'
+
+  ScanError:
+    type: 'object'
+    properties:
+      type:
+        $ref: '#/definitions/ErrorType'
+      message:
+        type: 'string'
+
+  PackageVulnerabilityScan:
+    type: 'object'
+    properties:
+      package:
+        $ref: '#/definitions/PackageInfo'
+      vulnerabilityName:
+        type: 'string'
+      severity:
+        $ref: '#/definitions/VulnerabilitySeverity'
+      fixVersion:
+        type: 'string'
+      description:
+        type: 'string'
+      links:
+        type: 'array'
+        items:
+          type: 'string'
+      cvss:
+        $ref: '#/definitions/CVSS'
+      scanners:
+        type: 'array'
+        items:
+          type: 'string'
+
+  ResourceInfo:
+    type: 'object'
+    properties:
+      resourceName:
+        type: 'string'
+      resourceHash:
+        type: 'string'
+      resourceType:
+        $ref: '#/definitions/ResourceType'
+
+  PackageInfo:
+    type: 'object'
+    properties:
+      name:
+        type: 'string'
+      language:
+        type: 'string'
+      version:
+        type: 'string'
+      license:
+        type: 'string'
+
+  CVSS:
+    type: 'object'
+    properties:
+      cvssV3Vector:
+        $ref: '#/definitions/CVSSV3Vector'
+      cvssV3Metrics:
+        $ref: '#/definitions/CVSSV3Metrics'
+
+  CVSSV3Metrics:
+    type: 'object'
+    properties:
+      baseScore:
+        type: 'number'
+      exploitabilityScore:
+        type: 'number'
+      impactScore:
+        type: 'number'
+
+  CVSSV3Vector:
+    type: 'object'
+    properties:
+      vector:
+        type: 'string'
+      attackVector:
+        $ref: '#/definitions/AttackVector'
+      attackComplexity:
+        $ref: '#/definitions/AttackComplexity'
+      privilegesRequired:
+        $ref: '#/definitions/PrivilegesRequired'
+      userInteraction:
+        $ref: '#/definitions/UserInteraction'
+      scope:
+        $ref: '#/definitions/Scope'
+      confidentiality:
+        $ref: '#/definitions/Confidentiality'
+      integrity:
+        $ref: '#/definitions/Integrity'
+      availability:
+        $ref: '#/definitions/Availability'
+
+  VulnerabilitySeverity:
+    type: string
+    enum: &VulnerabilitySeverity
+      - CRITICAL
+      - HIGH
+      - MEDIUM
+      - LOW
+      - NEGLIGIBLE
+
+  ResourceType:
+    type: string
+    enum: &ResourceType
+      - IMAGE
+      - DIRECTORY
+      - FILE
+
+  ResourceLayerCommand:
+    type: 'object'
+    description: 'Container image layer with command.'
+    properties:
+      command:
+        type: 'string'
+      layer:
+        type: 'string'
+
+  ScanStatus:
+    type: string
+    enum: &ScanStatus
+      - SUCCESS
+      - FAILED
+
+  ErrorType:
+    type: string
+    enum: &ErrorType
+      - TBD
+
+  AttackVector:
+    type: string
+    enum:
+      - NETWORK
+      - ADJACENT
+      - LOCAL
+      - PHYSICAL
+
+  AttackComplexity:
+    type: string
+    enum:
+      - LOW
+      - HIGH
+
+  PrivilegesRequired:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  UserInteraction:
+    type: string
+    enum:
+      - NONE
+      - REQUIRED
+
+  Scope:
+    type: string
+    enum:
+      - UNCHANGED
+      - CHANGED
+
+  Confidentiality:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  Integrity:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+  Availability:
+    type: string
+    enum:
+      - NONE
+      - LOW
+      - HIGH
+
+paths:
+  /scan/{scan-uuid}/cisDockerBenchmark/results:
+    post:
+      summary: 'Report an image CIS docker benchmark scan for a specific scan UUID.'
+      parameters:
+        - in: 'path'
+          name: 'scan-uuid'
+          type: 'string'
+          format: 'uuid'
+          required: true
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/CISDockerBenchmarkScan'
+      responses:
+        '201':
+          description: 'CIS docker benchmark scan successfully reported.'
+        #        '401':
+        #          description: 'Unauthorized'
+        default:
+          $ref: '#/responses/UnknownError'
+  /scan/{scan-uuid}/results:
+    post:
+      summary: 'Report an image vulnerability scan for a specific scan UUID.'
+      parameters:
+        - in: 'path'
+          name: 'scan-uuid'
+          type: 'string'
+          format: 'uuid'
+          required: true
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ImageVulnerabilityScan'
+      responses:
+        '201':
+          description: 'Image vulnerability scan successfully reported.'
+#        '401':
+#          description: 'Unauthorized'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /scan/{scan-uuid}/contentAnalysis:
+    post:
+      summary: 'Report a content analysis for a specific resource'
+      parameters:
+        - in: 'path'
+          name: 'scan-uuid'
+          type: 'string'
+          format: 'uuid'
+          required: true
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ImageContentAnalysis'
+      responses:
+        '201':
+          description: 'Image content analysis successfully reported.'
+        #        '401':
+        #          description: 'Unauthorized'
+        default:
+          $ref: '#/responses/UnknownError'
+
+responses:
+  UnknownError:
+    description: 'unknown error'
+    schema:
+      $ref: '#/definitions/ApiResponse'
+  Success:
+    description: 'success message'
+    schema:
+      $ref: '#/definitions/SuccessResponse'

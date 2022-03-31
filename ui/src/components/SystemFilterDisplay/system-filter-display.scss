@@ -1,0 +1,46 @@
+@import 'utils/scss_variables.module.scss';
+
+.system-filter-wrapper {
+    height: 40px;
+    width: 100%;
+    background-color: $color-blue;
+    box-sizing: border-box;
+    font-size: 11px;
+    line-height: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+
+    .system-filter-content {
+        display: flex;
+        align-items: center;
+
+        .filter-content {
+            color: $color-main;
+        }
+        .filter-close-wrapper {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            cursor: pointer;
+
+            .close-button {
+                margin-right: 7px;
+            }
+        }
+    }
+    .system-filter-links {
+        display: flex;
+        align-items: center;
+
+        > :not(:last-child) {
+            margin-right: 10px;
+        }
+        .system-filter-link {
+            color: $color-main;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+.vulnerabilities-trend-widget {
+    position: relative;
+    width: 796px;
+    height: $dashboard-widget-height;
+    padding: 20px;
+
+    .trend-widget-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .trend-widget-legend {
+        display: flex;
+        margin: 23px 0 30px 50px;
+
+        .trend-legend-item:not(:last-child) {
+            margin-right: 10px;
+        }
+    }
+}

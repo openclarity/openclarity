@@ -1,0 +1,122 @@
+@import 'utils/scss_variables.module.scss';
+
+$header-icon-size: 35px;
+$ber-border-radius: 20px;
+$header-item-width: 200px;
+$header-item-inner-padding: 10px;
+$bar-fix-width: 40px;
+$bar-total-width: 55px;
+$bar-icon-size: 18px;
+
+.fixable-vulneraboilities-widget {
+    height: $dashboard-widget-height;
+    min-width: 503px;
+    flex-grow: 1;
+
+    .widget-header {
+        display: flex;
+        padding: 10px 0;
+        border-bottom: 1px solid $color-grey-lighter;
+
+        .fixable-vulneraboilities-widget-header-item-display {
+            display: flex;
+            align-items: center;
+            width: $header-item-width;
+            height: 60px;
+            padding: 0 10px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: $color-blue-light;
+            }
+            &:not(:last-child) {
+                margin-right: 15px;
+            }
+            .icon {
+                width: $header-icon-size;
+                height: $header-icon-size;
+                color: $color-main-dark;
+            }
+            .counter-wrapper {
+                color: $color-grey-dark;
+                letter-spacing: 0.3px;
+                margin-left: $header-item-inner-padding;
+        
+                .counter-count {
+                    font-size: 22px;
+                    font-weight: bold;
+                    width: calc(#{$header-item-width} - #{$header-icon-size} - #{$header-item-inner-padding});
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+                .counter-title {
+                    font-size: 11px;
+                }
+            }
+        }
+    }
+    .widget-content {
+        margin: 24px 0;
+
+        .vulnerabilities-bar-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: $color-blue-light;
+            }
+            .icon {
+                height: $bar-icon-size;
+                width: $bar-icon-size;
+            }
+            .counters-container {
+                width: calc(#{$bar-fix-width} + #{$bar-total-width});
+                margin-left: 10px;
+
+                .counters-wrapper {
+                    display: inline-flex;
+                    align-items: baseline;
+
+                    .count-counter,
+                    .total-counter {
+                        line-height: 24px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .count-counter {
+                        font-size: 14px;
+                        font-weight: bold;
+                        max-width: $bar-total-width;
+                    }
+                    .total-counter {
+                        font-size: 9px;
+                        max-width: $bar-fix-width;
+                    }
+                }
+            }
+            .bar-container {
+                position: relative;
+                border-radius: $ber-border-radius;
+                height: 6px;
+                min-width: 261px;
+                flex-grow: 1;
+            
+                .bar-filler {
+                    border-radius: $ber-border-radius;
+                    height: 100%;
+                }
+            }
+            .bar-title {
+                font-size: 12px;
+                line-height: 24px;
+                letter-spacing: 0.3px;
+                margin-left: 10px;
+                width: 60px;
+            }
+        }
+    }
+}
+

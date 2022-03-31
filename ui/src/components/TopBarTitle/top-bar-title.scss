@@ -1,0 +1,25 @@
+@import 'utils/scss_variables.module.scss';
+
+.top-bar-title-wrapper {
+    height: $top-bar-height;
+    background-color: $color-main;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: $side-bar-width;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+
+    .top-bar-title {
+        font-size: 14px;
+        line-height: 24px;
+        text-transform: uppercase;
+        color: $color-grey-grid;
+    }
+    .icon {
+        color: $color-grey-grid;
+        margin-left: 10px;
+    }
+}

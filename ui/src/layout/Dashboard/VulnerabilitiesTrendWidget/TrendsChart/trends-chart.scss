@@ -1,0 +1,24 @@
+@import 'utils/scss_variables.module.scss';
+
+.trend-chart-tooltip {
+    background-color: $color-grey-black;
+    color: white;
+    font-size: 10px;
+    line-height: 12px;
+    padding: 10px;
+    border-radius: 10px;
+
+    .tooltip-time {
+        font-size: 10px;
+        line-height: 12px;
+        color: $color-grey;
+        margin-bottom: 4px;
+    }
+    .tooltip-counts {
+        margin-left: 15px;
+
+        .trend-legend-item {
+            margin-bottom: 4px;
+        }
+    }
+}

@@ -1,0 +1,75 @@
+@import 'utils/scss_variables.module.scss';
+
+$add-icon-size: 20px;
+
+.general-filter-wrapper {
+    margin-bottom: 20px;
+    
+    .show-filters-button {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        &.pressed {
+            background-color: $color-grey-lighter;
+        }
+        .icon {
+            height: 16px;
+            width: 16px;
+            margin-right: 5px;
+        }
+    }
+    .filter-form {
+        display: flex;
+        align-items: center;
+
+        .form-field-wrapper {
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+        .add-filter-button {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 10px;
+            line-height: 12px;
+            cursor: pointer;
+
+            &.disabled {
+                color: $color-grey;
+                cursor: not-allowed;
+            }
+            .icon {
+                margin-right: 5px;
+                height: $add-icon-size;
+                width: $add-icon-size;
+            }
+        }
+    }
+    .filters-display-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        
+        &:not(.is-empty) {
+            margin-top: 20px;
+        }
+        .filter-display-item {
+            color: $color-grey-black;
+            background-color: $color-blue-light;
+            border: 1px solid $color-blue;
+            font-size: 10px;
+            line-height: 14px;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+
+            .icon {
+                width: 10px;
+                height: 10px;
+                margin-left: 10px;
+            }
+        }
+    }
+}
