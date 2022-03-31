@@ -150,6 +150,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Replace release version
         id: replace_version
@@ -159,20 +161,20 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.4.0
+          version: v3.8.1
 
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.1.0
+        uses: helm/chart-testing-action@v2.2.1
 
       - name: Add Bitnami Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
       - name: Run chart-testing (lint)
-        run: ct lint --check-version-increment=false --validate-maintainers=false
+        run: ct lint --debug --config charts/testing.yaml
 
       - name: Configure Git
         run: |
