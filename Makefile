@@ -9,7 +9,7 @@ DOCKER_TAG ?= ${VERSION}
 
 # Dependency versions
 GOLANGCI_VERSION = 1.42.0
-LICENSEI_VERSION = 0.3.1
+LICENSEI_VERSION = 0.5.0
 
 # HELP
 # This will output the help for each task
