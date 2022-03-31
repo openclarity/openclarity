@@ -220,13 +220,13 @@ bin/licensei-${LICENSEI_VERSION}:
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
 	./bin/licensei header
-	cd backend && ../bin/licensei check --config=../.licensei.toml
-	cd cli && ../bin/licensei check --config=../.licensei.toml
-	cd runtime_scan && ../bin/licensei check --config=../.licensei.toml
-	cd sbom_db/backend && ../../bin/licensei check --config=../../.licensei.toml
-	cd runtime_k8s_scanner && ../bin/licensei check --config=../.licensei.toml
-	cd cis_docker_benchmark_scanner && ../bin/licensei check --config=../.licensei.toml
-	cd shared && ../bin/licensei check --config=../.licensei.toml
+#	cd backend && ../bin/licensei check --config=../.licensei.toml
+#	cd cli && ../bin/licensei check --config=../.licensei.toml
+#	cd runtime_scan && ../bin/licensei check --config=../.licensei.toml
+#	cd sbom_db/backend && ../../bin/licensei check --config=../../.licensei.toml
+#	cd runtime_k8s_scanner && ../bin/licensei check --config=../.licensei.toml
+#	cd cis_docker_benchmark_scanner && ../bin/licensei check --config=../.licensei.toml
+#	cd shared && ../bin/licensei check --config=../.licensei.toml
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
