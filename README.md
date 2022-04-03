@@ -97,12 +97,22 @@ Contributions of integrations with additional tools are more than welcome!
 
 ### Install KubeClarity in a K8s cluster using Helm:
 
-1. Check the configuration in `charts/kubeclarity/values.yaml` and update the required values if needed.
-
-2. Deploy KubeClarity with Helm:
+1. Add Helm repo
 
    ```shell
-   helm install --values charts/kubeclarity/values.yaml --create-namespace kubeclarity charts/kubeclarity -n kubeclarity
+   helm repo add kubeclarity https://cisco-open.github.io/kubei
+   ```
+2. Save KubeClarity default chart values
+    ```shell
+    helm show values kubeclarity/kubeclarity > values.yaml
+    ```
+
+3. Check the configuration in `values.yaml` and update the required values if needed
+
+4. Deploy KubeClarity with Helm
+
+   ```shell
+   helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity
    ```
 
 3. Port forward to KubeClarity UI:
@@ -154,28 +164,42 @@ KubeClarity includes a CLI that can be run locally and especially useful for CI/
 It allows to analyze images and directories to generate SBOM, and scan it for vulnerabilities.
 The results can be exported to KubeClarity backend.
 
-### Compilation
+### Binary Distribution
+
+Download the release distribution for your OS from the [releases page](
+https://github.com/cisco-open/kubei/releases)
+
+Unpack the `kubeclarity-cli` binary, add it to your PATH, and you are good to go!
+
+### Docker Image
+
+A Docker image is available at `ghcr.io/cisco-open/kubeclarity-cli` with list of
+available tags [here](https://github.com/cisco-open/kubei/pkgs/container/kubeclarity-cli/versions).
+
+### Local Compilation
 ```
 make cli
 ```
+
+Copy `./cli/bin/cli` to your PATH under `kubeclarity-cli`.
 
 ### SBOM generation using multiple integrated content analyzers
 
 ```
 # A list of the content analyzers to use can be configured using the ANALYZER_LIST env variable seperated by a space (e.g ANALYZER_LIST="syft gomod")
-./cli/bin/cli analyze <image/directory name> --input-type <dir|file|image(default)> -o <output file or stdout>
+kubeclarity-cli analyze <image/directory name> --input-type <dir|file|image(default)> -o <output file or stdout>
 
 # For example:
-ANALYZER_LIST="syft" ./cli/bin/cli analyze nginx:latest -o nginx.sbom
+ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ```
 
 ### Vulnerability scanning using multiple integrated scanners
 ```
 # A list of the vulnerability scanners to use can be configured using the SCANNERS_LIST env variable seperated by a space (e.g SCANNERS_LIST="grype dependency-track")
-./cli/bin/cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
+kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
 
 # For example:
-SCANNERS_LIST="grype" ./cli/bin/cli scan nginx.sbom --input-type sbom 
+SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom 
 ```
 
 
@@ -187,10 +211,10 @@ The application ID can be found in the Applications screen in the UI or using th
 ```
 # The SBOM can be exported to KubeClarity backend by setting the BACKEND_HOST env variable and the -e flag.
 # Note: Until TLS is supported, BACKEND_DISABLE_TLS=true should be set.
-BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true ./cli/bin/cli analyze <image> --application-id <application ID> -e -o <SBOM output file>
+BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true kubeclarity-cli analyze <image> --application-id <application ID> -e -o <SBOM output file>
 
 # For example:
-BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true ./cli/bin/cli analyze nginx:latest --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e -o nginx.sbom
+BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true kubeclarity-cli analyze nginx:latest --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e -o nginx.sbom
 ```
 
 #### Exporting vulnerability scan results:
@@ -198,10 +222,10 @@ BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true ./cli/bin/cli analyze nginx
 # The vulnerability scan result can be exported to KubeClarity backend by setting the BACKEND_HOST env variable and the -e flag.
 # Note: Until TLS is supported, BACKEND_DISABLE_TLS=true should be set.
 
-BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true ./cli/bin/cli scan <image> --application-id <application ID> -e
+BACKEND_HOST=<KubeClarity backend address> BACKEND_DISABLE_TLS=true kubeclarity-cli scan <image> --application-id <application ID> -e
 
 # For example:
-SCANNERS_LIST="grype" BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true ./cli/bin/cli scan nginx.sbom --input-type sbom  --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e
+SCANNERS_LIST="grype" BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true kubeclarity-cli scan nginx.sbom --input-type sbom  --application-id 23452f9c-6e31-5845-bf53-6566b81a2906 -e
 ```
 
 ### Merging of SBOM and vulnerabilities across different CI/CD stages
