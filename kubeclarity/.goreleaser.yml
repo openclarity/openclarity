@@ -2,7 +2,7 @@ builds:
   -
     id: "cli"
     dir: cli
-    binary: cli
+    binary: kubeclarity-cli
     env:
       - CGO_ENABLED=0
     ldflags: "-s -w -X github.com/cisco-open/kubei/cli/pkg.GitRevision={{ .Version }}"
