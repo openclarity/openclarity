@@ -176,6 +176,13 @@ Unpack the `kubeclarity-cli` binary, add it to your PATH, and you are good to go
 A Docker image is available at `ghcr.io/cisco-open/kubeclarity-cli` with list of
 available tags [here](https://github.com/cisco-open/kubei/pkgs/container/kubeclarity-cli/versions).
 
+### Local Compilation
+```
+make cli
+```
+
+Copy `./cli/bin/cli` to your PATH under `kubeclarity-cli`.
+
 ### SBOM generation using multiple integrated content analyzers
 
 ```
