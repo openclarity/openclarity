@@ -29,7 +29,7 @@ RUN go build -ldflags="-s -w \
      -X 'github.com/cisco-open/kubei/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 RUN go build -ldflags "${LDFLAGS}"  ./...
 
-FROM alpine:3.15.3
+FROM alpine:3.15.4
 
 WORKDIR /app
 
