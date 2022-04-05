@@ -115,7 +115,7 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	if inputSBOMFile != "" {
 		cdxBOMBytes, err := convertInputSBOMIfNeeded(inputSBOMFile, outputFormat)
 		if err != nil {
-			logger.Fatalf("Failed to add input SBOM file=%s to the results: %v", inputSBOMFile, err)
+			logger.Fatalf("Failed to convert input SBOM file=%s to the results: %v", inputSBOMFile, err)
 		}
 		results[inputSBOMName] = createResultFromInputSBOM(cdxBOMBytes, inputSBOMFile)
 	}
