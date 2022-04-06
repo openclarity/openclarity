@@ -17,6 +17,7 @@ package scanner
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -383,6 +384,12 @@ func (s *Scanner) HandleScanResults(params operations.PostScanScanUUIDResultsPar
 		success:       params.Body.ResourceVulnerabilityScan.Status == models.ScanStatusSUCCESS,
 		completed:     true,
 		error:         params.Body.ResourceVulnerabilityScan.Error,
+	}
+
+	if log.IsLevelEnabled(log.TraceLevel) {
+		vulnerabilitiesResultB, _ := json.Marshal(vulnerabilitiesResult)
+		log.WithFields(s.logFields).Tracef("Vulnerabilities result recevied for imageID %q. result=%+v",
+			imageID, string(vulnerabilitiesResultB))
 	}
 
 	scanD.setVulnerabilitiesResult(vulnerabilitiesResult)
