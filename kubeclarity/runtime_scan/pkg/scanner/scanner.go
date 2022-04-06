@@ -385,6 +385,9 @@ func (s *Scanner) HandleScanResults(params operations.PostScanScanUUIDResultsPar
 		error:         params.Body.ResourceVulnerabilityScan.Error,
 	}
 
+	log.WithFields(s.logFields).Tracef("Vulnerabilities result recevied for imageID %q. result=%+v",
+		imageID, params.Body.ResourceVulnerabilityScan)
+
 	scanD.setVulnerabilitiesResult(vulnerabilitiesResult)
 	log.WithFields(s.logFields).Infof("Vulnerabilities result was set for imageID %q", imageID)
 

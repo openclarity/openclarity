@@ -148,6 +148,7 @@ func createPackagesVulnerabilitiesScan(results *scanner.MergedResults) []*models
 			Cvss:              getCVSS(vulnerability.Vulnerability),
 			Description:       vulnerability.Vulnerability.Description,
 			FixVersion:        getFixVersion(vulnerability.Vulnerability),
+			LayerID:           vulnerability.Vulnerability.LayerID,
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
 			Scanners:          getScannerInfo(vulnerability),
