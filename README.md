@@ -230,7 +230,9 @@ SCANNERS_LIST="grype" BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true kubec
 
 ### Merging of SBOM and vulnerabilities across different CI/CD stages
 ```
-TBD
+# Additional SBOM will be berged into the final results when '--merge-sbom' is defined during analysis. The input SBOM can be CycloneDX XML or CyclonDX json format.
+# For example:
+ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom --merge-sbom inputsbom.xml
 ```
 
 ## Private registries support for K8s runtime scan
