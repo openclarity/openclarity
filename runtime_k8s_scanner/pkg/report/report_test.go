@@ -196,6 +196,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 					Cvss:        createTestCVSS(cvssVector, score),
 					Description: "Vulnerability.Description",
 					FixVersion:  "fix",
+					LayerID:     "Vulnerability.LayerID",
 					Links:       []string{"link"},
 					Package: &models.PackageInfo{
 						Language: "Vulnerability.Package.Language",
@@ -211,6 +212,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 					Cvss:        createTestCVSS(cvssVector, score),
 					Description: "Vulnerability.Description3",
 					FixVersion:  "fix3",
+					LayerID:     "Vulnerability.LayerID3",
 					Links:       []string{"link3"},
 					Package: &models.PackageInfo{
 						Language: "Vulnerability.Package.Language2",

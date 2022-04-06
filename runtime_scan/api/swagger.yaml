@@ -152,6 +152,8 @@ definitions:
         type: 'array'
         items:
           type: 'string'
+      layerID:
+        type: 'string'
       cvss:
         $ref: '#/definitions/CVSS'
       scanners:
