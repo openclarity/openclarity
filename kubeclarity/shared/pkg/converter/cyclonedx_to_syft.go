@@ -16,6 +16,7 @@
 package converter
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -80,14 +81,11 @@ func saveSyftSBOMToFile(syftBOM syft_sbom.SBOM, outputSBOMFile string) error {
 }
 
 func getCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
-	// TODO: Peter, is that the right input format?
-	inputFormat := formatter.CycloneDXFormat
-
 	inputSBOM, err := os.ReadFile(inputSBOMFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read SBOM file %s: %v", inputSBOMFile, err)
 	}
-
+	inputFormat := DetermineCycloneDXFormat(inputSBOM)
 	input := formatter.New(inputFormat, inputSBOM)
 	// use the formatter
 	if err = input.Decode(inputFormat); err != nil {
@@ -100,6 +98,15 @@ func getCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 	}
 
 	return cdxBOM, nil
+}
+
+func DetermineCycloneDXFormat(sbom []byte) string {
+	var js json.RawMessage
+	if json.Unmarshal(sbom, &js) == nil {
+		return formatter.CycloneDXJSONFormat
+	}
+
+	return formatter.CycloneDXFormat
 }
 
 // nolint:cyclop

@@ -31,17 +31,19 @@ type Analyzer struct {
 const (
 	AnalyzerList  = "ANALYZER_LIST"
 	AnalyzerScope = "ANALYZER_SCOPE"
+	OutputFormat  = "ANALYZER_OUTPUT_FORMAT"
 )
 
 func setAnalyzerConfigDefaults() {
 	viper.SetDefault(AnalyzerList, []string{"syft", "gomod"})
 	viper.SetDefault(AnalyzerScope, "squashed")
+	viper.SetDefault(OutputFormat, formatter.CycloneDXFormat)
 }
 
 func LoadAnalyzerConfig() *Analyzer {
 	setAnalyzerConfigDefaults()
 	return &Analyzer{
-		OutputFormat: formatter.CycloneDXFormat,
+		OutputFormat: viper.GetString(OutputFormat),
 		AnalyzerList: viper.GetStringSlice(AnalyzerList),
 		Scope:        viper.GetString(AnalyzerScope),
 	}

@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -25,10 +26,13 @@ import (
 	"github.com/cisco-open/kubei/cli/pkg/utils"
 	sharedanalyzer "github.com/cisco-open/kubei/shared/pkg/analyzer"
 	"github.com/cisco-open/kubei/shared/pkg/analyzer/job"
+	"github.com/cisco-open/kubei/shared/pkg/converter"
 	"github.com/cisco-open/kubei/shared/pkg/formatter"
 	"github.com/cisco-open/kubei/shared/pkg/job_manager"
 	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
 )
+
+const inputSBOMName = "input-sbom"
 
 // analyzeCmd represents the analyze command.
 var analyzeCmd = &cobra.Command{
@@ -59,6 +63,8 @@ func init() {
 		"ID of a defined application to associate the exported analysis")
 	analyzeCmd.Flags().BoolP("export", "e", false,
 		"export analysis results to the backend")
+	analyzeCmd.Flags().String("merge-sbom", "",
+		"SBOM file to merge to the content analysis results")
 }
 
 // nolint:cyclop
@@ -88,6 +94,11 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get application ID: %v", err)
 	}
 
+	inputSBOMFile, err := cmd.Flags().GetString("merge-sbom")
+	if err != nil {
+		logger.Fatalf("Unable to get input SBOM filepath: %v", err)
+	}
+
 	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.CreateAnalyzerJob)
 	src := utils.SetSource(appConfig.LocalImageScan, sourceType, args[0])
 	results, err := manager.Run(sourceType, src)
@@ -100,10 +111,17 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to generate hash for source %s: %v", src, err)
 	}
 
+	outputFormat := appConfig.SharedConfig.Analyzer.OutputFormat
+	if inputSBOMFile != "" {
+		cdxBOMBytes, err := convertInputSBOMIfNeeded(inputSBOMFile, outputFormat)
+		if err != nil {
+			logger.Fatalf("Failed to convert input SBOM file=%s to the results: %v", inputSBOMFile, err)
+		}
+		results[inputSBOMName] = createResultFromInputSBOM(cdxBOMBytes, inputSBOMFile)
+	}
+
 	// Merge results
 	mergedResults := sharedanalyzer.NewMergedResults(sourceType, hash)
-	outputFormat := appConfig.SharedConfig.Analyzer.OutputFormat
-
 	for _, result := range results {
 		mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results), outputFormat)
 	}
@@ -125,4 +143,30 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 			logger.Errorf("Failed to export analysis results to the backend: %v", err)
 		}
 	}
+}
+
+func createResultFromInputSBOM(sbomBytes []byte, inputSBOMFile string) *sharedanalyzer.Results {
+	return sharedanalyzer.CreateResults(sbomBytes, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
+}
+
+func convertInputSBOMIfNeeded(inputSBOMFile, outputFormat string) ([]byte, error) {
+	inputSBOM, err := os.ReadFile(inputSBOMFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read SBOM file %s: %v", inputSBOMFile, err)
+	}
+	inputSBOMFormat := converter.DetermineCycloneDXFormat(inputSBOM)
+	if inputSBOMFormat == outputFormat {
+		return inputSBOM, nil
+	}
+
+	// Create cycloneDX formatter to convert input SBOM to the defined output format.
+	cdxFormatter := formatter.New(inputSBOMFormat, inputSBOM)
+	if err = cdxFormatter.Decode(inputSBOMFormat); err != nil {
+		return nil, fmt.Errorf("failed to decode input SBOM %s: %v", inputSBOMFile, err)
+	}
+	if err := cdxFormatter.Encode(outputFormat); err != nil {
+		return nil, fmt.Errorf("failed to encode input SBOM: %v", err)
+	}
+
+	return cdxFormatter.GetSBOMBytes(), nil
 }
