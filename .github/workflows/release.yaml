@@ -163,7 +163,7 @@ jobs:
         with:
           version: v3.8.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3.1.1
         with:
           python-version: 3.7
 
