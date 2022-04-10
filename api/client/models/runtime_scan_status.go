@@ -32,6 +32,9 @@ const (
 	// RuntimeScanStatusINPROGRESS captures enum value "IN_PROGRESS"
 	RuntimeScanStatusINPROGRESS RuntimeScanStatus = "IN_PROGRESS"
 
+	// RuntimeScanStatusFINALIZING captures enum value "FINALIZING"
+	RuntimeScanStatusFINALIZING RuntimeScanStatus = "FINALIZING"
+
 	// RuntimeScanStatusDONE captures enum value "DONE"
 	RuntimeScanStatusDONE RuntimeScanStatus = "DONE"
 )
@@ -41,7 +44,7 @@ var runtimeScanStatusEnum []interface{}
 
 func init() {
 	var res []RuntimeScanStatus
-	if err := json.Unmarshal([]byte(`["NOT_STARTED","IN_PROGRESS","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NOT_STARTED","IN_PROGRESS","FINALIZING","DONE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

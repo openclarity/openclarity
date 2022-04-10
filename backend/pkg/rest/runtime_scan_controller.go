@@ -174,10 +174,17 @@ func (s *Server) getScanStatusAndScanned() (models.RuntimeScanStatus, int64) {
 	switch scanProgress.Status {
 	case _types.Idle:
 		status = models.RuntimeScanStatusNOTSTARTED
-	case _types.DoneScanning, _types.NothingToScan, _types.ScanInitFailure:
+	case _types.NothingToScan, _types.ScanInitFailure:
 		status = models.RuntimeScanStatusDONE
 	case _types.ScanInit, _types.Scanning:
 		status = models.RuntimeScanStatusINPROGRESS
+	case _types.DoneScanning:
+		state := s.GetState()
+		if state.doneApplyingToDB {
+			status = models.RuntimeScanStatusDONE
+		} else {
+			status = models.RuntimeScanStatusFINALIZING
+		}
 	default:
 		log.Errorf("Unsupported status: %v", scanProgress.Status)
 		status = models.RuntimeScanStatusNOTSTARTED
@@ -201,6 +208,7 @@ func (s *Server) startScan(namespaces []string) error {
 	s.SetState(&State{
 		runtimeScanApplicationIDs: []string{},
 		runtimeScanFailures:       []string{},
+		doneApplyingToDB:          false,
 	})
 	s.vulnerabilitiesScanner.Clear()
 
@@ -243,6 +251,7 @@ func (s *Server) startScan(namespaces []string) error {
 				s.SetState(&State{
 					runtimeScanApplicationIDs: []string{},
 					runtimeScanFailures:       []string{"Failed to apply runtime scan results"},
+					doneApplyingToDB:          true,
 				})
 				return
 			}
@@ -251,6 +260,7 @@ func (s *Server) startScan(namespaces []string) error {
 			s.SetState(&State{
 				runtimeScanApplicationIDs: runtimeScanApplicationIDs,
 				runtimeScanFailures:       runtimeScanFailures,
+				doneApplyingToDB:          true,
 			})
 			log.Infof("Succeeded to apply runtime scan results. app ids=%+v, failures=%+v",
 				runtimeScanApplicationIDs, runtimeScanFailures)

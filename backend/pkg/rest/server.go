@@ -54,6 +54,7 @@ type State struct {
 	runtimeScanApplicationIDs []string
 	// List of image scan failures details that were affected by the last runtime scan.
 	runtimeScanFailures []string
+	doneApplyingToDB    bool
 }
 
 func (s *Server) GetState() *State {
@@ -63,6 +64,7 @@ func (s *Server) GetState() *State {
 	return &State{
 		runtimeScanApplicationIDs: s.runtimeScanApplicationIDs,
 		runtimeScanFailures:       s.runtimeScanFailures,
+		doneApplyingToDB:          s.doneApplyingToDB,
 	}
 }
 

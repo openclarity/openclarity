@@ -5,13 +5,13 @@ go 1.17
 require (
 	github.com/Portshift/dockle v0.3.2-0.20220320150149-064b37efda97 // remove-dockle-remote branch
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli v1.22.5
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (
