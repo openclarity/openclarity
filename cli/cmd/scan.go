@@ -112,7 +112,6 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
-	//src := utils.SetSource(appConfig.LocalImageScan, sourceType, args[0])
 	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
