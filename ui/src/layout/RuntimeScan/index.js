@@ -36,7 +36,7 @@ const RuntimeScan = () => {
                     />
                     {status === PROPRESS_STATUSES.DONE.value &&
                         <React.Fragment>
-                            <StepDisplay step="2"  title="Total ulnerabilities:">
+                            <StepDisplay step="2"  title="Total vulnerabilities:">
                                 <VulnerabilitiesSummaryDisplay id="runtime-scan" vulnerabilities={vulnerabilityPerSeverity || []} />
                             </StepDisplay>
                             <SeverityCountersStep />
