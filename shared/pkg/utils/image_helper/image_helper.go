@@ -39,6 +39,9 @@ type FsLayerCommand struct {
 }
 
 func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
+	if strings.Contains(imageName, "docker:") {
+		return ""
+	}
 	normalizedName, err := reference.ParseNormalizedNamed(imageName)
 	if err != nil {
 		log.Errorf("Failed to parse image name %s to normalized named: %v", imageName, err)
