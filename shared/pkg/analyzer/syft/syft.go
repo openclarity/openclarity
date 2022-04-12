@@ -41,6 +41,7 @@ type Analyzer struct {
 	logger     *log.Entry
 	config     config.SyftConfig
 	resultChan chan job_manager.Result
+	localImage bool
 }
 
 func New(conf *config.Config,
@@ -51,10 +52,12 @@ func New(conf *config.Config,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
 		config:     config.CreateSyftConfig(conf.Analyzer, conf.Registry),
 		resultChan: resultChan,
+		localImage: conf.LocalImageScan,
 	}
 }
 
-func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
+func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
+	src := utils.SetSource(a.localImage, sourceType, userInput)
 	src = utils.CreateUserInput(sourceType, src)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
 	s, _, err := source.New(src, a.config.RegistryOptions, []string{})
@@ -92,7 +95,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
 		// Get the RepoDigest from image metadata and use it as SourceHash in the Result
 		// that will be added to the component hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
-			res.AppInfo.SourceHash = getImageHash(sbom, src)
+			res.AppInfo.SourceHash = getImageHash(sbom, userInput)
 		}
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res

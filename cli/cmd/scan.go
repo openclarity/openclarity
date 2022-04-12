@@ -112,8 +112,8 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
-	src := utils.SetSource(appConfig.LocalImageScan, sourceType, args[0])
-	results, err := manager.Run(sourceType, src)
+	//src := utils.SetSource(appConfig.LocalImageScan, sourceType, args[0])
+	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
 	}
@@ -130,15 +130,15 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	switch sourceType {
 	case sharedutils.SBOM:
 		// handle SBOM
-		inputSBOM, err := os.ReadFile(src)
+		inputSBOM, err := os.ReadFile(args[0])
 		if err != nil {
-			logger.Fatalf("Failed to read SBOM file %s: %v", src, err)
+			logger.Fatalf("Failed to read SBOM file %s: %v", args[0], err)
 		}
 		// TODO need to check input SBOM if xml or json format
 		input := formatter.New(formatter.CycloneDXFormat, inputSBOM)
 		// use the formatter
 		if err := input.Decode(formatter.CycloneDXFormat); err != nil {
-			logger.Fatalf("Unable to decode input SBOM %s: %v", src, err)
+			logger.Fatalf("Unable to decode input SBOM %s: %v", args[0], err)
 		}
 		bomMetaComponent := input.GetSBOM().(*cdx.BOM).Metadata.Component
 		hash = cdx_helper.GetComponentHash(bomMetaComponent)
@@ -151,9 +151,9 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		// do nothing
 		// grype set the fields of the source during scan
 	default:
-		hash, err = utils.GenerateHash(sourceType, src)
+		hash, err = utils.GenerateHash(sourceType, args[0])
 		if err != nil {
-			logger.Fatalf("Failed to generate hash for source %s", src)
+			logger.Fatalf("Failed to generate hash for source %s", args[0])
 		}
 		mergedResults.SetHash(hash)
 	}
@@ -170,7 +170,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to present results: %v", err)
 	}
 
-	layerCommands, err := getLayerCommandsIfNeeded(sourceType, src, appConfig.SharedConfig.Registry)
+	layerCommands, err := getLayerCommandsIfNeeded(sourceType, args[0], appConfig.SharedConfig.Registry)
 	if err != nil {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}

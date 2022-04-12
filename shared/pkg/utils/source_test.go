@@ -17,14 +17,12 @@ package utils
 
 import (
 	"testing"
-
-	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
 )
 
 func TestSetSource(t *testing.T) {
 	type args struct {
 		local      bool
-		sourceType sharedutils.SourceType
+		sourceType SourceType
 		source     string
 	}
 	tests := []struct {
@@ -36,7 +34,7 @@ func TestSetSource(t *testing.T) {
 			name: "local image source",
 			args: args{
 				local:      true,
-				sourceType: sharedutils.IMAGE,
+				sourceType: IMAGE,
 				source:     "test:latest",
 			},
 			want: "docker:test:latest",
@@ -44,15 +42,15 @@ func TestSetSource(t *testing.T) {
 		{
 			name: "remote image source",
 			args: args{
-				sourceType: sharedutils.IMAGE,
+				sourceType: IMAGE,
 				source:     "test:latest",
 			},
-			want: "test:latest",
+			want: "registry:test:latest",
 		},
 		{
 			name: "directory source without local flag",
 			args: args{
-				sourceType: sharedutils.DIR,
+				sourceType: DIR,
 				source:     "/test/latest",
 			},
 			want: "/test/latest",
@@ -61,7 +59,7 @@ func TestSetSource(t *testing.T) {
 			name: "directory source with local flag",
 			args: args{
 				local:      true,
-				sourceType: sharedutils.DIR,
+				sourceType: DIR,
 				source:     "/test/latest",
 			},
 			want: "/test/latest",

@@ -28,24 +28,23 @@ const (
 )
 
 type Config struct {
-	LogLevel       string
-	EnableJSONLog  bool
-	LocalImageScan bool
-	Backend        *Backend
-	SharedConfig   *shared.Config
+	LogLevel      string
+	EnableJSONLog bool
+	Backend       *Backend
+	SharedConfig  *shared.Config
 }
 
 func LoadConfig() *Config {
 	setConfigDefaults()
 	return &Config{
-		LogLevel:       viper.GetString(LogLevel),
-		EnableJSONLog:  viper.GetBool(EnableJSONLog),
-		LocalImageScan: viper.GetBool(LocalImageScan),
-		Backend:        loadBackendConfig(),
+		LogLevel:      viper.GetString(LogLevel),
+		EnableJSONLog: viper.GetBool(EnableJSONLog),
+		Backend:       loadBackendConfig(),
 		SharedConfig: &shared.Config{
-			Registry: loadRegistryConfig(),
-			Analyzer: shared.LoadAnalyzerConfig(),
-			Scanner:  shared.LoadScannerConfig(),
+			Registry:       loadRegistryConfig(),
+			Analyzer:       shared.LoadAnalyzerConfig(),
+			Scanner:        shared.LoadScannerConfig(),
+			LocalImageScan: viper.GetBool(LocalImageScan),
 		},
 	}
 }

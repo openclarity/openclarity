@@ -15,13 +15,13 @@
 
 package utils
 
-import (
-	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
-)
-
-func SetSource(local bool, sourceType sharedutils.SourceType, source string) string {
-	if sourceType == sharedutils.IMAGE && local {
-		return "docker:" + source
+func SetSource(local bool, sourceType SourceType, source string) string {
+	if sourceType == IMAGE {
+		if local {
+			return "docker:" + source
+		}
+		return "registry:" + source
 	}
+
 	return source
 }

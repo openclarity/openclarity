@@ -34,6 +34,7 @@ type LocalScanner struct {
 	logger     *log.Entry
 	config     config.LocalGrypeConfigEx
 	resultChan chan job_manager.Result
+	localImage bool
 }
 
 func newLocalScanner(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
@@ -41,16 +42,17 @@ func newLocalScanner(conf *config.Config, logger *log.Entry, resultChan chan job
 		logger:     logger.Dup().WithField("scanner", ScannerName).WithField("mode", "local"),
 		config:     config.ConvertToLocalGrypeConfig(conf.Scanner, conf.Registry),
 		resultChan: resultChan,
+		localImage: conf.LocalImageScan,
 	}
 }
 
-func (s *LocalScanner) Run(sourceType utils.SourceType, source string) error {
-	go s.run(sourceType, source)
+func (s *LocalScanner) Run(sourceType utils.SourceType, userInput string) error {
+	go s.run(sourceType, userInput)
 
 	return nil
 }
 
-func (s *LocalScanner) run(sourceType utils.SourceType, source string) {
+func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	// TODO: make `loading DB` and `gathering packages` work in parallel
 	// https://github.com/anchore/grype/blob/7e8ee40996ba3a4defb5e887ab0177d99cd0e663/cmd/root.go#L240
 
@@ -67,17 +69,18 @@ func (s *LocalScanner) run(sourceType utils.SourceType, source string) {
 	}
 
 	if sourceType == utils.SBOM {
-		syftJSONFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(source, s.logger)
+		syftJSONFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(userInput, s.logger)
 		if err != nil {
 			ReportError(s.resultChan, fmt.Errorf("failed to convert sbom file: %w", err), s.logger)
 			return
 		}
 		defer cleanup()
-		source = syftJSONFilePath
+		userInput = syftJSONFilePath
 	}
 
-	userInput := utils.CreateUserInput(sourceType, source)
-	s.logger.Infof("Gathering packages for source %s", userInput)
+	userInput = utils.CreateUserInput(sourceType, userInput)
+	source := utils.SetSource(s.localImage, sourceType, userInput)
+	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		RegistryOptions: s.config.RegistryOptions,
 		CatalogingOptions: cataloger.Config{
@@ -85,7 +88,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, source string) {
 		},
 	}
 	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
-	packages, context, err := pkg.Provide(userInput, providerConfig)
+	packages, context, err := pkg.Provide(source, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
 		return

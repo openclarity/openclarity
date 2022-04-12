@@ -16,7 +16,8 @@
 package config
 
 type Config struct {
-	Registry *Registry
-	Analyzer *Analyzer
-	Scanner  *Scanner
+	Registry       *Registry
+	Analyzer       *Analyzer
+	Scanner        *Scanner
+	LocalImageScan bool
 }
