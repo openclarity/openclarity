@@ -93,10 +93,6 @@ func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
 		// that will be added to the component hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
 			res.AppInfo.SourceHash = getImageHash(sbom, src)
-			if res.AppInfo.SourceHash == "" {
-				// set hash using ManifestDigest if RepoDigest is missing
-				res.AppInfo.SourceHash = sbom.Source.ImageMetadata.ManifestDigest
-			}
 		}
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
