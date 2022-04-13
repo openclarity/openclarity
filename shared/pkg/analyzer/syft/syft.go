@@ -57,8 +57,7 @@ func New(conf *config.Config,
 }
 
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
-	src := utils.SetSource(a.localImage, sourceType, userInput)
-	src = utils.CreateUserInput(sourceType, src)
+	src := utils.CreateSource(sourceType, userInput, a.localImage)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
 	s, _, err := source.New(src, a.config.RegistryOptions, []string{})
 	if err != nil {

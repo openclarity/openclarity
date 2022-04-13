@@ -169,7 +169,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to present results: %v", err)
 	}
 
-	layerCommands, err := getLayerCommandsIfNeeded(sourceType, args[0], appConfig.SharedConfig.Registry)
+	layerCommands, err := getLayerCommandsIfNeeded(sourceType, args[0], appConfig.SharedConfig)
 	if err != nil {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
@@ -202,11 +202,11 @@ func getWriter(filePath string) (io.Writer, func() error) {
 	}
 }
 
-func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, registryConf *sharedconfig.Registry) ([]*image_helper.FsLayerCommand, error) {
+func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, sharedConf *sharedconfig.Config) ([]*image_helper.FsLayerCommand, error) {
 	if sourceType != sharedutils.IMAGE {
 		return nil, nil
 	}
-	layerCommands, err := image_helper.GetImageLayerCommands(source, sharedconfig.CreateRegistryOptions(registryConf))
+	layerCommands, err := image_helper.GetImageLayerCommands(source, sharedConf)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get layer commands: %v", err)
 	}

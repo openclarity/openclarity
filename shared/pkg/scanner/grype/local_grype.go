@@ -78,8 +78,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		userInput = syftJSONFilePath
 	}
 
-	userInput = utils.CreateUserInput(sourceType, userInput)
-	source := utils.SetSource(s.localImage, sourceType, userInput)
+	source := utils.CreateSource(sourceType, userInput, s.localImage)
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		RegistryOptions: s.config.RegistryOptions,

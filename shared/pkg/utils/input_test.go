@@ -15,13 +15,41 @@
 
 package utils
 
-func SetSource(local bool, sourceType SourceType, source string) string {
-	if sourceType == IMAGE {
-		if local {
-			return "docker:" + source
-		}
-		return "registry:" + source
-	}
+import (
+	"testing"
+)
 
-	return source
+func Test_setImageSource(t *testing.T) {
+	type args struct {
+		local  bool
+		source string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "local image source",
+			args: args{
+				local:  true,
+				source: "test:latest",
+			},
+			want: "docker:test:latest",
+		},
+		{
+			name: "remote image source",
+			args: args{
+				source: "test:latest",
+			},
+			want: "registry:test:latest",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := setImageSource(tt.args.local, tt.args.source); got != tt.want {
+				t.Errorf("SetSource() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

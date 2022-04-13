@@ -21,3 +21,5 @@ type Config struct {
 	Scanner        *Scanner
 	LocalImageScan bool
 }
+
+const LocalImageScan = "LOCAL_IMAGE_SCAN"

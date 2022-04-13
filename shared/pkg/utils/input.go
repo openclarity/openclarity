@@ -41,9 +41,16 @@ func ValidateInputType(inputType string) (SourceType, error) {
 	}
 }
 
-func CreateUserInput(sourceType SourceType, src string) string {
+func CreateSource(sourceType SourceType, src string, localImage bool) string {
 	if sourceType != IMAGE {
 		src = fmt.Sprintf("%s:%s", sourceType, src)
 	}
-	return src
+	return setImageSource(localImage, src)
+}
+
+func setImageSource(local bool, source string) string {
+	if local {
+		return "docker:" + source
+	}
+	return "registry:" + source
 }

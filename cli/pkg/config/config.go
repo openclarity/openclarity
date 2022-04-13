@@ -22,9 +22,8 @@ import (
 )
 
 const (
-	LogLevel       = "LOG_LEVEL"
-	EnableJSONLog  = "ENABLE_JSON_LOG"
-	LocalImageScan = "LOCAL_IMAGE_SCAN"
+	LogLevel      = "LOG_LEVEL"
+	EnableJSONLog = "ENABLE_JSON_LOG"
 )
 
 type Config struct {
@@ -44,7 +43,7 @@ func LoadConfig() *Config {
 			Registry:       loadRegistryConfig(),
 			Analyzer:       shared.LoadAnalyzerConfig(),
 			Scanner:        shared.LoadScannerConfig(),
-			LocalImageScan: viper.GetBool(LocalImageScan),
+			LocalImageScan: viper.GetBool(shared.LocalImageScan),
 		},
 	}
 }

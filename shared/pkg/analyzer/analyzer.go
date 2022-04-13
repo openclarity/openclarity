@@ -36,13 +36,13 @@ type AppInfo struct {
 	SourceHash string
 }
 
-func CreateResults(sbomBytes []byte, analyzerName, src string, srcType utils.SourceType) *Results {
+func CreateResults(sbomBytes []byte, analyzerName, userInput string, srcType utils.SourceType) *Results {
 	return &Results{
 		Sbom:         sbomBytes,
 		AnalyzerInfo: analyzerName,
 		AppInfo: AppInfo{
 			SourceType: srcType,
-			SourcePath: src,
+			SourcePath: userInput,
 		},
 	}
 }
