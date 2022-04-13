@@ -154,7 +154,6 @@ func getV1Image(imageName string, registryOptions *image.RegistryOptions, localI
 		return nil, fmt.Errorf("unable to parse registry reference=%q: %v", imageName, err)
 	}
 
-	// nolint:exhaustive
 	switch localImage {
 	case true:
 		img, err := daemon.Image(ref, daemon.WithUnbufferedOpener())
