@@ -19,7 +19,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
 	"net/http"
 	"strings"
 
@@ -31,6 +30,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	log "github.com/sirupsen/logrus"
+
+	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 // FsLayerCommand represents a history command of a layer in a docker image.
