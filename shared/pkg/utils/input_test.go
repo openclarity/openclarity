@@ -53,3 +53,58 @@ func Test_setImageSource(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateSource(t *testing.T) {
+	type args struct {
+		sourceType SourceType
+		src        string
+		localImage bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "local image source",
+			args: args{
+				sourceType: IMAGE,
+				localImage: true,
+				src:        "test:latest",
+			},
+			want: "docker:test:latest",
+		},
+		{
+			name: "remote image source",
+			args: args{
+				sourceType: IMAGE,
+				src:        "test:latest",
+			},
+			want: "registry:test:latest",
+		},
+		{
+			name: "local image source",
+			args: args{
+				sourceType: DIR,
+				localImage: true,
+				src:        "test/path",
+			},
+			want: "dir:test/path",
+		},
+		{
+			name: "remote image source",
+			args: args{
+				sourceType: FILE,
+				src:        "test/path",
+			},
+			want: "file:test/path",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CreateSource(tt.args.sourceType, tt.args.src, tt.args.localImage); got != tt.want {
+				t.Errorf("CreateSource() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

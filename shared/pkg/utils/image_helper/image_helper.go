@@ -149,7 +149,6 @@ func stripDockerMetaFromCommand(command string) string {
 }
 
 func getV1Image(imageName string, registryOptions *image.RegistryOptions, localImage bool) (containerregistry_v1.Image, error) {
-	log.Debugf("pulling image info directly from registry image=%q", imageName)
 	ref, err := name.ParseReference(imageName, prepareReferenceOptions(registryOptions)...)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse registry reference=%q: %v", imageName, err)
@@ -163,6 +162,7 @@ func getV1Image(imageName string, registryOptions *image.RegistryOptions, localI
 		}
 		return img, nil
 	default:
+		log.Debugf("pulling image info directly from registry image=%q", imageName)
 		img, err := remote.Image(ref, prepareRemoteOptions(ref, registryOptions)...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get image from registry: %v", err)
