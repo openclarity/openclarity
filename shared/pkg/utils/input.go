@@ -43,7 +43,7 @@ func ValidateInputType(inputType string) (SourceType, error) {
 
 func CreateSource(sourceType SourceType, src string, localImage bool) string {
 	if sourceType != IMAGE {
-		src = fmt.Sprintf("%s:%s", sourceType, src)
+		return fmt.Sprintf("%s:%s", sourceType, src)
 	}
 	return setImageSource(localImage, src)
 }
