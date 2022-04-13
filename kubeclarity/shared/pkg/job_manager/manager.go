@@ -41,7 +41,7 @@ func New(jobNames []string, config *config.Config, logger *logrus.Entry, createR
 	}
 }
 
-func (m *Manager) Run(sourceType utils.SourceType, source string) (map[string]Result, error) {
+func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string]Result, error) {
 	nameToResultChan := make(map[string]chan Result, len(m.jobNames))
 
 	// create jobs
@@ -53,7 +53,7 @@ func (m *Manager) Run(sourceType utils.SourceType, source string) (map[string]Re
 
 	// start jobs
 	for _, j := range jobs {
-		err := j.Run(sourceType, source)
+		err := j.Run(sourceType, userInput)
 		if err != nil {
 			return nil, fmt.Errorf("failed to run job: %v", err)
 		}
