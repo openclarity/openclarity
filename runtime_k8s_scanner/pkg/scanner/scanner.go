@@ -32,7 +32,6 @@ import (
 	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
 	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
 	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
 	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
@@ -160,8 +159,7 @@ func createLogger(conf *_config.Config) *log.Entry {
 
 func getLayerCommands(conf *_config.Config) []*image_helper.FsLayerCommand {
 	logger := createLogger(conf)
-	registryOptions := sharedconfig.CreateRegistryOptions(conf.SharedConfig.Registry)
-	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageNameToScan, registryOptions)
+	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageNameToScan, conf.SharedConfig)
 	if err != nil {
 		logger.Errorf("failed to get commands from image=%s: %v", conf.ImageIDToScan, err)
 	}
