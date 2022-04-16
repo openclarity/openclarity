@@ -74,6 +74,7 @@ func (s *Server) SetState(state *State) {
 
 	s.runtimeScanFailures = state.runtimeScanFailures
 	s.runtimeScanApplicationIDs = state.runtimeScanApplicationIDs
+	s.doneApplyingToDB = state.doneApplyingToDB
 }
 
 func (s *Server) GetNamespaceList() ([]string, error) {
