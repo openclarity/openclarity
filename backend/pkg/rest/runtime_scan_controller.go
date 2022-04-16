@@ -208,7 +208,6 @@ func (s *Server) startScan(namespaces []string) error {
 	s.SetState(&State{
 		runtimeScanApplicationIDs: []string{},
 		runtimeScanFailures:       []string{},
-		doneApplyingToDB:          false,
 	})
 	s.vulnerabilitiesScanner.Clear()
 
