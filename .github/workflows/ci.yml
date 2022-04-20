@@ -26,13 +26,21 @@ jobs:
       - name: Run verification
         run: make check
 
-  build:
+  build_all:
     needs: verification
     name: Build
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
       image_tag: ${{ github.sha }}
       push: false
+
+  build:
+    needs: build_all
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build All Done
+        run: echo "Done"
 
   lint_chart:
     name: Lint Helm Chart
