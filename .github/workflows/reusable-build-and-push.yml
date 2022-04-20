@@ -58,7 +58,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
@@ -97,7 +97,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
@@ -136,7 +136,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
@@ -175,7 +175,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
@@ -214,6 +214,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
