@@ -1572,6 +1572,9 @@ func init() {
         "fixVersion": {
           "type": "string"
         },
+        "layerID": {
+          "type": "string"
+        },
         "links": {
           "type": "array",
           "items": {
@@ -5054,6 +5057,9 @@ func init() {
           "type": "string"
         },
         "fixVersion": {
+          "type": "string"
+        },
+        "layerID": {
           "type": "string"
         },
         "links": {

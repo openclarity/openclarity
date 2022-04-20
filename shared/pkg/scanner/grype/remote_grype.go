@@ -53,7 +53,7 @@ func newRemoteScanner(conf *config.Config, logger *log.Entry, resultChan chan jo
 	}
 }
 
-func (s *RemoteScanner) Run(sourceType utils.SourceType, source string) error {
+func (s *RemoteScanner) Run(sourceType utils.SourceType, userInput string) error {
 	// remote-grype supports only SBOM as a source input since it sends the SBOM to a centralized grype server for scanning.
 	if sourceType != utils.SBOM {
 		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceType)
@@ -66,7 +66,7 @@ func (s *RemoteScanner) Run(sourceType utils.SourceType, source string) error {
 		return nil
 	}
 
-	go s.run(source)
+	go s.run(userInput)
 
 	return nil
 }

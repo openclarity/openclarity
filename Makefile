@@ -84,10 +84,10 @@ push-docker: push-docker-backend push-docker-cli push-docker-sbom-db push-docker
 .PHONY: docker-sbom-db
 docker-sbom-db: ## Build SBOM DB Backend Docker image
 	@(echo "Building SBOM DB backend docker image ..." )
-	docker build --file ./sbom_db/Dockerfile.sbom_db --build-arg VERSION=${VERSION} \
+	docker build --file ./Dockerfile.sbom_db --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}-sbom-db:${DOCKER_TAG} ./sbom_db
+		-t ${DOCKER_IMAGE}-sbom-db:${DOCKER_TAG} .
 
 .PHONY: push-docker-sbom-db
 push-docker-sbom-db: docker-sbom-db ## Build and Push SBOM DB Backend Docker image

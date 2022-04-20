@@ -2,104 +2,11 @@ name: Docker
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  docker:
-    name: Docker
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Get current timestamp
-        id: timestamp
-        run: echo "::set-output name=timestamp::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build KubeClarity
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ghcr.io/cisco-open/kubeclarity:latest
-          file: Dockerfile.backend
-          push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=latest
-            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
-
-      - name: Build CIS Docker Benchmark Scanner
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ghcr.io/cisco-open/kubeclarity-cis-docker-benchmark-scanner:latest
-          file: Dockerfile.cis_docker_benchmark_scanner
-          push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=latest
-            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}          
-
-      - name: Build Runtime K8s Vulnerability Scanner
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ghcr.io/cisco-open/kubeclarity-runtime-k8s-scanner:latest
-          file: Dockerfile.runtime_k8s_scanner
-          push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=latest
-            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
-
-      - name: Build SBOM DB
-        uses: docker/build-push-action@v2
-        with:
-          context: sbom_db
-          tags: ghcr.io/cisco-open/kubeclarity-sbom-db:latest
-          file: sbom_db/Dockerfile.sbom_db
-          push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=latest
-            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
-
-      - name: Build CLI
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ghcr.io/cisco-open/kubeclarity-cli:latest
-          file: Dockerfile.cli
-          push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=latest
-            BUILD_TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
+  build_and_push:
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: latest
+      push: true
