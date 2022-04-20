@@ -16,7 +16,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-page-wrapper">
-            <TopBarTitle title="Dahsboard" onRefresh={doRefreshTimestamp} />
+            <TopBarTitle title="Dashboard" onRefresh={doRefreshTimestamp} />
             <WidgentsLine>
                 <FixableVulnerabilitiesWidget refreshTimestamp={refreshTimestamp} />
                 <PackagesPieWidget

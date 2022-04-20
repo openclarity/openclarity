@@ -32,7 +32,6 @@ import (
 	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
 	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
 	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
 	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
 )
 
@@ -68,6 +67,7 @@ func Run() {
 	}
 }
 
+// nolint: cyclop
 func run(ctx context.Context, conf *_config.Config) {
 	logger := createLogger(conf)
 	reporter := report.CreateReporter(ctx, conf)
@@ -79,8 +79,6 @@ func run(ctx context.Context, conf *_config.Config) {
 		logger.Warningf("failed to get sbom from db: %v", err)
 		sbomBytes = nil
 	}
-
-	layerCommands := getLayerCommands(conf)
 
 	// If SBOM does not exist
 	if sbomBytes == nil {
@@ -133,6 +131,12 @@ func run(ctx context.Context, conf *_config.Config) {
 	logger.Infof("Image was scanned.")
 	logger.Debugf("scanResults=%+v", scanResults)
 
+	layerCommands, err := getLayerCommands(conf)
+	if err != nil {
+		logger.Errorf("Failed to get layer commands: %v", err)
+		// we should continue even if failed to get layer commands
+	}
+
 	// Send results
 	if err = reporter.ReportScanResults(scanResults, layerCommands); err != nil {
 		reportError(reporter, logger, fmt.Errorf("failed to report on successful scan: %v", err))
@@ -158,13 +162,11 @@ func createLogger(conf *_config.Config) *log.Entry {
 	return logger.WithFields(log.Fields{"scan-uuid": conf.ScanUUID, "image-id": conf.ImageIDToScan})
 }
 
-func getLayerCommands(conf *_config.Config) []*image_helper.FsLayerCommand {
-	logger := createLogger(conf)
-	registryOptions := sharedconfig.CreateRegistryOptions(conf.SharedConfig.Registry)
-	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageNameToScan, registryOptions)
+func getLayerCommands(conf *_config.Config) ([]*image_helper.FsLayerCommand, error) {
+	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageIDToScan, conf.SharedConfig)
 	if err != nil {
-		logger.Errorf("failed to get commands from image=%s: %v", conf.ImageIDToScan, err)
+		return nil, fmt.Errorf("failed to get commands from image=%s: %v", conf.ImageIDToScan, err)
 	}
 
-	return layerCommands
+	return layerCommands, nil
 }

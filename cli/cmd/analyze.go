@@ -100,15 +100,14 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.CreateAnalyzerJob)
-	src := utils.SetSource(appConfig.LocalImageScan, sourceType, args[0])
-	results, err := manager.Run(sourceType, src)
+	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
 	}
 
-	hash, err := utils.GenerateHash(sourceType, src)
+	hash, err := utils.GenerateHash(sourceType, args[0])
 	if err != nil {
-		logger.Fatalf("Failed to generate hash for source %s: %v", src, err)
+		logger.Fatalf("Failed to generate hash for source %s: %v", args[0], err)
 	}
 
 	outputFormat := appConfig.SharedConfig.Analyzer.OutputFormat

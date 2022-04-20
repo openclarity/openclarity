@@ -107,7 +107,7 @@ const Layout = () => (
         <FiltersProvider>
             <div className="sidebar-container">
                 <div className="app-logo-wrapper">
-                    <img src={brandImage} alt="Kubi" />
+                    <img src={brandImage} alt="KubeClarity" />
                 </div>
                 {
                     ROUTES_CONFIG.map(({path, icon, resetFilter, resetFilterAll, title}) => {
