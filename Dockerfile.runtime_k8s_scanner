@@ -1,4 +1,4 @@
-FROM golang:1.17.3-alpine AS builder
+FROM golang:1.17.9-alpine AS builder
 
 ARG VERSION
 ARG BUILD_TIMESTAMP
@@ -37,7 +37,7 @@ RUN go build -ldflags="-s -w \
      -X 'github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o runtime_k8s_scanner ./cmd/main.go
 
-FROM alpine:3.15.3
+FROM alpine:3.15.4
 
 WORKDIR /app
 

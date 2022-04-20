@@ -55,7 +55,7 @@ func New(conf *config.Config,
 	}
 }
 
-func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
+func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	go func() {
 		res := &analyzer.Results{}
 		if sourceType != utils.DIR {
@@ -67,7 +67,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
 		zeroLogger := newZeroLogger(a.logger)
 		licenseDetector := local.NewDetector(zeroLogger)
 
-		generator, err := mod.NewGenerator(src,
+		generator, err := mod.NewGenerator(userInput,
 			mod.WithLogger(zeroLogger),
 			mod.WithComponentType(cdx.ComponentTypeApplication),
 			mod.WithIncludeStdlib(true),
@@ -112,7 +112,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, src string) error {
 			return
 		}
 
-		res = analyzer.CreateResults(output.GetSBOMBytes(), a.name, src, sourceType)
+		res = analyzer.CreateResults(output.GetSBOMBytes(), a.name, userInput, sourceType)
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
 	}()

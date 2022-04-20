@@ -30,6 +30,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	log "github.com/sirupsen/logrus"
+
+	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
 )
 
 // FsLayerCommand represents a history command of a layer in a docker image.
@@ -146,26 +148,21 @@ func stripDockerMetaFromCommand(command string) string {
 	return ret
 }
 
-func getV1Image(imageName string, registryOptions *image.RegistryOptions) (containerregistry_v1.Image, error) {
-	source, location, err := image.DetectSource(imageName)
+func getV1Image(imageName string, registryOptions *image.RegistryOptions, localImage bool) (containerregistry_v1.Image, error) {
+	ref, err := name.ParseReference(imageName, prepareReferenceOptions(registryOptions)...)
 	if err != nil {
-		return nil, fmt.Errorf("falied to detect source for image: %s. %v", imageName, err)
-	}
-	log.Debugf("pulling image info directly from registry image=%q", imageName)
-	ref, err := name.ParseReference(location, prepareReferenceOptions(registryOptions)...)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse registry reference=%q: %v", location, err)
+		return nil, fmt.Errorf("unable to parse registry reference=%q: %v", imageName, err)
 	}
 
-	// nolint:exhaustive
-	switch source {
-	case image.DockerDaemonSource:
+	switch localImage {
+	case true:
 		img, err := daemon.Image(ref, daemon.WithUnbufferedOpener())
 		if err != nil {
 			return nil, fmt.Errorf("failed to get image from daemon: %v", err)
 		}
 		return img, nil
 	default:
+		log.Debugf("pulling image info directly from registry image=%q", imageName)
 		img, err := remote.Image(ref, prepareRemoteOptions(ref, registryOptions)...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get image from registry: %v", err)
@@ -208,8 +205,9 @@ func prepareRemoteOptions(ref name.Reference, registryOptions *image.RegistryOpt
 	return opts
 }
 
-func GetImageLayerCommands(imageName string, registryOptions *image.RegistryOptions) ([]*FsLayerCommand, error) {
-	img, err := getV1Image(imageName, registryOptions)
+func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([]*FsLayerCommand, error) {
+	registryOptions := sharedconfig.CreateRegistryOptions(sharedConf.Registry)
+	img, err := getV1Image(imageName, registryOptions, sharedConf.LocalImageScan)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get v1.image=%s: %v", imageName, err)
 	}

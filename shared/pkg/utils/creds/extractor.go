@@ -61,15 +61,21 @@ func (c *CredExtractor) GetCredentials(ctx context.Context, named reference.Name
 
 		username, password, err = extractor.GetCredentials(ctx, named)
 		if err != nil {
-			log.Debugf("failed to get credentials. image=%v: %v", named.Name(), err)
+			log.Debugf("Failed to get credentials. image name=%v, extractor=%v: %v", named.String(), extractor.Name(), err)
 			continue
 		}
 
-		log.Debugf("Credentials found. image name=%v, extractor=%v", named.Name(), extractor.Name())
+		// Verify that no empty username and/or password retrieved.
+		if username == "" || password == "" {
+			log.Debugf("Credentials not found by extractor. image name=%v, extractor=%v", named.String(), extractor.Name())
+			continue
+		}
+
+		log.Debugf("Credentials found. image name=%v, extractor=%v", named.String(), extractor.Name())
 		return username, password, nil
 	}
 
-	log.Debugf("Credentials not found. image name=%v.", named.Name())
+	log.Debugf("Credentials not found. image name=%v.", named.String())
 	return "", "", nil
 }
 
