@@ -34,6 +34,7 @@ jobs:
       image_tag: ${{ github.sha }}
       push: false
 
+# We are using the following step to be the status check in the PRs
   build:
     needs: build_all
     name: Build
