@@ -1948,10 +1948,13 @@ func init() {
         "cisDockerBenchmarkCounters": {
           "$ref": "#/definitions/CISDockerBenchmarkScanCounters"
         },
+<<<<<<< HEAD
         "cisDockerBenchmarkScanEnabled": {
           "description": "Indicates whether CIS docker benchmark scan was enabled",
           "type": "boolean"
         },
+=======
+>>>>>>> d96bd7b (feat(api): Show CIS docker benchmark results)
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
