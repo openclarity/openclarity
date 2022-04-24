@@ -504,6 +504,7 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 		expectVulScanner func(scanner *orchestrator.MockVulnerabilitiesScanner)
 		wantStatus       models.RuntimeScanStatus
 		wantScanned      int64
+		doneApplyingToDB bool
 	}{
 		{
 			name: "scan init failure",
@@ -571,7 +572,7 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 			wantScanned: 0,
 		},
 		{
-			name: "done scanning",
+			name: "done scanning - finalizing - applying to DB",
 			expectVulScanner: func(scanner *orchestrator.MockVulnerabilitiesScanner) {
 				scanner.EXPECT().ScanProgress().Return(_types.ScanProgress{
 					ImagesToScan:          10,
@@ -580,8 +581,23 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 					Status:                _types.DoneScanning,
 				})
 			},
-			wantStatus:  models.RuntimeScanStatusDONE,
-			wantScanned: 100,
+			wantStatus:       models.RuntimeScanStatusFINALIZING,
+			wantScanned:      100,
+			doneApplyingToDB: false,
+		},
+		{
+			name: "done scanning - done applying to DB",
+			expectVulScanner: func(scanner *orchestrator.MockVulnerabilitiesScanner) {
+				scanner.EXPECT().ScanProgress().Return(_types.ScanProgress{
+					ImagesToScan:          10,
+					ImagesStartedToScan:   10,
+					ImagesCompletedToScan: 10,
+					Status:                _types.DoneScanning,
+				})
+			},
+			wantStatus:       models.RuntimeScanStatusDONE,
+			wantScanned:      100,
+			doneApplyingToDB: true,
 		},
 	}
 	for _, tt := range tests {
@@ -590,6 +606,9 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 			s := &Server{
 				RuntimeScan: RuntimeScan{
 					vulnerabilitiesScanner: mockVulScanner,
+					State: State{
+						doneApplyingToDB: tt.doneApplyingToDB,
+					},
 				},
 			}
 			got, got1 := s.getScanStatusAndScanned()

@@ -41,7 +41,7 @@ const (
 	cisDockerBenchmarkScannerContainerName = "cis-docker-benchmark-scanner"
 )
 
-// run jobs
+// run jobs.
 func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	s.Lock()
 	imageIDToScanData := s.imageIDToScanData
@@ -101,7 +101,7 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	}
 }
 
-// worker waits for data on the queue, runs a scan job and waits for results from that scan job. Upon completion, done is notified to the caller
+// worker waits for data on the queue, runs a scan job and waits for results from that scan job. Upon completion, done is notified to the caller.
 func (s *Scanner) worker(queue chan *scanData, workNumber int, done, ks chan bool) {
 	for {
 		select {
