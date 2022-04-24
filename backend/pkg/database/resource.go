@@ -17,6 +17,7 @@ package database
 
 import (
 	"fmt"
+	"github.com/google/martian/log"
 	"strings"
 
 	uuid "github.com/satori/go.uuid"
@@ -49,12 +50,13 @@ const (
 type Resource struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the resource hash
 
-	Hash               string             `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
-	Name               string             `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
-	Type               types.ResourceType `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
-	SbomID             string             `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
-	ReportingAnalyzers string             `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
-	Packages           []Package          `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
+	Hash                      string                     `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
+	Name                      string                     `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
+	Type                      types.ResourceType         `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
+	SbomID                    string                     `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
+	ReportingAnalyzers        string                     `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
+	Packages                  []Package                  `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
+	CISDockerBenchmarkResults []CISDockerBenchmarkResult `json:"cis_docker_benchmark_results,omitempty" gorm:"cis_docker_benchmark_results;" faker:"-"`
 }
 
 type ResourceView struct {
@@ -62,6 +64,7 @@ type ResourceView struct {
 	Applications int `json:"applications,omitempty" gorm:"column:applications"`
 	Packages     int `json:"packages,omitempty" gorm:"column:packages"`
 	SeverityCounters
+	CISDockerBenchmarkLevelCounters
 }
 
 type GetApplicationResourcesParams struct {
@@ -96,6 +99,10 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 
 	resource := CreateResource(resourceVulnerabilityScan.Resource)
 
+	if len(resourceVulnerabilityScan.CisDockerBenchmarkResults) > 0 {
+		resource.WithCISDockerBenchmarkResults(createResourceCISDockerBenchmarkResults(resourceVulnerabilityScan.CisDockerBenchmarkResults))
+	}
+
 	for _, pkgVul := range resourceVulnerabilityScan.PackageVulnerabilities {
 		vulnerability := CreateVulnerability(pkgVul, params)
 		pkg := CreatePackage(pkgVul.Package, []Vulnerability{vulnerability})
@@ -126,6 +133,24 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	}
 
 	return resource.WithPackages(pkgs)
+}
+
+func createResourceCISDockerBenchmarkResults(results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkResult {
+	ret := make([]CISDockerBenchmarkResult, 0, len(results))
+	for i := range results {
+		level := FromDockleTypeToLevel(results[i].Level)
+		if level == IGNORE {
+			log.Debugf("Ignoring CIS docker benchmark result. result=%+v", results[i])
+			continue
+		}
+
+		ret = append(ret, CISDockerBenchmarkResult{
+			Code:         results[i].Code,
+			Level:        int64(level),
+			Descriptions: results[i].Descriptions,
+		})
+	}
+	return ret
 }
 
 func CreateResourceFromRuntimeContentAnalysis(resourceContentAnalysis *runtime_scan_models.ResourceContentAnalysis, params *TransactionParams) *Resource {
@@ -188,6 +213,11 @@ func (r *Resource) WithAnalyzers(analyzers []string) *Resource {
 	return r
 }
 
+func (r *Resource) WithCISDockerBenchmarkResults(results []CISDockerBenchmarkResult) *Resource {
+	r.CISDockerBenchmarkResults = results
+	return r
+}
+
 func CreateResourceID(info *types.ResourceInfo) string {
 	return uuid.NewV5(uuid.Nil, info.ResourceHash).String()
 }
@@ -239,6 +269,10 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityGte)
 	tx = SeverityFilterLte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityLte)
 
+	// cis docker benchmark filter
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+
 	// system filter
 	ids, err := r.getResourceIDs(params)
 	if err != nil {
@@ -251,14 +285,15 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 
 func ApplicationResourceFromDB(view *ResourceView) *models.ApplicationResource {
 	return &models.ApplicationResource{
-		Applications:           uint32(view.Applications),
-		ID:                     view.ID,
-		Packages:               uint32(view.Packages),
-		ReportingSBOMAnalyzers: DBArrayToArray(view.ReportingAnalyzers),
-		ResourceHash:           view.Hash,
-		ResourceName:           view.Name,
-		ResourceType:           types.ResourceTypeToModels(view.Type),
-		Vulnerabilities:        getVulnerabilityCount(view.SeverityCounters),
+		Applications:              uint32(view.Applications),
+		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
+		ID:                        view.ID,
+		Packages:                  uint32(view.Packages),
+		ReportingSBOMAnalyzers:    DBArrayToArray(view.ReportingAnalyzers),
+		ResourceHash:              view.Hash,
+		ResourceName:              view.Name,
+		ResourceType:              types.ResourceTypeToModels(view.Type),
+		Vulnerabilities:           getVulnerabilityCount(view.SeverityCounters),
 	}
 }
 

@@ -60,6 +60,7 @@ type ApplicationView struct {
 	Resources int `json:"resources,omitempty" gorm:"column:resources"`
 	Packages  int `json:"packages,omitempty" gorm:"column:packages"`
 	SeverityCounters
+	CISDockerBenchmarkLevelCounters
 }
 
 type GetApplicationsParams struct {
@@ -185,6 +186,10 @@ func (a *ApplicationTableHandler) setApplicationsFilters(params GetApplicationsP
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityGte)
 	tx = SeverityFilterLte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityLte)
 
+	// cis docker benchmark filter
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+
 	// system filter
 	ids, err := a.getApplicationIDs(params)
 	if err != nil {
@@ -197,14 +202,15 @@ func (a *ApplicationTableHandler) setApplicationsFilters(params GetApplicationsP
 
 func ApplicationFromDB(view *ApplicationView) *models.Application {
 	return &models.Application{
-		ID:                   view.ID,
-		ApplicationName:      view.Name,
-		ApplicationType:      view.Type,
-		Environments:         DBArrayToArray(view.Environments),
-		Labels:               DBArrayToArray(view.Labels),
-		ApplicationResources: uint32(view.Resources),
-		Packages:             uint32(view.Packages),
-		Vulnerabilities:      getVulnerabilityCount(view.SeverityCounters),
+		ApplicationName:           view.Name,
+		ApplicationResources:      uint32(view.Resources),
+		ApplicationType:           view.Type,
+		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
+		Environments:              DBArrayToArray(view.Environments),
+		ID:                        view.ID,
+		Labels:                    DBArrayToArray(view.Labels),
+		Packages:                  uint32(view.Packages),
+		Vulnerabilities:           getVulnerabilityCount(view.SeverityCounters),
 	}
 }
 

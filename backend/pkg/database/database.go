@@ -42,9 +42,11 @@ var viewsList = []string{
 	"packages_view",
 	"package_severities",
 	"resources_view",
+	"resource_cis_docker_benchmark_levels",
 	"resource_severities",
 	"new_vulnerabilities_view",
 	"applications_view",
+	"application_cis_docker_benchmark_levels",
 	"application_severities",
 	"ids_view",
 	"licenses_view",
@@ -111,6 +113,27 @@ GROUP BY applications.id, pv.package_id, pv.vulnerability_id, v.severity) AS apv
 GROUP BY apvs.application_id;
 `
 
+	applicationsCISDockerBenchmarkLevelsViewQuery = `
+CREATE VIEW application_cis_docker_benchmark_levels AS
+SELECT arc.application_id AS application_id,
+       SUM(arc.total_info_count) AS total_info_count,
+       SUM(arc.total_warn_count) AS total_warn_count,
+       SUM(arc.total_fatal_count) AS total_fatal_count,
+       MAX(arc.highest_level) AS highest_level,
+       MIN(arc.lowest_level) AS lowest_level
+FROM (SELECT applications.id AS application_id,
+       CASE WHEN cdbr.level = 1 THEN 1 ELSE 0 END AS total_info_count,
+       CASE WHEN cdbr.level = 2 THEN 1 ELSE 0 END AS total_warn_count,
+       CASE WHEN cdbr.level = 3 THEN 1 ELSE 0 END AS total_fatal_count,
+       MAX(cdbr.level) AS highest_level,
+       MIN(cdbr.level) AS lowest_level
+FROM applications
+         LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
+         LEFT OUTER JOIN cis_docker_benchmark_results cdbr ON ar.resource_id = cdbr.resource_id
+GROUP BY applications.id, cdbr.id, cdbr.level) AS arc
+GROUP BY arc.application_id;
+`
+
 	applicationsViewQuery = `
 CREATE VIEW applications_view AS
 SELECT applications.*,
@@ -165,6 +188,18 @@ FROM resources
          LEFT OUTER JOIN package_vulnerabilities pv ON rp.package_id = pv.package_id
          LEFT OUTER JOIN vulnerabilities v ON v.id = pv.vulnerability_id
 GROUP BY resources.id;
+`
+
+	resourcesCISDockerBenchmarkLevelsViewQuery = `
+CREATE VIEW resource_cis_docker_benchmark_levels AS
+SELECT cis_docker_benchmark_results.resource_id AS resource_id,
+       SUM(CASE WHEN cdbr.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
+       SUM(CASE WHEN cdbr.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
+       SUM(CASE WHEN cdbr.level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
+       MAX(cdbr.level) AS highest_level,
+       MIN(cdbr.level) AS lowest_level
+FROM cis_docker_benchmark_results
+GROUP BY resource_id;
 `
 
 	resourcesViewQuery = `
@@ -443,6 +478,10 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create application_severities: %v", err)
 	}
 
+	if err := db.Exec(applicationsCISDockerBenchmarkLevelsViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create application_cis_docker_benchmark_levels: %v", err)
+	}
+
 	if err := db.Exec(applicationsViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create applications_view: %v", err)
 	}
@@ -453,6 +492,10 @@ func createAllViews(db *gorm.DB) {
 
 	if err := db.Exec(resourcesSeveritiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create resource_severities: %v", err)
+	}
+
+	if err := db.Exec(resourcesCISDockerBenchmarkLevelsViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create resource_cis_docker_benchmark_levels: %v", err)
 	}
 
 	if err := db.Exec(resourcesViewQuery).Error; err != nil {
