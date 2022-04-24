@@ -22,7 +22,7 @@ const RuntimeScan = () => {
         <div className="runtime-scan-page">
             <TopBarTitle title="Runtime scan" />
             <ScanConfiguration
-                isInProgress={status === PROPRESS_STATUSES.IN_PROGRESS.value}
+                isInProgress={[PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)}
                 onStartScan={doStartScan}
                 onStopScan={doStopScan}
             />
@@ -30,7 +30,7 @@ const RuntimeScan = () => {
                 <PageContainer className="scan-details-container">
                     <ProgressStep
                         title={PROPRESS_STATUSES[status].title}
-                        isDone={status === PROPRESS_STATUSES.DONE.value}
+                        isDone={[PROPRESS_STATUSES.DONE.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)}
                         percent={progress}
                         scanErrors={(failures || []).map(failure => failure.message)}
                     />
@@ -44,6 +44,13 @@ const RuntimeScan = () => {
                     }
                 </PageContainer>
             }
+            {!loading && status === PROPRESS_STATUSES.FINALIZING.value &&
+                <div className="generating-results-loader">
+                    <Loader large />
+                    <div>Generating results...</div>
+                </div>
+            }
+
         </div>
     )
 }
