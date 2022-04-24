@@ -1048,7 +1048,7 @@ func (o *GetApplicationsParams) bindSortKey(rawData []string, hasKey bool, forma
 // validateSortKey carries on validations for parameter SortKey
 func (o *GetApplicationsParams) validateSortKey(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"applicationName", "applicationType", "vulnerabilities", "applicationResources", "packages"}, true); err != nil {
+	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"applicationName", "applicationType", "vulnerabilities", "cisDockerBenchmarkResults", "applicationResources", "packages"}, true); err != nil {
 		return err
 	}
 

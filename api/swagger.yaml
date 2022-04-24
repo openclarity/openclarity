@@ -33,6 +33,7 @@ definitions:
       - applicationName
       - applicationType
       - vulnerabilities
+      - cisDockerBenchmarkResults
       - applicationResources
       - packages
 
@@ -43,6 +44,7 @@ definitions:
       - resourceHash
       - resourceType
       - vulnerabilities
+      - cisDockerBenchmarkResults
       - applications
       - packages
 

@@ -1351,6 +1351,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ]
@@ -1380,6 +1381,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ]
@@ -2252,6 +2254,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ],
@@ -2307,6 +2310,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ],
@@ -2894,6 +2898,7 @@ func init() {
               "resourceHash",
               "resourceType",
               "vulnerabilities",
+              "cisDockerBenchmarkResults",
               "applications",
               "packages"
             ],
@@ -3214,6 +3219,7 @@ func init() {
               "applicationName",
               "applicationType",
               "vulnerabilities",
+              "cisDockerBenchmarkResults",
               "applicationResources",
               "packages"
             ],
@@ -5076,6 +5082,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ]
@@ -5105,6 +5112,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ]
@@ -5978,6 +5986,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ],
@@ -6033,6 +6042,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ],
