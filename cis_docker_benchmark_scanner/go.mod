@@ -3,7 +3,7 @@ module github.com/cisco-open/kubei/cis_docker_benchmark_scanner
 go 1.17
 
 require (
-	github.com/Portshift/dockle v0.3.2-0.20220320150149-064b37efda97 // remove-dockle-remote branch
+	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
 	github.com/cisco-open/kubei/shared v0.0.0

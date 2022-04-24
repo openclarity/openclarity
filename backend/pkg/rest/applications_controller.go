@@ -286,6 +286,11 @@ func updateResource(currentResource *database.Resource, newResource *database.Re
 		}
 	}
 
+	// Update CIS docker benchmark results only if exists.
+	if len(newResource.CISDockerBenchmarkResults) > 0 {
+		currentResource.CISDockerBenchmarkResults = newResource.CISDockerBenchmarkResults
+	}
+
 	return currentResource
 }
 

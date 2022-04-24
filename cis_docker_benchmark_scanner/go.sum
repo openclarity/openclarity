@@ -135,8 +135,8 @@ github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb0
 github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMomdKFjzJNB0c=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OpenPeeDeeP/depguard v1.0.1/go.mod h1:xsIw86fROiiwelg+jB2uM9PiKihMMmUx/1V+TNhjQvM=
-github.com/Portshift/dockle v0.3.2-0.20220320150149-064b37efda97 h1:PDoyYkYYiuY94hH1wF59acWQT5a30mZ39hImLrDzrRg=
-github.com/Portshift/dockle v0.3.2-0.20220320150149-064b37efda97/go.mod h1:0Q1++M2dR5pjfZ2hZssvPQ9L7nt3hfRCffCOUXt3aAE=
+github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d h1:G54LWa2u63Az+Z7KSYPj5CghXSJAY4t5YqwUBSS6vI4=
+github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d/go.mod h1:0Q1++M2dR5pjfZ2hZssvPQ9L7nt3hfRCffCOUXt3aAE=
 github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27 h1:oPNvIsi1lxLgm4TzPwy3ZL70Sle7Ap+unMwq38t+ExY=
 github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27/go.mod h1:8Rx5P+ypVyL+WEC1SNen81kyEjzYq/WD+zWicKKwl7Y=
 github.com/Portshift/grype-server/api v0.0.0-20220202131026-d7ff01973706/go.mod h1:9QJNVuh8EOzGAZDvQZu2mhHU1E+HrKVQboaVo2cck7U=

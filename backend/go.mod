@@ -27,6 +27,11 @@ require (
 )
 
 require (
+	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
+	github.com/google/martian v2.1.0+incompatible
+)
+
+require (
 	cloud.google.com/go/compute v1.5.0 // indirect
 	github.com/CycloneDX/cyclonedx-go v0.5.0 // indirect
 	github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible // indirect

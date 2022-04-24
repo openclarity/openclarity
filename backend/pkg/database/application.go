@@ -312,16 +312,19 @@ func (a *ApplicationTableHandler) GetApplicationsAndTotal(params GetApplications
 }
 
 func createApplicationsSortOrder(sortKey string, sortDir *string) (string, error) {
-	if models.ApplicationsSortKey(sortKey) == models.ApplicationsSortKeyVulnerabilities {
+	switch models.ApplicationsSortKey(sortKey) {
+	case models.ApplicationsSortKeyVulnerabilities:
 		return createVulnerabilitiesColumnSortOrder(*sortDir)
-	}
+	case models.ApplicationsSortKeyCisDockerBenchmarkResults:
+		return createCISDockerBenchmarkResultsColumnSortOrder(*sortDir)
+	default:
+		sortKeyColumnName, err := getApplicationsSortKeyColumnName(sortKey)
+		if err != nil {
+			return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		}
 
-	sortKeyColumnName, err := getApplicationsSortKeyColumnName(sortKey)
-	if err != nil {
-		return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 	}
-
-	return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 }
 
 func getApplicationsSortKeyColumnName(key string) (string, error) {

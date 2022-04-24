@@ -58,8 +58,17 @@ func createFakeResource(scanTime time.Time) Resource {
 
 	for i := 0; i < 3; i++ {
 		res.Packages = append(res.Packages, createFakePackage(scanTime))
+		res.CISDockerBenchmarkResults = append(res.CISDockerBenchmarkResults, createFakeCISDockerBenchmarkResult())
 	}
 
+	return res
+}
+
+func createFakeCISDockerBenchmarkResult() CISDockerBenchmarkResult {
+	var res CISDockerBenchmarkResult
+	if err := faker.FakeData(&res); err != nil {
+		panic(err)
+	}
 	return res
 }
 

@@ -27,43 +27,16 @@ import (
 type Level int
 
 const (
-	IGNORE Level = iota
-	INFO
-	WARN
-	FATAL
+	CISDockerBenchmarkLevelIGNORE Level = iota
+	CISDockerBenchmarkLevelINFO
+	CISDockerBenchmarkLevelWARN
+	CISDockerBenchmarkLevelFATAL
 )
 
 var LevelStringToInt = map[string]Level{
-	string(models.CISDockerBenchmarkLevelINFO):  INFO,
-	string(models.CISDockerBenchmarkLevelWARN):  WARN,
-	string(models.CISDockerBenchmarkLevelFATAL): FATAL,
-}
-
-var LevelIntToString = map[Level]models.CISDockerBenchmarkLevel{
-	INFO:  models.CISDockerBenchmarkLevelINFO,
-	WARN:  models.CISDockerBenchmarkLevelWARN,
-	FATAL: models.CISDockerBenchmarkLevelFATAL,
-}
-
-var ModelsCISDockerBenchmarkLevelToInt = map[models.CISDockerBenchmarkLevel]Level{
-	models.CISDockerBenchmarkLevelINFO:  INFO,
-	models.CISDockerBenchmarkLevelWARN:  WARN,
-	models.CISDockerBenchmarkLevelFATAL: FATAL,
-}
-
-func FromDockleTypeToLevel(level int64) Level {
-	switch level {
-	case dockle_types.IgnoreLevel, dockle_types.PassLevel, dockle_types.SkipLevel:
-		return IGNORE
-	case dockle_types.InfoLevel:
-		return INFO
-	case dockle_types.WarnLevel:
-		return WARN
-	case dockle_types.FatalLevel:
-		return FATAL
-	}
-
-	return IGNORE
+	string(models.CISDockerBenchmarkLevelINFO):  CISDockerBenchmarkLevelINFO,
+	string(models.CISDockerBenchmarkLevelWARN):  CISDockerBenchmarkLevelWARN,
+	string(models.CISDockerBenchmarkLevelFATAL): CISDockerBenchmarkLevelFATAL,
 }
 
 const (
@@ -117,4 +90,19 @@ func getCISDockerBenchmarkLevelCount(counters CISDockerBenchmarkLevelCounters) [
 	})
 
 	return ret
+}
+
+func FromDockleTypeToLevel(level int64) Level {
+	switch int(level) {
+	case dockle_types.IgnoreLevel, dockle_types.PassLevel, dockle_types.SkipLevel:
+		return CISDockerBenchmarkLevelIGNORE
+	case dockle_types.InfoLevel:
+		return CISDockerBenchmarkLevelINFO
+	case dockle_types.WarnLevel:
+		return CISDockerBenchmarkLevelWARN
+	case dockle_types.FatalLevel:
+		return CISDockerBenchmarkLevelFATAL
+	}
+
+	return CISDockerBenchmarkLevelIGNORE
 }

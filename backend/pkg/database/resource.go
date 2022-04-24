@@ -139,14 +139,14 @@ func createResourceCISDockerBenchmarkResults(results []*types.CISDockerBenchmark
 	ret := make([]CISDockerBenchmarkResult, 0, len(results))
 	for i := range results {
 		level := FromDockleTypeToLevel(results[i].Level)
-		if level == IGNORE {
+		if level == CISDockerBenchmarkLevelIGNORE {
 			log.Debugf("Ignoring CIS docker benchmark result. result=%+v", results[i])
 			continue
 		}
 
 		ret = append(ret, CISDockerBenchmarkResult{
 			Code:         results[i].Code,
-			Level:        int64(level),
+			Level:        int(level),
 			Descriptions: results[i].Descriptions,
 		})
 	}
@@ -401,16 +401,19 @@ func (r *ResourceTableHandler) GetApplicationResourcesAndTotal(params GetApplica
 }
 
 func createApplicationResourcesSortOrder(sortKey string, sortDir *string) (string, error) {
-	if models.ApplicationResourcesSortKey(sortKey) == models.ApplicationResourcesSortKeyVulnerabilities {
+	switch models.ApplicationResourcesSortKey(sortKey) {
+	case models.ApplicationResourcesSortKeyVulnerabilities:
 		return createVulnerabilitiesColumnSortOrder(*sortDir)
-	}
+	case models.ApplicationResourcesSortKeyCisDockerBenchmarkResults:
+		return createCISDockerBenchmarkResultsColumnSortOrder(*sortDir)
+	default:
+		sortKeyColumnName, err := getApplicationResourcesSortKeyColumnName(sortKey)
+		if err != nil {
+			return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		}
 
-	sortKeyColumnName, err := getApplicationResourcesSortKeyColumnName(sortKey)
-	if err != nil {
-		return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 	}
-
-	return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 }
 
 func getApplicationResourcesSortKeyColumnName(key string) (string, error) {

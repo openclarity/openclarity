@@ -225,3 +225,12 @@ func createVulnerabilitiesColumnSortOrder(sortDir string) (string, error) {
 			fmt.Sprintf("%v %v", columnSeverityCountersTotalNegCount, strings.ToLower(sortDir)),
 		}, ","), nil
 }
+
+func createCISDockerBenchmarkResultsColumnSortOrder(sortDir string) (string, error) {
+	return strings.Join(
+		[]string{
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalFatalCount, strings.ToLower(sortDir)),
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalWarnCount, strings.ToLower(sortDir)),
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalInfoCount, strings.ToLower(sortDir)),
+		}, ","), nil
+}
