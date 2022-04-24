@@ -4,6 +4,8 @@ go 1.17
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
+	github.com/cisco-open/kubei/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/olekukonko/tablewriter v0.0.5
@@ -14,8 +16,6 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/spiegel-im-spiegel/go-cvss v0.4.0
 	gotest.tools v2.2.0+incompatible
-	github.com/cisco-open/kubei/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (

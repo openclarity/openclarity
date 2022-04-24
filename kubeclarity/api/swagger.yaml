@@ -645,6 +645,7 @@ definitions:
     enum:
       - NOT_STARTED
       - IN_PROGRESS
+      - FINALIZING
       - DONE
 
   Namespace:

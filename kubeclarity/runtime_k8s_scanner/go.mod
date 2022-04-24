@@ -5,6 +5,9 @@ go 1.17
 require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
+	github.com/cisco-open/kubei/sbom_db/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/sirupsen/logrus v1.8.1
@@ -12,9 +15,6 @@ require (
 	github.com/spiegel-im-spiegel/go-cvss v0.4.0
 	github.com/urfave/cli v1.22.5
 	gotest.tools v2.2.0+incompatible
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
-	github.com/cisco-open/kubei/sbom_db/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (
