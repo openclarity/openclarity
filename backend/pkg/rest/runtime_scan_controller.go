@@ -109,6 +109,7 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
 		Counters:                 counters,
 		Failures:                 failures,
+		ScannedNamespaces:        s.scannedNamespaces,
 		VulnerabilityPerSeverity: vulPerSeverity,
 	})
 }
