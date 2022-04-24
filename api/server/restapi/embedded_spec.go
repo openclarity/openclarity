@@ -1801,6 +1801,7 @@ func init() {
       "enum": [
         "NOT_STARTED",
         "IN_PROGRESS",
+        "FINALIZING",
         "DONE"
       ],
       "readOnly": true
@@ -5289,6 +5290,7 @@ func init() {
       "enum": [
         "NOT_STARTED",
         "IN_PROGRESS",
+        "FINALIZING",
         "DONE"
       ],
       "readOnly": true

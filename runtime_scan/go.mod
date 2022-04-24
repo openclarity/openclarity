@@ -3,6 +3,8 @@ module github.com/cisco-open/kubei/runtime_scan
 go 1.17
 
 require (
+	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
+	github.com/cisco-open/kubei/shared v0.0.0
 	github.com/containers/image/v5 v5.19.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/loads v0.21.0
@@ -15,8 +17,6 @@ require (
 	k8s.io/api v0.23.4
 	k8s.io/apimachinery v0.23.4
 	k8s.io/client-go v0.23.4
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
 )
 
 require (

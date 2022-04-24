@@ -41,6 +41,7 @@ const (
 	cisDockerBenchmarkScannerContainerName = "cis-docker-benchmark-scanner"
 )
 
+// run jobs.
 func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	s.Lock()
 	imageIDToScanData := s.imageIDToScanData
@@ -49,17 +50,19 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	imagesCompletedToScan := &s.progress.ImagesCompletedToScan
 	s.Unlock()
 
-	// queue of jobs
+	// queue of scan data
 	q := make(chan *scanData)
 	// done channel takes the result of the job
 	done := make(chan bool)
 
 	fullScanDone := make(chan bool)
 
+	// spawn workers
 	for i := 0; i < numberOfWorkers; i++ {
 		go s.worker(q, i, done, s.killSignal)
 	}
 
+	// wait until scan of all images is done - non blocking. once all done, notify on fullScanDone chan
 	go func() {
 		for c := 0; c < len(imageIDToScanData); c++ {
 			select {
@@ -74,6 +77,7 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 		fullScanDone <- true
 	}()
 
+	// send all scan data on scan data queue, for workers to pick it up.
 	for _, data := range imageIDToScanData {
 		go func(data *scanData, ks chan bool) {
 			select {
@@ -86,6 +90,7 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 		}(data, s.killSignal)
 	}
 
+	// wait for killSignal or fullScanDone
 	select {
 	case <-s.killSignal:
 		log.WithFields(s.logFields).Info("Scan process was canceled")
@@ -96,6 +101,7 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	}
 }
 
+// worker waits for data on the queue, runs a scan job and waits for results from that scan job. Upon completion, done is notified to the caller.
 func (s *Scanner) worker(queue chan *scanData, workNumber int, done, ks chan bool) {
 	for {
 		select {

@@ -4,6 +4,7 @@ import { usePrevious, useFetch, FETCH_METHODS } from 'hooks';
 export const PROPRESS_STATUSES = {
     NOT_STARTED: {value: "NOT_STARTED", title: "Click above to start"},
     IN_PROGRESS: {value: "IN_PROGRESS", title: "Scanning..."},
+    FINALIZING: {value: "FINALIZING", title: "Scan complete"},
     DONE: {value: "DONE", title: "Scan complete"}
 }
 
@@ -29,8 +30,6 @@ export const PROGRESS_LOADER_ACTIONS = {
 }
 
 export const RUNTIME_SCAN_URL = "runtime/scan";
-
-const checkIsInProgress = status => status === PROPRESS_STATUSES.IN_PROGRESS.value;
 
 const reducer = (state, action) => {
     switch (action.type) {
@@ -133,7 +132,7 @@ function useProgressLoaderReducer() {
 
                 dispatch({type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED, payload: {progress: scanned, status, scannedNamespaces}});
                 
-                if (checkIsInProgress(status)) {
+                if ([PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)) {
                     fetcherRef.current = setTimeout(() => fetchStatus(), 3000);
                 }
             }
