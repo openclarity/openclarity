@@ -11,20 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// GetRuntimeScanResultsURL generates an URL for the get runtime scan results operation
-type GetRuntimeScanResultsURL struct {
-	CisDockerBenchmarkLevelGte *string
-	VulnerabilitySeverityGte   *string
-
+// PutRuntimeQuickscanConfigURL generates an URL for the put runtime quickscan config operation
+type PutRuntimeQuickscanConfigURL struct {
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetRuntimeScanResultsURL) WithBasePath(bp string) *GetRuntimeScanResultsURL {
+func (o *PutRuntimeQuickscanConfigURL) WithBasePath(bp string) *PutRuntimeQuickscanConfigURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -32,15 +27,15 @@ func (o *GetRuntimeScanResultsURL) WithBasePath(bp string) *GetRuntimeScanResult
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetRuntimeScanResultsURL) SetBasePath(bp string) {
+func (o *PutRuntimeQuickscanConfigURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetRuntimeScanResultsURL) Build() (*url.URL, error) {
+func (o *PutRuntimeQuickscanConfigURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/runtime/scan/results"
+	var _path = "/runtime/quickscan/config"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -48,31 +43,11 @@ func (o *GetRuntimeScanResultsURL) Build() (*url.URL, error) {
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
-	qs := make(url.Values)
-
-	var cisDockerBenchmarkLevelGteQ string
-	if o.CisDockerBenchmarkLevelGte != nil {
-		cisDockerBenchmarkLevelGteQ = *o.CisDockerBenchmarkLevelGte
-	}
-	if cisDockerBenchmarkLevelGteQ != "" {
-		qs.Set("cisDockerBenchmarkLevel[gte]", cisDockerBenchmarkLevelGteQ)
-	}
-
-	var vulnerabilitySeverityGteQ string
-	if o.VulnerabilitySeverityGte != nil {
-		vulnerabilitySeverityGteQ = *o.VulnerabilitySeverityGte
-	}
-	if vulnerabilitySeverityGteQ != "" {
-		qs.Set("vulnerabilitySeverity[gte]", vulnerabilitySeverityGteQ)
-	}
-
-	_result.RawQuery = qs.Encode()
-
 	return &_result, nil
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetRuntimeScanResultsURL) Must(u *url.URL, err error) *url.URL {
+func (o *PutRuntimeQuickscanConfigURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -83,17 +58,17 @@ func (o *GetRuntimeScanResultsURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetRuntimeScanResultsURL) String() string {
+func (o *PutRuntimeQuickscanConfigURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetRuntimeScanResultsURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *PutRuntimeQuickscanConfigURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetRuntimeScanResultsURL")
+		return nil, errors.New("scheme is required for a full url on PutRuntimeQuickscanConfigURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetRuntimeScanResultsURL")
+		return nil, errors.New("host is required for a full url on PutRuntimeQuickscanConfigURL")
 	}
 
 	base, err := o.Build()
@@ -107,6 +82,6 @@ func (o *GetRuntimeScanResultsURL) BuildFull(scheme, host string) (*url.URL, err
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetRuntimeScanResultsURL) StringFull(scheme, host string) string {
+func (o *PutRuntimeQuickscanConfigURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

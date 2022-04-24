@@ -28,6 +28,9 @@ type Application struct {
 	// application type
 	ApplicationType ApplicationType `json:"applicationType,omitempty"`
 
+	// cis docker benchmark result count per level
+	CisDockerBenchmarkResults []*CISDockerBenchmarkLevelCount `json:"cisDockerBenchmarkResults"`
+
 	// environments
 	Environments []string `json:"environments"`
 
@@ -52,6 +55,10 @@ func (m *Application) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCisDockerBenchmarkResults(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateVulnerabilities(formats); err != nil {
 		res = append(res, err)
 	}
@@ -72,6 +79,30 @@ func (m *Application) validateApplicationType(formats strfmt.Registry) error {
 			return ve.ValidateName("applicationType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Application) validateCisDockerBenchmarkResults(formats strfmt.Registry) error {
+	if swag.IsZero(m.CisDockerBenchmarkResults) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.CisDockerBenchmarkResults); i++ {
+		if swag.IsZero(m.CisDockerBenchmarkResults[i]) { // not required
+			continue
+		}
+
+		if m.CisDockerBenchmarkResults[i] != nil {
+			if err := m.CisDockerBenchmarkResults[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -109,6 +140,10 @@ func (m *Application) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCisDockerBenchmarkResults(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateVulnerabilities(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -126,6 +161,24 @@ func (m *Application) contextValidateApplicationType(ctx context.Context, format
 			return ve.ValidateName("applicationType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Application) contextValidateCisDockerBenchmarkResults(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.CisDockerBenchmarkResults); i++ {
+
+		if m.CisDockerBenchmarkResults[i] != nil {
+			if err := m.CisDockerBenchmarkResults[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

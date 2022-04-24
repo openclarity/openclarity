@@ -114,6 +114,12 @@ type GetApplicationsParams struct {
 	// ApplicationTypeIs.
 	ApplicationTypeIs []string
 
+	// CisDockerBenchmarkLevelGte.
+	CisDockerBenchmarkLevelGte *string
+
+	// CisDockerBenchmarkLevelLte.
+	CisDockerBenchmarkLevelLte *string
+
 	/* CurrentRuntimeScan.
 
 	   current runtime scan system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed
@@ -403,6 +409,28 @@ func (o *GetApplicationsParams) WithApplicationTypeIs(applicationTypeIs []string
 // SetApplicationTypeIs adds the applicationTypeIs to the get applications params
 func (o *GetApplicationsParams) SetApplicationTypeIs(applicationTypeIs []string) {
 	o.ApplicationTypeIs = applicationTypeIs
+}
+
+// WithCisDockerBenchmarkLevelGte adds the cisDockerBenchmarkLevelGte to the get applications params
+func (o *GetApplicationsParams) WithCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte *string) *GetApplicationsParams {
+	o.SetCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte)
+	return o
+}
+
+// SetCisDockerBenchmarkLevelGte adds the cisDockerBenchmarkLevelGte to the get applications params
+func (o *GetApplicationsParams) SetCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte *string) {
+	o.CisDockerBenchmarkLevelGte = cisDockerBenchmarkLevelGte
+}
+
+// WithCisDockerBenchmarkLevelLte adds the cisDockerBenchmarkLevelLte to the get applications params
+func (o *GetApplicationsParams) WithCisDockerBenchmarkLevelLte(cisDockerBenchmarkLevelLte *string) *GetApplicationsParams {
+	o.SetCisDockerBenchmarkLevelLte(cisDockerBenchmarkLevelLte)
+	return o
+}
+
+// SetCisDockerBenchmarkLevelLte adds the cisDockerBenchmarkLevelLte to the get applications params
+func (o *GetApplicationsParams) SetCisDockerBenchmarkLevelLte(cisDockerBenchmarkLevelLte *string) {
+	o.CisDockerBenchmarkLevelLte = cisDockerBenchmarkLevelLte
 }
 
 // WithCurrentRuntimeScan adds the currentRuntimeScan to the get applications params
@@ -737,6 +765,40 @@ func (o *GetApplicationsParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		// query array param applicationType[is]
 		if err := r.SetQueryParam("applicationType[is]", joinedApplicationTypeIs...); err != nil {
 			return err
+		}
+	}
+
+	if o.CisDockerBenchmarkLevelGte != nil {
+
+		// query param cisDockerBenchmarkLevel[gte]
+		var qrCisDockerBenchmarkLevelGte string
+
+		if o.CisDockerBenchmarkLevelGte != nil {
+			qrCisDockerBenchmarkLevelGte = *o.CisDockerBenchmarkLevelGte
+		}
+		qCisDockerBenchmarkLevelGte := qrCisDockerBenchmarkLevelGte
+		if qCisDockerBenchmarkLevelGte != "" {
+
+			if err := r.SetQueryParam("cisDockerBenchmarkLevel[gte]", qCisDockerBenchmarkLevelGte); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.CisDockerBenchmarkLevelLte != nil {
+
+		// query param cisDockerBenchmarkLevel[lte]
+		var qrCisDockerBenchmarkLevelLte string
+
+		if o.CisDockerBenchmarkLevelLte != nil {
+			qrCisDockerBenchmarkLevelLte = *o.CisDockerBenchmarkLevelLte
+		}
+		qCisDockerBenchmarkLevelLte := qrCisDockerBenchmarkLevelLte
+		if qCisDockerBenchmarkLevelLte != "" {
+
+			if err := r.SetQueryParam("cisDockerBenchmarkLevel[lte]", qCisDockerBenchmarkLevelLte); err != nil {
+				return err
+			}
 		}
 	}
 

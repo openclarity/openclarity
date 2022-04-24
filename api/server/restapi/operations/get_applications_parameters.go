@@ -101,6 +101,14 @@ type GetApplicationsParams struct {
 	  In: query
 	*/
 	ApplicationTypeIs []string
+	/*
+	  In: query
+	*/
+	CisDockerBenchmarkLevelGte *string
+	/*
+	  In: query
+	*/
+	CisDockerBenchmarkLevelLte *string
 	/*current runtime scan system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed
 	  In: query
 	*/
@@ -240,6 +248,16 @@ func (o *GetApplicationsParams) BindRequest(r *http.Request, route *middleware.M
 
 	qApplicationTypeIs, qhkApplicationTypeIs, _ := qs.GetOK("applicationType[is]")
 	if err := o.bindApplicationTypeIs(qApplicationTypeIs, qhkApplicationTypeIs, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, _ := qs.GetOK("cisDockerBenchmarkLevel[gte]")
+	if err := o.bindCisDockerBenchmarkLevelGte(qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCisDockerBenchmarkLevelLte, qhkCisDockerBenchmarkLevelLte, _ := qs.GetOK("cisDockerBenchmarkLevel[lte]")
+	if err := o.bindCisDockerBenchmarkLevelLte(qCisDockerBenchmarkLevelLte, qhkCisDockerBenchmarkLevelLte, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -684,6 +702,70 @@ func (o *GetApplicationsParams) bindApplicationTypeIs(rawData []string, hasKey b
 	}
 
 	o.ApplicationTypeIs = applicationTypeIsIR
+
+	return nil
+}
+
+// bindCisDockerBenchmarkLevelGte binds and validates parameter CisDockerBenchmarkLevelGte from query.
+func (o *GetApplicationsParams) bindCisDockerBenchmarkLevelGte(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CisDockerBenchmarkLevelGte = &raw
+
+	if err := o.validateCisDockerBenchmarkLevelGte(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCisDockerBenchmarkLevelGte carries on validations for parameter CisDockerBenchmarkLevelGte
+func (o *GetApplicationsParams) validateCisDockerBenchmarkLevelGte(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("cisDockerBenchmarkLevel[gte]", "query", *o.CisDockerBenchmarkLevelGte, []interface{}{"INFO", "WARN", "FATAL"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// bindCisDockerBenchmarkLevelLte binds and validates parameter CisDockerBenchmarkLevelLte from query.
+func (o *GetApplicationsParams) bindCisDockerBenchmarkLevelLte(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CisDockerBenchmarkLevelLte = &raw
+
+	if err := o.validateCisDockerBenchmarkLevelLte(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCisDockerBenchmarkLevelLte carries on validations for parameter CisDockerBenchmarkLevelLte
+func (o *GetApplicationsParams) validateCisDockerBenchmarkLevelLte(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("cisDockerBenchmarkLevel[lte]", "query", *o.CisDockerBenchmarkLevelLte, []interface{}{"INFO", "WARN", "FATAL"}, true); err != nil {
+		return err
+	}
 
 	return nil
 }

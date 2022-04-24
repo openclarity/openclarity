@@ -59,6 +59,9 @@ func NewGetRuntimeScanResultsParamsWithHTTPClient(client *http.Client) *GetRunti
 */
 type GetRuntimeScanResultsParams struct {
 
+	// CisDockerBenchmarkLevelGte.
+	CisDockerBenchmarkLevelGte *string
+
 	// VulnerabilitySeverityGte.
 	VulnerabilitySeverityGte *string
 
@@ -115,6 +118,17 @@ func (o *GetRuntimeScanResultsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithCisDockerBenchmarkLevelGte adds the cisDockerBenchmarkLevelGte to the get runtime scan results params
+func (o *GetRuntimeScanResultsParams) WithCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte *string) *GetRuntimeScanResultsParams {
+	o.SetCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte)
+	return o
+}
+
+// SetCisDockerBenchmarkLevelGte adds the cisDockerBenchmarkLevelGte to the get runtime scan results params
+func (o *GetRuntimeScanResultsParams) SetCisDockerBenchmarkLevelGte(cisDockerBenchmarkLevelGte *string) {
+	o.CisDockerBenchmarkLevelGte = cisDockerBenchmarkLevelGte
+}
+
 // WithVulnerabilitySeverityGte adds the vulnerabilitySeverityGte to the get runtime scan results params
 func (o *GetRuntimeScanResultsParams) WithVulnerabilitySeverityGte(vulnerabilitySeverityGte *string) *GetRuntimeScanResultsParams {
 	o.SetVulnerabilitySeverityGte(vulnerabilitySeverityGte)
@@ -133,6 +147,23 @@ func (o *GetRuntimeScanResultsParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
+
+	if o.CisDockerBenchmarkLevelGte != nil {
+
+		// query param cisDockerBenchmarkLevel[gte]
+		var qrCisDockerBenchmarkLevelGte string
+
+		if o.CisDockerBenchmarkLevelGte != nil {
+			qrCisDockerBenchmarkLevelGte = *o.CisDockerBenchmarkLevelGte
+		}
+		qCisDockerBenchmarkLevelGte := qrCisDockerBenchmarkLevelGte
+		if qCisDockerBenchmarkLevelGte != "" {
+
+			if err := r.SetQueryParam("cisDockerBenchmarkLevel[gte]", qCisDockerBenchmarkLevelGte); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.VulnerabilitySeverityGte != nil {
 

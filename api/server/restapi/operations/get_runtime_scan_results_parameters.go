@@ -35,6 +35,10 @@ type GetRuntimeScanResultsParams struct {
 	/*
 	  In: query
 	*/
+	CisDockerBenchmarkLevelGte *string
+	/*
+	  In: query
+	*/
 	VulnerabilitySeverityGte *string
 }
 
@@ -49,6 +53,11 @@ func (o *GetRuntimeScanResultsParams) BindRequest(r *http.Request, route *middle
 
 	qs := runtime.Values(r.URL.Query())
 
+	qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, _ := qs.GetOK("cisDockerBenchmarkLevel[gte]")
+	if err := o.bindCisDockerBenchmarkLevelGte(qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qVulnerabilitySeverityGte, qhkVulnerabilitySeverityGte, _ := qs.GetOK("vulnerabilitySeverity[gte]")
 	if err := o.bindVulnerabilitySeverityGte(qVulnerabilitySeverityGte, qhkVulnerabilitySeverityGte, route.Formats); err != nil {
 		res = append(res, err)
@@ -56,6 +65,38 @@ func (o *GetRuntimeScanResultsParams) BindRequest(r *http.Request, route *middle
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindCisDockerBenchmarkLevelGte binds and validates parameter CisDockerBenchmarkLevelGte from query.
+func (o *GetRuntimeScanResultsParams) bindCisDockerBenchmarkLevelGte(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CisDockerBenchmarkLevelGte = &raw
+
+	if err := o.validateCisDockerBenchmarkLevelGte(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCisDockerBenchmarkLevelGte carries on validations for parameter CisDockerBenchmarkLevelGte
+func (o *GetRuntimeScanResultsParams) validateCisDockerBenchmarkLevelGte(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("cisDockerBenchmarkLevel[gte]", "query", *o.CisDockerBenchmarkLevelGte, []interface{}{"INFO", "WARN", "FATAL"}, true); err != nil {
+		return err
+	}
+
 	return nil
 }
 
