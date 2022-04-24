@@ -173,7 +173,7 @@ func (s *Scanner) shouldIgnorePod(pod *corev1.Pod) bool {
 	return false
 }
 
-// initScan prepare scan config for all images
+// initScan Calculate properties of scan targets
 // nolint:cyclop
 func (s *Scanner) initScan() error {
 	var podsToScan []corev1.Pod

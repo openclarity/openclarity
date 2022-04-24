@@ -77,7 +77,7 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 		fullScanDone <- true
 	}()
 
-	// send all data on data queue, for workers to pick it up.
+	// send all scan data on scan data queue, for workers to pick it up.
 	for _, data := range imageIDToScanData {
 		go func(data *scanData, ks chan bool) {
 			select {
@@ -97,12 +97,11 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	case <-fullScanDone:
 		log.WithFields(s.logFields).Infof("All jobs has finished")
 		// Nonblocking notification of a finished scan
-		// notify back to server on scan done
 		nonBlockingNotification(scanDone)
 	}
 }
 
-// worker waits for data on the queue, run a scan job and waits for results from that scan job. he then notify that he is done to the Scanner
+// worker waits for data on the queue, runs a scan job and waits for results from that scan job. Upon completion, done is notified to the caller
 func (s *Scanner) worker(queue chan *scanData, workNumber int, done, ks chan bool) {
 	for {
 		select {
