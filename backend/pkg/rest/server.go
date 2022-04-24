@@ -209,6 +209,14 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 		return s.GetNamespaces(params)
 	})
 
+	api.GetRuntimeQuickscanConfigHandler = operations.GetRuntimeQuickscanConfigHandlerFunc(func(params operations.GetRuntimeQuickscanConfigParams) middleware.Responder {
+		return s.GetRuntimeQuickScanConfig(params)
+	})
+
+	api.PutRuntimeQuickscanConfigHandler = operations.PutRuntimeQuickscanConfigHandlerFunc(func(params operations.PutRuntimeQuickscanConfigParams) middleware.Responder {
+		return s.PutRuntimeQuickScanConfig(params)
+	})
+
 	server := restapi.NewServer(api)
 
 	server.ConfigureFlags()

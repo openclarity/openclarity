@@ -275,6 +275,7 @@ type Database interface {
 	JoinTables() JoinTables
 	IDsView() IDsView
 	ObjectTree() ObjectTree
+	QuickScanConfigTable() QuickScanConfigTable
 }
 
 type Handler struct {
@@ -351,10 +352,22 @@ func (db *Handler) IDsView() IDsView {
 	}
 }
 
+func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
+	return &QuickScanConfigTableHandler{
+		table: db.DB.Table(quickScanConfigTableName),
+	}
+}
+
 func Init(config *DBConfig) *Handler {
 	databaseHandler := Handler{}
 
 	databaseHandler.DB = initDataBase(config)
+
+	// Set defaults.
+	err := databaseHandler.QuickScanConfigTable().SetDefault()
+	if err != nil {
+		log.Fatalf("Failed to set deafult quick scan config: %v", err)
+	}
 
 	return &databaseHandler
 }
@@ -380,7 +393,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	setupJoinTables(db)
 
 	// this will ensure table is created
-	if err := db.AutoMigrate(&Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}); err != nil {
+	if err := db.AutoMigrate(&Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 

@@ -131,6 +131,28 @@ func (s *Server) GetNamespaces(_ operations.GetNamespacesParams) middleware.Resp
 	return operations.NewGetNamespacesOK().WithPayload(namespaces)
 }
 
+func (s *Server) GetRuntimeQuickScanConfig(_ operations.GetRuntimeQuickscanConfigParams) middleware.Responder {
+	conf, err := s.dbHandler.QuickScanConfigTable().Get()
+	if err != nil {
+		log.Errorf("Failed to get quick scan config: %v", err)
+		return operations.NewGetRuntimeQuickscanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewGetRuntimeQuickscanConfigOK().WithPayload(conf)
+}
+
+func (s *Server) PutRuntimeQuickScanConfig(params operations.PutRuntimeQuickscanConfigParams) middleware.Responder {
+	err := s.dbHandler.QuickScanConfigTable().Set(params.Body)
+	if err != nil {
+		log.Errorf("Failed to set quick scan config: %v", err)
+		return operations.NewPutRuntimeQuickscanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewPutRuntimeQuickscanConfigCreated()
+}
+
 /* ### End Handlers #### */
 
 func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models.RuntimeScanCounters, error) {
