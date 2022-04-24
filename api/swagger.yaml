@@ -189,6 +189,48 @@ definitions:
       - CICD
       - RUNTIME
 
+  CISDockerBenchmarkLevelCount:
+    type: object
+    properties:
+      level:
+        $ref: '#/definitions/CISDockerBenchmarkLevel'
+      count:
+        type: 'integer'
+        format: 'uint32'
+
+  CISDockerBenchmarkLevel:
+    type: string
+    enum: &CISDockerBenchmarkLevel
+      - INFO
+      - WARN
+      - FATAL
+
+  CISDockerBenchmarkCodeInfo:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      level:
+        type: 'number'
+        format: integer
+      assessments:
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkAssessment'
+
+  CISDockerBenchmarkAssessment:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      level:
+        type: 'number'
+        format: integer
+      filename:
+        type: 'string'
+      desc:
+        type: 'string'
+
   ApplicationInfo:
     type: 'object'
     required:
@@ -231,6 +273,11 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/VulnerabilityCount'
+      cisDockerBenchmarkResults:
+        description: 'cis docker benchmark result count per level'
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkLevelCount'
       environments:
         type: 'array'
         items:
@@ -267,6 +314,11 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/VulnerabilityCount'
+      cisDockerBenchmarkResults:
+        description: 'cis docker benchmark result count per level'
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkLevelCount'
       applications:
         type: 'integer'
         format: 'uint32'
@@ -473,6 +525,10 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/ResourceLayerCommand'
+      cisDockerBenchmarkResults:
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkCodeInfo'
 
   PackageVulnerabilityScan:
     type: 'object'
@@ -569,6 +625,16 @@ definitions:
         type: 'integer'
         format: 'uint32'
 
+  CISDockerBenchmarkScanCounters:
+    type: object
+    properties:
+      applications:
+        type: 'integer'
+        format: 'uint32'
+      resources:
+        type: 'integer'
+        format: 'uint32'
+
   MostVulnerable:
     type: object
     properties:
@@ -602,7 +668,14 @@ definitions:
       namespaces:
         type: 'array'
         items:
-          type: 'string'  #empty = all
+          type: 'string'
+
+  RuntimeQuickScanConfig:
+    description: 'Runtime quick scan configuration'
+    type: object
+    properties:
+      cisDockerBenchmarkScanEnabled:
+        type: 'boolean'
 
   Progress:
     type: object
@@ -627,6 +700,12 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/VulnerabilityCount'
+      cisDockerBenchmarkCounters:
+        $ref: '#/definitions/CISDockerBenchmarkScanCounters'
+      cisDockerBenchmarkCountPerLevel:
+        type: 'array'
+        items:
+          $ref: '#/definitions/CISDockerBenchmarkLevelCount'
       failures:
         type: 'array'
         items:
@@ -665,6 +744,36 @@ paths:
             type: 'array'
             items:
               $ref: '#/definitions/Namespace'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/quickscan/config:
+    get:
+      summary: 'Get runtime quick scan configuration'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/RuntimeQuickScanConfig'
+        default:
+          $ref: '#/responses/UnknownError'
+    put:
+      summary: 'Set runtime quick scan configuration'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/RuntimeQuickScanConfig'
+      responses:
+        '201':
+          description: 'Success'
+          schema:
+            $ref: '#/responses/Success'
+        '400':
+          description: 'Failed to set quick scan config'
+          schema:
+            type: 'string'
         default:
           $ref: '#/responses/UnknownError'
 
@@ -721,6 +830,7 @@ paths:
       summary: 'Get scan results'
       parameters:
         - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelGteFilter'
       responses:
         '200':
           description: 'Success'
@@ -826,6 +936,8 @@ paths:
         - $ref: '#/parameters/applicationEnvsDoesntContainElementsFilter'
         - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
         - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelGteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelLteFilter'
         - $ref: '#/parameters/applicationResourcesIsFilter'
         - $ref: '#/parameters/applicationResourcesIsNotFilter'
         - $ref: '#/parameters/applicationResourcesGteFilter'
@@ -945,6 +1057,8 @@ paths:
         - $ref: '#/parameters/resourceTypeIsFilter'
         - $ref: '#/parameters/vulnerabilitySeverityGteFilter'
         - $ref: '#/parameters/vulnerabilitySeverityLteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelGteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelLteFilter'
         - $ref: '#/parameters/applicationsIsFilter'
         - $ref: '#/parameters/applicationsIsNotFilter'
         - $ref: '#/parameters/applicationsGteFilter'
@@ -1728,6 +1842,20 @@ parameters:
     in: 'query'
     type: 'string'
     enum: *VulnerabilitySeverity
+    required: false
+
+  cisDockerBenchmarkLevelGteFilter:
+    name: 'cisDockerBenchmarkLevel[gte]'
+    in: 'query'
+    type: 'string'
+    enum: *CISDockerBenchmarkLevel
+    required: false
+
+  cisDockerBenchmarkLevelLteFilter:
+    name: 'cisDockerBenchmarkLevel[lte]'
+    in: 'query'
+    type: 'string'
+    enum: *CISDockerBenchmarkLevel
     required: false
 
   applicationsIsFilter:

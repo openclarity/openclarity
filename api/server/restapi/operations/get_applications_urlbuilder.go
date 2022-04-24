@@ -30,6 +30,8 @@ type GetApplicationsURL struct {
 	ApplicationResourcesIs                 []int64
 	ApplicationResourcesLte                *int64
 	ApplicationTypeIs                      []string
+	CisDockerBenchmarkLevelGte             *string
+	CisDockerBenchmarkLevelLte             *string
 	CurrentRuntimeScan                     *bool
 	PackageID                              *string
 	PackagesGte                            *int64
@@ -285,6 +287,22 @@ func (o *GetApplicationsURL) Build() (*url.URL, error) {
 		if qsv != "" {
 			qs.Set("applicationType[is]", qsv)
 		}
+	}
+
+	var cisDockerBenchmarkLevelGteQ string
+	if o.CisDockerBenchmarkLevelGte != nil {
+		cisDockerBenchmarkLevelGteQ = *o.CisDockerBenchmarkLevelGte
+	}
+	if cisDockerBenchmarkLevelGteQ != "" {
+		qs.Set("cisDockerBenchmarkLevel[gte]", cisDockerBenchmarkLevelGteQ)
+	}
+
+	var cisDockerBenchmarkLevelLteQ string
+	if o.CisDockerBenchmarkLevelLte != nil {
+		cisDockerBenchmarkLevelLteQ = *o.CisDockerBenchmarkLevelLte
+	}
+	if cisDockerBenchmarkLevelLteQ != "" {
+		qs.Set("cisDockerBenchmarkLevel[lte]", cisDockerBenchmarkLevelLteQ)
 	}
 
 	var currentRuntimeScanQ string
