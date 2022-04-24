@@ -1,5 +1,4 @@
 **/*.so
-#.DS_Store
 .idea/
 bin/
 .licensei.cache
