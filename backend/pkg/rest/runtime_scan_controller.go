@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/cisco-open/kubei/api/server/models"
 	"github.com/cisco-open/kubei/api/server/restapi/operations"
@@ -241,6 +242,11 @@ func (s *Server) startScan(namespaces []string) error {
 
 	// need to create scan done channel for every new scan
 	done := make(chan struct{})
+
+	if len(namespaces) == 0 {
+		// Empty namespaces list should scan all namespaces.
+		namespaces = []string{corev1.NamespaceAll}
+	}
 
 	err = s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
 		MaxScanParallelism:           10, // nolint:gomnd
