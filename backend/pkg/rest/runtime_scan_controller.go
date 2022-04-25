@@ -234,16 +234,21 @@ func (s *Server) startScan(namespaces []string) error {
 	})
 	s.vulnerabilitiesScanner.Clear()
 
+	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
+	if err != nil {
+		return fmt.Errorf("failed to get quick scan config from db: %v", err)
+	}
+
 	// need to create scan done channel for every new scan
 	done := make(chan struct{})
 
-	err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
+	err = s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
 		MaxScanParallelism:           10, // nolint:gomnd
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
 		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
 		DeleteJobPolicy:              runtime_scan_config.DeleteJobPolicySuccessful,
-		ShouldScanCISDockerBenchmark: false, // TODO: should get from the UI
+		ShouldScanCISDockerBenchmark: quickScanConfig.CisDockerBenchmarkScanEnabled,
 	}, done)
 	if err != nil {
 		return fmt.Errorf("failed to start scan: %v", err)
