@@ -188,7 +188,7 @@ func (a *ApplicationTableHandler) setApplicationsFilters(params GetApplicationsP
 
 	// cis docker benchmark filter
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
-	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelLte)
 
 	// system filter
 	ids, err := a.getApplicationIDs(params)

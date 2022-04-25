@@ -20,6 +20,7 @@ import (
 	"sort"
 	"testing"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/assert"
 
@@ -95,6 +96,95 @@ func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 	}{
 		{
 			name: "sanity",
+			args: args{
+				resource: &types.ResourceVulnerabilityScan{
+					CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+						{
+							Code:         "code1",
+							Level:        int64(dockle_types.InfoLevel),
+							Descriptions: "desc1",
+						},
+						{
+							Code:         "code2",
+							Level:        int64(dockle_types.WarnLevel),
+							Descriptions: "desc2",
+						},
+					},
+					PackageVulnerabilities: []*types.PackageVulnerabilityScan{
+						{
+							Cvss:              vulInfo.Cvss,
+							Description:       vulInfo.Description,
+							FixVersion:        "FixVersion",
+							Links:             vulInfo.Links,
+							Package:           pkgInfo,
+							Scanners:          scannersList,
+							Severity:          vulInfo.Severity,
+							VulnerabilityName: vulInfo.Name,
+						},
+					},
+					Resource: resourceInfo,
+				},
+				params: &TransactionParams{
+					FixVersions:         map[PkgVulID]string{},
+					Scanners:            map[ResourcePkgID][]string{},
+					VulnerabilitySource: models.VulnerabilitySourceCICD,
+				},
+			},
+			want: &Resource{
+				ID:   resourceID,
+				Hash: resourceInfo.ResourceHash,
+				Name: resourceInfo.ResourceName,
+				Type: resourceInfo.ResourceType,
+				Packages: []Package{
+					{
+						ID:       pkgID,
+						Name:     pkgInfo.Name,
+						Version:  pkgInfo.Version,
+						License:  pkgInfo.License,
+						Language: pkgInfo.Language,
+						Vulnerabilities: []Vulnerability{
+							{
+								ID:                vulnerabilityID,
+								Name:              vulInfo.Name,
+								Severity:          int(TypesVulnerabilitySeverityToInt[vulInfo.Severity]),
+								Description:       vulInfo.Description,
+								Links:             ArrayToDBArray(vulInfo.Links),
+								CVSS:              CreateCVSSString(vulInfo.Cvss),
+								CVSSBaseScore:     vulInfo.Cvss.GetBaseScore(),
+								CVSSSeverity:      int(ModelsVulnerabilitySeverityToInt[vulInfo.Cvss.GetCVSSSeverity()]),
+								ReportingScanners: ArrayToDBArray(scannersList),
+								Source:            models.VulnerabilitySourceCICD,
+							},
+						},
+					},
+				},
+				CISDockerBenchmarkResults: []CISDockerBenchmarkResult{
+					{
+						ResourceID:   resourceID,
+						Code:         "code1",
+						Level:        int(CISDockerBenchmarkLevelINFO),
+						Descriptions: "desc1",
+					},
+					{
+						ResourceID:   resourceID,
+						Code:         "code2",
+						Level:        int(CISDockerBenchmarkLevelWARN),
+						Descriptions: "desc2",
+					},
+				},
+			},
+			expectedTransactionParams: &TransactionParams{
+				FixVersions: map[PkgVulID]string{
+					CreatePkgVulID(pkgID, vulnerabilityID): "FixVersion",
+				},
+				Scanners: map[ResourcePkgID][]string{
+					CreateResourcePkgID(resourceID, pkgID): scannersList,
+				},
+				VulnerabilitySource: models.VulnerabilitySourceCICD,
+			},
+		},
+		{
+			name: "no cis docker benchmark results",
 			args: args{
 				resource: &types.ResourceVulnerabilityScan{
 					PackageVulnerabilities: []*types.PackageVulnerabilityScan{

@@ -1,11 +1,14 @@
 package database
 
+import "gorm.io/gorm"
+
 const (
 	cisDockerBenchmarkResultTableName = "cis_docker_benchmark_results"
 )
 
 type CISDockerBenchmarkResult struct {
-	ID string `gorm:"primarykey" faker:"-"`
+	gorm.Model `faker:"-"`
+	ResourceID string `faker:"-"`
 
 	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: code3, code2, code1"`
 	Level        int    `json:"level,omitempty" gorm:"column:level" faker:"oneof: 3, 2, 1"`

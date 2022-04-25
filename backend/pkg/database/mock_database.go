@@ -50,3 +50,7 @@ func (m *MockHandler) IDsView() IDsView {
 func (m *MockHandler) ObjectTree() ObjectTree {
 	return nil
 }
+
+func (m *MockHandler) QuickScanConfigTable() QuickScanConfigTable {
+	return nil
+}

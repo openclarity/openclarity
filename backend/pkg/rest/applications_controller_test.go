@@ -21,6 +21,7 @@ import (
 	"sort"
 	"testing"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/golang/mock/gomock"
 	"gotest.tools/assert"
 
@@ -420,6 +421,246 @@ func Test_updateCurrentResource(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "missing CISDockerBenchmarkResults - keep old results",
+			args: args{
+				currentResource: &database.Resource{
+					ID:                 "ResourceID",
+					Hash:               "ResourceHash",
+					Name:               "ResourceName",
+					Type:               "ResourceType",
+					SbomID:             "ResourceSbomId",
+					ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+					Packages: []database.Package{
+						{
+							ID:              "pkg-id-1",
+							Name:            "pkg-name-1",
+							Version:         "pkg-version-1",
+							License:         "pkg-license-1",
+							Language:        "pkg-language-1",
+							Vulnerabilities: []database.Vulnerability{},
+						},
+					},
+					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						{
+							ResourceID:   "ResourceID",
+							Code:         "code1",
+							Level:        int(database.CISDockerBenchmarkLevelINFO),
+							Descriptions: "desc1",
+						},
+						{
+							ResourceID:   "ResourceID",
+							Code:         "code2",
+							Level:        int(database.CISDockerBenchmarkLevelWARN),
+							Descriptions: "desc2",
+						},
+					},
+				},
+				newResource: &database.Resource{
+					ID:                 "ResourceID",
+					Hash:               "ResourceHash",
+					Name:               "ResourceName",
+					Type:               "ResourceType",
+					SbomID:             "ResourceSbomId",
+					ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+					Packages: []database.Package{
+						{
+							ID:       "pkg-id-2",
+							Name:     "pkg-name-2",
+							Version:  "pkg-version-2",
+							License:  "pkg-license-2",
+							Language: "pkg-language-2",
+							Vulnerabilities: []database.Vulnerability{
+								{
+									ID:   "vul-id-1",
+									Name: "vul-name-1",
+								},
+							},
+						},
+					},
+				},
+				transactionParams: &database.TransactionParams{
+					Scanners: map[database.ResourcePkgID][]string{
+						database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+					},
+					Analyzers: map[database.ResourcePkgID][]string{},
+				},
+			},
+			expectedTransactionParams: &database.TransactionParams{
+				Scanners: map[database.ResourcePkgID][]string{
+					database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+				},
+				Analyzers: map[database.ResourcePkgID][]string{
+					database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+				},
+			},
+			want: &database.Resource{
+				ID:                 "ResourceID",
+				Hash:               "ResourceHash",
+				Name:               "ResourceName",
+				Type:               "ResourceType",
+				SbomID:             "ResourceSbomId",
+				ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+				CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+					{
+						ResourceID:   "ResourceID",
+						Code:         "code1",
+						Level:        int(database.CISDockerBenchmarkLevelINFO),
+						Descriptions: "desc1",
+					},
+					{
+						ResourceID:   "ResourceID",
+						Code:         "code2",
+						Level:        int(database.CISDockerBenchmarkLevelWARN),
+						Descriptions: "desc2",
+					},
+				},
+				Packages: []database.Package{
+					{
+						ID:              "pkg-id-1",
+						Name:            "pkg-name-1",
+						Version:         "pkg-version-1",
+						License:         "pkg-license-1",
+						Language:        "pkg-language-1",
+						Vulnerabilities: []database.Vulnerability{},
+					},
+					{
+						ID:       "pkg-id-2",
+						Name:     "pkg-name-2",
+						Version:  "pkg-version-2",
+						License:  "pkg-license-2",
+						Language: "pkg-language-2",
+						Vulnerabilities: []database.Vulnerability{
+							{
+								ID:   "vul-id-1",
+								Name: "vul-name-1",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "new CISDockerBenchmarkResults - replace",
+			args: args{
+				currentResource: &database.Resource{
+					ID:                 "ResourceID",
+					Hash:               "ResourceHash",
+					Name:               "ResourceName",
+					Type:               "ResourceType",
+					SbomID:             "ResourceSbomId",
+					ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+					Packages: []database.Package{
+						{
+							ID:              "pkg-id-1",
+							Name:            "pkg-name-1",
+							Version:         "pkg-version-1",
+							License:         "pkg-license-1",
+							Language:        "pkg-language-1",
+							Vulnerabilities: []database.Vulnerability{},
+						},
+					},
+					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						{
+							ResourceID:   "ResourceID",
+							Code:         "code1",
+							Level:        int(database.CISDockerBenchmarkLevelINFO),
+							Descriptions: "desc1",
+						},
+						{
+							ResourceID:   "ResourceID",
+							Code:         "code2",
+							Level:        int(database.CISDockerBenchmarkLevelWARN),
+							Descriptions: "desc2",
+						},
+					},
+				},
+				newResource: &database.Resource{
+					ID:                 "ResourceID",
+					Hash:               "ResourceHash",
+					Name:               "ResourceName",
+					Type:               "ResourceType",
+					SbomID:             "ResourceSbomId",
+					ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						{
+							ResourceID:   "ResourceID",
+							Code:         "code1",
+							Level:        int(database.CISDockerBenchmarkLevelWARN),
+							Descriptions: "desc1",
+						},
+					},
+					Packages: []database.Package{
+						{
+							ID:       "pkg-id-2",
+							Name:     "pkg-name-2",
+							Version:  "pkg-version-2",
+							License:  "pkg-license-2",
+							Language: "pkg-language-2",
+							Vulnerabilities: []database.Vulnerability{
+								{
+									ID:   "vul-id-1",
+									Name: "vul-name-1",
+								},
+							},
+						},
+					},
+				},
+				transactionParams: &database.TransactionParams{
+					Scanners: map[database.ResourcePkgID][]string{
+						database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+					},
+					Analyzers: map[database.ResourcePkgID][]string{},
+				},
+			},
+			expectedTransactionParams: &database.TransactionParams{
+				Scanners: map[database.ResourcePkgID][]string{
+					database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+				},
+				Analyzers: map[database.ResourcePkgID][]string{
+					database.CreateResourcePkgID("ResourceID", "pkg-id-2"): {"scanner1"},
+				},
+			},
+			want: &database.Resource{
+				ID:                 "ResourceID",
+				Hash:               "ResourceHash",
+				Name:               "ResourceName",
+				Type:               "ResourceType",
+				SbomID:             "ResourceSbomId",
+				ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
+				CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+					{
+						ResourceID:   "ResourceID",
+						Code:         "code1",
+						Level:        int(database.CISDockerBenchmarkLevelWARN),
+						Descriptions: "desc1",
+					},
+				},
+				Packages: []database.Package{
+					{
+						ID:              "pkg-id-1",
+						Name:            "pkg-name-1",
+						Version:         "pkg-version-1",
+						License:         "pkg-license-1",
+						Language:        "pkg-language-1",
+						Vulnerabilities: []database.Vulnerability{},
+					},
+					{
+						ID:       "pkg-id-2",
+						Name:     "pkg-name-2",
+						Version:  "pkg-version-2",
+						License:  "pkg-license-2",
+						Language: "pkg-language-2",
+						Vulnerabilities: []database.Vulnerability{
+							{
+								ID:   "vul-id-1",
+								Name: "vul-name-1",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -514,6 +755,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -551,6 +806,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								License:         pkgInfo1.License,
 								Language:        pkgInfo1.Language,
 								Vulnerabilities: []database.Vulnerability{},
+							},
+						},
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo1),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo1),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
 							},
 						},
 					},
@@ -630,6 +899,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -641,6 +924,18 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								vulInfo2,
 							},
 							Resource: resourceInfo2,
+							CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+								{
+									Code:         "code1",
+									Level:        int64(dockle_types.InfoLevel),
+									Descriptions: "desc1",
+								},
+								{
+									Code:         "code2",
+									Level:        int64(dockle_types.WarnLevel),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -658,6 +953,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
+							},
+						},
 						Packages: []database.Package{
 							{
 								ID:       database.CreatePackageID(pkgInfo1),
@@ -740,6 +1049,18 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								vulInfo1,
 							},
 							Resource: resourceInfo2,
+							CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+								{
+									Code:         "code1",
+									Level:        int64(dockle_types.InfoLevel),
+									Descriptions: "desc1",
+								},
+								{
+									Code:         "code2",
+									Level:        int64(dockle_types.WarnLevel),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -774,6 +1095,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
+							},
+						},
 						Packages: []database.Package{
 							{
 								ID:       database.CreatePackageID(pkgInfo1),
@@ -863,6 +1198,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -873,6 +1222,18 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								vulInfo1,
 							},
 							Resource: resourceInfo2,
+							CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+								{
+									Code:         "code1",
+									Level:        int64(dockle_types.InfoLevel),
+									Descriptions: "desc1",
+								},
+								{
+									Code:         "code2",
+									Level:        int64(dockle_types.WarnLevel),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -890,6 +1251,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
+							},
+						},
 						Packages: []database.Package{
 							{
 								ID:       database.CreatePackageID(pkgInfo1),
@@ -980,6 +1355,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo1),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 						// need to update existing
 						{
@@ -998,6 +1387,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: nil,
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -1009,6 +1412,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								vulInfo2,
 							},
 							Resource: resourceInfo2,
+							CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+								{
+									Code:         "code1",
+									Level:        int64(dockle_types.FatalLevel),
+									Descriptions: "desc1",
+								},
+							},
 						},
 					},
 				},
@@ -1035,6 +1445,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								License:         pkgInfo1.License,
 								Language:        pkgInfo1.Language,
 								Vulnerabilities: []database.Vulnerability{},
+							},
+						},
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo1),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo1),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
 							},
 						},
 					},
@@ -1066,6 +1490,15 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								Vulnerabilities: []database.Vulnerability{
 									database.CreateVulnerability(vulInfo2, &database.TransactionParams{}),
 								},
+							},
+						},
+						// CISDockerBenchmarkResults updated.
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelFATAL),
+								Descriptions: "desc1",
 							},
 						},
 					},
@@ -1130,6 +1563,20 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: nil,
 								},
 							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
 						},
 					},
 				},
@@ -1141,6 +1588,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								vulInfo2,
 							},
 							Resource: resourceInfo2,
+							CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+								{
+									Code:         "code1",
+									Level:        int64(dockle_types.FatalLevel),
+									Descriptions: "desc1",
+								},
+							},
 						},
 					},
 				},
@@ -1181,6 +1635,161 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								Vulnerabilities: []database.Vulnerability{
 									database.CreateVulnerability(vulInfo2, &database.TransactionParams{}),
 								},
+							},
+						},
+						// CISDockerBenchmarkResults updated.
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelFATAL),
+								Descriptions: "desc1",
+							},
+						},
+					},
+				},
+			},
+			expectedTransactionParams: &database.TransactionParams{
+				FixVersions: map[database.PkgVulID]string{
+					database.CreatePkgVulID(database.CreatePackageID(pkgInfo1), database.CreateVulnerabilityID(vulInfo1)): "vul-fix-version",
+					database.CreatePkgVulID(database.CreatePackageID(pkgInfo2), database.CreateVulnerabilityID(vulInfo2)): "vul-fix-version2",
+				},
+				Scanners: map[database.ResourcePkgID][]string{
+					database.CreateResourcePkgID(database.CreateResourceID(resourceInfo2), database.CreatePackageID(pkgInfo1)): {"scanner1"},
+					database.CreateResourcePkgID(database.CreateResourceID(resourceInfo2), database.CreatePackageID(pkgInfo2)): {"scanner2"},
+				},
+				Analyzers: map[database.ResourcePkgID][]string{
+					// only resourceInfo2 + pkgInfo2 is new discover by scanners.
+					database.CreateResourcePkgID(database.CreateResourceID(resourceInfo2), database.CreatePackageID(pkgInfo2)): {"scanner2"},
+				},
+			},
+		},
+		{
+			name: "1 existing resource with new pkg + 1 only on current + should replace resources list + no cis update exist",
+			args: args{
+				application: &database.Application{
+					ID:           "app-id",
+					Name:         "app-name",
+					Type:         "app-type",
+					Labels:       "app-labels",
+					Environments: "app-env",
+					Resources: []database.Resource{
+						// only on current
+						{
+							ID:                 database.CreateResourceID(resourceInfo1),
+							Hash:               resourceInfo1.ResourceHash,
+							Name:               resourceInfo1.ResourceName,
+							Type:               resourceInfo1.ResourceType,
+							ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer2"}),
+							Packages: []database.Package{
+								{
+									ID:              database.CreatePackageID(pkgInfo1),
+									Name:            pkgInfo1.Name,
+									Version:         pkgInfo1.Version,
+									License:         pkgInfo1.License,
+									Language:        pkgInfo1.Language,
+									Vulnerabilities: []database.Vulnerability{},
+								},
+							},
+						},
+						// need to update existing
+						{
+							ID:                 database.CreateResourceID(resourceInfo2),
+							Hash:               resourceInfo2.ResourceHash,
+							Name:               resourceInfo2.ResourceName,
+							Type:               resourceInfo2.ResourceType,
+							ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer2"}),
+							Packages: []database.Package{
+								{
+									ID:              database.CreatePackageID(pkgInfo1),
+									Name:            pkgInfo1.Name,
+									Version:         pkgInfo1.Version,
+									License:         pkgInfo1.License,
+									Language:        pkgInfo1.Language,
+									Vulnerabilities: nil,
+								},
+							},
+							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code1",
+									Level:        int(database.CISDockerBenchmarkLevelINFO),
+									Descriptions: "desc1",
+								},
+								{
+									ResourceID:   database.CreateResourceID(resourceInfo2),
+									Code:         "code2",
+									Level:        int(database.CISDockerBenchmarkLevelWARN),
+									Descriptions: "desc2",
+								},
+							},
+						},
+					},
+				},
+				applicationVulnerabilityScan: &types.ApplicationVulnerabilityScan{
+					Resources: []*types.ResourceVulnerabilityScan{
+						{
+							PackageVulnerabilities: []*types.PackageVulnerabilityScan{
+								vulInfo1,
+								vulInfo2,
+							},
+							Resource: resourceInfo2,
+							// CisDockerBenchmarkResults is missing - no need to update.
+						},
+					},
+				},
+				shouldReplaceResources: true,
+			},
+			want: &database.Application{
+				ID:           "app-id",
+				Name:         "app-name",
+				Type:         "app-type",
+				Labels:       "app-labels",
+				Environments: "app-env",
+				Resources: []database.Resource{
+					{
+						ID:                 database.CreateResourceID(resourceInfo2),
+						Hash:               resourceInfo2.ResourceHash,
+						Name:               resourceInfo2.ResourceName,
+						Type:               resourceInfo2.ResourceType,
+						ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer2"}),
+						Packages: []database.Package{
+							// existing pkg - vulnerabilities update
+							{
+								ID:       database.CreatePackageID(pkgInfo1),
+								Name:     pkgInfo1.Name,
+								Version:  pkgInfo1.Version,
+								License:  pkgInfo1.License,
+								Language: pkgInfo1.Language,
+								Vulnerabilities: []database.Vulnerability{
+									database.CreateVulnerability(vulInfo1, &database.TransactionParams{}),
+								},
+							},
+							// new pkg
+							{
+								ID:       database.CreatePackageID(pkgInfo2),
+								Name:     pkgInfo2.Name,
+								Version:  pkgInfo2.Version,
+								License:  pkgInfo2.License,
+								Language: pkgInfo2.Language,
+								Vulnerabilities: []database.Vulnerability{
+									database.CreateVulnerability(vulInfo2, &database.TransactionParams{}),
+								},
+							},
+						},
+						// CISDockerBenchmarkResults is missing, no need to update.
+						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code1",
+								Level:        int(database.CISDockerBenchmarkLevelINFO),
+								Descriptions: "desc1",
+							},
+							{
+								ResourceID:   database.CreateResourceID(resourceInfo2),
+								Code:         "code2",
+								Level:        int(database.CISDockerBenchmarkLevelWARN),
+								Descriptions: "desc2",
 							},
 						},
 					},

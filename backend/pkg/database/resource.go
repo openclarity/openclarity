@@ -17,10 +17,10 @@ package database
 
 import (
 	"fmt"
-	"github.com/google/martian/log"
 	"strings"
 
 	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -56,7 +56,7 @@ type Resource struct {
 	SbomID                    string                     `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
 	ReportingAnalyzers        string                     `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
 	Packages                  []Package                  `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
-	CISDockerBenchmarkResults []CISDockerBenchmarkResult `json:"cis_docker_benchmark_results,omitempty" gorm:"cis_docker_benchmark_results;" faker:"-"`
+	CISDockerBenchmarkResults []CISDockerBenchmarkResult `json:"cis_docker_benchmark_results,omitempty" faker:"-"`
 }
 
 type ResourceView struct {
@@ -100,7 +100,7 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	resource := CreateResource(resourceVulnerabilityScan.Resource)
 
 	if len(resourceVulnerabilityScan.CisDockerBenchmarkResults) > 0 {
-		resource.WithCISDockerBenchmarkResults(createResourceCISDockerBenchmarkResults(resourceVulnerabilityScan.CisDockerBenchmarkResults))
+		resource.WithCISDockerBenchmarkResults(createResourceCISDockerBenchmarkResults(resource.ID, resourceVulnerabilityScan.CisDockerBenchmarkResults))
 	}
 
 	for _, pkgVul := range resourceVulnerabilityScan.PackageVulnerabilities {
@@ -135,7 +135,7 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	return resource.WithPackages(pkgs)
 }
 
-func createResourceCISDockerBenchmarkResults(results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkResult {
+func createResourceCISDockerBenchmarkResults(resourceID string, results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkResult {
 	ret := make([]CISDockerBenchmarkResult, 0, len(results))
 	for i := range results {
 		level := FromDockleTypeToLevel(results[i].Level)
@@ -145,6 +145,7 @@ func createResourceCISDockerBenchmarkResults(results []*types.CISDockerBenchmark
 		}
 
 		ret = append(ret, CISDockerBenchmarkResult{
+			ResourceID:   resourceID,
 			Code:         results[i].Code,
 			Level:        int(level),
 			Descriptions: results[i].Descriptions,
@@ -271,7 +272,7 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 
 	// cis docker benchmark filter
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
-	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelLte)
 
 	// system filter
 	ids, err := r.getResourceIDs(params)
