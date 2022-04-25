@@ -396,6 +396,7 @@ func (a *ApplicationTableHandler) setCountFilters(tx *gorm.DB, filters *CountFil
 	tx = FilterIs(tx, columnAppID, filters.ApplicationIDs)
 
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, filters.VulnerabilitySeverityGte)
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx
 }

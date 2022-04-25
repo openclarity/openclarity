@@ -52,8 +52,9 @@ type TransactionParams struct {
 }
 
 type CountFilters struct {
-	ApplicationIDs           []string
-	VulnerabilitySeverityGte *string
+	ApplicationIDs             []string
+	VulnerabilitySeverityGte   *string
+	CisDockerBenchmarkLevelGte *string
 }
 
 func CreatePkgVulID(pkgID, vulID string) PkgVulID {

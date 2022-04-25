@@ -513,6 +513,7 @@ func (r *ResourceTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilter
 	tx = FilterIs(tx, columnResourceID, resourceIds)
 
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, filters.VulnerabilitySeverityGte)
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx, nil
 }

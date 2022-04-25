@@ -331,6 +331,7 @@ type Database interface {
 	IDsView() IDsView
 	ObjectTree() ObjectTree
 	QuickScanConfigTable() QuickScanConfigTable
+	CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable
 }
 
 type Handler struct {
@@ -410,6 +411,13 @@ func (db *Handler) IDsView() IDsView {
 func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
 	return &QuickScanConfigTableHandler{
 		table: db.DB.Table(quickScanConfigTableName),
+	}
+}
+
+func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
+	return &CISDockerBenchmarkResultTableHandler{
+		table:   db.DB.Table(cisDockerBenchmarkResultTableName),
+		IDsView: db.IDsView(),
 	}
 }
 

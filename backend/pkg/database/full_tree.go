@@ -93,7 +93,7 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 	}
 
 	log.Tracef("Updating resource=%+v", resource)
-	if err := tx.Omit("Packages").
+	if err := tx.Omit("Packages", "CISDockerBenchmarkResults").
 		Save(resource).Error; err != nil {
 		return fmt.Errorf("failed to update resource: %v", err)
 	}
@@ -104,6 +104,14 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		Session(&gorm.Session{FullSaveAssociations: true}).
 		Association("Packages").Replace(resource.Packages); err != nil {
 		return fmt.Errorf("failed to update resource packages association: %v", err)
+	}
+
+	// Update cis_docker_benchmark_results
+	log.Tracef("Updating cis_docker_benchmark_results. packages=%+v", resource.Packages)
+	if err := tx.Model(resource).
+		Session(&gorm.Session{FullSaveAssociations: true}).
+		Association("CISDockerBenchmarkResults").Replace(resource.CISDockerBenchmarkResults); err != nil {
+		return fmt.Errorf("failed to update cis_docker_benchmark_results association: %v", err)
 	}
 
 	return nil

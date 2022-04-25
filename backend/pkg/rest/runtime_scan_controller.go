@@ -82,9 +82,12 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	// in the case of no application IDs to look by, nothing was scanned, so we can just return
 	if len(state.runtimeScanApplicationIDs) == 0 {
 		return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
-			Counters:                 &models.RuntimeScanCounters{},
-			Failures:                 failures,
-			VulnerabilityPerSeverity: []*models.VulnerabilityCount{},
+			CisDockerBenchmarkCountPerLevel: []*models.CISDockerBenchmarkLevelCount{},
+			CisDockerBenchmarkCounters:      &models.CISDockerBenchmarkScanCounters{},
+			Counters:                        &models.RuntimeScanCounters{},
+			Failures:                        failures,
+			ScannedNamespaces:               s.scannedNamespaces,
+			VulnerabilityPerSeverity:        []*models.VulnerabilityCount{},
 		})
 	}
 
@@ -107,11 +110,33 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 			WithPayload(oopsResponse)
 	}
 
+	cisDockerBenchmarkCounters, err := s.getRuntimeScanCisDockerBenchmarkCounters(&database.CountFilters{
+		ApplicationIDs:             state.runtimeScanApplicationIDs,
+		CisDockerBenchmarkLevelGte: params.CisDockerBenchmarkLevelGte,
+	})
+	if err != nil {
+		log.Errorf("Failed to get cis docker benchmark counters: %v", err)
+		return operations.NewGetRuntimeScanResultsDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	cisDockerBenchmarkCountPerLevel, err := s.dbHandler.CISDockerBenchmarkResultTable().CountPerLevel(&database.CountFilters{
+		ApplicationIDs:             state.runtimeScanApplicationIDs,
+		CisDockerBenchmarkLevelGte: params.CisDockerBenchmarkLevelGte,
+	})
+	if err != nil {
+		log.Errorf("Failed to get cis docker bencmark issues per level: %v", err)
+		return operations.NewGetRuntimeScanResultsDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
 	return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
-		Counters:                 counters,
-		Failures:                 failures,
-		ScannedNamespaces:        s.scannedNamespaces,
-		VulnerabilityPerSeverity: vulPerSeverity,
+		CisDockerBenchmarkCountPerLevel: cisDockerBenchmarkCountPerLevel,
+		CisDockerBenchmarkCounters:      cisDockerBenchmarkCounters,
+		Counters:                        counters,
+		Failures:                        failures,
+		ScannedNamespaces:               s.scannedNamespaces,
+		VulnerabilityPerSeverity:        vulPerSeverity,
 	})
 }
 
@@ -179,6 +204,21 @@ func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models
 		Packages:        uint32(pkgCount),
 		Resources:       uint32(resCount),
 		Vulnerabilities: uint32(vulCount),
+	}, nil
+}
+
+func (s *Server) getRuntimeScanCisDockerBenchmarkCounters(filters *database.CountFilters) (*models.CISDockerBenchmarkScanCounters, error) {
+	appCount, err := s.dbHandler.ApplicationTable().Count(filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count applications: %v", err)
+	}
+	resCount, err := s.dbHandler.ResourceTable().Count(filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count resources: %v", err)
+	}
+	return &models.CISDockerBenchmarkScanCounters{
+		Applications: uint32(appCount),
+		Resources:    uint32(resCount),
 	}, nil
 }
 
