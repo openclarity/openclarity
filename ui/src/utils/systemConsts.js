@@ -16,3 +16,9 @@ export const SEVERITY_ITEMS = {
     LOW: {value: "LOW", label: "Low", color: COLORS["color-warning-low"]},
     NEGLIGIBLE: {value: "NEGLIGIBLE", label: "Negligible", color: COLORS["color-status-blue"]}
 };
+
+export const CIS_SEVERITY_ITEMS = {
+    FATAL: {value: "FATAL", label: "Fatal", color: COLORS["color-error"]},
+    WARN: {value: "WARN", label: "Warning", color: COLORS["color-warning"]},
+    INFO: {value: "INFO", label: "Info", color: COLORS["color-grey-black"]}
+};

@@ -71,7 +71,6 @@ const ApplicationForm = ({initialData={}, onClose, onSuccess}) => {
             title={`${isEditForm ? "Edit" : "New"} Application`}
             className="application-form-modal"
             onClose={onClose}
-            doneTitle={isEditForm ? "Finish" : "Create Application"}
             stickLeft
             hideCancel
             hideSubmit
@@ -89,6 +88,7 @@ const ApplicationForm = ({initialData={}, onClose, onSuccess}) => {
                     }
                 }}
                 onSubmitSuccess={onSuccess}
+                saveButtonTitle={isEditForm ? "Finish" : "Create Application"}
             >
                 <FormFields />
             </FormWrapper>

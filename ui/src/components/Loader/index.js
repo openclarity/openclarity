@@ -5,7 +5,7 @@ import COLORS from 'utils/scss_variables.module.scss';
 
 import './loader.scss';
 
-const Loader = ({large=false}) => (
+const Loader = ({large=false, small=false}) => (
     <SpinnerCircularFixed
         className="ag-loader"
         size={large ? 78 : 64}

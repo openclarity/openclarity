@@ -22,7 +22,7 @@ const getMissingValueItemKeys = (valueKey, items) => {
 }
 
 const SelectField = (props) => {
-    const {items: fieldItems=[], placeholder, creatable=false, disabled, className, small=false, label, tooltipText} = props;
+    const {items: fieldItems=[], placeholder, creatable=false, disabled, className, small=false, label, tooltipText, components={}} = props;
     const [field, meta, helpers] = useField(props);
     const {value} = meta;
     const {name} = field;
@@ -64,6 +64,7 @@ const SelectField = (props) => {
                 disabled={disabled}
                 placeholder={placeholder}
                 small={small}
+                components={components}
             />
             {meta.touched && meta.error && <FieldError>{meta.error}</FieldError>}
         </div>

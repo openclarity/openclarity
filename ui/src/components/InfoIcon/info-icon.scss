@@ -3,6 +3,9 @@
 $size: 12px;
 $inner-icon-size: 10px;
 
+$size-large: 14px;
+$inner-icon-size-large: 12px;
+
 .info-icon-wrapper {
     background-color: $color-grey-light;
     width: $size;
@@ -12,6 +15,17 @@ $inner-icon-size: 10px;
     align-items: center;
     justify-content: space-around;
     
+    &.large {
+        width: $size-large;
+        height: $size-large;
+        background-color: $color-main;
+
+        .icon {
+            width: $inner-icon-size-large;
+            height: $inner-icon-size-large;
+            color: white;
+        }
+    }
     .icon {
         color: $color-grey-black;
         width: $inner-icon-size;
