@@ -112,17 +112,19 @@ func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) 
 }
 
 func createFsLayerCommands(layers []containerregistry_v1.Layer, commands []string) ([]*FsLayerCommand, error) {
-	layerCommands := make([]*FsLayerCommand, len(layers))
-
-	for i, layer := range layers {
-		layerDiffID, err := layer.DiffID() // specifies the Hash of the uncompressed layer
+	var layerCommands []*FsLayerCommand
+	for i, _ := range layers {
+		if commands[i] == "" {
+			continue
+		}
+		layerDiffID, err := layers[i].DiffID() // specifies the Hash of the uncompressed layer
 		if err != nil {
 			return nil, fmt.Errorf("failed to get layer diffID: %v", err)
 		}
-		layerCommands[i] = &FsLayerCommand{
+		layerCommands = append(layerCommands, &FsLayerCommand{
 			Command: commands[i],
 			Layer:   layerDiffID.Hex,
-		}
+		})
 	}
 
 	return layerCommands, nil
