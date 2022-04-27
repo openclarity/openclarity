@@ -148,9 +148,8 @@ const SeverityFilterAndCountersSteps = () => {
                                 )
                             })
                         }
+                        {loading && <Loader small absolute={false} />}
                     </div>
-                    {/* <div style={{position: "relative"}}><Loader small /></div> */}
-                    {/* {loading && <div style={{position: "relative"}}><Loader small /></div>} */}
             </StepDisplay>
         </React.Fragment>
     )

@@ -19,9 +19,14 @@ $severity-select-width: 160px;
     .step-display {
         height: 36px;
 
-        .select-counter-buttons-wrapper button {
-            margin: 5px 0;
-            margin-right: 10px;
+        .select-counter-buttons-wrapper {
+            display: flex;
+            align-items: center;
+            
+            button {
+                margin: 5px 0;
+                margin-right: 10px;
+            }
         }
     }
 }

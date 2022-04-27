@@ -20,5 +20,5 @@ export const SEVERITY_ITEMS = {
 export const CIS_SEVERITY_ITEMS = {
     FATAL: {value: "FATAL", label: "Fatal", color: COLORS["color-error"]},
     WARN: {value: "WARN", label: "Warning", color: COLORS["color-warning"]},
-    INFO: {value: "INFO", label: "Info", color: COLORS["color-grey-black"]}
+    INFO: {value: "INFO", label: "Info", color: COLORS["color-main"]}
 };

@@ -2,9 +2,20 @@ import React from 'react';
 import classnames from 'classnames';
 import Tooltip from 'components/Tooltip';
 import Icon, { ICON_NAMES } from 'components/Icon';
-import { SEVERITY_ITEMS } from 'utils/systemConsts';
+import { SEVERITY_ITEMS, CIS_SEVERITY_ITEMS } from 'utils/systemConsts';
 
 import './vulnerabilities-summary-display.scss';
+
+export const CisBenchmarkLevelsDisplay = ({id, levels, withTotal}) => (
+    <VulnerabilitiesSummaryDisplay
+        id={id}
+        vulnerabilities={levels || []}
+        icon={ICON_NAMES.ALERT}
+        severityItems={CIS_SEVERITY_ITEMS}
+        severityKey="level"
+        withTotal={withTotal}
+    />
+)
 
 const TotalDisplay = ({id, vulnerabilities}) => {
     const totalTooltipId = `vulnerability-summery-total-${id}`;
