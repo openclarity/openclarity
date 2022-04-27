@@ -141,7 +141,7 @@ Contributions of integrations with additional tools are more than welcome!
            ```
         2. Run the backend using demo data:
            ```shell
-           docker run -p 8080:8080 -e FAKE_DATA=true -e ENABLE_DB_INFO_LOGS=true -e DATABASE_DRIVER=LOCAL ghcr.io/kubeclarity/kubeclarity:test run
+           docker run -p 8080:8080 -e FAKE_RUNTIME_SCANNER=true -e FAKE_DATA=true -e ENABLE_DB_INFO_LOGS=true -e DATABASE_DRIVER=LOCAL ghcr.io/kubeclarity/kubeclarity:test run
            ```
     2. Local build:
         1. Build UI and backend
@@ -154,7 +154,7 @@ Contributions of integrations with additional tools are more than welcome!
            ```
         3. Run the backend locally using demo data:
            ```shell
-           DATABASE_DRIVER=LOCAL FAKE_DATA=true ENABLE_DB_INFO_LOGS=true ./backend/bin/backend run
+           FAKE_RUNTIME_SCANNER=true DATABASE_DRIVER=LOCAL FAKE_DATA=true ENABLE_DB_INFO_LOGS=true ./backend/bin/backend run
            ```
     
 2. Open KubeClarity UI in the browser: <http://localhost:8080/>
