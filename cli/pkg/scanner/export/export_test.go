@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"testing"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
 	"github.com/openclarity/kubeclarity/api/client/models"
@@ -199,6 +200,112 @@ func Test_getCVSS(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getCVSS(tt.args.vulnerability); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getCVSS() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_createCISDockerBenchmarkAssesment(t *testing.T) {
+	type args struct {
+		assesments dockle_types.AssessmentSlice
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*models.CISDockerBenchmarkAssessment
+	}{
+		{
+			name: "assesment slice is empty",
+			args: args{
+				assesments: dockle_types.AssessmentSlice{},
+			},
+			want: nil,
+		},
+		{
+			name: "assesment slice is not empty",
+			args: args{
+				assesments: dockle_types.AssessmentSlice{
+					{
+						Code:     "testCode",
+						Level:    1,
+						Filename: "testFilename",
+						Desc:     "testDescription",
+					},
+				},
+			},
+			want: []*models.CISDockerBenchmarkAssessment{
+				{
+					Code:     "testCode",
+					Level:    1,
+					Filename: "testFilename",
+					Desc:     "testDescription",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createCISDockerBenchmarkAssesment(tt.args.assesments); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createCISDockerBenchmarkAssesment() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_createCISDockerBenchmarkResults(t *testing.T) {
+	type args struct {
+		vulnerabilities dockle_types.AssessmentMap
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*models.CISDockerBenchmarkCodeInfo
+	}{
+		{
+			name: "assesment map is nil",
+			args: args{
+				vulnerabilities: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "assesment map is not nil",
+			args: args{
+				vulnerabilities: dockle_types.AssessmentMap{
+					"test": {
+						Code:  "mapcode",
+						Level: 2,
+						Assessments: dockle_types.AssessmentSlice{
+							{
+								Code:     "testCode",
+								Level:    1,
+								Filename: "testFilename",
+								Desc:     "testDescription",
+							},
+						},
+					},
+				},
+			},
+			want: []*models.CISDockerBenchmarkCodeInfo{
+				{
+					Code:  "mapcode",
+					Level: 2,
+					Assessments: []*models.CISDockerBenchmarkAssessment{
+						{
+							Code:     "testCode",
+							Level:    1,
+							Filename: "testFilename",
+							Desc:     "testDescription",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createCISDockerBenchmarkResults(tt.args.vulnerabilities); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createCISDockerBenchmarkResults() = %v, want %v", got, tt.want)
 			}
 		})
 	}

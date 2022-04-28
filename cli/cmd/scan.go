@@ -19,8 +19,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	dockle_config "github.com/Portshift/dockle/config"
+	dockle_run "github.com/Portshift/dockle/pkg"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -72,6 +76,8 @@ func init() {
 		"ID of a defined application to associate the exported vulnerability scan")
 	scanCmd.Flags().BoolP("export", "e", false,
 		"export vulnerability scan results to the backend")
+	scanCmd.Flags().Bool("dockerfile-cis", false,
+		"run dockerfile CIS benchmark")
 }
 
 // nolint:cyclop
@@ -109,6 +115,11 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	appID, err := cmd.Flags().GetString("application-id")
 	if err != nil {
 		logger.Fatalf("Unable to get application ID: %v", err)
+	}
+
+	dockerFileScan, err := cmd.Flags().GetBool("dockerfile-cis")
+	if err != nil {
+		logger.Fatalf("Unable to get dockerfile-cis flag: %v", err)
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
@@ -174,11 +185,16 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
 
+	dockerFileVulnerabilities, err := getDockerFileVulnerabilitiesIfNeeded(sourceType, args[0], appConfig.SharedConfig, dockerFileScan)
+	if err != nil {
+		logger.Fatalf("Failed get dockerfile vulnerabilities: %v", err)
+	}
+
 	if export {
 		logger.Infof("Exporting vulnerability scan results to the backend: %s", appConfig.Backend.Host)
 		apiClient := utils.NewHTTPClient(appConfig.Backend)
 		// TODO generate application ID
-		if err := _export.Export(apiClient, mergedResults, layerCommands, appID); err != nil {
+		if err := _export.Export(apiClient, mergedResults, layerCommands, dockerFileVulnerabilities, appID); err != nil {
 			logger.Errorf("Failed to export vulnerability scan results to the backend: %v", err)
 		}
 	}
@@ -212,4 +228,40 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 	}
 
 	return layerCommands, nil
+}
+
+func getDockerFileVulnerabilitiesIfNeeded(sourceType sharedutils.SourceType,
+	source string, config *sharedconfig.Config,
+	needed bool) (dockle_types.AssessmentMap, error) {
+
+	if sourceType != sharedutils.IMAGE || !needed {
+		return nil, nil
+	}
+
+	assessmentMap, err := dockle_run.RunFromConfig(createDockleConfig(config, source))
+	if err != nil {
+		return nil, fmt.Errorf("failed to run dockle: %w", err)
+	}
+
+	logger.Infof("Image was scanned.")
+	logger.Debugf("assessmentMap=%+v", assessmentMap)
+
+	return assessmentMap, nil
+}
+
+func createDockleConfig(config *sharedconfig.Config, source string) *dockle_config.Config {
+	var username, password string
+	if len(config.Registry.Auths) > 1 {
+		username = config.Registry.Auths[0].Username
+		password = config.Registry.Auths[0].Password
+	}
+	return &dockle_config.Config{
+		Debug:     log.GetLevel() == log.DebugLevel,
+		Timeout:   60 * time.Second,
+		Username:  username,
+		Password:  password,
+		Insecure:  config.Registry.SkipVerifyTLS,
+		NonSSL:    config.Registry.UseHTTP,
+		ImageName: source,
+	}
 }
