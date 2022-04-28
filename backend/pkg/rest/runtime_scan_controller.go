@@ -121,8 +121,7 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	}
 
 	cisDockerBenchmarkCountPerLevel, err := s.dbHandler.CISDockerBenchmarkResultTable().CountPerLevel(&database.CountFilters{
-		ApplicationIDs:             state.runtimeScanApplicationIDs,
-		CisDockerBenchmarkLevelGte: params.CisDockerBenchmarkLevelGte,
+		ApplicationIDs: state.runtimeScanApplicationIDs,
 	})
 	if err != nil {
 		log.Errorf("Failed to get cis docker bencmark issues per level: %v", err)

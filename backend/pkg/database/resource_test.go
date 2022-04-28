@@ -158,7 +158,7 @@ func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 						},
 					},
 				},
-				CISDockerBenchmarkResults: []CISDockerBenchmarkResult{
+				CISDockerBenchmarkChecks: []CISDockerBenchmarkCheck{
 					{
 						ResourceID:   resourceID,
 						Code:         "code1",

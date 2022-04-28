@@ -7,16 +7,14 @@ import (
 )
 
 const (
-	cisDockerBenchmarkResultTableName = "cis_docker_benchmark_results"
+	cisDockerBenchmarkCheckTableName            = "cis_docker_benchmark_checks"
+	applicationCisDockerBenchmarkChecksViewName = "application_cis_docker_benchmark_checks"
 
-	// NOTE: when changing one of the column names change also the gorm label in CISDockerBenchmarkResult.
-	columnDockerBenchmarkResultResourceID = "resource_id"
-	columnDockerBenchmarkResultCode       = "code"
+	columnApplicationCisDockerBenchmarkChecksViewApplicationID = "application_id"
 )
 
-type CISDockerBenchmarkResult struct {
-	gorm.Model `faker:"-"`
-	ResourceID string `faker:"-"`
+type CISDockerBenchmarkCheck struct {
+	ID string `gorm:"primarykey" faker:"-"` // consists of the Code name
 
 	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: code3, code2, code1"`
 	Level        int    `json:"level,omitempty" gorm:"column:level" faker:"oneof: 3, 2, 1"`
@@ -29,43 +27,34 @@ type CISDockerBenchmarkResultTable interface {
 
 type CISDockerBenchmarkResultTableHandler struct {
 	table *gorm.DB
-	IDsView
 }
 
-func (CISDockerBenchmarkResult) TableName() string {
-	return cisDockerBenchmarkResultTableName
+func (CISDockerBenchmarkCheck) TableName() string {
+	return cisDockerBenchmarkCheckTableName
 }
+
+const totalLevelCountStmnt = "SUM(total_info_count) AS total_info_count," +
+	" SUM(total_warn_count) AS total_warn_count," +
+	" SUM(total_fatal_count) AS total_fatal_count"
 
 func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error) {
 	var counters CISDockerBenchmarkLevelCounters
-	var table []CISDockerBenchmarkResult
-	var err error
+	//var table []CISDockerBenchmarkLevelCounters
 
 	tx, err := c.setCountFilters(c.table, filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set count filters: %v", err)
 	}
 
-	if err := tx.Scan(&table).Error; err != nil {
+	if err := tx.Select(totalLevelCountStmnt).Scan(&counters).Error; err != nil {
 		return nil, err
 	}
-
-	countCode := make(map[string]bool)
-	for _, result := range table {
-		// count code only once.
-		if countCode[result.Code] {
-			continue
-		}
-		countCode[result.Code] = true
-		switch Level(result.Level) {
-		case CISDockerBenchmarkLevelINFO:
-			counters.TotalInfoCount++
-		case CISDockerBenchmarkLevelWARN:
-			counters.TotalWarnCount++
-		case CISDockerBenchmarkLevelFATAL:
-			counters.TotalFatalCount++
-		}
-	}
+	//
+	//for _, result := range table {
+	//	counters.TotalInfoCount += result.TotalFatalCount
+	//	counters.TotalInfoCount += result.TotalFatalCount
+	//	counters.TotalInfoCount += result.TotalFatalCount
+	//}
 
 	return getCISDockerBenchmarkLevelCount(counters), nil
 }
@@ -75,16 +64,7 @@ func (c *CISDockerBenchmarkResultTableHandler) setCountFilters(tx *gorm.DB, filt
 		return tx, nil
 	}
 
-	// set application ids filter
-	resIDs, err := c.IDsView.GetIDs(GetIDsParams{
-		FilterIDs:    filters.ApplicationIDs,
-		FilterIDType: ApplicationIDType,
-		LookupIDType: ResourceIDType,
-	}, true)
-	if err != nil {
-		return tx, fmt.Errorf("failed to get resource ids by app ids %v: %v", filters.ApplicationIDs, err)
-	}
-	tx = FilterIs(tx, columnDockerBenchmarkResultResourceID, resIDs)
+	tx = FilterIs(tx, columnApplicationCisDockerBenchmarkChecksViewApplicationID, filters.ApplicationIDs)
 
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 

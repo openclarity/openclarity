@@ -20,12 +20,10 @@ import (
 	"time"
 
 	faker "github.com/bxcodec/faker/v3"
-	log "github.com/sirupsen/logrus"
-	"gorm.io/gorm"
-
 	"github.com/cisco-open/kubei/api/server/models"
 	"github.com/cisco-open/kubei/backend/pkg/types"
 	"github.com/cisco-open/kubei/shared/pkg/utils/slice"
+	log "github.com/sirupsen/logrus"
 )
 
 var fakeAnalyzers = map[int][]string{
@@ -64,20 +62,19 @@ func createFakeResource(scanTime time.Time, shouldCreateCISDockerBenchmarkResult
 	for i := 0; i < 3; i++ {
 		res.Packages = append(res.Packages, createFakePackage(scanTime))
 		if shouldCreateCISDockerBenchmarkResults {
-			res.CISDockerBenchmarkResults = append(res.CISDockerBenchmarkResults, createFakeCISDockerBenchmarkResult(res.ID))
+			res.CISDockerBenchmarkChecks = append(res.CISDockerBenchmarkChecks, createFakeCISDockerBenchmarkResult())
 		}
 	}
 
 	return res
 }
 
-func createFakeCISDockerBenchmarkResult(resID string) CISDockerBenchmarkResult {
-	var res CISDockerBenchmarkResult
+func createFakeCISDockerBenchmarkResult() CISDockerBenchmarkCheck {
+	var res CISDockerBenchmarkCheck
 	if err := faker.FakeData(&res); err != nil {
 		panic(err)
 	}
-	res.ResourceID = resID
-	res.Model = gorm.Model{}
+	res.ID = res.Code
 	return res
 }
 

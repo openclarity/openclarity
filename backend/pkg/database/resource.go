@@ -50,13 +50,13 @@ const (
 type Resource struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the resource hash
 
-	Hash                      string                     `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
-	Name                      string                     `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
-	Type                      types.ResourceType         `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
-	SbomID                    string                     `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
-	ReportingAnalyzers        string                     `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
-	Packages                  []Package                  `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
-	CISDockerBenchmarkResults []CISDockerBenchmarkResult `json:"cis_docker_benchmark_results,omitempty" faker:"-"`
+	Hash                     string                    `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
+	Name                     string                    `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
+	Type                     types.ResourceType        `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
+	SbomID                   string                    `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
+	ReportingAnalyzers       string                    `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
+	Packages                 []Package                 `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
+	CISDockerBenchmarkChecks []CISDockerBenchmarkCheck `json:"cis_docker_benchmark_checks,omitempty" gorm:"many2many:resource_cis_docker_benchmark_checks;" faker:"-"`
 }
 
 type ResourceView struct {
@@ -100,7 +100,7 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	resource := CreateResource(resourceVulnerabilityScan.Resource)
 
 	if len(resourceVulnerabilityScan.CisDockerBenchmarkResults) > 0 {
-		resource.WithCISDockerBenchmarkResults(createResourceCISDockerBenchmarkResults(resource.ID, resourceVulnerabilityScan.CisDockerBenchmarkResults))
+		resource.WithCISDockerBenchmarkChecks(createResourceCISDockerBenchmarkChecks(resourceVulnerabilityScan.CisDockerBenchmarkResults))
 	}
 
 	for _, pkgVul := range resourceVulnerabilityScan.PackageVulnerabilities {
@@ -135,8 +135,8 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	return resource.WithPackages(pkgs)
 }
 
-func createResourceCISDockerBenchmarkResults(resourceID string, results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkResult {
-	ret := make([]CISDockerBenchmarkResult, 0, len(results))
+func createResourceCISDockerBenchmarkChecks(results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkCheck {
+	ret := make([]CISDockerBenchmarkCheck, 0, len(results))
 	for i := range results {
 		level := FromDockleTypeToLevel(results[i].Level)
 		if level == CISDockerBenchmarkLevelIGNORE {
@@ -144,8 +144,8 @@ func createResourceCISDockerBenchmarkResults(resourceID string, results []*types
 			continue
 		}
 
-		ret = append(ret, CISDockerBenchmarkResult{
-			ResourceID:   resourceID,
+		ret = append(ret, CISDockerBenchmarkCheck{
+			ID:           results[i].Code,
 			Code:         results[i].Code,
 			Level:        int(level),
 			Descriptions: results[i].Descriptions,
@@ -214,8 +214,8 @@ func (r *Resource) WithAnalyzers(analyzers []string) *Resource {
 	return r
 }
 
-func (r *Resource) WithCISDockerBenchmarkResults(results []CISDockerBenchmarkResult) *Resource {
-	r.CISDockerBenchmarkResults = results
+func (r *Resource) WithCISDockerBenchmarkChecks(results []CISDockerBenchmarkCheck) *Resource {
+	r.CISDockerBenchmarkChecks = results
 	return r
 }
 

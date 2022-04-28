@@ -422,7 +422,7 @@ func Test_updateCurrentResource(t *testing.T) {
 			},
 		},
 		{
-			name: "missing CISDockerBenchmarkResults - keep old results",
+			name: "missing CISDockerBenchmarkChecks - keep old results",
 			args: args{
 				currentResource: &database.Resource{
 					ID:                 "ResourceID",
@@ -441,7 +441,7 @@ func Test_updateCurrentResource(t *testing.T) {
 							Vulnerabilities: []database.Vulnerability{},
 						},
 					},
-					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+					CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 						{
 							ResourceID:   "ResourceID",
 							Code:         "code1",
@@ -501,7 +501,7 @@ func Test_updateCurrentResource(t *testing.T) {
 				Type:               "ResourceType",
 				SbomID:             "ResourceSbomId",
 				ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
-				CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+				CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 					{
 						ResourceID:   "ResourceID",
 						Code:         "code1",
@@ -541,7 +541,7 @@ func Test_updateCurrentResource(t *testing.T) {
 			},
 		},
 		{
-			name: "new CISDockerBenchmarkResults - replace",
+			name: "new CISDockerBenchmarkChecks - replace",
 			args: args{
 				currentResource: &database.Resource{
 					ID:                 "ResourceID",
@@ -560,7 +560,7 @@ func Test_updateCurrentResource(t *testing.T) {
 							Vulnerabilities: []database.Vulnerability{},
 						},
 					},
-					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+					CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 						{
 							ResourceID:   "ResourceID",
 							Code:         "code1",
@@ -582,7 +582,7 @@ func Test_updateCurrentResource(t *testing.T) {
 					Type:               "ResourceType",
 					SbomID:             "ResourceSbomId",
 					ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
-					CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+					CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 						{
 							ResourceID:   "ResourceID",
 							Code:         "code1",
@@ -628,7 +628,7 @@ func Test_updateCurrentResource(t *testing.T) {
 				Type:               "ResourceType",
 				SbomID:             "ResourceSbomId",
 				ReportingAnalyzers: database.ArrayToDBArray([]string{"analyzer1", "analyzer1"}),
-				CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+				CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 					{
 						ResourceID:   "ResourceID",
 						Code:         "code1",
@@ -755,7 +755,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo1),
 									Code:         "code1",
@@ -808,7 +808,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								Vulnerabilities: []database.Vulnerability{},
 							},
 						},
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo1),
 								Code:         "code1",
@@ -899,7 +899,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo1),
 									Code:         "code1",
@@ -953,7 +953,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",
@@ -1095,7 +1095,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",
@@ -1198,7 +1198,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo1),
 									Code:         "code1",
@@ -1251,7 +1251,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Hash: resourceInfo2.ResourceHash,
 						Name: resourceInfo2.ResourceName,
 						Type: resourceInfo2.ResourceType,
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",
@@ -1355,7 +1355,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: []database.Vulnerability{},
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo1),
 									Code:         "code1",
@@ -1387,7 +1387,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: nil,
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo2),
 									Code:         "code1",
@@ -1447,7 +1447,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								Vulnerabilities: []database.Vulnerability{},
 							},
 						},
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo1),
 								Code:         "code1",
@@ -1492,8 +1492,8 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								},
 							},
 						},
-						// CISDockerBenchmarkResults updated.
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						// CISDockerBenchmarkChecks updated.
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",
@@ -1563,7 +1563,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: nil,
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo2),
 									Code:         "code1",
@@ -1637,8 +1637,8 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								},
 							},
 						},
-						// CISDockerBenchmarkResults updated.
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						// CISDockerBenchmarkChecks updated.
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",
@@ -1709,7 +1709,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 									Vulnerabilities: nil,
 								},
 							},
-							CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
 									ResourceID:   database.CreateResourceID(resourceInfo2),
 									Code:         "code1",
@@ -1777,8 +1777,8 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 								},
 							},
 						},
-						// CISDockerBenchmarkResults is missing, no need to update.
-						CISDockerBenchmarkResults: []database.CISDockerBenchmarkResult{
+						// CISDockerBenchmarkChecks is missing, no need to update.
+						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
 								ResourceID:   database.CreateResourceID(resourceInfo2),
 								Code:         "code1",

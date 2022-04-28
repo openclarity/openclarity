@@ -42,11 +42,11 @@ var viewsList = []string{
 	"packages_view",
 	"package_severities",
 	"resources_view",
-	"resource_cis_docker_benchmark_levels",
+	"resource_cis_docker_benchmark_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
 	"applications_view",
-	"application_cis_docker_benchmark_levels",
+	"application_cis_docker_benchmark_checks",
 	"application_severities",
 	"ids_view",
 	"licenses_view",
@@ -113,25 +113,19 @@ GROUP BY applications.id, pv.package_id, pv.vulnerability_id, v.severity) AS apv
 GROUP BY apvs.application_id;
 `
 
-	applicationsCISDockerBenchmarkLevelsViewQuery = `
-CREATE VIEW application_cis_docker_benchmark_levels AS
-SELECT arc.application_id AS application_id,
-       SUM(arc.total_info_count) AS total_info_count,
-       SUM(arc.total_warn_count) AS total_warn_count,
-       SUM(arc.total_fatal_count) AS total_fatal_count,
-       MAX(arc.highest_level) AS highest_level,
-       MIN(arc.lowest_level) AS lowest_level
-FROM (SELECT applications.id AS application_id,
-       CASE WHEN cdbr.level = 1 THEN 1 ELSE 0 END AS total_info_count,
-       CASE WHEN cdbr.level = 2 THEN 1 ELSE 0 END AS total_warn_count,
-       CASE WHEN cdbr.level = 3 THEN 1 ELSE 0 END AS total_fatal_count,
-       MAX(cdbr.level) AS highest_level,
-       MIN(cdbr.level) AS lowest_level
+	applicationsCISDockerBenchmarkChecksViewQuery = `
+CREATE VIEW application_cis_docker_benchmark_checks AS
+SELECT applications.id AS application_id,
+       SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
+       SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
+       SUM(CASE WHEN c.level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
+       MAX(c.level) AS highest_level,
+       MIN(c.level) AS lowest_level
 FROM applications
          LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
-         LEFT OUTER JOIN cis_docker_benchmark_results cdbr ON ar.resource_id = cdbr.resource_id
-GROUP BY applications.id, cdbr.id, cdbr.level) AS arc
-GROUP BY arc.application_id;
+         LEFT OUTER JOIN resource_cis_docker_benchmark_checks rc ON ar.resource_id = rc.resource_id
+         LEFT OUTER JOIN cis_docker_benchmark_checks c ON c.id = rc.cis_docker_benchmark_check_id
+GROUP BY applications.id;
 `
 
 	applicationsViewQuery = `
@@ -154,7 +148,7 @@ FROM applications
          LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
          LEFT OUTER JOIN resource_packages rp ON ar.resource_id = rp.resource_id
          LEFT OUTER JOIN application_severities aps ON applications.id = aps.application_id
-         LEFT OUTER JOIN application_cis_docker_benchmark_levels apl ON applications.id = apl.application_id
+         LEFT OUTER JOIN application_cis_docker_benchmark_checks apl ON applications.id = apl.application_id
 GROUP BY applications.id,
          aps.total_neg_count,
          aps.total_low_count,
@@ -200,17 +194,19 @@ FROM resources
 GROUP BY resources.id;
 `
 
-	resourcesCISDockerBenchmarkLevelsViewQuery = `
-CREATE VIEW resource_cis_docker_benchmark_levels AS
-SELECT resource_id,
-       SUM(CASE WHEN level = 1 THEN 1 ELSE 0 END) AS total_info_count,
-       SUM(CASE WHEN level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
-       SUM(CASE WHEN level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
-       MAX(level) AS highest_level,
-       MIN(level) AS lowest_level
-FROM cis_docker_benchmark_results
-GROUP BY resource_id;
-`
+	resourcesCISDockerBenchmarkChecksViewQuery = `
+CREATE VIEW resource_cis_docker_benchmark_checks_view AS
+SELECT resources.id AS resource_id,
+	  SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
+	  SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
+	  SUM(CASE WHEN c.level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
+	  MAX(c.level) AS highest_level,
+	  MIN(c.level) AS lowest_level
+FROM resources
+		LEFT OUTER JOIN resource_cis_docker_benchmark_checks rc ON resources.id = rc.resource_id
+		LEFT OUTER JOIN cis_docker_benchmark_checks c ON c.id = rc.cis_docker_benchmark_check_id
+GROUP BY resources.id;
+	`
 
 	resourcesViewQuery = `
 CREATE VIEW resources_view AS
@@ -232,7 +228,7 @@ FROM resources
          LEFT OUTER JOIN resource_packages rp ON resources.id = rp.resource_id
          LEFT OUTER JOIN application_resources ar ON resources.id = ar.resource_id
          LEFT OUTER JOIN resource_severities rs ON resources.id = rs.resource_id
-         LEFT OUTER JOIN resource_cis_docker_benchmark_levels rl ON resources.id = rl.resource_id
+         LEFT OUTER JOIN resource_cis_docker_benchmark_checks_view rl ON resources.id = rl.resource_id
 GROUP BY resources.id,
          rs.total_neg_count,
          rs.total_low_count,
@@ -416,8 +412,7 @@ func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
 
 func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
 	return &CISDockerBenchmarkResultTableHandler{
-		table:   db.DB.Table(cisDockerBenchmarkResultTableName),
-		IDsView: db.IDsView(),
+		table: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
 	}
 }
 
@@ -457,7 +452,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 
 	// this will ensure table is created
 	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{},
-		QuickScanConfig{}, CISDockerBenchmarkResult{}); err != nil {
+		QuickScanConfig{}, CISDockerBenchmarkCheck{}); err != nil {
 
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
@@ -508,8 +503,8 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create application_severities: %v", err)
 	}
 
-	if err := db.Exec(applicationsCISDockerBenchmarkLevelsViewQuery).Error; err != nil {
-		log.Fatalf("Failed to create application_cis_docker_benchmark_levels: %v", err)
+	if err := db.Exec(applicationsCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create application_cis_docker_benchmark_checks: %v", err)
 	}
 
 	if err := db.Exec(applicationsViewQuery).Error; err != nil {
@@ -524,8 +519,8 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create resource_severities: %v", err)
 	}
 
-	if err := db.Exec(resourcesCISDockerBenchmarkLevelsViewQuery).Error; err != nil {
-		log.Fatalf("Failed to create resource_cis_docker_benchmark_levels: %v", err)
+	if err := db.Exec(resourcesCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create resource_cis_docker_benchmark_checks_view: %v", err)
 	}
 
 	if err := db.Exec(resourcesViewQuery).Error; err != nil {

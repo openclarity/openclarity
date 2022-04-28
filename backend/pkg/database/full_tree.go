@@ -51,6 +51,7 @@ func (o *ObjectTreeHandler) updateApplication(tx *gorm.DB, app *Application, sho
 
 		// set it to nil, so it will not be inserted again during the higher level association replace.
 		app.Resources[i].Packages = nil
+		app.Resources[i].CISDockerBenchmarkChecks = nil
 	}
 
 	log.Tracef("Updating application=%+v", app)
@@ -91,9 +92,15 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		// set it to nil, so it will not be inserted again during the higher level association replace.
 		resource.Packages[i].Vulnerabilities = nil
 	}
+	//
+	//for i := range resource.CISDockerBenchmarkChecks {
+	//	if err := o.updateCISDockerBenchmarkCheck(tx, &resource.CISDockerBenchmarkChecks[i]); err != nil {
+	//		return fmt.Errorf("failed to update cis docker benchmark check: %v", err)
+	//	}
+	//}
 
 	log.Tracef("Updating resource=%+v", resource)
-	if err := tx.Omit("Packages", "CISDockerBenchmarkResults").
+	if err := tx.Omit("Packages", "CISDockerBenchmarkChecks").
 		Save(resource).Error; err != nil {
 		return fmt.Errorf("failed to update resource: %v", err)
 	}
@@ -107,11 +114,11 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 	}
 
 	// Update cis_docker_benchmark_results
-	log.Tracef("Updating cis_docker_benchmark_results. packages=%+v", resource.Packages)
+	log.Tracef("Updating cis_docker_benchmark_checks and resource_cis_docker_benchmark_checks. checks=%+v", resource.CISDockerBenchmarkChecks)
 	if err := tx.Model(resource).
 		Session(&gorm.Session{FullSaveAssociations: true}).
-		Association("CISDockerBenchmarkResults").Replace(resource.CISDockerBenchmarkResults); err != nil {
-		return fmt.Errorf("failed to update cis_docker_benchmark_results association: %v", err)
+		Association("CISDockerBenchmarkChecks").Replace(resource.CISDockerBenchmarkChecks); err != nil {
+		return fmt.Errorf("failed to update resource cis_docker_benchmark_checks association: %v", err)
 	}
 
 	return nil
@@ -137,3 +144,14 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 
 	return nil
 }
+
+//
+//func (o *ObjectTreeHandler) updateCISDockerBenchmarkCheck(tx *gorm.DB, check *CISDockerBenchmarkCheck) error {
+//	// Update cis docker benchmark check
+//	log.Tracef("Updating cis docker benchmark check=%+v", check)
+//	if err := tx.Save(check).Error; err != nil {
+//		return fmt.Errorf("failed to update cis docker benchmark check: %v", err)
+//	}
+//
+//	return nil
+//}
