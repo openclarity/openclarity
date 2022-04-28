@@ -16,8 +16,6 @@
 package database
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 
 	"github.com/cisco-open/kubei/api/server/models"
@@ -57,10 +55,7 @@ const totalLevelCountStmnt = "SUM(total_info_count) AS total_info_count," +
 func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error) {
 	var counters CISDockerBenchmarkLevelCounters
 
-	tx, err := c.setCountFilters(c.table, filters)
-	if err != nil {
-		return nil, fmt.Errorf("failed to set count filters: %v", err)
-	}
+	tx := c.setCountFilters(c.table, filters)
 
 	if err := tx.Select(totalLevelCountStmnt).Scan(&counters).Error; err != nil {
 		return nil, err
@@ -69,14 +64,14 @@ func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilte
 	return getCISDockerBenchmarkLevelCount(counters), nil
 }
 
-func (c *CISDockerBenchmarkResultTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilters) (*gorm.DB, error) {
+func (c *CISDockerBenchmarkResultTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilters) *gorm.DB {
 	if filters == nil {
-		return tx, nil
+		return tx
 	}
 
 	tx = FilterIs(tx, columnApplicationCisDockerBenchmarkChecksViewApplicationID, filters.ApplicationIDs)
 
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
-	return tx, nil
+	return tx
 }

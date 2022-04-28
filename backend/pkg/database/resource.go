@@ -401,6 +401,7 @@ func (r *ResourceTableHandler) GetApplicationResourcesAndTotal(params GetApplica
 	return resources, count, nil
 }
 
+// nolint:exhaustive
 func createApplicationResourcesSortOrder(sortKey string, sortDir *string) (string, error) {
 	switch models.ApplicationResourcesSortKey(sortKey) {
 	case models.ApplicationResourcesSortKeyVulnerabilities:
@@ -429,7 +430,7 @@ func getApplicationResourcesSortKeyColumnName(key string) (string, error) {
 		return columnResourceViewApplications, nil
 	case models.ApplicationResourcesSortKeyPackages:
 		return columnResourceViewPackages, nil
-	case models.ApplicationResourcesSortKeyVulnerabilities:
+	case models.ApplicationResourcesSortKeyVulnerabilities, models.ApplicationResourcesSortKeyCisDockerBenchmarkResults:
 		return "", fmt.Errorf("unsupported key (%v)", key)
 	}
 

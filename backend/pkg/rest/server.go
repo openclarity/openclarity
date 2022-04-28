@@ -47,7 +47,7 @@ type RuntimeScan struct {
 	// List of latest scanned namespaces.
 	scannedNamespaces []string // nolint:structcheck
 	// Quick scan config used in the latest runtime scan.
-	quickScanConfig *models.RuntimeQuickScanConfig
+	quickScanConfig *models.RuntimeQuickScanConfig // nolint:structcheck
 	State
 	lock sync.RWMutex
 }

@@ -311,6 +311,7 @@ func (a *ApplicationTableHandler) GetApplicationsAndTotal(params GetApplications
 	return applications, count, nil
 }
 
+// nolint:exhaustive
 func createApplicationsSortOrder(sortKey string, sortDir *string) (string, error) {
 	switch models.ApplicationsSortKey(sortKey) {
 	case models.ApplicationsSortKeyVulnerabilities:
@@ -337,7 +338,7 @@ func getApplicationsSortKeyColumnName(key string) (string, error) {
 		return columnApplicationViewResources, nil
 	case models.ApplicationsSortKeyPackages:
 		return columnApplicationViewPackages, nil
-	case models.ApplicationsSortKeyVulnerabilities:
+	case models.ApplicationsSortKeyVulnerabilities, models.ApplicationsSortKeyCisDockerBenchmarkResults:
 		return "", fmt.Errorf("unsupported key (%v)", key)
 	}
 

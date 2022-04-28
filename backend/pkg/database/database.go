@@ -424,7 +424,7 @@ func Init(config *DBConfig) *Handler {
 	// Set defaults.
 	err := databaseHandler.QuickScanConfigTable().SetDefault()
 	if err != nil {
-		log.Fatalf("Failed to set deafult quick scan config: %v", err)
+		log.Fatalf("Failed to set default quick scan config: %v", err)
 	}
 
 	return &databaseHandler
@@ -451,9 +451,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	setupJoinTables(db)
 
 	// this will ensure table is created
-	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{},
-		QuickScanConfig{}, CISDockerBenchmarkCheck{}); err != nil {
-
+	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 
