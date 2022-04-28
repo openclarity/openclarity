@@ -65,9 +65,11 @@ func TestParseImageHash(t *testing.T) {
 func TestGetMatchingSecretName(t *testing.T) {
 	notSpecificImageName := "gcr.io/not/specific"
 	specificImageName := "gcr.io/more/specific"
+	partialPathsImageName := "gcr.io/partial/path"
 	dockerHubImageName := "repo/image"
 
 	dockerconfigjsonB := []byte("{\"auths\":{\"gcr.io\":{\"username\":\"gcr\",\"password\":\"io\",\"auth\":\"Z2NyOmlv\"},\"gcr.io/more/specific\":{\"username\":\"gcr\",\"password\":\"io/more/specific\",\"auth\":\"Z2NyOmlvL21vcmUvc3BlY2lmaWM=\"},\"http://foo.example.com\":{\"username\":\"foo\",\"password\":\"bar\",\"auth\":\"Zm9vOmJhcg==\"}}}")
+	partialPathsDockerconfigjsonB := []byte("{\"auths\":{\"gcr.io/partial\":{\"username\":\"gcr\",\"password\":\"partial\",\"auth\":\"Z2NyOmlvL21vcmUvc3BlY2lmaWM=\"},\"http://foo.example.com\":{\"username\":\"foo\",\"password\":\"bar\",\"auth\":\"Zm9vOmJhcg==\"}}}")
 	noMatchDockerconfigjsonB := []byte("{\"auths\":{\"http://foo.example.com\":{\"username\":\"foo\",\"password\":\"bar\",\"auth\":\"Zm9vOmJhcg==\"}}}")
 	matchDockerIODockerconfigjsonB := []byte("{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"test-user\",\"password\":\"test-pass)\",\"email\":\"test@test\",\"auth\":\"dGVzdC11c2VyOnRlc3QtcGFzcw==\"}}}")
 
@@ -100,6 +102,29 @@ func TestGetMatchingSecretName(t *testing.T) {
 					},
 				},
 				imageName: specificImageName,
+			},
+			want: "regcred",
+		},
+		{
+			name: "match partial paths image name",
+			args: args{
+				secrets: []*corev1.Secret{
+					{
+						TypeMeta: metav1.TypeMeta{
+							Kind:       "Secret",
+							APIVersion: "v1",
+						},
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "regcred",
+							Namespace: "default",
+						},
+						Data: map[string][]byte{
+							corev1.DockerConfigJsonKey: partialPathsDockerconfigjsonB,
+						},
+						Type: corev1.SecretTypeDockerConfigJson,
+					},
+				},
+				imageName: partialPathsImageName,
 			},
 			want: "regcred",
 		},
