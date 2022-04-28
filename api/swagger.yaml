@@ -679,6 +679,47 @@ definitions:
       cisDockerBenchmarkScanEnabled:
         type: 'boolean'
 
+  ScanInterval:
+    type: object
+    properties:
+      repeatEvery:
+        type: 'integer'
+        format: 'uint32'
+      timeUnit:
+        $ref: '#/definitions/TimeUnit'
+      at:
+        type: 'string'
+        format: date-time
+
+  TimeUnit:
+    description: 'time unit of schedule scan'
+    type: 'string'
+    readOnly: true
+    enum:
+      - HOURS
+      - DAYS
+      - WEEKS
+
+  ScanTime:
+    description: 'scan time of schedule scan'
+    type: 'string'
+    readOnly: true
+    enum:
+      - LATER
+      - REPETITIVE
+
+  RuntimeScheduleScanConfig:
+    type: object
+    properties:
+      namespaces:
+        type: 'array'
+        items:
+          type: 'string'  #empty = all
+      scanTime:
+        $ref: '#/definitions/ScanTime'
+      scanInterval:
+        $ref: '#/definitions/ScanInterval'
+
   Progress:
     type: object
     properties:
