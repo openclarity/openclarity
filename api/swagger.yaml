@@ -701,7 +701,7 @@ definitions:
       - WEEKS
 
   ScanTime:
-    description: 'scan time of schedule scan'
+    description: 'scan time of scheduled scan'
     type: 'string'
     readOnly: true
     enum:
@@ -758,6 +758,17 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/RuntimeScanFailure'
+      scanType:
+        $ref: '#/definitions/ScanType'
+
+  ScanType:
+    description: 'scan type'
+    type: 'string'
+    readOnly: true
+    enum:
+      - QUICK
+      - SCHEDULE
+
 
   RuntimeScanFailure:
     type: object
