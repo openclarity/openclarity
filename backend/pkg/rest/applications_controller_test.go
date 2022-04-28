@@ -749,11 +749,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -800,11 +802,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						},
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",
@@ -889,11 +893,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -941,11 +947,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Type: resourceInfo2.ResourceType,
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",
@@ -1081,11 +1089,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Type: resourceInfo2.ResourceType,
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",
@@ -1182,11 +1192,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -1233,11 +1245,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						Type: resourceInfo2.ResourceType,
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",
@@ -1335,11 +1349,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -1365,11 +1381,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -1423,11 +1441,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						},
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",
@@ -1467,6 +1487,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						// CISDockerBenchmarkChecks updated.
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelFATAL),
 								Descriptions: "desc1",
@@ -1536,11 +1557,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -1609,6 +1632,7 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						// CISDockerBenchmarkChecks updated.
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelFATAL),
 								Descriptions: "desc1",
@@ -1679,11 +1703,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 							},
 							CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 								{
+									ID:           "code1",
 									Code:         "code1",
 									Level:        int(database.CISDockerBenchmarkLevelINFO),
 									Descriptions: "desc1",
 								},
 								{
+									ID:           "code2",
 									Code:         "code2",
 									Level:        int(database.CISDockerBenchmarkLevelWARN),
 									Descriptions: "desc2",
@@ -1746,11 +1772,13 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 						// CISDockerBenchmarkChecks is missing, no need to update.
 						CISDockerBenchmarkChecks: []database.CISDockerBenchmarkCheck{
 							{
+								ID:           "code1",
 								Code:         "code1",
 								Level:        int(database.CISDockerBenchmarkLevelINFO),
 								Descriptions: "desc1",
 							},
 							{
+								ID:           "code2",
 								Code:         "code2",
 								Level:        int(database.CISDockerBenchmarkLevelWARN),
 								Descriptions: "desc2",

@@ -160,11 +160,13 @@ func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 				},
 				CISDockerBenchmarkChecks: []CISDockerBenchmarkCheck{
 					{
+						ID:           "code1",
 						Code:         "code1",
 						Level:        int(CISDockerBenchmarkLevelINFO),
 						Descriptions: "desc1",
 					},
 					{
+						ID:           "code2",
 						Code:         "code2",
 						Level:        int(CISDockerBenchmarkLevelWARN),
 						Descriptions: "desc2",
