@@ -202,15 +202,15 @@ func (a *ApplicationTableHandler) setApplicationsFilters(params GetApplicationsP
 
 func ApplicationFromDB(view *ApplicationView) *models.Application {
 	return &models.Application{
-		ApplicationName:           view.Name,
-		ApplicationResources:      uint32(view.Resources),
-		ApplicationType:           view.Type,
-		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
-		Environments:              DBArrayToArray(view.Environments),
 		ID:                        view.ID,
+		ApplicationName:           view.Name,
+		ApplicationType:           view.Type,
+		Environments:              DBArrayToArray(view.Environments),
 		Labels:                    DBArrayToArray(view.Labels),
+		ApplicationResources:      uint32(view.Resources),
 		Packages:                  uint32(view.Packages),
 		Vulnerabilities:           getVulnerabilityCount(view.SeverityCounters),
+		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
 	}
 }
 

@@ -2,8 +2,10 @@ package database
 
 import (
 	"fmt"
-	"github.com/cisco-open/kubei/api/server/models"
+
 	"gorm.io/gorm"
+
+	"github.com/cisco-open/kubei/api/server/models"
 )
 
 const (
@@ -39,7 +41,6 @@ const totalLevelCountStmnt = "SUM(total_info_count) AS total_info_count," +
 
 func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error) {
 	var counters CISDockerBenchmarkLevelCounters
-	//var table []CISDockerBenchmarkLevelCounters
 
 	tx, err := c.setCountFilters(c.table, filters)
 	if err != nil {
@@ -49,12 +50,6 @@ func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilte
 	if err := tx.Select(totalLevelCountStmnt).Scan(&counters).Error; err != nil {
 		return nil, err
 	}
-	//
-	//for _, result := range table {
-	//	counters.TotalInfoCount += result.TotalFatalCount
-	//	counters.TotalInfoCount += result.TotalFatalCount
-	//	counters.TotalInfoCount += result.TotalFatalCount
-	//}
 
 	return getCISDockerBenchmarkLevelCount(counters), nil
 }

@@ -92,12 +92,6 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		// set it to nil, so it will not be inserted again during the higher level association replace.
 		resource.Packages[i].Vulnerabilities = nil
 	}
-	//
-	//for i := range resource.CISDockerBenchmarkChecks {
-	//	if err := o.updateCISDockerBenchmarkCheck(tx, &resource.CISDockerBenchmarkChecks[i]); err != nil {
-	//		return fmt.Errorf("failed to update cis docker benchmark check: %v", err)
-	//	}
-	//}
 
 	log.Tracef("Updating resource=%+v", resource)
 	if err := tx.Omit("Packages", "CISDockerBenchmarkChecks").
@@ -144,14 +138,3 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 
 	return nil
 }
-
-//
-//func (o *ObjectTreeHandler) updateCISDockerBenchmarkCheck(tx *gorm.DB, check *CISDockerBenchmarkCheck) error {
-//	// Update cis docker benchmark check
-//	log.Tracef("Updating cis docker benchmark check=%+v", check)
-//	if err := tx.Save(check).Error; err != nil {
-//		return fmt.Errorf("failed to update cis docker benchmark check: %v", err)
-//	}
-//
-//	return nil
-//}

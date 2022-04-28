@@ -214,8 +214,8 @@ func (r *Resource) WithAnalyzers(analyzers []string) *Resource {
 	return r
 }
 
-func (r *Resource) WithCISDockerBenchmarkChecks(results []CISDockerBenchmarkCheck) *Resource {
-	r.CISDockerBenchmarkChecks = results
+func (r *Resource) WithCISDockerBenchmarkChecks(checks []CISDockerBenchmarkCheck) *Resource {
+	r.CISDockerBenchmarkChecks = checks
 	return r
 }
 
@@ -287,7 +287,6 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 func ApplicationResourceFromDB(view *ResourceView) *models.ApplicationResource {
 	return &models.ApplicationResource{
 		Applications:              uint32(view.Applications),
-		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
 		ID:                        view.ID,
 		Packages:                  uint32(view.Packages),
 		ReportingSBOMAnalyzers:    DBArrayToArray(view.ReportingAnalyzers),
@@ -295,6 +294,7 @@ func ApplicationResourceFromDB(view *ResourceView) *models.ApplicationResource {
 		ResourceName:              view.Name,
 		ResourceType:              types.ResourceTypeToModels(view.Type),
 		Vulnerabilities:           getVulnerabilityCount(view.SeverityCounters),
+		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
 	}
 }
 

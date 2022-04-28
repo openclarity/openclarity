@@ -160,13 +160,11 @@ func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 				},
 				CISDockerBenchmarkChecks: []CISDockerBenchmarkCheck{
 					{
-						ResourceID:   resourceID,
 						Code:         "code1",
 						Level:        int(CISDockerBenchmarkLevelINFO),
 						Descriptions: "desc1",
 					},
 					{
-						ResourceID:   resourceID,
 						Code:         "code2",
 						Level:        int(CISDockerBenchmarkLevelWARN),
 						Descriptions: "desc2",
@@ -999,6 +997,82 @@ func TestCreateResourceFromContentAnalysis(t *testing.T) {
 				t.Errorf("CreateResourceFromContentAnalysis() = %v, want %v", got, tt.want)
 			}
 			assert.DeepEqual(t, tt.args.params, tt.expectedTransactionParams)
+		})
+	}
+}
+
+func Test_createResourceCISDockerBenchmarkChecks(t *testing.T) {
+	type args struct {
+		results []*types.CISDockerBenchmarkResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want []CISDockerBenchmarkCheck
+	}{
+		{
+			name: "sanity",
+			args: args{
+				results: []*types.CISDockerBenchmarkResult{
+					{
+						Code:         "PassLevel",
+						Level:        int64(dockle_types.PassLevel),
+						Descriptions: "PassLevel",
+					},
+					{
+						Code:         "IgnoreLevel",
+						Level:        int64(dockle_types.IgnoreLevel),
+						Descriptions: "IgnoreLevel",
+					},
+					{
+						Code:         "SkipLevel",
+						Level:        int64(dockle_types.SkipLevel),
+						Descriptions: "SkipLevel",
+					},
+					{
+						Code:         "InfoLevel",
+						Level:        int64(dockle_types.InfoLevel),
+						Descriptions: "InfoLevel",
+					},
+					{
+						Code:         "WarnLevel",
+						Level:        int64(dockle_types.WarnLevel),
+						Descriptions: "WarnLevel",
+					},
+					{
+						Code:         "FatalLevel",
+						Level:        int64(dockle_types.FatalLevel),
+						Descriptions: "FatalLevel",
+					},
+				},
+			},
+			want: []CISDockerBenchmarkCheck{
+				{
+					ID:           "InfoLevel",
+					Code:         "InfoLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.InfoLevel))),
+					Descriptions: "InfoLevel",
+				},
+				{
+					ID:           "WarnLevel",
+					Code:         "WarnLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.WarnLevel))),
+					Descriptions: "WarnLevel",
+				},
+				{
+					ID:           "FatalLevel",
+					Code:         "FatalLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.FatalLevel))),
+					Descriptions: "FatalLevel",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createResourceCISDockerBenchmarkChecks(tt.args.results); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createResourceCISDockerBenchmarkChecks() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

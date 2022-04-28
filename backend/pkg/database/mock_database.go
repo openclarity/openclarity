@@ -54,3 +54,7 @@ func (m *MockHandler) ObjectTree() ObjectTree {
 func (m *MockHandler) QuickScanConfigTable() QuickScanConfigTable {
 	return nil
 }
+
+func (m *MockHandler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
+	return nil
+}
