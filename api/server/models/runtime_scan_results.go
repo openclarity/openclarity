@@ -25,6 +25,9 @@ type RuntimeScanResults struct {
 	// cis docker benchmark counters
 	CisDockerBenchmarkCounters *CISDockerBenchmarkScanCounters `json:"cisDockerBenchmarkCounters,omitempty"`
 
+	// Indicates whether CIS docker benchmark scan was enabled
+	CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
+
 	// counters
 	Counters *RuntimeScanCounters `json:"counters,omitempty"`
 

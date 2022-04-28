@@ -702,6 +702,9 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/VulnerabilityCount'
+      cisDockerBenchmarkScanEnabled:
+        description: "Indicates whether CIS docker benchmark scan was enabled"
+        type: 'boolean'
       cisDockerBenchmarkCounters:
         $ref: '#/definitions/CISDockerBenchmarkScanCounters'
       cisDockerBenchmarkCountPerLevel:

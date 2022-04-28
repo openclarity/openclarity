@@ -71,6 +71,7 @@ func (s *Server) GetRuntimeScanProgress(_ operations.GetRuntimeScanProgressParam
 
 func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsParams) middleware.Responder {
 	state := s.GetState()
+	quickScanConfig := s.getQuickScanConfig()
 
 	failures := make([]*models.RuntimeScanFailure, len(state.runtimeScanFailures))
 	for i, failure := range state.runtimeScanFailures {
@@ -84,6 +85,7 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 		return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
 			CisDockerBenchmarkCountPerLevel: []*models.CISDockerBenchmarkLevelCount{},
 			CisDockerBenchmarkCounters:      &models.CISDockerBenchmarkScanCounters{},
+			CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
 			Counters:                        &models.RuntimeScanCounters{},
 			Failures:                        failures,
 			VulnerabilityPerSeverity:        []*models.VulnerabilityCount{},
@@ -131,6 +133,7 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
 		CisDockerBenchmarkCountPerLevel: cisDockerBenchmarkCountPerLevel,
 		CisDockerBenchmarkCounters:      cisDockerBenchmarkCounters,
+		CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
 		Counters:                        counters,
 		Failures:                        failures,
 		VulnerabilityPerSeverity:        vulPerSeverity,
@@ -276,6 +279,8 @@ func (s *Server) startScan(namespaces []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get quick scan config from db: %v", err)
 	}
+	// Save on state the config in the current runtime scan.
+	s.setQuickScanConfig(quickScanConfig)
 
 	// need to create scan done channel for every new scan
 	done := make(chan struct{})
