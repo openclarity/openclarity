@@ -251,7 +251,7 @@ func getDockerFileVulnerabilitiesIfNeeded(sourceType sharedutils.SourceType,
 
 func createDockleConfig(config *sharedconfig.Config, source string) *dockle_config.Config {
 	var username, password string
-	if len(config.Registry.Auths) > 1 {
+	if len(config.Registry.Auths) > 0 {
 		username = config.Registry.Auths[0].Username
 		password = config.Registry.Auths[0].Password
 	}
