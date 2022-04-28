@@ -18,6 +18,9 @@ import (
 // swagger:model RuntimeScheduleScanConfig
 type RuntimeScheduleScanConfig struct {
 
+	// docker c i s benchmark scan
+	DockerCISBenchmarkScan bool `json:"dockerCISBenchmarkScan,omitempty"`
+
 	// namespaces
 	Namespaces []string `json:"namespaces"`
 

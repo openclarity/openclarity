@@ -715,6 +715,8 @@ definitions:
         type: 'array'
         items:
           type: 'string'  #empty = all
+      dockerCISBenchmarkScan:
+        type: 'boolean'
       scanTime:
         $ref: '#/definitions/ScanTime'
       scanInterval:
