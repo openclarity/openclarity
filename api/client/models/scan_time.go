@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ScanTime scan time of schedule scan
+// ScanTime scan time of scheduled scan
 //
 // swagger:model ScanTime
 type ScanTime string
