@@ -86,7 +86,6 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 			CisDockerBenchmarkCounters:      &models.CISDockerBenchmarkScanCounters{},
 			Counters:                        &models.RuntimeScanCounters{},
 			Failures:                        failures,
-			ScannedNamespaces:               s.scannedNamespaces,
 			VulnerabilityPerSeverity:        []*models.VulnerabilityCount{},
 		})
 	}
@@ -134,7 +133,6 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 		CisDockerBenchmarkCounters:      cisDockerBenchmarkCounters,
 		Counters:                        counters,
 		Failures:                        failures,
-		ScannedNamespaces:               s.scannedNamespaces,
 		VulnerabilityPerSeverity:        vulPerSeverity,
 	})
 }

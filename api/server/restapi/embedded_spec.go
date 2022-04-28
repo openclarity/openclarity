@@ -1957,12 +1957,6 @@ func init() {
             "$ref": "#/definitions/RuntimeScanFailure"
           }
         },
-        "scannedNamespaces": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "vulnerabilityPerSeverity": {
           "type": "array",
           "items": {
@@ -5688,12 +5682,6 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/RuntimeScanFailure"
-          }
-        },
-        "scannedNamespaces": {
-          "type": "array",
-          "items": {
-            "type": "string"
           }
         },
         "vulnerabilityPerSeverity": {

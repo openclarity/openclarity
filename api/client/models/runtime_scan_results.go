@@ -31,9 +31,6 @@ type RuntimeScanResults struct {
 	// failures
 	Failures []*RuntimeScanFailure `json:"failures"`
 
-	// scanned namespaces
-	ScannedNamespaces []string `json:"scannedNamespaces"`
-
 	// vulnerability per severity
 	VulnerabilityPerSeverity []*VulnerabilityCount `json:"vulnerabilityPerSeverity"`
 }

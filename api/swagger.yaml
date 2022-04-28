@@ -712,10 +712,6 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/RuntimeScanFailure'
-      scannedNamespaces:
-        type: 'array'
-        items:
-          type: 'string'
 
   RuntimeScanFailure:
     type: object
