@@ -997,6 +997,39 @@ func init() {
         }
       }
     },
+    "/runtime/scheduleScan/start": {
+      "put": {
+        "summary": "Start a runtime schedule scan",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Runtime schedule scan configuration",
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/responses/Success"
+            }
+          },
+          "400": {
+            "description": "Schedule scan failed to start",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      }
+    },
     "/vulnerabilities": {
       "get": {
         "summary": "Get vulnerabilities",
@@ -1980,6 +2013,48 @@ func init() {
       ],
       "readOnly": true
     },
+    "RuntimeScheduleScanConfig": {
+      "type": "object",
+      "properties": {
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scanInterval": {
+          "$ref": "#/definitions/ScanInterval"
+        },
+        "scanTime": {
+          "$ref": "#/definitions/ScanTime"
+        }
+      }
+    },
+    "ScanInterval": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "repeatEvery": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "timeUnit": {
+          "$ref": "#/definitions/TimeUnit"
+        }
+      }
+    },
+    "ScanTime": {
+      "description": "scan time of schedule scan",
+      "type": "string",
+      "enum": [
+        "LATER",
+        "REPETITIVE"
+      ],
+      "readOnly": true
+    },
     "Scope": {
       "type": "string",
       "enum": [
@@ -1995,6 +2070,16 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "TimeUnit": {
+      "description": "time unit of schedule scan",
+      "type": "string",
+      "enum": [
+        "HOURS",
+        "DAYS",
+        "WEEKS"
+      ],
+      "readOnly": true
     },
     "UserInteraction": {
       "type": "string",
@@ -4522,6 +4607,45 @@ func init() {
         }
       }
     },
+    "/runtime/scheduleScan/start": {
+      "put": {
+        "summary": "Start a runtime schedule scan",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Runtime schedule scan configuration",
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "description": "success message",
+              "schema": {
+                "$ref": "#/definitions/SuccessResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "Schedule scan failed to start",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
     "/vulnerabilities": {
       "get": {
         "summary": "Get vulnerabilities",
@@ -5711,6 +5835,48 @@ func init() {
       ],
       "readOnly": true
     },
+    "RuntimeScheduleScanConfig": {
+      "type": "object",
+      "properties": {
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scanInterval": {
+          "$ref": "#/definitions/ScanInterval"
+        },
+        "scanTime": {
+          "$ref": "#/definitions/ScanTime"
+        }
+      }
+    },
+    "ScanInterval": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "repeatEvery": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "timeUnit": {
+          "$ref": "#/definitions/TimeUnit"
+        }
+      }
+    },
+    "ScanTime": {
+      "description": "scan time of schedule scan",
+      "type": "string",
+      "enum": [
+        "LATER",
+        "REPETITIVE"
+      ],
+      "readOnly": true
+    },
     "Scope": {
       "type": "string",
       "enum": [
@@ -5726,6 +5892,16 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "TimeUnit": {
+      "description": "time unit of schedule scan",
+      "type": "string",
+      "enum": [
+        "HOURS",
+        "DAYS",
+        "WEEKS"
+      ],
+      "readOnly": true
     },
     "UserInteraction": {
       "type": "string",
