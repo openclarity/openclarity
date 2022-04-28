@@ -2016,6 +2016,9 @@ func init() {
     "RuntimeScheduleScanConfig": {
       "type": "object",
       "properties": {
+        "dockerCISBenchmarkScan": {
+          "type": "boolean"
+        },
         "namespaces": {
           "type": "array",
           "items": {
@@ -5838,6 +5841,9 @@ func init() {
     "RuntimeScheduleScanConfig": {
       "type": "object",
       "properties": {
+        "dockerCISBenchmarkScan": {
+          "type": "boolean"
+        },
         "namespaces": {
           "type": "array",
           "items": {
