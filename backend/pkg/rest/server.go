@@ -17,6 +17,7 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -26,28 +27,27 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/api/server/restapi"
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/common"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
 
 type Server struct {
-	server    *restapi.Server
-	dbHandler database.Database
-	clientset kubernetes.Interface
-	RuntimeScan
-}
-
-type RuntimeScan struct {
-	vulnerabilitiesScanner orchestrator.VulnerabilitiesScanner
-	stopScanChan           chan struct{}
-	// List of latest scanned namespaces.
-	scannedNamespaces []string // nolint:structcheck
-	// Quick scan config used in the latest runtime scan.
-	quickScanConfig *models.RuntimeQuickScanConfig // nolint:structcheck
+	server         *restapi.Server
+	dbHandler      database.Database
+	clientset      kubernetes.Interface
+	runtimeScanner runtime_scanner.Scanner
+	scheduler      *runtime_scanner.Scheduler
+	// Send scan requests through here.
+	scanChan chan *runtime_scanner.ScanConfig
+	// Terminate all go routines.
+	stopChan chan struct{}
+	// Scan results will be received through this channel.
+	resultsChan chan *_types.ScanResults
 	State
 	lock sync.RWMutex
 }
@@ -80,20 +80,6 @@ func (s *Server) SetState(state *State) {
 	s.doneApplyingToDB = state.doneApplyingToDB
 }
 
-func (s *Server) getQuickScanConfig() *models.RuntimeQuickScanConfig {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-
-	return s.quickScanConfig
-}
-
-func (s *Server) setQuickScanConfig(conf *models.RuntimeQuickScanConfig) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	s.quickScanConfig = conf
-}
-
 func (s *Server) GetNamespaceList() ([]string, error) {
 	nsList, err := s.clientset.CoreV1().Namespaces().List(context.TODO(), v1.ListOptions{})
 	if err != nil {
@@ -109,15 +95,19 @@ func (s *Server) GetNamespaceList() ([]string, error) {
 
 func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrator.VulnerabilitiesScanner,
 	clientset kubernetes.Interface) (*Server, error) {
+	scanChan := make(chan *runtime_scanner.ScanConfig)
+	resultsChan := make(chan *_types.ScanResults)
 	s := &Server{
-		dbHandler: dbHandler,
-		clientset: clientset,
-		RuntimeScan: RuntimeScan{
-			vulnerabilitiesScanner: scanner,
-			stopScanChan:           make(chan struct{}),
-			lock:                   sync.RWMutex{},
-		},
+		dbHandler:      dbHandler,
+		clientset:      clientset,
+		runtimeScanner: runtime_scanner.CreateRuntimeScanner(scanner, scanChan, resultsChan),
+		resultsChan:    resultsChan,
+		scanChan:       scanChan,
+		stopChan:       make(chan struct{}),
+		lock:           sync.RWMutex{},
+		scheduler:      runtime_scanner.CreateScheduler(scanChan, dbHandler),
 	}
+	s.scheduler.Init()
 
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
@@ -234,6 +224,14 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 		return s.PutRuntimeQuickScanConfig(params)
 	})
 
+	api.GetRuntimeScheduleScanConfigHandler = operations.GetRuntimeScheduleScanConfigHandlerFunc(func(params operations.GetRuntimeScheduleScanConfigParams) middleware.Responder {
+		return s.GetRuntimeScheduleScanConfig(params)
+	})
+
+	api.PutRuntimeScheduleScanConfigHandler = operations.PutRuntimeScheduleScanConfigHandlerFunc(func(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
+		return s.PutRuntimeScheduleScanConfig(params)
+	})
+
 	server := restapi.NewServer(api)
 
 	server.ConfigureFlags()
@@ -246,7 +244,8 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 }
 
 func (s *Server) Start(errChan chan struct{}) {
-	s.vulnerabilitiesScanner.Start(errChan)
+	s.runtimeScanner.Start(s.stopChan)
+	s.startListeningForScanResults(s.stopChan)
 
 	log.Infof("Starting REST server")
 	go func() {
@@ -259,7 +258,7 @@ func (s *Server) Start(errChan chan struct{}) {
 }
 
 func (s *Server) Stop() {
-	s.vulnerabilitiesScanner.Stop()
+	close(s.stopChan)
 
 	log.Infof("Stopping REST server")
 	if s.server != nil {
@@ -267,4 +266,59 @@ func (s *Server) Stop() {
 			log.Errorf("Failed to shutdown REST server: %v", err)
 		}
 	}
+}
+
+func (s *Server) startListeningForScanResults(stopChan chan struct{}) {
+	go func() {
+		select {
+		case results := <-s.resultsChan:
+			s.handleScanResults(results)
+		case <-stopChan:
+			log.Info("Received stop event, stop listening to results")
+			return
+		}
+	}()
+}
+
+func (s *Server) handleScanResults(results *_types.ScanResults) {
+	// clear before start
+	B, _ := json.Marshal(results)
+	log.Errorf("Handling scan results: %s", B)
+	s.SetState(&State{
+		runtimeScanApplicationIDs: []string{},
+		runtimeScanFailures:       []string{},
+		doneApplyingToDB:          false,
+	})
+
+	if results.Progress.Status == _types.ScanInitFailure {
+		log.Errorf("Got scan init failure from results")
+		s.SetState(&State{
+			runtimeScanFailures: []string{"Scanning initialization failed"},
+		})
+		return
+	}
+
+	if log.GetLevel() == log.TraceLevel {
+		resultsB, _ := json.Marshal(results.ImageScanResults)
+		log.Tracef("Got scan results: %s", string(resultsB))
+	}
+
+	runtimeScanApplicationIDs, runtimeScanFailures, err := s.applyRuntimeScanResults(results.ImageScanResults)
+	if err != nil {
+		log.Errorf("Failed to apply runtime scan results: %v", err)
+		s.SetState(&State{
+			runtimeScanFailures: []string{"Failed to apply runtime scan results"},
+			doneApplyingToDB:    true,
+		})
+		return
+	}
+
+	// Set new runtime scan application IDs and scan failures details on state.
+	s.SetState(&State{
+		runtimeScanApplicationIDs: runtimeScanApplicationIDs,
+		runtimeScanFailures:       runtimeScanFailures,
+		doneApplyingToDB:          true,
+	})
+	log.Infof("Succeeded to apply runtime scan results. app ids=%+v, failures=%+v",
+		runtimeScanApplicationIDs, runtimeScanFailures)
 }

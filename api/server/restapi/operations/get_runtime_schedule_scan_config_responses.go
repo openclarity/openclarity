@@ -10,7 +10,11 @@ import (
 
 	"github.com/go-openapi/runtime"
 
+<<<<<<< HEAD
 	"github.com/cisco-open/kubei/api/server/models"
+=======
+	"github.com/openclarity/kubeclarity/api/server/models"
+>>>>>>> scheduele scan api
 )
 
 // GetRuntimeScheduleScanConfigOKCode is the HTTP code returned for type GetRuntimeScheduleScanConfigOK

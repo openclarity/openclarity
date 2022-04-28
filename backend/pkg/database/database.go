@@ -328,6 +328,7 @@ type Database interface {
 	IDsView() IDsView
 	ObjectTree() ObjectTree
 	QuickScanConfigTable() QuickScanConfigTable
+	SchedulerTable() SchedulerTable
 	CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable
 }
 
@@ -411,6 +412,12 @@ func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
 	}
 }
 
+func (db *Handler) SchedulerTable() SchedulerTable {
+	return &SchedulerTableHandler{
+		table: db.DB.Table(schedulerTableName),
+	}
+}
+
 func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
 	return &CISDockerBenchmarkResultTableHandler{
 		table: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
@@ -452,7 +459,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	setupJoinTables(db)
 
 	// this will ensure table is created
-	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, CISDockerBenchmarkCheck{}); err != nil {
+	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, Scheduler{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 

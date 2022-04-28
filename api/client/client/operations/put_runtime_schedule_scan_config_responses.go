@@ -12,7 +12,11 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
+<<<<<<< HEAD
 	"github.com/cisco-open/kubei/api/client/models"
+=======
+	"github.com/openclarity/kubeclarity/api/client/models"
+>>>>>>> scheduele scan api
 )
 
 // PutRuntimeScheduleScanConfigReader is a Reader for the PutRuntimeScheduleScanConfig structure.

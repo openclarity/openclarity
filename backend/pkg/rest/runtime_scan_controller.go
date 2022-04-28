@@ -17,20 +17,22 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"
-	corev1 "k8s.io/api/core/v1"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/backend/pkg/types"
-	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
 )
@@ -38,33 +40,42 @@ import (
 /* ### Start Handlers #### */
 
 func (s *Server) PutRuntimeScanStart(params operations.PutRuntimeScanStartParams) middleware.Responder {
-	if err := s.startScan(params.Body.Namespaces); err != nil {
-		log.Errorf("Failed to start scan: %v", err)
+	scanConfig, err := s.createScanConfigFromQuickScan(params.Body.Namespaces)
+	if err != nil {
+		log.Errorf("Failed to get scan config: %v", err)
 		return operations.NewPutRuntimeScanStartDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
-	s.scannedNamespaces = params.Body.Namespaces
+	select {
+	case s.scanChan <- scanConfig:
+	default:
+		log.Errorf("Failed to send scan config to channel")
+		return operations.NewPutRuntimeScanStartDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
 
 	return operations.NewPutRuntimeScanStartCreated()
 }
 
 func (s *Server) PutRuntimeScanStop(_ operations.PutRuntimeScanStopParams) middleware.Responder {
 	// stop scanner
-	s.vulnerabilitiesScanner.Clear()
+	s.runtimeScanner.Clear()
 	// stop listening for scanner results
-	s.stopCurrentScan()
-	// clear scanned namespace list
-	s.scannedNamespaces = []string{}
+	s.runtimeScanner.StopCurrentScan()
 
 	return operations.NewPutRuntimeScanStopCreated()
 }
 
 func (s *Server) GetRuntimeScanProgress(_ operations.GetRuntimeScanProgressParams) middleware.Responder {
 	status, scanned := s.getScanStatusAndScanned()
+	scanConfig := s.runtimeScanner.GetScanConfig()
+	startTime := s.runtimeScanner.GetLastScanStartTime()
 
 	return operations.NewGetRuntimeScanProgressOK().WithPayload(&models.Progress{
+		ScanType:          scanConfig.ScanType,
 		Scanned:           &scanned,
-		ScannedNamespaces: s.scannedNamespaces,
+		ScannedNamespaces: s.runtimeScanner.GetScannedNamespaces(),
+		StartTime:         strfmt.DateTime(startTime),
 		Status:            status,
 	})
 }
@@ -72,7 +83,7 @@ func (s *Server) GetRuntimeScanProgress(_ operations.GetRuntimeScanProgressParam
 func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsParams) middleware.Responder {
 	state := s.GetState()
 	// Fetch last scan config from state (not from DB).
-	quickScanConfig := s.getQuickScanConfig()
+	scanConfig := s.runtimeScanner.GetScanConfig()
 
 	failures := make([]*models.RuntimeScanFailure, len(state.runtimeScanFailures))
 	for i, failure := range state.runtimeScanFailures {
@@ -86,7 +97,7 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 		return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
 			CisDockerBenchmarkCountPerLevel: []*models.CISDockerBenchmarkLevelCount{},
 			CisDockerBenchmarkCounters:      &models.CISDockerBenchmarkScanCounters{},
-			CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
+			CisDockerBenchmarkScanEnabled:   scanConfig.CisDockerBenchmarkScanEnabled,
 			Counters:                        &models.RuntimeScanCounters{},
 			Failures:                        failures,
 			VulnerabilityPerSeverity:        []*models.VulnerabilityCount{},
@@ -134,8 +145,9 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
 		CisDockerBenchmarkCountPerLevel: cisDockerBenchmarkCountPerLevel,
 		CisDockerBenchmarkCounters:      cisDockerBenchmarkCounters,
-		CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
+		CisDockerBenchmarkScanEnabled:   scanConfig.CisDockerBenchmarkScanEnabled,
 		Counters:                        counters,
+		EndTime:                         strfmt.DateTime(s.runtimeScanner.GetLastScanEndTime()),
 		Failures:                        failures,
 		VulnerabilityPerSeverity:        vulPerSeverity,
 	})
@@ -181,7 +193,154 @@ func (s *Server) PutRuntimeQuickScanConfig(params operations.PutRuntimeQuickscan
 	return operations.NewPutRuntimeQuickscanConfigCreated()
 }
 
+func (s *Server) GetRuntimeScheduleScanConfig(_ operations.GetRuntimeScheduleScanConfigParams) middleware.Responder {
+	ret := models.RuntimeScheduleScanConfig{}
+	schedulerConf, err := s.dbHandler.SchedulerTable().Get()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return operations.NewGetRuntimeScheduleScanConfigOK().WithPayload(&ret)
+		}
+		log.Errorf("Failed to get scheduler table from db: %v", err)
+		return operations.NewGetRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	if err := json.Unmarshal([]byte(schedulerConf.Config), &ret); err != nil {
+		log.Errorf("Failed to unmarshal scan config: %v. %v", schedulerConf.Config, err)
+		return operations.NewGetRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewGetRuntimeScheduleScanConfigOK().WithPayload(&ret)
+}
+
+func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
+	// save new config to db
+	configB, err := params.Body.MarshalJSON()
+	if err != nil {
+		log.Errorf("Failed to marshal body: %v", err)
+		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+	if err := s.dbHandler.SchedulerTable().Set(&database.Scheduler{
+		ID:     "1", // we want to keep one scheduler config in db.
+		Config: string(configB),
+	}); err != nil {
+		log.Errorf("Failed to set new scheduler config to db: %v", err)
+		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	// handle the new schedule scan configuration:
+	if err := s.handleNewScheduleScanConfig(params.Body); err != nil {
+		log.Errorf("Failed to handle new schedule scan config: %v", err)
+		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewPutRuntimeScheduleScanConfigCreated()
+}
+
 /* ### End Handlers #### */
+
+func (s *Server) createScanConfigFromQuickScan(namespaces []string) (*runtime_scanner.ScanConfig, error) {
+	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
+	if err != nil {
+		return nil, err
+	}
+	return &runtime_scanner.ScanConfig{
+		ScanType:                      models.ScanTypeQUICK,
+		CisDockerBenchmarkScanEnabled: quickScanConfig.CisDockerBenchmarkScanEnabled,
+		Namespaces:                    namespaces,
+	}, nil
+}
+
+const secondsInHour = 60 * 60
+const secondsInDay = 24 * secondsInHour
+const secondsInWeek = 7 * secondsInDay
+
+func getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow time.Time, scanConfig *models.ByDaysScheduleScanConfig) (int64, time.Time) {
+	intervalSeconds := scanConfig.DaysInterval * secondsInDay
+	hour := int(*scanConfig.TimeOfDay.Hour)
+	minute := int(*scanConfig.TimeOfDay.Minute)
+	year, month, day := timeNow.Date()
+
+	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
+
+	for startTime.Before(timeNow) {
+		startTime = startTime.Add(time.Duration(intervalSeconds) * time.Second)
+	}
+
+	return intervalSeconds, startTime
+}
+
+func getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow time.Time, scanConfig *models.ByHoursScheduleScanConfig) (int64, time.Time) {
+	intervalSeconds := scanConfig.HoursInterval * secondsInHour
+
+	startTime := timeNow
+
+	return intervalSeconds, startTime
+}
+
+func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scanConfig *models.WeeklyScheduleScanConfig) (int64, time.Time) {
+	intervalSeconds := int64(secondsInWeek)
+
+	currentDay := timeNow.Weekday() + 1
+	diff := scanConfig.DayInWeek - int64(currentDay)
+
+	hour := int(*scanConfig.TimeOfDay.Hour)
+	minute := int(*scanConfig.TimeOfDay.Minute)
+	year, month, day := timeNow.Add(time.Duration(diff) * secondsInDay * time.Second).Date()
+
+	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
+
+	for startTime.Before(timeNow) {
+		startTime = startTime.Add(time.Duration(intervalSeconds) * time.Second)
+	}
+
+	return intervalSeconds, startTime
+}
+
+func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanConfig) error {
+	var interval int64
+	var startTime time.Time
+	singleScan := false
+
+	timeNow := time.Now().UTC()
+
+	switch config.ScanConfigType().ScheduleScanConfigType() {
+	case runtime_scanner.ByDaysScheduleScanConfig:
+		scanConfig := config.ScanConfigType().(*models.ByDaysScheduleScanConfig)
+		interval, startTime = getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow, scanConfig)
+	case runtime_scanner.ByHoursScheduleScanConfig:
+		scanConfig := config.ScanConfigType().(*models.ByHoursScheduleScanConfig)
+		interval, startTime = getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow, scanConfig)
+	case runtime_scanner.SingleScheduleScanConfig:
+		var err error
+		singleScan = true
+		scanConfig := config.ScanConfigType().(*models.SingleScheduleScanConfig)
+		startTime, err = time.Parse(time.RFC3339, scanConfig.OperationTime.String())
+		if err != nil {
+			return err
+		}
+		interval = 0
+	case runtime_scanner.WeeklyScheduleScanConfig:
+		scanConfig := config.ScanConfigType().(*models.WeeklyScheduleScanConfig)
+		interval, startTime = getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow, scanConfig)
+	default:
+		return fmt.Errorf("unsupported schedule config type: %v", config.ScanConfigType().ScheduleScanConfigType())
+	}
+
+	schedParams := &runtime_scanner.SchedulerParams{
+		Namespaces:                    config.Namespaces,
+		CisDockerBenchmarkScanEnabled: config.CisDockerBenchmarkScanEnabled,
+		Interval:                      interval,
+		StartTime:                     startTime,
+		SingleScan:                    singleScan,
+	}
+	s.scheduler.Schedule(schedParams)
+	return nil
+}
 
 func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models.RuntimeScanCounters, error) {
 	pkgCount, err := s.dbHandler.PackageTable().Count(filters)
@@ -223,18 +382,11 @@ func (s *Server) getRuntimeScanCisDockerBenchmarkCounters(filters *database.Coun
 	}, nil
 }
 
-func (s *Server) stopCurrentScan() {
-	s.lock.Lock()
-	close(s.stopScanChan)
-	s.stopScanChan = make(chan struct{})
-	s.lock.Unlock()
-}
-
 func (s *Server) getScanStatusAndScanned() (models.RuntimeScanStatus, int64) {
 	var scanned int64
 	var status models.RuntimeScanStatus
 
-	scanProgress := s.vulnerabilitiesScanner.ScanProgress()
+	scanProgress := s.runtimeScanner.ScanProgress()
 
 	switch scanProgress.Status {
 	case _types.Idle:
@@ -262,90 +414,6 @@ func (s *Server) getScanStatusAndScanned() (models.RuntimeScanStatus, int64) {
 	scanned = int64((float64(scanProgress.ImagesCompletedToScan) / float64(scanProgress.ImagesToScan)) * 100) //nolint:gomnd
 
 	return status, scanned
-}
-
-func (s *Server) startScan(namespaces []string) error {
-	s.lock.Lock()
-	stop := s.stopScanChan
-	s.lock.Unlock()
-
-	// clear before start
-	s.SetState(&State{
-		runtimeScanApplicationIDs: []string{},
-		runtimeScanFailures:       []string{},
-	})
-	s.vulnerabilitiesScanner.Clear()
-
-	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
-	if err != nil {
-		return fmt.Errorf("failed to get quick scan config from db: %v", err)
-	}
-	// Save on state the config in the current runtime scan.
-	s.setQuickScanConfig(quickScanConfig)
-
-	// need to create scan done channel for every new scan
-	done := make(chan struct{})
-
-	if len(namespaces) == 0 {
-		// Empty namespaces list should scan all namespaces.
-		namespaces = []string{corev1.NamespaceAll}
-	}
-
-	err = s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
-		MaxScanParallelism:           10, // nolint:gomnd
-		TargetNamespaces:             namespaces,
-		IgnoredNamespaces:            nil,
-		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
-		DeleteJobPolicy:              runtime_scan_config.DeleteJobPolicySuccessful,
-		ShouldScanCISDockerBenchmark: quickScanConfig.CisDockerBenchmarkScanEnabled,
-	}, done)
-	if err != nil {
-		return fmt.Errorf("failed to start scan: %v", err)
-	}
-
-	go func() {
-		select {
-		case <-done:
-			results := s.vulnerabilitiesScanner.Results()
-			if results.Progress.Status == _types.ScanInitFailure {
-				log.Errorf("Got scan init failure from results")
-				s.SetState(&State{
-					runtimeScanApplicationIDs: []string{},
-					runtimeScanFailures:       []string{"Scanning initialization failed"},
-				})
-				return
-			}
-
-			if log.GetLevel() == log.TraceLevel {
-				resultsB, _ := json.Marshal(results.ImageScanResults)
-				log.Tracef("Got scan results: %s", string(resultsB))
-			}
-
-			runtimeScanApplicationIDs, runtimeScanFailures, err := s.applyRuntimeScanResults(results.ImageScanResults)
-			if err != nil {
-				log.Errorf("Failed to apply runtime scan results: %v", err)
-				s.SetState(&State{
-					runtimeScanApplicationIDs: []string{},
-					runtimeScanFailures:       []string{"Failed to apply runtime scan results"},
-					doneApplyingToDB:          true,
-				})
-				return
-			}
-
-			// Set new runtime scan application IDs and scan failures details on state.
-			s.SetState(&State{
-				runtimeScanApplicationIDs: runtimeScanApplicationIDs,
-				runtimeScanFailures:       runtimeScanFailures,
-				doneApplyingToDB:          true,
-			})
-			log.Infof("Succeeded to apply runtime scan results. app ids=%+v, failures=%+v",
-				runtimeScanApplicationIDs, runtimeScanFailures)
-		case <-stop:
-			log.Infof("Received a stop signal, stopping scan")
-		}
-	}()
-
-	return nil
 }
 
 type podData struct {
