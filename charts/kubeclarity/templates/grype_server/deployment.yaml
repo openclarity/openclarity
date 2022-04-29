@@ -20,8 +20,10 @@ spec:
       volumes:
         - name: tmp-volume
           emptyDir: {}
+      {{- if not (index .Values "kubeclarity-grype-server" "securityContext" "openShiftRestricted") }}
       securityContext:
         fsGroup: 1000
+      {{- end }}
       containers:
         - name: grype-server
           image: '{{ index .Values "kubeclarity-grype-server" "docker" "imageRepo" }}/grype-server:{{ index .Values "kubeclarity-grype-server" "docker" "imageTag" }}'
@@ -57,12 +59,13 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
+          {{- if not (index .Values "kubeclarity-grype-server" "securityContext" "openShiftRestricted") }}
+          {{- omit (index .Values "kubeclarity-grype-server" "securityContext" "openShiftRestricted") | toYaml | indent 12 }}
+          {{- end }}
             capabilities:
               drop:
                 - all
             runAsNonRoot: true
-            runAsGroup: 1000
-            runAsUser: 1000
             privileged: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

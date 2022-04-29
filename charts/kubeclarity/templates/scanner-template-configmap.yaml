@@ -26,8 +26,10 @@ data:
           volumes:
           - name: tmp-volume
             emptyDir: {}
+          {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
           securityContext:
-            fsGroup: 1001           
+            runAsUser: 1001
+          {{- end }}         
           containers:
           - name: vulnerability-scanner
             image: '{{ .Values.global.docker.registry }}/kubeclarity-runtime-k8s-scanner:{{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "docker" "imageTag" }}'
@@ -90,12 +92,15 @@ data:
               value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
 {{- end}}
             securityContext:
+            {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
+            {{- omit .Values.kubeclarity.securityContext "openShiftRestricted" | toYaml | indent 14 }}
+            {{- end }}
               capabilities:
                 drop:
                 - all
               runAsNonRoot: true
-              runAsGroup: 1001
-              runAsUser: 1001
+              #runAsGroup: 1001
+              #runAsUser: 1001
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -133,12 +138,15 @@ data:
               value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
 {{- end}}
             securityContext:
+            {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
+            {{- omit .Values.kubeclarity.securityContext "openShiftRestricted" | toYaml | indent 14 }}
+            {{- end }}
               capabilities:
                 drop:
                   - all
               runAsNonRoot: true
-              runAsGroup: 1001
-              runAsUser: 1001
+              #runAsGroup: 1001
+              #runAsUser: 1001
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

@@ -22,8 +22,8 @@ global:
 kubeclarity:
   ## Docker Image values.
   docker:
-    imageTag: "latest"
-    imagePullPolicy: Always
+    imageTag: v2.1.2
+    imagePullPolicy: IfNotPresent
 
   ## Logging level (debug, info, warning, error, fatal, panic).
   logLevel: warning
@@ -40,6 +40,12 @@ kubeclarity:
     limits:
       memory: "1000Mi"
       cpu: "1000m"
+  
+  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
+  securityContext:
+    openShiftRestricted: true
+    runAsGroup: 1000
+    runAsUser: 1000
 
 ## End of KubeClarity Values
 #######################################################################################
@@ -154,6 +160,12 @@ kubeclarity-grype-server:
       cpu: "1000m"
       memory: "1G"
 
+  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
+  securityContext:
+    openShiftRestricted: true
+    runAsGroup: 1000
+    runAsUser: 1000
+
 ## End of KubeClarity Grype Server Values
 #######################################################################################
 
@@ -179,6 +191,12 @@ kubeclarity-sbom-db:
       memory: "100Mi"
       cpu: "100m"
 
+  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
+  securityContext:
+    openShiftRestricted: true
+    runAsGroup: 1000
+    runAsUser: 1000
+
 ## End of KubeClarity SBOM DB Values
 #######################################################################################
 
@@ -203,12 +221,46 @@ kubeclarity-postgresql:
   ## Setup database name and password
   existingSecret: kubeclarity-postgresql-secret
   postgresqlDatabase: kubeclarity
+  # secretKey: postgresql-password
 
-  ## Enable security context
-  containerSecurityContext:
+  serviceAccount:
     enabled: true
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass:
+    annotations:
+      helm.sh/resource-policy: "keep"
+  replication:
+    enabled: false
+  service:
+    port: 5432
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  securityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: false
+    # fsGroup specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    fsGroup: 1001
+  containerSecurityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: false
+    # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
     runAsUser: 1001
-    runAsNonRoot: true
+  volumePermissions:
+    enabled: true
+    # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
+    securityContext:
+      runAsUser: "auto"
+  shmVolume:
+    chmod:
+      enabled: false
 
 # End of KubeClarity Postgres Values
 #######################################################################################
