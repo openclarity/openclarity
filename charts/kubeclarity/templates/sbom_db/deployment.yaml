@@ -19,7 +19,7 @@ spec:
       volumes:
         - name: tmp-volume
           emptyDir: {}
-      {{- if not (index .Values "kubeclarity-sbom-db" "securityContext" "openShiftRestricted") }}
+      {{- if not .Values.global.openShiftRestricted }}
       securityContext:
         fsGroup: 1000
       {{- end }}
@@ -48,8 +48,8 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
-          {{- if not (index .Values "kubeclarity-sbom-db" "securityContext" "openShiftRestricted") }}
-          {{- omit (index .Values "kubeclarity-sbom-db" "securityContext" "openShiftRestricted") | toYaml | indent 12 }}
+          {{- if not .Values.global.openShiftRestricted }}
+          {{- toYaml (index .Values "kubeclarity-sbom-db" "securityContext") | nindent 12 }}
           {{- end }}
             capabilities:
               drop:

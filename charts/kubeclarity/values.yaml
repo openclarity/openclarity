@@ -13,6 +13,10 @@ global:
     ##
     registry: "ghcr.io/cisco-open"
 
+  # is this being installed under OpenShift restricted SCC?
+  ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
+  openShiftRestricted: true
+
 ## End of Global Values
 #######################################################################################
 
@@ -40,10 +44,8 @@ kubeclarity:
     limits:
       memory: "1000Mi"
       cpu: "1000m"
-  
-  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
+
   securityContext:
-    openShiftRestricted: true
     runAsGroup: 1000
     runAsUser: 1000
 
@@ -160,9 +162,7 @@ kubeclarity-grype-server:
       cpu: "1000m"
       memory: "1G"
 
-  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
   securityContext:
-    openShiftRestricted: true
     runAsGroup: 1000
     runAsUser: 1000
 
@@ -191,9 +191,7 @@ kubeclarity-sbom-db:
       memory: "100Mi"
       cpu: "100m"
 
-  ## If not trying to run under OpenShift restricted SCC, set as false to use group and user settings specified
   securityContext:
-    openShiftRestricted: true
     runAsGroup: 1000
     runAsUser: 1000
 
@@ -245,19 +243,19 @@ kubeclarity-postgresql:
       memory: 200Mi
   securityContext:
     # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
-    enabled: false
+    enabled: true
     # fsGroup specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
     fsGroup: 1001
   containerSecurityContext:
     # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
-    enabled: false
+    enabled: true
     # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
     runAsUser: 1001
   volumePermissions:
     enabled: true
     # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
     securityContext:
-      runAsUser: "auto"
+      runAsUser: 1001
   shmVolume:
     chmod:
       enabled: false

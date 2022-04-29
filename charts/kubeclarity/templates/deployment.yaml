@@ -21,7 +21,7 @@ spec:
           image: docker.io/bitnami/postgresql:11.13.0-debian-10-r33
           command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}";
             do echo waiting for database; sleep 2; done;']
-          {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
+          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
             runAsUser: 1001
           {{- end }}
@@ -47,7 +47,7 @@ spec:
                 echo waiting for grype-server to be ready; sleep 2;
               done;
 {{- end}}
-          {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
+          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
             runAsUser: 1001
           {{- end }}
@@ -99,8 +99,8 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
-          {{- if not .Values.kubeclarity.securityContext.openShiftRestricted }}
-          {{- omit .Values.kubeclarity.securityContext "openShiftRestricted" | toYaml | indent 12 }}
+          {{- if not .Values.global.openShiftRestricted }}
+          {{- toYaml .Values.kubeclarity.securityContext | nindent 12 }}
           {{- end }}
             capabilities:
               drop:
