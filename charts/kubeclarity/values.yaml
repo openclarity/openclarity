@@ -15,7 +15,7 @@ global:
 
   # is this being installed under OpenShift restricted SCC?
   ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
-  openShiftRestricted: true
+  openShiftRestricted: false
 
 ## End of Global Values
 #######################################################################################
