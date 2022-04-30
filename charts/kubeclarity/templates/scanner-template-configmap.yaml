@@ -28,7 +28,7 @@ data:
             emptyDir: {}
           {{- if not .Values.global.openShiftRestricted }}
           securityContext:
-            runAsUser: 1001
+            fsGroup: 1001
           {{- end }}         
           containers:
           - name: vulnerability-scanner
