@@ -92,13 +92,14 @@ data:
               value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
 {{- end}}
             securityContext:
-            {{- if not .Values.global.openShiftRestricted }}
-            {{- toYaml .Values.kubeclarity.securityContext | indent 14 }}
-            {{- end }}
               capabilities:
                 drop:
                 - all
               runAsNonRoot: true
+              {{- if not .Values.global.openShiftRestricted }}
+              runAsGroup: 1001
+              runAsUser: 1001
+              {{- end }}
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -136,13 +137,14 @@ data:
               value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
 {{- end}}
             securityContext:
-            {{- if not .Values.global.openShiftRestricted }}
-            {{- toYaml .Values.kubeclarity.securityContext | nindent 14 }}
-            {{- end }}
               capabilities:
                 drop:
                   - all
               runAsNonRoot: true
+              {{- if not .Values.global.openShiftRestricted }}
+              runAsGroup: 1001
+              runAsUser: 1001
+              {{- end }}
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

@@ -59,13 +59,14 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
-          {{- if not .Values.global.openShiftRestricted }}
-          {{- toYaml (index .Values "kubeclarity-grype-server" "securityContext") | nindent 12 }}
-          {{- end }}
             capabilities:
               drop:
                 - all
             runAsNonRoot: true
+            {{- if not .Values.global.openShiftRestricted }}
+            runAsGroup: 1000
+            runAsUser: 1000
+            {{- end }}
             privileged: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

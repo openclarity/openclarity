@@ -13,7 +13,7 @@ global:
     ##
     registry: "ghcr.io/cisco-open"
 
-  # is this being installed under OpenShift restricted SCC?
+  ## Is this being installed under OpenShift restricted SCC?
   ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
   openShiftRestricted: false
 
@@ -44,10 +44,6 @@ kubeclarity:
     limits:
       memory: "1000Mi"
       cpu: "1000m"
-
-  securityContext:
-    runAsGroup: 1000
-    runAsUser: 1000
 
 ## End of KubeClarity Values
 #######################################################################################
@@ -162,10 +158,6 @@ kubeclarity-grype-server:
       cpu: "1000m"
       memory: "1G"
 
-  securityContext:
-    runAsGroup: 1000
-    runAsUser: 1000
-
 ## End of KubeClarity Grype Server Values
 #######################################################################################
 
@@ -190,10 +182,6 @@ kubeclarity-sbom-db:
     limits:
       memory: "100Mi"
       cpu: "100m"
-
-  securityContext:
-    runAsGroup: 1000
-    runAsUser: 1000
 
 ## End of KubeClarity SBOM DB Values
 #######################################################################################
@@ -240,7 +228,8 @@ kubeclarity-postgresql:
       runAsUser: 1001
   shmVolume:
     chmod:
-      enabled: false
+      # if using restricted SCC with runAsUser: "auto" (above) then set shmVolume.chmod.enabled to false
+      enabled: true
 
 # End of KubeClarity Postgres Values
 #######################################################################################
