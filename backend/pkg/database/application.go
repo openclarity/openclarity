@@ -221,7 +221,9 @@ func (a *ApplicationTableHandler) GetDBApplication(id string, shouldGetRelations
 		Where(applicationTableName+"."+columnAppID+" = ?", id)
 
 	if shouldGetRelationships {
-		tx.Preload("Resources.Packages.Vulnerabilities").Preload(clause.Associations)
+		tx.Preload("Resources.Packages.Vulnerabilities").
+			Preload("Resources.CISDockerBenchmarkChecks").
+			Preload(clause.Associations)
 	}
 
 	if err := tx.First(&application).Error; err != nil {

@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	cisDockerBenchmarkCheckTableName            = "cis_docker_benchmark_checks"
-	applicationCisDockerBenchmarkChecksViewName = "application_cis_docker_benchmark_checks"
+	cisDockerBenchmarkCheckTableName            = "cis_d_b_checks"
+	applicationCisDockerBenchmarkChecksViewName = "application_cis_d_b_checks"
 
 	columnApplicationCisDockerBenchmarkChecksViewApplicationID = "application_id"
 )

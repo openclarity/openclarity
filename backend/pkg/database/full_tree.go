@@ -108,11 +108,11 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 	}
 
 	// Update cis_docker_benchmark_results
-	log.Tracef("Updating cis_docker_benchmark_checks and resource_cis_docker_benchmark_checks. checks=%+v", resource.CISDockerBenchmarkChecks)
+	log.Tracef("Updating cis_d_b_checks and resource_cis_d_b_checks. checks=%+v", resource.CISDockerBenchmarkChecks)
 	if err := tx.Model(resource).
 		Session(&gorm.Session{FullSaveAssociations: true}).
 		Association("CISDockerBenchmarkChecks").Replace(resource.CISDockerBenchmarkChecks); err != nil {
-		return fmt.Errorf("failed to update resource cis_docker_benchmark_checks association: %v", err)
+		return fmt.Errorf("failed to update resource cis_d_b_checks association: %v", err)
 	}
 
 	return nil

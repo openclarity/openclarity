@@ -42,11 +42,11 @@ var viewsList = []string{
 	"packages_view",
 	"package_severities",
 	"resources_view",
-	"resource_cis_docker_benchmark_checks_view",
+	"resource_cis_d_b_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
 	"applications_view",
-	"application_cis_docker_benchmark_checks",
+	"application_cis_d_b_checks",
 	"application_severities",
 	"ids_view",
 	"licenses_view",
@@ -114,7 +114,7 @@ GROUP BY apvs.application_id;
 `
 
 	applicationsCISDockerBenchmarkChecksViewQuery = `
-CREATE VIEW application_cis_docker_benchmark_checks AS
+CREATE VIEW application_cis_d_b_checks AS
 SELECT applications.id AS application_id,
        SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
        SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
@@ -123,8 +123,8 @@ SELECT applications.id AS application_id,
        MIN(c.level) AS lowest_level
 FROM applications
          LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
-         LEFT OUTER JOIN resource_cis_docker_benchmark_checks rc ON ar.resource_id = rc.resource_id
-         LEFT OUTER JOIN cis_docker_benchmark_checks c ON c.id = rc.cis_docker_benchmark_check_id
+         LEFT OUTER JOIN resource_cis_d_b_checks rc ON ar.resource_id = rc.resource_id
+         LEFT OUTER JOIN cis_d_b_checks c ON c.id = rc.cis_docker_benchmark_check_id
 GROUP BY applications.id;
 `
 
@@ -148,7 +148,7 @@ FROM applications
          LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
          LEFT OUTER JOIN resource_packages rp ON ar.resource_id = rp.resource_id
          LEFT OUTER JOIN application_severities aps ON applications.id = aps.application_id
-         LEFT OUTER JOIN application_cis_docker_benchmark_checks apl ON applications.id = apl.application_id
+         LEFT OUTER JOIN application_cis_d_b_checks apl ON applications.id = apl.application_id
 GROUP BY applications.id,
          aps.total_neg_count,
          aps.total_low_count,
@@ -195,7 +195,7 @@ GROUP BY resources.id;
 `
 
 	resourcesCISDockerBenchmarkChecksViewQuery = `
-CREATE VIEW resource_cis_docker_benchmark_checks_view AS
+CREATE VIEW resource_cis_d_b_checks_view AS
 SELECT resources.id AS resource_id,
 	  SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
 	  SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
@@ -203,8 +203,8 @@ SELECT resources.id AS resource_id,
 	  MAX(c.level) AS highest_level,
 	  MIN(c.level) AS lowest_level
 FROM resources
-		LEFT OUTER JOIN resource_cis_docker_benchmark_checks rc ON resources.id = rc.resource_id
-		LEFT OUTER JOIN cis_docker_benchmark_checks c ON c.id = rc.cis_docker_benchmark_check_id
+		LEFT OUTER JOIN resource_cis_d_b_checks rc ON resources.id = rc.resource_id
+		LEFT OUTER JOIN cis_d_b_checks c ON c.id = rc.cis_docker_benchmark_check_id
 GROUP BY resources.id;
 	`
 
@@ -228,7 +228,7 @@ FROM resources
          LEFT OUTER JOIN resource_packages rp ON resources.id = rp.resource_id
          LEFT OUTER JOIN application_resources ar ON resources.id = ar.resource_id
          LEFT OUTER JOIN resource_severities rs ON resources.id = rs.resource_id
-         LEFT OUTER JOIN resource_cis_docker_benchmark_checks_view rl ON resources.id = rl.resource_id
+         LEFT OUTER JOIN resource_cis_d_b_checks_view rl ON resources.id = rl.resource_id
 GROUP BY resources.id,
          rs.total_neg_count,
          rs.total_low_count,
@@ -502,7 +502,7 @@ func createAllViews(db *gorm.DB) {
 	}
 
 	if err := db.Exec(applicationsCISDockerBenchmarkChecksViewQuery).Error; err != nil {
-		log.Fatalf("Failed to create application_cis_docker_benchmark_checks: %v", err)
+		log.Fatalf("Failed to create application_cis_d_b_checks: %v", err)
 	}
 
 	if err := db.Exec(applicationsViewQuery).Error; err != nil {
@@ -518,7 +518,7 @@ func createAllViews(db *gorm.DB) {
 	}
 
 	if err := db.Exec(resourcesCISDockerBenchmarkChecksViewQuery).Error; err != nil {
-		log.Fatalf("Failed to create resource_cis_docker_benchmark_checks_view: %v", err)
+		log.Fatalf("Failed to create resource_cis_d_b_checks_view: %v", err)
 	}
 
 	if err := db.Exec(resourcesViewQuery).Error; err != nil {

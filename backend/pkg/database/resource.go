@@ -56,7 +56,7 @@ type Resource struct {
 	SbomID                   string                    `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
 	ReportingAnalyzers       string                    `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
 	Packages                 []Package                 `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
-	CISDockerBenchmarkChecks []CISDockerBenchmarkCheck `json:"cis_docker_benchmark_checks,omitempty" gorm:"many2many:resource_cis_docker_benchmark_checks;" faker:"-"`
+	CISDockerBenchmarkChecks []CISDockerBenchmarkCheck `json:"cis_d_b_checks,omitempty" gorm:"many2many:resource_cis_d_b_checks;" faker:"-"`
 }
 
 type ResourceView struct {
@@ -323,7 +323,9 @@ func (r *ResourceTableHandler) GetDBResource(id string, shouldGetRelationships b
 		Where(resourceTableName+"."+columnResourceID+" = ?", id)
 
 	if shouldGetRelationships {
-		tx.Preload("Packages.Vulnerabilities").Preload(clause.Associations)
+		tx.Preload("Packages.Vulnerabilities").
+			Preload("CISDockerBenchmarkChecks").
+			Preload(clause.Associations)
 	}
 
 	if err := tx.First(&resource).Error; err != nil {
