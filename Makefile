@@ -237,9 +237,9 @@ check: lint test ## Run tests and linters
 
 .PHONY: gomod-tidy
 gomod-tidy:
-	cd backend && go mod tidy -go=1.16 && go mod tidy -go=1.17
-	cd shared && go mod tidy -go=1.16 && go mod tidy -go=1.17
-	cd cli && go mod tidy -go=1.16 && go mod tidy -go=1.17
-	cd runtime_scan && go mod tidy -go=1.16 && go mod tidy -go=1.17
-	cd runtime_k8s_scanner && go mod tidy -go=1.16 && go mod tidy -go=1.17
-	cd cis_docker_benchmark_scanner && go mod tidy -go=1.16 && go mod tidy -go=1.17
+	cd backend && go mod tidy
+	cd shared && go mod tidy
+	cd cli && go mod tidy
+	cd runtime_scan && go mod tidy
+	cd runtime_k8s_scanner && go mod tidy
+	cd cis_docker_benchmark_scanner && go mod tidy
