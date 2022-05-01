@@ -1,8 +1,8 @@
 apiVersion: v2
 name: kubeclarity
-appVersion: 2.1.2
+appVersion: latest
 description: Charts for KubeClarity deployment.
-version: 1.0
+version: latest
 home: https://github.com/cisco-open/kubei
 icon: https://github.com/cisco-open/kubei/raw/main/images/kubeclarity-logo.png
 sources:

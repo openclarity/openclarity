@@ -26,8 +26,8 @@ global:
 kubeclarity:
   ## Docker Image values.
   docker:
-    imageTag: v2.1.2
-    imagePullPolicy: IfNotPresent
+    imageTag: "latest"
+    imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
   logLevel: warning
@@ -223,24 +223,6 @@ kubeclarity-postgresql:
 
   serviceAccount:
     enabled: true
-  persistence:
-    enabled: true
-    accessMode: ReadWriteOnce
-    size: 20Gi
-    storageClass:
-    annotations:
-      helm.sh/resource-policy: "keep"
-  replication:
-    enabled: false
-  service:
-    port: 5432
-  resources:
-    limits:
-      cpu: 2
-      memory: 2Gi
-    requests:
-      cpu: 100m
-      memory: 200Mi
   securityContext:
     # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
     enabled: true
