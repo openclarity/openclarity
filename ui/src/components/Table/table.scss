@@ -16,6 +16,7 @@ $cell-padding: 10px;
     }
     .table {
         color: $color-grey-black;
+        overflow-x: hidden;
 
         .table-head {
             font-weight: bold;

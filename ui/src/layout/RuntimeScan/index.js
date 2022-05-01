@@ -17,9 +17,9 @@ const RuntimeScan = () => {
     const doStartScan = (namespaces) => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_START_SCAN, payload: {namespaces}});
     const doStopScan = () => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_STOP_SCAN});
 
-    const {failures, vulnerabilityPerSeverity, cisDockerBenchmarkCountPerLevel} = scanResults || {};
+    const {failures, vulnerabilityPerSeverity, cisDockerBenchmarkCountPerLevel, cisDockerBenchmarkScanEnabled} = scanResults || {};
     const isInProgress = [PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status);
-
+    
     return (
         <div className="runtime-scan-page">
             <TopBarTitle title="Runtime scan" />
@@ -53,8 +53,9 @@ const RuntimeScan = () => {
                                 <TotalDisplayStep
                                     vulnerabilityPerSeverity={vulnerabilityPerSeverity}
                                     cisDockerBenchmarkCountPerLevel={cisDockerBenchmarkCountPerLevel}
+                                    cisDockerBenchmarkScanEnabled={cisDockerBenchmarkScanEnabled}
                                 />
-                                <SeverityFilterAndCountersSteps />
+                                <SeverityFilterAndCountersSteps cisDockerBenchmarkScanEnabled={cisDockerBenchmarkScanEnabled} />
                             </React.Fragment>
                         }
                     </div>
