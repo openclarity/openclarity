@@ -15,7 +15,7 @@ const ScanOptionsForm = ({onClose}) => {
     
     return (
         <Modal
-            title="Scan options"
+            title="On-demand scan options"
             className="scan-options-form-modal"
             onClose={onClose}
             stickLeft
@@ -33,7 +33,7 @@ const ScanOptionsForm = ({onClose}) => {
                         submitData: formValues
                     })}
                 >
-                    <ToggleField name="cisDockerBenchmarkScanEnabled" label="Docker CIS Benchmark scans" />
+                    <ToggleField name="cisDockerBenchmarkScanEnabled" label="CIS Docker Benchmark" />
                 </FormWrapper>
             }
         </Modal>

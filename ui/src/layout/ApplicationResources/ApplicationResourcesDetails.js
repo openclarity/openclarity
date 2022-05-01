@@ -29,7 +29,7 @@ const DetailsContent = ({data}) => {
                 <TitleValueDisplay title="Vulnerabilities">
                     <VulnerabilitiesLink id={id} vulnerabilities={vulnerabilities} applicationResourceID={id} resourceName={resourceName} />
                 </TitleValueDisplay>
-                <TitleValueDisplay title="CIS Benchmark">
+                <TitleValueDisplay title="CIS Docker Benchmark">
                     <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 </TitleValueDisplay>
             </TitleValueDisplayColumn>

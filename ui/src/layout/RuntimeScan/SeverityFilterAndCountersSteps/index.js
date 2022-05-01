@@ -26,7 +26,7 @@ const LINKS_DISPLAY_MAP = [
 
 const FILTER_TYPE_ITEMS = {
     VULNERABILITY: {value: "VULNERABILITY", label: "Vulnerability", runtimeFilter: "vulnerabilitySeverity[gte]", tablesFitler: "vulnerabilitySeverity", countersKey: "counters"},
-    CIS: {value: "CIS", label: "CIS Benchmark", runtimeFilter: "cisDockerBenchmarkLevel[gte]", tablesFitler: "cisDockerBenchmarkLevel", countersKey: "cisDockerBenchmarkCounters"}
+    CIS: {value: "CIS", label: "CIS Docker Benchmark", runtimeFilter: "cisDockerBenchmarkLevel[gte]", tablesFitler: "cisDockerBenchmarkLevel", countersKey: "cisDockerBenchmarkCounters"}
 }
 
 const SelectItem = ({label, color, icon}) => (

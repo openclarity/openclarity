@@ -34,7 +34,7 @@ const RuntimeScan = () => {
                         <div className="scan-details-info">
                             {!!scannedNamespaces &&
                                 <React.Fragment>
-                                    <BoldText>QUICK SCAN</BoldText>
+                                    <BoldText>ON DEMAND SCAN</BoldText>
                                     <span>{` with target namespaces: `}</span>
                                     <BoldText>{isEmpty(scannedNamespaces) ? "All" : scannedNamespaces.join(", ")}</BoldText>
                                 </React.Fragment>

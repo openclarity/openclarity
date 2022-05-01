@@ -9,7 +9,7 @@ const TotalDisplayStep = ({vulnerabilityPerSeverity, cisDockerBenchmarkCountPerL
         <VulnerabilitiesSummaryDisplay id="runtime-scan-vulnerabilities" vulnerabilities={vulnerabilityPerSeverity || []} />
         {!!cisDockerBenchmarkScanEnabled &&
             <div className="cis-benchmark-total-display">
-                <StepDisplayTitle>CIS Benchmark</StepDisplayTitle>
+                <StepDisplayTitle>CIS Docker Benchmark</StepDisplayTitle>
                 <CisBenchmarkLevelsDisplay id="runtime-scan-cis" levels={cisDockerBenchmarkCountPerLevel || []} />
             </div>
         }

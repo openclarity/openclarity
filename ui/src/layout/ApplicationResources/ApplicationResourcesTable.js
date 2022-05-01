@@ -45,7 +45,7 @@ const ApplicationResourcesTable = () => {
             canSort: true
         },
         {
-            Header: "CIS Benchmark",
+            Header: "CIS Docker Benchmark",
             id: "cisDockerBenchmarkResults",
             Cell: ({row}) => {
                 const {id, cisDockerBenchmarkResults} = row.original;
@@ -119,7 +119,7 @@ const ApplicationResourcesTable = () => {
                     {...OPERATORS.gte, valueItems: Object.values(SEVERITY_ITEMS), creatable: false, isSingleSelect: true},
                     {...OPERATORS.lte, valueItems: Object.values(SEVERITY_ITEMS), creatable: false, isSingleSelect: true}
                 ]},
-                cisDockerBenchmarkLevel: {value: "cisDockerBenchmarkLevel", label: "CIS Benchmark level", operators: [
+                cisDockerBenchmarkLevel: {value: "cisDockerBenchmarkLevel", label: "CIS Docker Benchmark level", operators: [
                     {...OPERATORS.gte, valueItems: Object.values(CIS_SEVERITY_ITEMS), creatable: false, isSingleSelect: true},
                     {...OPERATORS.lte, valueItems: Object.values(CIS_SEVERITY_ITEMS), creatable: false, isSingleSelect: true}
                 ]},
