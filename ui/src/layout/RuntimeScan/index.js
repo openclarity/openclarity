@@ -1,47 +1,64 @@
 import React from 'react';
+import { isEmpty } from 'lodash';
 import PageContainer from 'components/PageContainer';
-import VulnerabilitiesSummaryDisplay from 'components/VulnerabilitiesSummaryDisplay';
 import Loader from 'components/Loader';
 import TopBarTitle from 'components/TopBarTitle';
+import { BoldText } from 'utils/utils';
 import useProgressLoaderReducer, { PROGRESS_LOADER_ACTIONS, PROPRESS_STATUSES } from './useProgressLoaderReducer';
-import StepDisplay from './StepDisplay';
 import ScanConfiguration from './ScanConfiguration';
 import ProgressStep from './ProgressStep';
-import SeverityCountersStep from './SeverityCountersStep';
+import SeverityFilterAndCountersSteps from './SeverityFilterAndCountersSteps';
+import TotalDisplayStep from './TotalDisplayStep';
 
 import './runtime-scan.scss';
 
 const RuntimeScan = () => {
-    const [{loading, status, progress, scanResults}, dispatch] = useProgressLoaderReducer();
+    const [{loading, status, progress, scanResults, scannedNamespaces}, dispatch] = useProgressLoaderReducer();
     const doStartScan = (namespaces) => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_START_SCAN, payload: {namespaces}});
     const doStopScan = () => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_STOP_SCAN});
 
-    const {failures, vulnerabilityPerSeverity} = scanResults || {};
+    const {failures, vulnerabilityPerSeverity, cisDockerBenchmarkCountPerLevel, cisDockerBenchmarkScanEnabled} = scanResults || {};
+    const isInProgress = [PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status);
     
     return (
         <div className="runtime-scan-page">
             <TopBarTitle title="Runtime scan" />
             <ScanConfiguration
-                isInProgress={[PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)}
+                isInProgress={isInProgress}
                 onStartScan={doStartScan}
                 onStopScan={doStopScan}
             />
             {loading ? <Loader /> :
                 <PageContainer className="scan-details-container">
-                    <ProgressStep
-                        title={PROPRESS_STATUSES[status].title}
-                        isDone={[PROPRESS_STATUSES.DONE.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)}
-                        percent={progress}
-                        scanErrors={(failures || []).map(failure => failure.message)}
-                    />
-                    {status === PROPRESS_STATUSES.DONE.value &&
-                        <React.Fragment>
-                            <StepDisplay step="2"  title="Total vulnerabilities:">
-                                <VulnerabilitiesSummaryDisplay id="runtime-scan" vulnerabilities={vulnerabilityPerSeverity || []} />
-                            </StepDisplay>
-                            <SeverityCountersStep />
-                        </React.Fragment>
+                    {status !== PROPRESS_STATUSES.NOT_STARTED.value &&
+                        <div className="scan-details-info">
+                            {!!scannedNamespaces &&
+                                <React.Fragment>
+                                    <BoldText>QUICK SCAN</BoldText>
+                                    <span>{` with target namespaces: `}</span>
+                                    <BoldText>{isEmpty(scannedNamespaces) ? "All" : scannedNamespaces.join(", ")}</BoldText>
+                                </React.Fragment>
+                            }
+                        </div>
                     }
+                    <div className="scan-details-steps">
+                        <ProgressStep
+                            title={PROPRESS_STATUSES[status].title}
+                            isDone={[PROPRESS_STATUSES.DONE.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)}
+                            percent={progress}
+                            scanErrors={(failures || []).map(failure => failure.message)}
+                        />
+                        {status === PROPRESS_STATUSES.DONE.value &&
+                            <React.Fragment>
+                                <TotalDisplayStep
+                                    vulnerabilityPerSeverity={vulnerabilityPerSeverity}
+                                    cisDockerBenchmarkCountPerLevel={cisDockerBenchmarkCountPerLevel}
+                                    cisDockerBenchmarkScanEnabled={cisDockerBenchmarkScanEnabled}
+                                />
+                                <SeverityFilterAndCountersSteps cisDockerBenchmarkScanEnabled={cisDockerBenchmarkScanEnabled} />
+                            </React.Fragment>
+                        }
+                    </div>
                 </PageContainer>
             }
             {!loading && status === PROPRESS_STATUSES.FINALIZING.value &&

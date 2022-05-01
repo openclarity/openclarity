@@ -10,8 +10,9 @@ import Arrow, { ARROW_NAMES } from 'components/Arrow';
 import Modal from 'components/Modal';
 import { TooltipWrapper } from 'components/Tooltip';
 import { LabelsDisplay } from 'components/LabelTag';
+import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
 import { FILTERR_TYPES } from 'context/FiltersProvider';
-import { SEVERITY_ITEMS } from 'utils/systemConsts';
+import { SEVERITY_ITEMS, CIS_SEVERITY_ITEMS } from 'utils/systemConsts';
 import { APPLICATION_TYPE_ITEMS, VulnerabilitiesLink, PackagesLink, ApplicationResourcesLink } from './utils';
 import ApplicationForm, { APP_FIELD_NAMES } from './ApplicationForm';
 
@@ -82,6 +83,19 @@ const ApplicationsTable = () => {
                 
                 return (
                     <VulnerabilitiesLink id={id} vulnerabilities={vulnerabilities} applicationID={id} applicationName={applicationName} />
+                )
+            },
+            width: 200,
+            canSort: true
+        },
+        {
+            Header: "CIS Benchmark",
+            id: "cisDockerBenchmarkResults",
+            Cell: ({row}) => {
+                const {id, cisDockerBenchmarkResults} = row.original;
+                
+                return (
+                    <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 )
             },
             width: 200,
@@ -169,6 +183,10 @@ const ApplicationsTable = () => {
                     vulnerabilitySeverity: {value: "vulnerabilitySeverity", label: "Vulnerability severity", operators: [
                         {...OPERATORS.gte, valueItems: Object.values(SEVERITY_ITEMS), creatable: false, isSingleSelect: true},
                         {...OPERATORS.lte, valueItems: Object.values(SEVERITY_ITEMS), creatable: false, isSingleSelect: true}
+                    ]},
+                    cisDockerBenchmarkLevel: {value: "cisDockerBenchmarkLevel", label: "CIS Benchmark level", operators: [
+                        {...OPERATORS.gte, valueItems: Object.values(CIS_SEVERITY_ITEMS), creatable: false, isSingleSelect: true},
+                        {...OPERATORS.lte, valueItems: Object.values(CIS_SEVERITY_ITEMS), creatable: false, isSingleSelect: true}
                     ]},
                     applicationResources: {value: "applicationResources", label: "Application resources", operators: [
                         {...OPERATORS.is, valueItems: [], creatable: true},
