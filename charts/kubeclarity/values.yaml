@@ -221,8 +221,10 @@ kubeclarity-postgresql:
     enabled: true
     # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
     runAsUser: 1001
+    runAsNonRoot: true
   volumePermissions:
-    enabled: true
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: false
     # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
     securityContext:
       runAsUser: 1001
