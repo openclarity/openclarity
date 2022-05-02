@@ -243,7 +243,7 @@ func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 		return nil, fmt.Errorf("failed to run dockle: %w", err)
 	}
 
-	logger.Infof("Image was scanned.")
+	logger.Infof("Image was scanned for CIS docker benchmark results.")
 	logger.Debugf("assessmentMap=%+v", assessmentMap)
 
 	return assessmentMap, nil
