@@ -35,12 +35,12 @@ import (
 func Export(apiClient *client.KubeClarityAPIs,
 	mergedResults *scanner.MergedResults,
 	layerCommands []*image_helper.FsLayerCommand,
-	dockerFileVulnerabilities dockle_types.AssessmentMap,
+	cisDockerBenchmarkResults dockle_types.AssessmentMap,
 	id string,
 ) error {
 
 	// create ApplicationVulnerabilityScan from mergedResults
-	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, dockerFileVulnerabilities)
+	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, cisDockerBenchmarkResults)
 	// create post parameters
 	postParams := operations.NewPostApplicationsVulnerabilityScanIDParams().WithID(id).WithBody(body)
 
@@ -54,7 +54,7 @@ func Export(apiClient *client.KubeClarityAPIs,
 
 func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 	layerCommands []*image_helper.FsLayerCommand,
-	dockerFileVulnerabilities dockle_types.AssessmentMap,
+	cisDockerBenchmarkResults dockle_types.AssessmentMap,
 ) *models.ApplicationVulnerabilityScan {
 
 	return &models.ApplicationVulnerabilityScan{
@@ -67,7 +67,7 @@ func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 					ResourceHash: m.Source.Hash,
 				},
 				ResourceLayerCommands:     createResourceLayerCommands(layerCommands),
-				CisDockerBenchmarkResults: createCISDockerBenchmarkResults(dockerFileVulnerabilities),
+				CisDockerBenchmarkResults: createCISDockerBenchmarkResults(cisDockerBenchmarkResults),
 			},
 		},
 	}

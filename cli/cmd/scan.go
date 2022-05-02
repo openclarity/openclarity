@@ -185,7 +185,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
 
-	dockerFileVulnerabilities, err := getDockerFileVulnerabilitiesIfNeeded(sourceType, args[0], appConfig.SharedConfig, dockerFileScan)
+	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig.SharedConfig, dockerFileScan)
 	if err != nil {
 		logger.Fatalf("Failed get dockerfile vulnerabilities: %v", err)
 	}
@@ -194,7 +194,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Infof("Exporting vulnerability scan results to the backend: %s", appConfig.Backend.Host)
 		apiClient := utils.NewHTTPClient(appConfig.Backend)
 		// TODO generate application ID
-		if err := _export.Export(apiClient, mergedResults, layerCommands, dockerFileVulnerabilities, appID); err != nil {
+		if err := _export.Export(apiClient, mergedResults, layerCommands, cisDockerBenchmarkResults, appID); err != nil {
 			logger.Errorf("Failed to export vulnerability scan results to the backend: %v", err)
 		}
 	}
@@ -230,7 +230,7 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 	return layerCommands, nil
 }
 
-func getDockerFileVulnerabilitiesIfNeeded(sourceType sharedutils.SourceType,
+func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 	source string, config *sharedconfig.Config,
 	needed bool) (dockle_types.AssessmentMap, error) {
 
