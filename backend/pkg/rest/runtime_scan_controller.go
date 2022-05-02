@@ -71,6 +71,7 @@ func (s *Server) GetRuntimeScanProgress(_ operations.GetRuntimeScanProgressParam
 
 func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsParams) middleware.Responder {
 	state := s.GetState()
+	// Fetch last scan config from state (not from DB).
 	quickScanConfig := s.getQuickScanConfig()
 
 	failures := make([]*models.RuntimeScanFailure, len(state.runtimeScanFailures))
