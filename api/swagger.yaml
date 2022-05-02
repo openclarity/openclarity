@@ -854,31 +854,31 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
 
-  /runtime/quickscan/config:
+  /runtime/scheduleScan/config:
     get:
-      summary: 'Get runtime quick scan configuration'
+      summary: 'Get runtime scheduled scan configuration'
       responses:
         '200':
           description: 'Success'
           schema:
-            $ref: '#/definitions/RuntimeQuickScanConfig'
+            $ref: '#/definitions/RuntimeScheduleScanConfig'
         default:
           $ref: '#/responses/UnknownError'
     put:
-      summary: 'Set runtime quick scan configuration'
+      summary: 'Set runtime scheduled scan configuration'
       parameters:
         - in: 'body'
           name: 'body'
           required: true
           schema:
-            $ref: '#/definitions/RuntimeQuickScanConfig'
+            $ref: '#/definitions/RuntimeScheduleScanConfig'
       responses:
         '201':
           description: 'Success'
           schema:
             $ref: '#/responses/Success'
         '400':
-          description: 'Failed to set quick scan config'
+          description: 'Failed to set scheduled scan config'
           schema:
             type: 'string'
         default:
