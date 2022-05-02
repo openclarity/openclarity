@@ -64,6 +64,8 @@ type ClientService interface {
 
 	GetRuntimeScanResults(params *GetRuntimeScanResultsParams, opts ...ClientOption) (*GetRuntimeScanResultsOK, error)
 
+	GetRuntimeScheduleScanConfig(params *GetRuntimeScheduleScanConfigParams, opts ...ClientOption) (*GetRuntimeScheduleScanConfigOK, error)
+
 	GetVulnerabilities(params *GetVulnerabilitiesParams, opts ...ClientOption) (*GetVulnerabilitiesOK, error)
 
 	GetVulnerabilitiesVulIDPkgID(params *GetVulnerabilitiesVulIDPkgIDParams, opts ...ClientOption) (*GetVulnerabilitiesVulIDPkgIDOK, error)
@@ -82,7 +84,7 @@ type ClientService interface {
 
 	PutRuntimeScanStop(params *PutRuntimeScanStopParams, opts ...ClientOption) (*PutRuntimeScanStopCreated, error)
 
-	PutRuntimeScheduleScanStart(params *PutRuntimeScheduleScanStartParams, opts ...ClientOption) (*PutRuntimeScheduleScanStartCreated, error)
+	PutRuntimeScheduleScanConfig(params *PutRuntimeScheduleScanConfigParams, opts ...ClientOption) (*PutRuntimeScheduleScanConfigCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -754,6 +756,43 @@ func (a *Client) GetRuntimeScanResults(params *GetRuntimeScanResultsParams, opts
 }
 
 /*
+  GetRuntimeScheduleScanConfig gets runtime scheduled scan configuration
+*/
+func (a *Client) GetRuntimeScheduleScanConfig(params *GetRuntimeScheduleScanConfigParams, opts ...ClientOption) (*GetRuntimeScheduleScanConfigOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetRuntimeScheduleScanConfigParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetRuntimeScheduleScanConfig",
+		Method:             "GET",
+		PathPattern:        "/runtime/scheduleScan/config",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetRuntimeScheduleScanConfigReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetRuntimeScheduleScanConfigOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetRuntimeScheduleScanConfigDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
   GetVulnerabilities gets vulnerabilities
 */
 func (a *Client) GetVulnerabilities(params *GetVulnerabilitiesParams, opts ...ClientOption) (*GetVulnerabilitiesOK, error) {
@@ -1087,22 +1126,22 @@ func (a *Client) PutRuntimeScanStop(params *PutRuntimeScanStopParams, opts ...Cl
 }
 
 /*
-  PutRuntimeScheduleScanStart starts a runtime schedule scan
+  PutRuntimeScheduleScanConfig sets runtime scheduled scan configuration
 */
-func (a *Client) PutRuntimeScheduleScanStart(params *PutRuntimeScheduleScanStartParams, opts ...ClientOption) (*PutRuntimeScheduleScanStartCreated, error) {
+func (a *Client) PutRuntimeScheduleScanConfig(params *PutRuntimeScheduleScanConfigParams, opts ...ClientOption) (*PutRuntimeScheduleScanConfigCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPutRuntimeScheduleScanStartParams()
+		params = NewPutRuntimeScheduleScanConfigParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "PutRuntimeScheduleScanStart",
+		ID:                 "PutRuntimeScheduleScanConfig",
 		Method:             "PUT",
-		PathPattern:        "/runtime/scheduleScan/start",
+		PathPattern:        "/runtime/scheduleScan/config",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &PutRuntimeScheduleScanStartReader{formats: a.formats},
+		Reader:             &PutRuntimeScheduleScanConfigReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -1114,12 +1153,12 @@ func (a *Client) PutRuntimeScheduleScanStart(params *PutRuntimeScheduleScanStart
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PutRuntimeScheduleScanStartCreated)
+	success, ok := result.(*PutRuntimeScheduleScanConfigCreated)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PutRuntimeScheduleScanStartDefault)
+	unexpectedSuccess := result.(*PutRuntimeScheduleScanConfigDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

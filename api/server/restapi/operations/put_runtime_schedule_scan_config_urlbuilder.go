@@ -11,15 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// PutRuntimeScheduleScanStartURL generates an URL for the put runtime schedule scan start operation
-type PutRuntimeScheduleScanStartURL struct {
+// PutRuntimeScheduleScanConfigURL generates an URL for the put runtime schedule scan config operation
+type PutRuntimeScheduleScanConfigURL struct {
 	_basePath string
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PutRuntimeScheduleScanStartURL) WithBasePath(bp string) *PutRuntimeScheduleScanStartURL {
+func (o *PutRuntimeScheduleScanConfigURL) WithBasePath(bp string) *PutRuntimeScheduleScanConfigURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -27,15 +27,15 @@ func (o *PutRuntimeScheduleScanStartURL) WithBasePath(bp string) *PutRuntimeSche
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PutRuntimeScheduleScanStartURL) SetBasePath(bp string) {
+func (o *PutRuntimeScheduleScanConfigURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *PutRuntimeScheduleScanStartURL) Build() (*url.URL, error) {
+func (o *PutRuntimeScheduleScanConfigURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/runtime/scheduleScan/start"
+	var _path = "/runtime/scheduleScan/config"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -47,7 +47,7 @@ func (o *PutRuntimeScheduleScanStartURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *PutRuntimeScheduleScanStartURL) Must(u *url.URL, err error) *url.URL {
+func (o *PutRuntimeScheduleScanConfigURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -58,17 +58,17 @@ func (o *PutRuntimeScheduleScanStartURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *PutRuntimeScheduleScanStartURL) String() string {
+func (o *PutRuntimeScheduleScanConfigURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *PutRuntimeScheduleScanStartURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *PutRuntimeScheduleScanConfigURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on PutRuntimeScheduleScanStartURL")
+		return nil, errors.New("scheme is required for a full url on PutRuntimeScheduleScanConfigURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on PutRuntimeScheduleScanStartURL")
+		return nil, errors.New("host is required for a full url on PutRuntimeScheduleScanConfigURL")
 	}
 
 	base, err := o.Build()
@@ -82,6 +82,6 @@ func (o *PutRuntimeScheduleScanStartURL) BuildFull(scheme, host string) (*url.UR
 }
 
 // StringFull returns the string representation of a complete url
-func (o *PutRuntimeScheduleScanStartURL) StringFull(scheme, host string) string {
+func (o *PutRuntimeScheduleScanConfigURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

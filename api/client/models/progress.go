@@ -19,12 +19,19 @@ import (
 // swagger:model Progress
 type Progress struct {
 
+	// scan type
+	ScanType ScanType `json:"scanType,omitempty"`
+
 	// Percentage of scanned images from total images (0-100)
 	// Minimum: 0
 	Scanned *int64 `json:"scanned,omitempty"`
 
 	// scanned namespaces
 	ScannedNamespaces []string `json:"scannedNamespaces"`
+
+	// start time
+	// Format: date-time
+	StartTime strfmt.DateTime `json:"startTime,omitempty"`
 
 	// status
 	Status RuntimeScanStatus `json:"status,omitempty"`
@@ -34,7 +41,15 @@ type Progress struct {
 func (m *Progress) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateScanType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScanned(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStartTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -48,12 +63,39 @@ func (m *Progress) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Progress) validateScanType(formats strfmt.Registry) error {
+	if swag.IsZero(m.ScanType) { // not required
+		return nil
+	}
+
+	if err := m.ScanType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("scanType")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *Progress) validateScanned(formats strfmt.Registry) error {
 	if swag.IsZero(m.Scanned) { // not required
 		return nil
 	}
 
 	if err := validate.MinimumInt("scanned", "body", *m.Scanned, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Progress) validateStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(m.StartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("startTime", "body", "date-time", m.StartTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -79,6 +121,10 @@ func (m *Progress) validateStatus(formats strfmt.Registry) error {
 func (m *Progress) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateScanType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -86,6 +132,18 @@ func (m *Progress) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Progress) contextValidateScanType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ScanType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("scanType")
+		}
+		return err
+	}
+
 	return nil
 }
 
