@@ -2047,6 +2047,10 @@ func init() {
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "failures": {
           "type": "array",
           "items": {
@@ -2075,7 +2079,7 @@ func init() {
     "RuntimeScheduleScanConfig": {
       "type": "object",
       "properties": {
-        "dockerCISBenchmarkScan": {
+        "cisDockerBenchmarkScanEnabled": {
           "type": "boolean"
         },
         "namespaces": {
@@ -5976,6 +5980,10 @@ func init() {
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "failures": {
           "type": "array",
           "items": {
@@ -6004,7 +6012,7 @@ func init() {
     "RuntimeScheduleScanConfig": {
       "type": "object",
       "properties": {
-        "dockerCISBenchmarkScan": {
+        "cisDockerBenchmarkScanEnabled": {
           "type": "boolean"
         },
         "namespaces": {
