@@ -21,8 +21,10 @@ spec:
           image: docker.io/bitnami/postgresql:11.13.0-debian-10-r33
           command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}";
             do echo waiting for database; sleep 2; done;']
+          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
             runAsUser: 1001
+          {{- end }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
           image: yauritux/busybox-curl
           args:
@@ -45,8 +47,10 @@ spec:
                 echo waiting for grype-server to be ready; sleep 2;
               done;
 {{- end}}
+          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
             runAsUser: 1001
+          {{- end }}
       containers:
         - name: kubeclarity
           image: '{{ .Values.global.docker.registry }}/kubeclarity:{{ .Values.kubeclarity.docker.imageTag }}'
@@ -99,8 +103,10 @@ spec:
               drop:
                 - all
             runAsNonRoot: true
+            {{- if not .Values.global.openShiftRestricted }}
             runAsGroup: 1000
             runAsUser: 1000
+            {{- end }}
             privileged: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
