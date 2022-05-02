@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // RuntimeScanResults runtime scan results
@@ -30,6 +31,10 @@ type RuntimeScanResults struct {
 
 	// counters
 	Counters *RuntimeScanCounters `json:"counters,omitempty"`
+
+	// end time
+	// Format: date-time
+	EndTime strfmt.DateTime `json:"endTime,omitempty"`
 
 	// failures
 	Failures []*RuntimeScanFailure `json:"failures"`
@@ -51,6 +56,10 @@ func (m *RuntimeScanResults) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCounters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEndTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -121,6 +130,18 @@ func (m *RuntimeScanResults) validateCounters(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *RuntimeScanResults) validateEndTime(formats strfmt.Registry) error {
+	if swag.IsZero(m.EndTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("endTime", "body", "date-time", m.EndTime.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

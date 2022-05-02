@@ -685,8 +685,8 @@ definitions:
       namespaces:
         type: 'array'
         items:
-          type: 'string'  #empty = all
-      dockerCISBenchmarkScan:
+          type: 'string'
+      cisDockerBenchmarkScanEnabled:
         type: 'boolean'
       scanConfigType:
         $ref: '#/definitions/RuntimeScheduleScanConfigType'
@@ -805,6 +805,9 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/RuntimeScanFailure'
+      endTime:
+        type: 'string'
+        format: date-time
 
   ScanType:
     description: 'scan type'

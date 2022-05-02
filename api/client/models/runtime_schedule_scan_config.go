@@ -22,8 +22,8 @@ import (
 // swagger:model RuntimeScheduleScanConfig
 type RuntimeScheduleScanConfig struct {
 
-	// docker c i s benchmark scan
-	DockerCISBenchmarkScan bool `json:"dockerCISBenchmarkScan,omitempty"`
+	// cis docker benchmark scan enabled
+	CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
 
 	// namespaces
 	Namespaces []string `json:"namespaces"`
@@ -44,7 +44,7 @@ func (m *RuntimeScheduleScanConfig) SetScanConfigType(val RuntimeScheduleScanCon
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *RuntimeScheduleScanConfig) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		DockerCISBenchmarkScan bool `json:"dockerCISBenchmarkScan,omitempty"`
+		CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
 
 		Namespaces []string `json:"namespaces"`
 
@@ -69,8 +69,8 @@ func (m *RuntimeScheduleScanConfig) UnmarshalJSON(raw []byte) error {
 
 	var result RuntimeScheduleScanConfig
 
-	// dockerCISBenchmarkScan
-	result.DockerCISBenchmarkScan = data.DockerCISBenchmarkScan
+	// cisDockerBenchmarkScanEnabled
+	result.CisDockerBenchmarkScanEnabled = data.CisDockerBenchmarkScanEnabled
 
 	// namespaces
 	result.Namespaces = data.Namespaces
@@ -88,12 +88,12 @@ func (m RuntimeScheduleScanConfig) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		DockerCISBenchmarkScan bool `json:"dockerCISBenchmarkScan,omitempty"`
+		CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
 
 		Namespaces []string `json:"namespaces"`
 	}{
 
-		DockerCISBenchmarkScan: m.DockerCISBenchmarkScan,
+		CisDockerBenchmarkScanEnabled: m.CisDockerBenchmarkScanEnabled,
 
 		Namespaces: m.Namespaces,
 	})
