@@ -34,9 +34,6 @@ type RuntimeScanResults struct {
 	// failures
 	Failures []*RuntimeScanFailure `json:"failures"`
 
-	// scan type
-	ScanType ScanType `json:"scanType,omitempty"`
-
 	// vulnerability per severity
 	VulnerabilityPerSeverity []*VulnerabilityCount `json:"vulnerabilityPerSeverity"`
 }
@@ -58,10 +55,6 @@ func (m *RuntimeScanResults) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateFailures(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateScanType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -157,21 +150,6 @@ func (m *RuntimeScanResults) validateFailures(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *RuntimeScanResults) validateScanType(formats strfmt.Registry) error {
-	if swag.IsZero(m.ScanType) { // not required
-		return nil
-	}
-
-	if err := m.ScanType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("scanType")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *RuntimeScanResults) validateVulnerabilityPerSeverity(formats strfmt.Registry) error {
 	if swag.IsZero(m.VulnerabilityPerSeverity) { // not required
 		return nil
@@ -213,10 +191,6 @@ func (m *RuntimeScanResults) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := m.contextValidateFailures(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateScanType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -289,18 +263,6 @@ func (m *RuntimeScanResults) contextValidateFailures(ctx context.Context, format
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (m *RuntimeScanResults) contextValidateScanType(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.ScanType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("scanType")
-		}
-		return err
 	}
 
 	return nil

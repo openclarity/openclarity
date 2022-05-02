@@ -96,6 +96,9 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 		GetRuntimeScanResultsHandler: GetRuntimeScanResultsHandlerFunc(func(params GetRuntimeScanResultsParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetRuntimeScanResults has not yet been implemented")
 		}),
+		GetRuntimeScheduleScanConfigHandler: GetRuntimeScheduleScanConfigHandlerFunc(func(params GetRuntimeScheduleScanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetRuntimeScheduleScanConfig has not yet been implemented")
+		}),
 		GetVulnerabilitiesHandler: GetVulnerabilitiesHandlerFunc(func(params GetVulnerabilitiesParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetVulnerabilities has not yet been implemented")
 		}),
@@ -123,8 +126,8 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 		PutRuntimeScanStopHandler: PutRuntimeScanStopHandlerFunc(func(params PutRuntimeScanStopParams) middleware.Responder {
 			return middleware.NotImplemented("operation PutRuntimeScanStop has not yet been implemented")
 		}),
-		PutRuntimeScheduleScanStartHandler: PutRuntimeScheduleScanStartHandlerFunc(func(params PutRuntimeScheduleScanStartParams) middleware.Responder {
-			return middleware.NotImplemented("operation PutRuntimeScheduleScanStart has not yet been implemented")
+		PutRuntimeScheduleScanConfigHandler: PutRuntimeScheduleScanConfigHandlerFunc(func(params PutRuntimeScheduleScanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation PutRuntimeScheduleScanConfig has not yet been implemented")
 		}),
 	}
 }
@@ -198,6 +201,8 @@ type KubeClarityAPIsAPI struct {
 	GetRuntimeScanProgressHandler GetRuntimeScanProgressHandler
 	// GetRuntimeScanResultsHandler sets the operation handler for the get runtime scan results operation
 	GetRuntimeScanResultsHandler GetRuntimeScanResultsHandler
+	// GetRuntimeScheduleScanConfigHandler sets the operation handler for the get runtime schedule scan config operation
+	GetRuntimeScheduleScanConfigHandler GetRuntimeScheduleScanConfigHandler
 	// GetVulnerabilitiesHandler sets the operation handler for the get vulnerabilities operation
 	GetVulnerabilitiesHandler GetVulnerabilitiesHandler
 	// GetVulnerabilitiesVulIDPkgIDHandler sets the operation handler for the get vulnerabilities vul ID pkg ID operation
@@ -216,8 +221,8 @@ type KubeClarityAPIsAPI struct {
 	PutRuntimeScanStartHandler PutRuntimeScanStartHandler
 	// PutRuntimeScanStopHandler sets the operation handler for the put runtime scan stop operation
 	PutRuntimeScanStopHandler PutRuntimeScanStopHandler
-	// PutRuntimeScheduleScanStartHandler sets the operation handler for the put runtime schedule scan start operation
-	PutRuntimeScheduleScanStartHandler PutRuntimeScheduleScanStartHandler
+	// PutRuntimeScheduleScanConfigHandler sets the operation handler for the put runtime schedule scan config operation
+	PutRuntimeScheduleScanConfigHandler PutRuntimeScheduleScanConfigHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -349,6 +354,9 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 	if o.GetRuntimeScanResultsHandler == nil {
 		unregistered = append(unregistered, "GetRuntimeScanResultsHandler")
 	}
+	if o.GetRuntimeScheduleScanConfigHandler == nil {
+		unregistered = append(unregistered, "GetRuntimeScheduleScanConfigHandler")
+	}
 	if o.GetVulnerabilitiesHandler == nil {
 		unregistered = append(unregistered, "GetVulnerabilitiesHandler")
 	}
@@ -376,8 +384,8 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 	if o.PutRuntimeScanStopHandler == nil {
 		unregistered = append(unregistered, "PutRuntimeScanStopHandler")
 	}
-	if o.PutRuntimeScheduleScanStartHandler == nil {
-		unregistered = append(unregistered, "PutRuntimeScheduleScanStartHandler")
+	if o.PutRuntimeScheduleScanConfigHandler == nil {
+		unregistered = append(unregistered, "PutRuntimeScheduleScanConfigHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -542,6 +550,10 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/runtime/scheduleScan/config"] = NewGetRuntimeScheduleScanConfig(o.context, o.GetRuntimeScheduleScanConfigHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/vulnerabilities"] = NewGetVulnerabilities(o.context, o.GetVulnerabilitiesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -578,7 +590,7 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/runtime/scheduleScan/start"] = NewPutRuntimeScheduleScanStart(o.context, o.PutRuntimeScheduleScanStartHandler)
+	o.handlers["PUT"]["/runtime/scheduleScan/config"] = NewPutRuntimeScheduleScanConfig(o.context, o.PutRuntimeScheduleScanConfigHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
