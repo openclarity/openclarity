@@ -73,10 +73,10 @@ func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 	}
 }
 
-func createCISDockerBenchmarkResults(vulnerabilities dockle_types.AssessmentMap) []*models.CISDockerBenchmarkCodeInfo {
+func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*models.CISDockerBenchmarkCodeInfo {
 	var ret []*models.CISDockerBenchmarkCodeInfo
 
-	for _, info := range vulnerabilities {
+	for _, info := range results {
 		ret = append(ret, &models.CISDockerBenchmarkCodeInfo{
 			Assessments: createCISDockerBenchmarkAssesment(info.Assessments),
 			Code:        info.Code,

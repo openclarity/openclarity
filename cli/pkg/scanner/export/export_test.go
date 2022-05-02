@@ -254,7 +254,7 @@ func Test_createCISDockerBenchmarkAssesment(t *testing.T) {
 
 func Test_createCISDockerBenchmarkResults(t *testing.T) {
 	type args struct {
-		vulnerabilities dockle_types.AssessmentMap
+		results dockle_types.AssessmentMap
 	}
 	tests := []struct {
 		name string
@@ -264,14 +264,14 @@ func Test_createCISDockerBenchmarkResults(t *testing.T) {
 		{
 			name: "assesment map is nil",
 			args: args{
-				vulnerabilities: nil,
+				results: nil,
 			},
 			want: nil,
 		},
 		{
 			name: "assesment map is not nil",
 			args: args{
-				vulnerabilities: dockle_types.AssessmentMap{
+				results: dockle_types.AssessmentMap{
 					"test": {
 						Code:  "mapcode",
 						Level: 2,
@@ -304,7 +304,7 @@ func Test_createCISDockerBenchmarkResults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := createCISDockerBenchmarkResults(tt.args.vulnerabilities); !reflect.DeepEqual(got, tt.want) {
+			if got := createCISDockerBenchmarkResults(tt.args.results); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("createCISDockerBenchmarkResults() = %v, want %v", got, tt.want)
 			}
 		})

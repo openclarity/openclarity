@@ -77,7 +77,7 @@ func init() {
 	scanCmd.Flags().BoolP("export", "e", false,
 		"export vulnerability scan results to the backend")
 	scanCmd.Flags().Bool("dockerfile-cis", false,
-		"run dockerfile CIS benchmark")
+		"enables CIS docker benchmark scan. (relevant only for image source type)")
 }
 
 // nolint:cyclop
@@ -117,9 +117,9 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get application ID: %v", err)
 	}
 
-	dockerFileScan, err := cmd.Flags().GetBool("dockerfile-cis")
+	cisDockerBenchmarkEnabled, err := cmd.Flags().GetBool("cis-docker-benchmark-scan")
 	if err != nil {
-		logger.Fatalf("Unable to get dockerfile-cis flag: %v", err)
+		logger.Fatalf("Unable to get cis-docker-benchmark-scan flag: %v", err)
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
@@ -185,7 +185,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
 
-	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig.SharedConfig, dockerFileScan)
+	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig.SharedConfig, cisDockerBenchmarkEnabled)
 	if err != nil {
 		logger.Fatalf("Failed get dockerfile vulnerabilities: %v", err)
 	}
