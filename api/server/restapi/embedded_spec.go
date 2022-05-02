@@ -1564,6 +1564,75 @@ func init() {
       ]
 >>>>>>> refactor
     },
+    "CISDockerBenchmarkAssessment": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkCodeInfo": {
+      "type": "object",
+      "properties": {
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+          }
+        },
+        "code": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkLevel": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ]
+    },
+    "CISDockerBenchmarkLevelCount": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkScanCounters": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "resources": {
+          "type": "integer",
+          "format": "uint32"
+        }
+      }
+    },
     "CVSS": {
       "type": "object",
       "properties": {
@@ -2077,6 +2146,7 @@ func init() {
       "readOnly": true
     },
     "RuntimeScheduleScanConfig": {
+      "description": "Runtime schedule scan configuration",
       "type": "object",
       "properties": {
         "cisDockerBenchmarkScanEnabled": {
@@ -5496,6 +5566,75 @@ func init() {
       ]
 >>>>>>> refactor
     },
+    "CISDockerBenchmarkAssessment": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkCodeInfo": {
+      "type": "object",
+      "properties": {
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+          }
+        },
+        "code": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkLevel": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ]
+    },
+    "CISDockerBenchmarkLevelCount": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkScanCounters": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "resources": {
+          "type": "integer",
+          "format": "uint32"
+        }
+      }
+    },
     "CVSS": {
       "type": "object",
       "properties": {
@@ -6010,6 +6149,7 @@ func init() {
       "readOnly": true
     },
     "RuntimeScheduleScanConfig": {
+      "description": "Runtime schedule scan configuration",
       "type": "object",
       "properties": {
         "cisDockerBenchmarkScanEnabled": {

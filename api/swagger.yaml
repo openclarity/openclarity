@@ -680,6 +680,7 @@ definitions:
         type: 'boolean'
 
   RuntimeScheduleScanConfig:
+    description: 'Runtime schedule scan configuration'
     type: object
     properties:
       namespaces:
@@ -850,6 +851,36 @@ paths:
             type: 'array'
             items:
               $ref: '#/definitions/Namespace'
+        default:
+          $ref: '#/responses/UnknownError'
+
+  /runtime/quickscan/config:
+    get:
+      summary: 'Get runtime quick scan configuration'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/RuntimeQuickScanConfig'
+        default:
+          $ref: '#/responses/UnknownError'
+    put:
+      summary: 'Set runtime quick scan configuration'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/RuntimeQuickScanConfig'
+      responses:
+        '201':
+          description: 'Success'
+          schema:
+            $ref: '#/responses/Success'
+        '400':
+          description: 'Failed to set quick scan config'
+          schema:
+            type: 'string'
         default:
           $ref: '#/responses/UnknownError'
 
