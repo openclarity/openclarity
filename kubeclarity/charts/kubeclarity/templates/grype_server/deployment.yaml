@@ -20,8 +20,10 @@ spec:
       volumes:
         - name: tmp-volume
           emptyDir: {}
+      {{- if not .Values.global.openShiftRestricted }}
       securityContext:
         fsGroup: 1000
+      {{- end }}
       containers:
         - name: grype-server
           image: '{{ index .Values "kubeclarity-grype-server" "docker" "imageRepo" }}/grype-server:{{ index .Values "kubeclarity-grype-server" "docker" "imageTag" }}'
@@ -61,8 +63,10 @@ spec:
               drop:
                 - all
             runAsNonRoot: true
+            {{- if not .Values.global.openShiftRestricted }}
             runAsGroup: 1000
             runAsUser: 1000
+            {{- end }}
             privileged: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

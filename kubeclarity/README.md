@@ -114,6 +114,15 @@ Contributions of integrations with additional tools are more than welcome!
    ```shell
    helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity
    ```
+   
+   or for OpenShift Restricted SCC compatible install:
+   
+   ```shell
+   helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity --set global.openShiftRestricted=true \
+     --set kubeclarity-postgresql.securityContext.enabled=false --set kubeclarity-postgresql.containerSecurityContext.enabled=false \
+	 --set kubeclarity-postgresql.volumePermissions.enabled=true --set kubeclarity-postgresql.volumePermissions.securityContext.runAsUser="auto" \
+	 --set kubeclarity-postgresql.shmVolume.chmod.enabled=false
+   ```
 
 3. Port forward to KubeClarity UI:
 
