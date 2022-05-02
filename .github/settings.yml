@@ -2,10 +2,10 @@ repository:
   # See https://developer.github.com/v3/repos/#edit for all available settings.
 
   # The name of the repository. Changing this will rename the repository
-  name: kubei
+  name: kubeclarity
 
   # A short description of the repository that will show up on GitHub
-  description: Kubei is a flexible Kubernetes runtime scanner, scanning images of worker and Kubernetes nodes to provide an accurate vulnerability assessment
+  description: KubeClarity is a tool for detection and management of Software Bill Of Materials (SBOM) and vulnerabilities of container images and filesystems
 
   # A URL with more information about the repository
   homepage: https://www.portshift.io/blog/kubernetes-runtime-vulnerabilities-scanner-launch/
@@ -23,7 +23,7 @@ repository:
 
 # See https://docs.github.com/en/rest/reference/teams#add-or-update-team-repository-permissions for available options
 teams:
-  - name: kubei-admins
+  - name: kubeclarity-admins
     # The permission to grant the team. Can be one of:
     # * `pull` - can pull, but not push to or administer this repository.
     # * `push` - can pull and push, but not administer this repository.
@@ -31,7 +31,7 @@ teams:
     # * `maintain` - Recommended for project managers who need to manage the repository without access to sensitive or destructive actions.
     permission: admin
 
-  - name: kubei-maintainers
+  - name: kubeclarity-maintainers
     permission: maintain
 
 # Collaborators: give specific users access to this repository.
