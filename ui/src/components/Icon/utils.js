@@ -22,5 +22,6 @@ export const ICON_NAMES = {
     PLUS: "plus",
     DELETE: "delete",
     EDIT: "edit",
-    INFO: "info"
+    INFO: "info",
+    COG: "cog"
 }

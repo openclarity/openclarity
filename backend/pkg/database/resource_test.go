@@ -20,6 +20,7 @@ import (
 	"sort"
 	"testing"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/assert"
 
@@ -95,6 +96,95 @@ func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 	}{
 		{
 			name: "sanity",
+			args: args{
+				resource: &types.ResourceVulnerabilityScan{
+					CisDockerBenchmarkResults: []*types.CISDockerBenchmarkResult{
+						{
+							Code:         "code1",
+							Level:        int64(dockle_types.InfoLevel),
+							Descriptions: "desc1",
+						},
+						{
+							Code:         "code2",
+							Level:        int64(dockle_types.WarnLevel),
+							Descriptions: "desc2",
+						},
+					},
+					PackageVulnerabilities: []*types.PackageVulnerabilityScan{
+						{
+							Cvss:              vulInfo.Cvss,
+							Description:       vulInfo.Description,
+							FixVersion:        "FixVersion",
+							Links:             vulInfo.Links,
+							Package:           pkgInfo,
+							Scanners:          scannersList,
+							Severity:          vulInfo.Severity,
+							VulnerabilityName: vulInfo.Name,
+						},
+					},
+					Resource: resourceInfo,
+				},
+				params: &TransactionParams{
+					FixVersions:         map[PkgVulID]string{},
+					Scanners:            map[ResourcePkgID][]string{},
+					VulnerabilitySource: models.VulnerabilitySourceCICD,
+				},
+			},
+			want: &Resource{
+				ID:   resourceID,
+				Hash: resourceInfo.ResourceHash,
+				Name: resourceInfo.ResourceName,
+				Type: resourceInfo.ResourceType,
+				Packages: []Package{
+					{
+						ID:       pkgID,
+						Name:     pkgInfo.Name,
+						Version:  pkgInfo.Version,
+						License:  pkgInfo.License,
+						Language: pkgInfo.Language,
+						Vulnerabilities: []Vulnerability{
+							{
+								ID:                vulnerabilityID,
+								Name:              vulInfo.Name,
+								Severity:          int(TypesVulnerabilitySeverityToInt[vulInfo.Severity]),
+								Description:       vulInfo.Description,
+								Links:             ArrayToDBArray(vulInfo.Links),
+								CVSS:              CreateCVSSString(vulInfo.Cvss),
+								CVSSBaseScore:     vulInfo.Cvss.GetBaseScore(),
+								CVSSSeverity:      int(ModelsVulnerabilitySeverityToInt[vulInfo.Cvss.GetCVSSSeverity()]),
+								ReportingScanners: ArrayToDBArray(scannersList),
+								Source:            models.VulnerabilitySourceCICD,
+							},
+						},
+					},
+				},
+				CISDockerBenchmarkChecks: []CISDockerBenchmarkCheck{
+					{
+						ID:           "code1",
+						Code:         "code1",
+						Level:        int(CISDockerBenchmarkLevelINFO),
+						Descriptions: "desc1",
+					},
+					{
+						ID:           "code2",
+						Code:         "code2",
+						Level:        int(CISDockerBenchmarkLevelWARN),
+						Descriptions: "desc2",
+					},
+				},
+			},
+			expectedTransactionParams: &TransactionParams{
+				FixVersions: map[PkgVulID]string{
+					CreatePkgVulID(pkgID, vulnerabilityID): "FixVersion",
+				},
+				Scanners: map[ResourcePkgID][]string{
+					CreateResourcePkgID(resourceID, pkgID): scannersList,
+				},
+				VulnerabilitySource: models.VulnerabilitySourceCICD,
+			},
+		},
+		{
+			name: "no cis docker benchmark results",
 			args: args{
 				resource: &types.ResourceVulnerabilityScan{
 					PackageVulnerabilities: []*types.PackageVulnerabilityScan{
@@ -909,6 +999,82 @@ func TestCreateResourceFromContentAnalysis(t *testing.T) {
 				t.Errorf("CreateResourceFromContentAnalysis() = %v, want %v", got, tt.want)
 			}
 			assert.DeepEqual(t, tt.args.params, tt.expectedTransactionParams)
+		})
+	}
+}
+
+func Test_createResourceCISDockerBenchmarkChecks(t *testing.T) {
+	type args struct {
+		results []*types.CISDockerBenchmarkResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want []CISDockerBenchmarkCheck
+	}{
+		{
+			name: "sanity",
+			args: args{
+				results: []*types.CISDockerBenchmarkResult{
+					{
+						Code:         "PassLevel",
+						Level:        int64(dockle_types.PassLevel),
+						Descriptions: "PassLevel",
+					},
+					{
+						Code:         "IgnoreLevel",
+						Level:        int64(dockle_types.IgnoreLevel),
+						Descriptions: "IgnoreLevel",
+					},
+					{
+						Code:         "SkipLevel",
+						Level:        int64(dockle_types.SkipLevel),
+						Descriptions: "SkipLevel",
+					},
+					{
+						Code:         "InfoLevel",
+						Level:        int64(dockle_types.InfoLevel),
+						Descriptions: "InfoLevel",
+					},
+					{
+						Code:         "WarnLevel",
+						Level:        int64(dockle_types.WarnLevel),
+						Descriptions: "WarnLevel",
+					},
+					{
+						Code:         "FatalLevel",
+						Level:        int64(dockle_types.FatalLevel),
+						Descriptions: "FatalLevel",
+					},
+				},
+			},
+			want: []CISDockerBenchmarkCheck{
+				{
+					ID:           "InfoLevel",
+					Code:         "InfoLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.InfoLevel))),
+					Descriptions: "InfoLevel",
+				},
+				{
+					ID:           "WarnLevel",
+					Code:         "WarnLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.WarnLevel))),
+					Descriptions: "WarnLevel",
+				},
+				{
+					ID:           "FatalLevel",
+					Code:         "FatalLevel",
+					Level:        int(FromDockleTypeToLevel(int64(dockle_types.FatalLevel))),
+					Descriptions: "FatalLevel",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createResourceCISDockerBenchmarkChecks(tt.args.results); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createResourceCISDockerBenchmarkChecks() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

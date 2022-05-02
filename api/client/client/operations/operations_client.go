@@ -58,6 +58,8 @@ type ClientService interface {
 
 	GetPackagesIDApplicationResources(params *GetPackagesIDApplicationResourcesParams, opts ...ClientOption) (*GetPackagesIDApplicationResourcesOK, error)
 
+	GetRuntimeQuickscanConfig(params *GetRuntimeQuickscanConfigParams, opts ...ClientOption) (*GetRuntimeQuickscanConfigOK, error)
+
 	GetRuntimeScanProgress(params *GetRuntimeScanProgressParams, opts ...ClientOption) (*GetRuntimeScanProgressOK, error)
 
 	GetRuntimeScanResults(params *GetRuntimeScanResultsParams, opts ...ClientOption) (*GetRuntimeScanResultsOK, error)
@@ -73,6 +75,8 @@ type ClientService interface {
 	PostApplicationsVulnerabilityScanID(params *PostApplicationsVulnerabilityScanIDParams, opts ...ClientOption) (*PostApplicationsVulnerabilityScanIDCreated, error)
 
 	PutApplicationsID(params *PutApplicationsIDParams, opts ...ClientOption) (*PutApplicationsIDOK, error)
+
+	PutRuntimeQuickscanConfig(params *PutRuntimeQuickscanConfigParams, opts ...ClientOption) (*PutRuntimeQuickscanConfigCreated, error)
 
 	PutRuntimeScanStart(params *PutRuntimeScanStartParams, opts ...ClientOption) (*PutRuntimeScanStartCreated, error)
 
@@ -637,6 +641,43 @@ func (a *Client) GetPackagesIDApplicationResources(params *GetPackagesIDApplicat
 }
 
 /*
+  GetRuntimeQuickscanConfig gets runtime quick scan configuration
+*/
+func (a *Client) GetRuntimeQuickscanConfig(params *GetRuntimeQuickscanConfigParams, opts ...ClientOption) (*GetRuntimeQuickscanConfigOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetRuntimeQuickscanConfigParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetRuntimeQuickscanConfig",
+		Method:             "GET",
+		PathPattern:        "/runtime/quickscan/config",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetRuntimeQuickscanConfigReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetRuntimeQuickscanConfigOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetRuntimeQuickscanConfigDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
   GetRuntimeScanProgress gets scan progress
 */
 func (a *Client) GetRuntimeScanProgress(params *GetRuntimeScanProgressParams, opts ...ClientOption) (*GetRuntimeScanProgressOK, error) {
@@ -929,6 +970,43 @@ func (a *Client) PutApplicationsID(params *PutApplicationsIDParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*PutApplicationsIDDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PutRuntimeQuickscanConfig sets runtime quick scan configuration
+*/
+func (a *Client) PutRuntimeQuickscanConfig(params *PutRuntimeQuickscanConfigParams, opts ...ClientOption) (*PutRuntimeQuickscanConfigCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPutRuntimeQuickscanConfigParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "PutRuntimeQuickscanConfig",
+		Method:             "PUT",
+		PathPattern:        "/runtime/quickscan/config",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &PutRuntimeQuickscanConfigReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PutRuntimeQuickscanConfigCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PutRuntimeQuickscanConfigDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

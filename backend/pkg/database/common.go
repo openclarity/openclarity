@@ -52,8 +52,9 @@ type TransactionParams struct {
 }
 
 type CountFilters struct {
-	ApplicationIDs           []string
-	VulnerabilitySeverityGte *string
+	ApplicationIDs             []string
+	VulnerabilitySeverityGte   *string
+	CisDockerBenchmarkLevelGte *string
 }
 
 func CreatePkgVulID(pkgID, vulID string) PkgVulID {
@@ -223,5 +224,14 @@ func createVulnerabilitiesColumnSortOrder(sortDir string) (string, error) {
 			fmt.Sprintf("%v %v", columnSeverityCountersTotalMediumCount, strings.ToLower(sortDir)),
 			fmt.Sprintf("%v %v", columnSeverityCountersTotalLowCount, strings.ToLower(sortDir)),
 			fmt.Sprintf("%v %v", columnSeverityCountersTotalNegCount, strings.ToLower(sortDir)),
+		}, ","), nil
+}
+
+func createCISDockerBenchmarkResultsColumnSortOrder(sortDir string) (string, error) {
+	return strings.Join(
+		[]string{
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalFatalCount, strings.ToLower(sortDir)),
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalWarnCount, strings.ToLower(sortDir)),
+			fmt.Sprintf("%v %v", columnCISDockerBenchmarkLevelCountersTotalInfoCount, strings.ToLower(sortDir)),
 		}, ","), nil
 }

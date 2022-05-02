@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/cisco-open/kubei/api/server/models"
 	"github.com/cisco-open/kubei/api/server/restapi/operations"
@@ -70,6 +71,8 @@ func (s *Server) GetRuntimeScanProgress(_ operations.GetRuntimeScanProgressParam
 
 func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsParams) middleware.Responder {
 	state := s.GetState()
+	// Fetch last scan config from state (not from DB).
+	quickScanConfig := s.getQuickScanConfig()
 
 	failures := make([]*models.RuntimeScanFailure, len(state.runtimeScanFailures))
 	for i, failure := range state.runtimeScanFailures {
@@ -81,9 +84,12 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 	// in the case of no application IDs to look by, nothing was scanned, so we can just return
 	if len(state.runtimeScanApplicationIDs) == 0 {
 		return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
-			Counters:                 &models.RuntimeScanCounters{},
-			Failures:                 failures,
-			VulnerabilityPerSeverity: []*models.VulnerabilityCount{},
+			CisDockerBenchmarkCountPerLevel: []*models.CISDockerBenchmarkLevelCount{},
+			CisDockerBenchmarkCounters:      &models.CISDockerBenchmarkScanCounters{},
+			CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
+			Counters:                        &models.RuntimeScanCounters{},
+			Failures:                        failures,
+			VulnerabilityPerSeverity:        []*models.VulnerabilityCount{},
 		})
 	}
 
@@ -106,10 +112,32 @@ func (s *Server) GetRuntimeScanResults(params operations.GetRuntimeScanResultsPa
 			WithPayload(oopsResponse)
 	}
 
+	cisDockerBenchmarkCounters, err := s.getRuntimeScanCisDockerBenchmarkCounters(&database.CountFilters{
+		ApplicationIDs:             state.runtimeScanApplicationIDs,
+		CisDockerBenchmarkLevelGte: params.CisDockerBenchmarkLevelGte,
+	})
+	if err != nil {
+		log.Errorf("Failed to get cis docker benchmark counters: %v", err)
+		return operations.NewGetRuntimeScanResultsDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	cisDockerBenchmarkCountPerLevel, err := s.dbHandler.CISDockerBenchmarkResultTable().CountPerLevel(&database.CountFilters{
+		ApplicationIDs: state.runtimeScanApplicationIDs,
+	})
+	if err != nil {
+		log.Errorf("Failed to get cis docker bencmark issues per level: %v", err)
+		return operations.NewGetRuntimeScanResultsDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
 	return operations.NewGetRuntimeScanResultsOK().WithPayload(&models.RuntimeScanResults{
-		Counters:                 counters,
-		Failures:                 failures,
-		VulnerabilityPerSeverity: vulPerSeverity,
+		CisDockerBenchmarkCountPerLevel: cisDockerBenchmarkCountPerLevel,
+		CisDockerBenchmarkCounters:      cisDockerBenchmarkCounters,
+		CisDockerBenchmarkScanEnabled:   quickScanConfig.CisDockerBenchmarkScanEnabled,
+		Counters:                        counters,
+		Failures:                        failures,
+		VulnerabilityPerSeverity:        vulPerSeverity,
 	})
 }
 
@@ -131,6 +159,28 @@ func (s *Server) GetNamespaces(_ operations.GetNamespacesParams) middleware.Resp
 	return operations.NewGetNamespacesOK().WithPayload(namespaces)
 }
 
+func (s *Server) GetRuntimeQuickScanConfig(_ operations.GetRuntimeQuickscanConfigParams) middleware.Responder {
+	conf, err := s.dbHandler.QuickScanConfigTable().Get()
+	if err != nil {
+		log.Errorf("Failed to get quick scan config: %v", err)
+		return operations.NewGetRuntimeQuickscanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewGetRuntimeQuickscanConfigOK().WithPayload(conf)
+}
+
+func (s *Server) PutRuntimeQuickScanConfig(params operations.PutRuntimeQuickscanConfigParams) middleware.Responder {
+	err := s.dbHandler.QuickScanConfigTable().Set(params.Body)
+	if err != nil {
+		log.Errorf("Failed to set quick scan config: %v", err)
+		return operations.NewPutRuntimeQuickscanConfigDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
+	}
+
+	return operations.NewPutRuntimeQuickscanConfigCreated()
+}
+
 /* ### End Handlers #### */
 
 func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models.RuntimeScanCounters, error) {
@@ -142,7 +192,7 @@ func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models
 	if err != nil {
 		return nil, fmt.Errorf("failed to count applications: %v", err)
 	}
-	resCount, err := s.dbHandler.ResourceTable().Count(filters)
+	resourceCount, err := s.dbHandler.ResourceTable().Count(filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count resources: %v", err)
 	}
@@ -153,8 +203,23 @@ func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models
 	return &models.RuntimeScanCounters{
 		Applications:    uint32(appCount),
 		Packages:        uint32(pkgCount),
-		Resources:       uint32(resCount),
+		Resources:       uint32(resourceCount),
 		Vulnerabilities: uint32(vulCount),
+	}, nil
+}
+
+func (s *Server) getRuntimeScanCisDockerBenchmarkCounters(filters *database.CountFilters) (*models.CISDockerBenchmarkScanCounters, error) {
+	appCount, err := s.dbHandler.ApplicationTable().Count(filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count applications: %v", err)
+	}
+	resourceCount, err := s.dbHandler.ResourceTable().Count(filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count resources: %v", err)
+	}
+	return &models.CISDockerBenchmarkScanCounters{
+		Applications: uint32(appCount),
+		Resources:    uint32(resourceCount),
 	}, nil
 }
 
@@ -211,16 +276,28 @@ func (s *Server) startScan(namespaces []string) error {
 	})
 	s.vulnerabilitiesScanner.Clear()
 
+	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
+	if err != nil {
+		return fmt.Errorf("failed to get quick scan config from db: %v", err)
+	}
+	// Save on state the config in the current runtime scan.
+	s.setQuickScanConfig(quickScanConfig)
+
 	// need to create scan done channel for every new scan
 	done := make(chan struct{})
 
-	err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
+	if len(namespaces) == 0 {
+		// Empty namespaces list should scan all namespaces.
+		namespaces = []string{corev1.NamespaceAll}
+	}
+
+	err = s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
 		MaxScanParallelism:           10, // nolint:gomnd
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
 		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
 		DeleteJobPolicy:              runtime_scan_config.DeleteJobPolicySuccessful,
-		ShouldScanCISDockerBenchmark: false, // TODO: should get from the UI
+		ShouldScanCISDockerBenchmark: quickScanConfig.CisDockerBenchmarkScanEnabled,
 	}, done)
 	if err != nil {
 		return fmt.Errorf("failed to start scan: %v", err)

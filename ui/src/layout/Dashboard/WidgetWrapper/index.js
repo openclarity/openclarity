@@ -17,7 +17,7 @@ const WidgetWrapper = ({url, title, widget: Widget, className, refreshTimestamp}
     return (
         <PageContainer className={classnames("dashboard-widget-wrapper", className)} withPadding>
             <WidgetTitle>{title}</WidgetTitle>
-            {loading ? <Loader absolute={false} /> : (error ? <div>Error loading data</div> : <Widget data={data} />)}
+            {loading ? <Loader /> : (error ? <div>Error loading data</div> : <Widget data={data} />)}
         </PageContainer>
     )
 }

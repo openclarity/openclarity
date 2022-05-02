@@ -11,7 +11,7 @@ const SystemFilterDisplay = ({onClose, displayText, runtimeScanData}) => {
     const navigate = useNavigate();
     const filtersDispatch = useFilterDispatch();
 
-    const {items: runtimeScanItems, current, minimalSeverity} = runtimeScanData || {};
+    const {items: runtimeScanItems, current, minimalSeverity, severityKey} = runtimeScanData || {};
     const linkItems = (runtimeScanItems || []).filter(({dataKey}) => dataKey !== current);
 
     return (
@@ -28,8 +28,8 @@ const SystemFilterDisplay = ({onClose, displayText, runtimeScanData}) => {
                 {
                     linkItems.map(({title, filter, dataKey, route}) => {
                         const onClick = () => {
-                            setFilters(filtersDispatch, {type: filter, filters: {currentRuntimeScan: {items: runtimeScanItems, current: dataKey, minimalSeverity}}, isSystem: true});
-                            setFilters(filtersDispatch, {type: filter, filters: [{scope: "vulnerabilitySeverity", operator: OPERATORS.gte.value, value: [minimalSeverity]}], isSystem: false});
+                            setFilters(filtersDispatch, {type: filter, filters: {currentRuntimeScan: {items: runtimeScanItems, current: dataKey, minimalSeverity, severityKey}}, isSystem: true});
+                            setFilters(filtersDispatch, {type: filter, filters: [{scope: severityKey, operator: OPERATORS.gte.value, value: [minimalSeverity]}], isSystem: false});
                             navigate(route);
                         }
 

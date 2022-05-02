@@ -42,9 +42,11 @@ var viewsList = []string{
 	"packages_view",
 	"package_severities",
 	"resources_view",
+	"resource_cis_d_b_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
 	"applications_view",
+	"application_cis_d_b_checks",
 	"application_severities",
 	"ids_view",
 	"licenses_view",
@@ -111,6 +113,21 @@ GROUP BY applications.id, pv.package_id, pv.vulnerability_id, v.severity) AS apv
 GROUP BY apvs.application_id;
 `
 
+	applicationsCISDockerBenchmarkChecksViewQuery = `
+CREATE VIEW application_cis_d_b_checks AS
+SELECT applications.id AS application_id,
+       SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
+       SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
+       SUM(CASE WHEN c.level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
+       MAX(c.level) AS highest_level,
+       MIN(c.level) AS lowest_level
+FROM applications
+         LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
+         LEFT OUTER JOIN resource_cis_d_b_checks rc ON ar.resource_id = rc.resource_id
+         LEFT OUTER JOIN cis_d_b_checks c ON c.id = rc.cis_docker_benchmark_check_id
+GROUP BY applications.id;
+`
+
 	applicationsViewQuery = `
 CREATE VIEW applications_view AS
 SELECT applications.*,
@@ -122,11 +139,17 @@ SELECT applications.*,
        aps.total_high_count,
        aps.total_critical_count,
        aps.highest_severity,
-       aps.lowest_severity
+       aps.lowest_severity,
+       apl.total_info_count,
+       apl.total_warn_count,
+       apl.total_fatal_count,
+       apl.lowest_level,
+       apl.highest_level
 FROM applications
          LEFT OUTER JOIN application_resources ar ON applications.id = ar.application_id
          LEFT OUTER JOIN resource_packages rp ON ar.resource_id = rp.resource_id
          LEFT OUTER JOIN application_severities aps ON applications.id = aps.application_id
+         LEFT OUTER JOIN application_cis_d_b_checks apl ON applications.id = apl.application_id
 GROUP BY applications.id,
          aps.total_neg_count,
          aps.total_low_count,
@@ -134,7 +157,12 @@ GROUP BY applications.id,
          aps.total_high_count,
          aps.total_critical_count,
          aps.highest_severity,
-         aps.lowest_severity;
+         aps.lowest_severity,
+         apl.total_info_count,
+         apl.total_warn_count,
+         apl.total_fatal_count,
+         apl.lowest_level,
+         apl.highest_level;
 `
 
 	newVulnerabilitiesViewQuery = `
@@ -167,6 +195,20 @@ FROM resources
 GROUP BY resources.id;
 `
 
+	resourcesCISDockerBenchmarkChecksViewQuery = `
+CREATE VIEW resource_cis_d_b_checks_view AS
+SELECT resources.id AS resource_id,
+	  SUM(CASE WHEN c.level = 1 THEN 1 ELSE 0 END) AS total_info_count,
+	  SUM(CASE WHEN c.level = 2 THEN 1 ELSE 0 END) AS total_warn_count,
+	  SUM(CASE WHEN c.level = 3 THEN 1 ELSE 0 END) AS total_fatal_count,
+	  MAX(c.level) AS highest_level,
+	  MIN(c.level) AS lowest_level
+FROM resources
+		LEFT OUTER JOIN resource_cis_d_b_checks rc ON resources.id = rc.resource_id
+		LEFT OUTER JOIN cis_d_b_checks c ON c.id = rc.cis_docker_benchmark_check_id
+GROUP BY resources.id;
+	`
+
 	resourcesViewQuery = `
 CREATE VIEW resources_view AS
 SELECT resources.*,
@@ -178,11 +220,16 @@ SELECT resources.*,
        rs.total_high_count,
        rs.total_critical_count,
        rs.highest_severity,
-       rs.lowest_severity
+       rl.total_info_count,
+       rl.total_warn_count,
+       rl.total_fatal_count,
+       rl.lowest_level,
+       rl.highest_level
 FROM resources
          LEFT OUTER JOIN resource_packages rp ON resources.id = rp.resource_id
          LEFT OUTER JOIN application_resources ar ON resources.id = ar.resource_id
          LEFT OUTER JOIN resource_severities rs ON resources.id = rs.resource_id
+         LEFT OUTER JOIN resource_cis_d_b_checks_view rl ON resources.id = rl.resource_id
 GROUP BY resources.id,
          rs.total_neg_count,
          rs.total_low_count,
@@ -190,7 +237,12 @@ GROUP BY resources.id,
          rs.total_high_count,
          rs.total_critical_count,
          rs.highest_severity,
-         rs.lowest_severity;
+         rs.lowest_severity,
+         rl.total_info_count,
+         rl.total_warn_count,
+         rl.total_fatal_count,
+         rl.lowest_level,
+         rl.highest_level;
 `
 
 	packagesSeveritiesViewQuery = `
@@ -275,6 +327,8 @@ type Database interface {
 	JoinTables() JoinTables
 	IDsView() IDsView
 	ObjectTree() ObjectTree
+	QuickScanConfigTable() QuickScanConfigTable
+	CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable
 }
 
 type Handler struct {
@@ -351,10 +405,28 @@ func (db *Handler) IDsView() IDsView {
 	}
 }
 
+func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
+	return &QuickScanConfigTableHandler{
+		table: db.DB.Table(quickScanConfigTableName),
+	}
+}
+
+func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
+	return &CISDockerBenchmarkResultTableHandler{
+		table: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
+	}
+}
+
 func Init(config *DBConfig) *Handler {
 	databaseHandler := Handler{}
 
 	databaseHandler.DB = initDataBase(config)
+
+	// Set defaults.
+	err := databaseHandler.QuickScanConfigTable().SetDefault()
+	if err != nil {
+		log.Fatalf("Failed to set default quick scan config: %v", err)
+	}
 
 	return &databaseHandler
 }
@@ -380,7 +452,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	setupJoinTables(db)
 
 	// this will ensure table is created
-	if err := db.AutoMigrate(&Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}); err != nil {
+	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 
@@ -430,6 +502,10 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create application_severities: %v", err)
 	}
 
+	if err := db.Exec(applicationsCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create application_cis_d_b_checks: %v", err)
+	}
+
 	if err := db.Exec(applicationsViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create applications_view: %v", err)
 	}
@@ -440,6 +516,10 @@ func createAllViews(db *gorm.DB) {
 
 	if err := db.Exec(resourcesSeveritiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create resource_severities: %v", err)
+	}
+
+	if err := db.Exec(resourcesCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create resource_cis_d_b_checks_view: %v", err)
 	}
 
 	if err := db.Exec(resourcesViewQuery).Error; err != nil {

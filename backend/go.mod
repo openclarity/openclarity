@@ -3,6 +3,7 @@ module github.com/cisco-open/kubei/backend
 go 1.17
 
 require (
+	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/bxcodec/faker/v3 v3.7.0
 	github.com/cisco-open/kubei/api v0.0.0
@@ -22,6 +23,7 @@ require (
 	gorm.io/driver/sqlite v1.2.6
 	gorm.io/gorm v1.22.5
 	gotest.tools v2.2.0+incompatible
+	k8s.io/api v0.23.4
 	k8s.io/apimachinery v0.23.4
 	k8s.io/client-go v0.23.4
 )
@@ -150,7 +152,6 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/api v0.23.4 // indirect
 	k8s.io/klog/v2 v2.40.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect

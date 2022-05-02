@@ -1,0 +1,20 @@
+@import 'utils/scss_variables.module.scss';
+
+$step-padding: 30px;
+
+.total-display-step {
+    .step-content {
+        display: flex;
+        overflow: hidden;
+
+        .vulnerabilities-summary-display {
+            padding-right: $step-padding;
+        }
+        .cis-benchmark-total-display {
+            display: inline-flex;
+            align-items: center;
+            border-left: 1px dashed $color-main;
+            padding-left: $step-padding;
+        }
+    }
+}

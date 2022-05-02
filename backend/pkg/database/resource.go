@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -49,12 +50,13 @@ const (
 type Resource struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the resource hash
 
-	Hash               string             `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
-	Name               string             `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
-	Type               types.ResourceType `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
-	SbomID             string             `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
-	ReportingAnalyzers string             `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
-	Packages           []Package          `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
+	Hash                     string                    `json:"hash,omitempty" gorm:"column:hash" faker:"oneof: hash1, hash2, hash3"`
+	Name                     string                    `json:"name,omitempty" gorm:"column:name" faker:"oneof: resource1, resource2, resource3"`
+	Type                     types.ResourceType        `json:"type,omitempty" gorm:"column:type" faker:"oneof: IMAGE, DIRECTORY, FILE"`
+	SbomID                   string                    `json:"sbom_id,omitempty" gorm:"column:sbom_id" faker:"oneof: smobID1, smobID2, smobID3"`
+	ReportingAnalyzers       string                    `json:"reporting_analyzers,omitempty" gorm:"column:reporting_analyzers" faker:"oneof: |analyzer1|, |analyzer1||analyzer2|"`
+	Packages                 []Package                 `json:"packages,omitempty" gorm:"many2many:resource_packages;" faker:"-"`
+	CISDockerBenchmarkChecks []CISDockerBenchmarkCheck `json:"cis_d_b_checks,omitempty" gorm:"many2many:resource_cis_d_b_checks;" faker:"-"`
 }
 
 type ResourceView struct {
@@ -62,6 +64,7 @@ type ResourceView struct {
 	Applications int `json:"applications,omitempty" gorm:"column:applications"`
 	Packages     int `json:"packages,omitempty" gorm:"column:packages"`
 	SeverityCounters
+	CISDockerBenchmarkLevelCounters
 }
 
 type GetApplicationResourcesParams struct {
@@ -96,6 +99,10 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 
 	resource := CreateResource(resourceVulnerabilityScan.Resource)
 
+	if len(resourceVulnerabilityScan.CisDockerBenchmarkResults) > 0 {
+		resource.WithCISDockerBenchmarkChecks(createResourceCISDockerBenchmarkChecks(resourceVulnerabilityScan.CisDockerBenchmarkResults))
+	}
+
 	for _, pkgVul := range resourceVulnerabilityScan.PackageVulnerabilities {
 		vulnerability := CreateVulnerability(pkgVul, params)
 		pkg := CreatePackage(pkgVul.Package, []Vulnerability{vulnerability})
@@ -126,6 +133,25 @@ func CreateResourceFromVulnerabilityScan(resourceVulnerabilityScan *types.Resour
 	}
 
 	return resource.WithPackages(pkgs)
+}
+
+func createResourceCISDockerBenchmarkChecks(results []*types.CISDockerBenchmarkResult) []CISDockerBenchmarkCheck {
+	ret := make([]CISDockerBenchmarkCheck, 0, len(results))
+	for i := range results {
+		level := FromDockleTypeToLevel(results[i].Level)
+		if level == CISDockerBenchmarkLevelIGNORE {
+			log.Debugf("Ignoring CIS docker benchmark result. result=%+v", results[i])
+			continue
+		}
+
+		ret = append(ret, CISDockerBenchmarkCheck{
+			ID:           results[i].Code,
+			Code:         results[i].Code,
+			Level:        int(level),
+			Descriptions: results[i].Descriptions,
+		})
+	}
+	return ret
 }
 
 func CreateResourceFromRuntimeContentAnalysis(resourceContentAnalysis *runtime_scan_models.ResourceContentAnalysis, params *TransactionParams) *Resource {
@@ -188,6 +214,11 @@ func (r *Resource) WithAnalyzers(analyzers []string) *Resource {
 	return r
 }
 
+func (r *Resource) WithCISDockerBenchmarkChecks(checks []CISDockerBenchmarkCheck) *Resource {
+	r.CISDockerBenchmarkChecks = checks
+	return r
+}
+
 func CreateResourceID(info *types.ResourceInfo) string {
 	return uuid.NewV5(uuid.Nil, info.ResourceHash).String()
 }
@@ -239,6 +270,10 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityGte)
 	tx = SeverityFilterLte(tx, columnSeverityCountersHighestSeverity, params.VulnerabilitySeverityLte)
 
+	// cis docker benchmark filter
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelGte)
+	tx = CISDockerBenchmarkLevelFilterLte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, params.CisDockerBenchmarkLevelLte)
+
 	// system filter
 	ids, err := r.getResourceIDs(params)
 	if err != nil {
@@ -251,14 +286,15 @@ func (r *ResourceTableHandler) setResourcesFilters(params GetApplicationResource
 
 func ApplicationResourceFromDB(view *ResourceView) *models.ApplicationResource {
 	return &models.ApplicationResource{
-		Applications:           uint32(view.Applications),
-		ID:                     view.ID,
-		Packages:               uint32(view.Packages),
-		ReportingSBOMAnalyzers: DBArrayToArray(view.ReportingAnalyzers),
-		ResourceHash:           view.Hash,
-		ResourceName:           view.Name,
-		ResourceType:           types.ResourceTypeToModels(view.Type),
-		Vulnerabilities:        getVulnerabilityCount(view.SeverityCounters),
+		Applications:              uint32(view.Applications),
+		ID:                        view.ID,
+		Packages:                  uint32(view.Packages),
+		ReportingSBOMAnalyzers:    DBArrayToArray(view.ReportingAnalyzers),
+		ResourceHash:              view.Hash,
+		ResourceName:              view.Name,
+		ResourceType:              types.ResourceTypeToModels(view.Type),
+		Vulnerabilities:           getVulnerabilityCount(view.SeverityCounters),
+		CisDockerBenchmarkResults: getCISDockerBenchmarkLevelCount(view.CISDockerBenchmarkLevelCounters),
 	}
 }
 
@@ -287,7 +323,9 @@ func (r *ResourceTableHandler) GetDBResource(id string, shouldGetRelationships b
 		Where(resourceTableName+"."+columnResourceID+" = ?", id)
 
 	if shouldGetRelationships {
-		tx.Preload("Packages.Vulnerabilities").Preload(clause.Associations)
+		tx.Preload("Packages.Vulnerabilities").
+			Preload("CISDockerBenchmarkChecks").
+			Preload(clause.Associations)
 	}
 
 	if err := tx.First(&resource).Error; err != nil {
@@ -365,17 +403,21 @@ func (r *ResourceTableHandler) GetApplicationResourcesAndTotal(params GetApplica
 	return resources, count, nil
 }
 
+// nolint:exhaustive
 func createApplicationResourcesSortOrder(sortKey string, sortDir *string) (string, error) {
-	if models.ApplicationResourcesSortKey(sortKey) == models.ApplicationResourcesSortKeyVulnerabilities {
+	switch models.ApplicationResourcesSortKey(sortKey) {
+	case models.ApplicationResourcesSortKeyVulnerabilities:
 		return createVulnerabilitiesColumnSortOrder(*sortDir)
-	}
+	case models.ApplicationResourcesSortKeyCisDockerBenchmarkResults:
+		return createCISDockerBenchmarkResultsColumnSortOrder(*sortDir)
+	default:
+		sortKeyColumnName, err := getApplicationResourcesSortKeyColumnName(sortKey)
+		if err != nil {
+			return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		}
 
-	sortKeyColumnName, err := getApplicationResourcesSortKeyColumnName(sortKey)
-	if err != nil {
-		return "", fmt.Errorf("failed to get sort key column name: %v", err)
+		return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 	}
-
-	return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
 }
 
 func getApplicationResourcesSortKeyColumnName(key string) (string, error) {
@@ -390,7 +432,7 @@ func getApplicationResourcesSortKeyColumnName(key string) (string, error) {
 		return columnResourceViewApplications, nil
 	case models.ApplicationResourcesSortKeyPackages:
 		return columnResourceViewPackages, nil
-	case models.ApplicationResourcesSortKeyVulnerabilities:
+	case models.ApplicationResourcesSortKeyVulnerabilities, models.ApplicationResourcesSortKeyCisDockerBenchmarkResults:
 		return "", fmt.Errorf("unsupported key (%v)", key)
 	}
 
@@ -474,6 +516,7 @@ func (r *ResourceTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilter
 	tx = FilterIs(tx, columnResourceID, resourceIds)
 
 	tx = SeverityFilterGte(tx, columnSeverityCountersHighestSeverity, filters.VulnerabilitySeverityGte)
+	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx, nil
 }

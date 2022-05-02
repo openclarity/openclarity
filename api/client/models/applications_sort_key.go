@@ -35,6 +35,9 @@ const (
 	// ApplicationsSortKeyVulnerabilities captures enum value "vulnerabilities"
 	ApplicationsSortKeyVulnerabilities ApplicationsSortKey = "vulnerabilities"
 
+	// ApplicationsSortKeyCisDockerBenchmarkResults captures enum value "cisDockerBenchmarkResults"
+	ApplicationsSortKeyCisDockerBenchmarkResults ApplicationsSortKey = "cisDockerBenchmarkResults"
+
 	// ApplicationsSortKeyApplicationResources captures enum value "applicationResources"
 	ApplicationsSortKeyApplicationResources ApplicationsSortKey = "applicationResources"
 
@@ -47,7 +50,7 @@ var applicationsSortKeyEnum []interface{}
 
 func init() {
 	var res []ApplicationsSortKey
-	if err := json.Unmarshal([]byte(`["applicationName","applicationType","vulnerabilities","applicationResources","packages"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["applicationName","applicationType","vulnerabilities","cisDockerBenchmarkResults","applicationResources","packages"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
