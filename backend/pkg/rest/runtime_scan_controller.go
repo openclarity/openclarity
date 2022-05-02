@@ -191,7 +191,7 @@ func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models
 	if err != nil {
 		return nil, fmt.Errorf("failed to count applications: %v", err)
 	}
-	resCount, err := s.dbHandler.ResourceTable().Count(filters)
+	resourceCount, err := s.dbHandler.ResourceTable().Count(filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count resources: %v", err)
 	}
@@ -202,7 +202,7 @@ func (s *Server) getRuntimeScanCounters(filters *database.CountFilters) (*models
 	return &models.RuntimeScanCounters{
 		Applications:    uint32(appCount),
 		Packages:        uint32(pkgCount),
-		Resources:       uint32(resCount),
+		Resources:       uint32(resourceCount),
 		Vulnerabilities: uint32(vulCount),
 	}, nil
 }
@@ -212,13 +212,13 @@ func (s *Server) getRuntimeScanCisDockerBenchmarkCounters(filters *database.Coun
 	if err != nil {
 		return nil, fmt.Errorf("failed to count applications: %v", err)
 	}
-	resCount, err := s.dbHandler.ResourceTable().Count(filters)
+	resourceCount, err := s.dbHandler.ResourceTable().Count(filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count resources: %v", err)
 	}
 	return &models.CISDockerBenchmarkScanCounters{
 		Applications: uint32(appCount),
-		Resources:    uint32(resCount),
+		Resources:    uint32(resourceCount),
 	}, nil
 }
 
