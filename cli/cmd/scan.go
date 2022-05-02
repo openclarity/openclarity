@@ -76,7 +76,7 @@ func init() {
 		"ID of a defined application to associate the exported vulnerability scan")
 	scanCmd.Flags().BoolP("export", "e", false,
 		"export vulnerability scan results to the backend")
-	scanCmd.Flags().Bool("dockerfile-cis", false,
+	scanCmd.Flags().Bool("cis-docker-benchmark-scan", false,
 		"enables CIS docker benchmark scan. (relevant only for image source type)")
 }
 
