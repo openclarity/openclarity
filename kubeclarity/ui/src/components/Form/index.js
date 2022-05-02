@@ -9,16 +9,19 @@ import { useFetch, FETCH_METHODS, usePrevious } from 'hooks';
 import SelectField from './form-fields/SelectField';
 import MultiselectField from './form-fields/MultiselectField';
 import TextField from './form-fields/TextField';
+import ToggleField from './form-fields/ToggleField';
 
 import './form.scss';
 
 export {
+	useFormikContext,
     SelectField,
     MultiselectField,
-    TextField
+    TextField,
+	ToggleField
 }
 
-const FormComponent = ({children, className, submitUrl, getSubmitParams, onSubmitSuccess, onSubmitError, saveButtonTitle="Finish"}) => {
+const FormComponent = ({children, className, submitUrl, getSubmitParams, onSubmitSuccess, onSubmitError, saveButtonTitle="Finish", hideSaveButton=false}) => {
 	const {values, isSubmitting, isValidating, setSubmitting, status, setStatus, isValid, setErrors} = useFormikContext();
 
 	const [{loading, data, error}, submitFormData] = useFetch(submitUrl, {loadOnMount: false});
@@ -73,9 +76,11 @@ const FormComponent = ({children, className, submitUrl, getSubmitParams, onSubmi
 				</div>
 			}
 			{children}
-            <Button type="submit" className="form-submit-button" onClick={handleSubmit} disabled={disableSubmitClick}>
-                {saveButtonTitle}
-            </Button>
+            {!hideSaveButton &&
+				<Button type="submit" className="form-submit-button" onClick={handleSubmit} disabled={disableSubmitClick}>
+					{saveButtonTitle}
+				</Button>
+			}
 		</Form>
 	)
 }

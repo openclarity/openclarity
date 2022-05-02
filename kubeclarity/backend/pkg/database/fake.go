@@ -42,13 +42,17 @@ func createFakeApplication(scanTime time.Time) *Application {
 	app.ID = app.Name
 
 	for i := 0; i < 2; i++ {
-		app.Resources = append(app.Resources, createFakeResource(scanTime))
+		shouldCreateCISDockerBenchmarkResults := true
+		if i == 0 {
+			shouldCreateCISDockerBenchmarkResults = false
+		}
+		app.Resources = append(app.Resources, createFakeResource(scanTime, shouldCreateCISDockerBenchmarkResults))
 	}
 
 	return &app
 }
 
-func createFakeResource(scanTime time.Time) Resource {
+func createFakeResource(scanTime time.Time, shouldCreateCISDockerBenchmarkResults bool) Resource {
 	var res Resource
 
 	if err := faker.FakeData(&res); err != nil {
@@ -58,8 +62,20 @@ func createFakeResource(scanTime time.Time) Resource {
 
 	for i := 0; i < 3; i++ {
 		res.Packages = append(res.Packages, createFakePackage(scanTime))
+		if shouldCreateCISDockerBenchmarkResults {
+			res.CISDockerBenchmarkChecks = append(res.CISDockerBenchmarkChecks, createFakeCISDockerBenchmarkResult())
+		}
 	}
 
+	return res
+}
+
+func createFakeCISDockerBenchmarkResult() CISDockerBenchmarkCheck {
+	var res CISDockerBenchmarkCheck
+	if err := faker.FakeData(&res); err != nil {
+		panic(err)
+	}
+	res.ID = res.Code
 	return res
 }
 

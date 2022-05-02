@@ -1,0 +1,32 @@
+$severity-select-width: 160px;
+
+.filter-step {
+    .severity-filter-form {
+        display: inline-flex;
+        align-items: center;
+
+        .form-field-wrapper {
+            margin: 0;
+            
+            &:not(:last-child) {
+                margin-right: 20px;
+            }
+        }
+    }
+}
+
+.affected-elements-step {
+    .step-display {
+        height: 36px;
+
+        .select-counter-buttons-wrapper {
+            display: flex;
+            align-items: center;
+            
+            button {
+                margin: 5px 0;
+                margin-right: 10px;
+            }
+        }
+    }
+}

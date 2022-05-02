@@ -3,6 +3,16 @@
 $step-number-size: 30px;
 $step-inner-padding: 20px;
 
+.step-display-title {
+    color: $color-main;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 16px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin: 0 $step-inner-padding;
+}
+
 .step-display-wrapper {
     padding: 30px 0;
     
@@ -24,15 +34,6 @@ $step-inner-padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        .step-title {
-            color: $color-main;
-            font-size: 14px;
-            font-weight: bold;
-            line-height: 16px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            margin: 0 $step-inner-padding;
         }
         .step-content {
             width: 100%;

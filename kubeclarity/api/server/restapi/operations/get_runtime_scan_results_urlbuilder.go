@@ -13,7 +13,8 @@ import (
 
 // GetRuntimeScanResultsURL generates an URL for the get runtime scan results operation
 type GetRuntimeScanResultsURL struct {
-	VulnerabilitySeverityGte *string
+	CisDockerBenchmarkLevelGte *string
+	VulnerabilitySeverityGte   *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -48,6 +49,14 @@ func (o *GetRuntimeScanResultsURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var cisDockerBenchmarkLevelGteQ string
+	if o.CisDockerBenchmarkLevelGte != nil {
+		cisDockerBenchmarkLevelGteQ = *o.CisDockerBenchmarkLevelGte
+	}
+	if cisDockerBenchmarkLevelGteQ != "" {
+		qs.Set("cisDockerBenchmarkLevel[gte]", cisDockerBenchmarkLevelGteQ)
+	}
 
 	var vulnerabilitySeverityGteQ string
 	if o.VulnerabilitySeverityGte != nil {

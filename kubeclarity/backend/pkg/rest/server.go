@@ -26,6 +26,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/cisco-open/kubei/api/server/models"
 	"github.com/cisco-open/kubei/api/server/restapi"
 	"github.com/cisco-open/kubei/api/server/restapi/operations"
 	"github.com/cisco-open/kubei/backend/pkg/common"
@@ -45,6 +46,8 @@ type RuntimeScan struct {
 	stopScanChan           chan struct{}
 	// List of latest scanned namespaces.
 	scannedNamespaces []string // nolint:structcheck
+	// Quick scan config used in the latest runtime scan.
+	quickScanConfig *models.RuntimeQuickScanConfig // nolint:structcheck
 	State
 	lock sync.RWMutex
 }
@@ -75,6 +78,20 @@ func (s *Server) SetState(state *State) {
 	s.runtimeScanFailures = state.runtimeScanFailures
 	s.runtimeScanApplicationIDs = state.runtimeScanApplicationIDs
 	s.doneApplyingToDB = state.doneApplyingToDB
+}
+
+func (s *Server) getQuickScanConfig() *models.RuntimeQuickScanConfig {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	return s.quickScanConfig
+}
+
+func (s *Server) setQuickScanConfig(conf *models.RuntimeQuickScanConfig) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.quickScanConfig = conf
 }
 
 func (s *Server) GetNamespaceList() ([]string, error) {
@@ -207,6 +224,14 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 
 	api.GetNamespacesHandler = operations.GetNamespacesHandlerFunc(func(params operations.GetNamespacesParams) middleware.Responder {
 		return s.GetNamespaces(params)
+	})
+
+	api.GetRuntimeQuickscanConfigHandler = operations.GetRuntimeQuickscanConfigHandlerFunc(func(params operations.GetRuntimeQuickscanConfigParams) middleware.Responder {
+		return s.GetRuntimeQuickScanConfig(params)
+	})
+
+	api.PutRuntimeQuickscanConfigHandler = operations.PutRuntimeQuickscanConfigHandlerFunc(func(params operations.PutRuntimeQuickscanConfigParams) middleware.Responder {
+		return s.PutRuntimeQuickScanConfig(params)
 	})
 
 	server := restapi.NewServer(api)

@@ -3,12 +3,13 @@ import PageContainer from 'components/PageContainer';
 import TitleValueDisplay, { TitleValueDisplayColumn } from 'components/TitleValueDisplay';
 import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import { LabelsDisplay } from 'components/LabelTag';
+import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
 import { getItemsString } from 'utils/utils';
 import { VulnerabilitiesLink, PackagesLink, ApplicationResourcesLink } from './utils';
 
 const DetailsContent = ({data}) => {
     const {application, licenses} = data || {};
-    const {id, applicationName, applicationType, labels, environments, applicationResources, packages, vulnerabilities} = application || {};
+    const {id, applicationName, applicationType, labels, environments, applicationResources, packages, vulnerabilities, cisDockerBenchmarkResults} = application || {};
 
     return (
         <PageContainer className="application-details-container" withPadding>
@@ -31,6 +32,9 @@ const DetailsContent = ({data}) => {
                 </TitleValueDisplay>
                 <TitleValueDisplay title="Vulnerabilities">
                     <VulnerabilitiesLink id={id} vulnerabilities={vulnerabilities} applicationID={id} applicationName={applicationName} />
+                </TitleValueDisplay>
+                <TitleValueDisplay title="CIS Docker Benchmark">
+                    <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 </TitleValueDisplay>
             </TitleValueDisplayColumn>
         </PageContainer>

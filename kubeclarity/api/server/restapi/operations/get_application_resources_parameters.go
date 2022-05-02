@@ -61,6 +61,14 @@ type GetApplicationResourcesParams struct {
 	  In: query
 	*/
 	ApplicationsLte *int64
+	/*
+	  In: query
+	*/
+	CisDockerBenchmarkLevelGte *string
+	/*
+	  In: query
+	*/
+	CisDockerBenchmarkLevelLte *string
 	/*current runtime scan system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed
 	  In: query
 	*/
@@ -202,6 +210,16 @@ func (o *GetApplicationResourcesParams) BindRequest(r *http.Request, route *midd
 
 	qApplicationsLte, qhkApplicationsLte, _ := qs.GetOK("applications[lte]")
 	if err := o.bindApplicationsLte(qApplicationsLte, qhkApplicationsLte, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, _ := qs.GetOK("cisDockerBenchmarkLevel[gte]")
+	if err := o.bindCisDockerBenchmarkLevelGte(qCisDockerBenchmarkLevelGte, qhkCisDockerBenchmarkLevelGte, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCisDockerBenchmarkLevelLte, qhkCisDockerBenchmarkLevelLte, _ := qs.GetOK("cisDockerBenchmarkLevel[lte]")
+	if err := o.bindCisDockerBenchmarkLevelLte(qCisDockerBenchmarkLevelLte, qhkCisDockerBenchmarkLevelLte, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -455,6 +473,70 @@ func (o *GetApplicationResourcesParams) bindApplicationsLte(rawData []string, ha
 		return errors.InvalidType("applications[lte]", "query", "int64", raw)
 	}
 	o.ApplicationsLte = &value
+
+	return nil
+}
+
+// bindCisDockerBenchmarkLevelGte binds and validates parameter CisDockerBenchmarkLevelGte from query.
+func (o *GetApplicationResourcesParams) bindCisDockerBenchmarkLevelGte(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CisDockerBenchmarkLevelGte = &raw
+
+	if err := o.validateCisDockerBenchmarkLevelGte(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCisDockerBenchmarkLevelGte carries on validations for parameter CisDockerBenchmarkLevelGte
+func (o *GetApplicationResourcesParams) validateCisDockerBenchmarkLevelGte(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("cisDockerBenchmarkLevel[gte]", "query", *o.CisDockerBenchmarkLevelGte, []interface{}{"INFO", "WARN", "FATAL"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// bindCisDockerBenchmarkLevelLte binds and validates parameter CisDockerBenchmarkLevelLte from query.
+func (o *GetApplicationResourcesParams) bindCisDockerBenchmarkLevelLte(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CisDockerBenchmarkLevelLte = &raw
+
+	if err := o.validateCisDockerBenchmarkLevelLte(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCisDockerBenchmarkLevelLte carries on validations for parameter CisDockerBenchmarkLevelLte
+func (o *GetApplicationResourcesParams) validateCisDockerBenchmarkLevelLte(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("cisDockerBenchmarkLevel[lte]", "query", *o.CisDockerBenchmarkLevelLte, []interface{}{"INFO", "WARN", "FATAL"}, true); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -1056,7 +1138,7 @@ func (o *GetApplicationResourcesParams) bindSortKey(rawData []string, hasKey boo
 // validateSortKey carries on validations for parameter SortKey
 func (o *GetApplicationResourcesParams) validateSortKey(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"resourceName", "resourceHash", "resourceType", "vulnerabilities", "applications", "packages"}, true); err != nil {
+	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"resourceName", "resourceHash", "resourceType", "vulnerabilities", "cisDockerBenchmarkResults", "applications", "packages"}, true); err != nil {
 		return err
 	}
 

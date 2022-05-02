@@ -1,0 +1,35 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-wrapper.toggle-field {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    color: $color-grey-black;
+
+    .react-toggle {
+        margin-left: 20px;
+
+        &.react-toggle--checked {
+            .react-toggle-track {
+                background-color: $color-grey;
+            }
+        }
+        .react-toggle-thumb {
+            box-shadow: none !important;
+            outline: none;
+            border-color: transparent;
+            width: 14px;
+            height: 14px;
+        }
+        .react-toggle-track {
+            background-color: $color-main;
+            width: 36px;
+            height: 16px;
+        }
+        &.react-toggle--checked .react-toggle-thumb {
+            left: 21px;
+        }
+    }
+}

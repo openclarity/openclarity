@@ -90,6 +90,12 @@ func init() {
             "$ref": "#/parameters/vulnerabilitySeverityLteFilter"
           },
           {
+            "$ref": "#/parameters/cisDockerBenchmarkLevelGteFilter"
+          },
+          {
+            "$ref": "#/parameters/cisDockerBenchmarkLevelLteFilter"
+          },
+          {
             "$ref": "#/parameters/applicationsIsFilter"
           },
           {
@@ -230,6 +236,12 @@ func init() {
           },
           {
             "$ref": "#/parameters/vulnerabilitySeverityLteFilter"
+          },
+          {
+            "$ref": "#/parameters/cisDockerBenchmarkLevelGteFilter"
+          },
+          {
+            "$ref": "#/parameters/cisDockerBenchmarkLevelLteFilter"
           },
           {
             "$ref": "#/parameters/applicationResourcesIsFilter"
@@ -844,6 +856,52 @@ func init() {
         }
       }
     },
+    "/runtime/quickscan/config": {
+      "get": {
+        "summary": "Get runtime quick scan configuration",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RuntimeQuickScanConfig"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Set runtime quick scan configuration",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RuntimeQuickScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/responses/Success"
+            }
+          },
+          "400": {
+            "description": "Failed to set quick scan config",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      }
+    },
     "/runtime/scan/progress": {
       "get": {
         "summary": "Get scan progress",
@@ -866,6 +924,9 @@ func init() {
         "parameters": [
           {
             "$ref": "#/parameters/vulnerabilitySeverityGteFilter"
+          },
+          {
+            "$ref": "#/parameters/cisDockerBenchmarkLevelGteFilter"
           }
         ],
         "responses": {
@@ -1132,6 +1193,13 @@ func init() {
         "applicationType": {
           "$ref": "#/definitions/ApplicationType"
         },
+        "cisDockerBenchmarkResults": {
+          "description": "cis docker benchmark result count per level",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
         "environments": {
           "type": "array",
           "items": {
@@ -1225,6 +1293,13 @@ func init() {
           "type": "integer",
           "format": "uint32"
         },
+        "cisDockerBenchmarkResults": {
+          "description": "cis docker benchmark result count per level",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
         "id": {
           "type": "string"
         },
@@ -1276,6 +1351,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ]
@@ -1305,6 +1381,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ]
@@ -1332,6 +1409,75 @@ func init() {
         "LOW",
         "HIGH"
       ]
+    },
+    "CISDockerBenchmarkAssessment": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkCodeInfo": {
+      "type": "object",
+      "properties": {
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+          }
+        },
+        "code": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkLevel": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ]
+    },
+    "CISDockerBenchmarkLevelCount": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkScanCounters": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "resources": {
+          "type": "integer",
+          "format": "uint32"
+        }
+      }
     },
     "CVSS": {
       "type": "object",
@@ -1718,6 +1864,12 @@ func init() {
     "ResourceVulnerabilityScan": {
       "type": "object",
       "properties": {
+        "cisDockerBenchmarkResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkCodeInfo"
+          }
+        },
         "packageVulnerabilities": {
           "type": "array",
           "items": {
@@ -1732,6 +1884,15 @@ func init() {
           "items": {
             "$ref": "#/definitions/ResourceLayerCommand"
           }
+        }
+      }
+    },
+    "RuntimeQuickScanConfig": {
+      "description": "Runtime quick scan configuration",
+      "type": "object",
+      "properties": {
+        "cisDockerBenchmarkScanEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -1778,6 +1939,19 @@ func init() {
     "RuntimeScanResults": {
       "type": "object",
       "properties": {
+        "cisDockerBenchmarkCountPerLevel": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
+        "cisDockerBenchmarkCounters": {
+          "$ref": "#/definitions/CISDockerBenchmarkScanCounters"
+        },
+        "cisDockerBenchmarkScanEnabled": {
+          "description": "Indicates whether CIS docker benchmark scan was enabled",
+          "type": "boolean"
+        },
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
@@ -2079,6 +2253,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ],
@@ -2134,6 +2309,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ],
@@ -2142,6 +2318,26 @@ func init() {
       "name": "sortKey",
       "in": "query",
       "required": true
+    },
+    "cisDockerBenchmarkLevelGteFilter": {
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ],
+      "type": "string",
+      "name": "cisDockerBenchmarkLevel[gte]",
+      "in": "query"
+    },
+    "cisDockerBenchmarkLevelLteFilter": {
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ],
+      "type": "string",
+      "name": "cisDockerBenchmarkLevel[lte]",
+      "in": "query"
     },
     "currentRuntimeScan": {
       "type": "boolean",
@@ -2701,6 +2897,7 @@ func init() {
               "resourceHash",
               "resourceType",
               "vulnerabilities",
+              "cisDockerBenchmarkResults",
               "applications",
               "packages"
             ],
@@ -2824,6 +3021,26 @@ func init() {
             ],
             "type": "string",
             "name": "vulnerabilitySeverity[lte]",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "INFO",
+              "WARN",
+              "FATAL"
+            ],
+            "type": "string",
+            "name": "cisDockerBenchmarkLevel[gte]",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "INFO",
+              "WARN",
+              "FATAL"
+            ],
+            "type": "string",
+            "name": "cisDockerBenchmarkLevel[lte]",
             "in": "query"
           },
           {
@@ -3001,6 +3218,7 @@ func init() {
               "applicationName",
               "applicationType",
               "vulnerabilities",
+              "cisDockerBenchmarkResults",
               "applicationResources",
               "packages"
             ],
@@ -3122,6 +3340,26 @@ func init() {
             ],
             "type": "string",
             "name": "vulnerabilitySeverity[lte]",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "INFO",
+              "WARN",
+              "FATAL"
+            ],
+            "type": "string",
+            "name": "cisDockerBenchmarkLevel[gte]",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "INFO",
+              "WARN",
+              "FATAL"
+            ],
+            "type": "string",
+            "name": "cisDockerBenchmarkLevel[lte]",
             "in": "query"
           },
           {
@@ -4100,6 +4338,61 @@ func init() {
         }
       }
     },
+    "/runtime/quickscan/config": {
+      "get": {
+        "summary": "Get runtime quick scan configuration",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RuntimeQuickScanConfig"
+            }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Set runtime quick scan configuration",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RuntimeQuickScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "description": "success message",
+              "schema": {
+                "$ref": "#/definitions/SuccessResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "Failed to set quick scan config",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
     "/runtime/scan/progress": {
       "get": {
         "summary": "Get scan progress",
@@ -4133,6 +4426,16 @@ func init() {
             ],
             "type": "string",
             "name": "vulnerabilitySeverity[gte]",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "INFO",
+              "WARN",
+              "FATAL"
+            ],
+            "type": "string",
+            "name": "cisDockerBenchmarkLevel[gte]",
             "in": "query"
           }
         ],
@@ -4620,6 +4923,13 @@ func init() {
         "applicationType": {
           "$ref": "#/definitions/ApplicationType"
         },
+        "cisDockerBenchmarkResults": {
+          "description": "cis docker benchmark result count per level",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
         "environments": {
           "type": "array",
           "items": {
@@ -4713,6 +5023,13 @@ func init() {
           "type": "integer",
           "format": "uint32"
         },
+        "cisDockerBenchmarkResults": {
+          "description": "cis docker benchmark result count per level",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
         "id": {
           "type": "string"
         },
@@ -4764,6 +5081,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ]
@@ -4793,6 +5111,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ]
@@ -4820,6 +5139,75 @@ func init() {
         "LOW",
         "HIGH"
       ]
+    },
+    "CISDockerBenchmarkAssessment": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkCodeInfo": {
+      "type": "object",
+      "properties": {
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+          }
+        },
+        "code": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "CISDockerBenchmarkLevel": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ]
+    },
+    "CISDockerBenchmarkLevelCount": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkScanCounters": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "resources": {
+          "type": "integer",
+          "format": "uint32"
+        }
+      }
     },
     "CVSS": {
       "type": "object",
@@ -5207,6 +5595,12 @@ func init() {
     "ResourceVulnerabilityScan": {
       "type": "object",
       "properties": {
+        "cisDockerBenchmarkResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkCodeInfo"
+          }
+        },
         "packageVulnerabilities": {
           "type": "array",
           "items": {
@@ -5221,6 +5615,15 @@ func init() {
           "items": {
             "$ref": "#/definitions/ResourceLayerCommand"
           }
+        }
+      }
+    },
+    "RuntimeQuickScanConfig": {
+      "description": "Runtime quick scan configuration",
+      "type": "object",
+      "properties": {
+        "cisDockerBenchmarkScanEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -5267,6 +5670,19 @@ func init() {
     "RuntimeScanResults": {
       "type": "object",
       "properties": {
+        "cisDockerBenchmarkCountPerLevel": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CISDockerBenchmarkLevelCount"
+          }
+        },
+        "cisDockerBenchmarkCounters": {
+          "$ref": "#/definitions/CISDockerBenchmarkScanCounters"
+        },
+        "cisDockerBenchmarkScanEnabled": {
+          "description": "Indicates whether CIS docker benchmark scan was enabled",
+          "type": "boolean"
+        },
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
@@ -5568,6 +5984,7 @@ func init() {
         "resourceHash",
         "resourceType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applications",
         "packages"
       ],
@@ -5623,6 +6040,7 @@ func init() {
         "applicationName",
         "applicationType",
         "vulnerabilities",
+        "cisDockerBenchmarkResults",
         "applicationResources",
         "packages"
       ],
@@ -5631,6 +6049,26 @@ func init() {
       "name": "sortKey",
       "in": "query",
       "required": true
+    },
+    "cisDockerBenchmarkLevelGteFilter": {
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ],
+      "type": "string",
+      "name": "cisDockerBenchmarkLevel[gte]",
+      "in": "query"
+    },
+    "cisDockerBenchmarkLevelLteFilter": {
+      "enum": [
+        "INFO",
+        "WARN",
+        "FATAL"
+      ],
+      "type": "string",
+      "name": "cisDockerBenchmarkLevel[lte]",
+      "in": "query"
     },
     "currentRuntimeScan": {
       "type": "boolean",

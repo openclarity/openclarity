@@ -19,6 +19,15 @@ import (
 // swagger:model RuntimeScanResults
 type RuntimeScanResults struct {
 
+	// cis docker benchmark count per level
+	CisDockerBenchmarkCountPerLevel []*CISDockerBenchmarkLevelCount `json:"cisDockerBenchmarkCountPerLevel"`
+
+	// cis docker benchmark counters
+	CisDockerBenchmarkCounters *CISDockerBenchmarkScanCounters `json:"cisDockerBenchmarkCounters,omitempty"`
+
+	// Indicates whether CIS docker benchmark scan was enabled
+	CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
+
 	// counters
 	Counters *RuntimeScanCounters `json:"counters,omitempty"`
 
@@ -32,6 +41,14 @@ type RuntimeScanResults struct {
 // Validate validates this runtime scan results
 func (m *RuntimeScanResults) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCisDockerBenchmarkCountPerLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCisDockerBenchmarkCounters(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCounters(formats); err != nil {
 		res = append(res, err)
@@ -48,6 +65,47 @@ func (m *RuntimeScanResults) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *RuntimeScanResults) validateCisDockerBenchmarkCountPerLevel(formats strfmt.Registry) error {
+	if swag.IsZero(m.CisDockerBenchmarkCountPerLevel) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.CisDockerBenchmarkCountPerLevel); i++ {
+		if swag.IsZero(m.CisDockerBenchmarkCountPerLevel[i]) { // not required
+			continue
+		}
+
+		if m.CisDockerBenchmarkCountPerLevel[i] != nil {
+			if err := m.CisDockerBenchmarkCountPerLevel[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *RuntimeScanResults) validateCisDockerBenchmarkCounters(formats strfmt.Registry) error {
+	if swag.IsZero(m.CisDockerBenchmarkCounters) { // not required
+		return nil
+	}
+
+	if m.CisDockerBenchmarkCounters != nil {
+		if err := m.CisDockerBenchmarkCounters.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("cisDockerBenchmarkCounters")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -120,6 +178,14 @@ func (m *RuntimeScanResults) validateVulnerabilityPerSeverity(formats strfmt.Reg
 func (m *RuntimeScanResults) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCisDockerBenchmarkCountPerLevel(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCisDockerBenchmarkCounters(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCounters(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -135,6 +201,38 @@ func (m *RuntimeScanResults) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCountPerLevel(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.CisDockerBenchmarkCountPerLevel); i++ {
+
+		if m.CisDockerBenchmarkCountPerLevel[i] != nil {
+			if err := m.CisDockerBenchmarkCountPerLevel[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCounters(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CisDockerBenchmarkCounters != nil {
+		if err := m.CisDockerBenchmarkCounters.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("cisDockerBenchmarkCounters")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -87,6 +87,9 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 		GetPackagesIDApplicationResourcesHandler: GetPackagesIDApplicationResourcesHandlerFunc(func(params GetPackagesIDApplicationResourcesParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetPackagesIDApplicationResources has not yet been implemented")
 		}),
+		GetRuntimeQuickscanConfigHandler: GetRuntimeQuickscanConfigHandlerFunc(func(params GetRuntimeQuickscanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetRuntimeQuickscanConfig has not yet been implemented")
+		}),
 		GetRuntimeScanProgressHandler: GetRuntimeScanProgressHandlerFunc(func(params GetRuntimeScanProgressParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetRuntimeScanProgress has not yet been implemented")
 		}),
@@ -110,6 +113,9 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 		}),
 		PutApplicationsIDHandler: PutApplicationsIDHandlerFunc(func(params PutApplicationsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation PutApplicationsID has not yet been implemented")
+		}),
+		PutRuntimeQuickscanConfigHandler: PutRuntimeQuickscanConfigHandlerFunc(func(params PutRuntimeQuickscanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation PutRuntimeQuickscanConfig has not yet been implemented")
 		}),
 		PutRuntimeScanStartHandler: PutRuntimeScanStartHandlerFunc(func(params PutRuntimeScanStartParams) middleware.Responder {
 			return middleware.NotImplemented("operation PutRuntimeScanStart has not yet been implemented")
@@ -183,6 +189,8 @@ type KubeClarityAPIsAPI struct {
 	GetPackagesIDHandler GetPackagesIDHandler
 	// GetPackagesIDApplicationResourcesHandler sets the operation handler for the get packages ID application resources operation
 	GetPackagesIDApplicationResourcesHandler GetPackagesIDApplicationResourcesHandler
+	// GetRuntimeQuickscanConfigHandler sets the operation handler for the get runtime quickscan config operation
+	GetRuntimeQuickscanConfigHandler GetRuntimeQuickscanConfigHandler
 	// GetRuntimeScanProgressHandler sets the operation handler for the get runtime scan progress operation
 	GetRuntimeScanProgressHandler GetRuntimeScanProgressHandler
 	// GetRuntimeScanResultsHandler sets the operation handler for the get runtime scan results operation
@@ -199,6 +207,8 @@ type KubeClarityAPIsAPI struct {
 	PostApplicationsVulnerabilityScanIDHandler PostApplicationsVulnerabilityScanIDHandler
 	// PutApplicationsIDHandler sets the operation handler for the put applications ID operation
 	PutApplicationsIDHandler PutApplicationsIDHandler
+	// PutRuntimeQuickscanConfigHandler sets the operation handler for the put runtime quickscan config operation
+	PutRuntimeQuickscanConfigHandler PutRuntimeQuickscanConfigHandler
 	// PutRuntimeScanStartHandler sets the operation handler for the put runtime scan start operation
 	PutRuntimeScanStartHandler PutRuntimeScanStartHandler
 	// PutRuntimeScanStopHandler sets the operation handler for the put runtime scan stop operation
@@ -325,6 +335,9 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 	if o.GetPackagesIDApplicationResourcesHandler == nil {
 		unregistered = append(unregistered, "GetPackagesIDApplicationResourcesHandler")
 	}
+	if o.GetRuntimeQuickscanConfigHandler == nil {
+		unregistered = append(unregistered, "GetRuntimeQuickscanConfigHandler")
+	}
 	if o.GetRuntimeScanProgressHandler == nil {
 		unregistered = append(unregistered, "GetRuntimeScanProgressHandler")
 	}
@@ -348,6 +361,9 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 	}
 	if o.PutApplicationsIDHandler == nil {
 		unregistered = append(unregistered, "PutApplicationsIDHandler")
+	}
+	if o.PutRuntimeQuickscanConfigHandler == nil {
+		unregistered = append(unregistered, "PutRuntimeQuickscanConfigHandler")
 	}
 	if o.PutRuntimeScanStartHandler == nil {
 		unregistered = append(unregistered, "PutRuntimeScanStartHandler")
@@ -506,6 +522,10 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/runtime/quickscan/config"] = NewGetRuntimeQuickscanConfig(o.context, o.GetRuntimeQuickscanConfigHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/runtime/scan/progress"] = NewGetRuntimeScanProgress(o.context, o.GetRuntimeScanProgressHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -535,6 +555,10 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/applications/{id}"] = NewPutApplicationsID(o.context, o.PutApplicationsIDHandler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/runtime/quickscan/config"] = NewPutRuntimeQuickscanConfig(o.context, o.PutRuntimeQuickscanConfigHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
