@@ -13,6 +13,10 @@ global:
     ##
     registry: "ghcr.io/cisco-open"
 
+  ## Is this being installed under OpenShift restricted SCC?
+  ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
+  openShiftRestricted: false
+
 ## End of Global Values
 #######################################################################################
 
@@ -203,12 +207,31 @@ kubeclarity-postgresql:
   ## Setup database name and password
   existingSecret: kubeclarity-postgresql-secret
   postgresqlDatabase: kubeclarity
+  # secretKey: postgresql-password
 
-  ## Enable security context
-  containerSecurityContext:
+  serviceAccount:
     enabled: true
+  securityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: true
+    # fsGroup specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    fsGroup: 1001
+  containerSecurityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: true
+    # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
     runAsUser: 1001
     runAsNonRoot: true
+  volumePermissions:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: false
+    # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
+    securityContext:
+      runAsUser: 1001
+  shmVolume:
+    chmod:
+      # if using restricted SCC with runAsUser: "auto" (above) then set shmVolume.chmod.enabled to false
+      enabled: true
 
 # End of KubeClarity Postgres Values
 #######################################################################################

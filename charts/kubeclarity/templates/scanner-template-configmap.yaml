@@ -26,8 +26,10 @@ data:
           volumes:
           - name: tmp-volume
             emptyDir: {}
+          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
-            fsGroup: 1001           
+            fsGroup: 1001
+          {{- end }}         
           containers:
           - name: vulnerability-scanner
             image: '{{ .Values.global.docker.registry }}/kubeclarity-runtime-k8s-scanner:{{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "docker" "imageTag" }}'
@@ -94,8 +96,10 @@ data:
                 drop:
                 - all
               runAsNonRoot: true
+              {{- if not .Values.global.openShiftRestricted }}
               runAsGroup: 1001
               runAsUser: 1001
+              {{- end }}
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -137,8 +141,10 @@ data:
                 drop:
                   - all
               runAsNonRoot: true
+              {{- if not .Values.global.openShiftRestricted }}
               runAsGroup: 1001
               runAsUser: 1001
+              {{- end }}
               privileged: false
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
