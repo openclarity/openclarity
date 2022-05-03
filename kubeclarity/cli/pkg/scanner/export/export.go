@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strings"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
@@ -31,9 +32,15 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
-func Export(apiClient *client.KubeClarityAPIs, mergedResults *scanner.MergedResults, layerCommands []*image_helper.FsLayerCommand, id string) error {
+func Export(apiClient *client.KubeClarityAPIs,
+	mergedResults *scanner.MergedResults,
+	layerCommands []*image_helper.FsLayerCommand,
+	cisDockerBenchmarkResults dockle_types.AssessmentMap,
+	id string,
+) error {
+
 	// create ApplicationVulnerabilityScan from mergedResults
-	body := createApplicationVulnerabilityScan(mergedResults, layerCommands)
+	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, cisDockerBenchmarkResults)
 	// create post parameters
 	postParams := operations.NewPostApplicationsVulnerabilityScanIDParams().WithID(id).WithBody(body)
 
@@ -45,7 +52,11 @@ func Export(apiClient *client.KubeClarityAPIs, mergedResults *scanner.MergedResu
 	return nil
 }
 
-func createApplicationVulnerabilityScan(m *scanner.MergedResults, layerCommands []*image_helper.FsLayerCommand) *models.ApplicationVulnerabilityScan {
+func createApplicationVulnerabilityScan(m *scanner.MergedResults,
+	layerCommands []*image_helper.FsLayerCommand,
+	cisDockerBenchmarkResults dockle_types.AssessmentMap,
+) *models.ApplicationVulnerabilityScan {
+
 	return &models.ApplicationVulnerabilityScan{
 		Resources: []*models.ResourceVulnerabilityScan{
 			{
@@ -55,10 +66,39 @@ func createApplicationVulnerabilityScan(m *scanner.MergedResults, layerCommands 
 					ResourceType: getResourceType(m),
 					ResourceHash: m.Source.Hash,
 				},
-				ResourceLayerCommands: createResourceLayerCommands(layerCommands),
+				ResourceLayerCommands:     createResourceLayerCommands(layerCommands),
+				CisDockerBenchmarkResults: createCISDockerBenchmarkResults(cisDockerBenchmarkResults),
 			},
 		},
 	}
+}
+
+func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*models.CISDockerBenchmarkCodeInfo {
+	var ret []*models.CISDockerBenchmarkCodeInfo
+
+	for _, info := range results {
+		ret = append(ret, &models.CISDockerBenchmarkCodeInfo{
+			Assessments: createCISDockerBenchmarkAssessment(info.Assessments),
+			Code:        info.Code,
+			Level:       int64(info.Level),
+		})
+	}
+
+	return ret
+}
+
+func createCISDockerBenchmarkAssessment(assessments dockle_types.AssessmentSlice) []*models.CISDockerBenchmarkAssessment {
+	var ret []*models.CISDockerBenchmarkAssessment
+
+	for _, assessment := range assessments {
+		ret = append(ret, &models.CISDockerBenchmarkAssessment{
+			Code:     assessment.Code,
+			Desc:     assessment.Desc,
+			Filename: assessment.Filename,
+			Level:    int64(assessment.Level),
+		})
+	}
+	return ret
 }
 
 func createResourceLayerCommands(layerCommands []*image_helper.FsLayerCommand) []*models.ResourceLayerCommand {
