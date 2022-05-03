@@ -35,7 +35,7 @@ ui: ## Build UI
 .PHONY: cli
 cli: ## Build CLI
 	@(echo "Building CLI ..." )
-	@(cd cli && CGO_ENABLED=0 go build -ldflags "-X github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
+	@(cd cli && go build -ldflags "-X github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
 
 .PHONY: backend
 backend: ## Build Backend

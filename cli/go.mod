@@ -6,7 +6,6 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
 	github.com/openclarity/kubeclarity/api v0.0.0
 	github.com/openclarity/kubeclarity/shared v0.0.0
-	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/olekukonko/tablewriter v0.0.5
