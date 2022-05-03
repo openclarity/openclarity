@@ -26,13 +26,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/api/server/restapi/operations"
-	"github.com/cisco-open/kubei/backend/pkg/database"
-	"github.com/cisco-open/kubei/backend/pkg/types"
-	runtime_scan_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
-	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
-	"github.com/cisco-open/kubei/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
 )
 
 /* ### Start Handlers #### */

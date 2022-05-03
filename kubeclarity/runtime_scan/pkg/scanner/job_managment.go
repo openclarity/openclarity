@@ -30,11 +30,11 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/cisco-open/kubei/runtime_scan/pkg/config"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/types"
-	stringsutils "github.com/cisco-open/kubei/runtime_scan/pkg/utils/strings"
-	shared "github.com/cisco-open/kubei/shared/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/utils/k8s"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	stringsutils "github.com/openclarity/kubeclarity/runtime_scan/pkg/utils/strings"
+	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/k8s"
 )
 
 const (

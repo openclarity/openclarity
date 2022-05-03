@@ -18,7 +18,7 @@ package types
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
 )
 
 type ResourceType string

@@ -20,8 +20,8 @@ import (
 
 	"gotest.tools/assert"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
 )
 
 func TestCISDockerBenchmarkResultsFromBackendAPI(t *testing.T) {

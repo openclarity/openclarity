@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
 )
 
 func TestCVSS_ToCVSSBackendAPI(t *testing.T) {

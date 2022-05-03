@@ -26,14 +26,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/client"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/client/operations"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
-	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
-	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/client"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 type Reporter interface {

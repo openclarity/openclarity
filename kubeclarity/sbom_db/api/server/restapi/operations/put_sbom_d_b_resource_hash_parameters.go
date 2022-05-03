@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	"github.com/cisco-open/kubei/sbom_db/api/server/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/server/models"
 )
 
 // NewPutSbomDBResourceHashParams creates a new PutSbomDBResourceHashParams object

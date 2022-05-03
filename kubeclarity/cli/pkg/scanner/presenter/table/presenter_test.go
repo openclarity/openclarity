@@ -23,7 +23,7 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"gotest.tools/assert"
 
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 )
 
 func TestTablePresenter(t *testing.T) {

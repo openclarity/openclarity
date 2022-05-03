@@ -20,11 +20,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	"github.com/cisco-open/kubei/shared/pkg/analyzer/job"
-	"github.com/cisco-open/kubei/shared/pkg/job_manager"
-	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Analyzer interface {

@@ -24,17 +24,17 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	_export "github.com/cisco-open/kubei/cli/pkg/scanner/export"
-	"github.com/cisco-open/kubei/cli/pkg/scanner/presenter"
-	"github.com/cisco-open/kubei/cli/pkg/utils"
-	sharedconfig "github.com/cisco-open/kubei/shared/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
-	"github.com/cisco-open/kubei/shared/pkg/job_manager"
-	sharedscanner "github.com/cisco-open/kubei/shared/pkg/scanner"
-	"github.com/cisco-open/kubei/shared/pkg/scanner/job"
-	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
-	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
+	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
+	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
+	"github.com/openclarity/kubeclarity/cli/pkg/utils"
+	sharedconfig "github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	sharedscanner "github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/job"
+	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 // scanCmd represents the scan command.

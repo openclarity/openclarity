@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 # Project variables
 BINARY_NAME ?= kubeclarity
-DOCKER_REGISTRY ?= ghcr.io/kubeclarity
+DOCKER_REGISTRY ?= ghcr.io/openclarity
 VERSION ?= $(shell git rev-parse HEAD)
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
@@ -35,7 +35,7 @@ ui: ## Build UI
 .PHONY: cli
 cli: ## Build CLI
 	@(echo "Building CLI ..." )
-	@(cd cli && go build -ldflags "-X github.com/cisco-open/kubei/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
+	@(cd cli && go build -ldflags "-X github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
 
 .PHONY: backend
 backend: ## Build Backend

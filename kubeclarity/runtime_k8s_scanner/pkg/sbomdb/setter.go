@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cisco-open/kubei/sbom_db/api/client/client"
-	"github.com/cisco-open/kubei/sbom_db/api/client/client/operations"
-	"github.com/cisco-open/kubei/sbom_db/api/client/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
+	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/sbom_db/api/client/models"
 )
 
 type Setter interface {

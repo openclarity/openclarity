@@ -22,12 +22,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 
-	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
-	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi/operations"
-	_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/rest"
-	_scanner "github.com/cisco-open/kubei/runtime_scan/pkg/scanner"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/restapi/operations"
+	_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/rest"
+	_scanner "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
 
 type ImageContentAnalysisHandlerCallback func(*runtime_scan_models.ImageContentAnalysis) error
@@ -41,7 +41,7 @@ type Orchestrator struct {
 	sync.Mutex
 }
 
-//go:generate $GOPATH/bin/mockgen -destination=./mock_orchestrator.go -package=orchestrator github.com/cisco-open/kubei/runtime_scan/pkg/orchestrator VulnerabilitiesScanner
+//go:generate $GOPATH/bin/mockgen -destination=./mock_orchestrator.go -package=orchestrator github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator VulnerabilitiesScanner
 type VulnerabilitiesScanner interface {
 	Start(errChan chan struct{})
 	Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error

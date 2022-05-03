@@ -3,13 +3,13 @@ name: kubeclarity
 appVersion: latest
 description: Charts for KubeClarity deployment.
 version: latest
-home: https://github.com/cisco-open/kubei
-icon: https://github.com/cisco-open/kubei/raw/main/images/kubeclarity-logo.png
+home: https://github.com/openclarity/kubeclarity
+icon: https://github.com/openclarity/kubeclarity/raw/main/images/kubeclarity-logo.png
 sources:
-  - https://github.com/cisco-open/kubei
+  - https://github.com/openclarity/kubeclarity
 maintainers:
   - name: KubeClarity
-    url: https://github.com/cisco-open/kubei
+    url: https://github.com/openclarity/kubeclarity
 type: application
 dependencies:
   - name: postgresql

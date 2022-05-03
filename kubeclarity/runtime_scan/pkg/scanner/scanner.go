@@ -29,13 +29,13 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
-	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi/operations"
-	_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
-	_creds "github.com/cisco-open/kubei/runtime_scan/pkg/scanner/creds"
-	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
-	sliceutils "github.com/cisco-open/kubei/runtime_scan/pkg/utils/slice"
-	k8sutils "github.com/cisco-open/kubei/shared/pkg/utils/k8s"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/restapi/operations"
+	_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	_creds "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner/creds"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	sliceutils "github.com/openclarity/kubeclarity/runtime_scan/pkg/utils/slice"
+	k8sutils "github.com/openclarity/kubeclarity/shared/pkg/utils/k8s"
 )
 
 type Scanner struct {

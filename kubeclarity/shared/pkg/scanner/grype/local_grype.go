@@ -25,9 +25,9 @@ import (
 	"github.com/anchore/syft/syft/pkg/cataloger"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/shared/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/job_manager"
-	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type LocalScanner struct {

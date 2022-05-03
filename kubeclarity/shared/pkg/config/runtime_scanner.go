@@ -19,8 +19,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/cisco-open/kubei/shared/pkg/utils/creds"
-	"github.com/cisco-open/kubei/shared/pkg/utils/creds/secret"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds/secret"
 )
 
 const (

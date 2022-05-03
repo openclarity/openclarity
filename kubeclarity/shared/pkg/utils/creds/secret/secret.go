@@ -23,7 +23,7 @@ import (
 	"github.com/containers/image/v5/docker/reference"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/cisco-open/kubei/shared/pkg/utils/k8s"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/k8s"
 )
 
 const ImagePullSecretEnvVar = "K8S_IMAGE_PULL_SECRET" // nolint:gosec

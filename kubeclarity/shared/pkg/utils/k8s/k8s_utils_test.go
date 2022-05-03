@@ -34,14 +34,14 @@ func TestParseImageHash(t *testing.T) {
 		{
 			name: "valid image id",
 			args: args{
-				imageID: "docker-pullable://gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+				imageID: "docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
 			want: "6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 		},
 		{
 			name: "no image hash",
 			args: args{
-				imageID: "docker-pullable://gcr.io/development-infra-208909/kubei@sha256:",
+				imageID: "docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:",
 			},
 			want: "",
 		},
@@ -255,16 +255,16 @@ func TestParseImageID(t *testing.T) {
 		{
 			name: "image id with docker-pullable prefix",
 			args: args{
-				imageID: "docker-pullable://gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+				imageID: "docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
-			want: "gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 		},
 		{
 			name: "image id without docker-pullable prefix",
 			args: args{
-				imageID: "gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+				imageID: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
-			want: "gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 		},
 		{
 			name: "no image id",

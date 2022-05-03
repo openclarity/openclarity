@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	shared "github.com/cisco-open/kubei/shared/pkg/config"
+	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
 )
 
 const (

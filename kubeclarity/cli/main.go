@@ -16,7 +16,7 @@
 package main
 
 import (
-	"github.com/cisco-open/kubei/cli/cmd"
+	"github.com/openclarity/kubeclarity/cli/cmd"
 )
 
 func main() {

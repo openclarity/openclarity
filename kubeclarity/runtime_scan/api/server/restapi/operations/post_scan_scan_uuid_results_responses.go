@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
 )
 
 // PostScanScanUUIDResultsCreatedCode is the HTTP code returned for type PostScanScanUUIDResultsCreated
