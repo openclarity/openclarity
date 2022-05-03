@@ -22,9 +22,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
-	_config "github.com/cisco-open/kubei/runtime_scan/pkg/config"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
 
 const imagesToScan = 1

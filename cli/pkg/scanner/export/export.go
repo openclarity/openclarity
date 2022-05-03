@@ -22,13 +22,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"github.com/cisco-open/kubei/api/client/client"
-	"github.com/cisco-open/kubei/api/client/client/operations"
-	"github.com/cisco-open/kubei/api/client/models"
-	"github.com/cisco-open/kubei/cli/pkg/utils"
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
-	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/api/client/client"
+	"github.com/openclarity/kubeclarity/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/cli/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 func Export(apiClient *client.KubeClarityAPIs, mergedResults *scanner.MergedResults, layerCommands []*image_helper.FsLayerCommand, id string) error {

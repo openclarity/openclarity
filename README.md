@@ -72,7 +72,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
   * Merging of SBOM and vulnerabilities across different CI/CD stages
   * Export results to KubeClarity backend
 * API
-  * The API for KubeClarity can be found [here](https://github.com/cisco-open/kubei/blob/master/api/swagger.yaml)
+  * The API for KubeClarity can be found [here](https://github.com/openclarity/kubeclarity/blob/master/api/swagger.yaml)
     
 ## High level architecture
 
@@ -90,7 +90,7 @@ KubeClarity vulnerability scanner integrates with the following scanners:
 * [Grype](https://github.com/anchore/grype)
 * [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
 
-The integrations with the SBOM generators can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/cisco-open/kubei/tree/master/shared/pkg/scanner). 
+The integrations with the SBOM generators can be found [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/scanner). 
 To enable and configure the supported SBOM generators and vulnerability scanners, please check the "analyzer" and "scanner" config under the "vulnerability-scanner" section in Helm values.
 
 Contributions of integrations with additional tools are more than welcome!
@@ -100,7 +100,7 @@ Contributions of integrations with additional tools are more than welcome!
 1. Add Helm repo
 
    ```shell
-   helm repo add kubeclarity https://cisco-open.github.io/kubei
+   helm repo add kubeclarity https://openclarity.github.io/kubeclarity
    ```
 2. Save KubeClarity default chart values
     ```shell
@@ -176,14 +176,14 @@ The results can be exported to KubeClarity backend.
 ### Binary Distribution
 
 Download the release distribution for your OS from the [releases page](
-https://github.com/cisco-open/kubei/releases)
+https://github.com/openclarity/kubeclarity/releases)
 
 Unpack the `kubeclarity-cli` binary, add it to your PATH, and you are good to go!
 
 ### Docker Image
 
-A Docker image is available at `ghcr.io/cisco-open/kubeclarity-cli` with list of
-available tags [here](https://github.com/cisco-open/kubei/pkgs/container/kubeclarity-cli/versions).
+A Docker image is available at `ghcr.io/openclarity/kubeclarity-cli` with list of
+available tags [here](https://github.com/openclarity/kubeclarity/pkgs/container/kubeclarity-cli/versions).
 
 ### Local Compilation
 ```

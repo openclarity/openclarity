@@ -97,7 +97,7 @@ func GetAuthConfig(secrets []corev1.Secret, named reference.Named) (*authn.AuthC
 }
 
 // ParseImageHash extracts image hash from image ID
-// input: docker-pullable://gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
+// input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 // output: 6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 func ParseImageHash(imageID string) string {
 	index := strings.LastIndex(imageID, ":")
@@ -110,8 +110,8 @@ func ParseImageHash(imageID string) string {
 
 // ParseImageID remove "docker-pullable://" prefix from imageID if exists
 // https://github.com/kubernetes/kubernetes/issues/95968
-// input: docker-pullable://gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
-// output: gcr.io/development-infra-208909/kubei@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
+// input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
+// output: gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 func ParseImageID(imageID string) string {
 	return strings.TrimPrefix(imageID, "docker-pullable://")
 }

@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/cisco-open/kubei/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
 )
 
 // NewCreateProjectParams creates a new CreateProjectParams object,

@@ -23,7 +23,7 @@ import (
 	"github.com/anchore/grype/grype/presenter/models"
 	"gotest.tools/assert"
 
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 )
 
 func TestCreateResults(t *testing.T) {

@@ -18,7 +18,7 @@ package types
 import (
 	"testing"
 
-	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
 )
 
 func TestCVSSV3Metrics_getCVSSSeverity(t *testing.T) {

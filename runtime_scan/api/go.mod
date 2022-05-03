@@ -1,3 +1,3 @@
-module github.com/cisco-open/kubei/runtime_scan/api
+module github.com/openclarity/kubeclarity/runtime_scan/api
 
 go 1.17

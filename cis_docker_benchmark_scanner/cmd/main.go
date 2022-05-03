@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/scanner"
-	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/version"
-	shared "github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/scanner"
+	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version"
+	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
 )
 
 func versionPrint(_ *cli.Context) {

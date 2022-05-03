@@ -21,15 +21,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cisco-open/kubei/cli/pkg"
-	_export "github.com/cisco-open/kubei/cli/pkg/analyzer/export"
-	"github.com/cisco-open/kubei/cli/pkg/utils"
-	sharedanalyzer "github.com/cisco-open/kubei/shared/pkg/analyzer"
-	"github.com/cisco-open/kubei/shared/pkg/analyzer/job"
-	"github.com/cisco-open/kubei/shared/pkg/converter"
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
-	"github.com/cisco-open/kubei/shared/pkg/job_manager"
-	sharedutils "github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/cli/pkg"
+	_export "github.com/openclarity/kubeclarity/cli/pkg/analyzer/export"
+	"github.com/openclarity/kubeclarity/cli/pkg/utils"
+	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 const inputSBOMName = "input-sbom"

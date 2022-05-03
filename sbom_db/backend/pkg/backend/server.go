@@ -22,9 +22,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/sbom_db/api/server/restapi"
-	"github.com/cisco-open/kubei/sbom_db/api/server/restapi/operations"
-	"github.com/cisco-open/kubei/sbom_db/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/sbom_db/api/server/restapi"
+	"github.com/openclarity/kubeclarity/sbom_db/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/database"
 )
 
 type Server struct {

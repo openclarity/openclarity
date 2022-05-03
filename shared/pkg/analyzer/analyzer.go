@@ -16,7 +16,7 @@
 package analyzer
 
 import (
-	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Results struct {

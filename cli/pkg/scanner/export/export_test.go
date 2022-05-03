@@ -21,8 +21,8 @@ import (
 
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"github.com/cisco-open/kubei/api/client/models"
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 )
 
 func Test_getScannerInfo(t *testing.T) {

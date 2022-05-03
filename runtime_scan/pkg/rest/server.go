@@ -23,9 +23,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
-	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi"
-	"github.com/cisco-open/kubei/runtime_scan/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/restapi"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/restapi/operations"
 )
 
 type Server struct {

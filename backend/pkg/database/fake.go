@@ -22,9 +22,9 @@ import (
 	faker "github.com/bxcodec/faker/v3"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/backend/pkg/types"
-	"github.com/cisco-open/kubei/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
 )
 
 var fakeAnalyzers = map[int][]string{

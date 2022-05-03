@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
 )
 
 // PostScanScanUUIDContentAnalysisReader is a Reader for the PostScanScanUUIDContentAnalysis structure.

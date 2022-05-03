@@ -1,4 +1,4 @@
-module github.com/cisco-open/kubei/sbom_db/api
+module github.com/openclarity/kubeclarity/sbom_db/api
 
 go 1.17
 

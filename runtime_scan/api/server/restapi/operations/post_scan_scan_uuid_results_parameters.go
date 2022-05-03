@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
 )
 
 // NewPostScanScanUUIDResultsParams creates a new PostScanScanUUIDResultsParams object

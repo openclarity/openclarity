@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"github.com/cisco-open/kubei/api/client/models"
+	"github.com/openclarity/kubeclarity/api/client/models"
 )
 
 // GetPackagesIDApplicationResourcesReader is a Reader for the GetPackagesIDApplicationResources structure.

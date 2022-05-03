@@ -18,7 +18,7 @@ package database
 import (
 	"gorm.io/gorm"
 
-	"github.com/cisco-open/kubei/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
 )
 
 const (

@@ -30,8 +30,8 @@ import (
 	"github.com/google/uuid"
 	purl "github.com/package-url/packageurl-go"
 
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
-	cdx_helper "github.com/cisco-open/kubei/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 )
 
 type propertiesInfo struct {

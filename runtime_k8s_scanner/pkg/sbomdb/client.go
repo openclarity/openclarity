@@ -19,7 +19,7 @@ import (
 	transport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/cisco-open/kubei/sbom_db/api/client/client"
+	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
 )
 
 type Client struct {

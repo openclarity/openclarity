@@ -1,10 +1,10 @@
-module github.com/cisco-open/kubei/runtime_scan
+module github.com/openclarity/kubeclarity/runtime_scan
 
 go 1.17
 
 require (
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/containers/image/v5 v5.19.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/loads v0.21.0
@@ -139,8 +139,8 @@ require (
 )
 
 replace (
-	github.com/cisco-open/kubei/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0 => ./api
-	github.com/cisco-open/kubei/sbom_db/api v0.0.0 => ./../sbom_db/api
-	github.com/cisco-open/kubei/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0 => ./api
+	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../sbom_db/api
+	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
 )

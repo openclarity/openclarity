@@ -11,7 +11,7 @@ global:
   docker:
     ## Configure registry
     ##
-    registry: "ghcr.io/cisco-open"
+    registry: "ghcr.io/openclarity"
 
   ## Is this being installed under OpenShift restricted SCC?
   ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
