@@ -150,7 +150,7 @@ Contributions of integrations with additional tools are more than welcome!
            ```
         2. Run the backend using demo data:
            ```shell
-           docker run -p 8080:8080 -e FAKE_RUNTIME_SCANNER=true -e FAKE_DATA=true -e ENABLE_DB_INFO_LOGS=true -e DATABASE_DRIVER=LOCAL ghcr.io/kubeclarity/kubeclarity:test run
+           docker run -p 8080:8080 -e FAKE_RUNTIME_SCANNER=true -e FAKE_DATA=true -e ENABLE_DB_INFO_LOGS=true -e DATABASE_DRIVER=LOCAL ghcr.io/openclarity/kubeclarity:test run
            ```
     2. Local build:
         1. Build UI and backend
