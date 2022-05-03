@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	dockle_config "github.com/Portshift/dockle/config"
@@ -28,6 +27,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/openclarity/kubeclarity/cli/pkg/config"
 	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
@@ -185,9 +185,9 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
 
-	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig.SharedConfig, cisDockerBenchmarkEnabled)
+	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig, cisDockerBenchmarkEnabled)
 	if err != nil {
-		logger.Fatalf("Failed get dockerfile vulnerabilities: %v", err)
+		logger.Fatalf("Failed to get CIS Docker benchmark results: %v", err)
 	}
 
 	if export {
@@ -231,7 +231,7 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 }
 
 func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
-	source string, config *sharedconfig.Config,
+	source string, config *config.Config,
 	needed bool) (dockle_types.AssessmentMap, error) {
 
 	if sourceType != sharedutils.IMAGE || !needed {
@@ -249,19 +249,19 @@ func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 	return assessmentMap, nil
 }
 
-func createDockleConfig(config *sharedconfig.Config, source string) *dockle_config.Config {
+func createDockleConfig(config *config.Config, source string) *dockle_config.Config {
 	var username, password string
-	if len(config.Registry.Auths) > 0 {
-		username = config.Registry.Auths[0].Username
-		password = config.Registry.Auths[0].Password
+	if len(config.SharedConfig.Registry.Auths) > 0 {
+		username = config.SharedConfig.Registry.Auths[0].Username
+		password = config.SharedConfig.Registry.Auths[0].Password
 	}
 	return &dockle_config.Config{
 		Debug:     log.GetLevel() == log.DebugLevel,
-		Timeout:   60 * time.Second,
+		Timeout:   config.TimeOut,
 		Username:  username,
 		Password:  password,
-		Insecure:  config.Registry.SkipVerifyTLS,
-		NonSSL:    config.Registry.UseHTTP,
+		Insecure:  config.SharedConfig.Registry.SkipVerifyTLS,
+		NonSSL:    config.SharedConfig.Registry.UseHTTP,
 		ImageName: source,
 	}
 }

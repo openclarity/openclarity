@@ -17,6 +17,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"time"
 
 	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
 )
@@ -24,6 +25,7 @@ import (
 const (
 	LogLevel      = "LOG_LEVEL"
 	EnableJSONLog = "ENABLE_JSON_LOG"
+	TimeOut       = "TIMEOUT"
 )
 
 type Config struct {
@@ -31,6 +33,7 @@ type Config struct {
 	EnableJSONLog bool
 	Backend       *Backend
 	SharedConfig  *shared.Config
+	TimeOut       time.Duration
 }
 
 func LoadConfig() *Config {
@@ -39,6 +42,7 @@ func LoadConfig() *Config {
 		LogLevel:      viper.GetString(LogLevel),
 		EnableJSONLog: viper.GetBool(EnableJSONLog),
 		Backend:       loadBackendConfig(),
+		TimeOut:       viper.GetDuration(TimeOut),
 		SharedConfig: &shared.Config{
 			Registry:       loadRegistryConfig(),
 			Analyzer:       shared.LoadAnalyzerConfig(),
@@ -51,4 +55,5 @@ func LoadConfig() *Config {
 func setConfigDefaults() {
 	viper.SetDefault(LogLevel, "info")
 	viper.SetDefault(EnableJSONLog, false)
+	viper.SetDefault(TimeOut, 300*time.Second)
 }

@@ -207,7 +207,7 @@ func Test_getCVSS(t *testing.T) {
 
 func Test_createCISDockerBenchmarkAssesment(t *testing.T) {
 	type args struct {
-		assesments dockle_types.AssessmentSlice
+		assessments dockle_types.AssessmentSlice
 	}
 	tests := []struct {
 		name string
@@ -217,14 +217,14 @@ func Test_createCISDockerBenchmarkAssesment(t *testing.T) {
 		{
 			name: "assesment slice is empty",
 			args: args{
-				assesments: dockle_types.AssessmentSlice{},
+				assessments: dockle_types.AssessmentSlice{},
 			},
 			want: nil,
 		},
 		{
 			name: "assesment slice is not empty",
 			args: args{
-				assesments: dockle_types.AssessmentSlice{
+				assessments: dockle_types.AssessmentSlice{
 					{
 						Code:     "testCode",
 						Level:    1,
@@ -245,7 +245,7 @@ func Test_createCISDockerBenchmarkAssesment(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := createCISDockerBenchmarkAssesment(tt.args.assesments); !reflect.DeepEqual(got, tt.want) {
+			if got := createCISDockerBenchmarkAssessment(tt.args.assessments); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("createCISDockerBenchmarkAssesment() = %v, want %v", got, tt.want)
 			}
 		})

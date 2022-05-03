@@ -78,7 +78,7 @@ func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*mode
 
 	for _, info := range results {
 		ret = append(ret, &models.CISDockerBenchmarkCodeInfo{
-			Assessments: createCISDockerBenchmarkAssesment(info.Assessments),
+			Assessments: createCISDockerBenchmarkAssessment(info.Assessments),
 			Code:        info.Code,
 			Level:       int64(info.Level),
 		})
@@ -87,15 +87,15 @@ func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*mode
 	return ret
 }
 
-func createCISDockerBenchmarkAssesment(assesments dockle_types.AssessmentSlice) []*models.CISDockerBenchmarkAssessment {
+func createCISDockerBenchmarkAssessment(assessments dockle_types.AssessmentSlice) []*models.CISDockerBenchmarkAssessment {
 	var ret []*models.CISDockerBenchmarkAssessment
 
-	for _, assesment := range assesments {
+	for _, assessment := range assessments {
 		ret = append(ret, &models.CISDockerBenchmarkAssessment{
-			Code:     assesment.Code,
-			Desc:     assesment.Desc,
-			Filename: assesment.Filename,
-			Level:    int64(assesment.Level),
+			Code:     assessment.Code,
+			Desc:     assessment.Desc,
+			Filename: assessment.Filename,
+			Level:    int64(assessment.Level),
 		})
 	}
 	return ret
