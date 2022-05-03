@@ -22,7 +22,7 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/cisco-open/kubei/backend/pkg/types"
+	"github.com/openclarity/kubeclarity/backend/pkg/types"
 )
 
 func TestCreatePackage(t *testing.T) {

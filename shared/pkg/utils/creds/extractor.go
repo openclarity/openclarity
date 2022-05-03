@@ -22,10 +22,10 @@ import (
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/shared/pkg/utils/creds/ecr"
-	"github.com/cisco-open/kubei/shared/pkg/utils/creds/gcr"
-	"github.com/cisco-open/kubei/shared/pkg/utils/creds/secret"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds/ecr"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds/gcr"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds/secret"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image"
 )
 
 type CredExtractor struct {

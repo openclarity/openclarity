@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 )
 
 // TODO: maybe we need to extend the unified config.

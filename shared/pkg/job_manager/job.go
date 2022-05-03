@@ -18,8 +18,8 @@ package job_manager // nolint:revive,stylecheck
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/shared/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Job interface {

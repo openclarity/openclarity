@@ -23,10 +23,10 @@ import (
 	transport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/cisco-open/kubei/cis_docker_benchmark_scanner/pkg/config"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/client"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/client/operations"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/client"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
 )
 
 type Reporter interface {

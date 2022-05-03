@@ -21,8 +21,8 @@ import (
 
 	"gotest.tools/assert"
 
-	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 )
 
 func Test_createPackagesVulnerabilitiesScan(t *testing.T) {

@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 )
 
 type Presenter struct {

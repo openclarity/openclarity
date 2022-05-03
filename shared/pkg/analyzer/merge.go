@@ -24,8 +24,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
-	"github.com/cisco-open/kubei/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type componentKey string // Unique identification of a package (name and version)

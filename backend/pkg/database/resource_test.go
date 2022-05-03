@@ -24,9 +24,9 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/assert"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/backend/pkg/types"
-	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
 )
 
 type vulnerabilityInfo struct {

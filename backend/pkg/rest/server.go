@@ -26,12 +26,12 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/api/server/restapi"
-	"github.com/cisco-open/kubei/api/server/restapi/operations"
-	"github.com/cisco-open/kubei/backend/pkg/common"
-	"github.com/cisco-open/kubei/backend/pkg/database"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/orchestrator"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/restapi"
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/pkg/common"
+	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
 )
 
 type Server struct {

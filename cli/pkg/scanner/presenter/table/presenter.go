@@ -23,8 +23,8 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 
-	"github.com/cisco-open/kubei/shared/pkg/scanner"
-	utils "github.com/cisco-open/kubei/shared/pkg/utils/vulnerability"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	utils "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 type Presenter struct {

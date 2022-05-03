@@ -24,15 +24,15 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/analyze"
-	_config "github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/config"
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/report"
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/sbomdb"
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/scan"
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
-	"github.com/cisco-open/kubei/runtime_scan/api/client/models"
-	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/analyze"
+	_config "github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/report"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/sbomdb"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/scan"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 const (

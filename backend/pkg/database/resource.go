@@ -24,11 +24,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/api/server/restapi/operations"
-	"github.com/cisco-open/kubei/backend/pkg/types"
-	runtime_scan_models "github.com/cisco-open/kubei/runtime_scan/api/server/models"
-	"github.com/cisco-open/kubei/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
 )
 
 const (
@@ -73,7 +73,7 @@ type GetApplicationResourcesParams struct {
 	RuntimeScanApplicationIDs []string
 }
 
-//go:generate $GOPATH/bin/mockgen -destination=./mock_resource_table.go -package=database github.com/cisco-open/kubei/backend/pkg/database ResourceTable
+//go:generate $GOPATH/bin/mockgen -destination=./mock_resource_table.go -package=database github.com/openclarity/kubeclarity/backend/pkg/database ResourceTable
 type ResourceTable interface {
 	Create(resource *Resource) error
 	GetApplicationResourcesAndTotal(params GetApplicationResourcesParams) ([]ResourceView, int64, error)

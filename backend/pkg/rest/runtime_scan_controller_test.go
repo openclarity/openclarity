@@ -23,9 +23,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	"github.com/cisco-open/kubei/api/server/models"
-	"github.com/cisco-open/kubei/runtime_scan/pkg/orchestrator"
-	_types "github.com/cisco-open/kubei/runtime_scan/pkg/types"
+	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
 
 func Test_setOrUpdateScanFailDataForImage(t *testing.T) {

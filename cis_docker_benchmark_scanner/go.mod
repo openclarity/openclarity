@@ -1,12 +1,12 @@
-module github.com/cisco-open/kubei/cis_docker_benchmark_scanner
+module github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner
 
 go 1.17
 
 require (
 	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0
-	github.com/cisco-open/kubei/shared v0.0.0
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/sirupsen/logrus v1.8.1
@@ -182,8 +182,8 @@ require (
 )
 
 replace (
-	github.com/cisco-open/kubei/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	github.com/cisco-open/kubei/runtime_scan/api v0.0.0 => ./../runtime_scan/api
-	github.com/cisco-open/kubei/sbom_db/api v0.0.0 => ./../sbom_db/api
-	github.com/cisco-open/kubei/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0 => ./../runtime_scan/api
+	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../sbom_db/api
+	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
 )

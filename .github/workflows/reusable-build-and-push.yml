@@ -23,7 +23,7 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-  apiclarity:
+  kubeclarity:
     needs: timestamp
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/cisco-open/kubeclarity:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -91,7 +91,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/cisco-open/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
           file: Dockerfile.cis_docker_benchmark_scanner
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -130,7 +130,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/cisco-open/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
           file: Dockerfile.runtime_k8s_scanner
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -169,7 +169,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/cisco-open/kubeclarity-sbom-db:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
           file: Dockerfile.sbom_db
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -208,7 +208,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/cisco-open/kubeclarity-cli:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-cli:${{ inputs.image_tag }}
           file: Dockerfile.cli
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache

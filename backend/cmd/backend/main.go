@@ -24,10 +24,10 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"github.com/cisco-open/kubei/backend/pkg/backend"
-	"github.com/cisco-open/kubei/backend/pkg/config"
-	"github.com/cisco-open/kubei/backend/pkg/database"
-	"github.com/cisco-open/kubei/backend/pkg/version"
+	"github.com/openclarity/kubeclarity/backend/pkg/backend"
+	"github.com/openclarity/kubeclarity/backend/pkg/config"
+	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/pkg/version"
 )
 
 func run(c *cli.Context) {

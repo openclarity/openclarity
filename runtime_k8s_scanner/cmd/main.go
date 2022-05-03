@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/scanner"
-	"github.com/cisco-open/kubei/runtime_k8s_scanner/pkg/version"
-	shared "github.com/cisco-open/kubei/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/scanner"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version"
+	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
 )
 
 func run(c *cli.Context) {

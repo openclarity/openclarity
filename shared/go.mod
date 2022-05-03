@@ -1,4 +1,4 @@
-module github.com/cisco-open/kubei/shared
+module github.com/openclarity/kubeclarity/shared
 
 go 1.17
 

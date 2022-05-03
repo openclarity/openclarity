@@ -26,12 +26,12 @@ import (
 	"github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/cisco-open/kubei/shared/pkg/analyzer"
-	"github.com/cisco-open/kubei/shared/pkg/config"
-	"github.com/cisco-open/kubei/shared/pkg/formatter"
-	"github.com/cisco-open/kubei/shared/pkg/job_manager"
-	"github.com/cisco-open/kubei/shared/pkg/utils"
-	"github.com/cisco-open/kubei/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 const AnalyzerName = "syft"
