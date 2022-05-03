@@ -21,9 +21,13 @@ import (
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	dockle_config "github.com/Portshift/dockle/config"
+	dockle_run "github.com/Portshift/dockle/pkg"
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/openclarity/kubeclarity/cli/pkg/config"
 	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
@@ -72,6 +76,8 @@ func init() {
 		"ID of a defined application to associate the exported vulnerability scan")
 	scanCmd.Flags().BoolP("export", "e", false,
 		"export vulnerability scan results to the backend")
+	scanCmd.Flags().Bool("cis-docker-benchmark-scan", false,
+		"enables CIS docker benchmark scan. (relevant only for image source type)")
 }
 
 // nolint:cyclop
@@ -109,6 +115,11 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	appID, err := cmd.Flags().GetString("application-id")
 	if err != nil {
 		logger.Fatalf("Unable to get application ID: %v", err)
+	}
+
+	cisDockerBenchmarkEnabled, err := cmd.Flags().GetBool("cis-docker-benchmark-scan")
+	if err != nil {
+		logger.Fatalf("Unable to get cis-docker-benchmark-scan flag: %v", err)
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
@@ -174,11 +185,16 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
 
+	cisDockerBenchmarkResults, err := getCisDockerBenchmarkResultsIfNeeded(sourceType, args[0], appConfig, cisDockerBenchmarkEnabled)
+	if err != nil {
+		logger.Fatalf("Failed to get CIS Docker benchmark results: %v", err)
+	}
+
 	if export {
 		logger.Infof("Exporting vulnerability scan results to the backend: %s", appConfig.Backend.Host)
 		apiClient := utils.NewHTTPClient(appConfig.Backend)
 		// TODO generate application ID
-		if err := _export.Export(apiClient, mergedResults, layerCommands, appID); err != nil {
+		if err := _export.Export(apiClient, mergedResults, layerCommands, cisDockerBenchmarkResults, appID); err != nil {
 			logger.Errorf("Failed to export vulnerability scan results to the backend: %v", err)
 		}
 	}
@@ -212,4 +228,40 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 	}
 
 	return layerCommands, nil
+}
+
+func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
+	source string, config *config.Config,
+	needed bool) (dockle_types.AssessmentMap, error) {
+
+	if sourceType != sharedutils.IMAGE || !needed {
+		return nil, nil
+	}
+
+	assessmentMap, err := dockle_run.RunFromConfig(createDockleConfig(config, source))
+	if err != nil {
+		return nil, fmt.Errorf("failed to run dockle: %w", err)
+	}
+
+	logger.Infof("Image was scanned for CIS docker benchmark results.")
+	logger.Debugf("assessmentMap=%+v", assessmentMap)
+
+	return assessmentMap, nil
+}
+
+func createDockleConfig(config *config.Config, source string) *dockle_config.Config {
+	var username, password string
+	if len(config.SharedConfig.Registry.Auths) > 0 {
+		username = config.SharedConfig.Registry.Auths[0].Username
+		password = config.SharedConfig.Registry.Auths[0].Password
+	}
+	return &dockle_config.Config{
+		Debug:     log.GetLevel() == log.DebugLevel,
+		Timeout:   config.TimeOut,
+		Username:  username,
+		Password:  password,
+		Insecure:  config.SharedConfig.Registry.SkipVerifyTLS,
+		NonSSL:    config.SharedConfig.Registry.UseHTTP,
+		ImageName: source,
+	}
 }

@@ -35,7 +35,7 @@ ui: ## Build UI
 .PHONY: cli
 cli: ## Build CLI
 	@(echo "Building CLI ..." )
-	@(cd cli && go build -ldflags "-X github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
+	@(cd cli && CGO_ENABLED=0 go build -ldflags "-X github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${VERSION}" -o bin/cli ./main.go && ls -l bin/)
 
 .PHONY: backend
 backend: ## Build Backend
@@ -149,7 +149,7 @@ push-docker-cis-docker-benchmark-scanner: docker-cis-docker-benchmark-scanner ##
 .PHONY: test
 test: ## Run Unit Tests
 	@(cd backend && go test ./...)
-	@(cd cli && go test ./...)
+	@(cd cli && CGO_ENABLED=0 go test ./...)
 	@(cd shared && go test ./...)
 	@(cd runtime_scan && go test ./...)
 	@(cd sbom_db/backend && go test ./...)
