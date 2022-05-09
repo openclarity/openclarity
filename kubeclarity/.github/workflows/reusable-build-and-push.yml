@@ -49,7 +49,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
@@ -88,7 +88,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
@@ -127,7 +127,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
@@ -166,7 +166,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
@@ -205,7 +205,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-cli:${{ inputs.image_tag }}
