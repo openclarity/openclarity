@@ -12,6 +12,11 @@ on:
         type: string
         description: 'If set to true, push the image.'
         default: false
+      upload:
+        required: false
+        type: string
+        description: 'If set to true, upload the image.'
+        default: false
 
 jobs:
   timestamp:
@@ -55,12 +60,19 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
+          outputs: type=docker,dest=/tmp/kubeclarity.tar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: kubeclarity
+          path: /tmp/kubeclarity.tar
 
   cis_docker_benchmark_scanner:
     needs: timestamp
@@ -94,12 +106,19 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
           file: Dockerfile.cis_docker_benchmark_scanner
           push: ${{ inputs.push }}
+          outputs: type=docker,dest=/tmp/cis_docker_benchmark_scanner.tar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cis_docker_benchmark_scanner
+          path: /tmp/cis_docker_benchmark_scanner.tar
 
   runtime_k8s_scanner:
     needs: timestamp
@@ -133,12 +152,19 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
           file: Dockerfile.runtime_k8s_scanner
           push: ${{ inputs.push }}
+          outputs: type=docker,dest=/tmp/runtime_k8s_scanner.tar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: runtime_k8s_scanner
+          path: /tmp/runtime_k8s_scanner.tar
 
   sbom_db:
     needs: timestamp
@@ -172,12 +198,19 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
           file: Dockerfile.sbom_db
           push: ${{ inputs.push }}
+          outputs: type=docker,dest=/tmp/kubeclarity-sbom-db.tar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             VERSION=${{ inputs.image_tag }}
             BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: kubeclarity-sbom-db
+          path: /tmp/kubeclarity-sbom-db.tar
 
   cli:
     needs: timestamp

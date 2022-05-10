@@ -243,3 +243,8 @@ gomod-tidy:
 	cd runtime_scan && go mod tidy
 	cd runtime_k8s_scanner && go mod tidy
 	cd cis_docker_benchmark_scanner && go mod tidy
+
+.PHONY: e2e
+e2e:
+	@echo "Running e2e tests ..."
+	cd e2e && export DOCKER_TAG=${DOCKER_TAG} && go test .
