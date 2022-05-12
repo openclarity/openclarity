@@ -27,11 +27,11 @@ type State struct {
 type SchedulerParams struct {
 	Namespaces                    []string
 	CisDockerBenchmarkScanEnabled bool
-	Interval                      int64
-	StartTime                     time.Time
-	SingleScan bool
+	// interval in seconds
+	IntervalSec int64
+	StartTime   time.Time
+	SingleScan  bool
 }
-
 
 const (
 	ByDaysScheduleScanConfig  = "ByDaysScheduleScanConfig"
@@ -73,9 +73,9 @@ func (s *Scheduler) Init() {
 	s.Schedule(&SchedulerParams{
 		Namespaces:                    scanConfig.Namespaces,
 		CisDockerBenchmarkScanEnabled: scanConfig.CisDockerBenchmarkScanEnabled,
-		Interval:                      sched.Interval,
+		IntervalSec:                   sched.Interval,
 		StartTime:                     startTime,
-		SingleScan: scanConfig.ScanConfigType().ScheduleScanConfigType() == SingleScheduleScanConfig,
+		SingleScan:                    scanConfig.ScanConfigType().ScheduleScanConfigType() == SingleScheduleScanConfig,
 	})
 }
 
@@ -84,7 +84,7 @@ func (s *Scheduler) Init() {
 // we take the number of seconds since startTime to timeNow, and perform a modolu in order to get the time left from now to the the next scan.
 func calculateNextScanTimeOnStart(timeNow time.Time, s *database.Scheduler) (time.Time, error) {
 	var nextScanTime time.Time
-	interval := time.Duration(s.Interval)
+	intervalSec := time.Duration(s.Interval)
 
 	// if first scan didn't started yet
 	if s.LastScanTime == "" {
@@ -93,23 +93,24 @@ func calculateNextScanTimeOnStart(timeNow time.Time, s *database.Scheduler) (tim
 			return time.Time{}, err
 		}
 		// if first scan start time has passed, need to add interval until start time is after or equal to time now
-		for startTime.Before(timeNow) {
-			startTime = startTime.Add(interval)
+		if startTime.Before(timeNow) {
+			timePassedSinceStartTimeSec := timeNow.Sub(startTime)  / time.Second
+			remainingInterval := timePassedSinceStartTimeSec % intervalSec
+			startTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
 		}
 		return startTime, nil
 	}
 
 	// if first scan already happened, then lastScanTime will be set.
-	// need to
 	lastScanTime, err := time.Parse(time.RFC3339, s.LastScanTime)
 	if err != nil {
 		return time.Time{}, err
 	}
 
-	timePassedSinceLastScan := timeNow.Sub(lastScanTime)
-	timePassedSinceLastScan = timePassedSinceLastScan / time.Second
-	timePassedSinceLastScan = timePassedSinceLastScan % interval
-	nextScanTime = timeNow.Add((interval - timePassedSinceLastScan) * time.Second)
+	// last scan time is before time now.
+	timePassedSinceLastScanSec := timeNow.Sub(lastScanTime) / time.Second
+	remainingInterval := timePassedSinceLastScanSec % intervalSec
+	nextScanTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
 	return nextScanTime, nil
 }
 
@@ -125,7 +126,7 @@ func (s *Scheduler) Schedule(params *SchedulerParams) {
 	if err := s.dbHandler.SchedulerTable().UpdateStartTime(time.Now().UTC().Format(time.RFC3339)); err != nil {
 		log.Errorf("Failed to update start time: %v", err)
 	}
-	if err := s.dbHandler.SchedulerTable().UpdateInterval(params.Interval); err != nil {
+	if err := s.dbHandler.SchedulerTable().UpdateInterval(params.IntervalSec); err != nil {
 		log.Errorf("Failed to update interval: %v", err)
 	}
 }
@@ -141,9 +142,9 @@ func getStartsIn(startTime time.Time) time.Duration {
 
 func (s *Scheduler) spin(params *SchedulerParams, startsIn time.Duration) {
 	log.Errorf("Starting a new schedule scan. interval: %v, start time: %v, start in(sec): %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
-		params.Interval, params.StartTime, startsIn, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
+		params.IntervalSec, params.StartTime, startsIn, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
-	interval := time.Duration(params.Interval) * time.Second
+	interval := time.Duration(params.IntervalSec)
 
 	timer := time.NewTimer(startsIn)
 	select {

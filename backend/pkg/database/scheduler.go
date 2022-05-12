@@ -40,6 +40,7 @@ type Scheduler struct {
 	LastScanTime string `json:"last_scan_time,omitempty" gorm:"column:last_scan_time"`
 	StartTime string `json:"start_time,omitempty" gorm:"column:start_time"`
 	Config string `json:"config,omitempty" gorm:"column:config"`
+	// Interval saved in seconds
 	Interval int64 `json:"interval,omitempty" gorm:"column:interval"`
 }
 

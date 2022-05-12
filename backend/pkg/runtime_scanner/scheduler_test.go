@@ -2,7 +2,6 @@ package runtime_scanner
 
 import (
 	"gotest.tools/assert"
-	"reflect"
 	"testing"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 )
 
 func Test_calculateNextScanTime(t *testing.T) {
-	timeNow, err := time.Parse(time.RFC3339, "2022-05-08T18:23:21+03:00")
+	timeNow, err := time.Parse(time.RFC3339, "2022-05-08T18:23:21+00:00")
 	assert.NilError(t, err)
 
 	type args struct {
@@ -83,7 +82,7 @@ func Test_calculateNextScanTime(t *testing.T) {
 				t.Errorf("calculateNextScanTimeOnStart() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !got.Equal(tt.want) {
 				t.Errorf("calculateNextScanTimeOnStart() got = %v, want %v", got, tt.want)
 			}
 		})

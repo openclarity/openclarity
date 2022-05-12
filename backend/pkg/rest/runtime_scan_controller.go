@@ -323,7 +323,8 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 		if err != nil {
 			return err
 		}
-		interval = 0
+		// set interval to a positive value so we will not crash when starting ticker in Scheduler.spin. This will not be used.
+		interval = 1
 	case runtime_scanner.WeeklyScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.WeeklyScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow, scanConfig)
@@ -334,7 +335,7 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	schedParams := &runtime_scanner.SchedulerParams{
 		Namespaces:                    config.Namespaces,
 		CisDockerBenchmarkScanEnabled: config.CisDockerBenchmarkScanEnabled,
-		Interval:                      interval,
+		IntervalSec:                   interval,
 		StartTime:                     startTime,
 		SingleScan:                    singleScan,
 	}
