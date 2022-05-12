@@ -10,11 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-<<<<<<< HEAD
-	"github.com/cisco-open/kubei/api/server/models"
-=======
 	"github.com/openclarity/kubeclarity/api/server/models"
->>>>>>> scheduele scan api
 )
 
 // PutRuntimeScheduleScanConfigCreatedCode is the HTTP code returned for type PutRuntimeScheduleScanConfigCreated

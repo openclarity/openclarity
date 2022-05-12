@@ -15,11 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-<<<<<<< HEAD
-	"github.com/cisco-open/kubei/api/client/models"
-=======
 	"github.com/openclarity/kubeclarity/api/client/models"
->>>>>>> scheduele scan api
 )
 
 // NewPutRuntimeScheduleScanConfigParams creates a new PutRuntimeScheduleScanConfigParams object,
