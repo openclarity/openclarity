@@ -1,7 +1,7 @@
 import React from 'react';
-import { isEmpty, isNumber, isUndefined } from 'lodash';
+import { isUndefined } from 'lodash';
 import { FETCH_METHODS } from 'hooks';
-import FormWrapper, { SelectField, MultiselectField, TextField } from 'components/Form';
+import FormWrapper, { SelectField, MultiselectField, TextField, validators } from 'components/Form';
 import Modal from 'components/Modal';
 import { APPLICATION_TYPE_ITEMS } from './utils';
 
@@ -11,10 +11,6 @@ export const APP_FIELD_NAMES = {
     LABELS: "labels",
     ENVIRONMENTS: "environments"
 }
-
-const validateRequired = value => (
-    isEmpty(value) && !isNumber(value) && value !== 0 ? "This field is required" : undefined
-);
 
 const validateLabel = labels => {
     let hasError = false;
@@ -32,8 +28,8 @@ const validateLabel = labels => {
 
 const FormFields = () => (
     <React.Fragment>
-        <TextField name={APP_FIELD_NAMES.NAME} label="Application name" validate={validateRequired} />
-        <SelectField name={APP_FIELD_NAMES.TYPE} label="Type" items={APPLICATION_TYPE_ITEMS} validate={validateRequired} />
+        <TextField name={APP_FIELD_NAMES.NAME} label="Application name" validate={validators.validateRequired} />
+        <SelectField name={APP_FIELD_NAMES.TYPE} label="Type" items={APPLICATION_TYPE_ITEMS} validate={validators.validateRequired} />
         <MultiselectField
             name={APP_FIELD_NAMES.LABELS}
             label="Labels"
@@ -74,6 +70,7 @@ const ApplicationForm = ({initialData={}, onClose, onSuccess}) => {
             stickLeft
             hideCancel
             hideSubmit
+            width={512}
         >
             <FormWrapper
                 initialValues={initialValues}

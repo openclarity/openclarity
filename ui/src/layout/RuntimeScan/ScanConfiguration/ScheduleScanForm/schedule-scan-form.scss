@@ -1,0 +1,31 @@
+.scheduled-scan-options-form-modal {
+    .schedule-later-form-fields {
+        display: flex;
+
+        .date-field-wrapper {
+            min-width: 100px;
+            margin-right: 20px;
+        }
+    }
+    .repetitive-later-form-fields {
+        display: flex;
+
+        > :not(:last-child) {
+            margin-right: 20px;
+        }
+        .repetitive-interval-field {
+            min-width: 100px;
+            width: 100px;
+        }
+        .repetitive-type-field {
+            min-width: 120px;
+            margin-top: 15px;
+        }
+        .repetitive-weekday-field {
+            min-width: 150px;
+        }
+        .repetitive-time-field.with-top-margin {
+            margin-top: 15px;
+        }
+    }
+}

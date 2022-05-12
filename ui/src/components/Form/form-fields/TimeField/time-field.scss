@@ -1,0 +1,32 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-wrapper.time-field-wrapper {
+    .react-time-picker {
+        height: 34px;
+        border: 1px solid $color-grey-light;
+        color: $color-grey-dark;
+
+        .react-time-picker__wrapper {
+            border: none;
+
+            .react-time-picker__inputGroup {
+                padding: 0 7px;
+                min-width: 50px;
+
+                .react-time-picker__inputGroup__leadingZero {
+                    font-size: 15px;
+                    color: $color-grey-dark;
+                }
+                input {
+                    color: $color-grey-dark;
+                    outline: none;
+                    font-size: 15px;
+    
+                    &::placeholder {
+                        color: $color-grey;
+                    }
+                }
+            }
+        }
+    }
+}
