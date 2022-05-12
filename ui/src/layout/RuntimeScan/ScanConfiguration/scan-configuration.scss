@@ -1,6 +1,25 @@
 @import 'utils/scss_variables.module.scss';
 
 $options-icon-size: 16px;
+$inner-padding: 20px;
+
+.runtime-scan-config-button {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 10px;
+    cursor: pointer;
+
+    &.disabled {
+        color: $color-grey;
+        cursor: not-allowed;
+    }
+    .icon {
+        width: $options-icon-size;
+        height: $options-icon-size;
+        margin-right: 6px;
+    }
+}
 
 .scan-configuration-container {
     width: 100%;
@@ -9,44 +28,42 @@ $options-icon-size: 16px;
     background-color: $color-blue-light;
     display: flex;
     align-items: center;
-    padding: 10px 20px;
-    
-    .scan-select-title {
-        font-size: 12px;
-        font-weight: bold;
-        line-height: 14px;
-        letter-spacing: 0.36px;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-    .info-icon-wrapper {
-        min-width: 14px;
-        margin-left: 6px;
-    }
-    .runtime-scan-select {
-        margin-left: 20px;
+    padding: 0 $inner-padding;
+
+    .on-demand-scan-configuration-container {
         width: 100%;
-    }
-    .scan-options-button {
         display: flex;
         align-items: center;
-        font-weight: 700;
-        font-size: 10px;
-        margin-left: 20px;
-        cursor: pointer;
-
-        &.disabled {
-            color: $color-grey;
-            cursor: not-allowed;
+        border-right: 1px solid $color-grey-light;
+        padding-right: $inner-padding;
+        
+        .scan-select-title {
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 14px;
+            letter-spacing: 0.36px;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
-        .icon {
-            width: $options-icon-size;
-            height: $options-icon-size;
-            margin-right: 6px;
+        .info-icon-wrapper {
+            min-width: 14px;
+            margin-left: 6px;
+        }
+        .runtime-scan-select {
+            margin-left: $inner-padding;
+            margin-right: $inner-padding;
+            width: 100%;
+        }
+        .scan-button {
+            margin-left: $inner-padding;
+            white-space: nowrap;
         }
     }
-    .scan-button {
-        margin-left: 20px;
-        white-space: nowrap;
+    .scheduled-scan-configuration-container {
+        padding-left: $inner-padding;
+
+        .runtime-scan-config-button {
+            width: 95px;
+        }
     }
 }

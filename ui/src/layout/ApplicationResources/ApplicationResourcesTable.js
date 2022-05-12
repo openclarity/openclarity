@@ -54,7 +54,7 @@ const ApplicationResourcesTable = () => {
                     <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 )
             },
-            width: 200,
+            width: 150,
             canSort: true
         },
         {

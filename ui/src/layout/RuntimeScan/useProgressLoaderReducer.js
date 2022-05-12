@@ -17,7 +17,9 @@ const initialState = {
     namespacesToScan: null,
     doAbort: false,
     scanResults: null,
-    scannedNamespaces: null
+    scannedNamespaces: null,
+    scanType: null,
+    startTime: null
 };
 
 export const PROGRESS_LOADER_ACTIONS = {
@@ -34,7 +36,7 @@ export const RUNTIME_SCAN_URL = "runtime/scan";
 const reducer = (state, action) => {
     switch (action.type) {
         case PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED: {
-            const {status, progress, scannedNamespaces} = action.payload;
+            const {status, progress, scannedNamespaces, scanType, startTime} = action.payload;
 
             return {
                 ...state,
@@ -45,7 +47,9 @@ const reducer = (state, action) => {
                 doAbort: false,
                 doLoadStatus: false,
                 scanResults: null,
-                scannedNamespaces
+                scannedNamespaces,
+                scanType,
+                startTime
             };
         }
         case PROGRESS_LOADER_ACTIONS.ERROR_LOADIND_STATUS: {
@@ -96,7 +100,8 @@ const reducer = (state, action) => {
 }
 
 function useProgressLoaderReducer() {
-    const [{isLoading, isLoadingError, loadData, status, progress, doAbort, namespacesToScan, scanResults, scannedNamespaces}, dispatch] = useReducer(reducer, {...initialState});
+    const [{isLoading, isLoadingError, loadData, status, progress, doAbort, namespacesToScan, scanResults, scannedNamespaces, scanType, startTime}, dispatch] =
+        useReducer(reducer, {...initialState});
     const prevDoAbort = usePrevious(doAbort);
     const prevNamespacesToScan = usePrevious(namespacesToScan);
     const prevStatus = usePrevious(status);
@@ -128,9 +133,9 @@ function useProgressLoaderReducer() {
             if (!!error) {
                 dispatch({type: PROGRESS_LOADER_ACTIONS.ERROR_LOADIND_STATUS});
             } else {
-                const {scanned, status, scannedNamespaces} = data;
+                const {scanned, status, scannedNamespaces, scanType, startTime} = data;
 
-                dispatch({type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED, payload: {progress: scanned, status, scannedNamespaces}});
+                dispatch({type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED, payload: {progress: scanned, status, scannedNamespaces, scanType, startTime}});
                 
                 if ([PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)) {
                     fetcherRef.current = setTimeout(() => fetchStatus(), 3000);
@@ -184,7 +189,7 @@ function useProgressLoaderReducer() {
         }
     }, [prevLoadingResults, loadingResults, resultsError, results]);
 
-    return [{loading: isLoading, isLoadingError, status, progress, scanResults, scannedNamespaces}, dispatch];
+    return [{loading: isLoading, isLoadingError, status, progress, scanResults, scannedNamespaces, scanType, startTime}, dispatch];
 }
 
 export default useProgressLoaderReducer;
