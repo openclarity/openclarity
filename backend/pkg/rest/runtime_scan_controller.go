@@ -216,17 +216,8 @@ func (s *Server) GetRuntimeScheduleScanConfig(_ operations.GetRuntimeScheduleSca
 
 func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
 	// save new config to db
-	configB, err := params.Body.MarshalJSON()
-	if err != nil {
-		log.Errorf("Failed to marshal body: %v", err)
-		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
-			WithPayload(oopsResponse)
-	}
-	if err := s.dbHandler.SchedulerTable().Set(&database.Scheduler{
-		ID:     "1", // we want to keep one scheduler config in db.
-		Config: string(configB),
-	}); err != nil {
-		log.Errorf("Failed to set new scheduler config to db: %v", err)
+	if err := s.saveSchedulerConfigToDB(params.Body); err != nil {
+		log.Errorf("Failed to save scheduler config to DB: %v", err)
 		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -242,6 +233,20 @@ func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeSchedu
 }
 
 /* ### End Handlers #### */
+
+func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig) error {
+	configB, err := config.MarshalJSON()
+	if err != nil {
+		return fmt.Errorf("failed to marshal body: %v", err)
+	}
+	if err := s.dbHandler.SchedulerTable().Set(&database.Scheduler{
+		ID:     "1", // we want to keep one scheduler config in db.
+		Config: string(configB),
+	}); err != nil {
+		return fmt.Errorf("failed to set new scheduler config to db: %v", err)
+	}
+	return nil
+}
 
 func (s *Server) createScanConfigFromQuickScan(namespaces []string) (*runtime_scanner.ScanConfig, error) {
 	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
@@ -330,6 +335,10 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 		interval, startTime = getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow, scanConfig)
 	default:
 		return fmt.Errorf("unsupported schedule config type: %v", config.ScanConfigType().ScheduleScanConfigType())
+	}
+
+	if interval <= 0 {
+		return fmt.Errorf("parameters validation failed. Interval=%v", interval)
 	}
 
 	schedParams := &runtime_scanner.SchedulerParams{

@@ -66,6 +66,7 @@ func (s *Scheduler) Init() {
 	}
 	scanConfig := models.RuntimeScheduleScanConfig{}
 	if err := json.Unmarshal([]byte(sched.Config), &scanConfig); err != nil {
+		log.Errorf("Failed to unmarshal scheduler config: %v", err)
 		return
 	}
 
@@ -90,7 +91,7 @@ func calculateNextScanTimeOnStart(timeNow time.Time, s *database.Scheduler) (tim
 	if s.LastScanTime == "" {
 		startTime, err := time.Parse(time.RFC3339, s.StartTime)
 		if err != nil {
-			return time.Time{}, err
+			return time.Time{}, fmt.Errorf("failed to parse start time: %v. %v", s.StartTime, err)
 		}
 		// if first scan start time has passed, need to add interval until start time is after or equal to time now
 		if startTime.Before(timeNow) {
@@ -104,7 +105,7 @@ func calculateNextScanTimeOnStart(timeNow time.Time, s *database.Scheduler) (tim
 	// if first scan already happened, then lastScanTime will be set.
 	lastScanTime, err := time.Parse(time.RFC3339, s.LastScanTime)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, fmt.Errorf("failed to parse lastScanTime time: %v. %v", s.LastScanTime, err)
 	}
 
 	// last scan time is before time now.
@@ -119,9 +120,9 @@ func (s *Scheduler) Schedule(params *SchedulerParams) {
 	close(s.stopChan)
 	s.stopChan = make(chan struct{})
 
-	startsIn := getStartsIn(params.StartTime)
+	startsInNano := getStartsIn(params.StartTime)
 
-	go s.spin(params, startsIn)
+	go s.spin(params, startsInNano)
 
 	if err := s.dbHandler.SchedulerTable().UpdateStartTime(time.Now().UTC().Format(time.RFC3339)); err != nil {
 		log.Errorf("Failed to update start time: %v", err)
@@ -140,19 +141,19 @@ func getStartsIn(startTime time.Time) time.Duration {
 	return startsIn
 }
 
-func (s *Scheduler) spin(params *SchedulerParams, startsIn time.Duration) {
+func (s *Scheduler) spin(params *SchedulerParams, startsInNano time.Duration) {
 	log.Errorf("Starting a new schedule scan. interval: %v, start time: %v, start in(sec): %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
-		params.IntervalSec, params.StartTime, startsIn, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
+		params.IntervalSec, params.StartTime, startsInNano, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
 	interval := time.Duration(params.IntervalSec)
 
-	timer := time.NewTimer(startsIn)
+	timer := time.NewTimer(startsInNano)
 	select {
 	case <-s.stopChan:
 		return
 	case <-timer.C:
 		go func() {
-			ticker := time.NewTicker(interval)
+			ticker := time.NewTicker(interval * time.Second)
 			defer ticker.Stop()
 			for {
 				if err := s.sendScan(params); err != nil {

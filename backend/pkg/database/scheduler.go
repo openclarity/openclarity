@@ -85,7 +85,7 @@ func (s *SchedulerTableHandler) Set(scheduler *Scheduler) error {
 }
 
 func (s *SchedulerTableHandler) UpdateLastScanTime() error {
-	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnLastScanTime, time.Now().UTC().String()).Error
+	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnLastScanTime, time.Now().UTC().Format(time.RFC3339)).Error
 }
 
 func (s *SchedulerTableHandler) UpdateConfig(config string) error {
