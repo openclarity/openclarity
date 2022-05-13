@@ -17,7 +17,6 @@ package rest
 
 import (
 	"fmt"
-	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"gotest.tools/assert"
 	"reflect"
 	"sort"
@@ -27,6 +26,7 @@ import (
 	"github.com/golang/mock/gomock"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
@@ -662,7 +662,7 @@ func Test_getIntervalAndStartTimeFromByDaysScheduleScanConfig(t *testing.T) {
 				},
 			},
 			wantInterval:  2 * secondsInDay,
-			wantStartTime: createTime(t, "2022-05-10T17:20:00+00:00"),
+			wantStartTime: createTime(t, "2022-05-08T17:20:00+00:00"),
 		},
 		{
 			name: "time of day to start scan (19:20) is after time now (18:23)",
@@ -697,16 +697,15 @@ func Test_getIntervalAndStartTimeFromByHoursScheduleScanConfig(t *testing.T) {
 	timeNow, err := time.Parse(time.RFC3339, "2022-05-08T18:23:21+00:00")
 	assert.NilError(t, err)
 
-	t.Logf("%v", timeNow.Weekday())
 	type args struct {
 		timeNow    time.Time
 		scanConfig *models.ByHoursScheduleScanConfig
 	}
 	tests := []struct {
-		name  string
-		args  args
-		want  int64
-		want1 time.Time
+		name         string
+		args         args
+		wantInterval int64
+		wantTime     time.Time
 	}{
 		{
 			name: "sanity",
@@ -716,18 +715,18 @@ func Test_getIntervalAndStartTimeFromByHoursScheduleScanConfig(t *testing.T) {
 					HoursInterval: 3,
 				},
 			},
-			want:  3 * secondsInHour,
-			want1: timeNow,
+			wantInterval: 3 * secondsInHour,
+			wantTime:     timeNow,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := getIntervalAndStartTimeFromByHoursScheduleScanConfig(tt.args.timeNow, tt.args.scanConfig)
-			if got != tt.want {
-				t.Errorf("getIntervalAndStartTimeFromByHoursScheduleScanConfig() got = %v, want %v", got, tt.want)
+			if got != tt.wantInterval {
+				t.Errorf("getIntervalAndStartTimeFromByHoursScheduleScanConfig() got = %v, wantInterval %v", got, tt.wantInterval)
 			}
-			if !got1.Equal(tt.want1) {
-				t.Errorf("getIntervalAndStartTimeFromByHoursScheduleScanConfig() got1 = %v, want %v", got1, tt.want1)
+			if !got1.Equal(tt.wantTime) {
+				t.Errorf("getIntervalAndStartTimeFromByHoursScheduleScanConfig() got1 = %v, wantTime %v", got1, tt.wantTime)
 			}
 		})
 	}
@@ -743,13 +742,13 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 		scanConfig *models.WeeklyScheduleScanConfig
 	}
 	tests := []struct {
-		name  string
-		args  args
-		want  int64
-		want1 time.Time
+		name         string
+		args         args
+		wantInterval int64
+		wantTime     time.Time
 	}{
 		{
-			name: "time now day (Monday) is before start time day (Thursday)",
+			name: "Start in the next day",
 			args: args{
 				timeNow: timeNow,
 				scanConfig: &models.WeeklyScheduleScanConfig{
@@ -760,11 +759,11 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			want:  secondsInWeek,
-			want1: createTime(t, "2022-05-10T19:20:00+00:00"),
+			wantInterval: secondsInWeek,
+			wantTime:     createTime(t, "2022-05-10T19:20:00+00:00"),
 		},
 		{
-			name: "time now day (Monday) is same as start time day (Monday), time now hour is before start time hour",
+			name: "Start in the same day, later hour",
 			args: args{
 				timeNow: timeNow,
 				scanConfig: &models.WeeklyScheduleScanConfig{
@@ -775,11 +774,11 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			want:  secondsInWeek,
-			want1: createTime(t, "2022-05-09T19:20:00+00:00"),
+			wantInterval: secondsInWeek,
+			wantTime:     createTime(t, "2022-05-09T19:20:00+00:00"),
 		},
 		{
-			name: "time now day (Monday) is same as start time day (Monday), time now hour is after start time hour",
+			name: "Start in the same day, hour has gone",
 			args: args{
 				timeNow: timeNow,
 				scanConfig: &models.WeeklyScheduleScanConfig{
@@ -790,11 +789,11 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			want:  secondsInWeek,
-			want1: createTime(t, "2022-05-16T15:20:00+00:00"),
+			wantInterval: secondsInWeek,
+			wantTime:     createTime(t, "2022-05-09T15:20:00+00:00"),
 		},
 		{
-			name: "time now day (Monday) is after start time day (Sunday)",
+			name: "Start in earlier day from now",
 			args: args{
 				timeNow: timeNow,
 				scanConfig: &models.WeeklyScheduleScanConfig{
@@ -805,18 +804,18 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			want:  secondsInWeek,
-			want1: createTime(t, "2022-05-15T19:20:00+00:00"),
+			wantInterval: secondsInWeek,
+			wantTime:     createTime(t, "2022-05-08T19:20:00+00:00"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := getIntervalAndStartTimeFromWeeklyScheduleScanConfig(tt.args.timeNow, tt.args.scanConfig)
-			if got != tt.want {
-				t.Errorf("getIntervalAndStartTimeFromWeeklyScheduleScanConfig() got = %v, want %v", got, tt.want)
+			if got != tt.wantInterval {
+				t.Errorf("getIntervalAndStartTimeFromWeeklyScheduleScanConfig() got = %v, wantInterval %v", got, tt.wantInterval)
 			}
-			if !got1.Equal(tt.want1) {
-				t.Errorf("getIntervalAndStartTimeFromWeeklyScheduleScanConfig() got1 = %v, want %v", got1, tt.want1)
+			if !got1.Equal(tt.wantTime) {
+				t.Errorf("getIntervalAndStartTimeFromWeeklyScheduleScanConfig() got1 = %v, wantTime %v", got1, tt.wantTime)
 			}
 		})
 	}

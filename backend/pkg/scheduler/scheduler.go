@@ -1,4 +1,4 @@
-package runtime_scanner
+package scheduler
 
 import (
 	"encoding/json"
@@ -11,12 +11,13 @@ import (
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 )
 
 type Scheduler struct {
 	stopChan chan struct{}
 	// Send scan requests through here.
-	scanChan  chan *ScanConfig
+	scanChan  chan *runtime_scanner.ScanConfig
 	dbHandler database.Database
 }
 
@@ -40,7 +41,7 @@ const (
 	WeeklyScheduleScanConfig  = "WeeklyScheduleScanConfig"
 )
 
-func CreateScheduler(scanChan chan *ScanConfig, dbHandler database.Database) *Scheduler {
+func CreateScheduler(scanChan chan *runtime_scanner.ScanConfig, dbHandler database.Database) *Scheduler {
 	return &Scheduler{
 		stopChan:  make(chan struct{}),
 		scanChan:  scanChan,
@@ -59,14 +60,14 @@ func (s *Scheduler) Init() {
 		log.Errorf("Failed to get scheduler table: %v", err)
 		return
 	}
-	startTime, err := calculateNextScanTimeOnStart(time.Now().UTC(), sched)
-	if err != nil {
-		log.Errorf("Failed to calculate next scan start time: %v", err)
-		return
-	}
 	scanConfig := models.RuntimeScheduleScanConfig{}
 	if err := json.Unmarshal([]byte(sched.Config), &scanConfig); err != nil {
 		log.Errorf("Failed to unmarshal scheduler config: %v", err)
+		return
+	}
+	startTime, err := time.Parse(time.RFC3339, sched.NextScanTime)
+	if err != nil {
+		log.Errorf("Failed to parse nextScanTime: %v. %v", sched.NextScanTime, err)
 		return
 	}
 
@@ -80,74 +81,44 @@ func (s *Scheduler) Init() {
 	})
 }
 
-// If startTime is after timeNow, next scan time will be startTime.
-// If startTime is before timeNow (startTime already passed), need to calculate the next scan time base on the interval.
-// we take the number of seconds since startTime to timeNow, and perform a modolu in order to get the time left from now to the the next scan.
-func calculateNextScanTimeOnStart(timeNow time.Time, s *database.Scheduler) (time.Time, error) {
-	var nextScanTime time.Time
-	intervalSec := time.Duration(s.Interval)
-
-	// if first scan didn't started yet
-	if s.LastScanTime == "" {
-		startTime, err := time.Parse(time.RFC3339, s.StartTime)
-		if err != nil {
-			return time.Time{}, fmt.Errorf("failed to parse start time: %v. %v", s.StartTime, err)
-		}
-		// if first scan start time has passed, need to add interval until start time is after or equal to time now
-		if startTime.Before(timeNow) {
-			timePassedSinceStartTimeSec := timeNow.Sub(startTime)  / time.Second
-			remainingInterval := timePassedSinceStartTimeSec % intervalSec
-			startTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
-		}
-		return startTime, nil
-	}
-
-	// if first scan already happened, then lastScanTime will be set.
-	lastScanTime, err := time.Parse(time.RFC3339, s.LastScanTime)
-	if err != nil {
-		return time.Time{}, fmt.Errorf("failed to parse lastScanTime time: %v. %v", s.LastScanTime, err)
-	}
-
-	// last scan time is before time now.
-	timePassedSinceLastScanSec := timeNow.Sub(lastScanTime) / time.Second
-	remainingInterval := timePassedSinceLastScanSec % intervalSec
-	nextScanTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
-	return nextScanTime, nil
-}
-
 func (s *Scheduler) Schedule(params *SchedulerParams) {
 	// Clear
 	close(s.stopChan)
 	s.stopChan = make(chan struct{})
 
-	startsInNano := getStartsIn(params.StartTime)
+	startsAtSec := getStartsAtSec(time.Now().UTC(), params.StartTime, time.Duration(params.IntervalSec))
 
-	go s.spin(params, startsInNano)
-
-	if err := s.dbHandler.SchedulerTable().UpdateStartTime(time.Now().UTC().Format(time.RFC3339)); err != nil {
-		log.Errorf("Failed to update start time: %v", err)
-	}
-	if err := s.dbHandler.SchedulerTable().UpdateInterval(params.IntervalSec); err != nil {
-		log.Errorf("Failed to update interval: %v", err)
-	}
+	go s.spin(params, startsAtSec)
 }
 
-func getStartsIn(startTime time.Time) time.Duration {
-	startsIn := startTime.Sub(time.Now().UTC())
-
-	if startsIn < 0 {
-		startsIn = 0
+func getNextScanTime(timeNow, currentScanTime time.Time, intervalSec time.Duration) time.Time {
+	if currentScanTime.Before(timeNow) {
+		timePassedSec := timeNow.Sub(currentScanTime) / time.Second
+		remainingInterval := timePassedSec % intervalSec
+		if remainingInterval == 0 {
+			currentScanTime = timeNow
+		} else {
+			currentScanTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
+		}
 	}
-	return startsIn
+	return currentScanTime
 }
 
-func (s *Scheduler) spin(params *SchedulerParams, startsInNano time.Duration) {
+func getStartsAtSec(timeNow time.Time, startTime time.Time, intervalSec time.Duration) time.Duration {
+	nextScanTime := getNextScanTime(timeNow, startTime, intervalSec)
+
+	startsAt := nextScanTime.Sub(timeNow)
+
+	return startsAt / time.Second
+}
+
+func (s *Scheduler) spin(params *SchedulerParams, startsAtSec time.Duration) {
 	log.Errorf("Starting a new schedule scan. interval: %v, start time: %v, start in(sec): %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
-		params.IntervalSec, params.StartTime, startsInNano, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
+		params.IntervalSec, params.StartTime, startsAtSec, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
 	interval := time.Duration(params.IntervalSec)
 
-	timer := time.NewTimer(startsInNano)
+	timer := time.NewTimer(startsAtSec * time.Second)
 	select {
 	case <-s.stopChan:
 		return
@@ -165,6 +136,7 @@ func (s *Scheduler) spin(params *SchedulerParams, startsInNano time.Duration) {
 				select {
 				case <-ticker.C:
 				case <-s.stopChan:
+					log.Debugf("Received a stop signal...")
 					return
 				}
 			}
@@ -173,7 +145,7 @@ func (s *Scheduler) spin(params *SchedulerParams, startsInNano time.Duration) {
 }
 
 func (s *Scheduler) sendScan(params *SchedulerParams) error {
-	scanConfig := &ScanConfig{
+	scanConfig := &runtime_scanner.ScanConfig{
 		ScanType:                      models.ScanTypeSCHEDULE,
 		CisDockerBenchmarkScanEnabled: params.CisDockerBenchmarkScanEnabled,
 		Namespaces:                    params.Namespaces,
@@ -183,9 +155,10 @@ func (s *Scheduler) sendScan(params *SchedulerParams) error {
 	default:
 		return fmt.Errorf("failed to send scan config to channel")
 	}
-	// update last scan time.
-	if err := s.dbHandler.SchedulerTable().UpdateLastScanTime(); err != nil {
-		return fmt.Errorf("UpdateLastScanTime failed: %v", err)
+	// update next scan time.
+	nextScanTime := time.Now().Add(time.Duration(params.IntervalSec)).UTC().Format(time.RFC3339)
+	if err := s.dbHandler.SchedulerTable().UpdateNextScanTime(nextScanTime); err != nil {
+		return fmt.Errorf("UpdateNextScanTime failed: %v", err)
 	}
 	return nil
 }

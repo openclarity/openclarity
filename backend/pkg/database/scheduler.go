@@ -17,8 +17,6 @@ package database
 
 import (
 	"fmt"
-	"time"
-
 	"gorm.io/gorm"
 	_clause "gorm.io/gorm/clause"
 )
@@ -27,19 +25,15 @@ const (
 	schedulerTableName = "scheduler"
 
 	// NOTE: when changing one of the column names change also the gorm label in Scheduler.
-	columnSchedulerID = "id"
-	columnLastScanTime = "last_scan_time"
-	columnStartTime = "start_time"
-	columnConfig = "config"
-	columnInterval = "interval"
+	columnSchedulerID  = "id"
+	columnNextScanTime = "next_scan_time"
 )
 
 type Scheduler struct {
 	ID string `gorm:"primaryke0y" faker:"-"`
 
-	LastScanTime string `json:"last_scan_time,omitempty" gorm:"column:last_scan_time"`
-	StartTime string `json:"start_time,omitempty" gorm:"column:start_time"`
-	Config string `json:"config,omitempty" gorm:"column:config"`
+	NextScanTime string `json:"next_scan_time,omitempty" gorm:"column:next_scan_time"`
+	Config       string `json:"config,omitempty" gorm:"column:config"`
 	// Interval saved in seconds
 	Interval int64 `json:"interval,omitempty" gorm:"column:interval"`
 }
@@ -47,10 +41,7 @@ type Scheduler struct {
 type SchedulerTable interface {
 	Get() (*Scheduler, error)
 	Set(scheduler *Scheduler) error
-	UpdateLastScanTime() error
-	UpdateConfig(config string) error
-	UpdateInterval(interval int64) error
-	UpdateStartTime(t string) error
+	UpdateNextScanTime(t string) error
 }
 
 type SchedulerTableHandler struct {
@@ -84,18 +75,6 @@ func (s *SchedulerTableHandler) Set(scheduler *Scheduler) error {
 	return nil
 }
 
-func (s *SchedulerTableHandler) UpdateLastScanTime() error {
-	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnLastScanTime, time.Now().UTC().Format(time.RFC3339)).Error
-}
-
-func (s *SchedulerTableHandler) UpdateConfig(config string) error {
-	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnConfig, config).Error
-}
-
-func (s *SchedulerTableHandler) UpdateStartTime(t string) error {
-	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnStartTime, t).Error
-}
-
-func (s *SchedulerTableHandler) UpdateInterval(interval int64) error {
-	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnInterval, interval).Error
+func (s *SchedulerTableHandler) UpdateNextScanTime(t string) error {
+	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnNextScanTime, t).Error
 }

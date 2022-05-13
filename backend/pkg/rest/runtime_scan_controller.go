@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
 	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
 	"github.com/openclarity/kubeclarity/backend/pkg/types"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
@@ -42,7 +43,7 @@ import (
 func (s *Server) PutRuntimeScanStart(params operations.PutRuntimeScanStartParams) middleware.Responder {
 	scanConfig, err := s.createScanConfigFromQuickScan(params.Body.Namespaces)
 	if err != nil {
-		log.Errorf("Failed to get scan config: %v", err)
+		log.Errorf("Failed to create scan config from quick scan: %v", err)
 		return operations.NewPutRuntimeScanStartDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -215,14 +216,6 @@ func (s *Server) GetRuntimeScheduleScanConfig(_ operations.GetRuntimeScheduleSca
 }
 
 func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
-	// save new config to db
-	if err := s.saveSchedulerConfigToDB(params.Body); err != nil {
-		log.Errorf("Failed to save scheduler config to DB: %v", err)
-		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
-			WithPayload(oopsResponse)
-	}
-
-	// handle the new schedule scan configuration:
 	if err := s.handleNewScheduleScanConfig(params.Body); err != nil {
 		log.Errorf("Failed to handle new schedule scan config: %v", err)
 		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
@@ -234,14 +227,16 @@ func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeSchedu
 
 /* ### End Handlers #### */
 
-func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig) error {
+func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig, startTime time.Time, interval int64) error {
 	configB, err := config.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal body: %v", err)
 	}
 	if err := s.dbHandler.SchedulerTable().Set(&database.Scheduler{
-		ID:     "1", // we want to keep one scheduler config in db.
-		Config: string(configB),
+		ID:           "1", // we want to keep one scheduler config in db.
+		NextScanTime: startTime.Format(time.RFC3339),
+		Config:       string(configB),
+		Interval:     interval,
 	}); err != nil {
 		return fmt.Errorf("failed to set new scheduler config to db: %v", err)
 	}
@@ -272,19 +267,13 @@ func getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow time.Time, scan
 
 	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 
-	for startTime.Before(timeNow) {
-		startTime = startTime.Add(time.Duration(intervalSeconds) * time.Second)
-	}
-
 	return intervalSeconds, startTime
 }
 
 func getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow time.Time, scanConfig *models.ByHoursScheduleScanConfig) (int64, time.Time) {
 	intervalSeconds := scanConfig.HoursInterval * secondsInHour
 
-	startTime := timeNow
-
-	return intervalSeconds, startTime
+	return intervalSeconds, timeNow
 }
 
 func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scanConfig *models.WeeklyScheduleScanConfig) (int64, time.Time) {
@@ -299,10 +288,6 @@ func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scan
 
 	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 
-	for startTime.Before(timeNow) {
-		startTime = startTime.Add(time.Duration(intervalSeconds) * time.Second)
-	}
-
 	return intervalSeconds, startTime
 }
 
@@ -314,13 +299,13 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	timeNow := time.Now().UTC()
 
 	switch config.ScanConfigType().ScheduleScanConfigType() {
-	case runtime_scanner.ByDaysScheduleScanConfig:
+	case scheduler.ByDaysScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByDaysScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow, scanConfig)
-	case runtime_scanner.ByHoursScheduleScanConfig:
+	case scheduler.ByHoursScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByHoursScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow, scanConfig)
-	case runtime_scanner.SingleScheduleScanConfig:
+	case scheduler.SingleScheduleScanConfig:
 		var err error
 		singleScan = true
 		scanConfig := config.ScanConfigType().(*models.SingleScheduleScanConfig)
@@ -330,7 +315,7 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 		}
 		// set interval to a positive value so we will not crash when starting ticker in Scheduler.spin. This will not be used.
 		interval = 1
-	case runtime_scanner.WeeklyScheduleScanConfig:
+	case scheduler.WeeklyScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.WeeklyScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow, scanConfig)
 	default:
@@ -340,8 +325,11 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	if interval <= 0 {
 		return fmt.Errorf("parameters validation failed. Interval=%v", interval)
 	}
+	if err := s.saveSchedulerConfigToDB(config, startTime, interval); err != nil {
+		return fmt.Errorf("failed to save scheduler config to DB: %v", err)
+	}
 
-	schedParams := &runtime_scanner.SchedulerParams{
+	schedParams := &scheduler.SchedulerParams{
 		Namespaces:                    config.Namespaces,
 		CisDockerBenchmarkScanEnabled: config.CisDockerBenchmarkScanEnabled,
 		IntervalSec:                   interval,

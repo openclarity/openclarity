@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/kubeclarity/backend/pkg/common"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
 	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
@@ -41,7 +42,7 @@ type Server struct {
 	dbHandler      database.Database
 	clientset      kubernetes.Interface
 	runtimeScanner runtime_scanner.Scanner
-	scheduler      *runtime_scanner.Scheduler
+	scheduler      *scheduler.Scheduler
 	// Send scan requests through here.
 	scanChan chan *runtime_scanner.ScanConfig
 	// Terminate all go routines.
@@ -105,7 +106,7 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 		scanChan:       scanChan,
 		stopChan:       make(chan struct{}),
 		lock:           sync.RWMutex{},
-		scheduler:      runtime_scanner.CreateScheduler(scanChan, dbHandler),
+		scheduler:      scheduler.CreateScheduler(scanChan, dbHandler),
 	}
 	s.scheduler.Init()
 
@@ -282,6 +283,7 @@ func (s *Server) startListeningForScanResults(stopChan chan struct{}) {
 
 func (s *Server) handleScanResults(results *_types.ScanResults) {
 	// clear before start
+	// TODO remove
 	B, _ := json.Marshal(results)
 	log.Errorf("Handling scan results: %s", B)
 	s.SetState(&State{
