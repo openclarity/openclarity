@@ -646,7 +646,7 @@ func Test_getIntervalAndStartTimeFromByDaysScheduleScanConfig(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		wantInterval  int64
+		wantInterval  time.Duration
 		wantStartTime time.Time
 	}{
 		{
@@ -661,7 +661,7 @@ func Test_getIntervalAndStartTimeFromByDaysScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			wantInterval:  2 * secondsInDay,
+			wantInterval:  2 * secondsInDay * time.Second,
 			wantStartTime: createTime(t, "2022-05-08T17:20:00+00:00"),
 		},
 		{
@@ -676,7 +676,7 @@ func Test_getIntervalAndStartTimeFromByDaysScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			wantInterval:  2 * secondsInDay,
+			wantInterval:  2 * secondsInDay * time.Second,
 			wantStartTime: createTime(t, "2022-05-08T19:20:00+00:00"),
 		},
 	}
@@ -704,7 +704,7 @@ func Test_getIntervalAndStartTimeFromByHoursScheduleScanConfig(t *testing.T) {
 	tests := []struct {
 		name         string
 		args         args
-		wantInterval int64
+		wantInterval time.Duration
 		wantTime     time.Time
 	}{
 		{
@@ -715,7 +715,7 @@ func Test_getIntervalAndStartTimeFromByHoursScheduleScanConfig(t *testing.T) {
 					HoursInterval: 3,
 				},
 			},
-			wantInterval: 3 * secondsInHour,
+			wantInterval: 3 * secondsInHour * time.Second,
 			wantTime:     timeNow,
 		},
 	}
@@ -744,7 +744,7 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 	tests := []struct {
 		name         string
 		args         args
-		wantInterval int64
+		wantInterval time.Duration
 		wantTime     time.Time
 	}{
 		{
@@ -759,38 +759,8 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			wantInterval: secondsInWeek,
+			wantInterval: secondsInWeek * time.Second,
 			wantTime:     createTime(t, "2022-05-10T19:20:00+00:00"),
-		},
-		{
-			name: "Start in the same day, later hour",
-			args: args{
-				timeNow: timeNow,
-				scanConfig: &models.WeeklyScheduleScanConfig{
-					DayInWeek: 2,
-					TimeOfDay: &models.TimeOfDay{
-						Hour:   int64Ptr(19),
-						Minute: int64Ptr(20),
-					},
-				},
-			},
-			wantInterval: secondsInWeek,
-			wantTime:     createTime(t, "2022-05-09T19:20:00+00:00"),
-		},
-		{
-			name: "Start in the same day, hour has gone",
-			args: args{
-				timeNow: timeNow,
-				scanConfig: &models.WeeklyScheduleScanConfig{
-					DayInWeek: 2,
-					TimeOfDay: &models.TimeOfDay{
-						Hour:   int64Ptr(15),
-						Minute: int64Ptr(20),
-					},
-				},
-			},
-			wantInterval: secondsInWeek,
-			wantTime:     createTime(t, "2022-05-09T15:20:00+00:00"),
 		},
 		{
 			name: "Start in earlier day from now",
@@ -804,8 +774,38 @@ func Test_getIntervalAndStartTimeFromWeeklyScheduleScanConfig(t *testing.T) {
 					},
 				},
 			},
-			wantInterval: secondsInWeek,
+			wantInterval: secondsInWeek * time.Second,
 			wantTime:     createTime(t, "2022-05-08T19:20:00+00:00"),
+		},
+		{
+			name: "Start in the same day, later hour",
+			args: args{
+				timeNow: timeNow,
+				scanConfig: &models.WeeklyScheduleScanConfig{
+					DayInWeek: 2,
+					TimeOfDay: &models.TimeOfDay{
+						Hour:   int64Ptr(19),
+						Minute: int64Ptr(20),
+					},
+				},
+			},
+			wantInterval: secondsInWeek * time.Second,
+			wantTime:     createTime(t, "2022-05-09T19:20:00+00:00"),
+		},
+		{
+			name: "Start in the same day, hour has pass",
+			args: args{
+				timeNow: timeNow,
+				scanConfig: &models.WeeklyScheduleScanConfig{
+					DayInWeek: 2,
+					TimeOfDay: &models.TimeOfDay{
+						Hour:   int64Ptr(15),
+						Minute: int64Ptr(20),
+					},
+				},
+			},
+			wantInterval: secondsInWeek * time.Second,
+			wantTime:     createTime(t, "2022-05-09T15:20:00+00:00"),
 		},
 	}
 	for _, tt := range tests {

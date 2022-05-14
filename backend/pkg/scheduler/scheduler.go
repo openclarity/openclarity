@@ -21,17 +21,12 @@ type Scheduler struct {
 	dbHandler database.Database
 }
 
-type State struct {
-	SchedulerParams *SchedulerParams
-}
-
 type SchedulerParams struct {
 	Namespaces                    []string
 	CisDockerBenchmarkScanEnabled bool
-	// interval in seconds
-	IntervalSec int64
-	StartTime   time.Time
-	SingleScan  bool
+	Interval                      time.Duration
+	StartTime                     time.Time
+	SingleScan                    bool
 }
 
 const (
@@ -75,7 +70,7 @@ func (s *Scheduler) Init() {
 	s.Schedule(&SchedulerParams{
 		Namespaces:                    scanConfig.Namespaces,
 		CisDockerBenchmarkScanEnabled: scanConfig.CisDockerBenchmarkScanEnabled,
-		IntervalSec:                   sched.Interval,
+		Interval:                      time.Duration(sched.Interval),
 		StartTime:                     startTime,
 		SingleScan:                    scanConfig.ScanConfigType().ScheduleScanConfigType() == SingleScheduleScanConfig,
 	})
@@ -86,45 +81,52 @@ func (s *Scheduler) Schedule(params *SchedulerParams) {
 	close(s.stopChan)
 	s.stopChan = make(chan struct{})
 
-	startsAtSec := getStartsAtSec(time.Now().UTC(), params.StartTime, time.Duration(params.IntervalSec))
+	startsAt := getStartsAt(time.Now().UTC(), params.StartTime, params.Interval)
 
-	go s.spin(params, startsAtSec)
+	go s.spin(params, startsAt)
 }
 
-func getNextScanTime(timeNow, currentScanTime time.Time, intervalSec time.Duration) time.Time {
+// get the next scan, that is after timeNow. if currentScanTime is already after timeNow, it will be return.
+func getNextScanTime(timeNow, currentScanTime time.Time, interval time.Duration) time.Time {
+	// if current scan time is before timeNow, jump to the next future scan time
 	if currentScanTime.Before(timeNow) {
-		timePassedSec := timeNow.Sub(currentScanTime) / time.Second
-		remainingInterval := timePassedSec % intervalSec
+		// if scan time has passed in less then a second, start a scan now.
+		timePassed := timeNow.Sub(currentScanTime)
+		if timePassed < time.Second {
+			return timeNow
+		}
+		remainingInterval := timePassed % interval
 		if remainingInterval == 0 {
 			currentScanTime = timeNow
 		} else {
-			currentScanTime = timeNow.Add((intervalSec - remainingInterval) * time.Second)
+			currentScanTime = timeNow.Add(interval - remainingInterval)
 		}
 	}
 	return currentScanTime
 }
 
-func getStartsAtSec(timeNow time.Time, startTime time.Time, intervalSec time.Duration) time.Duration {
-	nextScanTime := getNextScanTime(timeNow, startTime, intervalSec)
+// get the time in Duration that the next scan should start at.
+func getStartsAt(timeNow time.Time, startTime time.Time, interval time.Duration) time.Duration {
+	nextScanTime := getNextScanTime(timeNow, startTime, interval)
 
 	startsAt := nextScanTime.Sub(timeNow)
 
-	return startsAt / time.Second
+	return startsAt
 }
 
-func (s *Scheduler) spin(params *SchedulerParams, startsAtSec time.Duration) {
+func (s *Scheduler) spin(params *SchedulerParams, startsAt time.Duration) {
 	log.Errorf("Starting a new schedule scan. interval: %v, start time: %v, start in(sec): %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
-		params.IntervalSec, params.StartTime, startsAtSec, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
+		params.Interval, params.StartTime, startsAt, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
-	interval := time.Duration(params.IntervalSec)
+	interval := params.Interval
 
-	timer := time.NewTimer(startsAtSec * time.Second)
+	timer := time.NewTimer(startsAt)
 	select {
 	case <-s.stopChan:
 		return
 	case <-timer.C:
 		go func() {
-			ticker := time.NewTicker(interval * time.Second)
+			ticker := time.NewTicker(interval)
 			defer ticker.Stop()
 			for {
 				if err := s.sendScan(params); err != nil {
@@ -156,7 +158,7 @@ func (s *Scheduler) sendScan(params *SchedulerParams) error {
 		return fmt.Errorf("failed to send scan config to channel")
 	}
 	// update next scan time.
-	nextScanTime := time.Now().Add(time.Duration(params.IntervalSec)).UTC().Format(time.RFC3339)
+	nextScanTime := time.Now().Add(params.Interval).UTC().Format(time.RFC3339)
 	if err := s.dbHandler.SchedulerTable().UpdateNextScanTime(nextScanTime); err != nil {
 		return fmt.Errorf("UpdateNextScanTime failed: %v", err)
 	}

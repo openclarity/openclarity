@@ -1,7 +1,6 @@
 package runtime_scanner
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -94,8 +93,6 @@ func (s *RuntimeScanner) Start(stopChan chan struct{}) {
 				log.Info("Runtime scanner received stop event")
 				return
 			case scanConfig := <-s.scanChan:
-				scanConfigB, _ := json.Marshal(scanConfig)
-				log.Errorf("Received a new scan config: %s", scanConfigB)
 				if err := s.startScan(scanConfig); err != nil {
 					log.Errorf("Failed to start scan: %v", err)
 					continue
@@ -125,12 +122,9 @@ func (s *RuntimeScanner) setScanConfig(scanConfig *ScanConfig) {
 }
 
 func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
-	lastScanTime, err := time.Parse(time.RFC3339, time.Now().UTC().Format(time.RFC3339))
-	if err != nil {
-		return err
-	}
+	startTime := time.Now().UTC()
 	s.lock.Lock()
-	s.lastScanStartTime = lastScanTime
+	s.lastScanStartTime = startTime
 	stop := s.stopCurrentScanChan
 	namespaces := scanConfig.Namespaces
 	s.lock.Unlock()
@@ -148,7 +142,7 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 		namespaces = []string{corev1.NamespaceAll}
 	}
 
-	err = s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
+	err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
 		MaxScanParallelism:           10, // nolint:gomnd
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
@@ -163,10 +157,7 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 	go func() {
 		select {
 		case <-done:
-			s.lastScanEndTime, err = time.Parse(time.RFC3339, time.Now().UTC().Format(time.RFC3339))
-			if err != nil {
-				log.Errorf("Failed to parse time: %v", err)
-			}
+			s.lastScanEndTime = time.Now().UTC()
 			results := s.vulnerabilitiesScanner.Results()
 			select {
 			case s.resultsChan <- results:

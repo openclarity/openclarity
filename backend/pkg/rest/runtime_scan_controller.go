@@ -227,7 +227,7 @@ func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeSchedu
 
 /* ### End Handlers #### */
 
-func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig, startTime time.Time, interval int64) error {
+func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig, startTime time.Time, interval time.Duration) error {
 	configB, err := config.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal body: %v", err)
@@ -236,7 +236,7 @@ func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfi
 		ID:           "1", // we want to keep one scheduler config in db.
 		NextScanTime: startTime.Format(time.RFC3339),
 		Config:       string(configB),
-		Interval:     interval,
+		Interval:     int64(interval),
 	}); err != nil {
 		return fmt.Errorf("failed to set new scheduler config to db: %v", err)
 	}
@@ -259,40 +259,40 @@ const secondsInHour = 60 * 60
 const secondsInDay = 24 * secondsInHour
 const secondsInWeek = 7 * secondsInDay
 
-func getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow time.Time, scanConfig *models.ByDaysScheduleScanConfig) (int64, time.Time) {
-	intervalSeconds := scanConfig.DaysInterval * secondsInDay
+func getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow time.Time, scanConfig *models.ByDaysScheduleScanConfig) (time.Duration, time.Time) {
+	interval := time.Duration(scanConfig.DaysInterval*secondsInDay) * time.Second
 	hour := int(*scanConfig.TimeOfDay.Hour)
 	minute := int(*scanConfig.TimeOfDay.Minute)
 	year, month, day := timeNow.Date()
 
 	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 
-	return intervalSeconds, startTime
+	return interval, startTime
 }
 
-func getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow time.Time, scanConfig *models.ByHoursScheduleScanConfig) (int64, time.Time) {
-	intervalSeconds := scanConfig.HoursInterval * secondsInHour
+func getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow time.Time, scanConfig *models.ByHoursScheduleScanConfig) (time.Duration, time.Time) {
+	interval := time.Duration(scanConfig.HoursInterval*secondsInHour) * time.Second
 
-	return intervalSeconds, timeNow
+	return interval, timeNow
 }
 
-func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scanConfig *models.WeeklyScheduleScanConfig) (int64, time.Time) {
-	intervalSeconds := int64(secondsInWeek)
+func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scanConfig *models.WeeklyScheduleScanConfig) (time.Duration, time.Time) {
+	interval := time.Duration(secondsInWeek) * time.Second
 
 	currentDay := timeNow.Weekday() + 1
-	diff := scanConfig.DayInWeek - int64(currentDay)
+	diffDays := scanConfig.DayInWeek - int64(currentDay)
 
 	hour := int(*scanConfig.TimeOfDay.Hour)
 	minute := int(*scanConfig.TimeOfDay.Minute)
-	year, month, day := timeNow.Add(time.Duration(diff) * secondsInDay * time.Second).Date()
+	year, month, day := timeNow.Add(time.Duration(diffDays) * secondsInDay * time.Second).Date()
 
 	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 
-	return intervalSeconds, startTime
+	return interval, startTime
 }
 
 func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanConfig) error {
-	var interval int64
+	var interval time.Duration
 	var startTime time.Time
 	singleScan := false
 
@@ -301,6 +301,7 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	switch config.ScanConfigType().ScheduleScanConfigType() {
 	case scheduler.ByDaysScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByDaysScheduleScanConfig)
+		log.Errorf("hour: %v, minute: %v", scanConfig.TimeOfDay.Hour, scanConfig.TimeOfDay.Minute)
 		interval, startTime = getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow, scanConfig)
 	case scheduler.ByHoursScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByHoursScheduleScanConfig)
@@ -328,11 +329,12 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	if err := s.saveSchedulerConfigToDB(config, startTime, interval); err != nil {
 		return fmt.Errorf("failed to save scheduler config to DB: %v", err)
 	}
+	log.Errorf("startTime: %v, timeNowUTC: %v, timeNow: %v", startTime, timeNow, time.Now())
 
 	schedParams := &scheduler.SchedulerParams{
 		Namespaces:                    config.Namespaces,
 		CisDockerBenchmarkScanEnabled: config.CisDockerBenchmarkScanEnabled,
-		IntervalSec:                   interval,
+		Interval:                      interval,
 		StartTime:                     startTime,
 		SingleScan:                    singleScan,
 	}

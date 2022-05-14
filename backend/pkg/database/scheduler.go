@@ -34,8 +34,7 @@ type Scheduler struct {
 
 	NextScanTime string `json:"next_scan_time,omitempty" gorm:"column:next_scan_time"`
 	Config       string `json:"config,omitempty" gorm:"column:config"`
-	// Interval saved in seconds
-	Interval int64 `json:"interval,omitempty" gorm:"column:interval"`
+	Interval     int64  `json:"interval,omitempty" gorm:"column:interval"`
 }
 
 type SchedulerTable interface {

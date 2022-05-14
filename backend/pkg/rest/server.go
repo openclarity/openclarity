@@ -96,8 +96,8 @@ func (s *Server) GetNamespaceList() ([]string, error) {
 
 func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrator.VulnerabilitiesScanner,
 	clientset kubernetes.Interface) (*Server, error) {
-	scanChan := make(chan *runtime_scanner.ScanConfig)
-	resultsChan := make(chan *_types.ScanResults)
+	scanChan := make(chan *runtime_scanner.ScanConfig, 10) // TODO what size of channels?
+	resultsChan := make(chan *_types.ScanResults, 10)      // TODO what size of channels?
 	s := &Server{
 		dbHandler:      dbHandler,
 		clientset:      clientset,
@@ -271,12 +271,14 @@ func (s *Server) Stop() {
 
 func (s *Server) startListeningForScanResults(stopChan chan struct{}) {
 	go func() {
-		select {
-		case results := <-s.resultsChan:
-			s.handleScanResults(results)
-		case <-stopChan:
-			log.Info("Received stop event, stop listening to results")
-			return
+		for {
+			select {
+			case results := <-s.resultsChan:
+				s.handleScanResults(results)
+			case <-stopChan:
+				log.Info("Received stop event, stop listening to results")
+				return
+			}
 		}
 	}()
 }
