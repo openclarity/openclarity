@@ -27,6 +27,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/openclarity/kubeclarity/cli/pkg/config"
 	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"

@@ -4,11 +4,12 @@ go 1.17
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
-	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
+	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/openclarity/kubeclarity/api v0.0.0
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/package-url/packageurl-go v0.1.0
 	github.com/sergi/go-diff v1.2.0
 	github.com/sirupsen/logrus v1.8.1
@@ -48,10 +49,10 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar/v2 v2.0.4 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.0.2 // indirect
-	github.com/containerd/containerd v1.6.0 // indirect
-	github.com/containerd/stargz-snapshotter/estargz v0.11.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
+	github.com/containerd/containerd v1.6.0 // indirect
+	github.com/containerd/stargz-snapshotter/estargz v0.11.1 // indirect
 	github.com/containers/image/v5 v5.19.0 // indirect
 	github.com/containers/libtrust v0.0.0-20190913040956-14b96171aa3b // indirect
 	github.com/containers/ocicrypt v1.1.2 // indirect
@@ -103,8 +104,8 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.5.9 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
