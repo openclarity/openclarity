@@ -17,16 +17,16 @@ package rest
 
 import (
 	"fmt"
-	"gotest.tools/assert"
 	"reflect"
 	"sort"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
+	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 )
@@ -603,7 +603,7 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 			doneApplyingToDB: true,
 		},
 	}
-	rts := runtime_scanner.CreateRuntimeScanner(mockVulScanner, nil, nil)
+	rts := runtimescanner.CreateRuntimeScanner(mockVulScanner, nil, nil)
 	for _, tt := range tests {
 		tt.expectVulScanner(mockVulScanner)
 		t.Run(tt.name, func(t *testing.T) {
@@ -630,6 +630,7 @@ func int64Ptr(val int64) *int64 {
 }
 
 func createTime(t *testing.T, ti string) time.Time {
+	t.Helper()
 	tim, err := time.Parse(time.RFC3339, ti)
 	assert.NilError(t, err)
 	return tim

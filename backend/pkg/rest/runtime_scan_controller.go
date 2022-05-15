@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"strings"
 	"time"
@@ -27,11 +26,12 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
 	"github.com/openclarity/kubeclarity/backend/pkg/types"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
@@ -243,21 +243,23 @@ func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfi
 	return nil
 }
 
-func (s *Server) createScanConfigFromQuickScan(namespaces []string) (*runtime_scanner.ScanConfig, error) {
+func (s *Server) createScanConfigFromQuickScan(namespaces []string) (*runtimescanner.ScanConfig, error) {
 	quickScanConfig, err := s.dbHandler.QuickScanConfigTable().Get()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get quick scan config from db")
 	}
-	return &runtime_scanner.ScanConfig{
+	return &runtimescanner.ScanConfig{
 		ScanType:                      models.ScanTypeQUICK,
 		CisDockerBenchmarkScanEnabled: quickScanConfig.CisDockerBenchmarkScanEnabled,
 		Namespaces:                    namespaces,
 	}, nil
 }
 
-const secondsInHour = 60 * 60
-const secondsInDay = 24 * secondsInHour
-const secondsInWeek = 7 * secondsInDay
+const (
+	secondsInHour = 60 * 60
+	secondsInDay  = 24 * secondsInHour
+	secondsInWeek = 7 * secondsInDay
+)
 
 func getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow time.Time, scanConfig *models.ByDaysScheduleScanConfig) (time.Duration, time.Time) {
 	interval := time.Duration(scanConfig.DaysInterval*secondsInDay) * time.Second
@@ -284,7 +286,7 @@ func getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow time.Time, scan
 
 	hour := int(*scanConfig.TimeOfDay.Hour)
 	minute := int(*scanConfig.TimeOfDay.Minute)
-	year, month, day := timeNow.Add(time.Duration(diffDays) * secondsInDay * time.Second).Date()
+	year, month, day := timeNow.Add(time.Duration(diffDays*secondsInDay) * time.Second).Date()
 
 	startTime := time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 
@@ -300,22 +302,26 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 
 	switch config.ScanConfigType().ScheduleScanConfigType() {
 	case scheduler.ByDaysScheduleScanConfig:
+		// nolint:forcetypeassert
 		scanConfig := config.ScanConfigType().(*models.ByDaysScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow, scanConfig)
 	case scheduler.ByHoursScheduleScanConfig:
+		// nolint:forcetypeassert
 		scanConfig := config.ScanConfigType().(*models.ByHoursScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromByHoursScheduleScanConfig(timeNow, scanConfig)
 	case scheduler.SingleScheduleScanConfig:
 		var err error
 		singleScan = true
+		// nolint:forcetypeassert
 		scanConfig := config.ScanConfigType().(*models.SingleScheduleScanConfig)
 		startTime, err = time.Parse(time.RFC3339, scanConfig.OperationTime.String())
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to parse operation time: %v. %v", scanConfig.OperationTime.String(), err)
 		}
 		// set interval to a positive value so we will not crash when starting ticker in Scheduler.spin. This will not be used.
 		interval = 1
 	case scheduler.WeeklyScheduleScanConfig:
+		// nolint:forcetypeassert
 		scanConfig := config.ScanConfigType().(*models.WeeklyScheduleScanConfig)
 		interval, startTime = getIntervalAndStartTimeFromWeeklyScheduleScanConfig(timeNow, scanConfig)
 	default:
@@ -329,7 +335,7 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 		return fmt.Errorf("failed to save scheduler config to DB: %v", err)
 	}
 
-	schedParams := &scheduler.SchedulerParams{
+	schedParams := &scheduler.Params{
 		Namespaces:                    config.Namespaces,
 		CisDockerBenchmarkScanEnabled: config.CisDockerBenchmarkScanEnabled,
 		Interval:                      interval,

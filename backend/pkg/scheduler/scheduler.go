@@ -1,27 +1,42 @@
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package scheduler
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 )
 
 type Scheduler struct {
 	stopChan chan struct{}
 	// Send scan requests through here.
-	scanChan  chan *runtime_scanner.ScanConfig
+	scanChan  chan *runtimescanner.ScanConfig
 	dbHandler database.Database
 }
 
-type SchedulerParams struct {
+type Params struct {
 	Namespaces                    []string
 	CisDockerBenchmarkScanEnabled bool
 	Interval                      time.Duration
@@ -36,7 +51,7 @@ const (
 	WeeklyScheduleScanConfig  = "WeeklyScheduleScanConfig"
 )
 
-func CreateScheduler(scanChan chan *runtime_scanner.ScanConfig, dbHandler database.Database) *Scheduler {
+func CreateScheduler(scanChan chan *runtimescanner.ScanConfig, dbHandler database.Database) *Scheduler {
 	return &Scheduler{
 		stopChan:  make(chan struct{}),
 		scanChan:  scanChan,
@@ -67,7 +82,7 @@ func (s *Scheduler) Init() {
 	}
 
 	// start schedule scan
-	s.Schedule(&SchedulerParams{
+	s.Schedule(&Params{
 		Namespaces:                    scanConfig.Namespaces,
 		CisDockerBenchmarkScanEnabled: scanConfig.CisDockerBenchmarkScanEnabled,
 		Interval:                      time.Duration(sched.Interval),
@@ -76,7 +91,7 @@ func (s *Scheduler) Init() {
 	})
 }
 
-func (s *Scheduler) Schedule(params *SchedulerParams) {
+func (s *Scheduler) Schedule(params *Params) {
 	// Clear
 	close(s.stopChan)
 	s.stopChan = make(chan struct{})
@@ -114,7 +129,7 @@ func getStartsAt(timeNow time.Time, startTime time.Time, interval time.Duration)
 	return startsAt
 }
 
-func (s *Scheduler) spin(params *SchedulerParams, startsAt time.Duration) {
+func (s *Scheduler) spin(params *Params, startsAt time.Duration) {
 	log.Debugf("Starting a new schedule scan. interval: %v, start time: %v, starts in: %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
 		params.Interval, params.StartTime, startsAt, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
@@ -146,8 +161,8 @@ func (s *Scheduler) spin(params *SchedulerParams, startsAt time.Duration) {
 	}
 }
 
-func (s *Scheduler) sendScan(params *SchedulerParams) error {
-	scanConfig := &runtime_scanner.ScanConfig{
+func (s *Scheduler) sendScan(params *Params) error {
+	scanConfig := &runtimescanner.ScanConfig{
 		ScanType:                      models.ScanTypeSCHEDULE,
 		CisDockerBenchmarkScanEnabled: params.CisDockerBenchmarkScanEnabled,
 		Namespaces:                    params.Namespaces,

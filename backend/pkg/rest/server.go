@@ -31,7 +31,7 @@ import (
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/common"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
 	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
 	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
@@ -41,10 +41,10 @@ type Server struct {
 	server         *restapi.Server
 	dbHandler      database.Database
 	clientset      kubernetes.Interface
-	runtimeScanner runtime_scanner.Scanner
+	runtimeScanner runtimescanner.Scanner
 	scheduler      *scheduler.Scheduler
 	// Send scan requests through here.
-	scanChan chan *runtime_scanner.ScanConfig
+	scanChan chan *runtimescanner.ScanConfig
 	// Terminate all go routines.
 	stopChan chan struct{}
 	// Scan results will be received through this channel.
@@ -96,12 +96,12 @@ func (s *Server) GetNamespaceList() ([]string, error) {
 
 func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrator.VulnerabilitiesScanner,
 	clientset kubernetes.Interface) (*Server, error) {
-	scanChan := make(chan *runtime_scanner.ScanConfig, 10) // TODO what size of channels?
-	resultsChan := make(chan *_types.ScanResults, 10)      // TODO what size of channels?
+	scanChan := make(chan *runtimescanner.ScanConfig)
+	resultsChan := make(chan *_types.ScanResults)
 	s := &Server{
 		dbHandler:      dbHandler,
 		clientset:      clientset,
-		runtimeScanner: runtime_scanner.CreateRuntimeScanner(scanner, scanChan, resultsChan),
+		runtimeScanner: runtimescanner.CreateRuntimeScanner(scanner, scanChan, resultsChan),
 		resultsChan:    resultsChan,
 		scanChan:       scanChan,
 		stopChan:       make(chan struct{}),
