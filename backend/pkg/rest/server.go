@@ -285,9 +285,6 @@ func (s *Server) startListeningForScanResults(stopChan chan struct{}) {
 
 func (s *Server) handleScanResults(results *_types.ScanResults) {
 	// clear before start
-	// TODO remove
-	B, _ := json.Marshal(results)
-	log.Errorf("Handling scan results: %s", B)
 	s.SetState(&State{
 		runtimeScanApplicationIDs: []string{},
 		runtimeScanFailures:       []string{},

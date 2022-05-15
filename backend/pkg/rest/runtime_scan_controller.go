@@ -301,7 +301,6 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	switch config.ScanConfigType().ScheduleScanConfigType() {
 	case scheduler.ByDaysScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByDaysScheduleScanConfig)
-		log.Errorf("hour: %v, minute: %v", scanConfig.TimeOfDay.Hour, scanConfig.TimeOfDay.Minute)
 		interval, startTime = getIntervalAndStartTimeFromByDaysScheduleScanConfig(timeNow, scanConfig)
 	case scheduler.ByHoursScheduleScanConfig:
 		scanConfig := config.ScanConfigType().(*models.ByHoursScheduleScanConfig)
@@ -329,7 +328,6 @@ func (s *Server) handleNewScheduleScanConfig(config *models.RuntimeScheduleScanC
 	if err := s.saveSchedulerConfigToDB(config, startTime, interval); err != nil {
 		return fmt.Errorf("failed to save scheduler config to DB: %v", err)
 	}
-	log.Errorf("startTime: %v, timeNowUTC: %v, timeNow: %v", startTime, timeNow, time.Now())
 
 	schedParams := &scheduler.SchedulerParams{
 		Namespaces:                    config.Namespaces,

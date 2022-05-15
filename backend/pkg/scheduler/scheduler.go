@@ -115,7 +115,7 @@ func getStartsAt(timeNow time.Time, startTime time.Time, interval time.Duration)
 }
 
 func (s *Scheduler) spin(params *SchedulerParams, startsAt time.Duration) {
-	log.Errorf("Starting a new schedule scan. interval: %v, start time: %v, start in(sec): %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
+	log.Debugf("Starting a new schedule scan. interval: %v, start time: %v, starts in: %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
 		params.Interval, params.StartTime, startsAt, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
 	interval := params.Interval
