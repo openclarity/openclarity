@@ -25,9 +25,9 @@ COPY shared .
 # Copy and build cli code
 WORKDIR /build/cli
 COPY cli .
-RUN go build -ldflags="-s -w \
+RUN CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
-RUN go build -ldflags "${LDFLAGS}"  ./...
+RUN CGO_ENABLED=0 go build -ldflags "${LDFLAGS}"  ./...
 
 FROM alpine:3.15.4
 
