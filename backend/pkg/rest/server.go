@@ -43,7 +43,7 @@ type Server struct {
 	clientset      kubernetes.Interface
 	runtimeScanner runtimescanner.Scanner
 	scheduler      *scheduler.Scheduler
-	// Send scan requests through here.
+	// Channel to initiate the actual scan according to schedule.
 	scanChan chan *runtimescanner.ScanConfig
 	// Terminate all go routines.
 	stopChan chan struct{}

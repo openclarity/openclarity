@@ -145,7 +145,7 @@ func (s *Scheduler) spin(params *Params, startsAt time.Duration) {
 			ticker := time.NewTicker(interval)
 			defer ticker.Stop()
 			for {
-				if err := s.sendScan(params); err != nil {
+				if err := s.scan(params); err != nil {
 					log.Errorf("Failed to send scan: %v", err)
 				}
 				if singleScan {
@@ -162,7 +162,7 @@ func (s *Scheduler) spin(params *Params, startsAt time.Duration) {
 	}
 }
 
-func (s *Scheduler) sendScan(params *Params) error {
+func (s *Scheduler) scan(params *Params) error {
 	scanConfig := &runtimescanner.ScanConfig{
 		ScanType:                      models.ScanTypeSCHEDULE,
 		CisDockerBenchmarkScanEnabled: params.CisDockerBenchmarkScanEnabled,
@@ -176,7 +176,7 @@ func (s *Scheduler) sendScan(params *Params) error {
 	// update next scan time.
 	nextScanTime := time.Now().Add(params.Interval).UTC().Format(time.RFC3339)
 	if err := s.dbHandler.SchedulerTable().UpdateNextScanTime(nextScanTime); err != nil {
-		return fmt.Errorf("UpdateNextScanTime failed: %v", err)
+		return fmt.Errorf("failed to update next scan time:: %v", err)
 	}
 	return nil
 }

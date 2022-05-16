@@ -115,7 +115,6 @@ func (s *RuntimeScanner) Start(stopChan chan struct{}) {
 					log.Errorf("Failed to start scan: %v", err)
 					continue
 				}
-				s.scannedNamespaces = scanConfig.Namespaces
 			}
 		}
 	}()
@@ -135,11 +134,13 @@ func (s *RuntimeScanner) setScanConfig(scanConfig *ScanConfig) {
 	s.lastScanConfig = scanConfig
 }
 
+// Note: this is blocking until scan is done, or stop signal received.
 func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 	startTime := time.Now().UTC()
 	s.lock.Lock()
 	s.lastScanStartTime = startTime
 	stop := s.stopCurrentScanChan
+	s.scannedNamespaces = scanConfig.Namespaces
 	s.lock.Unlock()
 
 	namespaces := scanConfig.Namespaces
@@ -169,20 +170,18 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 		return fmt.Errorf("failed to start scan: %v", err)
 	}
 
-	go func() {
+	select {
+	case <-done:
+		s.lastScanEndTime = time.Now().UTC()
+		results := s.vulnerabilitiesScanner.Results()
 		select {
-		case <-done:
-			s.lastScanEndTime = time.Now().UTC()
-			results := s.vulnerabilitiesScanner.Results()
-			select {
-			case s.resultsChan <- results:
-			default:
-				log.Error("Failed to send results to channel")
-			}
-		case <-stop:
-			log.Infof("Received a stop signal, not waiting for results")
+		case s.resultsChan <- results:
+		default:
+			log.Error("Failed to send results to channel")
 		}
-	}()
+	case <-stop:
+		log.Infof("Received a stop signal, not waiting for results")
+	}
 
 	return nil
 }
