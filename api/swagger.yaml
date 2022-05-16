@@ -680,7 +680,7 @@ definitions:
         type: 'boolean'
 
   RuntimeScheduleScanConfig:
-    description: 'Runtime schedule scan configuration'
+    description: 'Scheduled runtime scan configuration'
     type: object
     properties:
       namespaces:
@@ -916,7 +916,7 @@ paths:
 
   /runtime/scan/start:
     put:
-      summary: 'Start a runtime scan'
+      summary: 'Schedule a runtime scan'
       parameters:
         - in: 'body'
           name: 'body'

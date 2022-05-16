@@ -36,7 +36,6 @@ type Scanner interface {
 	GetLastScanStartTime() time.Time
 	GetLastScanEndTime() time.Time
 	Start(stopChan chan struct{})
-	Stop()
 	StopCurrentScan()
 	Clear()
 }
@@ -50,7 +49,6 @@ type RuntimeScanner struct {
 	// List of latest scanned namespaces.
 	scannedNamespaces      []string
 	stopCurrentScanChan    chan struct{}
-	stopRuntimeScannerChan chan struct{}
 	// Scan results will be sent through this channel.
 	resultsChan chan *types.ScanResults
 	// New scan requests are coming through this channel.
@@ -62,8 +60,6 @@ func (s *RuntimeScanner) ScanProgress() types.ScanProgress {
 	return s.vulnerabilitiesScanner.ScanProgress()
 }
 
-type ScanType string
-
 type ScanConfig struct {
 	ScanType                      models.ScanType
 	CisDockerBenchmarkScanEnabled bool
@@ -74,7 +70,6 @@ func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan 
 	return &RuntimeScanner{
 		vulnerabilitiesScanner: scanner,
 		stopCurrentScanChan:    make(chan struct{}),
-		stopRuntimeScannerChan: make(chan struct{}),
 		scanChan:               scanChan,
 		lock:                   sync.RWMutex{},
 		resultsChan:            resultsChan,
@@ -83,14 +78,23 @@ func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan 
 }
 
 func (s *RuntimeScanner) GetLastScanStartTime() time.Time {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
 	return s.lastScanStartTime
 }
 
 func (s *RuntimeScanner) GetLastScanEndTime() time.Time {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
 	return s.lastScanEndTime
 }
 
 func (s *RuntimeScanner) GetScannedNamespaces() []string {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
 	return s.scannedNamespaces
 }
 
@@ -117,10 +121,6 @@ func (s *RuntimeScanner) Start(stopChan chan struct{}) {
 	}()
 }
 
-func (s *RuntimeScanner) Stop() {
-	close(s.stopRuntimeScannerChan)
-}
-
 func (s *RuntimeScanner) GetScanConfig() *ScanConfig {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
@@ -140,8 +140,9 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 	s.lock.Lock()
 	s.lastScanStartTime = startTime
 	stop := s.stopCurrentScanChan
-	namespaces := scanConfig.Namespaces
 	s.lock.Unlock()
+
+	namespaces := scanConfig.Namespaces
 
 	s.vulnerabilitiesScanner.Clear()
 

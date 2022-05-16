@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// RuntimeScheduleScanConfig Runtime schedule scan configuration
+// RuntimeScheduleScanConfig Scheduled runtime scan configuration
 //
 // swagger:model RuntimeScheduleScanConfig
 type RuntimeScheduleScanConfig struct {

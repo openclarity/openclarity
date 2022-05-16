@@ -207,7 +207,7 @@ func (s *Server) GetRuntimeScheduleScanConfig(_ operations.GetRuntimeScheduleSca
 	}
 
 	if err := json.Unmarshal([]byte(schedulerConf.Config), &ret); err != nil {
-		log.Errorf("Failed to unmarshal scan config: %v. %v", schedulerConf.Config, err)
+		log.Errorf("Failed to unmarshal scheduler config: %v. %v", schedulerConf.Config, err)
 		return operations.NewGetRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -217,7 +217,7 @@ func (s *Server) GetRuntimeScheduleScanConfig(_ operations.GetRuntimeScheduleSca
 
 func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
 	if err := s.handleNewScheduleScanConfig(params.Body); err != nil {
-		log.Errorf("Failed to handle new schedule scan config: %v", err)
+		log.Errorf("Failed to handle a new scheduled scan config: %v", err)
 		return operations.NewPutRuntimeScheduleScanConfigDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -230,7 +230,7 @@ func (s *Server) PutRuntimeScheduleScanConfig(params operations.PutRuntimeSchedu
 func (s *Server) saveSchedulerConfigToDB(config *models.RuntimeScheduleScanConfig, startTime time.Time, interval time.Duration) error {
 	configB, err := config.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to marshal body: %v", err)
+		return fmt.Errorf("failed to marshal scheduled config: %v", err)
 	}
 	if err := s.dbHandler.SchedulerTable().Set(&database.Scheduler{
 		ID:           "1", // we want to keep one scheduler config in db.

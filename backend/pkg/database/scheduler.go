@@ -31,7 +31,7 @@ const (
 )
 
 type Scheduler struct {
-	ID string `gorm:"primaryke0y" faker:"-"`
+	ID string `gorm:"primarykey" faker:"-"`
 
 	NextScanTime string `json:"next_scan_time,omitempty" gorm:"column:next_scan_time"`
 	Config       string `json:"config,omitempty" gorm:"column:config"`

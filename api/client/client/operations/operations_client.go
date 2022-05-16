@@ -1052,7 +1052,7 @@ func (a *Client) PutRuntimeQuickscanConfig(params *PutRuntimeQuickscanConfigPara
 }
 
 /*
-  PutRuntimeScanStart starts a runtime scan
+  PutRuntimeScanStart schedules a runtime scan
 */
 func (a *Client) PutRuntimeScanStart(params *PutRuntimeScanStartParams, opts ...ClientOption) (*PutRuntimeScanStartCreated, error) {
 	// TODO: Validate the params before sending

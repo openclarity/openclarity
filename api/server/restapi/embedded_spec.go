@@ -944,7 +944,7 @@ func init() {
     },
     "/runtime/scan/start": {
       "put": {
-        "summary": "Start a runtime scan",
+        "summary": "Schedule a runtime scan",
         "parameters": [
           {
             "name": "body",
@@ -2075,7 +2075,7 @@ func init() {
       "readOnly": true
     },
     "RuntimeScheduleScanConfig": {
-      "description": "Runtime schedule scan configuration",
+      "description": "Scheduled runtime scan configuration",
       "type": "object",
       "properties": {
         "cisDockerBenchmarkScanEnabled": {
@@ -4649,7 +4649,7 @@ func init() {
     },
     "/runtime/scan/start": {
       "put": {
-        "summary": "Start a runtime scan",
+        "summary": "Schedule a runtime scan",
         "parameters": [
           {
             "name": "body",
@@ -6007,7 +6007,7 @@ func init() {
       "readOnly": true
     },
     "RuntimeScheduleScanConfig": {
-      "description": "Runtime schedule scan configuration",
+      "description": "Scheduled runtime scan configuration",
       "type": "object",
       "properties": {
         "cisDockerBenchmarkScanEnabled": {

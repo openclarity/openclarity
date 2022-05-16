@@ -105,7 +105,7 @@ func (s *Scheduler) Schedule(params *Params) {
 func getNextScanTime(timeNow, currentScanTime time.Time, interval time.Duration) time.Time {
 	// if current scan time is before timeNow, jump to the next future scan time
 	if currentScanTime.Before(timeNow) {
-		// if scan time has passed in less then a second, start a scan now.
+		// if scan time has passed in less than a second, start a scan now.
 		timePassed := timeNow.Sub(currentScanTime)
 		if timePassed < time.Second {
 			return timeNow
@@ -130,12 +130,13 @@ func getStartsAt(timeNow time.Time, startTime time.Time, interval time.Duration)
 }
 
 func (s *Scheduler) spin(params *Params, startsAt time.Duration) {
-	log.Debugf("Starting a new schedule scan. interval: %v, start time: %v, starts in: %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
+	log.Debugf("Starting a new scheduled scan. interval: %v, start time: %v, starts at: %v, namespaces: %v, cisDockerBenchmarkScanEnabled: %v",
 		params.Interval, params.StartTime, startsAt, params.Namespaces, params.CisDockerBenchmarkScanEnabled)
 	singleScan := params.SingleScan
 	interval := params.Interval
 
 	timer := time.NewTimer(startsAt)
+	defer timer.Stop()
 	select {
 	case <-s.stopChan:
 		return
