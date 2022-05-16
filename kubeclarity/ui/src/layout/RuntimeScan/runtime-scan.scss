@@ -1,11 +1,13 @@
 @import 'utils/scss_variables.module.scss';
 
+$scan-time-width: 230px;
+
 .runtime-scan-page {
     .scan-details-container {
         margin: 40px;
         
         .scan-details-info {
-            height: 44px;
+            min-height: 44px;
             box-sizing: border-box;
             background-color: $color-grey-light;
             font-size: 13px;
@@ -13,6 +15,16 @@
             padding: 13px 20px;
             border-bottom: 1px solid $color-grey-dark;
             box-shadow: 0px 0px 10px rgba(34, 43, 54, 0.12);
+            display: flex;
+            justify-content: space-between;
+
+            .details-info-config {
+                width: calc(100% - #{$scan-time-width} - 10px);
+                word-break: break-all;
+            }
+            .details-info-time {
+                white-space: nowrap;
+            }
         }
         .scan-details-steps {
             padding: 0 30px;

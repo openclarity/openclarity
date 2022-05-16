@@ -21,6 +21,7 @@ const ScanOptionsForm = ({onClose}) => {
             stickLeft
             hideCancel
             hideSubmit
+            width={530}
         >
             {loading ? <Loader /> :
                 <FormWrapper

@@ -3,13 +3,13 @@ module github.com/openclarity/kubeclarity/runtime_scan
 go 1.17
 
 require (
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/containers/image/v5 v5.19.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/golang/mock v1.6.0
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1

@@ -6,19 +6,25 @@ import Loader from 'components/Loader';
 import Button from 'components/Button';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import { useFetch, FETCH_METHODS, usePrevious } from 'hooks';
+import * as validators from './validators';
 import SelectField from './form-fields/SelectField';
 import MultiselectField from './form-fields/MultiselectField';
 import TextField from './form-fields/TextField';
 import ToggleField from './form-fields/ToggleField';
+import DateField from './form-fields/DateField';
+import TimeField from './form-fields/TimeField';
 
 import './form.scss';
 
 export {
+	validators,
 	useFormikContext,
     SelectField,
     MultiselectField,
     TextField,
-	ToggleField
+	ToggleField,
+	DateField,
+	TimeField
 }
 
 const FormComponent = ({children, className, submitUrl, getSubmitParams, onSubmitSuccess, onSubmitError, saveButtonTitle="Finish", hideSaveButton=false}) => {

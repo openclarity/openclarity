@@ -679,6 +679,92 @@ definitions:
       cisDockerBenchmarkScanEnabled:
         type: 'boolean'
 
+  RuntimeScheduleScanConfig:
+    description: 'Scheduled runtime scan configuration'
+    type: object
+    properties:
+      namespaces:
+        type: 'array'
+        items:
+          type: 'string'
+      cisDockerBenchmarkScanEnabled:
+        type: 'boolean'
+      scanConfigType:
+        $ref: '#/definitions/RuntimeScheduleScanConfigType'
+
+  RuntimeScheduleScanConfigType:
+    type: object
+    discriminator: 'ScheduleScanConfigType'
+    properties:
+      ScheduleScanConfigType:
+        type: 'string'
+        enum:
+          - 'SingleScheduleScanConfig'
+          - 'ByHoursScheduleScanConfig'
+          - 'ByDaysScheduleScanConfig'
+          - 'WeeklyScheduleScanConfig'
+
+  SingleScheduleScanConfig:
+    allOf:
+      - $ref: '#/definitions/RuntimeScheduleScanConfigType'
+      - type: 'object'
+        properties:
+          operationTime:
+            type: 'string'
+            format: 'date-time'
+        required:
+          - operationTime
+
+  ByHoursScheduleScanConfig:
+    allOf:
+      - $ref: '#/definitions/RuntimeScheduleScanConfigType'
+      - type: 'object'
+        properties:
+          hoursInterval:
+            type: 'integer'
+            minimum: 1
+            default: 1
+
+  ByDaysScheduleScanConfig:
+    allOf:
+      - $ref: '#/definitions/RuntimeScheduleScanConfigType'
+      - type: 'object'
+        properties:
+          daysInterval:
+            type: 'integer'
+            minimum: 1
+            default: 1
+          timeOfDay:
+            $ref: '#/definitions/TimeOfDay'
+
+  WeeklyScheduleScanConfig:
+    allOf:
+      - $ref: '#/definitions/RuntimeScheduleScanConfigType'
+      - type: 'object'
+        properties:
+          dayInWeek:
+            description: '1 - 7 which represents sun- sat'
+            type: 'integer'
+            minimum: 1
+            maximum: 7
+            default: 1
+          timeOfDay:
+            $ref: '#/definitions/TimeOfDay'
+
+  TimeOfDay:
+    type: 'object'
+    properties:
+      hour:
+        type: 'integer'
+        minimum: 0
+        maximum: 23
+        default: 0
+      minute:
+        type: 'integer'
+        minimum: 0
+        maximum: 59
+        default: 0
+
   Progress:
     type: object
     properties:
@@ -692,6 +778,11 @@ definitions:
         type: 'array'
         items:
           type: 'string'
+      scanType:
+        $ref: '#/definitions/ScanType'
+      startTime:
+        type: 'string'
+        format: date-time
 
   RuntimeScanResults:
     type: object
@@ -715,6 +806,17 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/RuntimeScanFailure'
+      endTime:
+        type: 'string'
+        format: date-time
+
+  ScanType:
+    description: 'scan type'
+    type: 'string'
+    readOnly: true
+    enum:
+      - QUICK
+      - SCHEDULE
 
   RuntimeScanFailure:
     type: object
@@ -752,6 +854,36 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
 
+  /runtime/scheduleScan/config:
+    get:
+      summary: 'Get runtime scheduled scan configuration'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            $ref: '#/definitions/RuntimeScheduleScanConfig'
+        default:
+          $ref: '#/responses/UnknownError'
+    put:
+      summary: 'Set runtime scheduled scan configuration'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/RuntimeScheduleScanConfig'
+      responses:
+        '201':
+          description: 'Success'
+          schema:
+            $ref: '#/responses/Success'
+        '400':
+          description: 'Failed to set scheduled scan config'
+          schema:
+            type: 'string'
+        default:
+          $ref: '#/responses/UnknownError'
+
   /runtime/quickscan/config:
     get:
       summary: 'Get runtime quick scan configuration'
@@ -784,7 +916,7 @@ paths:
 
   /runtime/scan/start:
     put:
-      summary: 'Start a runtime scan'
+      summary: 'Schedule a runtime scan'
       parameters:
         - in: 'body'
           name: 'body'

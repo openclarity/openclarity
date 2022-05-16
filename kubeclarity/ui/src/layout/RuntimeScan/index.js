@@ -3,7 +3,7 @@ import { isEmpty } from 'lodash';
 import PageContainer from 'components/PageContainer';
 import Loader from 'components/Loader';
 import TopBarTitle from 'components/TopBarTitle';
-import { BoldText } from 'utils/utils';
+import { BoldText, formatDate } from 'utils/utils';
 import useProgressLoaderReducer, { PROGRESS_LOADER_ACTIONS, PROPRESS_STATUSES } from './useProgressLoaderReducer';
 import ScanConfiguration from './ScanConfiguration';
 import ProgressStep from './ProgressStep';
@@ -12,8 +12,13 @@ import TotalDisplayStep from './TotalDisplayStep';
 
 import './runtime-scan.scss';
 
+const SCAN_TYPES = {
+    QUICK: "ON-DEMAND",
+    SCHEDULE: "SCHEDULES"
+}
+
 const RuntimeScan = () => {
-    const [{loading, status, progress, scanResults, scannedNamespaces}, dispatch] = useProgressLoaderReducer();
+    const [{loading, status, progress, scanResults, scannedNamespaces, scanType, startTime}, dispatch] = useProgressLoaderReducer();
     const doStartScan = (namespaces) => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_START_SCAN, payload: {namespaces}});
     const doStopScan = () => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_STOP_SCAN});
 
@@ -32,11 +37,14 @@ const RuntimeScan = () => {
                 <PageContainer className="scan-details-container">
                     {status !== PROPRESS_STATUSES.NOT_STARTED.value &&
                         <div className="scan-details-info">
-                            {!!scannedNamespaces &&
+                            {!!scannedNamespaces && !!scanType &&
                                 <React.Fragment>
-                                    <BoldText>ON DEMAND SCAN</BoldText>
-                                    <span>{` with target namespaces: `}</span>
-                                    <BoldText>{isEmpty(scannedNamespaces) ? "All" : scannedNamespaces.join(", ")}</BoldText>
+                                    <div className="details-info-config">
+                                        <BoldText>{`${SCAN_TYPES[scanType]} SCAN`}</BoldText>
+                                        <span>{` with target namespaces: `}</span>
+                                        <BoldText>{isEmpty(scannedNamespaces) ? "All" : scannedNamespaces.join(", ")}</BoldText>
+                                    </div>
+                                    <div className="details-info-time">{`Started on `}<BoldText>{formatDate(startTime)}</BoldText></div>
                                 </React.Fragment>
                             }
                         </div>

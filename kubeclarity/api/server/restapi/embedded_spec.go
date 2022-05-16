@@ -944,7 +944,7 @@ func init() {
     },
     "/runtime/scan/start": {
       "put": {
-        "summary": "Start a runtime scan",
+        "summary": "Schedule a runtime scan",
         "parameters": [
           {
             "name": "body",
@@ -987,6 +987,52 @@ func init() {
           },
           "400": {
             "description": "Scan failed to stop",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      }
+    },
+    "/runtime/scheduleScan/config": {
+      "get": {
+        "summary": "Get runtime scheduled scan configuration",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Set runtime scheduled scan configuration",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/responses/Success"
+            }
+          },
+          "400": {
+            "description": "Failed to set scheduled scan config",
             "schema": {
               "type": "string"
             }
@@ -1410,6 +1456,43 @@ func init() {
         "HIGH"
       ]
     },
+    "ByDaysScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "daysInterval": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "timeOfDay": {
+              "$ref": "#/definitions/TimeOfDay"
+            }
+          }
+        }
+      ]
+    },
+    "ByHoursScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hoursInterval": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            }
+          }
+        }
+      ]
+    },
     "CISDockerBenchmarkAssessment": {
       "type": "object",
       "properties": {
@@ -1798,6 +1881,9 @@ func init() {
     "Progress": {
       "type": "object",
       "properties": {
+        "scanType": {
+          "$ref": "#/definitions/ScanType"
+        },
         "scanned": {
           "description": "Percentage of scanned images from total images (0-100)",
           "type": "integer"
@@ -1807,6 +1893,10 @@ func init() {
           "items": {
             "type": "string"
           }
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
         },
         "status": {
           "$ref": "#/definitions/RuntimeScanStatus"
@@ -1955,6 +2045,10 @@ func init() {
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "failures": {
           "type": "array",
           "items": {
@@ -1980,11 +2074,72 @@ func init() {
       ],
       "readOnly": true
     },
+    "RuntimeScheduleScanConfig": {
+      "description": "Scheduled runtime scan configuration",
+      "type": "object",
+      "properties": {
+        "cisDockerBenchmarkScanEnabled": {
+          "type": "boolean"
+        },
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scanConfigType": {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        }
+      }
+    },
+    "RuntimeScheduleScanConfigType": {
+      "type": "object",
+      "properties": {
+        "ScheduleScanConfigType": {
+          "type": "string",
+          "enum": [
+            "SingleScheduleScanConfig",
+            "ByHoursScheduleScanConfig",
+            "ByDaysScheduleScanConfig",
+            "WeeklyScheduleScanConfig"
+          ]
+        }
+      },
+      "discriminator": "ScheduleScanConfigType"
+    },
+    "ScanType": {
+      "description": "scan type",
+      "type": "string",
+      "enum": [
+        "QUICK",
+        "SCHEDULE"
+      ],
+      "readOnly": true
+    },
     "Scope": {
       "type": "string",
       "enum": [
         "UNCHANGED",
         "CHANGED"
+      ]
+    },
+    "SingleScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "required": [
+            "operationTime"
+          ],
+          "properties": {
+            "operationTime": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
       ]
     },
     "SuccessResponse": {
@@ -1993,6 +2148,21 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "TimeOfDay": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "integer",
+          "default": 0,
+          "maximum": 23
+        },
+        "minute": {
+          "type": "integer",
+          "default": 0,
+          "maximum": 59
         }
       }
     },
@@ -2137,6 +2307,28 @@ func init() {
       "enum": [
         "CICD",
         "RUNTIME"
+      ]
+    },
+    "WeeklyScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "dayInWeek": {
+              "description": "1 - 7 which represents sun- sat",
+              "type": "integer",
+              "default": 1,
+              "maximum": 7,
+              "minimum": 1
+            },
+            "timeOfDay": {
+              "$ref": "#/definitions/TimeOfDay"
+            }
+          }
+        }
       ]
     }
   },
@@ -4457,7 +4649,7 @@ func init() {
     },
     "/runtime/scan/start": {
       "put": {
-        "summary": "Start a runtime scan",
+        "summary": "Schedule a runtime scan",
         "parameters": [
           {
             "name": "body",
@@ -4509,6 +4701,61 @@ func init() {
           },
           "400": {
             "description": "Scan failed to stop",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/runtime/scheduleScan/config": {
+      "get": {
+        "summary": "Get runtime scheduled scan configuration",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Set runtime scheduled scan configuration",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RuntimeScheduleScanConfig"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "description": "success message",
+              "schema": {
+                "$ref": "#/definitions/SuccessResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "Failed to set scheduled scan config",
             "schema": {
               "type": "string"
             }
@@ -5140,6 +5387,43 @@ func init() {
         "HIGH"
       ]
     },
+    "ByDaysScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "daysInterval": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "timeOfDay": {
+              "$ref": "#/definitions/TimeOfDay"
+            }
+          }
+        }
+      ]
+    },
+    "ByHoursScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hoursInterval": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            }
+          }
+        }
+      ]
+    },
     "CISDockerBenchmarkAssessment": {
       "type": "object",
       "properties": {
@@ -5528,6 +5812,9 @@ func init() {
     "Progress": {
       "type": "object",
       "properties": {
+        "scanType": {
+          "$ref": "#/definitions/ScanType"
+        },
         "scanned": {
           "description": "Percentage of scanned images from total images (0-100)",
           "type": "integer",
@@ -5538,6 +5825,10 @@ func init() {
           "items": {
             "type": "string"
           }
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
         },
         "status": {
           "$ref": "#/definitions/RuntimeScanStatus"
@@ -5686,6 +5977,10 @@ func init() {
         "counters": {
           "$ref": "#/definitions/RuntimeScanCounters"
         },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "failures": {
           "type": "array",
           "items": {
@@ -5711,11 +6006,72 @@ func init() {
       ],
       "readOnly": true
     },
+    "RuntimeScheduleScanConfig": {
+      "description": "Scheduled runtime scan configuration",
+      "type": "object",
+      "properties": {
+        "cisDockerBenchmarkScanEnabled": {
+          "type": "boolean"
+        },
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scanConfigType": {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        }
+      }
+    },
+    "RuntimeScheduleScanConfigType": {
+      "type": "object",
+      "properties": {
+        "ScheduleScanConfigType": {
+          "type": "string",
+          "enum": [
+            "SingleScheduleScanConfig",
+            "ByHoursScheduleScanConfig",
+            "ByDaysScheduleScanConfig",
+            "WeeklyScheduleScanConfig"
+          ]
+        }
+      },
+      "discriminator": "ScheduleScanConfigType"
+    },
+    "ScanType": {
+      "description": "scan type",
+      "type": "string",
+      "enum": [
+        "QUICK",
+        "SCHEDULE"
+      ],
+      "readOnly": true
+    },
     "Scope": {
       "type": "string",
       "enum": [
         "UNCHANGED",
         "CHANGED"
+      ]
+    },
+    "SingleScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "required": [
+            "operationTime"
+          ],
+          "properties": {
+            "operationTime": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
       ]
     },
     "SuccessResponse": {
@@ -5724,6 +6080,23 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "TimeOfDay": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "integer",
+          "default": 0,
+          "maximum": 23,
+          "minimum": 0
+        },
+        "minute": {
+          "type": "integer",
+          "default": 0,
+          "maximum": 59,
+          "minimum": 0
         }
       }
     },
@@ -5868,6 +6241,28 @@ func init() {
       "enum": [
         "CICD",
         "RUNTIME"
+      ]
+    },
+    "WeeklyScheduleScanConfig": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RuntimeScheduleScanConfigType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "dayInWeek": {
+              "description": "1 - 7 which represents sun- sat",
+              "type": "integer",
+              "default": 1,
+              "maximum": 7,
+              "minimum": 1
+            },
+            "timeOfDay": {
+              "$ref": "#/definitions/TimeOfDay"
+            }
+          }
+        }
       ]
     }
   },

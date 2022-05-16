@@ -233,7 +233,6 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 	source string, config *config.Config,
 	needed bool) (dockle_types.AssessmentMap, error) {
-
 	if sourceType != sharedutils.IMAGE || !needed {
 		return nil, nil
 	}
