@@ -47,8 +47,8 @@ type RuntimeScanner struct {
 	lastScanStartTime time.Time
 	lastScanEndTime   time.Time
 	// List of latest scanned namespaces.
-	scannedNamespaces      []string
-	stopCurrentScanChan    chan struct{}
+	scannedNamespaces   []string
+	stopCurrentScanChan chan struct{}
 	// Scan results will be sent through this channel.
 	resultsChan chan *types.ScanResults
 	// New scan requests are coming through this channel.
