@@ -31,7 +31,7 @@ func NewPutRuntimeScanStart(ctx *middleware.Context, handler PutRuntimeScanStart
 
 /* PutRuntimeScanStart swagger:route PUT /runtime/scan/start putRuntimeScanStart
 
-Start a runtime scan
+Schedule a runtime scan
 
 */
 type PutRuntimeScanStart struct {

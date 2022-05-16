@@ -58,3 +58,7 @@ func (m *MockHandler) QuickScanConfigTable() QuickScanConfigTable {
 func (m *MockHandler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
 	return nil
 }
+
+func (m *MockHandler) SchedulerTable() SchedulerTable {
+	return nil
+}

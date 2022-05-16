@@ -18,6 +18,7 @@
         font-family: CiscoSansTT;
         background-color: white;
         height: $field-height;
+        width: 100%;
 
         &::placeholder {
             color: $color-grey-dark;

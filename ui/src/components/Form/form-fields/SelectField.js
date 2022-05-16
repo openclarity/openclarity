@@ -3,8 +3,8 @@ import { cloneDeep, isNull, isEqual } from 'lodash';
 import classnames from 'classnames';
 import { useField } from 'formik';
 import DropdownSelect from 'components/DropdownSelect';
+import { FieldLabel, FieldError } from 'components/Form/utils';
 import { usePrevious } from 'hooks';
-import { FieldLabel, FieldError } from '../utils';
 
 const getMissingValueItemKeys = (valueKey, items) => {
     if (isNull(valueKey)) {
@@ -44,10 +44,9 @@ const SelectField = (props) => {
     const selectedValue = items.find(item => item.value === value) || null;
     
     return (
-        <div className="form-field-wrapper">
+        <div className={classnames("form-field-wrapper", "select-field-wrapper", className)}>
             {!!label && <FieldLabel tooltipId={`form-tooltip-${name}`} tooltipText={tooltipText}>{label}</FieldLabel>}
             <DropdownSelect
-                className={classnames("form-field", className)}
                 name={name}
                 value={selectedValue}
                 items={items}

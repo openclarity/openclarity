@@ -38,7 +38,6 @@ func Export(apiClient *client.KubeClarityAPIs,
 	cisDockerBenchmarkResults dockle_types.AssessmentMap,
 	id string,
 ) error {
-
 	// create ApplicationVulnerabilityScan from mergedResults
 	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, cisDockerBenchmarkResults)
 	// create post parameters
@@ -56,7 +55,6 @@ func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 	layerCommands []*image_helper.FsLayerCommand,
 	cisDockerBenchmarkResults dockle_types.AssessmentMap,
 ) *models.ApplicationVulnerabilityScan {
-
 	return &models.ApplicationVulnerabilityScan{
 		Resources: []*models.ResourceVulnerabilityScan{
 			{

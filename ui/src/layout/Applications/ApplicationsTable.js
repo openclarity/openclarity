@@ -98,7 +98,7 @@ const ApplicationsTable = () => {
                     <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 )
             },
-            width: 200,
+            width: 180,
             canSort: true
         },
         {

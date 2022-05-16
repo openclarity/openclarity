@@ -6,15 +6,15 @@ require (
 	github.com/Portshift/dockle v0.3.2-0.20220411110521-ea4a00a6462d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/bxcodec/faker/v3 v3.7.0
-	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/runtime_scan v0.0.0
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.1
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.7
+	github.com/openclarity/kubeclarity/api v0.0.0
+	github.com/openclarity/kubeclarity/runtime_scan v0.0.0
+	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
