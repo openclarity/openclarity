@@ -64,8 +64,10 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
         * Resources
         * List of detecting scanners
 * K8s Runtime scan
+  * On-demand or scheduled scanning 
   * Automatic detection of target namespaces
   * Scan progress and result navigation per affected element (applications, resources, packages, vulnerabilities)
+  * CIS Docker benchmark
 * CLI (CI/CD)
   * SBOM generation using multiple integrated content analyzers (Syft, cyclonedx-gomod)
   * SBOM/image/directory vulnerability scanning using multiple integrated scanners (Grype, Dependency-track)
