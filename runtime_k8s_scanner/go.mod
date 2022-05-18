@@ -25,7 +25,7 @@ require (
 	github.com/CycloneDX/cyclonedx-gomod v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/Portshift/grype-server/api v0.0.0-20220202131026-d7ff01973706 // indirect
+	github.com/Portshift/grype-server/api v0.0.0-20220518140944-fefe28283f1f // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20211112122917-428f8eabeeb3 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect

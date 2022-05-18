@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
 	github.com/CycloneDX/cyclonedx-gomod v1.2.0
 	github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible
-	github.com/Portshift/grype-server/api v0.0.0-20220202131026-d7ff01973706
+	github.com/Portshift/grype-server/api v0.0.0-20220518140944-fefe28283f1f
 	github.com/anchore/grype v0.32.0
 	github.com/anchore/stereoscope v0.0.0-20220128220103-c30d664f2d82
 	github.com/anchore/syft v0.36.0
