@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
       image_tag: ${{ github.sha }}
-      push: false
+      push: true
 
   e2e:
     name: E2E
@@ -63,9 +63,8 @@ jobs:
 
       - name: Edit values.yaml
         id: edit_values
-        run: |
-          tag=${{ github.sha }}
-          sed -i 's/latest/'"$tag"'/g' charts/kubeclarity/values.yaml
+        run: find . -type f -name "values.yaml" -o -name "Chart.yaml" |
+          xargs sed -i -e s/latest/${{ github.sha }}/g
           sed -i 's/Always/IfNotPresent/g' charts/kubeclarity/values.yaml
 
       - name: Build CLI

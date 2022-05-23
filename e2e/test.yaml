@@ -20,7 +20,7 @@ spec:
       serviceAccountName: test
       containers:
         - name: test
-          image: poke/test:latest
+          image: nginx:1.10
           command: ["/bin/sleep", "10000000"]
           imagePullPolicy: IfNotPresent
 ---

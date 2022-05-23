@@ -37,7 +37,7 @@ import (
 const (
 	DirectoryAnalyzeOutputSBOMFile = "dir.sbom"
 	ImageAnalyzeOutputSBOMFile     = "merged.sbom"
-	TestImageName                  = "erezfish/test:1.1"
+	TestImageName                  = "nginx:1.10"
 	ApplicationName                = "test-app"
 )
 
