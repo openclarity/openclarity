@@ -113,11 +113,7 @@ func validateAnalyzeImage(t *testing.T) {
 	assert.Assert(t, sbom != nil)
 	// check generated sbom
 	assert.Assert(t, sbom.Components != nil)
-	//assert.Assert(t, sbom.Metadata.Component.Name == TestImageName)
 	assert.Assert(t, len(*sbom.Components) > 0)
-	// TODO assert properties - analyzers = syft
-	// TODO validate merged? how? more components?
-	//assert.Assert(t, *sbom.Components[0].Properties)
 
 	// check export to db
 	packages := common.GetPackages(t, kubeclarityAPI)

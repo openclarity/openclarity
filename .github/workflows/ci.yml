@@ -6,28 +6,28 @@ env:
   GO_VERSION: 1.17
 
 jobs:
-  verification:
-    name: Verification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Check licenses
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make license-check
-
-      - name: Run verification
-        run: make check
+#  verification:
+#    name: Verification
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Go
+#        uses: actions/setup-go@v3
+#        with:
+#          go-version: ${{ env.GO_VERSION }}
+#
+#      - name: Check licenses
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: make license-check
+#
+#      - name: Run verification
+#        run: make check
 
   build_all:
-    needs: verification
+#    needs: verification
     name: Build
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
