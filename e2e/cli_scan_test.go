@@ -76,7 +76,6 @@ func TestCLIScan(t *testing.T) {
 			validateScanSBOM(t)
 
 			// scan image
-			// TODO upload a test image to github repo and use it here.
 			t.Logf("scan image...")
 			scanImage(t, TestImageName, appID)
 			validateScanImage(t)

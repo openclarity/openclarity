@@ -1,6 +1,6 @@
 apiVersion: v2
 name: kubeclarity
-appVersion: latest
+appVersion: v1.1
 description: Charts for KubeClarity deployment.
 version: latest
 home: https://github.com/openclarity/kubeclarity

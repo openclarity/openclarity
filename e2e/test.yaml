@@ -6,21 +6,42 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test
+  name: nginx
 spec:
   selector:
     matchLabels:
-      app: test
+      app: nginx
   replicas: 1
   template:
     metadata:
       labels:
-        app: test
+        app: nginx
     spec:
       serviceAccountName: test
       containers:
-        - name: test
+        - name: nginx
           image: nginx:1.10
+          command: ["/bin/sleep", "10000000"]
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl
+spec:
+  selector:
+    matchLabels:
+      app: curl
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: curl
+    spec:
+      serviceAccountName: test
+      containers:
+        - name: curl
+          image: tutum/curl
           command: ["/bin/sleep", "10000000"]
           imagePullPolicy: IfNotPresent
 ---

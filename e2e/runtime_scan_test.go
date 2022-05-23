@@ -97,12 +97,12 @@ func setupRuntimeScanTestEnv(stopCh chan struct{}) error {
 		return fmt.Errorf("failed to create test namepsace: %v", err)
 	}
 
-	println("deploying test image to test namespace...")
-	if err := common.InstallTest("test"); err != nil {
-		return fmt.Errorf("failed to install test image: %v", err)
+	println("deploying nginx and curl to test namespace...")
+	if err := common.Deploy("test", "test.yaml"); err != nil {
+		return fmt.Errorf("failed to install test.yaml: %v", err)
 	}
 
-	if err := common.WaitForPodRunning(k8sClient, "test", "app=test"); err != nil {
+	if err := common.WaitForPodRunning(k8sClient, "test", "app=nginx"); err != nil {
 		return fmt.Errorf("failed to wait for test pod running: %v", err)
 	}
 

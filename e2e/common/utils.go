@@ -31,8 +31,8 @@ import (
 
 // EXPORTED:
 
-func InstallTest(ns string) error {
-	cmd := exec.Command("kubectl", "-n", ns, "apply", "-f", "test.yaml")
+func Deploy(ns string, yamlFile string) error {
+	cmd := exec.Command("kubectl", "-n", ns, "apply", "-f", yamlFile)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
