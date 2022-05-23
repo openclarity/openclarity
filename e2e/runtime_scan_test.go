@@ -25,7 +25,6 @@ import (
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
 
-	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
 	"github.com/openclarity/kubeclarity/e2e/common"
 )
@@ -36,17 +35,18 @@ func TestRuntimeScan(t *testing.T) {
 		stopCh <- struct{}{}
 		time.Sleep(2 * time.Second)
 	}()
-	f1 := features.New("assert results").
-		WithLabel("type", "assert").
-		Assess("vulnerability in DB", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+	f1 := features.New("runtime scan").
+		WithLabel("type", "runtime").
+		Assess("runtime scan flow", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 			t.Logf("Setup runtime env...")
 			assert.NilError(t, setupRuntimeScanTestEnv(stopCh))
 
 			t.Logf("start runtime scan...")
-			assert.NilError(t, startRuntimeScan([]string{"test"}))
+			startRuntimeScan(t)
+
 			// wait for progress DONE
 			t.Logf("wait for scan done...")
-			assert.NilError(t, waitForScanDone())
+			assert.NilError(t, waitForScanDone(t))
 
 			t.Logf("get runtime scan results...")
 			results := common.GetRuntimeScanResults(t, kubeclarityAPI)
@@ -63,32 +63,30 @@ func TestRuntimeScan(t *testing.T) {
 	testenv.Test(t, f1)
 }
 
-func startRuntimeScan(namespaces []string) error {
-	params := operations.NewPutRuntimeScanStartParams().WithBody(&models.RuntimeScanConfig{
-		Namespaces: namespaces,
-	})
-	_, err := kubeclarityAPI.Operations.PutRuntimeScanStart(params)
-	return err
-}
-
-func waitForScanDone() error {
+func waitForScanDone(t *testing.T) error {
+	t.Helper()
 	timer := time.NewTimer(3 * time.Minute)
 	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+	defer timer.Stop()
 	for {
 		select {
 		case <-timer.C:
 			return fmt.Errorf("timeout reached")
 		case <-ticker.C:
-			params := operations.NewGetRuntimeScanProgressParams()
-			res, err := kubeclarityAPI.Operations.GetRuntimeScanProgress(params)
-			if err != nil {
-				return err
-			}
-			if res.Payload.Status == models.RuntimeScanStatusDONE {
+			progress := common.GetRuntimeScanProgress(t, kubeclarityAPI)
+			if progress.Status == models.RuntimeScanStatusDONE {
 				return nil
 			}
 		}
 	}
+}
+
+func startRuntimeScan(t *testing.T) {
+	t.Helper()
+	_ = common.PutRuntimeScanStart(t, kubeclarityAPI, &models.RuntimeScanConfig{
+		Namespaces: []string{"test"},
+	})
 }
 
 func setupRuntimeScanTestEnv(stopCh chan struct{}) error {

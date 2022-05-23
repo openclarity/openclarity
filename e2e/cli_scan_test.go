@@ -29,7 +29,6 @@ import (
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
 
-	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
 	"github.com/openclarity/kubeclarity/e2e/common"
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
@@ -55,32 +54,31 @@ func TestCLIScan(t *testing.T) {
 		Assess("cli scan flow", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 			// setup env
 			t.Logf("setup env...")
-			assert.NilError(t, setupCLIScanTestEnv(stopCh))
+			setupCLIScanTestEnv(stopCh)
 
 			// create application
 			t.Logf("create application...")
-			appID, err := createApplication()
-			assert.NilError(t, err)
+			appID := createApplication(t)
 
 			// analyze dir
 			t.Logf("analyze dir...")
-			assert.NilError(t, analyzeDir())
+			analyzeDir(t)
 			validateAnalyzeDir(t)
 
 			// analyze image with --merge-sbom directory sbom, and export to backend
 			t.Logf("analyze image...")
-			assert.NilError(t, analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID))
+			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID)
 			validateAnalyzeImage(t)
 
 			// scan merged sbom
 			t.Logf("scan merged sbom...")
-			assert.NilError(t, scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID))
+			scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID)
 			validateScanSBOM(t)
 
 			// scan image
 			// TODO upload a test image to github repo and use it here.
 			t.Logf("scan image...")
-			assert.NilError(t, scanImage(t, TestImageName, appID))
+			scanImage(t, TestImageName, appID)
 			validateScanImage(t)
 
 			return ctx
@@ -91,6 +89,7 @@ func TestCLIScan(t *testing.T) {
 }
 
 func getCdxSbom(t *testing.T, fileName string) *cdx.BOM {
+	t.Helper()
 	sbom, err := os.ReadFile(fileName)
 	assert.NilError(t, err)
 	input := formatter.New(formatter.CycloneDXFormat, sbom)
@@ -99,6 +98,7 @@ func getCdxSbom(t *testing.T, fileName string) *cdx.BOM {
 }
 
 func validateAnalyzeDir(t *testing.T) {
+	t.Helper()
 	sbom := getCdxSbom(t, DirectoryAnalyzeOutputSBOMFile)
 	assert.Assert(t, sbom != nil)
 	assert.Assert(t, sbom.Components != nil)
@@ -108,6 +108,7 @@ func validateAnalyzeDir(t *testing.T) {
 }
 
 func validateAnalyzeImage(t *testing.T) {
+	t.Helper()
 	sbom := getCdxSbom(t, ImageAnalyzeOutputSBOMFile)
 	assert.Assert(t, sbom != nil)
 	// check generated sbom
@@ -127,34 +128,34 @@ func validateAnalyzeImage(t *testing.T) {
 }
 
 func validateScanImage(t *testing.T) {
+	t.Helper()
 	vuls := common.GetVulnerabilities(t, kubeclarityAPI)
 	assert.Assert(t, *vuls.Total > 0)
 }
 
 func validateScanSBOM(t *testing.T) {
+	t.Helper()
 	vuls := common.GetVulnerabilities(t, kubeclarityAPI)
 
 	// TODO how to validate that vulnerabilities were added on top of scanned sbom vuls
 	assert.Assert(t, *vuls.Total > 0)
 }
 
-func createApplication() (id string, err error) {
-	var app *operations.PostApplicationsCreated
+func createApplication(t *testing.T) (appID string) {
+	t.Helper()
 	appType := models.ApplicationTypePOD
-	params := operations.NewPostApplicationsParams().WithBody(&models.ApplicationInfo{
+	res := common.PostApplications(t, kubeclarityAPI, &models.ApplicationInfo{
 		Name: common.StringPtr(ApplicationName),
 		Type: &appType,
 	})
-	app, err = kubeclarityAPI.Operations.PostApplications(params)
-	if err != nil {
-		return "", fmt.Errorf("failed to post application to backend: %v", err)
-	}
-	id = app.Payload.ID
+
+	appID = res.Payload.ID
 	return
 }
 
-func analyzeDir() error {
-	dirPath := filepath.Join(common.GetCurrentDir(), "test_analyze")
+func analyzeDir(t *testing.T) {
+	t.Helper()
+	dirPath := filepath.Join(common.GetCurrentDir(), "vulnerable")
 
 	command := cliPath + " analyze " + dirPath + " --input-type dir -o " + DirectoryAnalyzeOutputSBOMFile
 
@@ -162,15 +163,15 @@ func analyzeDir() error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("failed to execute command. %v, %s", err, out)
 	}
-	return nil
 }
 
 var cliPath = filepath.Join(common.GetCurrentDir(), "kubeclarity-cli")
 
 // analyze test image, merge inputSbom and export to backend
-func analyzeImage(t *testing.T, inputSbom string, appID string) error {
+func analyzeImage(t *testing.T, inputSbom string, appID string) {
+	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
@@ -180,12 +181,12 @@ func analyzeImage(t *testing.T, inputSbom string, appID string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("failed to execute command. %v, %s", err, out)
 	}
-	return nil
 }
 
-func scanSBOM(t *testing.T, inputSbom string, appID string) error {
+func scanSBOM(t *testing.T, inputSbom string, appID string) {
+	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
@@ -195,12 +196,12 @@ func scanSBOM(t *testing.T, inputSbom string, appID string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("failed to execute command. %v, %s", err, out)
 	}
-	return nil
 }
 
-func scanImage(t *testing.T, image string, appID string) error {
+func scanImage(t *testing.T, image string, appID string) {
+	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
@@ -210,16 +211,13 @@ func scanImage(t *testing.T, image string, appID string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("failed to execute command. %v, %s", err, out)
 	}
-	return nil
 }
 
-func setupCLIScanTestEnv(stopCh chan struct{}) error {
+func setupCLIScanTestEnv(stopCh chan struct{}) {
 	println("Set up cli scan test env...")
 
 	println("port-forward to kubeclarity...")
 	common.PortForwardToKubeClarity(stopCh)
-
-	return nil
 }
