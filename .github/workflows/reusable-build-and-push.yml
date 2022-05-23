@@ -53,6 +53,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set output env var
+        if: ${{ inputs.upload == 'true' }}
+        run: |
+          echo "OUTPUTS='type=docker,dest=/tmp/kubeclarity.tar'" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v3
         with:
@@ -60,7 +65,7 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
-          outputs: type=docker,dest=/tmp/kubeclarity.tar
+          outputs: "${{ env.OUTPUTS }}"
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
@@ -69,6 +74,7 @@ jobs:
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
+        if: ${{ inputs.upload == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: kubeclarity
@@ -99,6 +105,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set output env var
+        if: ${{ inputs.upload == 'true' }}
+        run: |
+          echo "OUTPUTS='type=docker,dest=/tmp/cis_docker_benchmark_scanner.tar'" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v3
         with:
@@ -106,7 +117,7 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
           file: Dockerfile.cis_docker_benchmark_scanner
           push: ${{ inputs.push }}
-          outputs: type=docker,dest=/tmp/cis_docker_benchmark_scanner.tar
+          outputs: "${{ env.OUTPUTS }}"
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
@@ -115,6 +126,7 @@ jobs:
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
+        if: ${{ inputs.upload == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: cis_docker_benchmark_scanner
@@ -145,6 +157,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set output env var
+        if: ${{ inputs.upload == 'true' }}
+        run: |
+          echo "OUTPUTS='type=docker,dest=/tmp/runtime_k8s_scanner.tar'" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v3
         with:
@@ -152,7 +169,7 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
           file: Dockerfile.runtime_k8s_scanner
           push: ${{ inputs.push }}
-          outputs: type=docker,dest=/tmp/runtime_k8s_scanner.tar
+          outputs: "${{ env.OUTPUTS }}"
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
@@ -161,6 +178,7 @@ jobs:
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
+        if: ${{ inputs.upload == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: runtime_k8s_scanner
@@ -191,6 +209,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set output env var
+        if: ${{ inputs.upload == 'true' }}
+        run: |
+          echo "OUTPUTS='type=docker,dest=/tmp/kubeclarity-sbom-db.tar'" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v3
         with:
@@ -198,7 +221,7 @@ jobs:
           tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
           file: Dockerfile.sbom_db
           push: ${{ inputs.push }}
-          outputs: type=docker,dest=/tmp/kubeclarity-sbom-db.tar
+          outputs: "${{ env.OUTPUTS }}"
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
@@ -207,6 +230,7 @@ jobs:
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
+        if: ${{ inputs.upload == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: kubeclarity-sbom-db

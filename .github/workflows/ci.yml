@@ -32,7 +32,8 @@ jobs:
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
       image_tag: ${{ github.sha }}
-      push: true
+      push: false
+      upload: true
 
   e2e:
     name: E2E
