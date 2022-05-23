@@ -137,16 +137,13 @@ function useProgressLoaderReducer() {
 
                 dispatch({type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED, payload: {progress: scanned, status, scannedNamespaces, scanType, startTime}});
                 
-                if ([PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status)) {
-                    fetcherRef.current = setTimeout(() => fetchStatus(), 3000);
-                }
+                fetcherRef.current = setTimeout(() => fetchStatus(), 5000);
             }
         }
     }, [prevLoading, loading, data, error, fetchStatus]);
 
     useEffect(() => {
         if (!prevDoAbort && doAbort) {
-            clearTimeout(fetcherRef.current);
             stopScan({method: FETCH_METHODS.PUT});
         }
     }, [prevDoAbort, doAbort, stopScan]);
