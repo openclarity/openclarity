@@ -62,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: erezfish/kubeclarity:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
@@ -114,7 +114,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: erezfish/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
           file: Dockerfile.cis_docker_benchmark_scanner
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
@@ -166,7 +166,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: erezfish/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
           file: Dockerfile.runtime_k8s_scanner
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
@@ -218,7 +218,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: erezfish/kubeclarity-sbom-db:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
           file: Dockerfile.sbom_db
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
@@ -265,7 +265,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: erezfish/kubeclarity-cli:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/kubeclarity-cli:${{ inputs.image_tag }}
           file: Dockerfile.cli
           push: ${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
