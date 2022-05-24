@@ -76,9 +76,8 @@ func GetCurrentDir() string {
 	return curDir
 }
 
-func InstallKubeClarity(manager *helm.Manager, args string, tag string) error {
+func InstallKubeClarity(manager *helm.Manager, args string) error {
 	if err := manager.RunInstall(helm.WithName(KubeClarityHelmReleaseName),
-		helm.WithVersion(tag),
 		helm.WithNamespace(KubeClarityNamespace),
 		helm.WithChart(chartPath),
 		helm.WithArgs(args)); err != nil {

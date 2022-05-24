@@ -40,7 +40,6 @@ var (
 	kubeclarityAPI *client.KubeClarityAPIs
 	k8sClient      klient.Client
 	helmManager    *helm.Manager
-	tag string
 )
 
 func TestMain(m *testing.M) {
@@ -53,7 +52,7 @@ func TestMain(m *testing.M) {
 			println("Setup")
 			k8sClient = cfg.Client()
 
-			tag = os.Getenv("DOCKER_TAG")
+			tag := os.Getenv("DOCKER_TAG")
 
 			println("DOCKER_TAG=", tag)
 
@@ -79,7 +78,7 @@ func TestMain(m *testing.M) {
 			t.Logf("BeforeEachTest")
 
 			t.Logf("deploying kubeclarity...")
-			if err := common.InstallKubeClarity(helmManager, "--create-namespace --wait", tag); err != nil {
+			if err := common.InstallKubeClarity(helmManager, "--create-namespace --wait"); err != nil {
 				return nil, fmt.Errorf("failed to install kubeclarity: %v", err)
 			}
 
