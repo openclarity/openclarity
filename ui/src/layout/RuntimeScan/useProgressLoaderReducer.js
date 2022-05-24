@@ -133,17 +133,23 @@ function useProgressLoaderReducer() {
             if (!!error) {
                 dispatch({type: PROGRESS_LOADER_ACTIONS.ERROR_LOADIND_STATUS});
             } else {
-                const {scanned, status, scannedNamespaces, scanType, startTime} = data;
+                const {scanned, status: dataStatus, scannedNamespaces, scanType, startTime} = data;
 
-                dispatch({type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED, payload: {progress: scanned, status, scannedNamespaces, scanType, startTime}});
+                if (dataStatus !== PROPRESS_STATUSES.DONE.value || status !== PROPRESS_STATUSES.DONE.value) {
+                    dispatch({
+                        type: PROGRESS_LOADER_ACTIONS.STATUS_DATA_LOADED,
+                        payload: {progress: scanned, status: dataStatus, scannedNamespaces, scanType, startTime}
+                    });
+                }
                 
                 fetcherRef.current = setTimeout(() => fetchStatus(), 5000);
             }
         }
-    }, [prevLoading, loading, data, error, fetchStatus]);
+    }, [prevLoading, loading, data, error, fetchStatus, status]);
 
     useEffect(() => {
         if (!prevDoAbort && doAbort) {
+            clearTimeout(fetcherRef.current);
             stopScan({method: FETCH_METHODS.PUT});
         }
     }, [prevDoAbort, doAbort, stopScan]);
