@@ -149,14 +149,14 @@ func WaitForPodRunning(client klient.Client, ns string, labelSelector string) er
 	}
 }
 
-func CreateNamespace(client klient.Client ,name string) error {
+func CreateNamespace(client klient.Client, name string) error {
 	var ns = v1.Namespace{
-		TypeMeta:   v12.TypeMeta{
+		TypeMeta: v12.TypeMeta{
 			Kind:       "Namespace",
 			APIVersion: "v1",
 		},
 		ObjectMeta: v12.ObjectMeta{
-			Name:                       name,
+			Name: name,
 		},
 	}
 	if err := client.Resources(name).Create(context.TODO(), &ns); err != nil {

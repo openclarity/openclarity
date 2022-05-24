@@ -65,9 +65,10 @@ jobs:
       - name: Edit values.yaml
         id: edit_values
         run: |
-          sed -i 's/latest/${{ github.sha }}/g' charts/kubeclarity/Chart.yaml
+          sed -i 's/latest/v1.1/g' charts/kubeclarity/Chart.yaml
           sed -i 's/latest/${{ github.sha }}/g' charts/kubeclarity/values.yaml
           sed -i 's/Always/IfNotPresent/g' charts/kubeclarity/values.yaml
+          cat charts/kubeclarity/values.yaml
 
       - name: Build CLI
         run: |

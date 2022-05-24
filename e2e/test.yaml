@@ -27,7 +27,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: curl
+  name: curl-scheme1-cant-scan
 spec:
   selector:
     matchLabels:
@@ -41,7 +41,7 @@ spec:
       serviceAccountName: test
       containers:
         - name: curl
-          image: tutum/curl
+          image: radial/busyboxplus:curl
           command: ["/bin/sleep", "10000000"]
           imagePullPolicy: IfNotPresent
 ---

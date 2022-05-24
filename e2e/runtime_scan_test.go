@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"gotest.tools/assert"
+	"strings"
 	"testing"
 	"time"
 
@@ -56,6 +57,9 @@ func TestRuntimeScan(t *testing.T) {
 			assert.Assert(t, results.Counters.Applications > 0)
 
 			assert.Assert(t, len(results.VulnerabilityPerSeverity) > 0)
+
+			assert.Assert(t, len(results.Failures) > 0)
+			assert.Assert(t, strings.Contains(results.Failures[0].Message, "radial/busyboxplus:curl"))
 			return ctx
 		}).Feature()
 
@@ -103,6 +107,10 @@ func setupRuntimeScanTestEnv(stopCh chan struct{}) error {
 	}
 
 	if err := common.WaitForPodRunning(k8sClient, "test", "app=nginx"); err != nil {
+		return fmt.Errorf("failed to wait for test pod running: %v", err)
+	}
+
+	if err := common.WaitForPodRunning(k8sClient, "test", "app=curl"); err != nil {
 		return fmt.Errorf("failed to wait for test pod running: %v", err)
 	}
 
