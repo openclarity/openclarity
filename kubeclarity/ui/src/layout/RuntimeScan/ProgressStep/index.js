@@ -9,33 +9,32 @@ import StepDisplay from '../StepDisplay';
 
 import './progress-step.scss';
 
-const ProgressErrorDisplay = ({erorrs}) => {
-    const [showDetails, setShowDetails] = useState(false);
-
-    return (
-        <div className="progress-error-display-wrapper">
-            <div className="progress-error-inticator">
-                <Icon name={ICON_NAMES.ALERT} />
-                <div>Some of the elements were failed to be scanned.</div>
-                <Button tertiary className="progress-error-details-link" onClick={() => setShowDetails(true)}>Click here for more details</Button>
-            </div>
-            {showDetails &&
-                <div className="progress-error-details">
-                    <CloseButton onClose={() => setShowDetails(false)} small />
-                    <div className="progress-error-message">
-                        {erorrs.map((scanError, index) => <div key={index}>{scanError}</div>)}
-                    </div>
-                </div>
-            }
+const ProgressErrorDisplay = ({erorrs, showDetails, setShowDetails}) => (
+    <div className="progress-error-display-wrapper">
+        <div className="progress-error-inticator">
+            <Icon name={ICON_NAMES.ALERT} />
+            <div>Some of the elements were failed to be scanned.</div>
+            <Button tertiary className="progress-error-details-link" onClick={() => setShowDetails(true)}>Click here for more details</Button>
         </div>
-    )
-}
+        {showDetails &&
+            <div className="progress-error-details">
+                <CloseButton onClose={() => setShowDetails(false)} small />
+                <div className="progress-error-message">
+                    {erorrs.map((scanError, index) => <div key={index}>{scanError}</div>)}
+                </div>
+            </div>
+        }
+    </div>
+)
 
 const ProgressStep = ({title, isDone, percent, scanErrors}) => {
     const hasErrors = !isEmpty(scanErrors);
+
+    const [showDetails, setShowDetails] = useState(false);
+    const ErrorsDisplay = () => <ProgressErrorDisplay erorrs={scanErrors} showDetails={showDetails} setShowDetails={setShowDetails} />;
     
     return (
-        <StepDisplay step="1"  title="Progress:" className="progress-step-display" customContent={hasErrors && (() => <ProgressErrorDisplay erorrs={scanErrors} />)}>
+        <StepDisplay step="1"  title="Progress:" className="progress-step-display" customContent={hasErrors && ErrorsDisplay}>
             <div className="progress-wrapper">
                 <ProgressBar percent={percent} />
                 <div className="progress-status-wrapper">
