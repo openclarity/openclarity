@@ -18,7 +18,8 @@ $severity-select-width: 160px;
 .affected-elements-step {
     .step-display {
         height: 36px;
-
+        overflow: hidden;
+        
         .select-counter-buttons-wrapper {
             display: flex;
             align-items: center;
@@ -26,6 +27,7 @@ $severity-select-width: 160px;
             button {
                 margin: 5px 0;
                 margin-right: 10px;
+                white-space: nowrap;
             }
         }
     }
