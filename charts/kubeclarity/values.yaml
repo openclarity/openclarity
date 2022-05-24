@@ -12,6 +12,8 @@ global:
     ## Configure registry
     ##
     registry: "ghcr.io/openclarity"
+    tag: "latest"
+    imagePullPolicy: Always
 
   ## Is this being installed under OpenShift restricted SCC?
   ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
@@ -26,8 +28,9 @@ global:
 kubeclarity:
   ## Docker Image values.
   docker:
-    imageTag: "latest"
-    imagePullPolicy: Always
+    ## Use to overwrite the global docker params
+    ##
+    imageName: ""
 
   ## Logging level (debug, info, warning, error, fatal, panic).
   logLevel: warning
@@ -63,8 +66,9 @@ kubeclarity-runtime-scan:
   cis-docker-benchmark-scanner:
     ## Docker Image values.
     docker:
-      imageTag: "latest"
-      imagePullPolicy: Always
+      ## Use to overwrite the global docker params
+      ##
+      imageName: ""
 
     ## Scanner logging level (debug, info, warning, error, fatal, panic).
     logLevel: warning
@@ -83,8 +87,9 @@ kubeclarity-runtime-scan:
   vulnerability-scanner:
     ## Docker Image values.
     docker:
-      imageTag: "latest"
-      imagePullPolicy: Always
+      ## Use to overwrite the global docker params
+      ##
+      imageName: ""
 
     ## Scanner logging level (debug, info, warning, error, fatal, panic).
     logLevel: warning
@@ -167,8 +172,9 @@ kubeclarity-grype-server:
 kubeclarity-sbom-db:
   ## Docker Image values.
   docker:
-    imageTag: "latest"
-    imagePullPolicy: Always
+    ## Use to overwrite the global docker params
+    ##
+    imageName: ""
 
   ## Logging level (debug, info, warning, error, fatal, panic).
   logLevel: warning
