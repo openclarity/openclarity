@@ -149,7 +149,6 @@ function useProgressLoaderReducer() {
 
     useEffect(() => {
         if (!prevDoAbort && doAbort) {
-            clearTimeout(fetcherRef.current);
             stopScan({method: FETCH_METHODS.PUT});
         }
     }, [prevDoAbort, doAbort, stopScan]);
