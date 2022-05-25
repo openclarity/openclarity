@@ -132,6 +132,10 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 	switch doc.Source.Target.(type) {
 	case syft_source.ImageMetadata:
 		srcName = doc.Source.Target.(syft_source.ImageMetadata).UserInput
+		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
+		if srcName == "" {
+			srcName = userInput
+		}
 		if hash != "" {
 			break
 		}
