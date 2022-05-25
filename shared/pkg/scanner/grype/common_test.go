@@ -87,9 +87,13 @@ func Test_getSource(t *testing.T) {
 
 	// make a copies of document
 	var sbomDoc models.Document
-	copier.Copy(&sbomDoc, &doc)
+	if err := copier.Copy(&sbomDoc, &doc); err != nil {
+		t.Errorf("failed to copy document struct: %v", err)
+	}
 	var otherDoc models.Document
-	copier.Copy(&otherDoc, &doc)
+	if err := copier.Copy(&otherDoc, &doc); err != nil {
+		t.Errorf("failed to copy document struct: %v", err)
+	}
 
 	// define Target properly for image input
 	doc.Source.Target = syft_source.ImageMetadata{
