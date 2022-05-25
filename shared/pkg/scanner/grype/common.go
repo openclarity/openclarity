@@ -142,7 +142,7 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 		hash = image_helper.GetHashFromRepoDigest(doc.Source.Target.(syft_source.ImageMetadata).RepoDigests, userInput)
 		if hash == "" {
 			// set hash using ManifestDigest if RepoDigest is missing
-			hash = doc.Source.Target.(syft_source.ImageMetadata).ManifestDigest
+			hash = strings.TrimPrefix(doc.Source.Target.(syft_source.ImageMetadata).ManifestDigest, "sha256:")
 		}
 	case string:
 		srcName = doc.Source.Target.(string) // nolint:forcetypeassert
