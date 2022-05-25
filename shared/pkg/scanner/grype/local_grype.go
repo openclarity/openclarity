@@ -100,9 +100,16 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
 		return
 	}
-
+	var hash string
+	if sourceType == utils.SBOM {
+		userInput, hash, err = getOriginalInputAndHashFromSBOM(userInput)
+		if err != nil {
+			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
+			return
+		}
+	}
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, userInput, ScannerName)
+	s.resultChan <- CreateResults(doc, userInput, ScannerName, hash)
 }
 
 func validateDBLoad(loadErr error, status *db.Status) error {
