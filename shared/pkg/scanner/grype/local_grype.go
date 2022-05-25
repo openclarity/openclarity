@@ -69,6 +69,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	var hash string
+	origInput := userInput
 	if sourceType == utils.SBOM {
 		syftJSONFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(userInput, s.logger)
 		if err != nil {
@@ -76,8 +77,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 			return
 		}
 		defer cleanup()
-		log.Infof("----------------- %v", userInput)
-		_, hash, err = getOriginalInputAndHashFromSBOM(userInput)
+		origInput, hash, err = getOriginalInputAndHashFromSBOM(userInput)
 		if err != nil {
 			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
 			return
@@ -109,7 +109,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, userInput, ScannerName, hash)
+	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
 }
 
 func validateDBLoad(loadErr error, status *db.Status) error {
