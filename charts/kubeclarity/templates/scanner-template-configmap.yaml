@@ -11,16 +11,14 @@ data:
     kind: Job
     metadata:
       labels:
-        app: scanner
-        sidecar.istio.io/inject: "false"
+{{- toYaml (index .Values "kubeclarity-runtime-scan" "labels") | nindent 8 }}
     spec:
       backoffLimit: 0
       ttlSecondsAfterFinished: 300
       template:
         metadata:
           labels:
-            app: scanner
-            sidecar.istio.io/inject: "false"
+{{- toYaml (index .Values "kubeclarity-runtime-scan" "labels") | nindent 12 }}
         spec:
           restartPolicy: Never
           volumes:
