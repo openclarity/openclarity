@@ -21,10 +21,16 @@ spec:
           image: docker.io/bitnami/postgresql:11.13.0-debian-10-r33
           command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}";
             do echo waiting for database; sleep 2; done;']
-          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
+            capabilities:
+              drop:
+                - all
+            runAsNonRoot: true
+          {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
           {{- end }}
+          resources:
+{{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
           image: yauritux/busybox-curl
           args:
@@ -35,6 +41,16 @@ spec:
               while [ $(curl -sw '%{http_code}' "http://{{ include "kubeclarity.sbom-db.name" . }}:8081/healthz/ready" -o /dev/null) -ne 200 ]; do
                 echo waiting for sbom database; sleep 2;
               done;
+          securityContext:
+            capabilities:
+              drop:
+                - all
+            runAsNonRoot: true
+          {{- if not .Values.global.openShiftRestricted }}
+            runAsUser: 1001
+          {{- end }}
+          resources:
+{{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-grype-server'
           image: yauritux/busybox-curl
@@ -46,11 +62,17 @@ spec:
               while [ $(curl -sw '%{http_code}' "http://{{ include "kubeclarity.grype-server.name" . }}:8080/healthz/ready" -o /dev/null) -ne 200 ]; do
                 echo waiting for grype-server to be ready; sleep 2;
               done;
-{{- end}}
-          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
+            capabilities:
+              drop:
+                - all
+            runAsNonRoot: true
+          {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
           {{- end }}
+          resources:
+{{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
+{{- end}}
       containers:
         - name: kubeclarity
           {{- if .Values.kubeclarity.docker.imageName }}
