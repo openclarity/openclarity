@@ -59,6 +59,11 @@ kubeclarity-runtime-scan:
   httpProxy: ""
   resultServicePort: 8888
 
+  ## Scanner jobs and pods labels.
+  labels:
+    app: kubeclarity-scanner
+    sidecar.istio.io/inject: "false"
+
   registry:
     skipVerifyTlS: "false"
     useHTTP: "false"
