@@ -48,6 +48,15 @@ kubeclarity:
       memory: "1000Mi"
       cpu: "1000m"
 
+  initContainers:
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+
 ## End of KubeClarity Values
 #######################################################################################
 
@@ -243,6 +252,15 @@ kubeclarity-postgresql:
     chmod:
       # if using restricted SCC with runAsUser: "auto" (above) then set shmVolume.chmod.enabled to false
       enabled: true
+
+  primary:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "1000Mi"
+        cpu: "1000m"
 
 # End of KubeClarity Postgres Values
 #######################################################################################
