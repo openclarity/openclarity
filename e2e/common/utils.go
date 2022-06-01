@@ -42,18 +42,17 @@ func Deploy(ns string, yamlFile string) error {
 }
 
 func LoadDockerImagesToCluster(cluster, tag string) error {
-	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("ghcr.io/openclarity/kubeclarity:%v", tag)); err != nil {
-		return fmt.Errorf("failed to load docker image to cluster: %v", err)
+	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("%v:%v", KubeClarityImage, tag)); err != nil {
+		return fmt.Errorf("failed to load docker image %v to cluster: %v", KubeClarityImage, err)
 	}
-	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("ghcr.io/openclarity/kubeclarity-sbom-db:%v", tag)); err != nil {
-		return fmt.Errorf("failed to load docker image to cluster: %v", err)
+	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("%v:%v", KubeClaritySbomDBImage, tag)); err != nil {
+		return fmt.Errorf("failed to load docker image %v to cluster: %v", KubeClaritySbomDBImage, err)
 	}
-	// ghcr.io/openclarity/kubeclarity-cli
-	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:%v", tag)); err != nil {
-		return fmt.Errorf("failed to load docker image to cluster: %v", err)
+	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("%v:%v", KubeClarityRuntimeK8sScannerImage, tag)); err != nil {
+		return fmt.Errorf("failed to load docker image %v to cluster: %v", KubeClarityRuntimeK8sScannerImage, err)
 	}
-	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:%v", tag)); err != nil {
-		return fmt.Errorf("failed to load docker image to cluster: %v", err)
+	if err := LoadDockerImageToCluster(cluster, fmt.Sprintf("%v:%v", KubeClarityCISDockerBenchmarkScannerImage, tag)); err != nil {
+		return fmt.Errorf("failed to load docker image %v to cluster: %v", KubeClarityCISDockerBenchmarkScannerImage, err)
 	}
 
 	return nil
@@ -139,7 +138,7 @@ func WaitForPodRunning(client klient.Client, ns string, labelSelector string) er
 			if err := client.Resources(ns).List(context.TODO(), &podList, func(lo *v12.ListOptions) {
 				lo.LabelSelector = labelSelector
 			}); err != nil {
-				return fmt.Errorf("failed to get pod in namespace: %v and labels: %v. %v", ns, labelSelector, err)
+				return fmt.Errorf("failed to get pod in namespace: %v with labels: %v. %v", ns, labelSelector, err)
 			}
 			pod := podList.Items[0]
 			if pod.Status.Phase == v1.PodRunning {
@@ -184,7 +183,8 @@ func portForward(kind, namespace, name, hostPort, targetPort string, stopCh chan
 	select {
 	case <-stopCh:
 		if err := cmd.Process.Kill(); err != nil {
-			return fmt.Errorf("failed to kill process: %v", err)
+			fmt.Printf("Failed to kill process: %v", err)
+			return nil
 		}
 		return nil
 	case <-processExitedCh:

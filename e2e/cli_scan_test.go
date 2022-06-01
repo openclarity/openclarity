@@ -101,9 +101,7 @@ func validateAnalyzeDir(t *testing.T) {
 	sbom := getCdxSbom(t, DirectoryAnalyzeOutputSBOMFile)
 	assert.Assert(t, sbom != nil)
 	assert.Assert(t, sbom.Components != nil)
-	//assert.Assert(t, sbom.Metadata.Component.Name == "github.com/cisco-open/kubei/e2e/test_ananlyze")
 	assert.Assert(t, len(*sbom.Components) > 0)
-	// TODO assert properties - analyzers = syft, gomod
 }
 
 func validateAnalyzeImage(t *testing.T) {
@@ -158,7 +156,7 @@ func analyzeDir(t *testing.T) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("analyzeDir failed. failed to execute command. %v, %s", err, out)
 	}
 }
 
@@ -176,7 +174,7 @@ func analyzeImage(t *testing.T, inputSbom string, appID string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("analyzeImage failed. failed to execute command. %v, %s", err, out)
 	}
 }
 
@@ -191,7 +189,7 @@ func scanSBOM(t *testing.T, inputSbom string, appID string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("scanSBOM failed. failed to execute command. %v, %s", err, out)
 	}
 }
 
@@ -206,7 +204,7 @@ func scanImage(t *testing.T, image string, appID string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Errorf("failed to execute command. %v, %s", err, out)
+		t.Errorf("scanImage failed. failed to execute command. %v, %s", err, out)
 	}
 }
 

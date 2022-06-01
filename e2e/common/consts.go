@@ -16,6 +16,12 @@
 package common
 
 const (
+	KubeClarityImage                          = "ghcr.io/openclarity/kubeclarity"
+	KubeClaritySbomDBImage                    = "ghcr.io/openclarity/kubeclarity-sbom-db"
+	KubeClarityRuntimeK8sScannerImage         = "ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner"
+	KubeClarityCISDockerBenchmarkScannerImage = "ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner"
+
+	KubeClarityPodLabels             = "app=kubeclarity-kubeclarity"
 	KubeClarityServiceName           = "kubeclarity-kubeclarity"
 	KubeClarityDeploymentName        = "kubeclarity-kubeclarity"
 	KubeClarityNamespace             = "kubeclarity"

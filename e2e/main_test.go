@@ -83,7 +83,7 @@ func TestMain(m *testing.M) {
 			}
 
 			t.Logf("waiting for kubeclarity to run...")
-			if err := common.WaitForPodRunning(k8sClient, common.KubeClarityNamespace, "app=kubeclarity-kubeclarity"); err != nil {
+			if err := common.WaitForPodRunning(k8sClient, common.KubeClarityNamespace, common.KubeClarityPodLabels); err != nil {
 				common.DescribeKubeClarityDeployment()
 				common.DescribeKubeClarityPods()
 				common.GetKubeClarityPods()

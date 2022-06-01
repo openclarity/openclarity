@@ -58,6 +58,7 @@ func TestRuntimeScan(t *testing.T) {
 
 			assert.Assert(t, len(results.VulnerabilityPerSeverity) > 0)
 
+			// radial/busyboxplus:curl is not supported as it uses V1 image manifest, which should result in an error.
 			assert.Assert(t, len(results.Failures) > 0)
 			assert.Assert(t, strings.Contains(results.Failures[0].Message, "radial/busyboxplus:curl"))
 			return ctx
@@ -102,16 +103,16 @@ func setupRuntimeScanTestEnv(stopCh chan struct{}) error {
 	}
 
 	println("deploying nginx and curl to test namespace...")
-	if err := common.Deploy("test", "test.yaml"); err != nil {
-		return fmt.Errorf("failed to install test.yaml: %v", err)
+	if err := common.Deploy("test", "curl_nginx.yaml"); err != nil {
+		return fmt.Errorf("failed to install curl_nginx.yaml: %v", err)
 	}
 
 	if err := common.WaitForPodRunning(k8sClient, "test", "app=nginx"); err != nil {
-		return fmt.Errorf("failed to wait for test pod running: %v", err)
+		return fmt.Errorf("failed to wait for nginx test pod running: %v", err)
 	}
 
 	if err := common.WaitForPodRunning(k8sClient, "test", "app=curl"); err != nil {
-		return fmt.Errorf("failed to wait for test pod running: %v", err)
+		return fmt.Errorf("failed to wait for curl test pod running: %v", err)
 	}
 
 	println("port-forward to kubeclarity...")

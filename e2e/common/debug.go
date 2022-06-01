@@ -21,36 +21,34 @@ import (
 )
 
 func DescribeKubeClarityDeployment() {
-	cmd := exec.Command("kubectl", "-n", "kubeclarity", "describe", "deployments.apps", KubeClarityDeploymentName)
+	cmd := exec.Command("kubectl", "-n", KubeClarityNamespace, "describe", "deployments.apps", KubeClarityDeploymentName)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Failed to execute command. %v, %s", err, out)
+		fmt.Printf("DescribeKubeClarityDeployment failed. Failed to execute command. %v, %s", err, out)
 		return
 	}
 	fmt.Printf("kubectl describe deployments.apps -n kubeclarity kubeclarity-kubeclarity:\n %s\n", out)
 }
 
 func DescribeKubeClarityPods() {
-	cmd := exec.Command("kubectl", "-n", "kubeclarity", "describe", "pods")
+	cmd := exec.Command("kubectl", "-n", KubeClarityNamespace, "describe", "pods")
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Failed to execute command. %v, %s", err, out)
+		fmt.Printf("DescribeKubeClarityPods failed. Failed to execute command. %v, %s", err, out)
 		return
 	}
 	fmt.Printf("kubectl describe pods -n kubeclarity:\n %s\n", out)
 }
 
 func GetKubeClarityPods() {
-	cmd := exec.Command("kubectl", "-n", "kubeclarity", "get", "pods")
+	cmd := exec.Command("kubectl", "-n", KubeClarityNamespace, "get", "pods")
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Failed to execute command. %v, %s", err, out)
+		fmt.Printf("GetKubeClarityPods failed. Failed to execute command. %v, %s", err, out)
 		return
 	}
 	fmt.Printf("kubectl get pods -n kubeclarity:\n %s\n", out)
 }
-
-

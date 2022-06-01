@@ -53,7 +53,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set output env var
+      - name: Set build output env var
         if: ${{ inputs.upload == 'true' }}
         run: |
           echo "OUTPUTS=type=docker,dest=/tmp/kubeclarity.tar" >> $GITHUB_ENV
@@ -105,7 +105,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set output env var
+      - name: Set build output env var
         if: ${{ inputs.upload == 'true' }}
         run: |
           echo "OUTPUTS=type=docker,dest=/tmp/cis_docker_benchmark_scanner.tar" >> $GITHUB_ENV
@@ -157,7 +157,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set output env var
+      - name: Set build output env var
         if: ${{ inputs.upload == 'true' }}
         run: |
           echo "OUTPUTS=type=docker,dest=/tmp/runtime_k8s_scanner.tar" >> $GITHUB_ENV
@@ -209,7 +209,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set output env var
+      - name: Set build output env var
         if: ${{ inputs.upload == 'true' }}
         run: |
           echo "OUTPUTS=type=docker,dest=/tmp/kubeclarity-sbom-db.tar" >> $GITHUB_ENV
