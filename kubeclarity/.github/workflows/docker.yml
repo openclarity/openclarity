@@ -10,3 +10,4 @@ jobs:
     with:
       image_tag: latest
       push: true
+      upload: false
