@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import classnames from 'classnames';
-import { pickBy } from 'lodash';
+import { pickBy, isInteger } from 'lodash';
 import { usePrevious } from 'hooks';
 import { SelectField, TimeField, TextField, useFormikContext, validators } from 'components/Form';
 import { formatFormFields, SCHEDULE_TYPE_DATA_WRAPPER, SCHEDULE_TYPES, GENERAL_FOMR_FIELDS } from './utils';
@@ -102,7 +102,11 @@ const RepetitiveFormFields = () => {
                 type="number"
                 name={`${SCHEDULE_TYPE_DATA_WRAPPER}.${intervalKey}`}
                 label="Repeat every"
-                validate={validators.validateRequired}
+                validate={value => {
+                    const requiredError = validators.validateRequired(value);
+                    
+                    return !!requiredError ? requiredError : ((isInteger(value) && value > 0) ? null : "Invalid value");
+                }}
                 disabled={isWeeklyInerval}
             />
             <SelectField
