@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
@@ -76,7 +77,7 @@ func ConvertCycloneDXFileToSyftJSONFile(inputFilePath string, logger *log.Entry)
 	return outputFilePath, func() { _ = os.Remove(outputFilePath) }, nil
 }
 
-func CreateResults(doc grype_models.Document, userInput, scannerName string) *scanner.Results {
+func CreateResults(doc grype_models.Document, userInput, scannerName, hash string) *scanner.Results {
 	distro := getDistro(doc)
 
 	matches := make(scanner.Matches, len(doc.Matches))
@@ -117,24 +118,34 @@ func CreateResults(doc grype_models.Document, userInput, scannerName string) *sc
 		ScannerInfo: scanner.Info{
 			Name: scannerName,
 		},
-		Source: getSource(doc, userInput),
+		Source: getSource(doc, userInput, hash),
 	}
 }
 
-func getSource(doc grype_models.Document, userInput string) scanner.Source {
+func getSource(doc grype_models.Document, userInput, hash string) scanner.Source {
 	var source scanner.Source
 	if doc.Source == nil {
 		return source
 	}
 
-	var srcName, hash string
+	var srcName string
 	switch doc.Source.Target.(type) {
 	case syft_source.ImageMetadata:
 		srcName = doc.Source.Target.(syft_source.ImageMetadata).UserInput
+		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
+		if srcName == "" {
+			srcName = userInput
+		}
+		if hash != "" {
+			break
+		}
 		hash = image_helper.GetHashFromRepoDigest(doc.Source.Target.(syft_source.ImageMetadata).RepoDigests, userInput)
 		if hash == "" {
 			// set hash using ManifestDigest if RepoDigest is missing
-			hash = doc.Source.Target.(syft_source.ImageMetadata).ManifestDigest
+			manifestHash := doc.Source.Target.(syft_source.ImageMetadata).ManifestDigest
+			if idx := strings.Index(manifestHash, ":"); idx != -1 {
+				hash = manifestHash[idx+1:]
+			}
 		}
 	case string:
 		srcName = doc.Source.Target.(string) // nolint:forcetypeassert
@@ -213,4 +224,14 @@ func parseLayerHex(layerID string) string {
 	}
 
 	return layerID[index+1:]
+}
+
+func getOriginalInputAndHashFromSBOM(inputSBOMFile string) (string, string, error) {
+	cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
+	if err != nil {
+		return "", "", converter.ErrFailedToGetCycloneDXSBOM
+	}
+	hash := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
+
+	return cdxBOM.Metadata.Component.Name, hash, nil
 }
