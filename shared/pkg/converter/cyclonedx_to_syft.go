@@ -122,7 +122,7 @@ func convertCycloneDXtoSyft(bom *cdx.BOM) (syft_sbom.SBOM, error) {
 		return syft_sbom.SBOM{}, fmt.Errorf("cycloneDX metadata component is nil")
 	}
 	if bom.Components == nil {
-		return syft_sbom.SBOM{}, fmt.Errorf("cycloneDX doesent have any components")
+		return syft_sbom.SBOM{}, fmt.Errorf("cycloneDX doesn't have any components")
 	}
 	// nolint:exhaustive
 	switch bom.Metadata.Component.Type {

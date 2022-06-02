@@ -93,7 +93,7 @@ func (s *RemoteScanner) run(sbomInputFilePath string) {
 
 	userInput, hash, err := getOriginalInputAndHashFromSBOM(sbomInputFilePath)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to get original source ahd hash from SBOM: %w", err), s.logger)
+		ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
 		return
 	}
 
