@@ -72,14 +72,14 @@ func (s *RemoteScanner) Run(sourceType utils.SourceType, userInput string) error
 }
 
 func (s *RemoteScanner) run(sbomInputFilePath string) {
-	syftJsonInputFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(sbomInputFilePath, s.logger)
+	syftJSONInputFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(sbomInputFilePath, s.logger)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to convert sbom file: %w", err), s.logger)
 		return
 	}
 	defer cleanup()
 
-	syftJSON, err := os.ReadFile(syftJsonInputFilePath)
+	syftJSON, err := os.ReadFile(syftJSONInputFilePath)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to read input file after conversion: %w", err), s.logger)
 		return
