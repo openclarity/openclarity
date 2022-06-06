@@ -20,6 +20,10 @@ data:
           labels:
 {{- toYaml (index .Values "kubeclarity-runtime-scan" "labels") | nindent 12 }}
         spec:
+{{- if (index .Values "kubeclarity-runtime-scan" "tolerations") }}
+          tolerations:
+{{- toYaml (index .Values "kubeclarity-runtime-scan" "tolerations") | nindent 12 }}
+{{- end}}
           restartPolicy: Never
           volumes:
           - name: tmp-volume
