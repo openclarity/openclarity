@@ -15,8 +15,6 @@ linters-settings:
   gomoddirectives:
     # Allow local `replace` directives. Default is false.
     replace-local: true
-    replace-allow-list:
-      - github.com/containerd/containerd
   gosec:
     # To specify a set of rules to explicitly exclude.
     # Available rules: https://github.com/securego/gosec#available-rules

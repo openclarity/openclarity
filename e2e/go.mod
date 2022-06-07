@@ -124,8 +124,3 @@ require (
 )
 
 replace github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
-
-// replace containerd to fix high vulnerability
-// fix github.com/containerd/containerd GHSA-crp2-qrr5-8pq7
-// remove them after github.com/anchore/grype and github.com/anchore/syft upgrade
-replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.1
