@@ -38,6 +38,8 @@ type ClientService interface {
 
 	GetApplicationsID(params *GetApplicationsIDParams, opts ...ClientOption) (*GetApplicationsIDOK, error)
 
+	GetCisdockerbenchmarkresults(params *GetCisdockerbenchmarkresultsParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsOK, error)
+
 	GetDashboardCounters(params *GetDashboardCountersParams, opts ...ClientOption) (*GetDashboardCountersOK, error)
 
 	GetDashboardMostVulnerable(params *GetDashboardMostVulnerableParams, opts ...ClientOption) (*GetDashboardMostVulnerableOK, error)
@@ -271,6 +273,43 @@ func (a *Client) GetApplicationsID(params *GetApplicationsIDParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetApplicationsIDDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetCisdockerbenchmarkresults gets c i s docker benchmark results
+*/
+func (a *Client) GetCisdockerbenchmarkresults(params *GetCisdockerbenchmarkresultsParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetCisdockerbenchmarkresultsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetCisdockerbenchmarkresults",
+		Method:             "GET",
+		PathPattern:        "/cisdockerbenchmarkresults",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetCisdockerbenchmarkresultsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetCisdockerbenchmarkresultsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetCisdockerbenchmarkresultsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

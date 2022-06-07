@@ -77,6 +77,13 @@ definitions:
       - fixVersion
       - source
 
+  CISDockerBenchmarkResultsSortKey:
+    type: string
+    enum: &CISDockerBenchmarkResultsSortKey
+      - code
+      - title
+      - level
+
   ApplicationType:
     type: string
     enum: &ApplicationType
@@ -1436,6 +1443,47 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
 
+  /cisdockerbenchmarkresults:
+    get:
+      summary: 'Get CIS Docker Benchmark results'
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/cisDockerBenchmarkResultsSortKey'
+        - $ref: '#/parameters/sortDir'
+        - $ref: '#/parameters/applicationResourcesIsFilter'
+        - $ref: '#/parameters/applicationResourcesIsNotFilter'
+        - $ref: '#/parameters/applicationResourcesGteFilter'
+        - $ref: '#/parameters/applicationResourcesLteFilter'
+        - $ref: '#/parameters/applicationsIsFilter'
+        - $ref: '#/parameters/applicationsIsNotFilter'
+        - $ref: '#/parameters/applicationsGteFilter'
+        - $ref: '#/parameters/applicationsLteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelGteFilter'
+        - $ref: '#/parameters/cisDockerBenchmarkLevelLteFilter'
+        # system filters
+        - $ref: '#/parameters/applicationID'
+        - $ref: '#/parameters/applicationResourceID'
+        - $ref: '#/parameters/currentRuntimeScan'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total CIS docker benchmark results count under the given filters'
+              items:
+                type: 'array'
+                description: 'List of CIS docker benchmark results in the given filters and page. List length must be lower or equal to pageSize'
+                items:
+                  $ref: '#/definitions/CISDockerBenchmarkCodeInfo'
+        default:
+          $ref: '#/responses/UnknownError'
+
   /applications/vulnerabilityScan/{id}:
     post:
       summary: 'Report a vulnerability scan for a specific application'
@@ -1608,6 +1656,14 @@ parameters:
     in: 'query'
     type: 'string'
     enum: *VulnerabilitiesSortKey
+    required: true
+
+  cisDockerBenchmarkResultsSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *CISDockerBenchmarkResultsSortKey
     required: true
 
   applicationNameIsFilter:
