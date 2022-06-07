@@ -18,7 +18,7 @@ spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
-          image: docker.io/bitnami/postgresql:11.13.0-debian-10-r33
+          image: docker.io/bitnami/postgresql:{{ index .Values "kubeclarity-postgresql" "image" "tag" | default "11.16.0-debian-10-r23" }}
           command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}";
             do echo waiting for database; sleep 2; done;']
           securityContext:

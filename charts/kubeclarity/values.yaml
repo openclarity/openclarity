@@ -221,6 +221,8 @@ kubeclarity-sbom-db:
 
 kubeclarity-postgresql:
   enabled: true
+  image:
+    tag: 11.16.0-debian-10-r23
 
   ## ConfigMap with scripts to be run at first boot
   ## NOTE: This will override initdbScripts
