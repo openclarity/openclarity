@@ -124,3 +124,6 @@ require (
 )
 
 replace github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
+
+// replace containerd to fix high vulnerability
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.1
