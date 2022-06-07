@@ -1639,7 +1639,9 @@ func init() {
       "enum": [
         "code",
         "title",
-        "level"
+        "level",
+        "applications",
+        "applicationResources"
       ]
     },
     "CISDockerBenchmarkScanCounters": {
@@ -2628,7 +2630,9 @@ func init() {
       "enum": [
         "code",
         "title",
-        "level"
+        "level",
+        "applications",
+        "applicationResources"
       ],
       "type": "string",
       "description": "Sort key",
@@ -3981,7 +3985,9 @@ func init() {
             "enum": [
               "code",
               "title",
-              "level"
+              "level",
+              "applications",
+              "applicationResources"
             ],
             "type": "string",
             "description": "Sort key",
@@ -5760,7 +5766,9 @@ func init() {
       "enum": [
         "code",
         "title",
-        "level"
+        "level",
+        "applications",
+        "applicationResources"
       ]
     },
     "CISDockerBenchmarkScanCounters": {
@@ -6752,7 +6760,9 @@ func init() {
       "enum": [
         "code",
         "title",
-        "level"
+        "level",
+        "applications",
+        "applicationResources"
       ],
       "type": "string",
       "description": "Sort key",

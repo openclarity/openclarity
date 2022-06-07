@@ -83,6 +83,8 @@ definitions:
       - code
       - title
       - level
+      - applications
+      - applicationResources
 
   ApplicationType:
     type: string

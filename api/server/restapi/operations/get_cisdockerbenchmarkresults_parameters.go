@@ -684,7 +684,7 @@ func (o *GetCisdockerbenchmarkresultsParams) bindSortKey(rawData []string, hasKe
 // validateSortKey carries on validations for parameter SortKey
 func (o *GetCisdockerbenchmarkresultsParams) validateSortKey(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"code", "title", "level"}, true); err != nil {
+	if err := validate.EnumCase("sortKey", "query", o.SortKey, []interface{}{"code", "title", "level", "applications", "applicationResources"}, true); err != nil {
 		return err
 	}
 
