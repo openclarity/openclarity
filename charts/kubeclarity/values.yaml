@@ -221,6 +221,9 @@ kubeclarity-sbom-db:
 
 kubeclarity-postgresql:
   enabled: true
+
+  ## imageTag is set to fix high/critical postgresql issues
+  ## after https://github.com/bitnami/charts/issues/10661 issue is fixed the following lines can be commented out.
   image:
     tag: 11.16.0-debian-10-r23
 
