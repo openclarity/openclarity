@@ -29,17 +29,8 @@ const (
 	// CISDockerBenchmarkResultsSortKeyCode captures enum value "code"
 	CISDockerBenchmarkResultsSortKeyCode CISDockerBenchmarkResultsSortKey = "code"
 
-	// CISDockerBenchmarkResultsSortKeyTitle captures enum value "title"
-	CISDockerBenchmarkResultsSortKeyTitle CISDockerBenchmarkResultsSortKey = "title"
-
 	// CISDockerBenchmarkResultsSortKeyLevel captures enum value "level"
 	CISDockerBenchmarkResultsSortKeyLevel CISDockerBenchmarkResultsSortKey = "level"
-
-	// CISDockerBenchmarkResultsSortKeyApplications captures enum value "applications"
-	CISDockerBenchmarkResultsSortKeyApplications CISDockerBenchmarkResultsSortKey = "applications"
-
-	// CISDockerBenchmarkResultsSortKeyApplicationResources captures enum value "applicationResources"
-	CISDockerBenchmarkResultsSortKeyApplicationResources CISDockerBenchmarkResultsSortKey = "applicationResources"
 )
 
 // for schema
@@ -47,7 +38,7 @@ var cISDockerBenchmarkResultsSortKeyEnum []interface{}
 
 func init() {
 	var res []CISDockerBenchmarkResultsSortKey
-	if err := json.Unmarshal([]byte(`["code","title","level","applications","applicationResources"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["code","level"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

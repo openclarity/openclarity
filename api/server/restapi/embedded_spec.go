@@ -464,60 +464,18 @@ func init() {
         }
       }
     },
-    "/cisdockerbenchmarkresults": {
+    "/cisdockerbenchmarkresults/{id}": {
       "get": {
-        "summary": "Get CIS Docker Benchmark results",
+        "summary": "Get CIS Docker Benchmark results by Application Resource",
         "parameters": [
           {
-            "$ref": "#/parameters/page"
-          },
-          {
-            "$ref": "#/parameters/pageSize"
+            "$ref": "#/parameters/id"
           },
           {
             "$ref": "#/parameters/cisDockerBenchmarkResultsSortKey"
           },
           {
             "$ref": "#/parameters/sortDir"
-          },
-          {
-            "$ref": "#/parameters/applicationResourcesIsFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationResourcesIsNotFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationResourcesGteFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationResourcesLteFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationsIsFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationsIsNotFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationsGteFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationsLteFilter"
-          },
-          {
-            "$ref": "#/parameters/cisDockerBenchmarkLevelGteFilter"
-          },
-          {
-            "$ref": "#/parameters/cisDockerBenchmarkLevelLteFilter"
-          },
-          {
-            "$ref": "#/parameters/applicationID"
-          },
-          {
-            "$ref": "#/parameters/applicationResourceID"
-          },
-          {
-            "$ref": "#/parameters/currentRuntimeScan"
           }
         ],
         "responses": {
@@ -530,14 +488,14 @@ func init() {
               ],
               "properties": {
                 "items": {
-                  "description": "List of CIS docker benchmark results in the given filters and page. List length must be lower or equal to pageSize",
+                  "description": "List of CIS docker benchmark results by Application Resource",
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/CISDockerBenchmarkCodeInfo"
+                    "$ref": "#/definitions/CISDockerBenchmarkAssessment"
                   }
                 },
                 "total": {
-                  "description": "Total CIS docker benchmark results count under the given filters",
+                  "description": "Total CIS docker benchmark results by Application Resource",
                   "type": "integer"
                 }
               }
@@ -1593,6 +1551,9 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -1638,10 +1599,7 @@ func init() {
       "type": "string",
       "enum": [
         "code",
-        "title",
-        "level",
-        "applications",
-        "applicationResources"
+        "level"
       ]
     },
     "CISDockerBenchmarkScanCounters": {
@@ -2629,10 +2587,7 @@ func init() {
     "cisDockerBenchmarkResultsSortKey": {
       "enum": [
         "code",
-        "title",
-        "level",
-        "applications",
-        "applicationResources"
+        "level"
       ],
       "type": "string",
       "description": "Sort key",
@@ -3961,33 +3916,20 @@ func init() {
         }
       }
     },
-    "/cisdockerbenchmarkresults": {
+    "/cisdockerbenchmarkresults/{id}": {
       "get": {
-        "summary": "Get CIS Docker Benchmark results",
+        "summary": "Get CIS Docker Benchmark results by Application Resource",
         "parameters": [
           {
-            "type": "integer",
-            "description": "Page number of the query",
-            "name": "page",
-            "in": "query",
-            "required": true
-          },
-          {
-            "maximum": 50,
-            "minimum": 1,
-            "type": "integer",
-            "description": "Maximum items to return",
-            "name": "pageSize",
-            "in": "query",
+            "type": "string",
+            "name": "id",
+            "in": "path",
             "required": true
           },
           {
             "enum": [
               "code",
-              "title",
-              "level",
-              "applications",
-              "applicationResources"
+              "level"
             ],
             "type": "string",
             "description": "Sort key",
@@ -4005,100 +3947,6 @@ func init() {
             "description": "Sorting direction",
             "name": "sortDir",
             "in": "query"
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            },
-            "name": "applicationResources[is]",
-            "in": "query"
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            },
-            "name": "applicationResources[isNot]",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "greater than or equal",
-            "name": "applicationResources[gte]",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "less than or equal",
-            "name": "applicationResources[lte]",
-            "in": "query"
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            },
-            "name": "applications[is]",
-            "in": "query"
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            },
-            "name": "applications[isNot]",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "greater than or equal",
-            "name": "applications[gte]",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "less than or equal",
-            "name": "applications[lte]",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "INFO",
-              "WARN",
-              "FATAL"
-            ],
-            "type": "string",
-            "name": "cisDockerBenchmarkLevel[gte]",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "INFO",
-              "WARN",
-              "FATAL"
-            ],
-            "type": "string",
-            "name": "cisDockerBenchmarkLevel[lte]",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "application ID system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed",
-            "name": "applicationID",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "application resource ID system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed",
-            "name": "applicationResourceID",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "current runtime scan system filter, not visible to the user. only one of applicationID, applicationResourceID, packageID, currentRuntimeScan is allowed",
-            "name": "currentRuntimeScan",
-            "in": "query"
           }
         ],
         "responses": {
@@ -4111,14 +3959,14 @@ func init() {
               ],
               "properties": {
                 "items": {
-                  "description": "List of CIS docker benchmark results in the given filters and page. List length must be lower or equal to pageSize",
+                  "description": "List of CIS docker benchmark results by Application Resource",
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/CISDockerBenchmarkCodeInfo"
+                    "$ref": "#/definitions/CISDockerBenchmarkAssessment"
                   }
                 },
                 "total": {
-                  "description": "Total CIS docker benchmark results count under the given filters",
+                  "description": "Total CIS docker benchmark results by Application Resource",
                   "type": "integer"
                 }
               }
@@ -5720,6 +5568,9 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -5765,10 +5616,7 @@ func init() {
       "type": "string",
       "enum": [
         "code",
-        "title",
-        "level",
-        "applications",
-        "applicationResources"
+        "level"
       ]
     },
     "CISDockerBenchmarkScanCounters": {
@@ -6759,10 +6607,7 @@ func init() {
     "cisDockerBenchmarkResultsSortKey": {
       "enum": [
         "code",
-        "title",
-        "level",
-        "applications",
-        "applicationResources"
+        "level"
       ],
       "type": "string",
       "description": "Sort key",

@@ -38,7 +38,7 @@ type ClientService interface {
 
 	GetApplicationsID(params *GetApplicationsIDParams, opts ...ClientOption) (*GetApplicationsIDOK, error)
 
-	GetCisdockerbenchmarkresults(params *GetCisdockerbenchmarkresultsParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsOK, error)
+	GetCisdockerbenchmarkresultsID(params *GetCisdockerbenchmarkresultsIDParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsIDOK, error)
 
 	GetDashboardCounters(params *GetDashboardCountersParams, opts ...ClientOption) (*GetDashboardCountersOK, error)
 
@@ -277,22 +277,22 @@ func (a *Client) GetApplicationsID(params *GetApplicationsIDParams, opts ...Clie
 }
 
 /*
-  GetCisdockerbenchmarkresults gets c i s docker benchmark results
+  GetCisdockerbenchmarkresultsID gets c i s docker benchmark results by application resource
 */
-func (a *Client) GetCisdockerbenchmarkresults(params *GetCisdockerbenchmarkresultsParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsOK, error) {
+func (a *Client) GetCisdockerbenchmarkresultsID(params *GetCisdockerbenchmarkresultsIDParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetCisdockerbenchmarkresultsParams()
+		params = NewGetCisdockerbenchmarkresultsIDParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "GetCisdockerbenchmarkresults",
+		ID:                 "GetCisdockerbenchmarkresultsID",
 		Method:             "GET",
-		PathPattern:        "/cisdockerbenchmarkresults",
+		PathPattern:        "/cisdockerbenchmarkresults/{id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &GetCisdockerbenchmarkresultsReader{formats: a.formats},
+		Reader:             &GetCisdockerbenchmarkresultsIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -304,12 +304,12 @@ func (a *Client) GetCisdockerbenchmarkresults(params *GetCisdockerbenchmarkresul
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetCisdockerbenchmarkresultsOK)
+	success, ok := result.(*GetCisdockerbenchmarkresultsIDOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetCisdockerbenchmarkresultsDefault)
+	unexpectedSuccess := result.(*GetCisdockerbenchmarkresultsIDDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

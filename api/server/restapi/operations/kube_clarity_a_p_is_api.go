@@ -57,8 +57,8 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 		GetApplicationsIDHandler: GetApplicationsIDHandlerFunc(func(params GetApplicationsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetApplicationsID has not yet been implemented")
 		}),
-		GetCisdockerbenchmarkresultsHandler: GetCisdockerbenchmarkresultsHandlerFunc(func(params GetCisdockerbenchmarkresultsParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetCisdockerbenchmarkresults has not yet been implemented")
+		GetCisdockerbenchmarkresultsIDHandler: GetCisdockerbenchmarkresultsIDHandlerFunc(func(params GetCisdockerbenchmarkresultsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetCisdockerbenchmarkresultsID has not yet been implemented")
 		}),
 		GetDashboardCountersHandler: GetDashboardCountersHandlerFunc(func(params GetDashboardCountersParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetDashboardCounters has not yet been implemented")
@@ -178,8 +178,8 @@ type KubeClarityAPIsAPI struct {
 	GetApplicationsHandler GetApplicationsHandler
 	// GetApplicationsIDHandler sets the operation handler for the get applications ID operation
 	GetApplicationsIDHandler GetApplicationsIDHandler
-	// GetCisdockerbenchmarkresultsHandler sets the operation handler for the get cisdockerbenchmarkresults operation
-	GetCisdockerbenchmarkresultsHandler GetCisdockerbenchmarkresultsHandler
+	// GetCisdockerbenchmarkresultsIDHandler sets the operation handler for the get cisdockerbenchmarkresults ID operation
+	GetCisdockerbenchmarkresultsIDHandler GetCisdockerbenchmarkresultsIDHandler
 	// GetDashboardCountersHandler sets the operation handler for the get dashboard counters operation
 	GetDashboardCountersHandler GetDashboardCountersHandler
 	// GetDashboardMostVulnerableHandler sets the operation handler for the get dashboard most vulnerable operation
@@ -320,8 +320,8 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 	if o.GetApplicationsIDHandler == nil {
 		unregistered = append(unregistered, "GetApplicationsIDHandler")
 	}
-	if o.GetCisdockerbenchmarkresultsHandler == nil {
-		unregistered = append(unregistered, "GetCisdockerbenchmarkresultsHandler")
+	if o.GetCisdockerbenchmarkresultsIDHandler == nil {
+		unregistered = append(unregistered, "GetCisdockerbenchmarkresultsIDHandler")
 	}
 	if o.GetDashboardCountersHandler == nil {
 		unregistered = append(unregistered, "GetDashboardCountersHandler")
@@ -506,7 +506,7 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/cisdockerbenchmarkresults"] = NewGetCisdockerbenchmarkresults(o.context, o.GetCisdockerbenchmarkresultsHandler)
+	o.handlers["GET"]["/cisdockerbenchmarkresults/{id}"] = NewGetCisdockerbenchmarkresultsID(o.context, o.GetCisdockerbenchmarkresultsIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

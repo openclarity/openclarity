@@ -91,6 +91,7 @@ func createCISDockerBenchmarkAssessment(assessments dockle_types.AssessmentSlice
 	for _, assessment := range assessments {
 		ret = append(ret, &models.CISDockerBenchmarkAssessment{
 			Code:     assessment.Code,
+			Title:    dockle_types.TitleMap[assessment.Code],
 			Desc:     assessment.Desc,
 			Filename: assessment.Filename,
 			Level:    int64(assessment.Level),

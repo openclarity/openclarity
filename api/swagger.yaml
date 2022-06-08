@@ -81,10 +81,7 @@ definitions:
     type: string
     enum: &CISDockerBenchmarkResultsSortKey
       - code
-      - title
       - level
-      - applications
-      - applicationResources
 
   ApplicationType:
     type: string
@@ -233,6 +230,8 @@ definitions:
     type: 'object'
     properties:
       code:
+        type: 'string'
+      title:
         type: 'string'
       level:
         type: 'number'
@@ -1445,28 +1444,13 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
 
-  /cisdockerbenchmarkresults:
+  /cisdockerbenchmarkresults/{id}:
     get:
-      summary: 'Get CIS Docker Benchmark results'
+      summary: 'Get CIS Docker Benchmark results by Application Resource'
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/id'
         - $ref: '#/parameters/cisDockerBenchmarkResultsSortKey'
         - $ref: '#/parameters/sortDir'
-        - $ref: '#/parameters/applicationResourcesIsFilter'
-        - $ref: '#/parameters/applicationResourcesIsNotFilter'
-        - $ref: '#/parameters/applicationResourcesGteFilter'
-        - $ref: '#/parameters/applicationResourcesLteFilter'
-        - $ref: '#/parameters/applicationsIsFilter'
-        - $ref: '#/parameters/applicationsIsNotFilter'
-        - $ref: '#/parameters/applicationsGteFilter'
-        - $ref: '#/parameters/applicationsLteFilter'
-        - $ref: '#/parameters/cisDockerBenchmarkLevelGteFilter'
-        - $ref: '#/parameters/cisDockerBenchmarkLevelLteFilter'
-        # system filters
-        - $ref: '#/parameters/applicationID'
-        - $ref: '#/parameters/applicationResourceID'
-        - $ref: '#/parameters/currentRuntimeScan'
       responses:
         '200':
           description: 'Success'
@@ -1477,12 +1461,12 @@ paths:
             properties:
               total:
                 type: 'integer'
-                description: 'Total CIS docker benchmark results count under the given filters'
+                description: 'Total CIS docker benchmark results by Application Resource'
               items:
                 type: 'array'
-                description: 'List of CIS docker benchmark results in the given filters and page. List length must be lower or equal to pageSize'
+                description: 'List of CIS docker benchmark results by Application Resource'
                 items:
-                  $ref: '#/definitions/CISDockerBenchmarkCodeInfo'
+                  $ref: '#/definitions/CISDockerBenchmarkAssessment'
         default:
           $ref: '#/responses/UnknownError'
 
