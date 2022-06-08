@@ -171,7 +171,7 @@ kubeclarity-grype-server:
   ## Docker Image values.
   docker:
     imageRepo: "gcr.io/eticloud/k8sec"
-    imageTag: "v0.1.2"
+    imageTag: "v0.1.3"
     imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
@@ -221,6 +221,11 @@ kubeclarity-sbom-db:
 
 kubeclarity-postgresql:
   enabled: true
+
+  ## imageTag is set to fix high/critical postgresql issues
+  ## after https://github.com/bitnami/charts/issues/10661 issue is fixed the following lines can be commented out.
+  image:
+    tag: 11.16.0-debian-10-r23
 
   ## ConfigMap with scripts to be run at first boot
   ## NOTE: This will override initdbScripts
