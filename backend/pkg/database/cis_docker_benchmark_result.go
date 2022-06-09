@@ -17,8 +17,9 @@ package database
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"strings"
+
+	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
@@ -125,6 +126,7 @@ func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models
 		Level: int64(result.Level),
 	}
 }
+
 func createCISDockerBenchmarkResultsSortOrder(sortKey string, sortDir *string) (string, error) {
 	sortKeyColumnName, err := getCISDockerBenchmarkResultsSortKeyColumnName(sortKey)
 	if err != nil {
