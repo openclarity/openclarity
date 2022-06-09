@@ -233,6 +233,10 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 		return s.PutRuntimeScheduleScanConfig(params)
 	})
 
+	api.GetCisdockerbenchmarkresultsIDHandler = operations.GetCisdockerbenchmarkresultsIDHandlerFunc(func(params operations.GetCisdockerbenchmarkresultsIDParams) middleware.Responder {
+		return s.GetCISDockerBenchmarkResults(params)
+	})
+
 	server := restapi.NewServer(api)
 
 	server.ConfigureFlags()

@@ -37,6 +37,7 @@ const (
 
 // order is important, need to drop views in a reverse order of the creation.
 var viewsList = []string{
+	"cis_d_b_checks_view",
 	"vulnerabilities_view",
 	"package_resources_info_view",
 	"packages_view",
@@ -314,7 +315,19 @@ GROUP BY vulnerabilities.id,
          p.name,
          p.version,
          p.id,
-         pv.fix_version
+         pv.fix_version;
+  `
+
+	cisDockerBenchmarkResultsViewQuery = `
+CREATE VIEW cis_d_b_checks_view AS
+SELECT resource_cis_d_b_checks.*,
+       cis_d_b_checks.id AS id,
+       cis_d_b_checks.code AS code,
+       cis_d_b_checks.titles AS titles,
+       cis_d_b_checks.level AS level,
+       cis_d_b_checks.descriptions AS descriptions
+FROM resource_cis_d_b_checks
+         LEFT OUTER JOIN cis_d_b_checks ON cis_d_b_checks.id = resource_cis_d_b_checks.cis_docker_benchmark_check_id;
   `
 )
 
@@ -420,7 +433,8 @@ func (db *Handler) SchedulerTable() SchedulerTable {
 
 func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
 	return &CISDockerBenchmarkResultTableHandler{
-		table: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
+		applicationsCisDockerBenchmarkChecksWiev: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
+		cisDockerBenchmarkChecksWiev:             db.DB.Table(cisDockerBenchmarkChecksViewName),
 	}
 }
 
@@ -547,6 +561,10 @@ func createAllViews(db *gorm.DB) {
 
 	if err := db.Exec(vulnerabilitiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create vulnerabilities_view: %v", err)
+	}
+
+	if err := db.Exec(cisDockerBenchmarkResultsViewQuery).Error; err != nil {
+		log.Fatalf("Failed to create cis_d_b_checks_view: %v", err)
 	}
 }
 

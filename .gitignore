@@ -7,3 +7,4 @@ bin/
 testconfig.yaml
 db.db
 goreleaser_artifacts/
+site/
