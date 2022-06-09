@@ -50,8 +50,7 @@ $inner-padding: 20px;
             margin-left: 6px;
         }
         .runtime-scan-select {
-            margin-left: $inner-padding;
-            margin-right: $inner-padding;
+            margin: 10px $inner-padding;
             width: 100%;
         }
         .scan-button {
