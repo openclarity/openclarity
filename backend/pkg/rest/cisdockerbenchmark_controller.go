@@ -39,7 +39,7 @@ func (s *Server) GetCISDockerBenchmarkResults(params operations.GetCisdockerbenc
 	}
 
 	log.Debugf("GetCISDockerBenchmarkResults controller was invoked. "+
-		"params=%+v, vulnerabilitiesView=%+v, total=%+v", params, cisDockerBenchmarkResults, total)
+		"params=%+v, cisDockerBenchmarkResults=%+v, total=%+v", params, cisDockerBenchmarkResults, total)
 
 	cisDockerBenchmarkAssessments := make([]*models.CISDockerBenchmarkAssessment, len(cisDockerBenchmarkResults))
 	for i := range cisDockerBenchmarkResults {

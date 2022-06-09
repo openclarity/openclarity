@@ -28,6 +28,9 @@ type CISDockerBenchmarkAssessment struct {
 
 	// level
 	Level int64 `json:"level,omitempty"`
+
+	// title
+	Title string `json:"title,omitempty"`
 }
 
 // Validate validates this c i s docker benchmark assessment

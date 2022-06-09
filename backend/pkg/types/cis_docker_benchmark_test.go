@@ -41,12 +41,14 @@ func TestCISDockerBenchmarkResultsFromBackendAPI(t *testing.T) {
 						Assessments: []*models.CISDockerBenchmarkAssessment{
 							{
 								Code:     "Code1",
+								Title:    "Title1",
 								Desc:     "Desc1",
 								Filename: "Filename1",
 								Level:    1,
 							},
 							{
 								Code:     "Code1",
+								Title:    "Title1",
 								Desc:     "Desc2",
 								Filename: "Filename2",
 								Level:    1,
@@ -59,6 +61,7 @@ func TestCISDockerBenchmarkResultsFromBackendAPI(t *testing.T) {
 						Assessments: []*models.CISDockerBenchmarkAssessment{
 							{
 								Code:     "Code2",
+								Title:    "Title2",
 								Desc:     "Desc22",
 								Filename: "Filename22",
 								Level:    2,
@@ -72,6 +75,7 @@ func TestCISDockerBenchmarkResultsFromBackendAPI(t *testing.T) {
 						Assessments: []*models.CISDockerBenchmarkAssessment{
 							{
 								Code:     "Code3",
+								Title:    "Title3",
 								Filename: "Filename33",
 								Level:    3,
 							},
@@ -85,16 +89,19 @@ func TestCISDockerBenchmarkResultsFromBackendAPI(t *testing.T) {
 				{
 					Code:         "Code1",
 					Level:        1,
+					Titles:       "Title1, Title1",
 					Descriptions: "Desc1, Desc2",
 				},
 				{
 					Code:         "Code2",
 					Level:        2,
+					Titles:       "Title2",
 					Descriptions: "Desc22",
 				},
 				{
-					Code:  "Code3",
-					Level: 3,
+					Code:   "Code3",
+					Level:  3,
+					Titles: "Title3",
 				},
 			},
 		},

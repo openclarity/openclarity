@@ -56,8 +56,8 @@ type CISDockerBenchmarkResultTable interface {
 }
 
 type CISDockerBenchmarkResultTableHandler struct {
-	applicationsCisDockerBenchmarkChecksWiev *gorm.DB
-	cisDockerBenchmarkChecksWiev             *gorm.DB
+	applicationsCisDockerBenchmarkChecksView *gorm.DB
+	cisDockerBenchmarkChecksView             *gorm.DB
 }
 
 func (CISDockerBenchmarkCheck) TableName() string {
@@ -71,7 +71,7 @@ const totalLevelCountStmnt = "SUM(total_info_count) AS total_info_count," +
 func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error) {
 	var counters CISDockerBenchmarkLevelCounters
 
-	tx := c.setCountFilters(c.applicationsCisDockerBenchmarkChecksWiev, filters)
+	tx := c.setCountFilters(c.applicationsCisDockerBenchmarkChecksView, filters)
 
 	if err := tx.Select(totalLevelCountStmnt).Scan(&counters).Error; err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (c *CISDockerBenchmarkResultTableHandler) GetCISDockerBenchmarkResultsAndTo
 	var count int64
 	var cisDockerBenchmarkResults []CISDockerBenchmarkCheckView
 
-	tx := FilterIs(c.cisDockerBenchmarkChecksWiev, columnCisDockerBenchmarkChecksViewResourceID, []string{params.ID})
+	tx := FilterIs(c.cisDockerBenchmarkChecksView, columnCisDockerBenchmarkChecksViewResourceID, []string{params.ID})
 
 	// get total item count with the set filters
 	if err := tx.Count(&count).Error; err != nil {

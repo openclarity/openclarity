@@ -88,6 +88,8 @@ definitions:
     properties:
       code:
         type: 'string'
+      title:
+        type: 'string'
       level:
         type: 'number'
         format: integer

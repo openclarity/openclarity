@@ -433,8 +433,8 @@ func (db *Handler) SchedulerTable() SchedulerTable {
 
 func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable {
 	return &CISDockerBenchmarkResultTableHandler{
-		applicationsCisDockerBenchmarkChecksWiev: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
-		cisDockerBenchmarkChecksWiev:             db.DB.Table(cisDockerBenchmarkChecksViewName),
+		applicationsCisDockerBenchmarkChecksView: db.DB.Table(applicationCisDockerBenchmarkChecksViewName),
+		cisDockerBenchmarkChecksView:             db.DB.Table(cisDockerBenchmarkChecksViewName),
 	}
 }
 

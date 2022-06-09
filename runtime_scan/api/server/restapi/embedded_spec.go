@@ -174,6 +174,9 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -708,6 +711,9 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
