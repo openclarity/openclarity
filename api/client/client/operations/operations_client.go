@@ -277,7 +277,7 @@ func (a *Client) GetApplicationsID(params *GetApplicationsIDParams, opts ...Clie
 }
 
 /*
-  GetCisdockerbenchmarkresultsID gets c i s docker benchmark results by application resource
+  GetCisdockerbenchmarkresultsID gets c i s docker benchmark results by application resource ID
 */
 func (a *Client) GetCisdockerbenchmarkresultsID(params *GetCisdockerbenchmarkresultsIDParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsIDOK, error) {
 	// TODO: Validate the params before sending

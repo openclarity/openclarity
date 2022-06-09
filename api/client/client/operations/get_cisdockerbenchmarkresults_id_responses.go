@@ -124,7 +124,7 @@ swagger:model GetCisdockerbenchmarkresultsIDOKBody
 */
 type GetCisdockerbenchmarkresultsIDOKBody struct {
 
-	// List of CIS docker benchmark results by Application Resource
+	// List of CIS docker benchmark findings for an Application Resource
 	Items []*models.CISDockerBenchmarkAssessment `json:"items"`
 
 	// Total CIS docker benchmark results by Application Resource

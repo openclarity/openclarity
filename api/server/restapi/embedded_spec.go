@@ -466,7 +466,7 @@ func init() {
     },
     "/cisdockerbenchmarkresults/{id}": {
       "get": {
-        "summary": "Get CIS Docker Benchmark results by Application Resource",
+        "summary": "Get CIS Docker Benchmark results by Application Resource ID",
         "parameters": [
           {
             "$ref": "#/parameters/id"
@@ -488,7 +488,7 @@ func init() {
               ],
               "properties": {
                 "items": {
-                  "description": "List of CIS docker benchmark results by Application Resource",
+                  "description": "List of CIS docker benchmark findings for an Application Resource",
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/CISDockerBenchmarkAssessment"
@@ -3918,7 +3918,7 @@ func init() {
     },
     "/cisdockerbenchmarkresults/{id}": {
       "get": {
-        "summary": "Get CIS Docker Benchmark results by Application Resource",
+        "summary": "Get CIS Docker Benchmark results by Application Resource ID",
         "parameters": [
           {
             "type": "string",
@@ -3959,7 +3959,7 @@ func init() {
               ],
               "properties": {
                 "items": {
-                  "description": "List of CIS docker benchmark results by Application Resource",
+                  "description": "List of CIS docker benchmark findings for an Application Resource",
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/CISDockerBenchmarkAssessment"

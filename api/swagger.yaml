@@ -1446,7 +1446,7 @@ paths:
 
   /cisdockerbenchmarkresults/{id}:
     get:
-      summary: 'Get CIS Docker Benchmark results by Application Resource'
+      summary: 'Get CIS Docker Benchmark results by Application Resource ID'
       parameters:
         - $ref: '#/parameters/id'
         - $ref: '#/parameters/cisDockerBenchmarkResultsSortKey'
@@ -1464,7 +1464,7 @@ paths:
                 description: 'Total CIS docker benchmark results by Application Resource'
               items:
                 type: 'array'
-                description: 'List of CIS docker benchmark results by Application Resource'
+                description: 'List of CIS docker benchmark findings for an Application Resource'
                 items:
                   $ref: '#/definitions/CISDockerBenchmarkAssessment'
         default:

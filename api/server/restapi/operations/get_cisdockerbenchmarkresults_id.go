@@ -39,7 +39,7 @@ func NewGetCisdockerbenchmarkresultsID(ctx *middleware.Context, handler GetCisdo
 
 /* GetCisdockerbenchmarkresultsID swagger:route GET /cisdockerbenchmarkresults/{id} getCisdockerbenchmarkresultsId
 
-Get CIS Docker Benchmark results by Application Resource
+Get CIS Docker Benchmark results by Application Resource ID
 
 */
 type GetCisdockerbenchmarkresultsID struct {
@@ -68,7 +68,7 @@ func (o *GetCisdockerbenchmarkresultsID) ServeHTTP(rw http.ResponseWriter, r *ht
 // swagger:model GetCisdockerbenchmarkresultsIDOKBody
 type GetCisdockerbenchmarkresultsIDOKBody struct {
 
-	// List of CIS docker benchmark results by Application Resource
+	// List of CIS docker benchmark findings for an Application Resource
 	Items []*models.CISDockerBenchmarkAssessment `json:"items"`
 
 	// Total CIS docker benchmark results by Application Resource
