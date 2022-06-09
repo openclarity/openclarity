@@ -3,6 +3,7 @@ import { isEmpty } from 'lodash';
 import PageContainer from 'components/PageContainer';
 import Loader from 'components/Loader';
 import TopBarTitle from 'components/TopBarTitle';
+import Icon, { ICON_NAMES } from 'components/Icon';
 import { BoldText, formatDate } from 'utils/utils';
 import useProgressLoaderReducer, { PROGRESS_LOADER_ACTIONS, PROPRESS_STATUSES } from './useProgressLoaderReducer';
 import ScanConfiguration from './ScanConfiguration';
@@ -22,7 +23,7 @@ const RuntimeScan = () => {
     const doStartScan = (namespaces) => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_START_SCAN, payload: {namespaces}});
     const doStopScan = () => dispatch({type: PROGRESS_LOADER_ACTIONS.DO_STOP_SCAN});
 
-    const {failures, vulnerabilityPerSeverity, cisDockerBenchmarkCountPerLevel, cisDockerBenchmarkScanEnabled} = scanResults || {};
+    const {failures, vulnerabilityPerSeverity, cisDockerBenchmarkCountPerLevel, cisDockerBenchmarkScanEnabled, endTime} = scanResults || {};
     const isInProgress = [PROPRESS_STATUSES.IN_PROGRESS.value, PROPRESS_STATUSES.FINALIZING.value].includes(status);
     
     return (
@@ -39,12 +40,22 @@ const RuntimeScan = () => {
                         <div className="scan-details-info">
                             {!!scannedNamespaces && !!scanType &&
                                 <React.Fragment>
-                                    <div className="details-info-config">
+                                    <div className="genreral-scan-details">
                                         <BoldText>{`${SCAN_TYPES[scanType]} SCAN`}</BoldText>
-                                        <span>{` with target namespaces: `}</span>
-                                        <BoldText>{isEmpty(scannedNamespaces) ? "All" : scannedNamespaces.join(", ")}</BoldText>
+                                        <div className="details-info-time">
+                                            <Icon name={ICON_NAMES.CLOCK} />
+                                            <span><BoldText>Started</BoldText>{` on ${formatDate(startTime)}`}</span>
+                                            {!!endTime && <span>{` - `}<BoldText>Completed</BoldText>{` on ${formatDate(endTime)}`}</span>}
+                                        </div>
                                     </div>
-                                    <div className="details-info-time">{`Started on `}<BoldText>{formatDate(startTime)}</BoldText></div>
+                                    <div className="namespaces-scan-details">
+                                        <span>{`with target namespaces: `}</span>
+                                        {isEmpty(scannedNamespaces) ? <BoldText style={{marginLeft: "10px"}}>All</BoldText> : 
+                                            <div className="namespaces-list">
+                                                {scannedNamespaces.map((namespace, index) => <div key={index} className="namespace-item">{namespace}</div>)}
+                                            </div>
+                                        }
+                                    </div>
                                 </React.Fragment>
                             }
                         </div>
