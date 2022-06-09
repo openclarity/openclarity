@@ -27,7 +27,6 @@ const DropdownSelect = ({items, value, onChange, creatable=false, clearable=fals
             styles={{
                 control: (provided) => ({
                     ...provided,
-                    height: height,
                     minHeight: height,
                     borderRadius: 2,
                     borderColor: COLORS["color-grey-light"],
@@ -79,7 +78,7 @@ const DropdownSelect = ({items, value, onChange, creatable=false, clearable=fals
                 }),
                 valueContainer: (provided) => ({
                     ...provided,
-                    height: innerHeight,
+                    minHeight: innerHeight,
                     padding: (small && isMulti) ? "0 8px" : "2px 8px"
                 }),
                 singleValue: (provided) => ({
