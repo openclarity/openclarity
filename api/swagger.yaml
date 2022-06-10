@@ -231,13 +231,24 @@ definitions:
     properties:
       code:
         type: 'string'
-      title:
-        type: 'string'
       level:
         type: 'number'
         format: integer
       filename:
         type: 'string'
+      desc:
+        type: 'string'
+
+  CISDockerBenchmarkResultsEX:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      title:
+        type: 'string'
+      level:
+        type: 'number'
+        format: integer
       desc:
         type: 'string'
 
@@ -1466,7 +1477,7 @@ paths:
                 type: 'array'
                 description: 'List of CIS docker benchmark findings for an Application Resource'
                 items:
-                  $ref: '#/definitions/CISDockerBenchmarkAssessment'
+                  $ref: '#/definitions/CISDockerBenchmarkResultsEX'
         default:
           $ref: '#/responses/UnknownError'
 

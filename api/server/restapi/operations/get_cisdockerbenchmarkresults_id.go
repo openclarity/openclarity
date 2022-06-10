@@ -69,7 +69,7 @@ func (o *GetCisdockerbenchmarkresultsID) ServeHTTP(rw http.ResponseWriter, r *ht
 type GetCisdockerbenchmarkresultsIDOKBody struct {
 
 	// List of CIS docker benchmark findings for an Application Resource
-	Items []*models.CISDockerBenchmarkAssessment `json:"items"`
+	Items []*models.CISDockerBenchmarkResultsEX `json:"items"`
 
 	// Total CIS docker benchmark results by Application Resource
 	// Required: true

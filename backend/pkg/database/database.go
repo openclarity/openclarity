@@ -323,7 +323,6 @@ CREATE VIEW cis_d_b_checks_view AS
 SELECT resource_cis_d_b_checks.*,
        cis_d_b_checks.id AS id,
        cis_d_b_checks.code AS code,
-       cis_d_b_checks.titles AS titles,
        cis_d_b_checks.level AS level,
        cis_d_b_checks.descriptions AS descriptions
 FROM resource_cis_d_b_checks

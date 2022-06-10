@@ -27,7 +27,7 @@ import (
 )
 
 func (s *Server) GetCISDockerBenchmarkResults(params operations.GetCisdockerbenchmarkresultsIDParams) middleware.Responder {
-	cisDockerBenchmarkResults, total, err := s.dbHandler.CISDockerBenchmarkResultTable().GetCISDockerBenchmarkResultsAndTotal(params)
+	cisDockerBenchmarkChecks, total, err := s.dbHandler.CISDockerBenchmarkResultTable().GetCISDockerBenchmarkResultsAndTotal(params)
 	if err != nil {
 		log.Error(err)
 		return operations.NewGetCisdockerbenchmarkresultsIDDefault(http.StatusInternalServerError).
@@ -39,16 +39,16 @@ func (s *Server) GetCISDockerBenchmarkResults(params operations.GetCisdockerbenc
 	}
 
 	log.Debugf("GetCISDockerBenchmarkResults controller was invoked. "+
-		"params=%+v, cisDockerBenchmarkResults=%+v, total=%+v", params, cisDockerBenchmarkResults, total)
+		"params=%+v, cisDockerBenchmarkResults=%+v, total=%+v", params, cisDockerBenchmarkChecks, total)
 
-	cisDockerBenchmarkAssessments := make([]*models.CISDockerBenchmarkAssessment, len(cisDockerBenchmarkResults))
+	cisDockerBenchmarkResults := make([]*models.CISDockerBenchmarkResultsEX, len(cisDockerBenchmarkChecks))
 	for i := range cisDockerBenchmarkResults {
-		cisDockerBenchmarkAssessments[i] = database.CISDockerBenchmarkResultFromDB(&cisDockerBenchmarkResults[i])
+		cisDockerBenchmarkResults[i] = database.CISDockerBenchmarkResultFromDB(&cisDockerBenchmarkChecks[i])
 	}
 
 	return operations.NewGetCisdockerbenchmarkresultsIDOK().WithPayload(
 		&operations.GetCisdockerbenchmarkresultsIDOKBody{
-			Items: cisDockerBenchmarkAssessments,
+			Items: cisDockerBenchmarkResults,
 			Total: &total,
 		})
 }

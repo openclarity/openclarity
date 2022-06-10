@@ -491,7 +491,7 @@ func init() {
                   "description": "List of CIS docker benchmark findings for an Application Resource",
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+                    "$ref": "#/definitions/CISDockerBenchmarkResultsEX"
                   }
                 },
                 "total": {
@@ -1551,9 +1551,6 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
-        },
-        "title": {
-          "type": "string"
         }
       }
     },
@@ -1592,6 +1589,24 @@ func init() {
         },
         "level": {
           "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkResultsEX": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -3962,7 +3977,7 @@ func init() {
                   "description": "List of CIS docker benchmark findings for an Application Resource",
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/CISDockerBenchmarkAssessment"
+                    "$ref": "#/definitions/CISDockerBenchmarkResultsEX"
                   }
                 },
                 "total": {
@@ -5568,9 +5583,6 @@ func init() {
         "level": {
           "type": "number",
           "format": "integer"
-        },
-        "title": {
-          "type": "string"
         }
       }
     },
@@ -5609,6 +5621,24 @@ func init() {
         },
         "level": {
           "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        }
+      }
+    },
+    "CISDockerBenchmarkResultsEX": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "format": "integer"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },

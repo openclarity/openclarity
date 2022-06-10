@@ -122,7 +122,6 @@ func convertAssessments(assessments []*dockle_types.Assessment) []*models.CISDoc
 func convertAssessment(assessment *dockle_types.Assessment) *models.CISDockerBenchmarkAssessment {
 	return &models.CISDockerBenchmarkAssessment{
 		Code:     assessment.Code,
-		Title:    dockle_types.TitleMap[assessment.Code],
 		Desc:     assessment.Desc,
 		Filename: assessment.Filename,
 		Level:    int64(assessment.Level),

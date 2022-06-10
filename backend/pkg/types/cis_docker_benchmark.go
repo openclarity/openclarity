@@ -24,7 +24,6 @@ import (
 
 type CISDockerBenchmarkResult struct {
 	Code         string `json:"code,omitempty"`
-	Titles       string `json:"titles,omitempty"`
 	Level        int64  `json:"level,omitempty"`
 	Descriptions string `json:"descriptions"`
 }
@@ -41,7 +40,6 @@ func cisDockerBenchmarkResultFromBackendAPI(in *models.CISDockerBenchmarkCodeInf
 	return &CISDockerBenchmarkResult{
 		Code:         in.Code,
 		Level:        in.Level,
-		Titles:       getTitlesFromBackendAPI(in.Assessments),
 		Descriptions: getDescriptionsFromBackendAPI(in.Assessments),
 	}
 }
@@ -53,15 +51,6 @@ func getDescriptionsFromBackendAPI(assessments []*models.CISDockerBenchmarkAsses
 	}
 
 	return strings.Join(description, ", ")
-}
-
-func getTitlesFromBackendAPI(assessments []*models.CISDockerBenchmarkAssessment) string {
-	title := make([]string, len(assessments))
-	for i := range assessments {
-		title[i] = assessments[i].Title
-	}
-
-	return strings.Join(title, ", ")
 }
 
 func CISDockerBenchmarkResultsFromFromRuntimeScan(in []*runtime_scan_models.CISDockerBenchmarkCodeInfo) []*CISDockerBenchmarkResult {

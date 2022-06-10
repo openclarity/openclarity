@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strings"
 
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
@@ -39,8 +40,7 @@ const (
 type CISDockerBenchmarkCheck struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the Code name
 
-	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: code3, code2, code1"`
-	Titles       string `json:"titles,omitempty" gorm:"column:titles" faker:"oneof: title3, title2, title1"`
+	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: CIS-DI-0006, CIS-DI-0005, CIS-DI-0001"`
 	Level        int    `json:"level,omitempty" gorm:"column:level" faker:"oneof: 3, 2, 1"`
 	Descriptions string `json:"descriptions" gorm:"column:descriptions" faker:"oneof: desc3, desc2, desc1"`
 }
@@ -118,10 +118,10 @@ func (c *CISDockerBenchmarkResultTableHandler) GetCISDockerBenchmarkResultsAndTo
 	return cisDockerBenchmarkResults, count, nil
 }
 
-func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models.CISDockerBenchmarkAssessment {
-	return &models.CISDockerBenchmarkAssessment{
+func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models.CISDockerBenchmarkResultsEX {
+	return &models.CISDockerBenchmarkResultsEX{
 		Code:  result.Code,
-		Title: result.Titles,
+		Title: dockle_types.TitleMap[result.Code],
 		Desc:  result.Descriptions,
 		Level: int64(result.Level),
 	}
