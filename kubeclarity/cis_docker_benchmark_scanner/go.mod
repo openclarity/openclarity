@@ -157,7 +157,7 @@ require (
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/sys v0.0.0-20220517195934-5e4e11fc645e // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
@@ -187,3 +187,7 @@ replace (
 	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../sbom_db/api
 	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
 )
+
+// fix GHSA-27rq-4943-qcwp, GHSA-cjr4-fv6c-f3mv, GHSA-fcgg-rvwg-jv58, GHSA-x24g-9w7v-vprh, GHSA-28r2-q6m8-9hpx
+// remove after github.com/anchore/grype and github.com/anchore/syft upgrade
+replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.6.1
