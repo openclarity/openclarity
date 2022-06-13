@@ -19,8 +19,9 @@ import (
 	"fmt"
 	"strings"
 
-	dockle_types "github.com/Portshift/dockle/pkg/types"
 	log "github.com/sirupsen/logrus"
+
+	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
@@ -36,12 +37,6 @@ const (
 	columnCisDockerBenchmarkChecksViewResourceID               = "resource_id"
 	columnCode                                                 = "code"
 	columnLevel                                                = "level"
-)
-
-const (
-	cisBenchmarkInfo = iota + 1
-	cisBenchmarkWarn
-	cisBenchmarkFatal
 )
 
 type CISDockerBenchmarkCheck struct {
@@ -136,11 +131,11 @@ func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models
 
 func convertToAPILevel(level int) models.CISDockerBenchmarkLevel {
 	switch level {
-	case cisBenchmarkInfo:
+	case int(CISDockerBenchmarkLevelINFO):
 		return models.CISDockerBenchmarkLevelINFO
-	case cisBenchmarkWarn:
+	case int(CISDockerBenchmarkLevelWARN):
 		return models.CISDockerBenchmarkLevelWARN
-	case cisBenchmarkFatal:
+	case int(CISDockerBenchmarkLevelFATAL):
 		return models.CISDockerBenchmarkLevelFATAL
 	default:
 		log.Errorf("Invalid level: %v", level)
