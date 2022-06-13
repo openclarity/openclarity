@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"gorm.io/gorm"
 
