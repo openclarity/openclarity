@@ -320,7 +320,7 @@ GROUP BY vulnerabilities.id,
 
 	cisDockerBenchmarkResultsViewQuery = `
 CREATE VIEW cis_d_b_checks_view AS
-SELECT resource_cis_d_b_checks.resource_id,
+SELECT resource_cis_d_b_checks.resource_id AS resource_id,
        cis_d_b_checks.id AS id,
        cis_d_b_checks.code AS code,
        cis_d_b_checks.level AS level,
