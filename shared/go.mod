@@ -22,6 +22,7 @@ require (
 	github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20220425181515-fc6ff852e45e
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-multierror v1.1.1
+	github.com/jinzhu/copier v0.3.2
 	github.com/package-url/packageurl-go v0.1.0
 	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
@@ -93,7 +94,6 @@ require (
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jdkato/prose v1.1.0 // indirect
-	github.com/jinzhu/copier v0.3.2 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -147,7 +147,7 @@ require (
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/sys v0.0.0-20220517195934-5e4e11fc645e // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
@@ -182,3 +182,7 @@ require (
 	k8s.io/apimachinery v0.23.4
 	k8s.io/client-go v0.23.4
 )
+
+// fix GHSA-27rq-4943-qcwp, GHSA-cjr4-fv6c-f3mv, GHSA-fcgg-rvwg-jv58, GHSA-x24g-9w7v-vprh, GHSA-28r2-q6m8-9hpx
+// remove after github.com/anchore/grype and github.com/anchore/syft upgrade
+replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.6.1
