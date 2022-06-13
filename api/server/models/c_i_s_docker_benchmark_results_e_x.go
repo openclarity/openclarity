@@ -8,6 +8,7 @@ package models
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -24,7 +25,7 @@ type CISDockerBenchmarkResultsEX struct {
 	Desc string `json:"desc,omitempty"`
 
 	// level
-	Level int64 `json:"level,omitempty"`
+	Level CISDockerBenchmarkLevel `json:"level,omitempty"`
 
 	// title
 	Title string `json:"title,omitempty"`
@@ -32,11 +33,56 @@ type CISDockerBenchmarkResultsEX struct {
 
 // Validate validates this c i s docker benchmark results e x
 func (m *CISDockerBenchmarkResultsEX) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this c i s docker benchmark results e x based on context it is used
+func (m *CISDockerBenchmarkResultsEX) validateLevel(formats strfmt.Registry) error {
+	if swag.IsZero(m.Level) { // not required
+		return nil
+	}
+
+	if err := m.Level.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("level")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this c i s docker benchmark results e x based on the context it is used
 func (m *CISDockerBenchmarkResultsEX) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateLevel(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CISDockerBenchmarkResultsEX) contextValidateLevel(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Level.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("level")
+		}
+		return err
+	}
+
 	return nil
 }
 

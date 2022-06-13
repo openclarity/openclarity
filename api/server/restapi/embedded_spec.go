@@ -1602,8 +1602,7 @@ func init() {
           "type": "string"
         },
         "level": {
-          "type": "number",
-          "format": "integer"
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
         },
         "title": {
           "type": "string"
@@ -5634,8 +5633,7 @@ func init() {
           "type": "string"
         },
         "level": {
-          "type": "number",
-          "format": "integer"
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
         },
         "title": {
           "type": "string"

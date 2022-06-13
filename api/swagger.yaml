@@ -247,8 +247,7 @@ definitions:
       title:
         type: 'string'
       level:
-        type: 'number'
-        format: integer
+        $ref: '#/definitions/CISDockerBenchmarkLevel'
       desc:
         type: 'string'
 

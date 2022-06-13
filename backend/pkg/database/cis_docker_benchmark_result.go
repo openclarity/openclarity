@@ -17,6 +17,7 @@ package database
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"strings"
 
 	dockle_types "github.com/Portshift/dockle/pkg/types"
@@ -123,7 +124,21 @@ func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models
 		Code:  result.Code,
 		Title: dockle_types.TitleMap[result.Code],
 		Desc:  result.Descriptions,
-		Level: int64(result.Level),
+		Level: convertToApiLevel(result.Level),
+	}
+}
+
+func convertToApiLevel(level int) models.CISDockerBenchmarkLevel {
+	switch level {
+	case 1:
+		return models.CISDockerBenchmarkLevelINFO
+	case 2:
+		return models.CISDockerBenchmarkLevelWARN
+	case 3:
+		return models.CISDockerBenchmarkLevelFATAL
+	default:
+		log.Errorf("Invalid level: %v", level)
+		return models.CISDockerBenchmarkLevelINFO
 	}
 }
 
