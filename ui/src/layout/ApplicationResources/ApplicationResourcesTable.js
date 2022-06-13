@@ -6,13 +6,7 @@ import VerticalItemsList from 'components/VerticalItemsList';
 import { FILTERR_TYPES } from 'context/FiltersProvider';
 import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
 import { SEVERITY_ITEMS, CIS_SEVERITY_ITEMS } from 'utils/systemConsts';
-import { VulnerabilitiesLink, PackagesLink, ApplicationsLink } from './utils';
-
-const RESOURCE_TYPE_ITEMS = [
-    {value: "IMAGE", label: "Image"},
-    {value: "DIRECTORY", label: "Directory"},
-    {value: "FILE", label: "File"}
-];
+import { RESOURCE_TYPES, VulnerabilitiesLink, PackagesLink, ApplicationsLink } from './utils';
 
 const ApplicationResourcesTable = () => {
     const columns = useMemo(() => [
@@ -113,7 +107,7 @@ const ApplicationResourcesTable = () => {
                     {...OPERATORS.contains, valueItems: [], creatable: true}
                 ]},
                 resourceType: {value: "resourceType", label: "Resource type", operators: [
-                    {...OPERATORS.is, valueItems: RESOURCE_TYPE_ITEMS, creatable: false}
+                    {...OPERATORS.is, valueItems: Object.values(RESOURCE_TYPES), creatable: false}
                 ]},
                 vulnerabilitySeverity: {value: "vulnerabilitySeverity", label: "Vulnerability severity", operators: [
                     {...OPERATORS.gte, valueItems: Object.values(SEVERITY_ITEMS), creatable: false, isSingleSelect: true},
