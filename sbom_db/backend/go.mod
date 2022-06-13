@@ -59,3 +59,7 @@ require (
 )
 
 replace github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../api
+
+// fix GHSA-27rq-4943-qcwp, GHSA-cjr4-fv6c-f3mv, GHSA-fcgg-rvwg-jv58, GHSA-x24g-9w7v-vprh, GHSA-28r2-q6m8-9hpx
+// remove after github.com/anchore/grype and github.com/anchore/syft upgrade
+replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.6.1
