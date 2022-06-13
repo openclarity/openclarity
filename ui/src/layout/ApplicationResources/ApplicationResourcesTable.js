@@ -61,7 +61,7 @@ const ApplicationResourcesTable = () => {
                     <ApplicationsLink applications={applications} applicationResourceID={id} resourceName={resourceName} />
                 )
             },
-            width: 50,
+            width: 55,
             canSort: true
         },
         {

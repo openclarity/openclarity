@@ -24,7 +24,7 @@ const DetailsContent = ({data}) => {
                 },
                 {
                     id: "cis",
-                    title: "CIS Benchmark",
+                    title: "CIS Docker Benchmark",
                     path: "cisbenchmark",
                     component: () => <TabCisBenchmark id={id} />,
                     disabled: isDirectory,
