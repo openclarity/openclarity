@@ -38,6 +38,12 @@ const (
 	columnLevel                                                = "level"
 )
 
+const (
+	cisBenchmarkInfo = iota + 1
+	cisBenchmarkWarn
+	cisBenchmarkFatal
+)
+
 type CISDockerBenchmarkCheck struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the Code name
 
@@ -124,17 +130,17 @@ func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models
 		Code:  result.Code,
 		Title: dockle_types.TitleMap[result.Code],
 		Desc:  result.Descriptions,
-		Level: convertToApiLevel(result.Level),
+		Level: convertToAPILevel(result.Level),
 	}
 }
 
-func convertToApiLevel(level int) models.CISDockerBenchmarkLevel {
+func convertToAPILevel(level int) models.CISDockerBenchmarkLevel {
 	switch level {
-	case 1:
+	case cisBenchmarkInfo:
 		return models.CISDockerBenchmarkLevelINFO
-	case 2:
+	case cisBenchmarkWarn:
 		return models.CISDockerBenchmarkLevelWARN
-	case 3:
+	case cisBenchmarkFatal:
 		return models.CISDockerBenchmarkLevelFATAL
 	default:
 		log.Errorf("Invalid level: %v", level)
