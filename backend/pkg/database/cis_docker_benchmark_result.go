@@ -17,10 +17,10 @@ package database
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"strings"
 
 	dockle_types "github.com/Portshift/dockle/pkg/types"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
