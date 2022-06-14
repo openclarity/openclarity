@@ -464,6 +464,49 @@ func init() {
         }
       }
     },
+    "/cisdockerbenchmarkresults/{id}": {
+      "get": {
+        "summary": "Get CIS Docker Benchmark results by Application Resource ID",
+        "parameters": [
+          {
+            "$ref": "#/parameters/id"
+          },
+          {
+            "$ref": "#/parameters/cisDockerBenchmarkResultsSortKey"
+          },
+          {
+            "$ref": "#/parameters/sortDir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "required": [
+                "total"
+              ],
+              "properties": {
+                "items": {
+                  "description": "List of CIS docker benchmark findings for an Application Resource",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CISDockerBenchmarkResultsEX"
+                  }
+                },
+                "total": {
+                  "description": "Total CIS docker benchmark results by Application Resource",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
+      }
+    },
     "/dashboard/counters": {
       "get": {
         "summary": "Get number of applications, resources, packages and vulnerabilities",
@@ -1549,6 +1592,30 @@ func init() {
         }
       }
     },
+    "CISDockerBenchmarkResultsEX": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "CISDockerBenchmarkResultsSortKey": {
+      "type": "string",
+      "enum": [
+        "code",
+        "level"
+      ]
+    },
     "CISDockerBenchmarkScanCounters": {
       "type": "object",
       "properties": {
@@ -2530,6 +2597,17 @@ func init() {
       "type": "string",
       "name": "cisDockerBenchmarkLevel[lte]",
       "in": "query"
+    },
+    "cisDockerBenchmarkResultsSortKey": {
+      "enum": [
+        "code",
+        "level"
+      ],
+      "type": "string",
+      "description": "Sort key",
+      "name": "sortKey",
+      "in": "query",
+      "required": true
     },
     "currentRuntimeScan": {
       "type": "boolean",
@@ -3842,6 +3920,71 @@ func init() {
           },
           "404": {
             "description": "Application not found."
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/cisdockerbenchmarkresults/{id}": {
+      "get": {
+        "summary": "Get CIS Docker Benchmark results by Application Resource ID",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "code",
+              "level"
+            ],
+            "type": "string",
+            "description": "Sort key",
+            "name": "sortKey",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "ASC",
+              "DESC"
+            ],
+            "type": "string",
+            "default": "ASC",
+            "description": "Sorting direction",
+            "name": "sortDir",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "required": [
+                "total"
+              ],
+              "properties": {
+                "items": {
+                  "description": "List of CIS docker benchmark findings for an Application Resource",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CISDockerBenchmarkResultsEX"
+                  }
+                },
+                "total": {
+                  "description": "Total CIS docker benchmark results by Application Resource",
+                  "type": "integer"
+                }
+              }
+            }
           },
           "default": {
             "description": "unknown error",
@@ -5480,6 +5623,30 @@ func init() {
         }
       }
     },
+    "CISDockerBenchmarkResultsEX": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/definitions/CISDockerBenchmarkLevel"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "CISDockerBenchmarkResultsSortKey": {
+      "type": "string",
+      "enum": [
+        "code",
+        "level"
+      ]
+    },
     "CISDockerBenchmarkScanCounters": {
       "type": "object",
       "properties": {
@@ -6464,6 +6631,17 @@ func init() {
       "type": "string",
       "name": "cisDockerBenchmarkLevel[lte]",
       "in": "query"
+    },
+    "cisDockerBenchmarkResultsSortKey": {
+      "enum": [
+        "code",
+        "level"
+      ],
+      "type": "string",
+      "description": "Sort key",
+      "name": "sortKey",
+      "in": "query",
+      "required": true
     },
     "currentRuntimeScan": {
       "type": "boolean",

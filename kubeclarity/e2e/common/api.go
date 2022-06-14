@@ -25,7 +25,6 @@ import (
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
 )
 
-
 func PostApplications(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationInfo *models.ApplicationInfo) *operations.PostApplicationsCreated {
 	t.Helper()
 	params := operations.NewPostApplicationsParams().WithBody(applicationInfo)
@@ -89,3 +88,11 @@ func GetVulnerabilities(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs) *o
 	return res.Payload
 }
 
+func GetCISDockerBenchmarkResults(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, resourceID string) *operations.GetCisdockerbenchmarkresultsIDOKBody {
+	t.Helper()
+	params := operations.NewGetCisdockerbenchmarkresultsIDParams().WithID(resourceID).WithSortKey("code")
+	res, err := kubeclarityAPI.Operations.GetCisdockerbenchmarkresultsID(params)
+	assert.NilError(t, err)
+
+	return res.Payload
+}

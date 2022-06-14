@@ -3,6 +3,12 @@ import { VulnerabilitiesLink as GeneralVulnerabilitiesLink } from 'layout/Vulner
 import { ApplicationsLink as GeneralApplicationsLink } from 'layout/Applications';
 import { BoldText } from 'utils/utils';
 
+export const RESOURCE_TYPES = {
+    IMAGE: {value: "IMAGE", label: "Image"},
+    DIRECTORY: {value: "DIRECTORY", label: "Directory"},
+    FILE: {value: "FILE", label: "File"}
+};
+
 const getTitle = name => <span>{`resource: `}<BoldText>{name}</BoldText></span>;
 
 export const VulnerabilitiesLink = ({id, applicationResourceID, vulnerabilities, resourceName}) => (

@@ -7,3 +7,7 @@ bin/
 testconfig.yaml
 db.db
 goreleaser_artifacts/
+site/
+e2e/dir.sbom
+e2e/kubeclarity-cli
+e2e/merged.sbom

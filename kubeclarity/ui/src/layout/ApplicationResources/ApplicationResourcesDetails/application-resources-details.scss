@@ -1,0 +1,22 @@
+.application-resource-tab-details {
+    display: flex;
+
+    .title-value-display-column {
+        width: 50%;
+    }
+}
+
+.application-resource-tab-cis-benchmark {
+    .cis-findings-level-icon {
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+        font-size: 10px;
+        line-height: 14px;
+
+        .icon {
+            width: 16px;
+            margin-right: 5px;
+        }
+    }
+}

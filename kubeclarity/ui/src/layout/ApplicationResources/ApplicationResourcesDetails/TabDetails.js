@@ -1,17 +1,15 @@
 import React from 'react';
-import PageContainer from 'components/PageContainer';
 import TitleValueDisplay, { TitleValueDisplayColumn } from 'components/TitleValueDisplay';
-import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
 import { getItemsString } from 'utils/utils';
-import { VulnerabilitiesLink, PackagesLink, ApplicationsLink } from './utils';
+import { VulnerabilitiesLink, PackagesLink, ApplicationsLink } from '../utils';
 
-const DetailsContent = ({data}) => {
+const TabDetails = ({data}) => {
     const {applicationResource, licenses} = data || {};
     const {id, resourceName, resourceHash, resourceType, vulnerabilities, applications, packages, reportingSBOMAnalyzers, cisDockerBenchmarkResults} = applicationResource || {};
     
     return (
-        <PageContainer className="application-resource-details-container" withPadding>
+        <div className="application-resource-tab-details">
             <TitleValueDisplayColumn>
                 <TitleValueDisplay title="Resource name">{resourceName}</TitleValueDisplay>
                 <TitleValueDisplay title="Resource Hash">{resourceHash}</TitleValueDisplay>
@@ -33,12 +31,8 @@ const DetailsContent = ({data}) => {
                     <CisBenchmarkLevelsDisplay id={id} levels={cisDockerBenchmarkResults} withTotal />
                 </TitleValueDisplay>
             </TitleValueDisplayColumn>
-        </PageContainer>
+        </div>
     )
 }
 
-const ApplicationResourcesDetails = () => (
-    <DetailsPageWrapper title="Application resource information" backTitle="Application resources" url="applicationResources" detailsContent={DetailsContent} />
-)
-
-export default ApplicationResourcesDetails;
+export default TabDetails;
