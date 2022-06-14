@@ -29,6 +29,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/cli/pkg/config"
 	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
+	"github.com/openclarity/kubeclarity/cli/pkg/scanner/filter"
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedconfig "github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -78,8 +79,8 @@ func init() {
 		"export vulnerability scan results to the backend")
 	scanCmd.Flags().Bool("cis-docker-benchmark-scan", false,
 		"enables CIS docker benchmark scan. (relevant only for image source type)")
-	scanCmd.Flags().Bool("ignore-no-fix-to-export", false, "ignore exporting vulnerabilities that don't have any fix, it can be used with --export flag")
-	scanCmd.Flags().StringSlice("ignore-vul-to-export", []string{}, "ignore exporting list of vulnerabilities, it can be used with --export flag")
+	scanCmd.Flags().Bool("ignore-no-fix", false, "ignore vulnerabilities that don't have any fix")
+	scanCmd.Flags().StringSlice("ignore-vul", []string{}, "ignore list of vulnerabilities")
 }
 
 // nolint:cyclop
@@ -124,16 +125,14 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get cis-docker-benchmark-scan flag: %v", err)
 	}
 
-	var ignores _export.Ignores
-	if export {
-		ignores.NoFix, err = cmd.Flags().GetBool("ignore-no-fix-to-export")
-		if err != nil {
-			logger.Fatalf("Unable to get ignore-no-fix-to-export flag: %v", err)
-		}
-		ignores.Vulnerabilities, err = cmd.Flags().GetStringSlice("ignore-vul-to-export")
-		if err != nil {
-			logger.Fatalf("Unable to get ignore-vul-to-export flag: %v", err)
-		}
+	var ignores filter.Ignores
+	ignores.NoFix, err = cmd.Flags().GetBool("ignore-no-fix")
+	if err != nil {
+		logger.Fatalf("Unable to get ignore-no-fix flag: %v", err)
+	}
+	ignores.Vulnerabilities, err = cmd.Flags().GetStringSlice("ignore-vul")
+	if err != nil {
+		logger.Fatalf("Unable to get ignore-vul flag: %v", err)
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
@@ -189,6 +188,10 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		}
 	}()
 
+	if len(ignores.Vulnerabilities) > 0 || ignores.NoFix {
+		mergedResults = filter.FilterIgnoredVulnerabilities(mergedResults, ignores)
+	}
+
 	err = presenter.GetPresenter(presenterConfig, mergedResults).Present(writer)
 	if err != nil {
 		logger.Fatalf("Failed to present results: %v", err)
@@ -208,7 +211,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Infof("Exporting vulnerability scan results to the backend: %s", appConfig.Backend.Host)
 		apiClient := utils.NewHTTPClient(appConfig.Backend)
 		// TODO generate application ID
-		if err := _export.Export(apiClient, mergedResults, layerCommands, cisDockerBenchmarkResults, appID, ignores); err != nil {
+		if err := _export.Export(apiClient, mergedResults, layerCommands, cisDockerBenchmarkResults, appID); err != nil {
 			logger.Errorf("Failed to export vulnerability scan results to the backend: %v", err)
 		}
 	}

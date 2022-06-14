@@ -26,26 +26,21 @@ import (
 	"github.com/openclarity/kubeclarity/api/client/client"
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/cli/pkg/scanner/common"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
-type Ignores struct {
-	NoFix           bool
-	Vulnerabilities []string
-}
-
 func Export(apiClient *client.KubeClarityAPIs,
 	mergedResults *scanner.MergedResults,
 	layerCommands []*image_helper.FsLayerCommand,
 	cisDockerBenchmarkResults dockle_types.AssessmentMap,
 	id string,
-	ignores Ignores,
 ) error {
 	// create ApplicationVulnerabilityScan from mergedResults
-	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, cisDockerBenchmarkResults, ignores)
+	body := createApplicationVulnerabilityScan(mergedResults, layerCommands, cisDockerBenchmarkResults)
 	// create post parameters
 	postParams := operations.NewPostApplicationsVulnerabilityScanIDParams().WithID(id).WithBody(body)
 
@@ -60,12 +55,11 @@ func Export(apiClient *client.KubeClarityAPIs,
 func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 	layerCommands []*image_helper.FsLayerCommand,
 	cisDockerBenchmarkResults dockle_types.AssessmentMap,
-	ignores Ignores,
 ) *models.ApplicationVulnerabilityScan {
 	return &models.ApplicationVulnerabilityScan{
 		Resources: []*models.ResourceVulnerabilityScan{
 			{
-				PackageVulnerabilities: createPackagesVulnerabilitiesScan(m, ignores),
+				PackageVulnerabilities: createPackagesVulnerabilitiesScan(m),
 				Resource: &models.ResourceInfo{
 					ResourceName: m.Source.Name,
 					ResourceType: getResourceType(m),
@@ -121,7 +115,7 @@ func createResourceLayerCommands(layerCommands []*image_helper.FsLayerCommand) [
 	return resourceLayerCommands
 }
 
-func createPackagesVulnerabilitiesScan(m *scanner.MergedResults, ignores Ignores) []*models.PackageVulnerabilityScan {
+func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.PackageVulnerabilityScan {
 	packageVulnerabilityScan := make([]*models.PackageVulnerabilityScan, 0, len(m.MergedVulnerabilitiesByKey))
 	for _, vulnerabilities := range m.MergedVulnerabilitiesByKey {
 		if len(vulnerabilities) > 1 {
@@ -129,13 +123,10 @@ func createPackagesVulnerabilitiesScan(m *scanner.MergedResults, ignores Ignores
 			scanner.PrintIgnoredVulnerabilities(vulnerabilities)
 		}
 		vulnerability := vulnerabilities[0]
-		if shouldIgnore(vulnerability.Vulnerability, ignores) {
-			continue
-		}
 		packageVulnerabilityScan = append(packageVulnerabilityScan, &models.PackageVulnerabilityScan{
 			Cvss:              getCVSS(vulnerability.Vulnerability),
 			Description:       vulnerability.Vulnerability.Description,
-			FixVersion:        getFixVersion(vulnerability.Vulnerability),
+			FixVersion:        common.GetFixVersion(vulnerability.Vulnerability),
 			LayerID:           vulnerability.Vulnerability.LayerID,
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
@@ -183,14 +174,6 @@ func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
 		log.Infof("CVSS not found for vulnerability: %s", vulnerability.ID)
 	}
 	return nil
-}
-
-// TODO can be multiple fix version?
-func getFixVersion(vulnerability scanner.Vulnerability) string {
-	if len(vulnerability.Fix.Versions) > 0 {
-		return vulnerability.Fix.Versions[0]
-	}
-	return ""
 }
 
 func getPackageInfo(vulnerability scanner.Vulnerability) *models.PackageInfo {
@@ -334,29 +317,4 @@ func getUserInteraction(scope metric.UserInteraction) models.UserInteraction {
 	default:
 		return ""
 	}
-}
-
-func shouldIgnore(vulnerability scanner.Vulnerability, ignores Ignores) bool {
-	if sliceContains(ignores.Vulnerabilities, vulnerability.ID) {
-		log.Debugf("Ignoring vulnerability due to ignore list %q", vulnerability.ID)
-		return true
-	}
-	if ignores.NoFix {
-		if getFixVersion(vulnerability) == "" {
-			log.Debugf("Ignoring vulnerability due to no fix %q", vulnerability.ID)
-			return true
-		}
-	}
-
-	return false
-}
-
-func sliceContains(slice []string, str string) bool {
-	for _, s := range slice {
-		if s == str {
-			return true
-		}
-	}
-
-	return false
 }
