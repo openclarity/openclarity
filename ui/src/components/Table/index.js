@@ -240,7 +240,7 @@ const Table = props => {
                                             return (
                                                 <div className="table-th" {...column.getHeaderProps()}>
                                                     {column.render('Header')}
-                                                    {column.canSort &&
+                                                    {column.canSort && !column.disableSort &&
                                                         <Icon
                                                             className={classnames("table-sort-icon", {sorted: isSorted}, {rotate: isSortedDesc && isSorted})}
                                                             name={ICON_NAMES.SORT}

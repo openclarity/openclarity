@@ -124,6 +124,12 @@ func validateScanImage(t *testing.T) {
 	t.Helper()
 	vuls := common.GetVulnerabilities(t, kubeclarityAPI)
 	assert.Assert(t, *vuls.Total > 0)
+
+	appResources := common.GetApplicationResources(t, kubeclarityAPI)
+	assert.Assert(t, appResources.Items[0].ResourceType == models.ResourceTypeIMAGE)
+
+	cisDockerBenchmarkResults := common.GetCISDockerBenchmarkResults(t, kubeclarityAPI, appResources.Items[0].ID)
+	assert.Assert(t, *cisDockerBenchmarkResults.Total > 0)
 }
 
 func validateScanSBOM(t *testing.T) {
@@ -198,7 +204,7 @@ func scanImage(t *testing.T, image string, appID string) {
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
-	command := fmt.Sprintf("%v scan %v --application-id %v --input-type image -e", cliPath, image, appID)
+	command := fmt.Sprintf("%v scan %v --application-id %v --input-type image --cis-docker-benchmark-scan -e", cliPath, image, appID)
 
 	cmd := exec.Command("/bin/sh", "-c", command)
 
