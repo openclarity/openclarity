@@ -310,3 +310,97 @@ func Test_createCISDockerBenchmarkResults(t *testing.T) {
 		})
 	}
 }
+
+func Test_shouldIgnore(t *testing.T) {
+	type args struct {
+		vulnerability scanner.Vulnerability
+		ignores       Ignores
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "no ignores",
+			args: args{
+				vulnerability: scanner.Vulnerability{
+					ID: "CVE-123",
+				},
+			},
+			want: false,
+		},
+		{
+			name: "ignore no fix, the vulnerability doesn't have any fix",
+			args: args{
+				vulnerability: scanner.Vulnerability{
+					ID: "CVE-123",
+				},
+				ignores: Ignores{
+					NoFix: true,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "ignore no fix, the vulnerability has fix",
+			args: args{
+				vulnerability: scanner.Vulnerability{
+					ID: "CVE-123",
+					Fix: scanner.Fix{
+						Versions: []string{
+							"1.1.1",
+						},
+					},
+				},
+				ignores: Ignores{
+					NoFix: true,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "the vulnerability is in the ignore list",
+			args: args{
+				vulnerability: scanner.Vulnerability{
+					ID: "CVE-123",
+				},
+				ignores: Ignores{
+					Vulnerabilities: []string{
+						"CVE-123",
+						"CVE-234",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "ignore no fix, the vulnerability has fix but it's in the ignore list",
+			args: args{
+				vulnerability: scanner.Vulnerability{
+					ID: "CVE-123",
+					Fix: scanner.Fix{
+						Versions: []string{
+							"1.1.1",
+						},
+					},
+				},
+				ignores: Ignores{
+					NoFix: true,
+					Vulnerabilities: []string{
+						"CVE-123",
+						"CVE-234",
+					},
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := shouldIgnore(tt.args.vulnerability, tt.args.ignores); got != tt.want {
+				t.Errorf("shouldIgnore() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
