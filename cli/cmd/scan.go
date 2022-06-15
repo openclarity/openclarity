@@ -29,6 +29,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/cli/pkg/config"
 	_export "github.com/openclarity/kubeclarity/cli/pkg/scanner/export"
+	"github.com/openclarity/kubeclarity/cli/pkg/scanner/filter"
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedconfig "github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -78,6 +79,8 @@ func init() {
 		"export vulnerability scan results to the backend")
 	scanCmd.Flags().Bool("cis-docker-benchmark-scan", false,
 		"enables CIS docker benchmark scan. (relevant only for image source type)")
+	scanCmd.Flags().Bool("ignore-no-fix", false, "ignore vulnerabilities that have no fix available")
+	scanCmd.Flags().StringSlice("ignore-vul", []string{}, "ignore list of vulnerabilities")
 }
 
 // nolint:cyclop
@@ -120,6 +123,16 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	cisDockerBenchmarkEnabled, err := cmd.Flags().GetBool("cis-docker-benchmark-scan")
 	if err != nil {
 		logger.Fatalf("Unable to get cis-docker-benchmark-scan flag: %v", err)
+	}
+
+	var ignores filter.Ignores
+	ignores.NoFix, err = cmd.Flags().GetBool("ignore-no-fix")
+	if err != nil {
+		logger.Fatalf("Unable to get ignore-no-fix flag: %v", err)
+	}
+	ignores.Vulnerabilities, err = cmd.Flags().GetStringSlice("ignore-vul")
+	if err != nil {
+		logger.Fatalf("Unable to get ignore-vul flag: %v", err)
 	}
 
 	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
@@ -174,6 +187,10 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 			log.Warnf("unable to close writer: %+v", err)
 		}
 	}()
+
+	if len(ignores.Vulnerabilities) > 0 || ignores.NoFix {
+		mergedResults = filter.FilterIgnoredVulnerabilities(mergedResults, ignores)
+	}
 
 	err = presenter.GetPresenter(presenterConfig, mergedResults).Present(writer)
 	if err != nil {
