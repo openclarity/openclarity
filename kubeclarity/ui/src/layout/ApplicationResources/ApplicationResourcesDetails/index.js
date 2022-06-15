@@ -11,7 +11,7 @@ const DetailsContent = ({data}) => {
     const {applicationResource} = data || {};
     const {id, resourceType} = applicationResource || {};
 
-    const isDirectory = resourceType === RESOURCE_TYPES.DIRECTORY.value;
+    const isImage = resourceType === RESOURCE_TYPES.IMAGE.value;
 
     return (
         <TabbedPageContainer
@@ -27,8 +27,8 @@ const DetailsContent = ({data}) => {
                     title: "CIS Docker Benchmark",
                     path: "cisbenchmark",
                     component: () => <TabCisBenchmark id={id} />,
-                    disabled: isDirectory,
-                    tabTooltip: isDirectory ? "CIS Docker benchmark is only available for images" : null
+                    disabled: !isImage,
+                    tabTooltip: isImage ? null : "CIS Docker benchmark is only available for images"
                 }
             ]}
         />
