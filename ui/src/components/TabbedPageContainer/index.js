@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, useNavigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import PageContainer from 'components/PageContainer';
+import { TooltipWrapper } from 'components/Tooltip';
 
 import './tabbed-page-container.scss';
 
@@ -18,7 +19,7 @@ const TabbedPageContainer = ({items}) => {
         <PageContainer className="tabbed-page-container">
             <div className="tabs-container">
                 {
-                    items.map(({id, path, title, isIndex, disabled}) => {
+                    items.map(({id, path, title, isIndex, disabled, tabTooltip}) => {
                         const isActive = (isIndex && pathname === cleanPath) || path === pathname.replace(`${cleanPath}/`, "");
 
                         const onTabClick = () => {
@@ -28,11 +29,14 @@ const TabbedPageContainer = ({items}) => {
                             
                             navigate(isIndex ? cleanPath : path);
                         }
+
+                        const WrapperElement = !!tabTooltip ? TooltipWrapper : "div";
+                        const wrapperProps = !!tabTooltip ? {tooltipId: `tab-disabled-tooltip-${id}`, tooltipText: tabTooltip} : {};
                         
                         return (
-                            <div key={id} className={classnames("tab-item", {active: isActive}, {disabled})} onClick={onTabClick}>
+                            <WrapperElement key={id} {...wrapperProps} className={classnames("tab-item", {active: isActive}, {disabled})} onClick={onTabClick}>
                                 {title}
-                            </div>
+                            </WrapperElement>
                         )
                     })
                 }
