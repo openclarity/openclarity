@@ -26,7 +26,6 @@ import (
 	"github.com/openclarity/kubeclarity/api/client/client"
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/cli/pkg/scanner/common"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
@@ -126,7 +125,7 @@ func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.Packa
 		packageVulnerabilityScan = append(packageVulnerabilityScan, &models.PackageVulnerabilityScan{
 			Cvss:              getCVSS(vulnerability.Vulnerability),
 			Description:       vulnerability.Vulnerability.Description,
-			FixVersion:        common.GetFixVersion(vulnerability.Vulnerability),
+			FixVersion:        scanner.GetFixVersion(vulnerability.Vulnerability),
 			LayerID:           vulnerability.Vulnerability.LayerID,
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),

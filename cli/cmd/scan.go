@@ -79,7 +79,7 @@ func init() {
 		"export vulnerability scan results to the backend")
 	scanCmd.Flags().Bool("cis-docker-benchmark-scan", false,
 		"enables CIS docker benchmark scan. (relevant only for image source type)")
-	scanCmd.Flags().Bool("ignore-no-fix", false, "ignore vulnerabilities that don't have any fix")
+	scanCmd.Flags().Bool("ignore-no-fix", false, "ignore vulnerabilities that are not fixed")
 	scanCmd.Flags().StringSlice("ignore-vul", []string{}, "ignore list of vulnerabilities")
 }
 
