@@ -103,3 +103,39 @@ func TestRemoveEmptyStrings(t *testing.T) {
 		})
 	}
 }
+
+func TestContains(t *testing.T) {
+	type args struct {
+		slice []string
+		str   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "slice doesn't contain string",
+			args: args{
+				slice: []string{"test1", "test2", "test3"},
+				str:   "test4",
+			},
+			want: false,
+		},
+		{
+			name: "slice contains string",
+			args: args{
+				slice: []string{"test1", "test2", "test3"},
+				str:   "test2",
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Contains(tt.args.slice, tt.args.str); got != tt.want {
+				t.Errorf("Contains() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
