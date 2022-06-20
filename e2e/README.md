@@ -1,4 +1,4 @@
-In order to run tests locally:
+In order to run end-to-end tests locally:
 
 - build all images (docker build)
 - replace values:
