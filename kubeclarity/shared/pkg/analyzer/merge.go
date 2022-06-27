@@ -69,7 +69,7 @@ func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
 		m.addSourceHash(other.AppInfo.SourceHash)
 	}
 	if bom.Components == nil {
-		log.Errorf("Decoded bom doesn't contain any components")
+		log.Debugf("Decoded bom doesn't contain any components")
 		return m
 	}
 	otherComponentsByKey := toComponentByKey(bom.Components)
