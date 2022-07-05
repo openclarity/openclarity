@@ -2,6 +2,7 @@
 ## Global Values
 
 global:
+  databasePassword: kubeclarity
 
   ## Docker image
   ##
