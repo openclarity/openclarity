@@ -2,9 +2,6 @@
 ## Global Values
 
 global:
-  ## Database password
-  ##
-  databasePassword: kubeclarity
 
   ## Docker image
   ##
@@ -222,12 +219,11 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   enabled: true
 
-  ## imageTag is set to fix high/critical postgresql issues
-  ## after https://github.com/bitnami/charts/issues/10661 issue is fixed the following lines can be commented out.
   image:
-    registry: docker.io
-    repository: bitnami/postgresql
-    tag: 11.16.0-debian-10-r23
+    ## Specify posgtresql image
+    # registry: docker.io
+    # repository: bitnami/postgresql
+    # tag: 14.4.0-debian-11-r4
 
   ## ConfigMap with scripts to be run at first boot
   ## NOTE: This will override initdbScripts
@@ -242,8 +238,9 @@ kubeclarity-postgresql:
   # initdbPassword:
 
   ## Setup database name and password
-  existingSecret: kubeclarity-postgresql-secret
-  postgresqlDatabase: kubeclarity
+  auth:
+    existingSecret: kubeclarity-postgresql-secret
+    database: kubeclarity
   # secretKey: postgresql-password
 
   serviceAccount:

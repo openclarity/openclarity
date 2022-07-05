@@ -18,8 +18,8 @@ spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
-          image: {{ index .Values "kubeclarity-postgresql" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" | default "11.16.0-debian-10-r23" }}
-          command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}";
+          image: {{ index .Values "kubeclarity-postgresql" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" | default "14.4.0-debian-11-r4" }}
+          command: ['sh', '-c', 'until pg_isready -h {{ include "kubeclarity.name" . }}-postgresql -p 5432 -U "postgres" -d "dbname={{ ndex .Values "kubeclarity-postgresql" "auth" "database" }}";
             do echo waiting for database; sleep 2; done;']
           securityContext:
             capabilities:
@@ -90,7 +90,7 @@ spec:
               value: "{{ .Values.kubeclarity.enableDBInfoLog }}"
             # DB envs
             - name: DB_NAME
-              value: {{ index .Values "kubeclarity-postgresql" "postgresqlDatabase" }}
+              value: {{ index .Values "kubeclarity-postgresql" "auth" "database" }}
             - name: DB_HOST
               value: "{{ include "kubeclarity.name" . }}-postgresql"
             - name: DB_PORT_NUMBER
@@ -100,8 +100,8 @@ spec:
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ index .Values "kubeclarity-postgresql" "existingSecret" }}
-                  key: postgresql-password
+                  name: {{ index .Values "kubeclarity-postgresql" "auth" "existingSecret" }}
+                  key: postgres-password
             # runtime-scan envs
             - name: SCANNER_JOB_RESULT_LISTEN_PORT
               value: "{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}"
