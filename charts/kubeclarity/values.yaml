@@ -241,7 +241,6 @@ kubeclarity-postgresql:
   auth:
     existingSecret: kubeclarity-postgresql-secret
     database: kubeclarity
-  # secretKey: postgresql-password
 
   serviceAccount:
     enabled: true
