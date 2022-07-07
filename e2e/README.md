@@ -14,4 +14,4 @@ Careful, this will drain a lot from your computer cpu.
 
 - make cli
 - mv ./cli/bin/cli ./e2e/kubeclarity-cli
-- make e2e (or run in debug like you will run a unit test)
+- make e2e
