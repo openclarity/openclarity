@@ -29,10 +29,13 @@ spec:
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
           {{- end }}
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
-          image: yauritux/busybox-curl
+          image: curlimages/curl:7.84.0
           args:
             - /bin/sh
             - -c
@@ -49,11 +52,14 @@ spec:
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
           {{- end }}
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-grype-server'
-          image: yauritux/busybox-curl
+          image: curlimages/curl:7.84.0
           args:
             - /bin/sh
             - -c
@@ -70,6 +76,9 @@ spec:
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
           {{- end }}
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- end}}
