@@ -39,8 +39,8 @@ import (
 
 const (
 	cisDockerBenchmarkScannerContainerName = "cis-docker-benchmark-scanner"
-	localImageIDPrefix1 = "docker://sha256"
-	localImageIDPrefix2 = "sha256:"
+	localImageIDDockerPrefix               = "docker://sha256"
+	localImageIDSHA256Prefix               = "sha256:"
 )
 
 // run jobs.
@@ -165,7 +165,7 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 
 func validateImageID(imageID string) error {
 	// image ids with no name and only hash are not pullable from the registry, so we can't scan them.
-	if strings.HasPrefix(imageID, localImageIDPrefix1) || strings.HasPrefix(imageID, localImageIDPrefix2) {
+	if strings.HasPrefix(imageID, localImageIDDockerPrefix) || strings.HasPrefix(imageID, localImageIDSHA256Prefix) {
 		return fmt.Errorf("scanning of local docker images is not supported. The Image must be present in the image registry. ImageID=%v", imageID)
 	}
 	return nil
