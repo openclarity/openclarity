@@ -222,8 +222,8 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   enabled: true
 
-  image:
-    ## Specify posgtresql image
+  ## Specify posgtresql image
+  # image:
     # registry: docker.io
     # repository: bitnami/postgresql
     # tag: 14.4.0-debian-11-r4
