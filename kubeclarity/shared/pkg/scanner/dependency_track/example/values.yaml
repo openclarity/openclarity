@@ -175,4 +175,3 @@ postgresql:
   postgresqlUsername: deptrack
   postgresqlPassword: deptrack
   postgresqlDatabase: deptrack
-
