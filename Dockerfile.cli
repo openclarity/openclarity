@@ -29,7 +29,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 RUN CGO_ENABLED=0 go build -ldflags "${LDFLAGS}"  ./...
 
-FROM alpine:3.15.4
+FROM alpine:3.16.2
 
 WORKDIR /app
 
