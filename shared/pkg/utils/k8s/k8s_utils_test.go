@@ -248,10 +248,9 @@ func TestNormalizeImageID(t *testing.T) {
 		imageID string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
+		name string
+		args args
+		want string
 	}{
 		{
 			name: "image id with docker-pullable prefix",
@@ -259,7 +258,6 @@ func TestNormalizeImageID(t *testing.T) {
 				imageID: "docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
 			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
-			wantErr: false,
 		},
 		{
 			name: "image id with docker-pullable prefix - not normalized",
@@ -267,7 +265,6 @@ func TestNormalizeImageID(t *testing.T) {
 				imageID: "docker-pullable://mongo@sha256:4200c3073389d5b303070e53ff8f5e4472efb534340d28599458ccc24f378025",
 			},
 			want: "docker.io/library/mongo@sha256:4200c3073389d5b303070e53ff8f5e4472efb534340d28599458ccc24f378025",
-			wantErr: false,
 		},
 		{
 			name: "image id without docker-pullable prefix",
@@ -275,7 +272,6 @@ func TestNormalizeImageID(t *testing.T) {
 				imageID: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
 			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
-			wantErr: false,
 		},
 		{
 			name: "no image id",
@@ -283,18 +279,12 @@ func TestNormalizeImageID(t *testing.T) {
 				imageID: "",
 			},
 			want: "",
-			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NormalizeImageID(tt.args.imageID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NormalizeImageID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("NormalizeImageID() got = %v, want %v", got, tt.want)
+			if got := NormalizeImageID(tt.args.imageID); got != tt.want {
+				t.Errorf("NormalizeImageID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

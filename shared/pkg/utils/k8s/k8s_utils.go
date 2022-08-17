@@ -112,12 +112,13 @@ func ParseImageHash(imageID string) string {
 // https://github.com/kubernetes/kubernetes/issues/95968
 // input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 // output: gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
-func NormalizeImageID(imageID string) (string, error) {
+func NormalizeImageID(imageID string) string {
 	imageID = strings.TrimPrefix(imageID, "docker-pullable://")
 
 	named, err := reference.ParseNormalizedNamed(imageID)
 	if err != nil {
-		return "", err
+		log.Errorf("Failed to parse image id. image id=%v: %v", imageID, err)
+		return imageID
 	}
-	return named.String(), nil
+	return named.String()
 }

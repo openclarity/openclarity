@@ -177,7 +177,6 @@ func (s *Scanner) shouldIgnorePod(pod *corev1.Pod) bool {
 // nolint:cyclop
 func (s *Scanner) initScan() error {
 	var podsToScan []corev1.Pod
-	var err error
 
 	// Get all target pods
 	for _, namespace := range s.scanConfig.TargetNamespaces {
@@ -206,10 +205,7 @@ func (s *Scanner) initScan() error {
 		// from image name in the `pod.Spec.Containers` we will take only image id from `pod.Status.ContainerStatuses`.
 		containerNameToImageID := make(map[string]string)
 		for _, container := range append(pod.Status.ContainerStatuses, pod.Status.InitContainerStatuses...) {
-			containerNameToImageID[container.Name], err = k8sutils.NormalizeImageID(container.ImageID)
-			if err != nil {
-				log.Errorf("Failed to normalize image id. image id=%v: %v", container.ImageID, err)
-			}
+			containerNameToImageID[container.Name] = k8sutils.NormalizeImageID(container.ImageID)
 		}
 
 		containers := append(pod.Spec.Containers, pod.Spec.InitContainers...)
