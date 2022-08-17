@@ -205,7 +205,7 @@ func (s *Scanner) initScan() error {
 		// from image name in the `pod.Spec.Containers` we will take only image id from `pod.Status.ContainerStatuses`.
 		containerNameToImageID := make(map[string]string)
 		for _, container := range append(pod.Status.ContainerStatuses, pod.Status.InitContainerStatuses...) {
-			containerNameToImageID[container.Name] = k8sutils.ParseImageID(container.ImageID)
+			containerNameToImageID[container.Name] = k8sutils.NormalizeImageID(container.ImageID)
 		}
 
 		containers := append(pod.Spec.Containers, pod.Spec.InitContainers...)

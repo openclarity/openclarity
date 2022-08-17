@@ -243,7 +243,7 @@ func TestGetMatchingSecretName(t *testing.T) {
 	}
 }
 
-func TestParseImageID(t *testing.T) {
+func TestNormalizeImageID(t *testing.T) {
 	type args struct {
 		imageID string
 	}
@@ -258,6 +258,13 @@ func TestParseImageID(t *testing.T) {
 				imageID: "docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 			},
 			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+		},
+		{
+			name: "image id with docker-pullable prefix - not normalized",
+			args: args{
+				imageID: "docker-pullable://mongo@sha256:4200c3073389d5b303070e53ff8f5e4472efb534340d28599458ccc24f378025",
+			},
+			want: "docker.io/library/mongo@sha256:4200c3073389d5b303070e53ff8f5e4472efb534340d28599458ccc24f378025",
 		},
 		{
 			name: "image id without docker-pullable prefix",
@@ -276,8 +283,8 @@ func TestParseImageID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ParseImageID(tt.args.imageID); got != tt.want {
-				t.Errorf("ParseImageID() = %v, want %v", got, tt.want)
+			if got := NormalizeImageID(tt.args.imageID); got != tt.want {
+				t.Errorf("NormalizeImageID() = %v, want %v", got, tt.want)
 			}
 		})
 	}
