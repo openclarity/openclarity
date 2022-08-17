@@ -108,10 +108,16 @@ func ParseImageHash(imageID string) string {
 	return imageID[index+1:]
 }
 
-// ParseImageID remove "docker-pullable://" prefix from imageID if exists
+// NormalizeImageID remove "docker-pullable://" prefix from imageID if exists and then normalize it.
 // https://github.com/kubernetes/kubernetes/issues/95968
 // input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 // output: gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
-func ParseImageID(imageID string) string {
-	return strings.TrimPrefix(imageID, "docker-pullable://")
+func NormalizeImageID(imageID string) (string, error) {
+	imageID = strings.TrimPrefix(imageID, "docker-pullable://")
+
+	named, err := reference.ParseNormalizedNamed(imageID)
+	if err != nil {
+		return "", err
+	}
+	return named.String(), nil
 }
