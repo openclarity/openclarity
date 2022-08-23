@@ -45,3 +45,7 @@ func (f *FakeCredAdder) Add(job *batchv1.Job) {
 		container.Env = append(container.Env, *f.fakeEnvToAdd)
 	}
 }
+
+func (f *FakeCredAdder) GetNamespace() string {
+	return ""
+}

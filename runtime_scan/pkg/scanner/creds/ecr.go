@@ -102,3 +102,7 @@ func (e *ECR) Add(job *batchv1.Job) {
 		container.Env = append(container.Env, ecrEnvs...)
 	}
 }
+
+func (e *ECR) GetNamespace() string {
+	return e.secretNamespace
+}

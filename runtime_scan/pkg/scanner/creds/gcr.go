@@ -90,3 +90,7 @@ func (g *GCR) Add(job *batchv1.Job) {
 		})
 	}
 }
+
+func (g *GCR) GetNamespace() string {
+	return g.secretNamespace
+}

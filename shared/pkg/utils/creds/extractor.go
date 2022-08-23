@@ -28,8 +28,9 @@ import (
 )
 
 const (
-	ImagePullSecretEnvVar          = "K8S_IMAGE_PULL_SECRET"           // nolint:gosec
-	ImagePullSecretNamespaceEnvVar = "K8S_IMAGE_PULL_SECRET_NAMESPACE" // nolint:gosec
+	ImagePullSecretEnvVar    = "K8S_IMAGE_PULL_SECRET"    // nolint:gosec
+	NamespaceEnvVar          = "K8S_NAMESPACE"            // nolint:gosec
+	ServiceAccountNameEnvVar = "K8S_SERVICE_ACCOUNT_NAME" // nolint:gosec
 )
 
 func ExtractCredentials(imageName string) (username string, password string, err error) {
@@ -37,16 +38,19 @@ func ExtractCredentials(imageName string) (username string, password string, err
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get image ref. image name=%v: %v", imageName, err)
 	}
-	namespace := os.Getenv(ImagePullSecretNamespaceEnvVar)
-	imagePullSecret := os.Getenv(ImagePullSecretEnvVar)
 
-	return getCredsWithK8sChain(ref, imagePullSecret, namespace)
+	namespace := os.Getenv(NamespaceEnvVar)
+	imagePullSecret := os.Getenv(ImagePullSecretEnvVar)
+	serviceAccount := os.Getenv(ServiceAccountNameEnvVar)
+
+	return getCredsWithK8sChain(ref, imagePullSecret, namespace, serviceAccount)
 }
 
-func getCredsWithK8sChain(namedImageRef reference.Named, imagePullSecret, namespace string) (string, string, error) {
+func getCredsWithK8sChain(namedImageRef reference.Named, imagePullSecret, namespace, serviceAccount string) (string, string, error) {
 	keyChain, err := k8schain.NewInCluster(context.TODO(), k8schain.Options{
-		Namespace:        namespace, // defaults to "default" if empty
-		ImagePullSecrets: []string{imagePullSecret},
+		Namespace:          namespace,      // defaults to "default" if empty
+		ServiceAccountName: serviceAccount, // defaults to "default" if empty
+		ImagePullSecrets:   []string{imagePullSecret},
 	})
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create k8schain: %v", err)

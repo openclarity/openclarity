@@ -25,6 +25,8 @@ type CredentialAdder interface {
 	ShouldAdd() bool
 	// Add adds credentials to a scanner job
 	Add(job *batchv1.Job)
+	// GetNamespace gets credential namespace
+	GetNamespace() string
 }
 
 // nolint:structcheck

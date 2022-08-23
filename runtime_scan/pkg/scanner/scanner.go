@@ -71,13 +71,14 @@ func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scan
 }
 
 type imagePodContext struct {
-	containerName   string
-	podName         string
-	namespace       string
-	imagePullSecret string
-	imageName       string
-	podUID          string
-	podLabels       labels.Set
+	containerName      string
+	podName            string
+	namespace          string
+	imagePullSecret    string
+	imageName          string
+	podUID             string
+	serviceAccountName string
+	podLabels          labels.Set
 }
 
 type vulnerabilitiesScanResult struct {
@@ -225,13 +226,14 @@ func (s *Scanner) initScan() error {
 			}
 			// Create pod context
 			podContext := &imagePodContext{
-				containerName:   container.Name,
-				podName:         pod.GetName(),
-				namespace:       pod.GetNamespace(),
-				imagePullSecret: k8sutils.GetMatchingSecretName(secrets, container.Image),
-				imageName:       container.Image,
-				podUID:          string(pod.GetUID()),
-				podLabels:       labels.Set(pod.GetLabels()),
+				containerName:      container.Name,
+				podName:            pod.GetName(),
+				namespace:          pod.GetNamespace(),
+				imagePullSecret:    k8sutils.GetMatchingSecretName(secrets, container.Image),
+				imageName:          container.Image,
+				podUID:             string(pod.GetUID()),
+				serviceAccountName: pod.Spec.ServiceAccountName,
+				podLabels:          labels.Set(pod.GetLabels()),
 			}
 			if data, ok := imageIDToScanData[imageID]; !ok {
 				// Image added for the first time, create scan data and append pod context

@@ -56,15 +56,10 @@ func (u *BasicRegCred) Add(job *batchv1.Job) {
 	job.Namespace = u.secretNamespace
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{
-			Name: shared.ImagePullSecret, ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: BasicRegCredSecretName,
-					},
-					Key: corev1.DockerConfigJsonKey,
-				},
-			},
-		})
+		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: BasicRegCredSecretName})
 	}
+}
+
+func (u *BasicRegCred) GetNamespace() string {
+	return u.secretNamespace
 }

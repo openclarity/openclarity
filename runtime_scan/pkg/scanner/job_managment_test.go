@@ -411,28 +411,16 @@ func Test_setJobImagePullSecret(t *testing.T) {
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  "K8S_IMAGE_PULL_SECRET",
+											Value: "secretName",
 										},
 									},
 								},
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  "K8S_IMAGE_PULL_SECRET",
+											Value: "secretName",
 										},
 									},
 								},
@@ -476,14 +464,8 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{Name: "ENV1", Value: "123"},
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  "K8S_IMAGE_PULL_SECRET",
+											Value: "secretName",
 										},
 									},
 								},
@@ -491,14 +473,8 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{Name: "ENV2", Value: "456"},
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  "K8S_IMAGE_PULL_SECRET",
+											Value: "secretName",
 										},
 									},
 								},
@@ -764,6 +740,8 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
+        - name: K8S_NAMESPACE
+          Value: "namespace"
         securityContext:
           capabilities:
             drop:
@@ -820,11 +798,10 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
+        - name: K8S_NAMESPACE
+          Value: "namespace"
         - name: K8S_IMAGE_PULL_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: imagePullSecret
-              key: ".dockerconfigjson"
+          value: "imagePullSecret"
         securityContext:
           capabilities:
             drop:
@@ -881,6 +858,8 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
+        - name: K8S_NAMESPACE
+          Value: ""
         - name: fake-cred-name
           value: fake-cred-value
         securityContext:

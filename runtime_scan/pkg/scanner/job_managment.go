@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	_creds "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner/creds"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 	stringsutils "github.com/openclarity/kubeclarity/runtime_scan/pkg/utils/strings"
 	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -291,14 +292,28 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	setJobImageIDToScan(job, data.imageID)
 	setJobImageHashToScan(job, data.imageHash)
 	setJobImageNameToScan(job, podContext.imageName)
+	addNamespaceEnv(job, podContext.namespace)
+	if podContext.serviceAccountName != "" {
+		addServiceAccountNameEnv(job, podContext.serviceAccountName)
+	}
 	if podContext.imagePullSecret != "" {
 		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", podContext.imageName)
 		setJobImagePullSecret(job, podContext.imagePullSecret)
-		serJobImagePullSecretNamespace(job, podContext.namespace)
 	} else {
 		// Use private repo sa credentials only if there is no imagePullSecret
 		for _, adder := range s.credentialAdders {
 			if adder.ShouldAdd() {
+				// Set namespace environment variable to credetial namespace
+				setNamespaceEnv(job, adder.GetNamespace())
+				// Set serviceAccount environment variable to default
+				setServiceAccountNameEnv(job, "")
+				switch adder.(type) {
+				case *_creds.BasicRegCred:
+					log.Debugf("Set basic imagepullsecret name env var, credential adder type is: %T", adder)
+					setJobImagePullSecret(job, _creds.BasicRegCredSecretName)
+				default:
+					log.Debugf("Credential adder type is: %T", adder)
+				}
 				adder.Add(job)
 			}
 		}
@@ -325,10 +340,39 @@ func setJobImagePullSecret(job *batchv1.Job, secretName string) {
 	}
 }
 
-func serJobImagePullSecretNamespace(job *batchv1.Job, namespace string) {
+func addNamespaceEnv(job *batchv1.Job, namespace string) {
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretNamespace, Value: namespace})
+		container.Env = append(container.Env, corev1.EnvVar{Name: shared.Namespace, Value: namespace})
+	}
+}
+
+func setNamespaceEnv(job *batchv1.Job, namespace string) {
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		for k := range container.Env {
+			if container.Env[k].Name == shared.Namespace {
+				container.Env[k].Value = namespace
+			}
+		}
+	}
+}
+
+func addServiceAccountNameEnv(job *batchv1.Job, serviceAccountName string) {
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ServiceAccountName, Value: serviceAccountName})
+	}
+}
+
+func setServiceAccountNameEnv(job *batchv1.Job, serviceAccountName string) {
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		for k := range container.Env {
+			if container.Env[k].Name == shared.ServiceAccountName {
+				container.Env[k].Value = serviceAccountName
+			}
+		}
 	}
 }
 
