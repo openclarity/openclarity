@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds/secret"
 )
 
 const (
@@ -28,7 +27,7 @@ const (
 	ImageIDToScan         = "IMAGE_ID_TO_SCAN"
 	ImageHashToScan       = "IMAGE_HASH_TO_SCAN"
 	ImageNameToScan       = "IMAGE_NAME_TO_SCAN"
-	ImagePullSecret       = secret.ImagePullSecretEnvVar
+	ImagePullSecret       = creds.ImagePullSecretEnvVar
 	ScanUUID              = "SCAN_UUID"
 	RegistrySkipVerifyTlS = "REGISTRY_SKIP_VERIFY_TLS"
 	RegistryUseHTTP       = "REGISTRY_USE_HTTP"
