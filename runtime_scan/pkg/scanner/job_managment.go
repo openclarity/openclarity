@@ -333,10 +333,39 @@ func removeCISDockerBenchmarkScannerFromJob(job *batchv1.Job) {
 	job.Spec.Template.Spec.Containers = containers
 }
 
+//func setJobImagePullSecret(job *batchv1.Job, secretName string) {
+//	for i := range job.Spec.Template.Spec.Containers {
+//		container := &job.Spec.Template.Spec.Containers[i]
+//		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: secretName})
+//	}
+//}
+
 func setJobImagePullSecret(job *batchv1.Job, secretName string) {
+	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
+		Name: _creds.BasicVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: _creds.BasicRegCredSecretName,
+				Items: []corev1.KeyToPath{
+					{
+						Key:  corev1.DockerConfigJsonKey,
+						Path: _creds.DockerConfigFileName,
+					},
+				},
+			},
+		},
+	})
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: secretName})
+		container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+			Name:      _creds.BasicVolumeName,
+			ReadOnly:  true,
+			MountPath: _creds.BasicVolumeMountPath,
+		})
+		container.Env = append(container.Env, corev1.EnvVar{
+			Name:  _creds.DockerConfigEnvVar,
+			Value: strings.Join([]string{_creds.BasicVolumeMountPath, _creds.DockerConfigFileName}, "/"),
+		})
 	}
 }
 

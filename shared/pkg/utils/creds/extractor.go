@@ -50,7 +50,7 @@ func getCredsWithK8sChain(namedImageRef reference.Named, imagePullSecret, namesp
 	keyChain, err := k8schain.NewInCluster(context.TODO(), k8schain.Options{
 		Namespace:          namespace,      // defaults to "default" if empty
 		ServiceAccountName: serviceAccount, // defaults to "default" if empty
-		ImagePullSecrets:   []string{imagePullSecret},
+		//ImagePullSecrets:   []string{imagePullSecret},
 	})
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create k8schain: %v", err)

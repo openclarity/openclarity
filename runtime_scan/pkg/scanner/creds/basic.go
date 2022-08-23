@@ -16,15 +16,19 @@
 package creds
 
 import (
+	"strings"
+
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-
-	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
 )
 
 const (
 	BasicRegCredSecretName = "basic-regcred" // nolint: gosec
+	BasicVolumeName        = "docker-config"
+	BasicVolumeMountPath   = "/etc/docker"
+	DockerConfigEnvVar     = "DOCKER_CONFIG"
+	DockerConfigFileName   = "config.json"
 )
 
 type BasicRegCred struct {
@@ -54,10 +58,36 @@ func (u *BasicRegCred) ShouldAdd() bool {
 
 func (u *BasicRegCred) Add(job *batchv1.Job) {
 	job.Namespace = u.secretNamespace
+	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
+		Name: BasicVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: BasicRegCredSecretName,
+				Items: []corev1.KeyToPath{
+					{
+						Key:  corev1.DockerConfigJsonKey,
+						Path: DockerConfigFileName,
+					},
+				},
+			},
+		},
+	})
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: BasicRegCredSecretName})
+		container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+			Name:      BasicVolumeName,
+			ReadOnly:  true,
+			MountPath: BasicVolumeMountPath,
+		})
+		container.Env = append(container.Env, corev1.EnvVar{
+			Name:  DockerConfigEnvVar,
+			Value: strings.Join([]string{BasicVolumeMountPath, DockerConfigFileName}, "/"),
+		})
 	}
+	//for i := range job.Spec.Template.Spec.Containers {
+	//	container := &job.Spec.Template.Spec.Containers[i]
+	//	container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: BasicRegCredSecretName})
+	//}
 }
 
 func (u *BasicRegCred) GetNamespace() string {
