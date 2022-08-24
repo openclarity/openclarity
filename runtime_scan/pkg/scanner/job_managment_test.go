@@ -376,7 +376,7 @@ func Test_setJobImageIDToScan(t *testing.T) {
 	}
 }
 
-func Test_setJobImagePullSecret(t *testing.T) {
+func Test_setJobDockerConfig(t *testing.T) {
 	type args struct {
 		job        *batchv1.Job
 		secretName string
@@ -547,7 +547,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setJobImagePullSecret(tt.args.job, tt.args.secretName)
+			setJobDockerConfig(tt.args.job, tt.args.secretName)
 			assert.DeepEqual(t, tt.args.job, tt.expectedJob)
 		})
 	}

@@ -54,6 +54,11 @@ func (u *BasicRegCred) ShouldAdd() bool {
 	return *u.isSecretExists
 }
 
+// Add The scanner is using docker config json that contains the username and the password required to pull the image.
+// We need to do the following:
+// 1. Create a volume that holds the `BasicRegCredSecretName` data
+// 2. Mount the volume into each container to a specific path (`BasicVolumeMountPath`/`DockerConfigFileName`)
+// 3. Set `DOCKER_CONFIG` to point to the directory that contains the config.json.
 func (u *BasicRegCred) Add(job *batchv1.Job) {
 	job.Namespace = u.secretNamespace
 	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{

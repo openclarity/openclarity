@@ -294,7 +294,7 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	setJobImageNameToScan(job, podContext.imageName)
 	if podContext.imagePullSecret != "" {
 		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", podContext.imageName)
-		setJobImagePullSecret(job, podContext.imagePullSecret)
+		setJobDockerConfig(job, podContext.imagePullSecret)
 	} else {
 		// Use private repo sa credentials only if there is no imagePullSecret
 		for _, adder := range s.credentialAdders {
@@ -318,7 +318,12 @@ func removeCISDockerBenchmarkScannerFromJob(job *batchv1.Job) {
 	job.Spec.Template.Spec.Containers = containers
 }
 
-func setJobImagePullSecret(job *batchv1.Job, secretName string) {
+// Create docker config from imagePullSecret that contains the username and the password required to pull the image.
+// We need to do the following:
+// 1. Create a volume that holds the `secretName` data
+// 2. Mount the volume into each container to a specific path (`BasicVolumeMountPath`/`DockerConfigFileName`)
+// 3. Set `DOCKER_CONFIG` to point to the directory that contains the config.json.
+func setJobDockerConfig(job *batchv1.Job, secretName string) {
 	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
 		Name: _creds.BasicVolumeName,
 		VolumeSource: corev1.VolumeSource{
