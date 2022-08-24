@@ -146,7 +146,7 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 	case <-data.resultChan:
 		log.WithFields(s.logFields).Infof("Image scanned result has arrived. imageID=%v", data.imageID)
 	case <-ticker.C:
-		errMsg := fmt.Errorf("job was timeout. imageID=%v", data.imageID)
+		errMsg := fmt.Errorf("job has timed out. imageID=%v", data.imageID)
 		log.WithFields(s.logFields).Warn(errMsg)
 		s.Lock()
 		data.success = false
