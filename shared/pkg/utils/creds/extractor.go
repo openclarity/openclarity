@@ -18,7 +18,6 @@ package creds
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/google/go-containerregistry/pkg/authn/k8schain"
@@ -27,31 +26,17 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image"
 )
 
-const (
-	ImagePullSecretEnvVar    = "K8S_IMAGE_PULL_SECRET"    // nolint:gosec
-	NamespaceEnvVar          = "K8S_NAMESPACE"            // nolint:gosec
-	ServiceAccountNameEnvVar = "K8S_SERVICE_ACCOUNT_NAME" // nolint:gosec
-)
-
 func ExtractCredentials(imageName string) (username string, password string, err error) {
 	ref, err := image.GetImageRef(imageName)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get image ref. image name=%v: %v", imageName, err)
 	}
 
-	namespace := os.Getenv(NamespaceEnvVar)
-	imagePullSecret := os.Getenv(ImagePullSecretEnvVar)
-	serviceAccount := os.Getenv(ServiceAccountNameEnvVar)
-
-	return getCredsWithK8sChain(ref, imagePullSecret, namespace, serviceAccount)
+	return getCredsWithK8sChain(ref)
 }
 
-func getCredsWithK8sChain(namedImageRef reference.Named, imagePullSecret, namespace, serviceAccount string) (string, string, error) {
-	keyChain, err := k8schain.NewInCluster(context.TODO(), k8schain.Options{
-		Namespace:          namespace,      // defaults to "default" if empty
-		ServiceAccountName: serviceAccount, // defaults to "default" if empty
-		//ImagePullSecrets:   []string{imagePullSecret},
-	})
+func getCredsWithK8sChain(namedImageRef reference.Named) (string, string, error) {
+	keyChain, err := k8schain.NewNoClient(context.TODO())
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create k8schain: %v", err)
 	}
