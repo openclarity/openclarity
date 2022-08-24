@@ -50,6 +50,7 @@ func getCredsWithK8sChain(namedImageRef reference.Named) (string, string, error)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create authenticator: %v", err)
 	}
+
 	authorization, err := authenticator.Authorization()
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create authorization: %v", err)

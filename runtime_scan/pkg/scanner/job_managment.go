@@ -342,7 +342,7 @@ func setJobImagePullSecret(job *batchv1.Job, secretName string) {
 		})
 		container.Env = append(container.Env, corev1.EnvVar{
 			Name:  _creds.DockerConfigEnvVar,
-			Value: strings.Join([]string{_creds.BasicVolumeMountPath, _creds.DockerConfigFileName}, "/"),
+			Value: _creds.BasicVolumeMountPath,
 		})
 	}
 }

@@ -428,7 +428,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{
 											Name:  _creds.DockerConfigEnvVar,
-											Value: "/etc/docker/config.json",
+											Value: _creds.BasicVolumeMountPath,
 										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
@@ -443,7 +443,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{
 											Name:  _creds.DockerConfigEnvVar,
-											Value: "/etc/docker/config.json",
+											Value: _creds.BasicVolumeMountPath,
 										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
@@ -511,7 +511,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 										{Name: "ENV1", Value: "123"},
 										{
 											Name:  _creds.DockerConfigEnvVar,
-											Value: "/etc/docker/config.json",
+											Value: _creds.BasicVolumeMountPath,
 										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
@@ -527,7 +527,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 										{Name: "ENV2", Value: "456"},
 										{
 											Name:  _creds.DockerConfigEnvVar,
-											Value: "/etc/docker/config.json",
+											Value: _creds.BasicVolumeMountPath,
 										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
@@ -864,7 +864,7 @@ spec:
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
         - name: DOCKER_CONFIG
-          value: "/etc/docker/config.json"
+          value: "/etc/docker"
         volumeMounts:
         - name: docker-config
           readOnly: true

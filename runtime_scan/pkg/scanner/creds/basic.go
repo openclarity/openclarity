@@ -16,8 +16,6 @@
 package creds
 
 import (
-	"strings"
-
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -81,7 +79,7 @@ func (u *BasicRegCred) Add(job *batchv1.Job) {
 		})
 		container.Env = append(container.Env, corev1.EnvVar{
 			Name:  DockerConfigEnvVar,
-			Value: strings.Join([]string{BasicVolumeMountPath, DockerConfigFileName}, "/"),
+			Value: BasicVolumeMountPath,
 		})
 	}
 	//for i := range job.Spec.Template.Spec.Containers {
