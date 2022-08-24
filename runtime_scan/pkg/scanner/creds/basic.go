@@ -82,12 +82,4 @@ func (u *BasicRegCred) Add(job *batchv1.Job) {
 			Value: BasicVolumeMountPath,
 		})
 	}
-	//for i := range job.Spec.Template.Spec.Containers {
-	//	container := &job.Spec.Template.Spec.Containers[i]
-	//	container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecret, Value: BasicRegCredSecretName})
-	//}
-}
-
-func (u *BasicRegCred) GetNamespace() string {
-	return u.secretNamespace
 }
