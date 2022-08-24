@@ -407,20 +407,50 @@ func Test_setJobImagePullSecret(t *testing.T) {
 				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
+							Volumes: []corev1.Volume{
+								{
+									Name: "docker-config",
+									VolumeSource: corev1.VolumeSource{
+										Secret: &corev1.SecretVolumeSource{
+											SecretName: "secretName",
+											Items: []corev1.KeyToPath{
+												{
+													Key:  corev1.DockerConfigJsonKey,
+													Path: _creds.DockerConfigFileName,
+												},
+											},
+										},
+									},
+								},
+							},
 							Containers: []corev1.Container{
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name:  "K8S_IMAGE_PULL_SECRET",
-											Value: "secretName",
+											Name:  _creds.DockerConfigEnvVar,
+											Value: "/etc/docker/config.json",
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name:  "K8S_IMAGE_PULL_SECRET",
-											Value: "secretName",
+											Name:  _creds.DockerConfigEnvVar,
+											Value: "/etc/docker/config.json",
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -459,13 +489,36 @@ func Test_setJobImagePullSecret(t *testing.T) {
 				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
+							Volumes: []corev1.Volume{
+								{
+									Name: "docker-config",
+									VolumeSource: corev1.VolumeSource{
+										Secret: &corev1.SecretVolumeSource{
+											SecretName: "secretName",
+											Items: []corev1.KeyToPath{
+												{
+													Key:  corev1.DockerConfigJsonKey,
+													Path: _creds.DockerConfigFileName,
+												},
+											},
+										},
+									},
+								},
+							},
 							Containers: []corev1.Container{
 								{
 									Env: []corev1.EnvVar{
 										{Name: "ENV1", Value: "123"},
 										{
-											Name:  "K8S_IMAGE_PULL_SECRET",
-											Value: "secretName",
+											Name:  _creds.DockerConfigEnvVar,
+											Value: "/etc/docker/config.json",
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -473,8 +526,15 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{Name: "ENV2", Value: "456"},
 										{
-											Name:  "K8S_IMAGE_PULL_SECRET",
-											Value: "secretName",
+											Name:  _creds.DockerConfigEnvVar,
+											Value: "/etc/docker/config.json",
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -740,8 +800,6 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
-        - name: K8S_NAMESPACE
-          Value: "namespace"
         securityContext:
           capabilities:
             drop:
@@ -777,6 +835,13 @@ spec:
       app: scanner
       sidecar.istio.io/inject: "false"
     spec:
+      volumes:
+      - name: docker-config
+        secret:
+          secretName: imagePullSecret
+          items:
+          - key: ".dockerconfigjson"
+            path: "config.json"
       restartPolicy: Never
       containers:
       - name: vulnerability-scanner
@@ -798,10 +863,12 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
-        - name: K8S_NAMESPACE
-          Value: "namespace"
-        - name: K8S_IMAGE_PULL_SECRET
-          value: "imagePullSecret"
+        - name: DOCKER_CONFIG
+          value: "/etc/docker/config.json"
+        volumeMounts:
+        - name: docker-config
+          readOnly: true
+          mountPath: /etc/docker
         securityContext:
           capabilities:
             drop:
@@ -858,8 +925,6 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
-        - name: K8S_NAMESPACE
-          Value: ""
         - name: fake-cred-name
           value: fake-cred-value
         securityContext:
