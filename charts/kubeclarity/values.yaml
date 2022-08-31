@@ -37,6 +37,8 @@ kubeclarity:
 
   enableDBInfoLog: false
 
+  podAnnotations: {}
+
   service:
     type: ClusterIP
 
