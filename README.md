@@ -225,7 +225,7 @@ SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom
 ### Vulnerability scanning using local docker image as input
 
 ```
-# Kubeclarity cli can analyze local docker images by set env variable LOCAL_IMAGE_SCAN=true
+# Kubeclarity cli can scan local docker images by set env variable LOCAL_IMAGE_SCAN=true
 
 # For example:
 LOCAL_IMAGE_SCAN=true kubeclarity-cli scan nginx.sbom
@@ -246,7 +246,7 @@ registry:
       token: <token for registry 2>
 ```
 
-Example registry config without authority if multiple registries doesn't need to be specified:
+Example registry config without authority: (in this case these credentials will be used for all registries)
 ```
 registry:
   auths:
