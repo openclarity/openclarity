@@ -207,7 +207,7 @@ ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ### SBOM generation using local docker image as input
 
 ```
-# Kubeclarity cli can analyze local docker images by set env variable LOCAL_IMAGE_SCAN=true
+# Local docker images can be analyzed using the LOCAL_IMAGE_SCAN env variable
 
 # For example:
 LOCAL_IMAGE_SCAN=true kubeclarity-cli analyze nginx:latest -o nginx.sbom
@@ -225,15 +225,15 @@ SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom
 ### Vulnerability scanning using local docker image as input
 
 ```
-# Kubeclarity cli can scan local docker images by set env variable LOCAL_IMAGE_SCAN=true
+# Local docker images can be scanned using the LOCAL_IMAGE_SCAN env variable
 
 # For example:
 LOCAL_IMAGE_SCAN=true kubeclarity-cli scan nginx.sbom
 ```
 
-### Private registry support for Kubeclarity cli
+### Private registry support in cli
 
-The Kubeclarity cli can read a config file that stores credentials for private registries.
+The KubeClarity cli can read a config file that stores credentials for private registries.
 
 Example registry section of the config file:
 ```
@@ -254,7 +254,7 @@ registry:
       password: <password>
 ```
 
-#### Specify config file for Kubeclarity cli
+#### Specify config file for cli
 
 ```
 # The default config path is $HOME/.kubeclarity or it can be specified by `--config` command line flag.
