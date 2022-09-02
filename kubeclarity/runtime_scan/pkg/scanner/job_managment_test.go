@@ -376,7 +376,7 @@ func Test_setJobImageIDToScan(t *testing.T) {
 	}
 }
 
-func Test_setJobImagePullSecret(t *testing.T) {
+func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 	type args struct {
 		job        *batchv1.Job
 		secretName string
@@ -407,32 +407,50 @@ func Test_setJobImagePullSecret(t *testing.T) {
 				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
+							Volumes: []corev1.Volume{
+								{
+									Name: "docker-config",
+									VolumeSource: corev1.VolumeSource{
+										Secret: &corev1.SecretVolumeSource{
+											SecretName: "secretName",
+											Items: []corev1.KeyToPath{
+												{
+													Key:  corev1.DockerConfigJsonKey,
+													Path: _creds.DockerConfigFileName,
+												},
+											},
+										},
+									},
+								},
+							},
 							Containers: []corev1.Container{
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  _creds.DockerConfigEnvVar,
+											Value: _creds.BasicVolumeMountPath,
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
 								{
 									Env: []corev1.EnvVar{
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  _creds.DockerConfigEnvVar,
+											Value: _creds.BasicVolumeMountPath,
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -471,19 +489,36 @@ func Test_setJobImagePullSecret(t *testing.T) {
 				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
+							Volumes: []corev1.Volume{
+								{
+									Name: "docker-config",
+									VolumeSource: corev1.VolumeSource{
+										Secret: &corev1.SecretVolumeSource{
+											SecretName: "secretName",
+											Items: []corev1.KeyToPath{
+												{
+													Key:  corev1.DockerConfigJsonKey,
+													Path: _creds.DockerConfigFileName,
+												},
+											},
+										},
+									},
+								},
+							},
 							Containers: []corev1.Container{
 								{
 									Env: []corev1.EnvVar{
 										{Name: "ENV1", Value: "123"},
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  _creds.DockerConfigEnvVar,
+											Value: _creds.BasicVolumeMountPath,
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -491,14 +526,15 @@ func Test_setJobImagePullSecret(t *testing.T) {
 									Env: []corev1.EnvVar{
 										{Name: "ENV2", Value: "456"},
 										{
-											Name: "K8S_IMAGE_PULL_SECRET", ValueFrom: &corev1.EnvVarSource{
-												SecretKeyRef: &corev1.SecretKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "secretName",
-													},
-													Key: corev1.DockerConfigJsonKey,
-												},
-											},
+											Name:  _creds.DockerConfigEnvVar,
+											Value: _creds.BasicVolumeMountPath,
+										},
+									},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "docker-config",
+											ReadOnly:  true,
+											MountPath: _creds.BasicVolumeMountPath,
 										},
 									},
 								},
@@ -511,7 +547,7 @@ func Test_setJobImagePullSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setJobImagePullSecret(tt.args.job, tt.args.secretName)
+			setJobDockerConfigFromImagePullSecret(tt.args.job, tt.args.secretName)
 			assert.DeepEqual(t, tt.args.job, tt.expectedJob)
 		})
 	}
@@ -799,6 +835,13 @@ spec:
       app: scanner
       sidecar.istio.io/inject: "false"
     spec:
+      volumes:
+      - name: docker-config
+        secret:
+          secretName: imagePullSecret
+          items:
+          - key: ".dockerconfigjson"
+            path: "config.json"
       restartPolicy: Never
       containers:
       - name: vulnerability-scanner
@@ -820,11 +863,12 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
-        - name: K8S_IMAGE_PULL_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: imagePullSecret
-              key: ".dockerconfigjson"
+        - name: DOCKER_CONFIG
+          value: "/etc/docker"
+        volumeMounts:
+        - name: docker-config
+          readOnly: true
+          mountPath: /etc/docker
         securityContext:
           capabilities:
             drop:
