@@ -298,6 +298,9 @@ ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom --merge-
 
 ## Private registries support for K8s runtime scan
 
+Kubeclarity is using [k8schain](https://github.com/google/go-containerregistry/tree/main/pkg/authn/k8schain#k8schain) of google/go-containerregistry for authenticating to the registries.
+If the necessary service credentials are not discoverable by the k8schain, they can be defined via secrets described below.
+
 ### Amazon ECR
 
 Create an [AWS IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console) with `AmazonEC2ContainerRegistryFullAccess` permissions.
