@@ -204,6 +204,15 @@ kubeclarity-cli analyze <image/directory name> --input-type <dir|file|image(defa
 ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ```
 
+### SBOM generation using local docker image as input
+
+```
+# Local docker images can be analyzed using the LOCAL_IMAGE_SCAN env variable
+
+# For example:
+LOCAL_IMAGE_SCAN=true kubeclarity-cli analyze nginx:latest -o nginx.sbom
+```
+
 ### Vulnerability scanning using multiple integrated scanners
 ```
 # A list of the vulnerability scanners to use can be configured using the SCANNERS_LIST env variable seperated by a space (e.g SCANNERS_LIST="grype dependency-track")
@@ -213,6 +222,47 @@ kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|fil
 SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom 
 ```
 
+### Vulnerability scanning using local docker image as input
+
+```
+# Local docker images can be scanned using the LOCAL_IMAGE_SCAN env variable
+
+# For example:
+LOCAL_IMAGE_SCAN=true kubeclarity-cli scan nginx.sbom
+```
+
+### Private registry support in cli
+
+The KubeClarity cli can read a config file that stores credentials for private registries.
+
+Example registry section of the config file:
+```
+registry:
+  auths:
+    - authority: <registry 1>
+      username: <username for registry 1>
+      password: <password for registry 1>
+    - authority: <registry 2>
+      token: <token for registry 2>
+```
+
+Example registry config without authority: (in this case these credentials will be used for all registries)
+```
+registry:
+  auths:
+    - username: <username>
+      password: <password>
+```
+
+#### Specify config file for cli
+
+```
+# The default config path is $HOME/.kubeclarity or it can be specified by `--config` command line flag.
+# kubeclarity <scan/analyze> <image name> --config <kubeclarity config path>
+
+# For example:
+kubeclarity scan registry/nginx:private --config $HOME/own-kubeclarity-config
+```
 
 ### Export results to KubeClarity backend
 To export CLI results to the KubeClarity backend, need to use an application ID as defined by the KubeClarity backend.
