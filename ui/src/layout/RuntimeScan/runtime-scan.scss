@@ -1,29 +1,60 @@
 @import 'utils/scss_variables.module.scss';
 
-$scan-time-width: 230px;
+$details-padding: 20px;
 
 .runtime-scan-page {
     .scan-details-container {
         margin: 40px;
         
         .scan-details-info {
-            min-height: 44px;
             box-sizing: border-box;
-            background-color: $color-grey-light;
             font-size: 13px;
             line-height: 18px;
-            padding: 13px 20px;
-            border-bottom: 1px solid $color-grey-dark;
-            box-shadow: 0px 0px 10px rgba(34, 43, 54, 0.12);
-            display: flex;
-            justify-content: space-between;
 
-            .details-info-config {
-                width: calc(100% - #{$scan-time-width} - 10px);
-                word-break: break-all;
+            .genreral-scan-details {
+                min-height: 44px;
+                padding: 0 $details-padding;
+                background-color: $color-grey-light;
+                border-bottom: 1px solid $color-grey;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .details-info-time {
+                    display: flex;
+                    align-items: center;
+                    white-space: pre-wrap;
+
+                    .icon {
+                        margin-right: 5px;
+                    }
+                }
             }
-            .details-info-time {
+            .namespaces-scan-details {
+                box-sizing: border-box;
+                min-height: 40px;
+                padding: 0 $details-padding;
+                padding-top: 15px;
+                background-color: $color-blue;
+                display: flex;
+                align-items: baseline;
                 white-space: nowrap;
+
+                .namespaces-list {
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    .namespace-item {
+                        padding: 0 10px;
+                        margin-bottom: 15px;
+                        font-weight: bold;
+
+                        &:not(:last-child) {
+                            border-right: 1px solid $color-grey;
+                        }
+                    }
+                    
+                }
             }
         }
         .scan-details-steps {

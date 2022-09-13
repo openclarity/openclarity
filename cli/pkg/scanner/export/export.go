@@ -125,7 +125,7 @@ func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.Packa
 		packageVulnerabilityScan = append(packageVulnerabilityScan, &models.PackageVulnerabilityScan{
 			Cvss:              getCVSS(vulnerability.Vulnerability),
 			Description:       vulnerability.Vulnerability.Description,
-			FixVersion:        getFixVersion(vulnerability.Vulnerability),
+			FixVersion:        scanner.GetFixVersion(vulnerability.Vulnerability),
 			LayerID:           vulnerability.Vulnerability.LayerID,
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
@@ -173,14 +173,6 @@ func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
 		log.Infof("CVSS not found for vulnerability: %s", vulnerability.ID)
 	}
 	return nil
-}
-
-// TODO can be multiple fix version?
-func getFixVersion(vulnerability scanner.Vulnerability) string {
-	if len(vulnerability.Fix.Versions) > 0 {
-		return vulnerability.Fix.Versions[0]
-	}
-	return ""
 }
 
 func getPackageInfo(vulnerability scanner.Vulnerability) *models.PackageInfo {

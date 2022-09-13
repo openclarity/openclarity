@@ -14,6 +14,7 @@ export const CisBenchmarkLevelsDisplay = ({id, levels, withTotal}) => (
         severityItems={CIS_SEVERITY_ITEMS}
         severityKey="level"
         withTotal={withTotal}
+        idPrefix="cis"
     />
 )
 
@@ -29,13 +30,13 @@ const TotalDisplay = ({id, vulnerabilities}) => {
     )
 }
 
-const VulnerabilitiesSummaryDisplay = ({id, vulnerabilities, withTotal, isNarrow=false, icon=ICON_NAMES.BUG, severityItems=SEVERITY_ITEMS, severityKey="severity"}) => (
+const VulnerabilitiesSummaryDisplay = ({id, idPrefix="vulnerabilities", vulnerabilities, withTotal, isNarrow=false, icon=ICON_NAMES.BUG, severityItems=SEVERITY_ITEMS, severityKey="severity"}) => (
     <div className={classnames("vulnerabilities-summary-display", {narrow: isNarrow})}>
-        {withTotal && <TotalDisplay id={id} vulnerabilities={vulnerabilities} />}
+        {withTotal && <TotalDisplay id={`${idPrefix}-${id}`} vulnerabilities={vulnerabilities} />}
         {
             Object.values(severityItems).map(({value, label, color}) => {
                 const {count=0} = vulnerabilities.find(item => item[severityKey] === value) || {};
-                const tooltipId = `vulnerability-summery-${id}-${value}`;
+                const tooltipId = `vulnerability-summery-${idPrefix}-${id}-${value}`;
 
                 return (
                     <React.Fragment key={value}>

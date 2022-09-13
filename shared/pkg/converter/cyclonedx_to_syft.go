@@ -44,7 +44,7 @@ type emptyMetadata struct{}
 var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from file")
 
 func ConvertCycloneDXToSyftJSONFromFile(inputSBOMFile string, outputSBOMFile string) error {
-	cdxBOM, err := getCycloneDXSBOMFromFile(inputSBOMFile)
+	cdxBOM, err := GetCycloneDXSBOMFromFile(inputSBOMFile)
 	if err != nil {
 		return ErrFailedToGetCycloneDXSBOM
 	}
@@ -80,7 +80,7 @@ func saveSyftSBOMToFile(syftBOM syft_sbom.SBOM, outputSBOMFile string) error {
 	return nil
 }
 
-func getCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
+func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 	inputSBOM, err := os.ReadFile(inputSBOMFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read SBOM file %s: %v", inputSBOMFile, err)
@@ -120,6 +120,9 @@ func convertCycloneDXtoSyft(bom *cdx.BOM) (syft_sbom.SBOM, error) {
 	}
 	if bom.Metadata.Component == nil {
 		return syft_sbom.SBOM{}, fmt.Errorf("cycloneDX metadata component is nil")
+	}
+	if bom.Components == nil {
+		return syft_sbom.SBOM{}, fmt.Errorf("cycloneDX doesn't have any components")
 	}
 	// nolint:exhaustive
 	switch bom.Metadata.Component.Type {

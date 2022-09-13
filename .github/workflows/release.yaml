@@ -35,6 +35,7 @@ jobs:
     with:
       image_tag: ${{ github.ref_name }}
       push: true
+      upload: false
 
   release:
     needs: build_and_push
