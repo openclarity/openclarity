@@ -127,3 +127,6 @@ replace (
 	github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
 	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
 )
+
+// Replace containerd due to GHSA-5ffw-gxpp-mxpf
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.6

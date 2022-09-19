@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
 	github.com/CycloneDX/cyclonedx-gomod v1.2.0
-	github.com/Portshift/grype-server/api v0.0.0-20220518140944-fefe28283f1f
+	github.com/Portshift/grype-server/api v0.0.0-20220919180048-90a9d80cc20b
 	github.com/anchore/grype v0.50.1
 	github.com/anchore/stereoscope v0.0.0-20220829182958-659c89aa659f
 	github.com/anchore/syft v0.56.0
@@ -88,7 +88,7 @@ require (
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4 // indirect
 	github.com/cncf/xds/go v0.0.0-20211130200136-a8f946100490 // indirect
-	github.com/containerd/containerd v1.6.0 // indirect
+	github.com/containerd/containerd v1.6.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.12.0 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
@@ -287,7 +287,7 @@ require (
 	go.uber.org/zap v1.22.0 // indirect
 	golang.org/x/exp v0.0.0-20200331195152-e8c3332aa8e5 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
@@ -340,3 +340,6 @@ require (
 	k8s.io/apimachinery v0.23.5
 	k8s.io/client-go v0.23.5
 )
+
+// Replace containerd due to GHSA-5ffw-gxpp-mxpf
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.6
