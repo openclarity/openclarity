@@ -1,13 +1,13 @@
 module github.com/openclarity/kubeclarity/e2e
 
-go 1.17
+go 1.19
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.5.0
 	github.com/go-openapi/runtime v0.23.3
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0-20220517152539-12093b889617
+	github.com/openclarity/kubeclarity/shared v0.0.0
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.23.4
 	k8s.io/apimachinery v0.23.4
@@ -123,4 +123,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
+replace (
+	github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
+	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
+)
