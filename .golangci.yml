@@ -3,7 +3,6 @@ run:
     - api
     - ui
   timeout: 5m
-  modules-download-mode: mod
 
 linters-settings:
   golint:

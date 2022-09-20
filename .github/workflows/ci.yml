@@ -23,6 +23,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make license-check
 
+      - name: Go mod tidy
+        run: make gomod-tidy
+
       - name: Run verification
         run: make check
 
