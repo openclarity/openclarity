@@ -193,7 +193,7 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
 	cd backend && ../bin/golangci-lint run
-	cd cli && ../bin/golangci-lint run
+#	cd cli && ../bin/golangci-lint run
 	cd runtime_scan && ../bin/golangci-lint run
 	cd sbom_db/backend && ../../bin/golangci-lint run
 	cd runtime_k8s_scanner && ../bin/golangci-lint run
