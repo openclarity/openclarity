@@ -8,7 +8,7 @@ DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 
 # Dependency versions
-GOLANGCI_VERSION = 1.48.0
+GOLANGCI_VERSION = 1.49.0
 LICENSEI_VERSION = 0.5.0
 
 # HELP
@@ -193,21 +193,21 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
 	cd backend && ../bin/golangci-lint run
-	cd cli && ../bin/golangci-lint run
+	cd cli && CGO_ENABLED=0 ../bin/golangci-lint run
 	cd runtime_scan && ../bin/golangci-lint run
 	cd sbom_db/backend && ../../bin/golangci-lint run
 	cd runtime_k8s_scanner && ../bin/golangci-lint run
-	cd cis_docker_benchmark_scanner && ../bin/golangci-lint run
+	cd cis_docker_benchmark_scanner && CGO_ENABLED=0 ../bin/golangci-lint run
 	cd shared && ../bin/golangci-lint run
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
 	cd backend && ../bin/golangci-lint run --fix
-	cd cli && ../bin/golangci-lint run --fix
+	cd cli && CGO_ENABLED=0 ../bin/golangci-lint run --fix
 	cd runtime_scan && ../bin/golangci-lint run --fix
 	cd sbom_db/backend && ../../bin/golangci-lint run --fix
 	cd runtime_k8s_scanner && ../bin/golangci-lint run --fix
-	cd cis_docker_benchmark_scanner && ../bin/golangci-lint run --fix
+	cd cis_docker_benchmark_scanner && CGO_ENABLED=0 ../bin/golangci-lint run --fix
 	cd shared && ../bin/golangci-lint run --fix
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
