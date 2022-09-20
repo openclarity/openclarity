@@ -61,7 +61,7 @@ func buildToolMetadata() (*cdx.Tool, error) {
 	}, nil
 }
 
-// nolint:cyclop
+// nolint:cyclop,exhaustive
 func calculateFileHashes(filePath string, algos ...cdx.HashAlgorithm) ([]cdx.Hash, error) {
 	if len(algos) == 0 {
 		return make([]cdx.Hash, 0), nil

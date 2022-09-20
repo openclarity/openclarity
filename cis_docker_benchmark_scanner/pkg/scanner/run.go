@@ -75,6 +75,7 @@ func run(ctx context.Context, conf *config.Config) {
 	logger := createLogger(conf)
 	reporter := report.CreateReporter(ctx, conf)
 
+	// nolint:contextcheck
 	assessmentMap, err := dockle_run.RunFromConfig(createDockleConfig(conf))
 	if err != nil {
 		reportError(reporter, logger, fmt.Errorf("failed to run dockle: %w", err))

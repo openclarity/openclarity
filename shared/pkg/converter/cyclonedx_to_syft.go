@@ -23,17 +23,9 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	syft_sbom "github.com/anchore/syft/syft/sbom"
-	syft_source "github.com/anchore/syft/syft/source"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 )
-
-type propertiesInfo struct {
-	locations []syft_source.Location
-	metaData  interface{}
-}
-
-type emptyMetadata struct{}
 
 var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from file")
 

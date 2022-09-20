@@ -222,7 +222,7 @@ func getWriter(filePath string) (io.Writer, func() error) {
 		return os.Stdout, func() error { return nil }
 	}
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666) // nolint:gomnd,gofumpt
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o666) // nolint:gomnd,gofumpt
 	if err != nil {
 		logger.Fatalf("Failed open file %s: %v", filePath, err)
 	}
@@ -249,7 +249,8 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 
 func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 	source string, config *config.Config,
-	needed bool) (dockle_types.AssessmentMap, error) {
+	needed bool,
+) (dockle_types.AssessmentMap, error) {
 	if sourceType != sharedutils.IMAGE || !needed {
 		return nil, nil
 	}

@@ -20,9 +20,10 @@ import (
 	"sort"
 	"testing"
 
+	"gotest.tools/assert"
+
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	"github.com/openclarity/kubeclarity/backend/pkg/types"

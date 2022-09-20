@@ -22,8 +22,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"gotest.tools/assert"
+
+	"github.com/golang/mock/gomock"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
 	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"

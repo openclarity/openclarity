@@ -15,6 +15,7 @@
 
 package dependency_track // nolint:revive,stylecheck
 
+// nolint:staticcheck
 import (
 	"crypto/tls"
 	"fmt"
@@ -41,6 +42,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
+// nolint:gosec
 const (
 	ScannerName      = "dependency-track"
 	apiKeyHeaderName = "X-Api-Key"

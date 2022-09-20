@@ -55,8 +55,12 @@ func LoadConfig() (*Config, error) {
 		},
 	}
 
-	configB, _ := json.Marshal(config)
-	log.Infof("\n\nconfig=%s\n\n", configB)
+	configB, err := json.Marshal(config)
+	if err == nil {
+		log.Infof("\n\nconfig=%s\n\n", configB)
+	} else {
+		log.Warningf("Failed to marshal config; %v", err)
+	}
 
 	return config, nil
 }

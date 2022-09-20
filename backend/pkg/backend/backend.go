@@ -125,7 +125,8 @@ func Run() {
 }
 
 func createRuntimeScanOrchestrator(config *_config.Config, clientset kubernetes.Interface,
-	imageContentAnalysisHandler orchestrator.ImageContentAnalysisHandlerCallback) (orchestrator.VulnerabilitiesScanner, error) {
+	imageContentAnalysisHandler orchestrator.ImageContentAnalysisHandlerCallback,
+) (orchestrator.VulnerabilitiesScanner, error) {
 	if config.EnableFakeRuntimeScanner {
 		return fake.Create(), nil
 	}
@@ -148,8 +149,12 @@ func createRuntimeScanOrchestrator(config *_config.Config, clientset kubernetes.
 func (b *Backend) handleImageContentAnalysis(contentAnalysis *runtime_scan_models.ImageContentAnalysis) error {
 	log.Infof("Handling image content analysis. image-id=%v", contentAnalysis.ImageID)
 	if log.GetLevel() == log.TraceLevel {
-		contentAnalysisB, _ := json.Marshal(contentAnalysis)
-		log.Tracef("Handling image content analysis. contentAnalysis=%s", contentAnalysisB)
+		contentAnalysisB, err := json.Marshal(contentAnalysis)
+		if err == nil {
+			log.Tracef("Handling image content analysis. contentAnalysis=%s", contentAnalysisB)
+		} else {
+			log.Warningf("Failed to marshal content alanysis. %v", err)
+		}
 	}
 
 	// Create a new resource tree.
