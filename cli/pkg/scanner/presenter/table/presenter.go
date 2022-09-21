@@ -89,12 +89,13 @@ func (pres *Presenter) Present(output io.Writer) error {
 	return nil
 }
 
-func getScanners(mergedVulnerabilities []scanner.MergedVulnerability) (ret []string) {
+func getScanners(mergedVulnerabilities []scanner.MergedVulnerability) []string {
 	scannerNameFormat := "%s"
 	if len(mergedVulnerabilities) > 1 {
 		// (*) will be added to all scanners names if diffs was found in the vulnerability results
 		scannerNameFormat += "(*)"
 	}
+	ret := make([]string, 0)
 	for _, mergedVulnerability := range mergedVulnerabilities {
 		for _, info := range mergedVulnerability.ScannersInfo {
 			ret = append(ret, fmt.Sprintf(scannerNameFormat, info.Name))

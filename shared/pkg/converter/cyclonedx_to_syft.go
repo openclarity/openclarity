@@ -108,6 +108,9 @@ func convertCycloneDXtoSyft(sbomB []byte) (syft_sbom.SBOM, error) {
 	if err := output.Decode(formatter.CycloneDXFormat); err != nil {
 		return syft_sbom.SBOM{}, fmt.Errorf("failed to write results: %v", err)
 	}
-
-	return output.GetSBOM().(syft_sbom.SBOM), nil
+	sbom, ok := output.GetSBOM().(syft_sbom.SBOM)
+	if !ok {
+		return syft_sbom.SBOM{}, fmt.Errorf("type assertion of sbom failed")
+	}
+	return sbom, nil
 }

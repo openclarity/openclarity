@@ -63,7 +63,11 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 		//        ],
 		// Check which RegoDigest should be used
 		if reference.FamiliarName(normalizedRepoDigest) == familiarName {
-			return normalizedRepoDigest.(reference.Digested).Digest().Encoded()
+			digest, ok := normalizedRepoDigest.(reference.Digested)
+			if !ok {
+				log.Errorf("Type assertion of digest failed.")
+			}
+			return digest.Digest().Encoded()
 		}
 	}
 	return ""
@@ -179,12 +183,13 @@ func prepareReferenceOptions(registryOptions *image.RegistryOptions) []name.Opti
 	return options
 }
 
-func prepareRemoteOptions(ref name.Reference, registryOptions *image.RegistryOptions) (opts []remote.Option) {
+func prepareRemoteOptions(ref name.Reference, registryOptions *image.RegistryOptions) []remote.Option {
+	opts := make([]remote.Option, 0)
 	if registryOptions == nil {
 		// use the Keychain specified from a docker config file.
 		log.Debugf("no registry credentials configured, using the default keychain")
 		opts = append(opts, remote.WithAuthFromKeychain(authn.DefaultKeychain))
-		return
+		return opts
 	}
 
 	if registryOptions.InsecureSkipTLSVerify {

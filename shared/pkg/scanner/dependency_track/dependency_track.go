@@ -79,7 +79,11 @@ func newHTTPClient(conf config.DependencyTrackConfig) *client.DependencyTrackAPI
 	if conf.DisableTLS {
 		transport = httptransport.New(conf.Host, client.DefaultBasePath, []string{"http"})
 	} else if conf.InsecureSkipVerify {
-		customTransport := http.DefaultTransport.(*http.Transport).Clone()
+		defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+		if !ok {
+			log.Errorf("Type assertion of default transport failed.")
+		}
+		customTransport := defaultTransport.Clone()
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} // nolint: gosec
 		transport = httptransport.NewWithClient(conf.Host, client.DefaultBasePath, []string{"https"},
 			&http.Client{Transport: customTransport})
@@ -303,14 +307,16 @@ func getVersion(component *models.Component) string {
 	return *component.Version
 }
 
-func getCPE(component *models.Component) (ret []string) {
+func getCPE(component *models.Component) []string {
+	ret := make([]string, 0)
 	if component.Cpe != nil {
 		ret = append(ret, *component.Cpe)
 	}
 	return ret
 }
 
-func getLicense(component *models.Component) (ret []string) {
+func getLicense(component *models.Component) []string {
+	ret := make([]string, 0)
 	if component.License != nil {
 		ret = append(ret, *component.License)
 	}
@@ -330,7 +336,8 @@ func getFix(vul *models.Vulnerability) scanner.Fix {
 	return fix
 }
 
-func getLinks(references string) (links []string) {
+func getLinks(references string) []string {
+	links := make([]string, 0)
 	subMatchAll := referencesRegexp.FindAllString(references, -1)
 	for _, link := range subMatchAll {
 		link = strings.Trim(link, "[")

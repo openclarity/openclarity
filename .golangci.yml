@@ -51,16 +51,12 @@ linters:
     - tagliatelle # Allow json(camel)
     - scopelint # deprecated
     - golint # deprecated
-    - nolintlint
-    - varnamelen
-    - nosnakecase
-    - nonamedreturns
-    - nilnil
-    - maintidx
-    - ireturn
-    - exhaustruct
-    - gci
-    - forcetypeassert
+    - nolintlint # Allow nolint
+    - varnamelen # Allow short var names
+    - nosnakecase # Allow snake case (we are using _ in some named imports)
+    - ireturn # Allow returning with iterfaces
+    - exhaustruct # Allow structures with uninitialized fields
+    - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/kubeclarity)"`
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
