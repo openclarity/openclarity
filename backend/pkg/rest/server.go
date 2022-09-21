@@ -309,7 +309,7 @@ func (s *Server) handleScanResults(results *_types.ScanResults) {
 		if err == nil {
 			log.Tracef("Got scan results: %s", string(resultsB))
 		} else {
-			log.Warningf("Failed to marshal image scan results. %v", err)
+			log.Errorf("Failed to marshal image scan results: %v", err)
 		}
 	}
 

@@ -54,7 +54,7 @@ func ConvertToDependencyTrackConfig(scanner *Scanner, logger *logrus.Entry) Depe
 		if err == nil {
 			logger.Infof("DependencyTrack config: %s", configB)
 		} else {
-			logger.Warningf("Failed to marshal dependency track config. %v", err)
+			logger.Errorf("Failed to marshal dependency track config: %v", err)
 		}
 	}
 	return dependencyTrackConfig

@@ -56,7 +56,7 @@ func LoadConfig() (*Config, error) {
 	if err == nil {
 		log.Infof("\n\nconfig=%s\n\n", configB)
 	} else {
-		log.Warningf("Failed to marshal config. %v", err)
+		log.Errorf("Failed to marshal config: %v", err)
 	}
 
 	return config, nil

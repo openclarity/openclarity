@@ -61,7 +61,8 @@ func New(conf *config.Config,
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	src := utils.CreateSource(sourceType, userInput, a.localImage)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
-	// TODO define platform
+	// TODO platform can be defined
+	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
 	input, err := source.ParseInput(src, "", false)
 	if err != nil {
 		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)

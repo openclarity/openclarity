@@ -153,7 +153,7 @@ func (b *Backend) handleImageContentAnalysis(contentAnalysis *runtime_scan_model
 		if err == nil {
 			log.Tracef("Handling image content analysis. contentAnalysis=%s", contentAnalysisB)
 		} else {
-			log.Warningf("Failed to marshal content alanysis. %v", err)
+			log.Errorf("Failed to marshal content alanysis: %v", err)
 		}
 	}
 

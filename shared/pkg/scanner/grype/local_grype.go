@@ -64,10 +64,8 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 	s.logger.Infof("Loading DB. update=%v", s.config.UpdateDB)
 
-	store, dbStatus, dbCloser, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
-	if dbCloser != nil {
-		defer dbCloser.Close()
-	}
+	store, dbStatus, _, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
+
 	if err = validateDBLoad(err, dbStatus); err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to load vulnerability DB: %w", err), s.logger)
 		return
