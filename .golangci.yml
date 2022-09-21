@@ -2,7 +2,7 @@ run:
   skip-dirs:
     - api
     - ui
-  timeout: 5m
+  timeout: 15m
 
 linters-settings:
   golint:
