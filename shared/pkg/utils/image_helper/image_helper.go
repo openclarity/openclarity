@@ -63,11 +63,7 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 		//        ],
 		// Check which RegoDigest should be used
 		if reference.FamiliarName(normalizedRepoDigest) == familiarName {
-			digest, ok := normalizedRepoDigest.(reference.Digested)
-			if !ok {
-				log.Errorf("Type assertion of digest failed.")
-			}
-			return digest.Digest().Encoded()
+			return normalizedRepoDigest.(reference.Digested).Digest().Encoded() // nolint:forcetypeassert
 		}
 	}
 	return ""

@@ -79,11 +79,7 @@ func newHTTPClient(conf config.DependencyTrackConfig) *client.DependencyTrackAPI
 	if conf.DisableTLS {
 		transport = httptransport.New(conf.Host, client.DefaultBasePath, []string{"http"})
 	} else if conf.InsecureSkipVerify {
-		defaultTransport, ok := http.DefaultTransport.(*http.Transport)
-		if !ok {
-			log.Errorf("Type assertion of default transport failed.")
-		}
-		customTransport := defaultTransport.Clone()
+		customTransport := http.DefaultTransport.(*http.Transport).Clone()      // nolint:forcetypeassert
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} // nolint: gosec
 		transport = httptransport.NewWithClient(conf.Host, client.DefaultBasePath, []string{"https"},
 			&http.Client{Transport: customTransport})

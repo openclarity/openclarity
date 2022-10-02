@@ -131,10 +131,7 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 	var srcName string
 	switch doc.Source.Target.(type) {
 	case syft_source.ImageMetadata:
-		imageMetadata, ok := doc.Source.Target.(syft_source.ImageMetadata)
-		if !ok {
-			log.Errorf("Type assertion of source failed.")
-		}
+		imageMetadata := doc.Source.Target.(syft_source.ImageMetadata) // nolint:forcetypeassert
 		srcName = imageMetadata.UserInput
 		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
 		if srcName == "" {
@@ -210,7 +207,8 @@ func getDescription(match grype_models.Match) string {
 	return match.Vulnerability.Description
 }
 
-func getLayerIDAndPath(coordinates []syft_source.Coordinates) (string, string) {
+// nolint:nonamedreturns
+func getLayerIDAndPath(coordinates []syft_source.Coordinates) (layerID, path string) {
 	if len(coordinates) == 0 {
 		return "", ""
 	}

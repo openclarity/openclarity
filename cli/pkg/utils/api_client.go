@@ -21,7 +21,6 @@ import (
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/api/client/client"
 	"github.com/openclarity/kubeclarity/cli/pkg/config"
@@ -32,11 +31,7 @@ func NewHTTPClient(conf *config.Backend) *client.KubeClarityAPIs {
 	if conf.DisableTLS {
 		transport = httptransport.New(conf.Host, client.DefaultBasePath, []string{"http"})
 	} else if conf.InsecureSkipVerify {
-		defaultTransport, ok := http.DefaultTransport.(*http.Transport)
-		if !ok {
-			log.Errorf("Type assertion of default transport failed.")
-		}
-		customTransport := defaultTransport.Clone()
+		customTransport := http.DefaultTransport.(*http.Transport).Clone()      // nolint:forcetypeassert
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} // nolint: gosec
 		transport = httptransport.NewWithClient(conf.Host, client.DefaultBasePath, []string{"https"},
 			&http.Client{Transport: customTransport})

@@ -169,8 +169,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		}
 		bom, ok := input.GetSBOM().(*cdx.BOM)
 		if !ok {
-			logger.Errorf("Type assertion of bom failed.")
-			return
+			logger.Fatalf("Type assertion of bom failed.")
 		}
 		bomMetaComponent := bom.Metadata.Component
 		hash = cdx_helper.GetComponentHash(bomMetaComponent)

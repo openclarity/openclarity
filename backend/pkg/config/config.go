@@ -17,6 +17,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -74,7 +75,7 @@ func LoadConfig() (*Config, error) {
 	if err == nil {
 		log.Infof("\n\nconfig=%s\n\n", configB)
 	} else {
-		log.Errorf("Failed to marshal config")
+		return nil, fmt.Errorf("failed to marshal config: %v", err)
 	}
 
 	return config, nil

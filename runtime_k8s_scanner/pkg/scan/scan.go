@@ -52,11 +52,7 @@ func (s *ScannerImpl) Scan(config *config.Config, sbomFilePath string) (*shareds
 	mergedResults := sharedscanner.NewMergedResults()
 	for name, result := range results {
 		s.logger.Infof("Merging result from %q", name)
-		if res, ok := result.(*sharedscanner.Results); ok {
-			mergedResults = mergedResults.Merge(res)
-		} else {
-			s.logger.Errorf("Type assertion of result failed.")
-		}
+		mergedResults = mergedResults.Merge(result.(*sharedscanner.Results)) // nolint:forcetypeassert
 	}
 
 	// Set source values.
