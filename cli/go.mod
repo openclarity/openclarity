@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
-	github.com/Portshift/dockle v0.0.0-20220920105002-c61bc38ce894
+	github.com/Portshift/dockle v0.0.0-20220921124643-b6fc0890ad9d
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/olekukonko/tablewriter v0.0.5
@@ -43,7 +43,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/Microsoft/hcsshim v0.9.3 // indirect
-	github.com/Portshift/grype-server/api v0.0.0-20220919180048-90a9d80cc20b // indirect
+	github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20220824120805-4b6e5c587895 // indirect
 	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect

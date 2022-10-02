@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
 	github.com/CycloneDX/cyclonedx-gomod v1.2.0
-	github.com/Portshift/grype-server/api v0.0.0-20220919180048-90a9d80cc20b
+	github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb
 	github.com/anchore/grype v0.50.1
 	github.com/anchore/stereoscope v0.0.0-20220829182958-659c89aa659f
 	github.com/anchore/syft v0.56.0

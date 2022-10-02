@@ -3,7 +3,7 @@ module github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner
 go 1.19
 
 require (
-	github.com/Portshift/dockle v0.0.0-20220920105002-c61bc38ce894
+	github.com/Portshift/dockle v0.0.0-20220921124643-b6fc0890ad9d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.3

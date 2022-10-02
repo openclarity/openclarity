@@ -3,7 +3,7 @@ module github.com/openclarity/kubeclarity/backend
 go 1.19
 
 require (
-	github.com/Portshift/dockle v0.0.0-20220920105002-c61bc38ce894
+	github.com/Portshift/dockle v0.0.0-20220921124643-b6fc0890ad9d
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/bxcodec/faker/v3 v3.7.0
 	github.com/go-openapi/loads v0.21.2

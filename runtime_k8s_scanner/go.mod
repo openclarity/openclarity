@@ -38,7 +38,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/Portshift/grype-server/api v0.0.0-20220919180048-90a9d80cc20b // indirect
+	github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20220824120805-4b6e5c587895 // indirect
 	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect
