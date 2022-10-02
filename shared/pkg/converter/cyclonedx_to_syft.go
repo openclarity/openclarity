@@ -32,11 +32,11 @@ var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from 
 func ConvertCycloneDXToSyftJSONFromFile(inputSBOMFile string, outputSBOMFile string) error {
 	inputSBOM, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
 	if err != nil {
-		return fmt.Errorf("failed to get cyclonDX SBOM  bytes from file: %v", err)
+		return fmt.Errorf("failed to get CycloneDX SBOM  bytes from file: %v", err)
 	}
 	syftBOM, err := convertCycloneDXtoSyft(inputSBOM)
 	if err != nil {
-		return fmt.Errorf("failed to convert cycloneDX to syft format: %v", err)
+		return fmt.Errorf("failed to convert CycloneDX to syft format: %v", err)
 	}
 
 	if err = saveSyftSBOMToFile(syftBOM, outputSBOMFile); err != nil {
@@ -76,7 +76,7 @@ func saveSyftSBOMToFile(syftBOM syft_sbom.SBOM, outputSBOMFile string) error {
 func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 	inputSBOM, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get cyclonDX SBOM  bytes from file: %v", err)
+		return nil, fmt.Errorf("failed to get CycloneDX SBOM bytes from file: %v", err)
 	}
 	inputFormat := DetermineCycloneDXFormat(inputSBOM)
 	input := formatter.New(inputFormat, inputSBOM)
