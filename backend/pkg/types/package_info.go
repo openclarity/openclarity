@@ -21,7 +21,6 @@ import (
 )
 
 type PackageInfo struct {
-
 	// language
 	Language string `json:"language,omitempty"`
 

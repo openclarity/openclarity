@@ -83,7 +83,7 @@ func init() {
 	scanCmd.Flags().StringSlice("ignore-vul", []string{}, "ignore list of vulnerabilities")
 }
 
-// nolint:cyclop
+// nolint:cyclop,gocognit
 func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	output, err := cmd.Flags().GetString("output")
 	if err != nil {
@@ -145,7 +145,11 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	mergedResults := sharedscanner.NewMergedResults()
 	for name, result := range results {
 		logger.Infof("Merging result from %q", name)
-		mergedResults = mergedResults.Merge(result.(*sharedscanner.Results))
+		if res, ok := result.(*sharedscanner.Results); ok {
+			mergedResults = mergedResults.Merge(res)
+		} else {
+			logger.Errorf("Type assertion of result failed.")
+		}
 	}
 
 	var hash string
@@ -163,7 +167,11 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		if err := input.Decode(formatter.CycloneDXFormat); err != nil {
 			logger.Fatalf("Unable to decode input SBOM %s: %v", args[0], err)
 		}
-		bomMetaComponent := input.GetSBOM().(*cdx.BOM).Metadata.Component
+		bom, ok := input.GetSBOM().(*cdx.BOM)
+		if !ok {
+			logger.Fatalf("Type assertion of bom failed.")
+		}
+		bomMetaComponent := bom.Metadata.Component
 		hash = cdx_helper.GetComponentHash(bomMetaComponent)
 		// If the target and type of source are not defined, we will get them from SBOM.
 		// For example in the case of dependency-track.
@@ -222,7 +230,7 @@ func getWriter(filePath string) (io.Writer, func() error) {
 		return os.Stdout, func() error { return nil }
 	}
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666) // nolint:gomnd,gofumpt
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o666) // nolint:gomnd,gofumpt
 	if err != nil {
 		logger.Fatalf("Failed open file %s: %v", filePath, err)
 	}
@@ -249,7 +257,8 @@ func getLayerCommandsIfNeeded(sourceType sharedutils.SourceType, source string, 
 
 func getCisDockerBenchmarkResultsIfNeeded(sourceType sharedutils.SourceType,
 	source string, config *config.Config,
-	needed bool) (dockle_types.AssessmentMap, error) {
+	needed bool,
+) (dockle_types.AssessmentMap, error) {
 	if sourceType != sharedutils.IMAGE || !needed {
 		return nil, nil
 	}

@@ -53,6 +53,7 @@ func LoadConfig() *Config {
 	}
 }
 
+// nolint:gomnd
 func setConfigDefaults() {
 	viper.SetDefault(LogLevel, "info")
 	viper.SetDefault(EnableJSONLog, false)

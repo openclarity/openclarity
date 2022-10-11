@@ -330,6 +330,7 @@ FROM resource_cis_d_b_checks
   `
 )
 
+// nolint:interfacebloat
 type Database interface {
 	ApplicationTable() ApplicationTable
 	ResourceTable() ResourceTable

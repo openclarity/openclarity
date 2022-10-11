@@ -26,8 +26,8 @@ type Formatter interface {
 	Encode(format string) error
 	Decode(format string) error
 	SetSBOM(interface{}) error
-	GetSBOMBytes() []byte
 	GetSBOM() interface{}
+	GetSBOMBytes() []byte
 }
 
 func New(formatterName string, sbom []byte) Formatter {

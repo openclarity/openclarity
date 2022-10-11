@@ -59,11 +59,11 @@ func ReportError(resultChan chan job_manager.Result, err error, logger *log.Entr
 	resultChan <- res
 }
 
-func ConvertCycloneDXFileToSyftJSONFile(inputFilePath string, logger *log.Entry) (outputFilePath string, cleanup func(), err error) {
-	outputFilePath = inputFilePath + ".syft.json"
+func ConvertCycloneDXFileToSyftJSONFile(inputFilePath string, logger *log.Entry) (string, func(), error) {
+	outputFilePath := inputFilePath + ".syft.json"
 	logger.Infof("Converting %q to syft format.", inputFilePath)
 
-	if err = converter.ConvertCycloneDXToSyftJSONFromFile(inputFilePath, outputFilePath); err != nil {
+	if err := converter.ConvertCycloneDXToSyftJSONFromFile(inputFilePath, outputFilePath); err != nil {
 		if errors.Is(err, converter.ErrFailedToGetCycloneDXSBOM) {
 			logger.Infof("Not a CycloneDX input - returning current input.")
 			return inputFilePath, func() {}, nil
@@ -131,7 +131,8 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 	var srcName string
 	switch doc.Source.Target.(type) {
 	case syft_source.ImageMetadata:
-		srcName = doc.Source.Target.(syft_source.ImageMetadata).UserInput
+		imageMetadata := doc.Source.Target.(syft_source.ImageMetadata) // nolint:forcetypeassert
+		srcName = imageMetadata.UserInput
 		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
 		if srcName == "" {
 			srcName = userInput
@@ -139,10 +140,10 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 		if hash != "" {
 			break
 		}
-		hash = image_helper.GetHashFromRepoDigest(doc.Source.Target.(syft_source.ImageMetadata).RepoDigests, userInput)
+		hash = image_helper.GetHashFromRepoDigest(imageMetadata.RepoDigests, userInput)
 		if hash == "" {
 			// set hash using ManifestDigest if RepoDigest is missing
-			manifestHash := doc.Source.Target.(syft_source.ImageMetadata).ManifestDigest
+			manifestHash := imageMetadata.ManifestDigest
 			if idx := strings.Index(manifestHash, ":"); idx != -1 {
 				hash = manifestHash[idx+1:]
 			}
@@ -206,6 +207,7 @@ func getDescription(match grype_models.Match) string {
 	return match.Vulnerability.Description
 }
 
+// nolint:nonamedreturns
 func getLayerIDAndPath(coordinates []syft_source.Coordinates) (layerID, path string) {
 	if len(coordinates) == 0 {
 		return "", ""

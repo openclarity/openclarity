@@ -159,6 +159,7 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 }
 
 func (j *JoinTablesHandler) GetResourcePackageIDToAnalyzers(resourceIDs []string) (map[ResourcePkgID][]string, error) {
+	// nolint:nilnil
 	if len(resourceIDs) == 0 {
 		return nil, nil
 	}

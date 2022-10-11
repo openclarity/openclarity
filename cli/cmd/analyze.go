@@ -122,7 +122,11 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	// Merge results
 	mergedResults := sharedanalyzer.NewMergedResults(sourceType, hash)
 	for _, result := range results {
-		mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results), outputFormat)
+		if res, ok := result.(*sharedanalyzer.Results); ok {
+			mergedResults = mergedResults.Merge(res, outputFormat)
+		} else {
+			logger.Errorf("Type assertion of result failed.")
+		}
 	}
 
 	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(outputFormat, pkg.GitRevision)

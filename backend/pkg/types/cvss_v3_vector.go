@@ -21,7 +21,6 @@ import (
 )
 
 type CVSSV3Vector struct {
-
 	// attack complexity
 	AttackComplexity AttackComplexity `json:"attackComplexity,omitempty"`
 
