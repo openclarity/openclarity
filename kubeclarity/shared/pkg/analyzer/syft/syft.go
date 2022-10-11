@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/anchore/syft/syft"
+	syft_artifact "github.com/anchore/syft/syft/artifact"
 	"github.com/anchore/syft/syft/linux"
 	syft_pkg "github.com/anchore/syft/syft/pkg"
 	"github.com/anchore/syft/syft/pkg/cataloger"
@@ -46,7 +47,8 @@ type Analyzer struct {
 
 func New(conf *config.Config,
 	logger *log.Entry,
-	resultChan chan job_manager.Result) job_manager.Job {
+	resultChan chan job_manager.Result,
+) job_manager.Job {
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
@@ -59,7 +61,13 @@ func New(conf *config.Config,
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	src := utils.CreateSource(sourceType, userInput, a.localImage)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
-	s, _, err := source.New(src, a.config.RegistryOptions, []string{})
+	// TODO platform can be defined
+	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
+	input, err := source.ParseInput(src, "", false)
+	if err != nil {
+		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
+	}
+	s, _, err := source.New(*input, a.config.RegistryOptions, []string{})
 	if err != nil {
 		return fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
 	}
@@ -71,19 +79,19 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		}
 		catalogerConfig.Search.Scope = a.config.Scope
 
-		p, _, d, err := syft.CatalogPackages(s, catalogerConfig)
+		p, r, d, err := syft.CatalogPackages(s, catalogerConfig)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to write results: %v", err))
 			return
 		}
 
 		output := formatter.New(formatter.SyftFormat, []byte{})
-		sbom := generateSBOM(p, d, s)
+		sbom := generateSBOM(p, r, d, s)
 		if err := output.SetSBOM(sbom); err != nil {
 			a.setError(res, fmt.Errorf("failed to set SBOM struct in formatter: %v", err))
 			return
 		}
-		if err := output.Encode(string(a.config.OutputFormat)); err != nil {
+		if err := output.Encode(a.config.OutputFormat); err != nil {
 			a.setError(res, fmt.Errorf("failed to write results: %v", err))
 			return
 		}
@@ -103,13 +111,14 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	return nil
 }
 
-func generateSBOM(c *syft_pkg.Catalog, d *linux.Release, s *source.Source) syft_sbom.SBOM {
+func generateSBOM(c *syft_pkg.Catalog, r []syft_artifact.Relationship, d *linux.Release, s *source.Source) syft_sbom.SBOM {
 	return syft_sbom.SBOM{
 		Artifacts: syft_sbom.Artifacts{
 			PackageCatalog:    c,
 			LinuxDistribution: d,
 		},
-		Source: s.Metadata,
+		Source:        s.Metadata,
+		Relationships: r,
 	}
 }
 

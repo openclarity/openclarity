@@ -72,6 +72,7 @@ func createApplicationVulnerabilityScan(m *scanner.MergedResults,
 }
 
 func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*models.CISDockerBenchmarkCodeInfo {
+	// nolint:prealloc
 	var ret []*models.CISDockerBenchmarkCodeInfo
 
 	for _, info := range results {
@@ -86,6 +87,7 @@ func createCISDockerBenchmarkResults(results dockle_types.AssessmentMap) []*mode
 }
 
 func createCISDockerBenchmarkAssessment(assessments dockle_types.AssessmentSlice) []*models.CISDockerBenchmarkAssessment {
+	// nolint:prealloc
 	var ret []*models.CISDockerBenchmarkAssessment
 
 	for _, assessment := range assessments {

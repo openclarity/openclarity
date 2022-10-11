@@ -17,6 +17,7 @@ package config
 
 import "github.com/spf13/viper"
 
+// nolint:gosec
 const (
 	BackendAPIKey             = "BACKEND_API_KEY"
 	BackendHost               = "BACKEND_HOST"

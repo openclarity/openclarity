@@ -79,7 +79,8 @@ func (m *MergedResults) SetSource(src Source) {
 }
 
 // ToSlice returns MergedResults in a slice format and not by key.
-func (m *MergedResults) ToSlice() (ret [][]MergedVulnerability) {
+func (m *MergedResults) ToSlice() [][]MergedVulnerability {
+	ret := make([][]MergedVulnerability, 0)
 	for _, vulnerabilities := range m.MergedVulnerabilitiesByKey {
 		ret = append(ret, vulnerabilities)
 	}
@@ -161,6 +162,7 @@ func getDiff(vulnerability, compareToVulnerability Vulnerability, compareToID st
 		return nil, fmt.Errorf("failed to compare vulnerabilities: %v", err)
 	}
 
+	// nolint:nilnil
 	if !diff.Modified() {
 		return nil, nil
 	}
@@ -224,7 +226,9 @@ func toVulnerabilityByKey(matches Matches) map[VulnerabilityKey]Vulnerability {
 			if vul, ok := ret[key]; ok {
 				diff, err := getDiff(vul, match.Vulnerability, "")
 				if err != nil {
+					// nolint:errchkjson
 					vulB, _ := json.Marshal(vul)
+					// nolint:errchkjson
 					newVulB, _ := json.Marshal(match.Vulnerability)
 					log.Debugf("Existing vul with the same key %q. vul=%+s, newVul=%s", key, vulB, newVulB)
 				} else if diff != nil {

@@ -26,7 +26,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image"
 )
 
-func ExtractCredentials(imageName string) (username string, password string, err error) {
+func ExtractCredentials(imageName string) (string, string, error) {
 	ref, err := image.GetImageRef(imageName)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get image ref. image name=%v: %v", imageName, err)

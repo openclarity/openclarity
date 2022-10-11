@@ -430,7 +430,7 @@ type scanFailData struct {
 	podData       []podData
 }
 
-func (s *Server) applyRuntimeScanResults(results []*_types.ImageScanResult) (appIDs []string, failures []string, err error) {
+func (s *Server) applyRuntimeScanResults(results []*_types.ImageScanResult) ([]string, []string, error) {
 	appNameToScanResults := make(map[string][]*_types.ImageScanResult)
 	imageNameToScanFailData := make(map[string]*scanFailData)
 
@@ -448,6 +448,7 @@ func (s *Server) applyRuntimeScanResults(results []*_types.ImageScanResult) (app
 		}
 	}
 
+	appIDs := make([]string, 0)
 	for appName, scanResults := range appNameToScanResults {
 		app, created, err := s.getOrCreateDBApplicationFromRuntimeScanResults(appName, scanResults)
 		if err != nil {
@@ -479,7 +480,8 @@ const failureFormat = "Failed to scan image %q.\n" +
 	"Effected pods: %s.\n" +
 	"Reasons: %s."
 
-func getFailures(imageNameToScanFailData map[string]*scanFailData) (failures []string) {
+func getFailures(imageNameToScanFailData map[string]*scanFailData) []string {
+	failures := make([]string, 0)
 	for imageName, failData := range imageNameToScanFailData {
 		failures = append(failures, fmt.Sprintf(
 			failureFormat,
@@ -502,9 +504,9 @@ func getPodsList(podsData []podData) string {
 var appNameLabelKeys = []string{"app", "k8s-app", "app.kubernetes.io/name", "name"}
 
 // getAppNameFromResult retrieve app name from popular K8s app name labels, if not preset use pod name.
-func getAppNameFromResult(result *_types.ImageScanResult) (appName string) {
+func getAppNameFromResult(result *_types.ImageScanResult) string {
 	for _, key := range appNameLabelKeys {
-		appName = result.PodLabels.Get(key)
+		appName := result.PodLabels.Get(key)
 		if appName != "" {
 			return appName
 		}
@@ -514,8 +516,8 @@ func getAppNameFromResult(result *_types.ImageScanResult) (appName string) {
 }
 
 // getAppVersionFromResult retrieve app version from recommended labels if exists.
-func getAppVersionFromResult(result *_types.ImageScanResult) (appVersion string) {
-	appVersion = result.PodLabels.Get("version")
+func getAppVersionFromResult(result *_types.ImageScanResult) string {
+	appVersion := result.PodLabels.Get("version")
 	if appVersion != "" {
 		return appVersion
 	}

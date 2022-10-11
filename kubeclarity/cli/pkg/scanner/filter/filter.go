@@ -27,6 +27,7 @@ type Ignores struct {
 	Vulnerabilities []string
 }
 
+// nolint:revive
 func FilterIgnoredVulnerabilities(m *scanner.MergedResults, ignores Ignores) *scanner.MergedResults {
 	filteredMergedResults := scanner.NewMergedResults()
 	for key, vulnerabilities := range m.MergedVulnerabilitiesByKey {
