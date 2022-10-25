@@ -28,7 +28,8 @@ type ObjectTree interface {
 }
 
 type ObjectTreeHandler struct {
-	db *gorm.DB
+	db         *gorm.DB
+	driverType string
 }
 
 func (o *ObjectTreeHandler) SetApplication(app *Application, params *TransactionParams, shouldUpdatePackageVulnerabilities bool) error {
@@ -39,6 +40,8 @@ func (o *ObjectTreeHandler) SetApplication(app *Application, params *Transaction
 	if err != nil {
 		return fmt.Errorf("failed to update application: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
 
 	return nil
 }
@@ -68,6 +71,8 @@ func (o *ObjectTreeHandler) updateApplication(tx *gorm.DB, app *Application, sho
 		return fmt.Errorf("failed to update application resources association: %v", err)
 	}
 
+	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+
 	return nil
 }
 
@@ -79,6 +84,8 @@ func (o *ObjectTreeHandler) SetResource(resource *Resource, params *TransactionP
 	if err != nil {
 		return fmt.Errorf("failed to update resource: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
 
 	return nil
 }
@@ -115,6 +122,8 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		return fmt.Errorf("failed to update resource cis_d_b_checks association: %v", err)
 	}
 
+	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+
 	return nil
 }
 
@@ -135,6 +144,8 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 			return fmt.Errorf("failed to update package vulnerabilities association: %v", err)
 		}
 	}
+
+	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
 
 	return nil
 }

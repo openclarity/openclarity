@@ -377,13 +377,15 @@ type DBConfig struct {
 
 func (db *Handler) ObjectTree() ObjectTree {
 	return &ObjectTreeHandler{
-		db: db.DB,
+		db:         db.DB,
+		driverType: db.DriverType,
 	}
 }
 
 func (db *Handler) JoinTables() JoinTables {
 	return &JoinTablesHandler{
-		db: db.DB,
+		db:         db.DB,
+		driverType: db.DriverType,
 	}
 }
 
@@ -500,7 +502,7 @@ func initDataBase(config *DBConfig) *gorm.DB {
 
 	setupJoinTables(db)
 
-	// recreate views from scratch
+	// drop views before auto migrate
 	dropAllViews(db, dbDriver)
 
 	// this will ensure table is created
@@ -510,6 +512,8 @@ func initDataBase(config *DBConfig) *gorm.DB {
 
 	// recreate views from scratch
 	createAllViews(db, dbDriver)
+
+	refreshMaterializedViewsIfNeeded(db, dbDriver)
 
 	return db
 }

@@ -111,7 +111,8 @@ type JoinTables interface {
 }
 
 type JoinTablesHandler struct {
-	db *gorm.DB
+	db         *gorm.DB
+	driverType string
 }
 
 type DeleteRelationshipsParams struct {
@@ -154,6 +155,8 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 	if err != nil {
 		return fmt.Errorf("failed to delete relationships: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(j.db, j.driverType)
 
 	return nil
 }

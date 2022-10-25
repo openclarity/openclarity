@@ -133,6 +133,8 @@ func (a *ApplicationTableHandler) UpdateInfo(app *Application, params *Transacti
 		return fmt.Errorf("failed to update application info: %v", err)
 	}
 
+	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
+
 	return nil
 }
 
@@ -148,6 +150,8 @@ func (a *ApplicationTableHandler) Delete(app *Application) error {
 	if err := a.db.Delete(app).Error; err != nil {
 		return fmt.Errorf("failed to delete application: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
 
 	return nil
 }
