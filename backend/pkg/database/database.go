@@ -35,7 +35,7 @@ const (
 	DBDriverTypeLocal    = "LOCAL"
 )
 
-// materialized views in case of postgres
+// materialized views in case of postgres.
 const (
 	packagesView     = "packages_view"
 	resourcesView    = "resources_view"
@@ -47,13 +47,13 @@ var viewsList = []string{
 	"cis_d_b_checks_view",
 	"vulnerabilities_view",
 	"package_resources_info_view",
-	packagesView, // MATERIALIZED in case of postgres
+	packagesView, // MATERIALIZED in case of postgres.
 	"package_severities",
-	resourcesView, // MATERIALIZED in case of postgres
+	resourcesView, // MATERIALIZED in case of postgres.
 	"resource_cis_d_b_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
-	applicationsView, // MATERIALIZED in case of postgres
+	applicationsView, // MATERIALIZED in case of postgres.
 	"application_cis_d_b_checks",
 	"application_severities",
 	"ids_view",
