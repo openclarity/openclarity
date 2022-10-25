@@ -35,23 +35,38 @@ const (
 	DBDriverTypeLocal    = "LOCAL"
 )
 
+// materialized views in case of postgres
+const (
+	packagesView     = "packages_view"
+	resourcesView    = "resources_view"
+	applicationsView = "applications_view"
+)
+
 // order is important, need to drop views in a reverse order of the creation.
 var viewsList = []string{
 	"cis_d_b_checks_view",
 	"vulnerabilities_view",
 	"package_resources_info_view",
-	"packages_view",
+	packagesView, // MATERIALIZED in case of postgres
 	"package_severities",
-	"resources_view",
+	resourcesView, // MATERIALIZED in case of postgres
 	"resource_cis_d_b_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
-	"applications_view",
+	applicationsView, // MATERIALIZED in case of postgres
 	"application_cis_d_b_checks",
 	"application_severities",
 	"ids_view",
 	"licenses_view",
 }
+
+const (
+	createViewCommand              = "CREATE VIEW"
+	createMaterializedViewCommand  = "CREATE MATERIALIZED VIEW"
+	dropViewCommand                = "DROP VIEW IF EXISTS %s"
+	dropMaterializedViewCommand    = "DROP MATERIALIZED VIEW IF EXISTS %s"
+	refreshMaterializedViewCommand = "REFRESH MATERIALIZED VIEW %s"
+)
 
 var (
 	// In the views creations below we use LEFT JOIN and not INNER JOIN
@@ -130,7 +145,7 @@ GROUP BY applications.id;
 `
 
 	applicationsViewQuery = `
-CREATE VIEW applications_view AS
+%s applications_view AS
 SELECT applications.*,
        COUNT(distinct ar.resource_id) AS resources,
        COUNT(distinct rp.package_id) AS packages,
@@ -211,7 +226,7 @@ GROUP BY resources.id;
 	`
 
 	resourcesViewQuery = `
-CREATE VIEW resources_view AS
+%s resources_view AS
 SELECT resources.*,
        COUNT(distinct ar.application_id) AS applications,
        COUNT(distinct rp.package_id) AS packages,
@@ -263,7 +278,7 @@ GROUP BY packages.id;
 	`
 
 	packagesViewQuery = `
-CREATE VIEW packages_view AS
+%s packages_view AS
 SELECT packages.*,
        COUNT(distinct ar.application_id) AS applications,
        COUNT(distinct rp.resource_id) AS resources,
@@ -346,7 +361,8 @@ type Database interface {
 }
 
 type Handler struct {
-	DB *gorm.DB
+	DB         *gorm.DB
+	DriverType string
 }
 
 type DBConfig struct {
@@ -376,6 +392,8 @@ func (db *Handler) VulnerabilityTable() VulnerabilityTable {
 		vulnerabilitiesTable: db.DB.Table(vulnerabilityTableName),
 		vulnerabilitiesView:  db.DB.Table(vulnerabilityViewName),
 		IDsView:              db.IDsView(),
+		db:                   db.DB,
+		driverType:           db.DriverType,
 	}
 }
 
@@ -383,6 +401,8 @@ func (db *Handler) NewVulnerabilityTable() NewVulnerabilityTable {
 	return &NewVulnerabilityTableHandler{
 		newVulnerabilitiesTable: db.DB.Table(newVulnerabilityTableName),
 		newVulnerabilitiesView:  db.DB.Table(newVulnerabilitiesViewName),
+		db:                      db.DB,
+		driverType:              db.DriverType,
 	}
 }
 
@@ -392,6 +412,8 @@ func (db *Handler) ResourceTable() ResourceTable {
 		resourcesView:  db.DB.Table(resourceViewName),
 		licensesView:   db.DB.Table(licensesViewName),
 		IDsView:        db.IDsView(),
+		db:             db.DB,
+		driverType:     db.DriverType,
 	}
 }
 
@@ -402,6 +424,7 @@ func (db *Handler) ApplicationTable() ApplicationTable {
 		licensesView:      db.DB.Table(licensesViewName),
 		IDsView:           db.IDsView(),
 		db:                db.DB,
+		driverType:        db.DriverType,
 	}
 }
 
@@ -410,6 +433,8 @@ func (db *Handler) PackageTable() PackageTable {
 		packagesTable: db.DB.Table(packageTableName),
 		packagesView:  db.DB.Table(packageViewName),
 		IDsView:       db.IDsView(),
+		db:            db.DB,
+		driverType:    db.DriverType,
 	}
 }
 
@@ -427,7 +452,9 @@ func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
 
 func (db *Handler) SchedulerTable() SchedulerTable {
 	return &SchedulerTableHandler{
-		table: db.DB.Table(schedulerTableName),
+		table:      db.DB.Table(schedulerTableName),
+		db:         db.DB,
+		driverType: db.DriverType,
 	}
 }
 
@@ -442,6 +469,7 @@ func Init(config *DBConfig) *Handler {
 	databaseHandler := Handler{}
 
 	databaseHandler.DB = initDataBase(config)
+	databaseHandler.DriverType = config.DriverType
 
 	// Set defaults.
 	err := databaseHandler.QuickScanConfigTable().SetDefault()
@@ -473,14 +501,15 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	setupJoinTables(db)
 
 	// recreate views from scratch
-	dropAllViews(db)
+	dropAllViews(db, dbDriver)
 
 	// this will ensure table is created
 	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, Scheduler{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 
-	createAllViews(db)
+	// recreate views from scratch
+	createAllViews(db, dbDriver)
 
 	return db
 }
@@ -511,7 +540,15 @@ func setupJoinTables(db *gorm.DB) {
 }
 
 // nolint:cyclop
-func createAllViews(db *gorm.DB) {
+func createAllViews(db *gorm.DB, dbDriver string) {
+	var createCommand string
+	switch dbDriver {
+	case DBDriverTypePostgres:
+		createCommand = createMaterializedViewCommand
+	default:
+		createCommand = createViewCommand
+	}
+
 	if err := db.Exec(licensesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create licenses_view: %v", err)
 	}
@@ -528,7 +565,7 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create application_cis_d_b_checks: %v", err)
 	}
 
-	if err := db.Exec(applicationsViewQuery).Error; err != nil {
+	if err := db.Exec(fmt.Sprintf(applicationsViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create applications_view: %v", err)
 	}
 
@@ -544,7 +581,7 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create resource_cis_d_b_checks_view: %v", err)
 	}
 
-	if err := db.Exec(resourcesViewQuery).Error; err != nil {
+	if err := db.Exec(fmt.Sprintf(resourcesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create resources_view: %v", err)
 	}
 
@@ -552,7 +589,7 @@ func createAllViews(db *gorm.DB) {
 		log.Fatalf("Failed to create package_severities: %v", err)
 	}
 
-	if err := db.Exec(packagesViewQuery).Error; err != nil {
+	if err := db.Exec(fmt.Sprintf(packagesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create packages_view: %v", err)
 	}
 
@@ -569,14 +606,23 @@ func createAllViews(db *gorm.DB) {
 	}
 }
 
-func dropAllViews(db *gorm.DB) {
+func dropAllViews(db *gorm.DB, dbDriver string) {
+	dropCommand := dropViewCommand
 	for _, view := range viewsList {
-		dropViewIfExists(db, view)
+		if dbDriver == DBDriverTypePostgres {
+			switch view {
+			case packagesView, applicationsView, resourcesView:
+				dropCommand = dropMaterializedViewCommand
+			default:
+				dropCommand = dropViewCommand
+			}
+		}
+		dropViewIfExists(db, view, dropCommand)
 	}
 }
 
-func dropViewIfExists(db *gorm.DB, viewName string) {
-	if err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", viewName)).Error; err != nil {
+func dropViewIfExists(db *gorm.DB, viewName, dropCommand string) {
+	if err := db.Exec(fmt.Sprintf(dropCommand, viewName)).Error; err != nil {
 		log.Fatalf("Failed to drop %s: %v", viewName, err)
 	}
 }
@@ -606,4 +652,20 @@ func initSqlite(dbLogger logger.Interface) *gorm.DB {
 	}
 
 	return db
+}
+
+func refreshMaterializedViewsIfNeeded(db *gorm.DB, driverType string) {
+	if driverType == DBDriverTypePostgres {
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, applicationsView)).Error; err != nil {
+			log.Fatalf("Failed to refresh materialized %s: %v", applicationsView, err)
+		}
+
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, resourcesView)).Error; err != nil {
+			log.Fatalf("Failed to refresh materialized %s: %v", resourcesView, err)
+		}
+
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, packagesView)).Error; err != nil {
+			log.Fatalf("Failed to refresh materialized %s: %v", packagesView, err)
+		}
+	}
 }

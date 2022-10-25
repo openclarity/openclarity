@@ -45,7 +45,9 @@ type SchedulerTable interface {
 }
 
 type SchedulerTableHandler struct {
-	table *gorm.DB
+	table      *gorm.DB
+	db         *gorm.DB
+	driverType string
 }
 
 func (Scheduler) TableName() string {
@@ -71,6 +73,8 @@ func (s *SchedulerTableHandler) Set(scheduler *Scheduler) error {
 	if err := s.table.Clauses(clause).Create(scheduler).Error; err != nil {
 		return fmt.Errorf("failed to set scheduler: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(s.db, s.driverType)
 
 	return nil
 }

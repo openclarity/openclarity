@@ -86,6 +86,7 @@ type ApplicationTableHandler struct {
 	licensesView      *gorm.DB
 	IDsView           IDsView
 	db                *gorm.DB
+	driverType        string
 }
 
 func (Application) TableName() string {
@@ -120,6 +121,8 @@ func (a *ApplicationTableHandler) Create(app *Application, params *TransactionPa
 		Create(app).Error; err != nil {
 		return fmt.Errorf("failed to create application: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
 
 	return nil
 }

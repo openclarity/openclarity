@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"time"
 
-	faker "github.com/bxcodec/faker/v3"
+	"github.com/bxcodec/faker/v3"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
@@ -233,5 +233,6 @@ func (db *Handler) CreateFakeData() {
 		if err := db.ApplicationTable().Create(app, params); err != nil {
 			panic(err.Error())
 		}
+		refreshMaterializedViewsIfNeeded(db.DB, db.DriverType)
 	}
 }

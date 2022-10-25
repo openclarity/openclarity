@@ -81,6 +81,8 @@ type PackageTableHandler struct {
 	packagesTable *gorm.DB
 	packagesView  *gorm.DB
 	IDsView       IDsView
+	db            *gorm.DB
+	driverType    string
 }
 
 func (Package) TableName() string {
@@ -114,6 +116,9 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 	if err := p.packagesTable.Create(pkg).Error; err != nil {
 		return fmt.Errorf("failed to create package: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(p.db, p.driverType)
+
 	return nil
 }
 

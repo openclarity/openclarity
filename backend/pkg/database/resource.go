@@ -88,6 +88,8 @@ type ResourceTableHandler struct {
 	resourcesView  *gorm.DB
 	licensesView   *gorm.DB
 	IDsView        IDsView
+	db             *gorm.DB
+	driverType     string
 }
 
 func (Resource) TableName() string {
@@ -227,6 +229,9 @@ func (r *ResourceTableHandler) Create(resource *Resource) error {
 	if err := r.resourcesTable.Create(resource).Error; err != nil {
 		return fmt.Errorf("failed to create resource: %v", err)
 	}
+
+	refreshMaterializedViewsIfNeeded(r.db, r.driverType)
+
 	return nil
 }
 
