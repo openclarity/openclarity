@@ -84,12 +84,11 @@ type ResourceTable interface {
 }
 
 type ResourceTableHandler struct {
-	resourcesTable *gorm.DB
-	resourcesView  *gorm.DB
-	licensesView   *gorm.DB
-	IDsView        IDsView
-	db             *gorm.DB
-	driverType     string
+	resourcesTable     *gorm.DB
+	resourcesView      *gorm.DB
+	licensesView       *gorm.DB
+	IDsView            IDsView
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Resource) TableName() string {
@@ -230,7 +229,7 @@ func (r *ResourceTableHandler) Create(resource *Resource) error {
 		return fmt.Errorf("failed to create resource: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(r.db, r.driverType)
+	r.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -524,4 +523,10 @@ func (r *ResourceTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilter
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx, nil
+}
+
+func (r *ResourceTableHandler) setViewRefreshHandlerIfExists() {
+	if r.viewRefreshHandler != nil {
+		r.viewRefreshHandler.SetTrue()
+	}
 }

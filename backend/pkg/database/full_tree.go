@@ -28,8 +28,8 @@ type ObjectTree interface {
 }
 
 type ObjectTreeHandler struct {
-	db         *gorm.DB
-	driverType string
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (o *ObjectTreeHandler) SetApplication(app *Application, params *TransactionParams, shouldUpdatePackageVulnerabilities bool) error {
@@ -41,7 +41,7 @@ func (o *ObjectTreeHandler) SetApplication(app *Application, params *Transaction
 		return fmt.Errorf("failed to update application: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+	o.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -71,7 +71,7 @@ func (o *ObjectTreeHandler) updateApplication(tx *gorm.DB, app *Application, sho
 		return fmt.Errorf("failed to update application resources association: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+	o.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -85,7 +85,7 @@ func (o *ObjectTreeHandler) SetResource(resource *Resource, params *TransactionP
 		return fmt.Errorf("failed to update resource: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+	o.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -122,7 +122,7 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		return fmt.Errorf("failed to update resource cis_d_b_checks association: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+	o.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -145,7 +145,13 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 		}
 	}
 
-	refreshMaterializedViewsIfNeeded(o.db, o.driverType)
+	o.setViewRefreshHandlerIfExists()
 
 	return nil
+}
+
+func (o *ObjectTreeHandler) setViewRefreshHandlerIfExists() {
+	if o.viewRefreshHandler != nil {
+		o.viewRefreshHandler.SetTrue()
+	}
 }

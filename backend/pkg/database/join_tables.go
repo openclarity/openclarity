@@ -111,8 +111,8 @@ type JoinTables interface {
 }
 
 type JoinTablesHandler struct {
-	db         *gorm.DB
-	driverType string
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 type DeleteRelationshipsParams struct {
@@ -156,7 +156,7 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 		return fmt.Errorf("failed to delete relationships: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(j.db, j.driverType)
+	j.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -257,4 +257,10 @@ func (j *JoinTablesHandler) setPackageResourcesFilters(tx *gorm.DB, params opera
 	tx = FilterArrayDoesntContain(tx, columnPackageResourcesInfoViewAnalyzers, params.ReportingSBOMAnalyzersDoesntContainElements)
 
 	return tx
+}
+
+func (j *JoinTablesHandler) setViewRefreshHandlerIfExists() {
+	if j.viewRefreshHandler != nil {
+		j.viewRefreshHandler.SetTrue()
+	}
 }

@@ -81,12 +81,12 @@ type ApplicationTable interface {
 }
 
 type ApplicationTableHandler struct {
-	applicationsTable *gorm.DB
-	applicationsView  *gorm.DB
-	licensesView      *gorm.DB
-	IDsView           IDsView
-	db                *gorm.DB
-	driverType        string
+	applicationsTable  *gorm.DB
+	applicationsView   *gorm.DB
+	licensesView       *gorm.DB
+	IDsView            IDsView
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Application) TableName() string {
@@ -122,7 +122,7 @@ func (a *ApplicationTableHandler) Create(app *Application, params *TransactionPa
 		return fmt.Errorf("failed to create application: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
+	a.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -133,7 +133,7 @@ func (a *ApplicationTableHandler) UpdateInfo(app *Application, params *Transacti
 		return fmt.Errorf("failed to update application info: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
+	a.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -151,7 +151,7 @@ func (a *ApplicationTableHandler) Delete(app *Application) error {
 		return fmt.Errorf("failed to delete application: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(a.db, a.driverType)
+	a.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -409,4 +409,10 @@ func (a *ApplicationTableHandler) setCountFilters(tx *gorm.DB, filters *CountFil
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx
+}
+
+func (a *ApplicationTableHandler) setViewRefreshHandlerIfExists() {
+	if a.viewRefreshHandler != nil {
+		a.viewRefreshHandler.SetTrue()
+	}
 }

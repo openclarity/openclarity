@@ -78,11 +78,10 @@ type PackageTable interface {
 }
 
 type PackageTableHandler struct {
-	packagesTable *gorm.DB
-	packagesView  *gorm.DB
-	IDsView       IDsView
-	db            *gorm.DB
-	driverType    string
+	packagesTable      *gorm.DB
+	packagesView       *gorm.DB
+	IDsView            IDsView
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Package) TableName() string {
@@ -117,7 +116,7 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 		return fmt.Errorf("failed to create package: %v", err)
 	}
 
-	refreshMaterializedViewsIfNeeded(p.db, p.driverType)
+	p.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -410,4 +409,10 @@ func (p *PackageTableHandler) createGetIDsParams(params GetPackagesParams) GetID
 	}
 
 	return retParams
+}
+
+func (p *PackageTableHandler) setViewRefreshHandlerIfExists() {
+	if p.viewRefreshHandler != nil {
+		p.viewRefreshHandler.SetTrue()
+	}
 }

@@ -87,6 +87,11 @@ func Run() {
 		go dbHandler.CreateFakeData()
 	}
 
+	if config.DatabaseDriver == _database.DBDriverTypePostgres {
+		dbHandler.SetMaterializedViewHandler()
+		go dbHandler.RefreshMaterializedViews()
+	}
+
 	backend := CreateBackend(dbHandler)
 
 	var k8sClientset *kubernetes.Clientset

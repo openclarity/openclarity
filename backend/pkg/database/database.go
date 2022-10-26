@@ -361,8 +361,8 @@ type Database interface {
 }
 
 type Handler struct {
-	DB         *gorm.DB
-	DriverType string
+	DB                 *gorm.DB
+	ViewRefreshHandler *ViewRefreshHandler
 }
 
 type DBConfig struct {
@@ -377,15 +377,15 @@ type DBConfig struct {
 
 func (db *Handler) ObjectTree() ObjectTree {
 	return &ObjectTreeHandler{
-		db:         db.DB,
-		driverType: db.DriverType,
+		db:                 db.DB,
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
 func (db *Handler) JoinTables() JoinTables {
 	return &JoinTablesHandler{
-		db:         db.DB,
-		driverType: db.DriverType,
+		db:                 db.DB,
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
@@ -394,8 +394,7 @@ func (db *Handler) VulnerabilityTable() VulnerabilityTable {
 		vulnerabilitiesTable: db.DB.Table(vulnerabilityTableName),
 		vulnerabilitiesView:  db.DB.Table(vulnerabilityViewName),
 		IDsView:              db.IDsView(),
-		db:                   db.DB,
-		driverType:           db.DriverType,
+		viewRefreshHandler:   db.ViewRefreshHandler,
 	}
 }
 
@@ -403,40 +402,37 @@ func (db *Handler) NewVulnerabilityTable() NewVulnerabilityTable {
 	return &NewVulnerabilityTableHandler{
 		newVulnerabilitiesTable: db.DB.Table(newVulnerabilityTableName),
 		newVulnerabilitiesView:  db.DB.Table(newVulnerabilitiesViewName),
-		db:                      db.DB,
-		driverType:              db.DriverType,
+		viewRefreshHandler:      db.ViewRefreshHandler,
 	}
 }
 
 func (db *Handler) ResourceTable() ResourceTable {
 	return &ResourceTableHandler{
-		resourcesTable: db.DB.Table(resourceTableName),
-		resourcesView:  db.DB.Table(resourceViewName),
-		licensesView:   db.DB.Table(licensesViewName),
-		IDsView:        db.IDsView(),
-		db:             db.DB,
-		driverType:     db.DriverType,
+		resourcesTable:     db.DB.Table(resourceTableName),
+		resourcesView:      db.DB.Table(resourceViewName),
+		licensesView:       db.DB.Table(licensesViewName),
+		IDsView:            db.IDsView(),
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
 func (db *Handler) ApplicationTable() ApplicationTable {
 	return &ApplicationTableHandler{
-		applicationsTable: db.DB.Table(applicationTableName),
-		applicationsView:  db.DB.Table(applicationViewName),
-		licensesView:      db.DB.Table(licensesViewName),
-		IDsView:           db.IDsView(),
-		db:                db.DB,
-		driverType:        db.DriverType,
+		applicationsTable:  db.DB.Table(applicationTableName),
+		applicationsView:   db.DB.Table(applicationViewName),
+		licensesView:       db.DB.Table(licensesViewName),
+		IDsView:            db.IDsView(),
+		db:                 db.DB,
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
 func (db *Handler) PackageTable() PackageTable {
 	return &PackageTableHandler{
-		packagesTable: db.DB.Table(packageTableName),
-		packagesView:  db.DB.Table(packageViewName),
-		IDsView:       db.IDsView(),
-		db:            db.DB,
-		driverType:    db.DriverType,
+		packagesTable:      db.DB.Table(packageTableName),
+		packagesView:       db.DB.Table(packageViewName),
+		IDsView:            db.IDsView(),
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
@@ -454,9 +450,8 @@ func (db *Handler) QuickScanConfigTable() QuickScanConfigTable {
 
 func (db *Handler) SchedulerTable() SchedulerTable {
 	return &SchedulerTableHandler{
-		table:      db.DB.Table(schedulerTableName),
-		db:         db.DB,
-		driverType: db.DriverType,
+		table:              db.DB.Table(schedulerTableName),
+		viewRefreshHandler: db.ViewRefreshHandler,
 	}
 }
 
@@ -471,7 +466,6 @@ func Init(config *DBConfig) *Handler {
 	databaseHandler := Handler{}
 
 	databaseHandler.DB = initDataBase(config)
-	databaseHandler.DriverType = config.DriverType
 
 	// Set defaults.
 	err := databaseHandler.QuickScanConfigTable().SetDefault()
@@ -513,7 +507,9 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	// recreate views from scratch
 	createAllViews(db, dbDriver)
 
-	refreshMaterializedViewsIfNeeded(db, dbDriver)
+	if dbDriver == DBDriverTypePostgres {
+		refreshMaterializedViews(db)
+	}
 
 	return db
 }
@@ -656,20 +652,4 @@ func initSqlite(dbLogger logger.Interface) *gorm.DB {
 	}
 
 	return db
-}
-
-func refreshMaterializedViewsIfNeeded(db *gorm.DB, driverType string) {
-	if driverType == DBDriverTypePostgres {
-		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, applicationsView)).Error; err != nil {
-			log.Fatalf("Failed to refresh materialized %s: %v", applicationsView, err)
-		}
-
-		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, resourcesView)).Error; err != nil {
-			log.Fatalf("Failed to refresh materialized %s: %v", resourcesView, err)
-		}
-
-		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, packagesView)).Error; err != nil {
-			log.Fatalf("Failed to refresh materialized %s: %v", packagesView, err)
-		}
-	}
 }

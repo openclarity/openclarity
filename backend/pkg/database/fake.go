@@ -233,6 +233,8 @@ func (db *Handler) CreateFakeData() {
 		if err := db.ApplicationTable().Create(app, params); err != nil {
 			panic(err.Error())
 		}
-		refreshMaterializedViewsIfNeeded(db.DB, db.DriverType)
+		if db.ViewRefreshHandler != nil {
+			refreshMaterializedViews(db.DB)
+		}
 	}
 }
