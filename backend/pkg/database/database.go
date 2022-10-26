@@ -35,17 +35,20 @@ const (
 	DBDriverTypeLocal    = "LOCAL"
 )
 
-// materialized views in case of postgres.
+// The following views can contain lots of rows.
+// Materialized views prevents a lot of slow queries in reading the database.
+// Materialized view is only supported by PostgreSQL.
 const (
-	packagesView     = "packages_view"
-	resourcesView    = "resources_view"
-	applicationsView = "applications_view"
+	packagesView        = "packages_view"
+	resourcesView       = "resources_view"
+	applicationsView    = "applications_view"
+	vulnerabilitiesView = "vulnerabilities_view"
 )
 
 // order is important, need to drop views in a reverse order of the creation.
 var viewsList = []string{
 	"cis_d_b_checks_view",
-	"vulnerabilities_view",
+	vulnerabilitiesView, // MATERIALIZED in case of postgres.
 	"package_resources_info_view",
 	packagesView, // MATERIALIZED in case of postgres.
 	"package_severities",
@@ -313,7 +316,7 @@ FROM resource_packages
 	`
 
 	vulnerabilitiesViewQuery = `
-CREATE VIEW vulnerabilities_view AS
+%s vulnerabilities_view AS
 SELECT vulnerabilities.*,
        COUNT(distinct ar.application_id) AS applications,
        COUNT(distinct ar.resource_id) AS resources,
@@ -597,7 +600,7 @@ func createAllViews(db *gorm.DB, dbDriver string) {
 		log.Fatalf("Failed to create package_resources_info_view: %v", err)
 	}
 
-	if err := db.Exec(vulnerabilitiesViewQuery).Error; err != nil {
+	if err := db.Exec(fmt.Sprintf(vulnerabilitiesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create vulnerabilities_view: %v", err)
 	}
 
@@ -611,7 +614,7 @@ func dropAllViews(db *gorm.DB, dbDriver string) {
 	for _, view := range viewsList {
 		if dbDriver == DBDriverTypePostgres {
 			switch view {
-			case packagesView, applicationsView, resourcesView:
+			case packagesView, applicationsView, resourcesView, vulnerabilitiesView:
 				dropCommand = dropMaterializedViewCommand
 			default:
 				dropCommand = dropViewCommand

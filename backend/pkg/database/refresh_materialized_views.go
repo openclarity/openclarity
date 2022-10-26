@@ -69,12 +69,13 @@ func refreshMaterializedViews(db *gorm.DB) {
 	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, applicationsView)).Error; err != nil {
 		log.Fatalf("Failed to refresh materialized %s: %v", applicationsView, err)
 	}
-
 	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, resourcesView)).Error; err != nil {
 		log.Fatalf("Failed to refresh materialized %s: %v", resourcesView, err)
 	}
-
 	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, packagesView)).Error; err != nil {
 		log.Fatalf("Failed to refresh materialized %s: %v", packagesView, err)
+	}
+	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, vulnerabilitiesView)).Error; err != nil {
+		log.Fatalf("Failed to refresh materialized %s: %v", vulnerabilitiesView, err)
 	}
 }
