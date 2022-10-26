@@ -24,9 +24,8 @@ import (
 	"testing"
 	"time"
 
-	"gotest.tools/assert"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"gotest.tools/assert"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
 
@@ -75,11 +74,13 @@ func TestCLIScan(t *testing.T) {
 			// analyze image with --merge-sbom directory sbom, and export to backend
 			t.Logf("analyze image...")
 			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, ImageAnalyzeOutputSBOMFile)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateAnalyzeImage(t, ImageAnalyzeOutputSBOMFile, appID)
 
 			// scan merged sbom
 			t.Logf("scan merged sbom...")
 			scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateScanSBOM(t, appID)
 
 			// scan image
@@ -102,6 +103,7 @@ func TestCLIScan(t *testing.T) {
 			// scan merged sbom
 			t.Logf("scan merged sbom...")
 			scanSBOM(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateScanSBOM(t, appID)
 
 			return ctx
