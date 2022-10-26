@@ -24,6 +24,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const materializedViewRefreshSecond = 5
+
 type ViewRefreshHandler struct {
 	mu                 sync.Mutex
 	shouldRefreshViews bool
@@ -48,7 +50,7 @@ func (db *Handler) SetMaterializedViewHandler() {
 }
 
 func (db *Handler) RefreshMaterializedViews() {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(materializedViewRefreshSecond * time.Second)
 	done := make(chan bool)
 
 	for {

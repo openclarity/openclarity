@@ -191,6 +191,7 @@ func createFakeVulnerabilityTrend(vulID string, t time.Time) *NewVulnerability {
 	return &vul
 }
 
+// nolint:cyclop
 func (db *Handler) CreateFakeData() {
 	for i := 0; i < 5; i++ {
 		app := createFakeApplication(time.Now().Add(time.Duration(i) * time.Second))
@@ -233,6 +234,7 @@ func (db *Handler) CreateFakeData() {
 		if err := db.ApplicationTable().Create(app, params); err != nil {
 			panic(err.Error())
 		}
+
 		if db.ViewRefreshHandler != nil {
 			refreshMaterializedViews(db.DB)
 		}
