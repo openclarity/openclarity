@@ -610,21 +610,21 @@ func createAllViews(db *gorm.DB, dbDriver string) {
 }
 
 func dropAllViews(db *gorm.DB, dbDriver string) {
-	dropCommand := dropViewCommand
 	for _, view := range viewsList {
-		if dbDriver == DBDriverTypePostgres {
-			switch view {
-			case packagesView, applicationsView, resourcesView, vulnerabilitiesView:
-				dropCommand = dropMaterializedViewCommand
-			default:
-				dropCommand = dropViewCommand
-			}
-		}
-		dropViewIfExists(db, view, dropCommand)
+		dropViewIfExists(db, view, dbDriver)
 	}
 }
 
-func dropViewIfExists(db *gorm.DB, viewName, dropCommand string) {
+func dropViewIfExists(db *gorm.DB, viewName, dbDriver string) {
+	dropCommand := dropViewCommand
+	if dbDriver == DBDriverTypePostgres {
+		switch viewName {
+		case packagesView, applicationsView, resourcesView, vulnerabilitiesView:
+			dropCommand = dropMaterializedViewCommand
+		default:
+			dropCommand = dropViewCommand
+		}
+	}
 	if err := db.Exec(fmt.Sprintf(dropCommand, viewName)).Error; err != nil {
 		log.Fatalf("Failed to drop %s: %v", viewName, err)
 	}
