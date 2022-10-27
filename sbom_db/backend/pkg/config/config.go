@@ -20,15 +20,13 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gorm.io/gorm/logger"
 )
 
 const (
 	BackendRestPort    = "BACKEND_REST_PORT"
 	HealthCheckAddress = "HEALTH_CHECK_ADDRESS"
-
-	EnableDBInfoLogs = "ENABLE_DB_INFO_LOGS"
-
-	FakeDataEnvVar = "FAKE_DATA"
+	FakeDataEnvVar     = "FAKE_DATA"
 )
 
 type Config struct {
@@ -36,17 +34,17 @@ type Config struct {
 	HealthCheckAddress string
 
 	// database config
-	EnableDBInfoLogs bool
-	EnableFakeData   bool
+	DBLogLevel     logger.LogLevel
+	EnableFakeData bool
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(logLevel string) (*Config, error) {
 	config := &Config{}
 
 	config.BackendRestPort = viper.GetInt(BackendRestPort)
 	config.HealthCheckAddress = viper.GetString(HealthCheckAddress)
 
-	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
+	config.DBLogLevel = convertApplicationLogLevelToDBLogLevel(logLevel)
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 
 	configB, err := json.Marshal(config)
@@ -57,4 +55,25 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return config, nil
+}
+
+// Convert logLevel to gorm logger level.
+func convertApplicationLogLevelToDBLogLevel(logLevel string) logger.LogLevel {
+	level, err := log.ParseLevel(logLevel)
+	if err != nil {
+		log.Errorf("invalid log level, setting to be warning: %v", err)
+		return logger.Warn
+	}
+	switch level {
+	case log.PanicLevel, log.FatalLevel:
+		return logger.Silent
+	case log.ErrorLevel:
+		return logger.Error
+	case log.WarnLevel:
+		return logger.Warn
+	case log.InfoLevel, log.DebugLevel, log.TraceLevel:
+		return logger.Info
+	default:
+		return logger.Warn
+	}
 }

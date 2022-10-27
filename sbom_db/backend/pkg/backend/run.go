@@ -30,8 +30,8 @@ import (
 
 const defaultChanSize = 100
 
-func Run() {
-	config, err := _config.LoadConfig()
+func Run(logLevel string) {
+	config, err := _config.LoadConfig(logLevel)
 	if err != nil {
 		log.Errorf("Failed to load config: %v", err)
 		return
@@ -48,7 +48,7 @@ func Run() {
 
 	log.Info("KubeClarity SBOM DB backend is running")
 
-	dbHandler := database.InitDataBase()
+	dbHandler := database.InitDataBase(config.DBLogLevel)
 
 	if config.EnableFakeData {
 		go dbHandler.CreateFakeData()

@@ -36,10 +36,10 @@ const (
 	localDBPath = "/tmp/db.db"
 )
 
-func InitDataBase() *Handler {
+func InitDataBase(logLevel logger.LogLevel) *Handler {
 	var db *gorm.DB
 	dbLogger := logger.Default
-	dbLogger = dbLogger.LogMode(logger.Info)
+	dbLogger = dbLogger.LogMode(logLevel)
 
 	db = initSqlite(dbLogger)
 

@@ -31,7 +31,8 @@ import (
 
 func run(c *cli.Context) {
 	logutils.InitLogs(c, os.Stdout)
-	backend.Run()
+	logLevel := c.String(logutils.LogLevelFlag)
+	backend.Run(logLevel)
 }
 
 func versionCommand(_ *cli.Context) {
