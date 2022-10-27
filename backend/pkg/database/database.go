@@ -35,8 +35,9 @@ const (
 	DBDriverTypeLocal    = "LOCAL"
 )
 
-// The following views can contain lots of rows.
-// Materialized views prevents a lot of slow queries in reading the database.
+// The following views can contain lots of rows and if they are simple views it will cause a lot of slow queries.
+// In the case of materialized views slow queries can happen when refreshing the views,
+// but reading these views will not cause slow queries when navigating on the UI.
 // Materialized view is only supported by PostgreSQL.
 const (
 	packagesView        = "packages_view"
