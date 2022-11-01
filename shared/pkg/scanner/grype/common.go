@@ -25,11 +25,11 @@ import (
 	syft_source "github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/image_helper"
 )
 
 const (

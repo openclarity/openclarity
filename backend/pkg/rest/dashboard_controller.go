@@ -22,8 +22,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi/operations"
 )
 
 const mostVulnerableLimit = 5

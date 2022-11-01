@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/cli
+module github.com/openclarity/kubeclarity/cli/v2
 
 go 1.19
 
@@ -8,9 +8,9 @@ require (
 	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/package-url/packageurl-go v0.1.1-0.20220203205134-d70459300c8a
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2
 	github.com/sergi/go-diff v1.2.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.0
@@ -471,8 +471,8 @@ require (
 )
 
 replace (
-	github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
-	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2 => ./../api
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2 => ./../shared
 )
 
 // Replace containerd due to GHSA-5ffw-gxpp-mxpf

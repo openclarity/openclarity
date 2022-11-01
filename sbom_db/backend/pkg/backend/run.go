@@ -24,8 +24,8 @@ import (
 	"github.com/Portshift/go-utils/healthz"
 	log "github.com/sirupsen/logrus"
 
-	_config "github.com/openclarity/kubeclarity/sbom_db/backend/pkg/config"
-	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/database"
+	_config "github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/database"
 )
 
 const defaultChanSize = 100

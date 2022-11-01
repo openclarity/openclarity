@@ -16,13 +16,13 @@
 package common
 
 import (
-	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
 	"testing"
 
 	"gotest.tools/assert"
 
-	"github.com/openclarity/kubeclarity/api/client/client"
-	"github.com/openclarity/kubeclarity/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/api/v2/client/client"
+	"github.com/openclarity/kubeclarity/api/v2/client/client/operations"
 )
 
 func PostApplications(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationInfo *models.ApplicationInfo) *operations.PostApplicationsCreated {

@@ -22,10 +22,10 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
-	"github.com/openclarity/kubeclarity/backend/pkg/types"
-	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/types"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/v2/server/models"
 )
 
 const (

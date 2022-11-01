@@ -29,11 +29,11 @@ import (
 	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
+	utilsSBOM "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/sbom"
 )
 
 type RemoteScanner struct {

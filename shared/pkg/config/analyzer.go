@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
 )
 
 // TODO: maybe we need to extend the unified config.

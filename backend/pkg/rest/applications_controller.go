@@ -23,11 +23,11 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
-	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/types"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/types"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/slice"
 )
 
 var oopsResponse = &models.APIResponse{

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
 )
 
 // GetDashboardVulnerabilitiesWithFixOKCode is the HTTP code returned for type GetDashboardVulnerabilitiesWithFixOK

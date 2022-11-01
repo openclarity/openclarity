@@ -22,8 +22,8 @@ import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
 )
 
 func Test_getScannerInfo(t *testing.T) {

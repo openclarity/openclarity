@@ -37,14 +37,14 @@ import (
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
-	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
-	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
-	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/image_helper"
+	utilsSBOM "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/sbom"
+	utilsTrivy "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/trivy"
+	utilsVul "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/vulnerability"
 )
 
 const ScannerName = "trivy"

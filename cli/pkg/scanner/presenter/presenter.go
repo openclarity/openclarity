@@ -18,9 +18,9 @@ package presenter
 import (
 	"io"
 
-	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter/json"
-	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter/table"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg/scanner/presenter/json"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg/scanner/presenter/table"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
 )
 
 // Presenter is an interface for formatting and presenting scan results.

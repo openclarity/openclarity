@@ -20,11 +20,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
 )
 
 type Analyzer interface {

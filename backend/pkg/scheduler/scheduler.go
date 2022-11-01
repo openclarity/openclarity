@@ -24,9 +24,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/v2/pkg/runtime_scanner"
 )
 
 type Scheduler struct {

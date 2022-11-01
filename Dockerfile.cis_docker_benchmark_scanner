@@ -23,9 +23,9 @@ RUN go mod download
 WORKDIR /build/cis_docker_benchmark_scanner
 COPY cis_docker_benchmark_scanner .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w \
-     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.Version=${VERSION}' \
-     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
-     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2/pkg/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o cis_docker_benchmark_scanner ./cmd/main.go
 
 FROM alpine:3.17

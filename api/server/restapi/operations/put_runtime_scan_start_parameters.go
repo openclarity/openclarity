@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
 )
 
 // NewPutRuntimeScanStartParams creates a new PutRuntimeScanStartParams object

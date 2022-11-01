@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/models"
 )
 
 // NewUpdateProjectParams creates a new UpdateProjectParams object,

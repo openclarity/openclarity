@@ -29,9 +29,9 @@ import (
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/e2e/common"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
+	"github.com/openclarity/kubeclarity/e2e/v2/common"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
 )
 
 const (

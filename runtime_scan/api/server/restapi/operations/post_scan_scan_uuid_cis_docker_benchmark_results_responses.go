@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/server/models"
 )
 
 // PostScanScanUUIDCisDockerBenchmarkResultsCreatedCode is the HTTP code returned for type PostScanScanUUIDCisDockerBenchmarkResultsCreated

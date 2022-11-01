@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
 )
 
 // GetCisdockerbenchmarkresultsIDReader is a Reader for the GetCisdockerbenchmarkresultsID structure.

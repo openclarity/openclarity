@@ -31,7 +31,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	log "github.com/sirupsen/logrus"
 
-	sharedconfig "github.com/openclarity/kubeclarity/shared/pkg/config"
+	sharedconfig "github.com/openclarity/kubeclarity/shared/v2/pkg/config"
 )
 
 // FsLayerCommand represents a history command of a layer in a docker image.

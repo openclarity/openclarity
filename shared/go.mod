@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/shared
+module github.com/openclarity/kubeclarity/shared/v2
 
 go 1.19
 

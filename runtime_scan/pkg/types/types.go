@@ -18,7 +18,7 @@ package types
 import (
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/server/models"
 )
 
 type Status string

@@ -5,7 +5,7 @@ builds:
     binary: kubeclarity-cli
     env:
       - CGO_ENABLED=0
-    ldflags: "-s -w -X github.com/openclarity/kubeclarity/cli/pkg.GitRevision={{ .Version }}"
+    ldflags: "-s -w -X github.com/openclarity/kubeclarity/cli/v2/pkg.GitRevision={{ .Version }}"
     goos:
       - linux
       - darwin

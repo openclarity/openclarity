@@ -32,9 +32,9 @@ COPY shared .
 WORKDIR /build/runtime_k8s_scanner
 COPY runtime_k8s_scanner .
 RUN go build -ldflags="-s -w \
-     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.Version=${VERSION}' \
-     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
-     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o runtime_k8s_scanner ./cmd/main.go
 
 FROM alpine:3.17

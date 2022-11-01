@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/client"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/client/operations"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/models"
 )
 
 type Setter interface {

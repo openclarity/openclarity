@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/authn/k8schain"
 	"github.com/google/go-containerregistry/pkg/name"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/image"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/image"
 )
 
 func ExtractCredentials(imageName string) (string, string, error) {

@@ -28,14 +28,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
-	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
-	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
-	"github.com/openclarity/kubeclarity/backend/pkg/types"
-	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/v2/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/scheduler"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/types"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/types"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/slice"
 )
 
 /* ### Start Handlers #### */

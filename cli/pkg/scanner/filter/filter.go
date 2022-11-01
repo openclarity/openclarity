@@ -18,8 +18,8 @@ package filter
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/slice"
 )
 
 type Ignores struct {

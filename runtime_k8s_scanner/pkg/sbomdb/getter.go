@@ -21,8 +21,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/client"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/client/operations"
 )
 
 type Getter interface {

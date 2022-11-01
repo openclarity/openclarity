@@ -18,7 +18,7 @@ package filter
 import (
 	"testing"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
 )
 
 func Test_shouldIgnore(t *testing.T) {

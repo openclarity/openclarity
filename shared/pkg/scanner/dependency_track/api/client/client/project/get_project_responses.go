@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/models"
 )
 
 // GetProjectReader is a Reader for the GetProject structure.

@@ -26,7 +26,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
 )
 
 func GenerateHash(inputType utils.SourceType, source string) (string, error) {

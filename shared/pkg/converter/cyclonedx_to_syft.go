@@ -28,7 +28,7 @@ import (
 	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
 	syft_sbom "github.com/anchore/syft/syft/sbom"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
 )
 
 var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from file")

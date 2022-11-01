@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/models"
 )
 
 // PutSbomDBResourceHashReader is a Reader for the PutSbomDBResourceHash structure.

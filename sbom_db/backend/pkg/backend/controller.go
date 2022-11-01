@@ -22,9 +22,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/sbom_db/api/server/models"
-	"github.com/openclarity/kubeclarity/sbom_db/api/server/restapi/operations"
-	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/database"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/database"
 )
 
 var oopsResponse = &models.APIResponse{

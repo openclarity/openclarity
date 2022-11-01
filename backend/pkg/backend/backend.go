@@ -28,13 +28,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 
-	_config "github.com/openclarity/kubeclarity/backend/pkg/config"
-	_database "github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/rest"
-	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/server/models"
-	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/fake"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
+	_config "github.com/openclarity/kubeclarity/backend/v2/pkg/config"
+	_database "github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/rest"
+	runtime_scan_models "github.com/openclarity/kubeclarity/runtime_scan/api/v2/server/models"
+	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/fake"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/orchestrator"
 )
 
 type Backend struct {

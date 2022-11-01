@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/openclarity/kubeclarity/runtime_scan/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/client/client/operations"
 )
 
 // Default kube clarity runtime scan a p is HTTP client.

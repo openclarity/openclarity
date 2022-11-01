@@ -20,8 +20,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/types"
 )
 
 type Severity int

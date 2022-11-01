@@ -24,15 +24,15 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/analyze"
-	_config "github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/config"
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/report"
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/sbomdb"
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/scan"
-	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version"
-	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/analyze"
+	_config "github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/report"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/sbomdb"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/scan"
+	"github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2/pkg/version"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/image_helper"
 )
 
 const (

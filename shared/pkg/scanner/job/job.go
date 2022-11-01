@@ -16,10 +16,10 @@
 package job
 
 import (
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/trivy"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/grype"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/trivy"
 )
 
 var Factory = job_manager.NewJobFactory()

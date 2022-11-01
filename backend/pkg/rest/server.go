@@ -27,14 +27,14 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/openclarity/kubeclarity/api/server/restapi"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
-	"github.com/openclarity/kubeclarity/backend/pkg/common"
-	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
-	"github.com/openclarity/kubeclarity/backend/pkg/scheduler"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
-	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi"
+	"github.com/openclarity/kubeclarity/api/v2/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/common"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/v2/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/scheduler"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/orchestrator"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/types"
 )
 
 type Server struct {

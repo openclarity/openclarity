@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/e2e
+module github.com/openclarity/kubeclarity/e2e/v2
 
 go 1.19
 
@@ -6,8 +6,8 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
 	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/strfmt v0.21.3
-	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.25.3
 	k8s.io/apimachinery v0.25.3
@@ -156,8 +156,8 @@ require (
 )
 
 replace (
-	github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
-	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2 => ./../api
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2 => ./../shared
 )
 
 // Replace containerd due to GHSA-5ffw-gxpp-mxpf

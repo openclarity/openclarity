@@ -26,9 +26,9 @@ import (
 	dockle_run "github.com/Portshift/dockle/pkg"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/config"
-	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/report"
-	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
+	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2/pkg/report"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/client/models"
 )
 
 func createDockleConfig(scanConfig *config.Config) *dockle_config.Config {

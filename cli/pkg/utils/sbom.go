@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
 )
 
 func ConvertInputSBOMIfNeeded(inputSBOMFile, outputFormat string) ([]byte, error) {

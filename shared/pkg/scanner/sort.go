@@ -18,7 +18,7 @@ package scanner
 import (
 	"sort"
 
-	vulutil "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
+	vulutil "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/vulnerability"
 )
 
 // SortBySeverityAndCVSS sorts vulnerabilities by severity, CVSSv3.1, CVSSv3.0 and CVSSv2.0.

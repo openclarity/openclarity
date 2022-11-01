@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
 )
 
 // PutRuntimeScheduleScanConfigReader is a Reader for the PutRuntimeScheduleScanConfig structure.

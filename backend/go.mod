@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/backend
+module github.com/openclarity/kubeclarity/backend/v2
 
 go 1.19
 
@@ -11,10 +11,10 @@ require (
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.9
-	github.com/openclarity/kubeclarity/api v0.0.0
-	github.com/openclarity/kubeclarity/runtime_scan v0.0.0
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2
+	github.com/openclarity/kubeclarity/runtime_scan/v2 v2.7.2
+	github.com/openclarity/kubeclarity/runtime_scan/api/v2 v2.7.2
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
@@ -217,12 +217,12 @@ require (
 )
 
 replace (
-	github.com/openclarity/kubeclarity/api v0.0.0 => ./../api
-	github.com/openclarity/kubeclarity/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	github.com/openclarity/kubeclarity/runtime_scan v0.0.0 => ./../runtime_scan
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0 => ./../runtime_scan/api
-	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../sbom_db/api
-	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/api/v2 v2.7.2 => ./../api
+	github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2 v2.7.2 => ./../runtime_k8s_scanner
+	github.com/openclarity/kubeclarity/runtime_scan/v2 v2.7.2 => ./../runtime_scan
+	github.com/openclarity/kubeclarity/runtime_scan/api/v2 v2.7.2 => ./../runtime_scan/api
+	github.com/openclarity/kubeclarity/sbom_db/api/v2 v2.7.2 => ./../sbom_db/api
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2 => ./../shared
 )
 
 // Replace containerd due to GHSA-5ffw-gxpp-mxpf

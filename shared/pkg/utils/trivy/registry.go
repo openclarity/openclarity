@@ -20,7 +20,7 @@ import (
 
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/config"
 )
 
 func SetTrivyRegistryConfigs(registry *config.Registry, trivyOptions trivyFlag.Options) trivyFlag.Options {

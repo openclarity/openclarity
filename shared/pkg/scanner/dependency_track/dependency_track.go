@@ -31,16 +31,16 @@ import (
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/bom"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/project"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/client"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/client/bom"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/client/project"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/client/vulnerability"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
+	utilsVul "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/vulnerability"
 )
 
 // nolint:gosec

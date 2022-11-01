@@ -19,7 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/creds"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/creds"
 )
 
 const (

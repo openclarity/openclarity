@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
+	shared "github.com/openclarity/kubeclarity/shared/v2/pkg/config"
 )
 
 const (

@@ -24,7 +24,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
 )
 
 func TestMergedResults_createComponentListFromMap(t *testing.T) {

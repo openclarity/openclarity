@@ -18,8 +18,8 @@ package sbom
 import (
 	"fmt"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/converter"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/cyclonedx_helper"
 )
 
 func GetTargetNameAndHashFromSBOM(inputSBOMFile string) (string, string, error) {

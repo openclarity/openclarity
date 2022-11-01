@@ -10,7 +10,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/openclarity/kubeclarity/runtime_scan/api/server/restapi/operations"
+	"github.com/openclarity/kubeclarity/runtime_scan/api/v2/server/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../server --name KubeClarityRuntimeScanAPIs --spec ../../swagger.yaml --principal interface{}

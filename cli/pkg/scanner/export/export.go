@@ -23,13 +23,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spiegel-im-spiegel/go-cvss/v3/metric"
 
-	"github.com/openclarity/kubeclarity/api/client/client"
-	"github.com/openclarity/kubeclarity/api/client/client/operations"
-	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/cli/pkg/utils"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	"github.com/openclarity/kubeclarity/api/v2/client/client"
+	"github.com/openclarity/kubeclarity/api/v2/client/client/operations"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils/image_helper"
 )
 
 func Export(apiClient *client.KubeClarityAPIs,

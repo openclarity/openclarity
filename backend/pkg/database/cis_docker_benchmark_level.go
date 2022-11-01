@@ -21,7 +21,7 @@ import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
 )
 
 type Level int

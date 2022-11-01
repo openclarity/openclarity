@@ -23,8 +23,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/kubeclarity/cli/pkg"
-	"github.com/openclarity/kubeclarity/cli/pkg/config"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg/config"
 )
 
 var (

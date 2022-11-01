@@ -22,7 +22,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	purl "github.com/package-url/packageurl-go"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
 )
 
 func Test_getPackageInfo(t *testing.T) {

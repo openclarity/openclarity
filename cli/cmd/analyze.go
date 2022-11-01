@@ -22,15 +22,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/kubeclarity/cli/pkg"
-	_export "github.com/openclarity/kubeclarity/cli/pkg/analyzer/export"
-	"github.com/openclarity/kubeclarity/cli/pkg/utils"
-	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg"
+	_export "github.com/openclarity/kubeclarity/cli/v2/pkg/analyzer/export"
+	"github.com/openclarity/kubeclarity/cli/v2/pkg/utils"
+	sharedanalyzer "github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/job_manager"
+	sharedutils "github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
 )
 
 const inputSBOMName = "input-sbom"

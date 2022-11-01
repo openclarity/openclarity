@@ -19,8 +19,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/formatter"
 )
 
 // convertCmd represents the convert command.

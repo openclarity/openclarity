@@ -26,8 +26,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"gotest.tools/assert"
 
-	"github.com/openclarity/kubeclarity/backend/pkg/database"
-	"github.com/openclarity/kubeclarity/backend/pkg/types"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/database"
+	"github.com/openclarity/kubeclarity/backend/v2/pkg/types"
 )
 
 func Test_mergeResourcePkgIDToAnalyzersMaps(t *testing.T) {

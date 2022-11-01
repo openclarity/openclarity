@@ -16,7 +16,7 @@
 package main
 
 import (
-	"github.com/openclarity/kubeclarity/cli/cmd"
+	"github.com/openclarity/kubeclarity/cli/v2/cmd"
 )
 
 func main() {

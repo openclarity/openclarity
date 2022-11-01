@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
 )
 
 // NewPostApplicationsContentAnalysisIDParams creates a new PostApplicationsContentAnalysisIDParams object

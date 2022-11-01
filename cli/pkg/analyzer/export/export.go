@@ -21,12 +21,12 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/api/client/client"
-	"github.com/openclarity/kubeclarity/api/client/client/operations"
-	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/api/v2/client/client"
+	"github.com/openclarity/kubeclarity/api/v2/client/client/operations"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/v2/pkg/utils/cyclonedx_helper"
 )
 
 func Export(apiClient *client.KubeClarityAPIs, mergedResults *analyzer.MergedResults, id string) error {

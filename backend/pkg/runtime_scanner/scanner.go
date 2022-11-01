@@ -23,10 +23,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	runtime_scan_config "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/orchestrator"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/types"
 )
 
 type Scanner interface {

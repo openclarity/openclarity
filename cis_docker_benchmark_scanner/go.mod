@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner
+module github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/v2
 
 go 1.19
 
@@ -7,8 +7,8 @@ require (
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27
 	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/strfmt v0.21.3
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0
-	github.com/openclarity/kubeclarity/shared v0.0.0
+	github.com/openclarity/kubeclarity/runtime_scan/api/v2 v2.7.2
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
 	github.com/urfave/cli v1.22.7
@@ -238,10 +238,10 @@ require (
 )
 
 replace (
-	github.com/openclarity/kubeclarity/runtime_k8s_scanner v0.0.0 => ./../runtime_k8s_scanner
-	github.com/openclarity/kubeclarity/runtime_scan/api v0.0.0 => ./../runtime_scan/api
-	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0 => ./../sbom_db/api
-	github.com/openclarity/kubeclarity/shared v0.0.0 => ./../shared
+	github.com/openclarity/kubeclarity/runtime_k8s_scanner/v2 v2.7.2 => ./../runtime_k8s_scanner
+	github.com/openclarity/kubeclarity/runtime_scan/api/v2 v2.7.2 => ./../runtime_scan/api
+	github.com/openclarity/kubeclarity/sbom_db/api/v2 v2.7.2 => ./../sbom_db/api
+	github.com/openclarity/kubeclarity/shared/v2 v2.7.2 => ./../shared
 )
 
 // Replace containerd due to GHSA-5ffw-gxpp-mxpf

@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/api/client/models"
+	"github.com/openclarity/kubeclarity/api/v2/client/models"
 )
 
 // NewPutRuntimeQuickscanConfigParams creates a new PutRuntimeQuickscanConfigParams object,

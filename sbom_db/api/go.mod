@@ -1,4 +1,4 @@
-module github.com/openclarity/kubeclarity/sbom_db/api
+module github.com/openclarity/kubeclarity/sbom_db/api/v2
 
 go 1.19
 

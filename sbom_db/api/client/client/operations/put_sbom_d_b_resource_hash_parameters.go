@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/openclarity/kubeclarity/sbom_db/api/client/models"
+	"github.com/openclarity/kubeclarity/sbom_db/api/v2/client/models"
 )
 
 // NewPutSbomDBResourceHashParams creates a new PutSbomDBResourceHashParams object,

@@ -25,10 +25,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"gotest.tools/assert"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
-	runtimescanner "github.com/openclarity/kubeclarity/backend/pkg/runtime_scanner"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator"
-	_types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
+	runtimescanner "github.com/openclarity/kubeclarity/backend/v2/pkg/runtime_scanner"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/orchestrator"
+	_types "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/types"
 )
 
 func Test_setOrUpdateScanFailDataForImage(t *testing.T) {

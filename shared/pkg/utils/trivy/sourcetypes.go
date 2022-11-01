@@ -20,7 +20,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/utils"
 )
 
 func KubeclaritySourceToTrivySource(sourceType utils.SourceType) (artifact.TargetKind, error) {

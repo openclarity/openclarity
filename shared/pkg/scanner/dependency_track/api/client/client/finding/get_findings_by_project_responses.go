@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/v2/pkg/scanner/dependency_track/api/client/models"
 )
 
 // GetFindingsByProjectReader is a Reader for the GetFindingsByProject structure.

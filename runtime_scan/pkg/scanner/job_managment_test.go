@@ -26,10 +26,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/kubernetes"
 
-	_config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
-	_creds "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner/creds"
-	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
-	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
+	_config "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/config"
+	_creds "github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/scanner/creds"
+	"github.com/openclarity/kubeclarity/runtime_scan/v2/pkg/types"
+	shared "github.com/openclarity/kubeclarity/shared/v2/pkg/config"
 )
 
 func Test_getSimpleImageName(t *testing.T) {

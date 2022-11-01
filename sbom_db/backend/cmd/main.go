@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
-	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/backend"
-	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/config"
-	"github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/backend"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/config"
+	"github.com/openclarity/kubeclarity/sbom_db/backend/v2/pkg/version"
 )
 
 func run(c *cli.Context) {

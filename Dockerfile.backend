@@ -54,9 +54,9 @@ COPY shared .
 WORKDIR /build/backend
 COPY backend .
 RUN go build -ldflags="-s -w \
-     -X 'github.com/openclarity/kubeclarity/backend/pkg/version.Version=${VERSION}' \
-     -X 'github.com/openclarity/kubeclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
-     -X 'github.com/openclarity/kubeclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
+     -X 'github.com/openclarity/kubeclarity/backend/v2/pkg/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/kubeclarity/backend/v2/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/kubeclarity/backend/v2/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
 
 FROM alpine:3.17
 

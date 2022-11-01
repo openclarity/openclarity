@@ -21,7 +21,7 @@ import (
 	"gorm.io/gorm"
 	_clause "gorm.io/gorm/clause"
 
-	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/v2/server/models"
 )
 
 const (
