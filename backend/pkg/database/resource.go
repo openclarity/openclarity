@@ -229,7 +229,7 @@ func (r *ResourceTableHandler) Create(resource *Resource) error {
 		return fmt.Errorf("failed to create resource: %v", err)
 	}
 
-	r.setViewRefreshHandlerIfExists()
+	r.tableChanged()
 
 	return nil
 }
@@ -525,8 +525,8 @@ func (r *ResourceTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilter
 	return tx, nil
 }
 
-func (r *ResourceTableHandler) setViewRefreshHandlerIfExists() {
+func (r *ResourceTableHandler) tableChanged() {
 	if r.viewRefreshHandler != nil {
-		r.viewRefreshHandler.SetTrue()
+		r.viewRefreshHandler.TableChanged(resourceTableName)
 	}
 }

@@ -156,7 +156,7 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 		return fmt.Errorf("failed to delete relationships: %v", err)
 	}
 
-	j.setViewRefreshHandlerIfExists()
+	j.tableChanged(packageTableName, resourceTableName, applicationTableName, vulnerabilityTableName)
 
 	return nil
 }
@@ -259,8 +259,10 @@ func (j *JoinTablesHandler) setPackageResourcesFilters(tx *gorm.DB, params opera
 	return tx
 }
 
-func (j *JoinTablesHandler) setViewRefreshHandlerIfExists() {
+func (j *JoinTablesHandler) tableChanged(tables ...string) {
 	if j.viewRefreshHandler != nil {
-		j.viewRefreshHandler.SetTrue()
+		for _, table := range tables {
+			j.viewRefreshHandler.TableChanged(table)
+		}
 	}
 }

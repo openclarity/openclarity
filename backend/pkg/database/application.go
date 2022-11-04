@@ -122,7 +122,7 @@ func (a *ApplicationTableHandler) Create(app *Application, params *TransactionPa
 		return fmt.Errorf("failed to create application: %v", err)
 	}
 
-	a.setViewRefreshHandlerIfExists()
+	a.tableChanged()
 
 	return nil
 }
@@ -133,7 +133,7 @@ func (a *ApplicationTableHandler) UpdateInfo(app *Application, params *Transacti
 		return fmt.Errorf("failed to update application info: %v", err)
 	}
 
-	a.setViewRefreshHandlerIfExists()
+	a.tableChanged()
 
 	return nil
 }
@@ -151,7 +151,7 @@ func (a *ApplicationTableHandler) Delete(app *Application) error {
 		return fmt.Errorf("failed to delete application: %v", err)
 	}
 
-	a.setViewRefreshHandlerIfExists()
+	a.tableChanged()
 
 	return nil
 }
@@ -411,8 +411,8 @@ func (a *ApplicationTableHandler) setCountFilters(tx *gorm.DB, filters *CountFil
 	return tx
 }
 
-func (a *ApplicationTableHandler) setViewRefreshHandlerIfExists() {
+func (a *ApplicationTableHandler) tableChanged() {
 	if a.viewRefreshHandler != nil {
-		a.viewRefreshHandler.SetTrue()
+		a.viewRefreshHandler.TableChanged(applicationTableName)
 	}
 }

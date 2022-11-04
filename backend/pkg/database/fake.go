@@ -235,8 +235,6 @@ func (db *Handler) CreateFakeData() {
 			panic(err.Error())
 		}
 
-		if db.ViewRefreshHandler != nil {
-			refreshMaterializedViews(db.DB)
-		}
+		db.ViewRefreshHandler.refreshFunc(db.DB, []string{packageViewName, resourceViewName, applicationViewName, vulnerabilityViewName})
 	}
 }

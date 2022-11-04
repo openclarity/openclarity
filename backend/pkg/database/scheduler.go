@@ -73,17 +73,9 @@ func (s *SchedulerTableHandler) Set(scheduler *Scheduler) error {
 		return fmt.Errorf("failed to set scheduler: %v", err)
 	}
 
-	s.setViewRefreshHandlerIfExists()
-
 	return nil
 }
 
 func (s *SchedulerTableHandler) UpdateNextScanTime(t string) error {
 	return s.table.Model(&Scheduler{}).Where(columnSchedulerID, "1").Update(columnNextScanTime, t).Error
-}
-
-func (s *SchedulerTableHandler) setViewRefreshHandlerIfExists() {
-	if s.viewRefreshHandler != nil {
-		s.viewRefreshHandler.SetTrue()
-	}
 }

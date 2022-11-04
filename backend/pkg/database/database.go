@@ -39,25 +39,25 @@ const (
 // In the case of materialized views slow queries can happen when refreshing the views,
 // but reading these views will not cause slow queries when navigating on the UI.
 // Materialized view is only supported by PostgreSQL.
-const (
-	packagesView        = "packages_view"
-	resourcesView       = "resources_view"
-	applicationsView    = "applications_view"
-	vulnerabilitiesView = "vulnerabilities_view"
-)
+var materializedViews = []string{
+	applicationViewName,
+	resourceViewName,
+	packageViewName,
+	vulnerabilityViewName,
+}
 
 // order is important, need to drop views in a reverse order of the creation.
 var viewsList = []string{
 	"cis_d_b_checks_view",
-	vulnerabilitiesView, // MATERIALIZED in case of postgres.
+	vulnerabilityViewName, // MATERIALIZED in case of postgres.
 	"package_resources_info_view",
-	packagesView, // MATERIALIZED in case of postgres.
+	packageViewName, // MATERIALIZED in case of postgres.
 	"package_severities",
-	resourcesView, // MATERIALIZED in case of postgres.
+	resourceViewName, // MATERIALIZED in case of postgres.
 	"resource_cis_d_b_checks_view",
 	"resource_severities",
 	"new_vulnerabilities_view",
-	applicationsView, // MATERIALIZED in case of postgres.
+	applicationViewName, // MATERIALIZED in case of postgres.
 	"application_cis_d_b_checks",
 	"application_severities",
 	"ids_view",
@@ -68,8 +68,9 @@ const (
 	createViewCommand              = "CREATE VIEW"
 	createMaterializedViewCommand  = "CREATE MATERIALIZED VIEW"
 	dropViewCommand                = "DROP VIEW IF EXISTS %s"
-	dropMaterializedViewCommand    = "DROP MATERIALIZED VIEW IF EXISTS %s"
-	refreshMaterializedViewCommand = "REFRESH MATERIALIZED VIEW %s"
+	dropMaterializedViewCommand    = "DROP MATERIALIZED VIEW IF EXISTS %s;"
+	refreshMaterializedViewCommand = "REFRESH MATERIALIZED VIEW CONCURRENTLY %s;"
+	initMaterializedViewCommand    = "REFRESH MATERIALIZED VIEW %s;"
 )
 
 var (
@@ -185,6 +186,10 @@ GROUP BY applications.id,
          apl.highest_level;
 `
 
+	createApplicationsViewIndex = `
+CREATE UNIQUE INDEX applications_view_id ON applications_view (id);
+`
+
 	newVulnerabilitiesViewQuery = `
 CREATE VIEW new_vulnerabilities_view AS
 SELECT new_vulnerabilities.added_at AS added_at,
@@ -265,6 +270,10 @@ GROUP BY resources.id,
          rl.highest_level;
 `
 
+	createResourcessViewIndex = `
+CREATE UNIQUE INDEX resources_view_id ON resources_view (id);
+`
+
 	packagesSeveritiesViewQuery = `
 CREATE VIEW package_severities AS
 SELECT packages.id AS package_id,
@@ -307,6 +316,10 @@ GROUP BY packages.id,
          ps.lowest_severity;
 	`
 
+	createPackagesViewIndex = `
+CREATE UNIQUE INDEX packages_view_id ON packages_view (id);
+`
+
 	packageResourcesInfoViewQuery = `
 CREATE VIEW package_resources_info_view AS
 SELECT resource_packages.*,
@@ -336,6 +349,10 @@ GROUP BY vulnerabilities.id,
          p.id,
          pv.fix_version;
   `
+
+	createVulnerabilitiesViewIndex = `
+CREATE UNIQUE INDEX vulnerabilities_view_id ON vulnerabilities_view (id, package_id);
+`
 
 	cisDockerBenchmarkResultsViewQuery = `
 CREATE VIEW cis_d_b_checks_view AS
@@ -511,10 +528,6 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	// recreate views from scratch
 	createAllViews(db, dbDriver)
 
-	if dbDriver == DBDriverTypePostgres {
-		refreshMaterializedViews(db)
-	}
-
 	return db
 }
 
@@ -608,6 +621,28 @@ func createAllViews(db *gorm.DB, dbDriver string) {
 	if err := db.Exec(cisDockerBenchmarkResultsViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create cis_d_b_checks_view: %v", err)
 	}
+
+	if dbDriver == DBDriverTypePostgres {
+		createIndexForMaterializedViews(db)
+		initMaterializedViews(db, materializedViews)
+	}
+}
+
+func createIndexForMaterializedViews(db *gorm.DB) {
+	if err := db.Exec(createApplicationsViewIndex).Error; err != nil {
+		log.Fatalf("Failed to create index for %s: %v", applicationViewName, err)
+	}
+
+	if err := db.Exec(createResourcessViewIndex).Error; err != nil {
+		log.Fatalf("Failed to create index for %s: %v", resourceViewName, err)
+	}
+
+	if err := db.Exec(createPackagesViewIndex).Error; err != nil {
+		log.Fatalf("Failed to create index for %s: %v", packageViewName, err)
+	}
+	if err := db.Exec(createVulnerabilitiesViewIndex).Error; err != nil {
+		log.Fatalf("Failed to create index for %s: %v", vulnerabilityViewName, err)
+	}
 }
 
 func dropAllViews(db *gorm.DB, dbDriver string) {
@@ -620,7 +655,7 @@ func dropViewIfExists(db *gorm.DB, viewName, dbDriver string) {
 	dropCommand := dropViewCommand
 	if dbDriver == DBDriverTypePostgres {
 		switch viewName {
-		case packagesView, applicationsView, resourcesView, vulnerabilitiesView:
+		case packageViewName, applicationViewName, resourceViewName, vulnerabilityViewName:
 			dropCommand = dropMaterializedViewCommand
 		default:
 			dropCommand = dropViewCommand

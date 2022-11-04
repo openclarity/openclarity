@@ -26,56 +26,100 @@ import (
 
 const materializedViewRefreshIntervalSecond = 5
 
+type refreshFunc func(db *gorm.DB, viewNames []string)
+
 type ViewRefreshHandler struct {
-	mu                 sync.Mutex
-	shouldRefreshViews bool
+	mu             sync.Mutex
+	viewsToRefresh map[string][]string
+	tableChanged   map[string]bool
+	refreshFunc    refreshFunc
 }
 
-func (vh *ViewRefreshHandler) SetTrue() {
+func (vh *ViewRefreshHandler) TableChanged(table string) {
 	vh.mu.Lock()
 	defer vh.mu.Unlock()
-	vh.shouldRefreshViews = true
+	vh.tableChanged[table] = true
 }
 
-func (vh *ViewRefreshHandler) GetAndSetFalse() bool {
+func (vh *ViewRefreshHandler) GetAndClearChanges() map[string]bool {
 	vh.mu.Lock()
 	defer vh.mu.Unlock()
-	shouldRefresh := vh.shouldRefreshViews
-	vh.shouldRefreshViews = false
-	return shouldRefresh
+	tables := vh.tableChanged
+	vh.tableChanged = make(map[string]bool)
+	return tables
+}
+
+func (vh *ViewRefreshHandler) runRequiredRefreshes(db *gorm.DB) {
+	viewNames := vh.getViewsToRefresh()
+	vh.refreshFunc(db, viewNames)
+}
+
+func (vh *ViewRefreshHandler) getViewsToRefresh() []string {
+	viewToRefresh := make(map[string]bool)
+	tables := vh.GetAndClearChanges()
+	for table, ok := range tables {
+		if ok {
+			for _, viewName := range vh.viewsToRefresh[table] {
+				viewToRefresh[viewName] = true
+			}
+		}
+	}
+	views := make([]string, 0)
+	for viewName, ok := range viewToRefresh {
+		if ok {
+			views = append(views, viewName)
+		}
+	}
+	return views
+}
+
+func (vh *ViewRefreshHandler) RegisterViewRefreshHandler(f refreshFunc) {
+	vh.refreshFunc = f
+}
+
+func createViewsToRefreshByTable() map[string][]string {
+	viewsToRefresh := make(map[string][]string)
+	tables := []string{
+		applicationTableName,
+		resourceTableName,
+		packageTableName,
+		vulnerabilityTableName,
+	}
+	for _, table := range tables {
+		viewsToRefresh[table] = materializedViews
+	}
+
+	return viewsToRefresh
 }
 
 func (db *Handler) SetMaterializedViewHandler() {
-	db.ViewRefreshHandler = &ViewRefreshHandler{}
+	db.ViewRefreshHandler = &ViewRefreshHandler{
+		tableChanged:   make(map[string]bool),
+		viewsToRefresh: createViewsToRefreshByTable(),
+	}
 }
 
 func (db *Handler) RefreshMaterializedViews() {
-	ticker := time.NewTicker(materializedViewRefreshIntervalSecond * time.Second)
-	done := make(chan bool)
-
 	for {
 		select {
-		case <-done:
-			return
-		case <-ticker.C:
-			if db.ViewRefreshHandler.GetAndSetFalse() {
-				refreshMaterializedViews(db.DB)
-			}
+		case <-time.After(materializedViewRefreshIntervalSecond * time.Second):
+			db.ViewRefreshHandler.runRequiredRefreshes(db.DB)
 		}
 	}
 }
 
-func refreshMaterializedViews(db *gorm.DB) {
-	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, applicationsView)).Error; err != nil {
-		log.Fatalf("Failed to refresh materialized %s: %v", applicationsView, err)
+func RefreshMaterializedViews(db *gorm.DB, viewNames []string) {
+	for _, viewName := range viewNames {
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
+			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
+		}
 	}
-	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, resourcesView)).Error; err != nil {
-		log.Fatalf("Failed to refresh materialized %s: %v", resourcesView, err)
-	}
-	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, packagesView)).Error; err != nil {
-		log.Fatalf("Failed to refresh materialized %s: %v", packagesView, err)
-	}
-	if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, vulnerabilitiesView)).Error; err != nil {
-		log.Fatalf("Failed to refresh materialized %s: %v", vulnerabilitiesView, err)
+}
+
+func initMaterializedViews(db *gorm.DB, viewNames []string) {
+	for _, viewName := range viewNames {
+		if err := db.Exec(fmt.Sprintf(initMaterializedViewCommand, viewName)).Error; err != nil {
+			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
+		}
 	}
 }

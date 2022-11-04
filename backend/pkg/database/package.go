@@ -116,7 +116,7 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 		return fmt.Errorf("failed to create package: %v", err)
 	}
 
-	p.setViewRefreshHandlerIfExists()
+	p.tableChanged()
 
 	return nil
 }
@@ -411,8 +411,8 @@ func (p *PackageTableHandler) createGetIDsParams(params GetPackagesParams) GetID
 	return retParams
 }
 
-func (p *PackageTableHandler) setViewRefreshHandlerIfExists() {
+func (p *PackageTableHandler) tableChanged() {
 	if p.viewRefreshHandler != nil {
-		p.viewRefreshHandler.SetTrue()
+		p.viewRefreshHandler.TableChanged(packageTableName)
 	}
 }

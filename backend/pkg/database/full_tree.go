@@ -41,8 +41,6 @@ func (o *ObjectTreeHandler) SetApplication(app *Application, params *Transaction
 		return fmt.Errorf("failed to update application: %v", err)
 	}
 
-	o.setViewRefreshHandlerIfExists()
-
 	return nil
 }
 
@@ -71,7 +69,7 @@ func (o *ObjectTreeHandler) updateApplication(tx *gorm.DB, app *Application, sho
 		return fmt.Errorf("failed to update application resources association: %v", err)
 	}
 
-	o.setViewRefreshHandlerIfExists()
+	o.tableChanged(applicationTableName, resourceTableName)
 
 	return nil
 }
@@ -84,8 +82,6 @@ func (o *ObjectTreeHandler) SetResource(resource *Resource, params *TransactionP
 	if err != nil {
 		return fmt.Errorf("failed to update resource: %v", err)
 	}
-
-	o.setViewRefreshHandlerIfExists()
 
 	return nil
 }
@@ -122,7 +118,7 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		return fmt.Errorf("failed to update resource cis_d_b_checks association: %v", err)
 	}
 
-	o.setViewRefreshHandlerIfExists()
+	o.tableChanged(resourceTableName, packageTableName)
 
 	return nil
 }
@@ -145,13 +141,15 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 		}
 	}
 
-	o.setViewRefreshHandlerIfExists()
+	o.tableChanged(packageTableName, vulnerabilityTableName)
 
 	return nil
 }
 
-func (o *ObjectTreeHandler) setViewRefreshHandlerIfExists() {
+func (o *ObjectTreeHandler) tableChanged(tables ...string) {
 	if o.viewRefreshHandler != nil {
-		o.viewRefreshHandler.SetTrue()
+		for _, table := range tables {
+			o.viewRefreshHandler.TableChanged(table)
+		}
 	}
 }
