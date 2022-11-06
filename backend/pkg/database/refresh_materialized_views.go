@@ -103,10 +103,8 @@ func (db *Handler) SetMaterializedViewHandler(config *DBConfig) {
 
 func (db *Handler) RefreshMaterializedViews() {
 	for {
-		select {
-		case <-time.After(db.ViewRefreshHandler.viewRefreshIntervalSecond):
-			db.ViewRefreshHandler.runRequiredRefreshes(db.DB)
-		}
+		<-time.After(db.ViewRefreshHandler.viewRefreshIntervalSecond)
+		db.ViewRefreshHandler.runRequiredRefreshes(db.DB)
 	}
 }
 
