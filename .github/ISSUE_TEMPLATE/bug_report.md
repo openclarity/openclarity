@@ -25,5 +25,6 @@ assignees: ''
 #### Environment:
 - Kubernetes version (use `kubectl version --short`):
 - KubeClarity version (use `kubectl -n kubeclarity exec deploy/kubeclarity -- ./backend version`)
+- KubeClarity Helm Chart version (use `helm -n kubeclarity list`)
 - Cloud provider or hardware configuration:
 - Others:
