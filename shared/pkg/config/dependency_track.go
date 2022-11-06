@@ -50,8 +50,12 @@ type DependencyTrackConfig struct {
 func ConvertToDependencyTrackConfig(scanner *Scanner, logger *logrus.Entry) DependencyTrackConfig {
 	dependencyTrackConfig := scanner.DependencyTrackConfig
 	if logrus.IsLevelEnabled(logrus.InfoLevel) {
-		configB, _ := json.Marshal(dependencyTrackConfig)
-		logger.Infof("DependencyTrack config: %s", configB)
+		configB, err := json.Marshal(dependencyTrackConfig)
+		if err == nil {
+			logger.Infof("DependencyTrack config: %s", configB)
+		} else {
+			logger.Errorf("Failed to marshal dependency track config: %v", err)
+		}
 	}
 	return dependencyTrackConfig
 }

@@ -46,6 +46,7 @@ type vulnerabilityInfo struct {
 	Name string `json:"vulnerabilityName,omitempty"`
 }
 
+// nolint:maintidx
 func TestCreateResourceFromVulnerabilityScan(t *testing.T) {
 	resourceInfo := &types.ResourceInfo{
 		ResourceHash: "ResourceHash",

@@ -21,7 +21,6 @@ import (
 )
 
 type ResourceInfo struct {
-
 	// resource hash
 	ResourceHash string `json:"resourceHash,omitempty"`
 

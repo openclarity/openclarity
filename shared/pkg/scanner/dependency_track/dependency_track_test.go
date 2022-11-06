@@ -50,7 +50,7 @@ func Test_getLinks(t *testing.T) {
 			args: args{
 				references: "",
 			},
-			wantLinks: nil,
+			wantLinks: []string{},
 		},
 	}
 	for _, tt := range tests {

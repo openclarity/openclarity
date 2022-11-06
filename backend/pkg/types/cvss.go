@@ -21,7 +21,6 @@ import (
 )
 
 type CVSS struct {
-
 	// cvss v3 metrics
 	CvssV3Metrics *CVSSV3Metrics `json:"cvssV3Metrics,omitempty"`
 

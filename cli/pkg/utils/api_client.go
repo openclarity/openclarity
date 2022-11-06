@@ -31,7 +31,7 @@ func NewHTTPClient(conf *config.Backend) *client.KubeClarityAPIs {
 	if conf.DisableTLS {
 		transport = httptransport.New(conf.Host, client.DefaultBasePath, []string{"http"})
 	} else if conf.InsecureSkipVerify {
-		customTransport := http.DefaultTransport.(*http.Transport).Clone()
+		customTransport := http.DefaultTransport.(*http.Transport).Clone()      // nolint:forcetypeassert
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} // nolint: gosec
 		transport = httptransport.NewWithClient(conf.Host, client.DefaultBasePath, []string{"https"},
 			&http.Client{Transport: customTransport})

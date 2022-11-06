@@ -17,20 +17,19 @@ package config
 
 import (
 	"github.com/anchore/stereoscope/pkg/image"
-	"github.com/anchore/syft/syft/format"
 	"github.com/anchore/syft/syft/source"
 )
 
 // TODO: maybe we need to extend syft confg.
 type SyftConfig struct {
-	OutputFormat    format.Option
+	OutputFormat    string
 	Scope           source.Scope
 	RegistryOptions *image.RegistryOptions
 }
 
 func CreateSyftConfig(analyzer *Analyzer, registry *Registry) SyftConfig {
 	return SyftConfig{
-		OutputFormat:    format.ParseOption(analyzer.OutputFormat),
+		OutputFormat:    analyzer.OutputFormat,
 		Scope:           source.ParseScope(analyzer.Scope),
 		RegistryOptions: CreateRegistryOptions(registry),
 	}

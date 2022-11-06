@@ -46,7 +46,8 @@ type Analyzer struct {
 
 func New(conf *config.Config,
 	logger *log.Entry,
-	resultChan chan job_manager.Result) job_manager.Job {
+	resultChan chan job_manager.Result,
+) job_manager.Job {
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
