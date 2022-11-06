@@ -16,10 +16,10 @@
 package formatter
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/anchore/syft/syft"
-	syft_format "github.com/anchore/syft/syft/format"
 	syft_sbom "github.com/anchore/syft/syft/sbom"
 )
 
@@ -60,9 +60,10 @@ func (f *Syft) GetSBOMBytes() []byte {
 }
 
 func (f *Syft) Encode(format string) error {
-	syftFormat := getSyftFormat(format)
+	// TODO maybe check cyclonedx format as output
+	sbomFormat := syft.FormatByName(format)
 	var err error
-	f.sbomBytes, err = syft.Encode(f.sbomStruct, syftFormat)
+	f.sbomBytes, err = syft.Encode(f.sbomStruct, sbomFormat)
 	if err != nil {
 		return fmt.Errorf("failed to encode SBOM: %v", err)
 	}
@@ -70,19 +71,15 @@ func (f *Syft) Encode(format string) error {
 }
 
 func (f *Syft) Decode(format string) error {
-	return nil
-}
-
-func getSyftFormat(format string) syft_format.Option {
-	formatOption := syft_format.CycloneDxXMLOption
-	switch format {
-	case SyftFormat:
-		formatOption = syft_format.JSONOption
-	case CycloneDXFormat:
-		formatOption = syft_format.CycloneDxXMLOption
-	case CycloneDXJSONFormat:
-		formatOption = syft_format.CycloneDxJSONOption
+	reader := bytes.NewReader(f.sbomBytes)
+	sbom, _, err := syft.Decode(reader)
+	if err != nil {
+		return fmt.Errorf("failed to decode SBOM: %w", err)
 	}
 
-	return formatOption
+	if err := f.SetSBOM(*sbom); err != nil {
+		return fmt.Errorf("unable to set BOM data: %v", err)
+	}
+
+	return nil
 }

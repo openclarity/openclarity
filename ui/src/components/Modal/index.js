@@ -13,7 +13,7 @@ const Modal = (props) => {
     const [portalContainer, setPortalContainer] = useState(null);
 
     useEffect(() => {
-        const container = document.querySelector("main");
+        const container = document.querySelector("#main-wrapper");
 
         if (!container) {
             return;

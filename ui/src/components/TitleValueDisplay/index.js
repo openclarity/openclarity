@@ -12,8 +12,8 @@ export const TitleValueDisplayColumn = ({children}) => (
     <div className="title-value-display-column">{children}</div>
 );
 
-const TitleValueDisplay = ({title, children, className, withOpen=false}) => {
-    const [isOpen, setIsOpen] = useState(false);
+const TitleValueDisplay = ({title, children, className, withOpen=false, defaultOpen=false}) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
         <div className={classnames("title-value-display-wrapper", className)}>

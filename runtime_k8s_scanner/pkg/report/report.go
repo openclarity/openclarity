@@ -42,6 +42,7 @@ type Reporter interface {
 	ReportScanContentAnalysis(mergedResults *analyzer.MergedResults) error
 }
 
+// nolint:containedctx
 type ReporterImpl struct {
 	client *client.KubeClarityRuntimeScanAPIs
 	conf   *config.Config

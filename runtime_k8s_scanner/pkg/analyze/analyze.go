@@ -54,7 +54,11 @@ func (a *AnalyzerImpl) Analyze(config *config.Config) (*analyzer.MergedResults, 
 	mergedResults := analyzer.NewMergedResults(utils.IMAGE, config.ImageHashToScan)
 	for name, result := range results {
 		a.logger.Infof("Merging result from %q", name)
-		mergedResults = mergedResults.Merge(result.(*analyzer.Results), config.SharedConfig.Analyzer.OutputFormat)
+		if res, ok := result.(*analyzer.Results); ok {
+			mergedResults = mergedResults.Merge(res, config.SharedConfig.Analyzer.OutputFormat)
+		} else {
+			a.logger.Errorf("Type assertion of result failed.")
+		}
 	}
 
 	return mergedResults, nil

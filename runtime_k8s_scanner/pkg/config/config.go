@@ -33,7 +33,6 @@ type Config struct {
 	SBOMDBAddress        string
 	ImageIDToScan        string
 	ImageHashToScan      string
-	ImagePullSecret      string `yaml:"-" json:"-"`
 	ScanUUID             string
 	RegistryInsecure     bool
 	SharedConfig         *shared.Config
@@ -48,7 +47,6 @@ func LoadConfig() (*Config, error) {
 		ImageIDToScan:        imageIDToScan,
 		ImageHashToScan:      viper.GetString(shared.ImageHashToScan),
 		ImageNameToScan:      viper.GetString(shared.ImageNameToScan),
-		ImagePullSecret:      viper.GetString(shared.ImagePullSecret),
 		ScanUUID:             viper.GetString(shared.ScanUUID),
 		SharedConfig: &shared.Config{
 			Registry: shared.LoadRuntimeScannerRegistryConfig(imageIDToScan),
@@ -57,8 +55,12 @@ func LoadConfig() (*Config, error) {
 		},
 	}
 
-	configB, _ := json.Marshal(config)
-	log.Infof("\n\nconfig=%s\n\n", configB)
+	configB, err := json.Marshal(config)
+	if err == nil {
+		log.Infof("\n\nconfig=%s\n\n", configB)
+	} else {
+		log.Errorf("Failed to marshal config: %v", err)
+	}
 
 	return config, nil
 }

@@ -6,8 +6,8 @@ package database
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 	models "github.com/openclarity/kubeclarity/api/server/models"
+	reflect "reflect"
 )
 
 // MockResourceTable is a mock of ResourceTable interface

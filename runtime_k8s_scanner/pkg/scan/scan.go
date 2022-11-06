@@ -52,7 +52,7 @@ func (s *ScannerImpl) Scan(config *config.Config, sbomFilePath string) (*shareds
 	mergedResults := sharedscanner.NewMergedResults()
 	for name, result := range results {
 		s.logger.Infof("Merging result from %q", name)
-		mergedResults = mergedResults.Merge(result.(*sharedscanner.Results))
+		mergedResults = mergedResults.Merge(result.(*sharedscanner.Results)) // nolint:forcetypeassert
 	}
 
 	// Set source values.

@@ -1,6 +1,6 @@
 module github.com/openclarity/kubeclarity/sbom_db/api
 
-go 1.17
+go 1.19
 
 require (
 	github.com/go-openapi/errors v0.20.2

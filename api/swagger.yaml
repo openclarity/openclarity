@@ -77,6 +77,12 @@ definitions:
       - fixVersion
       - source
 
+  CISDockerBenchmarkResultsSortKey:
+    type: string
+    enum: &CISDockerBenchmarkResultsSortKey
+      - code
+      - level
+
   ApplicationType:
     type: string
     enum: &ApplicationType
@@ -230,6 +236,18 @@ definitions:
         format: integer
       filename:
         type: 'string'
+      desc:
+        type: 'string'
+
+  CISDockerBenchmarkResultsEX:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+      title:
+        type: 'string'
+      level:
+        $ref: '#/definitions/CISDockerBenchmarkLevel'
       desc:
         type: 'string'
 
@@ -1436,6 +1454,32 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
 
+  /cisdockerbenchmarkresults/{id}:
+    get:
+      summary: 'Get CIS Docker Benchmark results by Application Resource ID'
+      parameters:
+        - $ref: '#/parameters/id'
+        - $ref: '#/parameters/cisDockerBenchmarkResultsSortKey'
+        - $ref: '#/parameters/sortDir'
+      responses:
+        '200':
+          description: 'Success'
+          schema:
+            type: 'object'
+            required:
+              - total
+            properties:
+              total:
+                type: 'integer'
+                description: 'Total CIS docker benchmark results by Application Resource'
+              items:
+                type: 'array'
+                description: 'List of CIS docker benchmark findings for an Application Resource'
+                items:
+                  $ref: '#/definitions/CISDockerBenchmarkResultsEX'
+        default:
+          $ref: '#/responses/UnknownError'
+
   /applications/vulnerabilityScan/{id}:
     post:
       summary: 'Report a vulnerability scan for a specific application'
@@ -1608,6 +1652,14 @@ parameters:
     in: 'query'
     type: 'string'
     enum: *VulnerabilitiesSortKey
+    required: true
+
+  cisDockerBenchmarkResultsSortKey:
+    name: 'sortKey'
+    description: 'Sort key'
+    in: 'query'
+    type: 'string'
+    enum: *CISDockerBenchmarkResultsSortKey
     required: true
 
   applicationNameIsFilter:

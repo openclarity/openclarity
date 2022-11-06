@@ -1,4 +1,4 @@
-FROM node:18-slim AS site-build
+FROM node:19-slim AS site-build
 
 WORKDIR /app/ui-build
 
@@ -7,7 +7,7 @@ RUN npm i
 RUN npm run build
 
 
-FROM golang:1.17.9-alpine AS builder
+FROM golang:1.19.3-alpine AS builder
 
 ARG VERSION
 ARG BUILD_TIMESTAMP
@@ -58,7 +58,7 @@ RUN go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
 
-FROM alpine:3.15.4
+FROM alpine:3.16
 
 WORKDIR /app
 

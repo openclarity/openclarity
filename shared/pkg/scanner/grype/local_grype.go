@@ -20,6 +20,7 @@ import (
 
 	"github.com/anchore/grype/grype"
 	"github.com/anchore/grype/grype/db"
+	"github.com/anchore/grype/grype/matcher"
 	"github.com/anchore/grype/grype/pkg"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	"github.com/anchore/syft/syft/pkg/cataloger"
@@ -62,12 +63,16 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		ValidateByHashOnGet: false,
 	}
 	s.logger.Infof("Loading DB. update=%v", s.config.UpdateDB)
-	provider, metadataProvider, dbStatus, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
+
+	store, dbStatus, _, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
+
 	if err = validateDBLoad(err, dbStatus); err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to load vulnerability DB: %w", err), s.logger)
 		return
 	}
 
+	var hash string
+	origInput := userInput
 	if sourceType == utils.SBOM {
 		syftJSONFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(userInput, s.logger)
 		if err != nil {
@@ -75,6 +80,11 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 			return
 		}
 		defer cleanup()
+		origInput, hash, err = getOriginalInputAndHashFromSBOM(userInput)
+		if err != nil {
+			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
+			return
+		}
 		userInput = syftJSONFilePath
 	}
 
@@ -93,16 +103,18 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		return
 	}
 
-	allMatches := grype.FindVulnerabilitiesForPackage(provider, context.Distro, packages...)
+	matchers := matcher.NewDefaultMatchers(matcher.Config{})
+
+	allMatches := grype.FindVulnerabilitiesForPackage(*store, context.Distro, matchers, packages)
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
-	doc, err := grype_models.NewDocument(packages, context, allMatches, nil, metadataProvider, nil, dbStatus)
+	doc, err := grype_models.NewDocument(packages, context, allMatches, nil, store.MetadataProvider, nil, dbStatus)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
 		return
 	}
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, userInput, ScannerName)
+	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
 }
 
 func validateDBLoad(loadErr error, status *db.Status) error {
