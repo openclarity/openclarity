@@ -48,7 +48,7 @@ func Run() {
 
 	log.Info("KubeClarity SBOM DB backend is running")
 
-	dbHandler := database.InitDataBase()
+	dbHandler := database.InitDataBase(config.EnableDBInfoLogs)
 
 	if config.EnableFakeData {
 		go dbHandler.CreateFakeData()

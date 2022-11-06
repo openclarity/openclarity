@@ -472,13 +472,14 @@ func initDataBase(config *DBConfig) *gorm.DB {
 
 	setupJoinTables(db)
 
+	// recreate views from scratch
+	dropAllViews(db)
+
 	// this will ensure table is created
 	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, Scheduler{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 
-	// recreate views from scratch
-	dropAllViews(db)
 	createAllViews(db)
 
 	return db
