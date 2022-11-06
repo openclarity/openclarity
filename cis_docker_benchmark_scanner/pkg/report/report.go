@@ -34,6 +34,7 @@ type Reporter interface {
 	ReportScanError(scanError *models.ScanError) error
 }
 
+// nolint:containedctx
 type ReporterImpl struct {
 	client *client.KubeClarityRuntimeScanAPIs
 	conf   *config.Config

@@ -95,7 +95,8 @@ func (s *Server) GetNamespaceList() ([]string, error) {
 }
 
 func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrator.VulnerabilitiesScanner,
-	clientset kubernetes.Interface) (*Server, error) {
+	clientset kubernetes.Interface,
+) (*Server, error) {
 	scanChan := make(chan *runtimescanner.ScanConfig)
 	resultsChan := make(chan *_types.ScanResults)
 	s := &Server{
@@ -304,8 +305,12 @@ func (s *Server) handleScanResults(results *_types.ScanResults) {
 	}
 
 	if log.GetLevel() == log.TraceLevel {
-		resultsB, _ := json.Marshal(results.ImageScanResults)
-		log.Tracef("Got scan results: %s", string(resultsB))
+		resultsB, err := json.Marshal(results.ImageScanResults)
+		if err == nil {
+			log.Tracef("Got scan results: %s", string(resultsB))
+		} else {
+			log.Errorf("Failed to marshal image scan results: %v", err)
+		}
 	}
 
 	runtimeScanApplicationIDs, runtimeScanFailures, err := s.applyRuntimeScanResults(results.ImageScanResults)

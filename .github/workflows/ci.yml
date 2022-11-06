@@ -3,7 +3,7 @@ on:
   pull_request:
 
 env:
-  GO_VERSION: 1.17
+  GO_VERSION: 1.19
 
 jobs:
   verification:
@@ -102,11 +102,11 @@ jobs:
           xargs sed -i -e s/latest/v1.0.0-${{ github.sha }}/g
 
       - name: Set up Helm
-        uses: azure/setup-helm@v2.1
+        uses: azure/setup-helm@v3.4
         with:
           version: v3.8.1
 
-      - uses: actions/setup-python@v3.1.2
+      - uses: actions/setup-python@v4.3.0
         with:
           python-version: 3.7
 
