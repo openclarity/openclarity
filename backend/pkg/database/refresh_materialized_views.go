@@ -24,15 +24,16 @@ import (
 	"gorm.io/gorm"
 )
 
-const materializedViewRefreshIntervalSecond = 5
+const DefaultViewRefreshIntervalSecond = 5
 
 type refreshFunc func(db *gorm.DB, viewNames []string)
 
 type ViewRefreshHandler struct {
-	mu             sync.Mutex
-	viewsToRefresh map[string][]string
-	tableChanged   map[string]bool
-	refreshFunc    refreshFunc
+	mu                        sync.Mutex
+	viewsToRefresh            map[string][]string
+	tableChanged              map[string]bool
+	refreshFunc               refreshFunc
+	viewRefreshIntervalSecond time.Duration
 }
 
 func (vh *ViewRefreshHandler) TableChanged(table string) {
@@ -92,17 +93,18 @@ func createViewsToRefreshByTable() map[string][]string {
 	return viewsToRefresh
 }
 
-func (db *Handler) SetMaterializedViewHandler() {
+func (db *Handler) SetMaterializedViewHandler(config *DBConfig) {
 	db.ViewRefreshHandler = &ViewRefreshHandler{
-		tableChanged:   make(map[string]bool),
-		viewsToRefresh: createViewsToRefreshByTable(),
+		tableChanged:              make(map[string]bool),
+		viewsToRefresh:            createViewsToRefreshByTable(),
+		viewRefreshIntervalSecond: time.Duration(config.ViewRefreshIntervalSecond) * time.Second,
 	}
 }
 
 func (db *Handler) RefreshMaterializedViews() {
 	for {
 		select {
-		case <-time.After(materializedViewRefreshIntervalSecond * time.Second):
+		case <-time.After(db.ViewRefreshHandler.viewRefreshIntervalSecond):
 			db.ViewRefreshHandler.runRequiredRefreshes(db.DB)
 		}
 	}

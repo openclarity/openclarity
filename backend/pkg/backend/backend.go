@@ -49,13 +49,14 @@ func CreateBackend(dbHandler *_database.Handler) *Backend {
 
 func createDatabaseConfig(config *_config.Config) *_database.DBConfig {
 	return &_database.DBConfig{
-		DriverType:     config.DatabaseDriver,
-		EnableInfoLogs: config.EnableDBInfoLogs,
-		DBPassword:     config.DBPassword,
-		DBUser:         config.DBUser,
-		DBHost:         config.DBHost,
-		DBPort:         config.DBPort,
-		DBName:         config.DBName,
+		DriverType:                config.DatabaseDriver,
+		EnableInfoLogs:            config.EnableDBInfoLogs,
+		DBPassword:                config.DBPassword,
+		DBUser:                    config.DBUser,
+		DBHost:                    config.DBHost,
+		DBPort:                    config.DBPort,
+		DBName:                    config.DBName,
+		ViewRefreshIntervalSecond: config.ViewRefreshIntervalSecond,
 	}
 }
 
@@ -87,7 +88,7 @@ func Run() {
 		go dbHandler.CreateFakeData()
 	}
 
-	dbHandler.SetMaterializedViewHandler()
+	dbHandler.SetMaterializedViewHandler(dbConfig)
 	if config.DatabaseDriver == _database.DBDriverTypePostgres {
 		dbHandler.ViewRefreshHandler.RegisterViewRefreshHandler(_database.RefreshMaterializedViews)
 		go dbHandler.RefreshMaterializedViews()

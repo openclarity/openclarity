@@ -27,13 +27,14 @@ const (
 	BackendRestPort    = "BACKEND_REST_PORT"
 	HealthCheckAddress = "HEALTH_CHECK_ADDRESS"
 
-	DBNameEnvVar     = "DB_NAME"
-	DBUserEnvVar     = "DB_USER"
-	DBPasswordEnvVar = "DB_PASS"
-	DBHostEnvVar     = "DB_HOST"
-	DBPortEnvVar     = "DB_PORT_NUMBER"
-	DatabaseDriver   = "DATABASE_DRIVER"
-	EnableDBInfoLogs = "ENABLE_DB_INFO_LOGS"
+	DBNameEnvVar              = "DB_NAME"
+	DBUserEnvVar              = "DB_USER"
+	DBPasswordEnvVar          = "DB_PASS"
+	DBHostEnvVar              = "DB_HOST"
+	DBPortEnvVar              = "DB_PORT_NUMBER"
+	DatabaseDriver            = "DATABASE_DRIVER"
+	EnableDBInfoLogs          = "ENABLE_DB_INFO_LOGS"
+	ViewRefreshIntervalEnvVar = "VIEW_REFRESH_INTERVAL"
 
 	FakeDataEnvVar           = "FAKE_DATA"
 	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"
@@ -44,15 +45,16 @@ type Config struct {
 	HealthCheckAddress string
 
 	// database config
-	DatabaseDriver           string
-	DBName                   string
-	DBUser                   string
-	DBPassword               string
-	DBHost                   string
-	DBPort                   string
-	EnableDBInfoLogs         bool
-	EnableFakeData           bool
-	EnableFakeRuntimeScanner bool
+	DatabaseDriver            string
+	DBName                    string
+	DBUser                    string
+	DBPassword                string
+	DBHost                    string
+	DBPort                    string
+	EnableDBInfoLogs          bool
+	EnableFakeData            bool
+	EnableFakeRuntimeScanner  bool
+	ViewRefreshIntervalSecond int
 }
 
 func LoadConfig() (*Config, error) {
@@ -67,6 +69,7 @@ func LoadConfig() (*Config, error) {
 	config.DBHost = viper.GetString(DBHostEnvVar)
 	config.DBPort = viper.GetString(DBPortEnvVar)
 	config.DBName = viper.GetString(DBNameEnvVar)
+	config.ViewRefreshIntervalSecond = viper.GetInt(ViewRefreshIntervalEnvVar)
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 	config.EnableFakeRuntimeScanner = viper.GetBool(FakeRuntimeScannerEnvVar)

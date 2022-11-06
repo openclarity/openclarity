@@ -387,13 +387,14 @@ type Handler struct {
 }
 
 type DBConfig struct {
-	EnableInfoLogs bool
-	DriverType     string
-	DBPassword     string
-	DBUser         string
-	DBHost         string
-	DBPort         string
-	DBName         string
+	EnableInfoLogs            bool
+	DriverType                string
+	DBPassword                string
+	DBUser                    string
+	DBHost                    string
+	DBPort                    string
+	DBName                    string
+	ViewRefreshIntervalSecond int
 }
 
 func (db *Handler) ObjectTree() ObjectTree {
