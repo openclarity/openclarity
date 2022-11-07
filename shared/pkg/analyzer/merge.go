@@ -297,11 +297,10 @@ func toBomDescriptorComponent(sourceType utils.SourceType, srcMetadata *cdx.Meta
 	}
 	metaDataComponent := srcMetadata.Component
 
-	// nolint:exhaustive
 	switch sourceType {
 	case utils.IMAGE:
 		metaDataComponent.Type = cdx.ComponentTypeContainer
-	case utils.DIR, utils.FILE:
+	case utils.DIR, utils.FILE, utils.ROOTFS:
 		metaDataComponent.Type = cdx.ComponentTypeFile
 		metaDataComponent.Hashes = &[]cdx.Hash{
 			{
@@ -309,6 +308,7 @@ func toBomDescriptorComponent(sourceType utils.SourceType, srcMetadata *cdx.Meta
 				Value:     hash,
 			},
 		}
+	case utils.SBOM:
 	}
 
 	return metaDataComponent

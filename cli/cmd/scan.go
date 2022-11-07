@@ -161,8 +161,10 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		}
 
 		bomMetaComponent := bom.Metadata.Component
-
-		hash = cdx_helper.GetComponentHash(bomMetaComponent)
+		hash, err = cdx_helper.GetComponentHash(bomMetaComponent)
+		if err != nil {
+			logger.Fatalf("Unable to get hash from src BOM: %v", err)
+		}
 		// If the target and type of source are not defined, we will get them from SBOM.
 		// For example in the case of dependency-track.
 		mergedResults.SetName(bomMetaComponent.Name)

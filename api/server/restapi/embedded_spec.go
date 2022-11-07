@@ -2015,7 +2015,8 @@ func init() {
       "enum": [
         "IMAGE",
         "DIRECTORY",
-        "FILE"
+        "FILE",
+        "ROOTFS"
       ]
     },
     "ResourceVulnerabilityScan": {
@@ -2959,7 +2960,8 @@ func init() {
         "enum": [
           "IMAGE",
           "DIRECTORY",
-          "FILE"
+          "FILE",
+          "ROOTFS"
         ],
         "type": "string"
       },
@@ -3262,7 +3264,8 @@ func init() {
               "enum": [
                 "IMAGE",
                 "DIRECTORY",
-                "FILE"
+                "FILE",
+                "ROOTFS"
               ],
               "type": "string"
             },
@@ -6047,7 +6050,8 @@ func init() {
       "enum": [
         "IMAGE",
         "DIRECTORY",
-        "FILE"
+        "FILE",
+        "ROOTFS"
       ]
     },
     "ResourceVulnerabilityScan": {
@@ -6993,7 +6997,8 @@ func init() {
         "enum": [
           "IMAGE",
           "DIRECTORY",
-          "FILE"
+          "FILE",
+          "ROOTFS"
         ],
         "type": "string"
       },

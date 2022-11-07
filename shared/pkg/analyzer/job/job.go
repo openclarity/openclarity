@@ -20,6 +20,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
@@ -30,6 +31,8 @@ func CreateAnalyzerJob(analyzerName string, config *config.Config, logger *logru
 		return syft.New(config, logger, resultChan)
 	case cdx_gomod.AnalyzerName:
 		return cdx_gomod.New(config, logger, resultChan)
+	case trivy.AnalyzerName:
+		return trivy.New(config, logger, resultChan)
 	default:
 		logger.Fatalf("Unknown analyzer: %v", analyzerName)
 	}

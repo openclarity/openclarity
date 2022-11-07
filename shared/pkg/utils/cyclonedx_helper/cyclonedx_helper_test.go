@@ -29,6 +29,7 @@ func TestGetComponentHash(t *testing.T) {
 		name string
 		args args
 		want string
+		err  string
 	}{
 		{
 			name: "hashes is nil",
@@ -36,6 +37,7 @@ func TestGetComponentHash(t *testing.T) {
 				component: &cdx.Component{},
 			},
 			want: "",
+			err:  "no sha256 hash found in component",
 		},
 		{
 			name: "hashes is empty",
@@ -45,6 +47,7 @@ func TestGetComponentHash(t *testing.T) {
 				},
 			},
 			want: "",
+			err:  "no sha256 hash found in component",
 		},
 		{
 			name: "sha256 hash exist",
@@ -119,8 +122,9 @@ func TestGetComponentHash(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetComponentHash(tt.args.component); got != tt.want {
-				t.Errorf("GetComponentHash() = %v, want %v", got, tt.want)
+			got, err := GetComponentHash(tt.args.component)
+			if got != tt.want || (err != nil && err.Error() != tt.err) {
+				t.Errorf("GetComponentHash() = %v, want %v, err %v", got, tt.want, tt.err)
 			}
 		})
 	}
