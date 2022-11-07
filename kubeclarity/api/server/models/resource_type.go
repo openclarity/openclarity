@@ -34,6 +34,9 @@ const (
 
 	// ResourceTypeFILE captures enum value "FILE"
 	ResourceTypeFILE ResourceType = "FILE"
+
+	// ResourceTypeROOTFS captures enum value "ROOTFS"
+	ResourceTypeROOTFS ResourceType = "ROOTFS"
 )
 
 // for schema
@@ -41,7 +44,7 @@ var resourceTypeEnum []interface{}
 
 func init() {
 	var res []ResourceType
-	if err := json.Unmarshal([]byte(`["IMAGE","DIRECTORY","FILE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["IMAGE","DIRECTORY","FILE","ROOTFS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

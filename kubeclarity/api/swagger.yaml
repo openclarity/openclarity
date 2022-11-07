@@ -96,6 +96,7 @@ definitions:
       - IMAGE
       - DIRECTORY
       - FILE
+      - ROOTFS
 
   ResourceLayerCommand:
     type: 'object'

@@ -16,6 +16,7 @@
 package cyclonedx_helper // nolint:revive,stylecheck
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -30,10 +31,15 @@ const (
 	InputTypeFile      = "file"
 )
 
-func GetComponentHash(component *cdx.Component) string {
+func GetComponentHash(component *cdx.Component) (string, error) {
 	expectedHashPartsLen := 2
 
 	var lastHash string
+
+	if component == nil {
+		return "", fmt.Errorf("missing component")
+	}
+
 	// In the case of an Image, the BOM version contains the manifestDigest
 	//    <component type="container">
 	//      <name>poke/test:latest</name>
@@ -48,6 +54,7 @@ func GetComponentHash(component *cdx.Component) string {
 			}
 		}
 	}
+
 	// There can be multiple hashes in the case of cycloneDX BOM metadata
 	// If sha265 hash exist use it, if not use the last one in the list
 	// Usually hashes orders in the list are ascending by the algorithm:
@@ -65,11 +72,15 @@ func GetComponentHash(component *cdx.Component) string {
 				lastHash = hashParts[1]
 			}
 			if hash.Algorithm == cdx.HashAlgoSHA256 {
-				return lastHash
+				return lastHash, nil
 			}
 		}
 	}
-	return lastHash
+
+	if lastHash == "" {
+		return "", fmt.Errorf("no sha256 hash found in component")
+	}
+	return lastHash, nil
 }
 
 func GetComponentLicenses(component cdx.Component) []string {
@@ -78,6 +89,7 @@ func GetComponentLicenses(component cdx.Component) []string {
 	//          <id>MIT</id>
 	//          <url>https://spdx.org/licenses/MIT.html</url>
 	//        </license>
+	//        <expression>GPL-3.0</expression>
 	//      </licenses>
 	if component.Licenses == nil || len(*component.Licenses) == 0 {
 		return nil
@@ -85,7 +97,21 @@ func GetComponentLicenses(component cdx.Component) []string {
 
 	licenses := []string{}
 	for _, license := range *component.Licenses {
-		licenses = append(licenses, license.License.ID)
+		// Licenses may be one of either cyclonedx License type or an
+		// spdx license expression but not both.
+		// https://github.com/CycloneDX/specification/blob/1.4/schema/bom-1.4.xsd#L1398
+		// https://spdx.github.io/spdx-spec/v2.3/SPDX-license-expressions/
+		if license.License != nil {
+			licenses = append(licenses, license.License.ID)
+		}
+
+		if license.Expression != "" {
+			// TODO(sambetts) We may need to post-process this
+			// expression it can contain multiple licenses like
+			// "GPL-3.0 OR LGPL-2.0" etc, see the spdx spec for
+			// more details.
+			licenses = append(licenses, license.Expression)
+		}
 	}
 
 	return licenses
