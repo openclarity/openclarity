@@ -6,8 +6,6 @@ import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersPro
 import ApplicationResourcesTable from './ApplicationResourcesTable';
 import ApplicationResourcesDetails from './ApplicationResourcesDetails';
 
-import './application-resources.scss';
-
 export const ApplicationResourcesLink = ({count, applicationID, packageID, title}) => {
     const filtersDispatch = useFilterDispatch();
 

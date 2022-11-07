@@ -2,7 +2,7 @@ run:
   skip-dirs:
     - api
     - ui
-  timeout: 5m
+  timeout: 15m
 
 linters-settings:
   golint:
@@ -15,6 +15,11 @@ linters-settings:
   gomoddirectives:
     # Allow local `replace` directives. Default is false.
     replace-local: true
+    # List of allowed `replace` directives. Default is empty.
+    replace-allow-list:
+      # replace containerd GHSA-5ffw-gxpp-mxpf
+      - github.com/containerd/containerd
+
   gosec:
     # To specify a set of rules to explicitly exclude.
     # Available rules: https://github.com/securego/gosec#available-rules
@@ -46,6 +51,12 @@ linters:
     - tagliatelle # Allow json(camel)
     - scopelint # deprecated
     - golint # deprecated
+    - nolintlint # Allow nolint
+    - varnamelen # Allow short var names
+    - nosnakecase # Allow snake case (we are using _ in some named imports)
+    - ireturn # Allow returning with iterfaces
+    - exhaustruct # Allow structures with uninitialized fields
+    - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/kubeclarity)"`
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source

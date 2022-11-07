@@ -37,6 +37,8 @@ kubeclarity:
 
   enableDBInfoLog: false
 
+  podAnnotations: {}
+
   service:
     type: ClusterIP
 
@@ -72,6 +74,16 @@ kubeclarity-runtime-scan:
   labels:
     app: kubeclarity-scanner
     sidecar.istio.io/inject: "false"
+
+  ## Scanner pods tolerations.
+  tolerations:
+#   - key: key1
+#     operator: Exists
+#     effect: NoSchedule
+#   - key: key1
+#     operator: Equal
+#     effect: NoSchedule
+#     value: "value1"
 
   registry:
     skipVerifyTlS: "false"
@@ -161,7 +173,7 @@ kubeclarity-grype-server:
   ## Docker Image values.
   docker:
     imageRepo: "gcr.io/eticloud/k8sec"
-    imageTag: "v0.1.2"
+    imageTag: "v0.1.4"
     imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
@@ -212,22 +224,28 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   enabled: true
 
-  ## ConfigMap with scripts to be run at first boot
-  ## NOTE: This will override initdbScripts
-  # initdbScriptsConfigMap:
+  ## Specify posgtresql image
+  # image:
+    # registry: docker.io
+    # repository: bitnami/postgresql
+    # tag: 14.4.0-debian-11-r4
 
-  ## Secret with scripts to be run at first boot (in case it contains sensitive information)
-  ## NOTE: This can work along initdbScripts or initdbScriptsConfigMap
-  # initdbScriptsSecret:
-
-  ## Specify the PostgreSQL username and password to execute the initdb scripts
-  # initdbUser:
-  # initdbPassword:
+  ## initdb parameters
+  # initdb:
+    ##  ConfigMap with scripts to be run at first boot
+    ##  NOTE: This will override initdb.scripts
+    # scriptsConfigMap
+    ##  Secret with scripts to be run at first boot (in case it contains sensitive information)
+    ##  NOTE: This can work along initdbScripts or initdbScriptsConfigMap
+    # scriptsSecret:
+    ## Specify the PostgreSQL username and password to execute the initdb scripts
+    # user:
+    # password:
 
   ## Setup database name and password
-  existingSecret: kubeclarity-postgresql-secret
-  postgresqlDatabase: kubeclarity
-  # secretKey: postgresql-password
+  auth:
+    existingSecret: kubeclarity-postgresql-secret
+    database: kubeclarity
 
   serviceAccount:
     enabled: true

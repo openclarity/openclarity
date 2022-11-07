@@ -11401,7 +11401,7 @@
   },
   "source": {
     "type": "image",
-    "name": "",
-    "hash": ""
+    "name": "nginx",
+    "hash": "43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"
   }
 }

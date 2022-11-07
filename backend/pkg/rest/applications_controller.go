@@ -161,7 +161,8 @@ func (s *Server) PostApplicationsVulnerabilityScan(params operations.PostApplica
 }
 
 func (s *Server) handleApplicationsVulnerabilityScan(application *database.Application,
-	applicationVulnerabilityScan *types.ApplicationVulnerabilityScan, vulnerabilitySource models.VulnerabilitySource) error {
+	applicationVulnerabilityScan *types.ApplicationVulnerabilityScan, vulnerabilitySource models.VulnerabilitySource,
+) error {
 	transactionParams := &database.TransactionParams{
 		FixVersions:         make(map[database.PkgVulID]string),        // will be populated during object creation
 		Analyzers:           make(map[database.ResourcePkgID][]string), // will be populated during object creation
@@ -204,7 +205,8 @@ func (s *Server) handleApplicationsVulnerabilityScan(application *database.Appli
 }
 
 func (s *Server) updateApplicationWithVulnerabilityScan(application *database.Application, applicationVulnerabilityScan *types.ApplicationVulnerabilityScan,
-	transactionParams *database.TransactionParams, shouldReplaceResources bool) *database.Application {
+	transactionParams *database.TransactionParams, shouldReplaceResources bool,
+) *database.Application {
 	currentResourceIDToIndex := make(map[string]int)
 	for i, resource := range application.Resources {
 		currentResourceIDToIndex[resource.ID] = i

@@ -16,32 +16,49 @@
 package database
 
 import (
+	"fmt"
+	"strings"
+
+	dockle_types "github.com/Portshift/dockle/pkg/types"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/kubeclarity/api/server/models"
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 )
 
 const (
 	cisDockerBenchmarkCheckTableName            = "cis_d_b_checks"
+	cisDockerBenchmarkChecksViewName            = "cis_d_b_checks_view"
 	applicationCisDockerBenchmarkChecksViewName = "application_cis_d_b_checks"
 
 	columnApplicationCisDockerBenchmarkChecksViewApplicationID = "application_id"
+	columnCisDockerBenchmarkChecksViewResourceID               = "resource_id"
+	columnCode                                                 = "code"
+	columnLevel                                                = "level"
 )
 
 type CISDockerBenchmarkCheck struct {
 	ID string `gorm:"primarykey" faker:"-"` // consists of the Code name
 
-	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: code3, code2, code1"`
+	Code         string `json:"code,omitempty" gorm:"column:code" faker:"oneof: CIS-DI-0006, CIS-DI-0005, CIS-DI-0001"`
 	Level        int    `json:"level,omitempty" gorm:"column:level" faker:"oneof: 3, 2, 1"`
 	Descriptions string `json:"descriptions" gorm:"column:descriptions" faker:"oneof: desc3, desc2, desc1"`
 }
 
+type CISDockerBenchmarkCheckView struct {
+	CISDockerBenchmarkCheck
+	ResourceID string `json:"resource_id,omitempty" gorm:"column:resource_id"`
+}
+
 type CISDockerBenchmarkResultTable interface {
 	CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error)
+	GetCISDockerBenchmarkResultsAndTotal(params operations.GetCisdockerbenchmarkresultsIDParams) ([]CISDockerBenchmarkCheckView, int64, error)
 }
 
 type CISDockerBenchmarkResultTableHandler struct {
-	table *gorm.DB
+	applicationsCisDockerBenchmarkChecksView *gorm.DB
+	cisDockerBenchmarkChecksView             *gorm.DB
 }
 
 func (CISDockerBenchmarkCheck) TableName() string {
@@ -55,7 +72,7 @@ const totalLevelCountStmnt = "SUM(total_info_count) AS total_info_count," +
 func (c *CISDockerBenchmarkResultTableHandler) CountPerLevel(filters *CountFilters) ([]*models.CISDockerBenchmarkLevelCount, error) {
 	var counters CISDockerBenchmarkLevelCounters
 
-	tx := c.setCountFilters(c.table, filters)
+	tx := c.setCountFilters(c.applicationsCisDockerBenchmarkChecksView, filters)
 
 	if err := tx.Select(totalLevelCountStmnt).Scan(&counters).Error; err != nil {
 		return nil, err
@@ -74,4 +91,73 @@ func (c *CISDockerBenchmarkResultTableHandler) setCountFilters(tx *gorm.DB, filt
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx
+}
+
+func (c *CISDockerBenchmarkResultTableHandler) GetCISDockerBenchmarkResultsAndTotal(params operations.GetCisdockerbenchmarkresultsIDParams) ([]CISDockerBenchmarkCheckView, int64, error) {
+	var count int64
+	var cisDockerBenchmarkResults []CISDockerBenchmarkCheckView
+
+	tx := FilterIs(c.cisDockerBenchmarkChecksView, columnCisDockerBenchmarkChecksViewResourceID, []string{params.ID})
+
+	// get total item count with the set filters
+	if err := tx.Count(&count).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count total: %v", err)
+	}
+
+	sortOrder, err := createCISDockerBenchmarkResultsSortOrder(params.SortKey, params.SortDir)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create sort order: %v", err)
+	}
+
+	// get specific ordered items
+	if err := tx.Scopes().
+		Order(sortOrder).
+		Find(&cisDockerBenchmarkResults).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return cisDockerBenchmarkResults, count, nil
+}
+
+func CISDockerBenchmarkResultFromDB(result *CISDockerBenchmarkCheckView) *models.CISDockerBenchmarkResultsEX {
+	return &models.CISDockerBenchmarkResultsEX{
+		Code:  result.Code,
+		Title: dockle_types.TitleMap[result.Code],
+		Desc:  result.Descriptions,
+		Level: convertToAPILevel(result.Level),
+	}
+}
+
+func convertToAPILevel(level int) models.CISDockerBenchmarkLevel {
+	switch level {
+	case int(CISDockerBenchmarkLevelINFO):
+		return models.CISDockerBenchmarkLevelINFO
+	case int(CISDockerBenchmarkLevelWARN):
+		return models.CISDockerBenchmarkLevelWARN
+	case int(CISDockerBenchmarkLevelFATAL):
+		return models.CISDockerBenchmarkLevelFATAL
+	default:
+		log.Errorf("Invalid level: %v", level)
+		return models.CISDockerBenchmarkLevelINFO
+	}
+}
+
+func createCISDockerBenchmarkResultsSortOrder(sortKey string, sortDir *string) (string, error) {
+	sortKeyColumnName, err := getCISDockerBenchmarkResultsSortKeyColumnName(sortKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to get sort key column name: %v", err)
+	}
+
+	return fmt.Sprintf("%v %v", sortKeyColumnName, strings.ToLower(*sortDir)), nil
+}
+
+func getCISDockerBenchmarkResultsSortKeyColumnName(key string) (string, error) {
+	switch models.CISDockerBenchmarkResultsSortKey(key) {
+	case models.CISDockerBenchmarkResultsSortKeyCode:
+		return columnCode, nil
+	case models.CISDockerBenchmarkResultsSortKeyLevel:
+		return columnLevel, nil
+	default:
+		return "", fmt.Errorf("unknown sort key (%v)", key)
+	}
 }

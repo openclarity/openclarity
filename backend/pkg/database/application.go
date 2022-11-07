@@ -133,7 +133,7 @@ func (a *ApplicationTableHandler) UpdateInfo(app *Application, params *Transacti
 	return nil
 }
 
-// nolint:staticcheck
+// nolint:staticcheck,revive
 func createContextWithValues(params *TransactionParams) context.Context {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, fixVersionsContextValueName, params.FixVersions)

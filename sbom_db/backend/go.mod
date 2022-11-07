@@ -1,6 +1,6 @@
 module github.com/openclarity/kubeclarity/sbom_db/backend
 
-go 1.17
+go 1.19
 
 require (
 	github.com/Portshift/go-utils v0.0.0-20211213074910-dd69e9ff3e27

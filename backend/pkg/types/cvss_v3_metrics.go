@@ -21,7 +21,6 @@ import (
 )
 
 type CVSSV3Metrics struct {
-
 	// base score
 	BaseScore float64 `json:"baseScore,omitempty"`
 

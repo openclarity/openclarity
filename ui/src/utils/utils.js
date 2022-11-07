@@ -15,4 +15,4 @@ export const getItemsString = items => {
 
 export const toCapitalized = string => string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 
-export const BoldText = ({children}) => <span style={{fontWeight: "bold"}}>{children}</span>;
+export const BoldText = ({children, style={}}) => <span style={{fontWeight: "bold", ...style}}>{children}</span>;

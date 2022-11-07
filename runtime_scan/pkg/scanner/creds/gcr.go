@@ -23,6 +23,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// nolint:gosec
 const (
 	GcrSaSecretName      = "gcr-sa"
 	gcrSaSecretFileName  = "sa.json"

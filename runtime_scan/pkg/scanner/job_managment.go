@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
+	_creds "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner/creds"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 	stringsutils "github.com/openclarity/kubeclarity/runtime_scan/pkg/utils/strings"
 	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -39,6 +40,8 @@ import (
 
 const (
 	cisDockerBenchmarkScannerContainerName = "cis-docker-benchmark-scanner"
+	localImageIDDockerPrefix               = "docker://sha256"
+	localImageIDSHA256Prefix               = "sha256:"
 )
 
 // run jobs.
@@ -144,7 +147,7 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 	case <-data.resultChan:
 		log.WithFields(s.logFields).Infof("Image scanned result has arrived. imageID=%v", data.imageID)
 	case <-ticker.C:
-		errMsg := fmt.Errorf("job was timeout. imageID=%v", data.imageID)
+		errMsg := fmt.Errorf("job has timed out. imageID=%v", data.imageID)
 		log.WithFields(s.logFields).Warn(errMsg)
 		s.Lock()
 		data.success = false
@@ -161,7 +164,18 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 	}
 }
 
+func validateImageID(imageID string) error {
+	// image ids with no name and only hash are not pullable from the registry, so we can't scan them.
+	if strings.HasPrefix(imageID, localImageIDDockerPrefix) || strings.HasPrefix(imageID, localImageIDSHA256Prefix) {
+		return fmt.Errorf("scanning of local docker images is not supported. The Image must be present in the image registry. ImageID=%v", imageID)
+	}
+	return nil
+}
+
 func (s *Scanner) runJob(data *scanData) (*batchv1.Job, error) {
+	if err := validateImageID(data.imageID); err != nil {
+		return nil, fmt.Errorf("imageID validation failed: %v", err)
+	}
 	job, err := s.createJob(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create job object. imageID=%v: %v", data.imageID, err)
@@ -280,7 +294,7 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	setJobImageNameToScan(job, podContext.imageName)
 	if podContext.imagePullSecret != "" {
 		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", podContext.imageName)
-		setJobImagePullSecret(job, podContext.imagePullSecret)
+		setJobDockerConfigFromImagePullSecret(job, podContext.imagePullSecret)
 	} else {
 		// Use private repo sa credentials only if there is no imagePullSecret
 		for _, adder := range s.credentialAdders {
@@ -304,18 +318,36 @@ func removeCISDockerBenchmarkScannerFromJob(job *batchv1.Job) {
 	job.Spec.Template.Spec.Containers = containers
 }
 
-func setJobImagePullSecret(job *batchv1.Job, secretName string) {
-	for i := range job.Spec.Template.Spec.Containers {
-		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{
-			Name: shared.ImagePullSecret, ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: secretName,
+// Create docker config from imagePullSecret that contains the username and the password required to pull the image.
+// We need to do the following:
+// 1. Create a volume that holds the `secretName` data
+// 2. Mount the volume into each container to a specific path (`BasicVolumeMountPath`/`DockerConfigFileName`)
+// 3. Set `DOCKER_CONFIG` to point to the directory that contains the config.json.
+func setJobDockerConfigFromImagePullSecret(job *batchv1.Job, secretName string) {
+	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
+		Name: _creds.BasicVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: secretName,
+				Items: []corev1.KeyToPath{
+					{
+						Key:  corev1.DockerConfigJsonKey,
+						Path: _creds.DockerConfigFileName,
 					},
-					Key: corev1.DockerConfigJsonKey,
 				},
 			},
+		},
+	})
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+			Name:      _creds.BasicVolumeName,
+			ReadOnly:  true,
+			MountPath: _creds.BasicVolumeMountPath,
+		})
+		container.Env = append(container.Env, corev1.EnvVar{
+			Name:  _creds.DockerConfigEnvVar,
+			Value: _creds.BasicVolumeMountPath,
 		})
 	}
 }

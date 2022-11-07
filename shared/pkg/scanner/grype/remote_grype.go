@@ -72,14 +72,14 @@ func (s *RemoteScanner) Run(sourceType utils.SourceType, userInput string) error
 }
 
 func (s *RemoteScanner) run(sbomInputFilePath string) {
-	sbomInputFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(sbomInputFilePath, s.logger)
+	syftJSONInputFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(sbomInputFilePath, s.logger)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to convert sbom file: %w", err), s.logger)
 		return
 	}
 	defer cleanup()
 
-	syftJSON, err := os.ReadFile(sbomInputFilePath)
+	syftJSON, err := os.ReadFile(syftJSONInputFilePath)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to read input file after conversion: %w", err), s.logger)
 		return
@@ -91,8 +91,14 @@ func (s *RemoteScanner) run(sbomInputFilePath string) {
 		return
 	}
 
+	userInput, hash, err := getOriginalInputAndHashFromSBOM(sbomInputFilePath)
+	if err != nil {
+		ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
+		return
+	}
+
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(*doc, sbomInputFilePath, ScannerName)
+	s.resultChan <- CreateResults(*doc, userInput, ScannerName, hash)
 }
 
 func (s *RemoteScanner) scanSbomWithGrypeServer(sbom []byte) (*grype_models.Document, error) {
@@ -110,5 +116,6 @@ func (s *RemoteScanner) scanSbomWithGrypeServer(sbom []byte) (*grype_models.Docu
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal vulnerabilities document: %v", err)
 	}
+
 	return &doc, nil
 }
