@@ -34,7 +34,7 @@ const (
 	DBPortEnvVar              = "DB_PORT_NUMBER"
 	DatabaseDriver            = "DATABASE_DRIVER"
 	EnableDBInfoLogs          = "ENABLE_DB_INFO_LOGS"
-	ViewRefreshIntervalEnvVar = "VIEW_REFRESH_INTERVAL"
+	ViewRefreshIntervalEnvVar = "DB_VIEW_REFRESH_INTERVAL"
 
 	FakeDataEnvVar           = "FAKE_DATA"
 	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"

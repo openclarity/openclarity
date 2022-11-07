@@ -65,12 +65,12 @@ var viewsList = []string{
 }
 
 const (
-	createViewCommand              = "CREATE VIEW"
-	createMaterializedViewCommand  = "CREATE MATERIALIZED VIEW"
-	dropViewCommand                = "DROP VIEW IF EXISTS %s"
-	dropMaterializedViewCommand    = "DROP MATERIALIZED VIEW IF EXISTS %s;"
-	refreshMaterializedViewCommand = "REFRESH MATERIALIZED VIEW CONCURRENTLY %s;"
-	initMaterializedViewCommand    = "REFRESH MATERIALIZED VIEW %s;"
+	createViewCommand                          = "CREATE VIEW"
+	createMaterializedViewCommand              = "CREATE MATERIALIZED VIEW"
+	dropViewCommand                            = "DROP VIEW IF EXISTS %s"
+	dropMaterializedViewCommand                = "DROP MATERIALIZED VIEW IF EXISTS %s;"
+	refreshMaterializedViewConcurrentlyCommand = "REFRESH MATERIALIZED VIEW CONCURRENTLY %s;"
+	refreshMaterializedViewCommand             = "REFRESH MATERIALIZED VIEW %s;"
 )
 
 var (
@@ -424,7 +424,6 @@ func (db *Handler) NewVulnerabilityTable() NewVulnerabilityTable {
 	return &NewVulnerabilityTableHandler{
 		newVulnerabilitiesTable: db.DB.Table(newVulnerabilityTableName),
 		newVulnerabilitiesView:  db.DB.Table(newVulnerabilitiesViewName),
-		viewRefreshHandler:      db.ViewRefreshHandler,
 	}
 }
 

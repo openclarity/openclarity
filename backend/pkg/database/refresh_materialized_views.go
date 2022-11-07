@@ -117,7 +117,7 @@ func (db *Handler) RefreshMaterializedViews() {
 
 func RefreshMaterializedViews(db *gorm.DB, viewNames []string) {
 	for _, viewName := range viewNames {
-		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewConcurrentlyCommand, viewName)).Error; err != nil {
 			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
 		}
 	}
@@ -125,8 +125,8 @@ func RefreshMaterializedViews(db *gorm.DB, viewNames []string) {
 
 func initMaterializedViews(db *gorm.DB, viewNames []string) {
 	for _, viewName := range viewNames {
-		if err := db.Exec(fmt.Sprintf(initMaterializedViewCommand, viewName)).Error; err != nil {
-			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
+		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
+			log.Fatalf("Failed to init materialized %s: %v", viewName, err)
 		}
 	}
 }
