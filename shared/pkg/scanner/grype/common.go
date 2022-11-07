@@ -233,7 +233,11 @@ func getOriginalInputAndHashFromSBOM(inputSBOMFile string) (string, string, erro
 	if err != nil {
 		return "", "", converter.ErrFailedToGetCycloneDXSBOM
 	}
-	hash := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
+
+	hash, err := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to get hash from original SBOM: %w", err)
+	}
 
 	return cdxBOM.Metadata.Component.Name, hash, nil
 }

@@ -26,6 +26,7 @@ type Analyzer struct {
 	OutputFormat string
 	AnalyzerList []string
 	Scope        string
+	TrivyConfig  AnalyzerTrivyConfig
 }
 
 const (
@@ -46,5 +47,6 @@ func LoadAnalyzerConfig() *Analyzer {
 		OutputFormat: viper.GetString(OutputFormat),
 		AnalyzerList: viper.GetStringSlice(AnalyzerList),
 		Scope:        viper.GetString(AnalyzerScope),
+		TrivyConfig:  LoadAnalyzerTrivyConfig(),
 	}
 }

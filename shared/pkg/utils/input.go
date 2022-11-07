@@ -20,10 +20,11 @@ import "fmt"
 type SourceType string
 
 const (
-	SBOM  SourceType = "sbom"
-	IMAGE SourceType = "image"
-	DIR   SourceType = "dir"
-	FILE  SourceType = "file"
+	SBOM   SourceType = "sbom"
+	IMAGE  SourceType = "image"
+	DIR    SourceType = "dir"
+	ROOTFS SourceType = "rootfs"
+	FILE   SourceType = "file"
 )
 
 func ValidateInputType(inputType string) (SourceType, error) {
@@ -36,16 +37,24 @@ func ValidateInputType(inputType string) (SourceType, error) {
 		return DIR, nil
 	case "file", "FILE":
 		return FILE, nil
+	case "rootfs", "ROOTFS":
+		return ROOTFS, nil
 	default:
 		return "", fmt.Errorf("unsupported input type: %s", inputType)
 	}
 }
 
 func CreateSource(sourceType SourceType, src string, localImage bool) string {
-	if sourceType != IMAGE {
+	switch sourceType {
+	case IMAGE:
+		return setImageSource(localImage, src)
+	case ROOTFS, DIR:
+		return fmt.Sprintf("%s:%s", DIR, src)
+	case FILE, SBOM:
+		fallthrough
+	default:
 		return fmt.Sprintf("%s:%s", sourceType, src)
 	}
-	return setImageSource(localImage, src)
 }
 
 func setImageSource(local bool, source string) string {

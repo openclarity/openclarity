@@ -19,6 +19,9 @@ linters-settings:
     replace-allow-list:
       # replace containerd GHSA-5ffw-gxpp-mxpf
       - github.com/containerd/containerd
+      # trivy 0.34.0 requires these replacements
+      - github.com/docker/docker
+      - oras.land/oras-go
 
   gosec:
     # To specify a set of rules to explicitly exclude.
@@ -51,6 +54,10 @@ linters:
     - tagliatelle # Allow json(camel)
     - scopelint # deprecated
     - golint # deprecated
+    - structcheck # deprecated
+    - ifshort # deprecated
+    - deadcode # deprecated
+    - varcheck # deprecated
     - nolintlint # Allow nolint
     - varnamelen # Allow short var names
     - nosnakecase # Allow snake case (we are using _ in some named imports)

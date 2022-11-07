@@ -38,7 +38,7 @@ func GenerateHash(inputType utils.SourceType, source string) (string, error) {
 	case utils.IMAGE:
 		log.Infof("Skip generating hash in the case of image")
 		return "", nil
-	case utils.DIR:
+	case utils.DIR, utils.ROOTFS:
 		hash, err := hashDir(absPath)
 		if err != nil {
 			return "", fmt.Errorf("failed to create hash for directory %s: %v", absPath, err)
