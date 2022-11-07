@@ -84,14 +84,14 @@ func Run() {
 	dbConfig := createDatabaseConfig(config)
 	dbHandler := _database.Init(dbConfig)
 
-	if config.EnableFakeData {
-		go dbHandler.CreateFakeData()
-	}
-
 	dbHandler.SetMaterializedViewHandler(dbConfig)
 	if config.DatabaseDriver == _database.DBDriverTypePostgres {
 		dbHandler.ViewRefreshHandler.RegisterViewRefreshHandler(_database.RefreshMaterializedViews)
 		go dbHandler.RefreshMaterializedViews()
+	}
+
+	if config.EnableFakeData {
+		go dbHandler.CreateFakeData()
 	}
 
 	backend := CreateBackend(dbHandler)
