@@ -79,10 +79,7 @@ func (vh *ViewRefreshHandler) RegisterViewRefreshHandler(f refreshFunc) {
 }
 
 func (vh *ViewRefreshHandler) IsSetViewRefreshHandler() bool {
-	if vh.refreshFunc == nil {
-		return false
-	}
-	return true
+	return vh.refreshFunc != nil
 }
 
 func createViewsToRefreshByTable() map[string][]string {
