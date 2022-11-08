@@ -30,7 +30,7 @@ type refreshFunc func(db *gorm.DB, viewNames []string)
 
 type ViewRefreshHandler struct {
 	mu                        sync.Mutex
-	viewsToRefresh            map[string][]string
+	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed
 	tableChanged              map[string]bool
 	refreshFunc               refreshFunc
 	viewRefreshIntervalSecond time.Duration
