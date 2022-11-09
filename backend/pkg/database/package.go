@@ -116,7 +116,7 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 		return fmt.Errorf("failed to create package: %v", err)
 	}
 
-	p.tableChanged()
+	p.viewRefreshHandler.TableChanged(packageTableName)
 
 	return nil
 }
@@ -409,10 +409,4 @@ func (p *PackageTableHandler) createGetIDsParams(params GetPackagesParams) GetID
 	}
 
 	return retParams
-}
-
-func (p *PackageTableHandler) tableChanged() {
-	if p.viewRefreshHandler != nil {
-		p.viewRefreshHandler.TableChanged(packageTableName)
-	}
 }

@@ -147,9 +147,7 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 }
 
 func (o *ObjectTreeHandler) tableChanged(tables ...string) {
-	if o.viewRefreshHandler != nil {
-		for _, table := range tables {
-			o.viewRefreshHandler.TableChanged(table)
-		}
+	for _, table := range tables {
+		o.viewRefreshHandler.TableChanged(table)
 	}
 }

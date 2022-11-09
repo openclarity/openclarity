@@ -260,9 +260,7 @@ func (j *JoinTablesHandler) setPackageResourcesFilters(tx *gorm.DB, params opera
 }
 
 func (j *JoinTablesHandler) tableChanged(tables ...string) {
-	if j.viewRefreshHandler != nil {
-		for _, table := range tables {
-			j.viewRefreshHandler.TableChanged(table)
-		}
+	for _, table := range tables {
+		j.viewRefreshHandler.TableChanged(table)
 	}
 }

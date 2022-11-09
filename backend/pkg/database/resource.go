@@ -229,7 +229,7 @@ func (r *ResourceTableHandler) Create(resource *Resource) error {
 		return fmt.Errorf("failed to create resource: %v", err)
 	}
 
-	r.tableChanged()
+	r.viewRefreshHandler.TableChanged(resourceTableName)
 
 	return nil
 }
@@ -523,10 +523,4 @@ func (r *ResourceTableHandler) setCountFilters(tx *gorm.DB, filters *CountFilter
 	tx = CISDockerBenchmarkLevelFilterGte(tx, columnCISDockerBenchmarkLevelCountersHighestLevel, filters.CisDockerBenchmarkLevelGte)
 
 	return tx, nil
-}
-
-func (r *ResourceTableHandler) tableChanged() {
-	if r.viewRefreshHandler != nil {
-		r.viewRefreshHandler.TableChanged(resourceTableName)
-	}
 }

@@ -26,17 +26,20 @@ import (
 
 const DefaultViewRefreshIntervalSecond = 5
 
-type refreshFunc func(db *gorm.DB, viewNames []string)
+type refreshFunc func(db *gorm.DB, viewNames map[string]bool)
 
 type ViewRefreshHandler struct {
 	mu                        sync.Mutex
-	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed
+	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed due to table changes
 	tableChanged              map[string]bool
 	refreshFunc               refreshFunc
 	viewRefreshIntervalSecond time.Duration
 }
 
 func (vh *ViewRefreshHandler) TableChanged(table string) {
+	if !vh.IsSetViewRefreshHandler() {
+		return
+	}
 	vh.mu.Lock()
 	defer vh.mu.Unlock()
 	vh.tableChanged[table] = true
@@ -55,27 +58,30 @@ func (vh *ViewRefreshHandler) runRequiredRefreshes(db *gorm.DB) {
 	vh.refreshFunc(db, viewNames)
 }
 
-func (vh *ViewRefreshHandler) getViewsToRefresh() []string {
+// getViewsToRefresh creates a list of views that should be refreshed due to table changes.
+// The viewsToRefresh is the map of tables that shows which views should be refreshed due to table changes
+func (vh *ViewRefreshHandler) getViewsToRefresh() map[string]bool {
 	viewToRefresh := make(map[string]bool)
 	tables := vh.GetAndClearChanges()
-	for table, ok := range tables {
-		if ok {
-			for _, viewName := range vh.viewsToRefresh[table] {
-				viewToRefresh[viewName] = true
-			}
+	for table, _ := range tables {
+		for _, viewName := range vh.viewsToRefresh[table] {
+			viewToRefresh[viewName] = true
+
 		}
 	}
-	views := make([]string, 0)
-	for viewName, ok := range viewToRefresh {
-		if ok {
-			views = append(views, viewName)
-		}
-	}
-	return views
+
+	return viewToRefresh
 }
 
-func (vh *ViewRefreshHandler) RegisterViewRefreshHandler(f refreshFunc) {
-	vh.refreshFunc = f
+func (vh *ViewRefreshHandler) RegisterViewRefreshHandlers(dbDriver string) {
+	switch dbDriver {
+	case DBDriverTypePostgres:
+		vh.refreshFunc = RefreshMaterializedViews
+	}
+}
+
+func (vh *ViewRefreshHandler) registerViewRefreshHandler(f refreshFunc, tables ...string) {
+
 }
 
 func (vh *ViewRefreshHandler) IsSetViewRefreshHandler() bool {
@@ -106,14 +112,17 @@ func (db *Handler) SetMaterializedViewHandler(config *DBConfig) {
 }
 
 func (db *Handler) RefreshMaterializedViews() {
+	if !db.ViewRefreshHandler.IsSetViewRefreshHandler() {
+		return
+	}
 	for {
 		<-time.After(db.ViewRefreshHandler.viewRefreshIntervalSecond)
 		db.ViewRefreshHandler.runRequiredRefreshes(db.DB)
 	}
 }
 
-func RefreshMaterializedViews(db *gorm.DB, viewNames []string) {
-	for _, viewName := range viewNames {
+func RefreshMaterializedViews(db *gorm.DB, viewNames map[string]bool) {
+	for viewName, _ := range viewNames {
 		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewConcurrentlyCommand, viewName)).Error; err != nil {
 			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
 		}

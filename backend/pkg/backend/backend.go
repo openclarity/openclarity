@@ -85,10 +85,8 @@ func Run() {
 	dbHandler := _database.Init(dbConfig)
 
 	dbHandler.SetMaterializedViewHandler(dbConfig)
-	if config.DatabaseDriver == _database.DBDriverTypePostgres {
-		dbHandler.ViewRefreshHandler.RegisterViewRefreshHandler(_database.RefreshMaterializedViews)
-		go dbHandler.RefreshMaterializedViews()
-	}
+	dbHandler.ViewRefreshHandler.RegisterViewRefreshHandlers(config.DatabaseDriver)
+	go dbHandler.RefreshMaterializedViews()
 
 	if config.EnableFakeData {
 		go dbHandler.CreateFakeData()

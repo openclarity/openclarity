@@ -236,7 +236,12 @@ func (db *Handler) CreateFakeData() {
 		}
 
 		if db.ViewRefreshHandler.IsSetViewRefreshHandler() {
-			db.ViewRefreshHandler.refreshFunc(db.DB, []string{packageViewName, resourceViewName, applicationViewName, vulnerabilityViewName})
+			db.ViewRefreshHandler.refreshFunc(db.DB, map[string]bool{
+				packageViewName:       true,
+				resourceViewName:      true,
+				applicationViewName:   true,
+				vulnerabilityViewName: true,
+			})
 		}
 	}
 }
