@@ -26,13 +26,13 @@ import (
 
 const DefaultViewRefreshIntervalSecond = 5
 
-type refreshFunc func(db *gorm.DB, viewNames map[string]bool)
+type refreshFunc func(db *gorm.DB)
 
 type ViewRefreshHandler struct {
 	mu                        sync.Mutex
 	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed due to table changes
 	tableChanged              map[string]bool
-	refreshFunc               refreshFunc
+	refreshFunc               map[string]refreshFunc // map og refresh functions for specified views
 	viewRefreshIntervalSecond time.Duration
 }
 
@@ -55,7 +55,9 @@ func (vh *ViewRefreshHandler) GetAndClearChanges() map[string]bool {
 
 func (vh *ViewRefreshHandler) runRequiredRefreshes(db *gorm.DB) {
 	viewNames := vh.getViewsToRefresh()
-	vh.refreshFunc(db, viewNames)
+	for viewName, _ := range viewNames {
+		vh.refreshFunc[viewName](db)
+	}
 }
 
 // getViewsToRefresh creates a list of views that should be refreshed due to table changes.
@@ -76,38 +78,62 @@ func (vh *ViewRefreshHandler) getViewsToRefresh() map[string]bool {
 func (vh *ViewRefreshHandler) RegisterViewRefreshHandlers(dbDriver string) {
 	switch dbDriver {
 	case DBDriverTypePostgres:
-		vh.refreshFunc = RefreshMaterializedViews
+		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(applicationViewName),
+			applicationViewName,
+			[]string{
+				applicationTableName,
+				resourceTableName,
+				packageTableName,
+				vulnerabilityTableName,
+			})
+		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(resourceViewName),
+			resourceViewName,
+			[]string{
+				applicationTableName,
+				resourceTableName,
+				packageTableName,
+				vulnerabilityTableName,
+			})
+		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(packageViewName),
+			packageViewName,
+			[]string{
+				applicationTableName,
+				resourceTableName,
+				packageTableName,
+				vulnerabilityTableName,
+			})
+		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(vulnerabilityViewName),
+			vulnerabilityViewName,
+			[]string{
+				applicationTableName,
+				resourceTableName,
+				packageTableName,
+				vulnerabilityTableName,
+			})
 	}
 }
 
-func (vh *ViewRefreshHandler) registerViewRefreshHandler(f refreshFunc, tables ...string) {
-
+func (vh *ViewRefreshHandler) registerViewRefreshHandler(f refreshFunc, viewName string, tables []string) {
+	vh.refreshFunc[viewName] = f
+	vh.addViewsToRefreshByTable(viewName, tables)
 }
 
 func (vh *ViewRefreshHandler) IsSetViewRefreshHandler() bool {
-	return vh.refreshFunc != nil
+	return len(vh.refreshFunc) > 0
 }
 
-func createViewsToRefreshByTable() map[string][]string {
-	viewsToRefresh := make(map[string][]string)
-	tables := []string{
-		applicationTableName,
-		resourceTableName,
-		packageTableName,
-		vulnerabilityTableName,
-	}
+func (vh *ViewRefreshHandler) addViewsToRefreshByTable(viewName string, tables []string) {
 	for _, table := range tables {
-		viewsToRefresh[table] = materializedViews
+		vh.viewsToRefresh[table] = append(vh.viewsToRefresh[table], viewName)
 	}
-
-	return viewsToRefresh
 }
 
 func (db *Handler) SetMaterializedViewHandler(config *DBConfig) {
 	db.ViewRefreshHandler = &ViewRefreshHandler{
 		tableChanged:              make(map[string]bool),
-		viewsToRefresh:            createViewsToRefreshByTable(),
+		viewsToRefresh:            make(map[string][]string),
 		viewRefreshIntervalSecond: time.Duration(config.ViewRefreshIntervalSecond) * time.Second,
+		refreshFunc:               map[string]refreshFunc{},
 	}
 }
 
@@ -121,15 +147,15 @@ func (db *Handler) RefreshMaterializedViews() {
 	}
 }
 
-func RefreshMaterializedViews(db *gorm.DB, viewNames map[string]bool) {
-	for viewName, _ := range viewNames {
+func getPostgresViewRefreshHandlerFunc(viewName string) func(db *gorm.DB) {
+	return func(db *gorm.DB) {
 		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewConcurrentlyCommand, viewName)).Error; err != nil {
 			log.Errorf("Failed to refresh materialized %s: %v", viewName, err)
 		}
 	}
 }
 
-func initMaterializedViews(db *gorm.DB, viewNames []string) {
+func initPostgresMaterializedViews(db *gorm.DB, viewNames []string) {
 	for _, viewName := range viewNames {
 		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
 			log.Fatalf("Failed to init materialized %s: %v", viewName, err)

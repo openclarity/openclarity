@@ -236,12 +236,9 @@ func (db *Handler) CreateFakeData() {
 		}
 
 		if db.ViewRefreshHandler.IsSetViewRefreshHandler() {
-			db.ViewRefreshHandler.refreshFunc(db.DB, map[string]bool{
-				packageViewName:       true,
-				resourceViewName:      true,
-				applicationViewName:   true,
-				vulnerabilityViewName: true,
-			})
+			for _, view := range materializedViews {
+				db.ViewRefreshHandler.refreshFunc[view](db.DB)
+			}
 		}
 	}
 }

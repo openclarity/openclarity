@@ -624,7 +624,7 @@ func createAllViews(db *gorm.DB, dbDriver string) {
 
 	if dbDriver == DBDriverTypePostgres {
 		createIndexForMaterializedViews(db)
-		initMaterializedViews(db, materializedViews)
+		initPostgresMaterializedViews(db, materializedViews)
 	}
 }
 
