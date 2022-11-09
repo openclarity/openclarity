@@ -29,5 +29,5 @@ const (
 	KubeClarityPortForwardHostPort   = "8089"
 	KubeClarityPortForwardTargetPort = "8080"
 
-	WaitForMaterializedViewRefreshSecond = 6
+	WaitForMaterializedViewRefreshSecond = 2
 )

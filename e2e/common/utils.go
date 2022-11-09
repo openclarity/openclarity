@@ -79,6 +79,7 @@ func InstallKubeClarity(manager *helm.Manager, args string) error {
 	if err := manager.RunInstall(helm.WithName(KubeClarityHelmReleaseName),
 		helm.WithNamespace(KubeClarityNamespace),
 		helm.WithChart(chartPath),
+		helm.WithWait(),
 		helm.WithArgs(args)); err != nil {
 		return fmt.Errorf("failed to run helm install command with args: %v. %v", args, err)
 	}
