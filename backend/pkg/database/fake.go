@@ -191,7 +191,7 @@ func createFakeVulnerabilityTrend(vulID string, t time.Time) *NewVulnerability {
 	return &vul
 }
 
-// nolint:cyclop
+// nolint:cyclop,gocognit
 func (db *Handler) CreateFakeData() {
 	for i := 0; i < 5; i++ {
 		app := createFakeApplication(time.Now().Add(time.Duration(i) * time.Second))

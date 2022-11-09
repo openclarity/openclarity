@@ -55,20 +55,19 @@ func (vh *ViewRefreshHandler) GetAndClearChanges() map[string]bool {
 
 func (vh *ViewRefreshHandler) runRequiredRefreshes(db *gorm.DB) {
 	viewNames := vh.getViewsToRefresh()
-	for viewName, _ := range viewNames {
+	for viewName := range viewNames {
 		vh.refreshFunc[viewName](db)
 	}
 }
 
 // getViewsToRefresh creates a list of views that should be refreshed due to table changes.
-// The viewsToRefresh is the map of tables that shows which views should be refreshed due to table changes
+// The viewsToRefresh is the map of tables that shows which views should be refreshed due to table changes.
 func (vh *ViewRefreshHandler) getViewsToRefresh() map[string]bool {
 	viewToRefresh := make(map[string]bool)
 	tables := vh.GetAndClearChanges()
-	for table, _ := range tables {
+	for table := range tables {
 		for _, viewName := range vh.viewsToRefresh[table] {
 			viewToRefresh[viewName] = true
-
 		}
 	}
 
