@@ -32,7 +32,7 @@ type ViewRefreshHandler struct {
 	mu                        sync.Mutex
 	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed due to table changes
 	tableChanged              map[string]bool
-	refreshFunc               map[string]refreshFunc // map og refresh functions for specified views
+	refreshFunc               map[string]refreshFunc // map of refresh functions for specified views
 	viewRefreshIntervalSecond time.Duration
 }
 
