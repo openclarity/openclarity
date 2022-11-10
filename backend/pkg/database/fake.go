@@ -236,7 +236,7 @@ func (db *Handler) CreateFakeData() {
 		}
 
 		if db.ViewRefreshHandler.IsSetViewRefreshHandler() {
-			for _, refreshView := range db.ViewRefreshHandler.refreshFunc {
+			for _, refreshView := range db.ViewRefreshHandler.refreshFuncs {
 				refreshView(db.DB)
 			}
 		}
