@@ -28,9 +28,11 @@ const DefaultViewRefreshIntervalSecond = 5
 
 type refreshFunc func(db *gorm.DB)
 
+type viewNameSet map[string]struct{}
+
 type ViewRefreshHandler struct {
 	mu                        sync.Mutex
-	viewsToRefresh            map[string][]string // map of tables that shows which views should be refreshed due to table changes
+	viewsToRefresh            map[string]viewNameSet // map of tables that shows which views should be refreshed due to table changes
 	tableChanged              map[string]bool
 	refreshFunc               map[string]refreshFunc // map of refresh functions for specified views
 	viewRefreshIntervalSecond time.Duration
@@ -55,9 +57,15 @@ func (vh *ViewRefreshHandler) GetAndClearChanges() map[string]bool {
 
 func (vh *ViewRefreshHandler) runRequiredRefreshes(db *gorm.DB) {
 	viewNames := vh.getViewsToRefresh()
+	var wg sync.WaitGroup
 	for viewName := range viewNames {
-		vh.refreshFunc[viewName](db)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			vh.refreshFunc[viewName](db)
+		}()
 	}
+	wg.Wait()
 }
 
 // getViewsToRefresh creates a list of views that should be refreshed due to table changes.
@@ -66,7 +74,7 @@ func (vh *ViewRefreshHandler) getViewsToRefresh() map[string]bool {
 	viewToRefresh := make(map[string]bool)
 	tables := vh.GetAndClearChanges()
 	for table := range tables {
-		for _, viewName := range vh.viewsToRefresh[table] {
+		for viewName := range vh.viewsToRefresh[table] {
 			viewToRefresh[viewName] = true
 		}
 	}
@@ -74,63 +82,61 @@ func (vh *ViewRefreshHandler) getViewsToRefresh() map[string]bool {
 	return viewToRefresh
 }
 
-func (vh *ViewRefreshHandler) RegisterViewRefreshHandlers(dbDriver string) {
-	switch dbDriver {
-	case DBDriverTypePostgres:
-		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(applicationViewName),
-			applicationViewName,
-			[]string{
-				applicationTableName,
-				resourceTableName,
-				packageTableName,
-				vulnerabilityTableName,
-			})
-		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(resourceViewName),
-			resourceViewName,
-			[]string{
-				applicationTableName,
-				resourceTableName,
-				packageTableName,
-				vulnerabilityTableName,
-			})
-		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(packageViewName),
-			packageViewName,
-			[]string{
-				applicationTableName,
-				resourceTableName,
-				packageTableName,
-				vulnerabilityTableName,
-			})
-		vh.registerViewRefreshHandler(getPostgresViewRefreshHandlerFunc(vulnerabilityViewName),
-			vulnerabilityViewName,
-			[]string{
-				applicationTableName,
-				resourceTableName,
-				packageTableName,
-				vulnerabilityTableName,
-			})
-	}
-}
-
-func (vh *ViewRefreshHandler) registerViewRefreshHandler(f refreshFunc, viewName string, tables []string) {
-	vh.refreshFunc[viewName] = f
-	vh.addViewsToRefreshByTable(viewName, tables)
+func (vh *ViewRefreshHandler) registerPostgresViewRefreshHandlers() {
+	vh.refreshFunc[applicationViewName] = getPostgresViewRefreshHandlerFunc(applicationViewName)
+	vh.addViewsToRefreshByTable(
+		applicationViewName,
+		applicationTableName,
+		resourceTableName,
+		packageTableName,
+		vulnerabilityTableName,
+	)
+	vh.refreshFunc[resourceViewName] = getPostgresViewRefreshHandlerFunc(resourceViewName)
+	vh.addViewsToRefreshByTable(
+		resourceViewName,
+		applicationTableName,
+		resourceTableName,
+		packageTableName,
+		vulnerabilityTableName,
+	)
+	vh.refreshFunc[packageViewName] = getPostgresViewRefreshHandlerFunc(packageViewName)
+	vh.addViewsToRefreshByTable(
+		packageViewName,
+		applicationTableName,
+		resourceTableName,
+		packageTableName,
+		vulnerabilityTableName,
+	)
+	vh.refreshFunc[vulnerabilityViewName] = getPostgresViewRefreshHandlerFunc(vulnerabilityViewName)
+	vh.addViewsToRefreshByTable(
+		vulnerabilityViewName,
+		applicationTableName,
+		resourceTableName,
+		packageTableName,
+		vulnerabilityTableName,
+	)
 }
 
 func (vh *ViewRefreshHandler) IsSetViewRefreshHandler() bool {
 	return len(vh.refreshFunc) > 0
 }
 
-func (vh *ViewRefreshHandler) addViewsToRefreshByTable(viewName string, tables []string) {
+func (vh *ViewRefreshHandler) addViewsToRefreshByTable(viewName string, tables ...string) {
+	for _, views := range vh.viewsToRefresh {
+		delete(views, viewName)
+	}
 	for _, table := range tables {
-		vh.viewsToRefresh[table] = append(vh.viewsToRefresh[table], viewName)
+		if _, ok := vh.viewsToRefresh[table]; !ok {
+			vh.viewsToRefresh[table] = viewNameSet{}
+		}
+		vh.viewsToRefresh[table][viewName] = struct{}{}
 	}
 }
 
 func (db *Handler) SetMaterializedViewHandler(config *DBConfig) {
 	db.ViewRefreshHandler = &ViewRefreshHandler{
 		tableChanged:              make(map[string]bool),
-		viewsToRefresh:            make(map[string][]string),
+		viewsToRefresh:            make(map[string]viewNameSet),
 		viewRefreshIntervalSecond: time.Duration(config.ViewRefreshIntervalSecond) * time.Second,
 		refreshFunc:               map[string]refreshFunc{},
 	}
@@ -154,10 +160,17 @@ func getPostgresViewRefreshHandlerFunc(viewName string) func(db *gorm.DB) {
 	}
 }
 
-func initPostgresMaterializedViews(db *gorm.DB, viewNames []string) {
-	for _, viewName := range viewNames {
-		if err := db.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
+func (db *Handler) initPostgresMaterializedViews() {
+	var materializedViews = []string{
+		applicationViewName,
+		resourceViewName,
+		packageViewName,
+		vulnerabilityViewName,
+	}
+	for _, viewName := range materializedViews {
+		if err := db.DB.Exec(fmt.Sprintf(refreshMaterializedViewCommand, viewName)).Error; err != nil {
 			log.Fatalf("Failed to init materialized %s: %v", viewName, err)
 		}
 	}
+	db.ViewRefreshHandler.registerPostgresViewRefreshHandlers()
 }

@@ -35,17 +35,9 @@ const (
 	DBDriverTypeLocal    = "LOCAL"
 )
 
-// The following views can contain lots of rows and if they are simple views it will cause a lot of slow queries.
 // In the case of materialized views slow queries can happen when refreshing the views,
 // but reading these views will not cause slow queries when navigating on the UI.
 // Materialized view is only supported by PostgreSQL.
-var materializedViews = []string{
-	applicationViewName,
-	resourceViewName,
-	packageViewName,
-	vulnerabilityViewName,
-}
-
 // order is important, need to drop views in a reverse order of the creation.
 var viewsList = []string{
 	"cis_d_b_checks_view",
@@ -486,7 +478,7 @@ func (db *Handler) CISDockerBenchmarkResultTable() CISDockerBenchmarkResultTable
 func Init(config *DBConfig) *Handler {
 	databaseHandler := Handler{}
 
-	databaseHandler.DB = initDataBase(config)
+	databaseHandler.initDataBase(config)
 
 	// Set defaults.
 	err := databaseHandler.QuickScanConfigTable().SetDefault()
@@ -506,29 +498,28 @@ func cleanLocalDataBase(databasePath string) {
 	}
 }
 
-func initDataBase(config *DBConfig) *gorm.DB {
+func (db *Handler) initDataBase(config *DBConfig) {
 	dbDriver := config.DriverType
 	dbLogger := logger.Default
 	if config.EnableInfoLogs {
 		dbLogger = dbLogger.LogMode(logger.Info)
 	}
 
-	db := initDB(config, dbDriver, dbLogger)
+	db.DB = initDB(config, dbDriver, dbLogger)
+	db.SetMaterializedViewHandler(config)
 
-	setupJoinTables(db)
+	setupJoinTables(db.DB)
 
 	// drop views before auto migrate
-	dropAllViews(db, dbDriver)
+	db.dropAllViews(dbDriver)
 
 	// this will ensure table is created
-	if err := db.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, Scheduler{}, CISDockerBenchmarkCheck{}); err != nil {
+	if err := db.DB.AutoMigrate(Application{}, Resource{}, Package{}, Vulnerability{}, NewVulnerability{}, QuickScanConfig{}, Scheduler{}, CISDockerBenchmarkCheck{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
 
 	// recreate views from scratch
-	createAllViews(db, dbDriver)
-
-	return db
+	db.createAllViews(dbDriver)
 }
 
 func initDB(config *DBConfig, dbDriver string, dbLogger logger.Interface) *gorm.DB {
@@ -557,7 +548,7 @@ func setupJoinTables(db *gorm.DB) {
 }
 
 // nolint:cyclop
-func createAllViews(db *gorm.DB, dbDriver string) {
+func (db *Handler) createAllViews(dbDriver string) {
 	var createCommand string
 	switch dbDriver {
 	case DBDriverTypePostgres:
@@ -566,65 +557,65 @@ func createAllViews(db *gorm.DB, dbDriver string) {
 		createCommand = createViewCommand
 	}
 
-	if err := db.Exec(licensesViewQuery).Error; err != nil {
+	if err := db.DB.Exec(licensesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create licenses_view: %v", err)
 	}
 
-	if err := db.Exec(IDViewQuery).Error; err != nil {
+	if err := db.DB.Exec(IDViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create ids_view: %v", err)
 	}
 
-	if err := db.Exec(applicationsSeveritiesViewQuery).Error; err != nil {
+	if err := db.DB.Exec(applicationsSeveritiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create application_severities: %v", err)
 	}
 
-	if err := db.Exec(applicationsCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+	if err := db.DB.Exec(applicationsCISDockerBenchmarkChecksViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create application_cis_d_b_checks: %v", err)
 	}
 
-	if err := db.Exec(fmt.Sprintf(applicationsViewQuery, createCommand)).Error; err != nil {
+	if err := db.DB.Exec(fmt.Sprintf(applicationsViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create applications_view: %v", err)
 	}
 
-	if err := db.Exec(newVulnerabilitiesViewQuery).Error; err != nil {
+	if err := db.DB.Exec(newVulnerabilitiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create new vulnerabilities trends view query: %v", err)
 	}
 
-	if err := db.Exec(resourcesSeveritiesViewQuery).Error; err != nil {
+	if err := db.DB.Exec(resourcesSeveritiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create resource_severities: %v", err)
 	}
 
-	if err := db.Exec(resourcesCISDockerBenchmarkChecksViewQuery).Error; err != nil {
+	if err := db.DB.Exec(resourcesCISDockerBenchmarkChecksViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create resource_cis_d_b_checks_view: %v", err)
 	}
 
-	if err := db.Exec(fmt.Sprintf(resourcesViewQuery, createCommand)).Error; err != nil {
+	if err := db.DB.Exec(fmt.Sprintf(resourcesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create resources_view: %v", err)
 	}
 
-	if err := db.Exec(packagesSeveritiesViewQuery).Error; err != nil {
+	if err := db.DB.Exec(packagesSeveritiesViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create package_severities: %v", err)
 	}
 
-	if err := db.Exec(fmt.Sprintf(packagesViewQuery, createCommand)).Error; err != nil {
+	if err := db.DB.Exec(fmt.Sprintf(packagesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create packages_view: %v", err)
 	}
 
-	if err := db.Exec(packageResourcesInfoViewQuery).Error; err != nil {
+	if err := db.DB.Exec(packageResourcesInfoViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create package_resources_info_view: %v", err)
 	}
 
-	if err := db.Exec(fmt.Sprintf(vulnerabilitiesViewQuery, createCommand)).Error; err != nil {
+	if err := db.DB.Exec(fmt.Sprintf(vulnerabilitiesViewQuery, createCommand)).Error; err != nil {
 		log.Fatalf("Failed to create vulnerabilities_view: %v", err)
 	}
 
-	if err := db.Exec(cisDockerBenchmarkResultsViewQuery).Error; err != nil {
+	if err := db.DB.Exec(cisDockerBenchmarkResultsViewQuery).Error; err != nil {
 		log.Fatalf("Failed to create cis_d_b_checks_view: %v", err)
 	}
 
 	if dbDriver == DBDriverTypePostgres {
-		createIndexForMaterializedViews(db)
-		initPostgresMaterializedViews(db, materializedViews)
+		createIndexForMaterializedViews(db.DB)
+		db.initPostgresMaterializedViews()
 	}
 }
 
@@ -645,9 +636,9 @@ func createIndexForMaterializedViews(db *gorm.DB) {
 	}
 }
 
-func dropAllViews(db *gorm.DB, dbDriver string) {
+func (db *Handler) dropAllViews(dbDriver string) {
 	for _, view := range viewsList {
-		dropViewIfExists(db, view, dbDriver)
+		dropViewIfExists(db.DB, view, dbDriver)
 	}
 }
 

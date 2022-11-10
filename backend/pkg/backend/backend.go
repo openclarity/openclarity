@@ -84,8 +84,6 @@ func Run() {
 	dbConfig := createDatabaseConfig(config)
 	dbHandler := _database.Init(dbConfig)
 
-	dbHandler.SetMaterializedViewHandler(dbConfig)
-	dbHandler.ViewRefreshHandler.RegisterViewRefreshHandlers(config.DatabaseDriver)
 	go dbHandler.RefreshMaterializedViews()
 
 	if config.EnableFakeData {

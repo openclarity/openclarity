@@ -236,8 +236,8 @@ func (db *Handler) CreateFakeData() {
 		}
 
 		if db.ViewRefreshHandler.IsSetViewRefreshHandler() {
-			for _, view := range materializedViews {
-				db.ViewRefreshHandler.refreshFunc[view](db.DB)
+			for _, refreshView := range db.ViewRefreshHandler.refreshFunc {
+				refreshView(db.DB)
 			}
 		}
 	}
