@@ -20,7 +20,6 @@ import (
 	"io"
 	"os"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	dockle_config "github.com/Portshift/dockle/config"
 	dockle_run "github.com/Portshift/dockle/pkg"
 	dockle_types "github.com/Portshift/dockle/pkg/types"
@@ -33,7 +32,7 @@ import (
 	"github.com/openclarity/kubeclarity/cli/pkg/scanner/presenter"
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedconfig "github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	sharedscanner "github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/job"
@@ -156,22 +155,13 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	// nolint:exhaustive
 	switch sourceType {
 	case sharedutils.SBOM:
-		// handle SBOM
-		inputSBOM, err := os.ReadFile(args[0])
+		bom, err := converter.GetCycloneDXSBOMFromFile(args[0])
 		if err != nil {
-			logger.Fatalf("Failed to read SBOM file %s: %v", args[0], err)
+			logger.Fatal(err)
 		}
-		// TODO need to check input SBOM if xml or json format
-		input := formatter.New(formatter.CycloneDXFormat, inputSBOM)
-		// use the formatter
-		if err := input.Decode(formatter.CycloneDXFormat); err != nil {
-			logger.Fatalf("Unable to decode input SBOM %s: %v", args[0], err)
-		}
-		bom, ok := input.GetSBOM().(*cdx.BOM)
-		if !ok {
-			logger.Fatalf("Type assertion of bom failed.")
-		}
+
 		bomMetaComponent := bom.Metadata.Component
+
 		hash = cdx_helper.GetComponentHash(bomMetaComponent)
 		// If the target and type of source are not defined, we will get them from SBOM.
 		// For example in the case of dependency-track.
