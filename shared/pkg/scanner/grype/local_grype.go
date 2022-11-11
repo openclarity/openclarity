@@ -74,18 +74,11 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	var hash string
 	origInput := userInput
 	if sourceType == utils.SBOM {
-		syftJSONFilePath, cleanup, err := ConvertCycloneDXFileToSyftJSONFile(userInput, s.logger)
-		if err != nil {
-			ReportError(s.resultChan, fmt.Errorf("failed to convert sbom file: %w", err), s.logger)
-			return
-		}
-		defer cleanup()
 		origInput, hash, err = getOriginalInputAndHashFromSBOM(userInput)
 		if err != nil {
 			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
 			return
 		}
-		userInput = syftJSONFilePath
 	}
 
 	source := utils.CreateSource(sourceType, userInput, s.localImage)
