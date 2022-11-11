@@ -16,12 +16,15 @@
 package converter
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/anchore/syft/syft"
+	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
 	syft_sbom "github.com/anchore/syft/syft/sbom"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
@@ -74,23 +77,43 @@ func saveSyftSBOMToFile(syftBOM syft_sbom.SBOM, outputSBOMFile string) error {
 }
 
 func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
-	inputSBOM, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
+	inputSBOMBytes, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get CycloneDX SBOM bytes from file: %v", err)
-	}
-	inputFormat := DetermineCycloneDXFormat(inputSBOM)
-	input := formatter.New(inputFormat, inputSBOM)
-	// use the formatter
-	if err = input.Decode(inputFormat); err != nil {
-		return nil, fmt.Errorf("unable to decode input SBOM %s: %v", inputSBOMFile, err)
+		return nil, fmt.Errorf("failed to get SBOM bytes from file: %v", err)
 	}
 
-	cdxBOM, ok := input.GetSBOM().(*cdx.BOM)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast input SBOM: %v", err)
+	// Ensure input is converted to cyclonedx regardless of the
+	// input SBOM type.
+	r := bytes.NewReader(inputSBOMBytes)
+	sbom, format, err := syft.Decode(r)
+	if err != nil {
+		return nil, fmt.Errorf("failed to identify or decode file %s to recognised SBOM format: %w", inputSBOMFile, err)
 	}
 
-	return cdxBOM, nil
+	// If we've been given cyclonedx as the input decode directly using
+	// cyclonedx-go instead of going through syft's intermediary struct
+	// otherwise we may lose some properties/metadata which syft doesn't
+	// understand. Other format's metadata is best effort so we'll use
+	// syfts intermediary struct and then use ToFormatModel to switch it to
+	// cdx.BOM.
+	var bom *cdx.BOM
+	cdxFormat := cdx.BOMFileFormatXML
+	switch format {
+	case syft.FormatByName("cyclonedxjson"):
+		cdxFormat = cdx.BOMFileFormatJSON
+		fallthrough
+	case syft.FormatByName("cyclonedx"):
+		bom = new(cdx.BOM)
+		reader := bytes.NewReader(inputSBOMBytes)
+		decoder := cdx.NewBOMDecoder(reader, cdxFormat)
+		if err = decoder.Decode(bom); err != nil {
+			return nil, fmt.Errorf("unable to decode CycloneDX BOM data: %w", err)
+		}
+	default:
+		bom = cyclonedxhelpers.ToFormatModel(*sbom)
+	}
+
+	return bom, nil
 }
 
 func DetermineCycloneDXFormat(sbom []byte) string {
