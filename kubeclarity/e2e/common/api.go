@@ -61,27 +61,36 @@ func GetRuntimeScanResults(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs)
 	return res.Payload
 }
 
-func GetPackages(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs) *operations.GetPackagesOKBody {
+func GetPackages(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationID string) *operations.GetPackagesOKBody {
 	t.Helper()
 	params := operations.NewGetPackagesParams().WithPage(0).WithPageSize(50).WithSortKey("packageName")
+	if applicationID != "" {
+		params.SetApplicationID(&applicationID)
+	}
 	res, err := kubeclarityAPI.Operations.GetPackages(params)
 	assert.NilError(t, err)
 
 	return res.Payload
 }
 
-func GetApplicationResources(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs) *operations.GetApplicationResourcesOKBody {
+func GetApplicationResources(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationID string) *operations.GetApplicationResourcesOKBody {
 	t.Helper()
 	params := operations.NewGetApplicationResourcesParams().WithPage(0).WithPageSize(50).WithSortKey("resourceName")
+	if applicationID != "" {
+		params.SetApplicationID(&applicationID)
+	}
 	res, err := kubeclarityAPI.Operations.GetApplicationResources(params)
 	assert.NilError(t, err)
 
 	return res.Payload
 }
 
-func GetVulnerabilities(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs) *operations.GetVulnerabilitiesOKBody {
+func GetVulnerabilities(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationID string) *operations.GetVulnerabilitiesOKBody {
 	t.Helper()
 	params := operations.NewGetVulnerabilitiesParams().WithPage(0).WithPageSize(50).WithSortKey("vulnerabilityName")
+	if applicationID != "" {
+		params.SetApplicationID(&applicationID)
+	}
 	res, err := kubeclarityAPI.Operations.GetVulnerabilities(params)
 	assert.NilError(t, err)
 
