@@ -18,12 +18,13 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"gotest.tools/assert"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"gotest.tools/assert"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
@@ -35,10 +36,13 @@ import (
 )
 
 const (
-	DirectoryAnalyzeOutputSBOMFile = "dir.sbom"
-	ImageAnalyzeOutputSBOMFile     = "merged.sbom"
-	TestImageName                  = "nginx:1.10"
-	ApplicationName                = "test-app"
+	DirectoryAnalyzeOutputSBOMFile        = "dir.sbom"
+	ImageAnalyzeOutputSBOMFile            = "merged.sbom"
+	TestImageName                         = "nginx:1.10"
+	TestImageWithMissingSyftMetadata      = "docker.io/weaveworksdemos/front-end:sha-14254f9"
+	MissingMetaImageAnalyzeOutputSBOMFile = "missingmeta.sbom"
+	ApplicationName                       = "test-app"
+	MissingMetaApplicationName            = "test-app-missingm"
 )
 
 func TestCLIScan(t *testing.T) {
@@ -51,14 +55,17 @@ func TestCLIScan(t *testing.T) {
 	}()
 	f1 := features.New("cli scan flow - analyze and scan").
 		WithLabel("type", "cli").
-		Assess("cli scan flow", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+		WithSetup("setup env", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 			// setup env
 			t.Logf("setup env...")
 			setupCLIScanTestEnv(stopCh)
 
+			return ctx
+		}).
+		Assess("cli scan flow", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 			// create application
 			t.Logf("create application...")
-			appID := createApplication(t)
+			appID := createApplication(t, ApplicationName)
 
 			// analyze dir
 			t.Logf("analyze dir...")
@@ -67,18 +74,35 @@ func TestCLIScan(t *testing.T) {
 
 			// analyze image with --merge-sbom directory sbom, and export to backend
 			t.Logf("analyze image...")
-			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID)
-			validateAnalyzeImage(t)
+			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, ImageAnalyzeOutputSBOMFile)
+			validateAnalyzeImage(t, ImageAnalyzeOutputSBOMFile, appID)
 
 			// scan merged sbom
 			t.Logf("scan merged sbom...")
 			scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID)
-			validateScanSBOM(t)
+			validateScanSBOM(t, appID)
 
 			// scan image
 			t.Logf("scan image...")
 			scanImage(t, TestImageName, appID)
-			validateScanImage(t)
+			validateScanImage(t, appID)
+
+			return ctx
+		}).
+		Assess("cli scan flow - image with known bad metadata in cyclonedx", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+			// create application
+			t.Logf("create application...")
+			appID := createApplication(t, MissingMetaApplicationName)
+
+			// analyze "bad" image
+			t.Logf("analyze image...")
+			analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, MissingMetaImageAnalyzeOutputSBOMFile)
+			validateAnalyzeImage(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
+
+			// scan merged sbom
+			t.Logf("scan merged sbom...")
+			scanSBOM(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
+			validateScanSBOM(t, appID)
 
 			return ctx
 		}).Feature()
@@ -104,47 +128,47 @@ func validateAnalyzeDir(t *testing.T) {
 	assert.Assert(t, len(*sbom.Components) > 0)
 }
 
-func validateAnalyzeImage(t *testing.T) {
+func validateAnalyzeImage(t *testing.T, sbomFile, appID string) {
 	t.Helper()
-	sbom := getCdxSbom(t, ImageAnalyzeOutputSBOMFile)
+	sbom := getCdxSbom(t, sbomFile)
 	assert.Assert(t, sbom != nil)
 	// check generated sbom
 	assert.Assert(t, sbom.Components != nil)
 	assert.Assert(t, len(*sbom.Components) > 0)
 
 	// check export to db
-	packages := common.GetPackages(t, kubeclarityAPI)
+	packages := common.GetPackages(t, kubeclarityAPI, appID)
 	assert.Assert(t, *packages.Total > 0)
 
-	appResources := common.GetApplicationResources(t, kubeclarityAPI)
+	appResources := common.GetApplicationResources(t, kubeclarityAPI, appID)
 	assert.Assert(t, *appResources.Total > 0)
 }
 
-func validateScanImage(t *testing.T) {
+func validateScanImage(t *testing.T, appID string) {
 	t.Helper()
-	vuls := common.GetVulnerabilities(t, kubeclarityAPI)
+	vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
 	assert.Assert(t, *vuls.Total > 0)
 
-	appResources := common.GetApplicationResources(t, kubeclarityAPI)
+	appResources := common.GetApplicationResources(t, kubeclarityAPI, appID)
 	assert.Assert(t, appResources.Items[0].ResourceType == models.ResourceTypeIMAGE)
 
 	cisDockerBenchmarkResults := common.GetCISDockerBenchmarkResults(t, kubeclarityAPI, appResources.Items[0].ID)
 	assert.Assert(t, *cisDockerBenchmarkResults.Total > 0)
 }
 
-func validateScanSBOM(t *testing.T) {
+func validateScanSBOM(t *testing.T, appID string) {
 	t.Helper()
-	vuls := common.GetVulnerabilities(t, kubeclarityAPI)
+	vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
 
 	// TODO how to validate that vulnerabilities were added on top of scanned sbom vuls
 	assert.Assert(t, *vuls.Total > 0)
 }
 
-func createApplication(t *testing.T) (appID string) {
+func createApplication(t *testing.T, applicationName string) (appID string) {
 	t.Helper()
 	appType := models.ApplicationTypePOD
 	res := common.PostApplications(t, kubeclarityAPI, &models.ApplicationInfo{
-		Name: common.StringPtr(ApplicationName),
+		Name: common.StringPtr(applicationName),
 		Type: &appType,
 	})
 
@@ -169,12 +193,18 @@ func analyzeDir(t *testing.T) {
 var cliPath = filepath.Join(common.GetCurrentDir(), "kubeclarity-cli")
 
 // analyze test image, merge inputSbom and export to backend
-func analyzeImage(t *testing.T, inputSbom string, appID string) {
+func analyzeImage(t *testing.T, inputSbom string, appID string, image string, outputfile string) {
 	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
-	command := fmt.Sprintf("%v analyze %v --application-id %v --input-type image --merge-sbom %v -e -o %v", cliPath, TestImageName, appID, inputSbom, ImageAnalyzeOutputSBOMFile)
+	command := fmt.Sprintf("%v analyze %v --application-id %v --input-type image", cliPath, image, appID)
+
+	if inputSbom != "" {
+		command = fmt.Sprintf("%s --merge-sbom %v", command, inputSbom)
+	}
+
+	command = fmt.Sprintf("%s -e -o %v", command, outputfile)
 
 	cmd := exec.Command("/bin/sh", "-c", command)
 
