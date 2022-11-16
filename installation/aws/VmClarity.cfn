@@ -63,6 +63,7 @@ Resources:
         configSets:
           full_install:
             - install_and_enable_cfn_hup
+            - install_vmclarity
         install_and_enable_cfn_hup:
           files:
             "/etc/cfn/cfn-hup.conf":
@@ -99,6 +100,53 @@ Resources:
               command: systemctl enable cfn-hup.service
             02start_cfn_hup:
               command: systemctl start cfn-hup.service
+        install_vmclarity:
+          packages:
+            apt:
+              docker.io: []
+          files:
+            "/lib/systemd/system/vmclarity.service":
+              content:
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=VmClarity
+                    After=docker.service
+                    Requires=docker.service
+
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
+                    # TODO(sambetts) Update to point at VMClarity image
+                    ExecStartPre=/usr/bin/docker pull ubuntu
+                    # TODO(sambetts) Update to expose VMClarity UI, API ports,
+                    # env configurations and remove the sleep command
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:8888:8888/tcp \
+                      -v /opt/vmclarity:/data \
+                      -e SCANNER_REGION="${AWS::Region}" \
+                      -e SCANNER_JOB_SUBNET="${VmClaritySubnet}" \
+                      -e SCANNER_JOB_IMAGE_ID="${JobImageID}" \
+                      ubuntu sleep infinity
+
+                    [Install]
+                    WantedBy=multi-user.target
+                  - JobImageID: !FindInMap
+                      - AWSRegionArch2AMI
+                      - !Ref "AWS::Region"
+                      - !FindInMap
+                        - AWSInstanceType2Arch
+                        - !Ref InstanceType
+                        - Arch
+          commands:
+            01enable_vmclarity:
+              command: systemctl enable vmclarity.service
+            02start_vmclarity:
+              command: systemctl start vmclarity.service
     DependsOn:
       - PublicRoute
   # Allow SSH and HTTP access to the VMClarity server SSH access can be
