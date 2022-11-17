@@ -81,11 +81,12 @@ type ApplicationTable interface {
 }
 
 type ApplicationTableHandler struct {
-	applicationsTable *gorm.DB
-	applicationsView  *gorm.DB
-	licensesView      *gorm.DB
-	IDsView           IDsView
-	db                *gorm.DB
+	applicationsTable  *gorm.DB
+	applicationsView   *gorm.DB
+	licensesView       *gorm.DB
+	IDsView            IDsView
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Application) TableName() string {
@@ -121,6 +122,8 @@ func (a *ApplicationTableHandler) Create(app *Application, params *TransactionPa
 		return fmt.Errorf("failed to create application: %v", err)
 	}
 
+	a.viewRefreshHandler.TableChanged(applicationTableName)
+
 	return nil
 }
 
@@ -129,6 +132,8 @@ func (a *ApplicationTableHandler) UpdateInfo(app *Application, params *Transacti
 		Omit("Resources").Updates(app).Error; err != nil {
 		return fmt.Errorf("failed to update application info: %v", err)
 	}
+
+	a.viewRefreshHandler.TableChanged(applicationTableName)
 
 	return nil
 }
@@ -145,6 +150,8 @@ func (a *ApplicationTableHandler) Delete(app *Application) error {
 	if err := a.db.Delete(app).Error; err != nil {
 		return fmt.Errorf("failed to delete application: %v", err)
 	}
+
+	a.viewRefreshHandler.TableChanged(applicationTableName)
 
 	return nil
 }

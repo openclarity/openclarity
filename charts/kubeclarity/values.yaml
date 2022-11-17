@@ -42,6 +42,9 @@ kubeclarity:
   service:
     type: ClusterIP
 
+  ## In case of postgres refresh interval of refreshing materialized views in seconds
+# dbViewRefreshInterval: 5
+
   resources:
     requests:
       memory: "200Mi"

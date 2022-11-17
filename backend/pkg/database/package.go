@@ -78,9 +78,10 @@ type PackageTable interface {
 }
 
 type PackageTableHandler struct {
-	packagesTable *gorm.DB
-	packagesView  *gorm.DB
-	IDsView       IDsView
+	packagesTable      *gorm.DB
+	packagesView       *gorm.DB
+	IDsView            IDsView
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Package) TableName() string {
@@ -114,6 +115,9 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 	if err := p.packagesTable.Create(pkg).Error; err != nil {
 		return fmt.Errorf("failed to create package: %v", err)
 	}
+
+	p.viewRefreshHandler.TableChanged(packageTableName)
+
 	return nil
 }
 

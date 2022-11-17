@@ -28,7 +28,8 @@ type ObjectTree interface {
 }
 
 type ObjectTreeHandler struct {
-	db *gorm.DB
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (o *ObjectTreeHandler) SetApplication(app *Application, params *TransactionParams, shouldUpdatePackageVulnerabilities bool) error {
@@ -67,6 +68,8 @@ func (o *ObjectTreeHandler) updateApplication(tx *gorm.DB, app *Application, sho
 		Association("Resources").Replace(app.Resources); err != nil {
 		return fmt.Errorf("failed to update application resources association: %v", err)
 	}
+
+	o.tableChanged(applicationTableName, resourceTableName)
 
 	return nil
 }
@@ -115,6 +118,8 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 		return fmt.Errorf("failed to update resource cis_d_b_checks association: %v", err)
 	}
 
+	o.tableChanged(resourceTableName, packageTableName)
+
 	return nil
 }
 
@@ -136,5 +141,13 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 		}
 	}
 
+	o.tableChanged(packageTableName, vulnerabilityTableName)
+
 	return nil
+}
+
+func (o *ObjectTreeHandler) tableChanged(tables ...string) {
+	for _, table := range tables {
+		o.viewRefreshHandler.TableChanged(table)
+	}
 }

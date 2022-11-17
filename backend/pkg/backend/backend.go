@@ -49,13 +49,14 @@ func CreateBackend(dbHandler *_database.Handler) *Backend {
 
 func createDatabaseConfig(config *_config.Config) *_database.DBConfig {
 	return &_database.DBConfig{
-		DriverType:     config.DatabaseDriver,
-		EnableInfoLogs: config.EnableDBInfoLogs,
-		DBPassword:     config.DBPassword,
-		DBUser:         config.DBUser,
-		DBHost:         config.DBHost,
-		DBPort:         config.DBPort,
-		DBName:         config.DBName,
+		DriverType:                config.DatabaseDriver,
+		EnableInfoLogs:            config.EnableDBInfoLogs,
+		DBPassword:                config.DBPassword,
+		DBUser:                    config.DBUser,
+		DBHost:                    config.DBHost,
+		DBPort:                    config.DBPort,
+		DBName:                    config.DBName,
+		ViewRefreshIntervalSecond: config.ViewRefreshIntervalSecond,
 	}
 }
 
@@ -82,6 +83,8 @@ func Run() {
 
 	dbConfig := createDatabaseConfig(config)
 	dbHandler := _database.Init(dbConfig)
+
+	go dbHandler.RefreshMaterializedViews()
 
 	if config.EnableFakeData {
 		go dbHandler.CreateFakeData()

@@ -18,9 +18,10 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"gotest.tools/assert"
 	"os"
 	"testing"
+
+	"gotest.tools/assert"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -78,7 +79,7 @@ func TestMain(m *testing.M) {
 			t.Logf("BeforeEachTest")
 
 			t.Logf("deploying kubeclarity...")
-			if err := common.InstallKubeClarity(helmManager, "--create-namespace --wait"); err != nil {
+			if err := common.InstallKubeClarity(helmManager, "--create-namespace -f testvalues.yaml"); err != nil {
 				return nil, fmt.Errorf("failed to install kubeclarity: %v", err)
 			}
 

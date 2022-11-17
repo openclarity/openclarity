@@ -45,7 +45,8 @@ type SchedulerTable interface {
 }
 
 type SchedulerTableHandler struct {
-	table *gorm.DB
+	table              *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Scheduler) TableName() string {
