@@ -111,7 +111,8 @@ type JoinTables interface {
 }
 
 type JoinTablesHandler struct {
-	db *gorm.DB
+	db                 *gorm.DB
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 type DeleteRelationshipsParams struct {
@@ -154,6 +155,8 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 	if err != nil {
 		return fmt.Errorf("failed to delete relationships: %v", err)
 	}
+
+	j.tableChanged(packageTableName, resourceTableName, applicationTableName, vulnerabilityTableName)
 
 	return nil
 }
@@ -254,4 +257,10 @@ func (j *JoinTablesHandler) setPackageResourcesFilters(tx *gorm.DB, params opera
 	tx = FilterArrayDoesntContain(tx, columnPackageResourcesInfoViewAnalyzers, params.ReportingSBOMAnalyzersDoesntContainElements)
 
 	return tx
+}
+
+func (j *JoinTablesHandler) tableChanged(tables ...string) {
+	for _, table := range tables {
+		j.viewRefreshHandler.TableChanged(table)
+	}
 }
