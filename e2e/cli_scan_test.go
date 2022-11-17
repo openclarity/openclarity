@@ -86,6 +86,7 @@ func TestCLIScan(t *testing.T) {
 			// scan image
 			t.Logf("scan image...")
 			scanImage(t, TestImageName, appID)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateScanImage(t, appID)
 
 			return ctx
@@ -98,6 +99,7 @@ func TestCLIScan(t *testing.T) {
 			// analyze "bad" image
 			t.Logf("analyze image...")
 			analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, MissingMetaImageAnalyzeOutputSBOMFile)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateAnalyzeImage(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
 
 			// scan merged sbom
