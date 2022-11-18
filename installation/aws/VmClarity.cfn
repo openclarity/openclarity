@@ -217,32 +217,107 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
+          # ##########################
+          # Allow snapshots everywhere in the AWS account to ensure that we can
+          # snapshot all the VMs. Enforce that we tag those snapshots with the
+          # VMClarity Owner tag so that we can control deleting them.
           - Effect: "Allow"
             Action:
-              - "ec2:DetachVolume"
-              - "ec2:AttachVolume"
-              - "ec2:ExportImage"
-              - "ec2:TerminateInstances"
-              - "ec2:DeleteTags"
-              - "ec2:CreateTags"
-              - "ec2:RunInstances"
-              - "ec2:StopInstances"
-              - "ec2:DescribeVolumeAttribute"
-              - "ec2:CreateVolume"
-              - "ec2:DescribeStoreImageTasks"
-              - "ec2:DeleteVolume"
-              - "ec2:StartInstances"
-              - "ec2:CreateSnapshots"
               - "ec2:CreateSnapshot"
+              - "ec2:CreateSnapshots"
             Resource:
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:security-group/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:volume/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:subnet/*"
               - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:instance/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:network-interface/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*::image/*"
+              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
               - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:export-image-task/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+          #
+          # ##########################
+
+          # ##########################
+          # Only allow RunInstances inside of the VMClarity VPC by enforcing
+          # that the Subnet the Instance is created in belongs to the VmClarity
+          # VPC.
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:subnet/*"
+            Condition:
+              ArnEquals:
+                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarity}"
+          # Force that we tag the instance when we create it, this is so that
+          # we can limit the instances we're allow to terminate. Only tag
+          # allowed is "Owner" with value "VmClarity".
+          - Effect: "Allow"
+            Action:
+              - "ec2:RunInstances"
+              - "ec2:CreateVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+          # Allow instances to be created with any security group and image in
+          # our account and region.
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:security-group/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}::image/*"
+          #
+          # ##########################
+
+          # ##########################
+          # Limit CreateTags to just creating an instance, volume or snapshot
+          # otherwise we could modify existing resources to allow us to delete
+          # them.
+          - Effect: "Allow"
+            Action: "ec2:CreateTags"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:instance/*"
+              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "ec2:CreateAction":
+                  - RunInstances
+                  - CreateVolume
+                  - CreateSnapshot
+                  - CreateSnapshots
+          #
+          # ##########################
+
+          # ##########################
+          # Only allow to start, stop and terminate the instances, volumes and
+          # snapshots that we created using the tags to identify them.
+          - Effect: "Allow"
+            Action:
+              - "ec2:StartInstances"
+              - "ec2:StopInstances"
+              - "ec2:TerminateInstances"
+              - "ec2:DeleteVolume"
+              - "ec2:DeleteSnapshot"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
+          #
+          # ##########################
+
+          # ##########################
+          # Allow VMClarity to query everything
           - Effect: "Allow"
             Action:
             - "ec2:DescribeImages"
@@ -252,7 +327,10 @@ Resources:
             - "ec2:DescribeVolumesModifications"
             - "ec2:DescribeSnapshots"
             - "ec2:DescribeInstanceStatus"
+            - "ec2:DescribeVolumeAttribute"
             Resource: "*"
+          #
+          # ##########################
       Roles:
         - Ref: "VmClarityServerRole"
   # Create a IAM role which will contain the policy above.
