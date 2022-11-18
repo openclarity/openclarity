@@ -29,12 +29,12 @@ type AnalyzerTrivyConfig struct {
 	Timeout int `yaml:"timeout" mapstructure:"timeout"`
 }
 
-func setTrivyConfigDefaults() {
+func setAnalyzerTrivyConfigDefaults() {
 	viper.SetDefault(AnalyzerTrivyTimeoutSeconds, AnalyzerTrivyTimeoutSecondsDefault)
 }
 
 func LoadAnalyzerTrivyConfig() AnalyzerTrivyConfig {
-	setTrivyConfigDefaults()
+	setAnalyzerTrivyConfigDefaults()
 
 	return AnalyzerTrivyConfig{
 		Timeout: viper.GetInt(AnalyzerTrivyTimeoutSeconds),
@@ -50,5 +50,35 @@ func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) Analyze
 	return AnalyzerTrivyConfigEx{
 		OutputFormat: analyzer.OutputFormat,
 		Timeout:      time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+	}
+}
+
+const ScannerTrivyTimeoutSecondsDefault = 300
+
+const ScannerTrivyTimeoutSeconds = "SCANNER_TRIVY_TIMEOUT_SECONDS"
+
+type ScannerTrivyConfig struct {
+	Timeout int
+}
+
+func setScannerTrivyConfigDefaults() {
+	viper.SetDefault(ScannerTrivyTimeoutSeconds, ScannerTrivyTimeoutSecondsDefault)
+}
+
+func LoadScannerTrivyConfig() ScannerTrivyConfig {
+	setScannerTrivyConfigDefaults()
+
+	return ScannerTrivyConfig{
+		Timeout: viper.GetInt(ScannerTrivyTimeoutSeconds),
+	}
+}
+
+type LocalScannerTrivyConfigEx struct {
+	Timeout time.Duration
+}
+
+func CreateLocalScannerTrivyConfigEx(scanner *Scanner, registry *Registry) LocalScannerTrivyConfigEx {
+	return LocalScannerTrivyConfigEx{
+		Timeout: time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
 	}
 }

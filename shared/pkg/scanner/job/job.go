@@ -19,6 +19,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/trivy"
 )
 
 var Factory = job_manager.NewJobFactory()
@@ -26,4 +27,5 @@ var Factory = job_manager.NewJobFactory()
 func init() {
 	Factory.Register(grype.ScannerName, grype.New)
 	Factory.Register(dependency_track.ScannerName, dependency_track.New)
+	Factory.Register(trivy.ScannerName, trivy.New)
 }

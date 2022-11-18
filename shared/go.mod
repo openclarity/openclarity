@@ -10,6 +10,7 @@ require (
 	github.com/anchore/stereoscope v0.0.0-20221006201143-d24c9d626b33
 	github.com/anchore/syft v0.60.3
 	github.com/aquasecurity/trivy v0.34.0
+	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/containers/image/v5 v5.19.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.2
@@ -83,7 +84,6 @@ require (
 	github.com/aquasecurity/memoryfs v1.4.4 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aws/aws-sdk-go v1.44.114 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.16 // indirect
