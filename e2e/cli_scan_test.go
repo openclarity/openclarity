@@ -119,8 +119,8 @@ func getCdxSbom(t *testing.T, fileName string) *cdx.BOM {
 	t.Helper()
 	sbom, err := os.ReadFile(fileName)
 	assert.NilError(t, err)
-	input := formatter.New(formatter.CycloneDXFormat, sbom)
-	assert.NilError(t, input.Decode(formatter.CycloneDXFormat))
+	input := formatter.New(formatter.CycloneDXJSONFormat, sbom)
+	assert.NilError(t, input.Decode(formatter.CycloneDXJSONFormat))
 	return input.GetSBOM().(*cdx.BOM)
 }
 
