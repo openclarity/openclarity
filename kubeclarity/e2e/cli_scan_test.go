@@ -35,13 +35,18 @@ import (
 )
 
 const (
-	DirectoryAnalyzeOutputSBOMFile        = "dir.sbom"
-	ImageAnalyzeOutputSBOMFile            = "merged.sbom"
-	TestImageName                         = "nginx:1.10"
+	DirectoryAnalyzeOutputSBOMFile = "dir.sbom"
+	ImageAnalyzeOutputSBOMFile     = "merged.sbom"
+	TestImageName                  = "nginx:1.10"
+	ApplicationName                = "test-app"
+
 	TestImageWithMissingSyftMetadata      = "docker.io/weaveworksdemos/front-end:sha-14254f9"
 	MissingMetaImageAnalyzeOutputSBOMFile = "missingmeta.sbom"
-	ApplicationName                       = "test-app"
 	MissingMetaApplicationName            = "test-app-missingm"
+
+	TestImageWithNoComponents              = "gcr.io/google_containers/pause@sha256:927d98197ec1141a368550822d18fa1c60bdae27b78b0c004f705f548c07814f"
+	NoComponentsImageAnalyzeOutputSBOMFile = "nocomponents.sbom"
+	NoComponentsApplicationName            = "test-app-nocompos"
 )
 
 func TestCLIScan(t *testing.T) {
@@ -107,6 +112,35 @@ func TestCLIScan(t *testing.T) {
 			scanSBOM(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateScanSBOM(t, appID)
+
+			return ctx
+		}).
+		Assess("cli scan flow - image with no components", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+			// create application
+			t.Logf("create application...")
+			appID := createApplication(t, NoComponentsApplicationName)
+
+			// analyze "bad" image
+			t.Logf("analyze image...")
+			analyzeImage(t, "", appID, TestImageWithNoComponents, NoComponentsImageAnalyzeOutputSBOMFile)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+
+			// check generated sbom is a valid cyclonedx even
+			// though there is no components
+			sbom := getCdxSbom(t, NoComponentsImageAnalyzeOutputSBOMFile)
+			assert.Assert(t, sbom != nil)
+			assert.Assert(t, sbom.Components != nil)
+			assert.Assert(t, len(*sbom.Components) == 0)
+
+			// scan sbom with no componenents
+			t.Logf("scan merged sbom...")
+			scanSBOM(t, NoComponentsImageAnalyzeOutputSBOMFile, appID)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+
+			// validate scan results were sent to the backend but
+			// no vuls were found because its got no components
+			vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
+			assert.Assert(t, *vuls.Total == 0)
 
 			return ctx
 		}).Feature()
