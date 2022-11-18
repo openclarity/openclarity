@@ -158,10 +158,17 @@ Resources:
       VpcId: !Ref VmClarity
       GroupDescription: Allow access from HTTP and SSH traffic
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
+        # TODO(sambetts) Reenable HTTP/HTTPS when we have some kind of
+        # authentication built in, for now only expose the UI through an
+        # authenticated SSH tunnel.
+        #- IpProtocol: tcp
+        #  FromPort: 80
+        #  ToPort: 80
+        #  CidrIp: 0.0.0.0/0
+        #- IpProtocol: tcp
+        #  FromPort: 443
+        #  ToPort: 443
+        #  CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
@@ -343,5 +350,5 @@ Mappings:
       HVM64: ami-0883e8062ff31f727
 Outputs:
   URL:
-    Value: !Sub "http://${VmClarityServer.PublicIp}"
-    Description: VmClarity UI Address
+    Value: !Sub "${VmClarityServer.PublicIp}"
+    Description: VmClarity SSH Address
