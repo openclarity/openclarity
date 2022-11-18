@@ -68,10 +68,10 @@ Resources:
           files:
             "/etc/cfn/cfn-hup.conf":
               content:
-                Fn::Sub: | 
+                Fn::Sub: |
                   [main]
                   stack=${AWS::StackId}
-                  region=${AWS::Region} 
+                  region=${AWS::Region}
               mode: "000400"
               owner: root
               group: root
@@ -262,13 +262,13 @@ Resources:
       Path: "/"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
-        Statement: 
-          - 
+        Statement:
+          -
             Effect: "Allow"
-            Principal: 
-              Service: 
+            Principal:
+              Service:
                 - "ec2.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRole"
   # Create an InstanceProfile which binds the role to the VmClarityServer.
   VmClarityServerInstanceProfile:
