@@ -38,7 +38,7 @@ const (
 func setAnalyzerConfigDefaults() {
 	viper.SetDefault(AnalyzerList, []string{"syft", "gomod"})
 	viper.SetDefault(AnalyzerScope, "squashed")
-	viper.SetDefault(OutputFormat, formatter.CycloneDXFormat)
+	viper.SetDefault(OutputFormat, formatter.CycloneDXJSONFormat)
 }
 
 func LoadAnalyzerConfig() *Analyzer {
