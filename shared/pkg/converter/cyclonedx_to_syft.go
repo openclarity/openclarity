@@ -16,6 +16,7 @@
 package converter
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -87,7 +88,20 @@ func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 	r := bytes.NewReader(inputSBOMBytes)
 	sbom, format, err := syft.Decode(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to identify or decode file %s to recognised SBOM format: %w", inputSBOMFile, err)
+		// syft's Decode has an issue with identifying cyclonedx XML
+		// with an empty component list, if syft errors, and the first
+		// line is the XML header, then just assume it is cyclonedx XML
+		// and pass it on to switch statement below so that
+		// cyclonedx-go can decode it.
+		bufReader := bufio.NewReader(bytes.NewReader(inputSBOMBytes))
+		firstLine, _, rErr := bufReader.ReadLine()
+		if rErr == nil && string(firstLine) == `<?xml version="1.0" encoding="UTF-8"?>` {
+			format = syft.FormatByName("cyclonedx")
+		} else {
+			// If no luck manually identifying the file as XML,
+			// then just return the syft error.
+			return nil, fmt.Errorf("failed to identify or decode file %s to recognised SBOM format: %w", inputSBOMFile, err)
+		}
 	}
 
 	// If we've been given cyclonedx as the input decode directly using

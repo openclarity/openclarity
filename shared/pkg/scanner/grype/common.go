@@ -231,7 +231,7 @@ func parseLayerHex(layerID string) string {
 func getOriginalInputAndHashFromSBOM(inputSBOMFile string) (string, string, error) {
 	cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
 	if err != nil {
-		return "", "", converter.ErrFailedToGetCycloneDXSBOM
+		return "", "", fmt.Errorf("failed to get SBOM from file: %w", err)
 	}
 
 	hash, err := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
