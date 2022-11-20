@@ -8,6 +8,15 @@ ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
 
+# Copy runtime_scan go.mod & go.sum
+WORKDIR /build/runtime_scan
+COPY runtime_scan/go.* ./
+RUN go mod download
+
+# Copy runtime_scan code
+WORKDIR /build
+COPY runtime_scan ./runtime_scan
+
 # Copy and build backend code
 COPY . .
 RUN go build -ldflags="-s -w \
