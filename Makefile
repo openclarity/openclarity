@@ -43,6 +43,7 @@ push-docker: docker ## Build and Push VMClarity docker image
 .PHONY: test
 test: ## Run Unit Tests
 	@(CGO_ENABLED=0 go test ./...)
+	@(cd runtime_scan && go test ./...)
 
 .PHONY: clean
 clean: ## Clean all build artifacts
@@ -57,10 +58,12 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
 	./bin/golangci-lint run
+	cd runtime_scan && ../bin/golangci-lint run
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
 	./bin/golangci-lint run --fix
+	cd runtime_scan && ../bin/golangci-lint run --fix
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
 	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
@@ -72,7 +75,6 @@ bin/licensei-${LICENSEI_VERSION}:
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
 	./bin/licensei header
-	./bin/licensei check --config=.licensei.toml
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
@@ -80,3 +82,7 @@ license-cache: bin/licensei ## Generate license cache
 
 .PHONY: check
 check: lint test ## Run tests and linters
+
+.PHONY: gomod-tidy
+gomod-tidy:
+	cd runtime_scan && go mod tidy
