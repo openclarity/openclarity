@@ -90,12 +90,12 @@ bin/licensei-${LICENSEI_VERSION}:
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
 	./bin/licensei header
-	cd backend/pkg && ../../bin/licensei check --config=../../.licensei.toml
+	cd backend && ../bin/licensei check --config=../.licensei.toml
 	cd runtime_scan && ../bin/licensei check --config=../.licensei.toml
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
-	cd backend/pkg && ../../bin/licensei cache --config=../../.licensei.toml
+	cd backend && ../bin/licensei cache --config=../.licensei.toml
 	cd runtime_scan && ../bin/licensei cache --config=../.licensei.toml
 
 .PHONY: check
