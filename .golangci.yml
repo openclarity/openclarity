@@ -9,6 +9,11 @@ linters-settings:
   errorlint:
     # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
     errorf: false
+  gomoddirectives:
+    # Allow local `replace` directives. Default is false.
+    replace-local: true
+    # List of allowed `replace` directives. Default is empty.
+    replace-allow-list:
 
   gosec:
     # To specify a set of rules to explicitly exclude.

@@ -1,0 +1,37 @@
+FROM golang:1.19.3-alpine AS builder
+
+RUN apk add --update --no-cache gcc g++ git
+
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+
+# Copy runtime_scan go.mod & go.sum
+WORKDIR /build/runtime_scan
+COPY runtime_scan/go.* ./
+RUN go mod download
+
+# Copy runtime_scan code
+WORKDIR /build
+COPY runtime_scan ./runtime_scan
+
+# Copy backend go.mod & go.sum
+WORKDIR /build/backend
+COPY backend/go.* ./
+RUN go mod download
+
+# Copy and build backend code
+WORKDIR /build/backend
+COPY backend .
+RUN go build -ldflags="-s -w \
+     -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/vmclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
+
+FROM alpine:3.16
+
+WORKDIR /app
+
+COPY --from=builder ["/build/backend/backend", "./backend"]
+
+ENTRYPOINT ["/app/backend"]
