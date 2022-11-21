@@ -8,7 +8,20 @@ approved = [
 ]
 
 ignored = [
-
+    "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
+    "github.com/jmespath/go-jmespath", # Apache 2.0 - https://github.com/jmespath/go-jmespath/blob/master/LICENSE
+    "github.com/aws/aws-sdk-go-v2", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/credentials", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/credentials/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/feature/ec2/imds", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/feature/ec2/imds/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/internal/configsources", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/internal/configsources/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/internal/endpoints/v2:", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/internal/endpoints/v2/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/service/sso", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/service/sso/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/service/ssooidc", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/service/ssooidc/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/service/internal/presigned-url", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/service/internal/presigned-url/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/service/sts", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/service/sts/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/internal/ini", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/internal/ini/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/config", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/config/LICENSE.txt
+    "github.com/aws/aws-sdk-go-v2/service/ec2", # Apache 2.0 - https://github.com/aws/aws-sdk-go-v2/blob/main/service/ec2/LICENSE.txt
 ]
 
 [header]
