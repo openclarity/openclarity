@@ -21,32 +21,46 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 .PHONY: build
-build: ## Build VMClarity
-	@(echo "Building VMClarity" )
-	@(go build -ldflags="-s -w \
-           -X 'github.com/openclarity/vmclarity/pkg/version.Version=${VERSION}'" -o bin/${BINARY_NAME} ./main.go \
-           && ls -lh bin/${BINARY_NAME})
+build: build-all-go ## Build All
+
+.PHONY: build-all-go
+build-all-go: backend ## Build All GO executables
+
+.PHONY: backend
+backend: ## Build Backend
+	@(echo "Building Backend ..." )
+	@(cd backend && go build -o bin/backend cmd/backend/main.go && ls -l bin/)
 
 .PHONY: docker
-docker:  ## Build VMClarity docker image
-	@(echo "Building VMClarity docker image ..." )
-	docker build --file ./Dockerfile --build-arg VERSION=${VERSION} \
+docker: docker-backend ## Build All Docker images
+
+.PHONY: push-docker
+push-docker: push-docker-backend ## Build and Push All Docker images
+
+.PHONY: docker-backend
+docker-backend: ## Build Backend Docker image
+	@(echo "Building backend docker image ..." )
+	docker build --file ./Dockerfile.backend --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
 		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
-.PHONY: push-docker
-push-docker: docker ## Build and Push VMClarity docker image
-	@echo "Publishing VMClarity Docker image ..."
+.PHONY: push-docker-backend
+push-docker-backend: docker-backend ## Build and Push Backend Docker image
+	@echo "Publishing backend docker image ..."
 	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
 
 .PHONY: test
 test: ## Run Unit Tests
-	@(CGO_ENABLED=0 go test ./...)
+	@(cd backend && go test ./...)
 	@(cd runtime_scan && go test ./...)
 
+.PHONY: clean-backend
+clean-backend:
+	@(rm -rf backend/bin ; echo "Backend cleanup done" )
+
 .PHONY: clean
-clean: ## Clean all build artifacts
+clean: clean-backend ## Clean all build artifacts
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
@@ -57,12 +71,13 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
-	./bin/golangci-lint run
+	cd backend && ../bin/golangci-lint run
 	cd runtime_scan && ../bin/golangci-lint run
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
 	./bin/golangci-lint run --fix
+	cd backend && ../bin/golangci-lint run --fix
 	cd runtime_scan && ../bin/golangci-lint run --fix
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
@@ -75,14 +90,18 @@ bin/licensei-${LICENSEI_VERSION}:
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
 	./bin/licensei header
+	cd backend/pkg && ../../bin/licensei check --config=../../.licensei.toml
+	cd runtime_scan && ../bin/licensei check --config=../.licensei.toml
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
-	./bin/licensei cache
+	cd backend/pkg && ../../bin/licensei cache --config=../../.licensei.toml
+	cd runtime_scan && ../bin/licensei cache --config=../.licensei.toml
 
 .PHONY: check
 check: lint test ## Run tests and linters
 
 .PHONY: gomod-tidy
 gomod-tidy:
+	cd backend && go mod tidy
 	cd runtime_scan && go mod tidy

@@ -63,7 +63,7 @@ jobs:
         with:
           context: .
           tags: ghcr.io/openclarity/vmclarity:${{ inputs.image_tag }}
-          file: Dockerfile
+          file: Dockerfile.backend
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
           cache-from: type=local,src=/tmp/.buildx-cache
