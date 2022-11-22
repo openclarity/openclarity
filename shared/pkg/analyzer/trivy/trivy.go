@@ -22,6 +22,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 
@@ -30,6 +32,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
 const AnalyzerName = "trivy"
@@ -53,6 +56,7 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 	}
 }
 
+// nolint:cyclop
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %v %v", a.name, sourceType, userInput)
 	go func() {
@@ -103,12 +107,35 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
+		sbom, ok := frm.GetSBOM().(*cdx.BOM)
+		if !ok {
+			a.setError(res, fmt.Errorf("SBOM from formatter incorrect type got %T", frm.GetSBOM()))
+			return
+		}
+
 		if err := frm.Encode(a.config.OutputFormat); err != nil {
 			a.setError(res, fmt.Errorf("failed to encode trivy results: %w", err))
 			return
 		}
 
 		res = analyzer.CreateResults(frm.GetSBOMBytes(), a.name, userInput, sourceType)
+
+		// Trivy doesn't include the version information in the
+		// component of CycloneDX but it does include the RepoDigest as
+		// a property of the component.
+		//
+		// Get the RepoDigest from image metadata and use it as
+		// SourceHash in the Result that will be added to the component
+		// hash of metadata during the merge.
+		if sourceType == utils.IMAGE {
+			hash, err := getImageHash(sbom.Metadata.Component.Properties, userInput)
+			if err != nil {
+				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
+				return
+			}
+			res.AppInfo.SourceHash = hash
+		}
+
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
 	}()
@@ -120,4 +147,18 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 	res.Error = err
 	a.logger.Error(res.Error)
 	a.resultChan <- res
+}
+
+func getImageHash(properties *[]cdx.Property, src string) (string, error) {
+	if properties == nil {
+		return "", fmt.Errorf("properties was nil")
+	}
+
+	for _, property := range *properties {
+		if property.Name == "aquasecurity:trivy:RepoDigest" {
+			return image_helper.GetHashFromRepoDigest([]string{property.Value}, src), nil
+		}
+	}
+
+	return "", fmt.Errorf("repo digest property missing from Metadata.Component")
 }
