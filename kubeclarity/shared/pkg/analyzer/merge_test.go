@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/google/go-cmp/cmp"
 	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
@@ -223,6 +224,7 @@ func createExpectedMergedComponent() *MergedComponent {
 	}
 	expectedComponent.appendAnalyzerInfo("syft")
 	expectedComponent.appendAnalyzerInfo("gomod")
+	expectedComponent.BomRefs = []string{"pkg:golang/test.org/test@v1.0.0?type=module"}
 
 	return expectedComponent
 }
@@ -259,9 +261,9 @@ func Test_handleComponentWithExistingKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := handleComponentWithExistingKey(tt.args.mergedComponent, tt.args.otherComponent, tt.args.analyzerInfo); !reflect.DeepEqual(got, tt.want) {
-				t.Logf("properties got %v, properties want %v", got.Component.Properties, tt.want.Component.Properties)
-				t.Errorf("handleComponentWithExistingKey() = %v, want %v", got, tt.want)
+			got := handleComponentWithExistingKey(tt.args.mergedComponent, tt.args.otherComponent, tt.args.analyzerInfo)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("handleComponentWithExistingKey() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
