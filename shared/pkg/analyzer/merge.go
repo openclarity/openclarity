@@ -35,11 +35,14 @@ type MergedResults struct {
 	Source               utils.SourceType
 	SourceHash           string
 	SrcMetaData          *cdx.Metadata
+	SrcMetaDataBomRefs   []string
+	Dependencies         *[]cdx.Dependency
 }
 
 type MergedComponent struct {
 	Component    cdx.Component
 	AnalyzerInfo []string
+	BomRefs      []string
 }
 
 func NewMergedResults(sourceType utils.SourceType, hash string) *MergedResults {
@@ -59,31 +62,48 @@ func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
 		log.Errorf("Failed to decode results: %v", err)
 		return m
 	}
+
+	// merge bom.Metadata.Component if it exists
+	m.mergeMainComponent(bom)
+
+	if other.AppInfo.SourceHash != "" {
+		m.addSourceHash(other.AppInfo.SourceHash)
+	}
+
+	if bom.Components != nil {
+		otherComponentsByKey := toComponentByKey(bom.Components)
+		for key, otherComponent := range otherComponentsByKey {
+			if mergedComponent, ok := m.MergedComponentByKey[key]; !ok {
+				log.Debugf("Adding new component results from %v. key=%v", other.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = newMergedComponent(otherComponent, other.AnalyzerInfo)
+			} else {
+				log.Debugf("Adding existing component results from %v. key=%v", other.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, other.AnalyzerInfo)
+			}
+		}
+	}
+
+	if bom.Dependencies != nil {
+		// TODO merge dependencies after normalize
+		m.Dependencies = m.normalizeDependencies(bom.Dependencies)
+	}
+
+	return m
+}
+
+func (m *MergedResults) mergeMainComponent(bom *cdx.BOM) {
+	// Keep track of all SBOM refs given to the main component so that we
+	// can normalize them later.
+	if bom.Metadata != nil && bom.Metadata.Component != nil && bom.Metadata.Component.BOMRef != "" {
+		m.SrcMetaDataBomRefs = append(m.SrcMetaDataBomRefs, bom.Metadata.Component.BOMRef)
+	}
+
 	if m.SrcMetaData == nil {
 		m.SrcMetaData = bom.Metadata
 	} else {
 		component := mergeCDXComponent(*m.SrcMetaData.Component, *bom.Metadata.Component, true)
 		m.SrcMetaData.Component = &component
 	}
-	if other.AppInfo.SourceHash != "" {
-		m.addSourceHash(other.AppInfo.SourceHash)
-	}
-	if bom.Components == nil {
-		log.Debugf("Decoded bom doesn't contain any components")
-		return m
-	}
-	otherComponentsByKey := toComponentByKey(bom.Components)
-	for key, otherComponent := range otherComponentsByKey {
-		if mergedComponent, ok := m.MergedComponentByKey[key]; !ok {
-			log.Debugf("Adding new component results from %v. key=%v", other.AnalyzerInfo, key)
-			m.MergedComponentByKey[key] = newMergedComponent(otherComponent, other.AnalyzerInfo)
-		} else {
-			log.Debugf("Adding existing component results from %v. key=%v", other.AnalyzerInfo, key)
-			m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, other.AnalyzerInfo)
-		}
-	}
-
-	return m
 }
 
 func (m *MergedResults) CreateMergedSBOMBytes(format, version string) ([]byte, error) {
@@ -136,6 +156,9 @@ func newMergedComponent(component cdx.Component, analyzerInfo string) *MergedCom
 		Component: component,
 	}
 	mergedComponent.appendAnalyzerInfo(analyzerInfo)
+	if component.BOMRef != "" {
+		mergedComponent.BomRefs = append(mergedComponent.BomRefs, component.BOMRef)
+	}
 
 	return mergedComponent
 }
@@ -143,6 +166,9 @@ func newMergedComponent(component cdx.Component, analyzerInfo string) *MergedCom
 func handleComponentWithExistingKey(mergedComponent *MergedComponent, otherComponent cdx.Component, analyzerInfo string) *MergedComponent {
 	mergedComponent.Component = mergeCDXComponent(mergedComponent.Component, otherComponent, false)
 	mergedComponent.appendAnalyzerInfo(analyzerInfo)
+	if otherComponent.BOMRef != "" {
+		mergedComponent.BomRefs = append(mergedComponent.BomRefs, otherComponent.BOMRef)
+	}
 
 	return mergedComponent
 }
@@ -272,8 +298,53 @@ func (m *MergedResults) createMergedSBOM(version string) *cdx.BOM {
 	}
 	cdxBOM.Metadata = toBomDescriptor("kubeclarity", versionInfo, m.Source, m.SrcMetaData, m.SourceHash)
 	cdxBOM.Components = m.createComponentListFromMap()
+	cdxBOM.Dependencies = m.Dependencies
 
 	return cdxBOM
+}
+
+func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[]cdx.Dependency {
+	if dependencies == nil {
+		return nil
+	}
+
+	output := []cdx.Dependency{}
+	for _, dependency := range *dependencies {
+		newDep := cdx.Dependency{
+			Ref: m.getRealBomRefFromPreviousBomRef(dependency.Ref),
+		}
+
+		newDependsOn := []cdx.Dependency{}
+		for _, dependsOnRef := range *dependency.Dependencies {
+			newDependsOn = append(
+				newDependsOn,
+				cdx.Dependency{Ref: m.getRealBomRefFromPreviousBomRef(dependsOnRef.Ref)},
+			)
+		}
+
+		newDep.Dependencies = &newDependsOn
+		output = append(output, newDep)
+	}
+
+	return &output
+}
+
+func (m *MergedResults) getRealBomRefFromPreviousBomRef(bomRef string) string {
+	for _, mergedComponent := range m.MergedComponentByKey {
+		for _, ref := range mergedComponent.BomRefs {
+			if ref == bomRef {
+				return mergedComponent.Component.BOMRef
+			}
+		}
+	}
+
+	for _, ref := range m.SrcMetaDataBomRefs {
+		if ref == bomRef {
+			return m.SrcMetaData.Component.BOMRef
+		}
+	}
+
+	return bomRef
 }
 
 // toBomDescriptor returns metadata tailored for the current time and tool details.

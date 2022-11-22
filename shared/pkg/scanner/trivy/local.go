@@ -48,12 +48,19 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 	go func() {
 		var output bytes.Buffer
 
+		// Get the Trivy CVE DB URL default value from the trivy
+		// configuration, we may want to make this configurable in the
+		// future.
 		dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Value.(string)
 		if !ok {
 			a.setError(fmt.Errorf("unable to get trivy DB repo config"))
 			return
 		}
 
+		// Build a list of CVE severities for the trivy scanner to
+		// report.  trivyDBTypes.SeverityNames contains all the
+		// severities that trivy supports and we want them all in our
+		// report at the moment.
 		severities := []trivyDBTypes.Severity{}
 		for _, name := range trivyDBTypes.SeverityNames {
 			sev, err := trivyDBTypes.NewSeverity(strings.ToUpper(name))
@@ -75,18 +82,18 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 				},
 			},
 			ReportOptions: trivyFlag.ReportOptions{
-				Format:       "json",  // Trivy's own json format is the most complete for vuls
-				ReportFormat: "all",   // Full report not just summary
-				Output:       &output, // Save the output to our local buffer instead of Stdout
-				ListAllPkgs:  false,   // Only include packages with vulnerabilities
-				Severities:   severities,
+				Format:       "json",     // Trivy's own json format is the most complete for vuls
+				ReportFormat: "all",      // Full report not just summary
+				Output:       &output,    // Save the output to our local buffer instead of Stdout
+				ListAllPkgs:  false,      // Only include packages with vulnerabilities
+				Severities:   severities, // All the severities from the above
 			},
 			DBOptions: trivyFlag.DBOptions{
 				DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB
 				NoProgress:   true,               // Disable the interactive progress bar
 			},
 			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
-				VulnType: []string{trivyTypes.VulnTypeOS, trivyTypes.VulnTypeLibrary},
+				VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
 			},
 		}
 
