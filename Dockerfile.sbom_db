@@ -20,7 +20,7 @@ RUN go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o sbom_db ./cmd/main.go
 
-FROM alpine:3.16
+FROM alpine:3.17.0
 
 WORKDIR /app
 

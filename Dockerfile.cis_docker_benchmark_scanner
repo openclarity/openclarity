@@ -28,7 +28,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o cis_docker_benchmark_scanner ./cmd/main.go
 
-FROM alpine:3.16
+FROM alpine:3.17.0
 
 WORKDIR /app
 
