@@ -29,7 +29,6 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
@@ -227,18 +226,4 @@ func parseLayerHex(layerID string) string {
 	}
 
 	return layerID[index+1:]
-}
-
-func getOriginalInputAndHashFromSBOM(inputSBOMFile string) (string, string, error) {
-	cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get SBOM from file: %w", err)
-	}
-
-	hash, err := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
-	if err != nil {
-		return "", "", fmt.Errorf("unable to get hash from original SBOM: %w", err)
-	}
-
-	return cdxBOM.Metadata.Component.Name, hash, nil
 }
