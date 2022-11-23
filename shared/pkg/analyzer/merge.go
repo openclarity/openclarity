@@ -248,7 +248,7 @@ func mergeCDXComponent(mergedComponent, otherComponent cdx.Component, main bool)
 	}
 	// Properties can be provided by the syft and te cycloneDX-gomod, needs to be merged.
 	if otherComponent.Properties != nil {
-		mergeProperties(mergedComponent.Properties, otherComponent.Properties)
+		mergedComponent.Properties = mergeProperties(mergedComponent.Properties, otherComponent.Properties)
 	}
 	// PackageURL in the case of cycloneDX-gomod contains type of the package as well.
 	// We use the longer PURL.
