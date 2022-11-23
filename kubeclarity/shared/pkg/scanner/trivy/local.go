@@ -35,6 +35,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
+	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 type LocalScanner struct {
@@ -119,7 +120,7 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 
 		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
 		if err != nil {
-			a.setError(fmt.Errorf("failed to generate SBOM: %w", err))
+			a.setError(fmt.Errorf("failed to scan for vulnerabilities: %w", err))
 			return
 		}
 
@@ -139,21 +140,29 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	v3Collected := false
 	for _, cvss := range vCvss {
 		if cvss.V3Vector != "" && !v3Collected {
+			exploit, impact := utilsVul.ExploitScoreAndImpactScoreFromV3Vector(cvss.V3Vector)
+
 			cvsses = append(cvsses, scanner.CVSS{
-				Version: "3.1",
+				Version: utilsVul.GetCVSSV3VersionFromVector(cvss.V3Vector),
 				Vector:  cvss.V3Vector,
 				Metrics: scanner.CvssMetrics{
-					BaseScore: cvss.V3Score,
+					BaseScore:           cvss.V3Score,
+					ExploitabilityScore: &exploit,
+					ImpactScore:         &impact,
 				},
 			})
 			v3Collected = true
 		}
 		if cvss.V2Vector != "" && !v2Collected {
+			exploit, impact := utilsVul.ExploitScoreAndImpactScoreFromV2Vector(cvss.V2Vector)
+
 			cvsses = append(cvsses, scanner.CVSS{
 				Version: "2.0",
 				Vector:  cvss.V2Vector,
 				Metrics: scanner.CvssMetrics{
-					BaseScore: cvss.V2Score,
+					BaseScore:           cvss.V2Score,
+					ExploitabilityScore: &exploit,
+					ImpactScore:         &impact,
 				},
 			})
 			v2Collected = true

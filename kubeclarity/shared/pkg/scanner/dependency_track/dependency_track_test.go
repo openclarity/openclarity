@@ -62,32 +62,6 @@ func Test_getLinks(t *testing.T) {
 	}
 }
 
-func Test_getCVSSV3Version(t *testing.T) {
-	type args struct {
-		cvssV3Vector string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "sanity",
-			args: args{
-				cvssV3Vector: "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:H",
-			},
-			want: "3.0",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getCVSSV3Version(tt.args.cvssV3Vector); got != tt.want {
-				t.Errorf("getCVSSV3Version() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_removeParentheses(t *testing.T) {
 	type args struct {
 		vector string
