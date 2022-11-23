@@ -34,6 +34,8 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
 	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
 	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
@@ -48,12 +50,19 @@ type LocalScanner struct {
 func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 	go func() {
+		var hash string
 		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM:
-			// These are all supported for vuln scanning so continue
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+		case utils.SBOM:
+			var err error
+			_, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
+			if err != nil {
+				a.setError(fmt.Errorf("failed to get original source and hash from SBOM: %w", err))
+				return
+			}
 		default:
 			a.logger.Infof("Skipping scan for unsupported source type: %s", sourceType)
-			a.resultChan <- a.CreateResult(nil)
+			a.resultChan <- a.CreateResult(nil, hash)
 			return
 		}
 
@@ -125,7 +134,7 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 		}
 
 		a.logger.Infof("Sending successful results")
-		a.resultChan <- a.CreateResult(output.Bytes())
+		a.resultChan <- a.CreateResult(output.Bytes(), hash)
 	}()
 
 	return nil
@@ -171,7 +180,7 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	return cvsses
 }
 
-func (a *LocalScanner) CreateResult(trivyJSON []byte) *scanner.Results {
+func (a *LocalScanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	result := &scanner.Results{
 		Matches: nil, // empty results,
 		ScannerInfo: scanner.Info{
@@ -209,24 +218,36 @@ func (a *LocalScanner) CreateResult(trivyJSON []byte) *scanner.Results {
 				}
 			}
 
+			distro := scanner.Distro{}
+			if report.Metadata.OS != nil {
+				// Trivy calls the distro name (ubuntu, debian, alpine) the family
+				distro.Name = report.Metadata.OS.Family
+				// Trivy calls the version (11, hardy heron, 22.04) the name
+				distro.Version = report.Metadata.OS.Name
+			}
+
 			kbVul := scanner.Vulnerability{
 				ID:          vul.VulnerabilityID,
 				Description: vul.Description,
 				Links: []string{
 					vul.PrimaryURL,
 				},
-				Distro: scanner.Distro{
-					Name:    report.Metadata.OS.Family,
-					Version: report.Metadata.OS.Name,
-				},
+				Distro:   distro,
 				CVSS:     cvsses,
 				Fix:      fix,
-				Severity: vul.Severity,
+				Severity: strings.ToUpper(vul.Severity),
 				Package: scanner.Package{
 					Name:    vul.PkgName,
 					Version: vul.InstalledVersion,
 					PURL:    vul.Ref,
 					Type:    typ,
+					// TODO(sambetts) Trivy doesn't pass
+					// through this info from the SBOM so
+					// we might need to fill this out
+					// ourselves.
+					Language: "",
+					Licenses: nil,
+					CPEs:     nil,
 				},
 				LayerID: vul.Layer.Digest,
 				Path:    vul.PkgPath,
@@ -240,8 +261,14 @@ func (a *LocalScanner) CreateResult(trivyJSON []byte) *scanner.Results {
 
 	a.logger.Infof("Found %d vulnerabilities", len(matches))
 
+	if string(report.ArtifactType) == "container_image" {
+		hash = image_helper.GetHashFromRepoDigest(report.Metadata.RepoDigests, report.ArtifactName)
+	}
+
 	source := scanner.Source{
 		Name: report.ArtifactName,
+		Type: string(report.ArtifactType),
+		Hash: hash,
 	}
 
 	result.Matches = matches
