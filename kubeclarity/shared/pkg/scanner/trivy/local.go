@@ -34,6 +34,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
 )
 
 type LocalScanner struct {
@@ -46,6 +47,15 @@ type LocalScanner struct {
 func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 	go func() {
+		switch sourceType {
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM:
+			// These are all supported for vuln scanning so continue
+		default:
+			a.logger.Infof("Skipping scan for unsupported source type: %s", sourceType)
+			a.resultChan <- a.CreateResult(nil)
+			return
+		}
+
 		var output bytes.Buffer
 
 		// Get the Trivy CVE DB URL default value from the trivy
@@ -97,28 +107,17 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 			},
 		}
 
-		var trivySourceType artifact.TargetKind
-		switch sourceType {
-		case utils.IMAGE:
-			trivySourceType = artifact.TargetContainerImage
-		case utils.ROOTFS:
-			trivySourceType = artifact.TargetRootfs
-		case utils.DIR, utils.FILE:
-			trivySourceType = artifact.TargetFilesystem
-		case utils.SBOM:
-			trivySourceType = artifact.TargetSBOM
-		default:
-			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
-			a.resultChan <- &scanner.Results{
-				Matches: nil, // empty results,
-				ScannerInfo: scanner.Info{
-					Name: ScannerName,
-				},
-			}
+		// Convert the kubeclarity source to the trivy source type
+		trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceType)
+		if err != nil {
+			a.setError(fmt.Errorf("failed to configure trivy: %w", err))
 			return
 		}
 
-		err := artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+		// Ensure we're configured for private registry if required
+		trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
+
+		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
 		if err != nil {
 			a.setError(fmt.Errorf("failed to generate SBOM: %w", err))
 			return
@@ -169,6 +168,10 @@ func (a *LocalScanner) CreateResult(trivyJSON []byte) *scanner.Results {
 		ScannerInfo: scanner.Info{
 			Name: ScannerName,
 		},
+	}
+
+	if len(trivyJSON) == 0 {
+		return result
 	}
 
 	var report trivyTypes.Report
