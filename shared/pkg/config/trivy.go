@@ -44,12 +44,14 @@ func LoadAnalyzerTrivyConfig() AnalyzerTrivyConfig {
 type AnalyzerTrivyConfigEx struct {
 	OutputFormat string
 	Timeout      time.Duration
+	Registry     *Registry
 }
 
 func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) AnalyzerTrivyConfigEx {
 	return AnalyzerTrivyConfigEx{
 		OutputFormat: analyzer.OutputFormat,
 		Timeout:      time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+		Registry:     registry,
 	}
 }
 
@@ -74,11 +76,13 @@ func LoadScannerTrivyConfig() ScannerTrivyConfig {
 }
 
 type LocalScannerTrivyConfigEx struct {
-	Timeout time.Duration
+	Timeout  time.Duration
+	Registry *Registry
 }
 
 func CreateLocalScannerTrivyConfigEx(scanner *Scanner, registry *Registry) LocalScannerTrivyConfigEx {
 	return LocalScannerTrivyConfigEx{
-		Timeout: time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
+		Timeout:  time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
+		Registry: registry,
 	}
 }

@@ -33,6 +33,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
 )
 
 const AnalyzerName = "trivy"
@@ -62,6 +63,18 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	go func() {
 		res := &analyzer.Results{}
 
+		// Skip this analyser for input types we don't support
+		switch sourceType {
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+			// These are all supported for SBOM analysing so continue
+		case utils.SBOM:
+			fallthrough
+		default:
+			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
+			a.resultChan <- res
+			return
+		}
+
 		var output bytes.Buffer
 		trivyOptions := trivyFlag.Options{
 			GlobalOptions: trivyFlag.GlobalOptions{
@@ -79,23 +92,17 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			},
 		}
 
-		var trivySourceType artifact.TargetKind
-		switch sourceType {
-		case utils.IMAGE:
-			trivySourceType = artifact.TargetContainerImage
-		case utils.ROOTFS:
-			trivySourceType = artifact.TargetRootfs
-		case utils.DIR, utils.FILE:
-			trivySourceType = artifact.TargetFilesystem
-		case utils.SBOM:
-			fallthrough
-		default:
-			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
-			a.resultChan <- res
+		// Convert the kubeclarity source to the trivy source type
+		trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceType)
+		if err != nil {
+			a.setError(res, fmt.Errorf("failed to configure trivy: %w", err))
 			return
 		}
 
-		err := artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+		// Ensure we're configured for private registry if required
+		trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
+
+		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to generate SBOM: %w", err))
 			return
