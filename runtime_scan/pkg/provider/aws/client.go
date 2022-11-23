@@ -108,7 +108,7 @@ func (c *Client) Discover(ctx context.Context, scanScope types.ScanScope) ([]typ
 	return ret, nil
 }
 
-func (c *Client) LaunchInstance(ctx context.Context, snapshot types.Snapshot) (types.Instance, error) {
+func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot) (types.Instance, error) {
 	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),
 		MinCount: utils.Int32Ptr(1),
