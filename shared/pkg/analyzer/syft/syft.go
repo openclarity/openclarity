@@ -52,7 +52,7 @@ func New(conf *config.Config,
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
-		config:     config.CreateSyftConfig(conf.Analyzer, conf.Registry),
+		config:     config.CreateSyftConfig(&conf.Analyzer, &conf.Registry),
 		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
 	}

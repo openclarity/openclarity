@@ -24,12 +24,13 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
 )
 
-func CreateJob(scannerName string, config *config.Config, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func CreateJob(scannerName string, conf interface{}, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	c := conf.(config.Config)
 	switch scannerName {
 	case grype.ScannerName:
-		return grype.New(config, logger, resultChan)
+		return grype.New(&c, logger, resultChan)
 	case dependency_track.ScannerName:
-		return dependency_track.New(config, logger, resultChan)
+		return dependency_track.New(&c, logger, resultChan)
 	default:
 		logrus.Fatalf("Unknown scanner: %v", scannerName)
 	}

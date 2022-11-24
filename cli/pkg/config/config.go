@@ -45,9 +45,9 @@ func LoadConfig() *Config {
 		Backend:       loadBackendConfig(),
 		TimeOut:       viper.GetDuration(TimeOut),
 		SharedConfig: &shared.Config{
-			Registry:       loadRegistryConfig(),
-			Analyzer:       shared.LoadAnalyzerConfig(),
-			Scanner:        shared.LoadScannerConfig(),
+			Registry:       *loadRegistryConfig(),
+			Analyzer:       *shared.LoadAnalyzerConfig(),
+			Scanner:        *shared.LoadScannerConfig(),
 			LocalImageScan: viper.GetBool(shared.LocalImageScan),
 		},
 	}

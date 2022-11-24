@@ -51,7 +51,7 @@ func New(conf *config.Config,
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
-		config:     config.ConvertToGomodConfig(conf.Analyzer),
+		config:     config.ConvertToGomodConfig(&conf.Analyzer),
 		resultChan: resultChan,
 	}
 }

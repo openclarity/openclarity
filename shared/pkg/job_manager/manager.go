@@ -21,18 +21,17 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Manager struct {
 	jobNames          []string
-	config            *config.Config
+	config            interface{}
 	logger            *logrus.Entry
 	createRunnersFunc createJobFunc
 }
 
-func New(jobNames []string, config *config.Config, logger *logrus.Entry, createRunnersFunc createJobFunc) *Manager {
+func New(jobNames []string, config interface{}, logger *logrus.Entry, createRunnersFunc createJobFunc) *Manager {
 	return &Manager{
 		jobNames:          jobNames,
 		config:            config,

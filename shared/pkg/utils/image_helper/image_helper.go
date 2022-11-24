@@ -207,7 +207,7 @@ func prepareRemoteOptions(ref name.Reference, registryOptions *image.RegistryOpt
 }
 
 func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([]*FsLayerCommand, error) {
-	registryOptions := sharedconfig.CreateRegistryOptions(sharedConf.Registry)
+	registryOptions := sharedconfig.CreateRegistryOptions(&sharedConf.Registry)
 	img, err := getV1Image(imageName, registryOptions, sharedConf.LocalImageScan)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get v1.image=%s: %v", imageName, err)

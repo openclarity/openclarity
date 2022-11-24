@@ -65,7 +65,7 @@ func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Re
 }
 
 func New(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	c := config.ConvertToDependencyTrackConfig(conf.Scanner, logger)
+	c := config.ConvertToDependencyTrackConfig(&conf.Scanner, logger)
 	return &Scanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName),
 		config:     c,

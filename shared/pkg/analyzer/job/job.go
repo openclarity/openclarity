@@ -25,14 +25,15 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
 
-func CreateAnalyzerJob(analyzerName string, config *config.Config, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func CreateAnalyzerJob(analyzerName string, conf interface{}, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	c := conf.(config.Config)
 	switch analyzerName {
 	case syft.AnalyzerName:
-		return syft.New(config, logger, resultChan)
+		return syft.New(&c, logger, resultChan)
 	case cdx_gomod.AnalyzerName:
-		return cdx_gomod.New(config, logger, resultChan)
+		return cdx_gomod.New(&c, logger, resultChan)
 	case trivy.AnalyzerName:
-		return trivy.New(config, logger, resultChan)
+		return trivy.New(&c, logger, resultChan)
 	default:
 		logger.Fatalf("Unknown analyzer: %v", analyzerName)
 	}

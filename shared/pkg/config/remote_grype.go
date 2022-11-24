@@ -27,8 +27,8 @@ const (
 )
 
 type RemoteGrypeConfig struct {
-	GrypeServerAddress string
-	GrypeServerTimeout time.Duration
+	GrypeServerAddress string        `yaml:"grype_server_address" mapstructure:"grype_server_address"`
+	GrypeServerTimeout time.Duration `yaml:"grype_server_timeout" mapstructure:"grype_server_timeout"`
 }
 
 func loadRemoteGrypeConfig() RemoteGrypeConfig {

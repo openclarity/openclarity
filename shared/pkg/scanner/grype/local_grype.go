@@ -41,7 +41,7 @@ type LocalScanner struct {
 func newLocalScanner(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	return &LocalScanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName).WithField("mode", "local"),
-		config:     config.ConvertToLocalGrypeConfig(conf.Scanner, conf.Registry),
+		config:     config.ConvertToLocalGrypeConfig(&conf.Scanner, &conf.Registry),
 		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
 	}
