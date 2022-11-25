@@ -22,14 +22,12 @@ import (
 
 // TODO: maybe we need to extend syft confg.
 type SyftConfig struct {
-	OutputFormat    string
 	Scope           source.Scope
 	RegistryOptions *image.RegistryOptions
 }
 
 func CreateSyftConfig(analyzer *Analyzer, registry *Registry) SyftConfig {
 	return SyftConfig{
-		OutputFormat:    analyzer.OutputFormat,
 		Scope:           source.ParseScope(analyzer.Scope),
 		RegistryOptions: CreateRegistryOptions(registry),
 	}

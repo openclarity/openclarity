@@ -53,15 +53,11 @@ func NewMergedResults(sourceType utils.SourceType, hash string) *MergedResults {
 	}
 }
 
-func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
+func (m *MergedResults) Merge(other *Results) *MergedResults {
 	if other.Sbom == nil {
 		return m
 	}
-	bom, err := decodeResults(other, format)
-	if err != nil {
-		log.Errorf("Failed to decode results: %v", err)
-		return m
-	}
+	bom := other.Sbom
 
 	// merge bom.Metadata.Component if it exists
 	m.mergeMainComponent(bom)
@@ -84,7 +80,6 @@ func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
 	}
 
 	if bom.Dependencies != nil {
-		// TODO merge dependencies after normalize
 		newDependencies := m.normalizeDependencies(bom.Dependencies)
 		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
 	}
@@ -125,19 +120,6 @@ func (m *MergedResults) createComponentListFromMap() *[]cdx.Component {
 	}
 
 	return &components
-}
-
-func decodeResults(other *Results, format string) (*cdx.BOM, error) {
-	bom := formatter.New(format, other.Sbom)
-	if err := bom.Decode(format); err != nil {
-		return nil, fmt.Errorf("failed to decode %s BOM", format)
-	}
-	cdxBOM, ok := bom.GetSBOM().(*cdx.BOM)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast %s BOM", format)
-	}
-
-	return cdxBOM, nil
 }
 
 func createComponentKey(component cdx.Component) componentKey {

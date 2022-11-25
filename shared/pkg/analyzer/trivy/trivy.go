@@ -29,7 +29,6 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
@@ -108,18 +107,15 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		frm := formatter.New(formatter.CycloneDXJSONFormat, output.Bytes())
-		if err := frm.Decode(formatter.CycloneDXJSONFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to decode trivy results in formatter: %w", err))
+		// Decode the BOM
+		bom := new(cdx.BOM)
+		decoder := cdx.NewBOMDecoder(&output, cdx.BOMFileFormatJSON)
+		if err = decoder.Decode(bom); err != nil {
+			a.setError(res, fmt.Errorf("unable to decode BOM data: %v", err))
 			return
 		}
 
-		if err := frm.Encode(a.config.OutputFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to encode trivy results: %w", err))
-			return
-		}
-
-		res = analyzer.CreateResults(frm.GetSBOMBytes(), a.name, userInput, sourceType)
+		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
 
 		// Trivy doesn't include the version information in the
 		// component of CycloneDX but it does include the RepoDigest as
@@ -129,13 +125,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		// SourceHash in the Result that will be added to the component
 		// hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
-			sbom, ok := frm.GetSBOM().(*cdx.BOM)
-			if !ok {
-				a.setError(res, fmt.Errorf("SBOM from formatter incorrect type got %T", frm.GetSBOM()))
-				return
-			}
-
-			hash, err := getImageHash(sbom.Metadata.Component.Properties, userInput)
+			hash, err := getImageHash(bom.Metadata.Component.Properties, userInput)
 			if err != nil {
 				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
 				return
