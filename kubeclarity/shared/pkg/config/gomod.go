@@ -15,12 +15,8 @@
 
 package config
 
-type GomodConfig struct {
-	OutputFormat string
-}
+type GomodConfig struct{}
 
 func ConvertToGomodConfig(analyzer *Analyzer) GomodConfig {
-	return GomodConfig{
-		OutputFormat: analyzer.OutputFormat,
-	}
+	return GomodConfig{}
 }

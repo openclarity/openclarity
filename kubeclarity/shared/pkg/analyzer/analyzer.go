@@ -16,11 +16,13 @@
 package analyzer
 
 import (
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Results struct {
-	Sbom         []byte
+	Sbom         *cdx.BOM
 	AnalyzerInfo string
 	AppInfo      AppInfo
 	Error        error
@@ -36,7 +38,7 @@ type AppInfo struct {
 	SourceHash string
 }
 
-func CreateResults(sbomBytes []byte, analyzerName, userInput string, srcType utils.SourceType) *Results {
+func CreateResults(sbomBytes *cdx.BOM, analyzerName, userInput string, srcType utils.SourceType) *Results {
 	return &Results{
 		Sbom:         sbomBytes,
 		AnalyzerInfo: analyzerName,

@@ -23,9 +23,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"gotest.tools/assert"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
@@ -271,12 +269,9 @@ func Test_handleComponentWithExistingKey(t *testing.T) {
 }
 
 func TestMergedResults_Merge(t *testing.T) {
-	otherFormatter := formatter.New(formatter.CycloneDXFormat, []byte{})
-	err := otherFormatter.SetSBOM(&cdx.BOM{
+	expectedSbom := &cdx.BOM{
 		Components: &[]cdx.Component{otherComponent, additionalComponent},
-	})
-	assert.NilError(t, err)
-	_ = otherFormatter.Encode(formatter.CycloneDXFormat)
+	}
 
 	type fields struct {
 		MergedComponentByKey map[componentKey]*MergedComponent
@@ -285,8 +280,7 @@ func TestMergedResults_Merge(t *testing.T) {
 		SourceHash           string
 	}
 	type args struct {
-		other  *Results
-		format string
+		other *Results
 	}
 	tests := []struct {
 		name   string
@@ -303,10 +297,9 @@ func TestMergedResults_Merge(t *testing.T) {
 			},
 			args: args{
 				other: &Results{
-					Sbom:         otherFormatter.GetSBOMBytes(),
+					Sbom:         expectedSbom,
 					AnalyzerInfo: "gomod",
 				},
-				format: formatter.CycloneDXFormat,
 			},
 			want: &MergedResults{
 				MergedComponentByKey: map[componentKey]*MergedComponent{
@@ -323,8 +316,8 @@ func TestMergedResults_Merge(t *testing.T) {
 				Source:               tt.fields.Source,
 				SrcMetaData:          tt.fields.SrcMetaData,
 			}
-			if got := m.Merge(tt.args.other, tt.args.format); !reflect.DeepEqual(got, tt.want) {
-				t.Logf("encoded %v\n", otherFormatter.GetSBOM())
+			if got := m.Merge(tt.args.other); !reflect.DeepEqual(got, tt.want) {
+				t.Logf("encoded %v\n", expectedSbom)
 				t.Errorf("Merge() = %v, want %v", got, tt.want)
 			}
 		})

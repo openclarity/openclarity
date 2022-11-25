@@ -55,7 +55,7 @@ func (a *AnalyzerImpl) Analyze(config *config.Config) (*analyzer.MergedResults, 
 	for name, result := range results {
 		a.logger.Infof("Merging result from %q", name)
 		if res, ok := result.(*analyzer.Results); ok {
-			mergedResults = mergedResults.Merge(res, config.SharedConfig.Analyzer.OutputFormat)
+			mergedResults = mergedResults.Merge(res)
 		} else {
 			a.logger.Errorf("Type assertion of result failed.")
 		}
