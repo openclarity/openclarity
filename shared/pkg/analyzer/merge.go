@@ -173,74 +173,85 @@ func mergeCDXComponent(mergedComponent, otherComponent cdx.Component, main bool)
 			mergedComponent.Version = otherComponent.Version
 		}
 	}
-	// BOMRef is only provided by the cycloneDX-gomod, need to check it before override it.
+
 	if mergedComponent.BOMRef == "" {
 		mergedComponent.BOMRef = otherComponent.BOMRef
 	}
-	// CPE is not porvided by the cycloneDX-gomod and sift at the moment.
+
 	if mergedComponent.CPE == "" {
 		mergedComponent.CPE = otherComponent.CPE
 	}
-	// Author isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Author == "" {
 		mergedComponent.Author = otherComponent.Author
 	}
-	// Copyright isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Copyright == "" {
 		mergedComponent.Copyright = otherComponent.Copyright
 	}
-	// Description can be provided by the cycloneDX-gomod.
+
 	if mergedComponent.Description == "" {
 		mergedComponent.Description = otherComponent.Description
 	}
-	// Evidence isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Evidence == nil {
 		mergedComponent.Evidence = otherComponent.Evidence
 	}
-	// ExternalReferences are provided by the cycloneDX-gomod.
+
 	if mergedComponent.ExternalReferences == nil {
 		mergedComponent.ExternalReferences = otherComponent.ExternalReferences
 	}
-	// SWID isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.SWID == nil {
 		mergedComponent.SWID = otherComponent.SWID
 	}
-	// Supplier isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Supplier == nil {
 		mergedComponent.Supplier = otherComponent.Supplier
 	}
-	// Publisher isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Publisher == "" {
 		mergedComponent.Publisher = otherComponent.Publisher
 	}
-	// Group can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Group == "" {
 		mergedComponent.Group = otherComponent.Group
 	}
-	// Scope can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Scope == "" {
 		mergedComponent.Scope = otherComponent.Scope
 	}
-	// Hashes can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Hashes == nil {
 		mergedComponent.Hashes = otherComponent.Hashes
 	}
-	// Licenses can be provided by only the cycloneDX-gomod.
-	if mergedComponent.Licenses == nil {
-		mergedComponent.Licenses = otherComponent.Licenses
-	}
-	// Properties can be provided by the syft and te cycloneDX-gomod, needs to be merged.
+
+	mergedComponent.Licenses = mergeLicenses(mergedComponent.Licenses, otherComponent.Licenses)
+
 	if otherComponent.Properties != nil {
 		mergedComponent.Properties = mergeProperties(mergedComponent.Properties, otherComponent.Properties)
 	}
-	// PackageURL in the case of cycloneDX-gomod contains type of the package as well.
-	// We use the longer PURL.
-	if len(mergedComponent.PackageURL) < len(otherComponent.PackageURL) {
-		mergedComponent.PackageURL = otherComponent.PackageURL
-	}
+
+	mergedComponent.PackageURL = mergePurlStrings(mergedComponent.PackageURL, otherComponent.PackageURL)
 	// Other unprovided fields: MIMEType, Supplier, Modified, Pedigree
 
 	return mergedComponent
+}
+
+func mergeLicenses(licenseA, licenseB *cdx.Licenses) *cdx.Licenses {
+	// nothing to merge into A so return the A untouched
+	if licenseB == nil {
+		return licenseA
+	}
+
+	// If A has no licenses initialise it
+	if licenseA == nil {
+		licenseA = &cdx.Licenses{}
+	}
+
+	// Merge B into A, assign to new variable to avoid modifying licenseA
+	newthing := append(*licenseA, *licenseB...)
+	return &newthing
 }
 
 func mergeProperties(properties, otherProperties *[]cdx.Property) *[]cdx.Property {
