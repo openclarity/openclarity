@@ -42,16 +42,14 @@ func LoadAnalyzerTrivyConfig() AnalyzerTrivyConfig {
 }
 
 type AnalyzerTrivyConfigEx struct {
-	OutputFormat string
-	Timeout      time.Duration
-	Registry     *Registry
+	Timeout  time.Duration
+	Registry *Registry
 }
 
 func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) AnalyzerTrivyConfigEx {
 	return AnalyzerTrivyConfigEx{
-		OutputFormat: analyzer.OutputFormat,
-		Timeout:      time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
-		Registry:     registry,
+		Timeout:  time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+		Registry: registry,
 	}
 }
 

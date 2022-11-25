@@ -18,6 +18,8 @@ package cmd
 import (
 	"fmt"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/kubeclarity/cli/pkg"
@@ -25,6 +27,7 @@ import (
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -108,26 +111,25 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to generate hash for source %s: %v", args[0], err)
 	}
 
-	outputFormat := appConfig.SharedConfig.Analyzer.OutputFormat
 	if inputSBOMFile != "" {
-		cdxBOMBytes, err := utils.ConvertInputSBOMIfNeeded(inputSBOMFile, outputFormat)
+		cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
 		if err != nil {
 			logger.Fatalf("Failed to convert input SBOM file=%s to the results: %v", inputSBOMFile, err)
 		}
-		results[inputSBOMName] = createResultFromInputSBOM(cdxBOMBytes, inputSBOMFile)
+		results[inputSBOMName] = createResultFromInputSBOM(cdxBOM, inputSBOMFile)
 	}
 
 	// Merge results
 	mergedResults := sharedanalyzer.NewMergedResults(sourceType, hash)
 	for _, result := range results {
 		if res, ok := result.(*sharedanalyzer.Results); ok {
-			mergedResults = mergedResults.Merge(res, outputFormat)
+			mergedResults = mergedResults.Merge(res)
 		} else {
 			logger.Errorf("Type assertion of result failed.")
 		}
 	}
 
-	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(outputFormat, pkg.GitRevision)
+	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(appConfig.SharedConfig.Analyzer.OutputFormat, pkg.GitRevision)
 	if err != nil {
 		logger.Fatalf("Failed to create merged output: %v", err)
 	}
@@ -146,6 +148,6 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	}
 }
 
-func createResultFromInputSBOM(sbomBytes []byte, inputSBOMFile string) *sharedanalyzer.Results {
-	return sharedanalyzer.CreateResults(sbomBytes, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
+func createResultFromInputSBOM(sbom *cdx.BOM, inputSBOMFile string) *sharedanalyzer.Results {
+	return sharedanalyzer.CreateResults(sbom, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
 }
