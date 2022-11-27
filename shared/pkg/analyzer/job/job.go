@@ -18,8 +18,11 @@ package job
 import (
 	"github.com/sirupsen/logrus"
 
+	// Enable cdx_gomod.
 	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
+	// Enable syft.
 	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
+	// Enable trivy.
 	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"

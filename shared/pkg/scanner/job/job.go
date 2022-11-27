@@ -20,7 +20,9 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	// Enable dependency_track.
 	_ "github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
+	// Enable grype.
 	_ "github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
 )
 

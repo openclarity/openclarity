@@ -70,7 +70,7 @@ func init() {
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(config.Config)
+	conf := c.(config.Config) // nolint:forcetypeassert
 	config := config.ConvertToDependencyTrackConfig(&conf.Scanner, logger)
 	return &Scanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName),

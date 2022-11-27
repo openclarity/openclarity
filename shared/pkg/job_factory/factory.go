@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package job_factory
+package job_factory // nolint:revive,stylecheck
 
 import (
 	"sync"

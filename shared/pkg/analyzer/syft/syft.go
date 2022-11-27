@@ -51,7 +51,7 @@ func init() {
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(config.Config)
+	conf := c.(config.Config) // nolint:forcetypeassert
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
