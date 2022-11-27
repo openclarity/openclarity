@@ -22,6 +22,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/openclarity/vmclarity/backend/pkg/database"
 	runtime_scan_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
@@ -33,10 +34,26 @@ import (
 	_config "github.com/openclarity/vmclarity/backend/pkg/config"
 )
 
-type Backend struct{}
+type Backend struct {
+	dbHandler *database.Handler
+}
 
-func CreateBackend() *Backend {
-	return &Backend{}
+func CreateBackend(dbHandler *database.Handler) *Backend {
+	return &Backend{
+		dbHandler: dbHandler,
+	}
+}
+
+func createDatabaseConfig(config *_config.Config) *database.DBConfig {
+	return &database.DBConfig{
+		DriverType:     config.DatabaseDriver,
+		EnableInfoLogs: config.EnableDBInfoLogs,
+		DBPassword:     config.DBPassword,
+		DBUser:         config.DBUser,
+		DBHost:         config.DBHost,
+		DBPort:         config.DBPort,
+		DBName:         config.DBName,
+	}
 }
 
 const defaultChanSize = 100
@@ -58,6 +75,11 @@ func Run() {
 	defer globalCancel()
 
 	log.Info("VMClarity backend is running")
+
+	dbConfig := createDatabaseConfig(config)
+	dbHandler := database.Init(dbConfig)
+
+	_ = CreateBackend(dbHandler)
 
 	runtimeScanConfig, err := runtime_scan_config.LoadConfig()
 	if err != nil {
