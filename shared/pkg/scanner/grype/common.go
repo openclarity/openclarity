@@ -27,6 +27,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
@@ -37,12 +38,17 @@ const (
 	ScannerName = "grype"
 )
 
-func New(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func init() {
+	job_factory.RegisterCreateJobFunc(ScannerName, New)
+}
+
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(config.Config)
 	switch conf.Scanner.GrypeConfig.Mode {
 	case config.ModeLocal:
-		return newLocalScanner(conf, logger, resultChan)
+		return newLocalScanner(&conf, logger, resultChan)
 	case config.ModeRemote:
-		return newRemoteScanner(conf, logger, resultChan)
+		return newRemoteScanner(&conf, logger, resultChan)
 	}
 
 	// We shouldn't get here since grype mode was already validated.

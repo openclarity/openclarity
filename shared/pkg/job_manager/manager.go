@@ -26,12 +26,12 @@ import (
 
 type Manager struct {
 	jobNames          []string
-	config            interface{}
+	config            IsConfig
 	logger            *logrus.Entry
 	createRunnersFunc createJobFunc
 }
 
-func New(jobNames []string, config interface{}, logger *logrus.Entry, createRunnersFunc createJobFunc) *Manager {
+func New(jobNames []string, config IsConfig, logger *logrus.Entry, createRunnersFunc createJobFunc) *Manager {
 	return &Manager{
 		jobNames:          jobNames,
 		config:            config,

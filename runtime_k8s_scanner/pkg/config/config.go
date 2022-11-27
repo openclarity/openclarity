@@ -49,9 +49,9 @@ func LoadConfig() (*Config, error) {
 		ImageNameToScan:      viper.GetString(shared.ImageNameToScan),
 		ScanUUID:             viper.GetString(shared.ScanUUID),
 		SharedConfig: &shared.Config{
-			Registry: shared.LoadRuntimeScannerRegistryConfig(imageIDToScan),
-			Analyzer: shared.LoadAnalyzerConfig(),
-			Scanner:  shared.LoadScannerConfig(),
+			Registry: *shared.LoadRuntimeScannerRegistryConfig(imageIDToScan),
+			Analyzer: *shared.LoadAnalyzerConfig(),
+			Scanner:  *shared.LoadScannerConfig(),
 		},
 	}
 

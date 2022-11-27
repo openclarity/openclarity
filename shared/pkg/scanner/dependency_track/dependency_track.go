@@ -32,6 +32,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client"
@@ -64,12 +65,17 @@ func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Re
 	return nil
 }
 
-func New(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	c := config.ConvertToDependencyTrackConfig(&conf.Scanner, logger)
+func init() {
+	job_factory.RegisterCreateJobFunc(ScannerName, New)
+}
+
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(config.Config)
+	config := config.ConvertToDependencyTrackConfig(&conf.Scanner, logger)
 	return &Scanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName),
-		config:     c,
-		client:     newHTTPClient(c),
+		config:     config,
+		client:     newHTTPClient(config),
 		resultChan: resultChan,
 	}
 }

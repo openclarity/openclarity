@@ -25,4 +25,4 @@ type Job interface {
 	Run(sourceType utils.SourceType, source string) error
 }
 
-type createJobFunc func(name string, config interface{}, logger *logrus.Entry, resultChan chan Result) Job
+type createJobFunc func(name string, config IsConfig, logger *logrus.Entry, resultChan chan Result) Job

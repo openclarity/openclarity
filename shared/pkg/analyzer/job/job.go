@@ -18,25 +18,17 @@ package job
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
+	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
+	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
+	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
 
-func CreateAnalyzerJob(analyzerName string, conf interface{}, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	c := conf.(config.Config)
-	switch analyzerName {
-	case syft.AnalyzerName:
-		return syft.New(&c, logger, resultChan)
-	case cdx_gomod.AnalyzerName:
-		return cdx_gomod.New(&c, logger, resultChan)
-	case trivy.AnalyzerName:
-		return trivy.New(&c, logger, resultChan)
-	default:
-		logger.Fatalf("Unknown analyzer: %v", analyzerName)
+func CreateAnalyzerJob(scannerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	createJobFunc, ok := job_factory.GetCreateJobFuncs()[scannerName]
+	if !ok {
+		logrus.Fatalf("Unregister analyzer: %v", scannerName)
 	}
-
-	return nil
+	return createJobFunc(conf, logger, resultChan)
 }

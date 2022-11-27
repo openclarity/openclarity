@@ -22,4 +22,6 @@ type Config struct {
 	LocalImageScan bool     `yaml:"local_image_scan" mapstructure:"local_image_scan"`
 }
 
+func (Config) IsConfig() {}
+
 const LocalImageScan = "LOCAL_IMAGE_SCAN"
