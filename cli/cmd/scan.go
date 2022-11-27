@@ -197,7 +197,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to present results: %v", err)
 	}
 
-	layerCommands, err := getLayerCommandsIfNeeded(sourceType, args[0], appConfig.SharedConfig)
+	layerCommands, err := getLayerCommandsIfNeeded(sourceType, args[0], &appConfig.SharedConfig)
 	if err != nil {
 		logger.Fatalf("Failed get layer commands. %v", err)
 	}
