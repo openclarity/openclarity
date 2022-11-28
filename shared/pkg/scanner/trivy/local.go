@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"sort"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -147,7 +148,18 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	cvsses := []scanner.CVSS{}
 	v2Collected := false
 	v3Collected := false
-	for _, cvss := range vCvss {
+
+	// Collect all the vendors from the trivy type and sort them so that we
+	// have predictable results from this function as we're only taking one
+	// of each.
+	vendors := make([]string, 0, len(vCvss))
+	for v := range vCvss {
+		vendors = append(vendors, string(v))
+	}
+	sort.Strings(vendors)
+
+	for _, vendor := range vendors {
+		cvss := vCvss[trivyDBTypes.SourceID(vendor)]
 		if cvss.V3Vector != "" && !v3Collected {
 			exploit, impact := utilsVul.ExploitScoreAndImpactScoreFromV3Vector(cvss.V3Vector)
 
