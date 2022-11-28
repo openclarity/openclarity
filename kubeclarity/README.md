@@ -217,7 +217,7 @@ LOCAL_IMAGE_SCAN=true kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ### Vulnerability scanning using multiple integrated scanners
 ```
 # A list of the vulnerability scanners to use can be configured using the SCANNERS_LIST env variable seperated by a space (e.g SCANNERS_LIST="grype dependency-track")
-kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
+SCANNERS_LIST="<Scanner1 name> <Scanner2 name> ..." kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
 
 # For example:
 SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom 
