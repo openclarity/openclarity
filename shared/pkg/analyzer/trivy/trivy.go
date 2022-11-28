@@ -114,12 +114,6 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		sbom, ok := frm.GetSBOM().(*cdx.BOM)
-		if !ok {
-			a.setError(res, fmt.Errorf("SBOM from formatter incorrect type got %T", frm.GetSBOM()))
-			return
-		}
-
 		if err := frm.Encode(a.config.OutputFormat); err != nil {
 			a.setError(res, fmt.Errorf("failed to encode trivy results: %w", err))
 			return
@@ -135,6 +129,12 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		// SourceHash in the Result that will be added to the component
 		// hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
+			sbom, ok := frm.GetSBOM().(*cdx.BOM)
+			if !ok {
+				a.setError(res, fmt.Errorf("SBOM from formatter incorrect type got %T", frm.GetSBOM()))
+				return
+			}
+
 			hash, err := getImageHash(sbom.Metadata.Component.Properties, userInput)
 			if err != nil {
 				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
