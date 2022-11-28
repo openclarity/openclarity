@@ -314,15 +314,17 @@ func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[
 			Ref: m.getRealBomRefFromPreviousBomRef(dependency.Ref),
 		}
 
-		newDependsOn := []cdx.Dependency{}
-		for _, dependsOnRef := range *dependency.Dependencies {
-			newDependsOn = append(
-				newDependsOn,
-				cdx.Dependency{Ref: m.getRealBomRefFromPreviousBomRef(dependsOnRef.Ref)},
-			)
+		if dependency.Dependencies != nil {
+			newDependsOn := []cdx.Dependency{}
+			for _, dependsOnRef := range *dependency.Dependencies {
+				newDependsOn = append(
+					newDependsOn,
+					cdx.Dependency{Ref: m.getRealBomRefFromPreviousBomRef(dependsOnRef.Ref)},
+				)
+			}
+			newDep.Dependencies = &newDependsOn
 		}
 
-		newDep.Dependencies = &newDependsOn
 		output = append(output, newDep)
 	}
 
