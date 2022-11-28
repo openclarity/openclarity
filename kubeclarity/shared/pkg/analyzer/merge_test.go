@@ -22,6 +22,7 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
@@ -500,6 +501,410 @@ func TestMergedResults_addSourceHash(t *testing.T) {
 			}
 			if got := mr.addSourceHash(tt.args.sourceHash); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("addSourceHash() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMergedResults_getRealBomRefFromPreviousBomRef(t *testing.T) {
+	mergedResults := &MergedResults{
+		MergedComponentByKey: map[componentKey]*MergedComponent{
+			"1": {
+				Component: cdx.Component{
+					Name:   "1",
+					BOMRef: "bomref1",
+				},
+				BomRefs: []string{
+					"bomref1",
+					"oldbomref1",
+				},
+			},
+			"2": {
+				Component: cdx.Component{
+					Name:   "2",
+					BOMRef: "bomref2",
+				},
+				BomRefs: []string{
+					"bomref2",
+					"oldbomref2",
+				},
+			},
+		},
+		SrcMetaDataBomRefs: []string{
+			"mainbomref",
+			"oldmainbomref",
+		},
+		SrcMetaData: &cdx.Metadata{
+			Component: &cdx.Component{
+				BOMRef: "mainbomref",
+			},
+		},
+	}
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "find bomref from old bomref",
+			input: "oldbomref1",
+			want:  "bomref1",
+		},
+		{
+			name:  "find bomref from current bomref",
+			input: "bomref2",
+			want:  "bomref2",
+		},
+		{
+			name:  "find bomref from old main component bomref",
+			input: "oldmainbomref",
+			want:  "mainbomref",
+		},
+		{
+			name:  "get unknown bomref returns input",
+			input: "unknownbomref",
+			want:  "unknownbomref",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mergedResults.getRealBomRefFromPreviousBomRef(tt.input)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("getRealBomRefFromPreviousBomRef() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestMergedResults_normalizeDependencies(t *testing.T) {
+	mergedResults := &MergedResults{
+		MergedComponentByKey: map[componentKey]*MergedComponent{
+			"1": {
+				Component: cdx.Component{
+					Name:   "1",
+					BOMRef: "bomref1",
+				},
+				BomRefs: []string{
+					"bomref1",
+					"oldbomref1",
+				},
+			},
+			"2": {
+				Component: cdx.Component{
+					Name:   "2",
+					BOMRef: "bomref2",
+				},
+				BomRefs: []string{
+					"bomref2",
+					"oldbomref2",
+				},
+			},
+		},
+		SrcMetaDataBomRefs: []string{
+			"mainbomref",
+			"oldmainbomref",
+		},
+		SrcMetaData: &cdx.Metadata{
+			Component: &cdx.Component{
+				BOMRef: "mainbomref",
+			},
+		},
+	}
+
+	tests := []struct {
+		name         string
+		dependencies *[]cdx.Dependency
+		want         *[]cdx.Dependency
+	}{
+		{
+			name: "don't change already ok dependencies",
+			dependencies: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "all old bom refs",
+			dependencies: &[]cdx.Dependency{
+				{
+					Ref: "oldbomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "oldbomref2",
+						},
+					},
+				},
+				{
+					Ref: "oldmainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "oldbomref1",
+						},
+					},
+				},
+			},
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "mix of old and new bom refs",
+			dependencies: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "oldbomref2",
+						},
+					},
+				},
+				{
+					Ref: "oldmainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mergedResults.normalizeDependencies(tt.dependencies)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("getRealBomRefFromPreviousBomRef() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestMergedResults_mergeDependencies(t *testing.T) {
+	tests := []struct {
+		name          string
+		dependenciesA *[]cdx.Dependency
+		dependenciesB *[]cdx.Dependency
+		want          *[]cdx.Dependency
+	}{
+		{
+			name: "merge",
+			dependenciesA: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+						{
+							Ref: "bomref4",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+			dependenciesB: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+						{
+							Ref: "bomref3",
+						},
+					},
+				},
+			},
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+						{
+							Ref: "bomref3",
+						},
+						{
+							Ref: "bomref4",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "depA is nil",
+			dependenciesA: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+						{
+							Ref: "bomref4",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+			dependenciesB: nil,
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref2",
+						},
+						{
+							Ref: "bomref4",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+		{
+			name:          "depB is nil",
+			dependenciesA: nil,
+			dependenciesB: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref3",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+			want: &[]cdx.Dependency{
+				{
+					Ref: "bomref1",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref3",
+						},
+					},
+				},
+				{
+					Ref: "mainbomref",
+					Dependencies: &[]cdx.Dependency{
+						{
+							Ref: "bomref1",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mergeDependencies(tt.dependenciesA, tt.dependenciesB)
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b cdx.Dependency) bool { return a.Ref < b.Ref })); diff != "" {
+				t.Errorf("mergeDependencies() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

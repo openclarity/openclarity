@@ -85,7 +85,8 @@ func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
 
 	if bom.Dependencies != nil {
 		// TODO merge dependencies after normalize
-		m.Dependencies = m.normalizeDependencies(bom.Dependencies)
+		newDependencies := m.normalizeDependencies(bom.Dependencies)
+		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
 	}
 
 	return m
@@ -326,6 +327,55 @@ func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[
 		}
 
 		output = append(output, newDep)
+	}
+
+	return &output
+}
+
+func mergeDependencies(depsA, depsB *[]cdx.Dependency) *[]cdx.Dependency {
+	refToDepends := map[string]map[string]struct{}{}
+	addDepsToRefToDepends := func(ref string, deps *[]cdx.Dependency) {
+		if deps == nil {
+			return
+		}
+
+		// initialize refToDepends entry if it doesn't exist
+		existing, ok := refToDepends[ref]
+		if !ok {
+			refToDepends[ref] = map[string]struct{}{}
+			existing = refToDepends[ref]
+		}
+
+		// add entries to the refToDepends set
+		for _, dependsOnRef := range *deps {
+			existing[dependsOnRef.Ref] = struct{}{}
+		}
+	}
+
+	if depsA != nil {
+		for _, dependency := range *depsA {
+			addDepsToRefToDepends(dependency.Ref, dependency.Dependencies)
+		}
+	}
+
+	if depsB != nil {
+		for _, dependency := range *depsB {
+			addDepsToRefToDepends(dependency.Ref, dependency.Dependencies)
+		}
+	}
+
+	output := []cdx.Dependency{}
+	for ref, depends := range refToDepends {
+		dependsOn := []cdx.Dependency{}
+		for dRef := range depends {
+			dependsOn = append(dependsOn, cdx.Dependency{
+				Ref: dRef,
+			})
+		}
+		output = append(output, cdx.Dependency{
+			Ref:          ref,
+			Dependencies: &dependsOn,
+		})
 	}
 
 	return &output
