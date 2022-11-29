@@ -92,6 +92,7 @@ KubeClarity content analyzer integrates with the following SBOM generators:
 KubeClarity vulnerability scanner integrates with the following scanners:
 * [Grype](https://github.com/anchore/grype)
 * [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
+* [Trivy](https://github.com/aquasecurity/trivy)
 
 The integrations with the SBOM generators can be found [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/scanner). 
 To enable and configure the supported SBOM generators and vulnerability scanners, please check the "analyzer" and "scanner" config under the "vulnerability-scanner" section in Helm values.
