@@ -20,15 +20,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"sort"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
+	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
+	flog "github.com/aquasecurity/trivy/pkg/fanal/log"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
+	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -41,14 +46,116 @@ import (
 	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
-type LocalScanner struct {
+const ScannerName = "trivy"
+
+func New(c job_manager.IsConfig,
+	logger *log.Entry,
+	resultChan chan job_manager.Result,
+) job_manager.Job {
+	conf := c.(*config.Config) // nolint:forcetypeassert
+
+	logger = logger.Dup().WithField("scanner", ScannerName)
+
+	// Init trivy's loggers with a hook into our logger
+	lc := logrusCore{logger}
+	zap := zap.New(lc)
+	trivyLog.Logger = zap.Sugar()
+	dlog.SetLogger(trivyLog.Logger)
+	flog.SetLogger(trivyLog.Logger)
+
+	return &Scanner{
+		logger:     logger,
+		config:     config.CreateScannerTrivyConfigEx(conf.Scanner, conf.Registry),
+		resultChan: resultChan,
+		localImage: conf.LocalImageScan,
+	}
+}
+
+type Scanner struct {
 	logger     *log.Entry
-	config     config.LocalScannerTrivyConfigEx
+	config     config.ScannerTrivyConfigEx
 	resultChan chan job_manager.Result
 	localImage bool
 }
 
-func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error {
+func getAllTrivySeverities() ([]trivyDBTypes.Severity, error) {
+	// Build a list of CVE severities for the trivy scanner to
+	// report.  trivyDBTypes.SeverityNames contains all the
+	// severities that trivy supports and we want them all in our
+	// report at the moment.
+	severities := []trivyDBTypes.Severity{}
+	for _, name := range trivyDBTypes.SeverityNames {
+		sev, err := trivyDBTypes.NewSeverity(strings.ToUpper(name))
+		if err != nil {
+			return nil, fmt.Errorf("unable to get trivy severity %s: %w", name, err)
+		}
+		severities = append(severities, sev)
+	}
+	return severities, nil
+}
+
+func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (trivyFlag.Options, error) {
+	// Get the Trivy CVE DB URL default value from the trivy
+	// configuration, we may want to make this configurable in the
+	// future.
+	dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Value.(string)
+	if !ok {
+		return trivyFlag.Options{}, fmt.Errorf("unable to get trivy DB repo config")
+	}
+
+	severities, err := getAllTrivySeverities()
+	if err != nil {
+		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
+	}
+
+	trivyOptions := trivyFlag.Options{
+		GlobalOptions: trivyFlag.GlobalOptions{
+			Timeout: a.config.Timeout,
+		},
+		ScanOptions: trivyFlag.ScanOptions{
+			Target: userInput,
+			SecurityChecks: []string{
+				trivyTypes.SecurityCheckVulnerability, // Enable just vuln scanning
+			},
+		},
+		ReportOptions: trivyFlag.ReportOptions{
+			Format:       "json",     // Trivy's own json format is the most complete for vuls
+			ReportFormat: "all",      // Full report not just summary
+			Output:       output,     // Save the output to our local buffer instead of Stdout
+			ListAllPkgs:  false,      // Only include packages with vulnerabilities
+			Severities:   severities, // All the severities from the above
+		},
+		DBOptions: trivyFlag.DBOptions{
+			DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB
+			NoProgress:   true,               // Disable the interactive progress bar
+		},
+		VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
+			VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
+		},
+	}
+
+	// If provided use the trivy server mode
+	if a.config.ServerAddr != "" {
+		// trivy needs the token specified in both the Token
+		// field and in the CustomHeaders field of the
+		// RemoteOptions
+		customHeaders := http.Header{}
+		if a.config.ServerToken != "" {
+			customHeaders.Set(trivyFlag.DefaultTokenHeader, a.config.ServerToken)
+		}
+
+		trivyOptions.RemoteOptions = trivyFlag.RemoteOptions{
+			ServerAddr:    a.config.ServerAddr,
+			Token:         a.config.ServerToken,
+			TokenHeader:   trivyFlag.DefaultTokenHeader,
+			CustomHeaders: customHeaders,
+		}
+	}
+
+	return trivyOptions, nil
+}
+
+func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 	go func() {
 		var hash string
@@ -68,54 +175,10 @@ func (a *LocalScanner) Run(sourceType utils.SourceType, userInput string) error 
 		}
 
 		var output bytes.Buffer
-
-		// Get the Trivy CVE DB URL default value from the trivy
-		// configuration, we may want to make this configurable in the
-		// future.
-		dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Value.(string)
-		if !ok {
-			a.setError(fmt.Errorf("unable to get trivy DB repo config"))
+		trivyOptions, err := a.createTrivyOptions(&output, userInput)
+		if err != nil {
+			a.setError(fmt.Errorf("unable to create trivy options: %w", err))
 			return
-		}
-
-		// Build a list of CVE severities for the trivy scanner to
-		// report.  trivyDBTypes.SeverityNames contains all the
-		// severities that trivy supports and we want them all in our
-		// report at the moment.
-		severities := []trivyDBTypes.Severity{}
-		for _, name := range trivyDBTypes.SeverityNames {
-			sev, err := trivyDBTypes.NewSeverity(strings.ToUpper(name))
-			if err != nil {
-				a.setError(fmt.Errorf("unable to get trivy severities: %w", err))
-				return
-			}
-			severities = append(severities, sev)
-		}
-
-		trivyOptions := trivyFlag.Options{
-			GlobalOptions: trivyFlag.GlobalOptions{
-				Timeout: a.config.Timeout,
-			},
-			ScanOptions: trivyFlag.ScanOptions{
-				Target: userInput,
-				SecurityChecks: []string{
-					trivyTypes.SecurityCheckVulnerability, // Enable just vuln scanning
-				},
-			},
-			ReportOptions: trivyFlag.ReportOptions{
-				Format:       "json",     // Trivy's own json format is the most complete for vuls
-				ReportFormat: "all",      // Full report not just summary
-				Output:       &output,    // Save the output to our local buffer instead of Stdout
-				ListAllPkgs:  false,      // Only include packages with vulnerabilities
-				Severities:   severities, // All the severities from the above
-			},
-			DBOptions: trivyFlag.DBOptions{
-				DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB
-				NoProgress:   true,               // Disable the interactive progress bar
-			},
-			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
-				VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
-			},
 		}
 
 		// Convert the kubeclarity source to the trivy source type
@@ -192,7 +255,7 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	return cvsses
 }
 
-func (a *LocalScanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
+func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	result := &scanner.Results{
 		Matches: nil, // empty results,
 		ScannerInfo: scanner.Info{
@@ -302,7 +365,7 @@ func getTypeFromPurl(purl string) (string, error) {
 	return typ, nil
 }
 
-func (a *LocalScanner) setError(err error) {
+func (a *Scanner) setError(err error) {
 	a.logger.Error(err)
 	a.resultChan <- &scanner.Results{
 		Matches: nil, // empty results,
