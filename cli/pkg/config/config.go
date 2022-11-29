@@ -33,7 +33,7 @@ type Config struct {
 	LogLevel      string
 	EnableJSONLog bool
 	Backend       *Backend
-	SharedConfig  shared.Config
+	SharedConfig  *shared.Config
 	TimeOut       time.Duration
 }
 
@@ -44,10 +44,10 @@ func LoadConfig() *Config {
 		EnableJSONLog: viper.GetBool(EnableJSONLog),
 		Backend:       loadBackendConfig(),
 		TimeOut:       viper.GetDuration(TimeOut),
-		SharedConfig: shared.Config{
-			Registry:       *loadRegistryConfig(),
-			Analyzer:       *shared.LoadAnalyzerConfig(),
-			Scanner:        *shared.LoadScannerConfig(),
+		SharedConfig: &shared.Config{
+			Registry:       loadRegistryConfig(),
+			Analyzer:       shared.LoadAnalyzerConfig(),
+			Scanner:        shared.LoadScannerConfig(),
 			LocalImageScan: viper.GetBool(shared.LocalImageScan),
 		},
 	}

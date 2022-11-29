@@ -35,7 +35,7 @@ type Config struct {
 	ImageHashToScan      string
 	ScanUUID             string
 	RegistryInsecure     bool
-	SharedConfig         shared.Config
+	SharedConfig         *shared.Config
 	ImageNameToScan      string
 }
 
@@ -48,10 +48,10 @@ func LoadConfig() (*Config, error) {
 		ImageHashToScan:      viper.GetString(shared.ImageHashToScan),
 		ImageNameToScan:      viper.GetString(shared.ImageNameToScan),
 		ScanUUID:             viper.GetString(shared.ScanUUID),
-		SharedConfig: shared.Config{
-			Registry: *shared.LoadRuntimeScannerRegistryConfig(imageIDToScan),
-			Analyzer: *shared.LoadAnalyzerConfig(),
-			Scanner:  *shared.LoadScannerConfig(),
+		SharedConfig: &shared.Config{
+			Registry: shared.LoadRuntimeScannerRegistryConfig(imageIDToScan),
+			Analyzer: shared.LoadAnalyzerConfig(),
+			Scanner:  shared.LoadScannerConfig(),
 		},
 	}
 

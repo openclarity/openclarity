@@ -43,12 +43,12 @@ func init() {
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(config.Config) // nolint:forcetypeassert
+	conf := c.(*config.Config) // nolint:forcetypeassert
 	switch conf.Scanner.GrypeConfig.Mode {
 	case config.ModeLocal:
-		return newLocalScanner(&conf, logger, resultChan)
+		return newLocalScanner(conf, logger, resultChan)
 	case config.ModeRemote:
-		return newRemoteScanner(&conf, logger, resultChan)
+		return newRemoteScanner(conf, logger, resultChan)
 	}
 
 	// We shouldn't get here since grype mode was already validated.

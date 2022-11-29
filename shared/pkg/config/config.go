@@ -16,10 +16,10 @@
 package config
 
 type Config struct {
-	Registry       Registry `yaml:"registry" mapstructure:"registry"`
-	Analyzer       Analyzer `yaml:"analyzer" mapstructure:"analyzer"`
-	Scanner        Scanner  `yaml:"scanner" mapstructure:"scanner"`
-	LocalImageScan bool     `yaml:"local_image_scan" mapstructure:"local_image_scan"`
+	Registry       *Registry `yaml:"registry" mapstructure:"registry"`
+	Analyzer       *Analyzer `yaml:"analyzer" mapstructure:"analyzer"`
+	Scanner        *Scanner  `yaml:"scanner" mapstructure:"scanner"`
+	LocalImageScan bool      `yaml:"local_image_scan" mapstructure:"local_image_scan"`
 }
 
 func (Config) IsConfig() {}

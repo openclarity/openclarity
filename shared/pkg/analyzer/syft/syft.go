@@ -51,11 +51,11 @@ func init() {
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(config.Config) // nolint:forcetypeassert
+	conf := c.(*config.Config) // nolint:forcetypeassert
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
-		config:     config.CreateSyftConfig(&conf.Analyzer, &conf.Registry),
+		config:     config.CreateSyftConfig(conf.Analyzer, conf.Registry),
 		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
 	}

@@ -163,7 +163,7 @@ func createLogger(conf *_config.Config) *log.Entry {
 }
 
 func getLayerCommands(conf *_config.Config) ([]*image_helper.FsLayerCommand, error) {
-	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageIDToScan, &conf.SharedConfig)
+	layerCommands, err := image_helper.GetImageLayerCommands(conf.ImageIDToScan, conf.SharedConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commands from image=%s: %v", conf.ImageIDToScan, err)
 	}
