@@ -17,41 +17,8 @@ package trivy
 
 import (
 	log "github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
-	flog "github.com/aquasecurity/trivy/pkg/fanal/log"
-	trivyLog "github.com/aquasecurity/trivy/pkg/log"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
-
-const ScannerName = "trivy"
-
-func New(c job_manager.IsConfig,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
-
-	logger = logger.Dup().WithField("scanner", ScannerName)
-
-	// Init trivy's loggers with a hook into our logger
-	lc := logrusCore{logger}
-	zap := zap.New(lc)
-	trivyLog.Logger = zap.Sugar()
-	dlog.SetLogger(trivyLog.Logger)
-	flog.SetLogger(trivyLog.Logger)
-
-	return &LocalScanner{
-		logger:     logger,
-		config:     config.CreateLocalScannerTrivyConfigEx(conf.Scanner, conf.Registry),
-		resultChan: resultChan,
-		localImage: conf.LocalImageScan,
-	}
-}
 
 type logrusCore struct {
 	logger *log.Entry

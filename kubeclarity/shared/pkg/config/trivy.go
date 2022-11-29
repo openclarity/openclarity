@@ -55,10 +55,16 @@ func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) Analyze
 
 const ScannerTrivyTimeoutSecondsDefault = 300
 
-const ScannerTrivyTimeoutSeconds = "SCANNER_TRIVY_TIMEOUT_SECONDS"
+const (
+	ScannerTrivyTimeoutSeconds = "SCANNER_TRIVY_TIMEOUT_SECONDS"
+	ScannerTrivyServerAddress  = "SCANNER_TRIVY_SERVER_ADDRESS"
+	ScannerTrivyServerToken    = "SCANNER_TRIVY_SERVER_TOKEN" // nolint:gosec
+)
 
 type ScannerTrivyConfig struct {
-	Timeout int
+	Timeout     int
+	ServerAddr  string
+	ServerToken string
 }
 
 func setScannerTrivyConfigDefaults() {
@@ -69,18 +75,24 @@ func LoadScannerTrivyConfig() ScannerTrivyConfig {
 	setScannerTrivyConfigDefaults()
 
 	return ScannerTrivyConfig{
-		Timeout: viper.GetInt(ScannerTrivyTimeoutSeconds),
+		Timeout:     viper.GetInt(ScannerTrivyTimeoutSeconds),
+		ServerAddr:  viper.GetString(ScannerTrivyServerAddress),
+		ServerToken: viper.GetString(ScannerTrivyServerToken),
 	}
 }
 
-type LocalScannerTrivyConfigEx struct {
-	Timeout  time.Duration
-	Registry *Registry
+type ScannerTrivyConfigEx struct {
+	Timeout     time.Duration
+	ServerAddr  string
+	ServerToken string
+	Registry    *Registry
 }
 
-func CreateLocalScannerTrivyConfigEx(scanner *Scanner, registry *Registry) LocalScannerTrivyConfigEx {
-	return LocalScannerTrivyConfigEx{
-		Timeout:  time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
-		Registry: registry,
+func CreateScannerTrivyConfigEx(scanner *Scanner, registry *Registry) ScannerTrivyConfigEx {
+	return ScannerTrivyConfigEx{
+		Timeout:     time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
+		Registry:    registry,
+		ServerAddr:  scanner.TrivyConfig.ServerAddr,
+		ServerToken: scanner.TrivyConfig.ServerToken,
 	}
 }
