@@ -31,7 +31,7 @@ import (
 func CreateJob(scannerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	createJobFunc, ok := job_factory.GetCreateJobFuncs()[scannerName]
 	if !ok {
-		logrus.Fatalf("Unregister scanner: %v", scannerName)
+		logrus.Fatalf("Unregistered scanner: %v", scannerName)
 	}
 	return createJobFunc(conf, logger, resultChan)
 }

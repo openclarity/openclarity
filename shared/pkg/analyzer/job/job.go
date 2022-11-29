@@ -28,10 +28,10 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
 
-func CreateAnalyzerJob(scannerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	createJobFunc, ok := job_factory.GetCreateJobFuncs()[scannerName]
+func CreateAnalyzerJob(analyzerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	createJobFunc, ok := job_factory.GetCreateJobFuncs()[analyzerName]
 	if !ok {
-		logrus.Fatalf("Unregister analyzer: %v", scannerName)
+		logrus.Fatalf("Unregistered analyzer: %v", analyzerName)
 	}
 	return createJobFunc(conf, logger, resultChan)
 }
