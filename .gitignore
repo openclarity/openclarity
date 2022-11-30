@@ -1,3 +1,5 @@
 .DS_Store
 .idea/
 bin/
+**/.vagrant
+/cloud-config.cfg
