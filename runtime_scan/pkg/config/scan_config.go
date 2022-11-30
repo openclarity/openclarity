@@ -38,6 +38,7 @@ type ScanConfig struct {
 	ScanScope        types.ScanScope
 	JobResultTimeout time.Duration
 	DeleteJobPolicy  DeleteJobPolicyType
+	ScannerConfig    *types.ScannerConfig
 }
 
 func setScanConfigDefaults() {

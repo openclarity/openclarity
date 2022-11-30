@@ -25,6 +25,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/cloudinit"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/config/aws"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
@@ -108,7 +109,11 @@ func (c *Client) Discover(ctx context.Context, scanScope types.ScanScope) ([]typ
 	return ret, nil
 }
 
-func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot) (types.Instance, error) {
+func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, scannerConfig *types.ScannerConfig) (types.Instance, error) {
+	userData, err := cloudinit.GenerateCloudInit(scannerConfig, c.awsConfig.DeviceName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate cloud-init: %v", err)
+	}
 	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),
 		MinCount: utils.Int32Ptr(1),
@@ -135,7 +140,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot) (t
 				Tags:         vmclarityTags,
 			},
 		},
-		UserData: nil, // TODO put launch script here
+		UserData: userData,
 	}, func(options *ec2.Options) {
 		options.Region = snapshot.GetRegion()
 	})
