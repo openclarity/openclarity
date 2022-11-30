@@ -193,7 +193,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		}
 	}
 
-	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot)
+	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, s.scanConfig.ScannerConfig)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to launch a new instance: %v", err)
 	}
