@@ -1832,20 +1832,21 @@ func Test_updateApplicationWithVulnerabilityScan(t *testing.T) {
 
 func sortResources(resources []database.Resource) []database.Resource {
 	sort.Slice(resources, func(i, j int) bool {
-		resources[i].Packages = sortPackages(resources[i].Packages)
-		resources[j].Packages = sortPackages(resources[j].Packages)
 		return resources[i].Name < resources[j].Name
 	})
-
+	for _, resource := range resources {
+		resource.Packages = sortPackages(resource.Packages)
+	}
 	return resources
 }
 
 func sortPackages(packages []database.Package) []database.Package {
 	sort.Slice(packages, func(i, j int) bool {
-		packages[i].Vulnerabilities = sortVulnerabilities(packages[i].Vulnerabilities)
-		packages[j].Vulnerabilities = sortVulnerabilities(packages[j].Vulnerabilities)
 		return packages[i].Name < packages[j].Name
 	})
+	for _, pack := range packages {
+		pack.Vulnerabilities = sortVulnerabilities(pack.Vulnerabilities)
+	}
 	return packages
 }
 
