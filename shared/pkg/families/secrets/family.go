@@ -1,0 +1,45 @@
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package secrets
+
+import (
+	log "github.com/sirupsen/logrus"
+
+	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+)
+
+type Secrets struct {
+	conf   Config
+	logger *log.Entry
+}
+
+func (s Secrets) Run(res *results.Results) (_interface.IsResults, error) {
+	//TODO implement me
+	s.logger.Info("Secrets Run...")
+	s.logger.Info("Secrets Done...")
+	return &Results{}, nil
+}
+
+// ensure types implement the requisite interfaces
+var _ _interface.Family = &Secrets{}
+
+func New(logger *log.Entry, conf Config) *Secrets {
+	return &Secrets{
+		conf:   conf,
+		logger: logger.Dup().WithField("family", "secrets"),
+	}
+}
