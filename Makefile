@@ -24,12 +24,17 @@ help: ## This help.
 build: build-all-go ## Build All
 
 .PHONY: build-all-go
-build-all-go: backend ## Build All GO executables
+build-all-go: backend cli ## Build All GO executables
 
 .PHONY: backend
 backend: ## Build Backend
 	@(echo "Building Backend ..." )
 	@(cd backend && go build -o bin/backend cmd/backend/main.go && ls -l bin/)
+
+.PHONY: cli
+cli: ## Build CLI
+	@(echo "Building CLI ..." )
+	@(cd cli && go build -ldflags="-X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${VERSION}'" -o bin/vmclarity main.go && ls -l bin/)
 
 .PHONY: docker
 docker: docker-backend ## Build All Docker images
