@@ -134,7 +134,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get ignore-vul flag: %v", err)
 	}
 
-	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.CreateJob)
+	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.Factory)
 	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)

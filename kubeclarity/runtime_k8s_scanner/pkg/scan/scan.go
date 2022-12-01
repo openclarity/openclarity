@@ -42,7 +42,7 @@ func Create(logger *logrus.Entry) *ScannerImpl {
 }
 
 func (s *ScannerImpl) Scan(config *config.Config, sbomFilePath string) (*sharedscanner.MergedResults, error) {
-	manager := job_manager.New(config.SharedConfig.Scanner.ScannersList, config.SharedConfig, s.logger, job.CreateJob)
+	manager := job_manager.New(config.SharedConfig.Scanner.ScannersList, config.SharedConfig, s.logger, job.Factory)
 	results, err := manager.Run(utils.SBOM, sbomFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run job manager: %v", err)

@@ -23,10 +23,10 @@ import (
 
 // TODO: maybe we need to extend the unified config.
 type Analyzer struct {
-	OutputFormat string
-	AnalyzerList []string
-	Scope        string
-	TrivyConfig  AnalyzerTrivyConfig
+	OutputFormat string              `yaml:"output_format" mapstructure:"output_format"`
+	AnalyzerList []string            `yaml:"analyzer_list" mapstructure:"analyzer_list"`
+	Scope        string              `yaml:"scope" mapstructure:"scope"`
+	TrivyConfig  AnalyzerTrivyConfig `yaml:"trivy_config" mapstructure:"trivy_config"`
 }
 
 const (
