@@ -26,7 +26,7 @@ const AnalyzerTrivyTimeoutSecondsDefault = 300
 const AnalyzerTrivyTimeoutSeconds = "ANALYZER_TRIVY_TIMEOUT_SECONDS"
 
 type AnalyzerTrivyConfig struct {
-	Timeout int
+	Timeout int `yaml:"timeout" mapstructure:"timeout"`
 }
 
 func setTrivyConfigDefaults() {

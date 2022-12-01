@@ -50,6 +50,7 @@ linters:
     - testpackage
     - goerr113
     - paralleltest
+    - gochecknoinits # Allow init function
     - godox # Allow TODOs
     - tagliatelle # Allow json(camel)
     - scopelint # deprecated
