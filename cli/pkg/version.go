@@ -1,21 +1,4 @@
-approved = [
-  "mit",
-  "apache-2.0",
-  "bsd-3-clause",
-  "bsd-2-clause",
-  "mpl-2.0",
-  "isc"
-]
-
-ignored = [
-    "github.com/ghodss/yaml", # MIT - https://github.com/ghodss/yaml/blob/master/LICENSE
-    "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
-]
-
-[header]
-ignorePaths = []
-ignoreFiles = []
-template = """// Copyright © :YEAR: Cisco Systems, Inc. and its affiliates.
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,4 +11,8 @@ template = """// Copyright © :YEAR: Cisco Systems, Inc. and its affiliates.
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License."""
+// limitations under the License.
+
+package pkg
+
+var GitRevision string

@@ -53,5 +53,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-// nolint:gomoddirectives
 replace github.com/openclarity/vmclarity/runtime_scan v0.0.0 => ./../runtime_scan

@@ -1,0 +1,71 @@
+sbom:
+  enabled: true
+  analyzers_list:
+    - "syft"
+    - "gomod"
+  inputs:
+    - input: "node:slim"
+      input_type: "image"
+#    - input: "nginx:1.10"
+#      input_type: "image"
+  merge_with:
+    - sbom_path: "nginx.11.cdx.json"
+  analyzers_config:
+    analyzer:
+      output_format: "cyclonedx-json"
+      scope: "Squashed"
+      trivy_config:
+        timeout: 300
+    registry:
+      skip-verify-tls: false
+      use-http: false
+      auths:
+        authority: "authority"
+        username: "username"
+        password: "password"
+        token: "token"
+
+vulnerabilities:
+  enabled: true
+  scanners_list:
+    - "grype"
+  inputs:
+    - input: "nginx:1.12"
+      input_type: "image"
+#    - input: "nginx:1.13"
+#      input_type: "image"
+  input_from_sbom: true
+  scanners_config:
+    scanner:
+      grype_config:
+        mode: "LOCAL"
+        local_grype_config:
+          update_db: true
+          db_root_dir: "/tmp/"
+          listing_url: "https://toolbox-data.anchore.io/grype/databases/listing.json"
+          scope: "squashed"
+        remote_grype_config:
+          grype_server_address: ""
+          grype_server_timeout: "2m"
+    registry:
+      skip-verify-tls: false
+      use-http: false
+      auths:
+        authority: "authority"
+        username: "username"
+        password: "password"
+        token: "token"
+
+secrets:
+  enabled: true
+  scanners_list:
+    - "gitleaks"
+  inputs:
+    - input: "/dir"
+      input_type: "dir"
+    - input: "/rootfs"
+      input_type: "rootfs"
+  gitleaks_config:
+    foo: "bar"
+
+
