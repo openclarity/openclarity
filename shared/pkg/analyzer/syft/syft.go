@@ -30,7 +30,6 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
@@ -44,10 +43,6 @@ type Analyzer struct {
 	config     config.SyftConfig
 	resultChan chan job_manager.Result
 	localImage bool
-}
-
-func init() {
-	job_factory.RegisterCreateJobFunc(AnalyzerName, New)
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {

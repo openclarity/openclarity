@@ -27,7 +27,6 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
@@ -37,10 +36,6 @@ import (
 const (
 	ScannerName = "grype"
 )
-
-func init() {
-	job_factory.RegisterCreateJobFunc(ScannerName, New)
-}
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	conf := c.(*config.Config) // nolint:forcetypeassert

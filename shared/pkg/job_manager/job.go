@@ -16,13 +16,9 @@
 package job_manager // nolint:revive,stylecheck
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Job interface {
 	Run(sourceType utils.SourceType, source string) error
 }
-
-type createJobFunc func(name string, config IsConfig, logger *logrus.Entry, resultChan chan Result) Job

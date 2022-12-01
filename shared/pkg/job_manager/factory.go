@@ -13,33 +13,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package job_factory // nolint:revive,stylecheck
+package job_manager // nolint:revive,stylecheck
 
 import (
-	"sync"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
 
-var (
+type Factory struct {
 	createJobFuncs map[string]CreateJobFunc // scanner name to CreateJobFunc
-	once           sync.Once
-)
-
-type CreateJobFunc func(conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job
-
-func RegisterCreateJobFunc(name string, createJobFunc CreateJobFunc) {
-	once.Do(func() {
-		createJobFuncs = make(map[string]CreateJobFunc)
-	})
-	if _, ok := createJobFuncs[name]; ok {
-		logrus.Fatalf("%q already registered", name)
-	}
-	createJobFuncs[name] = createJobFunc
 }
 
-func GetCreateJobFuncs() map[string]CreateJobFunc {
-	return createJobFuncs
+func NewJobFactory() *Factory {
+	return &Factory{createJobFuncs: make(map[string]CreateJobFunc)}
+}
+
+type CreateJobFunc func(conf IsConfig, logger *logrus.Entry, resultChan chan Result) Job
+
+func (f *Factory) Register(name string, createJobFunc CreateJobFunc) {
+	if f.createJobFuncs == nil {
+		f.createJobFuncs = make(map[string]CreateJobFunc)
+	}
+
+	if _, ok := f.createJobFuncs[name]; ok {
+		logrus.Fatalf("%q already registered", name)
+	}
+
+	f.createJobFuncs[name] = createJobFunc
+}
+
+func (f *Factory) CreateJob(name string, conf IsConfig, logger *logrus.Entry, resultChan chan Result) (Job, error) {
+	createFunc, ok := f.createJobFuncs[name]
+	if !ok {
+		return nil, fmt.Errorf("%v not a registered job", name)
+	}
+
+	return createFunc(conf, logger, resultChan), nil
 }

@@ -25,18 +25,18 @@ import (
 )
 
 type Manager struct {
-	jobNames          []string
-	config            IsConfig
-	logger            *logrus.Entry
-	createRunnersFunc createJobFunc
+	jobNames   []string
+	config     IsConfig
+	logger     *logrus.Entry
+	jobFactory *Factory
 }
 
-func New(jobNames []string, config IsConfig, logger *logrus.Entry, createRunnersFunc createJobFunc) *Manager {
+func New(jobNames []string, config IsConfig, logger *logrus.Entry, factory *Factory) *Manager {
 	return &Manager{
-		jobNames:          jobNames,
-		config:            config,
-		logger:            logger,
-		createRunnersFunc: createRunnersFunc,
+		jobNames:   jobNames,
+		config:     config,
+		logger:     logger,
+		jobFactory: factory,
 	}
 }
 
@@ -47,7 +47,12 @@ func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string
 	jobs := make([]Job, len(m.jobNames))
 	for i, name := range m.jobNames {
 		nameToResultChan[name] = make(chan Result, 10) // nolint:gomnd
-		jobs[i] = m.createRunnersFunc(name, m.config, m.logger, nameToResultChan[name])
+		job, err := m.jobFactory.CreateJob(name, m.config, m.logger, nameToResultChan[name])
+		if err != nil {
+			return nil, fmt.Errorf("failed to create job: %v", err)
+		}
+
+		jobs[i] = job
 	}
 
 	// start jobs

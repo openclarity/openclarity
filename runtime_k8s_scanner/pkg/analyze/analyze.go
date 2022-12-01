@@ -43,7 +43,7 @@ func Create(logger *logrus.Entry) Analyzer {
 
 func (a *AnalyzerImpl) Analyze(config *config.Config) (*analyzer.MergedResults, error) {
 	manager := job_manager.New(config.SharedConfig.Analyzer.AnalyzerList, config.SharedConfig, a.logger,
-		job.CreateAnalyzerJob)
+		job.Factory)
 
 	results, err := manager.Run(utils.IMAGE, config.ImageIDToScan)
 	if err != nil {

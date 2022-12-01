@@ -16,22 +16,14 @@
 package job
 
 import (
-	"github.com/sirupsen/logrus"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-
-	// Enable dependency_track.
-	_ "github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
-
-	// Enable grype.
-	_ "github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
 )
 
-func CreateJob(scannerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	createJobFunc, ok := job_factory.GetCreateJobFuncs()[scannerName]
-	if !ok {
-		logrus.Fatalf("Unregistered scanner: %v", scannerName)
-	}
-	return createJobFunc(conf, logger, resultChan)
+var Factory = job_manager.NewJobFactory()
+
+func init() {
+	Factory.Register(grype.ScannerName, grype.New)
+	Factory.Register(dependency_track.ScannerName, dependency_track.New)
 }

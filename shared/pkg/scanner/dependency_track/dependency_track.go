@@ -32,7 +32,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client"
@@ -63,10 +62,6 @@ func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Re
 		return fmt.Errorf("failed to set API key header: %v", err)
 	}
 	return nil
-}
-
-func init() {
-	job_factory.RegisterCreateJobFunc(ScannerName, New)
 }
 
 func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {

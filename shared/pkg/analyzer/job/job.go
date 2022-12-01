@@ -16,22 +16,16 @@
 package job
 
 import (
-	"github.com/sirupsen/logrus"
-
-	// Enable cdx_gomod.
-	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
-	// Enable syft.
-	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
-	// Enable trivy.
-	_ "github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
-	"github.com/openclarity/kubeclarity/shared/pkg/job_factory"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 )
 
-func CreateAnalyzerJob(analyzerName string, conf job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	createJobFunc, ok := job_factory.GetCreateJobFuncs()[analyzerName]
-	if !ok {
-		logrus.Fatalf("Unregistered analyzer: %v", analyzerName)
-	}
-	return createJobFunc(conf, logger, resultChan)
+var Factory = job_manager.NewJobFactory()
+
+func init() {
+	Factory.Register(trivy.AnalyzerName, trivy.New)
+	Factory.Register(syft.AnalyzerName, syft.New)
+	Factory.Register(cdx_gomod.AnalyzerName, cdx_gomod.New)
 }

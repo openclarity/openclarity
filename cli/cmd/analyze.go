@@ -97,7 +97,7 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get input SBOM filepath: %v", err)
 	}
 
-	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.CreateAnalyzerJob)
+	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.Factory)
 	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
