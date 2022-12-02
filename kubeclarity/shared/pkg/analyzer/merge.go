@@ -24,7 +24,7 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
@@ -103,14 +103,16 @@ func (m *MergedResults) mergeMainComponent(bom *cdx.BOM) {
 }
 
 func (m *MergedResults) CreateMergedSBOMBytes(format, version string) ([]byte, error) {
-	output := formatter.New(format, []byte{})
-	if err := output.SetSBOM(m.createMergedSBOM(version)); err != nil {
-		return nil, fmt.Errorf("failed to set SBOM: %v", err)
+	cdxSBOM := m.createMergedSBOM(version)
+	f, err := converter.StringToSbomFormat(format)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse output format: %w", err)
 	}
-	if err := output.Encode(format); err != nil {
-		return nil, fmt.Errorf("failed to encode SBOM: %v", err)
+	bomBytes, err := converter.CycloneDxToBytes(cdxSBOM, f)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get bom bytes: %w", err)
 	}
-	return output.GetSBOMBytes(), nil
+	return bomBytes, nil
 }
 
 func (m *MergedResults) createComponentListFromMap() *[]cdx.Component {
