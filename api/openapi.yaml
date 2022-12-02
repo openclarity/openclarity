@@ -1,0 +1,556 @@
+openapi: 3.0.1
+
+info:
+  title: VMClarity APIs
+  version: 1.0.0
+
+servers:
+  - url: /api
+
+paths:
+  /targets:
+    get:
+      summary: Get targets
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - total
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total targets count under the given filters
+                  items:
+                    type: array
+                    description: List of targets in the given filters and page.
+                      List length must be lower or equal to pageSize.
+                    items:
+                      $ref: '#/components/schemas/Target'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create target
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Target'
+        required: true
+      responses:
+        201:
+          description: New target was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        409:
+          description: target already exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /target/{targetID}:
+    get:
+      summary: Get target.
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update target.
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Target'
+        required: true
+      responses:
+        200:
+          description: Update target successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        404:
+          description: target not found.
+          content: {}
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete target.
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+      responses:
+        204:
+          $ref: '#/components/responses/Success'
+        404:
+          description: target not found.
+          content: {}
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+
+  /targets/{targetID}/scanresults:
+    get:
+      summary: Get scan results for a specified target
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - total
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total scan results count under the given filters
+                  items:
+                    type: array
+                    description: List of scan results for a specified target in the given filters and page.
+                      List length must be lower or equal to pageSize.
+                    items:
+                      $ref: '#/components/schemas/ScanResults'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create scan result for a specified target
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanResults'
+        required: true
+      responses:
+        201:
+          description: New results was added to the target.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResultsSummary'
+        409:
+          description: Scan results already exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResultsSummary'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /targets/{targetID}/scanresults/{scanID}:
+    get:
+      summary: Report a specific scan result for a specific target
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/scanTypeParam'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ScanResultsSummary'
+                  - $ref: '#/components/schemas/SbomScan'
+                  - $ref: '#/components/schemas/VulnerabilityScan'
+                  - $ref: '#/components/schemas/MalwareScan'
+                  - $ref: '#/components/schemas/RootkitScan'
+                  - $ref: '#/components/schemas/SecretScan'
+                  - $ref: '#/components/schemas/MisconfigurationScan'
+                  - $ref: '#/components/schemas/ExploitScan'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update scan results.
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/scanID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanResults'
+        required: true
+      responses:
+        200:
+          description: Update scan results successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResultsSummary'
+        404:
+          description: Scan ID not found.
+          content: {}
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      description: An object that is returned in all cases of failures.
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      description: An object that is returned in cases of success that returns nothing.
+
+    CloudProvider:
+      type: string
+      enum:
+        - AWS
+
+    VMInfo:
+      type: object
+      properties:
+        instanceName:
+          type: string
+        instanceProvider:
+          $ref: '#/components/schemas/CloudProvider'
+        location:
+          type: string
+
+    PodInfo:
+      type: object
+      properties:
+        podName:
+          type: string
+        location:
+          type: string
+
+    DirInfo:
+      type: object
+      properties:
+        dirName:
+          type: string
+        location:
+          type: string
+
+    TargetType:
+      type: string
+      enum:
+        - VM
+        - POD
+        - DIR
+
+    Target:
+      type: object
+      properties:
+        id:
+          type: string
+        targetType:
+          $ref: '#/components/schemas/TargetType'
+        targetInfo:
+          oneOf:
+            - $ref: '#/components/schemas/VMInfo'
+            - $ref: '#/components/schemas/PodInfo'
+            - $ref: '#/components/schemas/DirInfo'
+        scanResults:
+          type: integer
+          format: uint32
+
+    ScanResults:
+      type: object
+      properties:
+        id:
+          type: string
+        sboms:
+          $ref: '#/components/schemas/SbomScan'
+        vulnerabilities:
+          $ref: '#/components/schemas/VulnerabilityScan'
+        malwares:
+          $ref: '#/components/schemas/VulnerabilityScan'
+        secrets:
+          $ref: '#/components/schemas/SecretScan'
+        misconfigurations:
+          $ref: '#/components/schemas/MisconfigurationScan'
+        exploits:
+          $ref: '#/components/schemas/ExploitScan'
+
+    ScanResultsSummary:
+      type: object
+      properties:
+        packagesCount:
+          type: integer
+        vulnerabilitiesCount:
+          type: integer
+        malwaresCount:
+          type: integer
+        secretsCount:
+          type: integer
+        misconfigurationsCount:
+          type: integer
+        exploitsCount:
+          type: integer
+
+    PackageInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        packageName:
+          type: string
+        packageVersion:
+          type: string
+
+    VulnerabilityInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        vulnerabilityName:
+          type: string
+        description:
+          type: string
+
+    Package:
+      type: object
+      properties:
+        id:
+          type: string
+        packageInfo:
+          $ref: '#/components/schemas/PackageInfo'
+
+    Vulnerability:
+      type: object
+      properties:
+        id:
+          type: string
+        packageInfo:
+          $ref: '#/components/schemas/VulnerabilityInfo'
+
+    MalwareInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        malwareName:
+          type: string
+        malwareType:
+          $ref: '#/components/schemas/MalwareType'
+        path:
+          type: string
+          description: Path of the file that contains malware
+
+    RootkitInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        rootkitName:
+          type: string
+        rootkitType:
+          $ref: '#/components/schemas/RootkitType'
+        path:
+          type: string
+          description: Path of the file that contains rootkit
+
+    MisconfigurationInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        path:
+          type: string
+          description: Path of the file that contains misconfigurations
+
+    SecretInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        path:
+          type: string
+          description: Path of the file that contains secrets
+
+    ExploitInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        vulnerabilities:
+          type: array
+          items:
+            type: string
+
+    SbomScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Package'
+
+    VulnerabilityScan:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vulnerability'
+
+    MalwareScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MalwareInfo'
+
+    RootkitScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/RootkitInfo'
+
+    SecretScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecretInfo'
+
+    MisconfigurationScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MisconfigurationInfo'
+
+    ExploitScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExploitInfo'
+
+    MalwareType:
+      type: string
+      enum:
+        - ADWARE
+        - VIRUS
+        - TROJAN
+        - WORM
+        - SPYWARE
+        - RANSOMWARE
+
+    RootkitType:
+      type: string
+      enum:
+        - MEMORY
+        - KERNEL
+        - APPLICATION
+        - FIRMWARE
+
+    ScanType:
+      type: string
+      enum:
+        - SBOM
+        - VULNERABILITY
+        - MALWARE
+        - SECRET
+        - MISCONFIGURATION
+        - ROOTKIT
+        - EXPLOIT
+
+  responses:
+    Success:
+      description: success message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponse'
+
+    UnknownError:
+      description: unknown error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+  parameters:
+    targetID:
+      name: targetID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    scanID:
+      name: scanID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    scanTypeParam:
+      name: scanType
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ScanType'
+
+    page:
+      name: page
+      in: query
+      description: Page number of the query
+      required: true
+      schema:
+        type: integer
+
+    pageSize:
+      name: pageSize
+      in: query
+      description: Maximum items to return
+      required: true
+      schema:
+        maximum: 50
+        minimum: 1
+        type: integer

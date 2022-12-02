@@ -110,3 +110,8 @@ check: lint test ## Run tests and linters
 gomod-tidy:
 	cd backend && go mod tidy
 	cd runtime_scan && go mod tidy
+
+.PHONY: api
+api: ## Generating API code
+	@(echo "Generating API code ..." )
+	@(cd api; go generate)
