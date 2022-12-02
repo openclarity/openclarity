@@ -18,7 +18,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 )
 
 // TODO: maybe we need to extend the unified config.
@@ -38,7 +38,7 @@ const (
 func setAnalyzerConfigDefaults() {
 	viper.SetDefault(AnalyzerList, []string{"syft", "gomod"})
 	viper.SetDefault(AnalyzerScope, "squashed")
-	viper.SetDefault(OutputFormat, formatter.CycloneDXJSONFormat)
+	viper.SetDefault(OutputFormat, converter.CycloneDxJSON.String())
 }
 
 func LoadAnalyzerConfig() *Analyzer {

@@ -31,7 +31,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/api/client/models"
 	"github.com/openclarity/kubeclarity/e2e/common"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 )
 
 const (
@@ -117,11 +117,9 @@ func TestCLIScan(t *testing.T) {
 
 func getCdxSbom(t *testing.T, fileName string) *cdx.BOM {
 	t.Helper()
-	sbom, err := os.ReadFile(fileName)
+	sbom, err := converter.GetCycloneDXSBOMFromFile(fileName)
 	assert.NilError(t, err)
-	input := formatter.New(formatter.CycloneDXJSONFormat, sbom)
-	assert.NilError(t, input.Decode(formatter.CycloneDXJSONFormat))
-	return input.GetSBOM().(*cdx.BOM)
+	return sbom
 }
 
 func validateAnalyzeDir(t *testing.T) {

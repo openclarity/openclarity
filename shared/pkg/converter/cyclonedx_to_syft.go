@@ -18,7 +18,6 @@ package converter
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -26,63 +25,20 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/anchore/syft/syft"
 	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
-	syft_sbom "github.com/anchore/syft/syft/sbom"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 )
 
 var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from file")
 
-func ConvertCycloneDXToSyftJSONFromFile(inputSBOMFile string, outputSBOMFile string) error {
-	inputSBOM, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
-	if err != nil {
-		return fmt.Errorf("failed to get CycloneDX SBOM  bytes from file: %v", err)
-	}
-	syftBOM, err := convertCycloneDXtoSyft(inputSBOM)
-	if err != nil {
-		return fmt.Errorf("failed to convert CycloneDX to syft format: %v", err)
-	}
-
-	if err = saveSyftSBOMToFile(syftBOM, outputSBOMFile); err != nil {
-		return fmt.Errorf("failed to save syft SBOM: %v", err)
-	}
-
-	return nil
-}
-
-func getCycloneDXSBOMBytesFromFile(inputSBOMFile string) ([]byte, error) {
-	inputSBOM, err := os.ReadFile(inputSBOMFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read SBOM file %s: %v", inputSBOMFile, err)
-	}
-	return inputSBOM, nil
-}
-
-func saveSyftSBOMToFile(syftBOM syft_sbom.SBOM, outputSBOMFile string) error {
-	outputFormat := formatter.SyftFormat
-
-	output := formatter.New(outputFormat, []byte{})
-	if err := output.SetSBOM(syftBOM); err != nil {
-		return fmt.Errorf("unable to set SBOM in formatter: %v", err)
-	}
-
-	if err := output.Encode(outputFormat); err != nil {
-		return fmt.Errorf("failed to encode SBOM: %v", err)
-	}
-
-	if err := formatter.WriteSBOM(output.GetSBOMBytes(), outputSBOMFile); err != nil {
-		return fmt.Errorf("failed to write syft SBOM to file %s: %v", outputSBOMFile, err)
-	}
-
-	return nil
-}
-
 func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
-	inputSBOMBytes, err := getCycloneDXSBOMBytesFromFile(inputSBOMFile)
+	inputSBOMBytes, err := os.ReadFile(inputSBOMFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get SBOM bytes from file: %v", err)
+		return nil, fmt.Errorf("failed to get SBOM bytes from file: %w", err)
 	}
 
+	return GetCycloneDXSBOMFromBytes(inputSBOMBytes)
+}
+
+func GetCycloneDXSBOMFromBytes(inputSBOMBytes []byte) (*cdx.BOM, error) {
 	// Ensure input is converted to cyclonedx regardless of the
 	// input SBOM type.
 	r := bytes.NewReader(inputSBOMBytes)
@@ -100,7 +56,7 @@ func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 		} else {
 			// If no luck manually identifying the file as XML,
 			// then just return the syft error.
-			return nil, fmt.Errorf("failed to identify or decode file %s to recognised SBOM format: %w", inputSBOMFile, err)
+			return nil, fmt.Errorf("failed to identify or decode SBOM to recognised SBOM format: %w", err)
 		}
 	}
 
@@ -128,26 +84,4 @@ func GetCycloneDXSBOMFromFile(inputSBOMFile string) (*cdx.BOM, error) {
 	}
 
 	return bom, nil
-}
-
-func DetermineCycloneDXFormat(sbom []byte) string {
-	var js json.RawMessage
-	if json.Unmarshal(sbom, &js) == nil {
-		return formatter.CycloneDXJSONFormat
-	}
-
-	return formatter.CycloneDXFormat
-}
-
-func convertCycloneDXtoSyft(sbomB []byte) (syft_sbom.SBOM, error) {
-	output := formatter.New(formatter.SyftFormat, sbomB)
-
-	if err := output.Decode(formatter.CycloneDXFormat); err != nil {
-		return syft_sbom.SBOM{}, fmt.Errorf("failed to write results: %v", err)
-	}
-	sbom, ok := output.GetSBOM().(syft_sbom.SBOM)
-	if !ok {
-		return syft_sbom.SBOM{}, fmt.Errorf("type assertion of sbom failed")
-	}
-	return sbom, nil
 }

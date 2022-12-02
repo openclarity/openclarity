@@ -16,11 +16,13 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 )
 
 // convertCmd represents the convert command.
@@ -37,18 +39,13 @@ var convertCmd = &cobra.Command{
 // nolint: gochecknoinits
 func init() {
 	rootCmd.AddCommand(convertCmd)
-	convertCmd.Flags().StringP("input-format", "", "cyclonedx", "Define input format")
+	convertCmd.Flags().StringP("input-format", "", "cyclonedx", "Deprecated and ignored")
 	convertCmd.Flags().StringP("input-sboms", "i", "", "Define input filename")
 	convertCmd.Flags().StringP("output-format", "", "json", "Define output format")
 	convertCmd.Flags().StringP("output-sbom", "o", "", "Define output filename")
 }
 
 func convertSBOM(cmd *cobra.Command, _ []string) {
-	inputFormat, err := cmd.Flags().GetString("input-format")
-	if err != nil {
-		logrus.Fatalf("Unable to get input format: %v", err)
-	}
-
 	outputFormat, err := cmd.Flags().GetString("output-format")
 	if err != nil {
 		logrus.Fatalf("Unable to get output format: %v", err)
@@ -64,21 +61,30 @@ func convertSBOM(cmd *cobra.Command, _ []string) {
 		logrus.Fatalf("Unable to get output sbom: %v", err)
 	}
 
-	if !isSupportedConversion(inputFormat, outputFormat) {
-		logger.Fatalf("Unsupported SBOM conversion from %s to %s", inputFormat, outputFormat)
+	outputSbomFormat, err := converter.StringToSbomFormat(outputFormat)
+	if err != nil {
+		logger.Fatalf("Unsupported SBOM conversion: %v", err)
 	}
 
-	if err = converter.ConvertCycloneDXToSyftJSONFromFile(inputSBOMFile, outputSBOMFile); err != nil {
+	if err = ConvertSBOMFile(inputSBOMFile, outputSBOMFile, outputSbomFormat); err != nil {
 		logger.Fatalf("Failed to convert: %v", err)
 	}
 }
 
-// check supported conversion.
-func isSupportedConversion(inputFormat, outputFormat string) bool {
-	// check CycloneDXNameJSON because syft version 0.32.2 can generate cyclondx-json output
-	if (inputFormat == formatter.CycloneDXFormat || inputFormat == formatter.CycloneDXJSONFormat) && outputFormat == formatter.SyftFormat {
-		return true
+func ConvertSBOMFile(inputSBOMFile string, outputSBOMFile string, outputFormat converter.SbomFormat) error {
+	cdxBom, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
+	if err != nil {
+		return fmt.Errorf("failed to get CycloneDX SBOM from file: %v", err)
 	}
 
-	return false
+	bomBytes, err := converter.CycloneDxToBytes(cdxBom, outputFormat)
+	if err != nil {
+		return fmt.Errorf("failed to convert CycloneDX to %v format: %v", outputFormat, err)
+	}
+
+	if err := utils.WriteSBOM(bomBytes, outputSBOMFile); err != nil {
+		return fmt.Errorf("failed to write SBOM to file %s: %v", outputSBOMFile, err)
+	}
+
+	return nil
 }
