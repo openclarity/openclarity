@@ -27,6 +27,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
   - [Private Registry Support For CLI](#private-registry-support-for-cli)
   - [Private Registry Support For K8s Runtime Scan](#private-registries-support-for-k8s-runtime-scan)
   - [Merging of SBOM and vulnerabilities across different CI/CD stages](#merging-of-sbom-and-vulnerabilities-across-different-cicd-stages)
+  - [Output Different SBOM Formats](#output-different-sbom-formats)
   - [Remote Scanner Servers For CLI](#remote-scanner-servers-for-cli)
 - [Limitations](#limitations)
 - [Roadmap](#roadmap)
@@ -352,7 +353,6 @@ registry:
 kubeclarity scan registry/nginx:private --config $HOME/own-kubeclarity-config
 ```
 
-
 ## Private registries support for K8s runtime scan
 
 Kubeclarity is using [k8schain](https://github.com/google/go-containerregistry/tree/main/pkg/authn/k8schain#k8schain) of google/go-containerregistry for authenticating to the registries.
@@ -404,6 +404,34 @@ Note:
 # Additional SBOM will be merged into the final results when '--merge-sbom' is defined during analysis. The input SBOM can be CycloneDX XML or CyclonDX json format.
 # For example:
 ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom --merge-sbom inputsbom.xml
+```
+
+## Output Different SBOM Formats
+
+The kubeclarity-cli analyze command can format the resulting SBOM into
+different formats if required to integrate with another system. The supported
+formats are:
+
+| Format | Configuration Name |
+| --- | --- |
+| CycloneDX JSON (default) | cyclonedx-json |
+| CycloneDX XML | cyclonedx-xml |
+| SPDX JSON | spdx-json |
+| SPDX Tag Value | spdx-tv |
+| Syft JSON | syft-json |
+
+
+> ***WARNING***  
+> KubeClarity processes CycloneDX internally, the other formats are supported
+> through a conversion. The conversion process can be lossy due to
+> incompatibilities between formats, therefore not all fields/information are
+> promised to be present in the resulting output.
+
+To configure the kubeclarity-cli to use a format other than the default, the
+ANALYZER\_OUTPUT\_FORMAT environment variable can be used with the
+configuration name from above:
+```
+ANALYZER_OUTPUT_FORMAT="spdx-json" kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ```
 
 ## Remote Scanner Servers For CLI
