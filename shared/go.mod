@@ -466,3 +466,13 @@ replace (
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
 	oras.land/oras-go => oras.land/oras-go v1.1.1
 )
+
+// Exclude all these versions of syft, they are shipping with an unreleased
+// version of github.com/spdx/tools-golang, which is incompatible with trivy
+exclude (
+	github.com/anchore/syft v0.61.0
+	github.com/anchore/syft v0.62.0
+	github.com/anchore/syft v0.62.1
+	github.com/anchore/syft v0.62.2
+	github.com/anchore/syft v0.62.3
+)
