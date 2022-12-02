@@ -16,9 +16,6 @@
 package grype
 
 import (
-	"errors"
-	"fmt"
-	"os"
 	"strings"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
@@ -26,7 +23,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
@@ -57,24 +53,6 @@ func ReportError(resultChan chan job_manager.Result, err error, logger *log.Entr
 
 	logger.Error(res.Error)
 	resultChan <- res
-}
-
-func ConvertCycloneDXFileToSyftJSONFile(inputFilePath string, logger *log.Entry) (string, func(), error) {
-	outputFilePath := inputFilePath + ".syft.json"
-	logger.Infof("Converting %q to syft format.", inputFilePath)
-
-	if err := converter.ConvertCycloneDXToSyftJSONFromFile(inputFilePath, outputFilePath); err != nil {
-		if errors.Is(err, converter.ErrFailedToGetCycloneDXSBOM) {
-			logger.Infof("Not a CycloneDX input - returning current input.")
-			return inputFilePath, func() {}, nil
-		}
-
-		return "", nil, fmt.Errorf("failed to convert sbom file: %w", err)
-	}
-
-	logger.Infof("Conversion succeeded. outputFilePath=%v", outputFilePath)
-
-	return outputFilePath, func() { _ = os.Remove(outputFilePath) }, nil
 }
 
 func CreateResults(doc grype_models.Document, userInput, scannerName, hash string) *scanner.Results {
