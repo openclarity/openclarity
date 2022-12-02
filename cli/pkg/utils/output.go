@@ -13,34 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package formatter
+package utils
 
 import (
 	"fmt"
 	"os"
-
-	log "github.com/sirupsen/logrus"
 )
-
-type Formatter interface {
-	Encode(format string) error
-	Decode(format string) error
-	SetSBOM(interface{}) error
-	GetSBOM() interface{}
-	GetSBOMBytes() []byte
-}
-
-func New(formatterName string, sbom []byte) Formatter {
-	switch formatterName {
-	case CycloneDXFormat, CycloneDXJSONFormat:
-		return newCycloneDXFormatter(sbom)
-	case SyftFormat:
-		return newSyftFormatter(sbom)
-	default:
-		log.Fatalf("Unknown formatter: %v", formatterName)
-	}
-	return nil
-}
 
 func WriteSBOM(sbom []byte, output string) error {
 	if output == "" {

@@ -28,7 +28,6 @@ import (
 	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
@@ -134,7 +133,7 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to create merged output: %v", err)
 	}
 
-	if err := formatter.WriteSBOM(mergedSboms, output); err != nil {
+	if err := utils.WriteSBOM(mergedSboms, output); err != nil {
 		logger.Fatalf("Failed to write results to file %v: %v ", output, err)
 	}
 
