@@ -298,6 +298,72 @@ SCANNERS_LIST="grype" BACKEND_HOST=localhost:9999 BACKEND_DISABLE_TLS=true kubec
 ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom --merge-sbom inputsbom.xml
 ```
 
+### Remote scanner servers
+
+When running the kubeclarity CLI to scan for vulnerabilties the CLI will need
+to download the relevant vulnerablity DBs to the location where the kubeclarity
+CLI is running. If running the CLI in a CI/CD pipeline this might mean having
+to download the DBs many times wasting time and bandwidth. For this reason
+several of the supported scanners have a remote mode in which a server is
+responsible for the DB management and possibly scanning of the artifacts.
+
+> ***Note***
+>
+> The examples below are for each of the scanners, but they can be combined to
+> run together the same as they can be in non-remote mode.
+
+#### Trivy
+
+Trivy scanner supports remote mode using the Trivy server. The trivy server can
+be deployed as documented here: [trivy client-server mode](https://aquasecurity.github.io/trivy/v0.34/docs/references/modes/client-server/).
+Instructions to install the Trivy CLI are available here: [trivy install](https://aquasecurity.github.io/trivy/v0.34/getting-started/installation/).
+The Aqua team provide an offical container image that can be used to run the
+server in kubernetes/docker which we'll use in the examples here.
+
+To start the server:
+```
+docker run -p 8080:8080 --rm aquasec/trivy:0.34.0 server --listen 0.0.0.0:8080
+```
+
+To run a scan using the server:
+```
+SCANNERS_LIST="trivy" SCANNER_TRIVY_SERVER_ADDRESS="http://<trivy server address>:8080" ./kubeclarity_cli scan --input-type sbom nginx.sbom
+```
+
+The trivy server also provides token based authentication to prevent
+unauthorized use of a trivy server instance. You can enable it by running the
+server with the extra flag:
+
+```
+docker run -p 8080:8080 --rm aquasec/trivy:0.34.0 server --listen 0.0.0.0:8080 --token mytoken
+```
+
+and passing the token to the scanner:
+```
+SCANNERS_LIST="trivy" SCANNER_TRIVY_SERVER_ADDRESS="http://<trivy server address>:8080" SCANNER_TRIVY_SERVER_TOKEN="mytoken" ./kubeclarity_cli scan --input-type sbom nginx.sbom
+```
+
+#### Grype
+
+Grype supports remote mode using [grype-server](https://github.com/portshift/grype-server)
+a RESTful grype wrapper which provides an API that receives an SBOM and returns
+the grype scan results for that SBOM. Grype-server ships as a container image
+so can be run in kubernetes or via docker standalone.
+
+To start the server:
+```
+docker run -p 9991:9991 --rm gcr.io/eticloud/k8sec/grype-server:v0.1.4
+```
+
+To run a scan using the server:
+```
+SCANNERS_LIST="grype" SCANNER_GRYPE_MODE="remote" SCANNER_REMOTE_GRYPE_SERVER_ADDRESS="<grype server address>:9991" ./kubeclarity_cli scan --input-type sbom nginx.sbom
+```
+
+#### Dependency Track
+
+See example configuration [here](shared/pkg/scanner/dependency_track/example/README.md)
+
 ## Private registries support for K8s runtime scan
 
 Kubeclarity is using [k8schain](https://github.com/google/go-containerregistry/tree/main/pkg/authn/k8schain#k8schain) of google/go-containerregistry for authenticating to the registries.
