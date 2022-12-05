@@ -23,10 +23,14 @@ import (
 
 const AnalyzerTrivyTimeoutSecondsDefault = 300
 
-const AnalyzerTrivyTimeoutSeconds = "ANALYZER_TRIVY_TIMEOUT_SECONDS"
+const (
+	AnalyzerTrivyTimeoutSeconds = "ANALYZER_TRIVY_TIMEOUT_SECONDS"
+	AnalyzerTrivyCacheDir       = "ANALYZER_TRIVY_CACHE_DIRECTORY"
+)
 
 type AnalyzerTrivyConfig struct {
-	Timeout int `yaml:"timeout" mapstructure:"timeout"`
+	Timeout  int    `yaml:"timeout" mapstructure:"timeout"`
+	CacheDir string `yaml:"cache-dir" mapstructure:"cache-dir"`
 }
 
 func setAnalyzerTrivyConfigDefaults() {
@@ -37,18 +41,21 @@ func LoadAnalyzerTrivyConfig() AnalyzerTrivyConfig {
 	setAnalyzerTrivyConfigDefaults()
 
 	return AnalyzerTrivyConfig{
-		Timeout: viper.GetInt(AnalyzerTrivyTimeoutSeconds),
+		Timeout:  viper.GetInt(AnalyzerTrivyTimeoutSeconds),
+		CacheDir: viper.GetString(AnalyzerTrivyCacheDir),
 	}
 }
 
 type AnalyzerTrivyConfigEx struct {
 	Timeout  time.Duration
+	CacheDir string
 	Registry *Registry
 }
 
 func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) AnalyzerTrivyConfigEx {
 	return AnalyzerTrivyConfigEx{
 		Timeout:  time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+		CacheDir: analyzer.TrivyConfig.CacheDir,
 		Registry: registry,
 	}
 }
@@ -57,6 +64,7 @@ const ScannerTrivyTimeoutSecondsDefault = 300
 
 const (
 	ScannerTrivyTimeoutSeconds = "SCANNER_TRIVY_TIMEOUT_SECONDS"
+	ScannerTrivyCacheDir       = "SCANNER_TRIVY_CACHE_DIRECTORY"
 	ScannerTrivyServerAddress  = "SCANNER_TRIVY_SERVER_ADDRESS"
 	ScannerTrivyServerToken    = "SCANNER_TRIVY_SERVER_TOKEN" // nolint:gosec
 )
@@ -65,6 +73,7 @@ type ScannerTrivyConfig struct {
 	Timeout     int
 	ServerAddr  string
 	ServerToken string
+	CacheDir    string
 }
 
 func setScannerTrivyConfigDefaults() {
@@ -76,6 +85,7 @@ func LoadScannerTrivyConfig() ScannerTrivyConfig {
 
 	return ScannerTrivyConfig{
 		Timeout:     viper.GetInt(ScannerTrivyTimeoutSeconds),
+		CacheDir:    viper.GetString(ScannerTrivyCacheDir),
 		ServerAddr:  viper.GetString(ScannerTrivyServerAddress),
 		ServerToken: viper.GetString(ScannerTrivyServerToken),
 	}
@@ -83,6 +93,7 @@ func LoadScannerTrivyConfig() ScannerTrivyConfig {
 
 type ScannerTrivyConfigEx struct {
 	Timeout     time.Duration
+	CacheDir    string
 	ServerAddr  string
 	ServerToken string
 	Registry    *Registry

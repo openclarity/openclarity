@@ -35,6 +35,7 @@ import (
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
+	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -108,9 +109,15 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
 	}
 
+	cacheDir := trivyUtils.DefaultCacheDir()
+	if a.config.CacheDir != "" {
+		cacheDir = a.config.CacheDir
+	}
+
 	trivyOptions := trivyFlag.Options{
 		GlobalOptions: trivyFlag.GlobalOptions{
-			Timeout: a.config.Timeout,
+			Timeout:  a.config.Timeout,
+			CacheDir: cacheDir,
 		},
 		ScanOptions: trivyFlag.ScanOptions{
 			Target: userInput,
