@@ -60,7 +60,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
 
-  /target/{targetID}:
+  /targets/{targetID}:
     get:
       summary: Get target.
       parameters:
@@ -111,7 +111,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
 
 
-  /targets/{targetID}/scanresults:
+  /targets/{targetID}/scanResults:
     get:
       summary: Get scan results for a specified target
       parameters:
@@ -166,28 +166,19 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
 
-  /targets/{targetID}/scanresults/{scanID}:
+  /targets/{targetID}/scanResults/{scanID}:
     get:
       summary: Report a specific scan result for a specific target
       parameters:
         - $ref: '#/components/parameters/targetID'
         - $ref: '#/components/parameters/scanID'
-        - $ref: '#/components/parameters/scanTypeParam'
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/ScanResultsSummary'
-                  - $ref: '#/components/schemas/SbomScan'
-                  - $ref: '#/components/schemas/VulnerabilityScan'
-                  - $ref: '#/components/schemas/MalwareScan'
-                  - $ref: '#/components/schemas/RootkitScan'
-                  - $ref: '#/components/schemas/SecretScan'
-                  - $ref: '#/components/schemas/MisconfigurationScan'
-                  - $ref: '#/components/schemas/ExploitScan'
+                $ref: '#/components/schemas/ScanResults'
         default:
           $ref: '#/components/responses/UnknownError'
     put:
@@ -277,13 +268,15 @@ components:
         targetType:
           $ref: '#/components/schemas/TargetType'
         targetInfo:
-          oneOf:
+          anyOf: # now we are using anyOf instead of oneOf because of the issue: https://github.com/getkin/kin-openapi/issues/369
             - $ref: '#/components/schemas/VMInfo'
             - $ref: '#/components/schemas/PodInfo'
             - $ref: '#/components/schemas/DirInfo'
         scanResults:
-          type: integer
-          format: uint32
+          type: array
+          description: List of scan results ID
+          items:
+            type: string
 
     ScanResults:
       type: object
@@ -295,7 +288,9 @@ components:
         vulnerabilities:
           $ref: '#/components/schemas/VulnerabilityScan'
         malwares:
-          $ref: '#/components/schemas/VulnerabilityScan'
+          $ref: '#/components/schemas/MalwareScan'
+        rootkits:
+          $ref: '#/components/schemas/RootkitScan'
         secrets:
           $ref: '#/components/schemas/SecretScan'
         misconfigurations:
@@ -311,6 +306,8 @@ components:
         vulnerabilitiesCount:
           type: integer
         malwaresCount:
+          type: integer
+        rootkitsCount:
           type: integer
         secretsCount:
           type: integer
@@ -352,7 +349,7 @@ components:
       properties:
         id:
           type: string
-        packageInfo:
+        VulnerabilityInfo:
           $ref: '#/components/schemas/VulnerabilityInfo'
 
     MalwareInfo:
@@ -434,7 +431,7 @@ components:
     MalwareScan:
       type: object
       properties:
-        packages:
+        malwares:
           type: array
           items:
             $ref: '#/components/schemas/MalwareInfo'
@@ -442,7 +439,7 @@ components:
     RootkitScan:
       type: object
       properties:
-        packages:
+        rootkits:
           type: array
           items:
             $ref: '#/components/schemas/RootkitInfo'
@@ -450,7 +447,7 @@ components:
     SecretScan:
       type: object
       properties:
-        packages:
+        secrets:
           type: array
           items:
             $ref: '#/components/schemas/SecretInfo'
@@ -458,7 +455,7 @@ components:
     MisconfigurationScan:
       type: object
       properties:
-        packages:
+        misconfigurations:
           type: array
           items:
             $ref: '#/components/schemas/MisconfigurationInfo'
@@ -466,7 +463,7 @@ components:
     ExploitScan:
       type: object
       properties:
-        packages:
+        exploits:
           type: array
           items:
             $ref: '#/components/schemas/ExploitInfo'

@@ -3,7 +3,7 @@
   confidence = 1.0
   license = "BSD-3-Clause"
   name = "golang.org/x/sys"
-  revision = "v0.0.0-20220908164124-27713097b956"
+  revision = "v0.1.0"
   type = "gomod"
 
 [[dependencies]]
@@ -151,6 +151,209 @@
   license = "Apache-2.0"
   name = "gopkg.in/yaml.v3"
   revision = "v3.0.1"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "github.com/golang/mock"
+  revision = "v1.5.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/apapsch/go-jsonmerge/v2"
+  revision = "v2.0.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "BSD-3-Clause"
+  name = "github.com/google/uuid"
+  revision = "v1.3.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "github.com/deepmap/oapi-codegen"
+  revision = "v1.12.3"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "github.com/openclarity/vmclarity/api"
+  revision = "v0.0.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/mattn/go-sqlite3"
+  revision = "v1.14.15"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "gorm.io/gorm"
+  revision = "v1.24.2"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/jinzhu/inflection"
+  revision = "v1.0.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/jinzhu/now"
+  revision = "v1.1.5"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "gorm.io/driver/sqlite"
+  revision = "v1.4.3"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/getkin/kin-openapi"
+  revision = "v0.107.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/josharian/intern"
+  revision = "v1.0.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/mailru/easyjson"
+  revision = "v0.7.7"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "gopkg.in/yaml.v2"
+  revision = "v2.4.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "github.com/go-openapi/swag"
+  revision = "v0.21.1"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "Apache-2.0"
+  name = "github.com/go-openapi/jsonpointer"
+  revision = "v0.19.5"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 0.0
+  license = ""
+  name = "github.com/invopop/yaml"
+  revision = "v0.1.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/mohae/deepcopy"
+  revision = "v0.0.0-20170929034955-c48cc78d4826"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "BSD-3-Clause"
+  name = "github.com/gorilla/mux"
+  revision = "v1.8.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/mattn/go-isatty"
+  revision = "v0.0.16"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/mattn/go-colorable"
+  revision = "v0.1.13"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/labstack/gommon"
+  revision = "v0.4.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/valyala/bytebufferpool"
+  revision = "v1.0.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/valyala/fasttemplate"
+  revision = "v1.2.2"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "BSD-3-Clause"
+  name = "golang.org/x/crypto"
+  revision = "v0.1.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "BSD-3-Clause"
+  name = "golang.org/x/net"
+  revision = "v0.1.0"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/labstack/echo/v4"
+  revision = "v4.9.1"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "MIT"
+  name = "github.com/golang-jwt/jwt"
+  revision = "v3.2.2+incompatible"
+  type = "gomod"
+
+[[dependencies]]
+  confidence = 1.0
+  license = "BSD-3-Clause"
+  name = "golang.org/x/time"
+  revision = "v0.0.0-20220609170525-579cf78fd858"
   type = "gomod"
 
 [[dependencies]]

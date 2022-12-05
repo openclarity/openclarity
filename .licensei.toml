@@ -10,11 +10,12 @@ approved = [
 ignored = [
     "github.com/ghodss/yaml", # MIT - https://github.com/ghodss/yaml/blob/master/LICENSE
     "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
+    "github.com/invopop/yaml", # MIT - https://github.com/invopop/yaml/blob/main/LICENSE
 ]
 
 [header]
 ignorePaths = ["api"]
-ignoreFiles = []
+ignoreFiles = ["*mock_*.go"]
 template = """// Copyright © :YEAR: Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //

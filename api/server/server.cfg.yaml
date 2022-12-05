@@ -1,7 +1,7 @@
 package: server
 output: server/server.gen.go
 additional-imports:
-  - package: github.com/vmclarity/api/models
+  - package: github.com/openclarity/vmclarity/api/models
     alias: .
 generate:
   echo-server: true
