@@ -1,0 +1,19 @@
+{{- if index .Values "kubeclarity-trivy-server" "enabled" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kubeclarity.trivy-server.name" . }}
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    {{ include "kubeclarity.trivy-server.labels" . }}
+  annotations:
+    helm.sh/hook: pre-install
+spec:
+  ports:
+    - name: trivy-server
+      port: {{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+      protocol: TCP
+      targetPort: {{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+  selector:
+    app: {{ include "kubeclarity.trivy-server.name" . }}
+{{- end}}
