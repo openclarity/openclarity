@@ -32,8 +32,10 @@ const (
 	DBDriverTypeLocal = "LOCAL"
 )
 
-// nolint:interfacebloat
-type Database interface{}
+type Database interface {
+	TargetsTable() TargetsTable
+	ScanResultsTable() ScanResultsTable
+}
 
 type Handler struct {
 	DB *gorm.DB

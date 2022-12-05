@@ -23,6 +23,7 @@ import (
 	"syscall"
 
 	"github.com/openclarity/vmclarity/backend/pkg/database"
+	"github.com/openclarity/vmclarity/backend/pkg/rest"
 	runtime_scan_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
@@ -94,6 +95,14 @@ func Run() {
 		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
 	}
 	orc.Start(errChan)
+
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort)
+	if err != nil {
+		log.Fatalf("Failed to create REST server: %v", err)
+	}
+	restServer.RegisterHandlers(dbHandler)
+	restServer.Start(errChan)
+	defer restServer.Stop()
 
 	healthServer.SetIsReady(true)
 	log.Info("VMClarity backend is ready")
