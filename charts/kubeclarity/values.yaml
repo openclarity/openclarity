@@ -138,6 +138,12 @@ kubeclarity-runtime-scan:
 
       analyzerScope: "squashed"
 
+      trivy:
+        ## Enable trivy scanner, if true make sure to add it to analyzerList above
+        ##
+        enabled: false
+        timeout: "300"
+
     ## Scanner config.
     scanner:
       ## Space seperated list of scanners. (grype dependency-track)
@@ -162,6 +168,13 @@ kubeclarity-runtime-scan:
         disableTls: "true"
         apiserverAddress: "dependency-track-apiserver.dependency-track"
         apiKey: ""
+
+      trivy:
+        ## Enable trivy scanner, if true make sure to add it to scannerList above.
+        ## To guarentee reliable scans, also ensure that the trivy analyzer is enabled.
+        ##
+        enabled: false
+        timeout: "300"
 
 
 ## End of KubeClarity Runtime Scan Values
@@ -193,6 +206,34 @@ kubeclarity-grype-server:
       memory: "1G"
 
 ## End of KubeClarity Grype Server Values
+#######################################################################################
+
+#######################################################################################
+## KubeClarity Trivy Server Values
+
+kubeclarity-trivy-server:
+  enabled: false
+
+  ## Docker Image values.
+  docker:
+    imageRepo: "docker.io/aquasec"
+    imageTag: "0.34.0"
+    imagePullPolicy: Always
+
+  ## Enable debug logging
+  debug: false
+
+  servicePort: 9992
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "200Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1G"
+
+## End of KubeClarity Trivy Server Values
 #######################################################################################
 
 #######################################################################################

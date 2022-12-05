@@ -1,0 +1,79 @@
+{{- if index .Values "kubeclarity-trivy-server" "enabled" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubeclarity.trivy-server.name" . }}
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    {{ include "kubeclarity.trivy-server.labels" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "kubeclarity.trivy-server.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "kubeclarity.trivy-server.name" . }}
+    spec:
+      serviceAccountName: {{ include "kubeclarity.trivy-server.name" . }}
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      {{- if not .Values.global.openShiftRestricted }}
+      securityContext:
+        fsGroup: 1000
+      {{- end }}
+      containers:
+        - name: trivy-server
+          image: '{{ index .Values "kubeclarity-trivy-server" "docker" "imageRepo" }}/trivy:{{ index .Values "kubeclarity-trivy-server" "docker" "imageTag" }}'
+          imagePullPolicy: {{ index .Values "kubeclarity-trivy-server" "docker" "imagePullPolicy" }}
+          args:
+            - server
+            - --listen
+            - 0.0.0.0:{{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+            - --cache-dir
+            - /tmp
+{{- if index .Values "kubeclarity-runtime-scan" "debug" }}
+            - --debug
+{{- end}}
+          env:
+{{- if index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
+            - name: HTTPS_PROXY
+              value: {{ index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
+{{- end}}
+{{- if index .Values "kubeclarity-runtime-scan" "httpProxy" }}
+            - name: HTTP_PROXY
+              value: {{ index .Values "kubeclarity-runtime-scan" "httpProxy" }}
+{{- end}}
+          readinessProbe:
+            tcpSocket:
+              port: {{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          securityContext:
+            capabilities:
+              drop:
+                - all
+            runAsNonRoot: true
+            {{- if not .Values.global.openShiftRestricted }}
+            runAsGroup: 1000
+            runAsUser: 1000
+            {{- end }}
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          resources:
+{{- toYaml (index .Values "kubeclarity-trivy-server" "resources") | nindent 12 }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-volume
+{{- end}}
