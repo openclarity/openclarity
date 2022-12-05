@@ -26,6 +26,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
+	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -74,10 +75,16 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
+		cacheDir := trivyUtils.DefaultCacheDir()
+		if a.config.CacheDir != "" {
+			cacheDir = a.config.CacheDir
+		}
+
 		var output bytes.Buffer
 		trivyOptions := trivyFlag.Options{
 			GlobalOptions: trivyFlag.GlobalOptions{
-				Timeout: a.config.Timeout,
+				Timeout:  a.config.Timeout,
+				CacheDir: cacheDir,
 			},
 			ScanOptions: trivyFlag.ScanOptions{
 				Target:         userInput,
