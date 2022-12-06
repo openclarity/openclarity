@@ -72,19 +72,22 @@ data:
             - name: SCANNER_REMOTE_GRYPE_SERVER_TIMEOUT
               value: {{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "grype" "remote-grype" "timeout" }}
 {{- end }}
+{{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "analyzer" "trivy" "enabled" }}
             - name: ANALYZER_TRIVY_CACHE_DIRECTORY
               value: /tmp
-{{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "analyzer" "trivy" "enabled" }}
             - name: ANALYZER_TRIVY_TIMEOUT
               value: {{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "analyzer" "trivy" "timeout" }}
 {{- end }}
 {{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "trivy" "enabled" }}
             - name: SCANNER_TRIVY_TIMEOUT
               value: {{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "trivy" "timeout" }}
-{{- end }}
 {{- if index .Values "kubeclarity-trivy-server" "enabled" }}
             - name: SCANNER_TRIVY_SERVER_ADDRESS
               value: http://{{ include "kubeclarity.trivy-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+{{- else }}
+            - name: SCANNER_TRIVY_CACHE_DIRECTORY
+              value: /tmp
+{{- end }}
 {{- end }}
 {{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "dependency-track" "enabled" }}
             - name: SCANNER_DEPENDENCY_TRACK_INSECURE_SKIP_VERIFY
