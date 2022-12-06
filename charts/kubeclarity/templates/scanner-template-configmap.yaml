@@ -83,7 +83,7 @@ data:
               value: {{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "trivy" "timeout" }}
 {{- if index .Values "kubeclarity-trivy-server" "enabled" }}
             - name: SCANNER_TRIVY_SERVER_ADDRESS
-              value: http://{{ include "kubeclarity.trivy-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+              value: http://{{ (index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server")) }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "service" "port" }}
 {{- else }}
             - name: SCANNER_TRIVY_CACHE_DIRECTORY
               value: /tmp
