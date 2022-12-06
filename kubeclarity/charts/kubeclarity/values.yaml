@@ -210,20 +210,36 @@ kubeclarity-grype-server:
 
 #######################################################################################
 ## KubeClarity Trivy Server Values
+## https://github.com/aquasecurity/trivy/blob/main/helm/trivy/values.yaml
 
 kubeclarity-trivy-server:
   enabled: false
 
   ## Docker Image values.
-  docker:
-    imageRepo: "docker.io/aquasec"
-    imageTag: "0.34.0"
-    imagePullPolicy: Always
+  image:
+    registry: docker.io
+    repository: aquasec/trivy
+    tag: 0.34.0
+    pullPolicy: IfNotPresent
 
-  ## Enable debug logging
-  debug: false
+  ## By default disable requirement for persistent storage
+  persistence:
+    enabled: false
 
-  servicePort: 9992
+  podSecurityContext:
+    runAsUser: 1001
+    runAsNonRoot: true
+    fsGroup: 1001
+
+  securityContext:
+    privileged: false
+    readOnlyRootFilesystem: true
+
+  trivy:
+    debugMode: false
+
+  service:
+    port: 9992
 
   resources:
     requests:
