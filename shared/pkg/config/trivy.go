@@ -30,7 +30,7 @@ const (
 
 type AnalyzerTrivyConfig struct {
 	Timeout  int    `yaml:"timeout" mapstructure:"timeout"`
-	CacheDir string `yaml:"cache-dir" mapstructure:"cache-dir"`
+	CacheDir string `yaml:"cache_dir" mapstructure:"cache_dir"`
 }
 
 func setAnalyzerTrivyConfigDefaults() {
