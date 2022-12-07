@@ -109,10 +109,10 @@ data:
 {{- end}}
 {{- if index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
             - name: NO_PROXY
-              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ include "kubeclarity.trivy-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ (index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server")) }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "service" "port" }}
 {{- else if index .Values "kubeclarity-runtime-scan" "httpProxy" }}
             - name: NO_PROXY
-              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ include "kubeclarity.trivy-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "servicePort" }}
+              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ (index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server")) }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "service" "port" }}
 {{- end}}
             securityContext:
               capabilities:
@@ -158,10 +158,10 @@ data:
 {{- end}}
 {{- if index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
             - name: NO_PROXY
-              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
+              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ (index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server")) }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "service" "port" }}
 {{- else if index .Values "kubeclarity-runtime-scan" "httpProxy" }}
             - name: NO_PROXY
-              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }}
+              value: {{ include "kubeclarity.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }},{{ include "kubeclarity.grype-server.name" . }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-grype-server" "servicePort" }},{{ (index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server")) }}.{{ .Release.Namespace }}:{{ index .Values "kubeclarity-trivy-server" "service" "port" }}
 {{- end}}
             securityContext:
               capabilities:
