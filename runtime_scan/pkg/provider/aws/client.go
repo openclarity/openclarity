@@ -72,7 +72,7 @@ func (c *Client) Discover(ctx context.Context, scanScope types.ScanScope) ([]typ
 	var ok bool
 
 	if scope, ok = scanScope.(*ScanScope); !ok {
-		return nil, fmt.Errorf("failed to assert scope type")
+		return nil, fmt.Errorf("failed to assert scope type, received type %T", scanScope)
 	}
 
 	regions, err := c.getRegionsToScan(ctx, scope)
