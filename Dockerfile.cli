@@ -8,7 +8,6 @@ RUN apk add build-base
 WORKDIR /build
 
 # Copy go.mod & go.sum
-WORKDIR /build
 COPY go.* ./
 RUN go mod download
 
@@ -22,7 +21,7 @@ COPY cli .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 
-FROM alpine:3.16
+FROM ghcr.io/openclarity/vmclarity-tools-base@sha256:903d2c10351f811bdcb084f26f2b265f5c332de2891ab9f5fb7d60fed77e5ad7
 
 WORKDIR /app
 
