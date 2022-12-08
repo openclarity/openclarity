@@ -105,36 +105,15 @@ Resources:
             apt:
               docker.io: []
           files:
-            "/lib/systemd/system/vmclarity.service":
+            "/etc/vmclarity/config.env":
               content:
                 Fn::Sub:
                   - |
-                    [Unit]
-                    Description=VmClarity
-                    After=docker.service
-                    Requires=docker.service
-
-                    [Service]
-                    TimeoutStartSec=0
-                    Restart=always
-                    ExecStartPre=-/usr/bin/docker stop %n
-                    ExecStartPre=-/usr/bin/docker rm %n
-                    ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                    # TODO(sambetts) Update to point at VMClarity image
-                    ExecStartPre=/usr/bin/docker pull ubuntu
-                    # TODO(sambetts) Update to expose VMClarity UI, API ports,
-                    # env configurations and remove the sleep command
-                    ExecStart=/usr/bin/docker run \
-                      --rm --name %n \
-                      -p 0.0.0.0:8888:8888/tcp \
-                      -v /opt/vmclarity:/data \
-                      -e SCANNER_REGION="${AWS::Region}" \
-                      -e SCANNER_JOB_SUBNET="${VmClaritySubnet}" \
-                      -e SCANNER_JOB_IMAGE_ID="${JobImageID}" \
-                      ubuntu sleep infinity
-
-                    [Install]
-                    WantedBy=multi-user.target
+                    AWS_REGION=${AWS::Region}
+                    SCANNER_AWS_REGION=${AWS::Region}
+                    AWS_SUBNET_ID=${VmClaritySubnet}
+                    AWS_JOB_IMAGE_ID=${JobImageID}
+                    DATABASE_DRIVER=LOCAL
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -142,6 +121,32 @@ Resources:
                         - AWSInstanceType2Arch
                         - !Ref InstanceType
                         - Arch
+            "/lib/systemd/system/vmclarity.service":
+              content: |
+                [Unit]
+                Description=VmClarity
+                After=docker.service
+                Requires=docker.service
+
+                [Service]
+                TimeoutStartSec=0
+                Restart=always
+                ExecStartPre=-/usr/bin/docker stop %n
+                ExecStartPre=-/usr/bin/docker rm %n
+                ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
+                # TODO(sambetts) Update to point at VMClarity image
+                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity:558c422f942179fc5f4e8264a0fd21fd8942ef8a
+                # TODO(sambetts) Update to expose VMClarity UI, API ports,
+                # env configurations and remove the sleep command
+                ExecStart=/usr/bin/docker run \
+                  --rm --name %n \
+                  -p 0.0.0.0:8888:8888/tcp \
+                  -v /opt/vmclarity:/data \
+                  --env-file /etc/vmclarity/config.env \
+                  tehsmash/vmclarity:558c422f942179fc5f4e8264a0fd21fd8942ef8a run --log-level info
+
+                [Install]
+                WantedBy=multi-user.target
           commands:
             01enable_vmclarity:
               command: systemctl enable vmclarity.service
@@ -222,13 +227,11 @@ Resources:
           # snapshot all the VMs. Enforce that we tag those snapshots with the
           # VMClarity Owner tag so that we can control deleting them.
           - Effect: "Allow"
-            Action:
-              - "ec2:CreateSnapshot"
-              - "ec2:CreateSnapshots"
-            Resource:
-              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:instance/*"
-              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
-              - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Action: "ec2:CreateSnapshot"
+            Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
+          - Effect: "Allow"
+            Action: "ec2:CreateSnapshot"
+            Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
             Condition:
               StringEquals:
                 "aws:RequestTag/Owner": "VMClarity"
@@ -256,7 +259,6 @@ Resources:
               - "ec2:RunInstances"
               - "ec2:CreateVolume"
             Resource:
-              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
             Condition:
@@ -265,11 +267,27 @@ Resources:
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
-          # Allow instances to be created with any security group and image in
-          # our account and region.
+          # Allow instance to be created using snapshots, only if the snapshot
+          # has the Owner:VMClarity tag.
           - Effect: "Allow"
             Action: "ec2:RunInstances"
             Resource:
+              !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+          # Allow the creation of network interfaces, and allow instances to be
+          # created with any security group and image in our account and
+          # region.
+          # TODO(sambetts) Add lock it down to just the scanner image and
+          # create a security group for the scanners
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:security-group/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}::image/*"
           #
@@ -328,6 +346,7 @@ Resources:
             - "ec2:DescribeSnapshots"
             - "ec2:DescribeInstanceStatus"
             - "ec2:DescribeVolumeAttribute"
+            - "ec2:DescribeRegions"
             Resource: "*"
           #
           # ##########################
