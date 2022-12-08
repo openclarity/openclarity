@@ -284,8 +284,8 @@ func createInclusionTagsFilters(tags []Tag) []ec2types.Filter {
 	// only results that match all of the specified filters.
 	for _, tag := range tags {
 		filters = append(filters, ec2types.Filter{
-			Name:   utils.StringPtr("tag:" + tag.key),
-			Values: []string{tag.val},
+			Name:   utils.StringPtr("tag:" + tag.Key),
+			Values: []string{tag.Val},
 		})
 	}
 
@@ -333,11 +333,11 @@ func hasExcludeTags(excludeTags []Tag, instanceTags []ec2types.Tag) bool {
 	}
 
 	for _, tag := range excludeTags {
-		val, ok := instanceTagsMap[tag.key]
+		val, ok := instanceTagsMap[tag.Key]
 		if !ok {
 			return false
 		}
-		if !(strings.Compare(val, tag.val) == 0) {
+		if !(strings.Compare(val, tag.Val) == 0) {
 			return false
 		}
 	}
