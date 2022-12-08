@@ -6,6 +6,7 @@ VERSION ?= $(shell git rev-parse HEAD)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
+VMCLARITY_TOOLS_BASE ?=
 
 # Dependency versions
 GOLANGCI_VERSION = 1.49.0
@@ -42,12 +43,16 @@ docker: docker-backend docker-cli ## Build All Docker images
 .PHONY: push-docker
 push-docker: push-docker-backend push-docker-cli ## Build and Push All Docker images
 
+ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
+VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
+endif
+
 .PHONY: docker-cli
 docker-cli: ## Build CLI Docker image
 	@(echo "Building cli docker image ..." )
 	docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) ${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
 		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
 .PHONY: push-docker-cli
