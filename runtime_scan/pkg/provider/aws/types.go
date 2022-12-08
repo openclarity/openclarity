@@ -34,8 +34,8 @@ type ScanScope struct {
 }
 
 type Tag struct {
-	key string
-	val string
+	Key string
+	Val string
 }
 
 type SecurityGroup struct {
