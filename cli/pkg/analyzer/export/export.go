@@ -34,12 +34,18 @@ func Export(apiClient *client.KubeClarityAPIs, mergedResults *analyzer.MergedRes
 	if mergedResults.SrcMetaData.Component == nil {
 		return fmt.Errorf("failed to export analysis result, metadata component is empty")
 	}
+
+	hash, err := cdx_helper.GetComponentHash(mergedResults.SrcMetaData.Component)
+	if err != nil {
+		return fmt.Errorf("unable to get hash from src metadata: %w", err)
+	}
+
 	// create ApplicationContentAnalysis from mergedResults
-	body := createApplicationContentAnalysis(mergedResults)
+	body := createApplicationContentAnalysis(mergedResults, hash)
 	// create post parameters
 	postParams := operations.NewPostApplicationsContentAnalysisIDParams().WithID(id).WithBody(body)
 
-	_, err := apiClient.Operations.PostApplicationsContentAnalysisID(postParams)
+	_, err = apiClient.Operations.PostApplicationsContentAnalysisID(postParams)
 	if err != nil {
 		return fmt.Errorf("failed to post analysis report: %v", err)
 	}
@@ -47,13 +53,13 @@ func Export(apiClient *client.KubeClarityAPIs, mergedResults *analyzer.MergedRes
 	return nil
 }
 
-func createApplicationContentAnalysis(m *analyzer.MergedResults) *models.ApplicationContentAnalysis {
+func createApplicationContentAnalysis(m *analyzer.MergedResults, hash string) *models.ApplicationContentAnalysis {
 	return &models.ApplicationContentAnalysis{
 		Resources: []*models.ResourceContentAnalysis{
 			{
 				Packages: createPackagesContentAnalysis(m),
 				Resource: &models.ResourceInfo{
-					ResourceHash: cdx_helper.GetComponentHash(m.SrcMetaData.Component),
+					ResourceHash: hash,
 					ResourceName: m.SrcMetaData.Component.Name,
 					ResourceType: getResourceType(m),
 				},
@@ -81,6 +87,8 @@ func getResourceType(m *analyzer.MergedResults) models.ResourceType {
 		return models.ResourceTypeDIRECTORY
 	case utils.FILE:
 		return models.ResourceTypeFILE
+	case utils.ROOTFS:
+		return models.ResourceTypeROOTFS
 	case utils.SBOM:
 		log.Errorf("SBOM is unsupported resource type")
 	default:

@@ -40,6 +40,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 // nolint:gosec
@@ -64,12 +65,13 @@ func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Re
 	return nil
 }
 
-func New(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	c := config.ConvertToDependencyTrackConfig(conf.Scanner, logger)
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(*config.Config) // nolint:forcetypeassert
+	config := config.ConvertToDependencyTrackConfig(conf.Scanner, logger)
 	return &Scanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName),
-		config:     c,
-		client:     newHTTPClient(c),
+		config:     config,
+		client:     newHTTPClient(config),
 		resultChan: resultChan,
 	}
 }
@@ -359,7 +361,7 @@ func getCVSS(vul *models.Vulnerability) []scanner.CVSS {
 	}
 	if vul.CvssV3Vector != "" {
 		ret = append(ret, scanner.CVSS{
-			Version: getCVSSV3Version(vul.CvssV3Vector),
+			Version: utilsVul.GetCVSSV3VersionFromVector(vul.CvssV3Vector),
 			Vector:  vul.CvssV3Vector,
 			Metrics: scanner.CvssMetrics{
 				BaseScore:           vul.CvssV3BaseScore,
@@ -374,10 +376,4 @@ func getCVSS(vul *models.Vulnerability) []scanner.CVSS {
 
 func removeParentheses(vector string) string {
 	return strings.TrimSuffix(strings.TrimPrefix(vector, "("), ")")
-}
-
-func getCVSSV3Version(cvssV3Vector string) string {
-	// example input "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:H"
-	// expected result "3.0"
-	return strings.TrimPrefix(strings.Split(cvssV3Vector, "/")[0], "CVSS:")
 }

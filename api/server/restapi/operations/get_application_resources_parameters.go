@@ -1065,7 +1065,7 @@ func (o *GetApplicationResourcesParams) bindResourceTypeIs(rawData []string, has
 	for i, resourceTypeIsIV := range resourceTypeIsIC {
 		resourceTypeIsI := resourceTypeIsIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "resourceType[is]", i), "query", resourceTypeIsI, []interface{}{"IMAGE", "DIRECTORY", "FILE"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "resourceType[is]", i), "query", resourceTypeIsI, []interface{}{"IMAGE", "DIRECTORY", "FILE", "ROOTFS"}, true); err != nil {
 			return err
 		}
 

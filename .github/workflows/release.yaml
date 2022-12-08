@@ -90,6 +90,9 @@ jobs:
       - name: Add Bitnami Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
+      - name: Add Aqua Security Repository
+        run: helm repo add aquasecurity https://aquasecurity.github.io/helm-charts
+
       - name: Run chart-testing (lint)
         run: ct lint --debug --config charts/testing.yaml
 

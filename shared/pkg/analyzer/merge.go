@@ -35,11 +35,14 @@ type MergedResults struct {
 	Source               utils.SourceType
 	SourceHash           string
 	SrcMetaData          *cdx.Metadata
+	SrcMetaDataBomRefs   []string
+	Dependencies         *[]cdx.Dependency
 }
 
 type MergedComponent struct {
 	Component    cdx.Component
 	AnalyzerInfo []string
+	BomRefs      []string
 }
 
 func NewMergedResults(sourceType utils.SourceType, hash string) *MergedResults {
@@ -50,40 +53,53 @@ func NewMergedResults(sourceType utils.SourceType, hash string) *MergedResults {
 	}
 }
 
-func (m *MergedResults) Merge(other *Results, format string) *MergedResults {
+func (m *MergedResults) Merge(other *Results) *MergedResults {
 	if other.Sbom == nil {
 		return m
 	}
-	bom, err := decodeResults(other, format)
-	if err != nil {
-		log.Errorf("Failed to decode results: %v", err)
-		return m
+	bom := other.Sbom
+
+	// merge bom.Metadata.Component if it exists
+	m.mergeMainComponent(bom)
+
+	if other.AppInfo.SourceHash != "" {
+		m.addSourceHash(other.AppInfo.SourceHash)
 	}
+
+	if bom.Components != nil {
+		otherComponentsByKey := toComponentByKey(bom.Components)
+		for key, otherComponent := range otherComponentsByKey {
+			if mergedComponent, ok := m.MergedComponentByKey[key]; !ok {
+				log.Debugf("Adding new component results from %v. key=%v", other.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = newMergedComponent(otherComponent, other.AnalyzerInfo)
+			} else {
+				log.Debugf("Adding existing component results from %v. key=%v", other.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, other.AnalyzerInfo)
+			}
+		}
+	}
+
+	if bom.Dependencies != nil {
+		newDependencies := m.normalizeDependencies(bom.Dependencies)
+		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
+	}
+
+	return m
+}
+
+func (m *MergedResults) mergeMainComponent(bom *cdx.BOM) {
+	// Keep track of all SBOM refs given to the main component so that we
+	// can normalize them later.
+	if bom.Metadata != nil && bom.Metadata.Component != nil && bom.Metadata.Component.BOMRef != "" {
+		m.SrcMetaDataBomRefs = append(m.SrcMetaDataBomRefs, bom.Metadata.Component.BOMRef)
+	}
+
 	if m.SrcMetaData == nil {
 		m.SrcMetaData = bom.Metadata
 	} else {
 		component := mergeCDXComponent(*m.SrcMetaData.Component, *bom.Metadata.Component, true)
 		m.SrcMetaData.Component = &component
 	}
-	if other.AppInfo.SourceHash != "" {
-		m.addSourceHash(other.AppInfo.SourceHash)
-	}
-	if bom.Components == nil {
-		log.Debugf("Decoded bom doesn't contain any components")
-		return m
-	}
-	otherComponentsByKey := toComponentByKey(bom.Components)
-	for key, otherComponent := range otherComponentsByKey {
-		if mergedComponent, ok := m.MergedComponentByKey[key]; !ok {
-			log.Debugf("Adding new component results from %v. key=%v", other.AnalyzerInfo, key)
-			m.MergedComponentByKey[key] = newMergedComponent(otherComponent, other.AnalyzerInfo)
-		} else {
-			log.Debugf("Adding existing component results from %v. key=%v", other.AnalyzerInfo, key)
-			m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, other.AnalyzerInfo)
-		}
-	}
-
-	return m
 }
 
 func (m *MergedResults) CreateMergedSBOMBytes(format, version string) ([]byte, error) {
@@ -106,19 +122,6 @@ func (m *MergedResults) createComponentListFromMap() *[]cdx.Component {
 	return &components
 }
 
-func decodeResults(other *Results, format string) (*cdx.BOM, error) {
-	bom := formatter.New(format, other.Sbom)
-	if err := bom.Decode(format); err != nil {
-		return nil, fmt.Errorf("failed to decode %s BOM", format)
-	}
-	cdxBOM, ok := bom.GetSBOM().(*cdx.BOM)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast %s BOM", format)
-	}
-
-	return cdxBOM, nil
-}
-
 func createComponentKey(component cdx.Component) componentKey {
 	return componentKey(fmt.Sprintf("%s.%s", component.Name, component.Version))
 }
@@ -136,6 +139,9 @@ func newMergedComponent(component cdx.Component, analyzerInfo string) *MergedCom
 		Component: component,
 	}
 	mergedComponent.appendAnalyzerInfo(analyzerInfo)
+	if component.BOMRef != "" {
+		mergedComponent.BomRefs = append(mergedComponent.BomRefs, component.BOMRef)
+	}
 
 	return mergedComponent
 }
@@ -143,6 +149,9 @@ func newMergedComponent(component cdx.Component, analyzerInfo string) *MergedCom
 func handleComponentWithExistingKey(mergedComponent *MergedComponent, otherComponent cdx.Component, analyzerInfo string) *MergedComponent {
 	mergedComponent.Component = mergeCDXComponent(mergedComponent.Component, otherComponent, false)
 	mergedComponent.appendAnalyzerInfo(analyzerInfo)
+	if otherComponent.BOMRef != "" {
+		mergedComponent.BomRefs = append(mergedComponent.BomRefs, otherComponent.BOMRef)
+	}
 
 	return mergedComponent
 }
@@ -164,74 +173,85 @@ func mergeCDXComponent(mergedComponent, otherComponent cdx.Component, main bool)
 			mergedComponent.Version = otherComponent.Version
 		}
 	}
-	// BOMRef is only provided by the cycloneDX-gomod, need to check it before override it.
+
 	if mergedComponent.BOMRef == "" {
 		mergedComponent.BOMRef = otherComponent.BOMRef
 	}
-	// CPE is not porvided by the cycloneDX-gomod and sift at the moment.
+
 	if mergedComponent.CPE == "" {
 		mergedComponent.CPE = otherComponent.CPE
 	}
-	// Author isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Author == "" {
 		mergedComponent.Author = otherComponent.Author
 	}
-	// Copyright isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Copyright == "" {
 		mergedComponent.Copyright = otherComponent.Copyright
 	}
-	// Description can be provided by the cycloneDX-gomod.
+
 	if mergedComponent.Description == "" {
 		mergedComponent.Description = otherComponent.Description
 	}
-	// Evidence isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Evidence == nil {
 		mergedComponent.Evidence = otherComponent.Evidence
 	}
-	// ExternalReferences are provided by the cycloneDX-gomod.
+
 	if mergedComponent.ExternalReferences == nil {
 		mergedComponent.ExternalReferences = otherComponent.ExternalReferences
 	}
-	// SWID isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.SWID == nil {
 		mergedComponent.SWID = otherComponent.SWID
 	}
-	// Supplier isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Supplier == nil {
 		mergedComponent.Supplier = otherComponent.Supplier
 	}
-	// Publisher isn't provided by cycloneDX-gomod and syft at the moment.
+
 	if mergedComponent.Publisher == "" {
 		mergedComponent.Publisher = otherComponent.Publisher
 	}
-	// Group can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Group == "" {
 		mergedComponent.Group = otherComponent.Group
 	}
-	// Scope can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Scope == "" {
 		mergedComponent.Scope = otherComponent.Scope
 	}
-	// Hashes can be provided by only the cycloneDX-gomod.
+
 	if mergedComponent.Hashes == nil {
 		mergedComponent.Hashes = otherComponent.Hashes
 	}
-	// Licenses can be provided by only the cycloneDX-gomod.
-	if mergedComponent.Licenses == nil {
-		mergedComponent.Licenses = otherComponent.Licenses
-	}
-	// Properties can be provided by the syft and te cycloneDX-gomod, needs to be merged.
+
+	mergedComponent.Licenses = mergeLicenses(mergedComponent.Licenses, otherComponent.Licenses)
+
 	if otherComponent.Properties != nil {
-		mergeProperties(mergedComponent.Properties, otherComponent.Properties)
+		mergedComponent.Properties = mergeProperties(mergedComponent.Properties, otherComponent.Properties)
 	}
-	// PackageURL in the case of cycloneDX-gomod contains type of the package as well.
-	// We use the longer PURL.
-	if len(mergedComponent.PackageURL) < len(otherComponent.PackageURL) {
-		mergedComponent.PackageURL = otherComponent.PackageURL
-	}
+
+	mergedComponent.PackageURL = mergePurlStrings(mergedComponent.PackageURL, otherComponent.PackageURL)
 	// Other unprovided fields: MIMEType, Supplier, Modified, Pedigree
 
 	return mergedComponent
+}
+
+func mergeLicenses(licenseA, licenseB *cdx.Licenses) *cdx.Licenses {
+	// nothing to merge into A so return the A untouched
+	if licenseB == nil {
+		return licenseA
+	}
+
+	// If A has no licenses initialise it
+	if licenseA == nil {
+		licenseA = &cdx.Licenses{}
+	}
+
+	// Merge B into A, assign to new variable to avoid modifying licenseA
+	newthing := append(*licenseA, *licenseB...)
+	return &newthing
 }
 
 func mergeProperties(properties, otherProperties *[]cdx.Property) *[]cdx.Property {
@@ -272,8 +292,104 @@ func (m *MergedResults) createMergedSBOM(version string) *cdx.BOM {
 	}
 	cdxBOM.Metadata = toBomDescriptor("kubeclarity", versionInfo, m.Source, m.SrcMetaData, m.SourceHash)
 	cdxBOM.Components = m.createComponentListFromMap()
+	cdxBOM.Dependencies = m.Dependencies
 
 	return cdxBOM
+}
+
+func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[]cdx.Dependency {
+	if dependencies == nil {
+		return nil
+	}
+
+	output := []cdx.Dependency{}
+	for _, dependency := range *dependencies {
+		newDep := cdx.Dependency{
+			Ref: m.getRealBomRefFromPreviousBomRef(dependency.Ref),
+		}
+
+		if dependency.Dependencies != nil {
+			newDependsOn := []cdx.Dependency{}
+			for _, dependsOnRef := range *dependency.Dependencies {
+				newDependsOn = append(
+					newDependsOn,
+					cdx.Dependency{Ref: m.getRealBomRefFromPreviousBomRef(dependsOnRef.Ref)},
+				)
+			}
+			newDep.Dependencies = &newDependsOn
+		}
+
+		output = append(output, newDep)
+	}
+
+	return &output
+}
+
+func mergeDependencies(depsA, depsB *[]cdx.Dependency) *[]cdx.Dependency {
+	refToDepends := map[string]map[string]struct{}{}
+	addDepsToRefToDepends := func(ref string, deps *[]cdx.Dependency) {
+		if deps == nil {
+			return
+		}
+
+		// initialize refToDepends entry if it doesn't exist
+		existing, ok := refToDepends[ref]
+		if !ok {
+			refToDepends[ref] = map[string]struct{}{}
+			existing = refToDepends[ref]
+		}
+
+		// add entries to the refToDepends set
+		for _, dependsOnRef := range *deps {
+			existing[dependsOnRef.Ref] = struct{}{}
+		}
+	}
+
+	if depsA != nil {
+		for _, dependency := range *depsA {
+			addDepsToRefToDepends(dependency.Ref, dependency.Dependencies)
+		}
+	}
+
+	if depsB != nil {
+		for _, dependency := range *depsB {
+			addDepsToRefToDepends(dependency.Ref, dependency.Dependencies)
+		}
+	}
+
+	output := []cdx.Dependency{}
+	for ref, depends := range refToDepends {
+		dependsOn := []cdx.Dependency{}
+		for dRef := range depends {
+			dependsOn = append(dependsOn, cdx.Dependency{
+				Ref: dRef,
+			})
+		}
+		output = append(output, cdx.Dependency{
+			Ref:          ref,
+			Dependencies: &dependsOn,
+		})
+	}
+
+	return &output
+}
+
+func (m *MergedResults) getRealBomRefFromPreviousBomRef(bomRef string) string {
+	for _, mergedComponent := range m.MergedComponentByKey {
+		for _, ref := range mergedComponent.BomRefs {
+			if ref == bomRef {
+				return mergedComponent.Component.BOMRef
+			}
+		}
+	}
+
+	for _, ref := range m.SrcMetaDataBomRefs {
+		if ref == bomRef {
+			return m.SrcMetaData.Component.BOMRef
+		}
+	}
+
+	return bomRef
 }
 
 // toBomDescriptor returns metadata tailored for the current time and tool details.
@@ -297,11 +413,10 @@ func toBomDescriptorComponent(sourceType utils.SourceType, srcMetadata *cdx.Meta
 	}
 	metaDataComponent := srcMetadata.Component
 
-	// nolint:exhaustive
 	switch sourceType {
 	case utils.IMAGE:
 		metaDataComponent.Type = cdx.ComponentTypeContainer
-	case utils.DIR, utils.FILE:
+	case utils.DIR, utils.FILE, utils.ROOTFS:
 		metaDataComponent.Type = cdx.ComponentTypeFile
 		metaDataComponent.Hashes = &[]cdx.Hash{
 			{
@@ -309,6 +424,7 @@ func toBomDescriptorComponent(sourceType utils.SourceType, srcMetadata *cdx.Meta
 				Value:     hash,
 			},
 		}
+	case utils.SBOM:
 	}
 
 	return metaDataComponent

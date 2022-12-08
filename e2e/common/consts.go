@@ -28,4 +28,6 @@ const (
 	KubeClarityHelmReleaseName       = "kubeclarity"
 	KubeClarityPortForwardHostPort   = "8089"
 	KubeClarityPortForwardTargetPort = "8080"
+
+	WaitForMaterializedViewRefreshSecond = 2
 )

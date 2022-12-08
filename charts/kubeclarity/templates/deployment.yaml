@@ -101,6 +101,10 @@ spec:
             - name: ENABLE_DB_INFO_LOGS
               value: "{{ .Values.kubeclarity.enableDBInfoLog }}"
             # DB envs
+            {{- if .Values.kubeclarity.dbViewRefreshInterval }}
+            - name: DB_VIEW_REFRESH_INTERVAL
+              value: "{{ .Values.kubeclarity.dbViewRefreshInterval }}"
+            {{- end }}
             - name: DB_NAME
               value: {{ index .Values "kubeclarity-postgresql" "auth" "database" }}
             - name: DB_HOST

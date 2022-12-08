@@ -23,9 +23,10 @@ import (
 
 // TODO: maybe we need to extend the unified config.
 type Analyzer struct {
-	OutputFormat string
-	AnalyzerList []string
-	Scope        string
+	OutputFormat string              `yaml:"output_format" mapstructure:"output_format"`
+	AnalyzerList []string            `yaml:"analyzer_list" mapstructure:"analyzer_list"`
+	Scope        string              `yaml:"scope" mapstructure:"scope"`
+	TrivyConfig  AnalyzerTrivyConfig `yaml:"trivy_config" mapstructure:"trivy_config"`
 }
 
 const (
@@ -37,7 +38,7 @@ const (
 func setAnalyzerConfigDefaults() {
 	viper.SetDefault(AnalyzerList, []string{"syft", "gomod"})
 	viper.SetDefault(AnalyzerScope, "squashed")
-	viper.SetDefault(OutputFormat, formatter.CycloneDXFormat)
+	viper.SetDefault(OutputFormat, formatter.CycloneDXJSONFormat)
 }
 
 func LoadAnalyzerConfig() *Analyzer {
@@ -46,5 +47,6 @@ func LoadAnalyzerConfig() *Analyzer {
 		OutputFormat: viper.GetString(OutputFormat),
 		AnalyzerList: viper.GetStringSlice(AnalyzerList),
 		Scope:        viper.GetString(AnalyzerScope),
+		TrivyConfig:  LoadAnalyzerTrivyConfig(),
 	}
 }

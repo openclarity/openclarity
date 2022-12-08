@@ -87,10 +87,12 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
 KubeClarity content analyzer integrates with the following SBOM generators:
 * [Syft](https://github.com/anchore/syft)
 * [Cyclonedx-gomod](https://github.com/CycloneDX/cyclonedx-gomod)
+* [Trivy](https://github.com/aquasecurity/trivy)
 
 KubeClarity vulnerability scanner integrates with the following scanners:
 * [Grype](https://github.com/anchore/grype)
 * [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
+* [Trivy](https://github.com/aquasecurity/trivy)
 
 The integrations with the SBOM generators can be found [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/analyzer), and the integrations with the vulnerability scanners can be found here [here](https://github.com/openclarity/kubeclarity/tree/master/shared/pkg/scanner). 
 To enable and configure the supported SBOM generators and vulnerability scanners, please check the "analyzer" and "scanner" config under the "vulnerability-scanner" section in Helm values.
@@ -216,7 +218,7 @@ LOCAL_IMAGE_SCAN=true kubeclarity-cli analyze nginx:latest -o nginx.sbom
 ### Vulnerability scanning using multiple integrated scanners
 ```
 # A list of the vulnerability scanners to use can be configured using the SCANNERS_LIST env variable seperated by a space (e.g SCANNERS_LIST="grype dependency-track")
-kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
+SCANNERS_LIST="<Scanner1 name> <Scanner2 name> ..." kubeclarity-cli scan <image/sbom/directoty/file name> --input-type <sbom|dir|file|image(default)> -f <output file>
 
 # For example:
 SCANNERS_LIST="grype" kubeclarity-cli scan nginx.sbom --input-type sbom 

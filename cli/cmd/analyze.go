@@ -17,7 +17,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 
 	"github.com/spf13/cobra"
 
@@ -99,7 +100,7 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get input SBOM filepath: %v", err)
 	}
 
-	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.CreateAnalyzerJob)
+	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.Factory)
 	results, err := manager.Run(sourceType, args[0])
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
@@ -110,26 +111,25 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Failed to generate hash for source %s: %v", args[0], err)
 	}
 
-	outputFormat := appConfig.SharedConfig.Analyzer.OutputFormat
 	if inputSBOMFile != "" {
-		cdxBOMBytes, err := convertInputSBOMIfNeeded(inputSBOMFile, outputFormat)
+		cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
 		if err != nil {
 			logger.Fatalf("Failed to convert input SBOM file=%s to the results: %v", inputSBOMFile, err)
 		}
-		results[inputSBOMName] = createResultFromInputSBOM(cdxBOMBytes, inputSBOMFile)
+		results[inputSBOMName] = createResultFromInputSBOM(cdxBOM, inputSBOMFile)
 	}
 
 	// Merge results
 	mergedResults := sharedanalyzer.NewMergedResults(sourceType, hash)
 	for _, result := range results {
 		if res, ok := result.(*sharedanalyzer.Results); ok {
-			mergedResults = mergedResults.Merge(res, outputFormat)
+			mergedResults = mergedResults.Merge(res)
 		} else {
 			logger.Errorf("Type assertion of result failed.")
 		}
 	}
 
-	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(outputFormat, pkg.GitRevision)
+	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(appConfig.SharedConfig.Analyzer.OutputFormat, pkg.GitRevision)
 	if err != nil {
 		logger.Fatalf("Failed to create merged output: %v", err)
 	}
@@ -148,28 +148,6 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	}
 }
 
-func createResultFromInputSBOM(sbomBytes []byte, inputSBOMFile string) *sharedanalyzer.Results {
-	return sharedanalyzer.CreateResults(sbomBytes, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
-}
-
-func convertInputSBOMIfNeeded(inputSBOMFile, outputFormat string) ([]byte, error) {
-	inputSBOM, err := os.ReadFile(inputSBOMFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read SBOM file %s: %v", inputSBOMFile, err)
-	}
-	inputSBOMFormat := converter.DetermineCycloneDXFormat(inputSBOM)
-	if inputSBOMFormat == outputFormat {
-		return inputSBOM, nil
-	}
-
-	// Create cycloneDX formatter to convert input SBOM to the defined output format.
-	cdxFormatter := formatter.New(inputSBOMFormat, inputSBOM)
-	if err = cdxFormatter.Decode(inputSBOMFormat); err != nil {
-		return nil, fmt.Errorf("failed to decode input SBOM %s: %v", inputSBOMFile, err)
-	}
-	if err := cdxFormatter.Encode(outputFormat); err != nil {
-		return nil, fmt.Errorf("failed to encode input SBOM: %v", err)
-	}
-
-	return cdxFormatter.GetSBOMBytes(), nil
+func createResultFromInputSBOM(sbom *cdx.BOM, inputSBOMFile string) *sharedanalyzer.Results {
+	return sharedanalyzer.CreateResults(sbom, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
 }

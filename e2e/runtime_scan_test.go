@@ -18,10 +18,11 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"gotest.tools/assert"
 	"strings"
 	"testing"
 	"time"
+
+	"gotest.tools/assert"
 
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
@@ -50,6 +51,8 @@ func TestRuntimeScan(t *testing.T) {
 			assert.NilError(t, waitForScanDone(t))
 
 			t.Logf("get runtime scan results...")
+			// wait for refreshing materialized views
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			results := common.GetRuntimeScanResults(t, kubeclarityAPI)
 			assert.Assert(t, results.Counters.Resources > 0)
 			assert.Assert(t, results.Counters.Vulnerabilities > 0)

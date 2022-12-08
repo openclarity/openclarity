@@ -14,6 +14,10 @@ Name of the chart.
 {{- printf "%s-%s-grype-server" .Release.Name .Chart.Name -}}
 {{- end -}}
 
+{{- define "kubeclarity.trivy-server.name" -}}
+{{- printf "%s-%s-trivy-server" .Release.Name .Chart.Name -}}
+{{- end -}}
+
 {{/*
 Helm labels.
 */}}
@@ -33,6 +37,13 @@ Helm labels.
 
 {{- define "kubeclarity.grype-server.labels" -}}
     app.kubernetes.io/name: {{ include "kubeclarity.grype-server.name" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+{{- end -}}
+
+{{- define "kubeclarity.trivy-server.labels" -}}
+    app.kubernetes.io/name: {{ include "kubeclarity.trivy-server.name" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}

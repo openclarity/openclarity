@@ -84,10 +84,11 @@ type ResourceTable interface {
 }
 
 type ResourceTableHandler struct {
-	resourcesTable *gorm.DB
-	resourcesView  *gorm.DB
-	licensesView   *gorm.DB
-	IDsView        IDsView
+	resourcesTable     *gorm.DB
+	resourcesView      *gorm.DB
+	licensesView       *gorm.DB
+	IDsView            IDsView
+	viewRefreshHandler *ViewRefreshHandler
 }
 
 func (Resource) TableName() string {
@@ -227,6 +228,9 @@ func (r *ResourceTableHandler) Create(resource *Resource) error {
 	if err := r.resourcesTable.Create(resource).Error; err != nil {
 		return fmt.Errorf("failed to create resource: %v", err)
 	}
+
+	r.viewRefreshHandler.TableChanged(resourceTableName)
+
 	return nil
 }
 

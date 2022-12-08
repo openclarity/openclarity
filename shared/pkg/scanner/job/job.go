@@ -16,23 +16,16 @@
 package job
 
 import (
-	"github.com/sirupsen/logrus"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/trivy"
 )
 
-func CreateJob(scannerName string, config *config.Config, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	switch scannerName {
-	case grype.ScannerName:
-		return grype.New(config, logger, resultChan)
-	case dependency_track.ScannerName:
-		return dependency_track.New(config, logger, resultChan)
-	default:
-		logrus.Fatalf("Unknown scanner: %v", scannerName)
-	}
+var Factory = job_manager.NewJobFactory()
 
-	return nil
+func init() {
+	Factory.Register(grype.ScannerName, grype.New)
+	Factory.Register(dependency_track.ScannerName, dependency_track.New)
+	Factory.Register(trivy.ScannerName, trivy.New)
 }

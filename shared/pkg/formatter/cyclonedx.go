@@ -16,7 +16,6 @@
 package formatter
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 
@@ -62,10 +61,9 @@ func (f *CycloneDX) GetSBOMBytes() []byte {
 
 func (f *CycloneDX) Encode(format string) error {
 	cdxFormat := getCycloneDXFormat(format)
-	var buff bytes.Buffer
-	outputWriter := bufio.NewWriter(&buff)
 
-	encoder := cdx.NewBOMEncoder(outputWriter, cdxFormat)
+	var buff bytes.Buffer
+	encoder := cdx.NewBOMEncoder(&buff, cdxFormat)
 	encoder.SetPretty(true)
 
 	if err := encoder.Encode(f.sbomStruct); err != nil {

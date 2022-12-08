@@ -2,5 +2,8 @@ dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 11.6.12
-digest: sha256:90a1562c678272a5d9669534ccca70763c96f587d7418ff461a497244089d4ed
-generated: "2022-07-04T12:46:41.885523+02:00"
+- name: trivy
+  repository: https://aquasecurity.github.io/helm-charts
+  version: 0.4.17
+digest: sha256:447cd3734fe45676eb1c51cf2ccfe38af80f5153f3c5b754e6aa6ed1d4760075
+generated: "2022-12-06T09:25:38.525096Z"

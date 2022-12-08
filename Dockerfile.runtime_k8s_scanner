@@ -1,4 +1,4 @@
-FROM golang:1.19.3-alpine AS builder
+FROM golang:1.19.4-alpine AS builder
 
 ARG VERSION
 ARG BUILD_TIMESTAMP
@@ -37,7 +37,7 @@ RUN go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o runtime_k8s_scanner ./cmd/main.go
 
-FROM alpine:3.16
+FROM alpine:3.17
 
 WORKDIR /app
 
