@@ -108,13 +108,13 @@ jobs:
       - name: Set build output env var
         if: ${{ inputs.upload == 'true' }}
         run: |
-          echo "OUTPUTS=type=docker,dest=/tmp/vmclarity.tar" >> $GITHUB_ENV
+          echo "OUTPUTS=type=docker,dest=/tmp/vmclarity-cli.tar" >> $GITHUB_ENV
 
       - name: Build
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: ghcr.io/openclarity/vmclarity:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/vmclarity-cli:${{ inputs.image_tag }}
           file: Dockerfile.cli
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
@@ -130,4 +130,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vmclarity
-          path: /tmp/vmclarity.tar
+          path: /tmp/vmclarity-cli.tar
