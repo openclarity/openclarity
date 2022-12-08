@@ -24,12 +24,12 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 )
 
-func GenerateCloudInit(scannerConfig *types.ScannerConfig, deviceName string) (*string, error) {
+func GenerateCloudInit(scannerConfig *types.ScannerConfig, deviceName string) (string, error) {
 	vars := make(map[string]interface{})
 	// parse cloud-init template
 	tmpl, err := template.New("cloud-init").Parse(cloudInitTmpl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse cloud-init template: %v", err)
+		return "", fmt.Errorf("failed to parse cloud-init template: %v", err)
 	}
 	vars["Volume"] = deviceName
 	vars["ScannerImage"] = scannerConfig.ScannerImage
@@ -38,14 +38,14 @@ func GenerateCloudInit(scannerConfig *types.ScannerConfig, deviceName string) (*
 
 	scannerJobConfigB, err := json.Marshal(scannerConfig.ScannerJobConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal config: %v", err)
+		return "", fmt.Errorf("failed to marshal config: %v", err)
 	}
 	vars["Config"] = bytes.NewBuffer(scannerJobConfigB).String()
 	var tmplExB bytes.Buffer
 	if err := tmpl.Execute(&tmplExB, vars); err != nil {
-		return nil, fmt.Errorf("failed to execute cloud-init template: %v", err)
+		return "", fmt.Errorf("failed to execute cloud-init template: %v", err)
 	}
 
 	cloudInit := tmplExB.String()
-	return &cloudInit, nil
+	return cloudInit, nil
 }
