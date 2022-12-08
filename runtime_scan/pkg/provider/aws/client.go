@@ -17,6 +17,7 @@ package aws
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"strings"
 
@@ -114,6 +115,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, sc
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate cloud-init: %v", err)
 	}
+	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),
 		MinCount: utils.Int32Ptr(1),
@@ -140,7 +142,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, sc
 				Tags:         vmclarityTags,
 			},
 		},
-		UserData: userData,
+		UserData: &userDataBase64,
 	}, func(options *ec2.Options) {
 		options.Region = snapshot.GetRegion()
 	})
