@@ -1,3 +1,4 @@
+ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base@sha256:903d2c10351f811bdcb084f26f2b265f5c332de2891ab9f5fb7d60fed77e5ad7
 FROM golang:1.19.4-alpine AS builder
 
 ARG COMMIT_HASH
@@ -21,7 +22,7 @@ COPY cli .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 
-FROM ghcr.io/openclarity/vmclarity-tools-base@sha256:903d2c10351f811bdcb084f26f2b265f5c332de2891ab9f5fb7d60fed77e5ad7
+FROM ${VMCLARITY_TOOLS_BASE}
 
 WORKDIR /app
 
