@@ -145,8 +145,8 @@ func Test_createInclusionTagsFilters(t *testing.T) {
 			args: args{
 				tags: []Tag{
 					{
-						key: tagName,
-						val: tagVal,
+						Key: tagName,
+						Val: tagVal,
 					},
 				},
 			},
@@ -189,12 +189,12 @@ func Test_hasExcludedTags(t *testing.T) {
 			args: args{
 				excludeTags: []Tag{
 					{
-						key: tagName1,
-						val: tagVal1,
+						Key: tagName1,
+						Val: tagVal1,
 					},
 					{
-						key: "stam1",
-						val: "stam2",
+						Key: "stam1",
+						Val: "stam2",
 					},
 				},
 				instanceTags: nil,
@@ -223,12 +223,12 @@ func Test_hasExcludedTags(t *testing.T) {
 			args: args{
 				excludeTags: []Tag{
 					{
-						key: tagName1,
-						val: tagVal1,
+						Key: tagName1,
+						Val: tagVal1,
 					},
 					{
-						key: "stam1",
-						val: "stam2",
+						Key: "stam1",
+						Val: "stam2",
 					},
 				},
 				instanceTags: []ec2types.Tag{
@@ -249,12 +249,12 @@ func Test_hasExcludedTags(t *testing.T) {
 			args: args{
 				excludeTags: []Tag{
 					{
-						key: tagName1,
-						val: tagVal1,
+						Key: tagName1,
+						Val: tagVal1,
 					},
 					{
-						key: tagName2,
-						val: tagVal2,
+						Key: tagName2,
+						Val: tagVal2,
 					},
 				},
 				instanceTags: []ec2types.Tag{
@@ -279,12 +279,12 @@ func Test_hasExcludedTags(t *testing.T) {
 			args: args{
 				excludeTags: []Tag{
 					{
-						key: "stam1",
-						val: "stam2",
+						Key: "stam1",
+						Val: "stam2",
 					},
 					{
-						key: "stam3",
-						val: "stam4",
+						Key: "stam3",
+						Val: "stam4",
 					},
 				},
 				instanceTags: []ec2types.Tag{
@@ -588,8 +588,8 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 				},
 				excludeTags: []Tag{
 					{
-						key: "key-1",
-						val: "val-1",
+						Key: "key-1",
+						Val: "val-1",
 					},
 				},
 				regionID: "region-1",
