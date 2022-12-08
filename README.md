@@ -14,7 +14,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
   - [KubeClarity Backend](#kubeclarity-backend)
-    - [Install using Helm](#install-kubeclarity-in-a-k8s-cluster-using-helm)
+    - [Install using Helm](#install-using-helm)
     - [Build and Run Locally with Demo Data](#build-and-run-locally-with-demo-data)
   - [CLI](#cli)
     - [Installation](#installation)
@@ -29,6 +29,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
   - [Merging of SBOM and vulnerabilities across different CI/CD stages](#merging-of-sbom-and-vulnerabilities-across-different-cicd-stages)
   - [Remote Scanner Servers For CLI](#remote-scanner-servers-for-cli)
 - [Limitations](#limitations)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -410,7 +411,7 @@ ANALYZER_LIST="syft" kubeclarity-cli analyze nginx:latest -o nginx.sbom --merge-
 When running the kubeclarity CLI to scan for vulnerabilties, the CLI will need
 to download the relevant vulnerablity DBs to the location where the kubeclarity
 CLI is running. Running the CLI in a CI/CD pipeline will result in downloading
-the the DBs on each run, wasting time and bandwidth. For this reason several of
+the DBs on each run, wasting time and bandwidth. For this reason several of
 the supported scanners have a remote mode in which a server is responsible for
 the DB management and possibly scanning of the artifacts.
 
