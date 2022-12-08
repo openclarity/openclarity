@@ -69,7 +69,7 @@ func (o *Orchestrator) Stop() {
 }
 
 func (o *Orchestrator) Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error {
-	instances, err := o.providerClient.Discover(context.TODO(), &scanConfig.ScanScope)
+	instances, err := o.providerClient.Discover(context.TODO(), scanConfig.ScanScope)
 	if err != nil {
 		return fmt.Errorf("failed to discover instances to scan: %v", err)
 	}
