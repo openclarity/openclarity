@@ -141,6 +141,10 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, sc
 				ResourceType: ec2types.ResourceTypeInstance,
 				Tags:         vmclarityTags,
 			},
+			{
+				ResourceType: ec2types.ResourceTypeVolume,
+				Tags:         vmclarityTags,
+			},
 		},
 		UserData: &userDataBase64,
 	}, func(options *ec2.Options) {
