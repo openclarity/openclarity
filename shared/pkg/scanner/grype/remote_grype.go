@@ -33,6 +33,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
 )
 
 type RemoteScanner struct {
@@ -84,7 +85,7 @@ func (s *RemoteScanner) run(sbomInputFilePath string) {
 		return
 	}
 
-	userInput, hash, err := getOriginalInputAndHashFromSBOM(sbomInputFilePath)
+	userInput, hash, err := utilsSBOM.GetTargetNameAndHashFromSBOM(sbomInputFilePath)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
 		return

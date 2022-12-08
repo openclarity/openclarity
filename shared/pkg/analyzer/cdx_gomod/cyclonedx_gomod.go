@@ -30,7 +30,6 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
@@ -44,10 +43,8 @@ type Analyzer struct {
 	resultChan chan job_manager.Result
 }
 
-func New(conf *config.Config,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(*config.Config) // nolint:forcetypeassert
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
@@ -100,20 +97,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		bom.Metadata.Tools = &[]cdx.Tool{*tool}
 		assertLicenses(bom)
 
-		// create the cycloneDX sbom
-		output := formatter.New(formatter.CycloneDXFormat, []byte{})
-		err = output.SetSBOM(bom)
-		if err != nil {
-			a.setError(res, fmt.Errorf("failed to set SBOM: %v", err))
-			return
-		}
-		// encode the cycloneDX sbom
-		if err := output.Encode(a.config.OutputFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to write results: %v", err))
-			return
-		}
-
-		res = analyzer.CreateResults(output.GetSBOMBytes(), a.name, userInput, sourceType)
+		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
 	}()

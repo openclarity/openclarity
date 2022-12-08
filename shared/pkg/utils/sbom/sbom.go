@@ -13,15 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package sbom
 
-type Config struct {
-	Registry       *Registry `yaml:"registry" mapstructure:"registry"`
-	Analyzer       *Analyzer `yaml:"analyzer" mapstructure:"analyzer"`
-	Scanner        *Scanner  `yaml:"scanner" mapstructure:"scanner"`
-	LocalImageScan bool      `yaml:"local_image_scan" mapstructure:"local_image_scan"`
+import (
+	"fmt"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
+	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+)
+
+func GetTargetNameAndHashFromSBOM(inputSBOMFile string) (string, string, error) {
+	cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
+	if err != nil {
+		return "", "", converter.ErrFailedToGetCycloneDXSBOM
+	}
+
+	hash, err := cdx_helper.GetComponentHash(cdxBOM.Metadata.Component)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to get hash from original SBOM: %w", err)
+	}
+
+	return cdxBOM.Metadata.Component.Name, hash, nil
 }
-
-func (Config) IsConfig() {}
-
-const LocalImageScan = "LOCAL_IMAGE_SCAN"

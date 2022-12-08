@@ -23,32 +23,87 @@ import (
 
 const AnalyzerTrivyTimeoutSecondsDefault = 300
 
-const AnalyzerTrivyTimeoutSeconds = "ANALYZER_TRIVY_TIMEOUT_SECONDS"
+const (
+	AnalyzerTrivyTimeoutSeconds = "ANALYZER_TRIVY_TIMEOUT_SECONDS"
+	AnalyzerTrivyCacheDir       = "ANALYZER_TRIVY_CACHE_DIRECTORY"
+)
 
 type AnalyzerTrivyConfig struct {
-	Timeout int
+	Timeout  int    `yaml:"timeout" mapstructure:"timeout"`
+	CacheDir string `yaml:"cache_dir" mapstructure:"cache_dir"`
 }
 
-func setTrivyConfigDefaults() {
+func setAnalyzerTrivyConfigDefaults() {
 	viper.SetDefault(AnalyzerTrivyTimeoutSeconds, AnalyzerTrivyTimeoutSecondsDefault)
 }
 
 func LoadAnalyzerTrivyConfig() AnalyzerTrivyConfig {
-	setTrivyConfigDefaults()
+	setAnalyzerTrivyConfigDefaults()
 
 	return AnalyzerTrivyConfig{
-		Timeout: viper.GetInt(AnalyzerTrivyTimeoutSeconds),
+		Timeout:  viper.GetInt(AnalyzerTrivyTimeoutSeconds),
+		CacheDir: viper.GetString(AnalyzerTrivyCacheDir),
 	}
 }
 
 type AnalyzerTrivyConfigEx struct {
-	OutputFormat string
-	Timeout      time.Duration
+	Timeout  time.Duration
+	CacheDir string
+	Registry *Registry
 }
 
 func CreateAnalyzerTrivyConfigEx(analyzer *Analyzer, registry *Registry) AnalyzerTrivyConfigEx {
 	return AnalyzerTrivyConfigEx{
-		OutputFormat: analyzer.OutputFormat,
-		Timeout:      time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+		Timeout:  time.Duration(analyzer.TrivyConfig.Timeout) * time.Second,
+		CacheDir: analyzer.TrivyConfig.CacheDir,
+		Registry: registry,
+	}
+}
+
+const ScannerTrivyTimeoutSecondsDefault = 300
+
+const (
+	ScannerTrivyTimeoutSeconds = "SCANNER_TRIVY_TIMEOUT_SECONDS"
+	ScannerTrivyCacheDir       = "SCANNER_TRIVY_CACHE_DIRECTORY"
+	ScannerTrivyServerAddress  = "SCANNER_TRIVY_SERVER_ADDRESS"
+	ScannerTrivyServerToken    = "SCANNER_TRIVY_SERVER_TOKEN" // nolint:gosec
+)
+
+type ScannerTrivyConfig struct {
+	Timeout     int
+	ServerAddr  string
+	ServerToken string
+	CacheDir    string
+}
+
+func setScannerTrivyConfigDefaults() {
+	viper.SetDefault(ScannerTrivyTimeoutSeconds, ScannerTrivyTimeoutSecondsDefault)
+}
+
+func LoadScannerTrivyConfig() ScannerTrivyConfig {
+	setScannerTrivyConfigDefaults()
+
+	return ScannerTrivyConfig{
+		Timeout:     viper.GetInt(ScannerTrivyTimeoutSeconds),
+		CacheDir:    viper.GetString(ScannerTrivyCacheDir),
+		ServerAddr:  viper.GetString(ScannerTrivyServerAddress),
+		ServerToken: viper.GetString(ScannerTrivyServerToken),
+	}
+}
+
+type ScannerTrivyConfigEx struct {
+	Timeout     time.Duration
+	CacheDir    string
+	ServerAddr  string
+	ServerToken string
+	Registry    *Registry
+}
+
+func CreateScannerTrivyConfigEx(scanner *Scanner, registry *Registry) ScannerTrivyConfigEx {
+	return ScannerTrivyConfigEx{
+		Timeout:     time.Duration(scanner.TrivyConfig.Timeout) * time.Second,
+		Registry:    registry,
+		ServerAddr:  scanner.TrivyConfig.ServerAddr,
+		ServerToken: scanner.TrivyConfig.ServerToken,
 	}
 }

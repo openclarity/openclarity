@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
 )
 
 type LocalScanner struct {
@@ -74,7 +75,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	var hash string
 	origInput := userInput
 	if sourceType == utils.SBOM {
-		origInput, hash, err = getOriginalInputAndHashFromSBOM(userInput)
+		origInput, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
 		if err != nil {
 			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
 			return

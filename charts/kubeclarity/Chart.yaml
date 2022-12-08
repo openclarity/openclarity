@@ -17,3 +17,8 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: kubeclarity-postgresql.enabled
     alias: kubeclarity-postgresql
+  - name: trivy
+    version: "0.4.17"
+    repository: https://aquasecurity.github.io/helm-charts
+    condition: kubeclarity-trivy-server.enabled
+    alias: kubeclarity-trivy-server

@@ -20,6 +20,7 @@ import (
 
 	"github.com/anchore/syft/syft"
 	syft_artifact "github.com/anchore/syft/syft/artifact"
+	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
 	"github.com/anchore/syft/syft/linux"
 	syft_pkg "github.com/anchore/syft/syft/pkg"
 	"github.com/anchore/syft/syft/pkg/cataloger"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
@@ -45,10 +45,8 @@ type Analyzer struct {
 	localImage bool
 }
 
-func New(conf *config.Config,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(*config.Config) // nolint:forcetypeassert
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
@@ -84,19 +82,11 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			a.setError(res, fmt.Errorf("failed to write results: %v", err))
 			return
 		}
-
-		output := formatter.New(formatter.SyftFormat, []byte{})
 		sbom := generateSBOM(p, r, d, s)
-		if err := output.SetSBOM(sbom); err != nil {
-			a.setError(res, fmt.Errorf("failed to set SBOM struct in formatter: %v", err))
-			return
-		}
-		if err := output.Encode(a.config.OutputFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to write results: %v", err))
-			return
-		}
 
-		res = analyzer.CreateResults(output.GetSBOMBytes(), a.name, src, sourceType)
+		cdxBom := cyclonedxhelpers.ToFormatModel(sbom)
+		res = analyzer.CreateResults(cdxBom, a.name, src, sourceType)
+
 		// Syft uses ManifestDigest to fill version information in the case of an image.
 		// We need RepoDigest as well which is not set by Syft if we using cycloneDX output.
 		// Get the RepoDigest from image metadata and use it as SourceHash in the Result

@@ -34,9 +34,9 @@ const (
 )
 
 type GrypeConfig struct {
-	LocalGrypeConfig
-	RemoteGrypeConfig
-	Mode Mode
+	LocalGrypeConfig  `yaml:"local_grype_config" mapstructure:"local_grype_config"`
+	RemoteGrypeConfig `yaml:"remote_grype_config" mapstructure:"remote_grype_config"`
+	Mode              Mode `yaml:"mode" mapstructure:"mode"`
 }
 
 func LoadGrypeConfig() GrypeConfig {

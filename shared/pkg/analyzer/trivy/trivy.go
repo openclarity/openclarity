@@ -22,14 +22,18 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
+	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/formatter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	utilsTrivy "github.com/openclarity/kubeclarity/shared/pkg/utils/trivy"
 )
 
 const AnalyzerName = "trivy"
@@ -42,10 +46,8 @@ type Analyzer struct {
 	localImage bool
 }
 
-func New(conf *config.Config,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
+func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+	conf := c.(*config.Config) // nolint:forcetypeassert
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
@@ -55,15 +57,34 @@ func New(conf *config.Config,
 	}
 }
 
+// nolint:cyclop
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %v %v", a.name, sourceType, userInput)
 	go func() {
 		res := &analyzer.Results{}
 
+		// Skip this analyser for input types we don't support
+		switch sourceType {
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+			// These are all supported for SBOM analysing so continue
+		case utils.SBOM:
+			fallthrough
+		default:
+			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
+			a.resultChan <- res
+			return
+		}
+
+		cacheDir := trivyUtils.DefaultCacheDir()
+		if a.config.CacheDir != "" {
+			cacheDir = a.config.CacheDir
+		}
+
 		var output bytes.Buffer
 		trivyOptions := trivyFlag.Options{
 			GlobalOptions: trivyFlag.GlobalOptions{
-				Timeout: a.config.Timeout,
+				Timeout:  a.config.Timeout,
+				CacheDir: cacheDir,
 			},
 			ScanOptions: trivyFlag.ScanOptions{
 				Target:         userInput,
@@ -77,40 +98,48 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			},
 		}
 
-		var trivySourceType artifact.TargetKind
-		switch sourceType {
-		case utils.IMAGE:
-			trivySourceType = artifact.TargetContainerImage
-		case utils.ROOTFS:
-			trivySourceType = artifact.TargetRootfs
-		case utils.DIR, utils.FILE:
-			trivySourceType = artifact.TargetFilesystem
-		case utils.SBOM:
-			fallthrough
-		default:
-			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
-			a.resultChan <- res
+		// Convert the kubeclarity source to the trivy source type
+		trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceType)
+		if err != nil {
+			a.setError(res, fmt.Errorf("failed to configure trivy: %w", err))
 			return
 		}
 
-		err := artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+		// Ensure we're configured for private registry if required
+		trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
+
+		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to generate SBOM: %w", err))
 			return
 		}
 
-		frm := formatter.New(formatter.CycloneDXJSONFormat, output.Bytes())
-		if err := frm.Decode(formatter.CycloneDXJSONFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to decode trivy results in formatter: %w", err))
+		// Decode the BOM
+		bom := new(cdx.BOM)
+		decoder := cdx.NewBOMDecoder(&output, cdx.BOMFileFormatJSON)
+		if err = decoder.Decode(bom); err != nil {
+			a.setError(res, fmt.Errorf("unable to decode BOM data: %v", err))
 			return
 		}
 
-		if err := frm.Encode(a.config.OutputFormat); err != nil {
-			a.setError(res, fmt.Errorf("failed to encode trivy results: %w", err))
-			return
+		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
+
+		// Trivy doesn't include the version information in the
+		// component of CycloneDX but it does include the RepoDigest as
+		// a property of the component.
+		//
+		// Get the RepoDigest from image metadata and use it as
+		// SourceHash in the Result that will be added to the component
+		// hash of metadata during the merge.
+		if sourceType == utils.IMAGE {
+			hash, err := getImageHash(bom.Metadata.Component.Properties, userInput)
+			if err != nil {
+				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
+				return
+			}
+			res.AppInfo.SourceHash = hash
 		}
 
-		res = analyzer.CreateResults(frm.GetSBOMBytes(), a.name, userInput, sourceType)
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
 	}()
@@ -122,4 +151,18 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 	res.Error = err
 	a.logger.Error(res.Error)
 	a.resultChan <- res
+}
+
+func getImageHash(properties *[]cdx.Property, src string) (string, error) {
+	if properties == nil {
+		return "", fmt.Errorf("properties was nil")
+	}
+
+	for _, property := range *properties {
+		if property.Name == "aquasecurity:trivy:RepoDigest" {
+			return image_helper.GetHashFromRepoDigest([]string{property.Value}, src), nil
+		}
+	}
+
+	return "", fmt.Errorf("repo digest property missing from Metadata.Component")
 }

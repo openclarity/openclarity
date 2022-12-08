@@ -13,15 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package trivy
 
-type Config struct {
-	Registry       *Registry `yaml:"registry" mapstructure:"registry"`
-	Analyzer       *Analyzer `yaml:"analyzer" mapstructure:"analyzer"`
-	Scanner        *Scanner  `yaml:"scanner" mapstructure:"scanner"`
-	LocalImageScan bool      `yaml:"local_image_scan" mapstructure:"local_image_scan"`
+import (
+	"fmt"
+
+	"github.com/aquasecurity/trivy/pkg/commands/artifact"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+)
+
+func KubeclaritySourceToTrivySource(sourceType utils.SourceType) (artifact.TargetKind, error) {
+	switch sourceType {
+	case utils.IMAGE:
+		return artifact.TargetContainerImage, nil
+	case utils.ROOTFS:
+		return artifact.TargetRootfs, nil
+	case utils.DIR, utils.FILE:
+		return artifact.TargetFilesystem, nil
+	case utils.SBOM:
+		return artifact.TargetSBOM, nil
+	}
+	return artifact.TargetKind("Unknown"), fmt.Errorf("unable to convert source type %v to trivy type", sourceType)
 }
-
-func (Config) IsConfig() {}
-
-const LocalImageScan = "LOCAL_IMAGE_SCAN"
