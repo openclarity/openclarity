@@ -37,11 +37,11 @@ const (
 )
 
 func (c SbomFormat) String() string {
-	strings := []string{"cyclonedx-json", "cyclonedx-xml", "spdx-json", "spdx-keyvalue", "syft"}
-	if c > Unknown && int(c) < len(strings) {
-		return strings[c]
+	strings := []string{"unknown", "cyclonedx-json", "cyclonedx-xml", "spdx-json", "spdx-keyvalue", "syft"}
+	if int(c) >= len(strings) {
+		return "unknown"
 	}
-	return "unknown"
+	return strings[c]
 }
 
 func StringToSbomFormat(input string) (SbomFormat, error) {
