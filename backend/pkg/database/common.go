@@ -88,7 +88,7 @@ func FilterIsBool(db *gorm.DB, column string, value *bool) *gorm.DB {
 }
 
 func FilterIs(db *gorm.DB, column string, values []string) *gorm.DB {
-	if len(values) == 0 {
+	if values == nil {
 		return db
 	}
 	return db.Where(fmt.Sprintf("%s IN ?", column), values)
