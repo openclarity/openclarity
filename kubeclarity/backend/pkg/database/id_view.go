@@ -55,10 +55,12 @@ type IDsViewHandler struct {
 }
 
 func (i *IDsViewHandler) GetIDs(params GetIDsParams, idsShouldMatch bool) ([]string, error) {
-	var ids []string
+	ids := []string{}
 
 	if len(params.FilterIDs) == 0 {
-		// nothing to filter by
+		// nothing to filter by, so return nil so that the caller knows
+		// the difference between a query wasn't made, and there were
+		// no results
 		return nil, nil
 	}
 
@@ -91,9 +93,10 @@ func (i *IDsViewHandler) GetIDs(params GetIDsParams, idsShouldMatch bool) ([]str
 		return nil, fmt.Errorf("failed to count IDs: %v", err)
 	}
 	if count <= 0 {
-		// No need to run query.
+		// No need to run query, but return empty list of strings
+		// because there are no results, not nil
 		log.Debugf("no IDs found. pararms=%+v", params)
-		return nil, nil
+		return ids, nil
 	}
 
 	// Run query.
