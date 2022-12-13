@@ -1,37 +1,34 @@
+# syntax=docker/dockerfile:1.2
 FROM golang:1.19.4-alpine AS builder
 
-ARG VERSION
-ARG BUILD_TIMESTAMP
-ARG COMMIT_HASH
-
-RUN apk add --update --no-cache gcc g++ git
+RUN apk add --update --no-cache gcc g++ git ca-certificates build-base
 
 # Copy runtime scan api code
-WORKDIR /build/runtime_scan
-COPY runtime_scan/api ./api
+WORKDIR /build/runtime_scan/api
+COPY runtime_scan/api .
 
 # Copy sbom db api code
 WORKDIR /build/sbom_db
 COPY sbom_db/api ./api
 
-# Copy shared go.mod & go.sum
-WORKDIR /build/shared
-COPY shared/go.* ./
-RUN go mod download
-
-# Copy scanner go.mod & go.sum
-WORKDIR /build/runtime_k8s_scanner
-COPY runtime_k8s_scanner/go.* ./
-RUN go mod download
-
 # Copy shared code
 WORKDIR /build/shared
 COPY shared .
 
-# Copy and build scanner code
+# Copy scanner code
 WORKDIR /build/runtime_k8s_scanner
 COPY runtime_k8s_scanner .
-RUN go build -ldflags="-s -w \
+
+# Build scanner code
+# NOTE(sambetts) Declare ARGs where they are used to prevent Docker rerunning
+# all the previous steps when they change, and use buildkit inline cache to
+# keep go mod cache and compilation cache between docker runs.
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \

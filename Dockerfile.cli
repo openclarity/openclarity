@@ -1,33 +1,29 @@
+# syntax=docker/dockerfile:1.2
 FROM golang:1.19.4-alpine AS builder
 
-ARG COMMIT_HASH
+RUN apk add --update --no-cache gcc g++ git ca-certificates build-base
 
-RUN apk add --update --no-cache ca-certificates git
-RUN apk add build-base
-
+# Copy API code
 WORKDIR /build
 COPY api ./api
-
-# Copy shared go.mod & go.sum
-WORKDIR /build/shared
-COPY shared/go.* ./
-RUN go mod download
-
-# Copy cli go.mod & go.sum
-WORKDIR /build/cli
-COPY cli/go.* ./
-RUN go mod download
 
 # Copy shared code
 WORKDIR /build/shared
 COPY shared .
 
-# Copy and build cli code
+# Copy CLI code
 WORKDIR /build/cli
 COPY cli .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w \
+
+# Build CLI code
+# NOTE(sambetts) Declare ARGs where they are used to prevent Docker rerunning
+# all the previous steps when they change, and use buildkit inline cache to
+# keep go mod cache and compilation cache between docker runs.
+ARG COMMIT_HASH
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
-RUN CGO_ENABLED=0 go build -ldflags "${LDFLAGS}"  ./...
 
 FROM alpine:3.17
 
