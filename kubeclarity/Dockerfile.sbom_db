@@ -1,21 +1,26 @@
+# syntax=docker/dockerfile:1.2
 FROM golang:1.19.4-alpine AS builder
 
-RUN apk add --update --no-cache gcc g++ git
+RUN apk add --update --no-cache gcc g++ git ca-certificates build-base
 
+# Copy sbom db api code
 WORKDIR /build/sbom_db
 COPY sbom_db/api ./api
 
+# Copy sbom db code
 WORKDIR /build/sbom_db/backend
-COPY sbom_db/backend/go.* ./
-RUN go mod download
+COPY sbom_db/backend .
 
+# Build sbom DB code
+# NOTE(sambetts) Declare ARGs where they are used to prevent Docker rerunning
+# all the previous steps when they change, and use buildkit inline cache to
+# keep go mod cache and compilation cache between docker runs.
 ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
-
-# Copy and build backend code
-COPY sbom_db/backend .
-RUN go build -ldflags="-s -w \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/sbom_db/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o sbom_db ./cmd/main.go

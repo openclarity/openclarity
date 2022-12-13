@@ -1,28 +1,38 @@
+# syntax=docker/dockerfile:1.2
 FROM golang:1.19.4-alpine AS builder
 
-ARG VERSION
-ARG BUILD_TIMESTAMP
-ARG COMMIT_HASH
-
-RUN apk add --update --no-cache gcc g++ git ca-certificates
-
-# Copy runtime scan api code
-WORKDIR /build/runtime_scan
-COPY runtime_scan/api ./api
+RUN apk add --update --no-cache gcc g++ git ca-certificates build-base
 
 # Copy shared code
 WORKDIR /build/shared
 COPY shared .
 
-# Copy cis docker benchmark scanner go.mod & go.sum
-WORKDIR /build/cis_docker_benchmark_scanner
-COPY cis_docker_benchmark_scanner/go.* ./
-RUN go mod download
+# Copy sbom db api code
+WORKDIR /build/sbom_db/api
+COPY sbom_db/api .
 
-# Copy and build cis docker benchmark scanner code
+# Copy runtime_k8s_scanner code
+WORKDIR /build/runtime_k8s_scanner
+COPY runtime_k8s_scanner .
+
+# Copy runtime scan api code
+WORKDIR /build/runtime_scan/api
+COPY runtime_scan/api .
+
+# Copy cis docker benchmark scanner code
 WORKDIR /build/cis_docker_benchmark_scanner
 COPY cis_docker_benchmark_scanner .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w \
+
+# Build cis docker benchmark scanner code
+# NOTE(sambetts) Declare ARGs where they are used to prevent Docker rerunning
+# all the previous steps when they change, and use buildkit inline cache to
+# keep go mod cache and compilation cache between docker runs.
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/cis_docker_benchmark_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
