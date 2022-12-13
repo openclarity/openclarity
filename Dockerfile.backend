@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.2
 FROM node:19-slim AS site-build
 
 WORKDIR /app/ui-build
@@ -6,54 +7,40 @@ COPY ui .
 RUN npm i
 RUN npm run build
 
-
 FROM golang:1.19.4-alpine AS builder
 
-ARG VERSION
-ARG BUILD_TIMESTAMP
-ARG COMMIT_HASH
+RUN apk add --update --no-cache gcc g++ git ca-certificates build-base
 
-RUN apk add --update --no-cache gcc g++ git
+# Copy API code
+WORKDIR /build/api
+COPY api .
 
-# Copy api code
-WORKDIR /build
-COPY api ./api
-
-# Copy runtime_scan go.mod & go.sum & api code
+# Copy runtime_scan code including runtime_scan/api code
 WORKDIR /build/runtime_scan
-COPY runtime_scan/go.* ./
-COPY runtime_scan/api ./api
-
-# Copy runtime_k8s_scanner go.mod & go.sum
-WORKDIR /build/runtime_k8s_scanner
-COPY runtime_k8s_scanner/go.* ./
-
-# Copy shared go.mod & go.sum
-WORKDIR /build/shared
-COPY shared/go.* ./
-RUN go mod download
-
-# Copy backend go.mod & go.sum
-WORKDIR /build/backend
-COPY backend/go.* ./
-RUN go mod download
-
-# Copy runtime_scan code
-WORKDIR /build
-COPY runtime_scan ./runtime_scan
+COPY runtime_scan .
 
 # Copy runtime_k8s_scanner code
-WORKDIR /build
-COPY runtime_k8s_scanner ./runtime_k8s_scanner
+WORKDIR /build/runtime_k8s_scanner
+COPY runtime_k8s_scanner .
 
 # Copy shared code
 WORKDIR /build/shared
 COPY shared .
 
-# Copy and build backend code
+# Copy backend code
 WORKDIR /build/backend
 COPY backend .
-RUN go build -ldflags="-s -w \
+
+# Build backend code
+# NOTE(sambetts) Declare ARGs where they are used to prevent Docker rerunning
+# all the previous steps when they change, and use buildkit inline cache to
+# keep go mod cache and compilation cache between docker runs.
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/kubeclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
