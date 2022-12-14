@@ -48,15 +48,20 @@ func (v Vulnerabilities) Run(res *results.Results) (_interface.IsResults, error)
 	mergedResults := sharedscanner.NewMergedResults()
 
 	if v.conf.InputFromSbom {
+		v.logger.Infof("Using input from SBOM results")
+
 		sbomResults, err := results.GetResult[*sbom.Results](res)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get sbom results: %v", err)
 		}
 
-		v.logger.Infof("Using input from SBOM results")
+		sbomBytes, err := sbomResults.EncodeToBytes("cyclonedx-json")
+		if err != nil {
+			return nil, fmt.Errorf("failed to encode sbom results to bytes: %w", err)
+		}
 
 		// TODO: need to avoid writing sbom to file
-		if err := os.WriteFile(sbomTempFilePath, sbomResults.SBOM, 0600 /* read & write */); err != nil { // nolint:gomnd,gofumpt
+		if err := os.WriteFile(sbomTempFilePath, sbomBytes, 0600 /* read & write */); err != nil { // nolint:gomnd,gofumpt
 			return nil, fmt.Errorf("failed to write sbom to file: %v", err)
 		}
 

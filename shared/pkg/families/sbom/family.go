@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	log "github.com/sirupsen/logrus"
 
 	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
@@ -41,8 +42,6 @@ func (s SBOM) Run(res *familiesresults.Results) (_interface.IsResults, error) {
 	if len(s.conf.Inputs) == 0 {
 		return nil, fmt.Errorf("inputs list is empty")
 	}
-
-	outputFormat := s.conf.AnalyzersConfig.Analyzer.OutputFormat
 
 	// TODO: move the logic from cli utils to shared utils
 	// TODO: now that we support multiple inputs,
@@ -64,31 +63,37 @@ func (s SBOM) Run(res *familiesresults.Results) (_interface.IsResults, error) {
 		// Merge results.
 		for name, result := range results {
 			s.logger.Infof("Merging result from %q", name)
-			mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results), outputFormat) // nolint:forcetypeassert
+			mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results)) // nolint:forcetypeassert
 		}
 	}
 
 	for i, with := range s.conf.MergeWith {
 		name := fmt.Sprintf("merge_with_%d", i)
-		cdxBOMBytes, err := cliutils.ConvertInputSBOMIfNeeded(with.SbomPath, outputFormat)
+		cdxBOMBytes, err := converter.GetCycloneDXSBOMFromFile(with.SbomPath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert merged with SBOM. path=%s: %v", with.SbomPath, err)
+			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %v", with.SbomPath, err)
 		}
 		results := sharedanalyzer.CreateResults(cdxBOMBytes, name, with.SbomPath, utils.SBOM)
 		s.logger.Infof("Merging result from %q", with.SbomPath)
-		mergedResults = mergedResults.Merge(results, outputFormat)
+		mergedResults = mergedResults.Merge(results)
 	}
 
-	mergedSBOMBytes, err := mergedResults.CreateMergedSBOMBytes(outputFormat, pkg.GitRevision)
+	// TODO(sambetts) Expose CreateMergedSBOM as well as
+	// CreateMergedSBOMBytes so that we don't need to re-convert it
+	mergedSBOMBytes, err := mergedResults.CreateMergedSBOMBytes("cyclonedx-json", pkg.GitRevision)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create merged output: %v", err)
+	}
+
+	cdxBom, err := converter.GetCycloneDXSBOMFromBytes(mergedSBOMBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load merged output to CDX bom: %w", err)
 	}
 
 	s.logger.Info("SBOM Done...")
 
 	return &Results{
-		Format: outputFormat,
-		SBOM:   mergedSBOMBytes,
+		SBOM:   cdxBom,
 	}, nil
 }
 
