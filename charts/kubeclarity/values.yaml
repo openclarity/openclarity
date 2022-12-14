@@ -62,6 +62,8 @@ kubeclarity:
     targetPort: 8080
 
   ingress:
+    # Be careful when using ingress. As there is no authentication on Kubeclarity yet, Your instance may be accessible. 
+    # Make sure the ingress remains internal if you decide to enable it.
     enabled: false
     labels: {}
     annotations: {}
