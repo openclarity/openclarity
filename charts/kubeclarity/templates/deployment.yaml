@@ -1,3 +1,15 @@
+{{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
+{{- $dbPort := index .Values "kubeclarity-postgresql" "auth" "port" | quote -}}
+{{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
+{{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
+{{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
+{{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
+  {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
+  {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
+  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
+  {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
+  {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
+{{ end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
