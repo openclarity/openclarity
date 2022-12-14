@@ -38,6 +38,9 @@ var (
 	config  *families.Config
 	logger  *logrus.Entry
 	output  string
+
+	server       string
+	scanResultId string
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -48,9 +51,29 @@ var rootCmd = &cobra.Command{
 	Version: pkg.GitRevision,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
-		res, err := families.New(logger, config).Run()
-		if err != nil {
-			return fmt.Errorf("failed to run families: %v", err)
+		if server != "" {
+			err := MarkScanResultInProgress()
+			if err != nil {
+				return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
+			}
+		}
+
+		res, famerr := families.New(logger, config).Run()
+
+		if server != "" {
+			errors := []error{famerr}
+
+			exportErrors := ExportResults(res)
+			errors = append(errors, exportErrors...)
+
+			err := MarkScanResultDone(errors)
+			if err != nil {
+				return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
+			}
+		}
+
+		if famerr != nil {
+			return fmt.Errorf("failed to run families: %v", famerr)
 		}
 
 		if config.SBOM.Enabled {
@@ -59,8 +82,14 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("failed to get sbom results: %v", err)
 			}
 
+			outputFormat := config.SBOM.AnalyzersConfig.Analyzer.OutputFormat
+			sbomBytes, err := sbomResults.EncodeToBytes(outputFormat)
+			if err != nil {
+				return fmt.Errorf("failed to encode sbom results to bytes: %w", err)
+			}
+
 			// TODO: Need to implement a better presenter
-			err = Output(sbomResults.SBOM, "sbom")
+			err = Output(sbomBytes, "sbom")
 			if err != nil {
 				return fmt.Errorf("failed to output sbom results: %v", err)
 			}
@@ -114,6 +143,13 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vmclarity.yaml)")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set file path output (default: stdout)")
+	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
+	rootCmd.PersistentFlags().StringVar(&scanResultId, "scan-result-id", "", "the ScanResult ID to export the scan results to")
+
+	// TODO(sambetts) we may have to change this to our own validation when
+	// we add the CI/CD scenario and there isn't an existing scan-result-id
+	// in the backend to PATCH
+	rootCmd.MarkFlagsRequiredTogether("server", "scan-result-id")
 }
 
 // initConfig reads in config file and ENV variables if set.

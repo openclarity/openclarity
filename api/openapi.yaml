@@ -212,7 +212,7 @@ paths:
               $ref: '#/components/schemas/TargetScanResult'
         required: true
       responses:
-        201:
+        200:
           description: Target scan results were patched for the target for a specific scan.
           content:
             application/json:

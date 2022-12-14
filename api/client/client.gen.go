@@ -1971,7 +1971,7 @@ func (r GetScanResultsScanResultIDResponse) StatusCode() int {
 type PatchScanResultsScanResultIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *TargetScanResult
+	JSON200      *TargetScanResult
 	JSON404      *ApiResponse
 	JSONDefault  *ApiResponse
 }
@@ -2924,12 +2924,12 @@ func ParsePatchScanResultsScanResultIDResponse(rsp *http.Response) (*PatchScanRe
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest TargetScanResult
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON201 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ApiResponse

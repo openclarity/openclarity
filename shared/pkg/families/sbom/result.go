@@ -15,11 +15,29 @@
 
 package sbom
 
+import (
+	"fmt"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
+)
+
 type Results struct {
-	// TODO: Do we want to keep it cdx or []byte & Format?
-	Format string
-	SBOM   []byte
-	//BOM cdx.BOM
+	SBOM   *cdx.BOM
 }
 
 func (*Results) IsResults() {}
+
+func (r *Results) EncodeToBytes(outputFormat string) ([]byte, error) {
+	f, err := converter.StringToSbomFormat(outputFormat)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse output format: %w", err)
+	}
+
+	bomBytes, err := converter.CycloneDxToBytes(r.SBOM, f)
+	if err != nil {
+		return nil, fmt.Errorf("unable to encode results to bytes: %w", err)
+	}
+	return bomBytes, nil
+}
