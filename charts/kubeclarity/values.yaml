@@ -55,6 +55,10 @@ kubeclarity:
 
   service:
     type: ClusterIP
+    # Port on which Kubeclarity server is listening
+    port: 8080
+    # Target port to which the service should be mapped to
+    targetPort: 8080
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
   # dbViewRefreshInterval: 5
