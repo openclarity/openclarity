@@ -1,16 +1,16 @@
 ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base@sha256:903d2c10351f811bdcb084f26f2b265f5c332de2891ab9f5fb7d60fed77e5ad7
 FROM golang:1.19.5-alpine AS builder
 
-ARG COMMIT_HASH
-
 RUN apk add --update --no-cache ca-certificates git
 RUN apk add build-base
 
+# Copy go.mod and go.sum
 WORKDIR /build
+COPY go.* .
 
-# Copy go.mod & go.sum
-COPY go.* ./
-RUN go mod download
+# Copy api code
+WORKDIR /build/api
+COPY api .
 
 # Copy shared code
 WORKDIR /build/shared
@@ -19,7 +19,12 @@ COPY shared .
 # Copy and build cli code
 WORKDIR /build/cli
 COPY cli .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w \
+
+ARG COMMIT_HASH
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 
 FROM ${VMCLARITY_TOOLS_BASE}

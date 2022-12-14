@@ -186,7 +186,7 @@ func (s *Scanner) patchTargetScanStatus(ctx context.Context, scanResultID string
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
-		if resp.JSON201 == nil {
+		if resp.JSON200 == nil {
 			return fmt.Errorf("failed to update a scan status: empty body")
 		}
 		return nil

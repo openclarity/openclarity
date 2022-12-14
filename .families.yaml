@@ -8,8 +8,8 @@ sbom:
       input_type: "image"
 #    - input: "nginx:1.10"
 #      input_type: "image"
-  merge_with:
-    - sbom_path: "nginx.11.cdx.json"
+#  merge_with:
+#    - sbom_path: "nginx.11.cdx.json"
   analyzers_config:
     analyzer:
       output_format: "cyclonedx-json"
@@ -30,8 +30,8 @@ vulnerabilities:
   scanners_list:
     - "grype"
   inputs:
-    - input: "nginx:1.12"
-      input_type: "image"
+#    - input: "nginx:1.12"
+#      input_type: "image"
 #    - input: "nginx:1.13"
 #      input_type: "image"
   input_from_sbom: true

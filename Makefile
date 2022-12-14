@@ -77,6 +77,7 @@ push-docker-backend: docker-backend ## Build and Push Backend Docker image
 test: ## Run Unit Tests
 	@(cd backend && go test ./...)
 	@(cd runtime_scan && go test ./...)
+	@(cd cli && go test ./...)
 
 .PHONY: clean-backend
 clean-backend:
