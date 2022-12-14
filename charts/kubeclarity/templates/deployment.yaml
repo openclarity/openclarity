@@ -122,17 +122,17 @@ spec:
               value: "{{ .Values.kubeclarity.dbViewRefreshInterval }}"
             {{- end }}
             - name: DB_NAME
-              value: {{ index .Values "kubeclarity-postgresql" "auth" "database" }}
+              value: {{ $dbName }}
             - name: DB_HOST
-              value: "{{ include "kubeclarity.name" . }}-postgresql"
+              value: {{ $dbHost }}
             - name: DB_PORT_NUMBER
-              value: "5432"
+              value: {{ $dbPort }}
             - name: DB_USER
-              value: "postgres"
+              value: {{ $dbUser }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ index .Values "kubeclarity-postgresql" "auth" "existingSecret" }}
+                  name: {{ $secretName }}
                   key: postgres-password
             # runtime-scan envs
             - name: SCANNER_JOB_RESULT_LISTEN_PORT
