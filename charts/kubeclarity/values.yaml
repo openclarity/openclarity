@@ -55,6 +55,7 @@ kubeclarity:
 
   service:
     type: ClusterIP
+    annotations: {}
     # Port on which Kubeclarity server is listening
     port: 8080
     # Target port to which the service should be mapped to
