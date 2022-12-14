@@ -63,3 +63,17 @@ Sets extra ingress annotations
     {{- end }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Sets extra Kubeclarity server Service annotations
+*/}}
+{{- define "kubeclarity.service.annotations" -}}
+  {{- if .Values.kubeclarity.service.annotations }}
+    {{- $tp := typeOf .Values.kubeclarity.service.annotations }}
+    {{- if eq $tp "string" }}
+      {{- tpl .Values.kubeclarity.service.annotations . | nindent 4 }}
+    {{- else }}
+      {{- toYaml .Values.kubeclarity.service.annotations | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
