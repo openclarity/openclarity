@@ -48,3 +48,18 @@ Helm labels.
     app.kubernetes.io/instance: {{ .Release.Name }}
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end -}}
+
+{{/*
+Sets extra ingress annotations
+*/}}
+{{- define "kubeclarity.ingress.annotations" -}}
+  {{- if .Values.kubeclarity.ingress.annotations }}
+  annotations:
+    {{- $tp := typeOf .Values.kubeclarity.ingress.annotations }}
+    {{- if eq $tp "string" }}
+      {{- tpl .Values.kubeclarity.ingress.annotations . | nindent 4 }}
+    {{- else }}
+      {{- toYaml .Values.kubeclarity.ingress.annotations | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
