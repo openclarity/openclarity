@@ -360,3 +360,19 @@ kubeclarity-postgresql:
 
 # End of KubeClarity Postgres Values
 #######################################################################################
+
+#######################################################################################
+## KubeClarity External Postgres Values
+
+# notes: self deployed postgresql and external-postgresql can't be used at the same time
+# use this if you wan't to use an external postgresql database as your backend 
+kubeclarity-postgresql-external:
+  enabled: false
+  auth:
+    existingSecret: kubeclarity-postgresql-secret
+    database: kubeclarity
+    user: kubeclarity
+    host: pgsql.hostname # replace this to reach your PostgreSQL instance
+    port: 5432
+# KubeClarity External Postgres Values
+#######################################################################################
