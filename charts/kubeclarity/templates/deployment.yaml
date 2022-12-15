@@ -40,7 +40,7 @@ spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
-          image: {{ index .Values "kubeclarity-postgresql" "internal" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "internal" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "internal" "image" "tag" | default "14.4.0-debian-11-r4" }}
+          image: {{ index .Values "kubeclarity-postgresql" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" | default "14.4.0-debian-11-r4" }}
           command: ['sh', '-c', 'until pg_isready -h {{ $dbHost }} -p {{ $dbPort }} -U {{ $dbUser }} -d "dbname={{ $dbName }}";
             do echo waiting for database; sleep 2; done;']
           securityContext:
