@@ -102,7 +102,7 @@ jobs:
           xargs sed -i -e s/latest/v1.0.0-${{ github.sha }}/g
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3.4
+        uses: azure/setup-helm@v3.5
         with:
           version: v3.8.1
 
