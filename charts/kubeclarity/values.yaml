@@ -193,7 +193,6 @@ kubeclarity-runtime-scan:
         enabled: false
         timeout: "300"
 
-
 ## End of KubeClarity Runtime Scan Values
 #######################################################################################
 
@@ -299,16 +298,17 @@ kubeclarity-sbom-db:
 ## KubeClarity Postgres Values
 
 kubeclarity-postgresql:
-  enabled: true
+  internal:
+    enabled: true
 
-  ## Specify posgtresql image
-  # image:
+    ## Specify posgtresql image
+    # image:
     # registry: docker.io
     # repository: bitnami/postgresql
     # tag: 14.4.0-debian-11-r4
 
-  ## initdb parameters
-  # initdb:
+    ## initdb parameters
+    # initdb:
     ##  ConfigMap with scripts to be run at first boot
     ##  NOTE: This will override initdb.scripts
     # scriptsConfigMap
@@ -358,25 +358,18 @@ kubeclarity-postgresql:
         memory: "1000Mi"
         cpu: "1000m"
 
+  # if you want to use an already deployed postgresql database, use the external key
+  external:
+    enabled: false
+    auth:
+      # use existingSecret key if you want to use an already existing secret
+      # existingSecret: existing-kubernetes-secret-name
+      # secretKey: the-key-of-pgsql-password
+      # if password key is set it will be used to connect to postgresql database
+      # password: xxx
+      database: kubeclarity
+      user: kubeclarity
+      host: pgsql.hostname # replace this to reach your PostgreSQL instance
+      port: 5432
 # End of KubeClarity Postgres Values
-#######################################################################################
-
-#######################################################################################
-## KubeClarity External Postgres Values
-
-# notes: self deployed postgresql and external-postgresql can't be used at the same time
-# use this if you wan't to use an external postgresql database as your backend 
-kubeclarity-postgresql-external:
-  enabled: false
-  auth:
-    # use existingSecret key if you want to use an already existing secret
-    # existingSecret: existing-kubernetes-secret-name
-    # secretKey: the-key-of-pgsql-password
-    # if password key is set it will be used to connect to postgresql database
-    # password: xxx
-    database: kubeclarity
-    user: kubeclarity
-    host: pgsql.hostname # replace this to reach your PostgreSQL instance
-    port: 5432
-# KubeClarity External Postgres Values
 #######################################################################################

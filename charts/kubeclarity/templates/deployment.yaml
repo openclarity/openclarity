@@ -1,6 +1,6 @@
 {{- if index .Values "kubeclarity-postgresql" "internal" "enabled" }}
-{{- if index .Values "kubeclarity-postgresql-external" "enabled" }}
-{{- fail "kubeclarity-postgresql and kubeclarity-postgresql-external can not both be enabled!" }}
+{{- if index .Values "kubeclarity-postgresql" "external" "enabled" }}
+{{- fail "kubeclarity-postgresql.internal and kubeclarity-postgresql.external can not both be enabled!" }}
 {{- end }}
 {{- end }}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
@@ -9,12 +9,12 @@
 {{- $dbName := index .Values "kubeclarity-postgresql" "internal" "auth" "database" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "internal" "auth" "existingSecret" -}}
 {{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
-{{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
-  {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
-  {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
-  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
-  {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
-  {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
+{{ if index .Values "kubeclarity-postgresql" "external" "enabled" }}
+  {{- $dbHost = index .Values "kubeclarity-postgresql" "external" "auth" "host" -}}
+  {{- $dbPort = index .Values "kubeclarity-postgresql" "external" "auth" "port" | quote -}}
+  {{- $dbUser = index .Values "kubeclarity-postgresql" "external" "auth" "user" -}}
+  {{- $dbName = index .Values "kubeclarity-postgresql" "external" "auth" "database" -}}
+  {{- $secretName = index .Values "kubeclarity-postgresql" "external" "auth" "existingSecret" -}}
   {{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
 {{ end }}
 apiVersion: apps/v1
@@ -136,9 +136,9 @@ spec:
               value: {{ $dbPort }}
             - name: DB_USER
               value: {{ $dbUser }}
-            {{- if index .Values "kubeclarity-postgresql-external" "auth" "password" }}
+            {{- if index .Values "kubeclarity-postgresql" "external" "auth" "password" }}
             - name: DB_PASS
-              value: {{ index .Values "kubeclarity-postgresql-external" "auth" "password" }}
+              value: {{ index .Values "kubeclarity-postgresql" "external" "auth" "password" }}
             {{- else }}
             - name: DB_PASS
               valueFrom:
