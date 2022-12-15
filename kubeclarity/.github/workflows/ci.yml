@@ -106,7 +106,7 @@ jobs:
         with:
           version: v3.8.1
 
-      - uses: actions/setup-python@v4.3.0
+      - uses: actions/setup-python@v4.3.1
         with:
           python-version: 3.7
 
