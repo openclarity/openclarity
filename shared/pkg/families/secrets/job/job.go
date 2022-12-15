@@ -13,20 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package secrets
+package job
 
 import (
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks"
 )
 
-type Config struct {
-	Enabled        bool                   `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList   []string               `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs         []Inputs               `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig *common.ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
-}
+var Factory = job_manager.NewJobFactory()
 
-type Inputs struct {
-	Input     string `yaml:"input" mapstructure:"input"`
-	InputType string `yaml:"input_type" mapstructure:"input_type"`
+func init() {
+	Factory.Register(gitleaks.ScannerName, gitleaks.New)
 }

@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
@@ -75,6 +76,19 @@ var rootCmd = &cobra.Command{
 			err = Output(bytes, "vulnerabilities")
 			if err != nil {
 				return fmt.Errorf("failed to output vulnerabilities results: %v", err)
+			}
+		}
+
+		if config.Secrets.Enabled {
+			secretsResults, err := results.GetResult[*secrets.Results](res)
+			if err != nil {
+				return fmt.Errorf("failed to get secrets results: %v", err)
+			}
+
+			bytes, _ := json.Marshal(secretsResults)
+			err = Output(bytes, "secrets")
+			if err != nil {
+				return fmt.Errorf("failed to output secrets results: %v", err)
 			}
 		}
 

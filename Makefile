@@ -128,6 +128,7 @@ check: lint test ## Run tests and linters
 gomod-tidy:
 	cd backend && go mod tidy
 	cd runtime_scan && go mod tidy
+	cd shared && go mod tidy
 
 .PHONY: api
 api: ## Generating API code
