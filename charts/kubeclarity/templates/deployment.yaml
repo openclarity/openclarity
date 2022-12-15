@@ -8,12 +8,14 @@
 {{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
 {{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
+{{- $secretKey := index .Values "kubeclarity-postgresql" "auth" "secretKey" -}}
 {{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
   {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
   {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
   {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
+  {{- $secretKey := index .Values "kubeclarity-postgresql" "auth" "secretKey" -}}
 {{ end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -138,7 +140,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: postgres-password
+                  key: {{ $secretKey | default "postgres-password" }}
             # runtime-scan envs
             - name: SCANNER_JOB_RESULT_LISTEN_PORT
               value: "{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}"
