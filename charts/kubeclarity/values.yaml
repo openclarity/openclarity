@@ -301,23 +301,24 @@ kubeclarity-postgresql:
   internal:
     enabled: true
 
+
     ## Specify posgtresql image
     # image:
-    # registry: docker.io
-    # repository: bitnami/postgresql
-    # tag: 14.4.0-debian-11-r4
+      # registry: docker.io
+      # repository: bitnami/postgresql
+      # tag: 14.4.0-debian-11-r4
 
     ## initdb parameters
     # initdb:
-    ##  ConfigMap with scripts to be run at first boot
-    ##  NOTE: This will override initdb.scripts
-    # scriptsConfigMap
-    ##  Secret with scripts to be run at first boot (in case it contains sensitive information)
-    ##  NOTE: This can work along initdbScripts or initdbScriptsConfigMap
-    # scriptsSecret:
-    ## Specify the PostgreSQL username and password to execute the initdb scripts
-    # user:
-    # password:
+      ##  ConfigMap with scripts to be run at first boot
+      ##  NOTE: This will override initdb.scripts
+      # scriptsConfigMap
+      ##  Secret with scripts to be run at first boot (in case it contains sensitive information)
+      ##  NOTE: This can work along initdbScripts or initdbScriptsConfigMap
+      # scriptsSecret:
+      ## Specify the PostgreSQL username and password to execute the initdb scripts
+      # user:
+      # password:
 
     ## Setup database name and password
     auth:
