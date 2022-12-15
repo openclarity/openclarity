@@ -347,7 +347,8 @@ kubeclarity-postgresql:
       # use existingSecret key if you want to use an already existing secret
       # existingSecret: existing-kubernetes-secret-name
       # secretKey: the-key-of-pgsql-password
-      # if password key is set it will be used to connect to postgresql database
+      # if password is set it will be used to connect to postgresql database
+      # a kubernetes secret called kubeclarity-postgresql-secret will be created
       # password: xxx
       database: kubeclarity
       user: kubeclarity
