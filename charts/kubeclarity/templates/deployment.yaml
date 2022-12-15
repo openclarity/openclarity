@@ -1,21 +1,21 @@
-{{- if index .Values "kubeclarity-postgresql" "enabled" }}
+{{- if index .Values "kubeclarity-postgresql" "internal" "enabled" }}
 {{- if index .Values "kubeclarity-postgresql-external" "enabled" }}
 {{- fail "kubeclarity-postgresql and kubeclarity-postgresql-external can not both be enabled!" }}
 {{- end }}
 {{- end }}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
-{{- $dbPort := index .Values "kubeclarity-postgresql" "auth" "port" | quote -}}
-{{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
-{{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
-{{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
-{{- $secretKey := index .Values "kubeclarity-postgresql" "auth" "secretKey" -}}
+{{- $dbPort := index .Values "kubeclarity-postgresql" "internal" "auth" "port" | quote -}}
+{{- $dbUser := index .Values "kubeclarity-postgresql" "internal" "auth" "user" -}}
+{{- $dbName := index .Values "kubeclarity-postgresql" "internal" "auth" "database" -}}
+{{- $secretName := index .Values "kubeclarity-postgresql" "internal" "auth" "existingSecret" -}}
+{{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
 {{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
   {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
   {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
   {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
-  {{- $secretKey := index .Values "kubeclarity-postgresql" "auth" "secretKey" -}}
+  {{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
 {{ end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -40,7 +40,7 @@ spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
-          image: {{ index .Values "kubeclarity-postgresql" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" | default "14.4.0-debian-11-r4" }}
+          image: {{ index .Values "kubeclarity-postgresql" "internal" "image" "registry" | default "docker.io" }}/{{ index .Values "kubeclarity-postgresql" "internal" "image" "repository" | default "bitnami/postgresql" }}:{{ index .Values "kubeclarity-postgresql" "internal" "image" "tag" | default "14.4.0-debian-11-r4" }}
           command: ['sh', '-c', 'until pg_isready -h {{ $dbHost }} -p {{ $dbPort }} -U {{ $dbUser }} -d "dbname={{ $dbName }}";
             do echo waiting for database; sleep 2; done;']
           securityContext:
