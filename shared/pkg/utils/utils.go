@@ -13,20 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package secrets
+package utils
 
 import (
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	"bytes"
+	"fmt"
+	"os/exec"
 )
 
-type Config struct {
-	Enabled        bool                   `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList   []string               `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs         []Inputs               `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig *common.ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
-}
-
-type Inputs struct {
-	Input     string `yaml:"input" mapstructure:"input"`
-	InputType string `yaml:"input_type" mapstructure:"input_type"`
+func RunCommand(cmd *exec.Cmd) ([]byte, error) {
+	var outb, errb bytes.Buffer
+	cmd.Stdout = &outb
+	cmd.Stderr = &errb
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("failed to run command %v, error: %w, stdout: %v, stderr: %v", cmd.String(), err, outb.String(), errb.String())
+	}
+	return outb.Bytes(), nil
 }

@@ -27,7 +27,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
 )
 
 type SBOM struct {
@@ -35,7 +35,7 @@ type SBOM struct {
 	conf   Config
 }
 
-func (s SBOM) Run(res *results.Results) (_interface.IsResults, error) {
+func (s SBOM) Run(res *familiesresults.Results) (_interface.IsResults, error) {
 	s.logger.Info("SBOM Run...")
 
 	if len(s.conf.Inputs) == 0 {

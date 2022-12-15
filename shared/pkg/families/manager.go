@@ -75,8 +75,8 @@ func New(logger *log.Entry, config *Config) *Manager {
 func (m *Manager) Run() (*results.Results, error) {
 	familiesResults := results.New()
 
-	for _, analyzer := range m.families {
-		ret, err := analyzer.Run(familiesResults)
+	for _, family := range m.families {
+		ret, err := family.Run(familiesResults)
 		if err != nil {
 			return nil, err
 		}

@@ -16,10 +16,16 @@
 package secrets
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	familiesinterface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/job"
 )
 
 type Secrets struct {
@@ -27,15 +33,33 @@ type Secrets struct {
 	logger *log.Entry
 }
 
-func (s Secrets) Run(res *results.Results) (_interface.IsResults, error) {
-	//TODO implement me
+func (s Secrets) Run(res *familiesresults.Results) (familiesinterface.IsResults, error) {
 	s.logger.Info("Secrets Run...")
+
+	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, s.logger, job.Factory)
+	mergedResults := NewMergedResults()
+
+	for _, input := range s.conf.Inputs {
+		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan input %q for secrets: %v", input.Input, err)
+		}
+
+		// Merge results.
+		for name, result := range results {
+			s.logger.Infof("Merging result from %q", name)
+			mergedResults = mergedResults.Merge(result.(*common.Results)) // nolint:forcetypeassert
+		}
+	}
+
 	s.logger.Info("Secrets Done...")
-	return &Results{}, nil
+	return &Results{
+		MergedResults: mergedResults,
+	}, nil
 }
 
 // ensure types implement the requisite interfaces
-var _ _interface.Family = &Secrets{}
+var _ familiesinterface.Family = &Secrets{}
 
 func New(logger *log.Entry, conf Config) *Secrets {
 	return &Secrets{
