@@ -13,20 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package secrets
-
-import (
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
-)
+package config
 
 type Config struct {
-	Enabled        bool                   `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList   []string               `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs         []Inputs               `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig *common.ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
-}
-
-type Inputs struct {
-	Input     string `yaml:"input" mapstructure:"input"`
-	InputType string `yaml:"input_type" mapstructure:"input_type"`
+	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
 }

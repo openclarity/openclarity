@@ -1,5 +1,5 @@
 sbom:
-  enabled: true
+  enabled: false
   analyzers_list:
     - "syft"
     - "gomod"
@@ -26,7 +26,7 @@ sbom:
         token: "token"
 
 vulnerabilities:
-  enabled: true
+  enabled: false
   scanners_list:
     - "grype"
   inputs:
@@ -61,11 +61,8 @@ secrets:
   scanners_list:
     - "gitleaks"
   inputs:
-    - input: "/dir"
+    - input: "./"
       input_type: "dir"
-    - input: "/rootfs"
-      input_type: "rootfs"
-  gitleaks_config:
-    foo: "bar"
-
-
+  scanners_config:
+    gitleaks:
+      binary_path: "/usr/local/bin/gitleaks"
