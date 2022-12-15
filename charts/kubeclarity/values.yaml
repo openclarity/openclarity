@@ -369,7 +369,11 @@ kubeclarity-postgresql:
 kubeclarity-postgresql-external:
   enabled: false
   auth:
-    existingSecret: kubeclarity-postgresql-secret
+    # use existingSecret key if you want to use an already existing secret
+    # existingSecret: existing-kubernetes-secret-name
+    # secretKey: the-key-of-pgsql-password
+    # if password key is set it will be used to connect to postgresql database
+    # password: xxx
     database: kubeclarity
     user: kubeclarity
     host: pgsql.hostname # replace this to reach your PostgreSQL instance
