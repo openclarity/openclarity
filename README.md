@@ -148,9 +148,9 @@ KubeClarity vulnerability scanner integrates with the following scanners:
 
    ```shell
    helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity --set global.openShiftRestricted=true \
-     --set kubeclarity-postgresql.securityContext.enabled=false --set kubeclarity-postgresql.containerSecurityContext.enabled=false \
-     --set kubeclarity-postgresql.volumePermissions.enabled=true --set kubeclarity-postgresql.volumePermissions.securityContext.runAsUser="auto" \
-     --set kubeclarity-postgresql.shmVolume.chmod.enabled=false
+     --set kubeclarity-postgresql.internal.securityContext.enabled=false --set kubeclarity-postgresql.internal.containerSecurityContext.enabled=false \
+     --set kubeclarity-postgresql.internal.volumePermissions.enabled=true --set kubeclarity-postgresql.internal.volumePermissions.securityContext.runAsUser="auto" \
+     --set kubeclarity-postgresql.internal.shmVolume.chmod.enabled=false
    ```
 
 3. Port forward to KubeClarity UI:
