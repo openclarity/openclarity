@@ -1,3 +1,8 @@
+{{- if index .Values "kubeclarity-postgresql" "enabled" }}
+{{- if index .Values "kubeclarity-postgresql-external" "enabled" }}
+{{- fail "kubeclarity-postgresql and kubeclarity-postgresql-external can not both be enabled!" }}
+{{- end }}
+{{- end }}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
 {{- $dbPort := index .Values "kubeclarity-postgresql" "auth" "port" | quote -}}
 {{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
