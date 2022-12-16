@@ -36,6 +36,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Cache Docker layers
@@ -45,6 +46,21 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.ref }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+
+      - name: Cache buildkit caches
+        uses: actions/cache@v3
+        with:
+          path: /tmp/buildkit-cache/buildkit-state.tar
+          key: ${{ runner.os }}-buildkit-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-buildkit
+
+      - name: Load buildkit state from cache
+        uses: dashevo/gh-action-cache-buildkit-state@v1
+        with:
+          builder: buildx_buildkit_${{ steps.buildx.outputs.name }}0
+          cache-path: /tmp/buildkit-cache
+          cache-max-size: 2g
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
