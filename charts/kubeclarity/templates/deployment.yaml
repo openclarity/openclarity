@@ -136,16 +136,11 @@ spec:
               value: {{ $dbPort }}
             - name: DB_USER
               value: {{ $dbUser }}
-            {{- if index .Values "kubeclarity-postgresql" "external" "auth" "password" }}
-            - name: DB_PASS
-              value: {{ index .Values "kubeclarity-postgresql" "external" "auth" "password" }}
-            {{- else }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: {{ $secretKey | default "postgres-password" }}
-            {{- end }}
             # runtime-scan envs
             - name: SCANNER_JOB_RESULT_LISTEN_PORT
               value: "{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}"
