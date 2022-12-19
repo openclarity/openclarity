@@ -15,7 +15,7 @@
   {{- $dbUser = index .Values "kubeclarity-postgresql" "external" "auth" "user" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql" "external" "auth" "database" -}}
   {{- $secretName = index .Values "kubeclarity-postgresql" "external" "auth" "existingSecret" -}}
-  {{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
+  {{- $secretKey := index .Values "kubeclarity-postgresql" "external" "auth" "secretKey" -}}
 {{ end }}
 apiVersion: apps/v1
 kind: Deployment
