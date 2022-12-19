@@ -351,6 +351,7 @@ kubeclarity-postgresql:
   # if you want to use an already deployed postgresql database, use the external key
   external:
     enabled: false
+
     auth:
       # If createPasswordSecret true, then should match createPasswordSecretName, 
       # otherwise set it to your own secret
