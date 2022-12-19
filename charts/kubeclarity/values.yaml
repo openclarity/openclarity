@@ -374,10 +374,10 @@ kubeclarity-postgresql:
     # password:
 
   ## Specify posgtresql image used to check if postgresql DB is ready
-  # image:
-    # registry: docker.io
-    # repository: bitnami/postgresql
-    # tag: 14.4.0-debian-11-r4
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 14.4.0-debian-11-r4
 
 # End of KubeClarity Postgres Values
 #######################################################################################
