@@ -298,11 +298,19 @@ kubeclarity-sbom-db:
 ## KubeClarity Postgres Values
 
 kubeclarity-postgresql:
+  # Set createPasswordSecret to true if you want to create a secret 
+  # holding pgsql password based on global.databasePassword value
+  createPasswordSecret: false
+  createPasswordSecretName: kubeclarity-postgresql-secret
+  createPasswordSecretKey: "postgres-password"
+
   internal:
     enabled: true
 
     ## Setup database name and password
     auth:
+      # If createPasswordSecret true, then should match createPasswordSecretName, 
+      # otherwise set it to your own secret
       existingSecret: kubeclarity-postgresql-secret
       database: kubeclarity
       user: postgres
@@ -344,12 +352,9 @@ kubeclarity-postgresql:
   external:
     enabled: false
     auth:
-      # use existingSecret key if you want to use an already existing secret
-      # existingSecret: existing-kubernetes-secret-name
-      # secretKey: the-key-of-pgsql-password
-      # if password is set it will be used to connect to postgresql database
-      # a kubernetes secret called kubeclarity-postgresql-secret will be created
-      # password: xxx
+      # If createPasswordSecret true, then should match createPasswordSecretName, 
+      # otherwise set it to your own secret
+      existingSecret: kubeclarity-postgresql-secret
       database: kubeclarity
       user: kubeclarity
       host: pgsql.hostname # replace this to reach your PostgreSQL instance
