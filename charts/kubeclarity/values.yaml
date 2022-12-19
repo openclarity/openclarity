@@ -300,7 +300,7 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   # Set createPasswordSecret to true if you want to create a secret 
   # holding pgsql password based on global.databasePassword value
-  createPasswordSecret: false
+  createPasswordSecret: true
   createPasswordSecretName: kubeclarity-postgresql-secret
   createPasswordSecretKey: "postgres-password"
 
