@@ -12,9 +12,9 @@ spec:
   type: {{ .Values.kubeclarity.service.type }}
   ports:
     - name: backend
-      port: {{ index .Values "kubeclarity" "service" "port" }}
+      port: 8080
       protocol: TCP
-      targetPort: {{ index .Values "kubeclarity" "service" "targetPort" }}
+      targetPort: 8080
     - name: runtime-scan-results
       port: {{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}
       protocol: TCP

@@ -56,10 +56,6 @@ kubeclarity:
   service:
     type: ClusterIP
     annotations: {}
-    # Port on which Kubeclarity server is listening
-    port: 8080
-    # Target port to which the service should be mapped to
-    targetPort: 8080
 
   ingress:
     # Be careful when using ingress. As there is no authentication on Kubeclarity yet, Your instance may be accessible. 
