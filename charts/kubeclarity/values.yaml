@@ -68,15 +68,14 @@ kubeclarity:
     # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
     ingressClassName: ""
 
-    # As of Kubernetes 1.19, all Ingress Paths must have a pathType configured. The default value below should be sufficient in most cases.
-    # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types for other possible values.
-    pathType: Prefix
-
     hosts:
         # hostname you want to use
       - host: chart-example.local
         # path will default to /
         paths: []
+        #  - pathType: Prefix
+        #    path: ["/foo"]
+
     tls: []
     #  - secretName: chart-example-tls
     #    hosts:
