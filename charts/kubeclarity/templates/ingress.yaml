@@ -1,6 +1,5 @@
 {{- if .Values.kubeclarity.ingress.enabled -}}
 {{- $kubeVersion := .Capabilities.KubeVersion.Version }}
-{{- $pathType := .Values.kubeclarity.ingress.pathType -}}
 {{- $serviceName := include "kubeclarity.name" . -}}
 {{- $servicePort := 8080 -}}
 {{ if semverCompare ">= 1.19.0-0" $kubeVersion }}
@@ -36,10 +35,10 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-        {{- range (.paths | default (list "/")) }}
-          - path: {{ . -}}
+        {{- range (.paths | default (list (dict "pathType" "Prefix" "path" "/"))) }}
+          - path: {{ .path -}}
             {{- if semverCompare ">= 1.19.0-0" $kubeVersion }}
-            pathType: {{ $pathType }}
+            pathType: {{ .pathType }}
             {{- end }}
             backend:
               {{- if semverCompare ">= 1.19.0-0" $kubeVersion }}
