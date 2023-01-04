@@ -47,6 +47,19 @@ func (s *Server) PutRuntimeScanStart(params operations.PutRuntimeScanStartParams
 		return operations.NewPutRuntimeScanStartDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
+
+	// Return a 409 conflict if the user trys to start a scan when there is
+	// already one running, this will prevent us returning a 500 error
+	// because the scanChan will not be ready to accept a new
+	// configuration.
+	status, _ := s.getScanStatusAndScanned()
+	if status == models.RuntimeScanStatusINPROGRESS {
+		return operations.NewPutRuntimeScanStartDefault(http.StatusConflict).
+			WithPayload(&models.APIResponse{
+				Message: "Scan already running, stop existing scan before starting a new one.",
+			})
+	}
+
 	select {
 	case s.scanChan <- scanConfig:
 	default:
@@ -59,9 +72,7 @@ func (s *Server) PutRuntimeScanStart(params operations.PutRuntimeScanStartParams
 }
 
 func (s *Server) PutRuntimeScanStop(_ operations.PutRuntimeScanStopParams) middleware.Responder {
-	// stop scanner
-	s.runtimeScanner.Clear()
-	// stop listening for scanner results
+	// stop any currently running scan
 	s.runtimeScanner.StopCurrentScan()
 
 	return operations.NewPutRuntimeScanStopCreated()
@@ -395,7 +406,7 @@ func (s *Server) getScanStatusAndScanned() (models.RuntimeScanStatus, int64) {
 	switch scanProgress.Status {
 	case _types.Idle:
 		status = models.RuntimeScanStatusNOTSTARTED
-	case _types.NothingToScan, _types.ScanInitFailure:
+	case _types.NothingToScan, _types.ScanInitFailure, _types.ScanAborted:
 		status = models.RuntimeScanStatusDONE
 	case _types.ScanInit, _types.Scanning:
 		status = models.RuntimeScanStatusINPROGRESS

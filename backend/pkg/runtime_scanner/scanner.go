@@ -37,7 +37,6 @@ type Scanner interface {
 	GetLastScanEndTime() time.Time
 	Start(stopChan chan struct{})
 	StopCurrentScan()
-	Clear()
 }
 
 type RuntimeScanner struct {
@@ -46,9 +45,10 @@ type RuntimeScanner struct {
 	lastScanConfig    *ScanConfig
 	lastScanStartTime time.Time
 	lastScanEndTime   time.Time
-	// List of latest scanned namespaces.
-	scannedNamespaces   []string
+	// Channel for cancelling the currently running scan
 	stopCurrentScanChan chan struct{}
+	// List of latest scanned namespaces.
+	scannedNamespaces []string
 	// Scan results will be sent through this channel.
 	resultsChan chan *types.ScanResults
 	// New scan requests are coming through this channel.
@@ -69,7 +69,6 @@ type ScanConfig struct {
 func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults) Scanner {
 	return &RuntimeScanner{
 		vulnerabilitiesScanner: scanner,
-		stopCurrentScanChan:    make(chan struct{}),
 		scanChan:               scanChan,
 		lock:                   sync.RWMutex{},
 		resultsChan:            resultsChan,
@@ -98,8 +97,14 @@ func (s *RuntimeScanner) GetScannedNamespaces() []string {
 	return s.scannedNamespaces
 }
 
-func (s *RuntimeScanner) Clear() {
-	s.vulnerabilitiesScanner.Clear()
+// Abort and clean up any running scan.
+func (s *RuntimeScanner) StopCurrentScan() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	if s.stopCurrentScanChan != nil {
+		close(s.stopCurrentScanChan)
+		s.stopCurrentScanChan = nil
+	}
 }
 
 func (s *RuntimeScanner) Start(stopChan chan struct{}) {
@@ -134,62 +139,73 @@ func (s *RuntimeScanner) setScanConfig(scanConfig *ScanConfig) {
 	s.lastScanConfig = scanConfig
 }
 
+func (s *RuntimeScanner) newStopScanChannel() (chan struct{}, error) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	if s.stopCurrentScanChan != nil {
+		return nil, fmt.Errorf("found existing cancel channel which may mean a scan is already running, call StopCurrentScan() before calling startScan again to ensure any existing scan is aborted and the cancel channel is cleaned up")
+	}
+	s.stopCurrentScanChan = make(chan struct{})
+	return s.stopCurrentScanChan, nil
+}
+
 // Note: this is blocking until scan is done, or stop signal received.
 func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 	startTime := time.Now().UTC()
+
+	// Setup and save the cancel channel for this scan
+	stop, err := s.newStopScanChannel()
+	if err != nil {
+		return err
+	}
+	// Defer closing and clearing up the stopCurrentScanChan
+	defer s.StopCurrentScan()
+
 	s.lock.Lock()
 	s.lastScanStartTime = startTime
-	stop := s.stopCurrentScanChan
 	s.scannedNamespaces = scanConfig.Namespaces
 	s.lock.Unlock()
 
 	namespaces := scanConfig.Namespaces
 
-	s.vulnerabilitiesScanner.Clear()
-
 	// Save on state the config in the current runtime scan.
 	s.setScanConfig(scanConfig)
-
-	// need to create scan done channel for every new scan
-	done := make(chan struct{})
 
 	if len(namespaces) == 0 {
 		// Empty namespaces list should scan all namespaces.
 		namespaces = []string{corev1.NamespaceAll}
 	}
 
-	err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
+	done, err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
 		MaxScanParallelism:           10, // nolint:gomnd
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
 		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
 		DeleteJobPolicy:              runtime_scan_config.DeleteJobPolicySuccessful,
 		ShouldScanCISDockerBenchmark: scanConfig.CisDockerBenchmarkScanEnabled,
-	}, done)
+	})
 	if err != nil {
 		return fmt.Errorf("failed to start scan: %v", err)
 	}
 
+	// Wait for scan to be complete or for the scan to be cancelled.
 	select {
 	case <-done:
-		s.lastScanEndTime = time.Now().UTC()
-		results := s.vulnerabilitiesScanner.Results()
-		select {
-		case s.resultsChan <- results:
-		default:
-			log.Error("Failed to send results to channel")
-		}
 	case <-stop:
-		log.Infof("Received a stop signal, not waiting for results")
+		// Abort and reset the vulnerability scanner
+		s.vulnerabilitiesScanner.Clear()
+		<-done // Wait for abort to complete
+	}
+
+	// Get the results (whether complete or aborted) and return them to the
+	// results handler via the resultsChan.
+	s.lastScanEndTime = time.Now().UTC()
+	results := s.vulnerabilitiesScanner.Results()
+	select {
+	case s.resultsChan <- results:
+	default:
+		log.Error("Failed to send results to channel")
 	}
 
 	return nil
-}
-
-func (s *RuntimeScanner) StopCurrentScan() {
-	s.lock.Lock()
-	close(s.stopCurrentScanChan)
-	s.stopCurrentScanChan = make(chan struct{})
-	s.scannedNamespaces = []string{}
-	s.lock.Unlock()
 }
