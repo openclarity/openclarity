@@ -30,6 +30,7 @@ const (
 	NothingToScan   Status = "NothingToScan"
 	Scanning        Status = "Scanning"
 	DoneScanning    Status = "DoneScanning"
+	ScanAborted     Status = "Aborted"
 )
 
 type ScanProgress struct {

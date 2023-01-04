@@ -45,14 +45,20 @@ func Create() *Orchestrator {
 func (o *Orchestrator) Start(_ chan struct{}) {
 }
 
-func (o *Orchestrator) Scan(_ *_config.ScanConfig, scanDone chan struct{}) error {
-	go func() {
-		// save locally since Clear will override values on state
-		o.Lock()
-		scanProgress := o.scanProgress
-		ks := o.killSwitch
-		o.Unlock()
+func (o *Orchestrator) Scan(_ *_config.ScanConfig) (chan struct{}, error) {
+	ks := make(chan struct{})
+	scanProgress := &types.ScanProgress{}
+	o.Lock()
+	if o.killSwitch != nil {
+		return nil, fmt.Errorf("found existing killSwitch which most likely means there is an existing scan, call Clear to abort this scan before calling Scan again")
+	}
+	o.scanProgress = scanProgress
+	o.killSwitch = ks
+	o.Unlock()
 
+	// Create channel for caller to use to track doneness
+	done := make(chan struct{})
+	go func() {
 		log.Infof("Start scanning %v images", imagesToScan)
 
 		scanProgress.ImagesToScan = imagesToScan
@@ -65,19 +71,19 @@ func (o *Orchestrator) Scan(_ *_config.ScanConfig, scanDone chan struct{}) error
 			log.Infof("Started image #%v", scanProgress.ImagesStartedToScan)
 			select {
 			case <-ks:
+				close(done)
 				return
 			case <-ticker.C:
 				scanProgress.ImagesCompletedToScan++
 				log.Infof("Completed image #%v", scanProgress.ImagesCompletedToScan)
 				if scanProgress.ImagesCompletedToScan == scanProgress.ImagesToScan {
-					log.Infof("Scan completed")
-					scanDone <- struct{}{}
+					close(done)
 					return
 				}
 			}
 		}
 	}()
-	return nil
+	return done, nil
 }
 
 func (o *Orchestrator) ScanProgress() types.ScanProgress {
@@ -101,9 +107,10 @@ func (o *Orchestrator) Clear() {
 	o.Lock()
 	defer o.Unlock()
 
-	close(o.killSwitch)
-	o.scanProgress = &types.ScanProgress{}
-	o.killSwitch = make(chan struct{})
+	if o.killSwitch != nil {
+		close(o.killSwitch)
+		o.killSwitch = nil
+	}
 }
 
 func (o *Orchestrator) Stop() {

@@ -258,7 +258,7 @@ func (s *Scanner) initScan() error {
 	return nil
 }
 
-func (s *Scanner) Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error {
+func (s *Scanner) Scan(scanConfig *_config.ScanConfig) (chan struct{}, error) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -267,26 +267,27 @@ func (s *Scanner) Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) e
 	s.progress.Status = _types.ScanInit
 	if err := s.initScan(); err != nil {
 		s.progress.SetStatus(_types.ScanInitFailure)
-		return fmt.Errorf("failed to initiate scan: %v", err)
+		return nil, fmt.Errorf("failed to initiate scan: %v", err)
 	}
 
+	// Create channel for caller to use to track doneness
+	done := make(chan struct{})
 	if s.progress.ImagesToScan == 0 {
 		log.WithFields(s.logFields).Info("Nothing to scan")
 		s.progress.SetStatus(_types.NothingToScan)
-		nonBlockingNotification(scanDone)
-		return nil
+		// Close done channel to indicate that the scan is no longer running
+		close(done)
+		return done, nil
 	}
 
 	s.progress.SetStatus(_types.Scanning)
 	go func() {
-		s.jobBatchManagement(scanDone)
-
-		s.Lock()
-		s.progress.SetStatus(_types.DoneScanning)
-		s.Unlock()
+		// jobBatchManagement blocks until scan is completed or aborted
+		s.jobBatchManagement()
+		// close done channel to indicate that the scan is no longer running
+		close(done)
 	}()
-
-	return nil
+	return done, nil
 }
 
 func (s *Scanner) ScanProgress() _types.ScanProgress {
