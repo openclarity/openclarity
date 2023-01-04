@@ -304,6 +304,14 @@ func (s *Server) handleScanResults(results *_types.ScanResults) {
 		return
 	}
 
+	if results.Progress.Status == _types.ScanAborted {
+		log.Infof("Got scan aborted from results")
+		s.SetState(&State{
+			runtimeScanFailures: []string{"Scan aborted"},
+		})
+		return
+	}
+
 	if log.GetLevel() == log.TraceLevel {
 		resultsB, err := json.Marshal(results.ImageScanResults)
 		if err == nil {

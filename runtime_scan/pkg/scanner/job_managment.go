@@ -45,7 +45,7 @@ const (
 )
 
 // run jobs.
-func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
+func (s *Scanner) jobBatchManagement() {
 	s.Lock()
 	imageIDToScanData := s.imageIDToScanData
 	numberOfWorkers := s.scanConfig.MaxScanParallelism
@@ -97,10 +97,14 @@ func (s *Scanner) jobBatchManagement(scanDone chan struct{}) {
 	select {
 	case <-s.killSignal:
 		log.WithFields(s.logFields).Info("Scan process was canceled")
+		s.Lock()
+		s.progress.SetStatus(types.ScanAborted)
+		s.Unlock()
 	case <-fullScanDone:
 		log.WithFields(s.logFields).Infof("All jobs has finished")
-		// Nonblocking notification of a finished scan
-		nonBlockingNotification(scanDone)
+		s.Lock()
+		s.progress.SetStatus(types.DoneScanning)
+		s.Unlock()
 	}
 }
 
