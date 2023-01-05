@@ -47,13 +47,16 @@ kubeclarity:
 
   enableDBInfoLog: false
 
-  podAnnotations: {}
+  # A value greater than 0 will enable the Prometheus metrics endpoint:
+  prometheusRefreshIntervalSeconds: 0
+
+  podAnnotations: { }
 
   service:
     type: ClusterIP
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
-# dbViewRefreshInterval: 5
+  # dbViewRefreshInterval: 5
 
   resources:
     requests:

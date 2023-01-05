@@ -19,14 +19,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Portshift/go-utils/healthz"
+	k8sutils "github.com/Portshift/go-utils/k8s"
+	"github.com/openclarity/kubeclarity/backend/pkg/metrics"
+	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/Portshift/go-utils/healthz"
-	k8sutils "github.com/Portshift/go-utils/k8s"
-	log "github.com/sirupsen/logrus"
-	"k8s.io/client-go/kubernetes"
 
 	_config "github.com/openclarity/kubeclarity/backend/pkg/config"
 	_database "github.com/openclarity/kubeclarity/backend/pkg/database"
@@ -111,6 +111,10 @@ func Run() {
 	}
 	restServer.Start(errChan)
 	defer restServer.Stop()
+
+	if config.PrometheusRefreshIntervalSeconds > 0 {
+		metrics.ProduceMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics()
+	}
 
 	healthServer.SetIsReady(true)
 	log.Info("KubeClarity backend is ready")

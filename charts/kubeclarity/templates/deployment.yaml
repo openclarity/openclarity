@@ -100,6 +100,8 @@ spec:
           env:
             - name: ENABLE_DB_INFO_LOGS
               value: "{{ .Values.kubeclarity.enableDBInfoLog }}"
+            - name: PROMETHEUS_REFRESH_INTERVAL_SECONDS
+              value: "{{ .Values.kubeclarity.prometheusRefreshIntervalSeconds }}"
             # DB envs
             {{- if .Values.kubeclarity.dbViewRefreshInterval }}
             - name: DB_VIEW_REFRESH_INTERVAL
@@ -127,6 +129,16 @@ spec:
               value: "{{ .Release.Namespace }}"
             - name: READ_CLUSTER_SECRETS
               value: "{{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}"
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8888
+              name: scan-results
+              protocol: TCP
+            - containerPort: 8081
+              name: health
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /healthz/ready
