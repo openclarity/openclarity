@@ -38,7 +38,8 @@ spec:
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
-          image: curlimages/curl:7.84.0
+#          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" | default "docker.io" }}/{{ index .Values "curl" "image" "repository" | default "curlimages/curl" }}:{{ index .Values "curl" "image" "tag" | default "7.84.0" }}
           args:
             - /bin/sh
             - -c
@@ -62,7 +63,7 @@ spec:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-grype-server'
-          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" | default "docker.io" }}/{{ index .Values "curl" "image" "repository" | default "curlimages/curl" }}:{{ index .Values "curl" "image" "tag" | default "7.84.0" }}
           args:
             - /bin/sh
             - -c
