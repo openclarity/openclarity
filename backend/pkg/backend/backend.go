@@ -82,7 +82,7 @@ func Run() {
 
 	_ = CreateBackend(dbHandler)
 
-	runtimeScanConfig, err := runtime_scan_config.LoadConfig()
+	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestAddress, config.BackendRestPort, rest.BaseURL)
 	if err != nil {
 		log.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
 	}
@@ -121,7 +121,7 @@ func Run() {
 	}
 }
 
-func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.Config) (orchestrator.VulnerabilitiesScanner, error) {
+func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig) (orchestrator.VulnerabilitiesScanner, error) {
 	orc, err := orchestrator.Create(config, client)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create runtime scan orchestrator: %v", err)

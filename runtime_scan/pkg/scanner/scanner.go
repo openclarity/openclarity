@@ -16,154 +16,193 @@
 package scanner
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"sync"
-	"sync/atomic"
 
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/models"
 	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 type Scanner struct {
-	instanceIDToScanData map[string]*scanData
-	progress             types.ScanProgress
-	scanConfig           *_config.ScanConfig
-	killSignal           chan bool
-	providerClient       provider.Client
-	logFields            log.Fields
-
-	region string
+	targetIDToScanData map[string]*scanData
+	scanConfig         *models.ScanConfig
+	killSignal         chan bool
+	providerClient     provider.Client
+	logFields          log.Fields
+	backendClient      *client.ClientWithResponses
+	scanID             string
+	targetInstances    []*types.TargetInstance
+	config             *_config.ScannerConfig
 
 	sync.Mutex
 }
 
 type scanData struct {
-	instance              types.Instance
-	scanUUID              string
-	vulnerabilitiesResult vulnerabilitiesScanResult
-	resultChan            chan bool
-	success               bool
-	completed             bool
-	timeout               bool
-	scanErr               *types.ScanError
+	targetInstance *types.TargetInstance
+	scanResultID   string
+	success        bool // Needed for deletion policy in case we want to access the logs
+	timeout        bool
+	completed      bool
 }
 
-type vulnerabilitiesScanResult struct {
-	result []string
-	// success   bool
-	// completed bool
-	// error *scanner.Error
-}
-
-func CreateScanner(config *_config.Config, providerClient provider.Client) *Scanner {
-	s := &Scanner{
-		progress: types.ScanProgress{
-			Status: types.Idle,
-		},
-		killSignal:     make(chan bool),
-		providerClient: providerClient,
-		logFields:      log.Fields{"scanner id": uuid.NewV4().String()},
-		region:         config.Region,
-		Mutex:          sync.Mutex{},
+func CreateScanner(
+	config *_config.OrchestratorConfig,
+	providerClient provider.Client,
+	backendClient *client.ClientWithResponses,
+	scanConfig *models.ScanConfig,
+	targetInstances []*types.TargetInstance,
+	scanID string,
+) *Scanner {
+	return &Scanner{
+		targetIDToScanData: nil,
+		scanConfig:         scanConfig,
+		killSignal:         make(chan bool),
+		providerClient:     providerClient,
+		logFields:          log.Fields{"scanner id": uuid.NewV4().String()},
+		backendClient:      backendClient,
+		scanID:             scanID,
+		targetInstances:    targetInstances,
+		config:             &config.ScannerConfig,
+		Mutex:              sync.Mutex{},
 	}
-
-	return s
 }
 
 // initScan Calculate properties of scan targets
 // nolint:cyclop,unparam
-func (s *Scanner) initScan() error {
-	instanceIDToScanData := make(map[string]*scanData)
+func (s *Scanner) initScan(ctx context.Context) error {
+	targetIDToScanData := make(map[string]*scanData)
 
 	// Populate the instance to scanData map
-	for _, instance := range s.scanConfig.Instances {
-		instanceIDToScanData[instance.GetID()] = &scanData{
-			instance:              instance,
-			scanUUID:              uuid.NewV4().String(),
-			vulnerabilitiesResult: vulnerabilitiesScanResult{},
-			resultChan:            make(chan bool),
-			success:               false,
-			completed:             false,
-			timeout:               false,
-			scanErr:               nil,
+	for _, targetInstance := range s.targetInstances {
+		scanResultID, err := s.createInitTargetScanStatus(ctx, s.scanID, targetInstance.TargetID)
+		if err != nil {
+			log.Errorf("Failed to create an init scan result. instance id=%v, scan id=%v: %v", targetInstance.TargetID, s.scanConfig, err)
+			continue
+		}
+		targetIDToScanData[targetInstance.TargetID] = &scanData{
+			targetInstance: targetInstance,
+			scanResultID:   scanResultID,
+			success:        false,
+			completed:      false,
+			timeout:        false,
 		}
 	}
 
-	s.instanceIDToScanData = instanceIDToScanData
-	s.progress.InstancesToScan = uint32(len(instanceIDToScanData))
+	s.targetIDToScanData = targetIDToScanData
 
-	log.WithFields(s.logFields).Infof("Total %d unique instances to scan", s.progress.InstancesToScan)
+	log.WithFields(s.logFields).Infof("Total %d unique targets to scan", len(targetIDToScanData))
 
 	return nil
 }
 
-func (s *Scanner) Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error {
+func (s *Scanner) Scan(ctx context.Context, scanDone chan struct{}) error {
 	s.Lock()
 	defer s.Unlock()
 
-	s.scanConfig = scanConfig
-
 	log.WithFields(s.logFields).Infof("Start scanning...")
 
-	s.progress.Status = types.ScanInit
-
-	if err := s.initScan(); err != nil {
-		s.progress.SetStatus(types.ScanInitFailure)
-		return fmt.Errorf("failed to initiate scan: %v", err)
+	err := s.initScan(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to init scan: %v", err)
 	}
 
-	if s.progress.InstancesToScan == 0 {
+	if len(s.targetIDToScanData) == 0 {
 		log.WithFields(s.logFields).Info("Nothing to scan")
-		s.progress.SetStatus(types.NothingToScan)
 		nonBlockingNotification(scanDone)
 		return nil
 	}
 
-	s.progress.SetStatus(types.Scanning)
-	go func() {
-		s.jobBatchManagement(scanDone)
-
-		s.Lock()
-		s.progress.SetStatus(types.DoneScanning)
-		s.Unlock()
-	}()
+	go s.jobBatchManagement(ctx, scanDone)
 
 	return nil
 }
 
-func (s *Scanner) ScanProgress() types.ScanProgress {
-	return types.ScanProgress{
-		InstancesToScan:          s.progress.InstancesToScan,
-		InstancesStartedToScan:   atomic.LoadUint32(&s.progress.InstancesStartedToScan),
-		InstancesCompletedToScan: atomic.LoadUint32(&s.progress.InstancesCompletedToScan),
-		Status:                   s.progress.Status,
+func (s *Scanner) GetTargetScanStatus(ctx context.Context, scanResultID string) (*models.TargetScanStatus, error) {
+	params := &models.GetScanResultsScanResultIDParams{
+		Select: utils.StringPtr("status"),
+	}
+	resp, err := s.backendClient.GetScanResultsScanResultIDWithResponse(ctx, scanResultID, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get a target scan status: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to get a target scan status: empty body")
+		}
+		if resp.JSON200.Status == nil {
+			return nil, fmt.Errorf("failed to get a target scan status: empty status in body")
+		}
+		return resp.JSON200.Status, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get a target scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get a target scan status. status code=%v", resp.StatusCode())
 	}
 }
 
-func (s *Scanner) Results() *types.ScanResults {
-	s.Lock()
-	defer s.Unlock()
-
-	instanceScanResults := make([]*types.InstanceScanResult, 0)
-
-	for _, scanD := range s.instanceIDToScanData {
-		if !scanD.completed {
-			continue
-		}
-		instanceScanResults = append(instanceScanResults, &types.InstanceScanResult{
-			Instance:        scanD.instance,
-			Vulnerabilities: scanD.vulnerabilitiesResult.result,
-			Success:         scanD.success,
-		})
+func (s *Scanner) SetTargetScanStatusCompletionError(ctx context.Context, scanResultID, errMsg string) error {
+	// Get the status and set the completion error
+	status, err := s.GetTargetScanStatus(ctx, scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to get a target scan status: %v", err)
 	}
 
-	return &types.ScanResults{
-		InstanceScanResults: instanceScanResults,
-		Progress:            s.ScanProgress(),
+	var errors []string
+	if status.General.Errors != nil {
+		errors = *status.General.Errors
+	}
+	errors = append(errors, errMsg)
+	status.General.Errors = &errors
+	done := models.DONE
+	status.General.State = &done
+
+	err = s.patchTargetScanStatus(ctx, scanResultID, status)
+	if err != nil {
+		return fmt.Errorf("failed to put target scan status: %v", err)
+	}
+
+	return nil
+}
+
+// nolint:cyclop
+func (s *Scanner) patchTargetScanStatus(ctx context.Context, scanResultID string, status *models.TargetScanStatus) error {
+	scanResult := models.TargetScanResult{
+		Status: status,
+	}
+	resp, err := s.backendClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, scanResult)
+	if err != nil {
+		return fmt.Errorf("failed to put a scan status: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		if resp.JSON201 == nil {
+			return fmt.Errorf("failed to update a scan status: empty body")
+		}
+		return nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return fmt.Errorf("failed to update a scan status: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return fmt.Errorf("failed to update scan status, not found: %v", resp.JSON404.Message)
+		}
+		return fmt.Errorf("failed to update scan status, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return fmt.Errorf("failed to update scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return fmt.Errorf("failed to update scan status. status code=%v", resp.StatusCode())
 	}
 }
 

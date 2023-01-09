@@ -41,7 +41,7 @@ func versionCommand(_ *cli.Context) {
 
 func main() {
 	viper.SetDefault(config.HealthCheckAddress, ":8081")
-	viper.SetDefault(config.BackendRestPort, "8080")
+	viper.SetDefault(config.BackendRestPort, "8888")
 	viper.AutomaticEnv()
 	app := cli.NewApp()
 	app.Usage = ""

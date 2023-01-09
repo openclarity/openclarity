@@ -25,10 +25,8 @@ import (
 
 // TODO after db design.
 type Target struct {
-	ID          string
-	ScanResults []string
-	TargetInfo  *models.Target_TargetInfo
-	TargetType  models.TargetType
+	ID         string
+	TargetInfo *models.TargetType
 }
 
 type TargetsTable interface {

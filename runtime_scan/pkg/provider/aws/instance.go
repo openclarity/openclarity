@@ -37,6 +37,10 @@ func (i *InstanceImpl) GetID() string {
 	return i.id
 }
 
+func (i *InstanceImpl) GetLocation() string {
+	return i.region
+}
+
 func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) {
 	out, err := i.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
 		InstanceIds: []string{i.id},
