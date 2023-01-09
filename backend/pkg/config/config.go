@@ -24,6 +24,7 @@ import (
 )
 
 const (
+	BackendRestAddress = "BACKEND_REST_ADDRESS"
 	BackendRestPort    = "BACKEND_REST_PORT"
 	HealthCheckAddress = "HEALTH_CHECK_ADDRESS"
 
@@ -40,6 +41,7 @@ const (
 )
 
 type Config struct {
+	BackendRestAddress string
 	BackendRestPort    int
 	HealthCheckAddress string
 
@@ -58,6 +60,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	config := &Config{}
 
+	config.BackendRestAddress = viper.GetString(BackendRestAddress)
 	config.BackendRestPort = viper.GetInt(BackendRestPort)
 	config.HealthCheckAddress = viper.GetString(HealthCheckAddress)
 

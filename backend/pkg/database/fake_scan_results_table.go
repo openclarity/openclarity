@@ -21,129 +21,139 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 )
 
-func (fs *FakeScanResultsTable) ListScanResults(targetID models.TargetID, params models.GetTargetsTargetIDScanResultsParams,
-) ([]ScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	scanResults := make([]ScanResults, 0)
-	results := *fs.scanResults
-	for _, scanID := range targets[targetID].ScanResults {
-		scanResults = append(scanResults, *results[scanID])
-	}
-	return scanResults, nil
-}
+//
+//func (fs *FakeScanResultsTable) ListScanResults(targetID models.TargetID, params models.GetTargetsTargetIDScanResultsParams,
+//) ([]ScanResults, error) {
+//	//targets := *fs.targets
+//	//if _, ok := targets[targetID]; !ok {
+//	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+//	//}
+//	//scanResults := make([]ScanResults, 0)
+//	//results := *fs.scanResults
+//	//for _, scanID := range targets[targetID].ScanResults {
+//	//	scanResults = append(scanResults, *results[scanID])
+//	//}
+//	return nil, nil
+//}
 
 func (fs *FakeScanResultsTable) CreateScanResults(targetID models.TargetID, scanResults *ScanResults,
 ) (*ScanResults, error) {
-	sr := scanResults
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	targets[targetID].ScanResults = append(targets[targetID].ScanResults, scanResults.ID)
-
-	scanRes := *fs.scanResults
-	scanRes[scanResults.ID] = scanResults
-	fs.scanResults = &scanRes
-	return sr, nil
+	//sr := scanResults
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//targets[targetID].ScanResults = append(targets[targetID].ScanResults, scanResults.ScanID)
+	//
+	//scanRes := *fs.scanResults
+	//scanRes[scanResults.ScanID] = scanResults
+	//fs.scanResults = &scanRes
+	//return sr, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetScanResults(targetID models.TargetID, scanID models.ScanID) (*ScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID], nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID], nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetSBOM(targetID models.TargetID, scanID models.ScanID) (*SbomScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Sbom, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Sbom, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetVulnerabilities(targetID models.TargetID, scanID models.ScanID) (*VulnerabilityScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Vulnerability, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Vulnerability, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetMalwares(targetID models.TargetID, scanID models.ScanID) (*MalwareScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Malware, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Malware, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetRootkits(targetID models.TargetID, scanID models.ScanID) (*RootkitScanScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Rootkit, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Rootkit, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetSecrets(targetID models.TargetID, scanID models.ScanID) (*SecretScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Secret, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Secret, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetMisconfigurations(targetID models.TargetID, scanID models.ScanID) (*MisconfigurationScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Misconfiguration, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Misconfiguration, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) GetExploits(targetID models.TargetID, scanID models.ScanID) (*ExploitScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	return results[scanID].Exploit, nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//return results[scanID].Exploit, nil
+	return nil, fmt.Errorf("TBD")
 }
 
 func (fs *FakeScanResultsTable) UpdateScanResults(
@@ -151,25 +161,27 @@ func (fs *FakeScanResultsTable) UpdateScanResults(
 	scanID models.ScanID,
 	scanResults *ScanResults,
 ) (*ScanResults, error) {
-	targets := *fs.targets
-	if _, ok := targets[targetID]; !ok {
-		return nil, fmt.Errorf("target not exists with ID: %s", targetID)
-	}
-	if !contains(scanID, targets[targetID].ScanResults) {
-		return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
-	}
-	results := *fs.scanResults
-	results[scanID] = scanResults
-	fs.scanResults = &results
-	return results[scanID], nil
+	//targets := *fs.targets
+	//if _, ok := targets[targetID]; !ok {
+	//	return nil, fmt.Errorf("target not exists with ID: %s", targetID)
+	//}
+	//if !contains(scanID, targets[targetID].ScanResults) {
+	//	return nil, fmt.Errorf("scanID %s not exists for target with ID: %s", scanID, targetID)
+	//}
+	//results := *fs.scanResults
+	//results[scanID] = scanResults
+	//fs.scanResults = &results
+	//return results[scanID], nil
+	return nil, fmt.Errorf("TBD")
 }
 
-func contains(str string, slice []string) bool {
-	for _, s := range slice {
-		if s == str {
-			return true
-		}
-	}
-
-	return false
-}
+//
+//func contains(str string, slice []string) bool {
+//	for _, s := range slice {
+//		if s == str {
+//			return true
+//		}
+//	}
+//
+//	return false
+//}

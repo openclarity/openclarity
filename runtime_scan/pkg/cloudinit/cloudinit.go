@@ -20,11 +20,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"text/template"
-
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 )
 
-func GenerateCloudInit(scannerConfig *types.ScannerConfig, deviceName string) (string, error) {
+func GenerateCloudInit(scannerConfig string, deviceName string) (string, error) {
+	// TODO: Create a new config struct for scannerConfig.
 	vars := make(map[string]interface{})
 	// parse cloud-init template
 	tmpl, err := template.New("cloud-init").Parse(cloudInitTmpl)
@@ -32,11 +31,11 @@ func GenerateCloudInit(scannerConfig *types.ScannerConfig, deviceName string) (s
 		return "", fmt.Errorf("failed to parse cloud-init template: %v", err)
 	}
 	vars["Volume"] = deviceName
-	vars["ScannerImage"] = scannerConfig.ScannerImage
-	vars["ScannerCommand"] = scannerConfig.ScannerCommand
-	vars["DirToScan"] = scannerConfig.DirectoryToScan
+	vars["ScannerImage"] = scannerConfig   // TODO: Create a new config struct and get the relevant field
+	vars["ScannerCommand"] = scannerConfig // TODO: Create a new config struct and get the relevant field
+	vars["DirToScan"] = scannerConfig
 
-	scannerJobConfigB, err := json.Marshal(scannerConfig.ScannerJobConfig)
+	scannerJobConfigB, err := json.Marshal(scannerConfig) // TODO: Create a new config struct
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal config: %v", err)
 	}

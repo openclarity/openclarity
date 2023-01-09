@@ -18,12 +18,13 @@ package provider
 import (
 	"context"
 
+	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 )
 
 type Client interface {
 	// Discover - list VM instances in the account according to the scan scope.
-	Discover(ctx context.Context, scanScope types.ScanScope) ([]types.Instance, error)
+	Discover(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error)
 	// RunScanningJob - run a scanning job
-	RunScanningJob(ctx context.Context, snapshot types.Snapshot, scannerConfig *types.ScannerConfig) (types.Instance, error)
+	RunScanningJob(ctx context.Context, snapshot types.Snapshot, scannerConfig *models.ScanConfig) (types.Instance, error)
 }

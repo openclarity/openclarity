@@ -17,7 +17,7 @@ Resources:
     Properties:
       VpcId: !Ref VmClarity
       CidrBlock: 10.0.0.0/24
-  # VmClarityServer will host the VMClarity services which orcestrate the scans
+  # VmClarityServer will host the VMClarity services which orchestrate the scans
   # as well as serve the user interface and API
   VmClarityServer:
     Type: "AWS::EC2::Instance"
@@ -114,6 +114,8 @@ Resources:
                     AWS_SUBNET_ID=${VmClaritySubnet}
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
+                    BACKEND_REST_ADDRESS=${VmClarityServer.PublicDnsName}
+                    BACKEND_REST_PORT=8888
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
