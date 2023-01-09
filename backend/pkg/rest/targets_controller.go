@@ -19,7 +19,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	echo "github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -106,19 +106,15 @@ func createDBTargetFromModel(target *models.Target) *database.Target {
 		targetID = *target.Id
 	}
 	return &database.Target{
-		ID:          targetID,
-		ScanResults: *target.ScanResults,
-		TargetInfo:  target.TargetInfo,
-		TargetType:  *target.TargetType,
+		ID:         targetID,
+		TargetInfo: target.TargetInfo,
 	}
 }
 
 func createModelTargetFromDB(target *database.Target) *models.Target {
 	return &models.Target{
-		Id:          &target.ID,
-		ScanResults: &target.ScanResults,
-		TargetInfo:  target.TargetInfo,
-		TargetType:  &target.TargetType,
+		Id:         &target.ID,
+		TargetInfo: target.TargetInfo,
 	}
 }
 
