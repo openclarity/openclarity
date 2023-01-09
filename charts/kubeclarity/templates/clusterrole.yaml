@@ -9,7 +9,7 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["get"]
-  {{- if index .Values "clusterRole" "readClusterSecrets" }}
+  {{- if index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["get"]
