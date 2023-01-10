@@ -26,6 +26,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
+	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
@@ -95,6 +96,9 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				ReportFormat: "all",       // Full report not just summary
 				Output:       &output,     // Save the output to our local buffer instead of Stdout
 				ListAllPkgs:  true,        // By default Trivy only includes packages with vulnerabilities, for full SBOM set true.
+			},
+			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
+				VulnType: trivyTypes.VulnTypes, // Trivy disables analyzers for language packages if VulnTypeLibrary not in VulnType list
 			},
 		}
 
