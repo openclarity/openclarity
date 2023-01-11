@@ -29,7 +29,7 @@ const (
 	ScannerJobTemplateConfigMapName      = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAME"
 	ScannerJobTemplateConfigMapNamespace = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE"
 	defaultScannerJobResultListenPort    = 8888
-	ReadClusterSecrets                   = "READ_CLUSTER_SECRETS"
+	ReadClusterSecrets                   = "READ_CLUSTER_SECRETS" // nolint: gosec
 )
 
 type Config struct {
