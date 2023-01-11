@@ -52,7 +52,7 @@ type Scanner struct {
 
 func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scanner {
     credentialAdders := []_creds.CredentialAdder{}
-    if config.ReadClusterSecrets == true{
+    if config.ReadClusterSecrets{
        credentialAdders = []_creds.CredentialAdder{
 			_creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
 			_creds.CreateECR(clientset, config.CredsSecretNamespace),
