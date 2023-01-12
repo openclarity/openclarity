@@ -126,7 +126,7 @@ spec:
             - name: SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE
               value: "{{ .Release.Namespace }}"
             - name: READ_CLUSTER_SECRETS
-              value: {{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets"  }}
+              value: "{{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}"
           readinessProbe:
             httpGet:
               path: /healthz/ready
