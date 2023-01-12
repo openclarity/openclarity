@@ -308,16 +308,16 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 				distro.Version = report.Metadata.OS.Name
 			}
 
+			links := make([]string, 0, len(vul.Vulnerability.References))
+			links = append(links, vul.Vulnerability.References...)
 			kbVul := scanner.Vulnerability{
 				ID:          vul.VulnerabilityID,
 				Description: vul.Description,
-				Links: []string{
-					vul.PrimaryURL,
-				},
-				Distro:   distro,
-				CVSS:     cvsses,
-				Fix:      fix,
-				Severity: strings.ToUpper(vul.Severity),
+				Links:       links,
+				Distro:      distro,
+				CVSS:        cvsses,
+				Fix:         fix,
+				Severity:    strings.ToUpper(vul.Severity),
 				Package: scanner.Package{
 					Name:    vul.PkgName,
 					Version: vul.InstalledVersion,
