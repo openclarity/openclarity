@@ -1,5 +1,5 @@
 ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base@sha256:903d2c10351f811bdcb084f26f2b265f5c332de2891ab9f5fb7d60fed77e5ad7
-FROM golang:1.19.4-alpine AS builder
+FROM golang:1.19.5-alpine AS builder
 
 ARG COMMIT_HASH
 
