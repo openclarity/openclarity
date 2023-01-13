@@ -522,6 +522,8 @@ Pull requests and bug reports are welcome.
 For larger changes please create an Issue in GitHub first to discuss your
 proposed changes and possible implications.
 
+More more details please see the [Contribution guidelines for this project](CONTRIBUTING.md)
+
 ## License
 
 [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
