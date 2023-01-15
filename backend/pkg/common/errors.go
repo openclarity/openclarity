@@ -13,21 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rest
+package common
 
-import "testing"
+import "errors"
 
-const (
-	testID = "testID"
-)
-
-func createTestRestServer(t *testing.T) *Server {
-	t.Helper()
-	e, err := createEchoServer()
-	if err != nil {
-		t.Fatalf("Failed to create echo server: %v", err)
-	}
-	return &Server{
-		echoServer: e,
-	}
-}
+var ErrConflict = errors.New("conflict")

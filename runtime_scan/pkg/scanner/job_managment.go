@@ -151,7 +151,7 @@ func (s *Scanner) waitForResult(ctx context.Context, data *scanData, ks chan boo
 			}
 
 			s.Lock()
-			data.success = scanStatusHasErrors(instanceScanResults)
+			data.success = !scanStatusHasErrors(instanceScanResults)
 			data.completed = true
 			s.Unlock()
 			return

@@ -127,6 +127,16 @@ type ExploitScan struct {
 	Exploits *[]ExploitInfo `json:"exploits,omitempty"`
 }
 
+// ExploitsConfig defines model for ExploitsConfig.
+type ExploitsConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// MalwareConfig defines model for MalwareConfig.
+type MalwareConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 // MalwareInfo defines model for MalwareInfo.
 type MalwareInfo struct {
 	Id          *string      `json:"id,omitempty"`
@@ -157,6 +167,11 @@ type MisconfigurationInfo struct {
 // MisconfigurationScan defines model for MisconfigurationScan.
 type MisconfigurationScan struct {
 	Misconfigurations *[]MisconfigurationInfo `json:"misconfigurations,omitempty"`
+}
+
+// MisconfigurationsConfig defines model for MisconfigurationsConfig.
+type MisconfigurationsConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // Package defines model for Package.
@@ -197,9 +212,19 @@ type RootkitScan struct {
 // RootkitType defines model for RootkitType.
 type RootkitType string
 
+// RootkitsConfig defines model for RootkitsConfig.
+type RootkitsConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 // RuntimeScheduleScanConfigType defines model for RuntimeScheduleScanConfigType.
 type RuntimeScheduleScanConfigType struct {
 	union json.RawMessage
+}
+
+// SBOMConfig defines model for SBOMConfig.
+type SBOMConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // SbomScan defines model for SbomScan.
@@ -245,27 +270,13 @@ type ScanConfigs struct {
 
 // ScanFamiliesConfig The configuration of the scanner families within a scan config
 type ScanFamiliesConfig struct {
-	Exploits *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"exploits,omitempty"`
-	Malware *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"malware,omitempty"`
-	Misconfigurations *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"misconfigurations,omitempty"`
-	Rootkits *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"rootkits,omitempty"`
-	Sbom *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"sbom,omitempty"`
-	Secrets *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"secrets,omitempty"`
-	Vulnerabilities *struct {
-		Enabled *bool `json:"enabled,omitempty"`
-	} `json:"vulnerabilities,omitempty"`
+	Exploits          *ExploitsConfig          `json:"exploits,omitempty"`
+	Malware           *MalwareConfig           `json:"malware,omitempty"`
+	Misconfigurations *MisconfigurationsConfig `json:"misconfigurations,omitempty"`
+	Rootkits          *RootkitsConfig          `json:"rootkits,omitempty"`
+	Sbom              *SBOMConfig              `json:"sbom,omitempty"`
+	Secrets           *SecretsConfig           `json:"secrets,omitempty"`
+	Vulnerabilities   *VulnerabilitiesConfig   `json:"vulnerabilities,omitempty"`
 }
 
 // ScanScopeType defines model for ScanScopeType.
@@ -297,6 +308,11 @@ type SecretInfo struct {
 // SecretScan defines model for SecretScan.
 type SecretScan struct {
 	Secrets *[]SecretInfo `json:"secrets,omitempty"`
+}
+
+// SecretsConfig defines model for SecretsConfig.
+type SecretsConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // SingleScheduleScanConfig defines model for SingleScheduleScanConfig.
@@ -393,6 +409,11 @@ type VMInfo struct {
 	InstanceProvider *CloudProvider `json:"instanceProvider,omitempty"`
 	Location         *string        `json:"location,omitempty"`
 	ObjectType       string         `json:"objectType"`
+}
+
+// VulnerabilitiesConfig defines model for VulnerabilitiesConfig.
+type VulnerabilitiesConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // Vulnerability defines model for Vulnerability.

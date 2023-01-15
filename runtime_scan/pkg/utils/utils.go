@@ -29,3 +29,8 @@ func Int32Ptr(val int32) *int32 {
 	ret := val
 	return &ret
 }
+
+func IntPtr(val int) *int {
+	ret := val
+	return &ret
+}
