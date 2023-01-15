@@ -17,12 +17,14 @@ package rest
 
 import (
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
 )
 
 // nolint:wrapcheck
 func sendError(ctx echo.Context, code int, message string) error {
+	log.Error(message)
 	response := &models.ApiResponse{Message: &message}
 	return ctx.JSON(code, response)
 }

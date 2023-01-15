@@ -81,7 +81,7 @@ func CreateScanner(
 func (s *Scanner) initScan(ctx context.Context) error {
 	targetIDToScanData := make(map[string]*scanData)
 
-	// Populate the instance to scanData map
+	// Populate the target to scanData map
 	for _, targetInstance := range s.targetInstances {
 		scanResultID, err := s.createInitTargetScanStatus(ctx, s.scanID, targetInstance.TargetID)
 		if err != nil {

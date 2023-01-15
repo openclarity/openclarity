@@ -5,16 +5,15 @@ go 1.19
 require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
 	github.com/deepmap/oapi-codegen v1.12.3
-	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/openclarity/vmclarity/api v0.0.0
 	github.com/openclarity/vmclarity/runtime_scan v0.0.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
-	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli v1.22.10
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.24.2
+	gotest.tools/v3 v3.4.0
 )
 
 require (
@@ -33,12 +32,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.17.1 // indirect
 	github.com/aws/smithy-go v1.13.4 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/getkin/kin-openapi v0.107.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
@@ -56,7 +56,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
