@@ -17,7 +17,9 @@ package database
 
 import (
 	"os"
+	"time"
 
+	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -33,8 +35,10 @@ const (
 )
 
 type Database interface {
-	TargetsTable() TargetsTable
 	ScanResultsTable() ScanResultsTable
+	ScanConfigsTable() ScanConfigsTable
+	ScansTable() ScansTable
+	TargetsTable() TargetsTable
 }
 
 type Handler struct {
@@ -49,6 +53,20 @@ type DBConfig struct {
 	DBHost         string
 	DBPort         string
 	DBName         string
+}
+
+// Base contains common columns for all tables.
+type Base struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+}
+
+// BeforeCreate will set a UUID rather than numeric ID.
+func (base *Base) BeforeCreate(db *gorm.DB) error {
+	base.ID = uuid.NewV4()
+	return nil
 }
 
 func Init(config *DBConfig) *Handler {
@@ -77,15 +95,10 @@ func initDataBase(config *DBConfig) *gorm.DB {
 
 	db := initDB(config, dbDriver, dbLogger)
 
-	// recreate views from scratch
-	dropAllViews(db)
-
 	// this will ensure table is created
-	if err := db.AutoMigrate(); err != nil {
+	if err := db.AutoMigrate(Target{}, ScanResult{}, ScanConfig{}, Scan{}); err != nil {
 		log.Fatalf("Failed to run auto migration: %v", err)
 	}
-
-	createAllViews(db)
 
 	return db
 }
@@ -99,13 +112,6 @@ func initDB(_ *DBConfig, dbDriver string, dbLogger logger.Interface) *gorm.DB {
 		log.Fatalf("DB driver is not supported: %v", dbDriver)
 	}
 	return db
-}
-
-// nolint:cyclop
-func createAllViews(db *gorm.DB) {
-}
-
-func dropAllViews(db *gorm.DB) {
 }
 
 func initSqlite(dbLogger logger.Interface) *gorm.DB {

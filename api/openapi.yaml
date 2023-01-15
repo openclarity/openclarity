@@ -552,40 +552,61 @@ components:
       description: The configuration of the scanner families within a scan config
       properties:
         sbom:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/SBOMConfig'
         vulnerabilities:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/VulnerabilitiesConfig'
         malware:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/MalwareConfig'
         rootkits:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/RootkitsConfig'
         secrets:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/SecretsConfig'
         misconfigurations:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/MisconfigurationsConfig'
         exploits:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          $ref: '#/components/schemas/ExploitsConfig'
+
+    VulnerabilitiesConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    SBOMConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    MalwareConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    RootkitsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    SecretsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    MisconfigurationsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+
+    ExploitsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
 
     ScanConfigs:
       type: object
