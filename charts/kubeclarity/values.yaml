@@ -51,7 +51,7 @@ kubeclarity:
     enabled: false
     refreshIntervalSeconds: 300
 
-  podAnnotations: { }
+  podAnnotations: {}
 
   service:
     type: ClusterIP
