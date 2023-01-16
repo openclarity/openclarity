@@ -47,8 +47,9 @@ kubeclarity:
 
   enableDBInfoLog: false
 
-  # A value greater than 0 will enable the Prometheus metrics endpoint:
-  prometheusRefreshIntervalSeconds: 0
+  prometheus:
+    enabled: false
+    refreshIntervalSeconds: 300
 
   podAnnotations: { }
 

@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"fmt"
+	"context"
 	"github.com/go-openapi/strfmt"
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
@@ -50,11 +50,11 @@ var (
 	}, []string{"severity"})
 	trendGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_vulnerability_trend",
-		Help: "Incoming vulnerabilities within the last hour",
+		Help: "Vulnerability trend in a 60 minute time window",
 	}, []string{"severity"})
 	applicationGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_application_vulnerability",
-		Help: "Count of vulnerabilities per application and level",
+		Help: "Count of vulnerabilities per application, environment and severity",
 	}, []string{"name", "environment", "severity"})
 )
 
@@ -63,16 +63,13 @@ type Server struct {
 	dbHandler       *database.Handler
 }
 
-func ProduceMetrics(dbHandler *database.Handler, refreshInterval int) *Server {
+func CreateMetrics(dbHandler *database.Handler, refreshInterval int) *Server {
+	logrus.Infof("Adding /metrics endpoint to http server assumed started with healthz")
+	http.Handle("/metrics", promhttp.Handler())
 	return &Server{
 		refreshInterval: refreshInterval,
 		dbHandler:       dbHandler,
 	}
-}
-
-func init() {
-	logrus.Infof("Adding /metrics endpoint to http server assumed started with healthz")
-	http.Handle("/metrics", promhttp.Handler())
 }
 
 func (s *Server) recordSummaryCounters() {
@@ -109,8 +106,8 @@ func (s *Server) recordFixableVulnerability() {
 	for _, fix := range fixableVulnerabilityCount {
 		total += fix.CountTotal
 		totalWithFix += fix.CountWithFix
-		fixableVulnerability.WithLabelValues(fmt.Sprintf("%s", fix.Severity)).Set(float64(fix.CountWithFix))
-		vulnerability.WithLabelValues(fmt.Sprintf("%s", fix.Severity)).Set(float64(fix.CountTotal))
+		fixableVulnerability.WithLabelValues(string(fix.Severity)).Set(float64(fix.CountWithFix))
+		vulnerability.WithLabelValues(string(fix.Severity)).Set(float64(fix.CountTotal))
 	}
 	fixableVulnerabilityCounter.Set(float64(totalWithFix))
 	vulnerabilityCounter.Set(float64(total))
@@ -144,15 +141,17 @@ func (s *Server) recordApplicationVulnerabilities() {
 	}
 }
 
-func (s *Server) StartRecordingMetrics() {
-	go func() {
-		for {
+func (s *Server) StartRecordingMetrics(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			logrus.Info("received stop event")
+			return
+		case <-time.After(time.Duration(s.refreshInterval) * time.Second):
 			s.recordFixableVulnerability()
 			s.recordSummaryCounters()
 			s.recordApplicationVulnerabilities()
 			s.recordTrendCounters()
-
-			time.Sleep(time.Duration(s.refreshInterval) * time.Second)
 		}
-	}()
+	}
 }

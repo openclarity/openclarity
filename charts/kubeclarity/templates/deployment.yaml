@@ -100,8 +100,10 @@ spec:
           env:
             - name: ENABLE_DB_INFO_LOGS
               value: "{{ .Values.kubeclarity.enableDBInfoLog }}"
+{{- if index .Values "prometheus" "enabled" }}
             - name: PROMETHEUS_REFRESH_INTERVAL_SECONDS
-              value: "{{ .Values.kubeclarity.prometheusRefreshIntervalSeconds }}"
+              value: "{{ .Values.kubeclarity.prometheus.refreshIntervalSeconds }}"
+{{- end }}
             # DB envs
             {{- if .Values.kubeclarity.dbViewRefreshInterval }}
             - name: DB_VIEW_REFRESH_INTERVAL

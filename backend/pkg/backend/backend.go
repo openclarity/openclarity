@@ -113,7 +113,7 @@ func Run() {
 	defer restServer.Stop()
 
 	if config.PrometheusRefreshIntervalSeconds > 0 {
-		metrics.ProduceMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics()
+		metrics.CreateMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics(context.Background())
 	}
 
 	healthServer.SetIsReady(true)
