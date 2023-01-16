@@ -97,12 +97,14 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 lint: bin/golangci-lint ## Run linter
 	cd backend && ../bin/golangci-lint run
 	cd runtime_scan && ../bin/golangci-lint run
+	cd cli && ../bin/golangci-lint run
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
 	./bin/golangci-lint run --fix
 	cd backend && ../bin/golangci-lint run --fix
 	cd runtime_scan && ../bin/golangci-lint run --fix
+	cd cli && ../bin/golangci-lint run --fix
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
 	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
