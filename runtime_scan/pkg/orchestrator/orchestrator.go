@@ -44,7 +44,7 @@ type Orchestrator struct {
 //go:generate $GOPATH/bin/mockgen -destination=./mock_orchestrator.go -package=orchestrator github.com/openclarity/kubeclarity/runtime_scan/pkg/orchestrator VulnerabilitiesScanner
 type VulnerabilitiesScanner interface {
 	Start(errChan chan struct{})
-	Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error
+	Scan(scanConfig *_config.ScanConfig) (chan struct{}, error)
 	ScanProgress() types.ScanProgress
 	Results() *types.ScanResults
 	Clear()
@@ -85,12 +85,13 @@ func (o *Orchestrator) Stop() {
 	o.server.Stop()
 }
 
-func (o *Orchestrator) Scan(scanConfig *_config.ScanConfig, scanDone chan struct{}) error {
-	if err := o.getScanner().Scan(scanConfig, scanDone); err != nil {
-		return fmt.Errorf("failed to scan: %v", err)
+func (o *Orchestrator) Scan(scanConfig *_config.ScanConfig) (chan struct{}, error) {
+	o.scanner = _scanner.CreateScanner(o.config, o.clientset)
+	done, err := o.getScanner().Scan(scanConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan: %v", err)
 	}
-
-	return nil
+	return done, nil
 }
 
 func (o *Orchestrator) ScanProgress() types.ScanProgress {
@@ -107,7 +108,6 @@ func (o *Orchestrator) Clear() {
 
 	log.Infof("Clearing Orchestrator")
 	o.scanner.Clear()
-	o.scanner = _scanner.CreateScanner(o.config, o.clientset)
 }
 
 func (o *Orchestrator) getScanner() *_scanner.Scanner {
