@@ -17,20 +17,23 @@ package metrics
 
 import (
 	"context"
-	"github.com/go-openapi/strfmt"
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/openclarity/kubeclarity/backend/pkg/database"
+
+	"github.com/go-openapi/strfmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"strings"
-	"time"
+
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 )
 
 const (
-	// Prefix is to make metrics unique
+	// Prefix is to make metrics unique.
 	Prefix string = "kubeclarity"
 )
 
@@ -48,11 +51,11 @@ var (
 		Help: "The total number of packages",
 	})
 	vulnerabilityCounter = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: Prefix + "_number_of_vulnerabilities_total",
+		Name: Prefix + "_number_of_vulnerabilities_amount",
 		Help: "The total number of vulnerabilities",
 	})
 	fixableVulnerabilityCounter = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: Prefix + "_number_of_fixable_vulnerabilities_total",
+		Name: Prefix + "_number_of_fixable_vulnerabilities_amount",
 		Help: "The total number of fixable vulnerabilities",
 	})
 	fixableVulnerability = promauto.NewGaugeVec(prometheus.GaugeOpts{
@@ -122,7 +125,7 @@ func (s *Server) recordTrendCounters() {
 	}
 }
 
-// Gauges for fixable vulnerabilities
+// Gauges for fixable vulnerabilities.
 func (s *Server) recordFixableVulnerability() {
 	fixableVulnerabilityCount, err := s.dbHandler.VulnerabilityTable().CountVulnerabilitiesWithFix()
 	if err != nil {
@@ -130,8 +133,8 @@ func (s *Server) recordFixableVulnerability() {
 		return
 	}
 
-	var total uint32 = 0
-	var totalWithFix uint32 = 0
+	var total uint32
+	var totalWithFix uint32
 	for _, fix := range fixableVulnerabilityCount {
 		total += fix.CountTotal
 		totalWithFix += fix.CountWithFix
@@ -145,7 +148,7 @@ func (s *Server) recordFixableVulnerability() {
 func (s *Server) recordApplicationVulnerabilities() {
 	sortDir := string("ASC")
 
-	var applications, _, err = s.dbHandler.ApplicationTable().GetApplicationsAndTotal(
+	applications, _, err := s.dbHandler.ApplicationTable().GetApplicationsAndTotal(
 		database.GetApplicationsParams{
 			GetApplicationsParams: operations.GetApplicationsParams{
 				SortDir: &sortDir,

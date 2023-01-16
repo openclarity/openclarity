@@ -486,7 +486,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(kubeclarity_number_of_fixable_vulnerabilities_total)",
+          "expr": "sum(kubeclarity_number_of_fixable_vulnerabilities_amount)",
           "legendFormat": "Fixable vulnerabilities",
           "range": true,
           "refId": "A"
@@ -497,7 +497,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(kubeclarity_number_of_vulnerabilities_total)-sum(kubeclarity_number_of_fixable_vulnerabilities_total)",
+          "expr": "sum(kubeclarity_number_of_vulnerabilities_amount)-sum(kubeclarity_number_of_fixable_vulnerabilities_amount)",
           "hide": false,
           "legendFormat": "Vulnerabilities without fix",
           "range": true,
@@ -666,7 +666,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(kubeclarity_number_of_fixable_vulnerabilities_total)",
+          "expr": "sum(kubeclarity_number_of_fixable_vulnerabilities_amount)",
           "legendFormat": "Fixable vulnerabilities",
           "range": true,
           "refId": "A"
@@ -677,7 +677,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(kubeclarity_number_of_vulnerabilities_total)  ",
+          "expr": "sum(kubeclarity_number_of_vulnerabilities_amount)  ",
           "hide": false,
           "legendFormat": "Vulnerabilities with no known fix",
           "range": true,
