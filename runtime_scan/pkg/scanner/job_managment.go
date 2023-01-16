@@ -21,14 +21,25 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
+
+	kubeclarityConfig "github.com/openclarity/kubeclarity/shared/pkg/config"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/config"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/shared/pkg/families"
+	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	familiesVulnerabilities "github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
 // TODO this code is taken from KubeClarity, we can make improvements base on the discussions here: https://github.com/openclarity/vmclarity/pull/3
+
+const TrivyTimeout = 300
 
 // run jobs.
 func (s *Scanner) jobBatchManagement(ctx context.Context, scanDone chan struct{}) {
@@ -224,13 +235,98 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		}
 	}
 
-	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, s.scanConfig)
+	volumeMountDirectory := "/vmToBeScanned"
+	familiesConfiguration, err := s.getFamiliesConfigurationYaml(volumeMountDirectory)
+	if err != nil {
+		return types.Job{}, fmt.Errorf("failed to generate scanner configuration yaml: %w", err)
+	}
+
+	scanningJobConfig := provider.ScanningJobConfig{
+		ScannerImage:         s.config.ScannerImage,
+		ScannerCLIConfig:     familiesConfiguration,
+		VolumeMountDirectory: volumeMountDirectory,
+		VMClarityAddress:     s.config.ScannerBackendAddress,
+		ScanResultID:         data.scanResultID,
+	}
+	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, scanningJobConfig)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to launch a new instance: %v", err)
 	}
 	job.Instance = launchInstance
 
 	return job, nil
+}
+
+func (s *Scanner) getFamiliesConfigurationYaml(scanRootDirectory string) (string, error) {
+	famConfig := families.Config{
+		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
+		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
+		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
+	}
+
+	famConfigYaml, err := yaml.Marshal(famConfig)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal families config to yaml: %w", err)
+	}
+
+	return string(famConfigYaml), nil
+}
+
+func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootDirectory string) familiesSbom.Config {
+	if sbomConfig != nil && sbomConfig.Enabled != nil && !*sbomConfig.Enabled {
+		return familiesSbom.Config{}
+	}
+	return familiesSbom.Config{
+		Enabled: true,
+		// TODO(sambetts) This choice should come from the user's configuration
+		AnalyzersList: []string{"syft", "trivy"},
+		Inputs: []familiesSbom.Input{
+			{
+				Input:     scanRootDirectory,
+				InputType: string(utils.ROOTFS),
+			},
+		},
+		AnalyzersConfig: &kubeclarityConfig.Config{
+			// TODO(sambetts) The user needs to be able to provide this configuration
+			Registry: &kubeclarityConfig.Registry{},
+			Analyzer: &kubeclarityConfig.Analyzer{
+				OutputFormat: "cyclonedx",
+				TrivyConfig: kubeclarityConfig.AnalyzerTrivyConfig{
+					Timeout: TrivyTimeout,
+				},
+			},
+		},
+	}
+}
+
+func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig) familiesVulnerabilities.Config {
+	if vulnerabilitiesConfig != nil && vulnerabilitiesConfig.Enabled != nil && !*vulnerabilitiesConfig.Enabled {
+		return familiesVulnerabilities.Config{}
+	}
+	return familiesVulnerabilities.Config{
+		Enabled: true,
+		// TODO(sambetts) This choice should come from the user's configuration
+		ScannersList:  []string{"grype", "trivy"},
+		InputFromSbom: true,
+		ScannersConfig: &kubeclarityConfig.Config{
+			// TODO(sambetts) The user needs to be able to provide this configuration
+			Registry: &kubeclarityConfig.Registry{},
+			Scanner: &kubeclarityConfig.Scanner{
+				GrypeConfig: kubeclarityConfig.GrypeConfig{
+					Mode: kubeclarityConfig.ModeLocal,
+					LocalGrypeConfig: kubeclarityConfig.LocalGrypeConfig{
+						UpdateDB:   true,
+						DBRootDir:  "/tmp/",
+						ListingURL: "https://toolbox-data.anchore.io/grype/databases/listing.json",
+						Scope:      source.SquashedScope,
+					},
+				},
+				TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
+					Timeout: TrivyTimeout,
+				},
+			},
+		},
+	}
 }
 
 func (s *Scanner) deleteJobIfNeeded(ctx context.Context, job *types.Job, isSuccessfulJob, isCompletedJob bool) {

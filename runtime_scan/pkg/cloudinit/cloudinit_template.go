@@ -20,10 +20,10 @@ package_upgrade: true
 packages:
   - docker.io
 write_files:
-  - path: /opt/vmclarity/scanconfig.json
+  - path: /opt/vmclarity/scanconfig.yaml
     permissions: "0644"
     content: |
-      {{ .Config }}
+      {{ .ScannerCLIConfig }}
   - path: /etc/systemd/system/vmclarity-scanner.service
     permissions: "0644"
     content: |
@@ -36,7 +36,13 @@ write_files:
       Type=oneshot
       WorkingDirectory=/opt/vmclarity
       ExecStartPre=docker pull {{ .ScannerImage }}
-      ExecStart=docker run --rm --name %n -v /mnt/snapshot:{{ .DirToScan }} -v /opt/vmclarity:/vmclarity {{ .ScannerImage }} {{ .ScannerCommand }}
+      ExecStart=docker run --rm --name %n \
+          -v /mnt/snapshot:{{ .VolumeMountDirectory }} \
+          -v /opt/vmclarity:/opt/vmclarity \
+          {{ .ScannerImage }} \
+          --config /opt/vmclarity/scanconfig.yaml \
+          --server {{ .ServerAddress }} \
+          --scan-result-id {{ .ScanResultID }}
 
       [Install]
       WantedBy=multi-user.target

@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/cloudinit"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/config/aws"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
@@ -186,11 +187,20 @@ func convertBool(all *bool) bool {
 	return false
 }
 
-func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, scannerConfig *models.ScanConfig) (types.Instance, error) {
-	userData, err := cloudinit.GenerateCloudInit("TODO config", c.awsConfig.DeviceName)
+func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, config provider.ScanningJobConfig) (types.Instance, error) {
+	cloudInitData := cloudinit.Data{
+		Volume:               c.awsConfig.DeviceName,
+		ScannerCLIConfig:     config.ScannerCLIConfig,
+		ScannerImage:         config.ScannerImage,
+		ServerAddress:        config.VMClarityAddress,
+		ScanResultID:         config.ScanResultID,
+		VolumeMountDirectory: config.VolumeMountDirectory,
+	}
+	userData, err := cloudinit.GenerateCloudInit(cloudInitData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate cloud-init: %v", err)
 	}
+
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),

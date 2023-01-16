@@ -22,9 +22,17 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 )
 
+type ScanningJobConfig struct {
+	ScannerImage         string // Scanner Container Image to use containing the vmclarity-cli and tools
+	ScannerCLIConfig     string // Scanner CLI config yaml (families config yaml)
+	VolumeMountDirectory string // The directory where the scanner should mount the volume to scan so that the CLI can find it
+	VMClarityAddress     string // The backend address for the scanner CLI to export too
+	ScanResultID         string // The ID of the ScanResult that the scanner CLI should update
+}
+
 type Client interface {
 	// Discover - list VM instances in the account according to the scan scope.
 	Discover(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error)
 	// RunScanningJob - run a scanning job
-	RunScanningJob(ctx context.Context, snapshot types.Snapshot, scannerConfig *models.ScanConfig) (types.Instance, error)
+	RunScanningJob(ctx context.Context, snapshot types.Snapshot, config ScanningJobConfig) (types.Instance, error)
 }

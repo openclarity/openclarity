@@ -17,34 +17,30 @@ package cloudinit
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"text/template"
 )
 
-func GenerateCloudInit(scannerConfig string, deviceName string) (string, error) {
-	// TODO: Create a new config struct for scannerConfig.
-	vars := make(map[string]interface{})
+type Data struct {
+	Volume               string // Volume to mount e.g. /dev/sdc
+	VolumeMountDirectory string // Directory to mount the volume too (must match whats in the ScannerConfig for inputs)
+	ScannerCLIConfig     string // Scanner families configuration file yaml
+	ScannerImage         string // Scanner container image to use
+	ServerAddress        string // IP address of VMClarity backend for export
+	ScanResultID         string // ScanResult ID to export the results to
+}
+
+func GenerateCloudInit(data Data) (string, error) {
 	// parse cloud-init template
 	tmpl, err := template.New("cloud-init").Parse(cloudInitTmpl)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse cloud-init template: %v", err)
 	}
-	vars["Volume"] = deviceName
-	vars["ScannerImage"] = scannerConfig   // TODO: Create a new config struct and get the relevant field
-	vars["ScannerCommand"] = scannerConfig // TODO: Create a new config struct and get the relevant field
-	vars["DirToScan"] = scannerConfig
 
-	scannerJobConfigB, err := json.Marshal(scannerConfig) // TODO: Create a new config struct
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal config: %v", err)
-	}
-	vars["Config"] = bytes.NewBuffer(scannerJobConfigB).String()
+	// execute template using data
 	var tmplExB bytes.Buffer
-	if err := tmpl.Execute(&tmplExB, vars); err != nil {
+	if err := tmpl.Execute(&tmplExB, data); err != nil {
 		return "", fmt.Errorf("failed to execute cloud-init template: %v", err)
 	}
-
-	cloudInit := tmplExB.String()
-	return cloudInit, nil
+	return tmplExB.String(), nil
 }

@@ -105,6 +105,13 @@ Resources:
             apt:
               docker.io: []
           files:
+            "/etc/vmclarity/render_config.sh":
+              content: |
+                #!/bin/bash
+                set -euo pipefail
+                local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+                sed -i "s/__BACKEND_REST_ADDRESS__/${local_ip_address}/" /etc/vmclarity/config.env
+              mode: "000744"
             "/etc/vmclarity/config.env":
               content:
                 Fn::Sub:
@@ -114,8 +121,9 @@ Resources:
                     AWS_SUBNET_ID=${VmClaritySubnet}
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
-                    BACKEND_REST_ADDRESS=${VmClarityServer.PublicDnsName}
+                    BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
                     BACKEND_REST_PORT=8888
+                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -123,6 +131,7 @@ Resources:
                         - AWSInstanceType2Arch
                         - !Ref InstanceType
                         - Arch
+              mode: "000644"
             "/lib/systemd/system/vmclarity.service":
               content: |
                 [Unit]
@@ -136,23 +145,23 @@ Resources:
                 ExecStartPre=-/usr/bin/docker stop %n
                 ExecStartPre=-/usr/bin/docker rm %n
                 ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                # TODO(sambetts) Update to point at VMClarity image
-                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity:558c422f942179fc5f4e8264a0fd21fd8942ef8a
-                # TODO(sambetts) Update to expose VMClarity UI, API ports,
-                # env configurations and remove the sleep command
+                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
                 ExecStart=/usr/bin/docker run \
                   --rm --name %n \
                   -p 0.0.0.0:8888:8888/tcp \
                   -v /opt/vmclarity:/data \
                   --env-file /etc/vmclarity/config.env \
-                  tehsmash/vmclarity:558c422f942179fc5f4e8264a0fd21fd8942ef8a run --log-level info
+                  tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3 run --log-level info
 
                 [Install]
                 WantedBy=multi-user.target
+              mode: "000644"
           commands:
-            01enable_vmclarity:
+            01subsitute_rest_address:
+              command: /etc/vmclarity/render_config.sh
+            02enable_vmclarity:
               command: systemctl enable vmclarity.service
-            02start_vmclarity:
+            03start_vmclarity:
               command: systemctl start vmclarity.service
     DependsOn:
       - PublicRoute
