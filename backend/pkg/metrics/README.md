@@ -5,7 +5,14 @@ the endpoint by setting the environment variable `PROMETHEUS_REFRESH_INTERVAL_SE
 to value larger than zero. There is no particular need to scrape these metrics very
 often, so once every 300 seconds is fine.
 
-You can set this value in the `values.yaml` file.
+Enable Prometheus by flipping the "enable" flag to "true" in the `values.yaml`:
+
+```
+kubeclarity:
+  prometheus:
+    enabled: false
+    refreshIntervalSeconds: 300 
+```
 
 The metrics that are exposed are:
 
