@@ -40,7 +40,7 @@ var (
 	output  string
 
 	server       string
-	scanResultId string
+	scanResultID string
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -101,7 +101,10 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("failed to get sbom results: %v", err)
 			}
 
-			bytes, _ := json.Marshal(vulnerabilitiesResults.MergedResults)
+			bytes, err := json.Marshal(vulnerabilitiesResults.MergedResults)
+			if err != nil {
+				return fmt.Errorf("failed to output vulnerabilities results: %v", err)
+			}
 			err = Output(bytes, "vulnerabilities")
 			if err != nil {
 				return fmt.Errorf("failed to output vulnerabilities results: %v", err)
@@ -114,7 +117,10 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("failed to get secrets results: %v", err)
 			}
 
-			bytes, _ := json.Marshal(secretsResults)
+			bytes, err := json.Marshal(secretsResults)
+			if err != nil {
+				return fmt.Errorf("failed to output secrets results: %v", err)
+			}
 			err = Output(bytes, "secrets")
 			if err != nil {
 				return fmt.Errorf("failed to output secrets results: %v", err)
@@ -144,7 +150,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vmclarity.yaml)")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set file path output (default: stdout)")
 	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
-	rootCmd.PersistentFlags().StringVar(&scanResultId, "scan-result-id", "", "the ScanResult ID to export the scan results to")
+	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
 
 	// TODO(sambetts) we may have to change this to our own validation when
 	// we add the CI/CD scenario and there isn't an existing scan-result-id

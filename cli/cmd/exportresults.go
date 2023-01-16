@@ -28,7 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func convertSBOMResultToApiModel(sbomResults *sbom.Results) *models.SbomScan {
+func convertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {
 	packages := []models.Package{}
 
 	if sbomResults.SBOM.Components != nil {
@@ -49,7 +49,7 @@ func convertSBOMResultToApiModel(sbomResults *sbom.Results) *models.SbomScan {
 	}
 }
 
-func convertVulnResultToApiModel(vulnerabilitiesResults *vulnerabilities.Results) *models.VulnerabilityScan {
+func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results) *models.VulnerabilityScan {
 	vulnerabilities := []models.Vulnerability{}
 	for _, vulCandidates := range vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey {
 		if len(vulCandidates) < 1 {
@@ -73,13 +73,14 @@ func convertVulnResultToApiModel(vulnerabilitiesResults *vulnerabilities.Results
 	}
 }
 
+// nolint:cyclop
 func getExistingScanResult(apiClient client.ClientWithResponsesInterface) (models.TargetScanResult, error) {
 	newGetExistingError := func(err error) error {
-		return fmt.Errorf("failed to get existing scan result %v: %w", scanResultId, err)
+		return fmt.Errorf("failed to get existing scan result %v: %w", scanResultID, err)
 	}
 
 	var scanResults models.TargetScanResult
-	resp, err := apiClient.GetScanResultsScanResultIDWithResponse(context.TODO(), models.ScanResultID(scanResultId), &models.GetScanResultsScanResultIDParams{})
+	resp, err := apiClient.GetScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, &models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return scanResults, newGetExistingError(err)
 	}
@@ -106,12 +107,13 @@ func getExistingScanResult(apiClient client.ClientWithResponsesInterface) (model
 	}
 }
 
+// nolint:cyclop
 func patchExistingScanResult(apiClient client.ClientWithResponsesInterface, scanResults models.TargetScanResult) error {
 	newUpdateScanResultError := func(err error) error {
-		return fmt.Errorf("failed to update scan result %v on server %v: %w", scanResultId, server, err)
+		return fmt.Errorf("failed to update scan result %v on server %v: %w", scanResultID, server, err)
 	}
 
-	resp, err := apiClient.PatchScanResultsScanResultIDWithResponse(context.TODO(), models.ScanResultID(scanResultId), scanResults)
+	resp, err := apiClient.PatchScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, scanResults)
 	if err != nil {
 		return newUpdateScanResultError(err)
 	}
@@ -136,7 +138,6 @@ func patchExistingScanResult(apiClient client.ClientWithResponsesInterface, scan
 		}
 		return newUpdateScanResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
-	return nil
 }
 
 func MarkScanResultInProgress() error {
@@ -239,7 +240,7 @@ func ExportSbomResult(res *results.Results) error {
 	if err != nil {
 		errors = append(errors, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
 	} else {
-		scanResults.Sboms = convertSBOMResultToApiModel(sbomResults)
+		scanResults.Sboms = convertSBOMResultToAPIModel(sbomResults)
 	}
 
 	state := models.DONE
@@ -278,7 +279,7 @@ func ExportVulResult(res *results.Results) error {
 	if err != nil {
 		errors = append(errors, fmt.Errorf("failed to get vulnerabilities from scan: %w", err).Error())
 	} else {
-		scanResults.Vulnerabilities = convertVulnResultToApiModel(vulnerabilitiesResults)
+		scanResults.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
 	}
 
 	state := models.DONE
