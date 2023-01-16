@@ -51,6 +51,14 @@ type Scanner struct {
 }
 
 func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scanner {
+	credentialAdders := []_creds.CredentialAdder{}
+	if config.ReadClusterSecrets {
+		credentialAdders = []_creds.CredentialAdder{
+			_creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
+			_creds.CreateECR(clientset, config.CredsSecretNamespace),
+			_creds.CreateGCR(clientset, config.CredsSecretNamespace),
+		}
+	}
 	s := &Scanner{
 		progress: _types.ScanProgress{
 			Status: _types.Idle,
@@ -59,12 +67,8 @@ func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scan
 		killSignal:         make(chan bool),
 		clientset:          clientset,
 		logFields:          log.Fields{"scanner id": uuid.NewV4().String()},
-		credentialAdders: []_creds.CredentialAdder{
-			_creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
-			_creds.CreateECR(clientset, config.CredsSecretNamespace),
-			_creds.CreateGCR(clientset, config.CredsSecretNamespace),
-		},
-		Mutex: sync.Mutex{},
+		credentialAdders:   credentialAdders,
+		Mutex:              sync.Mutex{},
 	}
 
 	return s
