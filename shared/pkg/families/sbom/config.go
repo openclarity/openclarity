@@ -20,12 +20,12 @@ import "github.com/openclarity/kubeclarity/shared/pkg/config"
 type Config struct {
 	Enabled         bool           `yaml:"enabled" mapstructure:"enabled"`
 	AnalyzersList   []string       `yaml:"analyzers_list" mapstructure:"analyzers_list"`
-	Inputs          []Inputs       `yaml:"inputs" mapstructure:"inputs"`
+	Inputs          []Input        `yaml:"inputs" mapstructure:"inputs"`
 	MergeWith       []MergeWith    `yaml:"merge_with" mapstructure:"merge_with"`
 	AnalyzersConfig *config.Config `yaml:"analyzers_config" mapstructure:"analyzers_config"`
 }
 
-type Inputs struct {
+type Input struct {
 	Input     string `yaml:"input" mapstructure:"input"`
 	InputType string `yaml:"input_type" mapstructure:"input_type"`
 }
