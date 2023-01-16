@@ -23,13 +23,14 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func Test_convertSBOMResultToApiModel(t *testing.T) {
+func Test_convertSBOMResultToAPIModel(t *testing.T) {
 	type args struct {
 		result *sbom.Results
 	}
@@ -47,14 +48,14 @@ func Test_convertSBOMResultToApiModel(t *testing.T) {
 				result: &sbom.Results{
 					SBOM: &cdx.BOM{
 						Components: &[]cdx.Component{
-							cdx.Component{
+							{
 								BOMRef:     "bomref1",
 								Type:       cdx.ComponentTypeLibrary,
 								Name:       "testcomponent1",
 								Version:    "v10.0.0-foo",
 								PackageURL: "pkg:pypi/testcomponent1@v10.0.0-foo",
 							},
-							cdx.Component{
+							{
 								BOMRef:     "bomref2",
 								Type:       cdx.ComponentTypeLibrary,
 								Name:       "testcomponent2",
@@ -68,14 +69,14 @@ func Test_convertSBOMResultToApiModel(t *testing.T) {
 			want: returns{
 				sbomScan: &models.SbomScan{
 					Packages: &[]models.Package{
-						models.Package{
+						{
 							Id: utils.StringPtr("bomref1"),
 							PackageInfo: &models.PackageInfo{
 								PackageName:    utils.StringPtr("testcomponent1"),
 								PackageVersion: utils.StringPtr("v10.0.0-foo"),
 							},
 						},
-						models.Package{
+						{
 							Id: utils.StringPtr("bomref2"),
 							PackageInfo: &models.PackageInfo{
 								PackageName:    utils.StringPtr("testcomponent2"),
@@ -105,15 +106,15 @@ func Test_convertSBOMResultToApiModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertSBOMResultToApiModel(tt.args.result)
+			got := convertSBOMResultToAPIModel(tt.args.result)
 			if diff := cmp.Diff(tt.want.sbomScan, got, cmpopts.SortSlices(func(a, b models.Package) bool { return *a.Id < *b.Id })); diff != "" {
-				t.Errorf("convertSBOMResultToApiModel() mismatch (-want +got):\n%s", diff)
+				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
 }
 
-func Test_convertVulnResultToApiModel(t *testing.T) {
+func Test_convertVulnResultToAPIModel(t *testing.T) {
 	type args struct {
 		result *vulnerabilities.Results
 	}
@@ -131,7 +132,7 @@ func Test_convertVulnResultToApiModel(t *testing.T) {
 				result: &vulnerabilities.Results{
 					MergedResults: &scanner.MergedResults{
 						MergedVulnerabilitiesByKey: map[scanner.VulnerabilityKey][]scanner.MergedVulnerability{
-							"vulkey1": []scanner.MergedVulnerability{
+							"vulkey1": {
 								{
 									ID: "id1",
 									Vulnerability: scanner.Vulnerability{
@@ -140,7 +141,7 @@ func Test_convertVulnResultToApiModel(t *testing.T) {
 									},
 								},
 							},
-							"vulkey2": []scanner.MergedVulnerability{
+							"vulkey2": {
 								{
 									ID: "id2",
 									Vulnerability: scanner.Vulnerability{
@@ -149,7 +150,7 @@ func Test_convertVulnResultToApiModel(t *testing.T) {
 									},
 								},
 							},
-							"vulkey3": []scanner.MergedVulnerability{},
+							"vulkey3": {},
 						},
 					},
 				},
@@ -157,14 +158,14 @@ func Test_convertVulnResultToApiModel(t *testing.T) {
 			want: returns{
 				vulScan: &models.VulnerabilityScan{
 					Vulnerabilities: &[]models.Vulnerability{
-						models.Vulnerability{
+						{
 							Id: utils.StringPtr("id1"),
 							VulnerabilityInfo: &models.VulnerabilityInfo{
 								Id:                utils.StringPtr("CVE-test-test-foo"),
 								VulnerabilityName: utils.StringPtr("testbleed"),
 							},
 						},
-						models.Vulnerability{
+						{
 							Id: utils.StringPtr("id2"),
 							VulnerabilityInfo: &models.VulnerabilityInfo{
 								Id:                utils.StringPtr("CVE-test-test-bar"),
@@ -179,9 +180,9 @@ func Test_convertVulnResultToApiModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertVulnResultToApiModel(tt.args.result)
+			got := convertVulnResultToAPIModel(tt.args.result)
 			if diff := cmp.Diff(tt.want.vulScan, got, cmpopts.SortSlices(func(a, b models.Vulnerability) bool { return *a.Id < *b.Id })); diff != "" {
-				t.Errorf("convertVulnResultToApiModel() mismatch (-want +got):\n%s", diff)
+				t.Errorf("convertVulnResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
