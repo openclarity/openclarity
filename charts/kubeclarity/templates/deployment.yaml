@@ -38,7 +38,7 @@ spec:
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
-          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" }}/{{ index .Values "curl" "image" "repository" }}:{{ index .Values "curl" "image" "tag" }}
           args:
             - /bin/sh
             - -c
@@ -62,7 +62,7 @@ spec:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-grype-server'
-          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" }}/{{ index .Values "curl" "image" "repository" }}:{{ index .Values "curl" "image" "tag" }}
           args:
             - /bin/sh
             - -c
@@ -125,6 +125,8 @@ spec:
               value: "{{ include "kubeclarity.name" . }}-scanner-template"
             - name: SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE
               value: "{{ .Release.Namespace }}"
+            - name: READ_CLUSTER_SECRETS
+              value: "{{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}"
           readinessProbe:
             httpGet:
               path: /healthz/ready

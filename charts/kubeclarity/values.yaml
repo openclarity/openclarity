@@ -23,6 +23,16 @@ global:
 #######################################################################################
 
 #######################################################################################
+## Curl Values
+curl:
+  image:
+    registry: "docker.io"
+    repository: curlimages/curl
+    tag: 7.84.0
+## End of Curl Values
+#######################################################################################
+
+#######################################################################################
 ## KubeClarity Values
 
 kubeclarity:
@@ -52,6 +62,9 @@ kubeclarity:
     limits:
       memory: "1000Mi"
       cpu: "1000m"
+
+  clusterRole:
+    readClusterSecrets: true
 
   initContainers:
     resources:
