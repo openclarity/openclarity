@@ -1,3 +1,18 @@
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package metrics
 
 import (
@@ -73,12 +88,21 @@ func CreateMetrics(dbHandler *database.Handler, refreshInterval int) *Server {
 }
 
 func (s *Server) recordSummaryCounters() {
-	pkgCount, _ := s.dbHandler.PackageTable().Count(nil)
-	packageCounter.Set(float64(pkgCount))
-	appCount, _ := s.dbHandler.ApplicationTable().Count(nil)
-	applicationCounter.Set(float64(appCount))
-	resCount, _ := s.dbHandler.ResourceTable().Count(nil)
-	resourceCounter.Set(float64(resCount))
+	if pkgCount, err := s.dbHandler.PackageTable().Count(nil); err != nil {
+		logrus.Warnf("failed to get package count: %v", err)
+	} else {
+		packageCounter.Set(float64(pkgCount))
+	}
+	if appCount, err := s.dbHandler.ApplicationTable().Count(nil); err != nil {
+		logrus.Warnf("failed to get application count: %v", err)
+	} else {
+		applicationCounter.Set(float64(appCount))
+	}
+	if resCount, err := s.dbHandler.ResourceTable().Count(nil); err != nil {
+		logrus.Warnf("failed to get resource count: %v", err)
+	} else {
+		resourceCounter.Set(float64(resCount))
+	}
 }
 
 func (s *Server) recordTrendCounters() {
@@ -100,7 +124,12 @@ func (s *Server) recordTrendCounters() {
 
 // Gauges for fixable vulnerabilities
 func (s *Server) recordFixableVulnerability() {
-	fixableVulnerabilityCount, _ := s.dbHandler.VulnerabilityTable().CountVulnerabilitiesWithFix()
+	fixableVulnerabilityCount, err := s.dbHandler.VulnerabilityTable().CountVulnerabilitiesWithFix()
+	if err != nil {
+		logrus.Warnf("failed to get count of fixable vulnerabilities: %v", err)
+		return
+	}
+
 	var total uint32 = 0
 	var totalWithFix uint32 = 0
 	for _, fix := range fixableVulnerabilityCount {

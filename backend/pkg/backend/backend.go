@@ -75,8 +75,7 @@ func Run() {
 
 	healthServer.SetIsReady(false)
 
-	// globalCtx, globalCancel := context.WithCancel(context.Background())
-	_, globalCancel := context.WithCancel(context.Background())
+	globalCtx, globalCancel := context.WithCancel(context.Background())
 	defer globalCancel()
 
 	log.Info("KubeClarity backend is running")
@@ -113,7 +112,7 @@ func Run() {
 	defer restServer.Stop()
 
 	if config.PrometheusRefreshIntervalSeconds > 0 {
-		metrics.CreateMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics(context.Background())
+		metrics.CreateMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics(globalCtx)
 	}
 
 	healthServer.SetIsReady(true)
