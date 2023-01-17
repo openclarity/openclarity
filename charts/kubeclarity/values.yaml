@@ -58,7 +58,7 @@ kubeclarity:
     annotations: {}
 
   ingress:
-    # Be careful when using ingress. As there is no authentication on Kubeclarity yet, Your instance may be accessible. 
+    # Be careful when using ingress. As there is no authentication on Kubeclarity yet, your instance may be accessible. 
     # Make sure the ingress remains internal if you decide to enable it.
     enabled: false
     labels: {}
@@ -71,10 +71,11 @@ kubeclarity:
     hosts:
         # hostname you want to use
       - host: chart-example.local
-        # path will default to /
+        # paths will default to:
+        # paths:
+        #   - pathType: Prefix
+        #     path: /
         paths: []
-        #  - pathType: Prefix
-        #    path: ["/foo"]
 
     tls: []
     #  - secretName: chart-example-tls
