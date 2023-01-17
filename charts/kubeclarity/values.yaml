@@ -298,49 +298,46 @@ kubeclarity-sbom-db:
 ## KubeClarity Postgres Values
 
 kubeclarity-postgresql:
-  internal:
+  enabled: true
+
+  # If createPasswordSecret true, then should match createPasswordSecretName, 
+  # otherwise set it to your own secret
+  existingSecret: kubeclarity-postgresql-secret
+  database: kubeclarity
+  user: postgres
+  port: 5432
+
+  serviceAccount:
     enabled: true
-
-    ## Setup database name and password
-    auth:
-      # If createPasswordSecret true, then should match createPasswordSecretName, 
-      # otherwise set it to your own secret
-      existingSecret: kubeclarity-postgresql-secret
-      database: kubeclarity
-      user: postgres
-      port: 5432
-
-    serviceAccount:
-      enabled: true
+  securityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: true
+    # fsGroup specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    fsGroup: 1001
+  containerSecurityContext:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: true
+    # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    runAsUser: 1001
+    runAsNonRoot: true
+  volumePermissions:
+    # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
+    enabled: false
+    # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
     securityContext:
-      # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
-      enabled: true
-      # fsGroup specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
-      fsGroup: 1001
-    containerSecurityContext:
-      # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
-      enabled: true
-      # runAsUser specification below is not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
       runAsUser: 1001
-      runAsNonRoot: true
-    volumePermissions:
-      # Default is true for K8s. Enabled needs to false for OpenShift restricted SCC and true for anyuid SCC
-      enabled: false
-      # if using restricted SCC set runAsUser: "auto" and if running under anyuid SCC - runAsUser needs to match the line above
-      securityContext:
-        runAsUser: 1001
-    shmVolume:
-      chmod:
-        # if using restricted SCC with runAsUser: "auto" (above) then set shmVolume.chmod.enabled to false
-        enabled: true
+  shmVolume:
+    chmod:
+      # if using restricted SCC with runAsUser: "auto" (above) then set shmVolume.chmod.enabled to false
+      enabled: true
 
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "250m"
-      limits:
-        memory: "1000Mi"
-        cpu: "1000m"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "1000Mi"
+      cpu: "1000m"
 
   ## initdb parameters
   # initdb:
