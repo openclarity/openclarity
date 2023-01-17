@@ -53,12 +53,12 @@ docker-cli: ## Build CLI Docker image
 	docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) ${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
-		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} .
 
 .PHONY: push-docker-cli
 push-docker-cli: docker-cli ## Build and Push CLI Docker image
 	@echo "Publishing cli docker image ..."
-	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	docker push ${DOCKER_IMAGE}-cli:${DOCKER_TAG}
 
 .PHONY: docker-backend
 docker-backend: ## Build Backend Docker image
@@ -66,18 +66,16 @@ docker-backend: ## Build Backend Docker image
 	docker build --file ./Dockerfile.backend --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+		-t ${DOCKER_IMAGE}-backend:${DOCKER_TAG} .
 
 .PHONY: push-docker-backend
 push-docker-backend: docker-backend ## Build and Push Backend Docker image
 	@echo "Publishing backend docker image ..."
-	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	docker push ${DOCKER_IMAGE}-backend:${DOCKER_TAG}
 
 .PHONY: test
 test: ## Run Unit Tests
-	@(cd backend && go test ./...)
-	@(cd runtime_scan && go test ./...)
-	@(cd cli && go test ./...)
+	@go test ./...
 
 .PHONY: clean-backend
 clean-backend:
@@ -95,16 +93,11 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
-	cd backend && ../bin/golangci-lint run
-	cd runtime_scan && ../bin/golangci-lint run
-	cd cli && ../bin/golangci-lint run
+	./bin/golangci-lint run
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
 	./bin/golangci-lint run --fix
-	cd backend && ../bin/golangci-lint run --fix
-	cd runtime_scan && ../bin/golangci-lint run --fix
-	cd cli && ../bin/golangci-lint run --fix
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
 	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
@@ -116,22 +109,17 @@ bin/licensei-${LICENSEI_VERSION}:
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
 	./bin/licensei header
-	cd backend && ../bin/licensei check --config=../.licensei.toml
-	cd runtime_scan && ../bin/licensei check --config=../.licensei.toml
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
-	cd backend && ../bin/licensei cache --config=../.licensei.toml
-	cd runtime_scan && ../bin/licensei cache --config=../.licensei.toml
+	./bin/licensei cache --config=../.licensei.toml
 
 .PHONY: check
 check: lint test ## Run tests and linters
 
 .PHONY: gomod-tidy
 gomod-tidy:
-	cd backend && go mod tidy
-	cd runtime_scan && go mod tidy
-	cd shared && go mod tidy
+	go mod tidy
 
 .PHONY: api
 api: ## Generating API code

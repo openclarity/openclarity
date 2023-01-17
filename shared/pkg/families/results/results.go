@@ -33,12 +33,13 @@ func (r *Results) SetResults(result any) {
 }
 
 // GetResult returns results for a specific family from the given results slice.
-func GetResult[familyType any](r *Results) (retResult familyType, e error) {
+func GetResult[familyType any](r *Results) (familyType, error) {
 	for _, result := range r.results {
 		res, ok := result.(familyType)
 		if ok {
 			return res, nil
 		}
 	}
-	return retResult, fmt.Errorf("missing result")
+	var res familyType
+	return res, fmt.Errorf("missing result")
 }

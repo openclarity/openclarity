@@ -24,7 +24,7 @@ import (
 )
 
 type Results struct {
-	SBOM   *cdx.BOM
+	SBOM *cdx.BOM
 }
 
 func (*Results) IsResults() {}

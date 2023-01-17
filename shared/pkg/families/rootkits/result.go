@@ -15,7 +15,6 @@
 
 package rootkits
 
-type Results struct {
-}
+type Results struct{}
 
 func (*Results) IsResults() {}

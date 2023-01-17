@@ -17,6 +17,7 @@ package job
 
 import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks"
 )
 
