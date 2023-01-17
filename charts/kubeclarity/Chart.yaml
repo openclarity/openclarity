@@ -15,7 +15,7 @@ dependencies:
   - name: postgresql
     version: "11.6.12"
     repository: https://charts.bitnami.com/bitnami
-    condition: kubeclarity-postgresql.internal.enabled
+    condition: kubeclarity-postgresql.enabled
     alias: kubeclarity-postgresql
   - name: trivy
     version: "0.4.17"
