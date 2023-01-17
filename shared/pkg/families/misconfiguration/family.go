@@ -18,7 +18,7 @@ package misconfiguration
 import (
 	log "github.com/sirupsen/logrus"
 
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 )
 
@@ -27,15 +27,15 @@ type Misconfiguration struct {
 	logger *log.Entry
 }
 
-func (m Misconfiguration) Run(res *results.Results) (_interface.IsResults, error) {
-	//TODO implement me
+func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error) {
+	// TODO implement me
 	m.logger.Info("Misconfiguration Run...")
 	m.logger.Info("Misconfiguration Done...")
 	return &Results{}, nil
 }
 
-// ensure types implement the requisite interfaces
-var _ _interface.Family = &Misconfiguration{}
+// ensure types implement the requisite interfaces.
+var _ interfaces.Family = &Misconfiguration{}
 
 func New(logger *log.Entry, conf Config) *Misconfiguration {
 	return &Misconfiguration{

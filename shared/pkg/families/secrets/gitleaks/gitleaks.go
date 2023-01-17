@@ -25,6 +25,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	gitleaksconfig "github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks/config"
 	sharedutils "github.com/openclarity/vmclarity/shared/pkg/utils"
@@ -76,6 +77,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		reportPath := file.Name()
 
 		// ./gitleaks detect --source=<source> --no-git -r <report-path> -f json --exit-code 0
+		// nolint:gosec
 		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", userInput), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0")
 		a.logger.Infof("running gitleaks command: %v", cmd.String())
 		_, err = sharedutils.RunCommand(cmd)
@@ -104,6 +106,8 @@ func (a *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
 	case utils.DIR, utils.ROOTFS:
 		return true
+	case utils.FILE, utils.IMAGE, utils.SBOM:
+		fallthrough
 	default:
 		a.logger.Infof("source type %v is not supported for gitleaks, skipping.", sourceType)
 	}

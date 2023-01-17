@@ -22,7 +22,8 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	familiesinterface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/job"
@@ -33,7 +34,7 @@ type Secrets struct {
 	logger *log.Entry
 }
 
-func (s Secrets) Run(res *familiesresults.Results) (familiesinterface.IsResults, error) {
+func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 	s.logger.Info("Secrets Run...")
 
 	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, s.logger, job.Factory)
@@ -58,8 +59,8 @@ func (s Secrets) Run(res *familiesresults.Results) (familiesinterface.IsResults,
 	}, nil
 }
 
-// ensure types implement the requisite interfaces
-var _ familiesinterface.Family = &Secrets{}
+// ensure types implement the requisite interfaces.
+var _ interfaces.Family = &Secrets{}
 
 func New(logger *log.Entry, conf Config) *Secrets {
 	return &Secrets{

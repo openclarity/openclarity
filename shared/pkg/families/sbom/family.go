@@ -22,12 +22,12 @@ import (
 	cliutils "github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
+	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	log "github.com/sirupsen/logrus"
 
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
 )
 
@@ -36,7 +36,7 @@ type SBOM struct {
 	conf   Config
 }
 
-func (s SBOM) Run(res *familiesresults.Results) (_interface.IsResults, error) {
+func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 	s.logger.Info("SBOM Run...")
 
 	if len(s.conf.Inputs) == 0 {
@@ -93,12 +93,12 @@ func (s SBOM) Run(res *familiesresults.Results) (_interface.IsResults, error) {
 	s.logger.Info("SBOM Done...")
 
 	return &Results{
-		SBOM:   cdxBom,
+		SBOM: cdxBom,
 	}, nil
 }
 
-// ensure types implement the requisite interfaces
-var _ _interface.Family = &SBOM{}
+// ensure types implement the requisite interfaces.
+var _ interfaces.Family = &SBOM{}
 
 func New(logger *log.Entry, conf Config) *SBOM {
 	return &SBOM{

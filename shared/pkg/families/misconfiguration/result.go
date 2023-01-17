@@ -15,7 +15,6 @@
 
 package misconfiguration
 
-type Results struct {
-}
+type Results struct{}
 
 func (*Results) IsResults() {}

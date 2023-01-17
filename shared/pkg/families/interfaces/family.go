@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package _interface
+package interfaces
 
 import "github.com/openclarity/vmclarity/shared/pkg/families/results"
 

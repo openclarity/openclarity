@@ -2,32 +2,19 @@ FROM golang:1.19.5-alpine AS builder
 
 RUN apk add --update --no-cache gcc g++ git
 
+# Copy vmclarity code to /build
+COPY . /build
+
+# Build backend code
+WORKDIR /build/backend
+
 ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
 
-# Copy api code
-WORKDIR /build
-COPY api ./api
-
-# Copy runtime_scan go.mod & go.sum
-WORKDIR /build/runtime_scan
-COPY runtime_scan/go.* ./
-RUN go mod download
-
-# Copy runtime_scan code
-WORKDIR /build
-COPY runtime_scan ./runtime_scan
-
-# Copy backend go.mod & go.sum
-WORKDIR /build/backend
-COPY backend/go.* ./
-RUN go mod download
-
-# Copy and build backend code
-WORKDIR /build/backend
-COPY backend .
-RUN go build -ldflags="-s -w \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go

@@ -4,21 +4,11 @@ FROM golang:1.19.5-alpine AS builder
 RUN apk add --update --no-cache ca-certificates git
 RUN apk add build-base
 
-# Copy go.mod and go.sum
-WORKDIR /build
-COPY go.* .
+# Copy vmclarity code to /build
+COPY . /build
 
-# Copy api code
-WORKDIR /build/api
-COPY api .
-
-# Copy shared code
-WORKDIR /build/shared
-COPY shared .
-
-# Copy and build cli code
+# Build cli code
 WORKDIR /build/cli
-COPY cli .
 
 ARG COMMIT_HASH
 
@@ -31,7 +21,7 @@ FROM ${VMCLARITY_TOOLS_BASE}
 
 WORKDIR /app
 
-COPY --from=builder /build/cli/cli ./cli
+COPY --from=builder /build/cli/cli ./vmclarity-cli
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-ENTRYPOINT ["/app/cli"]
+ENTRYPOINT ["/app/vmclarity-cli"]

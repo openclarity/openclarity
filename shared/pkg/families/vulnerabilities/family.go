@@ -26,7 +26,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 )
@@ -41,7 +41,7 @@ type Vulnerabilities struct {
 	ScannersConfig config.Config
 }
 
-func (v Vulnerabilities) Run(res *results.Results) (_interface.IsResults, error) {
+func (v Vulnerabilities) Run(res *results.Results) (interfaces.IsResults, error) {
 	v.logger.Info("Vulnerabilities Run...")
 
 	manager := job_manager.New(v.conf.ScannersList, v.conf.ScannersConfig, v.logger, job.Factory)
@@ -78,7 +78,7 @@ func (v Vulnerabilities) Run(res *results.Results) (_interface.IsResults, error)
 	for _, input := range v.conf.Inputs {
 		runResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to run for input %v of type %v: %w", input.Input, input.InputType, err)
 		}
 
 		// Merge results.
@@ -103,8 +103,8 @@ func (v Vulnerabilities) Run(res *results.Results) (_interface.IsResults, error)
 	}, nil
 }
 
-// ensure types implement the requisite interfaces
-var _ _interface.Family = &Vulnerabilities{}
+// ensure types implement the requisite interfaces.
+var _ interfaces.Family = &Vulnerabilities{}
 
 func New(logger *log.Entry, conf Config) *Vulnerabilities {
 	return &Vulnerabilities{
