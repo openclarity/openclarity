@@ -27,6 +27,8 @@ const (
 	BackendRestPort    = "BACKEND_REST_PORT"
 	HealthCheckAddress = "HEALTH_CHECK_ADDRESS"
 
+	PrometheusRefreshIntervalSeconds = "PROMETHEUS_REFRESH_INTERVAL_SECONDS"
+
 	DBNameEnvVar              = "DB_NAME"
 	DBUserEnvVar              = "DB_USER"
 	DBPasswordEnvVar          = "DB_PASS"
@@ -43,6 +45,9 @@ const (
 type Config struct {
 	BackendRestPort    int
 	HealthCheckAddress string
+
+	// How often to refresh Prometheus data in seconds
+	PrometheusRefreshIntervalSeconds int
 
 	// database config
 	DatabaseDriver            string
@@ -62,6 +67,8 @@ func LoadConfig() (*Config, error) {
 
 	config.BackendRestPort = viper.GetInt(BackendRestPort)
 	config.HealthCheckAddress = viper.GetString(HealthCheckAddress)
+
+	config.PrometheusRefreshIntervalSeconds = viper.GetInt(PrometheusRefreshIntervalSeconds)
 
 	config.DatabaseDriver = viper.GetString(DatabaseDriver)
 	config.DBPassword = viper.GetString(DBPasswordEnvVar)
