@@ -1,5 +1,5 @@
 {{- if index .Values "kubeclarity-postgresql" "internal" "enabled" }}
-{{- if index .Values "kubeclarity-postgresql" "external" "enabled" }}
+{{- if index .Values "kubeclarity-postgresql-external" "enabled" }}
 {{- fail "kubeclarity-postgresql.internal and kubeclarity-postgresql.external can not both be enabled!" }}
 {{- end }}
 {{- end }}
@@ -9,13 +9,13 @@
 {{- $dbName := index .Values "kubeclarity-postgresql" "internal" "auth" "database" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "internal" "auth" "existingSecret" -}}
 {{- $secretKey := index .Values "kubeclarity-postgresql" "internal" "auth" "secretKey" -}}
-{{ if index .Values "kubeclarity-postgresql" "external" "enabled" }}
-  {{- $dbHost = index .Values "kubeclarity-postgresql" "external" "auth" "host" -}}
-  {{- $dbPort = index .Values "kubeclarity-postgresql" "external" "auth" "port" | quote -}}
-  {{- $dbUser = index .Values "kubeclarity-postgresql" "external" "auth" "user" -}}
-  {{- $dbName = index .Values "kubeclarity-postgresql" "external" "auth" "database" -}}
-  {{- $secretName = index .Values "kubeclarity-postgresql" "external" "auth" "existingSecret" -}}
-  {{- $secretKey := index .Values "kubeclarity-postgresql" "external" "auth" "secretKey" -}}
+{{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
+  {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
+  {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
+  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
+  {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
+  {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
+  {{- $secretKey := index .Values "kubeclarity-postgresql-external" "auth" "secretKey" -}}
 {{ end }}
 apiVersion: apps/v1
 kind: Deployment

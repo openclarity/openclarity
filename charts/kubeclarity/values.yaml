@@ -348,19 +348,6 @@ kubeclarity-postgresql:
         memory: "1000Mi"
         cpu: "1000m"
 
-  # if you want to use an already deployed postgresql database, use the external key
-  external:
-    enabled: false
-
-    auth:
-      # If createPasswordSecret true, then should match createPasswordSecretName, 
-      # otherwise set it to your own secret
-      existingSecret: kubeclarity-postgresql-secret
-      database: kubeclarity
-      user: kubeclarity
-      host: pgsql.hostname # replace this to reach your PostgreSQL instance
-      port: 5432
-
   ## initdb parameters
   # initdb:
     ##  ConfigMap with scripts to be run at first boot
@@ -381,3 +368,15 @@ kubeclarity-postgresql:
 
 # End of KubeClarity Postgres Values
 #######################################################################################
+
+kubeclarity-postgresql-external:
+  enabled: false
+  auth:
+    # If createPasswordSecret true, then should match createPasswordSecretName, 
+    # otherwise set it to your own secret
+    existingSecret: kubeclarity-postgresql-secret
+    database: kubeclarity
+    user: kubeclarity
+    host: pgsql.hostname # replace this to reach your PostgreSQL instance
+    port: 5432
+  
