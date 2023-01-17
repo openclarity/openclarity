@@ -174,16 +174,18 @@ func (s *Server) recordApplicationVulnerabilities() {
 }
 
 func (s *Server) StartRecordingMetrics(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			logrus.Info("received stop event")
-			return
-		case <-time.After(time.Duration(s.refreshInterval) * time.Second):
-			s.recordFixableVulnerability()
-			s.recordSummaryCounters()
-			s.recordApplicationVulnerabilities()
-			s.recordTrendCounters()
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				logrus.Info("received stop event")
+				return
+			case <-time.After(time.Duration(s.refreshInterval) * time.Second):
+				s.recordFixableVulnerability()
+				s.recordSummaryCounters()
+				s.recordApplicationVulnerabilities()
+				s.recordTrendCounters()
+			}
 		}
-	}
+	}()
 }
