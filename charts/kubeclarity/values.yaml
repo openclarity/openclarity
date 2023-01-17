@@ -28,7 +28,7 @@ curl:
   image:
     registry: "docker.io"
     repository: curlimages/curl
-    tag: 7.84.0
+    tag: 7.87.0
 ## End of Curl Values
 #######################################################################################
 
