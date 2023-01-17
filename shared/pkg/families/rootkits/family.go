@@ -18,7 +18,7 @@ package rootkits
 import (
 	log "github.com/sirupsen/logrus"
 
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 )
 
@@ -27,15 +27,15 @@ type Rootkits struct {
 	logger *log.Entry
 }
 
-func (r Rootkits) Run(res *results.Results) (_interface.IsResults, error) {
-	//TODO implement me
+func (r Rootkits) Run(res *results.Results) (interfaces.IsResults, error) {
+	// TODO implement me
 	r.logger.Info("Rootkits Run...")
 	r.logger.Info("Rootkits Done...")
 	return &Results{}, nil
 }
 
-// ensure types implement the requisite interfaces
-var _ _interface.Family = &Rootkits{}
+// ensure types implement the requisite interfaces.
+var _ interfaces.Family = &Rootkits{}
 
 func New(logger *log.Entry, conf Config) *Rootkits {
 	return &Rootkits{

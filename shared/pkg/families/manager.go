@@ -16,10 +16,12 @@
 package families
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
-	_interface "github.com/openclarity/vmclarity/shared/pkg/families/interface"
+	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
@@ -31,7 +33,7 @@ import (
 
 type Manager struct {
 	config   *Config
-	families []_interface.Family
+	families []interfaces.Family
 }
 
 func New(logger *log.Entry, config *Config) *Manager {
@@ -78,7 +80,7 @@ func (m *Manager) Run() (*results.Results, error) {
 	for _, family := range m.families {
 		ret, err := family.Run(familiesResults)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to run family %T: %w", family, err)
 		}
 		familiesResults.SetResults(ret)
 	}

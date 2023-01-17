@@ -31,7 +31,7 @@ type Findings struct {
 	StartColumn int    `json:"start_column"`
 	EndColumn   int    `json:"end_column"`
 
-	Line string `json:"-" json:"line"`
+	Line string `json:"line"`
 
 	Match string `json:"match"`
 
@@ -56,7 +56,7 @@ type Findings struct {
 	// Rule is the name of the rule that was matched
 	RuleID string `json:"rule_id"`
 
-	// unique identifer
+	// unique identifier
 	Fingerprint string `json:"fingerprint"`
 }
 

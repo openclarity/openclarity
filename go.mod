@@ -4,14 +4,24 @@ go 1.19
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
+	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
+	github.com/aws/aws-sdk-go-v2/config v1.17.10
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.63.1
+	github.com/deepmap/oapi-codegen v1.12.3
 	github.com/ghodss/yaml v1.0.0
+	github.com/google/go-cmp v0.5.9
+	github.com/labstack/echo/v4 v4.9.1
 	github.com/openclarity/kubeclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
-	github.com/openclarity/vmclarity/runtime_scan v0.0.0-00010101000000-000000000000
+	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
+	github.com/urfave/cli v1.22.7
+	gorm.io/driver/sqlite v1.3.6
+	gorm.io/gorm v1.23.5
+	gotest.tools/v3 v3.2.0
 )
 
 require (
@@ -79,7 +89,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aws/aws-sdk-go v1.44.114 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.1 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.17.10 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.23 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.19 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.25 // indirect
@@ -127,7 +136,6 @@ require (
 	github.com/cyberphone/json-canonicalization v0.0.0-20210823021906-dc406ceaf94b // indirect
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deepmap/oapi-codegen v1.12.3 // indirect
 	github.com/dgryski/go-minhash v0.0.0-20170608043002-7fe510aff544 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -154,6 +162,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/fullstorydev/grpcurl v1.8.7 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.0 // indirect
+	github.com/getkin/kin-openapi v0.107.0 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
 	github.com/go-enry/go-license-detector/v4 v4.3.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
@@ -192,7 +201,6 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/certificate-transparency-go v1.1.3 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-containerregistry v0.12.0 // indirect
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20220413173345-f1b065c6cb3d // indirect
 	github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20220425181515-fc6ff852e45e // indirect
@@ -231,13 +239,14 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/in-toto/in-toto-golang v0.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jdkato/prose v1.1.0 // indirect
 	github.com/jedisct1/go-minisign v0.0.0-20211028175153-1c139d1cc84b // indirect
 	github.com/jhump/protoreflect v1.13.0 // indirect
 	github.com/jinzhu/copier v0.3.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
@@ -252,6 +261,7 @@ require (
 	github.com/knqyf263/go-rpm-version v0.0.0-20220614171824-631e686d1075 // indirect
 	github.com/knqyf263/go-rpmdb v0.0.0-20221030142135-919c8a52f04f // indirect
 	github.com/knqyf263/nested v0.0.1 // indirect
+	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
@@ -267,6 +277,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mattn/go-sqlite3 v1.14.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
 	github.com/microsoft/go-rustaudit v0.0.0-20220808201409-204dfee52032 // indirect
@@ -286,6 +297,7 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
@@ -325,7 +337,6 @@ require (
 	github.com/saracen/walker v0.0.0-20191201085201-324a081bae7e // indirect
 	github.com/sassoftware/go-rpmutils v0.2.0 // indirect
 	github.com/sassoftware/relic v0.0.0-20210427151427-dfb082b79b74 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/scylladb/go-set v1.0.3-0.20200225121959-cc7b2070d91e // indirect
 	github.com/secure-systems-lab/go-securesystemslib v0.4.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
@@ -358,7 +369,8 @@ require (
 	github.com/transparency-dev/merkle v0.0.1 // indirect
 	github.com/twitchtv/twirp v8.1.2+incompatible // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	github.com/urfave/cli v1.22.7 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/vbatts/go-mtree v0.5.0 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/vifraa/gopom v0.1.0 // indirect
@@ -430,7 +442,6 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/gorm v1.23.5 // indirect
 	helm.sh/helm/v3 v3.10.3 // indirect
 	k8s.io/api v0.25.3 // indirect
 	k8s.io/apiextensions-apiserver v0.25.2 // indirect
@@ -474,7 +485,29 @@ replace (
 	oras.land/oras-go => oras.land/oras-go v1.1.1
 )
 
-replace (
-	github.com/openclarity/vmclarity/api => ./api
-	github.com/openclarity/vmclarity/runtime_scan => ./runtime_scan
+// Exclude all these versions of syft, they are shipping with an unreleased
+// version of github.com/spdx/tools-golang, which is incompatible with trivy
+exclude (
+	github.com/anchore/syft v0.61.0
+	github.com/anchore/syft v0.62.0
+	github.com/anchore/syft v0.62.1
+	github.com/anchore/syft v0.62.2
+	github.com/anchore/syft v0.62.3
 )
+
+// Exclude all this versions of gorm, they broke their API by changing an int
+// to an *int so github.com/anchore/sqlite is incompatible with it.
+// We'll need to keep adding versions until anchore fixes it.
+exclude (
+	gorm.io/driver/sqlite v1.4.0
+	gorm.io/driver/sqlite v1.4.1
+	gorm.io/driver/sqlite v1.4.2
+	gorm.io/driver/sqlite v1.4.3
+	gorm.io/driver/sqlite v1.4.4
+	gorm.io/gorm v1.24.0
+	gorm.io/gorm v1.24.1
+	gorm.io/gorm v1.24.2
+	gorm.io/gorm v1.24.3
+)
+
+replace github.com/openclarity/vmclarity/api => ./api
