@@ -47,13 +47,17 @@ kubeclarity:
 
   enableDBInfoLog: false
 
+  prometheus:
+    enabled: false
+    refreshIntervalSeconds: 300
+
   podAnnotations: {}
 
   service:
     type: ClusterIP
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
-# dbViewRefreshInterval: 5
+  # dbViewRefreshInterval: 5
 
   resources:
     requests:

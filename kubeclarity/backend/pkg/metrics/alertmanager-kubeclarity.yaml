@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/name: alertmanager-kubeclarity
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/component: alert-router
+    prometheus: k8s
+    role: alert-rules
+  name: alertmanager-kubeclarity
+  namespace: monitoring
+spec:
+  groups:
+    - name: alerts.kubeclarity
+      rules:
+        - alert: PodWithSecurityIssue
+          annotations:
+            description: '{{ $labels.name }} in {{ $labels.environment}} has a new security issue on level CRITICAL or HIGH.'
+          for: 1m
+          expr: increase(kubeclarity_application_vulnerability{severity=~"CRITICAL|HIGH"}[1h]) > 0
+          labels:
+            severity: critical

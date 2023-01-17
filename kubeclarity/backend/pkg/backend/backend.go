@@ -23,6 +23,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/openclarity/kubeclarity/backend/pkg/metrics"
+
 	"github.com/Portshift/go-utils/healthz"
 	k8sutils "github.com/Portshift/go-utils/k8s"
 	log "github.com/sirupsen/logrus"
@@ -75,8 +77,7 @@ func Run() {
 
 	healthServer.SetIsReady(false)
 
-	// globalCtx, globalCancel := context.WithCancel(context.Background())
-	_, globalCancel := context.WithCancel(context.Background())
+	globalCtx, globalCancel := context.WithCancel(context.Background())
 	defer globalCancel()
 
 	log.Info("KubeClarity backend is running")
@@ -111,6 +112,10 @@ func Run() {
 	}
 	restServer.Start(errChan)
 	defer restServer.Stop()
+
+	if config.PrometheusRefreshIntervalSeconds > 0 {
+		metrics.CreateMetrics(dbHandler, config.PrometheusRefreshIntervalSeconds).StartRecordingMetrics(globalCtx)
+	}
 
 	healthServer.SetIsReady(true)
 	log.Info("KubeClarity backend is ready")
