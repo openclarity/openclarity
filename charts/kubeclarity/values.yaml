@@ -298,12 +298,6 @@ kubeclarity-sbom-db:
 ## KubeClarity Postgres Values
 
 kubeclarity-postgresql:
-  # Set createPasswordSecret to true if you want to create a secret 
-  # holding pgsql password based on global.databasePassword value
-  createPasswordSecret: true
-  createPasswordSecretName: kubeclarity-postgresql-secret
-  createPasswordSecretKey: "postgres-password"
-
   internal:
     enabled: true
 
@@ -380,3 +374,9 @@ kubeclarity-postgresql-external:
     host: pgsql.hostname # replace this to reach your PostgreSQL instance
     port: 5432
   
+kubeclarity-postgresql-secret:
+  # Set createPasswordSecret to true if you want to create a secret 
+  # holding pgsql password based on global.databasePassword value
+  createPasswordSecret: true
+  createPasswordSecretName: kubeclarity-postgresql-secret
+  createPasswordSecretKey: "postgres-password"
