@@ -235,8 +235,11 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		}
 	}
 
+	// Scanner job picks the path where the VM volume should be mounted so
+	// that the VMClarity CLI config and the provider are synced up on the
+	// expected location of the volume on disk.
 	volumeMountDirectory := "/vmToBeScanned"
-	familiesConfiguration, err := s.getFamiliesConfigurationYaml(volumeMountDirectory)
+	familiesConfiguration, err := s.generateFamiliesConfigurationYaml(volumeMountDirectory)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to generate scanner configuration yaml: %w", err)
 	}
@@ -257,7 +260,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	return job, nil
 }
 
-func (s *Scanner) getFamiliesConfigurationYaml(scanRootDirectory string) (string, error) {
+func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (string, error) {
 	famConfig := families.Config{
 		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
 		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
@@ -273,7 +276,7 @@ func (s *Scanner) getFamiliesConfigurationYaml(scanRootDirectory string) (string
 }
 
 func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootDirectory string) familiesSbom.Config {
-	if sbomConfig != nil && sbomConfig.Enabled != nil && !*sbomConfig.Enabled {
+	if sbomConfig == nil || sbomConfig.Enabled == nil || !*sbomConfig.Enabled {
 		return familiesSbom.Config{}
 	}
 	return familiesSbom.Config{
@@ -300,7 +303,7 @@ func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootD
 }
 
 func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig) familiesVulnerabilities.Config {
-	if vulnerabilitiesConfig != nil && vulnerabilitiesConfig.Enabled != nil && !*vulnerabilitiesConfig.Enabled {
+	if vulnerabilitiesConfig == nil || vulnerabilitiesConfig.Enabled == nil || !*vulnerabilitiesConfig.Enabled {
 		return familiesVulnerabilities.Config{}
 	}
 	return familiesVulnerabilities.Config{
@@ -313,6 +316,7 @@ func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.Vulnerabil
 			Registry: &kubeclarityConfig.Registry{},
 			Scanner: &kubeclarityConfig.Scanner{
 				GrypeConfig: kubeclarityConfig.GrypeConfig{
+					// TODO(sambetts) Should run grype in remote mode eventually
 					Mode: kubeclarityConfig.ModeLocal,
 					LocalGrypeConfig: kubeclarityConfig.LocalGrypeConfig{
 						UpdateDB:   true,
