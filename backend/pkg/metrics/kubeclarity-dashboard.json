@@ -38,7 +38,7 @@
       },
       "id": 12,
       "panels": [],
-      "title": "Vulnerabilities by environment and severity",
+      "title": "Vulnerabilities by environment and importance",
       "type": "row"
     },
     {
@@ -63,7 +63,7 @@
             {
               "targetBlank": false,
               "title": "Drill down",
-              "url": "d/Dqp5vA24z/kubeclarity?var-severity=${__field.labels.severity}﻿&${environment:queryparam}"
+              "url": "d/Dqp5vA24z/kubeclarity?var-importance=${__field.labels.importance}﻿&${environment:queryparam}"
             }
           ],
           "mappings": []
@@ -103,7 +103,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (severity) (kubeclarity_application_vulnerability{environment=\"$environment\"})",
+          "expr": "sum by (importance) (kubeclarity_application_vulnerability{environment=\"$environment\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -134,7 +134,7 @@
             {
               "targetBlank": false,
               "title": "Drill down on environment",
-              "url": "d/Dqp5vA24z/kubeclarity?var-environment=${__field.labels.environment}&${severity:queryparam}"
+              "url": "d/Dqp5vA24z/kubeclarity?var-environment=${__field.labels.environment}&${importance:queryparam}"
             }
           ],
           "mappings": []
@@ -175,13 +175,13 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (environment) (kubeclarity_application_vulnerability{severity=\"$severity\"})",
+          "expr": "sum by (environment) (kubeclarity_application_vulnerability{importance=\"$importance\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Environments with vulnerabilities at $severity level",
+      "title": "Environments with vulnerabilities at $importance level",
       "type": "piechart"
     },
     {
@@ -206,7 +206,7 @@
             {
               "targetBlank": false,
               "title": "Drill down",
-              "url": "d/Dqp5vA24z/kubeclarity?var-severity=${__field.labels.severity}﻿&${environment:queryparam}"
+              "url": "d/Dqp5vA24z/kubeclarity?var-importance=${__field.labels.importance}﻿&${environment:queryparam}"
             }
           ],
           "mappings": []
@@ -246,13 +246,13 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (name) (kubeclarity_application_vulnerability{environment=\"$environment\", severity=\"$severity\"})",
+          "expr": "sum by (name) (kubeclarity_application_vulnerability{environment=\"$environment\", importance=\"$importance\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Application vulnerabilities of level $severity in $environment",
+      "title": "Application vulnerabilities of level $importance in $environment",
       "type": "piechart"
     },
     {
@@ -353,13 +353,13 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (environment) (kubeclarity_application_vulnerability{severity=\"$severity\"})",
+          "expr": "sum by (environment) (kubeclarity_application_vulnerability{importance=\"$importance\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Trend at $severity level",
+      "title": "Trend at $importance level",
       "type": "timeseries"
     },
     {
@@ -774,13 +774,13 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (severity) (kubeclarity_number_of_vulnerabilities)",
+          "expr": "sum by (importance) (kubeclarity_number_of_vulnerabilities)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Vulnerabilities by severity",
+      "title": "Vulnerabilities by importance",
       "type": "timeseries"
     },
     {
@@ -870,13 +870,13 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum by (severity) (kubeclarity_number_of_fixable_vulnerabilities)",
+          "expr": "sum by (importance) (kubeclarity_number_of_fixable_vulnerabilities)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Fixable vulnerabilities by severity",
+      "title": "Fixable vulnerabilities by importance",
       "type": "timeseries"
     }
   ],
@@ -922,15 +922,15 @@
           "type": "prometheus",
           "uid": "P1809F7CD0C75ACF3"
         },
-        "definition": "label_values(kubeclarity_application_vulnerability, severity)",
+        "definition": "label_values(kubeclarity_application_vulnerability, importance)",
         "description": "",
         "hide": 0,
         "includeAll": false,
         "multi": false,
-        "name": "severity",
+        "name": "importance",
         "options": [],
         "query": {
-          "query": "label_values(kubeclarity_application_vulnerability, severity)",
+          "query": "label_values(kubeclarity_application_vulnerability, importance)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
