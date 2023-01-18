@@ -300,9 +300,12 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   enabled: true
 
-  database: kubeclarity
-  user: postgres
-  port: 5432
+  ## Setup database name and password
+  auth:
+    user: postgres
+    port: 5432
+    database: kubeclarity
+    existingSecret: kubeclarity-postgresql-secret
 
   serviceAccount:
     enabled: true
@@ -361,17 +364,17 @@ kubeclarity-postgresql:
 kubeclarity-postgresql-external:
   enabled: false
   auth:
-    database: kubeclarity
     user: kubeclarity
     host: pgsql.hostname # replace this to reach your PostgreSQL instance
     port: 5432
+    database: kubeclarity
+    existingSecret: kubeclarity-postgresql-secret
 
 # PostgreSQL connection information
 kubeclarity-postgresql-secret:
-  # Set createPasswordSecret to true if you want this helm chart 
+  # Set create to true if you want this helm chart 
   # to create a secret holding pgsql password based on global.databasePassword value
-  # If createPasswordSecret is set to false, a secret should already exist which matches
+  # If create is set to false, a secret should already exist which matches
   # secretName and secretKey values
-  createPasswordSecret: true
-  secretName: kubeclarity-postgresql-secret
+  create: true
   secretKey: "postgres-password"
