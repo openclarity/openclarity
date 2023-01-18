@@ -295,8 +295,8 @@ kubeclarity-sbom-db:
 #######################################################################################
 
 #######################################################################################
-## KubeClarity Postgres Values
-
+## KubeClarity Internal Postgres Values
+## Use kubeclarity-postgresql if you want this chart to deploy a PostgreSQL instance 
 kubeclarity-postgresql:
   enabled: true
 
@@ -354,9 +354,10 @@ kubeclarity-postgresql:
     repository: bitnami/postgresql
     tag: 14.4.0-debian-11-r4
 
-# End of KubeClarity Postgres Values
+# End of KubeClarity Internal Postgres Values
 #######################################################################################
 
+# Use kubeclarity-postgresql-external if you want to reach an already existing PostgreSQL instance
 kubeclarity-postgresql-external:
   enabled: false
   auth:
