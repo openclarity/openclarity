@@ -365,14 +365,12 @@ kubeclarity-postgresql-external:
     host: pgsql.hostname # replace this to reach your PostgreSQL instance
     port: 5432
 
+# PostgreSQL connection information
 kubeclarity-postgresql-secret:
-  # Set createPasswordSecret to true if you want to create a secret 
-  # holding pgsql password based on global.databasePassword value
+  # Set createPasswordSecret to true if you want this helm chart 
+  # to create a secret holding pgsql password based on global.databasePassword value
+  # If createPasswordSecret is set to false, a secret should already exist which matches
+  # secretName and secretKey values
   createPasswordSecret: true
-  createPasswordSecretName: kubeclarity-postgresql-secret
-  createPasswordSecretKey: "postgres-password"
-  # If createPasswordSecret is set to true, then should match createPasswordSecretName, 
-  # otherwise set it to your own secret
-  existingSecret: kubeclarity-postgresql-secret
-  # set secretKey to the key containing the pgsql password, defaults to "postgres-password"
-  # secretKey: postgres-password
+  secretName: kubeclarity-postgresql-secret
+  secretKey: "postgres-password"

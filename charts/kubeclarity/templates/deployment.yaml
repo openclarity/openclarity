@@ -3,7 +3,7 @@
 {{- fail "kubeclarity-postgresql and kubeclarity-postgresql-external can not both be enabled!" }}
 {{- end }}
 {{- end }}
-{{- $secretName := index .Values "kubeclarity-postgresql-secret" "existingSecret" -}}
+{{- $secretName := index .Values "kubeclarity-postgresql-secret" "secretName" -}}
 {{- $secretKey := index .Values "kubeclarity-postgresql-secret" "secretKey" -}}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
 {{- $dbPort := index .Values "kubeclarity-postgresql" "auth" "port" | quote -}}
