@@ -6,9 +6,9 @@ package orchestrator
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 	config "github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
 	types "github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
+	reflect "reflect"
 )
 
 // MockVulnerabilitiesScanner is a mock of VulnerabilitiesScanner interface
@@ -61,17 +61,18 @@ func (mr *MockVulnerabilitiesScannerMockRecorder) Results() *gomock.Call {
 }
 
 // Scan mocks base method
-func (m *MockVulnerabilitiesScanner) Scan(arg0 *config.ScanConfig, arg1 chan struct{}) error {
+func (m *MockVulnerabilitiesScanner) Scan(arg0 *config.ScanConfig) (chan struct{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Scan", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "Scan", arg0)
+	ret0, _ := ret[0].(chan struct{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Scan indicates an expected call of Scan
-func (mr *MockVulnerabilitiesScannerMockRecorder) Scan(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockVulnerabilitiesScannerMockRecorder) Scan(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockVulnerabilitiesScanner)(nil).Scan), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockVulnerabilitiesScanner)(nil).Scan), arg0)
 }
 
 // ScanProgress mocks base method

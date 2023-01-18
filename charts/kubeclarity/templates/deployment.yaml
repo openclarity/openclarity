@@ -38,7 +38,7 @@ spec:
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
-          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" }}/{{ index .Values "curl" "image" "repository" }}:{{ index .Values "curl" "image" "tag" }}
           args:
             - /bin/sh
             - -c
@@ -62,7 +62,7 @@ spec:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-grype-server'
-          image: curlimages/curl:7.84.0
+          image: {{ index .Values "curl" "image" "registry" }}/{{ index .Values "curl" "image" "repository" }}:{{ index .Values "curl" "image" "tag" }}
           args:
             - /bin/sh
             - -c
@@ -100,6 +100,10 @@ spec:
           env:
             - name: ENABLE_DB_INFO_LOGS
               value: "{{ .Values.kubeclarity.enableDBInfoLog }}"
+{{- if index .Values.kubeclarity.prometheus.enabled }}
+            - name: PROMETHEUS_REFRESH_INTERVAL_SECONDS
+              value: "{{ .Values.kubeclarity.prometheus.refreshIntervalSeconds }}"
+{{- end }}
             # DB envs
             {{- if .Values.kubeclarity.dbViewRefreshInterval }}
             - name: DB_VIEW_REFRESH_INTERVAL
@@ -125,6 +129,18 @@ spec:
               value: "{{ include "kubeclarity.name" . }}-scanner-template"
             - name: SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE
               value: "{{ .Release.Namespace }}"
+            - name: READ_CLUSTER_SECRETS
+              value: "{{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}"
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8888
+              name: scan-results
+              protocol: TCP
+            - containerPort: 8081
+              name: health
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /healthz/ready

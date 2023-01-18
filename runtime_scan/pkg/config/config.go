@@ -29,12 +29,14 @@ const (
 	ScannerJobTemplateConfigMapName      = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAME"
 	ScannerJobTemplateConfigMapNamespace = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE"
 	defaultScannerJobResultListenPort    = 8888
+	ReadClusterSecrets                   = "READ_CLUSTER_SECRETS" // nolint: gosec
 )
 
 type Config struct {
 	ScannerJobResultListenPort int
 	CredsSecretNamespace       string
 	ScannerJobTemplate         *batchv1.Job
+	ReadClusterSecrets         bool
 }
 
 func setConfigDefaults() {
@@ -42,6 +44,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ScannerJobTemplateConfigMapName, "")
 	viper.SetDefault(ScannerJobTemplateConfigMapNamespace, "kubeclarity")
 	viper.SetDefault(ScannerJobResultListenPort, defaultScannerJobResultListenPort)
+	viper.SetDefault(ReadClusterSecrets, "true")
 
 	viper.AutomaticEnv()
 }
@@ -59,6 +62,7 @@ func LoadConfig(clientset kubernetes.Interface) (*Config, error) {
 		ScannerJobResultListenPort: viper.GetInt(ScannerJobResultListenPort),
 		CredsSecretNamespace:       viper.GetString(CredsSecretNamespace),
 		ScannerJobTemplate:         scannerJobTemplate,
+		ReadClusterSecrets:         viper.GetBool(ReadClusterSecrets),
 	}
 
 	return config, nil

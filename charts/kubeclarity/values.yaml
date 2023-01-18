@@ -23,6 +23,16 @@ global:
 #######################################################################################
 
 #######################################################################################
+## Curl Values
+curl:
+  image:
+    registry: "docker.io"
+    repository: curlimages/curl
+    tag: 7.87.0
+## End of Curl Values
+#######################################################################################
+
+#######################################################################################
 ## KubeClarity Values
 
 kubeclarity:
@@ -37,13 +47,17 @@ kubeclarity:
 
   enableDBInfoLog: false
 
+  prometheus:
+    enabled: false
+    refreshIntervalSeconds: 300
+
   podAnnotations: {}
 
   service:
     type: ClusterIP
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
-# dbViewRefreshInterval: 5
+  # dbViewRefreshInterval: 5
 
   resources:
     requests:
@@ -52,6 +66,9 @@ kubeclarity:
     limits:
       memory: "1000Mi"
       cpu: "1000m"
+
+  clusterRole:
+    readClusterSecrets: true
 
   initContainers:
     resources:
