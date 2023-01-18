@@ -7,8 +7,7 @@
     "formik": "^2.2.9",
     "moment": "^2.29.3",
     "react": "^17.0.2",
-    "react-dates": "^21.8.0",
-    "react-datetime-picker": "^3.5.0",
+    "react-datetime-picker": "^4.1.1",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.1",
@@ -20,6 +19,9 @@
     "recharts": "^2.1.9",
     "sass": "^1.48.0",
     "spinners-react": "^1.0.6"
+  },
+  "overrides": {
+    "nth-check": "^2.0.1"
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP='false' react-scripts start",

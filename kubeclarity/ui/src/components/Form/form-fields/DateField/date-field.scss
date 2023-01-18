@@ -1,80 +1,87 @@
 @import 'utils/scss_variables.module.scss';
 
 $calendar-font-size: 11px;
+$calendar-backgroud-color: white;
 
 .form-field-wrapper.date-field-wrapper {
-    .SingleDatePicker {
-        .SingleDatePickerInput {
+    .react-datetime-picker.date-field-select {
+        height: 32px;
+        
+        .react-datetime-picker__wrapper {
             border: 1px solid $color-grey-light;
             border-radius: 2px;
 
-            .DateInput {
-                .DateInput_input {
-                    height: 32px;
-                    box-sizing: border-box;
-                    border: none;
-                    border-radius: 4px;
+            .react-datetime-picker__inputGroup__input {
+                color: $color-grey-black;
+                font-size: 14px;
+
+                &:focus-visible {
+                    outline: none;
                 }
             }
         }
-        .SingleDatePicker_picker {
-            .DayPicker {
-                .CalendarDay__default {
-                    border: none;
-                }
-                .CalendarDay__hovered_span, 
-                .CalendarDay__hovered_span:hover,
-                .CalendarDay__selected_span,
-                .CalendarDay__selected_span:active, 
-                .CalendarDay__selected_span:hover,
-                .CalendarDay__selected, 
-                .CalendarDay__selected:active, 
-                .CalendarDay__selected:hover {
-                    background-color: $color-grey-off-white;
-                    color: $color-grey-black;
+    }
+    .react-datetime-picker__calendar {
+        width: 230px;
         
-                    &.CalendarDay__selected {
-                        background-color: $color-main;
-                        color: white;
-        
-                    }
-                }
-                .CalendarDay__blocked_calendar, 
-                .CalendarDay__blocked_calendar:active, 
-                .CalendarDay__blocked_calendar:hover {
-                    border: none;
-                    background: transparent;
-                    outline: none;
-                    color: $color-grey;
-                }
-                .DayPickerNavigation.DayPickerNavigation_1.DayPickerNavigation__horizontal.DayPickerNavigation__horizontal_2 {
-                    .DayPickerNavigation_button:first-child,
-                    .DayPickerNavigation_button:last-child {
-                        position: absolute;
-                        top: 100px;
-                    }
-                    .DayPickerNavigation_button:first-child {
-                        left: 5px;
-                    }
-                    .DayPickerNavigation_button:last-child {
-                        right: 5px;
-                    }
-                }
-                .CalendarMonth_caption {
+        .react-calendar.date-field-select-calendar {
+            border: 1px solid $color-grey-light;
+            border-radius: 2px;
+
+            .react-calendar__navigation {
+                margin-bottom: 0;
+    
+                .react-calendar__navigation__label {
+                    background-color: $calendar-backgroud-color;
                     color: $color-main;
                     font-size: $calendar-font-size;
-                    padding-top: 5px;
-                    padding-bottom: 40px;
+                    font-weight: bold;
                     text-transform: uppercase;
                 }
-                .DayPicker_weekHeader.DayPicker_weekHeader_1 {
-                    top: 30px;
+                .react-calendar__navigation__arrow {
+                    color: $color-grey-dark;
+        
+                    &:disabled {
+                        background-color: $calendar-backgroud-color;
+                        color: $color-grey-light;
+                    }
+                    &:hover,
+                    &:focus {
+                        background-color: $calendar-backgroud-color;
+                    }
                 }
-                .CalendarDay {
-                    font-size: $calendar-font-size;
+            }
+            .react-calendar__month-view__weekdays__weekday {
+                color: $color-grey-dark;
+                font-size: $calendar-font-size;
+                font-weight: normal;
+    
+                abbr {
+                    text-decoration: none;
+                    text-transform: none;
+                }
+            }
+            .react-calendar__tile {
+                padding-top: 7px;
+                padding-bottom: 7px;
+                color: $color-grey-dark;
+                font-size: $calendar-font-size;
+
+                &:disabled {
+                    background-color: $calendar-backgroud-color;
+                    color: $color-grey-light;
+                }
+                &.react-calendar__tile--now {
+                    background-color: $calendar-backgroud-color;
+                }
+                &.react-calendar__tile--active {
+                    background-color: $color-main;
+                    color: white;
+                }
+                &:hover {
+                    background-color: $color-grey-light;
                 }
             }
         }
     }
 }
-
