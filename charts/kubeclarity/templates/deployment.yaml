@@ -6,7 +6,7 @@
 {{- $secretKey := index .Values "kubeclarity-postgresql-secret" "secretKey" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
-{{- $dbPort := index .Values "kubeclarity-postgresql" "auth" "port" | quote -}}
+{{- $dbPort := index .Values "kubeclarity-postgresql" "service" "ports" "postgresql" | quote -}}
 {{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
 {{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
 {{ if index .Values "kubeclarity-postgresql-external" "enabled" }}

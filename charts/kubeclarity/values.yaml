@@ -303,9 +303,12 @@ kubeclarity-postgresql:
   ## Setup database name and password
   auth:
     user: postgres
-    port: 5432
     database: kubeclarity
     existingSecret: kubeclarity-postgresql-secret
+
+  service:
+    ports:
+      postgresql: 5432
 
   serviceAccount:
     enabled: true
