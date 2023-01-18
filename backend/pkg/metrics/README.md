@@ -16,17 +16,17 @@ kubeclarity:
 
 The metrics that are exposed are:
 
-| Metric                                               | Explanation                                                        |
-|------------------------------------------------------|--------------------------------------------------------------------|
-| kubeclarity_application_vulnerability                | Count of vulnerabilities per application, environment and severity |
-| kubeclarity_number_of_applications                   | The total number of applications                                   |
-| kubeclarity_number_of_fixable_vulnerabilities        | The number of fixable vulnerabilities per severity                 |
-| kubeclarity_number_of_fixable_vulnerabilities_amount | The total number of fixable vulnerabilities                        |
-| kubeclarity_number_of_packages                       | The total number of packages                                       |
-| kubeclarity_number_of_resources                      | The total number of resources                                      |
-| kubeclarity_number_of_vulnerabilities                | The number of vulnerabilities per severity                         |
-| kubeclarity_number_of_vulnerabilities_amount         | The total number of vulnerabilities                                |
-| kubeclarity_vulnerability_trend                      | Vulnerability trend in a 60 minute time window                     |
+| Metric                                               | Explanation                                                                          |
+|------------------------------------------------------|--------------------------------------------------------------------------------------|
+| kubeclarity_application_vulnerability                | Count of vulnerabilities per application, environment and importance (i.e. severity) |
+| kubeclarity_number_of_applications                   | The total number of applications                                                     |
+| kubeclarity_number_of_fixable_vulnerabilities        | The number of fixable vulnerabilities per importance (i.e. severity)                 |
+| kubeclarity_number_of_fixable_vulnerabilities_amount | The total number of fixable vulnerabilities                                          |
+| kubeclarity_number_of_packages                       | The total number of packages                                                         |
+| kubeclarity_number_of_resources                      | The total number of resources                                                        |
+| kubeclarity_number_of_vulnerabilities                | The number of vulnerabilities per importance (i.e. severity)                         |
+| kubeclarity_number_of_vulnerabilities_amount         | The total number of vulnerabilities                                                  |
+| kubeclarity_vulnerability_trend                      | Vulnerability trend in a 60 minute time window by importance (i.e. severity)         |
 
 ## Prometheus alert
 
