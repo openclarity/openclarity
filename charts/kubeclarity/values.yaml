@@ -296,7 +296,7 @@ kubeclarity-sbom-db:
 
 #######################################################################################
 ## KubeClarity Internal Postgres Values
-## Use kubeclarity-postgresql if you want this chart to deploy a PostgreSQL instance 
+## Use kubeclarity-postgresql if you want this chart to deploy a PostgreSQL instance
 kubeclarity-postgresql:
   enabled: true
 
