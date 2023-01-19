@@ -321,9 +321,9 @@ kubeclarity-postgresql:
 
   ## Setup database name and password
   auth:
+    existingSecret: kubeclarity-postgresql-secret
     username: postgres
     database: kubeclarity
-    existingSecret: kubeclarity-postgresql-secret
 
   service:
     ports:
@@ -368,11 +368,11 @@ kubeclarity-postgresql:
 kubeclarity-postgresql-external:
   enabled: false
   auth:
+    existingSecret: kubeclarity-postgresql-secret
     user: kubeclarity
     host: pgsql.hostname  # replace this to reach your PostgreSQL instance
     port: 5432
     database: kubeclarity
-    existingSecret: kubeclarity-postgresql-secret
 
 # PostgreSQL connection information
 kubeclarity-postgresql-secret:
