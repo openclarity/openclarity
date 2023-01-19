@@ -322,16 +322,16 @@ kubeclarity-sbom-db:
 #######################################################################################
 
 #######################################################################################
-## KubeClarity Postgres Values
-
+## KubeClarity Internal Postgres Values
+## Use kubeclarity-postgresql if you want this chart to deploy a PostgreSQL instance
 kubeclarity-postgresql:
   enabled: true
 
-  ## Specify posgtresql image
-  # image:
-    # registry: docker.io
-    # repository: bitnami/postgresql
-    # tag: 14.4.0-debian-11-r4
+  ## Specify posgtresql image used to check if postgresql DB is ready
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 14.4.0-debian-11-r4
 
   ## initdb parameters
   # initdb:
@@ -348,7 +348,12 @@ kubeclarity-postgresql:
   ## Setup database name and password
   auth:
     existingSecret: kubeclarity-postgresql-secret
+    username: postgres
     database: kubeclarity
+
+  service:
+    ports:
+      postgresql: 5432
 
   serviceAccount:
     enabled: true
@@ -382,5 +387,24 @@ kubeclarity-postgresql:
       memory: "1000Mi"
       cpu: "1000m"
 
-# End of KubeClarity Postgres Values
+# End of KubeClarity Internal Postgres Values
 #######################################################################################
+
+# Use kubeclarity-postgresql-external if you want to reach an already existing PostgreSQL instance
+kubeclarity-postgresql-external:
+  enabled: false
+  auth:
+    existingSecret: kubeclarity-postgresql-secret
+    username: kubeclarity
+    host: pgsql.hostname  # replace this to reach your PostgreSQL instance
+    port: 5432
+    database: kubeclarity
+
+# PostgreSQL connection information
+kubeclarity-postgresql-secret:
+  # Set create to true if you want this helm chart to create a secret holding pgsql password
+  # based on global.databasePassword value
+  # If create is set to false, a secret should already exist which has PostgreSQL
+  # password under secretKey key
+  create: true
+  secretKey: "postgres-password"
