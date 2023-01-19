@@ -7,13 +7,13 @@
 {{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
 {{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
 {{- $dbPort := index .Values "kubeclarity-postgresql" "service" "ports" "postgresql" | quote -}}
-{{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "user" -}}
+{{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "username" -}}
 {{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
 {{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
   {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
   {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" | quote -}}
-  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "user" -}}
+  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "username" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
 {{ end }}
 apiVersion: apps/v1

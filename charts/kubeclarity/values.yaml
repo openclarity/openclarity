@@ -320,7 +320,7 @@ kubeclarity-postgresql:
 
   ## Setup database name and password
   auth:
-    user: postgres
+    username: postgres
     database: kubeclarity
     existingSecret: kubeclarity-postgresql-secret
 
