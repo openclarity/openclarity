@@ -55,6 +55,32 @@ kubeclarity:
 
   service:
     type: ClusterIP
+    annotations: {}
+
+  ingress:
+    # Be careful when using ingress. As there is no authentication on Kubeclarity yet, your instance may be accessible.
+    # Make sure the ingress remains internal if you decide to enable it.
+    enabled: false
+    labels: {}
+    annotations: {}
+
+    # Optionally use ingressClassName instead of deprecated annotation.
+    # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
+    ingressClassName: ""
+
+    hosts:
+        # hostname you want to use
+      - host: chart-example.local
+        # paths will default to:
+        # paths:
+        #   - pathType: Prefix
+        #     path: /
+        paths: []
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
   # dbViewRefreshInterval: 5
