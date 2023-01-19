@@ -327,7 +327,7 @@ kubeclarity-sbom-db:
 kubeclarity-postgresql:
   enabled: true
 
-  ## Specify posgtresql image used to check if postgresql DB is ready
+  ## Specify posgtresql image
   image:
     registry: docker.io
     repository: bitnami/postgresql
