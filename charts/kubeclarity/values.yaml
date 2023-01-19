@@ -369,7 +369,7 @@ kubeclarity-postgresql-external:
   enabled: false
   auth:
     existingSecret: kubeclarity-postgresql-secret
-    user: kubeclarity
+    username: kubeclarity
     host: pgsql.hostname  # replace this to reach your PostgreSQL instance
     port: 5432
     database: kubeclarity
