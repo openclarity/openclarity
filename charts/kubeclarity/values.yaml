@@ -193,6 +193,7 @@ kubeclarity-runtime-scan:
         enabled: false
         timeout: "300"
 
+
 ## End of KubeClarity Runtime Scan Values
 #######################################################################################
 
