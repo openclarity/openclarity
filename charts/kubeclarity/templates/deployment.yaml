@@ -40,7 +40,7 @@ spec:
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
           image: {{ index .Values "kubeclarity-postgresql" "image" "registry" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" }}
-          command: ['sh', '-c', 'until pg_isready -h {{ $dbHost }} -p {{ $dbPort }} -U {{ $dbUser }} -d "dbname={{ $dbName }}";
+          command: ['sh', '-c', 'until pg_isready -h {{ $dbHost | quote }} -p {{ $dbPort }} -U {{ $dbUser | quote }} -d "dbname={{ $dbName }}";
             do echo waiting for database; sleep 2; done;']
           securityContext:
             capabilities:
