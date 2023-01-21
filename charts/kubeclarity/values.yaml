@@ -55,6 +55,32 @@ kubeclarity:
 
   service:
     type: ClusterIP
+    annotations: {}
+
+  ingress:
+    # Be careful when using ingress. As there is no authentication on Kubeclarity yet, your instance may be accessible.
+    # Make sure the ingress remains internal if you decide to enable it.
+    enabled: false
+    labels: {}
+    annotations: {}
+
+    # Optionally use ingressClassName instead of deprecated annotation.
+    # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
+    ingressClassName: ""
+
+    hosts:
+        # hostname you want to use
+      - host: chart-example.local
+        # paths will default to:
+        # paths:
+        #   - pathType: Prefix
+        #     path: /
+        paths: []
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
 
   ## In case of postgres refresh interval of refreshing materialized views in seconds
   # dbViewRefreshInterval: 5
@@ -296,16 +322,16 @@ kubeclarity-sbom-db:
 #######################################################################################
 
 #######################################################################################
-## KubeClarity Postgres Values
-
+## KubeClarity Internal Postgres Values
+## Use kubeclarity-postgresql if you want this chart to deploy a PostgreSQL instance
 kubeclarity-postgresql:
   enabled: true
 
   ## Specify posgtresql image
-  # image:
-    # registry: docker.io
-    # repository: bitnami/postgresql
-    # tag: 14.4.0-debian-11-r4
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 14.4.0-debian-11-r4
 
   ## initdb parameters
   # initdb:
@@ -322,7 +348,12 @@ kubeclarity-postgresql:
   ## Setup database name and password
   auth:
     existingSecret: kubeclarity-postgresql-secret
+    username: postgres
     database: kubeclarity
+
+  service:
+    ports:
+      postgresql: 5432
 
   serviceAccount:
     enabled: true
@@ -356,5 +387,24 @@ kubeclarity-postgresql:
       memory: "1000Mi"
       cpu: "1000m"
 
-# End of KubeClarity Postgres Values
+# End of KubeClarity Internal Postgres Values
 #######################################################################################
+
+# Use kubeclarity-postgresql-external if you want to reach an already existing PostgreSQL instance
+kubeclarity-postgresql-external:
+  enabled: false
+  auth:
+    existingSecret: kubeclarity-postgresql-secret
+    username: kubeclarity
+    host: pgsql.hostname  # replace this to reach your PostgreSQL instance
+    port: 5432
+    database: kubeclarity
+
+# PostgreSQL connection information
+kubeclarity-postgresql-secret:
+  # Set create to true if you want this helm chart to create a secret holding pgsql password
+  # based on global.databasePassword value
+  # If create is set to false, a secret should already exist which has PostgreSQL
+  # password under secretKey key
+  create: true
+  secretKey: "postgres-password"
