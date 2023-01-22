@@ -25,39 +25,39 @@ type Results struct {
 }
 
 type Findings struct {
-	Description string `json:"description"`
-	StartLine   int    `json:"start_line"`
-	EndLine     int    `json:"end_line"`
-	StartColumn int    `json:"start_column"`
-	EndColumn   int    `json:"end_column"`
+	Description string `json:"Description"`
+	StartLine   int    `json:"StartLine"`
+	EndLine     int    `json:"EndLine"`
+	StartColumn int    `json:"StartColumn"`
+	EndColumn   int    `json:"EndColumn"`
 
-	Line string `json:"line"`
+	Line string `json:"Line"`
 
-	Match string `json:"match"`
+	Match string `json:"Match"`
 
 	// Secret contains the full content of what is matched in
 	// the tree-sitter query.
-	Secret string `json:"secret"`
+	Secret string `json:"Secret"`
 
 	// File is the name of the file containing the finding
-	File        string `json:"file"`
-	SymlinkFile string `json:"symlink_file"`
-	Commit      string `json:"commit"`
+	File        string `json:"File"`
+	SymlinkFile string `json:"SymlinkFile"`
+	Commit      string `json:"Commit"`
 
 	// Entropy is the shannon entropy of Value
-	Entropy float32 `json:"entropy"`
+	Entropy float32 `json:"Entropy"`
 
-	Author  string   `json:"author"`
-	Email   string   `json:"email"`
-	Date    string   `json:"date"`
-	Message string   `json:"message"`
-	Tags    []string `json:"tags"`
+	Author  string   `json:"Author"`
+	Email   string   `json:"Email"`
+	Date    string   `json:"Date"`
+	Message string   `json:"Message"`
+	Tags    []string `json:"Tags"`
 
 	// Rule is the name of the rule that was matched
-	RuleID string `json:"rule_id"`
+	RuleID string `json:"RuleID"`
 
 	// unique identifier
-	Fingerprint string `json:"fingerprint"`
+	Fingerprint string `json:"Fingerprint"`
 }
 
 func (r *Results) GetError() error {
