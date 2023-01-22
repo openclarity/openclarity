@@ -34,12 +34,19 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	gitleaksconfig "github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks/config"
 	familiesVulnerabilities "github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
 // TODO this code is taken from KubeClarity, we can make improvements base on the discussions here: https://github.com/openclarity/vmclarity/pull/3
 
-const TrivyTimeout = 300
+const (
+	TrivyTimeout = 300
+
+	gitleaksBinaryPath = "/usr/local/bin/gitleaks"
+)
 
 // run jobs.
 // nolint:cyclop
@@ -267,6 +274,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 	famConfig := families.Config{
 		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
 		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
+		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, scanRootDirectory),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -276,6 +284,28 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 	}
 
 	return string(famConfigYaml), nil
+}
+
+func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfig, scanRootDirectory string) secrets.Config {
+	if secretsConfig == nil || secretsConfig.Enabled == nil || !*secretsConfig.Enabled {
+		return secrets.Config{}
+	}
+	return secrets.Config{
+		Enabled: true,
+		// TODO(idanf) This choice should come from the user's configuration
+		ScannersList: []string{"gitleaks"},
+		Inputs: []secrets.Input{
+			{
+				Input:     scanRootDirectory,
+				InputType: string(utils.DIR),
+			},
+		},
+		ScannersConfig: &common.ScannersConfig{
+			Gitleaks: gitleaksconfig.Config{
+				BinaryPath: gitleaksBinaryPath,
+			},
+		},
+	}
 }
 
 func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootDirectory string) familiesSbom.Config {
