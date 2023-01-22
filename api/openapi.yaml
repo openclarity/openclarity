@@ -1196,7 +1196,7 @@ components:
       name: page
       in: query
       description: Page number of the query
-      required: true
+      required: false
       schema:
         type: integer
 
@@ -1204,7 +1204,7 @@ components:
       name: pageSize
       in: query
       description: Maximum items to return
-      required: true
+      required: false
       schema:
         maximum: 50
         minimum: 1

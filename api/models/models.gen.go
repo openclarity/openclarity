@@ -477,10 +477,10 @@ type GetScanConfigsParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
 
 	// Page Page number of the query
-	Page Page `form:"page" json:"page"`
+	Page *Page `form:"page,omitempty" json:"page,omitempty"`
 
 	// PageSize Maximum items to return
-	PageSize PageSize `form:"pageSize" json:"pageSize"`
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 // GetScanResultsParams defines parameters for GetScanResults.
@@ -489,10 +489,10 @@ type GetScanResultsParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
 
 	// Page Page number of the query
-	Page Page `form:"page" json:"page"`
+	Page *Page `form:"page,omitempty" json:"page,omitempty"`
 
 	// PageSize Maximum items to return
-	PageSize PageSize `form:"pageSize" json:"pageSize"`
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 // GetScanResultsScanResultIDParams defines parameters for GetScanResultsScanResultID.
@@ -505,10 +505,10 @@ type GetScansParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
 
 	// Page Page number of the query
-	Page Page `form:"page" json:"page"`
+	Page *Page `form:"page,omitempty" json:"page,omitempty"`
 
 	// PageSize Maximum items to return
-	PageSize PageSize `form:"pageSize" json:"pageSize"`
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 // GetTargetsParams defines parameters for GetTargets.
@@ -516,10 +516,10 @@ type GetTargetsParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
 
 	// Page Page number of the query
-	Page Page `form:"page" json:"page"`
+	Page *Page `form:"page,omitempty" json:"page,omitempty"`
 
 	// PageSize Maximum items to return
-	PageSize PageSize `form:"pageSize" json:"pageSize"`
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 // PostScanConfigsJSONRequestBody defines body for PostScanConfigs for application/json ContentType.
