@@ -50,9 +50,9 @@ type GetScansParams struct {
 	// Filter Odata filter
 	Filter *string
 	// Page Page number of the query
-	Page int
+	Page *int
 	// PageSize Maximum items to return
-	PageSize int
+	PageSize *int
 }
 
 type ScansTable interface {

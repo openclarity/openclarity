@@ -24,9 +24,10 @@ import (
 )
 
 const (
-	BackendRestAddress = "BACKEND_REST_ADDRESS"
-	BackendRestPort    = "BACKEND_REST_PORT"
-	HealthCheckAddress = "HEALTH_CHECK_ADDRESS"
+	BackendRestAddress    = "BACKEND_REST_ADDRESS"
+	BackendRestDisableTLS = "BACKEND_REST_DISABLE_TLS"
+	BackendRestPort       = "BACKEND_REST_PORT"
+	HealthCheckAddress    = "HEALTH_CHECK_ADDRESS"
 
 	DBNameEnvVar     = "DB_NAME"
 	DBUserEnvVar     = "DB_USER"
