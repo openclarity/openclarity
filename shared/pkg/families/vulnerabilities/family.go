@@ -65,7 +65,7 @@ func (v Vulnerabilities) Run(res *results.Results) (interfaces.IsResults, error)
 			return nil, fmt.Errorf("failed to write sbom to file: %v", err)
 		}
 
-		v.conf.Inputs = append(v.conf.Inputs, Inputs{
+		v.conf.Inputs = append(v.conf.Inputs, Input{
 			Input:     sbomTempFilePath,
 			InputType: "sbom",
 		})
