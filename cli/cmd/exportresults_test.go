@@ -197,7 +197,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		EndLine:     11,
 		Line:        "Line1",
 		File:        "File1",
-		RuleID:      "RuleID1",
+		Fingerprint: "Fingerprint1",
 	}
 	finding2 := common.Findings{
 		Description: "Description2",
@@ -205,7 +205,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		EndLine:     22,
 		Line:        "Line2",
 		File:        "File2",
-		RuleID:      "RuleID2",
+		Fingerprint: "Fingerprint2",
 	}
 	finding3 := common.Findings{
 		Description: "Description3",
@@ -213,7 +213,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		EndLine:     33,
 		Line:        "Line3",
 		File:        "File3",
-		RuleID:      "RuleID3",
+		Fingerprint: "Fingerprint3",
 	}
 	type args struct {
 		secretsResults *secrets.Results
@@ -284,7 +284,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 							Line:        &finding1.Line,
 							StartLine:   &finding1.StartLine,
 						},
-						Id: &finding1.RuleID,
+						Id: &finding1.Fingerprint,
 					},
 					{
 						SecretInfo: &models.SecretInfo{
@@ -294,7 +294,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 							Line:        &finding2.Line,
 							StartLine:   &finding2.StartLine,
 						},
-						Id: &finding2.RuleID,
+						Id: &finding2.Fingerprint,
 					},
 					{
 						SecretInfo: &models.SecretInfo{
@@ -304,7 +304,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 							Line:        &finding3.Line,
 							StartLine:   &finding3.StartLine,
 						},
-						Id: &finding3.RuleID,
+						Id: &finding3.Fingerprint,
 					},
 				},
 			},
