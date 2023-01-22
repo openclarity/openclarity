@@ -25,6 +25,9 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	gitleaksconfig "github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks/config"
 	familiesVulnerabilities "github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
@@ -199,6 +202,87 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 			got := userVulnConfigToFamiliesVulnConfig(tt.args.vulnerabilitiesConfig)
 			if diff := cmp.Diff(tt.want.config, got); diff != "" {
 				t.Errorf("userVulnConfigToFamiliesVulnConfig() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
+	type args struct {
+		secretsConfig      *models.SecretsConfig
+		scanRootDirectory  string
+		gitleaksBinaryPath string
+	}
+	tests := []struct {
+		name string
+		args args
+		want secrets.Config
+	}{
+		{
+			name: "no config",
+			args: args{
+				secretsConfig:     nil,
+				scanRootDirectory: "",
+			},
+			want: secrets.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "no config enabled",
+			args: args{
+				secretsConfig: &models.SecretsConfig{
+					Enabled: nil,
+				},
+				scanRootDirectory: "",
+			},
+			want: secrets.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "disabled",
+			args: args{
+				secretsConfig: &models.SecretsConfig{
+					Enabled: utils.BoolPtr(false),
+				},
+				scanRootDirectory: "",
+			},
+			want: secrets.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "enabled",
+			args: args{
+				secretsConfig: &models.SecretsConfig{
+					Enabled: utils.BoolPtr(true),
+				},
+				scanRootDirectory:  "/scanRootDirectory",
+				gitleaksBinaryPath: "gitleaksBinaryPath",
+			},
+			want: secrets.Config{
+				Enabled:      true,
+				ScannersList: []string{"gitleaks"},
+				Inputs: []secrets.Input{
+					{
+						Input:     "/scanRootDirectory",
+						InputType: string(kubeclarityUtils.DIR),
+					},
+				},
+				ScannersConfig: &common.ScannersConfig{
+					Gitleaks: gitleaksconfig.Config{
+						BinaryPath: "gitleaksBinaryPath",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := userSecretsConfigToFamiliesSecretsConfig(tt.args.secretsConfig, tt.args.scanRootDirectory, tt.args.gitleaksBinaryPath)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("userSecretsConfigToFamiliesSecretsConfig() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
