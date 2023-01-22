@@ -52,9 +52,9 @@ type GetScanResultsParams struct {
 	// Select Odata select
 	Select *string
 	// Page Page number of the query
-	Page int
+	Page *int
 	// PageSize Maximum items to return
-	PageSize int
+	PageSize *int
 }
 
 type GetScanResultsScanResultIDParams struct {

@@ -81,6 +81,14 @@ func Run() {
 
 	_ = CreateBackend(dbHandler)
 
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort)
+	if err != nil {
+		log.Fatalf("Failed to create REST server: %v", err)
+	}
+	restServer.RegisterHandlers(dbHandler)
+	restServer.Start(errChan)
+	defer restServer.Stop()
+
 	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestAddress, config.BackendRestPort, rest.BaseURL)
 	if err != nil {
 		log.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
@@ -93,15 +101,7 @@ func Run() {
 	if err != nil {
 		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
 	}
-	orc.Start(errChan)
-
-	restServer, err := rest.CreateRESTServer(config.BackendRestPort)
-	if err != nil {
-		log.Fatalf("Failed to create REST server: %v", err)
-	}
-	restServer.RegisterHandlers(dbHandler)
-	restServer.Start(errChan)
-	defer restServer.Stop()
+	orc.Start(globalCtx)
 
 	healthServer.SetIsReady(true)
 	log.Info("VMClarity backend is ready")
@@ -120,7 +120,7 @@ func Run() {
 	}
 }
 
-func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig) (orchestrator.VulnerabilitiesScanner, error) {
+func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig) (orchestrator.Orchestrator, error) {
 	orc, err := orchestrator.Create(config, client)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create runtime scan orchestrator: %v", err)
