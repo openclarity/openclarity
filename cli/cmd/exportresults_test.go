@@ -26,6 +26,8 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
@@ -183,6 +185,136 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 			got := convertVulnResultToAPIModel(tt.args.result)
 			if diff := cmp.Diff(tt.want.vulScan, got, cmpopts.SortSlices(func(a, b models.Vulnerability) bool { return *a.Id < *b.Id })); diff != "" {
 				t.Errorf("convertVulnResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_convertSecretsResultToAPIModel(t *testing.T) {
+	finding1 := common.Findings{
+		Description: "Description1",
+		StartLine:   1,
+		EndLine:     11,
+		Line:        "Line1",
+		File:        "File1",
+		RuleID:      "RuleID1",
+	}
+	finding2 := common.Findings{
+		Description: "Description2",
+		StartLine:   2,
+		EndLine:     22,
+		Line:        "Line2",
+		File:        "File2",
+		RuleID:      "RuleID2",
+	}
+	finding3 := common.Findings{
+		Description: "Description3",
+		StartLine:   3,
+		EndLine:     33,
+		Line:        "Line3",
+		File:        "File3",
+		RuleID:      "RuleID3",
+	}
+	type args struct {
+		secretsResults *secrets.Results
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.SecretScan
+	}{
+		{
+			name: "nil secretsResults",
+			args: args{
+				secretsResults: nil,
+			},
+			want: &models.SecretScan{},
+		},
+		{
+			name: "nil secretsResults.MergedResults",
+			args: args{
+				secretsResults: &secrets.Results{
+					MergedResults: nil,
+				},
+			},
+			want: &models.SecretScan{},
+		},
+		{
+			name: "empty secretsResults.MergedResults.Results",
+			args: args{
+				secretsResults: &secrets.Results{
+					MergedResults: &secrets.MergedResults{
+						Results: nil,
+					},
+				},
+			},
+			want: &models.SecretScan{},
+		},
+		{
+			name: "sanity",
+			args: args{
+				secretsResults: &secrets.Results{
+					MergedResults: &secrets.MergedResults{
+						Results: []*common.Results{
+							{
+								Findings: nil,
+							},
+							{
+								Findings: []common.Findings{
+									finding1,
+									finding2,
+								},
+							},
+							{
+								Findings: []common.Findings{
+									finding3,
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &models.SecretScan{
+				Secrets: &[]models.Secret{
+					{
+						SecretInfo: &models.SecretInfo{
+							Description: &finding1.Description,
+							EndLine:     &finding1.EndLine,
+							File:        &finding1.File,
+							Line:        &finding1.Line,
+							StartLine:   &finding1.StartLine,
+						},
+						Id: &finding1.RuleID,
+					},
+					{
+						SecretInfo: &models.SecretInfo{
+							Description: &finding2.Description,
+							EndLine:     &finding2.EndLine,
+							File:        &finding2.File,
+							Line:        &finding2.Line,
+							StartLine:   &finding2.StartLine,
+						},
+						Id: &finding2.RuleID,
+					},
+					{
+						SecretInfo: &models.SecretInfo{
+							Description: &finding3.Description,
+							EndLine:     &finding3.EndLine,
+							File:        &finding3.File,
+							Line:        &finding3.Line,
+							StartLine:   &finding3.StartLine,
+						},
+						Id: &finding3.RuleID,
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := convertSecretsResultToAPIModel(tt.args.secretsResults)
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Secret) bool { return *a.Id < *b.Id })); diff != "" {
+				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

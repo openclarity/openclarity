@@ -991,6 +991,14 @@ components:
         VulnerabilityInfo:
           $ref: '#/components/schemas/VulnerabilityInfo'
 
+    Secret:
+      type: object
+      properties:
+        id:
+          type: string
+        SecretInfo:
+          $ref: '#/components/schemas/SecretInfo'
+
     MalwareInfo:
       type: object
       properties:
@@ -1031,13 +1039,17 @@ components:
     SecretInfo:
       type: object
       properties:
-        id:
-          type: string
         description:
           type: string
-        path:
+        file:
+          description: "Name of the file containing the finding"
           type: string
-          description: Path of the file that contains secrets
+        line:
+          type: string
+        startLine:
+          type: integer
+        endLine:
+          type: integer
 
     ExploitInfo:
       type: object
@@ -1089,7 +1101,7 @@ components:
         secrets:
           type: array
           items:
-            $ref: '#/components/schemas/SecretInfo'
+            $ref: '#/components/schemas/Secret'
 
     MisconfigurationScan:
       type: object

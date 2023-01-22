@@ -24,9 +24,25 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
+
+type Exporter struct {
+	apiClient client.ClientWithResponsesInterface
+}
+
+func CreateExporter() (*Exporter, error) {
+	apiClient, err := client.NewClientWithResponses(server)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create VMClarity API client. server=%v: %w", server, err)
+	}
+
+	return &Exporter{
+		apiClient: apiClient,
+	}, nil
+}
 
 func convertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {
 	packages := []models.Package{}
@@ -74,13 +90,13 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 }
 
 // nolint:cyclop
-func getExistingScanResult(apiClient client.ClientWithResponsesInterface) (models.TargetScanResult, error) {
+func (e *Exporter) getExistingScanResult() (models.TargetScanResult, error) {
 	newGetExistingError := func(err error) error {
 		return fmt.Errorf("failed to get existing scan result %v: %w", scanResultID, err)
 	}
 
 	var scanResults models.TargetScanResult
-	resp, err := apiClient.GetScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, &models.GetScanResultsScanResultIDParams{})
+	resp, err := e.apiClient.GetScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, &models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return scanResults, newGetExistingError(err)
 	}
@@ -108,12 +124,12 @@ func getExistingScanResult(apiClient client.ClientWithResponsesInterface) (model
 }
 
 // nolint:cyclop
-func patchExistingScanResult(apiClient client.ClientWithResponsesInterface, scanResults models.TargetScanResult) error {
+func (e *Exporter) patchExistingScanResult(scanResults models.TargetScanResult) error {
 	newUpdateScanResultError := func(err error) error {
 		return fmt.Errorf("failed to update scan result %v on server %v: %w", scanResultID, server, err)
 	}
 
-	resp, err := apiClient.PatchScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, scanResults)
+	resp, err := e.apiClient.PatchScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, scanResults)
 	if err != nil {
 		return newUpdateScanResultError(err)
 	}
@@ -140,13 +156,8 @@ func patchExistingScanResult(apiClient client.ClientWithResponsesInterface, scan
 	}
 }
 
-func MarkScanResultInProgress() error {
-	apiClient, err := client.NewClientWithResponses(server)
-	if err != nil {
-		return fmt.Errorf("unable to create VMClarity API client: %w", err)
-	}
-
-	scanResults, err := getExistingScanResult(apiClient)
+func (e *Exporter) MarkScanResultInProgress() error {
+	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
 	}
@@ -161,7 +172,7 @@ func MarkScanResultInProgress() error {
 	state := models.INPROGRESS
 	scanResults.Status.General.State = &state
 
-	err = patchExistingScanResult(apiClient, scanResults)
+	err = e.patchExistingScanResult(scanResults)
 	if err != nil {
 		return err
 	}
@@ -169,13 +180,8 @@ func MarkScanResultInProgress() error {
 	return nil
 }
 
-func MarkScanResultDone(errors []error) error {
-	apiClient, err := client.NewClientWithResponses(server)
-	if err != nil {
-		return fmt.Errorf("unable to create VMClarity API client: %w", err)
-	}
-
-	scanResults, err := getExistingScanResult(apiClient)
+func (e *Exporter) MarkScanResultDone(errors []error) error {
+	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
 	}
@@ -208,7 +214,7 @@ func MarkScanResultDone(errors []error) error {
 		}
 	}
 
-	err = patchExistingScanResult(apiClient, scanResults)
+	err = e.patchExistingScanResult(scanResults)
 	if err != nil {
 		return err
 	}
@@ -216,13 +222,8 @@ func MarkScanResultDone(errors []error) error {
 	return nil
 }
 
-func ExportSbomResult(res *results.Results) error {
-	apiClient, err := client.NewClientWithResponses(server)
-	if err != nil {
-		return fmt.Errorf("unable to create VMClarity API client: %w", err)
-	}
-
-	scanResults, err := getExistingScanResult(apiClient)
+func (e *Exporter) ExportSbomResult(res *results.Results) error {
+	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
 	}
@@ -247,7 +248,7 @@ func ExportSbomResult(res *results.Results) error {
 	scanResults.Status.Sbom.State = &state
 	scanResults.Status.Sbom.Errors = &errors
 
-	err = patchExistingScanResult(apiClient, scanResults)
+	err = e.patchExistingScanResult(scanResults)
 	if err != nil {
 		return err
 	}
@@ -255,13 +256,8 @@ func ExportSbomResult(res *results.Results) error {
 	return nil
 }
 
-func ExportVulResult(res *results.Results) error {
-	apiClient, err := client.NewClientWithResponses(server)
-	if err != nil {
-		return fmt.Errorf("unable to create VMClarity API client: %w", err)
-	}
-
-	scanResults, err := getExistingScanResult(apiClient)
+func (e *Exporter) ExportVulResult(res *results.Results) error {
+	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
 	}
@@ -286,7 +282,7 @@ func ExportVulResult(res *results.Results) error {
 	scanResults.Status.Vulnerabilities.State = &state
 	scanResults.Status.Vulnerabilities.Errors = &errors
 
-	err = patchExistingScanResult(apiClient, scanResults)
+	err = e.patchExistingScanResult(scanResults)
 	if err != nil {
 		return err
 	}
@@ -294,10 +290,75 @@ func ExportVulResult(res *results.Results) error {
 	return nil
 }
 
-func ExportResults(res *results.Results) []error {
+func (e *Exporter) ExportSecretsResult(res *results.Results) error {
+	scanResults, err := e.getExistingScanResult()
+	if err != nil {
+		return err
+	}
+
+	if scanResults.Status == nil {
+		scanResults.Status = &models.TargetScanStatus{}
+	}
+	if scanResults.Status.Secrets == nil {
+		scanResults.Status.Secrets = &models.TargetScanState{}
+	}
+
+	var errors []string
+
+	secretsResults, err := results.GetResult[*secrets.Results](res)
+	if err != nil {
+		errors = append(errors, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
+	} else {
+		scanResults.Secrets = convertSecretsResultToAPIModel(secretsResults)
+	}
+
+	state := models.DONE
+	scanResults.Status.Secrets.State = &state
+	scanResults.Status.Secrets.Errors = &errors
+
+	err = e.patchExistingScanResult(scanResults)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.SecretScan {
+	if secretsResults == nil || secretsResults.MergedResults == nil {
+		return &models.SecretScan{}
+	}
+
+	var secretsSlice []models.Secret
+	for _, resultsCandidate := range secretsResults.MergedResults.Results {
+		for i := range resultsCandidate.Findings {
+			finding := resultsCandidate.Findings[i]
+			secretsSlice = append(secretsSlice, models.Secret{
+				SecretInfo: &models.SecretInfo{
+					Description: &finding.Description,
+					EndLine:     &finding.EndLine,
+					File:        &finding.File,
+					Line:        &finding.Line,
+					StartLine:   &finding.StartLine,
+				},
+				Id: &finding.RuleID, // TODO: Do we need the ID in the secret?
+			})
+		}
+	}
+
+	if secretsSlice == nil {
+		return &models.SecretScan{}
+	}
+
+	return &models.SecretScan{
+		Secrets: &secretsSlice,
+	}
+}
+
+func (e *Exporter) ExportResults(res *results.Results) []error {
 	var errors []error
 	if config.SBOM.Enabled {
-		err := ExportSbomResult(res)
+		err := e.ExportSbomResult(res)
 		if err != nil {
 			err = fmt.Errorf("failed to export sbom to server: %w", err)
 			logger.Error(err)
@@ -306,12 +367,22 @@ func ExportResults(res *results.Results) []error {
 	}
 
 	if config.Vulnerabilities.Enabled {
-		err := ExportVulResult(res)
+		err := e.ExportVulResult(res)
 		if err != nil {
 			err = fmt.Errorf("failed to export vulnerabilties to server: %w", err)
 			logger.Error(err)
 			errors = append(errors, err)
 		}
 	}
+
+	if config.Secrets.Enabled {
+		err := e.ExportSecretsResult(res)
+		if err != nil {
+			err = fmt.Errorf("failed to export secrets findings to server: %w", err)
+			logger.Error(err)
+			errors = append(errors, err)
+		}
+	}
+
 	return errors
 }
