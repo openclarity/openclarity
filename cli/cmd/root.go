@@ -45,10 +45,11 @@ var (
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:     "vmclarity",
-	Short:   "VMClarity",
-	Long:    `VMClarity`,
-	Version: pkg.GitRevision,
+	Use:          "vmclarity",
+	Short:        "VMClarity",
+	Long:         `VMClarity`,
+	Version:      pkg.GitRevision,
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
 		var exporter *Exporter
