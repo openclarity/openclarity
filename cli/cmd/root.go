@@ -51,8 +51,17 @@ var rootCmd = &cobra.Command{
 	Version: pkg.GitRevision,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
+		var exporter *Exporter
 		if server != "" {
-			err := MarkScanResultInProgress()
+			exp, err := CreateExporter()
+			if err != nil {
+				return fmt.Errorf("failed to create api client: %w", err)
+			}
+			exporter = exp
+		}
+
+		if exporter != nil {
+			err := exporter.MarkScanResultInProgress()
 			if err != nil {
 				return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
 			}
@@ -60,13 +69,13 @@ var rootCmd = &cobra.Command{
 
 		res, famerr := families.New(logger, config).Run()
 
-		if server != "" {
+		if exporter != nil {
 			errors := []error{famerr}
 
-			exportErrors := ExportResults(res)
+			exportErrors := exporter.ExportResults(res)
 			errors = append(errors, exportErrors...)
 
-			err := MarkScanResultDone(errors)
+			err := exporter.MarkScanResultDone(errors)
 			if err != nil {
 				return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
 			}

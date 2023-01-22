@@ -296,18 +296,26 @@ type Scans struct {
 	Total int `json:"total"`
 }
 
+// Secret defines model for Secret.
+type Secret struct {
+	SecretInfo *SecretInfo `json:"SecretInfo,omitempty"`
+	Id         *string     `json:"id,omitempty"`
+}
+
 // SecretInfo defines model for SecretInfo.
 type SecretInfo struct {
 	Description *string `json:"description,omitempty"`
-	Id          *string `json:"id,omitempty"`
+	EndLine     *int    `json:"endLine,omitempty"`
 
-	// Path Path of the file that contains secrets
-	Path *string `json:"path,omitempty"`
+	// File Name of the file containing the finding
+	File      *string `json:"file,omitempty"`
+	Line      *string `json:"line,omitempty"`
+	StartLine *int    `json:"startLine,omitempty"`
 }
 
 // SecretScan defines model for SecretScan.
 type SecretScan struct {
-	Secrets *[]SecretInfo `json:"secrets,omitempty"`
+	Secrets *[]Secret `json:"secrets,omitempty"`
 }
 
 // SecretsConfig defines model for SecretsConfig.
