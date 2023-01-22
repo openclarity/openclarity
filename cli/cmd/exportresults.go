@@ -112,12 +112,12 @@ func (e *Exporter) getExistingScanResult() (models.TargetScanResult, error) {
 			return scanResults, newGetExistingError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("not found: %v", resp.JSON404.Message))
+			return scanResults, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
 		return scanResults, newGetExistingError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message))
+			return scanResults, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
 		return scanResults, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
@@ -145,12 +145,12 @@ func (e *Exporter) patchExistingScanResult(scanResults models.TargetScanResult) 
 			return newUpdateScanResultError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("not found: %v", resp.JSON404.Message))
+			return newUpdateScanResultError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
 		return newUpdateScanResultError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message))
+			return newUpdateScanResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
 		return newUpdateScanResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
@@ -207,7 +207,9 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 			errorStrs = *scanResults.Status.General.Errors
 		}
 		for _, err := range errors {
-			errorStrs = append(errorStrs, err.Error())
+			if err != nil {
+				errorStrs = append(errorStrs, err.Error())
+			}
 		}
 		if len(errorStrs) > 0 {
 			scanResults.Status.General.Errors = &errorStrs
@@ -341,7 +343,7 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 					Line:        &finding.Line,
 					StartLine:   &finding.StartLine,
 				},
-				Id: &finding.RuleID, // TODO: Do we need the ID in the secret?
+				Id: &finding.Fingerprint, // TODO: Do we need the ID in the secret?
 			})
 		}
 	}
