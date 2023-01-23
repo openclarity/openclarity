@@ -308,7 +308,9 @@ type SecretInfo struct {
 	EndLine     *int    `json:"endLine,omitempty"`
 
 	// FilePath Name of the file containing the secret
-	FilePath    *string `json:"filePath,omitempty"`
+	FilePath *string `json:"filePath,omitempty"`
+
+	// Fingerprint Unique identification of the SecretInfo
 	Fingerprint *string `json:"fingerprint,omitempty"`
 	StartLine   *int    `json:"startLine,omitempty"`
 }
