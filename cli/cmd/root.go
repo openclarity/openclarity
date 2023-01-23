@@ -56,7 +56,7 @@ var rootCmd = &cobra.Command{
 		if server != "" {
 			exp, err := CreateExporter()
 			if err != nil {
-				return fmt.Errorf("failed to create api client: %w", err)
+				return fmt.Errorf("failed to create a result exporter: %w", err)
 			}
 			exporter = exp
 		}

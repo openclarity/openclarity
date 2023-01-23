@@ -1049,6 +1049,7 @@ components:
         endLine:
           type: integer
         fingerprint:
+          description: "Unique identification of the SecretInfo"
           type: string
 
     ExploitInfo:
