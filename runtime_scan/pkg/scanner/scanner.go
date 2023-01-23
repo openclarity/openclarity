@@ -188,7 +188,7 @@ func (s *Scanner) patchTargetScanStatus(ctx context.Context, scanResultID string
 		return fmt.Errorf("failed to patch a scan result status: %v", err)
 	}
 	switch resp.StatusCode() {
-	case http.StatusCreated:
+	case http.StatusOK:
 		if resp.JSON200 == nil {
 			return fmt.Errorf("failed to update a scan result status: empty body")
 		}
@@ -219,7 +219,7 @@ func (s *Scanner) patchScanEndTime(ctx context.Context, endTime time.Time) error
 		return fmt.Errorf("failed to patch a scan end time: %v", err)
 	}
 	switch resp.StatusCode() {
-	case http.StatusCreated:
+	case http.StatusOK:
 		if resp.JSON200 == nil {
 			return fmt.Errorf("failed to update a scan end time: empty body")
 		}
