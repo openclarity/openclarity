@@ -1041,15 +1041,15 @@ components:
       properties:
         description:
           type: string
-        file:
-          description: "Name of the file containing the finding"
-          type: string
-        line:
+        filePath:
+          description: "Name of the file containing the secret"
           type: string
         startLine:
           type: integer
         endLine:
           type: integer
+        fingerprint:
+          type: string
 
     ExploitInfo:
       type: object

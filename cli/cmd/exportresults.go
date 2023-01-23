@@ -339,8 +339,8 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 				SecretInfo: &models.SecretInfo{
 					Description: &finding.Description,
 					EndLine:     &finding.EndLine,
-					File:        &finding.File,
-					Line:        &finding.Line,
+					FilePath:    &finding.File,
+					Fingerprint: &finding.Fingerprint,
 					StartLine:   &finding.StartLine,
 				},
 				Id: &finding.Fingerprint, // TODO: Do we need the ID in the secret?
