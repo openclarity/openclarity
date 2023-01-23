@@ -42,20 +42,20 @@ const (
 )
 
 type Config struct {
-	BackendRestAddress string
-	BackendRestPort    int
-	HealthCheckAddress string
+	BackendRestAddress string `json:"backend-rest-address,omitempty"`
+	BackendRestPort    int    `json:"backend-rest-port,omitempty"`
+	HealthCheckAddress string `json:"health-check-address,omitempty"`
 
 	// database config
-	DatabaseDriver           string
-	DBName                   string
-	DBUser                   string
-	DBPassword               string
-	DBHost                   string
-	DBPort                   string
-	EnableDBInfoLogs         bool
-	EnableFakeData           bool
-	EnableFakeRuntimeScanner bool
+	DatabaseDriver           string `json:"database-driver,omitempty"`
+	DBName                   string `json:"db-name,omitempty"`
+	DBUser                   string `json:"db-user,omitempty"`
+	DBPassword               string `json:"-"`
+	DBHost                   string `json:"db-host,omitempty"`
+	DBPort                   string `json:"db-port,omitempty"`
+	EnableDBInfoLogs         bool   `json:"enable-db-info-logs"`
+	EnableFakeData           bool   `json:"enable-fake-data"`
+	EnableFakeRuntimeScanner bool   `json:"enable-fake-runtime-scanner"`
 }
 
 func LoadConfig() (*Config, error) {
