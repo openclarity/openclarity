@@ -46,13 +46,13 @@ type Handler struct {
 }
 
 type DBConfig struct {
-	EnableInfoLogs bool
-	DriverType     string
-	DBPassword     string
-	DBUser         string
-	DBHost         string
-	DBPort         string
-	DBName         string
+	EnableInfoLogs bool   `json:"enable-info-logs"`
+	DriverType     string `json:"driver-type,omitempty"`
+	DBPassword     string `json:"-"`
+	DBUser         string `json:"db-user,omitempty"`
+	DBHost         string `json:"db-host,omitempty"`
+	DBPort         string `json:"db-port,omitempty"`
+	DBName         string `json:"db-name,omitempty"`
 }
 
 // Base contains common columns for all tables.
