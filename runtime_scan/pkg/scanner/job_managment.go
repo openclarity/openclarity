@@ -159,7 +159,8 @@ func (s *Scanner) waitForResult(ctx context.Context, data *scanData, ks chan boo
 				continue
 			}
 			if *instanceScanResults.General.State != models.DONE {
-				log.WithFields(s.logFields).Infof("Scan is not done. scan id=%v, targetID=%s, state=%v", s.scanID, data.targetInstance.TargetID, *instanceScanResults.General.State)
+				log.WithFields(s.logFields).Infof("Scan is not done. scan result id=%v, scan id=%v, targetID=%s, state=%v", data.scanResultID,
+					s.scanID, data.targetInstance.TargetID, *instanceScanResults.General.State)
 				continue
 			}
 
@@ -381,35 +382,35 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 	initScanStatus := &models.TargetScanStatus{
 		Exploits: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Exploits.Enabled),
+			State:  getInitScanStatusExploitsStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Exploits),
 		},
 		General: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(true),
+			State:  stateToPointer(models.INIT),
 		},
 		Malware: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Malware.Enabled),
+			State:  getInitScanStatusMalwareStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Malware),
 		},
 		Misconfigurations: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Misconfigurations.Enabled),
+			State:  getInitScanStatusMisconfigurationsStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Misconfigurations),
 		},
 		Rootkits: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Rootkits.Enabled),
+			State:  getInitScanStatusRootkitsStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Rootkits),
 		},
 		Sbom: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Sbom.Enabled),
+			State:  getInitScanStatusSbomStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Sbom),
 		},
 		Secrets: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Secrets.Enabled),
+			State:  getInitScanStatusSecretsStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Secrets),
 		},
 		Vulnerabilities: &models.TargetScanState{
 			Errors: nil,
-			State:  getInitScanStatusStateFromEnabled(*s.scanConfig.ScanFamiliesConfig.Vulnerabilities.Enabled),
+			State:  getInitScanStatusVulnerabilitiesStateFromEnabled(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
 		},
 	}
 	scanResult := models.TargetScanResult{
@@ -447,12 +448,62 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 	}
 }
 
-func getInitScanStatusStateFromEnabled(enabled bool) *models.TargetScanStateState {
-	if enabled {
-		initState := models.INIT
-		return &initState
+func getInitScanStatusVulnerabilitiesStateFromEnabled(config *models.VulnerabilitiesConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
 	}
 
-	notScannedState := models.NOTSCANNED
-	return &notScannedState
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusSecretsStateFromEnabled(config *models.SecretsConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusSbomStateFromEnabled(config *models.SBOMConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusRootkitsStateFromEnabled(config *models.RootkitsConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusMisconfigurationsStateFromEnabled(config *models.MisconfigurationsConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusMalwareStateFromEnabled(config *models.MalwareConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func getInitScanStatusExploitsStateFromEnabled(config *models.ExploitsConfig) *models.TargetScanStateState {
+	if config == nil || config.Enabled == nil || !*config.Enabled {
+		return stateToPointer(models.NOTSCANNED)
+	}
+
+	return stateToPointer(models.INIT)
+}
+
+func stateToPointer(state models.TargetScanStateState) *models.TargetScanStateState {
+	return &state
 }
