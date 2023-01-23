@@ -74,7 +74,7 @@ func setConfigDefaults(backendAddress string, backendPort int, backendBaseURL st
 	viper.SetDefault(JobResultTimeout, "120m")
 	viper.SetDefault(JobResultsPollingInterval, "30s")
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
-	viper.SetDefault(DeleteJobPolicy, DeleteJobPolicySuccessful)
+	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicySuccessful))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendAddress, strconv.Itoa(backendPort)), backendBaseURL))
 
 	viper.AutomaticEnv()
@@ -103,7 +103,7 @@ func LoadConfig(backendAddress string, backendPort int, baseURL string) (*Orches
 func getDeleteJobPolicyType(policyType string) DeleteJobPolicyType {
 	deleteJobPolicy := DeleteJobPolicyType(policyType)
 	if !deleteJobPolicy.IsValid() {
-		log.Warnf("Invalid %s type - using default `%s`", DeleteJobPolicy, DeleteJobPolicySuccessful)
+		log.Warnf("Invalid %s type (%s) - using default `%s`", DeleteJobPolicy, policyType, DeleteJobPolicySuccessful)
 		deleteJobPolicy = DeleteJobPolicySuccessful
 	}
 
