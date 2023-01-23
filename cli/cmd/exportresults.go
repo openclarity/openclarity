@@ -86,7 +86,7 @@ func getExistingScanResult(apiClient client.ClientWithResponsesInterface) (model
 	}
 
 	switch resp.StatusCode() {
-	case http.StatusCreated:
+	case http.StatusOK:
 		if resp.JSON200 == nil {
 			return scanResults, newGetExistingError(fmt.Errorf("empty body"))
 		}
@@ -119,7 +119,7 @@ func patchExistingScanResult(apiClient client.ClientWithResponsesInterface, scan
 	}
 
 	switch resp.StatusCode() {
-	case http.StatusCreated:
+	case http.StatusOK:
 		if resp.JSON200 == nil {
 			return newUpdateScanResultError(fmt.Errorf("empty body"))
 		}
