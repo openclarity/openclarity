@@ -60,20 +60,20 @@ var (
 	})
 	fixableVulnerability = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_number_of_fixable_vulnerabilities",
-		Help: "The number of fixable vulnerabilities per importance (i.e. severity)",
-	}, []string{"importance"})
+		Help: "The number of fixable vulnerabilities per severity",
+	}, []string{"vul_severity"})
 	vulnerability = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_number_of_vulnerabilities",
-		Help: "The number of vulnerabilities per importance (i.e. severity)",
-	}, []string{"importance"})
+		Help: "The number of vulnerabilities per severity",
+	}, []string{"vul_severity"})
 	trendGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_vulnerability_trend",
-		Help: "Vulnerability trend in a 60 minute time window by importance (i.e. severity)",
-	}, []string{"importance"})
+		Help: "Vulnerability trend in a 60 minute time window",
+	}, []string{"vul_severity"})
 	applicationGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_application_vulnerability",
-		Help: "Count of vulnerabilities per application, environment and importance (i.e. severity)",
-	}, []string{"name", "environment", "importance"})
+		Help: "Count of vulnerabilities per application, environment and severity",
+	}, []string{"name", "environment", "vul_severity"})
 )
 
 type Server struct {
