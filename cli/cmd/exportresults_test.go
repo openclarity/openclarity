@@ -195,7 +195,6 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description1",
 		StartLine:   1,
 		EndLine:     11,
-		Line:        "Line1",
 		File:        "File1",
 		Fingerprint: "Fingerprint1",
 	}
@@ -203,7 +202,6 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description2",
 		StartLine:   2,
 		EndLine:     22,
-		Line:        "Line2",
 		File:        "File2",
 		Fingerprint: "Fingerprint2",
 	}
@@ -211,7 +209,6 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description3",
 		StartLine:   3,
 		EndLine:     33,
-		Line:        "Line3",
 		File:        "File3",
 		Fingerprint: "Fingerprint3",
 	}
@@ -280,8 +277,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						SecretInfo: &models.SecretInfo{
 							Description: &finding1.Description,
 							EndLine:     &finding1.EndLine,
-							File:        &finding1.File,
-							Line:        &finding1.Line,
+							FilePath:    &finding1.File,
+							Fingerprint: &finding1.Fingerprint,
 							StartLine:   &finding1.StartLine,
 						},
 						Id: &finding1.Fingerprint,
@@ -290,8 +287,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						SecretInfo: &models.SecretInfo{
 							Description: &finding2.Description,
 							EndLine:     &finding2.EndLine,
-							File:        &finding2.File,
-							Line:        &finding2.Line,
+							FilePath:    &finding2.File,
+							Fingerprint: &finding2.Fingerprint,
 							StartLine:   &finding2.StartLine,
 						},
 						Id: &finding2.Fingerprint,
@@ -300,8 +297,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						SecretInfo: &models.SecretInfo{
 							Description: &finding3.Description,
 							EndLine:     &finding3.EndLine,
-							File:        &finding3.File,
-							Line:        &finding3.Line,
+							FilePath:    &finding3.File,
+							Fingerprint: &finding3.Fingerprint,
 							StartLine:   &finding3.StartLine,
 						},
 						Id: &finding3.Fingerprint,

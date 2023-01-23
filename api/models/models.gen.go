@@ -307,10 +307,10 @@ type SecretInfo struct {
 	Description *string `json:"description,omitempty"`
 	EndLine     *int    `json:"endLine,omitempty"`
 
-	// File Name of the file containing the finding
-	File      *string `json:"file,omitempty"`
-	Line      *string `json:"line,omitempty"`
-	StartLine *int    `json:"startLine,omitempty"`
+	// FilePath Name of the file containing the secret
+	FilePath    *string `json:"filePath,omitempty"`
+	Fingerprint *string `json:"fingerprint,omitempty"`
+	StartLine   *int    `json:"startLine,omitempty"`
 }
 
 // SecretScan defines model for SecretScan.
