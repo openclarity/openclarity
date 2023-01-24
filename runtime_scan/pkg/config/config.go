@@ -34,6 +34,7 @@ const (
 	JobResultsPollingInterval = "JOB_RESULT_POLLING_INTERVAL"
 	DeleteJobPolicy           = "DELETE_JOB_POLICY"
 	ScannerContainerImage     = "SCANNER_CONTAINER_IMAGE"
+	GitleaksBinaryPath        = "GITLEAKS_BINARY_PATH"
 	ScannerBackendAddress     = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
 	ScanConfigWatchInterval   = "SCAN_CONFIG_WATCH_INTERVAL"
 )
@@ -67,6 +68,9 @@ type ScannerConfig struct {
 	// machine, that contains the VMClarity CLI plus all the required
 	// tools.
 	ScannerImage string
+
+	// The gitleaks binary path in the scanner image container.
+	GitleaksBinaryPath string
 }
 
 func setConfigDefaults(backendAddress string, backendPort int, backendBaseURL string) {
@@ -76,6 +80,8 @@ func setConfigDefaults(backendAddress string, backendPort int, backendBaseURL st
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
 	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicySuccessful))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendAddress, strconv.Itoa(backendPort)), backendBaseURL))
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L21-L23
+	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
 
 	viper.AutomaticEnv()
 }
@@ -94,6 +100,7 @@ func LoadConfig(backendAddress string, backendPort int, baseURL string) (*Orches
 			DeleteJobPolicy:           getDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
 			ScannerImage:              viper.GetString(ScannerContainerImage),
 			ScannerBackendAddress:     viper.GetString(ScannerBackendAddress),
+			GitleaksBinaryPath:        viper.GetString(GitleaksBinaryPath),
 		},
 	}
 
