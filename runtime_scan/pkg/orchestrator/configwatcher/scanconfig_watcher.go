@@ -150,7 +150,7 @@ func hasRunningOrCompletedScan(scans *models.Scans, scanConfigID string, operati
 
 func (scw *ScanConfigWatcher) shouldStartSingleScheduleScanConfig(scanConfigID string, schedule models.SingleScheduleScanConfig, now time.Time) (bool, error) {
 	// Skip processing ScanConfig because its operationTime is outside of the start window
-	if schedule.OperationTime.Sub(now).Abs() >= timeWindow {
+	if schedule.OperationTime.Sub(now) >= timeWindow {
 		return false, nil
 	}
 	// Check running or completed scan for specific scan config
