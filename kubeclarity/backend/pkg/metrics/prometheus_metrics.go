@@ -61,19 +61,19 @@ var (
 	fixableVulnerability = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_number_of_fixable_vulnerabilities",
 		Help: "The number of fixable vulnerabilities per severity",
-	}, []string{"severity"})
+	}, []string{"vul_severity"})
 	vulnerability = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_number_of_vulnerabilities",
 		Help: "The number of vulnerabilities per severity",
-	}, []string{"severity"})
+	}, []string{"vul_severity"})
 	trendGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_vulnerability_trend",
 		Help: "Vulnerability trend in a 60 minute time window",
-	}, []string{"severity"})
+	}, []string{"vul_severity"})
 	applicationGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: Prefix + "_application_vulnerability",
 		Help: "Count of vulnerabilities per application, environment and severity",
-	}, []string{"name", "environment", "severity"})
+	}, []string{"name", "environment", "vul_severity"})
 )
 
 type Server struct {
@@ -174,6 +174,7 @@ func (s *Server) recordApplicationVulnerabilities() {
 }
 
 func (s *Server) StartRecordingMetrics(ctx context.Context) {
+	s.recordVulnerabilities()
 	go func() {
 		for {
 			select {
@@ -181,11 +182,15 @@ func (s *Server) StartRecordingMetrics(ctx context.Context) {
 				logrus.Info("received stop event")
 				return
 			case <-time.After(time.Duration(s.refreshInterval) * time.Second):
-				s.recordFixableVulnerability()
-				s.recordSummaryCounters()
-				s.recordApplicationVulnerabilities()
-				s.recordTrendCounters()
+				s.recordVulnerabilities()
 			}
 		}
 	}()
+}
+
+func (s *Server) recordVulnerabilities() {
+	s.recordFixableVulnerability()
+	s.recordSummaryCounters()
+	s.recordApplicationVulnerabilities()
+	s.recordTrendCounters()
 }
