@@ -44,8 +44,6 @@ import (
 
 const (
 	TrivyTimeout = 300
-
-	gitleaksBinaryPath = "/usr/local/bin/gitleaks"
 )
 
 // run jobs.
@@ -274,7 +272,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 	famConfig := families.Config{
 		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
 		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
-		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, scanRootDirectory),
+		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, scanRootDirectory, s.config.GitleaksBinaryPath),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -286,7 +284,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 	return string(famConfigYaml), nil
 }
 
-func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfig, scanRootDirectory string) secrets.Config {
+func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfig, scanRootDirectory string, gitleaksBinaryPath string) secrets.Config {
 	if secretsConfig == nil || secretsConfig.Enabled == nil || !*secretsConfig.Enabled {
 		return secrets.Config{}
 	}
