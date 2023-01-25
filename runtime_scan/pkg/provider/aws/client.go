@@ -49,6 +49,13 @@ var (
 			Value: &tagVal,
 		},
 	}
+	nameTagKey = "Name"
+)
+
+const (
+	// https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html
+	// The tag value must be a minimum of 0 and a maximum of 256 Unicode characters in UTF-8.
+	maxTagValueLen = 256
 )
 
 func Create(ctx context.Context, config *aws.Config) (*Client, error) {
@@ -201,6 +208,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 		return nil, fmt.Errorf("failed to generate cloud-init: %v", err)
 	}
 
+	instanceTags := createInstanceTags(snapshot.GetID())
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),
@@ -225,7 +233,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
-				Tags:         vmclarityTags,
+				Tags:         instanceTags,
 			},
 			{
 				ResourceType: ec2types.ResourceTypeVolume,
@@ -245,6 +253,22 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 		id:        *out.Instances[0].InstanceId,
 		region:    snapshot.GetRegion(),
 	}, nil
+}
+
+func createInstanceTags(id string) []ec2types.Tag {
+	nameTagValue := fmt.Sprintf("vmclarity-scanner-%s", id)
+	if len(nameTagValue) >= maxTagValueLen {
+		nameTagValue = nameTagValue[:maxTagValueLen]
+	}
+
+	var ret []ec2types.Tag
+	ret = append(ret, vmclarityTags...)
+	ret = append(ret, ec2types.Tag{
+		Key:   &nameTagKey,
+		Value: &nameTagValue,
+	})
+
+	return ret
 }
 
 func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, excludeTags []Tag, regionID string) ([]types.Instance, error) {
