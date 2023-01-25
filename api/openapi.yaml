@@ -494,6 +494,7 @@ components:
       properties:
         message:
           type: string
+          readOnly: true
       description: An object that is returned in all cases of failures.
 
     SuccessResponse:
@@ -501,6 +502,7 @@ components:
       properties:
         message:
           type: string
+          readOnly: true
       description: An object that is returned in cases of success that returns nothing.
 
     CloudProvider:
@@ -514,12 +516,14 @@ components:
         total:
           type: integer
           description: Total scans count according to the given filters
+          readOnly: true
         items:
           type: array
           description: List of scans according to the given filters and page.
             List length must be lower or equal to pageSize.
           items:
             $ref: '#/components/schemas/Scan'
+          readOnly: true
       required:
         - total
 
@@ -529,6 +533,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         startTime:
           type: string
           format: date-time
@@ -614,12 +619,14 @@ components:
         total:
           type: integer
           description: Total scan config count according to the given filters
+          readOnly: true
         items:
           type: array
           description: List of scan configs according to the given filters and page.
             List length must be lower or equal to pageSize.
           items:
             $ref: '#/components/schemas/ScanConfig'
+          readOnly: true
       required:
         - total
 
@@ -629,6 +636,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         scanFamiliesConfig:
@@ -680,6 +688,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         vpcs:
@@ -693,6 +702,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         securityGroups:
@@ -706,6 +716,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
 
@@ -807,12 +818,14 @@ components:
         total:
           type: integer
           description: Total targets count according the given filters
+          readOnly: true
         items:
           type: array
           description: List of targets in the given filters and page.
             List length must be lower or equal to pageSize.
           items:
             $ref: '#/components/schemas/Target'
+          readOnly: true
       required:
         - total
 
@@ -821,6 +834,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
 
@@ -881,12 +895,14 @@ components:
         total:
           type: integer
           description: Total scan results count according to the given filters
+          readOnly: true
         items:
           type: array
           description: List of scan results according to the given filters and page.
             List length must be lower or equal to pageSize.
           items:
             $ref: '#/components/schemas/TargetScanResult'
+          readOnly: true
       required:
         - total
 
