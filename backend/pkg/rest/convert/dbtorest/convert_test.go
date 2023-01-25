@@ -151,6 +151,7 @@ func TestConvertScanConfigs(t *testing.T) {
 	assert.NilError(t, err)
 
 	uid := uuid.NewV4()
+	total := 1
 
 	type args struct {
 		configs []*database.ScanConfig
@@ -188,7 +189,7 @@ func TestConvertScanConfigs(t *testing.T) {
 						Scope:              &scanScopeType,
 					},
 				},
-				Total: 1,
+				Total: &total,
 			},
 			wantErr: false,
 		},

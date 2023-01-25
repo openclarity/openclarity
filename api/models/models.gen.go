@@ -265,7 +265,7 @@ type ScanConfigs struct {
 	Items *[]ScanConfig `json:"items,omitempty"`
 
 	// Total Total scan config count according to the given filters
-	Total int `json:"total"`
+	Total *int `json:"total,omitempty"`
 }
 
 // ScanFamiliesConfig The configuration of the scanner families within a scan config
@@ -293,7 +293,7 @@ type Scans struct {
 	Items *[]Scan `json:"items,omitempty"`
 
 	// Total Total scans count according to the given filters
-	Total int `json:"total"`
+	Total *int `json:"total,omitempty"`
 }
 
 // Secret defines model for Secret.
@@ -369,7 +369,7 @@ type TargetScanResults struct {
 	Items *[]TargetScanResult `json:"items,omitempty"`
 
 	// Total Total scan results count according to the given filters
-	Total int `json:"total"`
+	Total *int `json:"total,omitempty"`
 }
 
 // TargetScanState defines model for TargetScanState.
@@ -404,7 +404,7 @@ type Targets struct {
 	Items *[]Target `json:"items,omitempty"`
 
 	// Total Total targets count according the given filters
-	Total int `json:"total"`
+	Total *int `json:"total,omitempty"`
 }
 
 // TimeOfDay defines model for TimeOfDay.
