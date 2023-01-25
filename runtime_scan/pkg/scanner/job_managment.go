@@ -208,6 +208,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	var err error
 
 	instanceToScan := data.targetInstance.Instance
+	log.WithFields(s.logFields).Infof("Running scanner job for instance id %v", instanceToScan.GetID())
 
 	// cleanup in case of an error
 	defer func() {
