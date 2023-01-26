@@ -259,6 +259,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		VolumeMountDirectory: volumeMountDirectory,
 		VMClarityAddress:     s.config.ScannerBackendAddress,
 		ScanResultID:         data.scanResultID,
+		KeyPairName:          s.config.ScannerKeyPairName,
 	}
 	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, scanningJobConfig)
 	if err != nil {
