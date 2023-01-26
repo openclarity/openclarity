@@ -149,6 +149,8 @@ spec:
               value: "{{ .Release.Namespace }}"
             - name: READ_CLUSTER_SECRETS
               value: "{{ index .Values "kubeclarity" "clusterRole" "readClusterSecrets" }}"
+            - name: CREDS_SECRET_NAMESPACE
+              value: "{{ .Release.Namespace }}"
           ports:
             - containerPort: 8080
               name: http

@@ -358,6 +358,9 @@ kubeclarity scan registry/nginx:private --config $HOME/own-kubeclarity-config
 Kubeclarity is using [k8schain](https://github.com/google/go-containerregistry/tree/main/pkg/authn/k8schain#k8schain) of google/go-containerregistry for authenticating to the registries.
 If the necessary service credentials are not discoverable by the k8schain, they can be defined via secrets described below.
 
+In addition, if service credentials are not located in "kubeclarity" Namespace, please set CREDS_SECRET_NAMESPACE to kubeclarity Deployment.
+When using helm [charts](/charts), CREDS_SECRET_NAMESPACE is set to the release namespace installed kubeclarity.
+
 ### Amazon ECR
 
 Create an [AWS IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console) with `AmazonEC2ContainerRegistryFullAccess` permissions.
