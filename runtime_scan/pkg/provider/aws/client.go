@@ -204,7 +204,8 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 
 	instanceTags := createInstanceTags(snapshot.GetID())
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
-	out, err := c.ec2Client.RunInstances(ctx, &ec2.RunInstancesInput{
+
+	runInstancesInput := &ec2.RunInstancesInput{
 		MaxCount: utils.Int32Ptr(1),
 		MinCount: utils.Int32Ptr(1),
 		ImageId:  &c.awsConfig.AmiID,
@@ -235,7 +236,28 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 			},
 		},
 		UserData: &userDataBase64,
-	}, func(options *ec2.Options) {
+	}
+
+	if config.KeyPairName != "" {
+		// Set a key-pair to the instance.
+		runInstancesInput.KeyName = &config.KeyPairName
+		// Create the instance with a public ip.
+		// https://stackoverflow.com/questions/27769006/how-do-i-create-an-ec2-instance-with-a-public-ip-automatically-without-decla
+		runInstancesInput.NetworkInterfaces = []ec2types.InstanceNetworkInterfaceSpecification{
+			{
+				AssociatePublicIpAddress: utils.BoolPtr(true),
+				DeleteOnTermination:      utils.BoolPtr(true),
+				DeviceIndex:              utils.Int32Ptr(0),
+				Groups:                   nil, // use default for now
+				SubnetId:                 &c.awsConfig.SubnetID,
+			},
+		}
+		// Clear instance-level subnet ID since network interfaces and an instance-level subnet ID
+		// can not be specified on the same request.
+		runInstancesInput.SubnetId = nil
+	}
+
+	out, err := c.ec2Client.RunInstances(ctx, runInstancesInput, func(options *ec2.Options) {
 		options.Region = snapshot.GetRegion()
 	})
 	if err != nil {

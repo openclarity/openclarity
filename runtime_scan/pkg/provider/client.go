@@ -28,6 +28,7 @@ type ScanningJobConfig struct {
 	VolumeMountDirectory string // The directory where the scanner should mount the volume to scan so that the CLI can find it
 	VMClarityAddress     string // The backend address for the scanner CLI to export too
 	ScanResultID         string // The ID of the ScanResult that the scanner CLI should update
+	KeyPairName          string // The name of the key pair to set on the instance, ignored if not set, used mainly for debugging.
 }
 
 type Client interface {
