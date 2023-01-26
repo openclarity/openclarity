@@ -132,3 +132,51 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 		})
 	}
 }
+
+func Test_isWithinTheWindow(t *testing.T) {
+	type args struct {
+		operationTime time.Time
+		now           time.Time
+		window        time.Duration
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "in the window",
+			args: args{
+				operationTime: time.Now().Add(2 * time.Minute),
+				now:           time.Now(),
+				window:        3 * time.Minute,
+			},
+			want: true,
+		},
+		{
+			name: "not in the window - before now",
+			args: args{
+				operationTime: time.Now().Add(-2 * time.Minute),
+				now:           time.Now(),
+				window:        3 * time.Minute,
+			},
+			want: false,
+		},
+		{
+			name: "not in the window - after now",
+			args: args{
+				operationTime: time.Now().Add(2 * time.Minute),
+				now:           time.Now(),
+				window:        1 * time.Minute,
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isWithinTheWindow(tt.args.operationTime, tt.args.now, tt.args.window); got != tt.want {
+				t.Errorf("test() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
