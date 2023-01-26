@@ -359,6 +359,7 @@ Kubeclarity is using [k8schain](https://github.com/google/go-containerregistry/t
 If the necessary service credentials are not discoverable by the k8schain, they can be defined via secrets described below.
 
 In addition, if service credentials are not located in "kubeclarity" Namespace, please set CREDS_SECRET_NAMESPACE to kubeclarity Deployment.
+When using helm [charts](/charts), CREDS_SECRET_NAMESPACE is set to the release namespace installed kubeclarity.
 
 ### Amazon ECR
 
