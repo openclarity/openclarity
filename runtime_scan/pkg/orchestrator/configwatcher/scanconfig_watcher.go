@@ -148,7 +148,7 @@ func hasRunningOrCompletedScan(scans *models.Scans, scanConfigID string, operati
 	return false
 }
 
-// isWithinTheWindow checks if `checkTime` is within the window (after `now` and before `now + window`)
+// isWithinTheWindow checks if `checkTime` is within the window (after `now` and before `now + window`).
 func isWithinTheWindow(checkTime, now time.Time, window time.Duration) bool {
 	if checkTime.Before(now) {
 		return false
