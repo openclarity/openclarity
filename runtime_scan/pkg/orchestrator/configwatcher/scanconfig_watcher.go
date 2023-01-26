@@ -148,9 +148,19 @@ func hasRunningOrCompletedScan(scans *models.Scans, scanConfigID string, operati
 	return false
 }
 
+// isWithinTheWindow checks if `checkTime` is within the window (after `now` and before `now + window`)
+func isWithinTheWindow(checkTime, now time.Time, window time.Duration) bool {
+	if checkTime.Before(now) {
+		return false
+	}
+
+	endWindowTime := now.Add(window)
+	return checkTime.Before(endWindowTime)
+}
+
 func (scw *ScanConfigWatcher) shouldStartSingleScheduleScanConfig(scanConfigID string, schedule models.SingleScheduleScanConfig, now time.Time) (bool, error) {
-	// Skip processing ScanConfig because its operationTime is outside of the start window
-	if schedule.OperationTime.Sub(now) >= timeWindow {
+	// Skip processing ScanConfig because its operationTime is not within the start window
+	if !isWithinTheWindow(schedule.OperationTime, now, timeWindow) {
 		return false, nil
 	}
 	// Check running or completed scan for specific scan config
