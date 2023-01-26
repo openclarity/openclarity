@@ -52,12 +52,6 @@ var (
 	nameTagKey = "Name"
 )
 
-const (
-	// https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html
-	// The tag value must be a minimum of 0 and a maximum of 256 Unicode characters in UTF-8.
-	maxTagValueLen = 256
-)
-
 func Create(ctx context.Context, config *aws.Config) (*Client, error) {
 	awsClient := Client{
 		awsConfig: config,
@@ -257,9 +251,6 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 
 func createInstanceTags(id string) []ec2types.Tag {
 	nameTagValue := fmt.Sprintf("vmclarity-scanner-%s", id)
-	if len(nameTagValue) >= maxTagValueLen {
-		nameTagValue = nameTagValue[:maxTagValueLen]
-	}
 
 	var ret []ec2types.Tag
 	ret = append(ret, vmclarityTags...)
