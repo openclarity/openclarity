@@ -27,6 +27,11 @@ Resources:
         Count: "1"
     Properties:
       InstanceType: !Ref InstanceType
+      Tags:
+        - Key: Name
+          Value: "VMClarity Server"
+        - Key: Owner
+          Value: "VMClarity"
       ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref "AWS::Region"
