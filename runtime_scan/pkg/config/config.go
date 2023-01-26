@@ -34,6 +34,7 @@ const (
 	JobResultsPollingInterval = "JOB_RESULT_POLLING_INTERVAL"
 	DeleteJobPolicy           = "DELETE_JOB_POLICY"
 	ScannerContainerImage     = "SCANNER_CONTAINER_IMAGE"
+	ScannerKeyPairName        = "SCANNER_KEY_PAIR_NAME"
 	GitleaksBinaryPath        = "GITLEAKS_BINARY_PATH"
 	ScannerBackendAddress     = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
 	ScanConfigWatchInterval   = "SCAN_CONFIG_WATCH_INTERVAL"
@@ -69,6 +70,10 @@ type ScannerConfig struct {
 	// tools.
 	ScannerImage string
 
+	// The key pair name that should be attached to the scanner VM instance.
+	// Mainly used for debugging.
+	ScannerKeyPairName string
+
 	// The gitleaks binary path in the scanner image container.
 	GitleaksBinaryPath string
 }
@@ -100,6 +105,7 @@ func LoadConfig(backendAddress string, backendPort int, baseURL string) (*Orches
 			DeleteJobPolicy:           getDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
 			ScannerImage:              viper.GetString(ScannerContainerImage),
 			ScannerBackendAddress:     viper.GetString(ScannerBackendAddress),
+			ScannerKeyPairName:        viper.GetString(ScannerKeyPairName),
 			GitleaksBinaryPath:        viper.GetString(GitleaksBinaryPath),
 		},
 	}
