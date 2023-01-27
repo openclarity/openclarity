@@ -1,3 +1,10 @@
+{{- $noproxy := list (print (include "kubeclarity.name" .) "." .Release.Namespace ":" (index .Values "kubeclarity-runtime-scan" "resultServicePort")) -}}
+{{- if index .Values "kubeclarity-grype-server" "enabled" -}}
+{{- $noproxy = append $noproxy (print (include "kubeclarity.grype-server.name" .) "." .Release.Namespace ":" (index .Values "kubeclarity-grype-server" "servicePort")) -}}
+{{- end -}}
+{{- if index .Values "kubeclarity-trivy-server" "enabled" -}}
+{{- $noproxy = append $noproxy (print ((index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server"))) "." .Release.Namespace ":" (index .Values "kubeclarity-trivy-server" "service" "port")) -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -99,13 +106,6 @@ data:
             - name: SCANNER_DEPENDENCY_TRACK_API_KEY
               value: {{ index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "scanner" "dependency-track" "apiKey" }}
 {{- end }}
-{{- $noproxy := list (print (include "kubeclarity.name" .) "." .Release.Namespace ":" (index .Values "kubeclarity-runtime-scan" "resultServicePort")) -}}
-{{- if index .Values "kubeclarity-grype-server" "enabled" -}}
-{{- $noproxy = append $noproxy (print (include "kubeclarity.grype-server.name" .) "." .Release.Namespace ":" (index .Values "kubeclarity-grype-server" "servicePort")) -}}
-{{- end -}}
-{{- if index .Values "kubeclarity-trivy-server" "enabled" -}}
-{{- $noproxy = append $noproxy (print ((index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server"))) "." .Release.Namespace ":" (index .Values "kubeclarity-trivy-server" "service" "port")) -}}
-{{- end -}}
 {{- if index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
             - name: HTTPS_PROXY
               value: {{ index .Values "kubeclarity-runtime-scan" "httpsProxy" }}
