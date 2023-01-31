@@ -59,7 +59,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/vmclarity.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/vmclarity:${{ inputs.image_tag }}
@@ -111,7 +111,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/vmclarity-cli.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/vmclarity-cli:${{ inputs.image_tag }}
