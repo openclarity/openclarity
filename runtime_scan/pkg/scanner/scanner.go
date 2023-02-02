@@ -51,13 +51,10 @@ type Scanner struct {
 }
 
 func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scanner {
-	credentialAdders := []_creds.CredentialAdder{}
-	if config.ReadClusterSecrets {
-		credentialAdders = []_creds.CredentialAdder{
-			_creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
-			_creds.CreateECR(clientset, config.CredsSecretNamespace),
-			_creds.CreateGCR(clientset, config.CredsSecretNamespace),
-		}
+	credentialAdders := []_creds.CredentialAdder{
+		_creds.CreateBasicRegCred(clientset, config.CredsSecretNamespace),
+		_creds.CreateECR(clientset, config.CredsSecretNamespace),
+		_creds.CreateGCR(clientset, config.CredsSecretNamespace),
 	}
 	s := &Scanner{
 		progress: _types.ScanProgress{
@@ -75,13 +72,13 @@ func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scan
 }
 
 type imagePodContext struct {
-	containerName   string
-	podName         string
-	namespace       string
-	imagePullSecret string
-	imageName       string
-	podUID          string
-	podLabels       labels.Set
+	containerName    string
+	podName          string
+	namespace        string
+	imagePullSecrets []string
+	imageName        string
+	podUID           string
+	podLabels        labels.Set
 }
 
 type vulnerabilitiesScanResult struct {
@@ -202,8 +199,13 @@ func (s *Scanner) initScan() error {
 			continue
 		}
 
-		// TODO: (idanf) verify if we need to read pod image pull secrets or just mount it to the scanner job
-		secrets := k8sutils.GetPodImagePullSecrets(s.clientset, pod)
+		// Fetch all image pull secrets from the pod so that we can
+		// inform the scanner where to check for credentials to pull
+		// the image to scan.
+		imagePullSecretNames := []string{}
+		for _, ips := range pod.Spec.ImagePullSecrets {
+			imagePullSecretNames = append(imagePullSecretNames, ips.Name)
+		}
 
 		// Due to scenarios where image name in the `pod.Status.ContainerStatuses` is different
 		// from image name in the `pod.Spec.Containers` we will take only image id from `pod.Status.ContainerStatuses`.
@@ -229,13 +231,13 @@ func (s *Scanner) initScan() error {
 			}
 			// Create pod context
 			podContext := &imagePodContext{
-				containerName:   container.Name,
-				podName:         pod.GetName(),
-				namespace:       pod.GetNamespace(),
-				imagePullSecret: k8sutils.GetMatchingSecretName(secrets, container.Image),
-				imageName:       container.Image,
-				podUID:          string(pod.GetUID()),
-				podLabels:       labels.Set(pod.GetLabels()),
+				containerName:    container.Name,
+				podName:          pod.GetName(),
+				namespace:        pod.GetNamespace(),
+				imagePullSecrets: imagePullSecretNames,
+				imageName:        container.Image,
+				podUID:           string(pod.GetUID()),
+				podLabels:        labels.Set(pod.GetLabels()),
 			}
 			if data, ok := imageIDToScanData[imageID]; !ok {
 				// Image added for the first time, create scan data and append pod context

@@ -165,8 +165,8 @@ KubeClarity vulnerability scanner integrates with the following scanners:
 > KubeClarity requires these K8s permissions:
 > | Permission | Reason |
 > | ---        | ---    |
-> | Read secrets in cluster scope. | This is required for getting image pull secrets for scanning private image repositories. |
-> | Read config maps in cluster scope. | This is required for getting the configured template of the scanner job. |
+> | Read secrets in CREDS_SECRET_NAMESPACE (default: kubeclarity) | This is allow you to configure image pull secrets for scanning private image repositories. |
+> | Read config maps in the KubeClarity deployment namespace. | This is required for getting the configured template of the scanner job. |
 > | List pods in cluster scope. | This is required for calculating the target pods that need to be scanned. |
 > | List namespaces. | This is required for fetching the target namespaces to scan in K8s runtime scan UI. |
 > | Create & delete jobs in cluster scope. | This is required for managing the jobs that will scan the target pods in their namespaces. |

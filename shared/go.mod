@@ -450,7 +450,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.10.0 // indirect
 	cloud.google.com/go/iam v0.5.0 // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
+	github.com/docker/distribution v2.8.1+incompatible
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	golang.org/x/crypto v0.1.0
 	k8s.io/api v0.25.3
