@@ -93,9 +93,6 @@ kubeclarity:
       memory: "1000Mi"
       cpu: "1000m"
 
-  clusterRole:
-    readClusterSecrets: true
-
   initContainers:
     resources:
       requests:

@@ -409,48 +409,30 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 						Spec: corev1.PodSpec{
 							Volumes: []corev1.Volume{
 								{
-									Name: "docker-config",
+									Name: "image-pull-secret-secretName",
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName: "secretName",
-											Items: []corev1.KeyToPath{
-												{
-													Key:  corev1.DockerConfigJsonKey,
-													Path: _creds.DockerConfigFileName,
-												},
-											},
 										},
 									},
 								},
 							},
 							Containers: []corev1.Container{
 								{
-									Env: []corev1.EnvVar{
-										{
-											Name:  _creds.DockerConfigEnvVar,
-											Value: _creds.BasicVolumeMountPath,
-										},
-									},
 									VolumeMounts: []corev1.VolumeMount{
 										{
-											Name:      "docker-config",
+											Name:      "image-pull-secret-secretName",
 											ReadOnly:  true,
-											MountPath: _creds.BasicVolumeMountPath,
+											MountPath: "/opt/kubeclarity-pull-secrets/secretName",
 										},
 									},
 								},
 								{
-									Env: []corev1.EnvVar{
-										{
-											Name:  _creds.DockerConfigEnvVar,
-											Value: _creds.BasicVolumeMountPath,
-										},
-									},
 									VolumeMounts: []corev1.VolumeMount{
 										{
-											Name:      "docker-config",
+											Name:      "image-pull-secret-secretName",
 											ReadOnly:  true,
-											MountPath: _creds.BasicVolumeMountPath,
+											MountPath: "/opt/kubeclarity-pull-secrets/secretName",
 										},
 									},
 								},
@@ -491,16 +473,10 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 						Spec: corev1.PodSpec{
 							Volumes: []corev1.Volume{
 								{
-									Name: "docker-config",
+									Name: "image-pull-secret-secretName",
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName: "secretName",
-											Items: []corev1.KeyToPath{
-												{
-													Key:  corev1.DockerConfigJsonKey,
-													Path: _creds.DockerConfigFileName,
-												},
-											},
 										},
 									},
 								},
@@ -509,32 +485,24 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 								{
 									Env: []corev1.EnvVar{
 										{Name: "ENV1", Value: "123"},
-										{
-											Name:  _creds.DockerConfigEnvVar,
-											Value: _creds.BasicVolumeMountPath,
-										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
 										{
-											Name:      "docker-config",
+											Name:      "image-pull-secret-secretName",
 											ReadOnly:  true,
-											MountPath: _creds.BasicVolumeMountPath,
+											MountPath: "/opt/kubeclarity-pull-secrets/secretName",
 										},
 									},
 								},
 								{
 									Env: []corev1.EnvVar{
 										{Name: "ENV2", Value: "456"},
-										{
-											Name:  _creds.DockerConfigEnvVar,
-											Value: _creds.BasicVolumeMountPath,
-										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
 										{
-											Name:      "docker-config",
+											Name:      "image-pull-secret-secretName",
 											ReadOnly:  true,
-											MountPath: _creds.BasicVolumeMountPath,
+											MountPath: "/opt/kubeclarity-pull-secrets/secretName",
 										},
 									},
 								},
@@ -836,12 +804,9 @@ spec:
       sidecar.istio.io/inject: "false"
     spec:
       volumes:
-      - name: docker-config
+      - name: image-pull-secret-imagePullSecret
         secret:
           secretName: imagePullSecret
-          items:
-          - key: ".dockerconfigjson"
-            path: "config.json"
       restartPolicy: Never
       containers:
       - name: vulnerability-scanner
@@ -863,12 +828,12 @@ spec:
           value: "image-hash"
         - name: IMAGE_NAME_TO_SCAN
           value: "image-name"
-        - name: DOCKER_CONFIG
-          value: "/etc/docker"
+        - name: IMAGE_PULL_SECRET_PATH
+          value: "/opt/kubeclarity-pull-secrets"
         volumeMounts:
-        - name: docker-config
+        - name: image-pull-secret-imagePullSecret
           readOnly: true
-          mountPath: /etc/docker
+          mountPath: /opt/kubeclarity-pull-secrets/imagePullSecret
         securityContext:
           capabilities:
             drop:
@@ -992,12 +957,12 @@ func TestScanner_createJob(t *testing.T) {
 					imageID:   "image-id",
 					contexts: []*imagePodContext{
 						{
-							containerName:   "containerName",
-							podName:         "podName",
-							namespace:       "namespace",
-							imagePullSecret: "imagePullSecret",
-							imageName:       "notValidImageName",
-							podUID:          "podUID",
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{"imagePullSecret"},
+							imageName:        "notValidImageName",
+							podUID:           "podUID",
 						},
 					},
 					scanUUID: "scanUUID",
@@ -1017,12 +982,12 @@ func TestScanner_createJob(t *testing.T) {
 					imageID:   "image-id",
 					contexts: []*imagePodContext{
 						{
-							containerName:   "containerName",
-							podName:         "podName",
-							namespace:       "namespace",
-							imagePullSecret: "",
-							imageName:       "image-name",
-							podUID:          "podUID",
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{},
+							imageName:        "image-name",
+							podUID:           "podUID",
 						},
 					},
 					scanUUID: "scanUUID",
@@ -1042,13 +1007,12 @@ func TestScanner_createJob(t *testing.T) {
 					imageID:   "image-id",
 					contexts: []*imagePodContext{
 						{
-							containerName:   "containerName",
-							podName:         "podName",
-							namespace:       "namespace",
-							imagePullSecret: "imagePullSecret",
-
-							imageName: "image-name",
-							podUID:    "podUID",
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{"imagePullSecret"},
+							imageName:        "image-name",
+							podUID:           "podUID",
 						},
 					},
 					scanUUID: "scanUUID",
@@ -1075,12 +1039,12 @@ func TestScanner_createJob(t *testing.T) {
 					imageID:   "image-id",
 					contexts: []*imagePodContext{
 						{
-							containerName:   "containerName",
-							podName:         "podName",
-							namespace:       "namespace",
-							imagePullSecret: "",
-							imageName:       "image-name",
-							podUID:          "podUID",
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{},
+							imageName:        "image-name",
+							podUID:           "podUID",
 						},
 					},
 					scanUUID: "scanUUID",
@@ -1107,12 +1071,12 @@ func TestScanner_createJob(t *testing.T) {
 					imageID:   "image-id",
 					contexts: []*imagePodContext{
 						{
-							containerName:   "containerName",
-							podName:         "podName",
-							namespace:       "namespace",
-							imagePullSecret: "imagePullSecret",
-							imageName:       "image-name",
-							podUID:          "podUID",
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{"imagePullSecret"},
+							imageName:        "image-name",
+							podUID:           "podUID",
 						},
 					},
 					scanUUID: "scanUUID",

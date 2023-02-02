@@ -31,7 +31,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/config"
-	_creds "github.com/openclarity/kubeclarity/runtime_scan/pkg/scanner/creds"
 	"github.com/openclarity/kubeclarity/runtime_scan/pkg/types"
 	stringsutils "github.com/openclarity/kubeclarity/runtime_scan/pkg/utils/strings"
 	shared "github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -296,9 +295,12 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 	setJobImageIDToScan(job, data.imageID)
 	setJobImageHashToScan(job, data.imageHash)
 	setJobImageNameToScan(job, podContext.imageName)
-	if podContext.imagePullSecret != "" {
-		log.WithFields(s.logFields).Debugf("Adding private registry credentials to image: %s", podContext.imageName)
-		setJobDockerConfigFromImagePullSecret(job, podContext.imagePullSecret)
+
+	if len(podContext.imagePullSecrets) > 0 {
+		for _, secretName := range podContext.imagePullSecrets {
+			setJobDockerConfigFromImagePullSecret(job, secretName)
+		}
+		setJobImagePullSecretPath(job)
 	} else {
 		// Use private repo sa credentials only if there is no imagePullSecret
 		for _, adder := range s.credentialAdders {
@@ -328,30 +330,22 @@ func removeCISDockerBenchmarkScannerFromJob(job *batchv1.Job) {
 // 2. Mount the volume into each container to a specific path (`BasicVolumeMountPath`/`DockerConfigFileName`)
 // 3. Set `DOCKER_CONFIG` to point to the directory that contains the config.json.
 func setJobDockerConfigFromImagePullSecret(job *batchv1.Job, secretName string) {
+	volumeName := fmt.Sprintf("image-pull-secret-%s", secretName)
+
 	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
-		Name: _creds.BasicVolumeName,
+		Name: volumeName,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: secretName,
-				Items: []corev1.KeyToPath{
-					{
-						Key:  corev1.DockerConfigJsonKey,
-						Path: _creds.DockerConfigFileName,
-					},
-				},
 			},
 		},
 	})
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
 		container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
-			Name:      _creds.BasicVolumeName,
+			Name:      volumeName,
 			ReadOnly:  true,
-			MountPath: _creds.BasicVolumeMountPath,
-		})
-		container.Env = append(container.Env, corev1.EnvVar{
-			Name:  _creds.DockerConfigEnvVar,
-			Value: _creds.BasicVolumeMountPath,
+			MountPath: fmt.Sprintf("/opt/kubeclarity-pull-secrets/%s", secretName),
 		})
 	}
 }
@@ -381,5 +375,12 @@ func setJobScanUUID(job *batchv1.Job, scanUUID string) {
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
 		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ScanUUID, Value: scanUUID})
+	}
+}
+
+func setJobImagePullSecretPath(job *batchv1.Job) {
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretPath, Value: "/opt/kubeclarity-pull-secrets"})
 	}
 }
