@@ -72,8 +72,9 @@ jobs:
 
       - name: Replace release version
         id: replace_version
-        run: find . -type f -name "values.yaml" -o -name "Chart.yaml" |
-          xargs sed -i -e s/latest/${{ github.ref_name }}/g
+        run: |
+          sed -i 's/v0.0.0-dev/${{ github.ref_name }}/g' charts/kubeclarity/Chart.yaml
+          sed -i 's/latest/${{ github.ref_name }}/g' charts/kubeclarity/values.yaml
 
       - name: Set up Helm
         uses: azure/setup-helm@v3.5
