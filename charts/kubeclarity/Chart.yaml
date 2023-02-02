@@ -13,7 +13,7 @@ maintainers:
 type: application
 dependencies:
   - name: postgresql
-    version: "11.9.13"
+    version: "12.1.14"
     repository: https://charts.bitnami.com/bitnami
     condition: kubeclarity-postgresql.enabled
     alias: kubeclarity-postgresql
