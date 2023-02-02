@@ -26,10 +26,10 @@ import (
 	"github.com/openclarity/kubeclarity/api/client/client"
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
-	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	sharedUtilsVulnerability "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 func Export(apiClient *client.KubeClarityAPIs,
@@ -116,6 +116,14 @@ func createResourceLayerCommands(layerCommands []*image_helper.FsLayerCommand) [
 	return resourceLayerCommands
 }
 
+var backendAPISeverity = sharedUtilsVulnerability.SeverityModel[models.VulnerabilitySeverity]{
+	Critical:   models.VulnerabilitySeverityCRITICAL,
+	High:       models.VulnerabilitySeverityHIGH,
+	Medium:     models.VulnerabilitySeverityMEDIUM,
+	Low:        models.VulnerabilitySeverityLOW,
+	Negligible: models.VulnerabilitySeverityNEGLIGIBLE,
+}
+
 func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.PackageVulnerabilityScan {
 	packageVulnerabilityScan := make([]*models.PackageVulnerabilityScan, 0, len(m.MergedVulnerabilitiesByKey))
 	for _, vulnerabilities := range m.MergedVulnerabilitiesByKey {
@@ -132,7 +140,7 @@ func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.Packa
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
 			Scanners:          getScannerInfo(vulnerability),
-			Severity:          utils.GetVulnerabilitySeverityFromString(vulnerability.Vulnerability.Severity),
+			Severity:          backendAPISeverity.GetVulnerabilitySeverityFromString(vulnerability.Vulnerability.Severity),
 			VulnerabilityName: vulnerability.Vulnerability.ID,
 		})
 	}

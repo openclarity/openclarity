@@ -34,6 +34,7 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
+	sharedUtilsVulnerability "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 type Reporter interface {
@@ -137,6 +138,14 @@ func createResourceLayerCommands(layerCommands []*image_helper.FsLayerCommand) [
 	return resourceLayerCommands
 }
 
+var runtimeAPISeverity = sharedUtilsVulnerability.SeverityModel[models.VulnerabilitySeverity]{
+	Critical:   models.VulnerabilitySeverityCRITICAL,
+	High:       models.VulnerabilitySeverityHIGH,
+	Medium:     models.VulnerabilitySeverityMEDIUM,
+	Low:        models.VulnerabilitySeverityLOW,
+	Negligible: models.VulnerabilitySeverityNEGLIGIBLE,
+}
+
 func createPackagesVulnerabilitiesScan(results *scanner.MergedResults) []*models.PackageVulnerabilityScan {
 	packageVulnerabilityScan := make([]*models.PackageVulnerabilityScan, 0, len(results.MergedVulnerabilitiesByKey))
 	for _, vulnerabilities := range results.MergedVulnerabilitiesByKey {
@@ -153,7 +162,7 @@ func createPackagesVulnerabilitiesScan(results *scanner.MergedResults) []*models
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
 			Scanners:          getScannerInfo(vulnerability),
-			Severity:          getVulnerabilitySeverityFromString(vulnerability.Vulnerability.Severity),
+			Severity:          runtimeAPISeverity.GetVulnerabilitySeverityFromString(vulnerability.Vulnerability.Severity),
 			VulnerabilityName: vulnerability.Vulnerability.ID,
 		})
 	}
@@ -335,33 +344,6 @@ func getUserInteraction(scope metric.UserInteraction) models.UserInteraction {
 		return models.UserInteractionREQUIRED
 	default:
 		return ""
-	}
-}
-
-const (
-	defcon1    = "DEFCON1"
-	critical   = "CRITICAL"
-	high       = "HIGH"
-	medium     = "MEDIUM"
-	low        = "LOW"
-	negligible = "NEGLIGIBLE"
-)
-
-func getVulnerabilitySeverityFromString(severity string) models.VulnerabilitySeverity {
-	switch strings.ToUpper(severity) {
-	case defcon1, critical:
-		return models.VulnerabilitySeverityCRITICAL
-	case high:
-		return models.VulnerabilitySeverityHIGH
-	case medium:
-		return models.VulnerabilitySeverityMEDIUM
-	case low:
-		return models.VulnerabilitySeverityLOW
-	case negligible:
-		return models.VulnerabilitySeverityNEGLIGIBLE
-	default:
-		log.Warnf("Unknown severity: %v", severity)
-		return models.VulnerabilitySeverityNEGLIGIBLE
 	}
 }
 
