@@ -33,9 +33,9 @@ func setRegistryConfigDefaults() {
 
 func loadRegistryConfig() *shared.Registry {
 	setRegistryConfigDefaults()
-	var auths shared.Auths
+	var auths []shared.Auth
 	if err := viper.UnmarshalKey("registry.auths", &auths); err != nil {
-		auths = shared.Auths{}
+		auths = []shared.Auth{}
 	}
 	return &shared.Registry{
 		SkipVerifyTLS: viper.GetBool(RegistrySkipVerifyTlS),

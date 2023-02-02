@@ -16,12 +16,12 @@
 package config
 
 type Registry struct {
-	SkipVerifyTLS bool  `yaml:"skip-verify-tls" json:"skip-verify-tls" mapstructure:"skip-verify-tls"`
-	UseHTTP       bool  `yaml:"use-http" json:"use-http" mapstructure:"use-http"`
-	Auths         Auths `yaml:"auths" json:"auths" mapstructure:"auths"`
+	SkipVerifyTLS bool   `yaml:"skip-verify-tls" json:"skip-verify-tls" mapstructure:"skip-verify-tls"`
+	UseHTTP       bool   `yaml:"use-http" json:"use-http" mapstructure:"use-http"`
+	Auths         []Auth `yaml:"auths" json:"auths" mapstructure:"auths"`
 }
 
-type Auths []struct {
+type Auth struct {
 	Authority string `yaml:"authority" json:"authority" mapstructure:"authority"`
 	Username  string `yaml:"-" json:"-" mapstructure:"username"`
 	Password  string `yaml:"-" json:"-" mapstructure:"password"`
