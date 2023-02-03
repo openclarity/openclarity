@@ -23,7 +23,7 @@ write_files:
   - path: /opt/vmclarity/scanconfig.yaml
     permissions: "0644"
     content: |
-      {{ .ScannerCLIConfig }}
+{{ .ScannerCLIConfig | indent 6 }}
   - path: /etc/systemd/system/vmclarity-scanner.service
     permissions: "0644"
     content: |
@@ -49,6 +49,7 @@ write_files:
 runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, docker.service ]
-  - [ mount, {{ .Volume }}, /mnt/snapshot ]
+  - [ mkdir, -p, /mnt/snapshot ]
+  - [ mount, /dev/{{ .Volume }}1, /mnt/snapshot ]
   - [ systemctl, start, vmclarity-scanner.service ]
 `
