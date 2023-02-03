@@ -342,6 +342,24 @@ Resources:
           # ##########################
 
           # ##########################
+          # Allow copying snapshots to the VMClarity Server region for
+          # scanning. Only allow copy if the copy will have the VMClarity Owner
+          # tag.
+          # TODO(sambetts) Only allow us to copy snapshots which have the
+          # OwnerVMClarity tag.
+          - Effect: "Allow"
+            Action: "ec2:CopySnapshot"
+            Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+          #
+          # ##########################
+
+          # ##########################
           # Only allow RunInstances inside of the VMClarity VPC by enforcing
           # that the Subnet the Instance is created in belongs to the VmClarity
           # VPC.
@@ -352,8 +370,9 @@ Resources:
               ArnEquals:
                 "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarity}"
           # Force that we tag the instance when we create it, this is so that
-          # we can limit the instances we're allow to terminate. Only tag
-          # allowed is "Owner" with value "VmClarity".
+          # we can limit the instances we're allow to terminate. The only tag
+          # keys allowed are "Owner" and "Name". "Owner" must be set to
+          # "VmClarity".
           - Effect: "Allow"
             Action:
               - "ec2:RunInstances"
@@ -367,6 +386,7 @@ Resources:
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
+                  - Name
           # Allow instance to be created using snapshots, only if the snapshot
           # has the Owner:VMClarity tag.
           - Effect: "Allow"
@@ -382,6 +402,8 @@ Resources:
           # Allow the creation of network interfaces, and allow instances to be
           # created with any security group and image in our account and
           # region.
+          # Also allow creation with any key-pair from our account, so that it
+          # can be used to access the scanner VMs via SSH and debug them.
           # TODO(sambetts) Add lock it down to just the scanner image and
           # create a security group for the scanners
           - Effect: "Allow"
@@ -389,6 +411,7 @@ Resources:
             Resource:
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:security-group/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:key-pair/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}::image/*"
           #
           # ##########################
@@ -411,6 +434,7 @@ Resources:
                   - CreateVolume
                   - CreateSnapshot
                   - CreateSnapshots
+                  - CopySnapshot
           #
           # ##########################
 
