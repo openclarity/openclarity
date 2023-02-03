@@ -19,6 +19,8 @@ import (
 	"bytes"
 	"fmt"
 	"text/template"
+
+	"github.com/Masterminds/sprig/v3"
 )
 
 type Data struct {
@@ -32,7 +34,7 @@ type Data struct {
 
 func GenerateCloudInit(data Data) (string, error) {
 	// parse cloud-init template
-	tmpl, err := template.New("cloud-init").Parse(cloudInitTmpl)
+	tmpl, err := template.New("cloud-init").Funcs(sprig.FuncMap()).Parse(cloudInitTmpl)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse cloud-init template: %v", err)
 	}
