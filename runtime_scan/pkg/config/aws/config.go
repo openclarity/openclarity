@@ -20,15 +20,17 @@ import "github.com/spf13/viper"
 const (
 	AWSSubnetID                     = "AWS_SUBNET_ID"
 	AWSJobImageID                   = "AWS_JOB_IMAGE_ID"
+	AWSSecurityGroupID              = "AWS_SECURITY_GROUP_ID"
 	defaultAWSJobImageID            = "ami-0568773882d492fc8" // ubuntu server 22.04 LTS (HVM), SSD volume type
 	AWSAttachedVolumeDeviceName     = "AWS_ATTACHED_VOLUME_DEVICE_NAME"
 	defaultAttachedVolumeDeviceName = "xvdh"
 )
 
 type Config struct {
-	AmiID      string // image id of a scanner job
-	DeviceName string // the name of the block device to attach to the scanner instance (mounted snapshot)
-	SubnetID   string // the scanner's subnet ID
+	AmiID           string // image id of a scanner job
+	DeviceName      string // the name of the block device to attach to the scanner instance (mounted snapshot)
+	SubnetID        string // the scanner's subnet ID
+	SecurityGroupID string // the scanner's security group
 }
 
 func setConfigDefaults() {
@@ -42,9 +44,10 @@ func LoadConfig() *Config {
 	setConfigDefaults()
 
 	config := &Config{
-		AmiID:      viper.GetString(AWSJobImageID),
-		DeviceName: viper.GetString(AWSAttachedVolumeDeviceName),
-		SubnetID:   viper.GetString(AWSSubnetID),
+		AmiID:           viper.GetString(AWSJobImageID),
+		DeviceName:      viper.GetString(AWSAttachedVolumeDeviceName),
+		SubnetID:        viper.GetString(AWSSubnetID),
+		SecurityGroupID: viper.GetString(AWSSecurityGroupID),
 	}
 
 	return config
