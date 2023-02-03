@@ -222,9 +222,7 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 				},
 			},
 		},
-		InstanceType:   ec2types.InstanceTypeT2Large, // TODO need to decide instance type
-		SecurityGroups: nil,                          // use default for now
-		SubnetId:       &c.awsConfig.SubnetID,
+		InstanceType: ec2types.InstanceTypeT2Large, // TODO need to decide instance type
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
@@ -238,23 +236,20 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 		UserData: &userDataBase64,
 	}
 
+	// Create network interface in the scanner subnet with the scanner security group.
+	runInstancesInput.NetworkInterfaces = []ec2types.InstanceNetworkInterfaceSpecification{
+		{
+			AssociatePublicIpAddress: utils.BoolPtr(false),
+			DeleteOnTermination:      utils.BoolPtr(true),
+			DeviceIndex:              utils.Int32Ptr(0),
+			Groups:                   []string{c.awsConfig.SecurityGroupID},
+			SubnetId:                 &c.awsConfig.SubnetID,
+		},
+	}
+
 	if config.KeyPairName != "" {
 		// Set a key-pair to the instance.
 		runInstancesInput.KeyName = &config.KeyPairName
-		// Create the instance with a public ip.
-		// https://stackoverflow.com/questions/27769006/how-do-i-create-an-ec2-instance-with-a-public-ip-automatically-without-decla
-		runInstancesInput.NetworkInterfaces = []ec2types.InstanceNetworkInterfaceSpecification{
-			{
-				AssociatePublicIpAddress: utils.BoolPtr(true),
-				DeleteOnTermination:      utils.BoolPtr(true),
-				DeviceIndex:              utils.Int32Ptr(0),
-				Groups:                   nil, // use default for now
-				SubnetId:                 &c.awsConfig.SubnetID,
-			},
-		}
-		// Clear instance-level subnet ID since network interfaces and an instance-level subnet ID
-		// can not be specified on the same request.
-		runInstancesInput.SubnetId = nil
 	}
 
 	out, err := c.ec2Client.RunInstances(ctx, runInstancesInput, func(options *ec2.Options) {

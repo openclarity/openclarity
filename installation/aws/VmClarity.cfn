@@ -11,12 +11,48 @@ Resources:
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       CidrBlock: 10.0.0.0/16
-  # Subnet for the VmClarityServer and the scanner instances.
-  VmClaritySubnet:
+  # Subnet for the VmClarityServer. Will be public.
+  VmClarityServerSubnet:
     Type: "AWS::EC2::Subnet"
     Properties:
       VpcId: !Ref VmClarity
       CidrBlock: 10.0.0.0/24
+  # Subnet for the VmClarityScanners. Will be private.
+  VmClarityScannerSubnet:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VmClarity
+      CidrBlock: 10.0.1.0/24
+  # Elastic IP address that will be used to serve the VMClarity UI, API and SSH
+  # access.
+  VmClarityServerElasticIp:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+  # Elastic IP address that will be used by the NAT gateway to allow the
+  # private scanner VMs to access the internet without requiring a public
+  # address themselves.
+  VmClarityScannerNatElasticIp:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+  # VmClarityServer network interface definition.
+  VmClarityServerNetworkInterface:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      GroupSet:
+        - !Ref VmClarityServerSecurityGroup
+      SubnetId: !Ref VmClarityServerSubnet
+  # Associate the VmClarityServer elastic IP address directly to the
+  # VMClarityServers private network interface for now. In the future we might
+  # want to replace this with a load balancer.
+  VmClarityServerEipAssociation:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt
+        - VmClarityServerElasticIp
+        - AllocationId
+      NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
   # VmClarityServer will host the VMClarity services which orchestrate the scans
   # as well as serve the user interface and API
   VmClarityServer:
@@ -43,12 +79,8 @@ Resources:
       IamInstanceProfile:
         Ref: VmClarityServerInstanceProfile
       NetworkInterfaces:
-        - GroupSet:
-            - !Ref VmClaritySecurityGroup
-          AssociatePublicIpAddress: "true"
+        - NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
           DeviceIndex: "0"
-          DeleteOnTermination: "true"
-          SubnetId: !Ref VmClaritySubnet
       UserData:
         Fn::Base64:
           Fn::Sub: |
@@ -123,7 +155,9 @@ Resources:
                   - |
                     AWS_REGION=${AWS::Region}
                     SCANNER_AWS_REGION=${AWS::Region}
-                    AWS_SUBNET_ID=${VmClaritySubnet}
+                    AWS_SUBNET_ID=${VmClarityScannerSubnet}
+                    AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    SCANNER_KEY_PAIR_NAME=${KeyName}
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
                     LOCAL_DB_PATH=/data/vmclarity.db
@@ -170,64 +204,113 @@ Resources:
             03start_vmclarity:
               command: systemctl start vmclarity.service
     DependsOn:
-      - PublicRoute
-  # Allow SSH and HTTP access to the VMClarity server SSH access can be
-  # restricted by source CIDR range during installation of the stack through
-  # the SSHLocation parameter.
-  VmClaritySecurityGroup:
+      - VmClarityServerPublicRoute
+  # Create a Security Group for the VMClarity server. Allow on the public
+  # address, SSH access can be restricted by source CIDR range during
+  # installation of the stack through the SSHLocation parameter.
+  # TODO(sambetts) Enable HTTP access from the public address for the UI and
+  # API
+  VmClarityServerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
       VpcId: !Ref VmClarity
-      GroupDescription: Allow access from HTTP and SSH traffic
+      GroupDescription: Allow only required network traffic for VMClarity server
       SecurityGroupIngress:
-        # TODO(sambetts) Reenable HTTP/HTTPS when we have some kind of
-        # authentication built in, for now only expose the UI through an
-        # authenticated SSH tunnel.
-        #- IpProtocol: tcp
-        #  FromPort: 80
-        #  ToPort: 80
-        #  CidrIp: 0.0.0.0/0
-        #- IpProtocol: tcp
-        #  FromPort: 443
-        #  ToPort: 443
-        #  CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref SSHLocation
+  # Create a Security Group for the VMClarity scanner VMs. Restrict all ingress
+  # except SSH access from the VMClarityServerSecurityGroup, the
+  # VMClarityServer can act as a bastion for debugging the scanners.
+  VmClarityScannerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      VpcId: !Ref VmClarity
+      GroupDescription: Allow only required network traffic for VMClarity scanners
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref VmClarityServerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # VMClarity server API on 8888 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 8888
+      ToPort: 8888
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+
   # Create an Internet Gateway to allow VMClarityServer to talk to the internet
   # and the internet to talk to it for SSH/HTTP.
-  VmClarityInternetGateway:
+  VmClarityServerInternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties: {}
   # Attach our VPC to the InternetGateway above
-  VmClarityInternetAttachment:
+  VmClarityServerInternetGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
       VpcId: !Ref VmClarity
-      InternetGatewayId: !Ref VmClarityInternetGateway
+      InternetGatewayId: !Ref VmClarityServerInternetGateway
   # Create a route table to host the routes required for our VPC.
-  VmClarityRouteTable:
+  VmClarityServerRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties:
       VpcId: !Ref VmClarity
   # Associate the route table with our subnet so that VMs in that subnet get
   # the routes from the route table.
-  VmClaritySubnetRouteTableAssociation:
+  VmClarityServerSubnetRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      SubnetId: !Ref VmClaritySubnet
-      RouteTableId: !Ref VmClarityRouteTable
+      SubnetId: !Ref VmClarityServerSubnet
+      RouteTableId: !Ref VmClarityServerRouteTable
   # Create a route with forwards all non-local traffic to the internet gateway
   # for routing.
-  PublicRoute:
+  VmClarityServerPublicRoute:
     Type: "AWS::EC2::Route"
     Properties:
-      RouteTableId: !Ref VmClarityRouteTable
-      GatewayId: !Ref VmClarityInternetGateway
+      RouteTableId: !Ref VmClarityServerRouteTable
+      GatewayId: !Ref VmClarityServerInternetGateway
       DestinationCidrBlock: 0.0.0.0/0
     DependsOn:
-      - VmClarityInternetAttachment
+      - VmClarityServerInternetGatewayAttachment
+
+  # Create a NAT gateway to allow VMClarity Scanner instances to access the
+  # internet without needing an internet routable IP address. This goes into
+  # the VmClarityServerSubnet so that it has public access to the internet.
+  VmClarityScannerNatGateway:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId: !GetAtt
+        - VmClarityScannerNatElasticIp
+        - AllocationId
+      SubnetId: !Ref VmClarityServerSubnet
+  # Create route table for VMClarity Scanner instances to access the NAT
+  # gateway
+  VmClarityScannerNatRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VmClarity
+  # Create route rule the pushes all non-local traffic to the NAT gateway for
+  # routing.
+  VMClarityScannerNatRoute:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref VmClarityScannerNatRouteTable
+      NatGatewayId: !Ref VmClarityScannerNatGateway
+      DestinationCidrBlock: 0.0.0.0/0
+  # Associate the VMClarity Scanner subnet with the Scanner route table that
+  # goes to the NAT gateway.
+  VmClarityScannerSubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref VmClarityScannerSubnet
+      RouteTableId: !Ref VmClarityScannerNatRouteTable
+
   # Create a IAM policy which allows the VMClarityServer to perform all the
   # tasks required to discover instances running on the AWS account, snapshot
   # their volumes, and then create the scanner instances with those volumes
@@ -368,7 +451,7 @@ Resources:
           #
           # ##########################
       Roles:
-        - Ref: "VmClarityServerRole"
+        - !Ref VmClarityServerRole
   # Create a IAM role which will contain the policy above.
   VmClarityServerRole:
     Type: AWS::IAM::Role
