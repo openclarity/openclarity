@@ -59,7 +59,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/kubeclarity.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity:${{ inputs.image_tag }}
@@ -111,7 +111,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/cis_docker_benchmark_scanner.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-cis-docker-benchmark-scanner:${{ inputs.image_tag }}
@@ -163,7 +163,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/runtime_k8s_scanner.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-runtime-k8s-scanner:${{ inputs.image_tag }}
@@ -215,7 +215,7 @@ jobs:
           echo "OUTPUTS=type=docker,dest=/tmp/kubeclarity-sbom-db.tar" >> $GITHUB_ENV
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-sbom-db:${{ inputs.image_tag }}
@@ -262,7 +262,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           tags: ghcr.io/openclarity/kubeclarity-cli:${{ inputs.image_tag }}
