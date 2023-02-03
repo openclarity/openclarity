@@ -83,9 +83,6 @@ func (s *SnapshotImpl) Delete(ctx context.Context) error {
 }
 
 func (s *SnapshotImpl) WaitForReady(ctx context.Context) error {
-	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), waitTimeout*time.Minute)
-
 	for {
 		select {
 		case <-time.After(checkInterval * time.Second):
@@ -103,8 +100,8 @@ func (s *SnapshotImpl) WaitForReady(ctx context.Context) error {
 			if out.Snapshots[0].State == ec2types.SnapshotStateCompleted {
 				return nil
 			}
-		case <-ctxWithTimeout.Done():
-			return fmt.Errorf("timeout: %v", ctxWithTimeout.Err())
+		case <-ctx.Done():
+			return fmt.Errorf("waiting for snapshot ready was canceled: %v", ctx.Err())
 		}
 	}
 }
