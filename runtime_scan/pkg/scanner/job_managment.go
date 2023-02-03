@@ -44,6 +44,9 @@ import (
 
 const (
 	TrivyTimeout = 300
+
+	SnapshotCreationTimeout = 3 * time.Minute
+	SnapshotCopyTimeout     = 15 * time.Minute
 )
 
 // run jobs.
@@ -228,7 +231,10 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	}
 	job.SrcSnapshot = snapshot
 	launchSnapshot = snapshot
-	if err = snapshot.WaitForReady(ctx); err != nil {
+
+	waitContext, waitCancel := context.WithTimeout(ctx, SnapshotCreationTimeout)
+	defer waitCancel()
+	if err = snapshot.WaitForReady(waitContext); err != nil {
 		return types.Job{}, fmt.Errorf("failed to wait for snapshot to be ready. snapshotID=%v: %v", snapshot.GetID(), err)
 	}
 
@@ -239,7 +245,12 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		}
 		job.DstSnapshot = cpySnapshot
 		launchSnapshot = cpySnapshot
-		if err = cpySnapshot.WaitForReady(ctx); err != nil {
+
+		// Copying snapshots between regions can take much longer than
+		// creating a snapshot normally
+		waitContext, waitCancel := context.WithTimeout(ctx, SnapshotCopyTimeout)
+		defer waitCancel()
+		if err = cpySnapshot.WaitForReady(waitContext); err != nil {
 			return types.Job{}, fmt.Errorf("failed to wait for snapshot to be ready. snapshotID=%v: %v", cpySnapshot.GetID(), err)
 		}
 	}
