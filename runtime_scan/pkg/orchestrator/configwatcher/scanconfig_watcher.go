@@ -101,6 +101,8 @@ func (scw *ScanConfigWatcher) getScanConfigsToScan() ([]models.ScanConfig, error
 		return nil, fmt.Errorf("failed to check new scan configs: %v", err)
 	}
 
+	log.Infof("Found %d ScanConfigs from the backend", len(*scanConfigs.Items))
+
 	now := time.Now()
 	for _, scanConfig := range *scanConfigs.Items {
 		// Check only the SingleScheduledScanConfigs at the moment
@@ -118,11 +120,13 @@ func (scw *ScanConfigWatcher) getScanConfigsToScan() ([]models.ScanConfig, error
 				continue
 			}
 		default:
-			continue
 		}
 
 		if shouldScan {
+			log.Debugf("ScanConfig %s should start to scan", *scanConfig.Id)
 			scanConfigsToScan = append(scanConfigsToScan, scanConfig)
+		} else {
+			log.Debugf("ScanConfig %s should not start to scan", *scanConfig.Id)
 		}
 	}
 	return scanConfigsToScan, nil
@@ -161,12 +165,16 @@ func isWithinTheWindow(checkTime, now time.Time, window time.Duration) bool {
 func (scw *ScanConfigWatcher) shouldStartSingleScheduleScanConfig(scanConfigID string, schedule models.SingleScheduleScanConfig, now time.Time) (bool, error) {
 	// Skip processing ScanConfig because its operationTime is not within the start window
 	if !isWithinTheWindow(schedule.OperationTime, now, timeWindow) {
+		log.Debugf("ScanConfig %s start time %v outside of the start window %v - %v", scanConfigID, schedule.OperationTime.Format(time.RFC3339), now.Format(time.RFC3339), now.Add(timeWindow).Format(time.RFC3339))
 		return false, nil
 	}
 	// Check running or completed scan for specific scan config
 	hasRunningOrCompletedScan, err := scw.hasRunningScansByScanConfigIDAndOperationTime(scanConfigID, schedule.OperationTime)
 	if err != nil {
 		return false, fmt.Errorf("failed to get scans: %v", err)
+	}
+	if hasRunningOrCompletedScan {
+		log.Debugf("ScanConfig %s has a running or completed scan", scanConfigID)
 	}
 	return !hasRunningOrCompletedScan, nil
 }
@@ -176,11 +184,14 @@ func (scw *ScanConfigWatcher) Start(ctx context.Context) {
 		for {
 			select {
 			case <-time.After(scw.scannerConfig.ScanConfigWatchInterval):
+				log.Debug("Looking for ScanConfigs to Scan")
 				// nolint:contextcheck
 				scanConfigsToScan, err := scw.getScanConfigsToScan()
 				if err != nil {
 					log.Warnf("Failed to get scan configs to scan: %v", err)
+					break
 				}
+				log.Debugf("Found %d ScanConfigs that need to start scanning.", len(scanConfigsToScan))
 				if len(scanConfigsToScan) > 0 {
 					scw.runNewScans(ctx, scanConfigsToScan)
 				}
