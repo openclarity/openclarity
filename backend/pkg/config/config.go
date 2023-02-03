@@ -37,6 +37,8 @@ const (
 	DatabaseDriver   = "DATABASE_DRIVER"
 	EnableDBInfoLogs = "ENABLE_DB_INFO_LOGS"
 
+	LocalDBPath = "LOCAL_DB_PATH"
+
 	FakeDataEnvVar           = "FAKE_DATA"
 	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"
 )
@@ -56,6 +58,8 @@ type Config struct {
 	EnableDBInfoLogs         bool   `json:"enable-db-info-logs"`
 	EnableFakeData           bool   `json:"enable-fake-data"`
 	EnableFakeRuntimeScanner bool   `json:"enable-fake-runtime-scanner"`
+
+	LocalDBPath string `json:"local-db-path,omitempty"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -74,6 +78,8 @@ func LoadConfig() (*Config, error) {
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 	config.EnableFakeRuntimeScanner = viper.GetBool(FakeRuntimeScannerEnvVar)
+
+	config.LocalDBPath = viper.GetString(LocalDBPath)
 
 	configB, err := json.Marshal(config)
 	if err == nil {

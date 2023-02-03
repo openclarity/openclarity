@@ -126,6 +126,7 @@ Resources:
                     AWS_SUBNET_ID=${VmClaritySubnet}
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
+                    LOCAL_DB_PATH=/data/vmclarity.db
                     BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
                     BACKEND_REST_PORT=8888
                     SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:dc2d75a10e5583e97f516be26fcdbb484f98d5c3

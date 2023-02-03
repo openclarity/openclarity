@@ -16,7 +16,6 @@
 package database
 
 import (
-	"os"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -24,10 +23,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-)
-
-const (
-	localDBPath = "./db.db"
 )
 
 const (
@@ -53,6 +48,8 @@ type DBConfig struct {
 	DBHost         string `json:"db-host,omitempty"`
 	DBPort         string `json:"db-port,omitempty"`
 	DBName         string `json:"db-name,omitempty"`
+
+	LocalDBPath string `json:"local-db-path,omitempty"`
 }
 
 // Base contains common columns for all tables.
@@ -77,15 +74,6 @@ func Init(config *DBConfig) *Handler {
 	return &databaseHandler
 }
 
-func cleanLocalDataBase(databasePath string) {
-	if _, err := os.Stat(databasePath); !os.IsNotExist(err) {
-		log.Debug("deleting db...")
-		if err := os.Remove(databasePath); err != nil {
-			log.Warnf("failed to delete db file (%v): %v", databasePath, err)
-		}
-	}
-}
-
 func initDataBase(config *DBConfig) *gorm.DB {
 	dbDriver := config.DriverType
 	dbLogger := logger.Default
@@ -103,21 +91,19 @@ func initDataBase(config *DBConfig) *gorm.DB {
 	return db
 }
 
-func initDB(_ *DBConfig, dbDriver string, dbLogger logger.Interface) *gorm.DB {
+func initDB(config *DBConfig, dbDriver string, dbLogger logger.Interface) *gorm.DB {
 	var db *gorm.DB
 	switch dbDriver {
 	case DBDriverTypeLocal:
-		db = initSqlite(dbLogger)
+		db = initSqlite(config, dbLogger)
 	default:
 		log.Fatalf("DB driver is not supported: %v", dbDriver)
 	}
 	return db
 }
 
-func initSqlite(dbLogger logger.Interface) *gorm.DB {
-	cleanLocalDataBase(localDBPath)
-
-	db, err := gorm.Open(sqlite.Open(localDBPath), &gorm.Config{
+func initSqlite(config *DBConfig, dbLogger logger.Interface) *gorm.DB {
+	db, err := gorm.Open(sqlite.Open(config.LocalDBPath), &gorm.Config{
 		Logger: dbLogger,
 	})
 	if err != nil {
