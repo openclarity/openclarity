@@ -1,5 +1,5 @@
 sbom:
-  enabled: false
+  enabled: true
   analyzers_list:
     - "syft"
     - "gomod"
@@ -26,7 +26,7 @@ sbom:
         token: "token"
 
 vulnerabilities:
-  enabled: false
+  enabled: true
   scanners_list:
     - "grype"
   inputs:
@@ -57,7 +57,7 @@ vulnerabilities:
         token: "token"
 
 secrets:
-  enabled: true
+  enabled: false
   scanners_list:
     - "gitleaks"
   inputs:

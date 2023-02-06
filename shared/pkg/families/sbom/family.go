@@ -29,6 +29,7 @@ import (
 
 	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 type SBOM struct {
@@ -95,6 +96,10 @@ func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 	return &Results{
 		SBOM: cdxBom,
 	}, nil
+}
+
+func (s SBOM) GetType() types.FamilyType {
+	return types.SBOM
 }
 
 // ensure types implement the requisite interfaces.
