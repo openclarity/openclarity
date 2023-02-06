@@ -15,8 +15,12 @@
 
 package interfaces
 
-import "github.com/openclarity/vmclarity/shared/pkg/families/results"
+import (
+	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+)
 
 type Family interface {
 	Run(results *results.Results) (IsResults, error)
+	GetType() types.FamilyType
 }

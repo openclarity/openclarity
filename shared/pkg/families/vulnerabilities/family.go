@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 const (
@@ -101,6 +102,10 @@ func (v Vulnerabilities) Run(res *results.Results) (interfaces.IsResults, error)
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
+}
+
+func (v Vulnerabilities) GetType() types.FamilyType {
+	return types.Vulnerabilities
 }
 
 // ensure types implement the requisite interfaces.

@@ -22,9 +22,11 @@ import (
 
 	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
@@ -224,7 +226,7 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 	return nil
 }
 
-func (e *Exporter) ExportSbomResult(res *results.Results) error {
+func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErrors) error {
 	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
@@ -239,11 +241,15 @@ func (e *Exporter) ExportSbomResult(res *results.Results) error {
 
 	var errors []string
 
-	sbomResults, err := results.GetResult[*sbom.Results](res)
-	if err != nil {
-		errors = append(errors, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
+	if err, ok := famerr[types.SBOM]; ok {
+		errors = append(errors, err.Error())
 	} else {
-		scanResults.Sboms = convertSBOMResultToAPIModel(sbomResults)
+		sbomResults, err := results.GetResult[*sbom.Results](res)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
+		} else {
+			scanResults.Sboms = convertSBOMResultToAPIModel(sbomResults)
+		}
 	}
 
 	state := models.DONE
@@ -258,7 +264,7 @@ func (e *Exporter) ExportSbomResult(res *results.Results) error {
 	return nil
 }
 
-func (e *Exporter) ExportVulResult(res *results.Results) error {
+func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErrors) error {
 	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
@@ -273,11 +279,15 @@ func (e *Exporter) ExportVulResult(res *results.Results) error {
 
 	var errors []string
 
-	vulnerabilitiesResults, err := results.GetResult[*vulnerabilities.Results](res)
-	if err != nil {
-		errors = append(errors, fmt.Errorf("failed to get vulnerabilities from scan: %w", err).Error())
+	if err, ok := famerr[types.Vulnerabilities]; ok {
+		errors = append(errors, err.Error())
 	} else {
-		scanResults.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
+		vulnerabilitiesResults, err := results.GetResult[*vulnerabilities.Results](res)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("failed to get vulnerabilities from scan: %w", err).Error())
+		} else {
+			scanResults.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
+		}
 	}
 
 	state := models.DONE
@@ -292,7 +302,7 @@ func (e *Exporter) ExportVulResult(res *results.Results) error {
 	return nil
 }
 
-func (e *Exporter) ExportSecretsResult(res *results.Results) error {
+func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.RunErrors) error {
 	scanResults, err := e.getExistingScanResult()
 	if err != nil {
 		return err
@@ -307,11 +317,15 @@ func (e *Exporter) ExportSecretsResult(res *results.Results) error {
 
 	var errors []string
 
-	secretsResults, err := results.GetResult[*secrets.Results](res)
-	if err != nil {
-		errors = append(errors, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
+	if err, ok := famerr[types.Secrets]; ok {
+		errors = append(errors, err.Error())
 	} else {
-		scanResults.Secrets = convertSecretsResultToAPIModel(secretsResults)
+		secretsResults, err := results.GetResult[*secrets.Results](res)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
+		} else {
+			scanResults.Secrets = convertSecretsResultToAPIModel(secretsResults)
+		}
 	}
 
 	state := models.DONE
@@ -357,10 +371,10 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 	}
 }
 
-func (e *Exporter) ExportResults(res *results.Results) []error {
+func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors) []error {
 	var errors []error
 	if config.SBOM.Enabled {
-		err := e.ExportSbomResult(res)
+		err := e.ExportSbomResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export sbom to server: %w", err)
 			logger.Error(err)
@@ -369,7 +383,7 @@ func (e *Exporter) ExportResults(res *results.Results) []error {
 	}
 
 	if config.Vulnerabilities.Enabled {
-		err := e.ExportVulResult(res)
+		err := e.ExportVulResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export vulnerabilties to server: %w", err)
 			logger.Error(err)
@@ -378,7 +392,7 @@ func (e *Exporter) ExportResults(res *results.Results) []error {
 	}
 
 	if config.Secrets.Enabled {
-		err := e.ExportSecretsResult(res)
+		err := e.ExportSecretsResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export secrets findings to server: %w", err)
 			logger.Error(err)
