@@ -27,6 +27,7 @@ import (
 	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/job"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 type Secrets struct {
@@ -57,6 +58,10 @@ func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error)
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
+}
+
+func (s Secrets) GetType() types.FamilyType {
+	return types.Secrets
 }
 
 // ensure types implement the requisite interfaces.

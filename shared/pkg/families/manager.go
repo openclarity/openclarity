@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
@@ -74,16 +75,21 @@ func New(logger *log.Entry, config *Config) *Manager {
 	return manager
 }
 
-func (m *Manager) Run() (*results.Results, error) {
-	familiesResults := results.New()
+type RunErrors map[types.FamilyType]error
+
+func (m *Manager) Run() (*results.Results, RunErrors) {
+	familyErrors := make(map[types.FamilyType]error)
+
+	familyResults := results.New()
 
 	for _, family := range m.families {
-		ret, err := family.Run(familiesResults)
+		ret, err := family.Run(familyResults)
 		if err != nil {
-			return nil, fmt.Errorf("failed to run family %T: %w", family, err)
+			familyErrors[family.GetType()] = fmt.Errorf("failed to run family %v: %w", family.GetType(), err)
+		} else {
+			familyResults.SetResults(ret)
 		}
-		familiesResults.SetResults(ret)
 	}
 
-	return familiesResults, nil
+	return familyResults, familyErrors
 }

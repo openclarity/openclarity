@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
+	github.com/anchore/syft v0.60.3
 	github.com/aws/aws-sdk-go-v2/config v1.17.10
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.63.1
 	github.com/deepmap/oapi-codegen v1.12.3
@@ -19,9 +20,10 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
 	github.com/urfave/cli v1.22.7
+	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.5
-	gotest.tools/v3 v3.2.0
+	gotest.tools/v3 v3.4.0
 )
 
 require (
@@ -70,7 +72,6 @@ require (
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7 // indirect
 	github.com/anchore/sqlite v1.4.6-0.20220607210448-bcc6ee5c4963 // indirect
 	github.com/anchore/stereoscope v0.0.0-20221006201143-d24c9d626b33 // indirect
-	github.com/anchore/syft v0.60.3 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
@@ -441,7 +442,6 @@ require (
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	helm.sh/helm/v3 v3.10.3 // indirect
 	k8s.io/api v0.25.3 // indirect
 	k8s.io/apiextensions-apiserver v0.25.2 // indirect
