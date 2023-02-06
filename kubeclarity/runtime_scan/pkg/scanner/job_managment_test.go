@@ -376,7 +376,8 @@ func Test_setJobImageIDToScan(t *testing.T) {
 	}
 }
 
-func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
+func Test_addJobImagePullSecretVolume(t *testing.T) {
+	optionalTrue := true
 	type args struct {
 		job        *batchv1.Job
 		secretName string
@@ -413,6 +414,7 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName: "secretName",
+											Optional:   &optionalTrue,
 										},
 									},
 								},
@@ -477,6 +479,7 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName: "secretName",
+											Optional:   &optionalTrue,
 										},
 									},
 								},
@@ -515,7 +518,7 @@ func Test_setJobDockerConfigFromImagePullSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setJobDockerConfigFromImagePullSecret(tt.args.job, tt.args.secretName)
+			addJobImagePullSecretVolume(tt.args.job, tt.args.secretName)
 			assert.DeepEqual(t, tt.args.job, tt.expectedJob)
 		})
 	}
@@ -807,6 +810,7 @@ spec:
       - name: image-pull-secret-imagePullSecret
         secret:
           secretName: imagePullSecret
+          optional: true
       restartPolicy: Never
       containers:
       - name: vulnerability-scanner
