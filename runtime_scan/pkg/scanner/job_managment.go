@@ -18,6 +18,7 @@ package scanner
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -298,7 +299,7 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 
 	if len(podContext.imagePullSecrets) > 0 {
 		for _, secretName := range podContext.imagePullSecrets {
-			setJobDockerConfigFromImagePullSecret(job, secretName)
+			addJobImagePullSecretVolume(job, secretName)
 		}
 		setJobImagePullSecretPath(job)
 	} else {
@@ -324,19 +325,29 @@ func removeCISDockerBenchmarkScannerFromJob(job *batchv1.Job) {
 	job.Spec.Template.Spec.Containers = containers
 }
 
-// Create docker config from imagePullSecret that contains the username and the password required to pull the image.
-// We need to do the following:
-// 1. Create a volume that holds the `secretName` data
-// 2. Mount the volume into each container to a specific path (`BasicVolumeMountPath`/`DockerConfigFileName`)
-// 3. Set `DOCKER_CONFIG` to point to the directory that contains the config.json.
-func setJobDockerConfigFromImagePullSecret(job *batchv1.Job, secretName string) {
-	volumeName := fmt.Sprintf("image-pull-secret-%s", secretName)
+const (
+	imagePullSecretMountPath    = "/opt/kubeclarity-pull-secrets" // nolint:gosec
+	imagePullSecretVolumePrefix = "image-pull-secret-"            // nolint:gosec
+)
 
+// Mount image pull secret as a volume into /opt/kubeclarity-pull-secrets so
+// that the scanner job can find it. setJobImagePullSecretPath must be used in
+// addition to this function to configure IMAGE_PULL_SECRET_PATH environment
+// variable.
+//  1. Create a volume "image-pull-secret-secretName" that holds the
+//     `secretName` data. We don't know if this secret exists so mark it
+//     optional so it doesn't block the pod starting.
+//  2. Mount the volume into each container to a specific path
+//     /opt/kubeclarity-pull-secrets/secretName
+func addJobImagePullSecretVolume(job *batchv1.Job, secretName string) {
+	volumeName := fmt.Sprintf("%s%s", imagePullSecretVolumePrefix, secretName)
+	optional := true
 	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
 		Name: volumeName,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: secretName,
+				Optional:   &optional,
 			},
 		},
 	})
@@ -345,8 +356,17 @@ func setJobDockerConfigFromImagePullSecret(job *batchv1.Job, secretName string) 
 		container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  true,
-			MountPath: fmt.Sprintf("/opt/kubeclarity-pull-secrets/%s", secretName),
+			MountPath: path.Join(imagePullSecretMountPath, secretName),
 		})
+	}
+}
+
+// Set the IMAGE_PULL_SECRET_PATH environment variable to
+// /opt/kubeclarity-pull-secrets.
+func setJobImagePullSecretPath(job *batchv1.Job) {
+	for i := range job.Spec.Template.Spec.Containers {
+		container := &job.Spec.Template.Spec.Containers[i]
+		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretPath, Value: imagePullSecretMountPath})
 	}
 }
 
@@ -375,12 +395,5 @@ func setJobScanUUID(job *batchv1.Job, scanUUID string) {
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
 		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ScanUUID, Value: scanUUID})
-	}
-}
-
-func setJobImagePullSecretPath(job *batchv1.Job) {
-	for i := range job.Spec.Template.Spec.Containers {
-		container := &job.Spec.Template.Spec.Containers[i]
-		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretPath, Value: "/opt/kubeclarity-pull-secrets"})
 	}
 }
