@@ -21,6 +21,13 @@ import (
 	"github.com/anchore/grype/grype"
 	"github.com/anchore/grype/grype/db"
 	"github.com/anchore/grype/grype/matcher"
+	"github.com/anchore/grype/grype/matcher/dotnet"
+	"github.com/anchore/grype/grype/matcher/golang"
+	"github.com/anchore/grype/grype/matcher/java"
+	"github.com/anchore/grype/grype/matcher/javascript"
+	"github.com/anchore/grype/grype/matcher/python"
+	"github.com/anchore/grype/grype/matcher/ruby"
+	"github.com/anchore/grype/grype/matcher/stock"
 	"github.com/anchore/grype/grype/pkg"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	"github.com/anchore/syft/syft/pkg/cataloger"
@@ -30,6 +37,11 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
+)
+
+const (
+	// From https://github.com/anchore/grype/blob/v0.50.1/internal/config/datasources.go#L10
+	defaultMavenBaseURL = "https://search.maven.org/solrsearch/select"
 )
 
 type LocalScanner struct {
@@ -97,7 +109,34 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		return
 	}
 
-	matchers := matcher.NewDefaultMatchers(matcher.Config{})
+	s.logger.Infof("Found %d packages", len(packages))
+
+	matchers := matcher.NewDefaultMatchers(matcher.Config{
+		Java: java.MatcherConfig{
+			// Disable searching maven external source (this is the default for grype CLI too)
+			SearchMavenUpstream: false,
+			MavenBaseURL:        defaultMavenBaseURL,
+			UseCPEs:             true,
+		},
+		Ruby: ruby.MatcherConfig{
+			UseCPEs: true,
+		},
+		Python: python.MatcherConfig{
+			UseCPEs: true,
+		},
+		Dotnet: dotnet.MatcherConfig{
+			UseCPEs: true,
+		},
+		Javascript: javascript.MatcherConfig{
+			UseCPEs: true,
+		},
+		Golang: golang.MatcherConfig{
+			UseCPEs: true,
+		},
+		Stock: stock.MatcherConfig{
+			UseCPEs: true,
+		},
+	})
 
 	allMatches := grype.FindVulnerabilitiesForPackage(*store, context.Distro, matchers, packages)
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
