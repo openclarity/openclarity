@@ -366,6 +366,16 @@ func addJobImagePullSecretVolume(job *batchv1.Job, secretName string) {
 func setJobImagePullSecretPath(job *batchv1.Job) {
 	for i := range job.Spec.Template.Spec.Containers {
 		container := &job.Spec.Template.Spec.Containers[i]
+
+		// Try to find and update any existing IMAGE_PULL_SECRET_PATH env var.
+		for i, eVar := range container.Env {
+			if eVar.Name == shared.ImagePullSecretPath {
+				container.Env[i].Value = imagePullSecretMountPath
+				return
+			}
+		}
+
+		// We didn't find an existing env var, so add a new one.
 		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretPath, Value: imagePullSecretMountPath})
 	}
 }
