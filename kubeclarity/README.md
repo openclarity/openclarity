@@ -491,7 +491,7 @@ so can be run in kubernetes or via docker standalone.
 
 To start the server:
 ```
-docker run -p 9991:9991 --rm gcr.io/eticloud/k8sec/grype-server:v0.1.4
+docker run -p 9991:9991 --rm gcr.io/eticloud/k8sec/grype-server:v0.1.5
 ```
 
 To run a scan using the server:

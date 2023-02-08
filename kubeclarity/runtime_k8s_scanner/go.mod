@@ -46,7 +46,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/Microsoft/hcsshim v0.9.4 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
-	github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb // indirect
+	github.com/Portshift/grype-server/api v0.0.0-20230208095608-6def2f3ebd73 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20220824120805-4b6e5c587895 // indirect
 	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect

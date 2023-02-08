@@ -200,8 +200,8 @@ github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
 github.com/Portshift/dockle v0.0.0-20220921124643-b6fc0890ad9d h1:HhRdCokS+6+Ni7E43I6rRIxgcc35QhLfinAMoiXf/Cs=
 github.com/Portshift/dockle v0.0.0-20220921124643-b6fc0890ad9d/go.mod h1:Ppy7ngiLLqCmGGHIku/eswSi5MCWb/bV/eqUKt+wYhw=
-github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb h1:sXaCuOvQCr1e85WKLBXRsxc1k7ONQGtyy53L9ZqlDyY=
-github.com/Portshift/grype-server/api v0.0.0-20220929130238-c45f530cdcbb/go.mod h1:Ig0CnKAqk4+Yy1XdqA27EJe/Hc5po24M1jXm4Ys4HcQ=
+github.com/Portshift/grype-server/api v0.0.0-20230208095608-6def2f3ebd73 h1:8sqCpq3KlypFkluW9E2DnOdfHdXTI2DSHIuz0+Gney0=
+github.com/Portshift/grype-server/api v0.0.0-20230208095608-6def2f3ebd73/go.mod h1:Ig0CnKAqk4+Yy1XdqA27EJe/Hc5po24M1jXm4Ys4HcQ=
 github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7/go.mod h1:z4/9nQmJSSwwds7ejkxaJwO37dru3geImFUdJlaLzQo=
 github.com/ProtonMail/go-crypto v0.0.0-20210920160938-87db9fbc61c7/go.mod h1:z4/9nQmJSSwwds7ejkxaJwO37dru3geImFUdJlaLzQo=
 github.com/ProtonMail/go-crypto v0.0.0-20211112122917-428f8eabeeb3/go.mod h1:z4/9nQmJSSwwds7ejkxaJwO37dru3geImFUdJlaLzQo=
