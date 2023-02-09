@@ -130,7 +130,7 @@ const PackagesTable = () => {
             }}
             url="packages"
             title="Packages"
-            defaultSortBy={[{id: "packageName", desc: true}]}
+            defaultSortBy={[{id: "vulnerabilities", desc: true}]}
             onLineClick={({id}) => navigate(`${pathname}/${id}`)}
         />
     )
