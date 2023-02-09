@@ -27,10 +27,6 @@ import (
 
 const (
 	BasicRegCredSecretName = "basic-regcred" // nolint: gosec
-	BasicVolumeName        = "docker-config"
-	BasicVolumeMountPath   = "/etc/docker"
-	DockerConfigEnvVar     = "DOCKER_CONFIG"
-	DockerConfigFileName   = "config.json"
 )
 
 type BasicRegCred struct {
@@ -81,11 +77,7 @@ func (u *BasicRegCred) Add(job *batchv1.Job) {
 			ReadOnly:  true,
 			MountPath: fmt.Sprintf("/opt/kubeclarity-pull-secrets/%s", BasicRegCredSecretName),
 		})
-	}
-
-	// Configure the IMAGE_PULL_SECRET_PATH to the location where we mounted the image pull secret
-	for i := range job.Spec.Template.Spec.Containers {
-		container := &job.Spec.Template.Spec.Containers[i]
+		// Configure the IMAGE_PULL_SECRET_PATH to the location where we mounted the image pull secret
 		container.Env = append(container.Env, corev1.EnvVar{Name: shared.ImagePullSecretPath, Value: "/opt/kubeclarity-pull-secrets"})
 	}
 }
