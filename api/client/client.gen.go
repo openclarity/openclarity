@@ -1813,7 +1813,7 @@ type PostScanConfigsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *ScanConfig
-	JSON409      *ScanConfig
+	JSON409      *ScanConfigExists
 	JSONDefault  *ApiResponse
 }
 
@@ -1956,7 +1956,7 @@ type PostScanResultsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *TargetScanResult
-	JSON409      *TargetScanResult
+	JSON409      *TargetScanResultExists
 	JSONDefault  *ApiResponse
 }
 
@@ -2075,7 +2075,7 @@ type PostScansResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *Scan
-	JSON409      *Scan
+	JSON409      *ScanExists
 	JSONDefault  *ApiResponse
 }
 
@@ -2218,7 +2218,7 @@ type PostTargetsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *Target
-	JSON409      *Target
+	JSON409      *TargetExists
 	JSONDefault  *ApiResponse
 }
 
@@ -2651,7 +2651,7 @@ func ParsePostScanConfigsResponse(rsp *http.Response) (*PostScanConfigsResponse,
 		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest ScanConfig
+		var dest ScanConfigExists
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2884,7 +2884,7 @@ func ParsePostScanResultsResponse(rsp *http.Response) (*PostScanResultsResponse,
 		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest TargetScanResult
+		var dest TargetScanResultExists
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3077,7 +3077,7 @@ func ParsePostScansResponse(rsp *http.Response) (*PostScansResponse, error) {
 		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest Scan
+		var dest ScanExists
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3310,7 +3310,7 @@ func ParsePostTargetsResponse(rsp *http.Response) (*PostTargetsResponse, error) 
 		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest Target
+		var dest TargetExists
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

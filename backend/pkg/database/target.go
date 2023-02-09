@@ -107,7 +107,9 @@ func (t *TargetsTableHandler) CreateTarget(target *Target) (*Target, error) {
 		return nil, fmt.Errorf("failed to check existing target: %w", err)
 	}
 	if exist {
-		return existingTarget, fmt.Errorf("a target alredy exists in db: %w", common.ErrConflict)
+		return existingTarget, &common.ConflictError{
+			Reason: fmt.Sprintf("Target exists with the unique constraint combination: %s", getUniqueConstraintsOfTarget(existingTarget)),
+		}
 	}
 
 	if err := t.targetsTable.Create(target).Error; err != nil {
@@ -147,4 +149,17 @@ func (t *TargetsTableHandler) checkExist(target *Target) (*Target, bool, error) 
 	}
 
 	return &targetFromDB, true, nil
+}
+
+func getUniqueConstraintsOfTarget(target *Target) string {
+	switch target.Type {
+	case "VMInfo":
+		return fmt.Sprintf("instanceID=%s, region=%s", *target.InstanceID, *target.Location)
+	case "Dir":
+		return "unsupported target type Dir"
+	case "Pod":
+		return "unsupported target type Pod"
+	default:
+		return fmt.Sprintf("unknown target type: %v", target.Type)
+	}
 }

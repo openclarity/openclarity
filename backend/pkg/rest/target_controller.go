@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net/http"
 
-	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
@@ -58,12 +58,17 @@ func (s *ServerImpl) PostTargets(ctx echo.Context) error {
 	}
 	createdTarget, err := s.dbHandler.TargetsTable().CreateTarget(convertedDB)
 	if err != nil {
-		if errors.Is(err, common.ErrConflict) {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
 			convertedExist, err := dbtorest.ConvertTarget(createdTarget)
 			if err != nil {
 				return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert existing target: %v", err))
 			}
-			return sendResponse(ctx, http.StatusConflict, convertedExist)
+			existResponse := &models.TargetExists{
+				Message: utils.StringPtr(conflictErr.Reason),
+				Target:  convertedExist,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create target in db: %v", err))
 	}
