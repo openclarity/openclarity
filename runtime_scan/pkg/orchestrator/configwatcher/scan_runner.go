@@ -26,7 +26,6 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	_scanner "github.com/openclarity/vmclarity/runtime_scan/pkg/scanner"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func (scw *ScanConfigWatcher) runNewScans(ctx context.Context, scanConfigs []models.ScanConfig) {
@@ -109,9 +108,9 @@ func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.I
 	info := models.TargetType{}
 	instanceProvider := models.AWS
 	err := info.FromVMInfo(models.VMInfo{
-		InstanceID:       utils.StringPtr(instance.GetID()),
+		InstanceID:       instance.GetID(),
 		InstanceProvider: &instanceProvider,
-		Location:         utils.StringPtr(instance.GetLocation()),
+		Location:         instance.GetLocation(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VMInfo: %v", err)
@@ -132,7 +131,7 @@ func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.I
 		if resp.JSON409 == nil {
 			return nil, fmt.Errorf("failed to create a target: empty body on conflict")
 		}
-		return resp.JSON409, nil
+		return resp.JSON409.Target, nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return nil, fmt.Errorf("failed to post target. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
@@ -160,10 +159,10 @@ func (scw *ScanConfigWatcher) createScan(ctx context.Context, scan *models.Scan)
 		if resp.JSON409 == nil {
 			return "", fmt.Errorf("failed to create a scan: empty body on conflict")
 		}
-		if resp.JSON409.Id == nil {
+		if resp.JSON409.Scan.Id == nil {
 			return "", fmt.Errorf("scan id on conflict is nil")
 		}
-		return *resp.JSON409.Id, nil
+		return *resp.JSON409.Scan.Id, nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return "", fmt.Errorf("failed to post scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
