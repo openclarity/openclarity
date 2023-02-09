@@ -15,6 +15,14 @@
 
 package common
 
-import "errors"
+import (
+	"fmt"
+)
 
-var ErrConflict = errors.New("conflict")
+type ConflictError struct {
+	Reason string
+}
+
+func (ec *ConflictError) Error() string {
+	return fmt.Sprintf("Unable to create due to conflict, %v", ec.Reason)
+}

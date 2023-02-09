@@ -121,7 +121,6 @@ func TestConvertScanResult(t *testing.T) {
 		{
 			VulnerabilityInfo: &models.VulnerabilityInfo{
 				Description:       utils.StringPtr("desc"),
-				Id:                utils.StringPtr("1"),
 				VulnerabilityName: utils.StringPtr("name"),
 			},
 			Id: utils.StringPtr("1"),
@@ -182,9 +181,9 @@ func TestConvertScanResult(t *testing.T) {
 func TestConvertTarget(t *testing.T) {
 	cloudProvider := models.CloudProvider("aws")
 	vmInfo := models.VMInfo{
-		InstanceID:       utils.StringPtr("instanceID"),
+		InstanceID:       "instanceID",
 		InstanceProvider: &cloudProvider,
-		Location:         utils.StringPtr("location"),
+		Location:         "location",
 	}
 
 	var targetType models.TargetType

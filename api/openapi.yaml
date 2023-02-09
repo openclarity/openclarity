@@ -44,7 +44,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Target'
+                $ref: '#/components/schemas/TargetExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -149,7 +149,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResult'
+                $ref: '#/components/schemas/TargetScanResultExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -264,7 +264,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Scan'
+                $ref: '#/components/schemas/ScanExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -394,7 +394,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScanConfig'
+                $ref: '#/components/schemas/ScanConfigExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -552,6 +552,16 @@ components:
           items:
             type: string
 
+    ScanExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        scan:
+          $ref: '#/components/schemas/Scan'
+
     ScanFamiliesConfig:
       type: object
       description: The configuration of the scanner families within a scan config
@@ -645,6 +655,16 @@ components:
           $ref: '#/components/schemas/ScanScopeType'
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfigType'
+
+    ScanConfigExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        scanConfig:
+          $ref: '#/components/schemas/ScanConfig'
 
     ScanScopeType:
       type: object
@@ -838,6 +858,16 @@ components:
         targetInfo:
           $ref: '#/components/schemas/TargetType'
 
+    TargetExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        target:
+          $ref: '#/components/schemas/Target'
+
     TargetType:
       type: object
       anyOf:
@@ -864,6 +894,8 @@ components:
           type: string
       required:
         - objectType
+        - instanceID
+        - location
 
     PodInfo:
       type: object
@@ -936,6 +968,16 @@ components:
         - targetId
         - scanId
 
+    TargetScanResultExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          readOnly: true
+          type: string
+        targetScanResult:
+          $ref: '#/components/schemas/TargetScanResult'
+
     TargetScanStatus:
       type: object
       properties:
@@ -971,26 +1013,6 @@ components:
           items:
             type: string
 
-    PackageInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        packageName:
-          type: string
-        packageVersion:
-          type: string
-
-    VulnerabilityInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        vulnerabilityName:
-          type: string
-        description:
-          type: string
-
     Package:
       type: object
       properties:
@@ -1004,7 +1026,7 @@ components:
       properties:
         id:
           type: string
-        VulnerabilityInfo:
+        vulnerabilityInfo:
           $ref: '#/components/schemas/VulnerabilityInfo'
 
     Secret:
@@ -1012,14 +1034,60 @@ components:
       properties:
         id:
           type: string
-        SecretInfo:
+        secretInfo:
           $ref: '#/components/schemas/SecretInfo'
 
-    MalwareInfo:
+    Malware:
       type: object
       properties:
         id:
           type: string
+        malwareInfo:
+          $ref: '#/components/schemas/MalwareInfo'
+
+    Rootkit:
+      type: object
+      properties:
+        id:
+          type: string
+        rootkitInfo:
+          $ref: '#/components/schemas/RootkitInfo'
+
+    Misconfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+        misconfigurationInfo:
+          $ref: '#/components/schemas/MisconfigurationInfo'
+
+    Exploit:
+      type: object
+      properties:
+        id:
+          type: string
+        exploitInfo:
+          $ref: '#/components/schemas/ExploitInfo'
+
+    PackageInfo:
+      type: object
+      properties:
+        packageName:
+          type: string
+        packageVersion:
+          type: string
+
+    VulnerabilityInfo:
+      type: object
+      properties:
+        vulnerabilityName:
+          type: string
+        description:
+          type: string
+
+    MalwareInfo:
+      type: object
+      properties:
         malwareName:
           type: string
         malwareType:
@@ -1031,8 +1099,6 @@ components:
     RootkitInfo:
       type: object
       properties:
-        id:
-          type: string
         rootkitName:
           type: string
         rootkitType:
@@ -1044,8 +1110,6 @@ components:
     MisconfigurationInfo:
       type: object
       properties:
-        id:
-          type: string
         description:
           type: string
         path:
@@ -1071,8 +1135,6 @@ components:
     ExploitInfo:
       type: object
       properties:
-        id:
-          type: string
         description:
           type: string
         vulnerabilities:
@@ -1102,7 +1164,7 @@ components:
         malware:
           type: array
           items:
-            $ref: '#/components/schemas/MalwareInfo'
+            $ref: '#/components/schemas/Malware'
 
     RootkitScan:
       type: object
@@ -1110,7 +1172,7 @@ components:
         rootkits:
           type: array
           items:
-            $ref: '#/components/schemas/RootkitInfo'
+            $ref: '#/components/schemas/Rootkit'
 
     SecretScan:
       type: object
@@ -1126,7 +1188,7 @@ components:
         misconfigurations:
           type: array
           items:
-            $ref: '#/components/schemas/MisconfigurationInfo'
+            $ref: '#/components/schemas/Misconfiguration'
 
     ExploitScan:
       type: object
@@ -1134,7 +1196,7 @@ components:
         exploits:
           type: array
           items:
-            $ref: '#/components/schemas/ExploitInfo'
+            $ref: '#/components/schemas/Exploit'
 
     MalwareType:
       type: string

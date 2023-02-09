@@ -98,7 +98,9 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult *ScanResult) (*Sca
 		return nil, fmt.Errorf("failed to check existing scan result: %w", err)
 	}
 	if exist {
-		return existingSR, fmt.Errorf("a scan result alredy exists for scanID %v and targetID %v: %w", scanResult.ScanID, scanResult.TargetID, common.ErrConflict)
+		return existingSR, &common.ConflictError{
+			Reason: fmt.Sprintf("Target scan result exists with scanID=%s, targetID=%s", existingSR.ScanID, existingSR.TargetID),
+		}
 	}
 
 	if err := s.scanResultsTable.Create(scanResult).Error; err != nil {

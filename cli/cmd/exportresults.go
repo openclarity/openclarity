@@ -79,8 +79,8 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 		vul := models.Vulnerability{
 			Id: utils.StringPtr(vulCandidate.ID),
 			VulnerabilityInfo: &models.VulnerabilityInfo{
-				Id:                utils.StringPtr(vulCandidate.Vulnerability.ID),
-				VulnerabilityName: utils.StringPtr(vulCandidate.Vulnerability.Description),
+				VulnerabilityName: utils.StringPtr(vulCandidate.Vulnerability.ID),
+				Description:       utils.StringPtr(vulCandidate.Vulnerability.Description),
 			},
 		}
 		vulnerabilities = append(vulnerabilities, vul)

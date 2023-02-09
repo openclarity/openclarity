@@ -98,7 +98,9 @@ func (s *ScansTableHandler) CreateScan(scan *Scan) (*Scan, error) {
 		return nil, fmt.Errorf("failed to check existing scan: %w", err)
 	}
 	if exist {
-		return existingSR, fmt.Errorf("a scan alredy exists for ScanConfigID %v: %w", *scan.ScanConfigID, common.ErrConflict)
+		return existingSR, &common.ConflictError{
+			Reason: fmt.Sprintf("There is a running scan with scanConfigID=%s", *existingSR.ScanConfigID),
+		}
 	}
 
 	if err := s.scansTable.Create(scan).Error; err != nil {

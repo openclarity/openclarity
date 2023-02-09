@@ -163,15 +163,15 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 						{
 							Id: utils.StringPtr("id1"),
 							VulnerabilityInfo: &models.VulnerabilityInfo{
-								Id:                utils.StringPtr("CVE-test-test-foo"),
-								VulnerabilityName: utils.StringPtr("testbleed"),
+								VulnerabilityName: utils.StringPtr("CVE-test-test-foo"),
+								Description:       utils.StringPtr("testbleed"),
 							},
 						},
 						{
 							Id: utils.StringPtr("id2"),
 							VulnerabilityInfo: &models.VulnerabilityInfo{
-								Id:                utils.StringPtr("CVE-test-test-bar"),
-								VulnerabilityName: utils.StringPtr("solartest"),
+								VulnerabilityName: utils.StringPtr("CVE-test-test-bar"),
+								Description:       utils.StringPtr("solartest"),
 							},
 						},
 					},

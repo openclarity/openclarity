@@ -93,7 +93,9 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig *ScanConfig) (*Sca
 		return nil, fmt.Errorf("failed to check existing scan config: %w", err)
 	}
 	if exist {
-		return existingSR, fmt.Errorf("a scan config alredy exists with the name %v: %w", *scanConfig.Name, common.ErrConflict)
+		return existingSR, &common.ConflictError{
+			Reason: fmt.Sprintf("Scan config exists with name=%s", *existingSR.Name),
+		}
 	}
 
 	if err := s.scanConfigsTable.Create(scanConfig).Error; err != nil {

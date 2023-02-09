@@ -94,8 +94,8 @@ func ConvertTarget(target *models.Target, id string) (*database.Target, error) {
 				ID: targetUUID,
 			},
 			Type:             vminfo.ObjectType,
-			Location:         vminfo.Location,
-			InstanceID:       vminfo.InstanceID,
+			Location:         &vminfo.Location,
+			InstanceID:       utils.StringPtr(vminfo.InstanceID),
 			InstanceProvider: provider,
 		}, nil
 	default:
