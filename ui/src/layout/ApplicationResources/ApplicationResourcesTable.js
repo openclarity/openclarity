@@ -136,7 +136,7 @@ const ApplicationResourcesTable = () => {
             }}
             url="applicationResources"
             title="Application Resources"
-            defaultSortBy={[{id: "resourceName", desc: true}]}
+            defaultSortBy={[{id: "vulnerabilities", desc: true}]}
             onLineClick={({id}) => navigate(`${pathname}/${id}`)}
         />
     )
