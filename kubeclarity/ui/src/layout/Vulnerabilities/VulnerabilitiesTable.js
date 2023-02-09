@@ -169,7 +169,7 @@ const VulnerabilitiesTable = () => {
             }}
             url="vulnerabilities"
             title="Vulnerabilities"
-            defaultSortBy={[{id: "packageName", desc: true}]}
+            defaultSortBy={[{id: "severity", desc: true}]}
             onLineClick={({vulnerabilityID, packageID}) => navigate(`${pathname}/${vulnerabilityID}/${packageID}`)}
         />
     )

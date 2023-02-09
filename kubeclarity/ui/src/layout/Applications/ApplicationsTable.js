@@ -203,7 +203,7 @@ const ApplicationsTable = () => {
                 }}
                 url="applications"
                 title="Applications"
-                defaultSortBy={[{id: "applicationName", desc: true}]}
+                defaultSortBy={[{id: "vulnerabilities", desc: true}]}
                 onLineClick={({id}) => navigate(`${pathname}/${id}`)}
                 actionsComponent={({original}) => {
                     const {id} = original;
