@@ -1135,9 +1135,17 @@ components:
     ExploitInfo:
       type: object
       properties:
+        name:
+          type: string
+        title:
+          type: string
         description:
           type: string
-        vulnerabilities:
+        cveID:
+          type: string
+        sourceDB:
+          type: string
+        urls:
           type: array
           items:
             type: string

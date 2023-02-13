@@ -38,6 +38,7 @@ const (
 	GitleaksBinaryPath        = "GITLEAKS_BINARY_PATH"
 	ScannerBackendAddress     = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
 	ScanConfigWatchInterval   = "SCAN_CONFIG_WATCH_INTERVAL"
+	ExploitDBAddress          = "EXPLOIT_DB_ADDRESS"
 )
 
 type OrchestratorConfig struct {
@@ -59,6 +60,8 @@ type ScannerConfig struct {
 	// traffic and external traffic for example) so we need the specific
 	// address to use.
 	ScannerBackendAddress string
+
+	ExploitsDBAddress string
 
 	JobResultTimeout          time.Duration
 	JobResultsPollingInterval time.Duration
@@ -87,6 +90,7 @@ func setConfigDefaults(backendAddress string, backendPort int, backendBaseURL st
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendAddress, strconv.Itoa(backendPort)), backendBaseURL))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L21-L23
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
+	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendAddress, "1326")))
 
 	viper.AutomaticEnv()
 }
@@ -107,6 +111,7 @@ func LoadConfig(backendAddress string, backendPort int, baseURL string) (*Orches
 			ScannerBackendAddress:     viper.GetString(ScannerBackendAddress),
 			ScannerKeyPairName:        viper.GetString(ScannerKeyPairName),
 			GitleaksBinaryPath:        viper.GetString(GitleaksBinaryPath),
+			ExploitsDBAddress:         viper.GetString(ExploitDBAddress),
 		},
 	}
 

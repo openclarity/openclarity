@@ -33,6 +33,9 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
+	familiesExploits "github.com/openclarity/vmclarity/shared/pkg/families/exploits"
+	exploitsCommon "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
+	exploitdbConfig "github.com/openclarity/vmclarity/shared/pkg/families/exploits/exploitdb/config"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
@@ -286,6 +289,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
 		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
 		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, scanRootDirectory, s.config.GitleaksBinaryPath),
+		Exploits:        userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -372,6 +376,23 @@ func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.Vulnerabil
 				TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
 					Timeout: TrivyTimeout,
 				},
+			},
+		},
+	}
+}
+
+func userExploitsConfigToFamiliesExploitsConfig(exploitsConfig *models.ExploitsConfig, baseURL string) familiesExploits.Config {
+	if exploitsConfig == nil || exploitsConfig.Enabled == nil || !*exploitsConfig.Enabled {
+		return familiesExploits.Config{}
+	}
+	// TODO(erezf) Some choices should come from the user's configuration
+	return familiesExploits.Config{
+		Enabled:       true,
+		ScannersList:  []string{"exploitdb"},
+		InputFromVuln: true,
+		ScannersConfig: &exploitsCommon.ScannersConfig{
+			ExploitDB: exploitdbConfig.Config{
+				BaseURL: baseURL,
 			},
 		},
 	}
