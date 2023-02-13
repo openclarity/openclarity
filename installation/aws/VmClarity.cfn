@@ -5,7 +5,7 @@ Description: |
 Resources:
   # Create separate VPC to host the VMClarity components and scans so that we
   # keep VM Clarity resources completely separate from the VMs being scanned.
-  VmClarity:
+  VmClarityVPC:
     Type: "AWS::EC2::VPC"
     Properties:
       EnableDnsSupport: "true"
@@ -15,13 +15,13 @@ Resources:
   VmClarityServerSubnet:
     Type: "AWS::EC2::Subnet"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
       CidrBlock: 10.0.0.0/24
   # Subnet for the VmClarityScanners. Will be private.
   VmClarityScannerSubnet:
     Type: "AWS::EC2::Subnet"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
       CidrBlock: 10.0.1.0/24
   # Elastic IP address that will be used to serve the VMClarity UI, API and SSH
   # access.
@@ -295,7 +295,7 @@ Resources:
   VmClarityServerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
       GroupDescription: Allow only required network traffic for VMClarity server
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -308,7 +308,7 @@ Resources:
   VmClarityScannerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
       GroupDescription: Allow only required network traffic for VMClarity scanners
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -347,13 +347,13 @@ Resources:
   VmClarityServerInternetGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
       InternetGatewayId: !Ref VmClarityServerInternetGateway
   # Create a route table to host the routes required for our VPC.
   VmClarityServerRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
   # Associate the route table with our subnet so that VMs in that subnet get
   # the routes from the route table.
   VmClarityServerSubnetRouteTableAssociation:
@@ -387,7 +387,7 @@ Resources:
   VmClarityScannerNatRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref VmClarity
+      VpcId: !Ref VmClarityVPC
   # Create route rule the pushes all non-local traffic to the NAT gateway for
   # routing.
   VMClarityScannerNatRoute:
@@ -461,7 +461,7 @@ Resources:
             Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:subnet/*"
             Condition:
               ArnEquals:
-                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarity}"
+                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarityVPC}"
           # Force that we tag the instance when we create it, this is so that
           # we can limit the instances we're allow to terminate. The only tag
           # keys allowed are "Owner" and "Name". "Owner" must be set to
