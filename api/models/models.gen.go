@@ -123,8 +123,12 @@ type Exploit struct {
 
 // ExploitInfo defines model for ExploitInfo.
 type ExploitInfo struct {
-	Description     *string   `json:"description,omitempty"`
-	Vulnerabilities *[]string `json:"vulnerabilities,omitempty"`
+	CveID       *string   `json:"cveID,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	SourceDB    *string   `json:"sourceDB,omitempty"`
+	Title       *string   `json:"title,omitempty"`
+	Urls        *[]string `json:"urls,omitempty"`
 }
 
 // ExploitScan defines model for ExploitScan.

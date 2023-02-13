@@ -23,6 +23,7 @@ import (
 	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
+	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
@@ -371,6 +372,72 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 	}
 }
 
+func convertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.ExploitScan {
+	if exploitsResults == nil || exploitsResults.Exploits == nil {
+		return &models.ExploitScan{}
+	}
+
+	// nolint:prealloc
+	var retExploits []models.Exploit
+
+	for i := range exploitsResults.Exploits {
+		exploit := exploitsResults.Exploits[i]
+		retExploits = append(retExploits, models.Exploit{
+			ExploitInfo: &models.ExploitInfo{
+				CveID:       &exploit.CveID,
+				Description: &exploit.Description,
+				Name:        &exploit.Name,
+				SourceDB:    &exploit.SourceDB,
+				Title:       &exploit.Title,
+				Urls:        &exploit.URLs,
+			},
+			Id: &exploit.ID,
+		})
+	}
+
+	if retExploits == nil {
+		return &models.ExploitScan{}
+	}
+
+	return &models.ExploitScan{
+		Exploits: &retExploits,
+	}
+}
+
+func (e *Exporter) ExportExploitsResult(res *results.Results) error {
+	scanResults, err := e.getExistingScanResult()
+	if err != nil {
+		return err
+	}
+
+	if scanResults.Status == nil {
+		scanResults.Status = &models.TargetScanStatus{}
+	}
+	if scanResults.Status.Exploits == nil {
+		scanResults.Status.Exploits = &models.TargetScanState{}
+	}
+
+	var errors []string
+
+	exploitsResults, err := results.GetResult[*exploits.Results](res)
+	if err != nil {
+		errors = append(errors, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
+	} else {
+		scanResults.Exploits = convertExploitsResultToAPIModel(exploitsResults)
+	}
+
+	state := models.DONE
+	scanResults.Status.Exploits.State = &state
+	scanResults.Status.Exploits.Errors = &errors
+
+	err = e.patchExistingScanResult(scanResults)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors) []error {
 	var errors []error
 	if config.SBOM.Enabled {
@@ -395,6 +462,15 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 		err := e.ExportSecretsResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export secrets findings to server: %w", err)
+			logger.Error(err)
+			errors = append(errors, err)
+		}
+	}
+
+	if config.Exploits.Enabled {
+		err := e.ExportExploitsResult(res)
+		if err != nil {
+			err = fmt.Errorf("failed to export exploits results to server: %w", err)
 			logger.Error(err)
 			errors = append(errors, err)
 		}

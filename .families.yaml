@@ -66,3 +66,13 @@ secrets:
   scanners_config:
     gitleaks:
       binary_path: "/usr/local/bin/gitleaks"
+
+exploits:
+  enabled: true
+  scanners_list:
+    - "exploitdb"
+  inputs: []
+  input_from_vuln: true
+  scanners_config:
+    exploit_db:
+      base_url: "http://localhost:1326"
