@@ -163,7 +163,7 @@ Resources:
                     LOCAL_DB_PATH=/data/vmclarity.db
                     BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
                     BACKEND_REST_PORT=8888
-                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
+                    SCANNER_CONTAINER_IMAGE=erezfish/vmclarity-cli:exploits
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -172,6 +172,33 @@ Resources:
                         - !Ref InstanceType
                         - Arch
               mode: "000644"
+            "/etc/vmclarity/fetch_exploit_db.sh":
+              content: |
+                #!/bin/bash
+                set -euo pipefail
+
+                exploitsPath=/opt/exploits
+
+                /usr/bin/mkdir -p ${exploitsPath}
+                # since last tagged image (v0.4.2) was not working properly, use the digest of the latest at that time (26.1.23)
+                docker pull vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048
+                docker run --rm \
+                    -v ${exploitsPath}:/vuls \
+                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
+                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch awesomepoc
+                docker run --rm \
+                    -v ${exploitsPath}:/vuls \
+                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
+                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch exploitdb
+                docker run --rm \
+                    -v ${exploitsPath}:/vuls \
+                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
+                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch githubrepos
+                docker run --rm \
+                    -v ${exploitsPath}:/vuls \
+                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
+                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch inthewild
+              mode: "000744"
             "/lib/systemd/system/vmclarity.service":
               content: |
                 [Unit]
@@ -185,13 +212,64 @@ Resources:
                 ExecStartPre=-/usr/bin/docker stop %n
                 ExecStartPre=-/usr/bin/docker rm %n
                 ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
+                ExecStartPre=/usr/bin/docker pull erezfish/vmclarity-backend:exploits
                 ExecStart=/usr/bin/docker run \
                   --rm --name %n \
                   -p 0.0.0.0:8888:8888/tcp \
                   -v /opt/vmclarity:/data \
                   --env-file /etc/vmclarity/config.env \
-                  tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3 run --log-level info
+                  erezfish/vmclarity-backend:exploits run --log-level info
+
+                [Install]
+                WantedBy=multi-user.target
+
+              mode: "000644"
+            "/lib/systemd/system/exploit_server.service":
+              content: |
+                [Unit]
+                Description=ExploitServer
+                After=docker.service
+                Requires=docker.service
+
+                [Service]
+                TimeoutStartSec=0
+                Restart=always
+                ExecStartPre=-/usr/bin/docker stop %n
+                ExecStartPre=-/usr/bin/docker rm %n
+                ExecStart=/usr/bin/docker run --rm -p 1326:1326 -v /opt/exploits:/vuls --name %n vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 \
+                   server --bind 0.0.0.0 --dbpath /vuls/go-exploitdb.sqlite3
+
+                [Install]
+                WantedBy=multi-user.target
+
+              mode: "000644"
+            "/lib/systemd/system/exploit_fetcher.timer":
+              content: |
+                [Unit]
+                Description=Daily exploit DB update
+                After=docker.service
+                Requires=docker.service
+
+                [Timer]
+                OnCalendar=daily
+                OnActiveSec=1s
+                Persistent=true
+
+                [Install]
+                WantedBy=timers.target
+
+              mode: "000644"
+            "/lib/systemd/system/exploit_fetcher.service":
+              content: |
+                [Unit]
+                Description=ExploitFetcher
+                After=docker.service
+                Requires=docker.service
+
+                [Service]
+                Type=oneshot
+                ExecStart=/etc/vmclarity/fetch_exploit_db.sh
+                RemainAfterExit=yes
 
                 [Install]
                 WantedBy=multi-user.target
@@ -199,9 +277,13 @@ Resources:
           commands:
             01subsitute_rest_address:
               command: /etc/vmclarity/render_config.sh
-            02enable_vmclarity:
+            02enable_exploit_db_fetcher_timer:
+              command: systemctl enable --now exploit_fetcher.timer
+            03enable_exploit_server:
+              command: systemctl enable --now exploit_server.service
+            04enable_vmclarity:
               command: systemctl enable vmclarity.service
-            03start_vmclarity:
+            05start_vmclarity:
               command: systemctl start vmclarity.service
     DependsOn:
       - VmClarityServerPublicRoute
@@ -236,13 +318,24 @@ Resources:
   # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
   # VMClarity server API on 8888 by adding an ingress rule to the
   # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngress:
+  VmClarityServerSecurityGroupScannerIngressToAPI:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
       GroupId: !Ref VmClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 8888
       ToPort: 8888
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Exploits DB server on port 1326 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToExploitDB:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 1326
+      ToPort: 1326
       SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
 
   # Create an Internet Gateway to allow VMClarityServer to talk to the internet

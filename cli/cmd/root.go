@@ -27,6 +27,7 @@ import (
 
 	"github.com/openclarity/vmclarity/cli/pkg"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
+	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
@@ -150,6 +151,22 @@ func outputResults(config *families.Config, res *results.Results) error {
 		err = Output(bytes, "secrets")
 		if err != nil {
 			return fmt.Errorf("failed to output secrets results: %v", err)
+		}
+	}
+
+	if config.Exploits.Enabled {
+		exploitsResults, err := results.GetResult[*exploits.Results](res)
+		if err != nil {
+			return fmt.Errorf("failed to get exploits results: %v", err)
+		}
+
+		bytes, err := json.Marshal(exploitsResults)
+		if err != nil {
+			return fmt.Errorf("failed to marshal exploits results: %v", err)
+		}
+		err = Output(bytes, "exploits")
+		if err != nil {
+			return fmt.Errorf("failed to output exploits results: %v", err)
 		}
 	}
 

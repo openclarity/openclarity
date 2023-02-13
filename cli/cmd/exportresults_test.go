@@ -25,6 +25,8 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
+	common2 "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
@@ -312,6 +314,124 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 			got := convertSecretsResultToAPIModel(tt.args.secretsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Secret) bool { return *a.Id < *b.Id })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_convertExploitsResultToAPIModel(t *testing.T) {
+	exploit1 := common2.Exploit{
+		ID:          "id1",
+		Name:        "name1",
+		Title:       "title1",
+		Description: "desc 1",
+		CveID:       "cve1",
+		URLs:        []string{"url1"},
+		SourceDB:    "db1",
+	}
+	exploit2 := common2.Exploit{
+		ID:          "id2",
+		Name:        "name2",
+		Title:       "title2",
+		Description: "desc 2",
+		CveID:       "cve2",
+		URLs:        []string{"url2"},
+		SourceDB:    "db2",
+	}
+	exploit3 := common2.Exploit{
+		ID:          "id3",
+		Name:        "name3",
+		Title:       "title3",
+		Description: "desc 3",
+		CveID:       "cve3",
+		URLs:        []string{"url3"},
+		SourceDB:    "db3",
+	}
+	type args struct {
+		exploitsResults *exploits.Results
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.ExploitScan
+	}{
+		{
+			name: "nil exploitsResults",
+			args: args{
+				exploitsResults: nil,
+			},
+			want: &models.ExploitScan{},
+		},
+		{
+			name: "nil exploitsResults.Exploits",
+			args: args{
+				exploitsResults: &exploits.Results{
+					Exploits: nil,
+				},
+			},
+			want: &models.ExploitScan{},
+		},
+		{
+			name: "sanity",
+			args: args{
+				exploitsResults: &exploits.Results{
+					Exploits: exploits.MergedExploits{
+						{
+							Exploit: exploit1,
+						},
+						{
+							Exploit: exploit2,
+						},
+						{
+							Exploit: exploit3,
+						},
+					},
+				},
+			},
+			want: &models.ExploitScan{
+				Exploits: &[]models.Exploit{
+					{
+						ExploitInfo: &models.ExploitInfo{
+							CveID:       utils.StringPtr(exploit1.CveID),
+							Description: utils.StringPtr(exploit1.Description),
+							Name:        utils.StringPtr(exploit1.Name),
+							SourceDB:    utils.StringPtr(exploit1.SourceDB),
+							Title:       utils.StringPtr(exploit1.Title),
+							Urls:        &exploit1.URLs,
+						},
+						Id: utils.StringPtr(exploit1.ID),
+					},
+					{
+						ExploitInfo: &models.ExploitInfo{
+							CveID:       utils.StringPtr(exploit2.CveID),
+							Description: utils.StringPtr(exploit2.Description),
+							Name:        utils.StringPtr(exploit2.Name),
+							SourceDB:    utils.StringPtr(exploit2.SourceDB),
+							Title:       utils.StringPtr(exploit2.Title),
+							Urls:        &exploit2.URLs,
+						},
+						Id: utils.StringPtr(exploit2.ID),
+					},
+					{
+						ExploitInfo: &models.ExploitInfo{
+							CveID:       utils.StringPtr(exploit3.CveID),
+							Description: utils.StringPtr(exploit3.Description),
+							Name:        utils.StringPtr(exploit3.Name),
+							SourceDB:    utils.StringPtr(exploit3.SourceDB),
+							Title:       utils.StringPtr(exploit3.Title),
+							Urls:        &exploit3.URLs,
+						},
+						Id: utils.StringPtr(exploit3.ID),
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := convertExploitsResultToAPIModel(tt.args.exploitsResults)
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Exploit) bool { return *a.Id < *b.Id })); diff != "" {
+				t.Errorf("convertExploitsResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
