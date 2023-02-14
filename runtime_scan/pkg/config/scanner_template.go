@@ -47,13 +47,6 @@ spec:
       image: TBD
       args:
       - scan
-      env:
-      - name: REGISTRY_INSECURE
-        value: "false"
-      - name: RESULT_SERVICE_HOST
-        value: kubeclarity.kubeclarity
-      - name: RESULT_SERVICE_PORT
-        value: 8888
       securityContext:
         capabilities:
           drop:
