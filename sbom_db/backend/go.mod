@@ -7,12 +7,12 @@ require (
 	github.com/bxcodec/faker/v3 v3.7.0
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.1
+	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli v1.22.5
 	gorm.io/driver/sqlite v1.2.6
 	gorm.io/gorm v1.22.5
-	github.com/openclarity/kubeclarity/sbom_db/api v0.0.0
 )
 
 require (
@@ -50,9 +50,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	go.mongodb.org/mongo-driver v1.7.5 // indirect
-	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/grpc v1.43.0 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
