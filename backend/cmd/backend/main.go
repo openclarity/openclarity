@@ -45,6 +45,7 @@ func main() {
 	viper.SetDefault(config.BackendRestPort, "8080")
 	viper.SetDefault(config.DatabaseDriver, database.DBDriverTypePostgres)
 	viper.SetDefault(config.ViewRefreshIntervalEnvVar, database.DefaultViewRefreshIntervalSecond)
+	viper.SetDefault(config.DefaultScanParallelism, "10")
 	viper.AutomaticEnv()
 	app := cli.NewApp()
 	app.Usage = ""

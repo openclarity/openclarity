@@ -106,7 +106,7 @@ func Run() {
 		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
 	}
 
-	restServer, err := rest.CreateRESTServer(config.BackendRestPort, backend.dbHandler, orc, k8sClientset)
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort, backend.dbHandler, orc, k8sClientset, config.DefaultScanParallelism)
 	if err != nil {
 		log.Fatalf("Failed to create REST server: %v", err)
 	}

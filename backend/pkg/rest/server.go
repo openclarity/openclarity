@@ -95,14 +95,14 @@ func (s *Server) GetNamespaceList() ([]string, error) {
 }
 
 func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrator.VulnerabilitiesScanner,
-	clientset kubernetes.Interface,
+	clientset kubernetes.Interface, defaultScanParallelism int,
 ) (*Server, error) {
 	scanChan := make(chan *runtimescanner.ScanConfig)
 	resultsChan := make(chan *_types.ScanResults)
 	s := &Server{
 		dbHandler:      dbHandler,
 		clientset:      clientset,
-		runtimeScanner: runtimescanner.CreateRuntimeScanner(scanner, scanChan, resultsChan),
+		runtimeScanner: runtimescanner.CreateRuntimeScanner(scanner, scanChan, resultsChan, defaultScanParallelism),
 		resultsChan:    resultsChan,
 		scanChan:       scanChan,
 		stopChan:       make(chan struct{}),

@@ -54,6 +54,8 @@ type RuntimeScanner struct {
 	// New scan requests are coming through this channel.
 	scanChan chan *ScanConfig
 	lock     sync.RWMutex
+
+	defaultScanParallelism int
 }
 
 func (s *RuntimeScanner) ScanProgress() types.ScanProgress {
@@ -64,15 +66,17 @@ type ScanConfig struct {
 	ScanType                      models.ScanType
 	CisDockerBenchmarkScanEnabled bool
 	Namespaces                    []string
+	Parallelism                   int
 }
 
-func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults) Scanner {
+func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults, defaultScanParallelism int) Scanner {
 	return &RuntimeScanner{
 		vulnerabilitiesScanner: scanner,
 		scanChan:               scanChan,
 		lock:                   sync.RWMutex{},
 		resultsChan:            resultsChan,
 		lastScanConfig:         &ScanConfig{},
+		defaultScanParallelism: defaultScanParallelism,
 	}
 }
 
@@ -176,8 +180,16 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 		namespaces = []string{corev1.NamespaceAll}
 	}
 
+	var parallelism int
+	// If set specific parallelism from web UI, use that
+	if scanConfig.Parallelism != 0 {
+		parallelism = scanConfig.Parallelism
+	} else {
+		parallelism = s.defaultScanParallelism
+	}
+
 	done, err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
-		MaxScanParallelism:           10, // nolint:gomnd
+		MaxScanParallelism:           parallelism,
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
 		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
