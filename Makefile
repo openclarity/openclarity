@@ -242,6 +242,7 @@ gomod-tidy:
 	cd shared && go mod tidy
 	cd cli && go mod tidy
 	cd runtime_scan && go mod tidy
+	cd runtime_scan/api && go mod tidy
 	cd runtime_k8s_scanner && go mod tidy
 	cd cis_docker_benchmark_scanner && go mod tidy
 	cd sbom_db/backend && go mod tidy
