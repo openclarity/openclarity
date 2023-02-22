@@ -113,6 +113,8 @@ kubeclarity-runtime-scan:
   httpProxy: ""
   resultServicePort: 8888
 
+  defaultScanParallelism: 10
+
   ## Scanner jobs and pods labels.
   labels:
     app: kubeclarity-scanner
