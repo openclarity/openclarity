@@ -246,6 +246,8 @@ gomod-tidy:
 	cd cis_docker_benchmark_scanner && go mod tidy
 	cd sbom_db/backend && go mod tidy
 	cd sbom_db/api && go mod tidy
+	cd e2e && go mod tidy
+	cd e2e/vulnerable && go mod tidy
 
 .PHONY: e2e
 e2e:
