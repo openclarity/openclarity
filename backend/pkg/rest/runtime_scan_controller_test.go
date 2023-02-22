@@ -603,7 +603,7 @@ func TestServer_getScanStatusAndScanned(t *testing.T) {
 			doneApplyingToDB: true,
 		},
 	}
-	rts := runtimescanner.CreateRuntimeScanner(mockVulScanner, nil, nil)
+	rts := runtimescanner.CreateRuntimeScanner(mockVulScanner, nil, nil, 10)
 	for _, tt := range tests {
 		tt.expectVulScanner(mockVulScanner)
 		t.Run(tt.name, func(t *testing.T) {
