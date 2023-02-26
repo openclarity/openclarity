@@ -31,6 +31,10 @@ data:
           tolerations:
 {{- toYaml (index .Values "kubeclarity-runtime-scan" "tolerations") | nindent 12 }}
 {{- end}}
+{{- if (index .Values "kubeclarity-runtime-scan" "nodeSelector") }}
+          nodeSelector:
+{{- toYaml (index .Values "kubeclarity-runtime-scan" "nodeSelector") | nindent 12 }}
+{{- end}}
           restartPolicy: Never
           volumes:
           - name: tmp-volume
