@@ -1149,8 +1149,8 @@ func Test_validateImageID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateImageID(tt.args.imageID); (err != nil) != tt.wantErr {
-				t.Errorf("validateImageID() error = %v, wantErr %v", err, tt.wantErr)
+			if err := ValidateLocalImageID(tt.args.imageID); (err != nil) != tt.wantErr {
+				t.Errorf("ValidateLocalImageID() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
