@@ -203,9 +203,9 @@ func ConvertScanResults(scanResults []*database.ScanResult, total int64) (*model
 func ConvertScan(scan *database.Scan) (*models.Scan, error) {
 	var ret models.Scan
 
-	if scan.ScanFamiliesConfig != nil {
-		ret.ScanFamiliesConfig = &models.ScanFamiliesConfig{}
-		if err := json.Unmarshal(scan.ScanFamiliesConfig, ret.ScanFamiliesConfig); err != nil {
+	if scan.ScanConfigSnapshot != nil {
+		ret.ScanConfigSnapshot = &models.ScanConfigData{}
+		if err := json.Unmarshal(scan.ScanConfigSnapshot, ret.ScanConfigSnapshot); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal json: %w", err)
 		}
 	}
@@ -220,7 +220,7 @@ func ConvertScan(scan *database.Scan) (*models.Scan, error) {
 	ret.Id = utils.StringPtr(scan.ID.String())
 	ret.StartTime = scan.ScanStartTime
 	ret.EndTime = scan.ScanEndTime
-	ret.ScanConfigId = scan.ScanConfigID
+	ret.ScanConfig = &models.ScanConfigRelationship{Id: *scan.ScanConfigID}
 
 	return &ret, nil
 }

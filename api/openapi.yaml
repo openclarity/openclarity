@@ -540,17 +540,78 @@ components:
         endTime:
           type: string
           format: date-time
-        scanConfigId:
-          description: The ID of the config that this scan was initiated from (optionanl)
-          type: string
-        scanFamiliesConfig:
-          # The configuration as it was in the config when the scan was created
-          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scanConfig:
+          $ref: '#/components/schemas/ScanConfigRelationship'
+        scanConfigSnapshot:
+          $ref: '#/components/schemas/ScanConfigData'
         targetIDs:
           description: List of target IDs that are targeted for scanning as part of this scan
           type: array
           items:
             type: string
+        state:
+          description: The lifecycle state of this scan.
+          type: string
+          enum:
+            - Pending
+            - Discovered
+            - InProgress
+            - Failed
+            - Done
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - OneOrMoreTargetFailedToScan
+            - DiscoveryFailed
+            - Unexpected
+            - NothingToScan
+            - Success
+        summary:
+          $ref: '#/components/schemas/ScanSummary'
+
+    ScanSummary:
+      description: A summary of the progress of a scan for informational purposes.
+      type: object
+      properties:
+        jobsLeftToRun:
+          type: integer
+        jobsCompleted:
+          type: integer
+        totalPackages:
+          type: integer
+        totalExploits:
+          type: integer
+        totalMalware:
+          type: integer
+        totalMisconfigurations:
+          type: integer
+        totalRootkits:
+          type: integer
+        totalSecrets:
+          type: integer
+        totalVulnerabilities:
+          $ref: '#/components/schemas/VulnerabilityScanSummary'
+
+    VulnerabilityScanSummary:
+      description: A summary of number of vulnerabilities found per severity.
+      type: object
+      properties:
+        totalCriticalVulnerabilities:
+          type: integer
+        totalHighVulnerabilities:
+          type: integer
+        totalMediumVulnerabilities:
+          type: integer
+        totalLowVulnerabilities:
+          type: integer
+        totalNegligibleVulnerabilities:
+          type: integer
 
     ScanExists:
       type: object
@@ -640,13 +701,13 @@ components:
       required:
         - total
 
-    ScanConfig:
+    ScanConfigData:
       type: object
-      description: Describes a multi-target scheduled scan config.
+      description: |
+        Fields for a ScanConfig so they can be shared between the ScanConfig,
+        ScanConfigRelationship and used for the ScanConfig snapshot in the
+        scan.
       properties:
-        id:
-          type: string
-          readOnly: true
         name:
           type: string
         scanFamiliesConfig:
@@ -655,6 +716,36 @@ components:
           $ref: '#/components/schemas/ScanScopeType'
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfigType'
+
+    ScanConfigRelationship:
+      type: object
+      description: Describes a relationship to a scan config which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/ScanConfigData'
+        - type: object
+          properties:
+            id:
+              type: string
+            name:
+              readOnly: true
+            scanFamiliesConfig:
+              readOnly: true
+            scope:
+              readOnly: true
+            scheduled:
+              readOnly: true
+          required: ['id']
+
+    ScanConfig:
+      type: object
+      description: Describes a multi-target scheduled scan config.
+      allOf:
+        - $ref: '#/components/schemas/ScanConfigData'
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
 
     ScanConfigExists:
       type: object
@@ -964,9 +1055,30 @@ components:
           $ref: '#/components/schemas/MisconfigurationScan'
         exploits:
           $ref: '#/components/schemas/ExploitScan'
+        summary:
+          $ref: '#/components/schemas/TargetScanResultSummary'
       required:
         - targetId
         - scanId
+
+    TargetScanResultSummary:
+      description: A summary of target scan result for informational purposes.
+      type: object
+      properties:
+        totalPackages:
+          type: integer
+        totalExploits:
+          type: integer
+        totalMalware:
+          type: integer
+        totalMisconfigurations:
+          type: integer
+        totalRootkits:
+          type: integer
+        totalSecrets:
+          type: integer
+        totalVulnerabilities:
+          $ref: '#/components/schemas/VulnerabilityScanSummary'
 
     TargetScanResultExists:
       type: object
@@ -1084,6 +1196,17 @@ components:
           type: string
         description:
           type: string
+        severity:
+          $ref: '#/components/schemas/VulnerabilitySeverity'
+
+    VulnerabilitySeverity:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - NEGLIGIBLE
 
     MalwareInfo:
       type: object

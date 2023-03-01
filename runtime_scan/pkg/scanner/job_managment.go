@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	runtimeScanUtils "github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	familiesExploits "github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	exploitsCommon "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
@@ -52,6 +53,50 @@ const (
 	SnapshotCopyTimeout     = 15 * time.Minute
 )
 
+func (s *Scanner) GetScan(ctx context.Context, scanID string) (*models.Scan, error) {
+	resp, err := s.backendClient.GetScansScanIDWithResponse(ctx, scanID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get a scan: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to get a scan: empty body")
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get a scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get a scan status. status code=%v", resp.StatusCode())
+	}
+}
+
+func (s *Scanner) GetTargetScanSummary(ctx context.Context, scanResultID string) (*models.TargetScanResultSummary, error) {
+	params := &models.GetScanResultsScanResultIDParams{
+		Select: runtimeScanUtils.StringPtr("summary"),
+	}
+	resp, err := s.backendClient.GetScanResultsScanResultIDWithResponse(ctx, scanResultID, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get a target scan summary: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to get a target scan summary: empty body")
+		}
+		if resp.JSON200.Summary == nil {
+			return nil, fmt.Errorf("failed to get a target scan summary: empty summary in body")
+		}
+		return resp.JSON200.Summary, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get a target scan summary. summary code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get a target scan summary. summary code=%v", resp.StatusCode())
+	}
+}
+
 // run jobs.
 // nolint:cyclop
 func (s *Scanner) jobBatchManagement(ctx context.Context) {
@@ -63,55 +108,114 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 	// queue of scan data
 	q := make(chan *scanData)
 	// done channel takes the result of the job
-	done := make(chan bool)
-
-	fullScanDone := make(chan bool)
+	done := make(chan string)
 
 	// spawn workers
 	for i := 0; i < numberOfWorkers; i++ {
 		go s.worker(ctx, q, i, done, s.killSignal)
 	}
 
-	// wait until scan of all instances is done. once all done, notify on fullScanDone chan
-	go func() {
-		for c := 0; c < len(targetIDToScanData); c++ {
-			select {
-			case <-done:
-			case <-s.killSignal:
-				log.WithFields(s.logFields).Debugf("Scan process was canceled - stop waiting for finished jobs")
-				return
-			}
-		}
-
-		fullScanDone <- true
-	}()
-
 	// send all scan data on scan data queue, for workers to pick it up.
-	for _, data := range targetIDToScanData {
-		go func(data *scanData, ks chan bool) {
+	go func() {
+		for _, data := range targetIDToScanData {
 			select {
 			case q <- data:
-			case <-ks:
+			case <-s.killSignal:
 				log.WithFields(s.logFields).Debugf("Scan process was canceled. targetID=%v, scanID=%v", data.targetInstance.TargetID, s.scanID)
 				return
 			}
-		}(data, s.killSignal)
-	}
+		}
+	}()
 
-	// wait for killSignal or fullScanDone
-	select {
-	case <-s.killSignal:
-		log.WithFields(s.logFields).Info("Scan process was canceled")
-	case <-fullScanDone:
-		log.WithFields(s.logFields).Infof("All jobs has finished")
-	}
-	if err := s.patchScanEndTime(ctx, time.Now()); err != nil {
-		log.WithFields(s.logFields).Errorf("Failed to set end time of the scan ID=%s: %v", s.scanID, err)
+	anyJobsFailed := false
+	numberOfCompletedJobs := 0
+	scanComplete := false
+	for !scanComplete {
+		var scan *models.Scan
+		select {
+		case targetID := <-done:
+			numberOfCompletedJobs := numberOfCompletedJobs + 1
+			data := targetIDToScanData[targetID]
+			if !data.success {
+				anyJobsFailed = true
+			}
+
+			scan, err := s.createScanWithUpdatedSummary(ctx, *data)
+			if err != nil {
+				log.WithFields(s.logFields).Errorf("Failed to create a scan with updated summary: %v", err)
+				scan = &models.Scan{}
+			}
+
+			if numberOfCompletedJobs == len(targetIDToScanData) {
+				scanComplete = true
+
+				state := models.Done
+				stateMessage := "All scan jobs completed"
+				stateReason := models.ScanStateReasonSuccess
+				if anyJobsFailed {
+					state = models.Failed
+					stateMessage = "One or more ScanJobs failed"
+					stateReason = models.ScanStateReasonOneOrMoreTargetFailedToScan
+				}
+				t := time.Now()
+				scan.EndTime = &t
+				scan.State = &state
+				scan.StateMessage = &stateMessage
+				scan.StateReason = &stateReason
+			}
+		case <-s.killSignal:
+			t := time.Now()
+			reason := models.ScanStateReasonTimedOut
+			scan = &models.Scan{
+				EndTime:      &t,
+				State:        runtimeScanUtils.PointerTo[models.ScanState](models.Failed),
+				StateMessage: runtimeScanUtils.StringPtr("Scan was canceled or timed out"),
+				StateReason:  &reason,
+			}
+			scanComplete = true
+			log.WithFields(s.logFields).Debugf("Scan process was canceled - stop waiting for finished jobs")
+		}
+
+		// regardless of success or failure we need to patch the scan status
+		if err := s.patchScan(ctx, s.scanID, scan); err != nil {
+			log.WithFields(s.logFields).Errorf("failed to patch the scan ID=%s: %v", s.scanID, err)
+		}
 	}
 }
 
+func (s *Scanner) createScanWithUpdatedSummary(ctx context.Context, data scanData) (*models.Scan, error) {
+	scan, err := s.GetScan(ctx, s.scanID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get scan to update status: %v", err)
+	}
+
+	scanResultSummary, err := s.GetTargetScanSummary(ctx, data.scanResultID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get result summary to update status: %v", err)
+	}
+
+	// Update the scan summary with the summary from the completed scan result
+	scan.Summary.JobsCompleted = runtimeScanUtils.IntPtr(*scan.Summary.JobsCompleted + 1)
+	scan.Summary.JobsLeftToRun = runtimeScanUtils.IntPtr(*scan.Summary.JobsLeftToRun - 1)
+	scan.Summary.TotalExploits = runtimeScanUtils.IntPtr(*scan.Summary.TotalExploits + *scanResultSummary.TotalExploits)
+	scan.Summary.TotalMalware = runtimeScanUtils.IntPtr(*scan.Summary.TotalMalware + *scanResultSummary.TotalMalware)
+	scan.Summary.TotalMisconfigurations = runtimeScanUtils.IntPtr(*scan.Summary.TotalMisconfigurations + *scanResultSummary.TotalMisconfigurations)
+	scan.Summary.TotalPackages = runtimeScanUtils.IntPtr(*scan.Summary.TotalPackages + *scanResultSummary.TotalPackages)
+	scan.Summary.TotalRootkits = runtimeScanUtils.IntPtr(*scan.Summary.TotalRootkits + *scanResultSummary.TotalRootkits)
+	scan.Summary.TotalSecrets = runtimeScanUtils.IntPtr(*scan.Summary.TotalSecrets + *scanResultSummary.TotalSecrets)
+	scan.Summary.TotalVulnerabilities = &models.VulnerabilityScanSummary{
+		TotalCriticalVulnerabilities:   runtimeScanUtils.IntPtr(*scan.Summary.TotalVulnerabilities.TotalCriticalVulnerabilities + *scanResultSummary.TotalVulnerabilities.TotalCriticalVulnerabilities),
+		TotalHighVulnerabilities:       runtimeScanUtils.IntPtr(*scan.Summary.TotalVulnerabilities.TotalHighVulnerabilities + *scanResultSummary.TotalVulnerabilities.TotalHighVulnerabilities),
+		TotalLowVulnerabilities:        runtimeScanUtils.IntPtr(*scan.Summary.TotalVulnerabilities.TotalLowVulnerabilities + *scanResultSummary.TotalVulnerabilities.TotalLowVulnerabilities),
+		TotalMediumVulnerabilities:     runtimeScanUtils.IntPtr(*scan.Summary.TotalVulnerabilities.TotalMediumVulnerabilities + *scanResultSummary.TotalVulnerabilities.TotalMediumVulnerabilities),
+		TotalNegligibleVulnerabilities: runtimeScanUtils.IntPtr(*scan.Summary.TotalVulnerabilities.TotalCriticalVulnerabilities + *scanResultSummary.TotalVulnerabilities.TotalNegligibleVulnerabilities),
+	}
+
+	return scan, nil
+}
+
 // worker waits for data on the queue, runs a scan job and waits for results from that scan job. Upon completion, done is notified to the caller.
-func (s *Scanner) worker(ctx context.Context, queue chan *scanData, workNumber int, done, ks chan bool) {
+func (s *Scanner) worker(ctx context.Context, queue chan *scanData, workNumber int, done chan string, ks chan bool) {
 	for {
 		select {
 		case data := <-queue:
@@ -144,7 +248,7 @@ func (s *Scanner) worker(ctx context.Context, queue chan *scanData, workNumber i
 			s.deleteJobIfNeeded(ctx, &job, data.success, data.completed)
 
 			select {
-			case done <- true:
+			case done <- data.targetInstance.TargetID:
 			case <-ks:
 				log.WithFields(s.logFields).Infof("Instance scan was canceled. targetID=%v", data.targetInstance.TargetID)
 			}
