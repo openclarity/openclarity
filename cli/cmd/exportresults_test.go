@@ -16,6 +16,7 @@
 package cmd
 
 import (
+	"reflect"
 	"testing"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -142,6 +143,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 									Vulnerability: scanner.Vulnerability{
 										ID:          "CVE-test-test-foo",
 										Description: "testbleed",
+										Severity:    string(models.CRITICAL),
 									},
 								},
 							},
@@ -151,6 +153,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 									Vulnerability: scanner.Vulnerability{
 										ID:          "CVE-test-test-bar",
 										Description: "solartest",
+										Severity:    string(models.HIGH),
 									},
 								},
 							},
@@ -167,6 +170,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 							VulnerabilityInfo: &models.VulnerabilityInfo{
 								VulnerabilityName: utils.StringPtr("CVE-test-test-foo"),
 								Description:       utils.StringPtr("testbleed"),
+								Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.CRITICAL),
 							},
 						},
 						{
@@ -174,6 +178,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 							VulnerabilityInfo: &models.VulnerabilityInfo{
 								VulnerabilityName: utils.StringPtr("CVE-test-test-bar"),
 								Description:       utils.StringPtr("solartest"),
+								Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.HIGH),
 							},
 						},
 					},
@@ -432,6 +437,114 @@ func Test_convertExploitsResultToAPIModel(t *testing.T) {
 			got := convertExploitsResultToAPIModel(tt.args.exploitsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Exploit) bool { return *a.Id < *b.Id })); diff != "" {
 				t.Errorf("convertExploitsResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_getVulnerabilityTotalsPerSeverity(t *testing.T) {
+	type args struct {
+		vulnerabilities *[]models.Vulnerability
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.VulnerabilityScanSummary
+	}{
+		{
+			name: "nil should result in empty",
+			args: args{
+				vulnerabilities: nil,
+			},
+			want: &models.VulnerabilityScanSummary{
+				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
+				TotalHighVulnerabilities:       utils.PointerTo[int](0),
+				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+				TotalLowVulnerabilities:        utils.PointerTo[int](0),
+				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+			},
+		},
+		{
+			name: "check one type",
+			args: args{
+				vulnerabilities: utils.PointerTo[[]models.Vulnerability]([]models.Vulnerability{
+					{
+						Id: utils.PointerTo[string]("id1"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc1"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.CRITICAL),
+							VulnerabilityName: utils.StringPtr("CVE-1"),
+						},
+					},
+				}),
+			},
+			want: &models.VulnerabilityScanSummary{
+				TotalCriticalVulnerabilities:   utils.PointerTo[int](1),
+				TotalHighVulnerabilities:       utils.PointerTo[int](0),
+				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+				TotalLowVulnerabilities:        utils.PointerTo[int](0),
+				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+			},
+		},
+		{
+			name: "check all severity types",
+			args: args{
+				vulnerabilities: utils.PointerTo[[]models.Vulnerability]([]models.Vulnerability{
+					{
+						Id: utils.PointerTo[string]("id1"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc1"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.CRITICAL),
+							VulnerabilityName: utils.StringPtr("CVE-1"),
+						},
+					},
+					{
+						Id: utils.PointerTo[string]("id2"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc2"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.HIGH),
+							VulnerabilityName: utils.StringPtr("CVE-2"),
+						},
+					},
+					{
+						Id: utils.PointerTo[string]("id3"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc3"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.MEDIUM),
+							VulnerabilityName: utils.StringPtr("CVE-3"),
+						},
+					},
+					{
+						Id: utils.PointerTo[string]("id4"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc4"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.LOW),
+							VulnerabilityName: utils.StringPtr("CVE-4"),
+						},
+					},
+					{
+						Id: utils.PointerTo[string]("id5"),
+						VulnerabilityInfo: &models.VulnerabilityInfo{
+							Description:       utils.StringPtr("desc5"),
+							Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.NEGLIGIBLE),
+							VulnerabilityName: utils.StringPtr("CVE-5"),
+						},
+					},
+				}),
+			},
+			want: &models.VulnerabilityScanSummary{
+				TotalCriticalVulnerabilities:   utils.PointerTo[int](1),
+				TotalHighVulnerabilities:       utils.PointerTo[int](1),
+				TotalMediumVulnerabilities:     utils.PointerTo[int](1),
+				TotalLowVulnerabilities:        utils.PointerTo[int](1),
+				TotalNegligibleVulnerabilities: utils.PointerTo[int](1),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getVulnerabilityTotalsPerSeverity(tt.args.vulnerabilities); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getVulnerabilityTotalsPerSeverity() = %v, want %v", got, tt.want)
 			}
 		})
 	}

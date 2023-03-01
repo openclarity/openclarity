@@ -82,6 +82,7 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 			VulnerabilityInfo: &models.VulnerabilityInfo{
 				VulnerabilityName: utils.StringPtr(vulCandidate.Vulnerability.ID),
 				Description:       utils.StringPtr(vulCandidate.Vulnerability.Description),
+				Severity:          (*models.VulnerabilitySeverity)(utils.StringPtr(vulCandidate.Vulnerability.Severity)),
 			},
 		}
 		vulnerabilities = append(vulnerabilities, vul)
@@ -239,6 +240,9 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 	if scanResults.Status.Sbom == nil {
 		scanResults.Status.Sbom = &models.TargetScanState{}
 	}
+	if scanResults.Summary == nil {
+		scanResults.Summary = &models.TargetScanResultSummary{}
+	}
 
 	var errors []string
 
@@ -251,6 +255,7 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 		} else {
 			scanResults.Sboms = convertSBOMResultToAPIModel(sbomResults)
 		}
+		scanResults.Summary.TotalPackages = utils.PointerTo[int](len(*scanResults.Sboms.Packages))
 	}
 
 	state := models.DONE
@@ -277,6 +282,9 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 	if scanResults.Status.Vulnerabilities == nil {
 		scanResults.Status.Vulnerabilities = &models.TargetScanState{}
 	}
+	if scanResults.Summary == nil {
+		scanResults.Summary = &models.TargetScanResultSummary{}
+	}
 
 	var errors []string
 
@@ -289,6 +297,7 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 		} else {
 			scanResults.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
+		scanResults.Summary.TotalVulnerabilities = getVulnerabilityTotalsPerSeverity(scanResults.Vulnerabilities.Vulnerabilities)
 	}
 
 	state := models.DONE
@@ -303,6 +312,34 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 	return nil
 }
 
+func getVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) *models.VulnerabilityScanSummary {
+	ret := &models.VulnerabilityScanSummary{
+		TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
+		TotalHighVulnerabilities:       utils.PointerTo[int](0),
+		TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+		TotalLowVulnerabilities:        utils.PointerTo[int](0),
+		TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+	}
+	if vulnerabilities == nil {
+		return ret
+	}
+	for _, vulnerability := range *vulnerabilities {
+		switch *vulnerability.VulnerabilityInfo.Severity {
+		case models.CRITICAL:
+			ret.TotalCriticalVulnerabilities = utils.PointerTo[int](*ret.TotalCriticalVulnerabilities + 1)
+		case models.HIGH:
+			ret.TotalHighVulnerabilities = utils.PointerTo[int](*ret.TotalHighVulnerabilities + 1)
+		case models.MEDIUM:
+			ret.TotalMediumVulnerabilities = utils.PointerTo[int](*ret.TotalMediumVulnerabilities + 1)
+		case models.LOW:
+			ret.TotalLowVulnerabilities = utils.PointerTo[int](*ret.TotalLowVulnerabilities + 1)
+		case models.NEGLIGIBLE:
+			ret.TotalNegligibleVulnerabilities = utils.PointerTo[int](*ret.TotalNegligibleVulnerabilities + 1)
+		}
+	}
+	return ret
+}
+
 func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.RunErrors) error {
 	scanResults, err := e.getExistingScanResult()
 	if err != nil {
@@ -314,6 +351,9 @@ func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.Run
 	}
 	if scanResults.Status.Secrets == nil {
 		scanResults.Status.Secrets = &models.TargetScanState{}
+	}
+	if scanResults.Summary == nil {
+		scanResults.Summary = &models.TargetScanResultSummary{}
 	}
 
 	var errors []string
@@ -327,6 +367,7 @@ func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.Run
 		} else {
 			scanResults.Secrets = convertSecretsResultToAPIModel(secretsResults)
 		}
+		scanResults.Summary.TotalSecrets = utils.PointerTo[int](len(*scanResults.Secrets.Secrets))
 	}
 
 	state := models.DONE
@@ -416,6 +457,9 @@ func (e *Exporter) ExportExploitsResult(res *results.Results) error {
 	if scanResults.Status.Exploits == nil {
 		scanResults.Status.Exploits = &models.TargetScanState{}
 	}
+	if scanResults.Summary == nil {
+		scanResults.Summary = &models.TargetScanResultSummary{}
+	}
 
 	var errors []string
 
@@ -424,6 +468,7 @@ func (e *Exporter) ExportExploitsResult(res *results.Results) error {
 		errors = append(errors, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
 	} else {
 		scanResults.Exploits = convertExploitsResultToAPIModel(exploitsResults)
+		scanResults.Summary.TotalExploits = utils.PointerTo[int](len(*scanResults.Exploits.Exploits))
 	}
 
 	state := models.DONE

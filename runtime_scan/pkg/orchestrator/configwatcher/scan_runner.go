@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	_scanner "github.com/openclarity/vmclarity/runtime_scan/pkg/scanner"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func (scw *ScanConfigWatcher) runNewScans(ctx context.Context, scanConfigs []models.ScanConfig) {
@@ -54,26 +55,78 @@ func (scw *ScanConfigWatcher) scan(ctx context.Context, scanConfig *models.ScanC
 
 // initNewScan Initialized a new scan, returns target instances and scan ID.
 func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *models.ScanConfig) ([]*types.TargetInstance, string, error) {
-	instances, err := scw.providerClient.Discover(ctx, scanConfig.Scope)
+	// Create scan in pending
+	now := time.Now().UTC()
+	scan := &models.Scan{
+		ScanConfig: &models.ScanConfigRelationship{
+			Id: *scanConfig.Id,
+		},
+		ScanConfigSnapshot: &models.ScanConfigData{
+			Scope:              scanConfig.Scope,
+			ScanFamiliesConfig: scanConfig.ScanFamiliesConfig,
+		},
+		StartTime: &now,
+		State:     utils.PointerTo[models.ScanState](models.Pending),
+		Summary: &models.ScanSummary{
+			JobsCompleted:          utils.PointerTo[int](0),
+			JobsLeftToRun:          utils.PointerTo[int](0),
+			TotalExploits:          utils.PointerTo[int](0),
+			TotalMalware:           utils.PointerTo[int](0),
+			TotalMisconfigurations: utils.PointerTo[int](0),
+			TotalPackages:          utils.PointerTo[int](0),
+			TotalRootkits:          utils.PointerTo[int](0),
+			TotalSecrets:           utils.PointerTo[int](0),
+			TotalVulnerabilities: &models.VulnerabilityScanSummary{
+				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
+				TotalHighVulnerabilities:       utils.PointerTo[int](0),
+				TotalLowVulnerabilities:        utils.PointerTo[int](0),
+				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+			},
+		},
+	}
+	scanID, err := scw.createScan(ctx, scan)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to get or create a scan: %v", err)
+	}
+
+	// Do discovery of targets
+	instances, err := scw.providerClient.Discover(ctx, scan.ScanConfigSnapshot.Scope)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to discover instances to scan: %v", err)
 	}
-
 	targetInstances, err := scw.createTargetInstances(ctx, instances)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get or create targets: %v", err)
 	}
 
-	now := time.Now().UTC()
-	scan := &models.Scan{
-		ScanConfigId:       scanConfig.Id,
-		ScanFamiliesConfig: scanConfig.ScanFamiliesConfig,
-		StartTime:          &now,
-		TargetIDs:          getTargetIDs(targetInstances),
+	// Move scan to discovered and add the discovered targets.
+	targetIds := getTargetIDs(targetInstances)
+	scan = &models.Scan{
+		TargetIDs:    targetIds,
+		State:        utils.PointerTo[models.ScanState](models.Discovered),
+		StateMessage: utils.PointerTo[string]("Targets for scan successfully discovered"),
+		Summary: &models.ScanSummary{
+			JobsCompleted:          utils.PointerTo[int](0),
+			JobsLeftToRun:          utils.PointerTo[int](0),
+			TotalExploits:          utils.PointerTo[int](0),
+			TotalMalware:           utils.PointerTo[int](0),
+			TotalMisconfigurations: utils.PointerTo[int](0),
+			TotalPackages:          utils.PointerTo[int](0),
+			TotalRootkits:          utils.PointerTo[int](0),
+			TotalSecrets:           utils.PointerTo[int](0),
+			TotalVulnerabilities: &models.VulnerabilityScanSummary{
+				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
+				TotalHighVulnerabilities:       utils.PointerTo[int](0),
+				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+				TotalLowVulnerabilities:        utils.PointerTo[int](0),
+				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+			},
+		},
 	}
-	scanID, err := scw.createScan(ctx, scan)
+	scanID, err = scw.patchScan(ctx, scanID, scan)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to get or create a scan: %v", err)
+		return nil, "", fmt.Errorf("failed to update scan: %v", err)
 	}
 
 	return targetInstances, scanID, nil
@@ -151,7 +204,7 @@ func (scw *ScanConfigWatcher) createScan(ctx context.Context, scan *models.Scan)
 		if resp.JSON201 == nil {
 			return "", fmt.Errorf("failed to create a scan: empty body")
 		}
-		if resp.JSON201 == nil {
+		if resp.JSON201.Id == nil {
 			return "", fmt.Errorf("scan id is nil")
 		}
 		return *resp.JSON201.Id, nil
@@ -168,5 +221,25 @@ func (scw *ScanConfigWatcher) createScan(ctx context.Context, scan *models.Scan)
 			return "", fmt.Errorf("failed to post scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
 		}
 		return "", fmt.Errorf("failed to post scan. status code=%v", resp.StatusCode())
+	}
+}
+
+// nolint:cyclop
+func (scw *ScanConfigWatcher) patchScan(ctx context.Context, scanID models.ScanID, scan *models.Scan) (string, error) {
+	resp, err := scw.backendClient.PatchScansScanIDWithResponse(ctx, scanID, *scan)
+	if err != nil {
+		return "", fmt.Errorf("failed to patch a scan: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return "", fmt.Errorf("failed to patch a scan: empty body")
+		}
+		return *resp.JSON200.Id, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return "", fmt.Errorf("failed to patch scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return "", fmt.Errorf("failed to patch scan. status code=%v", resp.StatusCode())
 	}
 }

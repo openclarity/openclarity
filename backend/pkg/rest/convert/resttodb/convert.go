@@ -185,14 +185,14 @@ func ConvertScan(scan *models.Scan, id string) (*database.Scan, error) {
 		}
 	}
 
-	ret.ScanConfigID = scan.ScanConfigId
+	ret.ScanConfigID = &scan.ScanConfig.Id
 
 	ret.ScanEndTime = scan.EndTime
 
 	ret.ScanStartTime = scan.StartTime
 
-	if scan.ScanFamiliesConfig != nil {
-		ret.ScanFamiliesConfig, err = json.Marshal(scan.ScanFamiliesConfig)
+	if scan.ScanConfigSnapshot != nil {
+		ret.ScanConfigSnapshot, err = json.Marshal(scan.ScanConfigSnapshot)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal json: %w", err)
 		}

@@ -40,7 +40,7 @@ type Scan struct {
 	// ScanConfigID The ID of the config that this scan was initiated from (optionanl)
 	ScanConfigID *string `json:"scan_config_id,omitempty" gorm:"column:scan_config_id"`
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig []byte `json:"scan_families_config,omitempty" gorm:"column:scan_families_config"`
+	ScanConfigSnapshot []byte `json:"scan_families_config,omitempty" gorm:"column:scan_families_config"`
 
 	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
 	TargetIDs []byte `json:"target_ids,omitempty" gorm:"column:target_ids"`

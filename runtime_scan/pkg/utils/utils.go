@@ -34,3 +34,7 @@ func IntPtr(val int) *int {
 	ret := val
 	return &ret
 }
+
+func PointerTo[T any](value T) *T {
+	return &value
+}
