@@ -137,7 +137,7 @@ func hasRunningOrCompletedScan(scans *models.Scans, scanConfigID string, operati
 		return false
 	}
 	for _, scan := range *scans.Items {
-		if *scan.ScanConfigId != scanConfigID {
+		if scan.ScanConfig.Id != scanConfigID {
 			continue
 		}
 		if scan.EndTime == nil {

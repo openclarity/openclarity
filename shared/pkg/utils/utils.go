@@ -45,3 +45,7 @@ func Int32Ptr(val int32) *int32 {
 	ret := val
 	return &ret
 }
+
+func PointerTo[T any](value T) *T {
+	return &value
+}

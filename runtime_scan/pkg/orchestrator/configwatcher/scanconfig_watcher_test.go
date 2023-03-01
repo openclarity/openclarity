@@ -64,7 +64,7 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 				scans: &models.Scans{
 					Items: &[]models.Scan{
 						{
-							ScanConfigId: &otherScanConfigID,
+							ScanConfig: &models.ScanConfigRelationship{Id: otherScanConfigID},
 						},
 					},
 				},
@@ -79,7 +79,7 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 				scans: &models.Scans{
 					Items: &[]models.Scan{
 						{
-							ScanConfigId: &testScanConfigID,
+							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
 						},
 					},
 				},
@@ -94,9 +94,9 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 				scans: &models.Scans{
 					Items: &[]models.Scan{
 						{
-							ScanConfigId: &testScanConfigID,
-							StartTime:    &afterOperationTime,
-							EndTime:      &operationTime,
+							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
+							StartTime:  &afterOperationTime,
+							EndTime:    &operationTime,
 						},
 					},
 				},
@@ -111,9 +111,9 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 				scans: &models.Scans{
 					Items: &[]models.Scan{
 						{
-							ScanConfigId: &testScanConfigID,
-							StartTime:    &beforeOperationTime,
-							EndTime:      &operationTime,
+							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
+							StartTime:  &beforeOperationTime,
+							EndTime:    &operationTime,
 						},
 					},
 				},

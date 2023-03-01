@@ -239,9 +239,11 @@ func TestConvertTarget(t *testing.T) {
 }
 
 func TestConvertScan(t *testing.T) {
-	scanFamiliesConfig := models.ScanFamiliesConfig{
-		Exploits: &models.ExploitsConfig{
-			Enabled: utils.BoolPtr(true),
+	scanFamiliesConfig := models.ScanConfigData{
+		ScanFamiliesConfig: &models.ScanFamiliesConfig{
+			Exploits: &models.ExploitsConfig{
+				Enabled: utils.BoolPtr(true),
+			},
 		},
 	}
 
@@ -270,15 +272,17 @@ func TestConvertScan(t *testing.T) {
 			args: args{
 				id: id,
 				scan: &models.Scan{
-					ScanConfigId:       utils.StringPtr("1"),
-					ScanFamiliesConfig: &scanFamiliesConfig,
+					ScanConfig: &models.ScanConfigRelationship{
+						Id: "1",
+					},
+					ScanConfigSnapshot: &scanFamiliesConfig,
 					TargetIDs:          &targetIDs,
 				},
 			},
 			want: &database.Scan{
 				Base:               database.Base{ID: UUID},
 				ScanConfigID:       utils.StringPtr("1"),
-				ScanFamiliesConfig: scanFamiliesConfigB,
+				ScanConfigSnapshot: scanFamiliesConfigB,
 				TargetIDs:          targetIDsB,
 			},
 			wantErr: false,

@@ -286,13 +286,15 @@ func TestConvertScanResult(t *testing.T) {
 }
 
 func TestConvertScan(t *testing.T) {
-	scanFam := models.ScanFamiliesConfig{
-		Vulnerabilities: &models.VulnerabilitiesConfig{
-			Enabled: nil,
+	scanSnap := models.ScanConfigData{
+		ScanFamiliesConfig: &models.ScanFamiliesConfig{
+			Vulnerabilities: &models.VulnerabilitiesConfig{
+				Enabled: nil,
+			},
 		},
 	}
 
-	scanFamB, err := json.Marshal(&scanFam)
+	scanSnapB, err := json.Marshal(&scanSnap)
 	assert.NilError(t, err)
 
 	targetIDs := []string{"s"}
@@ -320,14 +322,16 @@ func TestConvertScan(t *testing.T) {
 					ScanStartTime:      nil,
 					ScanEndTime:        nil,
 					ScanConfigID:       utils.StringPtr("1"),
-					ScanFamiliesConfig: scanFamB,
+					ScanConfigSnapshot: scanSnapB,
 					TargetIDs:          targetIDsB,
 				},
 			},
 			want: &models.Scan{
-				Id:                 utils.StringPtr(id.String()),
-				ScanConfigId:       utils.StringPtr("1"),
-				ScanFamiliesConfig: &scanFam,
+				Id: utils.StringPtr(id.String()),
+				ScanConfig: &models.ScanConfigRelationship{
+					Id: "1",
+				},
+				ScanConfigSnapshot: &scanSnap,
 				TargetIDs:          &targetIDs,
 			},
 			wantErr: false,
