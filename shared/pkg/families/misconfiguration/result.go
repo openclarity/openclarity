@@ -15,6 +15,58 @@
 
 package misconfiguration
 
-type Results struct{}
+import (
+	"time"
+
+	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
+)
+
+type FlattenedMisconfiguration struct {
+	ScannerName string `json:"ScannerName"`
+	types.Misconfiguration
+}
+
+type Metadata struct {
+	Timestamp time.Time `json:"Timestamp"`
+	Scanners  []string  `json:"Scanners"`
+}
+
+type Results struct {
+	Metadata          Metadata                    `json:"Metadata"`
+	Misconfigurations []FlattenedMisconfiguration `json:"Misconfigurations"`
+}
+
+func NewResults() *Results {
+	return &Results{
+		Metadata: Metadata{
+			Timestamp: time.Now(),
+			Scanners:  []string{},
+		},
+		Misconfigurations: []FlattenedMisconfiguration{},
+	}
+}
 
 func (*Results) IsResults() {}
+
+func (r *Results) addScannerNameToMetadata(name string) {
+	for _, scannerName := range r.Metadata.Scanners {
+		if scannerName == name {
+			return
+		}
+	}
+	r.Metadata.Scanners = append(r.Metadata.Scanners, name)
+}
+
+func (r *Results) AddScannerResult(scannerResult types.ScannerResult) {
+	r.addScannerNameToMetadata(scannerResult.ScannerName)
+
+	for _, misconfiguration := range scannerResult.Misconfigurations {
+		r.Misconfigurations = append(r.Misconfigurations, FlattenedMisconfiguration{
+			ScannerName:      scannerResult.ScannerName,
+			Misconfiguration: misconfiguration,
+		})
+	}
+
+	// bump the timestamp as there are new results
+	r.Metadata.Timestamp = time.Now()
+}
