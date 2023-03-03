@@ -13,8 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package misconfiguration
+package job
 
-type Config struct {
-	Enabled bool `json:"enabled" yaml:"enabled"`
+import (
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+)
+
+var Factory = job_manager.NewJobFactory()
+
+func init() {
+	// TODO(sambetts) add factories here when we add scanners
 }
