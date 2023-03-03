@@ -26,6 +26,20 @@ const (
 	WORM       MalwareType = "WORM"
 )
 
+// Defines values for MisconfigurationSeverity.
+const (
+	MisconfigurationSeverityHighSeverity   MisconfigurationSeverity = "HighSeverity"
+	MisconfigurationSeverityLowSeverity    MisconfigurationSeverity = "LowSeverity"
+	MisconfigurationSeverityMediumSeverity MisconfigurationSeverity = "MediumSeverity"
+)
+
+// Defines values for MisconfigurationFindingInfoSeverity.
+const (
+	MisconfigurationFindingInfoSeverityHighSeverity   MisconfigurationFindingInfoSeverity = "HighSeverity"
+	MisconfigurationFindingInfoSeverityLowSeverity    MisconfigurationFindingInfoSeverity = "LowSeverity"
+	MisconfigurationFindingInfoSeverityMediumSeverity MisconfigurationFindingInfoSeverity = "MediumSeverity"
+)
+
 // Defines values for RootkitType.
 const (
 	APPLICATION RootkitType = "APPLICATION"
@@ -260,24 +274,39 @@ type MalwareType string
 
 // Misconfiguration defines model for Misconfiguration.
 type Misconfiguration struct {
-	Description *string `json:"description,omitempty"`
-
-	// Path Path of the file that contains misconfigurations
-	Path *string `json:"path,omitempty"`
+	Message         *string                   `json:"message,omitempty"`
+	Remediation     *string                   `json:"remediation,omitempty"`
+	ScannedPath     *string                   `json:"scannedPath,omitempty"`
+	ScannerName     *string                   `json:"scannerName,omitempty"`
+	Severity        *MisconfigurationSeverity `json:"severity,omitempty"`
+	TestCategory    *string                   `json:"testCategory,omitempty"`
+	TestDescription *string                   `json:"testDescription,omitempty"`
+	TestID          *string                   `json:"testID,omitempty"`
 }
+
+// MisconfigurationSeverity defines model for Misconfiguration.Severity.
+type MisconfigurationSeverity string
 
 // MisconfigurationFindingInfo defines model for MisconfigurationFindingInfo.
 type MisconfigurationFindingInfo struct {
-	Description *string `json:"description,omitempty"`
-	ObjectType  string  `json:"objectType"`
-
-	// Path Path of the file that contains misconfigurations
-	Path *string `json:"path,omitempty"`
+	Message         *string                              `json:"message,omitempty"`
+	ObjectType      string                               `json:"objectType"`
+	Remediation     *string                              `json:"remediation,omitempty"`
+	ScannedPath     *string                              `json:"scannedPath,omitempty"`
+	ScannerName     *string                              `json:"scannerName,omitempty"`
+	Severity        *MisconfigurationFindingInfoSeverity `json:"severity,omitempty"`
+	TestCategory    *string                              `json:"testCategory,omitempty"`
+	TestDescription *string                              `json:"testDescription,omitempty"`
+	TestID          *string                              `json:"testID,omitempty"`
 }
+
+// MisconfigurationFindingInfoSeverity defines model for MisconfigurationFindingInfo.Severity.
+type MisconfigurationFindingInfoSeverity string
 
 // MisconfigurationScan defines model for MisconfigurationScan.
 type MisconfigurationScan struct {
 	Misconfigurations *[]Misconfiguration `json:"misconfigurations"`
+	Scanners          *[]string           `json:"scanners,omitempty"`
 }
 
 // MisconfigurationsConfig defines model for MisconfigurationsConfig.

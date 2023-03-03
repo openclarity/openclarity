@@ -1443,7 +1443,6 @@ components:
         purl:
           type: string
 
-
     Vulnerability:
       type: object
       properties:
@@ -1555,11 +1554,26 @@ components:
     Misconfiguration:
       type: object
       properties:
-        description:
+        scannerName:
           type: string
-        path:
+        scannedPath:
           type: string
-          description: Path of the file that contains misconfigurations
+        testCategory:
+          type: string
+        testID:
+          type: string
+        testDescription:
+          type: string
+        severity:
+          type: string
+          enum:
+            - HighSeverity
+            - MediumSeverity
+            - LowSeverity
+        message:
+          type: string
+        remediation:
+          type: string
 
     Secret:
       type: object
@@ -1644,6 +1658,10 @@ components:
     MisconfigurationScan:
       type: object
       properties:
+        scanners:
+          type: array
+          items:
+            type: string
         misconfigurations:
           type: array
           items:
