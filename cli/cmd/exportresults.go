@@ -27,6 +27,8 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
+	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
+	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
@@ -479,6 +481,103 @@ func (e *Exporter) ExportExploitsResult(res *results.Results, famerr families.Ru
 	return nil
 }
 
+func misconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationTypes.Severity) (models.MisconfigurationSeverity, error) {
+	switch sev {
+	case misconfigurationTypes.HighSeverity:
+		return models.MisconfigurationSeverityHighSeverity, nil
+	case misconfigurationTypes.MediumSeverity:
+		return models.MisconfigurationSeverityMediumSeverity, nil
+	case misconfigurationTypes.LowSeverity:
+		return models.MisconfigurationSeverityLowSeverity, nil
+	default:
+		return models.MisconfigurationSeverityLowSeverity, fmt.Errorf("unknown severity level %v", sev)
+	}
+}
+
+func convertMisconfigurationResultToAPIModel(misconfigurationResults *misconfiguration.Results) (*models.MisconfigurationScan, error) {
+	if misconfigurationResults == nil || misconfigurationResults.Misconfigurations == nil {
+		return &models.MisconfigurationScan{}, nil
+	}
+
+	retMisconfigurations := make([]models.Misconfiguration, len(misconfigurationResults.Misconfigurations))
+
+	for i := range misconfigurationResults.Misconfigurations {
+		// create a separate variable for the loop because we need
+		// pointers for the API model and we can't safely take pointers
+		// to a loop variable.
+		misconfiguration := misconfigurationResults.Misconfigurations[i]
+
+		severity, err := misconfigurationSeverityToAPIMisconfigurationSeverity(misconfiguration.Severity)
+		if err != nil {
+			return nil, fmt.Errorf("unable to convert scanner result severity to API severity: %w", err)
+		}
+
+		retMisconfigurations[i] = models.Misconfiguration{
+			ScannerName:     &misconfiguration.ScannerName,
+			ScannedPath:     &misconfiguration.ScannedPath,
+			TestCategory:    &misconfiguration.TestCategory,
+			TestID:          &misconfiguration.TestID,
+			TestDescription: &misconfiguration.TestDescription,
+			Severity:        &severity,
+			Message:         &misconfiguration.Message,
+			Remediation:     &misconfiguration.Remediation,
+		}
+	}
+
+	return &models.MisconfigurationScan{
+		Scanners:          utils.PointerTo(misconfigurationResults.Metadata.Scanners),
+		Misconfigurations: &retMisconfigurations,
+	}, nil
+}
+
+func (e *Exporter) ExportMisconfigurationResult(res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Exploits == nil {
+		scanResult.Status.Misconfigurations = &models.TargetScanState{}
+	}
+	if scanResult.Summary == nil {
+		scanResult.Summary = &models.ScanFindingsSummary{}
+	}
+
+	var errors []string
+
+	if err, ok := famerr[types.Misconfiguration]; ok {
+		errors = append(errors, err.Error())
+	} else {
+		misconfigurationResults, err := results.GetResult[*misconfiguration.Results](res)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("failed to get misconfiguration results from scan: %v", err))
+		} else {
+			apiMisconfigurations, err := convertMisconfigurationResultToAPIModel(misconfigurationResults)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("failed to convert misconfiguration results from scan to API model: %v", err))
+			} else {
+				scanResult.Misconfigurations = apiMisconfigurations
+				scanResult.Summary.TotalMisconfigurations = utils.PointerTo(len(misconfigurationResults.Misconfigurations))
+			}
+		}
+	}
+
+	state := models.DONE
+	scanResult.Status.Misconfigurations.State = &state
+	scanResult.Status.Misconfigurations.Errors = &errors
+
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+// nolint:cyclop
 func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors) []error {
 	var errors []error
 	if config.SBOM.Enabled {
@@ -512,6 +611,15 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 		err := e.ExportExploitsResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export exploits results to server: %w", err)
+			logger.Error(err)
+			errors = append(errors, err)
+		}
+	}
+
+	if config.Misconfiguration.Enabled {
+		err := e.ExportMisconfigurationResult(res, famerr)
+		if err != nil {
+			err = fmt.Errorf("failed to export misconfiguration results to server: %w", err)
 			logger.Error(err)
 			errors = append(errors, err)
 		}

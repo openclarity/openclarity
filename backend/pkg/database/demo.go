@@ -943,16 +943,34 @@ func createMalwareResult() *[]models.Malware {
 func createMisconfigurationsResult() *[]models.Misconfiguration {
 	return &[]models.Misconfiguration{
 		{
-			Description: utils.PointerTo("AUTH-9262|Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc"),
-			Path:        utils.PointerTo("/home/ubuntu/debian11/lib/x86_64-linux-gnu/security/pam_access.so"),
+			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
+
+			TestCategory:    utils.PointerTo("AUTH"),
+			TestID:          utils.PointerTo("AUTH-9262"),
+			TestDescription: utils.PointerTo("Checking presence password strength testing tools (PAM)"),
+
+			Message:  utils.PointerTo("Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc. Details: /lib/x86_64-linux-gnu/security/pam_access.so"),
+			Severity: utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
 		},
 		{
-			Description: utils.PointerTo("FILE-6362|Set the sticky bit on /home/ubuntu/debian11/tmp, to prevent users deleting (by other owned) files in the /tmp directory.|/tmp|text:Set sticky bit"),
-			Path:        utils.PointerTo("home/ubuntu/debian11/tmp"),
+			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
+
+			TestCategory:    utils.PointerTo("FILE"),
+			TestID:          utils.PointerTo("FILE-6362"),
+			TestDescription: utils.PointerTo("Checking /tmp sticky bit"),
+
+			Message:  utils.PointerTo("Set the sticky bit on /home/ubuntu/debian11/tmp, to prevent users deleting (by other owned) files in the /tmp directory. Details: /tmp"),
+			Severity: utils.PointerTo(models.MisconfigurationSeverityMediumSeverity),
 		},
 		{
-			Description: utils.PointerTo("USB-1000|Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft"),
-			Path:        utils.PointerTo("/home/ubuntu/debian11/etc/cron.d/e2scrub_all"),
+			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
+
+			TestCategory:    utils.PointerTo("USB"),
+			TestID:          utils.PointerTo("USB-1000"),
+			TestDescription: utils.PointerTo("Check if USB storage is disabled"),
+
+			Message:  utils.PointerTo("Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft. Details: /etc/cron.d/e2scrub_all"),
+			Severity: utils.PointerTo(models.MisconfigurationSeverityLowSeverity),
 		},
 	}
 }
