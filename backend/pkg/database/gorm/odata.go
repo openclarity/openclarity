@@ -202,8 +202,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Misconfiguration": {
 		Fields: odatasql.Schema{
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testID":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testDescription": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"severity":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"message":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"remediation":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"RootkitScan": {
@@ -691,9 +697,15 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"MisconfigurationFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testID":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"testDescription": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"severity":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"message":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"remediation":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"RootkitFindingInfo": {
