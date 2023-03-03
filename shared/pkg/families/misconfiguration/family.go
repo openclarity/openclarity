@@ -16,23 +16,51 @@
 package misconfiguration
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+
 	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
+	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/job"
+	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 type Misconfiguration struct {
-	conf   Config
+	conf   misconfigurationTypes.Config
 	logger *log.Entry
 }
 
 func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error) {
-	// TODO implement me
 	m.logger.Info("Misconfiguration Run...")
+
+	results := NewResults()
+
+	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, m.logger, job.Factory)
+	for _, input := range m.conf.Inputs {
+		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan input %q for exploits: %v", input.Input, err)
+		}
+
+		// Merge results.
+		for name, result := range managerResults {
+			m.logger.Infof("Merging result from %q", name)
+			if scanResult, ok := result.(misconfigurationTypes.ScannerResult); ok {
+				results.AddScannerResult(scanResult)
+			} else {
+				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
+			}
+		}
+	}
+
 	m.logger.Info("Misconfiguration Done...")
-	return &Results{}, nil
+
+	return results, nil
 }
 
 func (m Misconfiguration) GetType() types.FamilyType {
@@ -42,7 +70,7 @@ func (m Misconfiguration) GetType() types.FamilyType {
 // ensure types implement the requisite interfaces.
 var _ interfaces.Family = &Misconfiguration{}
 
-func New(logger *log.Entry, conf Config) *Misconfiguration {
+func New(logger *log.Entry, conf misconfigurationTypes.Config) *Misconfiguration {
 	return &Misconfiguration{
 		conf:   conf,
 		logger: logger.Dup().WithField("family", "misconfiguration"),
