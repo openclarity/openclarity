@@ -168,8 +168,8 @@ func (s *Scanner) waitForResult(data *scanData, ks chan bool) {
 }
 
 func (s *Scanner) runJob(data *scanData) (*batchv1.Job, error) {
-	if err := image.ValidateLocalImageID(data.imageID); err != nil {
-		return nil, fmt.Errorf("imageID validation failed: %v", err)
+	if image.IsLocalImage(data.imageID) {
+		return nil, fmt.Errorf("can't scan local image (%v)", data.imageID)
 	}
 	job, err := s.createJob(data)
 	if err != nil {

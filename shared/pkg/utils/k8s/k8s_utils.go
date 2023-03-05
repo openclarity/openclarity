@@ -44,8 +44,8 @@ func ParseImageHash(imageID string) string {
 // input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 // output: gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 func NormalizeImageID(imageID string) string {
-	if err := image.ValidateLocalImageID(imageID); err != nil {
-		log.Infof("image id is local (not pullable), not normalizing it")
+	if image.IsLocalImage(imageID) {
+		log.Infof("image id (%v) is local (not pullable), not normalizing it", imageID)
 		return imageID
 	}
 

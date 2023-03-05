@@ -60,10 +60,10 @@ func imageNameWithDigestOrTag(named reference.Named) reference.Named {
 	return named
 }
 
-func ValidateLocalImageID(imageID string) error {
+func IsLocalImage(imageID string) bool {
 	// image ids with no name and only hash are not pullable from the registry, so we can't scan them.
 	if strings.HasPrefix(imageID, localImageIDDockerPrefix) || strings.HasPrefix(imageID, localImageIDSHA256Prefix) {
-		return fmt.Errorf("scanning of local docker images is not supported. The Image must be present in the image registry. ImageID=%v", imageID)
+		return true
 	}
-	return nil
+	return false
 }
