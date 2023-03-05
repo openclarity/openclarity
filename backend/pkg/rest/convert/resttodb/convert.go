@@ -185,7 +185,9 @@ func ConvertScan(scan *models.Scan, id string) (*database.Scan, error) {
 		}
 	}
 
-	ret.ScanConfigID = &scan.ScanConfig.Id
+	if scan.ScanConfig != nil {
+		ret.ScanConfigID = &scan.ScanConfig.Id
+	}
 
 	ret.ScanEndTime = scan.EndTime
 
