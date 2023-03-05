@@ -90,6 +90,13 @@ func TestNormalizeImageID(t *testing.T) {
 			want: "gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
 		},
 		{
+			name: "non pullable image id, do not normalize",
+			args: args{
+				imageID: "sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+			},
+			want: "sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa",
+		},
+		{
 			name: "no image id",
 			args: args{
 				imageID: "",
