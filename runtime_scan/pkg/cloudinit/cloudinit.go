@@ -24,12 +24,11 @@ import (
 )
 
 type Data struct {
-	Volume               string // Volume to mount e.g. /dev/sdc
-	VolumeMountDirectory string // Directory to mount the volume too (must match whats in the ScannerConfig for inputs)
-	ScannerCLIConfig     string // Scanner families configuration file yaml
-	ScannerImage         string // Scanner container image to use
-	ServerAddress        string // IP address of VMClarity backend for export
-	ScanResultID         string // ScanResult ID to export the results to
+	Volume           string // Volume to mount e.g. /dev/sdc
+	ScannerCLIConfig string // Scanner families configuration file yaml
+	ScannerImage     string // Scanner container image to use
+	ServerAddress    string // IP address of VMClarity backend for export
+	ScanResultID     string // ScanResult ID to export the results to
 }
 
 func GenerateCloudInit(data Data) (string, error) {

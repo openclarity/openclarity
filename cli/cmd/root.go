@@ -21,11 +21,14 @@ import (
 	"os"
 
 	"github.com/ghodss/yaml"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/openclarity/vmclarity/cli/pkg"
+	"github.com/openclarity/vmclarity/cli/pkg/mount"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
@@ -42,6 +45,12 @@ var (
 
 	server       string
 	scanResultID string
+	mountVolume  bool
+)
+
+const (
+	fsTypeExt4 = "ext4"
+	fsTypeXFS  = "xfs"
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -53,6 +62,15 @@ var rootCmd = &cobra.Command{
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
+
+		if mountVolume {
+			mountPoints, err := mountAttachedVolume()
+			if err != nil {
+				return fmt.Errorf("failed to mount attached volume: %v", err)
+			}
+			setMountPointsForFamiliesInput(mountPoints, config)
+		}
+
 		var exporter *Exporter
 		if server != "" {
 			exp, err := CreateExporter()
@@ -193,6 +211,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set file path output (default: stdout)")
 	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
 	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
+	rootCmd.PersistentFlags().BoolVar(&mountVolume, "mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
 
 	// TODO(sambetts) we may have to change this to our own validation when
 	// we add the CI/CD scenario and there isn't an existing scan-result-id
@@ -265,4 +284,64 @@ func Output(bytes []byte, outputPrefix string) error {
 	}
 
 	return nil
+}
+
+func isSupportedFS(fs string) bool {
+	switch fs {
+	case fsTypeExt4, fsTypeXFS:
+		return true
+	}
+	return false
+}
+
+func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *families.Config) *families.Config {
+	// update families inputs with the mount point as rootfs
+	for _, mountDir := range mountPoints {
+		if familiesConfig.SBOM.Enabled {
+			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, sbom.Input{
+				Input:     mountDir,
+				InputType: string(utils.ROOTFS),
+			})
+		}
+		if familiesConfig.Vulnerabilities.Enabled {
+			if familiesConfig.SBOM.Enabled {
+				familiesConfig.Vulnerabilities.InputFromSbom = true
+			} else {
+				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, vulnerabilities.Input{
+					Input:     mountDir,
+					InputType: string(utils.ROOTFS),
+				})
+			}
+		}
+		if familiesConfig.Secrets.Enabled {
+			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
+				Input:     mountDir,
+				InputType: string(utils.ROOTFS),
+			})
+		}
+	}
+	return familiesConfig
+}
+
+func mountAttachedVolume() ([]string, error) {
+	var mountPoints []string
+
+	devices, err := mount.ListBlockDevices()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list block devices: %v", err)
+	}
+	for _, device := range devices {
+		// if the device is not mounted and of a supported filesystem type,
+		// we assume it belongs to the attached volume, so we mount it.
+		if device.MountPoint == "" && isSupportedFS(device.FilesystemType) {
+			mountDir := "/mnt/snapshot" + uuid.NewV4().String()
+
+			if err := device.Mount(mountDir); err != nil {
+				return nil, fmt.Errorf("failed to mount device: %v", err)
+			}
+			logger.Infof("Mounted device %v on %v", device.DeviceName, mountDir)
+			mountPoints = append(mountPoints, mountDir)
+		}
+	}
+	return mountPoints, nil
 }

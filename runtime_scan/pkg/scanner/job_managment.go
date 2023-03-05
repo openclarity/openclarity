@@ -26,7 +26,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	kubeclarityConfig "github.com/openclarity/kubeclarity/shared/pkg/config"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/config"
@@ -362,22 +361,17 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		}
 	}
 
-	// Scanner job picks the path where the VM volume should be mounted so
-	// that the VMClarity CLI config and the provider are synced up on the
-	// expected location of the volume on disk.
-	volumeMountDirectory := "/vmToBeScanned"
-	familiesConfiguration, err := s.generateFamiliesConfigurationYaml(volumeMountDirectory)
+	familiesConfiguration, err := s.generateFamiliesConfigurationYaml()
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to generate scanner configuration yaml: %w", err)
 	}
 
 	scanningJobConfig := provider.ScanningJobConfig{
-		ScannerImage:         s.config.ScannerImage,
-		ScannerCLIConfig:     familiesConfiguration,
-		VolumeMountDirectory: volumeMountDirectory,
-		VMClarityAddress:     s.config.ScannerBackendAddress,
-		ScanResultID:         data.scanResultID,
-		KeyPairName:          s.config.ScannerKeyPairName,
+		ScannerImage:     s.config.ScannerImage,
+		ScannerCLIConfig: familiesConfiguration,
+		VMClarityAddress: s.config.ScannerBackendAddress,
+		ScanResultID:     data.scanResultID,
+		KeyPairName:      s.config.ScannerKeyPairName,
 	}
 	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, scanningJobConfig)
 	if err != nil {
@@ -388,11 +382,11 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	return job, nil
 }
 
-func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (string, error) {
+func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 	famConfig := families.Config{
-		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom, scanRootDirectory),
+		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom),
 		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
-		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, scanRootDirectory, s.config.GitleaksBinaryPath),
+		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
 		Exploits:        userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
@@ -405,7 +399,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml(scanRootDirectory string) (s
 	return string(famConfigYaml), nil
 }
 
-func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfig, scanRootDirectory string, gitleaksBinaryPath string) secrets.Config {
+func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfig, gitleaksBinaryPath string) secrets.Config {
 	if secretsConfig == nil || secretsConfig.Enabled == nil || !*secretsConfig.Enabled {
 		return secrets.Config{}
 	}
@@ -413,12 +407,7 @@ func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfi
 		Enabled: true,
 		// TODO(idanf) This choice should come from the user's configuration
 		ScannersList: []string{"gitleaks"},
-		Inputs: []secrets.Input{
-			{
-				Input:     scanRootDirectory,
-				InputType: string(utils.DIR),
-			},
-		},
+		Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 		ScannersConfig: &common.ScannersConfig{
 			Gitleaks: gitleaksconfig.Config{
 				BinaryPath: gitleaksBinaryPath,
@@ -427,7 +416,7 @@ func userSecretsConfigToFamiliesSecretsConfig(secretsConfig *models.SecretsConfi
 	}
 }
 
-func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootDirectory string) familiesSbom.Config {
+func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig) familiesSbom.Config {
 	if sbomConfig == nil || sbomConfig.Enabled == nil || !*sbomConfig.Enabled {
 		return familiesSbom.Config{}
 	}
@@ -435,12 +424,7 @@ func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig, scanRootD
 		Enabled: true,
 		// TODO(sambetts) This choice should come from the user's configuration
 		AnalyzersList: []string{"syft", "trivy"},
-		Inputs: []familiesSbom.Input{
-			{
-				Input:     scanRootDirectory,
-				InputType: string(utils.ROOTFS),
-			},
-		},
+		Inputs:        nil, // rootfs directory will be determined by the CLI after mount.
 		AnalyzersConfig: &kubeclarityConfig.Config{
 			// TODO(sambetts) The user needs to be able to provide this configuration
 			Registry: &kubeclarityConfig.Registry{},
@@ -462,7 +446,7 @@ func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.Vulnerabil
 		Enabled: true,
 		// TODO(sambetts) This choice should come from the user's configuration
 		ScannersList:  []string{"grype", "trivy"},
-		InputFromSbom: true,
+		InputFromSbom: false, // will be determined by the CLI.
 		ScannersConfig: &kubeclarityConfig.Config{
 			// TODO(sambetts) The user needs to be able to provide this configuration
 			Registry: &kubeclarityConfig.Registry{},

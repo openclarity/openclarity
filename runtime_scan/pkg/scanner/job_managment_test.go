@@ -21,7 +21,6 @@ import (
 	"github.com/anchore/syft/syft/source"
 	"github.com/google/go-cmp/cmp"
 	kubeclarityConfig "github.com/openclarity/kubeclarity/shared/pkg/config"
-	kubeclarityUtils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
@@ -34,8 +33,7 @@ import (
 
 func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 	type args struct {
-		sbomConfig        *models.SBOMConfig
-		scanRootDirectory string
+		sbomConfig *models.SBOMConfig
 	}
 	type returns struct {
 		config familiesSbom.Config
@@ -48,8 +46,7 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 		{
 			name: "No SBOM Config",
 			args: args{
-				sbomConfig:        nil,
-				scanRootDirectory: "/test",
+				sbomConfig: nil,
 			},
 			want: returns{
 				config: familiesSbom.Config{},
@@ -58,8 +55,7 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 		{
 			name: "Missing Enabled",
 			args: args{
-				sbomConfig:        &models.SBOMConfig{},
-				scanRootDirectory: "/test",
+				sbomConfig: &models.SBOMConfig{},
 			},
 			want: returns{
 				config: familiesSbom.Config{},
@@ -71,7 +67,6 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 				sbomConfig: &models.SBOMConfig{
 					Enabled: utils.BoolPtr(false),
 				},
-				scanRootDirectory: "/test",
 			},
 			want: returns{
 				config: familiesSbom.Config{},
@@ -83,18 +78,11 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 				sbomConfig: &models.SBOMConfig{
 					Enabled: utils.BoolPtr(true),
 				},
-				scanRootDirectory: "/test",
 			},
 			want: returns{
 				config: familiesSbom.Config{
 					Enabled:       true,
 					AnalyzersList: []string{"syft", "trivy"},
-					Inputs: []familiesSbom.Input{
-						{
-							Input:     "/test",
-							InputType: string(kubeclarityUtils.ROOTFS),
-						},
-					},
 					AnalyzersConfig: &kubeclarityConfig.Config{
 						Registry: &kubeclarityConfig.Registry{},
 						Analyzer: &kubeclarityConfig.Analyzer{
@@ -111,7 +99,7 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := userSBOMConfigToFamiliesSbomConfig(tt.args.sbomConfig, tt.args.scanRootDirectory)
+			got := userSBOMConfigToFamiliesSbomConfig(tt.args.sbomConfig)
 			if diff := cmp.Diff(tt.want.config, got); diff != "" {
 				t.Errorf("userSBOMConfigToFamiliesSbomConfig() mismatch (-want +got):\n%s", diff)
 			}
@@ -171,8 +159,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 				config: familiesVulnerabilities.Config{
 					Enabled: true,
 					// TODO(sambetts) This choice should come from the user's configuration
-					ScannersList:  []string{"grype", "trivy"},
-					InputFromSbom: true,
+					ScannersList: []string{"grype", "trivy"},
 					ScannersConfig: &kubeclarityConfig.Config{
 						// TODO(sambetts) The user needs to be able to provide this configuration
 						Registry: &kubeclarityConfig.Registry{},
@@ -210,7 +197,6 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 	type args struct {
 		secretsConfig      *models.SecretsConfig
-		scanRootDirectory  string
 		gitleaksBinaryPath string
 	}
 	tests := []struct {
@@ -221,8 +207,7 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 		{
 			name: "no config",
 			args: args{
-				secretsConfig:     nil,
-				scanRootDirectory: "",
+				secretsConfig: nil,
 			},
 			want: secrets.Config{
 				Enabled: false,
@@ -234,7 +219,6 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 				secretsConfig: &models.SecretsConfig{
 					Enabled: nil,
 				},
-				scanRootDirectory: "",
 			},
 			want: secrets.Config{
 				Enabled: false,
@@ -246,7 +230,6 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 				secretsConfig: &models.SecretsConfig{
 					Enabled: utils.BoolPtr(false),
 				},
-				scanRootDirectory: "",
 			},
 			want: secrets.Config{
 				Enabled: false,
@@ -258,18 +241,11 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 				secretsConfig: &models.SecretsConfig{
 					Enabled: utils.BoolPtr(true),
 				},
-				scanRootDirectory:  "/scanRootDirectory",
 				gitleaksBinaryPath: "gitleaksBinaryPath",
 			},
 			want: secrets.Config{
 				Enabled:      true,
 				ScannersList: []string{"gitleaks"},
-				Inputs: []secrets.Input{
-					{
-						Input:     "/scanRootDirectory",
-						InputType: string(kubeclarityUtils.DIR),
-					},
-				},
 				ScannersConfig: &common.ScannersConfig{
 					Gitleaks: gitleaksconfig.Config{
 						BinaryPath: "gitleaksBinaryPath",
@@ -280,7 +256,7 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := userSecretsConfigToFamiliesSecretsConfig(tt.args.secretsConfig, tt.args.scanRootDirectory, tt.args.gitleaksBinaryPath)
+			got := userSecretsConfigToFamiliesSecretsConfig(tt.args.secretsConfig, tt.args.gitleaksBinaryPath)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("userSecretsConfigToFamiliesSecretsConfig() mismatch (-want +got):\n%s", diff)
 			}

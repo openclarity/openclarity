@@ -190,12 +190,11 @@ func convertBool(all *bool) bool {
 
 func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, config provider.ScanningJobConfig) (types.Instance, error) {
 	cloudInitData := cloudinit.Data{
-		Volume:               c.awsConfig.DeviceName,
-		ScannerCLIConfig:     config.ScannerCLIConfig,
-		ScannerImage:         config.ScannerImage,
-		ServerAddress:        config.VMClarityAddress,
-		ScanResultID:         config.ScanResultID,
-		VolumeMountDirectory: config.VolumeMountDirectory,
+		Volume:           c.awsConfig.DeviceName,
+		ScannerCLIConfig: config.ScannerCLIConfig,
+		ScannerImage:     config.ScannerImage,
+		ServerAddress:    config.VMClarityAddress,
+		ScanResultID:     config.ScanResultID,
 	}
 	userData, err := cloudinit.GenerateCloudInit(cloudInitData)
 	if err != nil {
