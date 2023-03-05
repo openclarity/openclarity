@@ -36,12 +36,13 @@ write_files:
       Type=oneshot
       WorkingDirectory=/opt/vmclarity
       ExecStartPre=docker pull {{ .ScannerImage }}
-      ExecStart=docker run --rm --name %n \
-          -v /mnt/snapshot:{{ .VolumeMountDirectory }} \
+      ExecStart=docker run --rm --name %n --privileged \
           -v /opt/vmclarity:/opt/vmclarity \
+          -v /run:/run \
           {{ .ScannerImage }} \
           --config /opt/vmclarity/scanconfig.yaml \
           --server {{ .ServerAddress }} \
+          --mount-attached-volume \
           --scan-result-id {{ .ScanResultID }}
 
       [Install]
@@ -49,7 +50,5 @@ write_files:
 runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, docker.service ]
-  - [ mkdir, -p, /mnt/snapshot ]
-  - [ mount, /dev/{{ .Volume }}1, /mnt/snapshot ]
   - [ systemctl, start, vmclarity-scanner.service ]
 `

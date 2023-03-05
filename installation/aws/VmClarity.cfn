@@ -163,7 +163,7 @@ Resources:
                     LOCAL_DB_PATH=/data/vmclarity.db
                     BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
                     BACKEND_REST_PORT=8888
-                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:f571174635a95252a046a0083968332b23c8d5f1
+                    SCANNER_CONTAINER_IMAGE=erezfish/vmclarity-cli:mount
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -212,13 +212,13 @@ Resources:
                 ExecStartPre=-/usr/bin/docker stop %n
                 ExecStartPre=-/usr/bin/docker rm %n
                 ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:f571174635a95252a046a0083968332b23c8d5f1
+                ExecStartPre=/usr/bin/docker pull erezfish/vmclarity-backend:mount
                 ExecStart=/usr/bin/docker run \
                   --rm --name %n \
                   -p 0.0.0.0:8888:8888/tcp \
                   -v /opt/vmclarity:/data \
                   --env-file /etc/vmclarity/config.env \
-                  tehsmash/vmclarity-backend:f571174635a95252a046a0083968332b23c8d5f1 run --log-level info
+                  erezfish/vmclarity-backend:mount run --log-level info
 
                 [Install]
                 WantedBy=multi-user.target
