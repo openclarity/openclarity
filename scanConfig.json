@@ -1,0 +1,22 @@
+{
+        "name": "test",
+        "scanFamiliesConfig": {
+           "sbom": {
+             "enabled": true
+           },
+           "vulnerabilties": {
+             "enabled": true
+           },
+           "exploits": {
+             "enabled": true
+           }
+        },
+        "scheduled": {
+           "objectType": "SingleScheduleScanConfig",
+           "operationTime": "2023-01-20T15:46:18+00:00"
+        },
+        "scope": {
+           "objectType": "AwsScanScope",
+           "all": true
+        }
+}
