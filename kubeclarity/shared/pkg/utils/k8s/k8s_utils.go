@@ -20,6 +20,8 @@ import (
 
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/image"
 )
 
 const MaxK8sJobName = 63
@@ -37,10 +39,16 @@ func ParseImageHash(imageID string) string {
 }
 
 // NormalizeImageID remove "docker-pullable://" prefix from imageID if exists and then normalize it.
+// In case the image is not pullable (local image), return it as is.
 // https://github.com/kubernetes/kubernetes/issues/95968
 // input: docker-pullable://gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 // output: gcr.io/development-infra-208909/kubeclarity@sha256:6d5d0e4065777eec8237cefac4821702a31cd5b6255483ac50c334c057ffecfa
 func NormalizeImageID(imageID string) string {
+	if image.IsLocalImage(imageID) {
+		log.Infof("image id (%v) is local (not pullable), not normalizing it", imageID)
+		return imageID
+	}
+
 	imageID = strings.TrimPrefix(imageID, "docker-pullable://")
 
 	named, err := reference.ParseNormalizedNamed(imageID)
