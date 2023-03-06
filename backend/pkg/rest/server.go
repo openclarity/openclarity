@@ -27,7 +27,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/server"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
-	"github.com/openclarity/vmclarity/backend/pkg/database"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 )
 
 const (
@@ -36,7 +36,7 @@ const (
 )
 
 type ServerImpl struct {
-	dbHandler database.Database
+	dbHandler databaseTypes.Database
 }
 
 type Server struct {
@@ -76,7 +76,7 @@ func createEchoServer() (*echo.Echo, error) {
 	return e, nil
 }
 
-func (s *Server) RegisterHandlers(dbHandler database.Database) {
+func (s *Server) RegisterHandlers(dbHandler databaseTypes.Database) {
 	serverImpl := &ServerImpl{
 		dbHandler: dbHandler,
 	}

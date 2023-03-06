@@ -21,27 +21,20 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
-	"github.com/openclarity/vmclarity/backend/pkg/rest/convert/dbtorest"
-	"github.com/openclarity/vmclarity/backend/pkg/rest/convert/resttodb"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func (s *ServerImpl) GetTargets(ctx echo.Context, params models.GetTargetsParams) error {
-	dbTargets, total, err := s.dbHandler.TargetsTable().GetTargetsAndTotal(resttodb.ConvertGetTargetsParams(params))
+	dbTargets, err := s.dbHandler.TargetsTable().GetTargets(params)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get targets from db: %v", err))
 	}
 
-	converted, err := dbtorest.ConvertTargets(dbTargets, total)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert targets: %v", err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, dbTargets)
 }
 
 // nolint:cyclop
@@ -52,41 +45,24 @@ func (s *ServerImpl) PostTargets(ctx echo.Context) error {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	convertedDB, err := resttodb.ConvertTarget(&target, "")
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert target: %v", err))
-	}
-	createdTarget, err := s.dbHandler.TargetsTable().CreateTarget(convertedDB)
+	createdTarget, err := s.dbHandler.TargetsTable().CreateTarget(target)
 	if err != nil {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
-			convertedExist, err := dbtorest.ConvertTarget(createdTarget)
-			if err != nil {
-				return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert existing target: %v", err))
-			}
 			existResponse := &models.TargetExists{
 				Message: utils.StringPtr(conflictErr.Reason),
-				Target:  convertedExist,
+				Target:  &createdTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create target in db: %v", err))
 	}
 
-	converted, err := dbtorest.ConvertTarget(createdTarget)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert target: %v", err))
-	}
-	return sendResponse(ctx, http.StatusCreated, converted)
+	return sendResponse(ctx, http.StatusCreated, createdTarget)
 }
 
 func (s *ServerImpl) GetTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
-	targetUUID, err := uuid.FromString(targetID)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert targetID %v to uuid: %v", targetID, err))
-	}
-
-	target, err := s.dbHandler.TargetsTable().GetTarget(targetUUID)
+	target, err := s.dbHandler.TargetsTable().GetTarget(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, err.Error())
@@ -94,11 +70,7 @@ func (s *ServerImpl) GetTargetsTargetID(ctx echo.Context, targetID models.Target
 		return sendError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to get target from db. targetID=%v: %v", targetID, err).Error())
 	}
 
-	converted, err := dbtorest.ConvertTarget(target)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert target: %v", err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, target)
 }
 
 func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
@@ -108,11 +80,7 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 		return sendError(ctx, http.StatusBadRequest, fmt.Errorf("failed to bind request: %v", err).Error())
 	}
 
-	convertedDB, err := resttodb.ConvertTarget(&target, targetID)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert target: %v", err))
-	}
-	_, err = s.dbHandler.TargetsTable().GetTarget(convertedDB.ID)
+	_, err = s.dbHandler.TargetsTable().GetTarget(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("target was not found in db. targetID=%v", targetID))
@@ -120,28 +88,20 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db: %v", err))
 	}
 
-	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(convertedDB)
+	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to update target in db. targetID=%v: %v", targetID, err).Error())
 	}
 
-	converted, err := dbtorest.ConvertTarget(updatedTarget)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert target: %v", err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, updatedTarget)
 }
 
 func (s *ServerImpl) DeleteTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
 	success := models.Success{
 		Message: utils.StringPtr(fmt.Sprintf("target %v deleted", targetID)),
 	}
-	targetUUID, err := uuid.FromString(targetID)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert targetID %v to uuid: %v", targetID, err))
-	}
 
-	if err := s.dbHandler.TargetsTable().DeleteTarget(targetUUID); err != nil {
+	if err := s.dbHandler.TargetsTable().DeleteTarget(targetID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, err.Error())
 		}

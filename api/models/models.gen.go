@@ -362,11 +362,11 @@ type ScanConfigRelationship struct {
 
 // ScanConfigs defines model for ScanConfigs.
 type ScanConfigs struct {
+	// Count Total scan config count according to the given filters
+	Count *int `json:"count,omitempty"`
+
 	// Items List of scan configs according to the given filters and page. List length must be lower or equal to pageSize.
 	Items *[]ScanConfig `json:"items,omitempty"`
-
-	// Total Total scan config count according to the given filters
-	Total *int `json:"total,omitempty"`
 }
 
 // ScanExists defines model for ScanExists.
@@ -619,11 +619,23 @@ type WeeklyScheduleScanConfig struct {
 	TimeOfDay  *TimeOfDay `json:"timeOfDay,omitempty"`
 }
 
+// OdataCount defines model for odataCount.
+type OdataCount = bool
+
+// OdataExpand defines model for odataExpand.
+type OdataExpand = string
+
 // OdataFilter defines model for odataFilter.
 type OdataFilter = string
 
 // OdataSelect defines model for odataSelect.
 type OdataSelect = string
+
+// OdataSkip defines model for odataSkip.
+type OdataSkip = int
+
+// OdataTop defines model for odataTop.
+type OdataTop = int
 
 // Page defines model for page.
 type Page = int
@@ -652,12 +664,17 @@ type UnknownError = ApiResponse
 // GetScanConfigsParams defines parameters for GetScanConfigs.
 type GetScanConfigsParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
 
-	// Page Page number of the query
-	Page *Page `form:"page,omitempty" json:"page,omitempty"`
-
-	// PageSize Maximum items to return
-	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+// GetScanConfigsScanConfigIDParams defines parameters for GetScanConfigsScanConfigID.
+type GetScanConfigsScanConfigIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // GetScanResultsParams defines parameters for GetScanResults.

@@ -21,27 +21,30 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
-	"github.com/openclarity/vmclarity/backend/pkg/rest/convert/dbtorest"
-	"github.com/openclarity/vmclarity/backend/pkg/rest/convert/resttodb"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func (s *ServerImpl) GetScanConfigs(ctx echo.Context, params models.GetScanConfigsParams) error {
-	dbScanConfigs, total, err := s.dbHandler.ScanConfigsTable().GetScanConfigsAndTotal(resttodb.ConvertGetScanConfigsParams(params))
+	scanConfigs, err := s.dbHandler.ScanConfigsTable().GetScanConfigs(params)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan configs from db: %v", err))
 	}
+	return sendResponse(ctx, http.StatusOK, scanConfigs)
+}
 
-	converted, err := dbtorest.ConvertScanConfigs(dbScanConfigs, total)
+func (s *ServerImpl) GetScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID, params models.GetScanConfigsScanConfigIDParams) error {
+	sc, err := s.dbHandler.ScanConfigsTable().GetScanConfig(scanConfigID, params)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan configs: %v", err))
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan config from db. scanConfigID=%v: %v", scanConfigID, err))
 	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, sc)
 }
 
 func (s *ServerImpl) PostScanConfigs(ctx echo.Context) error {
@@ -51,32 +54,20 @@ func (s *ServerImpl) PostScanConfigs(ctx echo.Context) error {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	convertedDB, err := resttodb.ConvertScanConfig(&scanConfig, "")
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config: %v", err))
-	}
-	createdScanConfig, err := s.dbHandler.ScanConfigsTable().CreateScanConfig(convertedDB)
+	createdScanConfig, err := s.dbHandler.ScanConfigsTable().CreateScanConfig(scanConfig)
 	if err != nil {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
-			convertedExist, err := dbtorest.ConvertScanConfig(createdScanConfig)
-			if err != nil {
-				return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert existing scan config: %v", err))
-			}
 			existResponse := &models.ScanConfigExists{
 				Message:    utils.StringPtr(conflictErr.Reason),
-				ScanConfig: convertedExist,
+				ScanConfig: &createdScanConfig,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create scan config in db: %v", err))
 	}
 
-	converted, err := dbtorest.ConvertScanConfig(createdScanConfig)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config: %v", err))
-	}
-	return sendResponse(ctx, http.StatusCreated, converted)
+	return sendResponse(ctx, http.StatusCreated, createdScanConfig)
 }
 
 func (s *ServerImpl) DeleteScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {
@@ -84,40 +75,14 @@ func (s *ServerImpl) DeleteScanConfigsScanConfigID(ctx echo.Context, scanConfigI
 		Message: utils.StringPtr(fmt.Sprintf("scan config %v deleted", scanConfigID)),
 	}
 
-	scanConfigUUID, err := uuid.FromString(scanConfigID)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scanConfigID %v to uuid: %v", scanConfigID, err))
-	}
-
-	if err := s.dbHandler.ScanConfigsTable().DeleteScanConfig(scanConfigUUID); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
+	if err := s.dbHandler.ScanConfigsTable().DeleteScanConfig(scanConfigID); err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
 		}
 		return sendError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
 	return sendResponse(ctx, http.StatusNoContent, &success)
-}
-
-func (s *ServerImpl) GetScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {
-	scanConfigUUID, err := uuid.FromString(scanConfigID)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scanConfigID %v to uuid: %v", scanConfigID, err))
-	}
-
-	sc, err := s.dbHandler.ScanConfigsTable().GetScanConfig(scanConfigUUID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
-		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan config from db. scanConfigID=%v: %v", scanConfigID, err))
-	}
-
-	converted, err := dbtorest.ConvertScanConfig(sc)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config. scanConfigID=%v: %v", scanConfigID, err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
 }
 
 func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {
@@ -127,30 +92,18 @@ func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	convertedDB, err := resttodb.ConvertScanConfig(&scanConfig, scanConfigID)
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	scanConfig.Id = &scanConfigID
+	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().UpdateScanConfig(scanConfig)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config: %v", err))
-	}
-
-	// check that a scan config with that id exists.
-	_, err = s.dbHandler.ScanConfigsTable().GetScanConfig(convertedDB.ID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan config was not found. scanConfigID=%v: %v", scanConfigID, err))
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan config from db. scanConfigID=%v: %v", scanConfigID, err))
-	}
-
-	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().UpdateScanConfig(convertedDB)
-	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan config in db. scanConfigID=%v: %v", scanConfigID, err))
 	}
 
-	converted, err := dbtorest.ConvertScanConfig(updatedScanConfig)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config. scanConfigID=%v: %v", scanConfigID, err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, updatedScanConfig)
 }
 
 func (s *ServerImpl) PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {
@@ -160,28 +113,16 @@ func (s *ServerImpl) PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID m
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	convertedDB, err := resttodb.ConvertScanConfig(&scanConfig, scanConfigID)
+	// PUT request might not contain the ID in the body, so set it from the
+	// URL field so that the DB layer knows which object is being updated.
+	scanConfig.Id = &scanConfigID
+	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().SaveScanConfig(scanConfig)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config: %v", err))
-	}
-
-	// check that a scan config with that id exists.
-	_, err = s.dbHandler.ScanConfigsTable().GetScanConfig(convertedDB.ID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan config was not found. scanConfigID=%v: %v", scanConfigID, err))
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan config from db. scanConfigID=%v: %v", scanConfigID, err))
-	}
-
-	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().SaveScanConfig(convertedDB)
-	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan config in db. scanConfigID=%v: %v", scanConfigID, err))
 	}
 
-	converted, err := dbtorest.ConvertScanConfig(updatedScanConfig)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to convert scan config. scanConfigID=%v: %v", scanConfigID, err))
-	}
-	return sendResponse(ctx, http.StatusOK, converted)
+	return sendResponse(ctx, http.StatusOK, updatedScanConfig)
 }

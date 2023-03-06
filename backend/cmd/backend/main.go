@@ -26,7 +26,7 @@ import (
 
 	"github.com/openclarity/vmclarity/backend/pkg/backend"
 	"github.com/openclarity/vmclarity/backend/pkg/config"
-	"github.com/openclarity/vmclarity/backend/pkg/database"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/backend/pkg/version"
 )
 
@@ -43,7 +43,7 @@ func versionCommand(_ *cli.Context) {
 func main() {
 	viper.SetDefault(config.HealthCheckAddress, ":8081")
 	viper.SetDefault(config.BackendRestPort, "8888")
-	viper.SetDefault(config.DatabaseDriver, database.DBDriverTypeLocal)
+	viper.SetDefault(config.DatabaseDriver, databaseTypes.DBDriverTypeLocal)
 	viper.AutomaticEnv()
 	app := cli.NewApp()
 	app.Usage = ""
