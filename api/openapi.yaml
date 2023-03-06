@@ -362,8 +362,11 @@ paths:
       summary: Get all scan configs.
       parameters:
         - $ref: '#/components/parameters/odataFilter'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -404,6 +407,8 @@ paths:
       summary: Get the details for a scan config.
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -687,7 +692,7 @@ components:
     ScanConfigs:
       type: object
       properties:
-        total:
+        count:
           type: integer
           description: Total scan config count according to the given filters
           readOnly: true
@@ -698,8 +703,6 @@ components:
           items:
             $ref: '#/components/schemas/ScanConfig'
           readOnly: true
-      required:
-        - total
 
     ScanConfigData:
       type: object
@@ -1389,6 +1392,30 @@ components:
 
     odataSelect:
       name: "$select"
+      in: query
+      schema:
+        type: string
+
+    odataCount:
+      name: "$count"
+      in: query
+      schema:
+        type: boolean
+
+    odataTop:
+      name: "$top"
+      in: query
+      schema:
+        type: integer
+
+    odataSkip:
+      name: "$skip"
+      in: query
+      schema:
+        type: integer
+
+    odataExpand:
+      name: "$expand"
       in: query
       schema:
         type: string
