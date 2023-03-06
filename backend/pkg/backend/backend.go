@@ -27,6 +27,7 @@ import (
 
 	_config "github.com/openclarity/vmclarity/backend/pkg/config"
 	"github.com/openclarity/vmclarity/backend/pkg/database"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/backend/pkg/rest"
 	runtime_scan_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
@@ -35,17 +36,17 @@ import (
 )
 
 type Backend struct {
-	dbHandler *database.Handler
+	dbHandler databaseTypes.Database
 }
 
-func CreateBackend(dbHandler *database.Handler) *Backend {
+func CreateBackend(dbHandler databaseTypes.Database) *Backend {
 	return &Backend{
 		dbHandler: dbHandler,
 	}
 }
 
-func createDatabaseConfig(config *_config.Config) *database.DBConfig {
-	return &database.DBConfig{
+func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
+	return databaseTypes.DBConfig{
 		DriverType:     config.DatabaseDriver,
 		EnableInfoLogs: config.EnableDBInfoLogs,
 		DBPassword:     config.DBPassword,
@@ -78,7 +79,10 @@ func Run() {
 	log.Info("VMClarity backend is running")
 
 	dbConfig := createDatabaseConfig(config)
-	dbHandler := database.Init(dbConfig)
+	dbHandler, err := database.InitaliseDatabase(dbConfig)
+	if err != nil {
+		log.Fatalf("Failed to initialise database: %v", err)
+	}
 
 	_ = CreateBackend(dbHandler)
 
