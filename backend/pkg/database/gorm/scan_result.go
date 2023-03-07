@@ -118,6 +118,10 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 }
 
 func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
+	if scanResult.Id == nil || *scanResult.Id == "" {
+		return models.TargetScanResult{}, fmt.Errorf("ID is required to update scan result in DB")
+	}
+
 	dbScanResult, err := ConvertToDBScanResult(scanResult)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
@@ -135,6 +139,10 @@ func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanRes
 }
 
 func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
+	if scanResult.Id == nil || *scanResult.Id == "" {
+		return models.TargetScanResult{}, fmt.Errorf("ID is required to update scan result in DB")
+	}
+
 	dbScanResult, err := ConvertToDBScanResult(scanResult)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
