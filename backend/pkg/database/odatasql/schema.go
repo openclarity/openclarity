@@ -33,7 +33,7 @@ type FieldMeta struct {
 
 	// Fields for complex field types
 	ComplexFieldSchemas   []string
-	DescriminatorProperty string
+	DiscriminatorProperty string
 
 	// Fields for relationship and relationship collection types
 	RelationshipSchema   string

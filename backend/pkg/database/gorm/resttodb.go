@@ -140,7 +140,7 @@ func ConvertToDBScan(scan models.Scan) (Scan, error) {
 	if scan.Id != nil {
 		scanUUID, err = uuid.FromString(*scan.Id)
 		if err != nil {
-			return ret, fmt.Errorf("failed to convert scanID %v to uuid: %v", scan.Id, err)
+			return ret, fmt.Errorf("failed to convert scanID %v to uuid: %v", *scan.Id, err)
 		}
 	}
 

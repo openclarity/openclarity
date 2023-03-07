@@ -40,9 +40,8 @@ func newSelectTree() *selectNode {
 
 // nolint:gocognit,cyclop
 func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQuery, sel *godata.GoDataSelectQuery, subExpand *godata.GoDataExpandQuery, expand bool) error {
-	// If path length == 0 then we've reach the bottom of the path and now
-	// we need to save the filter/select and process any sub
-	// selects/expands
+	// If path length == 0 then we've reach the bottom of the path, now we
+	// need to save the filter/select and process any sub selects/expands
 	if len(path) == 0 {
 		if st.filter != nil {
 			return fmt.Errorf("filter for field specified twice")
@@ -57,7 +56,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 			}
 
 			// Parse $select using ParseExpandString because godata.ParseSelectString
-			// is a nieve implementation and doesn't handle query options properly
+			// is a naive implementation and doesn't handle query options properly
 			childSelections, err := godata.ParseExpandString(context.TODO(), sel.RawValue)
 			if err != nil {
 				return fmt.Errorf("failed to parse select: %w", err)
