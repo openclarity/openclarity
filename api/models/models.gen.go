@@ -228,11 +228,21 @@ type Finding_FindingInfo struct {
 	union json.RawMessage
 }
 
+// FindingExists defines model for FindingExists.
+type FindingExists struct {
+	Finding *Finding `json:"finding,omitempty"`
+
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+}
+
 // Findings defines model for Findings.
 type Findings struct {
 	// Count Total scans count according to the given filters
-	Count *int     `json:"count,omitempty"`
-	Items *Finding `json:"items,omitempty"`
+	Count *int `json:"count,omitempty"`
+
+	// Items List of findings according to the given filters
+	Items *[]Finding `json:"items,omitempty"`
 }
 
 // Malware defines model for Malware.
@@ -822,6 +832,9 @@ type WeeklyScheduleScanConfig struct {
 	TimeOfDay  *TimeOfDay `json:"timeOfDay,omitempty"`
 }
 
+// FindingID defines model for findingID.
+type FindingID = string
+
 // OdataCount defines model for odataCount.
 type OdataCount = bool
 
@@ -868,6 +881,22 @@ type UnknownError = ApiResponse
 type GetDiscoveryScopesParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+}
+
+// GetFindingsParams defines parameters for GetFindings.
+type GetFindingsParams struct {
+	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// GetFindingsFindingIDParams defines parameters for GetFindingsFindingID.
+type GetFindingsFindingIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // GetScanConfigsParams defines parameters for GetScanConfigs.
@@ -929,6 +958,15 @@ type GetTargetsTargetIDParams struct {
 
 // PutDiscoveryScopesJSONRequestBody defines body for PutDiscoveryScopes for application/json ContentType.
 type PutDiscoveryScopesJSONRequestBody = Scopes
+
+// PostFindingsJSONRequestBody defines body for PostFindings for application/json ContentType.
+type PostFindingsJSONRequestBody = Finding
+
+// PatchFindingsFindingIDJSONRequestBody defines body for PatchFindingsFindingID for application/json ContentType.
+type PatchFindingsFindingIDJSONRequestBody = Finding
+
+// PutFindingsFindingIDJSONRequestBody defines body for PutFindingsFindingID for application/json ContentType.
+type PutFindingsFindingIDJSONRequestBody = Finding
 
 // PostScanConfigsJSONRequestBody defines body for PostScanConfigs for application/json ContentType.
 type PostScanConfigsJSONRequestBody = ScanConfig
