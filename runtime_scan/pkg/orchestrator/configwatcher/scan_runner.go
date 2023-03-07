@@ -67,23 +67,7 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 		},
 		StartTime: &now,
 		State:     utils.PointerTo[models.ScanState](models.Pending),
-		Summary: &models.ScanSummary{
-			JobsCompleted:          utils.PointerTo[int](0),
-			JobsLeftToRun:          utils.PointerTo[int](0),
-			TotalExploits:          utils.PointerTo[int](0),
-			TotalMalware:           utils.PointerTo[int](0),
-			TotalMisconfigurations: utils.PointerTo[int](0),
-			TotalPackages:          utils.PointerTo[int](0),
-			TotalRootkits:          utils.PointerTo[int](0),
-			TotalSecrets:           utils.PointerTo[int](0),
-			TotalVulnerabilities: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
-				TotalHighVulnerabilities:       utils.PointerTo[int](0),
-				TotalLowVulnerabilities:        utils.PointerTo[int](0),
-				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
-				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
-			},
-		},
+		Summary:   createInitScanSummary(),
 	}
 	scanID, err := scw.createScan(ctx, scan)
 	if err != nil {
@@ -106,23 +90,6 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 		TargetIDs:    targetIds,
 		State:        utils.PointerTo[models.ScanState](models.Discovered),
 		StateMessage: utils.PointerTo[string]("Targets for scan successfully discovered"),
-		Summary: &models.ScanSummary{
-			JobsCompleted:          utils.PointerTo[int](0),
-			JobsLeftToRun:          utils.PointerTo[int](0),
-			TotalExploits:          utils.PointerTo[int](0),
-			TotalMalware:           utils.PointerTo[int](0),
-			TotalMisconfigurations: utils.PointerTo[int](0),
-			TotalPackages:          utils.PointerTo[int](0),
-			TotalRootkits:          utils.PointerTo[int](0),
-			TotalSecrets:           utils.PointerTo[int](0),
-			TotalVulnerabilities: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
-				TotalHighVulnerabilities:       utils.PointerTo[int](0),
-				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
-				TotalLowVulnerabilities:        utils.PointerTo[int](0),
-				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
-			},
-		},
 	}
 	scanID, err = scw.patchScan(ctx, scanID, scan)
 	if err != nil {
@@ -130,6 +97,26 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 	}
 
 	return targetInstances, scanID, nil
+}
+
+func createInitScanSummary() *models.ScanSummary {
+	return &models.ScanSummary{
+		JobsCompleted:          utils.PointerTo(0),
+		JobsLeftToRun:          utils.PointerTo(0),
+		TotalExploits:          utils.PointerTo(0),
+		TotalMalware:           utils.PointerTo(0),
+		TotalMisconfigurations: utils.PointerTo(0),
+		TotalPackages:          utils.PointerTo(0),
+		TotalRootkits:          utils.PointerTo(0),
+		TotalSecrets:           utils.PointerTo(0),
+		TotalVulnerabilities: &models.VulnerabilityScanSummary{
+			TotalCriticalVulnerabilities:   utils.PointerTo(0),
+			TotalHighVulnerabilities:       utils.PointerTo(0),
+			TotalLowVulnerabilities:        utils.PointerTo(0),
+			TotalMediumVulnerabilities:     utils.PointerTo(0),
+			TotalNegligibleVulnerabilities: utils.PointerTo(0),
+		},
+	}
 }
 
 func getTargetIDs(targetInstances []*types.TargetInstance) *[]string {
