@@ -43,12 +43,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"scheduled": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
 				ComplexFieldSchemas:   []string{"SingleScheduleScanConfig"},
-				DescriminatorProperty: "objectType",
+				DiscriminatorProperty: "objectType",
 			},
 			"scope": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
 				ComplexFieldSchemas:   []string{"AwsScanScope"},
-				DescriminatorProperty: "objectType",
+				DiscriminatorProperty: "objectType",
 			},
 		},
 	},

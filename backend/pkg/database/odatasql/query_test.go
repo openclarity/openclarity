@@ -159,14 +159,14 @@ var carSchemaMetas = map[string]SchemaMeta{
 			"MainStereo": {
 				FieldType:             ComplexFieldType,
 				ComplexFieldSchemas:   []string{"CDPlayer", "Radio"},
-				DescriminatorProperty: "ObjectType",
+				DiscriminatorProperty: "ObjectType",
 			},
 			"OtherStereos": {
 				FieldType: CollectionFieldType,
 				CollectionItemMeta: &FieldMeta{
 					FieldType:             ComplexFieldType,
 					ComplexFieldSchemas:   []string{"CDPlayer", "Radio"},
-					DescriminatorProperty: "ObjectType",
+					DiscriminatorProperty: "ObjectType",
 				},
 			},
 			"Manufacturer": {
