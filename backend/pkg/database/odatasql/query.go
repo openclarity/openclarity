@@ -177,11 +177,11 @@ func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, ident
 			schema := schemaMetas[schemaName]
 
 			parts := []string{}
-			if field.DescriminatorProperty != "" {
-				parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DescriminatorProperty, schemaName))
+			if field.DiscriminatorProperty != "" {
+				parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DiscriminatorProperty, schemaName))
 			}
 			for key, fm := range schema.Fields {
-				if field.DescriminatorProperty != "" && key == field.DescriminatorProperty {
+				if field.DiscriminatorProperty != "" && key == field.DiscriminatorProperty {
 					continue
 				}
 
@@ -216,10 +216,13 @@ func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, ident
 		// descriminator, this would be a developer error. Might be
 		// avoidable if we create a schema builder thing instead of
 		// just defining it as a variable.
-		// if field.DescriminatorProperty == "" {
+		// if field.DiscriminatorProperty == "" {
 		// }
 
-		return fmt.Sprintf("(SELECT %s.value FROM JSON_EACH(JSON_ARRAY(%s)) AS %s WHERE %s.value -> '$.%s' = %s -> '%s.%s')", identifier, strings.Join(objects, ","), identifier, identifier, field.DescriminatorProperty, source, path, field.DescriminatorProperty)
+		return fmt.Sprintf(
+			"(SELECT %s.value FROM JSON_EACH(JSON_ARRAY(%s)) AS %s WHERE %s.value -> '$.%s' = %s -> '%s.%s')",
+			identifier, strings.Join(objects, ","), identifier,
+			identifier, field.DiscriminatorProperty, source, path, field.DiscriminatorProperty)
 
 	case RelationshipFieldType:
 		if st == nil || !st.expand {
