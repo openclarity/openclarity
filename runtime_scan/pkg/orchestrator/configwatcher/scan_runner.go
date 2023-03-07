@@ -67,7 +67,7 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 			ScanFamiliesConfig: scanConfig.ScanFamiliesConfig,
 		},
 		StartTime: &now,
-		State:     utils.PointerTo[models.ScanState](models.Pending),
+		State:     utils.PointerTo(models.ScanStatePending),
 		Summary:   createInitScanSummary(),
 	}
 	var scanID string
@@ -98,8 +98,8 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 	targetIds := getTargetIDs(targetInstances)
 	scan = &models.Scan{
 		TargetIDs:    targetIds,
-		State:        utils.PointerTo[models.ScanState](models.Discovered),
-		StateMessage: utils.PointerTo[string]("Targets for scan successfully discovered"),
+		State:        utils.PointerTo(models.ScanStateDiscovered),
+		StateMessage: utils.PointerTo("Targets for scan successfully discovered"),
 	}
 	err = scw.backendClient.PatchScan(ctx, scanID, scan)
 	if err != nil {

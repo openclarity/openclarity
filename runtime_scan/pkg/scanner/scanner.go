@@ -103,7 +103,7 @@ func (s *Scanner) initScan(ctx context.Context) error {
 	summary := createInitScanSummary()
 	summary.JobsLeftToRun = utils.PointerTo[int](len(targetIDToScanData))
 	scan := &models.Scan{
-		State:   utils.PointerTo[models.ScanState](models.InProgress),
+		State:   utils.PointerTo(models.ScanStateInProgress),
 		Summary: summary,
 	}
 	err := s.backendClient.PatchScan(ctx, s.scanID, scan)
@@ -153,7 +153,7 @@ func (s *Scanner) Scan(ctx context.Context) error {
 		reason := models.ScanStateReasonNothingToScan
 		scan := &models.Scan{
 			EndTime:      &t,
-			State:        utils.PointerTo[models.ScanState](models.Done),
+			State:        utils.PointerTo(models.ScanStateDone),
 			StateMessage: utils.StringPtr("Nothing to scan"),
 			StateReason:  &reason,
 		}

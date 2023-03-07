@@ -572,13 +572,9 @@ components:
       required:
         - total
 
-    Scan:
+    ScanData:
       type: object
-      description: Describes a multi-target scheduled scan.
       properties:
-        id:
-          type: string
-          readOnly: true
         startTime:
           type: string
           format: date-time
@@ -622,9 +618,9 @@ components:
 
     ScanRelationship:
       type: object
-      description: Describes a relationship to a scan which can be expanded.
+      description: Describes an expandable relationship to Scan object
       allOf:
-        - $ref: '#/components/schemas/Scan'
+        - $ref: '#/components/schemas/ScanData'
         - type: object
           properties:
             id:
@@ -648,6 +644,17 @@ components:
             summary:
               readOnly: true
           required: ['id']
+
+    Scan:
+      type: object
+      description: Describes a multi-target scheduled scan.
+      allOf:
+        - $ref: '#/components/schemas/ScanData'
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
 
     ScanSummary:
       description: A summary of the progress of a scan for informational purposes.
@@ -1473,6 +1480,122 @@ components:
         - MISCONFIGURATION
         - ROOTKIT
         - EXPLOIT
+
+    Findings:
+      type: object
+      properties:
+        count:
+          description: Total scans count according to the given filters
+          type: integer
+        items:
+          $ref: '#/components/schemas/Finding'
+
+    PackageFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PackageInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    VulnerabilityFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/VulnerabilityInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    MalwareFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MalwareInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    SecretFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SecretInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    MisconfigurationFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MisconfigurationInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    RootkitFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/RootkitInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    ExploitFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ExploitInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    Finding:
+      type: object
+      properties:
+        id:
+          type: string
+        scan:
+          $ref: '#/components/schemas/ScanRelationship'
+        asset:
+          $ref: '#/components/schemas/TargetRelationship'
+        foundOn:
+          description: When this finding was discovered by a scan
+          type: string
+          format: date-time
+        invalidatedOn:
+          description: When this finding was invalidated by a newer scan
+          type: string
+          format: date-time
+        findingInfo:
+          anyOf:
+            - $ref: '#/components/schemas/PackageFindingInfo'
+            - $ref: '#/components/schemas/VulnerabilityFindingInfo'
+            - $ref: '#/components/schemas/MalwareFindingInfo'
+            - $ref: '#/components/schemas/SecretFindingInfo'
+            - $ref: '#/components/schemas/MisconfigurationFindingInfo'
+            - $ref: '#/components/schemas/RootkitFindingInfo'
+            - $ref: '#/components/schemas/ExploitFindingInfo'
+          discriminator:
+            propertyName: objectType
+            mapping:
+              Package: '#/components/schemas/PackageFindingInfo'
+              Vulnerability: '#/components/schemas/VulnerabilityFindingInfo'
+              Malware: '#/components/schemas/MalwareFindingInfo'
+              Secret: '#/components/schemas/SecretFindingInfo'
+              Misconfiguration: '#/components/schemas/MisconfigurationFindingInfo'
+              Rootkit: '#/components/schemas/RootkitFindingInfo'
+              Exploit: '#/components/schemas/ExploitFindingInfo'
 
   responses:
     Success:
