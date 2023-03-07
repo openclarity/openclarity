@@ -121,6 +121,10 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 }
 
 func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, error) {
+	if target.Id == nil || *target.Id == "" {
+		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
+	}
+
 	dbTarget, err := ConvertToDBTarget(target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
