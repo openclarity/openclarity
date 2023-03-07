@@ -72,6 +72,7 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		ScanConfig{},
 		Scan{},
 		Scopes{},
+		Finding{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to run auto migration: %w", err)
 	}
