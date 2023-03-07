@@ -88,6 +88,7 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db: %v", err))
 	}
 
+	target.Id = &targetID
 	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to update target in db. targetID=%v: %v", targetID, err).Error())
