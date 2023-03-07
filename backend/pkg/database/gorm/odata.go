@@ -572,6 +572,105 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
+	"Finding": {
+		Table: "findings",
+		Fields: odatasql.Schema{
+			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			// TODO(sambetts) Make this a relationship once Scans support ODATA
+			"scan": odatasql.FieldMeta{FieldType: odatasql.ComplexFieldType, ComplexFieldSchemas: []string{"Scan"}},
+			// TODO(sambetts) Make this a relationship once Targets support ODATA
+			"asset":         odatasql.FieldMeta{FieldType: odatasql.ComplexFieldType, ComplexFieldSchemas: []string{"Target"}},
+			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"findingInfo": odatasql.FieldMeta{
+				FieldType: odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{
+					"PackageFindingInfo",
+					"VulnerabilityFindingInfo",
+					"MalwareFindingInfo",
+					"SecretFindingInfo",
+					"MisconfigurationFindingInfo",
+					"RootkitFindingInfo",
+					"ExploitFindingInfo",
+				},
+				DiscriminatorProperty: "objectType",
+			},
+		},
+	},
+	"PackageFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"packageName":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"packageVersion": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"VulnerabilityFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"vulnerabilityName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"description":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"severity":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"MalwareFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"malwareName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"malwareType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"SecretFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"filePath":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"startLine":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"endLine":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"MisconfigurationFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"RootkitFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"rootKitName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"rootKitType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"ExploitFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"title":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"cveID":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"sourceDB":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"urls": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			},
+		},
+	},
+	// TODO(sambetts) Add table and other fields here when Scans are switched over to ODATA backend
+	"Scan": {
+		Fields: odatasql.Schema{
+			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	// TODO(sambetts) Add table and other fields here then Targets are switched over to ODATA backend
+	"Target": {
+		Fields: odatasql.Schema{
+			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
 }
 
 func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandString *string, top, skip *int, collection bool, result interface{}) error {
