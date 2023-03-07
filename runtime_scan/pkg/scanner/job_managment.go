@@ -131,6 +131,7 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 	scanComplete := false
 	for !scanComplete {
 		var scan *models.Scan
+		var err error
 		select {
 		case targetID := <-done:
 			numberOfCompletedJobs := numberOfCompletedJobs + 1
@@ -139,7 +140,7 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 				anyJobsFailed = true
 			}
 
-			scan, err := s.createScanWithUpdatedSummary(ctx, *data)
+			scan, err = s.createScanWithUpdatedSummary(ctx, *data)
 			if err != nil {
 				log.WithFields(s.logFields).Errorf("Failed to create a scan with updated summary: %v", err)
 				scan = &models.Scan{}
@@ -567,6 +568,7 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 		ScanId:   scanID,
 		Status:   initScanStatus,
 		TargetId: targetID,
+		Summary:  createInitScanResultSummary(),
 	}
 	resp, err := s.backendClient.PostScanResultsWithResponse(ctx, scanResult)
 	if err != nil {
@@ -595,6 +597,24 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 			return "", fmt.Errorf("failed to create a scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
 		}
 		return "", fmt.Errorf("failed to create a scan status. status code=%v", resp.StatusCode())
+	}
+}
+
+func createInitScanResultSummary() *models.TargetScanResultSummary {
+	return &models.TargetScanResultSummary{
+		TotalExploits:          runtimeScanUtils.PointerTo[int](0),
+		TotalMalware:           runtimeScanUtils.PointerTo[int](0),
+		TotalMisconfigurations: runtimeScanUtils.PointerTo[int](0),
+		TotalPackages:          runtimeScanUtils.PointerTo[int](0),
+		TotalRootkits:          runtimeScanUtils.PointerTo[int](0),
+		TotalSecrets:           runtimeScanUtils.PointerTo[int](0),
+		TotalVulnerabilities: &models.VulnerabilityScanSummary{
+			TotalCriticalVulnerabilities:   runtimeScanUtils.PointerTo[int](0),
+			TotalHighVulnerabilities:       runtimeScanUtils.PointerTo[int](0),
+			TotalMediumVulnerabilities:     runtimeScanUtils.PointerTo[int](0),
+			TotalLowVulnerabilities:        runtimeScanUtils.PointerTo[int](0),
+			TotalNegligibleVulnerabilities: runtimeScanUtils.PointerTo[int](0),
+		},
 	}
 }
 

@@ -123,6 +123,12 @@ func ConvertToRestScanResult(scanResult ScanResult) (models.TargetScanResult, er
 			return ret, fmt.Errorf("failed to unmarshal json: %w", err)
 		}
 	}
+	if scanResult.Summary != nil {
+		ret.Summary = &models.TargetScanResultSummary{}
+		if err := json.Unmarshal(scanResult.Summary, ret.Summary); err != nil {
+			return ret, fmt.Errorf("failed to unmarshal json: %w", err)
+		}
+	}
 	ret.Id = utils.StringPtr(scanResult.ID.String())
 	ret.ScanId = scanResult.ScanID
 	ret.TargetId = scanResult.TargetID
@@ -164,11 +170,19 @@ func ConvertToRestScan(scan Scan) (models.Scan, error) {
 			return ret, fmt.Errorf("failed to unmarshal json: %w", err)
 		}
 	}
+	if scan.Summary != nil {
+		ret.Summary = &models.ScanSummary{}
+		if err := json.Unmarshal(scan.Summary, ret.Summary); err != nil {
+			return ret, fmt.Errorf("failed to unmarshal json: %w", err)
+		}
+	}
 
 	ret.Id = utils.StringPtr(scan.ID.String())
 	ret.StartTime = scan.ScanStartTime
 	ret.EndTime = scan.ScanEndTime
-	ret.ScanConfig = &models.ScanConfigRelationship{Id: *scan.ScanConfigID}
+	if scan.ScanConfigID != nil {
+		ret.ScanConfig = &models.ScanConfigRelationship{Id: *scan.ScanConfigID}
+	}
 
 	return ret, nil
 }

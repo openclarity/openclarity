@@ -45,6 +45,7 @@ type Scan struct {
 
 	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
 	TargetIDs []byte `json:"target_ids,omitempty" gorm:"column:target_ids"`
+	Summary   []byte `json:"summary,omitempty" gorm:"column:summary"`
 }
 
 type GetScansParams struct {

@@ -44,6 +44,7 @@ type ScanResult struct {
 	Sboms             []byte `json:"sboms,omitempty" gorm:"column:sboms"`
 	Secrets           []byte `json:"secrets,omitempty" gorm:"column:secrets"`
 	Status            []byte `json:"status,omitempty" gorm:"column:status"`
+	Summary           []byte `json:"summary,omitempty" gorm:"column:summary"`
 	Vulnerabilities   []byte `json:"vulnerabilities,omitempty" gorm:"column:vulnerabilities"`
 }
 
