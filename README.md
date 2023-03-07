@@ -3,38 +3,53 @@
 VMClarity is a tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and vulnerabilities
 
-To install vmclarity in your AWS account [Click Here](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/review?templateUrl=https://raw.githubusercontent.com/openclarity/vmclarity/main/installation/aws/VmClarity.cfn&stackName=VmClarity)
-
 ## Table of Contents
 
-- [How to debug the Scanner VMs](#how-to-debug-the-scanner-vms)
-  - [AWS](#debug-scanner-VM-on-AWS)
+- [Getting Started](#getting-started)
+  - [Installing on AWS](#installing-on-aws)
+  - [Accessing the API](#accessing-the-api)
+- [Security](#security)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [License](#license)
 
-## How to debug the Scanner VMs
+## Getting Started
 
-How to debug the Scanner VMs can differ per provider these are documented
-below.
+### Installing on AWS
 
-### Debug Scanner VM on AWS
+1. Download the cloud-formation from the VMClarity Github release
+2. Go to AWS console Cloudformation for your choosen region
+3. Create a stack with new resources
+4. Upload the downloaded template
+5. Walk through the wizard
+6. Monitor install from the cloud-formation page
+7. Get the VMClarity public IP address from the Outputs tab.
 
-On AWS VMClarity is configured to create the Scanner VMs with the same key-pair
-that the VMClarity server has. The Scanner VMs run in a private network,
-however the VMClarity Server can be used as a bastion/jump host to reach them
-via SSH.
+### Accessing the API
 
-```
-ssh -i <key-pair private key> -J ubuntu@<vmclarity server public IP> ubuntu@<scanner VM private IP address>
-```
-
-Once SSH access has been established, the status of the VM's start up
-configuration can be debugged by checking the cloud-init logs:
-
-```
-sudo journalctl -u cloud-final
-```
-
-And the vmclarity-scanner service logs:
+To access the API, a tunnel to the HTTP ports must be opened using the
+VMClarity server as a bastion.
 
 ```
-sudo journalctl -u vmclarity-scanner
+ssh -N -L 8888:localhost:8888 ubuntu@<VMClarity public IP address>
 ```
+
+Once this has been run the VMClarity API can be access on localhost:8888. For example:
+
+```
+curl http://localhost:8888/api/scanConfigs
+```
+
+## Contributing
+
+If you are ready to jump in and test, add code, or help with documentation,
+please follow the instructions on our [contributing guide](/CONTRIBUTING.md)
+for details on how to open issues, setup VMClarity for development and test.
+
+## Code of Conduct
+
+You can view our code of conduct [here](/CODE_OF_CONDUCT.md).
+
+## License
+
+[Apache License, Version 2.0](/LICENSE)
