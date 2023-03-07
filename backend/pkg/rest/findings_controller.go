@@ -16,31 +16,113 @@
 package rest
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/backend/pkg/common"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func (s *ServerImpl) GetFindings(ctx echo.Context, params models.GetFindingsParams) error {
-	return nil
+	findings, err := s.dbHandler.FindingsTable().GetFindings(params)
+	if err != nil {
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get findings from db: %v", err))
+	}
+	return sendResponse(ctx, http.StatusOK, findings)
 }
 
 func (s *ServerImpl) GetFindingsFindingID(ctx echo.Context, findingID models.FindingID, params models.GetFindingsFindingIDParams) error {
-	return nil
+	sc, err := s.dbHandler.FindingsTable().GetFinding(findingID, params)
+	if err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get finding from db. findingID=%v: %v", findingID, err))
+	}
+	return sendResponse(ctx, http.StatusOK, sc)
 }
 
 func (s *ServerImpl) PostFindings(ctx echo.Context) error {
-	return nil
+	var finding models.Finding
+	err := ctx.Bind(&finding)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	createdFinding, err := s.dbHandler.FindingsTable().CreateFinding(finding)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			existResponse := &models.FindingExists{
+				Message: utils.StringPtr(conflictErr.Reason),
+				Finding: &createdFinding,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create finding in db: %v", err))
+	}
+
+	return sendResponse(ctx, http.StatusCreated, createdFinding)
 }
 
 func (s *ServerImpl) DeleteFindingsFindingID(ctx echo.Context, findingID models.FindingID) error {
-	return nil
+	success := models.Success{
+		Message: utils.StringPtr(fmt.Sprintf("finding %v deleted", findingID)),
+	}
+
+	if err := s.dbHandler.FindingsTable().DeleteFinding(findingID); err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	return sendResponse(ctx, http.StatusNoContent, &success)
 }
 
 func (s *ServerImpl) PatchFindingsFindingID(ctx echo.Context, findingID models.FindingID) error {
-	return nil
+	var finding models.Finding
+	err := ctx.Bind(&finding)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	finding.Id = &findingID
+	updatedFinding, err := s.dbHandler.FindingsTable().UpdateFinding(finding)
+	if err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
+	}
+
+	return sendResponse(ctx, http.StatusOK, updatedFinding)
 }
 
 func (s *ServerImpl) PutFindingsFindingID(ctx echo.Context, findingID models.FindingID) error {
-	return nil
+	var finding models.Finding
+	err := ctx.Bind(&finding)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	// PUT request might not contain the ID in the body, so set it from the
+	// URL field so that the DB layer knows which object is being updated.
+	finding.Id = &findingID
+	updatedFinding, err := s.dbHandler.FindingsTable().SaveFinding(finding)
+	if err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
+	}
+
+	return sendResponse(ctx, http.StatusOK, updatedFinding)
 }

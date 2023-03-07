@@ -45,6 +45,7 @@ type Database interface {
 	ScansTable() ScansTable
 	TargetsTable() TargetsTable
 	ScopesTable() ScopesTable
+	FindingsTable() FindingsTable
 }
 
 type ScansTable interface {
@@ -94,4 +95,15 @@ type TargetsTable interface {
 type ScopesTable interface {
 	GetScopes(params models.GetDiscoveryScopesParams) (models.Scopes, error)
 	SetScopes(scopes models.Scopes) (models.Scopes, error)
+}
+
+type FindingsTable interface {
+	GetFindings(params models.GetFindingsParams) (models.Findings, error)
+	GetFinding(findingID models.FindingID, params models.GetFindingsFindingIDParams) (models.Finding, error)
+
+	CreateFinding(finding models.Finding) (models.Finding, error)
+	UpdateFinding(finding models.Finding) (models.Finding, error)
+	SaveFinding(finding models.Finding) (models.Finding, error)
+
+	DeleteFinding(findingID models.FindingID) error
 }
