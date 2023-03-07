@@ -106,11 +106,11 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 			if numberOfCompletedJobs == len(targetIDToScanData) {
 				scanComplete = true
 
-				state := models.Done
+				state := models.ScanStateDone
 				stateMessage := "All scan jobs completed"
 				stateReason := models.ScanStateReasonSuccess
 				if anyJobsFailed {
-					state = models.Failed
+					state = models.ScanStateFailed
 					stateMessage = "One or more ScanJobs failed"
 					stateReason = models.ScanStateReasonOneOrMoreTargetFailedToScan
 				}
@@ -125,7 +125,7 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 			reason := models.ScanStateReasonTimedOut
 			scan = &models.Scan{
 				EndTime:      &t,
-				State:        runtimeScanUtils.PointerTo[models.ScanState](models.Failed),
+				State:        runtimeScanUtils.PointerTo(models.ScanStateFailed),
 				StateMessage: runtimeScanUtils.StringPtr("Scan was canceled or timed out"),
 				StateReason:  &reason,
 			}
