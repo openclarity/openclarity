@@ -498,6 +498,50 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /findings:
+    get:
+      summary: Get all findings.
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Findings'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a finding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        201:
+          description: A new finding was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        409:
+          description: Finding conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
   /discovery/scopes:
     get:
       summary: Get all available scopes
@@ -531,6 +575,96 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
+
+  /findings/{findingID}:
+    get:
+      summary: Get the details for a finding.
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a finding.
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        200:
+          description: Updated finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a finding.
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        200:
+          description: Patched finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a finding.
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      responses:
+        204:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
 components:
   schemas:
@@ -1481,6 +1615,16 @@ components:
         - ROOTKIT
         - EXPLOIT
 
+    FindingExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        finding:
+          $ref: '#/components/schemas/Finding'
+
     Findings:
       type: object
       properties:
@@ -1488,7 +1632,10 @@ components:
           description: Total scans count according to the given filters
           type: integer
         items:
-          $ref: '#/components/schemas/Finding'
+          description: List of findings according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
 
     PackageFindingInfo:
       type: object
@@ -1672,6 +1819,13 @@ components:
 
     scanConfigID:
       name: scanConfigID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    findingID:
+      name: findingID
       in: path
       required: true
       schema:
