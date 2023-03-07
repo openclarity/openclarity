@@ -1,12 +1,23 @@
-# Update and install the cloud formation
+# End to End testing guide
 
-## Build the containers and publish them to your docker hub
+## Table of Contents
+
+- [Installing a specific VMClarity build on AWS](#installing-a-specific-vmclarity-build-on-aws)
+  - [1. Build the containers and publish them to your docker registry](#1-build-the-containers-and-publish-them-to-your-docker-registry)
+  - [2. Update installation/aws/VMClarity.cfn](#2-update-installationawsvmclaritycfn)
+  - [3. Install VMClarity cloudformation](#3-install-vmclarity-cloudformation)
+  - [4. Ensure that VMClarity backend is working correctly](#4-ensure-that-vmclarity-backend-is-working-correctly)
+- [Performing an end to end test](#performing-an-end-to-end-test)
+
+## Installing a specific VMClarity build on AWS
+
+### 1. Build the containers and publish them to your docker registry
 
 ```
-DOCKER_REGISTRY=<your docker hub> make push-docker
+DOCKER_REGISTRY=<your docker registry> make push-docker
 ```
 
-## Update installation/aws/VMClarity.cfn
+### 2. Update installation/aws/VMClarity.cfn
 
 Update the cloud formation with the pushed docker images, for example:
 
@@ -15,7 +26,7 @@ Update the cloud formation with the pushed docker images, for example:
                      DATABASE_DRIVER=LOCAL
                      BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
                      BACKEND_REST_PORT=8888
--                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
+-                    SCANNER_CONTAINER_IMAGE=ghcr.io/openclarity/vmclarity-cli:latest
 +                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:9bba94334c1de1aeed63ed12de3784d561fc4f1b
                    - JobImageID: !FindInMap
                        - AWSRegionArch2AMI
@@ -24,40 +35,41 @@ Update the cloud formation with the pushed docker images, for example:
                  ExecStartPre=-/usr/bin/docker stop %n
                  ExecStartPre=-/usr/bin/docker rm %n
                  ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
--                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3
+-                ExecStartPre=/usr/bin/docker pull ghcr.io/openclarity/vmclarity-backend:latest
 +                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:9bba94334c1de1aeed63ed12de3784d561fc4f1b
                  ExecStart=/usr/bin/docker run \
                    --rm --name %n \
                    -p 0.0.0.0:8888:8888/tcp \
                    -v /opt/vmclarity:/data \
                    --env-file /etc/vmclarity/config.env \
--                  tehsmash/vmclarity-backend:dc2d75a10e5583e97f516be26fcdbb484f98d5c3 run --log-level info
+-                  ghcr.io/openclarity/vmclarity-backend:latest run --log-level info
 +                  tehsmash/vmclarity-backend:9bba94334c1de1aeed63ed12de3784d561fc4f1b run --log-level info
 
                  [Install]
                  WantedBy=multi-user.target
 ```
 
-# Go to AWS -> Cloudformation and create a stack.
+### 3. Install VMClarity cloudformation
 
-* Ensure you have an SSH key pair uploaded to AWS Ec2
-* Go to CloudFormation -> Create Stack -> From Template.
-* Upload the modified VMClarity.cfn
-* Follow the wizard through to the end
-* Wait for install to complete
+1. Ensure you have an SSH key pair uploaded to AWS Ec2
+2. Go to CloudFormation -> Create Stack -> Upload template.
+3. Upload the modified VMClarity.cfn
+4. Follow the wizard through to the end
+5. Wait for install to complete
 
-# Ssh to the VMClarity server
+### 4. Ensure that VMClarity backend is working correctly
 
-* Get the IP address from the CloudFormation stack's Output Tab
-* `ssh ubuntu@<ip address>`
-* Check the VMClarity Logs
-  ```
-  sudo journalctl -u vmclarity
-  ```
+1. Get the IP address from the CloudFormation stack's Output Tab
+2. `ssh ubuntu@<ip address>`
+3. Check the VMClarity Logs
 
-# Create Scan Config
+   ```
+   sudo journalctl -u vmclarity
+   ```
 
-1. Copy the scanConfig.json into the ubuntu user's home directory
+## Performing an end to end test
+
+1. Copy the example [scanConfig.json](/docs/scanConfig.json) into the ubuntu user's home directory
 
    ```
    scp scanConfig.json ubuntu@<ip address>:~/scanConfig.json
@@ -138,10 +150,10 @@ Update the cloud formation with the pushed docker images, for example:
    curl -X POST http://localhost:8888/api/scanConfigs -H 'Content-Type: application/json' -d @scanConfig.json
    ```
 
-4. Watch the VMClarity logs again
+4. Check VMClarity logs to ensure that everything is performing as expected
 
    ```
-   sudo journalctl -u vmclarity -f
+   sudo journalctl -u vmclarity
    ```
 
 5. Monitor the scan results
