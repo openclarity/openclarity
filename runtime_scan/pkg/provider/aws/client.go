@@ -188,6 +188,32 @@ func convertBool(all *bool) bool {
 	return false
 }
 
+func (c *Client) CreateVolume(ctx context.Context, snapshotID string, region string, availabilityZone string) (types.Volume, error) {
+	params := ec2.CreateVolumeInput{
+		AvailabilityZone: &availabilityZone,
+		SnapshotId:       &snapshotID,
+		TagSpecifications: []ec2types.TagSpecification{
+			{
+				ResourceType: ec2types.ResourceTypeVolume,
+				Tags:         vmclarityTags,
+			},
+		},
+		VolumeType: ec2types.VolumeTypeGp2,
+	}
+	out, err := c.ec2Client.CreateVolume(ctx, &params, func(options *ec2.Options) {
+		options.Region = region
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create volume: %v", err)
+	}
+	return &VolumeImpl{
+		ec2Client: c.ec2Client,
+		id:        *out.VolumeId,
+		region:    region,
+	}, nil
+}
+
+// TODO we probably don't need the snapshot in here, just the region. But how do we identify the instance in that case (inastance tags?)
 func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, config provider.ScanningJobConfig) (types.Instance, error) {
 	cloudInitData := cloudinit.Data{
 		Volume:           c.awsConfig.DeviceName,
@@ -205,22 +231,9 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 
 	runInstancesInput := &ec2.RunInstancesInput{
-		MaxCount: utils.Int32Ptr(1),
-		MinCount: utils.Int32Ptr(1),
-		ImageId:  &c.awsConfig.AmiID,
-		BlockDeviceMappings: []ec2types.BlockDeviceMapping{
-			{
-				// attach the snapshot to the instance at launch (a new volume will be created)
-				DeviceName: &c.awsConfig.DeviceName,
-				Ebs: &ec2types.EbsBlockDevice{
-					DeleteOnTermination: utils.BoolPtr(true),
-					Encrypted:           nil, // ?
-					SnapshotId:          utils.StringPtr(snapshot.GetID()),
-					VolumeSize:          nil,                    // default is snapshot size
-					VolumeType:          ec2types.VolumeTypeGp2, // TODO need to decide volume type
-				},
-			},
-		},
+		MaxCount:     utils.Int32Ptr(1),
+		MinCount:     utils.Int32Ptr(1),
+		ImageId:      &c.awsConfig.AmiID,
 		InstanceType: ec2types.InstanceTypeT2Large, // TODO need to decide instance type
 		TagSpecifications: []ec2types.TagSpecification{
 			{
@@ -259,10 +272,26 @@ func (c *Client) RunScanningJob(ctx context.Context, snapshot types.Snapshot, co
 	}
 
 	return &InstanceImpl{
-		ec2Client: c.ec2Client,
-		id:        *out.Instances[0].InstanceId,
-		region:    snapshot.GetRegion(),
+		ec2Client:        c.ec2Client,
+		id:               *out.Instances[0].InstanceId,
+		region:           snapshot.GetRegion(),
+		availabilityZone: *out.Instances[0].Placement.AvailabilityZone,
 	}, nil
+}
+
+func (c *Client) AttachVolume(ctx context.Context, volume types.Volume, instance types.Instance) error {
+	_, err := c.ec2Client.AttachVolume(ctx, &ec2.AttachVolumeInput{
+		Device:     utils.StringPtr(c.awsConfig.DeviceName),
+		InstanceId: utils.StringPtr(instance.GetID()),
+		VolumeId:   utils.StringPtr(volume.GetID()),
+	}, func(options *ec2.Options) {
+		options.Region = instance.GetLocation()
+	})
+	if err != nil {
+		return fmt.Errorf("failed to attach volume: %v", err)
+	}
+
+	return nil
 }
 
 func createInstanceTags(id string) []ec2types.Tag {

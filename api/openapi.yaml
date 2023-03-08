@@ -1121,6 +1121,7 @@ components:
           enum:
             - NOT_SCANNED
             - INIT
+            - ATTACHED
             - IN_PROGRESS
             - DONE
         errors:
