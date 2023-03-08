@@ -8,7 +8,6 @@ Software Bill Of Materials (SBOM) and vulnerabilities
 - [Getting Started](#getting-started)
   - [Installing on AWS](#installing-on-aws)
   - [Accessing the API](#accessing-the-api)
-- [Security](#security)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)

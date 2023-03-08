@@ -8,7 +8,7 @@ repository:
   description: VMClarity is a tool for agentless detection and management of Virtual Machine Software Bill Of Materials (SBOM) and vulnerabilities
 
   # A URL with more information about the repository
-#  homepage: 
+  homepage: openclarity.io
 
   # Updates the default branch for this repository.
   default_branch: main
@@ -20,6 +20,21 @@ repository:
   # Either `true` to enable vulnerability alerts, or `false` to disable
   # vulnerability alerts.
   enable_vulnerability_alerts: true
+
+  # Either `true` to allow squash-merging pull requests, or `false` to prevent
+  # squash-merging.
+  allow_squash_merge: true
+
+  # Either `true` to allow merging pull requests with a merge commit, or `false`
+  # to prevent merging pull requests with merge commits.
+  allow_merge_commit: false
+
+  # Either `true` to allow rebase-merging pull requests, or `false` to prevent
+  # rebase-merging.
+  allow_rebase_merge: true
+
+  # Either `true` to enable automatic deletion of branches on merge, or `false` to disable
+  delete_branch_on_merge: false
 
 # See https://docs.github.com/en/rest/reference/teams#add-or-update-team-repository-permissions for available options
 teams:
