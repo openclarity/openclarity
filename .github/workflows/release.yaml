@@ -1,0 +1,89 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  GO_VERSION: 1.20
+
+jobs:
+  verification:
+    name: Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Check licenses
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make license-check
+
+      - name: Run verification
+        run: make check
+
+  build_and_push:
+    needs: verification
+    name: Build & Push
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: ${{ github.ref_name }}
+      push: true
+      upload: false
+
+  main_release:
+    needs: build_and_push
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Render cloudformation
+        id: render_cloudformation
+        run: |
+          sed -i 's/ghcr.io\/openclarity\/vmclarity-backend:latest/ghcr.ioi\/openclarity\/vmclarity-backend:${{ github.ref_name }}/g' installation/aws/VmClarity.cfn
+          sed -i 's/ghcr.io\/openclarity\/vmclarity-cli:latest/ghcr.ioi\/openclarity\/vmclarity-cli:${{ github.ref_name }}/g' installation/aws/VmClarity.cfn
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          version: v1.16.0
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # TODO(sambetts) We need to publish a tag in the format "api/<version>" tag
+  # so that go mod is able to import the api module without overriding. We need
+  # to work out how to do this cleanly from github actions on release so that
+  # we don't need to manage it manually. We could do something this which will
+  # create another release:
+  #
+  # api_release:
+  #   needs: release
+  #   name: Release API Module
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Release API
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: VMClarity {{ github.ref }} API
+  #         body: See main {{ github.ref }} release for release notes.
+  #         tag_name: api/{{ github.ref }}

@@ -28,7 +28,7 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-  vmclarity:
+  vmclarity-backend:
     needs: timestamp
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          tags: ghcr.io/openclarity/vmclarity:${{ inputs.image_tag }}
+          tags: ghcr.io/openclarity/vmclarity-backend:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
           outputs: "${{ env.OUTPUTS }}"
