@@ -16,9 +16,11 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -27,6 +29,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/cli/pkg"
 	"github.com/openclarity/vmclarity/cli/pkg/mount"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
@@ -63,14 +66,6 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
 
-		if mountVolume {
-			mountPoints, err := mountAttachedVolume()
-			if err != nil {
-				return fmt.Errorf("failed to mount attached volume: %v", err)
-			}
-			setMountPointsForFamiliesInput(mountPoints, config)
-		}
-
 		var exporter *Exporter
 		if server != "" {
 			exp, err := CreateExporter()
@@ -78,6 +73,20 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("failed to create a result exporter: %w", err)
 			}
 			exporter = exp
+		}
+
+		if mountVolume {
+			// wait for volume to be attached.
+			if err := waitForAttached(exporter); err != nil {
+				return fmt.Errorf("failed to wait for volume attached: %v", err)
+			}
+			logger.Infof("got volume attached state")
+
+			mountPoints, err := mountAttachedVolume()
+			if err != nil {
+				return fmt.Errorf("failed to mount attached volume: %v", err)
+			}
+			setMountPointsForFamiliesInput(mountPoints, config)
 		}
 
 		if exporter != nil {
@@ -117,6 +126,27 @@ var rootCmd = &cobra.Command{
 
 		return nil
 	},
+}
+
+func waitForAttached(exporter *Exporter) error {
+	// nolint:govet
+	ctxWithTimeout, _ := context.WithTimeout(context.Background(), 3*time.Minute)
+
+	for {
+		select {
+		case <-time.After(3 * time.Second):
+			status, err := exporter.client.GetScanResultStatus(ctxWithTimeout, scanResultID)
+			if err != nil {
+				return err
+			}
+			// wait for status attached (meaning volume was attached and can be mounted).
+			if *status.General.State == models.ATTACHED {
+				return nil
+			}
+		case <-ctxWithTimeout.Done():
+			return fmt.Errorf("waiting for volume ready was canceled: %v", ctxWithTimeout.Err())
+		}
+	}
 }
 
 // nolint:cyclop
