@@ -17,8 +17,8 @@ package scanner
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/anchore/syft/syft/source"
@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	runtimeScanUtils "github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	familiesExploits "github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	exploitsCommon "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
@@ -51,50 +52,6 @@ const (
 	SnapshotCreationTimeout = 3 * time.Minute
 	SnapshotCopyTimeout     = 15 * time.Minute
 )
-
-func (s *Scanner) GetScan(ctx context.Context, scanID string) (*models.Scan, error) {
-	resp, err := s.backendClient.GetScansScanIDWithResponse(ctx, scanID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get a scan: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get a scan: empty body")
-		}
-		return resp.JSON200, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get a scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to get a scan status. status code=%v", resp.StatusCode())
-	}
-}
-
-func (s *Scanner) GetTargetScanSummary(ctx context.Context, scanResultID string) (*models.TargetScanResultSummary, error) {
-	params := &models.GetScanResultsScanResultIDParams{
-		Select: runtimeScanUtils.StringPtr("summary"),
-	}
-	resp, err := s.backendClient.GetScanResultsScanResultIDWithResponse(ctx, scanResultID, params)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get a target scan summary: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get a target scan summary: empty body")
-		}
-		if resp.JSON200.Summary == nil {
-			return nil, fmt.Errorf("failed to get a target scan summary: empty summary in body")
-		}
-		return resp.JSON200.Summary, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get a target scan summary. summary code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to get a target scan summary. summary code=%v", resp.StatusCode())
-	}
-}
 
 // run jobs.
 // nolint:cyclop
@@ -177,19 +134,20 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 		}
 
 		// regardless of success or failure we need to patch the scan status
-		if err := s.patchScan(ctx, s.scanID, scan); err != nil {
+		err = s.backendClient.PatchScan(ctx, s.scanID, scan)
+		if err != nil {
 			log.WithFields(s.logFields).Errorf("failed to patch the scan ID=%s: %v", s.scanID, err)
 		}
 	}
 }
 
 func (s *Scanner) createScanWithUpdatedSummary(ctx context.Context, data scanData) (*models.Scan, error) {
-	scan, err := s.GetScan(ctx, s.scanID)
+	scan, err := s.backendClient.GetScan(ctx, s.scanID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scan to update status: %v", err)
 	}
 
-	scanResultSummary, err := s.GetTargetScanSummary(ctx, data.scanResultID)
+	scanResultSummary, err := s.backendClient.GetScanResultSummary(ctx, data.scanResultID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get result summary to update status: %v", err)
 	}
@@ -268,7 +226,7 @@ func (s *Scanner) waitForResult(ctx context.Context, data *scanData, ks chan boo
 		case <-ticker.C:
 			log.WithFields(s.logFields).Infof("Polling scan results for targetID=%v with scanID=%v", data.targetInstance.TargetID, s.scanID)
 			// Get scan results from backend
-			instanceScanResults, err := s.GetTargetScanStatus(ctx, data.scanResultID)
+			instanceScanResults, err := s.backendClient.GetScanResultStatus(ctx, data.scanResultID)
 			if err != nil {
 				log.WithFields(s.logFields).Errorf("Failed to get target scan status. scanID=%v, targetID=%s: %v", s.scanID, data.targetInstance.TargetID, err)
 				continue
@@ -570,34 +528,16 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 		TargetId: targetID,
 		Summary:  createInitScanResultSummary(),
 	}
-	resp, err := s.backendClient.PostScanResultsWithResponse(ctx, scanResult)
+	createdScanResult, err := s.backendClient.PostScanResult(ctx, scanResult)
 	if err != nil {
-		return "", fmt.Errorf("failed to post scan status: %v", err)
+		var conErr backendclient.ScanResultConflictError
+		if errors.As(err, &conErr) {
+			log.Infof("Scan results already exist. scan result id=%v.", *conErr.ConflictingScanResult.Id)
+			return *conErr.ConflictingScanResult.Id, nil
+		}
+		return "", fmt.Errorf("failed to post scan result: %v", err)
 	}
-	switch resp.StatusCode() {
-	case http.StatusCreated:
-		if resp.JSON201 == nil {
-			return "", fmt.Errorf("failed to create a scan status, empty body")
-		}
-		if resp.JSON201.Id == nil {
-			return "", fmt.Errorf("failed to create a scan status, missing id")
-		}
-		return *resp.JSON201.Id, nil
-	case http.StatusConflict:
-		if resp.JSON409 == nil {
-			return "", fmt.Errorf("failed to create a scan status, empty body on conflict")
-		}
-		if resp.JSON409.TargetScanResult.Id == nil {
-			return "", fmt.Errorf("failed to create a scan status, missing id")
-		}
-		log.Infof("Scan results already exist with id %v.", *resp.JSON409.TargetScanResult.Id)
-		return *resp.JSON409.TargetScanResult.Id, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return "", fmt.Errorf("failed to create a scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return "", fmt.Errorf("failed to create a scan status. status code=%v", resp.StatusCode())
-	}
+	return *createdScanResult.Id, nil
 }
 
 func createInitScanResultSummary() *models.TargetScanResultSummary {

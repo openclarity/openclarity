@@ -18,15 +18,14 @@ package configwatcher
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
 	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
 const (
@@ -34,13 +33,13 @@ const (
 )
 
 type ScanConfigWatcher struct {
-	backendClient  *client.ClientWithResponses
+	backendClient  *backendclient.BackendClient
 	providerClient provider.Client
 	scannerConfig  *_config.ScannerConfig
 }
 
 func CreateScanConfigWatcher(
-	backendClient *client.ClientWithResponses,
+	backendClient *backendclient.BackendClient,
 	providerClient provider.Client,
 	scannerConfig _config.ScannerConfig,
 ) *ScanConfigWatcher {
@@ -51,52 +50,23 @@ func CreateScanConfigWatcher(
 	}
 }
 
-func (scw *ScanConfigWatcher) getScanConfigs() (*models.ScanConfigs, error) {
-	resp, err := scw.backendClient.GetScanConfigsWithResponse(context.TODO(), &models.GetScanConfigsParams{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get a scan configs: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no scan configs: empty body")
-		}
-		return resp.JSON200, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get scan configs. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to get scan configs. status code=%v", resp.StatusCode())
-	}
-}
-
 func (scw *ScanConfigWatcher) hasRunningScansByScanConfigIDAndOperationTime(scanConfigID string, operationTime time.Time) (bool, error) {
 	//odataFilter := fmt.Sprintf("scanConfigId eq '%s' and (endTime eq null or startTime gte '%s')", scanConfigID, operationTime.String())
 	//params := &models.GetScansParams{
 	//	Filter: &odataFilter,
 	//}
-	resp, err := scw.backendClient.GetScansWithResponse(context.TODO(), &models.GetScansParams{})
+	scans, err := scw.backendClient.GetScans(context.TODO(), models.GetScansParams{})
 	if err != nil {
-		return false, fmt.Errorf("failed to get a scans with: %v", err)
+		return false, fmt.Errorf("failed to get a scans: %v", err)
 	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return false, fmt.Errorf("no scans: empty body")
-		}
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return false, fmt.Errorf("failed to get scans. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
-		}
-		return false, fmt.Errorf("failed to get scans. status code=%v", resp.StatusCode())
-	}
+
 	// After Odata filters will be implemented on the backend the filter function can be removed
-	return hasRunningOrCompletedScan(resp.JSON200, scanConfigID, operationTime), nil
+	return hasRunningOrCompletedScan(scans, scanConfigID, operationTime), nil
 }
 
 func (scw *ScanConfigWatcher) getScanConfigsToScan() ([]models.ScanConfig, error) {
 	scanConfigsToScan := make([]models.ScanConfig, 0)
-	scanConfigs, err := scw.getScanConfigs()
+	scanConfigs, err := scw.backendClient.GetScanConfigs(context.TODO(), models.GetScanConfigsParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to check new scan configs: %v", err)
 	}

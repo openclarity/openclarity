@@ -18,19 +18,18 @@ package scanner
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
 	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
 type Scanner struct {
@@ -39,7 +38,7 @@ type Scanner struct {
 	killSignal         chan bool
 	providerClient     provider.Client
 	logFields          log.Fields
-	backendClient      *client.ClientWithResponses
+	backendClient      *backendclient.BackendClient
 	scanID             string
 	targetInstances    []*types.TargetInstance
 	config             *_config.ScannerConfig
@@ -58,7 +57,7 @@ type scanData struct {
 func CreateScanner(
 	config *_config.ScannerConfig,
 	providerClient provider.Client,
-	backendClient *client.ClientWithResponses,
+	backendClient *backendclient.BackendClient,
 	scanConfig *models.ScanConfig,
 	targetInstances []*types.TargetInstance,
 	scanID string,
@@ -101,27 +100,13 @@ func (s *Scanner) initScan(ctx context.Context) error {
 	s.targetIDToScanData = targetIDToScanData
 
 	// Move scan to "In Progress" and update the summary.
+	summary := createInitScanSummary()
+	summary.JobsLeftToRun = utils.PointerTo[int](len(targetIDToScanData))
 	scan := &models.Scan{
-		State: utils.PointerTo[models.ScanState](models.InProgress),
-		Summary: &models.ScanSummary{
-			JobsCompleted:          utils.PointerTo[int](0),
-			JobsLeftToRun:          utils.PointerTo[int](len(targetIDToScanData)),
-			TotalExploits:          utils.PointerTo[int](0),
-			TotalMalware:           utils.PointerTo[int](0),
-			TotalMisconfigurations: utils.PointerTo[int](0),
-			TotalPackages:          utils.PointerTo[int](0),
-			TotalRootkits:          utils.PointerTo[int](0),
-			TotalSecrets:           utils.PointerTo[int](0),
-			TotalVulnerabilities: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
-				TotalHighVulnerabilities:       utils.PointerTo[int](0),
-				TotalMediumVulnerabilities:     utils.PointerTo[int](0),
-				TotalLowVulnerabilities:        utils.PointerTo[int](0),
-				TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
-			},
-		},
+		State:   utils.PointerTo[models.ScanState](models.InProgress),
+		Summary: summary,
 	}
-	err := s.patchScan(ctx, s.scanID, scan)
+	err := s.backendClient.PatchScan(ctx, s.scanID, scan)
 	if err != nil {
 		return fmt.Errorf("failed to update scan: %v", err)
 	}
@@ -131,23 +116,23 @@ func (s *Scanner) initScan(ctx context.Context) error {
 	return nil
 }
 
-// nolint:cyclop
-func (s *Scanner) patchScan(ctx context.Context, scanID models.ScanID, scan *models.Scan) error {
-	resp, err := s.backendClient.PatchScansScanIDWithResponse(ctx, scanID, *scan)
-	if err != nil {
-		return fmt.Errorf("failed to patch a scan: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to patch a scan: empty body")
-		}
-		return nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return fmt.Errorf("failed to patch scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return fmt.Errorf("failed to patch scan. status code=%v", resp.StatusCode())
+func createInitScanSummary() *models.ScanSummary {
+	return &models.ScanSummary{
+		JobsCompleted:          utils.PointerTo[int](0),
+		JobsLeftToRun:          utils.PointerTo[int](0),
+		TotalExploits:          utils.PointerTo[int](0),
+		TotalMalware:           utils.PointerTo[int](0),
+		TotalMisconfigurations: utils.PointerTo[int](0),
+		TotalPackages:          utils.PointerTo[int](0),
+		TotalRootkits:          utils.PointerTo[int](0),
+		TotalSecrets:           utils.PointerTo[int](0),
+		TotalVulnerabilities: &models.VulnerabilityScanSummary{
+			TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
+			TotalHighVulnerabilities:       utils.PointerTo[int](0),
+			TotalLowVulnerabilities:        utils.PointerTo[int](0),
+			TotalMediumVulnerabilities:     utils.PointerTo[int](0),
+			TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+		},
 	}
 }
 
@@ -172,7 +157,8 @@ func (s *Scanner) Scan(ctx context.Context) error {
 			StateMessage: utils.StringPtr("Nothing to scan"),
 			StateReason:  &reason,
 		}
-		if err := s.patchScan(ctx, s.scanID, scan); err != nil {
+		err := s.backendClient.PatchScan(ctx, s.scanID, scan)
+		if err != nil {
 			return fmt.Errorf("failed to set end time of the scan ID=%s: %v", s.scanID, err)
 		}
 		return nil
@@ -183,34 +169,9 @@ func (s *Scanner) Scan(ctx context.Context) error {
 	return nil
 }
 
-func (s *Scanner) GetTargetScanStatus(ctx context.Context, scanResultID string) (*models.TargetScanStatus, error) {
-	params := &models.GetScanResultsScanResultIDParams{
-		Select: utils.StringPtr("status"),
-	}
-	resp, err := s.backendClient.GetScanResultsScanResultIDWithResponse(ctx, scanResultID, params)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get a target scan status: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get a target scan status: empty body")
-		}
-		if resp.JSON200.Status == nil {
-			return nil, fmt.Errorf("failed to get a target scan status: empty status in body")
-		}
-		return resp.JSON200.Status, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get a target scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to get a target scan status. status code=%v", resp.StatusCode())
-	}
-}
-
 func (s *Scanner) SetTargetScanStatusCompletionError(ctx context.Context, scanResultID, errMsg string) error {
 	// Get the status and set the completion error
-	status, err := s.GetTargetScanStatus(ctx, scanResultID)
+	status, err := s.backendClient.GetScanResultStatus(ctx, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to get a target scan status: %v", err)
 	}
@@ -224,43 +185,12 @@ func (s *Scanner) SetTargetScanStatusCompletionError(ctx context.Context, scanRe
 	done := models.DONE
 	status.General.State = &done
 
-	err = s.patchTargetScanStatus(ctx, scanResultID, status)
+	err = s.backendClient.PatchTargetScanStatus(ctx, scanResultID, status)
 	if err != nil {
 		return fmt.Errorf("failed to put target scan status: %v", err)
 	}
 
 	return nil
-}
-
-// nolint:cyclop
-func (s *Scanner) patchTargetScanStatus(ctx context.Context, scanResultID string, status *models.TargetScanStatus) error {
-	scanResult := models.TargetScanResult{
-		Status: status,
-	}
-	resp, err := s.backendClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, scanResult)
-	if err != nil {
-		return fmt.Errorf("failed to patch a scan result status: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update a scan result status: empty body")
-		}
-		return nil
-	case http.StatusNotFound:
-		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update a scan result status: empty body on not found")
-		}
-		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return fmt.Errorf("failed to update scan result status, not found: %v", resp.JSON404.Message)
-		}
-		return fmt.Errorf("failed to update scan result status, not found")
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return fmt.Errorf("failed to update scan result status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return fmt.Errorf("failed to update scan result status. status code=%v", resp.StatusCode())
-	}
 }
 
 func (s *Scanner) Clear() {
