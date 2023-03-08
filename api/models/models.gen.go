@@ -67,6 +67,7 @@ const (
 
 // Defines values for TargetScanStateState.
 const (
+	ATTACHED   TargetScanStateState = "ATTACHED"
 	DONE       TargetScanStateState = "DONE"
 	INIT       TargetScanStateState = "INIT"
 	INPROGRESS TargetScanStateState = "IN_PROGRESS"

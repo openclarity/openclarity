@@ -28,9 +28,10 @@ import (
 )
 
 type InstanceImpl struct {
-	ec2Client *ec2.Client
-	id        string
-	region    string
+	ec2Client        *ec2.Client
+	id               string
+	region           string
+	availabilityZone string
 }
 
 func (i *InstanceImpl) GetID() string {
@@ -39,6 +40,10 @@ func (i *InstanceImpl) GetID() string {
 
 func (i *InstanceImpl) GetLocation() string {
 	return i.region
+}
+
+func (i *InstanceImpl) GetAvailabilityZone() string {
+	return i.availabilityZone
 }
 
 func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) {
@@ -73,7 +78,6 @@ func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) 
 			return &VolumeImpl{
 				ec2Client: i.ec2Client,
 				id:        *blkDevice.Ebs.VolumeId,
-				name:      rootDeviceName,
 				region:    i.region,
 			}, nil
 		}
@@ -88,7 +92,7 @@ func (i *InstanceImpl) WaitForReady(ctx context.Context) error {
 	for {
 		select {
 		case <-time.After(checkInterval * time.Second):
-			out, err := i.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
+			out, err := i.ec2Client.DescribeInstances(ctxWithTimeout, &ec2.DescribeInstancesInput{
 				InstanceIds: []string{i.id},
 			}, func(options *ec2.Options) {
 				options.Region = i.region

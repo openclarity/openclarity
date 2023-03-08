@@ -567,6 +567,17 @@ Resources:
             Resource: "*"
           #
           # ##########################
+
+          # ##########################
+          # Allow VMClarity to attach volume to an instance
+          - Effect: "Allow"
+            Action:
+            - "ec2:AttachVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+          #
+          # ##########################
       Roles:
         - !Ref VmClarityServerRole
   # Create a IAM role which will contain the policy above.
