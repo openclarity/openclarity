@@ -1,0 +1,13 @@
+name: Main merge
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: latest
+      push: true
+      upload: false
