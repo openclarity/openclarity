@@ -18,10 +18,9 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net/http"
 
-	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
@@ -33,17 +32,17 @@ import (
 )
 
 type Exporter struct {
-	apiClient client.ClientWithResponsesInterface
+	client *backendclient.BackendClient
 }
 
 func CreateExporter() (*Exporter, error) {
-	apiClient, err := client.NewClientWithResponses(server)
+	client, err := backendclient.Create(server)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create VMClarity API client. server=%v: %w", server, err)
 	}
 
 	return &Exporter{
-		apiClient: apiClient,
+		client: client,
 	}, nil
 }
 
@@ -93,112 +92,45 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 	}
 }
 
-// nolint:cyclop
-func (e *Exporter) getExistingScanResult() (models.TargetScanResult, error) {
-	newGetExistingError := func(err error) error {
-		return fmt.Errorf("failed to get existing scan result %v: %w", scanResultID, err)
-	}
-
-	var scanResults models.TargetScanResult
-	resp, err := e.apiClient.GetScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, &models.GetScanResultsScanResultIDParams{})
-	if err != nil {
-		return scanResults, newGetExistingError(err)
-	}
-
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return scanResults, newGetExistingError(fmt.Errorf("empty body"))
-		}
-		return *resp.JSON200, nil
-	case http.StatusNotFound:
-		if resp.JSON404 == nil {
-			return scanResults, newGetExistingError(fmt.Errorf("empty body on not found"))
-		}
-		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
-		}
-		return scanResults, newGetExistingError(fmt.Errorf("not found"))
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
-		}
-		return scanResults, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
-	}
-}
-
-// nolint:cyclop
-func (e *Exporter) patchExistingScanResult(scanResults models.TargetScanResult) error {
-	newUpdateScanResultError := func(err error) error {
-		return fmt.Errorf("failed to update scan result %v on server %v: %w", scanResultID, server, err)
-	}
-
-	resp, err := e.apiClient.PatchScanResultsScanResultIDWithResponse(context.TODO(), scanResultID, scanResults)
-	if err != nil {
-		return newUpdateScanResultError(err)
-	}
-
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return newUpdateScanResultError(fmt.Errorf("empty body"))
-		}
-		return nil
-	case http.StatusNotFound:
-		if resp.JSON404 == nil {
-			return newUpdateScanResultError(fmt.Errorf("empty body on not found"))
-		}
-		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
-		}
-		return newUpdateScanResultError(fmt.Errorf("not found"))
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
-		}
-		return newUpdateScanResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
-	}
-}
-
 func (e *Exporter) MarkScanResultInProgress() error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.General == nil {
-		scanResults.Status.General = &models.TargetScanState{}
+	if scanResult.Status.General == nil {
+		scanResult.Status.General = &models.TargetScanState{}
 	}
 
 	state := models.INPROGRESS
-	scanResults.Status.General.State = &state
+	scanResult.Status.General.State = &state
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil
 }
 
 func (e *Exporter) MarkScanResultDone(errors []error) error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.General == nil {
-		scanResults.Status.General = &models.TargetScanState{}
+	if scanResult.Status.General == nil {
+		scanResult.Status.General = &models.TargetScanState{}
 	}
 
 	state := models.DONE
-	scanResults.Status.General.State = &state
+	scanResult.Status.General.State = &state
 
 	// If we had any errors running the family or exporting results add it
 	// to the general errors
@@ -207,8 +139,8 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 		// Pull the errors list out so that we can append to it (if there are
 		// any errors at this point I would have hoped the orcestrator wouldn't
 		// have spawned the VM) but we never know.
-		if scanResults.Status.General.Errors != nil {
-			errorStrs = *scanResults.Status.General.Errors
+		if scanResult.Status.General.Errors != nil {
+			errorStrs = *scanResult.Status.General.Errors
 		}
 		for _, err := range errors {
 			if err != nil {
@@ -216,32 +148,32 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 			}
 		}
 		if len(errorStrs) > 0 {
-			scanResults.Status.General.Errors = &errorStrs
+			scanResult.Status.General.Errors = &errorStrs
 		}
 	}
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil
 }
 
 func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErrors) error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.Sbom == nil {
-		scanResults.Status.Sbom = &models.TargetScanState{}
+	if scanResult.Status.Sbom == nil {
+		scanResult.Status.Sbom = &models.TargetScanState{}
 	}
-	if scanResults.Summary == nil {
-		scanResults.Summary = &models.TargetScanResultSummary{}
+	if scanResult.Summary == nil {
+		scanResult.Summary = &models.TargetScanResultSummary{}
 	}
 
 	var errors []string
@@ -253,37 +185,37 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 		if err != nil {
 			errors = append(errors, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
 		} else {
-			scanResults.Sboms = convertSBOMResultToAPIModel(sbomResults)
+			scanResult.Sboms = convertSBOMResultToAPIModel(sbomResults)
 		}
-		scanResults.Summary.TotalPackages = utils.PointerTo[int](len(*scanResults.Sboms.Packages))
+		scanResult.Summary.TotalPackages = utils.PointerTo[int](len(*scanResult.Sboms.Packages))
 	}
 
 	state := models.DONE
-	scanResults.Status.Sbom.State = &state
-	scanResults.Status.Sbom.Errors = &errors
+	scanResult.Status.Sbom.State = &state
+	scanResult.Status.Sbom.Errors = &errors
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil
 }
 
 func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErrors) error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.Vulnerabilities == nil {
-		scanResults.Status.Vulnerabilities = &models.TargetScanState{}
+	if scanResult.Status.Vulnerabilities == nil {
+		scanResult.Status.Vulnerabilities = &models.TargetScanState{}
 	}
-	if scanResults.Summary == nil {
-		scanResults.Summary = &models.TargetScanResultSummary{}
+	if scanResult.Summary == nil {
+		scanResult.Summary = &models.TargetScanResultSummary{}
 	}
 
 	var errors []string
@@ -295,18 +227,18 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 		if err != nil {
 			errors = append(errors, fmt.Errorf("failed to get vulnerabilities from scan: %w", err).Error())
 		} else {
-			scanResults.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
+			scanResult.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
-		scanResults.Summary.TotalVulnerabilities = getVulnerabilityTotalsPerSeverity(scanResults.Vulnerabilities.Vulnerabilities)
+		scanResult.Summary.TotalVulnerabilities = getVulnerabilityTotalsPerSeverity(scanResult.Vulnerabilities.Vulnerabilities)
 	}
 
 	state := models.DONE
-	scanResults.Status.Vulnerabilities.State = &state
-	scanResults.Status.Vulnerabilities.Errors = &errors
+	scanResult.Status.Vulnerabilities.State = &state
+	scanResult.Status.Vulnerabilities.Errors = &errors
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil
@@ -341,19 +273,19 @@ func getVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) 
 }
 
 func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.RunErrors) error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.Secrets == nil {
-		scanResults.Status.Secrets = &models.TargetScanState{}
+	if scanResult.Status.Secrets == nil {
+		scanResult.Status.Secrets = &models.TargetScanState{}
 	}
-	if scanResults.Summary == nil {
-		scanResults.Summary = &models.TargetScanResultSummary{}
+	if scanResult.Summary == nil {
+		scanResult.Summary = &models.TargetScanResultSummary{}
 	}
 
 	var errors []string
@@ -365,18 +297,18 @@ func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.Run
 		if err != nil {
 			errors = append(errors, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
 		} else {
-			scanResults.Secrets = convertSecretsResultToAPIModel(secretsResults)
+			scanResult.Secrets = convertSecretsResultToAPIModel(secretsResults)
 		}
-		scanResults.Summary.TotalSecrets = utils.PointerTo[int](len(*scanResults.Secrets.Secrets))
+		scanResult.Summary.TotalSecrets = utils.PointerTo[int](len(*scanResult.Secrets.Secrets))
 	}
 
 	state := models.DONE
-	scanResults.Status.Secrets.State = &state
-	scanResults.Status.Secrets.Errors = &errors
+	scanResult.Status.Secrets.State = &state
+	scanResult.Status.Secrets.Errors = &errors
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil
@@ -446,19 +378,19 @@ func convertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.
 }
 
 func (e *Exporter) ExportExploitsResult(res *results.Results) error {
-	scanResults, err := e.getExistingScanResult()
+	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get scan result: %w", err)
 	}
 
-	if scanResults.Status == nil {
-		scanResults.Status = &models.TargetScanStatus{}
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResults.Status.Exploits == nil {
-		scanResults.Status.Exploits = &models.TargetScanState{}
+	if scanResult.Status.Exploits == nil {
+		scanResult.Status.Exploits = &models.TargetScanState{}
 	}
-	if scanResults.Summary == nil {
-		scanResults.Summary = &models.TargetScanResultSummary{}
+	if scanResult.Summary == nil {
+		scanResult.Summary = &models.TargetScanResultSummary{}
 	}
 
 	var errors []string
@@ -467,17 +399,17 @@ func (e *Exporter) ExportExploitsResult(res *results.Results) error {
 	if err != nil {
 		errors = append(errors, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
 	} else {
-		scanResults.Exploits = convertExploitsResultToAPIModel(exploitsResults)
-		scanResults.Summary.TotalExploits = utils.PointerTo[int](len(*scanResults.Exploits.Exploits))
+		scanResult.Exploits = convertExploitsResultToAPIModel(exploitsResults)
+		scanResult.Summary.TotalExploits = utils.PointerTo[int](len(*scanResult.Exploits.Exploits))
 	}
 
 	state := models.DONE
-	scanResults.Status.Exploits.State = &state
-	scanResults.Status.Exploits.Errors = &errors
+	scanResult.Status.Exploits.State = &state
+	scanResult.Status.Exploits.Errors = &errors
 
-	err = e.patchExistingScanResult(scanResults)
+	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 
 	return nil

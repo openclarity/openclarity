@@ -17,8 +17,8 @@ package configwatcher
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -27,6 +27,7 @@ import (
 	_scanner "github.com/openclarity/vmclarity/runtime_scan/pkg/scanner"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
 func (scw *ScanConfigWatcher) runNewScans(ctx context.Context, scanConfigs []models.ScanConfig) {
@@ -69,9 +70,18 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 		State:     utils.PointerTo[models.ScanState](models.Pending),
 		Summary:   createInitScanSummary(),
 	}
-	scanID, err := scw.createScan(ctx, scan)
+	var scanID string
+	createdScan, err := scw.backendClient.PostScan(ctx, *scan)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to get or create a scan: %v", err)
+		var conErr backendclient.ScanConflictError
+		if errors.As(err, &conErr) {
+			log.Infof("Scan already exist. scan id=%v.", *conErr.ConflictingScan.Id)
+			scanID = *conErr.ConflictingScan.Id
+		} else {
+			return nil, "", fmt.Errorf("failed to post scan: %v", err)
+		}
+	} else {
+		scanID = *createdScan.Id
 	}
 
 	// Do discovery of targets
@@ -91,7 +101,7 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 		State:        utils.PointerTo[models.ScanState](models.Discovered),
 		StateMessage: utils.PointerTo[string]("Targets for scan successfully discovered"),
 	}
-	scanID, err = scw.patchScan(ctx, scanID, scan)
+	err = scw.backendClient.PatchScan(ctx, scanID, scan)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to update scan: %v", err)
 	}
@@ -131,12 +141,12 @@ func getTargetIDs(targetInstances []*types.TargetInstance) *[]string {
 func (scw *ScanConfigWatcher) createTargetInstances(ctx context.Context, instances []types.Instance) ([]*types.TargetInstance, error) {
 	targetInstances := make([]*types.TargetInstance, 0, len(instances))
 	for i, instance := range instances {
-		target, err := scw.createTarget(ctx, instance)
+		targetID, err := scw.createTarget(ctx, instance)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create target. instanceID=%v: %v", instance.GetID(), err)
 		}
 		targetInstances = append(targetInstances, &types.TargetInstance{
-			TargetID: *target.Id,
+			TargetID: targetID,
 			Instance: instances[i],
 		})
 	}
@@ -144,7 +154,7 @@ func (scw *ScanConfigWatcher) createTargetInstances(ctx context.Context, instanc
 	return targetInstances, nil
 }
 
-func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.Instance) (*models.Target, error) {
+func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.Instance) (string, error) {
 	info := models.TargetType{}
 	instanceProvider := models.AWS
 	err := info.FromVMInfo(models.VMInfo{
@@ -153,80 +163,18 @@ func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.I
 		Location:         instance.GetLocation(),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create VMInfo: %v", err)
+		return "", fmt.Errorf("failed to create VMInfo: %v", err)
 	}
-	resp, err := scw.backendClient.PostTargetsWithResponse(ctx, models.Target{
+	createdTarget, err := scw.backendClient.PostTarget(ctx, models.Target{
 		TargetInfo: &info,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to post target: %v", err)
+		var conErr backendclient.TargetConflictError
+		if errors.As(err, &conErr) {
+			log.Infof("Target already exist. target id=%v.", *conErr.ConflictingTarget.Id)
+			return *conErr.ConflictingTarget.Id, nil
+		}
+		return "", fmt.Errorf("failed to post target: %v", err)
 	}
-	switch resp.StatusCode() {
-	case http.StatusCreated:
-		if resp.JSON201 == nil {
-			return nil, fmt.Errorf("failed to create a target: empty body")
-		}
-		return resp.JSON201, nil
-	case http.StatusConflict:
-		if resp.JSON409 == nil {
-			return nil, fmt.Errorf("failed to create a target: empty body on conflict")
-		}
-		return resp.JSON409.Target, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to post target. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to post target. status code=%v", resp.StatusCode())
-	}
-}
-
-// nolint:cyclop
-func (scw *ScanConfigWatcher) createScan(ctx context.Context, scan *models.Scan) (string, error) {
-	resp, err := scw.backendClient.PostScansWithResponse(ctx, *scan)
-	if err != nil {
-		return "", fmt.Errorf("failed to post a scan: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusCreated:
-		if resp.JSON201 == nil {
-			return "", fmt.Errorf("failed to create a scan: empty body")
-		}
-		if resp.JSON201.Id == nil {
-			return "", fmt.Errorf("scan id is nil")
-		}
-		return *resp.JSON201.Id, nil
-	case http.StatusConflict:
-		if resp.JSON409 == nil {
-			return "", fmt.Errorf("failed to create a scan: empty body on conflict")
-		}
-		if resp.JSON409.Scan.Id == nil {
-			return "", fmt.Errorf("scan id on conflict is nil")
-		}
-		return *resp.JSON409.Scan.Id, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return "", fmt.Errorf("failed to post scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return "", fmt.Errorf("failed to post scan. status code=%v", resp.StatusCode())
-	}
-}
-
-// nolint:cyclop
-func (scw *ScanConfigWatcher) patchScan(ctx context.Context, scanID models.ScanID, scan *models.Scan) (string, error) {
-	resp, err := scw.backendClient.PatchScansScanIDWithResponse(ctx, scanID, *scan)
-	if err != nil {
-		return "", fmt.Errorf("failed to patch a scan: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return "", fmt.Errorf("failed to patch a scan: empty body")
-		}
-		return *resp.JSON200.Id, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return "", fmt.Errorf("failed to patch scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
-		}
-		return "", fmt.Errorf("failed to patch scan. status code=%v", resp.StatusCode())
-	}
+	return *createdTarget.Id, nil
 }
