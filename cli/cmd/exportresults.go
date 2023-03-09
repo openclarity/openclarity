@@ -186,8 +186,10 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 			errors = append(errors, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
 		} else {
 			scanResult.Sboms = convertSBOMResultToAPIModel(sbomResults)
+			if scanResult.Sboms.Packages != nil {
+				scanResult.Summary.TotalPackages = utils.PointerTo(len(*scanResult.Sboms.Packages))
+			}
 		}
-		scanResult.Summary.TotalPackages = utils.PointerTo[int](len(*scanResult.Sboms.Packages))
 	}
 
 	state := models.DONE
@@ -298,8 +300,10 @@ func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.Run
 			errors = append(errors, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
 		} else {
 			scanResult.Secrets = convertSecretsResultToAPIModel(secretsResults)
+			if scanResult.Secrets.Secrets != nil {
+				scanResult.Summary.TotalSecrets = utils.PointerTo(len(*scanResult.Secrets.Secrets))
+			}
 		}
-		scanResult.Summary.TotalSecrets = utils.PointerTo[int](len(*scanResult.Secrets.Secrets))
 	}
 
 	state := models.DONE
@@ -377,7 +381,7 @@ func convertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.
 	}
 }
 
-func (e *Exporter) ExportExploitsResult(res *results.Results) error {
+func (e *Exporter) ExportExploitsResult(res *results.Results, famerr families.RunErrors) error {
 	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -395,12 +399,18 @@ func (e *Exporter) ExportExploitsResult(res *results.Results) error {
 
 	var errors []string
 
-	exploitsResults, err := results.GetResult[*exploits.Results](res)
-	if err != nil {
-		errors = append(errors, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
+	if err, ok := famerr[types.Exploits]; ok {
+		errors = append(errors, err.Error())
 	} else {
-		scanResult.Exploits = convertExploitsResultToAPIModel(exploitsResults)
-		scanResult.Summary.TotalExploits = utils.PointerTo[int](len(*scanResult.Exploits.Exploits))
+		exploitsResults, err := results.GetResult[*exploits.Results](res)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
+		} else {
+			scanResult.Exploits = convertExploitsResultToAPIModel(exploitsResults)
+			if scanResult.Exploits.Exploits != nil {
+				scanResult.Summary.TotalExploits = utils.PointerTo(len(*scanResult.Exploits.Exploits))
+			}
+		}
 	}
 
 	state := models.DONE
@@ -445,7 +455,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	}
 
 	if config.Exploits.Enabled {
-		err := e.ExportExploitsResult(res)
+		err := e.ExportExploitsResult(res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export exploits results to server: %w", err)
 			logger.Error(err)
