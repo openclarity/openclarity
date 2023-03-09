@@ -44,8 +44,8 @@ type Server struct {
 	echoServer *echo.Echo
 }
 
-func CreateRESTServer(port int) (*Server, error) {
-	e, err := createEchoServer()
+func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, error) {
+	e, err := createEchoServer(dbHandler)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rest server: %v", err)
 	}
@@ -55,34 +55,36 @@ func CreateRESTServer(port int) (*Server, error) {
 	}, nil
 }
 
-func createEchoServer() (*echo.Echo, error) {
+func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
 	swagger, err := server.GetSwagger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
 	}
-	// Clear out the servers array in the swagger spec, that skips validating
-	// that server names match.
-	swagger.Servers = nil
 
 	e := echo.New()
+
 	// Log all requests
 	e.Use(echomiddleware.Logger())
-	// Create a router group for baseURL
-	g := e.Group(BaseURL)
+
+	// Recover any panics into a HTTP 500
+	e.Use(echomiddleware.Recover())
+
+	// Create a router group for API base URL
+	apiGroup := e.Group(BaseURL)
+
 	// Use oapi-codegen validation middleware to validate
-	// the base URL router group against the OpenAPI schema.
-	g.Use(middleware.OapiRequestValidator(swagger))
+	// the API group against the OpenAPI schema.
+	apiGroup.Use(middleware.OapiRequestValidator(swagger))
 
-	return e, nil
-}
-
-func (s *Server) RegisterHandlers(dbHandler databaseTypes.Database) {
-	serverImpl := &ServerImpl{
+	// Create backend API implementation for API group
+	apiImpl := &ServerImpl{
 		dbHandler: dbHandler,
 	}
 
-	// Register server above as the handler for the interface
-	server.RegisterHandlersWithBaseURL(s.echoServer, serverImpl, BaseURL)
+	// Register paths with the backend implementation
+	server.RegisterHandlers(apiGroup, apiImpl)
+
+	return e, nil
 }
 
 func (s *Server) Start(errChan chan struct{}) {

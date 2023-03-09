@@ -86,11 +86,10 @@ func Run() {
 
 	_ = CreateBackend(dbHandler)
 
-	restServer, err := rest.CreateRESTServer(config.BackendRestPort)
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler)
 	if err != nil {
 		log.Fatalf("Failed to create REST server: %v", err)
 	}
-	restServer.RegisterHandlers(dbHandler)
 	restServer.Start(errChan)
 	defer restServer.Stop()
 

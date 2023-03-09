@@ -749,6 +749,8 @@ components:
             id:
               type: string
               readOnly: true
+          required:
+            - name
 
     ScanConfigExists:
       type: object
@@ -775,7 +777,8 @@ components:
       properties:
         objectType:
           type: string
-        all:
+        allRegions:
+          description: Scan all regions, if set will override anything set in regions.
           type: boolean
         regions:
           type: array
@@ -795,20 +798,21 @@ components:
             $ref: '#/components/schemas/Tag'
       required:
         - objectType
+      additionalProperties: false
 
     AwsRegion:
       type: object
       description: AWS region
       properties:
-        id:
-          type: string
-          readOnly: true
         name:
           type: string
         vpcs:
           type: array
           items:
             $ref: '#/components/schemas/AwsVPC'
+      required:
+        - name
+      additionalProperties: false
 
     AwsVPC:
       type: object
@@ -816,13 +820,13 @@ components:
       properties:
         id:
           type: string
-          readOnly: true
-        name:
-          type: string
         securityGroups:
           type: array
           items:
             $ref: '#/components/schemas/AwsSecurityGroup'
+      required:
+        - id
+      additionalProperties: false
 
     AwsSecurityGroup:
       type: object
@@ -830,9 +834,9 @@ components:
       properties:
         id:
           type: string
-          readOnly: true
-        name:
-          type: string
+      required:
+        - id
+      additionalProperties: false
 
     Tag:
       type: object
@@ -842,6 +846,10 @@ components:
           type: string
         value:
           type: string
+      required:
+        - key
+        - value
+      additionalProperties: false
 
     RuntimeScheduleScanConfigType:
       type: object

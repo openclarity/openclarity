@@ -20,7 +20,7 @@ const (
 )
 
 type ScanScope struct {
-	All         bool
+	AllRegions  bool
 	Regions     []Region
 	ScanStopped bool
 	// Only targets that have these tags will be selected for scanning within the selected scan scope.
@@ -46,6 +46,6 @@ type VPC struct {
 }
 
 type Region struct {
-	id   string
+	name string
 	vpcs []VPC
 }
