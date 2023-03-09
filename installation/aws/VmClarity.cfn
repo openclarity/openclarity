@@ -569,13 +569,17 @@ Resources:
           # ##########################
 
           # ##########################
-          # Allow VMClarity to attach volume to an instance
+          # Only allow to attach volumes to instances that we created
+          # using the tags to identify them.
           - Effect: "Allow"
             Action:
             - "ec2:AttachVolume"
             Resource:
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
           #
           # ##########################
       Roles:

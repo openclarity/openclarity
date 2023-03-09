@@ -267,6 +267,7 @@ func scanStatusHasErrors(status *models.TargetScanStatus) bool {
 
 // TODO: need to understand how to destroy the job in case the scanner dies until it gets the results
 // We can put the targetID on the scanner VM for easy deletion.
+// nolint:cyclop
 func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error) {
 	var launchInstance types.Instance
 	var launchSnapshot types.Snapshot
@@ -333,14 +334,14 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		ScanResultID:     data.scanResultID,
 		KeyPairName:      s.config.ScannerKeyPairName,
 	}
-	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot, scanningJobConfig)
+	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot.GetID(), launchSnapshot.GetRegion(), scanningJobConfig)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to launch a new instance: %v", err)
 	}
 	job.Instance = launchInstance
 
 	// create a volume from the snapshot.
-	newVolume, err := s.providerClient.CreateVolume(ctx, launchSnapshot.GetID(), launchInstance.GetLocation(), launchInstance.GetAvailabilityZone())
+	newVolume, err := launchSnapshot.CreateVolume(ctx, launchInstance.GetAvailabilityZone())
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to create volume: %v", err)
 	}
@@ -356,7 +357,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	}
 
 	// attach the volume to the scanning job instance.
-	err = s.providerClient.AttachVolume(ctx, newVolume, launchInstance)
+	err = launchInstance.AttachVolume(ctx, newVolume, s.config.DeviceName)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to attach volume: %v", err)
 	}
@@ -369,7 +370,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	// mark attached state in the backend.
 	err = s.backendClient.PatchTargetScanStatus(ctx, data.scanResultID, &models.TargetScanStatus{
 		General: &models.TargetScanState{
-			State: runtimeScanUtils.PointerTo[models.TargetScanStateState](models.ATTACHED),
+			State: runtimeScanUtils.PointerTo(models.ATTACHED),
 		},
 	})
 	if err != nil {

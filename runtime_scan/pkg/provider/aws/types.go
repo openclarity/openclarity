@@ -16,9 +16,7 @@
 package aws
 
 const (
-	waitTimeout   = 3
-	checkInterval = 3
-	maxResults    = 50
+	maxResults = 50
 )
 
 type ScanScope struct {

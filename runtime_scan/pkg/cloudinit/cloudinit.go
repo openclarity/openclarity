@@ -24,7 +24,6 @@ import (
 )
 
 type Data struct {
-	Volume           string // Volume to mount e.g. /dev/sdc
 	ScannerCLIConfig string // Scanner families configuration file yaml
 	ScannerImage     string // Scanner container image to use
 	ServerAddress    string // IP address of VMClarity backend for export

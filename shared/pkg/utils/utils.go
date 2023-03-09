@@ -21,6 +21,11 @@ import (
 	"os/exec"
 )
 
+const (
+	DefaultResourceReadyWaitTimeoutMin   = 3
+	DefaultResourceReadyCheckIntervalSec = 3
+)
+
 func RunCommand(cmd *exec.Cmd) ([]byte, error) {
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
