@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -38,6 +38,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 var (
@@ -130,14 +131,14 @@ var rootCmd = &cobra.Command{
 
 func waitForAttached(exporter *Exporter) error {
 	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), 3*time.Minute)
+	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
 
 	for {
 		select {
-		case <-time.After(3 * time.Second):
+		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
 			status, err := exporter.client.GetScanResultStatus(ctxWithTimeout, scanResultID)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to get scan result status: %v", err)
 			}
 			// wait for status attached (meaning volume was attached and can be mounted).
 			if *status.General.State == models.ATTACHED {
@@ -330,7 +331,7 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 		if familiesConfig.SBOM.Enabled {
 			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, sbom.Input{
 				Input:     mountDir,
-				InputType: string(utils.ROOTFS),
+				InputType: string(kubeclarityutils.ROOTFS),
 			})
 		}
 		if familiesConfig.Vulnerabilities.Enabled {
@@ -339,14 +340,14 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 			} else {
 				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, vulnerabilities.Input{
 					Input:     mountDir,
-					InputType: string(utils.ROOTFS),
+					InputType: string(kubeclarityutils.ROOTFS),
 				})
 			}
 		}
 		if familiesConfig.Secrets.Enabled {
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
 				Input:     mountDir,
-				InputType: string(utils.ROOTFS),
+				InputType: string(kubeclarityutils.ROOTFS),
 			})
 		}
 	}

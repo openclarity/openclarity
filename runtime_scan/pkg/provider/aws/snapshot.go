@@ -24,6 +24,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 type SnapshotImpl struct {
@@ -85,7 +86,7 @@ func (s *SnapshotImpl) Delete(ctx context.Context) error {
 func (s *SnapshotImpl) WaitForReady(ctx context.Context) error {
 	for {
 		select {
-		case <-time.After(checkInterval * time.Second):
+		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
 			out, err := s.ec2Client.DescribeSnapshots(ctx, &ec2.DescribeSnapshotsInput{
 				SnapshotIds: []string{s.id},
 			}, func(options *ec2.Options) {
@@ -104,4 +105,29 @@ func (s *SnapshotImpl) WaitForReady(ctx context.Context) error {
 			return fmt.Errorf("waiting for snapshot ready was canceled: %v", ctx.Err())
 		}
 	}
+}
+
+func (s *SnapshotImpl) CreateVolume(ctx context.Context, availabilityZone string) (types.Volume, error) {
+	params := ec2.CreateVolumeInput{
+		AvailabilityZone: &availabilityZone,
+		SnapshotId:       &s.id,
+		TagSpecifications: []ec2types.TagSpecification{
+			{
+				ResourceType: ec2types.ResourceTypeVolume,
+				Tags:         vmclarityTags,
+			},
+		},
+		VolumeType: ec2types.VolumeTypeGp2,
+	}
+	out, err := s.ec2Client.CreateVolume(ctx, &params, func(options *ec2.Options) {
+		options.Region = s.region
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create volume: %v", err)
+	}
+	return &VolumeImpl{
+		ec2Client: s.ec2Client,
+		id:        *out.VolumeId,
+		region:    s.region,
+	}, nil
 }
