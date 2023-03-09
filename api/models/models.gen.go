@@ -90,14 +90,14 @@ type ApiResponse struct {
 
 // AwsRegion AWS region
 type AwsRegion struct {
-	Id   *string   `json:"id,omitempty"`
-	Name *string   `json:"name,omitempty"`
+	Name string    `json:"name"`
 	Vpcs *[]AwsVPC `json:"vpcs,omitempty"`
 }
 
 // AwsScanScope The scope of a configured scan.
 type AwsScanScope struct {
-	All *bool `json:"all,omitempty"`
+	// AllRegions Scan all regions, if set will override anything set in regions.
+	AllRegions *bool `json:"allRegions,omitempty"`
 
 	// InstanceTagExclusion VM instances will not be scanned if they contain all of these tags (even if they match instanceTagSelector). If empty, not taken into account.
 	InstanceTagExclusion *[]Tag `json:"instanceTagExclusion,omitempty"`
@@ -111,14 +111,12 @@ type AwsScanScope struct {
 
 // AwsSecurityGroup AWS security group
 type AwsSecurityGroup struct {
-	Id   *string `json:"id,omitempty"`
-	Name *string `json:"name,omitempty"`
+	Id string `json:"id"`
 }
 
 // AwsVPC AWS VPC
 type AwsVPC struct {
-	Id             *string             `json:"id,omitempty"`
-	Name           *string             `json:"name,omitempty"`
+	Id             string              `json:"id"`
 	SecurityGroups *[]AwsSecurityGroup `json:"securityGroups,omitempty"`
 }
 
@@ -323,7 +321,7 @@ type ScanStateReason string
 // ScanConfig defines model for ScanConfig.
 type ScanConfig struct {
 	Id   *string `json:"id,omitempty"`
-	Name *string `json:"name,omitempty"`
+	Name string  `json:"name"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
@@ -464,8 +462,8 @@ type SuccessResponse struct {
 
 // Tag AWS tag
 type Tag struct {
-	Key   *string `json:"key,omitempty"`
-	Value *string `json:"value,omitempty"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 // Target defines model for Target.
