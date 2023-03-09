@@ -25,6 +25,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 type InstanceImpl struct {
@@ -87,12 +88,12 @@ func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) 
 
 func (i *InstanceImpl) WaitForReady(ctx context.Context) error {
 	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), waitTimeout*time.Minute)
+	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
 
 	for {
 		select {
-		case <-time.After(checkInterval * time.Second):
-			out, err := i.ec2Client.DescribeInstances(ctxWithTimeout, &ec2.DescribeInstancesInput{
+		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
+			out, err := i.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
 				InstanceIds: []string{i.id},
 			}, func(options *ec2.Options) {
 				options.Region = i.region
@@ -122,6 +123,21 @@ func (i *InstanceImpl) Delete(ctx context.Context) error {
 	})
 	if err != nil {
 		return fmt.Errorf("failed to terminate instances: %v", err)
+	}
+
+	return nil
+}
+
+func (i *InstanceImpl) AttachVolume(ctx context.Context, volume types.Volume, deviceName string) error {
+	_, err := i.ec2Client.AttachVolume(ctx, &ec2.AttachVolumeInput{
+		Device:     utils.StringPtr(deviceName),
+		InstanceId: utils.StringPtr(i.GetID()),
+		VolumeId:   utils.StringPtr(volume.GetID()),
+	}, func(options *ec2.Options) {
+		options.Region = i.GetLocation()
+	})
+	if err != nil {
+		return fmt.Errorf("failed to attach volume: %v", err)
 	}
 
 	return nil

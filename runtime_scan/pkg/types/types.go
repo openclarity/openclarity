@@ -43,6 +43,7 @@ type Instance interface {
 	GetAvailabilityZone() string
 	WaitForReady(ctx context.Context) error
 	Delete(ctx context.Context) error
+	AttachVolume(ctx context.Context, volume Volume, deviceName string) error
 }
 
 type TargetInstance struct {
@@ -64,6 +65,7 @@ type Snapshot interface {
 	Copy(ctx context.Context, dstRegion string) (Snapshot, error)
 	Delete(ctx context.Context) error
 	WaitForReady(ctx context.Context) error
+	CreateVolume(ctx context.Context, availabilityZone string) (Volume, error)
 }
 
 type ScannerJobConfig struct {

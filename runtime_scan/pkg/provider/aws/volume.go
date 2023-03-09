@@ -24,6 +24,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 type VolumeImpl struct {
@@ -62,12 +63,12 @@ func (v *VolumeImpl) TakeSnapshot(ctx context.Context) (types.Snapshot, error) {
 
 func (v *VolumeImpl) WaitForReady(ctx context.Context) error {
 	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), waitTimeout*time.Minute)
+	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
 
 	for {
 		select {
-		case <-time.After(checkInterval * time.Second):
-			out, err := v.ec2Client.DescribeVolumes(ctxWithTimeout, &ec2.DescribeVolumesInput{
+		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
+			out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
 				VolumeIds: []string{v.id},
 			}, func(options *ec2.Options) {
 				options.Region = v.region
@@ -89,12 +90,12 @@ func (v *VolumeImpl) WaitForReady(ctx context.Context) error {
 
 func (v *VolumeImpl) WaitForAttached(ctx context.Context) error {
 	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), waitTimeout*time.Minute)
+	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
 
 	for {
 		select {
-		case <-time.After(checkInterval * time.Second):
-			out, err := v.ec2Client.DescribeVolumes(ctxWithTimeout, &ec2.DescribeVolumesInput{
+		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
+			out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
 				VolumeIds: []string{v.id},
 			}, func(options *ec2.Options) {
 				options.Region = v.region
