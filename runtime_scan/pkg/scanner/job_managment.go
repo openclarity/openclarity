@@ -304,7 +304,8 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		return types.Job{}, fmt.Errorf("failed to wait for snapshot to be ready. snapshotID=%v: %v", snapshot.GetID(), err)
 	}
 
-	// we need the snapshot to be in the scanner region in order to attach it.
+	// we need the snapshot to be in the scanner region in order to create
+	// a volume and attach it.
 	if s.config.Region != snapshot.GetRegion() {
 		cpySnapshot, err = snapshot.Copy(ctx, s.config.Region)
 		if err != nil {
