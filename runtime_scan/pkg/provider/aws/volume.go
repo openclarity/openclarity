@@ -62,8 +62,8 @@ func (v *VolumeImpl) TakeSnapshot(ctx context.Context) (types.Snapshot, error) {
 }
 
 func (v *VolumeImpl) WaitForReady(ctx context.Context) error {
-	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
+	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
+	defer cancel()
 
 	for {
 		select {
