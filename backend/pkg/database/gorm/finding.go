@@ -126,21 +126,9 @@ func (s *FindingsTableHandler) CreateFinding(finding models.Finding) (models.Fin
 	return sc, nil
 }
 
-func getExistingFindingByID(db *gorm.DB, findingID models.FindingID) (Finding, error) {
-	var dbFinding Finding
-	filter := fmt.Sprintf("id eq '%s'", findingID)
-	err := ODataQuery(db, "Finding", &filter, nil, nil, nil, nil, false, &dbFinding)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return Finding{}, types.ErrNotFound
-		}
-		return Finding{}, err
-	}
-	return dbFinding, nil
-}
-
 func (s *FindingsTableHandler) SaveFinding(finding models.Finding) (models.Finding, error) {
-	dbFinding, err := getExistingFindingByID(s.DB, *finding.Id)
+	var dbFinding Finding
+	err := getExistingObjByID(s.DB, "Finding", *finding.Id, &dbFinding)
 	if err != nil {
 		return models.Finding{}, err
 	}
@@ -168,7 +156,8 @@ func (s *FindingsTableHandler) SaveFinding(finding models.Finding) (models.Findi
 }
 
 func (s *FindingsTableHandler) UpdateFinding(finding models.Finding) (models.Finding, error) {
-	dbFinding, err := getExistingFindingByID(s.DB, *finding.Id)
+	var dbFinding Finding
+	err := getExistingObjByID(s.DB, "Finding", *finding.Id, &dbFinding)
 	if err != nil {
 		return models.Finding{}, err
 	}
@@ -208,12 +197,9 @@ func (s *FindingsTableHandler) UpdateFinding(finding models.Finding) (models.Fin
 }
 
 func (s *FindingsTableHandler) DeleteFinding(findingID models.FindingID) error {
-	jsonQuotedID := fmt.Sprintf("\"%s\"", findingID)
-	if err := s.DB.Where("`Data` -> '$.id' = ?", jsonQuotedID).Delete(&Finding{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return types.ErrNotFound
-		}
-		return fmt.Errorf("failed to delete finding: %w", err)
+	if err := deleteObjByID(s.DB, findingID, &Finding{}); err != nil {
+		return fmt.Errorf("failed to delete target: %w", err)
 	}
+
 	return nil
 }
