@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,10 +21,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
@@ -61,13 +61,13 @@ func (s *ServerImpl) PostTargets(ctx echo.Context) error {
 	return sendResponse(ctx, http.StatusCreated, createdTarget)
 }
 
-func (s *ServerImpl) GetTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
-	target, err := s.dbHandler.TargetsTable().GetTarget(targetID)
+func (s *ServerImpl) GetTargetsTargetID(ctx echo.Context, targetID models.TargetID, params models.GetTargetsTargetIDParams) error {
+	target, err := s.dbHandler.TargetsTable().GetTarget(targetID, params)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to get target from db. targetID=%v: %v", targetID, err).Error())
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, target)
@@ -77,21 +77,16 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 	var target models.Target
 	err := ctx.Bind(&target)
 	if err != nil {
-		return sendError(ctx, http.StatusBadRequest, fmt.Errorf("failed to bind request: %v", err).Error())
-	}
-
-	_, err = s.dbHandler.TargetsTable().GetTarget(targetID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("target was not found in db. targetID=%v", targetID))
-		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db: %v", err))
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
 	target.Id = &targetID
 	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to update target in db. targetID=%v: %v", targetID, err).Error())
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedTarget)
@@ -103,10 +98,10 @@ func (s *ServerImpl) DeleteTargetsTargetID(ctx echo.Context, targetID models.Tar
 	}
 
 	if err := s.dbHandler.TargetsTable().DeleteTarget(targetID); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
 		}
-		return sendError(ctx, http.StatusInternalServerError, err.Error())
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to delete target from db. targetID=%v: %v", targetID, err))
 	}
 
 	return sendResponse(ctx, http.StatusNoContent, &success)

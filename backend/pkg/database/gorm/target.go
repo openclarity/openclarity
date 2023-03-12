@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,108 +16,139 @@
 package gorm
 
 import (
-	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 const (
-	targetsTableName = "targets"
-
-	targetTypeVM  = "VMInfo"
-	targetTypeDir = "Dir"
-	targetTypePod = "Pod"
+	targetSchemaName = "Target"
 )
 
 type Target struct {
-	Base
-
-	Type     string  `json:"type,omitempty" gorm:"column:type"`
-	Location *string `json:"location,omitempty" gorm:"column:location"`
-
-	// VMInfo
-	InstanceID       *string `json:"instance_id,omitempty" gorm:"column:instance_id"`
-	InstanceProvider *string `json:"instance_provider,omitempty" gorm:"column:instance_provider"`
-
-	// PodInfo
-	PodName *string `json:"pod_name,omitempty" gorm:"column:pod_name"`
-
-	// DirInfo
-	DirName *string `json:"dir_name,omitempty" gorm:"column:dir_name"`
+	ODataObject
 }
 
 type TargetsTableHandler struct {
-	targetsTable *gorm.DB
+	DB *gorm.DB
 }
 
 func (db *Handler) TargetsTable() types.TargetsTable {
 	return &TargetsTableHandler{
-		targetsTable: db.DB.Table(targetsTableName),
+		DB: db.DB,
 	}
 }
 
 func (t *TargetsTableHandler) GetTargets(params models.GetTargetsParams) (models.Targets, error) {
 	var targets []Target
-	tx := t.targetsTable
-	if err := tx.Find(&targets).Error; err != nil {
-		return models.Targets{}, fmt.Errorf("failed to find targets: %w", err)
+	err := ODataQuery(t.DB, targetSchemaName, params.Filter, params.Select, nil, params.Top, params.Skip, true, &targets)
+	if err != nil {
+		return models.Targets{}, err
 	}
 
-	converted, err := ConvertToRestTargets(targets)
-	if err != nil {
-		return models.Targets{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	items := make([]models.Target, len(targets))
+	for i, tr := range targets {
+		var target models.Target
+		err = json.Unmarshal(tr.Data, &target)
+		if err != nil {
+			return models.Targets{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+		}
+		items[i] = target
 	}
-	return converted, nil
+
+	output := models.Targets{Items: &items}
+
+	if params.Count != nil && *params.Count {
+		count, err := ODataCount(t.DB, "Target", params.Filter)
+		if err != nil {
+			return models.Targets{}, fmt.Errorf("failed to count records: %w", err)
+		}
+		output.Count = &count
+	}
+
+	return output, nil
 }
 
-func (t *TargetsTableHandler) GetTarget(targetID models.TargetID) (models.Target, error) {
-	var target Target
-	if err := t.targetsTable.Where("id = ?", targetID).First(&target).Error; err != nil {
-		return models.Target{}, fmt.Errorf("failed to get target by id %q: %w", targetID, err)
+func (t *TargetsTableHandler) GetTarget(targetID models.TargetID, params models.GetTargetsTargetIDParams) (models.Target, error) {
+	var dbTarget Target
+	filter := fmt.Sprintf("id eq '%s'", targetID)
+	err := ODataQuery(t.DB, targetSchemaName, &filter, params.Select, nil, nil, nil, false, &dbTarget)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return models.Target{}, types.ErrNotFound
+		}
+		return models.Target{}, err
 	}
 
-	converted, err := ConvertToRestTarget(target)
+	var apiTarget models.Target
+	err = json.Unmarshal(dbTarget.Data, &apiTarget)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
-	return converted, nil
+
+	return apiTarget, nil
 }
 
 func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target, error) {
-	dbTarget, err := ConvertToDBTarget(target)
+	// Check the user didn't provide an ID
+	if target.Id != nil {
+		return models.Target{}, fmt.Errorf("can not specify Id field when creating a new Target")
+	}
+
+	// Generate a new UUID
+	target.Id = utils.PointerTo(uuid.New().String())
+
+	// TODO(sambetts) Lock the table here to prevent race conditions
+	// checking the uniqueness.
+	//
+	// We might also be able to do this without locking the table by doing
+	// a single query which includes the uniqueness check like:
+	//
+	// INSERT INTO scan_configs(data) SELECT * FROM (SELECT "<encoded json>") AS tmp WHERE NOT EXISTS (SELECT * FROM scan_configs WHERE JSON_EXTRACT(`Data`, '$.Name') = '<name from input>') LIMIT 1;
+	//
+	// This should return 0 affected fields if there is a conflicting
+	// record in the DB, and should be treated safely by the DB without
+	// locking the table.
+
+	existingTarget, err := t.checkUniqueness(target)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return *existingTarget, err
+		}
+		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
+	}
+
+	marshaled, err := json.Marshal(target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
 	}
 
-	existingTarget, exist, err := t.checkExist(dbTarget)
-	if err != nil {
-		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
-	}
-	if exist {
-		converted, err := ConvertToRestTarget(existingTarget)
-		if err != nil {
-			return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
-		}
-		return converted, &common.ConflictError{
-			Reason: fmt.Sprintf("Target exists with the unique constraint combination: %s", getUniqueConstraintsOfTarget(existingTarget)),
-		}
-	}
+	newTarget := Target{}
+	newTarget.Data = marshaled
 
-	if err := t.targetsTable.Create(&dbTarget).Error; err != nil {
+	if err = t.DB.Create(&newTarget).Error; err != nil {
 		return models.Target{}, fmt.Errorf("failed to create target in db: %w", err)
 	}
 
-	converted, err := ConvertToRestTarget(dbTarget)
+	// TODO(sambetts) Maybe this isn't required now because the DB isn't
+	// creating any of the data (like the ID) so we can just return the
+	// target pre-marshal above.
+	var apiTarget models.Target
+	err = json.Unmarshal(newTarget.Data, &apiTarget)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
-	return converted, nil
+
+	return apiTarget, nil
 }
 
 func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, error) {
@@ -125,56 +156,68 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
 	}
 
-	dbTarget, err := ConvertToDBTarget(target)
+	var dbTarget Target
+	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbTarget); err != nil {
+		return models.Target{}, fmt.Errorf("failed to get target from db: %w", err)
+	}
+
+	marshaled, err := json.Marshal(target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
 	}
 
-	if err := t.targetsTable.Save(&dbTarget).Error; err != nil {
+	dbTarget.Data = marshaled
+
+	if err = t.DB.Save(&dbTarget).Error; err != nil {
 		return models.Target{}, fmt.Errorf("failed to save target in db: %w", err)
 	}
 
-	converted, err := ConvertToRestTarget(dbTarget)
-	if err != nil {
+	// TODO(sambetts) Maybe this isn't required now because the DB isn't
+	// creating any of the data (like the ID) so we can just return the
+	// target pre-marshal above.
+	var apiTarget models.Target
+	if err = json.Unmarshal(dbTarget.Data, &apiTarget); err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
-	return converted, nil
+
+	return apiTarget, nil
 }
 
 func (t *TargetsTableHandler) DeleteTarget(targetID models.TargetID) error {
-	if err := t.targetsTable.Delete(&Target{}, targetID).Error; err != nil {
+	if err := deleteObjByID(t.DB, targetID, &Target{}); err != nil {
 		return fmt.Errorf("failed to delete target: %w", err)
 	}
+
 	return nil
 }
 
-func (t *TargetsTableHandler) checkExist(target Target) (Target, bool, error) {
-	var targetFromDB Target
+func (t *TargetsTableHandler) checkUniqueness(target models.Target) (*models.Target, error) {
+	discriminator, err := target.TargetInfo.ValueByDiscriminator()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
+	}
 
-	tx := t.targetsTable.WithContext(context.Background())
-
-	switch target.Type {
-	case targetTypeVM:
-		if err := tx.Where("instance_id = ? AND location = ?", *target.InstanceID, *target.Location).First(&targetFromDB).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return Target{}, false, nil
-			}
-			return Target{}, false, fmt.Errorf("failed to query: %w", err)
+	switch info := discriminator.(type) {
+	case models.VMInfo:
+		var targets []Target
+		filter := fmt.Sprintf("targetInfo/instanceID eq '%s' and targetInfo/location eq '%s'", info.InstanceID, info.Location)
+		err = ODataQuery(t.DB, targetSchemaName, &filter, nil, nil, nil, nil, true, &targets)
+		if err != nil {
+			return nil, err
 		}
-	}
 
-	return targetFromDB, true, nil
-}
-
-func getUniqueConstraintsOfTarget(target Target) string {
-	switch target.Type {
-	case targetTypeVM:
-		return fmt.Sprintf("instanceID=%s, region=%s", *target.InstanceID, *target.Location)
-	case targetTypeDir:
-		return "unsupported target type Dir"
-	case targetTypePod:
-		return "unsupported target type Pod"
+		if len(targets) > 0 {
+			var apiTarget models.Target
+			if err = json.Unmarshal(targets[0].Data, &apiTarget); err != nil {
+				return nil, fmt.Errorf("failed to convert DB model to API model: %w", err)
+			}
+			return &apiTarget, &common.ConflictError{
+				Reason: fmt.Sprintf("Target VM exists with instanceID=%q and location=%q", info.InstanceID, info.Location),
+			}
+		}
 	default:
-		return fmt.Sprintf("unknown target type: %v", target.Type)
+		return nil, fmt.Errorf("target type is not supported (%T): %w", discriminator, err)
 	}
+
+	return nil, nil // nolint:nilnil
 }

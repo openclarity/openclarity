@@ -1,0 +1,22 @@
+.scans-details-page-wrapper {
+    .content-container-wrapper {
+        display: flex;
+        flex-direction: column;
+
+        .tabbed-page-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+
+            .tab-content {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+
+                .double-pane-display-wrapper {
+                    flex-grow: 1;
+                }
+            }
+        }
+    }
+}

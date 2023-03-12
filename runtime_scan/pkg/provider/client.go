@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,8 +31,10 @@ type ScanningJobConfig struct {
 }
 
 type Client interface {
-	// Discover - list VM instances in the account according to the scan scope.
-	Discover(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error)
 	// RunScanningJob - run a scanning job.
 	RunScanningJob(ctx context.Context, region, id string, config ScanningJobConfig) (types.Instance, error)
+	// DiscoverScopes - List all scopes
+	DiscoverScopes(ctx context.Context) (*models.Scopes, error)
+	// DiscoverInstances - list VM instances in the account according to the scan scope.
+	DiscoverInstances(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error)
 }

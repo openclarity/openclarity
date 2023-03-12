@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,83 +26,6 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
-
-func TestConvertToRestScanResult(t *testing.T) {
-	state := models.DONE
-	status := models.TargetScanStatus{
-		Vulnerabilities: &models.TargetScanState{
-			Errors: nil,
-			State:  &state,
-		},
-		Exploits: &models.TargetScanState{
-			Errors: &[]string{"err"},
-			State:  &state,
-		},
-	}
-
-	vulsScan := models.VulnerabilityScan{
-		Vulnerabilities: &[]models.Vulnerability{
-			{
-				VulnerabilityInfo: &models.VulnerabilityInfo{
-					VulnerabilityName: utils.StringPtr("name"),
-				},
-			},
-		},
-	}
-
-	vulScanB, err := json.Marshal(&vulsScan)
-	assert.NilError(t, err)
-
-	statusB, err := json.Marshal(&status)
-	assert.NilError(t, err)
-
-	uid := uuid.NewV4()
-
-	type args struct {
-		scanResult ScanResult
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    models.TargetScanResult
-		wantErr bool
-	}{
-		{
-			name: "sanity",
-			args: args{
-				scanResult: ScanResult{
-					Base: Base{
-						ID: uid,
-					},
-					ScanID:          "1",
-					TargetID:        "2",
-					Status:          statusB,
-					Vulnerabilities: vulScanB,
-				},
-			},
-			want: models.TargetScanResult{
-				Id:              utils.StringPtr(uid.String()),
-				ScanId:          "1",
-				Status:          &status,
-				TargetId:        "2",
-				Vulnerabilities: &vulsScan,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := ConvertToRestScanResult(tt.args.scanResult)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ConvertToRestScanResult() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ConvertToRestScanResult() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestConvertToRestScan(t *testing.T) {
 	scanSnap := models.ScanConfigData{
@@ -142,6 +65,10 @@ func TestConvertToRestScan(t *testing.T) {
 					ScanEndTime:        nil,
 					ScanConfigID:       utils.StringPtr("1"),
 					ScanConfigSnapshot: scanSnapB,
+					State:              "test-state",
+					StateMessage:       "test-message",
+					StateReason:        "test-reason",
+					Summary:            nil,
 					TargetIDs:          targetIDsB,
 				},
 			},
@@ -151,6 +78,10 @@ func TestConvertToRestScan(t *testing.T) {
 					Id: "1",
 				},
 				ScanConfigSnapshot: &scanSnap,
+				State:              utils.PointerTo[models.ScanState]("test-state"),
+				StateMessage:       utils.PointerTo("test-message"),
+				StateReason:        utils.PointerTo[models.ScanStateReason]("test-reason"),
+				Summary:            nil,
 				TargetIDs:          &targetIDs,
 			},
 			wantErr: false,
@@ -164,7 +95,9 @@ func TestConvertToRestScan(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ConvertToRestScan() got = %v, want %v", got, tt.want)
+				gotB, _ := json.Marshal(got)
+				wantB, _ := json.Marshal(tt.want)
+				t.Errorf("ConvertToRestScan() got = %s, want %s", gotB, wantB)
 			}
 		})
 	}

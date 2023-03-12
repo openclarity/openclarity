@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,10 +68,12 @@ func (s *ServerImpl) GetScanResultsScanResultID(ctx echo.Context, scanResultID m
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan result from db. scanResultID=%v: %v", scanResultID, err))
 	}
+
 	return sendResponse(ctx, http.StatusOK, dbScanResult)
 }
 
 func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID) error {
+	// TODO: check that the provided scan and target IDs are valid
 	var scanResult models.TargetScanResult
 	err := ctx.Bind(&scanResult)
 	if err != nil {
@@ -97,6 +99,7 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 }
 
 func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID) error {
+	// TODO: check that the provided scan and target IDs are valid
 	var scanResult models.TargetScanResult
 	err := ctx.Bind(&scanResult)
 	if err != nil {

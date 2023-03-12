@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
@@ -76,13 +77,24 @@ func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
 	// the API group against the OpenAPI schema.
 	apiGroup.Use(middleware.OapiRequestValidator(swagger))
 
-	// Create backend API implementation for API group
 	apiImpl := &ServerImpl{
 		dbHandler: dbHandler,
 	}
-
 	// Register paths with the backend implementation
 	server.RegisterHandlers(apiGroup, apiImpl)
+
+	uiSitePath, ok := os.LookupEnv("UI_SITE_PATH")
+	if !ok || uiSitePath == "" {
+		uiSitePath = "/app/site"
+	}
+
+	// https://sunde.dev/blog/Echo_Golang_server_for_a_Single_Page_Application_(SPA)
+	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
+		Root:   uiSitePath,   // This is the path to your SPA build folder, the folder that is created from running "npm build"
+		Index:  "index.html", // This is the default html page for your SPA
+		Browse: false,
+		HTML5:  true,
+	}))
 
 	return e, nil
 }

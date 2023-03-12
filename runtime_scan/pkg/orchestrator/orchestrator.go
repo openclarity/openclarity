@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import (
 
 	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/configwatcher"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
@@ -35,6 +36,7 @@ type Orchestrator interface {
 type orchestrator struct {
 	config            *_config.OrchestratorConfig
 	scanConfigWatcher *configwatcher.ScanConfigWatcher
+	scopeDiscoverer   *discovery.ScopeDiscoverer
 	cancelFunc        context.CancelFunc
 }
 
@@ -46,6 +48,7 @@ func Create(config *_config.OrchestratorConfig, providerClient provider.Client) 
 	orc := &orchestrator{
 		config:            config,
 		scanConfigWatcher: configwatcher.CreateScanConfigWatcher(backendClient, providerClient, config.ScannerConfig),
+		scopeDiscoverer:   discovery.CreateScopeDiscoverer(backendClient, providerClient),
 	}
 
 	return orc, nil
@@ -56,6 +59,7 @@ func (o *orchestrator) Start(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	o.cancelFunc = cancel
 	o.scanConfigWatcher.Start(ctx)
+	o.scopeDiscoverer.Start(ctx)
 }
 
 func (o *orchestrator) Stop(cancel context.CancelFunc) {

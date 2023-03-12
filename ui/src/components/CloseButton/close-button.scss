@@ -1,0 +1,10 @@
+$button-size-small: 14px;
+
+.close-button {
+    cursor: pointer;
+    
+    &.small {
+        width: $button-size-small;
+        height: $button-size-small;
+    }
+}

@@ -85,7 +85,7 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 	}
 
 	// Do discovery of targets
-	instances, err := scw.providerClient.Discover(ctx, scan.ScanConfigSnapshot.Scope)
+	instances, err := scw.providerClient.DiscoverInstances(ctx, scan.ScanConfigSnapshot.Scope)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to discover instances to scan: %v", err)
 	}

@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,123 +22,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
-func ConvertToDBTarget(target models.Target) (Target, error) {
-	var targetUUID uuid.UUID
-	var err error
-	if target.Id != nil {
-		targetUUID, err = uuid.FromString(*target.Id)
-		if err != nil {
-			return Target{}, fmt.Errorf("failed to convert targetID %v to uuid: %v", *target.Id, err)
-		}
-	}
-	disc, err := target.TargetInfo.Discriminator()
-	if err != nil {
-		return Target{}, fmt.Errorf("failed to get discriminator: %w", err)
-	}
-	switch disc {
-	case "VMInfo":
-		vminfo, err := target.TargetInfo.AsVMInfo()
-		if err != nil {
-			return Target{}, fmt.Errorf("failed to convert target to vm info: %w", err)
-		}
-		var provider *string
-		if vminfo.InstanceProvider != nil {
-			provider = utils.StringPtr(string(*vminfo.InstanceProvider))
-		}
-		return Target{
-			Base: Base{
-				ID: targetUUID,
-			},
-			Type:             vminfo.ObjectType,
-			Location:         &vminfo.Location,
-			InstanceID:       utils.StringPtr(vminfo.InstanceID),
-			InstanceProvider: provider,
-		}, nil
-	default:
-		return Target{}, fmt.Errorf("unknown target type: %v", disc)
-	}
-}
-
 // nolint:cyclop
-func ConvertToDBScanResult(result models.TargetScanResult) (ScanResult, error) {
-	var ret ScanResult
-	var err error
-	var scanResultUUID uuid.UUID
-
-	if result.Id != nil {
-		scanResultUUID, err = uuid.FromString(*result.Id)
-		if err != nil {
-			return ret, fmt.Errorf("failed to convert scanResultID %v to uuid: %v", *result.Id, err)
-		}
-	}
-	ret.ScanID = result.ScanId
-	ret.TargetID = result.TargetId
-
-	if result.Exploits != nil {
-		ret.Exploits, err = json.Marshal(result.Exploits)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Malware != nil {
-		ret.Malware, err = json.Marshal(result.Malware)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Misconfigurations != nil {
-		ret.Misconfigurations, err = json.Marshal(result.Misconfigurations)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Rootkits != nil {
-		ret.Rootkits, err = json.Marshal(result.Rootkits)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Sboms != nil {
-		ret.Sboms, err = json.Marshal(result.Sboms)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-
-	if result.Secrets != nil {
-		ret.Secrets, err = json.Marshal(result.Secrets)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Status != nil {
-		ret.Status, err = json.Marshal(result.Status)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-	if result.Vulnerabilities != nil {
-		ret.Vulnerabilities, err = json.Marshal(result.Vulnerabilities)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-
-	if result.Summary != nil {
-		ret.Summary, err = json.Marshal(result.Summary)
-		if err != nil {
-			return ret, fmt.Errorf("failed to marshal json: %w", err)
-		}
-	}
-
-	ret.Base = Base{ID: scanResultUUID}
-
-	return ret, nil
-}
-
 func ConvertToDBScan(scan models.Scan) (Scan, error) {
 	var ret Scan
 	var err error
@@ -161,6 +47,23 @@ func ConvertToDBScan(scan models.Scan) (Scan, error) {
 
 	if scan.ScanConfigSnapshot != nil {
 		ret.ScanConfigSnapshot, err = json.Marshal(scan.ScanConfigSnapshot)
+		if err != nil {
+			return ret, fmt.Errorf("failed to marshal json: %w", err)
+		}
+	}
+
+	if scan.State != nil {
+		ret.State = string(*scan.State)
+	}
+	if scan.StateMessage != nil {
+		ret.StateMessage = *scan.StateMessage
+	}
+	if scan.StateReason != nil {
+		ret.StateReason = string(*scan.StateReason)
+	}
+
+	if scan.Summary != nil {
+		ret.Summary, err = json.Marshal(scan.Summary)
 		if err != nil {
 			return ret, fmt.Errorf("failed to marshal json: %w", err)
 		}

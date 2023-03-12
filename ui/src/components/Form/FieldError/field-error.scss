@@ -1,0 +1,8 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-error {
+    font-size: 10px;
+    line-height: 16px;
+    color: $color-error;
+    margin-top: 5px;
+}

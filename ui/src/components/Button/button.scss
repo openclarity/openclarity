@@ -1,0 +1,60 @@
+@import 'utils/scss_variables.module.scss';
+
+.clarity-button {
+    border: none;
+    background-color: transparent;
+    height: 26px;
+    font-size: 12px;
+
+    &.clarity-button--primary,
+    &.clarity-button--secondary {
+        font-weight: 400;
+        line-height: 14px;
+        text-align: center;
+        box-sizing: border-box;
+        border-radius: 50px;
+        display: inline-block;
+        padding: 0px 20px;
+
+        &:disabled {
+            background-color: $color-grey-light;
+            color: $color-grey;
+        }
+    }
+    &.clarity-button--primary {
+        background-color: $color-main-light;
+        color: $color-main-dark;
+
+        &:hover:not(:disabled) {
+            background-color: $color-main-lighter;
+        }
+    }
+    &.clarity-button--secondary {
+        background-color: $color-blue;
+        color: $color-main-dark;
+
+        &:hover:not(:disabled) {
+            background-color: $color-blue-light;
+        }
+    }
+    &.clarity-button--tertiary {
+        line-height: 16px;
+        color: $color-main;
+        text-decoration: underline;
+        padding: 0;
+
+        &:hover:not(:disabled) {
+            color: $color-main-dark;
+        }
+        &:disabled {
+            color: $color-grey;
+            text-decoration: none;
+        }
+    }
+    &.clickable:not(:disabled) {
+        cursor: pointer;
+    }
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
