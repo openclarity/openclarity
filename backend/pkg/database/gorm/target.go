@@ -67,7 +67,7 @@ func (t *TargetsTableHandler) GetTargets(params models.GetTargetsParams) (models
 	output := models.Targets{Items: &items}
 
 	if params.Count != nil && *params.Count {
-		count, err := ODataCount(t.DB, "Target", params.Filter)
+		count, err := ODataCount(t.DB, targetSchemaName, params.Filter)
 		if err != nil {
 			return models.Targets{}, fmt.Errorf("failed to count records: %w", err)
 		}
