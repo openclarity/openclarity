@@ -16,13 +16,13 @@
 package common
 
 import (
-	"github.com/openclarity/kubeclarity/api/client/models"
 	"testing"
 
 	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/api/client/client"
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/api/client/models"
 )
 
 func PostApplications(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, applicationInfo *models.ApplicationInfo) *operations.PostApplicationsCreated {
@@ -32,6 +32,15 @@ func PostApplications(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, appl
 	assert.NilError(t, err)
 
 	return app
+}
+
+func PutRuntimeQuickScanConfig(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, config *models.RuntimeQuickScanConfig) *operations.PutRuntimeQuickscanConfigCreated {
+	t.Helper()
+	params := operations.NewPutRuntimeQuickscanConfigParams().WithBody(config)
+	res, err := kubeclarityAPI.Operations.PutRuntimeQuickscanConfig(params)
+	assert.NilError(t, err)
+
+	return res
 }
 
 func PutRuntimeScanStart(t *testing.T, kubeclarityAPI *client.KubeClarityAPIs, config *models.RuntimeScanConfig) *operations.PutRuntimeScanStartCreated {
