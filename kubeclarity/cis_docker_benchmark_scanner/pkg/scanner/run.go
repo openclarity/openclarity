@@ -32,11 +32,17 @@ import (
 )
 
 func createDockleConfig(scanConfig *config.Config) *dockle_config.Config {
+	var username, password string
+	if len(scanConfig.Registry.Auths) > 0 {
+		username = scanConfig.Registry.Auths[0].Username
+		password = scanConfig.Registry.Auths[0].Password
+	}
+
 	return &dockle_config.Config{
 		Debug:     log.GetLevel() == log.DebugLevel,
 		Timeout:   scanConfig.Timeout,
-		Username:  scanConfig.Registry.Auths[0].Username,
-		Password:  scanConfig.Registry.Auths[0].Password,
+		Username:  username,
+		Password:  password,
 		Insecure:  scanConfig.Registry.SkipVerifyTLS,
 		NonSSL:    scanConfig.Registry.UseHTTP,
 		ImageName: scanConfig.ImageIDToScan,
