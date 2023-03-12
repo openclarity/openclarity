@@ -58,6 +58,8 @@ func TestRuntimeScan(t *testing.T) {
 			assert.Assert(t, results.Counters.Vulnerabilities > 0)
 			assert.Assert(t, results.Counters.Packages > 0)
 			assert.Assert(t, results.Counters.Applications > 0)
+			assert.Assert(t, results.CisDockerBenchmarkCounters.Resources > 0)
+			assert.Assert(t, results.CisDockerBenchmarkCounters.Applications > 0)
 
 			assert.Assert(t, len(results.VulnerabilityPerSeverity) > 0)
 
@@ -92,6 +94,9 @@ func waitForScanDone(t *testing.T) error {
 
 func startRuntimeScan(t *testing.T) {
 	t.Helper()
+	_ = common.PutRuntimeQuickScanConfig(t, kubeclarityAPI, &models.RuntimeQuickScanConfig{
+		CisDockerBenchmarkScanEnabled: true,
+	})
 	_ = common.PutRuntimeScanStart(t, kubeclarityAPI, &models.RuntimeScanConfig{
 		Namespaces: []string{"test"},
 	})
