@@ -1,3 +1,12 @@
+# syntax=docker/dockerfile:1.2
+FROM node:19-slim AS site-build
+
+WORKDIR /app/ui-build
+
+COPY ui .
+RUN npm i
+RUN npm run build
+
 FROM golang:1.20.2-alpine AS builder
 
 RUN apk add --update --no-cache gcc g++ git
@@ -24,5 +33,6 @@ FROM alpine:3.17
 WORKDIR /app
 
 COPY --from=builder ["/build/backend/backend", "./backend"]
+COPY --from=site-build ["/app/ui-build/build", "site"]
 
 ENTRYPOINT ["/app/backend"]

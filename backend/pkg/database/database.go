@@ -41,7 +41,7 @@ func RegisterDrivers() {
 	})
 }
 
-func InitaliseDatabase(config types.DBConfig) (types.Database, error) {
+func InitializeDatabase(config types.DBConfig) (types.Database, error) {
 	RegisterDrivers()
 
 	if driver, ok := DBDrivers[config.DriverType]; ok {

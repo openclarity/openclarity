@@ -13,8 +13,10 @@ paths:
       summary: Get targets
       parameters:
         - $ref: '#/components/parameters/odataFilter'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
       responses:
         200:
           description: Success
@@ -54,6 +56,7 @@ paths:
       summary: Get target.
       parameters:
         - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/odataSelect'
       responses:
         200:
           description: Success
@@ -117,8 +120,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -160,6 +165,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/scanResultID'
         - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -492,6 +498,40 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /discovery/scopes:
+    get:
+      summary: Get all available scopes
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scopes'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Set all available scopes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scopes'
+        required: true
+      responses:
+        200:
+          description: All scopes were set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scopes'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
 components:
   schemas:
     ApiResponse:
@@ -580,14 +620,50 @@ components:
         summary:
           $ref: '#/components/schemas/ScanSummary'
 
+    ScanRelationship:
+      type: object
+      description: Describes a relationship to a scan which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/Scan'
+        - type: object
+          properties:
+            id:
+              type: string
+            startTime:
+              readOnly: true
+            endTime:
+              readOnly: true
+            scanConfig:
+              readOnly: true
+            scanConfigSnapshot:
+              readOnly: true
+            targetIDs:
+              readOnly: true
+            state:
+              readOnly: true
+            stateMessage:
+              readOnly: true
+            stateReason:
+              readOnly: true
+            summary:
+              readOnly: true
+          required: ['id']
+
     ScanSummary:
       description: A summary of the progress of a scan for informational purposes.
+      allOf:
+        - $ref: '#/components/schemas/ScanFindingsSummary'
+        - type: object
+          properties:
+            jobsLeftToRun:
+              type: integer
+            jobsCompleted:
+              type: integer
+
+    ScanFindingsSummary:
+      description: A summary of the scan findings.
       type: object
       properties:
-        jobsLeftToRun:
-          type: integer
-        jobsCompleted:
-          type: integer
         totalPackages:
           type: integer
         totalExploits:
@@ -762,6 +838,13 @@ components:
         scanConfig:
           $ref: '#/components/schemas/ScanConfig'
 
+    Scopes:
+      type: object
+      description: Scopes discovery
+      properties:
+        scopeInfo:
+          $ref: '#/components/schemas/ScopeType'
+
     ScanScopeType:
       type: object
       anyOf:
@@ -799,6 +882,28 @@ components:
       required:
         - objectType
       additionalProperties: false
+
+    ScopeType:
+      type: object
+      anyOf:
+        - $ref: '#/components/schemas/AwsAccountScope'
+      discriminator:
+        propertyName: objectType
+        mapping:
+          AwsAccountScope: '#/components/schemas/AwsAccountScope'
+
+    AwsAccountScope:
+      type: object
+      description: AWS cloud account scope
+      properties:
+        objectType:
+          type: string
+        regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AwsRegion'
+      required:
+        - objectType
 
     AwsRegion:
       type: object
@@ -937,7 +1042,7 @@ components:
     Targets:
       type: object
       properties:
-        total:
+        count:
           type: integer
           description: Total targets count according the given filters
           readOnly: true
@@ -948,8 +1053,6 @@ components:
           items:
             $ref: '#/components/schemas/Target'
           readOnly: true
-      required:
-        - total
 
     Target:
       type: object
@@ -959,6 +1062,28 @@ components:
           readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
+        scansCount:
+          description: Total number of scans that have ever run for this target
+          type: integer
+        summary:
+          $ref: '#/components/schemas/ScanFindingsSummary'
+
+    TargetRelationship:
+      type: object
+      description: Describes a relationship to a target which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/Target'
+        - type: object
+          properties:
+            id:
+              type: string
+            targetInfo:
+              readOnly: true
+            scanCount:
+              readOnly: true
+            summary:
+              readOnly: true
+          required: ['id']
 
     TargetExists:
       type: object
@@ -1026,7 +1151,7 @@ components:
     TargetScanResults:
       type: object
       properties:
-        total:
+        count:
           type: integer
           description: Total scan results count according to the given filters
           readOnly: true
@@ -1037,8 +1162,6 @@ components:
           items:
             $ref: '#/components/schemas/TargetScanResult'
           readOnly: true
-      required:
-        - total
 
     TargetScanResult:
       type: object
@@ -1046,10 +1169,10 @@ components:
         id:
           type: string
           readOnly: true
-        targetId:
-          type: string
-        scanId:
-          type: string
+        target:
+          $ref: '#/components/schemas/TargetRelationship'
+        scan:
+          $ref: '#/components/schemas/ScanRelationship'
         status:
           $ref: '#/components/schemas/TargetScanStatus'
         sboms:
@@ -1067,29 +1190,10 @@ components:
         exploits:
           $ref: '#/components/schemas/ExploitScan'
         summary:
-          $ref: '#/components/schemas/TargetScanResultSummary'
+          $ref: '#/components/schemas/ScanFindingsSummary'
       required:
-        - targetId
-        - scanId
-
-    TargetScanResultSummary:
-      description: A summary of target scan result for informational purposes.
-      type: object
-      properties:
-        totalPackages:
-          type: integer
-        totalExploits:
-          type: integer
-        totalMalware:
-          type: integer
-        totalMisconfigurations:
-          type: integer
-        totalRootkits:
-          type: integer
-        totalSecrets:
-          type: integer
-        totalVulnerabilities:
-          $ref: '#/components/schemas/VulnerabilityScanSummary'
+        - target
+        - scan
 
     TargetScanResultExists:
       type: object

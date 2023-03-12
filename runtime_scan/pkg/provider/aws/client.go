@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +68,26 @@ func Create(ctx context.Context, config *aws.Config) (*Client, error) {
 	return &awsClient, nil
 }
 
-func (c *Client) Discover(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error) {
+func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
+	regions, err := c.ListAllRegions(ctx, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all regions: %v", err)
+	}
+
+	scopes := models.ScopeType{}
+	err = scopes.FromAwsAccountScope(models.AwsAccountScope{
+		Regions: convertToAPIRegions(regions),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("FromAwsScope failed: %w", err)
+	}
+
+	return &models.Scopes{
+		ScopeInfo: &scopes,
+	}, nil
+}
+
+func (c *Client) DiscoverInstances(ctx context.Context, scanScope *models.ScanScopeType) ([]types.Instance, error) {
 	var ret []types.Instance
 	var filters []ec2types.Filter
 
@@ -77,7 +96,7 @@ func (c *Client) Discover(ctx context.Context, scanScope *models.ScanScopeType) 
 		return nil, fmt.Errorf("failed to convert as aws scope: %v", err)
 	}
 
-	scope := convertScope(&awsScanScope)
+	scope := convertFromAPIScanScope(&awsScanScope)
 
 	regions, err := c.getRegionsToScan(ctx, scope)
 	if err != nil {
@@ -91,8 +110,8 @@ func (c *Client) Discover(ctx context.Context, scanScope *models.ScanScopeType) 
 
 	for _, region := range regions {
 		// if no vpcs, that mean that we don't need any vpc filters
-		if len(region.vpcs) == 0 {
-			instances, err := c.GetInstances(ctx, filters, scope.ExcludeTags, region.name)
+		if len(region.VPCs) == 0 {
+			instances, err := c.GetInstances(ctx, filters, scope.ExcludeTags, region.Name)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get instances: %v", err)
 			}
@@ -101,10 +120,10 @@ func (c *Client) Discover(ctx context.Context, scanScope *models.ScanScopeType) 
 		}
 
 		// need to do a per vpc call for DescribeInstances
-		for _, vpc := range region.vpcs {
+		for _, vpc := range region.VPCs {
 			vpcFilters := append(filters, createVPCFilters(vpc)...)
 
-			instances, err := c.GetInstances(ctx, vpcFilters, scope.ExcludeTags, region.name)
+			instances, err := c.GetInstances(ctx, vpcFilters, scope.ExcludeTags, region.Name)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get instances: %v", err)
 			}
@@ -114,22 +133,17 @@ func (c *Client) Discover(ctx context.Context, scanScope *models.ScanScopeType) 
 	return ret, nil
 }
 
-func convertScope(scope *models.AwsScanScope) *ScanScope {
-	allRegions := false
-	if scope.AllRegions != nil {
-		allRegions = *scope.AllRegions
-	}
-
+func convertFromAPIScanScope(scope *models.AwsScanScope) *ScanScope {
 	return &ScanScope{
-		AllRegions:  allRegions,
-		Regions:     convertRegions(scope.Regions),
+		AllRegions:  convertBool(scope.AllRegions),
+		Regions:     convertFromAPIRegions(scope.Regions),
 		ScanStopped: convertBool(scope.ShouldScanStoppedInstances),
-		TagSelector: convertTags(scope.InstanceTagSelector),
-		ExcludeTags: convertTags(scope.InstanceTagExclusion),
+		TagSelector: convertFromAPITags(scope.InstanceTagSelector),
+		ExcludeTags: convertFromAPITags(scope.InstanceTagExclusion),
 	}
 }
 
-func convertTags(tags *[]models.Tag) []Tag {
+func convertFromAPITags(tags *[]models.Tag) []Tag {
 	var ret []Tag
 	if tags != nil {
 		for _, tag := range *tags {
@@ -143,13 +157,13 @@ func convertTags(tags *[]models.Tag) []Tag {
 	return ret
 }
 
-func convertRegions(regions *[]models.AwsRegion) []Region {
+func convertFromAPIRegions(regions *[]models.AwsRegion) []Region {
 	var ret []Region
 	if regions != nil {
 		for _, region := range *regions {
 			ret = append(ret, Region{
-				name: region.Name,
-				vpcs: convertVPCs(region.Vpcs),
+				Name: region.Name,
+				VPCs: convertFromAPIVPCs(region.Vpcs),
 			})
 		}
 	}
@@ -157,33 +171,68 @@ func convertRegions(regions *[]models.AwsRegion) []Region {
 	return ret
 }
 
-func convertVPCs(vpcs *[]models.AwsVPC) []VPC {
+func convertFromAPIVPCs(vpcs *[]models.AwsVPC) []VPC {
 	if vpcs == nil {
 		return nil
 	}
 	ret := make([]VPC, len(*vpcs))
 	for i, vpc := range *vpcs {
 		ret[i] = VPC{
-			id:             vpc.Id,
-			securityGroups: convertSecurityGroups(vpc.SecurityGroups),
+			ID:             vpc.Id,
+			SecurityGroups: convertFromAPISecurityGroups(vpc.SecurityGroups),
 		}
 	}
 
 	return ret
 }
 
-func convertSecurityGroups(securityGroups *[]models.AwsSecurityGroup) []SecurityGroup {
+func convertFromAPISecurityGroups(securityGroups *[]models.AwsSecurityGroup) []SecurityGroup {
 	if securityGroups == nil {
 		return []SecurityGroup{}
 	}
 	ret := make([]SecurityGroup, len(*securityGroups))
 	for i, securityGroup := range *securityGroups {
 		ret[i] = SecurityGroup{
-			id: securityGroup.Id,
+			ID: securityGroup.Id,
 		}
 	}
 
 	return ret
+}
+
+func convertToAPIRegions(regions []Region) *[]models.AwsRegion {
+	ret := make([]models.AwsRegion, len(regions))
+	for i := range regions {
+		ret[i] = models.AwsRegion{
+			Name: regions[i].Name,
+			Vpcs: convertToAPIVPCs(regions[i].VPCs),
+		}
+	}
+
+	return &ret
+}
+
+func convertToAPIVPCs(vpcs []VPC) *[]models.AwsVPC {
+	ret := make([]models.AwsVPC, len(vpcs))
+	for i := range vpcs {
+		ret[i] = models.AwsVPC{
+			Id:             vpcs[i].ID,
+			SecurityGroups: convertToAPISecurityGroups(vpcs[i].SecurityGroups),
+		}
+	}
+
+	return &ret
+}
+
+func convertToAPISecurityGroups(securityGroups []SecurityGroup) *[]models.AwsSecurityGroup {
+	ret := make([]models.AwsSecurityGroup, len(securityGroups))
+	for i := range securityGroups {
+		ret[i] = models.AwsSecurityGroup{
+			Id: securityGroups[i].ID,
+		}
+	}
+
+	return &ret
 }
 
 func convertBool(all *bool) bool {
@@ -335,9 +384,9 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(result *ec2.DescribeIns
 }
 
 func getVPCSecurityGroupsIDs(vpc VPC) []string {
-	sgs := make([]string, len(vpc.securityGroups))
-	for i, sg := range vpc.securityGroups {
-		sgs[i] = sg.id
+	sgs := make([]string, len(vpc.SecurityGroups))
+	for i, sg := range vpc.SecurityGroups {
+		sgs[i] = sg.ID
 	}
 	return sgs
 }
@@ -354,7 +403,7 @@ func createVPCFilters(vpc VPC) []ec2types.Filter {
 	// create per vpc filters
 	ret = append(ret, ec2types.Filter{
 		Name:   utils.StringPtr(vpcIDFilterName),
-		Values: []string{vpc.id},
+		Values: []string{vpc.ID},
 	})
 	sgs := getVPCSecurityGroupsIDs(vpc)
 	if len(sgs) > 0 {
@@ -403,13 +452,13 @@ func createInclusionTagsFilters(tags []Tag) []ec2types.Filter {
 
 func (c *Client) getRegionsToScan(ctx context.Context, scope *ScanScope) ([]Region, error) {
 	if scope.AllRegions {
-		return c.ListAllRegions(ctx)
+		return c.ListAllRegions(ctx, false)
 	}
 
 	return scope.Regions, nil
 }
 
-func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {
+func (c *Client) ListAllRegions(ctx context.Context, isRecursive bool) ([]Region, error) {
 	ret := make([]Region, 0)
 	out, err := c.ec2Client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{
 		AllRegions: nil, // display also disabled regions?
@@ -417,12 +466,76 @@ func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to describe regions: %v", err)
 	}
+
 	for _, region := range out.Regions {
 		ret = append(ret, Region{
-			name: *region.RegionName,
+			Name: *region.RegionName,
 		})
 	}
+
+	if isRecursive {
+		for i, region := range ret {
+			// List region VPCs
+			vpcs, err := c.ec2Client.DescribeVpcs(ctx, &ec2.DescribeVpcsInput{
+				MaxResults: utils.Int32Ptr(maxResults),
+			}, func(options *ec2.Options) {
+				options.Region = region.Name
+			})
+			if err != nil {
+				log.Warnf("Failed to describe vpcs. region=%v: %v", region.Name, err)
+				continue
+			}
+			ret[i].VPCs = convertAwsVPCs(vpcs.Vpcs)
+			for i2, vpc := range ret[i].VPCs {
+				// List VPC's security groups
+				securityGroups, err := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{
+					Filters: []ec2types.Filter{
+						{
+							Name:   utils.StringPtr(vpcIDFilterName),
+							Values: []string{vpc.ID},
+						},
+					},
+					MaxResults: utils.Int32Ptr(maxResults),
+				}, func(options *ec2.Options) {
+					options.Region = region.Name
+				})
+				if err != nil {
+					log.Warnf("Failed to describe security groups. region=%v, vpc=%v: %v", region.Name, vpc.ID, err)
+					continue
+				}
+				ret[i].VPCs[i2].SecurityGroups = convertAwsSecurityGroups(securityGroups.SecurityGroups)
+			}
+		}
+	}
+
 	return ret, nil
+}
+
+func convertAwsSecurityGroups(securityGroups []ec2types.SecurityGroup) []SecurityGroup {
+	var ret []SecurityGroup
+	for _, securityGroup := range securityGroups {
+		if securityGroup.GroupId != nil {
+			ret = append(ret, SecurityGroup{
+				ID: *securityGroup.GroupId,
+			})
+		}
+	}
+
+	return ret
+}
+
+func convertAwsVPCs(vpcs []ec2types.Vpc) []VPC {
+	var ret []VPC
+	for _, vpc := range vpcs {
+		if vpc.VpcId != nil {
+			ret = append(ret, VPC{
+				ID:             *vpc.VpcId,
+				SecurityGroups: nil,
+			})
+		}
+	}
+
+	return ret
 }
 
 // AND logic - if excludeTags = {tag1:val1, tag2:val2},

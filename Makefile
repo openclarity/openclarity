@@ -22,10 +22,16 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 .PHONY: build
-build: build-all-go ## Build All
+build: ui build-all-go ## Build All
 
 .PHONY: build-all-go
 build-all-go: backend cli ## Build All GO executables
+
+.PHONY: ui
+ui: ## Build UI
+	@(echo "Building UI ..." )
+	@(cd ui; npm i ; npm run build; )
+	@ls -l ui/build
 
 .PHONY: backend
 backend: ## Build Backend
@@ -81,8 +87,12 @@ test: ## Run Unit Tests
 clean-backend:
 	@(rm -rf backend/bin ; echo "Backend cleanup done" )
 
+.PHONY: clean-ui
+clean-ui:
+	@(rm -rf ui/build ; echo "UI cleanup done" )
+
 .PHONY: clean
-clean: clean-backend ## Clean all build artifacts
+clean: clean-ui clean-backend ## Clean all build artifacts
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
