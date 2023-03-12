@@ -38,7 +38,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"target": odatasql.FieldMeta{
 				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: "Target",
+				RelationshipSchema: targetSchemaName,
 			},
 			"scan": odatasql.FieldMeta{
 				FieldType:          odatasql.RelationshipFieldType,
@@ -576,10 +576,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "findings",
 		Fields: odatasql.Schema{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			// TODO(sambetts) Make this a relationship once Scans support ODATA
-			"scan": odatasql.FieldMeta{FieldType: odatasql.ComplexFieldType, ComplexFieldSchemas: []string{"Scan"}},
-			// TODO(sambetts) Make this a relationship once Targets support ODATA
-			"asset":         odatasql.FieldMeta{FieldType: odatasql.ComplexFieldType, ComplexFieldSchemas: []string{"Target"}},
+			"scan": odatasql.FieldMeta{
+				FieldType:          odatasql.RelationshipFieldType,
+				RelationshipSchema: "Scan",
+			},
+			"asset": odatasql.FieldMeta{
+				FieldType:          odatasql.RelationshipFieldType,
+				RelationshipSchema: targetSchemaName,
+			},
 			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"findingInfo": odatasql.FieldMeta{
@@ -657,18 +661,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:          odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			},
-		},
-	},
-	// TODO(sambetts) Add table and other fields here when Scans are switched over to ODATA backend
-	"Scan": {
-		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-		},
-	},
-	// TODO(sambetts) Add table and other fields here then Targets are switched over to ODATA backend
-	"Target": {
-		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 }
