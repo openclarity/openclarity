@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,9 +43,20 @@ type Scan struct {
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanConfigSnapshot []byte `json:"scan_families_config,omitempty" gorm:"column:scan_families_config"`
 
+	// State The lifecycle state of this scan.
+	State string `json:"state,omitempty" gorm:"column:state"`
+
+	// StateMessage Human-readable message indicating details about the last state transition.
+	StateMessage string `json:"state_message,omitempty" gorm:"column:state_message"`
+
+	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+	StateReason string `json:"state_reason,omitempty" gorm:"column:state_reason"`
+
+	// Summary A summary of the progress of a scan for informational purposes.
+	Summary []byte `json:"summary,omitempty" gorm:"column:summary"`
+
 	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
 	TargetIDs []byte `json:"target_ids,omitempty" gorm:"column:target_ids"`
-	Summary   []byte `json:"summary,omitempty" gorm:"column:summary"`
 }
 
 type GetScansParams struct {

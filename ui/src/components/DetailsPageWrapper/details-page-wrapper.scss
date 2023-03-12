@@ -1,0 +1,13 @@
+.details-page-wrapper {
+    .details-page-content-wrapper {
+        .details-page-title {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 22px;
+
+            .details-page-title-sub {
+                margin-left: 10px;
+            }
+        }
+    }
+}

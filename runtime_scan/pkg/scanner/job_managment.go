@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -568,10 +568,14 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 		},
 	}
 	scanResult := models.TargetScanResult{
-		ScanId:   scanID,
-		Status:   initScanStatus,
-		TargetId: targetID,
-		Summary:  createInitScanResultSummary(),
+		Summary: createInitScanResultSummary(),
+		Scan: models.ScanRelationship{
+			Id: scanID,
+		},
+		Status: initScanStatus,
+		Target: models.TargetRelationship{
+			Id: targetID,
+		},
 	}
 	createdScanResult, err := s.backendClient.PostScanResult(ctx, scanResult)
 	if err != nil {
@@ -585,8 +589,8 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 	return *createdScanResult.Id, nil
 }
 
-func createInitScanResultSummary() *models.TargetScanResultSummary {
-	return &models.TargetScanResultSummary{
+func createInitScanResultSummary() *models.ScanFindingsSummary {
+	return &models.ScanFindingsSummary{
 		TotalExploits:          runtimeScanUtils.PointerTo[int](0),
 		TotalMalware:           runtimeScanUtils.PointerTo[int](0),
 		TotalMisconfigurations: runtimeScanUtils.PointerTo[int](0),

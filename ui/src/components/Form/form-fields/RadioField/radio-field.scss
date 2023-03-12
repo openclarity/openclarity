@@ -1,0 +1,62 @@
+@import 'utils/scss_variables.module.scss';
+
+$selector-size: 20px;
+$selector-inner-size: 14px;
+$selector-inner-padding: 3px;
+
+.form-field-wrapper.radio-field-wrapper {
+    .radio-field-item {
+        display: flex;
+        align-items: center;
+        position: relative;
+        margin-bottom: 12px;
+        padding-left: 22px;
+        cursor: pointer;
+
+        &.disabled {
+            cursor: not-allowed;
+
+            .radio-text {
+                color: $color-grey;
+            }
+            .checkmark {
+                border-color: $color-grey;
+
+                &:after {
+                    background-color: $color-grey !important;
+                }
+            }
+        }
+        .radio-text {
+            padding-left: 10px;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+        }
+        input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+
+            &:checked ~ .checkmark:after {
+                content: "";
+                position: absolute;
+                display: block;
+                top: $selector-inner-padding;
+                left: $selector-inner-padding;
+                width: $selector-inner-size;
+                height: $selector-inner-size;
+                border-radius: 50px;
+                background: $color-main-light;
+            }
+        }
+        .checkmark {
+            position: absolute;
+            left: 0;
+            height: $selector-size;
+            width: $selector-size;
+            background-color: white;
+            border-radius: 50px;
+            border: 1px solid $color-grey-light;
+        }
+    }
+}

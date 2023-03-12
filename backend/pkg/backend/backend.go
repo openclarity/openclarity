@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,17 +73,20 @@ func Run() {
 
 	healthServer.SetIsReady(false)
 
-	globalCtx, globalCancel := context.WithCancel(context.Background())
-	defer globalCancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	log.Info("VMClarity backend is running")
 
 	dbConfig := createDatabaseConfig(config)
-	dbHandler, err := database.InitaliseDatabase(dbConfig)
+	dbHandler, err := database.InitializeDatabase(dbConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialise database: %v", err)
 	}
 
+	if config.EnableFakeData {
+		go database.CreateDemoData(dbHandler)
+	}
 	_ = CreateBackend(dbHandler)
 
 	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler)
@@ -93,19 +96,7 @@ func Run() {
 	restServer.Start(errChan)
 	defer restServer.Stop()
 
-	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestAddress, config.BackendRestPort, rest.BaseURL)
-	if err != nil {
-		log.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
-	}
-	providerClient, err := aws.Create(globalCtx, runtimeScanConfig.AWSConfig)
-	if err != nil {
-		log.Fatalf("Failed to create provider client: %v", err)
-	}
-	orc, err := createRuntimeScanOrchestrator(providerClient, runtimeScanConfig)
-	if err != nil {
-		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
-	}
-	orc.Start(globalCtx)
+	startRuntimeScanOrchestratorIfNeeded(ctx, config)
 
 	healthServer.SetIsReady(true)
 	log.Info("VMClarity backend is ready")
@@ -116,12 +107,35 @@ func Run() {
 
 	select {
 	case <-errChan:
-		globalCancel()
+		cancel()
 		log.Errorf("Received an error - shutting down")
 	case s := <-sig:
-		globalCancel()
+		cancel()
 		log.Warningf("Received a termination signal: %v", s)
 	}
+}
+
+func startRuntimeScanOrchestratorIfNeeded(ctx context.Context, config *_config.Config) {
+	if _, ok := os.LookupEnv("DISABLE_ORCHESTRATOR"); ok {
+		return
+	}
+
+	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestAddress, config.BackendRestPort, rest.BaseURL)
+	if err != nil {
+		log.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
+	}
+
+	providerClient, err := aws.Create(ctx, runtimeScanConfig.AWSConfig)
+	if err != nil {
+		log.Fatalf("Failed to create provider client: %v", err)
+	}
+
+	orc, err := createRuntimeScanOrchestrator(providerClient, runtimeScanConfig)
+	if err != nil {
+		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
+	}
+
+	orc.Start(ctx)
 }
 
 func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig) (orchestrator.Orchestrator, error) {

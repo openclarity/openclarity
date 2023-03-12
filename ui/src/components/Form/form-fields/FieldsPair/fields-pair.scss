@@ -1,0 +1,47 @@
+@import 'utils/scss_variables.module.scss';
+
+$action-width: 40px;
+$actions-padding: 10px;
+
+.form-field-wrapper.fields-pair-field-wrapper {
+    .fields-wrapper {
+        background: rgba(34, 37, 41, 0.05);
+        padding: 20px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+
+        .form-field-wrapper {
+            margin-bottom: 17px;
+        }
+        .field-with-actions-container {
+            display: flex;
+            justify-content: space-between;
+            
+            .form-field-wrapper {
+                width: calc(100% - 2 * #{$action-width} - 2 * #{$actions-padding});
+            }
+            .actions-wrapper {
+                display: flex;
+
+                .field-action {
+                    height: 36px;
+                    width: $action-width;
+                    border: 1px solid transparent;
+                    border-radius: 5px;
+                    background-color: $color-blue;
+                    box-sizing: border-box;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: $actions-padding;
+                    cursor: pointer;
+    
+                    &.disabled {
+                        background-color: $color-grey-light;
+                        cursor: not-allowed;
+                    }
+                }
+            }
+        }
+    }
+}

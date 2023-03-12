@@ -1,4 +1,4 @@
-// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -187,7 +187,7 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, sca
 	}
 }
 
-func (b *BackendClient) GetScanResultSummary(ctx context.Context, scanResultID string) (*models.TargetScanResultSummary, error) {
+func (b *BackendClient) GetScanResultSummary(ctx context.Context, scanResultID string) (*models.ScanFindingsSummary, error) {
 	params := models.GetScanResultsScanResultIDParams{
 		Select: runtimeScanUtils.StringPtr("summary"),
 	}
@@ -324,5 +324,24 @@ func (b *BackendClient) PostTarget(ctx context.Context, target models.Target) (*
 			return nil, fmt.Errorf("failed to post target. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to post target. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) PutDiscoveryScopes(ctx context.Context, scope *models.Scopes) (*models.Scopes, error) {
+	resp, err := b.apiClient.PutDiscoveryScopesWithResponse(ctx, *scope)
+	if err != nil {
+		return nil, fmt.Errorf("failed to put discovery scope: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to put scopes: empty body. status code=%v", http.StatusOK)
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to put scopes. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to put scopes. status code=%v", resp.StatusCode())
 	}
 }

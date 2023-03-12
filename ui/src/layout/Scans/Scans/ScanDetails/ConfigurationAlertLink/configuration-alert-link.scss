@@ -1,0 +1,15 @@
+@import 'utils/scss_variables.module.scss';
+
+.configuration-alert-link {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .clarity-title  {
+        margin-right: 15px;
+    }
+    .icon {
+        color: $color-warning;
+        margin: auto 0;
+    }
+}

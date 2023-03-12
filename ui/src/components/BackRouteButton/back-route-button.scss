@@ -1,0 +1,15 @@
+@import 'utils/scss_variables.module.scss';
+
+.back-route-button {
+    color: $color-main;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    line-height: 18px;
+    cursor: pointer;
+    margin-bottom: 24px;
+
+    .icon {
+        margin-right: 14px;
+    }
+}
