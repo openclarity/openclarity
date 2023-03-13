@@ -61,14 +61,14 @@ type Engine struct {
 type CDPlayer struct {
 	ObjectType    string `json:"ObjectType"`
 	Brand         string `json:"Brand"`
-	NumberOfDisks int    `json:"NumberOfDisks"`
+	NumberOfDisks int    `json:"NumberOfDisks,omitempty"`
 }
 
 // Radio StereoType.
 type Radio struct {
 	ObjectType string `json:"ObjectType"`
 	Brand      string `json:"Brand"`
-	Frequency  string `json:"Frequency"`
+	Frequency  string `json:"Frequency,omitempty"`
 }
 
 type Address struct {
@@ -268,7 +268,7 @@ func addManufacturer(db *gorm.DB, postfix string) (Manufacturer, error) {
 	return manufacturer, nil
 }
 
-func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (Car, error) {
+func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool) (Car, error) {
 	id := uuid.New().String()
 
 	otherMs := []Manufacturer{}
@@ -288,6 +288,16 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (
 		return Car{}, err
 	}
 
+	radio := &StereoType{}
+	err = radio.FromRadio(Radio{
+		ObjectType: "Radio",
+		Brand:      "Samsung",
+		Frequency:  "500mhz",
+	})
+	if err != nil {
+		return Car{}, err
+	}
+
 	cdPlayer2 := &StereoType{}
 	err = cdPlayer2.FromCDPlayer(CDPlayer{
 		ObjectType:    "CDPlayer",
@@ -298,11 +308,11 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (
 		return Car{}, err
 	}
 
-	radio := &StereoType{}
-	err = radio.FromRadio(Radio{
-		ObjectType: "Radio",
-		Brand:      "Samsung",
-		Frequency:  "500mhz",
+	cdPlayer3 := &StereoType{}
+	err = cdPlayer3.FromCDPlayer(CDPlayer{
+		ObjectType:    "CDPlayer",
+		Brand:         "Unknown",
+		NumberOfDisks: 20,
 	})
 	if err != nil {
 		return Car{}, err
@@ -314,7 +324,7 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (
 		Seats:     seats,
 		Engine: &Engine{
 			Options: &Options{
-				Supercharger: false,
+				Supercharger: supercharger,
 				SubOptions: []SubOption{
 					{
 						Name: "bluePaint",
@@ -342,6 +352,7 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (
 		OtherStereos: []StereoType{
 			*radio,
 			*cdPlayer2,
+			*cdPlayer3,
 		},
 		Manufacturer: &Manufacturer{
 			ID: manuID,
@@ -355,6 +366,26 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int) (
 	carRow := CarRow{Data: carBytes}
 	db.Create(&carRow)
 	return car, nil
+}
+
+func fromCDPlayer(t *testing.T, cdp CDPlayer) StereoType {
+	t.Helper()
+	st := &StereoType{}
+	err := st.FromCDPlayer(cdp)
+	if err != nil {
+		t.Fatalf("failed to create stereo: %v", err)
+	}
+	return *st
+}
+
+func fromRadio(t *testing.T, cdp Radio) StereoType {
+	t.Helper()
+	st := &StereoType{}
+	err := st.FromRadio(cdp)
+	if err != nil {
+		t.Fatalf("failed to create stereo: %v", err)
+	}
+	return *st
 }
 
 // nolint:cyclop,maintidx
@@ -398,22 +429,22 @@ func Test_BuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add manufacturer to db %v", err)
 	}
 
-	car1, err := addCar(db, "model1", manu1.ID, []string{}, 5)
+	car1, err := addCar(db, "model1", manu1.ID, []string{}, 5, false)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5)
+	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2)
+	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2)
+	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
@@ -423,6 +454,7 @@ func Test_BuildSQLQuery(t *testing.T) {
 		filterString    *string
 		selectString    *string
 		expandString    *string
+		orderbyString   *string
 		top             *int
 		skip            *int
 		want            []Car
@@ -672,6 +704,34 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
+			name:         "select fields from nested list",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("OtherStereos/Brand"),
+			want: []Car{
+				{
+					OtherStereos: []StereoType{
+						fromRadio(t, Radio{Brand: "Samsung"}),
+						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
+						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
+					},
+				},
+			},
+		},
+		{
+			name:         "select fields from nested list",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("OtherStereos($select=Brand)"),
+			want: []Car{
+				{
+					OtherStereos: []StereoType{
+						fromRadio(t, Radio{Brand: "Samsung"}),
+						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
+						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
+					},
+				},
+			},
+		},
+		{
 			name:         "expand on relationship",
 			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
 			selectString: PointerTo("ModelName,Manufacturer"),
@@ -784,10 +844,68 @@ func Test_BuildSQLQuery(t *testing.T) {
 			want:            []Car{},
 			buildQueryError: true,
 		},
+		{
+			name:          "orderby number of seats decending",
+			orderbyString: PointerTo("Seats desc"),
+			want:          []Car{car1, car2, car3, car4},
+		},
+		{
+			name:          "orderby number of seats ascending",
+			orderbyString: PointerTo("Seats asc"),
+			want:          []Car{car3, car4, car1, car2},
+		},
+		{
+			name:          "orderby number of seats ascending (direction not specified by user)",
+			orderbyString: PointerTo("Seats"),
+			want:          []Car{car3, car4, car1, car2},
+		},
+		{
+			name:          "orderby model name decending",
+			orderbyString: PointerTo("ModelName desc"),
+			want:          []Car{car4, car3, car2, car1},
+		},
+		{
+			name:         "order selected list ascending",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("OtherStereos($orderby=NumberOfDisks asc)"),
+			want: []Car{
+				{
+					OtherStereos: []StereoType{
+						car1.OtherStereos[0], // radio number of disks is null
+						car1.OtherStereos[2], // cdplayer3 number of disks is 20
+						car1.OtherStereos[1], // cdplayer2 number of disks is 50
+					},
+				},
+			},
+		},
+		{
+			name:         "order selected list decending",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("OtherStereos($orderby=NumberOfDisks desc)"),
+			want: []Car{
+				{
+					OtherStereos: []StereoType{
+						car1.OtherStereos[1], // cdplayer2 number of disks is 50
+						car1.OtherStereos[2], // cdplayer3 number of disks is 20
+						car1.OtherStereos[0], // radio number of disks is null
+					},
+				},
+			},
+		},
+		{
+			name:          "orderby sub-object field ascending",
+			orderbyString: PointerTo("Engine/Options/Supercharger asc"),
+			want:          []Car{car1, car3, car2, car4},
+		},
+		{
+			name:          "orderby two fields",
+			orderbyString: PointerTo("Engine/Options/Supercharger asc, ModelName desc"),
+			want:          []Car{car3, car1, car4, car2},
+		},
 	}
 
 	for _, test := range tests {
-		query, err := BuildSQLQuery(carSchemaMetas, "Car", test.filterString, test.selectString, test.expandString, test.top, test.skip)
+		query, err := BuildSQLQuery(carSchemaMetas, "Car", test.filterString, test.selectString, test.expandString, test.orderbyString, test.top, test.skip)
 		if err != nil {
 			if !test.buildQueryError {
 				t.Errorf("[%s] failed to build query for DB: %v", test.name, err)

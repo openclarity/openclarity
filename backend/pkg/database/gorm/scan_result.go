@@ -50,7 +50,7 @@ func (db *Handler) ScanResultsTable() types.ScanResultsTable {
 
 func (s *ScanResultsTableHandler) GetScanResults(params models.GetScanResultsParams) (models.TargetScanResults, error) {
 	var scanResults []ScanResult
-	err := ODataQuery(s.DB, targetScanResultsSchemaName, params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &scanResults)
+	err := ODataQuery(s.DB, targetScanResultsSchemaName, params.Filter, params.Select, params.Expand, params.OrderBy, params.Top, params.Skip, true, &scanResults)
 	if err != nil {
 		return models.TargetScanResults{}, err
 	}
@@ -80,7 +80,7 @@ func (s *ScanResultsTableHandler) GetScanResults(params models.GetScanResultsPar
 func (s *ScanResultsTableHandler) GetScanResult(scanResultID models.ScanResultID, params models.GetScanResultsScanResultIDParams) (models.TargetScanResult, error) {
 	var dbScanResult ScanResult
 	filter := fmt.Sprintf("id eq '%s'", scanResultID)
-	err := ODataQuery(s.DB, targetScanResultsSchemaName, &filter, params.Select, params.Expand, nil, nil, false, &dbScanResult)
+	err := ODataQuery(s.DB, targetScanResultsSchemaName, &filter, params.Select, params.Expand, nil, nil, nil, false, &dbScanResult)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.TargetScanResult{}, types.ErrNotFound
@@ -130,7 +130,7 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 	// Check the existing DB entries to ensure that the scan id and target id fields are unique
 	var scanResults []ScanResult
 	filter := fmt.Sprintf("target/id eq '%s' and scan/id eq '%s'", scanResult.Target.Id, scanResult.Scan.Id)
-	err := ODataQuery(s.DB, targetScanResultsSchemaName, &filter, nil, nil, nil, nil, true, &scanResults)
+	err := ODataQuery(s.DB, targetScanResultsSchemaName, &filter, nil, nil, nil, nil, nil, true, &scanResults)
 	if err != nil {
 		return models.TargetScanResult{}, err
 	}

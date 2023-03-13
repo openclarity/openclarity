@@ -18,6 +18,7 @@ paths:
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
         - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -126,6 +127,7 @@ paths:
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
         - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -246,6 +248,7 @@ paths:
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
         - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -380,6 +383,7 @@ paths:
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
         - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -515,6 +519,7 @@ paths:
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
         - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -555,6 +560,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataOrderBy'
       responses:
         200:
           description: Success
@@ -1807,6 +1813,13 @@ components:
       in: query
       schema:
         type: string
+
+    odataOrderBy:
+      name: "$orderby"
+      in: query
+      schema:
+        type: string
+      x-go-name: "OrderBy"
 
     scanID:
       name: scanID

@@ -46,7 +46,7 @@ func (db *Handler) ScopesTable() types.ScopesTable {
 
 func (s ScopesTableHandler) GetScopes(params models.GetDiscoveryScopesParams) (models.Scopes, error) {
 	var dbScopes Scopes
-	err := ODataQuery(s.DB, scopesSchemaName, params.Filter, params.Select, nil, nil, nil, false, &dbScopes)
+	err := ODataQuery(s.DB, scopesSchemaName, params.Filter, params.Select, nil, nil, nil, nil, false, &dbScopes)
 	if err != nil {
 		return models.Scopes{}, err
 	}
