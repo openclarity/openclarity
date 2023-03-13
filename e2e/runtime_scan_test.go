@@ -57,7 +57,7 @@ func TestRuntimeScan(t *testing.T) {
 			results := common.GetRuntimeScanResults(t, kubeclarityAPI)
 			resultsB, err := json.Marshal(results)
 			assert.NilError(t, err)
-			t.Logf("Got results %+v", string(resultsB))
+			t.Logf("Got runtime scan results: %+v", string(resultsB))
 
 			assert.Assert(t, results.Counters.Resources > 0)
 			assert.Assert(t, results.Counters.Vulnerabilities > 0)
