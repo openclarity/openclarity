@@ -142,7 +142,7 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 }
 
 func (s *Scanner) createScanWithUpdatedSummary(ctx context.Context, data scanData) (*models.Scan, error) {
-	scan, err := s.backendClient.GetScan(ctx, s.scanID)
+	scan, err := s.backendClient.GetScan(ctx, s.scanID, models.GetScansScanIDParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scan to update status: %v", err)
 	}

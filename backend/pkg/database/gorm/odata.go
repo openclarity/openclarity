@@ -277,7 +277,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
-	"Scan": {
+	scanSchemaName: {
+		Table: "scans",
 		Fields: odatasql.Schema{
 			"id":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
