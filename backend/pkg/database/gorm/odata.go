@@ -671,7 +671,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 }
 
-func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandString *string, top, skip *int, collection bool, result interface{}) error {
+func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandString, orderby *string, top, skip *int, collection bool, result interface{}) error {
 	// If we're not getting a collection, make sure the result is limited
 	// to 1 item.
 	if !collection {
@@ -681,7 +681,7 @@ func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandSt
 
 	// Build the raw SQL query using the odatasql library, this will also
 	// parse and validate the ODATA query params.
-	query, err := odatasql.BuildSQLQuery(schemaMetas, schema, filterString, selectString, expandString, top, skip)
+	query, err := odatasql.BuildSQLQuery(schemaMetas, schema, filterString, selectString, expandString, orderby, top, skip)
 	if err != nil {
 		return fmt.Errorf("failed to build query for DB: %w", err)
 	}

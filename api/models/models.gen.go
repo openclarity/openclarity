@@ -844,6 +844,9 @@ type OdataExpand = string
 // OdataFilter defines model for odataFilter.
 type OdataFilter = string
 
+// OrderBy defines model for odataOrderBy.
+type OrderBy = string
+
 // OdataSelect defines model for odataSelect.
 type OdataSelect = string
 
@@ -873,18 +876,20 @@ type UnknownError = ApiResponse
 
 // GetDiscoveryScopesParams defines parameters for GetDiscoveryScopes.
 type GetDiscoveryScopesParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetFindingsParams defines parameters for GetFindings.
 type GetFindingsParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetFindingsFindingIDParams defines parameters for GetFindingsFindingID.
@@ -895,12 +900,13 @@ type GetFindingsFindingIDParams struct {
 
 // GetScanConfigsParams defines parameters for GetScanConfigs.
 type GetScanConfigsParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetScanConfigsScanConfigIDParams defines parameters for GetScanConfigsScanConfigID.
@@ -911,12 +917,13 @@ type GetScanConfigsScanConfigIDParams struct {
 
 // GetScanResultsParams defines parameters for GetScanResults.
 type GetScanResultsParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetScanResultsScanResultIDParams defines parameters for GetScanResultsScanResultID.
@@ -927,12 +934,13 @@ type GetScanResultsScanResultIDParams struct {
 
 // GetScansParams defines parameters for GetScans.
 type GetScansParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetScansScanIDParams defines parameters for GetScansScanID.
@@ -943,12 +951,13 @@ type GetScansScanIDParams struct {
 
 // GetTargetsParams defines parameters for GetTargets.
 type GetTargetsParams struct {
-	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
 }
 
 // GetTargetsTargetIDParams defines parameters for GetTargetsTargetID.

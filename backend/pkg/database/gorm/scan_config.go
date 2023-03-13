@@ -46,7 +46,7 @@ func (db *Handler) ScanConfigsTable() types.ScanConfigsTable {
 
 func (s *ScanConfigsTableHandler) GetScanConfigs(params models.GetScanConfigsParams) (models.ScanConfigs, error) {
 	var scanConfigs []ScanConfig
-	err := ODataQuery(s.DB, "ScanConfig", params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &scanConfigs)
+	err := ODataQuery(s.DB, "ScanConfig", params.Filter, params.Select, params.Expand, params.OrderBy, params.Top, params.Skip, true, &scanConfigs)
 	if err != nil {
 		return models.ScanConfigs{}, err
 	}
@@ -77,7 +77,7 @@ func (s *ScanConfigsTableHandler) GetScanConfigs(params models.GetScanConfigsPar
 func (s *ScanConfigsTableHandler) GetScanConfig(scanConfigID models.ScanConfigID, params models.GetScanConfigsScanConfigIDParams) (models.ScanConfig, error) {
 	var dbScanConfig ScanConfig
 	filter := fmt.Sprintf("id eq '%s'", scanConfigID)
-	err := ODataQuery(s.DB, "ScanConfig", &filter, params.Select, params.Expand, nil, nil, false, &dbScanConfig)
+	err := ODataQuery(s.DB, "ScanConfig", &filter, params.Select, params.Expand, nil, nil, nil, false, &dbScanConfig)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.ScanConfig{}, types.ErrNotFound
@@ -123,7 +123,7 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 	// Check the existing DB entries to ensure that the name field is unique
 	var scanConfigs []ScanConfig
 	filter := fmt.Sprintf("name eq '%s'", scanConfig.Name)
-	err := ODataQuery(s.DB, "ScanConfig", &filter, nil, nil, nil, nil, true, &scanConfigs)
+	err := ODataQuery(s.DB, "ScanConfig", &filter, nil, nil, nil, nil, nil, true, &scanConfigs)
 	if err != nil {
 		return models.ScanConfig{}, err
 	}
@@ -166,7 +166,7 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 func getExistingScanConfigByID(db *gorm.DB, scanConfigID models.ScanConfigID) (ScanConfig, error) {
 	var dbScanConfig ScanConfig
 	filter := fmt.Sprintf("id eq '%s'", scanConfigID)
-	err := ODataQuery(db, "ScanConfig", &filter, nil, nil, nil, nil, false, &dbScanConfig)
+	err := ODataQuery(db, "ScanConfig", &filter, nil, nil, nil, nil, nil, false, &dbScanConfig)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ScanConfig{}, types.ErrNotFound

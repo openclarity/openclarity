@@ -86,7 +86,7 @@ func Test_SelectTree(t *testing.T) {
 
 	for _, test := range tests {
 		selectTree := newSelectTree()
-		err := selectTree.insert(nil, nil, test.selectQuery, test.expandQuery, false)
+		err := selectTree.insert(nil, nil, nil, test.selectQuery, test.expandQuery, false)
 		if err != nil && !test.wantErr {
 			t.Errorf("unexpected error for %v: %v", test.name, err)
 		} else if err == nil && test.wantErr {
