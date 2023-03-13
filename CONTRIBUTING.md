@@ -109,7 +109,6 @@ In order to run end-to-end tests locally:
 # Build all docker images
 make docker
 # Replace Values In The KubeClarity Chart:
-sed -i 's/latest/v1.1/g' charts/kubeclarity/Chart.yaml
 sed -i 's/latest/${{ github.sha }}/g' charts/kubeclarity/values.yaml
 sed -i 's/Always/IfNotPresent/g' charts/kubeclarity/values.yaml
 # Build the KubeClarity CLI
