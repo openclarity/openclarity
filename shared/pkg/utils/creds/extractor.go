@@ -60,7 +60,12 @@ func GetAuthConfig(ipsPath string, imageName string) (*authn.AuthConfig, error) 
 
 func newKeyChain(ctx context.Context, ipsPath string) (authn.Keychain, error) {
 	if ipsPath == "" {
-		return k8schain.NewNoClient(ctx)
+		keychain, err := k8schain.NewNoClient(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create no client keychain: %w", err)
+		}
+
+		return keychain, nil
 	}
 
 	secrets, err := readImagePullSecrets(ipsPath)
@@ -114,7 +119,7 @@ func readImagePullSecrets(ipsPath string) ([]corev1.Secret, error) {
 		})
 	}
 
-	return secrets, err
+	return secrets, nil
 }
 
 func determineSecretTypeAndKey(secretPath string) (corev1.SecretType, string, error) {
