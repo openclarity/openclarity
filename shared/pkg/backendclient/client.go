@@ -240,8 +240,8 @@ func (b *BackendClient) PatchTargetScanStatus(ctx context.Context, scanResultID 
 	}
 }
 
-func (b *BackendClient) GetScan(ctx context.Context, scanID string) (*models.Scan, error) {
-	resp, err := b.apiClient.GetScansScanIDWithResponse(ctx, scanID)
+func (b *BackendClient) GetScan(ctx context.Context, scanID string, params models.GetScansScanIDParams) (*models.Scan, error) {
+	resp, err := b.apiClient.GetScansScanIDWithResponse(ctx, scanID, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get a scan: %v", err)
 	}

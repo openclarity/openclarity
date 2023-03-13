@@ -21,10 +21,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
@@ -66,20 +66,20 @@ func (s *ServerImpl) DeleteScansScanID(ctx echo.Context, scanID models.ScanID) e
 	}
 
 	if err := s.dbHandler.ScansTable().DeleteScan(scanID); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
 		}
-		return sendError(ctx, http.StatusInternalServerError, err.Error())
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to delete scan from db. scanID=%v: %v", scanID, err))
 	}
 
 	return sendResponse(ctx, http.StatusNoContent, &success)
 }
 
-func (s *ServerImpl) GetScansScanID(ctx echo.Context, scanID models.ScanID) error {
-	scan, err := s.dbHandler.ScansTable().GetScan(scanID)
+func (s *ServerImpl) GetScansScanID(ctx echo.Context, scanID models.ScanID, params models.GetScansScanIDParams) error {
+	scan, err := s.dbHandler.ScansTable().GetScan(scanID, params)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, err.Error())
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan from db. id=%v: %v", scanID, err))
 	}
@@ -93,18 +93,12 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID) er
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	// check that a scan with that id exists.
-	_, err = s.dbHandler.ScansTable().GetScan(scanID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan was not found in db. scanID=%v: %v", scanID, err))
-		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan from db. scanID=%v: %v", scanID, err))
-	}
-
 	scan.Id = &scanID
 	updatedScan, err := s.dbHandler.ScansTable().UpdateScan(scan)
 	if err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan in db. scanID=%v: %v", scanID, err))
 	}
 
@@ -118,19 +112,16 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID) erro
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
-	// check that a scan with that id exists.
-	_, err = s.dbHandler.ScansTable().GetScan(scanID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan was not found in db. scanID=%v: %v", scanID, err))
-		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan from db. scanID=%v: %v", scanID, err))
-	}
-
+	// PUT request might not contain the ID in the body, so set it from the
+	// URL field so that the DB layer knows which object is being updated.
 	scan.Id = &scanID
+
 	updatedScan, err := s.dbHandler.ScansTable().SaveScan(scan)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan in db. scanID=%v: %v", scanID, err))
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to save scan in db. scanID=%v: %v", scanID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedScan)

@@ -587,11 +587,11 @@ type ScanType string
 
 // Scans defines model for Scans.
 type Scans struct {
+	// Count Total scans count according to the given filters
+	Count *int `json:"count,omitempty"`
+
 	// Items List of scans according to the given filters and page. List length must be lower or equal to pageSize.
 	Items *[]Scan `json:"items,omitempty"`
-
-	// Total Total scans count according to the given filters
-	Total *int `json:"total,omitempty"`
 }
 
 // ScopeType defines model for ScopeType.
@@ -853,12 +853,6 @@ type OdataSkip = int
 // OdataTop defines model for odataTop.
 type OdataTop = int
 
-// Page defines model for page.
-type Page = int
-
-// PageSize defines model for pageSize.
-type PageSize = int
-
 // ScanConfigID defines model for scanConfigID.
 type ScanConfigID = string
 
@@ -934,12 +928,15 @@ type GetScanResultsScanResultIDParams struct {
 // GetScansParams defines parameters for GetScans.
 type GetScansParams struct {
 	Filter *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+}
 
-	// Page Page number of the query
-	Page *Page `form:"page,omitempty" json:"page,omitempty"`
-
-	// PageSize Maximum items to return
-	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+// GetScansScanIDParams defines parameters for GetScansScanID.
+type GetScansScanIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
 }
 
 // GetTargetsParams defines parameters for GetTargets.
