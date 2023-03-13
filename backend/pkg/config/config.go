@@ -38,16 +38,13 @@ const (
 	EnableDBInfoLogs          = "ENABLE_DB_INFO_LOGS"
 	ViewRefreshIntervalEnvVar = "DB_VIEW_REFRESH_INTERVAL"
 
-	DefaultScanParallelism = "DEFAULT_SCAN_PARALLELISM"
-
 	FakeDataEnvVar           = "FAKE_DATA"
 	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"
 )
 
 type Config struct {
-	BackendRestPort        int
-	HealthCheckAddress     string
-	DefaultScanParallelism int
+	BackendRestPort    int
+	HealthCheckAddress string
 
 	// How often to refresh Prometheus data in seconds
 	PrometheusRefreshIntervalSeconds int
@@ -81,8 +78,6 @@ func LoadConfig() (*Config, error) {
 	config.DBName = viper.GetString(DBNameEnvVar)
 	config.ViewRefreshIntervalSecond = viper.GetInt(ViewRefreshIntervalEnvVar)
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
-
-	config.DefaultScanParallelism = viper.GetInt(DefaultScanParallelism)
 
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 	config.EnableFakeRuntimeScanner = viper.GetBool(FakeRuntimeScannerEnvVar)

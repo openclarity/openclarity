@@ -69,14 +69,13 @@ type ScanConfig struct {
 	Parallelism                   int
 }
 
-func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults, defaultScanParallelism int) Scanner {
+func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults) Scanner {
 	return &RuntimeScanner{
 		vulnerabilitiesScanner: scanner,
 		scanChan:               scanChan,
 		lock:                   sync.RWMutex{},
 		resultsChan:            resultsChan,
 		lastScanConfig:         &ScanConfig{},
-		defaultScanParallelism: defaultScanParallelism,
 	}
 }
 

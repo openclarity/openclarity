@@ -48,7 +48,13 @@ const (
 func (s *Scanner) jobBatchManagement() {
 	s.Lock()
 	imageIDToScanData := s.imageIDToScanData
-	numberOfWorkers := s.scanConfig.MaxScanParallelism
+	var numberOfWorkers int
+	if s.scanConfig.MaxScanParallelism > 0 {
+		numberOfWorkers = s.scanConfig.MaxScanParallelism
+	} else {
+		numberOfWorkers = s.defaultScanParallelism
+	}
+
 	imagesStartedToScan := &s.progress.ImagesStartedToScan
 	imagesCompletedToScan := &s.progress.ImagesCompletedToScan
 	s.Unlock()
