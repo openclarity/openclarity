@@ -45,7 +45,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ScannerJobTemplateConfigMapName, "")
 	viper.SetDefault(ScannerJobTemplateConfigMapNamespace, "kubeclarity")
 	viper.SetDefault(ScannerJobResultListenPort, defaultScannerJobResultListenPort)
-	viper.SetDefault(DefaultScanParallelism, 10)
+	viper.SetDefault(DefaultScanParallelism, 10) // nolint: gomnd
 
 	viper.AutomaticEnv()
 }
