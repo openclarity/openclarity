@@ -341,6 +341,7 @@ func buildJSONPathFromParseNode(node *godata.ParseNode) (string, error) {
 	}
 }
 
+// TODO: create a unit test
 // nolint:cyclop
 func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error) {
 	operator := node.Token.Value
@@ -357,8 +358,9 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 
 		rhs := node.Children[1]
 		extractFunction := "->"
+		sqlOperator := sqlOperators[operator]
 		var value string
-		switch rhs.Token.Type {
+		switch rhs.Token.Type { // TODO: implement all the relevant cases as ExpressionTokenDate and ExpressionTokenDateTime
 		case godata.ExpressionTokenString:
 			value = singleQuote(strings.ReplaceAll(rhs.Token.Value, "'", "\""))
 		case godata.ExpressionTokenBoolean:
@@ -366,11 +368,20 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:
 			value = rhs.Token.Value
 			extractFunction = "->>"
+		case godata.ExpressionTokenNull:
+			value = "NULL"
+			if operator == "eq" {
+				sqlOperator = "is"
+			} else if operator == "ne" {
+				sqlOperator = "is not"
+			} else {
+				return "", fmt.Errorf("unsupported ExpressionTokenNull operator %s", operator)
+			}
 		default:
 			return "", fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
 
-		query = fmt.Sprintf("%s %s '%s' %s %s", source, extractFunction, queryPath, sqlOperators[operator], value)
+		query = fmt.Sprintf("%s %s '%s' %s %s", source, extractFunction, queryPath, sqlOperator, value)
 	case "and":
 		left, err := buildWhereFromFilter(source, node.Children[0])
 		if err != nil {

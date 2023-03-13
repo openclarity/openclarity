@@ -37,12 +37,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Fields: odatasql.Schema{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"target": odatasql.FieldMeta{
-				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: targetSchemaName,
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   targetSchemaName,
+				RelationshipProperty: "id",
 			},
 			"scan": odatasql.FieldMeta{
-				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: "Scan",
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   "Scan",
+				RelationshipProperty: "id",
 			},
 			"status": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -284,8 +286,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scanConfig": odatasql.FieldMeta{
-				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: "ScanConfig",
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   "ScanConfig",
+				RelationshipProperty: "id",
 			},
 			"scanConfigSnapshot": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -578,12 +581,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Fields: odatasql.Schema{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scan": odatasql.FieldMeta{
-				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: "Scan",
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   "Scan",
+				RelationshipProperty: "id",
 			},
 			"asset": odatasql.FieldMeta{
-				FieldType:          odatasql.RelationshipFieldType,
-				RelationshipSchema: targetSchemaName,
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   targetSchemaName,
+				RelationshipProperty: "id",
 			},
 			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},

@@ -932,11 +932,13 @@ type GetScansParams struct {
 	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
 	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
 	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // GetScansScanIDParams defines parameters for GetScansScanID.
 type GetScansScanIDParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // GetTargetsParams defines parameters for GetTargets.
@@ -946,11 +948,13 @@ type GetTargetsParams struct {
 	Count  *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
 	Top    *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
 	Skip   *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // GetTargetsTargetIDParams defines parameters for GetTargetsTargetID.
 type GetTargetsTargetIDParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
 // PutDiscoveryScopesJSONRequestBody defines body for PutDiscoveryScopes for application/json ContentType.
