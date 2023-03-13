@@ -38,15 +38,6 @@ type Scan struct {
 	ODataObject
 }
 
-type GetScansParams struct {
-	// Filter Odata filter
-	Filter *string
-	// Page Page number of the query
-	Page *int
-	// PageSize Maximum items to return
-	PageSize *int
-}
-
 type ScansTableHandler struct {
 	DB *gorm.DB
 }
@@ -59,7 +50,7 @@ func (db *Handler) ScansTable() types.ScansTable {
 
 func (s *ScansTableHandler) GetScans(params models.GetScansParams) (models.Scans, error) {
 	var scans []Scan
-	err := ODataQuery(s.DB, scanSchemaName, params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &scans)
+	err := ODataQuery(s.DB, scanSchemaName, params.Filter, params.Select, params.Expand, params.OrderBy, params.Top, params.Skip, true, &scans)
 	if err != nil {
 		return models.Scans{}, err
 	}
@@ -90,7 +81,7 @@ func (s *ScansTableHandler) GetScans(params models.GetScansParams) (models.Scans
 func (s *ScansTableHandler) GetScan(scanID models.ScanID, params models.GetScansScanIDParams) (models.Scan, error) {
 	var dbScan Scan
 	filter := fmt.Sprintf("id eq '%s'", scanID)
-	err := ODataQuery(s.DB, scanSchemaName, &filter, params.Select, params.Expand, nil, nil, false, &dbScan)
+	err := ODataQuery(s.DB, scanSchemaName, &filter, params.Select, params.Expand, nil, nil, nil, false, &dbScan)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.Scan{}, types.ErrNotFound
@@ -230,7 +221,7 @@ func (s *ScansTableHandler) DeleteScan(scanID models.ScanID) error {
 func (s *ScansTableHandler) checkUniqueness(scanConfigID string) (*models.Scan, error) {
 	var scans []Scan
 	filter := fmt.Sprintf("scanConfig/id eq '%s' and endTime eq null", scanConfigID)
-	err := ODataQuery(s.DB, scanSchemaName, &filter, nil, nil, nil, nil, true, &scans)
+	err := ODataQuery(s.DB, scanSchemaName, &filter, nil, nil, nil, nil, nil, true, &scans)
 	if err != nil {
 		return nil, err
 	}

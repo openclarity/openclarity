@@ -44,7 +44,7 @@ func (db *Handler) FindingsTable() types.FindingsTable {
 
 func (s *FindingsTableHandler) GetFindings(params models.GetFindingsParams) (models.Findings, error) {
 	var findings []Finding
-	err := ODataQuery(s.DB, "Finding", params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &findings)
+	err := ODataQuery(s.DB, "Finding", params.Filter, params.Select, params.Expand, params.OrderBy, params.Top, params.Skip, true, &findings)
 	if err != nil {
 		return models.Findings{}, err
 	}
@@ -75,7 +75,7 @@ func (s *FindingsTableHandler) GetFindings(params models.GetFindingsParams) (mod
 func (s *FindingsTableHandler) GetFinding(findingID models.FindingID, params models.GetFindingsFindingIDParams) (models.Finding, error) {
 	var dbFinding Finding
 	filter := fmt.Sprintf("id eq '%s'", findingID)
-	err := ODataQuery(s.DB, "Finding", &filter, params.Select, params.Expand, nil, nil, false, &dbFinding)
+	err := ODataQuery(s.DB, "Finding", &filter, params.Select, params.Expand, nil, nil, nil, false, &dbFinding)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.Finding{}, types.ErrNotFound

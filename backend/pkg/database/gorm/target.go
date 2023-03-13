@@ -49,7 +49,7 @@ func (db *Handler) TargetsTable() types.TargetsTable {
 
 func (t *TargetsTableHandler) GetTargets(params models.GetTargetsParams) (models.Targets, error) {
 	var targets []Target
-	err := ODataQuery(t.DB, targetSchemaName, params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &targets)
+	err := ODataQuery(t.DB, targetSchemaName, params.Filter, params.Select, params.Expand, params.OrderBy, params.Top, params.Skip, true, &targets)
 	if err != nil {
 		return models.Targets{}, err
 	}
@@ -80,7 +80,7 @@ func (t *TargetsTableHandler) GetTargets(params models.GetTargetsParams) (models
 func (t *TargetsTableHandler) GetTarget(targetID models.TargetID, params models.GetTargetsTargetIDParams) (models.Target, error) {
 	var dbTarget Target
 	filter := fmt.Sprintf("id eq '%s'", targetID)
-	err := ODataQuery(t.DB, targetSchemaName, &filter, params.Select, params.Expand, nil, nil, false, &dbTarget)
+	err := ODataQuery(t.DB, targetSchemaName, &filter, params.Select, params.Expand, nil, nil, nil, false, &dbTarget)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.Target{}, types.ErrNotFound
@@ -201,7 +201,7 @@ func (t *TargetsTableHandler) checkUniqueness(target models.Target) (*models.Tar
 	case models.VMInfo:
 		var targets []Target
 		filter := fmt.Sprintf("targetInfo/instanceID eq '%s' and targetInfo/location eq '%s'", info.InstanceID, info.Location)
-		err = ODataQuery(t.DB, targetSchemaName, &filter, nil, nil, nil, nil, true, &targets)
+		err = ODataQuery(t.DB, targetSchemaName, &filter, nil, nil, nil, nil, nil, true, &targets)
 		if err != nil {
 			return nil, err
 		}

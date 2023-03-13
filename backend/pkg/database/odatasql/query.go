@@ -22,6 +22,7 @@ import (
 	"sync"
 
 	"github.com/CiscoM31/godata"
+	log "github.com/sirupsen/logrus"
 )
 
 var fixSelectToken sync.Once
@@ -53,8 +54,8 @@ func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterStr
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s %s", table, where), nil
 }
 
-// nolint:cyclop
-func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterString, selectString, expandString *string, top, skip *int) (string, error) {
+// nolint:cyclop,gocognit
+func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterString, selectString, expandString, orderbyString *string, top, skip *int) (string, error) {
 	// Fix GlobalExpandTokenizer so that it allows for `-` characters in the Literal tokens
 	fixSelectToken.Do(func() {
 		godata.GlobalExpandTokenizer.Add("^[a-zA-Z0-9_\\'\\.:\\$ \\*-]+", godata.ExpandTokenLiteral)
@@ -75,6 +76,21 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		}
 
 		where = fmt.Sprintf("WHERE %s", conditions)
+	}
+
+	var orderby string
+	if orderbyString != nil && *orderbyString != "" {
+		orderbyQuery, err := godata.ParseOrderByString(context.TODO(), *orderbyString)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse $orderby: %w", err)
+		}
+
+		conditions, err := buildOrderByFromOdata("Data", orderbyQuery.OrderByItems)
+		if err != nil {
+			return "", fmt.Errorf("failed to build DB query from $orderby: %w", err)
+		}
+
+		orderby = fmt.Sprintf("ORDER BY %s", conditions)
 	}
 
 	var selectQuery *godata.GoDataSelectQuery
@@ -104,7 +120,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 	// TODO(sambetts) This should probably also validate that all the
 	// selected/expanded fields are part of the schema.
 	selectTree := newSelectTree()
-	err := selectTree.insert(nil, nil, selectQuery, expandQuery, false)
+	err := selectTree.insert(nil, nil, nil, selectQuery, expandQuery, false)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse select and expand: %w", err)
 	}
@@ -135,10 +151,9 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
 	}
 
-	return fmt.Sprintf("SELECT ID, %s AS Data FROM %s %s %s", selectFields, table, where, limitStm), nil
+	return fmt.Sprintf("SELECT ID, %s AS Data FROM %s %s %s %s", selectFields, table, where, orderby, limitStm), nil
 }
 
-// nolint:cyclop,gocognit,gocyclo
 func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	switch field.FieldType {
 	case PrimitiveFieldType:
@@ -148,160 +163,201 @@ func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, ident
 		}
 		return fmt.Sprintf("%s -> '%s'", source, path)
 	case CollectionFieldType:
-		newIdentifier := fmt.Sprintf("%sOptions", identifier)
-		newSource := fmt.Sprintf("%s.value", identifier)
-
-		var where string
-		var newSelectNode *selectNode
-		if st != nil {
-			if st.filter != nil {
-				conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
-				where = fmt.Sprintf("WHERE %s", conditions)
-			}
-			newSelectNode = &selectNode{children: st.children, expand: st.expand}
-		}
-
-		subQuery := buildSelectFields(schemaMetas, *field.CollectionItemMeta, newIdentifier, newSource, "$", newSelectNode)
-		return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM JSON_EACH(%s, '%s') AS %s %s)", subQuery, source, path, identifier, where)
+		return buildSelectFieldsForCollectionFieldType(schemaMetas, field, identifier, source, path, st)
 	case ComplexFieldType:
-		// If there are no children in the select tree for this complex
-		// type, shortcircuit and just return the data from the DB raw,
-		// as there is no need to build the complex query, and it'll
-		// ensure that null values are handled correctly.
-		if st == nil || len(st.children) == 0 {
-			return fmt.Sprintf("%s -> '%s'", source, path)
-		}
-
-		objects := []string{}
-		for _, schemaName := range field.ComplexFieldSchemas {
-			schema := schemaMetas[schemaName]
-
-			parts := []string{}
-			if field.DiscriminatorProperty != "" {
-				parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DiscriminatorProperty, schemaName))
-			}
-			for key, fm := range schema.Fields {
-				if field.DiscriminatorProperty != "" && key == field.DiscriminatorProperty {
-					continue
-				}
-
-				var sel *selectNode
-				if st != nil {
-					// If there are any select children
-					// then we need to make sure this is
-					// either a select child or a expand
-					// child, otherwise skip this field.
-					if len(st.selectChildren) > 0 {
-						_, isSelect := st.selectChildren[key]
-						_, isExpand := st.expandChildren[key]
-						if !isSelect && !isExpand {
-							continue
-						}
-					}
-					sel = st.children[key]
-				}
-
-				extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), source, fmt.Sprintf("%s.%s", path, key), sel)
-				part := fmt.Sprintf("'%s', %s", key, extract)
-				parts = append(parts, part)
-			}
-			objects = append(objects, fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ",")))
-		}
-
-		if len(objects) == 1 {
-			return objects[0]
-		}
-
-		// TODO(sambetts) Error, if multiple schema there must be a
-		// descriminator, this would be a developer error. Might be
-		// avoidable if we create a schema builder thing instead of
-		// just defining it as a variable.
-		// if field.DiscriminatorProperty == "" {
-		// }
-
-		return fmt.Sprintf(
-			"(SELECT %s.value FROM JSON_EACH(JSON_ARRAY(%s)) AS %s WHERE %s.value -> '$.%s' = %s -> '%s.%s')",
-			identifier, strings.Join(objects, ","), identifier,
-			identifier, field.DiscriminatorProperty, source, path, field.DiscriminatorProperty)
-
+		return buildSelectFieldsForComplexFieldType(schemaMetas, field, identifier, source, path, st)
 	case RelationshipFieldType:
-		if st == nil || !st.expand {
-			return fmt.Sprintf("%s -> '%s'", source, path)
-		}
-
-		schemaName := field.RelationshipSchema
-		schema := schemaMetas[schemaName]
-		newsource := fmt.Sprintf("%s.Data", schema.Table)
-		parts := []string{}
-		for key, fm := range schema.Fields {
-			var sel *selectNode
-			if st != nil {
-				// If there are any select children
-				// then we need to make sure this is
-				// either a select child or a expand
-				// child, otherwise skip this field.
-				if len(st.selectChildren) > 0 {
-					_, isSelect := st.selectChildren[key]
-					_, isExpand := st.expandChildren[key]
-					if !isSelect && !isExpand {
-						continue
-					}
-				}
-				sel = st.children[key]
-			}
-
-			extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
-			part := fmt.Sprintf("'%s', %s", key, extract)
-			parts = append(parts, part)
-		}
-		object := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
-
-		return fmt.Sprintf("(SELECT %s FROM %s WHERE %s -> '$.%s' == %s -> '%s.%s')", object, schema.Table, newsource, field.RelationshipProperty, source, path, field.RelationshipProperty)
+		return buildSelectFieldsForRelationshipFieldType(schemaMetas, field, identifier, source, path, st)
 	case RelationshipCollectionFieldType:
-		if st == nil || !st.expand {
-			return fmt.Sprintf("%s -> '%s'", source, path)
-		}
-
-		schemaName := field.RelationshipSchema
-		schema := schemaMetas[schemaName]
-		newSource := fmt.Sprintf("%s.Data", schema.Table)
-
-		where := fmt.Sprintf("WHERE %s -> '$.%s' = %s.value -> '$.%s'", newSource, field.RelationshipProperty, identifier, field.RelationshipProperty)
-		if st != nil {
-			if st.filter != nil {
-				conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
-				where = fmt.Sprintf("%s and %s", where, conditions)
-			}
-		}
-
-		parts := []string{}
-		for key, fm := range schema.Fields {
-			var sel *selectNode
-			if st != nil {
-				// If there are any select children
-				// then we need to make sure this is
-				// either a select child or a expand
-				// child, otherwise skip this field.
-				if len(st.selectChildren) > 0 {
-					_, isSelect := st.selectChildren[key]
-					_, isExpand := st.expandChildren[key]
-					if !isSelect && !isExpand {
-						continue
-					}
-				}
-				sel = st.children[key]
-			}
-
-			extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
-			part := fmt.Sprintf("'%s', %s", key, extract)
-			parts = append(parts, part)
-		}
-		subQuery := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
-
-		return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM %s,JSON_EACH(%s, '%s') AS %s %s)", subQuery, schema.Table, source, path, identifier, where)
+		return buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas, field, identifier, source, path, st)
 	default:
+		log.Errorf("Unsupported field type %v", field.FieldType)
+		// TODO(sambetts) Return an error here
 		return ""
 	}
+}
+
+func buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+	if st == nil || !st.expand {
+		return fmt.Sprintf("%s -> '%s'", source, path)
+	}
+
+	schemaName := field.RelationshipSchema
+	schema := schemaMetas[schemaName]
+	newSource := fmt.Sprintf("%s.Data", schema.Table)
+
+	where := fmt.Sprintf("WHERE %s -> '$.%s' = %s.value -> '$.%s'", newSource, field.RelationshipProperty, identifier, field.RelationshipProperty)
+	if st != nil {
+		if st.filter != nil {
+			conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
+			where = fmt.Sprintf("%s and %s", where, conditions)
+		}
+	}
+
+	parts := []string{}
+	for key, fm := range schema.Fields {
+		var sel *selectNode
+		if st != nil {
+			// If there are any select children
+			// then we need to make sure this is
+			// either a select child or a expand
+			// child, otherwise skip this field.
+			if len(st.selectChildren) > 0 {
+				_, isSelect := st.selectChildren[key]
+				_, isExpand := st.expandChildren[key]
+				if !isSelect && !isExpand {
+					continue
+				}
+			}
+			sel = st.children[key]
+		}
+
+		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
+		part := fmt.Sprintf("'%s', %s", key, extract)
+		parts = append(parts, part)
+	}
+	subQuery := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
+
+	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM %s,JSON_EACH(%s, '%s') AS %s %s)", subQuery, schema.Table, source, path, identifier, where)
+}
+
+func buildSelectFieldsForRelationshipFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+	if st == nil || !st.expand {
+		return fmt.Sprintf("%s -> '%s'", source, path)
+	}
+
+	schemaName := field.RelationshipSchema
+	schema := schemaMetas[schemaName]
+	newsource := fmt.Sprintf("%s.Data", schema.Table)
+	parts := []string{}
+	for key, fm := range schema.Fields {
+		var sel *selectNode
+		if st != nil {
+			// If there are any select children
+			// then we need to make sure this is
+			// either a select child or a expand
+			// child, otherwise skip this field.
+			if len(st.selectChildren) > 0 {
+				_, isSelect := st.selectChildren[key]
+				_, isExpand := st.expandChildren[key]
+				if !isSelect && !isExpand {
+					continue
+				}
+			}
+			sel = st.children[key]
+		}
+
+		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
+		part := fmt.Sprintf("'%s', %s", key, extract)
+		parts = append(parts, part)
+	}
+	object := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
+
+	return fmt.Sprintf("(SELECT %s FROM %s WHERE %s -> '$.%s' == %s -> '%s.%s')", object, schema.Table, newsource, field.RelationshipProperty, source, path, field.RelationshipProperty)
+}
+
+// nolint:cyclop
+func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+	// If there are no children in the select tree for this complex
+	// type, shortcircuit and just return the data from the DB raw,
+	// as there is no need to build the complex query, and it'll
+	// ensure that null values are handled correctly.
+	if st == nil || len(st.children) == 0 {
+		return fmt.Sprintf("%s -> '%s'", source, path)
+	}
+
+	objects := []string{}
+	for _, schemaName := range field.ComplexFieldSchemas {
+		schema := schemaMetas[schemaName]
+
+		parts := []string{}
+		if field.DiscriminatorProperty != "" {
+			parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DiscriminatorProperty, schemaName))
+		}
+		for key, fm := range schema.Fields {
+			if field.DiscriminatorProperty != "" && key == field.DiscriminatorProperty {
+				continue
+			}
+
+			var sel *selectNode
+			if st != nil {
+				// If there are any select children
+				// then we need to make sure this is
+				// either a select child or a expand
+				// child, otherwise skip this field.
+				if len(st.selectChildren) > 0 {
+					_, isSelect := st.selectChildren[key]
+					_, isExpand := st.expandChildren[key]
+					if !isSelect && !isExpand {
+						continue
+					}
+				}
+				sel = st.children[key]
+			}
+
+			extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), source, fmt.Sprintf("%s.%s", path, key), sel)
+			part := fmt.Sprintf("'%s', %s", key, extract)
+			parts = append(parts, part)
+		}
+		objects = append(objects, fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ",")))
+	}
+
+	if len(objects) == 1 {
+		return objects[0]
+	}
+
+	// TODO(sambetts) Error, if multiple schema there must be a
+	// descriminator, this would be a developer error. Might be
+	// avoidable if we create a schema builder thing instead of
+	// just defining it as a variable.
+	// if field.DiscriminatorProperty == "" {
+	// }
+
+	return fmt.Sprintf(
+		"(SELECT %s.value FROM JSON_EACH(JSON_ARRAY(%s)) AS %s WHERE %s.value -> '$.%s' = %s -> '%s.%s')",
+		identifier, strings.Join(objects, ","), identifier,
+		identifier, field.DiscriminatorProperty, source, path, field.DiscriminatorProperty)
+}
+
+func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+	newIdentifier := fmt.Sprintf("%sOptions", identifier)
+	newSource := fmt.Sprintf("%s.value", newIdentifier)
+
+	var where string
+	var orderby string
+	var newSelectNode *selectNode
+	if st != nil {
+		if st.filter != nil {
+			conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
+			where = fmt.Sprintf("WHERE %s", conditions)
+		}
+
+		if st.orderby != nil {
+			conditions, err := buildOrderByFromOdata(newSource, st.orderby.OrderByItems)
+			// TODO(sambetts) Add error handling to buildSelectFields
+			if err != nil {
+				log.Errorf("Failed to build DB query from $orderby: %v", err)
+			}
+
+			orderby = fmt.Sprintf("ORDER BY %s", conditions)
+		}
+
+		// OrderBy/Filter is handled on the outer collection,
+		// but select/expand are handled when building the
+		// subQuery for each item in the collection so we have
+		// to pass that down.
+		newSelectNode = st.clone()
+		newSelectNode.filter = nil
+		newSelectNode.orderby = nil
+	}
+
+	subQuery := buildSelectFields(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sOptions", newIdentifier), newSource, "$", newSelectNode)
+
+	// This query will produce an exploded list of items (one row per item) from the collection, selected, filtered and ordered
+	listQuery := fmt.Sprintf("SELECT %s AS value FROM JSON_EACH(%s, '%s') AS %s %s %s", subQuery, source, path, newIdentifier, where, orderby)
+
+	// Now aggregate all the rows back into a JSON array
+	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s.value -> '$') FROM (%s) AS %s)", identifier, listQuery, identifier)
 }
 
 var sqlOperators = map[string]string{
@@ -403,8 +459,12 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		}
 		query = fmt.Sprintf("(%s OR %s)", left, right)
 	case "contains", "endswith", "startswith":
-		queryField := node.Children[0].Token.Value
-		queryPath := fmt.Sprintf("$.%s", queryField)
+		// Convert ODATA paths with slashes like "Thing/Name" into JSON
+		// path like "Thing.Name".
+		queryPath, err := buildJSONPathFromParseNode(node.Children[0])
+		if err != nil {
+			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
+		}
 
 		right := node.Children[1].Token.Value
 		var value interface{}
@@ -415,8 +475,23 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		default:
 			return query, fmt.Errorf("unsupported token type")
 		}
-		query = fmt.Sprintf("%s -> '%s' LIKE '%s'", source, queryPath, value)
+		query = fmt.Sprintf("%s -> '$.%s' LIKE '%s'", source, queryPath, value)
 	}
 
 	return query, nil
+}
+
+func buildOrderByFromOdata(source string, orderbyItems []*godata.OrderByItem) (string, error) {
+	conditions := []string{}
+
+	for _, item := range orderbyItems {
+		queryPath, err := buildJSONPathFromParseNode(item.Tree.Tree)
+		if err != nil {
+			return "", fmt.Errorf("failed to convert odata path to json path: %w", err)
+		}
+
+		conditions = append(conditions, fmt.Sprintf("%s -> '$.%s' %s", source, queryPath, strings.ToUpper(item.Order)))
+	}
+
+	return strings.Join(conditions, ", "), nil
 }

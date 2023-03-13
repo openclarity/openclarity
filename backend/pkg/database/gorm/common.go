@@ -26,7 +26,7 @@ import (
 
 func getExistingObjByID(db *gorm.DB, schema, objID string, obj interface{}) error {
 	filter := fmt.Sprintf("id eq '%s'", objID)
-	err := ODataQuery(db, schema, &filter, nil, nil, nil, nil, false, &obj)
+	err := ODataQuery(db, schema, &filter, nil, nil, nil, nil, nil, false, &obj)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return types.ErrNotFound

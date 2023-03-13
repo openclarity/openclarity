@@ -27,6 +27,7 @@ type selectNode struct {
 	expandChildren map[string]struct{}
 	selectChildren map[string]struct{}
 	filter         *godata.GoDataFilterQuery
+	orderby        *godata.GoDataOrderByQuery
 	expand         bool
 }
 
@@ -38,8 +39,19 @@ func newSelectTree() *selectNode {
 	}
 }
 
+func (st *selectNode) clone() *selectNode {
+	return &selectNode{
+		children:       st.children,
+		expandChildren: st.expandChildren,
+		selectChildren: st.selectChildren,
+		filter:         st.filter,
+		orderby:        st.orderby,
+		expand:         st.expand,
+	}
+}
+
 // nolint:gocognit,cyclop
-func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQuery, sel *godata.GoDataSelectQuery, subExpand *godata.GoDataExpandQuery, expand bool) error {
+func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQuery, orderby *godata.GoDataOrderByQuery, sel *godata.GoDataSelectQuery, subExpand *godata.GoDataExpandQuery, expand bool) error {
 	// If path length == 0 then we've reach the bottom of the path, now we
 	// need to save the filter/select and process any sub selects/expands
 	if len(path) == 0 {
@@ -47,6 +59,11 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 			return fmt.Errorf("filter for field specified twice")
 		}
 		st.filter = filter
+
+		if st.orderby != nil {
+			return fmt.Errorf("orderby for field specified twice")
+		}
+		st.orderby = orderby
 
 		st.expand = expand
 
@@ -66,7 +83,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 				if s.Expand != nil {
 					return fmt.Errorf("expand can not be specified inside of select")
 				}
-				err := st.insert(s.Path, s.Filter, s.Select, nil, false)
+				err := st.insert(s.Path, s.Filter, s.OrderBy, s.Select, nil, false)
 				if err != nil {
 					return err
 				}
@@ -75,7 +92,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 
 		if subExpand != nil {
 			for _, s := range subExpand.ExpandItems {
-				err := st.insert(s.Path, s.Filter, s.Select, s.Expand, true)
+				err := st.insert(s.Path, s.Filter, s.OrderBy, s.Select, s.Expand, true)
 				if err != nil {
 					return err
 				}
@@ -104,7 +121,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 		st.selectChildren[childName] = struct{}{}
 	}
 
-	err := child.insert(path[1:], filter, sel, subExpand, expand)
+	err := child.insert(path[1:], filter, orderby, sel, subExpand, expand)
 	if err != nil {
 		return err
 	}
