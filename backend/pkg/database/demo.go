@@ -460,8 +460,10 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 
 	return []models.Scan{
 		{
-			EndTime:            &scan1End,
-			ScanConfig:         nil,
+			EndTime: &scan1End,
+			ScanConfig: &models.ScanConfigRelationship{
+				Id: *scanConfigs[0].Id,
+			},
 			ScanConfigSnapshot: scan1ConfigSnapshot,
 			StartTime:          &scan1Start,
 			State:              utils.PointerTo(models.ScanStateDone),
@@ -471,7 +473,9 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 			TargetIDs:          &scan1Targets,
 		},
 		{
-			ScanConfig:         nil,
+			ScanConfig: &models.ScanConfigRelationship{
+				Id: *scanConfigs[1].Id,
+			},
 			ScanConfigSnapshot: scan2ConfigSnapshot,
 			StartTime:          &scan2Start,
 			State:              utils.PointerTo(models.ScanStateInProgress),

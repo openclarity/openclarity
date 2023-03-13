@@ -17,6 +17,7 @@ paths:
         - $ref: '#/components/parameters/odataCount'
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -57,6 +58,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/targetID'
         - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -243,6 +245,7 @@ paths:
         - $ref: '#/components/parameters/odataCount'
         - $ref: '#/components/parameters/odataTop'
         - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success
@@ -283,6 +286,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/scanID'
         - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
       responses:
         200:
           description: Success

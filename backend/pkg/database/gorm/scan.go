@@ -59,7 +59,7 @@ func (db *Handler) ScansTable() types.ScansTable {
 
 func (s *ScansTableHandler) GetScans(params models.GetScansParams) (models.Scans, error) {
 	var scans []Scan
-	err := ODataQuery(s.DB, scanSchemaName, params.Filter, params.Select, nil, params.Top, params.Skip, true, &scans)
+	err := ODataQuery(s.DB, scanSchemaName, params.Filter, params.Select, params.Expand, params.Top, params.Skip, true, &scans)
 	if err != nil {
 		return models.Scans{}, err
 	}
@@ -90,7 +90,7 @@ func (s *ScansTableHandler) GetScans(params models.GetScansParams) (models.Scans
 func (s *ScansTableHandler) GetScan(scanID models.ScanID, params models.GetScansScanIDParams) (models.Scan, error) {
 	var dbScan Scan
 	filter := fmt.Sprintf("id eq '%s'", scanID)
-	err := ODataQuery(s.DB, scanSchemaName, &filter, params.Select, nil, nil, nil, false, &dbScan)
+	err := ODataQuery(s.DB, scanSchemaName, &filter, params.Select, params.Expand, nil, nil, false, &dbScan)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.Scan{}, types.ErrNotFound
