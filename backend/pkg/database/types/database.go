@@ -50,7 +50,7 @@ type Database interface {
 
 type ScansTable interface {
 	GetScans(params models.GetScansParams) (models.Scans, error)
-	GetScan(scanID models.ScanID) (models.Scan, error)
+	GetScan(scanID models.ScanID, params models.GetScansScanIDParams) (models.Scan, error)
 
 	CreateScan(scan models.Scan) (models.Scan, error)
 	UpdateScan(scan models.Scan) (models.Scan, error)

@@ -5,3 +5,4 @@ bin/
 /cloud-config.cfg
 db.db
 ui/build/
+site/
