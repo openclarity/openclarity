@@ -121,14 +121,18 @@ kubeclarity-runtime-scan:
     sidecar.istio.io/inject: "false"
 
   ## Scanner pods tolerations.
-  tolerations:
-#   - key: key1
-#     operator: Exists
-#     effect: NoSchedule
-#   - key: key1
-#     operator: Equal
-#     effect: NoSchedule
-#     value: "value1"
+  # tolerations:
+  # - key: key1
+  #   operator: Exists
+  #   effect: NoSchedule
+  # - key: key1
+  #   operator: Equal
+  #   effect: NoSchedule
+  #   value: "value1"
+
+  ## Scanner pods nodeSelector.
+  # nodeSelector:
+  #   key1: value1
 
   registry:
     skipVerifyTlS: "false"

@@ -17,6 +17,7 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -52,14 +53,21 @@ func TestRuntimeScan(t *testing.T) {
 
 			t.Logf("get runtime scan results...")
 			// wait for refreshing materialized views
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second * 2)
 			results := common.GetRuntimeScanResults(t, kubeclarityAPI)
+			resultsB, err := json.Marshal(results)
+			assert.NilError(t, err)
+			t.Logf("Got runtime scan results: %+v", string(resultsB))
+
 			assert.Assert(t, results.Counters.Resources > 0)
 			assert.Assert(t, results.Counters.Vulnerabilities > 0)
 			assert.Assert(t, results.Counters.Packages > 0)
 			assert.Assert(t, results.Counters.Applications > 0)
+			assert.Assert(t, results.CisDockerBenchmarkCounters.Resources > 0)
+			assert.Assert(t, results.CisDockerBenchmarkCounters.Applications > 0)
 
 			assert.Assert(t, len(results.VulnerabilityPerSeverity) > 0)
+			assert.Assert(t, len(results.CisDockerBenchmarkCountPerLevel) > 0)
 
 			// radial/busyboxplus:curl is not supported as it uses V1 image manifest, which should result in an error.
 			assert.Assert(t, len(results.Failures) > 0)
@@ -92,6 +100,9 @@ func waitForScanDone(t *testing.T) error {
 
 func startRuntimeScan(t *testing.T) {
 	t.Helper()
+	_ = common.PutRuntimeQuickScanConfig(t, kubeclarityAPI, &models.RuntimeQuickScanConfig{
+		CisDockerBenchmarkScanEnabled: true,
+	})
 	_ = common.PutRuntimeScanStart(t, kubeclarityAPI, &models.RuntimeScanConfig{
 		Namespaces: []string{"test"},
 	})

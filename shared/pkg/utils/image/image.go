@@ -17,9 +17,15 @@ package image
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	localImageIDDockerPrefix = "docker://sha256"
+	localImageIDSHA256Prefix = "sha256:"
 )
 
 func GetImageRef(imageName string) (reference.Named, error) {
@@ -52,4 +58,12 @@ func imageNameWithDigestOrTag(named reference.Named) reference.Named {
 	}
 
 	return named
+}
+
+func IsLocalImage(imageID string) bool {
+	// image ids with no name and only hash are not pullable from the registry, so we can't scan them.
+	if strings.HasPrefix(imageID, localImageIDDockerPrefix) || strings.HasPrefix(imageID, localImageIDSHA256Prefix) {
+		return true
+	}
+	return false
 }
