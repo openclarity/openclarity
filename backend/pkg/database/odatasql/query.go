@@ -357,7 +357,13 @@ func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, 
 	listQuery := fmt.Sprintf("SELECT %s AS value FROM JSON_EACH(%s, '%s') AS %s %s %s", subQuery, source, path, newIdentifier, where, orderby)
 
 	// Now aggregate all the rows back into a JSON array
-	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s.value -> '$') FROM (%s) AS %s)", identifier, listQuery, identifier)
+	aggregateValue := fmt.Sprintf("%s.value", identifier)
+	if field.CollectionItemMeta.FieldType != PrimitiveFieldType {
+		// For non-primitives use -> '$' to convert the value back to a
+		// json object in the aggregate.
+		aggregateValue = fmt.Sprintf("%s -> '$'", aggregateValue)
+	}
+	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM (%s) AS %s)", aggregateValue, listQuery, identifier)
 }
 
 var sqlOperators = map[string]string{
