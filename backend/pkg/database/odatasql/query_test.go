@@ -902,6 +902,24 @@ func Test_BuildSQLQuery(t *testing.T) {
 			orderbyString: PointerTo("Engine/Options/Supercharger asc, ModelName desc"),
 			want:          []Car{car3, car1, car4, car2},
 		},
+		{
+			name:         "select collection of primitives",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("ModelName,Engine/Options/OtherThings"),
+			want: []Car{
+				{
+					ModelName: car1.ModelName,
+					Engine: &Engine{
+						Options: &Options{
+							OtherThings: []string{
+								"thing1",
+								"thing2",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
