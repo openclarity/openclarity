@@ -23,19 +23,19 @@ import (
 
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/google/go-containerregistry/pkg/authn"
-	authnk8s "github.com/google/go-containerregistry/pkg/authn/kubernetes"
+	"github.com/google/go-containerregistry/pkg/authn/k8schain"
 	"github.com/google/go-containerregistry/pkg/name"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func GetAuthConfigFromPullSecretPath(ipsPath string, imageName string) (*authn.AuthConfig, error) {
+func GetAuthConfig(ipsPath string, imageName string) (*authn.AuthConfig, error) {
 	named, err := reference.ParseNormalizedNamed(imageName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to normalized image name: %v", err)
 	}
 
-	keychain, err := NewKeyChainFromPath(context.TODO(), ipsPath)
+	keychain, err := newKeyChain(context.TODO(), ipsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create keychain: %v", err)
 	}
@@ -58,9 +58,31 @@ func GetAuthConfigFromPullSecretPath(ipsPath string, imageName string) (*authn.A
 	return authorization, nil
 }
 
-func NewKeyChainFromPath(ctx context.Context, ipsPath string) (authn.Keychain, error) {
-	secrets := []corev1.Secret{}
+func newKeyChain(ctx context.Context, ipsPath string) (authn.Keychain, error) {
+	if ipsPath == "" {
+		keychain, err := k8schain.NewNoClient(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create no client keychain: %w", err)
+		}
 
+		return keychain, nil
+	}
+
+	secrets, err := readImagePullSecrets(ipsPath)
+	if err != nil {
+		return nil, fmt.Errorf("fail to read image pull secrets: %w", err)
+	}
+
+	keychain, err := k8schain.NewFromPullSecrets(ctx, secrets)
+	if err != nil {
+		return nil, fmt.Errorf("unable to load keychain from image pull secrets: %w", err)
+	}
+
+	return keychain, nil
+}
+
+func readImagePullSecrets(ipsPath string) ([]corev1.Secret, error) {
+	secrets := []corev1.Secret{}
 	files, err := os.ReadDir(ipsPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read path %s: %w", ipsPath, err)
@@ -97,11 +119,7 @@ func NewKeyChainFromPath(ctx context.Context, ipsPath string) (authn.Keychain, e
 		})
 	}
 
-	keychain, err := authnk8s.NewFromPullSecrets(ctx, secrets)
-	if err != nil {
-		return nil, fmt.Errorf("unable to load keychain from image pull secrets: %w", err)
-	}
-	return keychain, nil
+	return secrets, nil
 }
 
 func determineSecretTypeAndKey(secretPath string) (corev1.SecretType, string, error) {

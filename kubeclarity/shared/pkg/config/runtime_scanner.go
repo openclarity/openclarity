@@ -42,28 +42,24 @@ func LoadRuntimeScannerRegistryConfig(imageID string) *Registry {
 	setRegistryConfigDefaults()
 
 	var auths []Auth
-
-	imagePullSecretPath := viper.GetString(ImagePullSecretPath)
-	if imagePullSecretPath != "" {
-		authConfig, err := creds.GetAuthConfigFromPullSecretPath(imagePullSecretPath, imageID)
-		if err != nil {
-			// Just log the issue don't fail, getting the credentials is best effort
-			log.Warnf("Failed to resolve auth config from pull secrets: %v", err)
-		} else {
-			var auth Auth
-			if authConfig.Username != "" {
-				auth.Username = authConfig.Username
-			}
-
-			if authConfig.Password != "" {
-				auth.Password = authConfig.Password
-			}
-
-			if authConfig.RegistryToken != "" {
-				auth.Token = authConfig.RegistryToken
-			}
-			auths = append(auths, auth)
+	authConfig, err := creds.GetAuthConfig(viper.GetString(ImagePullSecretPath), imageID)
+	if err != nil {
+		// Just log the issue don't fail, getting the credentials is best effort
+		log.Warnf("Failed to resolve auth config from pull secrets: %v", err)
+	} else {
+		var auth Auth
+		if authConfig.Username != "" {
+			auth.Username = authConfig.Username
 		}
+
+		if authConfig.Password != "" {
+			auth.Password = authConfig.Password
+		}
+
+		if authConfig.RegistryToken != "" {
+			auth.Token = authConfig.RegistryToken
+		}
+		auths = append(auths, auth)
 	}
 
 	return &Registry{
