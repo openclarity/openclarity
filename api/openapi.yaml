@@ -955,7 +955,7 @@ components:
         scope:
           $ref: '#/components/schemas/ScanScopeType'
         scheduled:
-          $ref: '#/components/schemas/RuntimeScheduleScanConfigType'
+          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
         maxParallelScanners:
           type: 'integer'
           minimum: 1
@@ -1156,88 +1156,24 @@ components:
         - value
       additionalProperties: false
 
-    RuntimeScheduleScanConfigType:
+    RuntimeScheduleScanConfig:
       type: object
-      anyOf:
-        - $ref: '#/components/schemas/SingleScheduleScanConfig'
-        - $ref: '#/components/schemas/ByHoursScheduleScanConfig'
-        - $ref: '#/components/schemas/ByDaysScheduleScanConfig'
-        - $ref: '#/components/schemas/WeeklyScheduleScanConfig'
-      discriminator:
-        propertyName: objectType
-        mapping:
-          SingleScheduleScanConfig: '#/components/schemas/SingleScheduleScanConfig'
-          ByHoursScheduleScanConfig: '#/components/schemas/ByHoursScheduleScanConfig'
-          ByDaysScheduleScanConfig: '#/components/schemas/ByDaysScheduleScanConfig'
-          WeeklyScheduleScanConfig: '#/components/schemas/WeeklyScheduleScanConfig'
-
-    SingleScheduleScanConfig:
-      type: 'object'
+      minProperties: 1 # Require that at least 1 property will be set
+      additionalProperties: false
+      description: 'Runtime schedule scan configuration.
+          If only operationTime is set, it will be a single scan scheduled for the operationTime.
+          If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine.
+          If both operationTime and cronLine are set, the first scan will run at operationTime 
+          and the operationTime will be the "from time" to start the future scheduling according to the cronLine.'
       properties:
-        objectType:
+        cronLine:
+          description: 'Cron schedule expressions.'
+          example: '5 4 * * 1'
           type: string
         operationTime:
-          type: 'string'
-          format: 'date-time'
-      required:
-        - operationTime
-        - objectType
-
-    ByHoursScheduleScanConfig:
-      type: 'object'
-      properties:
-        objectType:
+          description: 'The operation time to run the scan.'
           type: string
-        hoursInterval:
-          type: 'integer'
-          minimum: 1
-          default: 1
-      required:
-        - objectType
-
-    ByDaysScheduleScanConfig:
-      type: 'object'
-      properties:
-        objectType:
-          type: string
-        daysInterval:
-          type: 'integer'
-          minimum: 1
-          default: 1
-        timeOfDay:
-          $ref: '#/components/schemas/TimeOfDay'
-      required:
-        - objectType
-
-    WeeklyScheduleScanConfig:
-      type: 'object'
-      properties:
-        objectType:
-          type: string
-        dayInWeek:
-          description: '1 - 7 which represents sun- sat'
-          type: 'integer'
-          minimum: 1
-          maximum: 7
-          default: 1
-        timeOfDay:
-          $ref: '#/components/schemas/TimeOfDay'
-      required:
-        - objectType
-
-    TimeOfDay:
-      type: 'object'
-      properties:
-        hour:
-          type: 'integer'
-          minimum: 0
-          maximum: 23
-          default: 0
-        minute:
-          type: 'integer'
-          minimum: 0
-          maximum: 59
-          default: 0
+          format: date-time
 
     Targets:
       type: object
