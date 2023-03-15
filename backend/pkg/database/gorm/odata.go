@@ -516,7 +516,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"AwsScanScope": {
 		Fields: odatasql.Schema{
 			"objectType":                 odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"all":                        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"allRegions":                 odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"shouldScanStoppedInstances": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"instanceTagExclusion": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
