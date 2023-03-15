@@ -1206,12 +1206,9 @@ components:
             $ref: '#/components/schemas/Target'
           readOnly: true
 
-    Target:
+    TargetCommon:
       type: object
       properties:
-        id:
-          type: string
-          readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
         scansCount:
@@ -1220,11 +1217,23 @@ components:
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
 
+    Target:
+      type: object
+      description: Describes a target object.
+      allOf:
+        - $ref: '#/components/schemas/TargetCommon'
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+          required: ['targetInfo']
+
     TargetRelationship:
       type: object
       description: Describes a relationship to a target which can be expanded.
       allOf:
-        - $ref: '#/components/schemas/Target'
+        - $ref: '#/components/schemas/TargetCommon'
         - type: object
           properties:
             id:
