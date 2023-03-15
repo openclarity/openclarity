@@ -89,7 +89,13 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan result. scanResultID=%v: %v", scanResultID, err))
 	}
 
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if scanResult.Id != nil && *scanResult.Id != scanResultID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scanResult.Id, scanResultID))
+	}
 	scanResult.Id = &scanResultID
+
 	updatedScanResult, err := s.dbHandler.ScanResultsTable().UpdateScanResult(scanResult)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan result in db. scanResultID=%v: %v", scanResultID, err))
@@ -115,7 +121,13 @@ func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID m
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan result. scanResultID=%v: %v", scanResultID, err))
 	}
 
+	// PUT request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if scanResult.Id != nil && *scanResult.Id != scanResultID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scanResult.Id, scanResultID))
+	}
 	scanResult.Id = &scanResultID
+
 	updatedScanResult, err := s.dbHandler.ScanResultsTable().SaveScanResult(scanResult)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan result in db. scanResultID=%v: %v", scanResultID, err))

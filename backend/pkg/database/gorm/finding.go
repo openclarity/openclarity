@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 
-	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -162,24 +161,10 @@ func (s *FindingsTableHandler) UpdateFinding(finding models.Finding) (models.Fin
 		return models.Finding{}, err
 	}
 
-	marshaled, err := json.Marshal(finding)
-	if err != nil {
-		return models.Finding{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
-	}
-
-	// Calculate the diffs between the current doc and the user doc
-	patch, err := jsonpatch.CreateMergePatch(dbFinding.Data, marshaled)
-	if err != nil {
-		return models.Finding{}, fmt.Errorf("failed to calculate patch changes: %w", err)
-	}
-
-	// Apply the diff to the doc stored in the DB
-	updated, err := jsonpatch.MergePatch(dbFinding.Data, patch)
+	dbFinding.Data, err = patchObject(dbFinding.Data, finding)
 	if err != nil {
 		return models.Finding{}, fmt.Errorf("failed to apply patch: %w", err)
 	}
-
-	dbFinding.Data = updated
 
 	if err := s.DB.Save(&dbFinding).Error; err != nil {
 		return models.Finding{}, fmt.Errorf("failed to save finding in db: %w", err)

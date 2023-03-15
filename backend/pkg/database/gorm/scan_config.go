@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 
-	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -96,8 +95,8 @@ func (s *ScanConfigsTableHandler) GetScanConfig(scanConfigID models.ScanConfigID
 
 func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	// Check the user provided the name field
-	if scanConfig.Name == "" {
-		return models.ScanConfig{}, fmt.Errorf("name can not be empty")
+	if scanConfig.Name != nil && *scanConfig.Name == "" {
+		return models.ScanConfig{}, fmt.Errorf("name must be provided and can not be empty")
 	}
 
 	// Check the user didn't provide an ID
@@ -122,7 +121,7 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 
 	// Check the existing DB entries to ensure that the name field is unique
 	var scanConfigs []ScanConfig
-	filter := fmt.Sprintf("name eq '%s'", scanConfig.Name)
+	filter := fmt.Sprintf("name eq '%s'", *scanConfig.Name)
 	err := ODataQuery(s.DB, "ScanConfig", &filter, nil, nil, nil, nil, nil, true, &scanConfigs)
 	if err != nil {
 		return models.ScanConfig{}, err
@@ -135,7 +134,7 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 			return models.ScanConfig{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 		}
 		return sc, &common.ConflictError{
-			Reason: fmt.Sprintf("Scan config exists with name=%s", sc.Name),
+			Reason: fmt.Sprintf("Scan config exists with name=%s", *sc.Name),
 		}
 	}
 
@@ -181,6 +180,11 @@ func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (
 		return models.ScanConfig{}, fmt.Errorf("ID is required to update scan config in DB")
 	}
 
+	// Check the user provided the name field
+	if scanConfig.Name != nil && *scanConfig.Name == "" {
+		return models.ScanConfig{}, fmt.Errorf("name must be provided and can not be empty")
+	}
+
 	dbScanConfig, err := getExistingScanConfigByID(s.DB, *scanConfig.Id)
 	if err != nil {
 		return models.ScanConfig{}, err
@@ -218,24 +222,10 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 		return models.ScanConfig{}, err
 	}
 
-	marshaled, err := json.Marshal(scanConfig)
-	if err != nil {
-		return models.ScanConfig{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
-	}
-
-	// Calculate the diffs between the current doc and the user doc
-	patch, err := jsonpatch.CreateMergePatch(dbScanConfig.Data, marshaled)
-	if err != nil {
-		return models.ScanConfig{}, fmt.Errorf("failed to calculate patch changes: %w", err)
-	}
-
-	// Apply the diff to the doc stored in the DB
-	updated, err := jsonpatch.MergePatch(dbScanConfig.Data, patch)
+	dbScanConfig.Data, err = patchObject(dbScanConfig.Data, scanConfig)
 	if err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to apply patch: %w", err)
 	}
-
-	dbScanConfig.Data = updated
 
 	if err := s.DB.Save(&dbScanConfig).Error; err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to save scan config in db: %w", err)

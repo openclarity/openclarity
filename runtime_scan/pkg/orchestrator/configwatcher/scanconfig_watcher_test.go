@@ -22,9 +22,8 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 )
 
-func Test_hasRunningOrCompletedScan(t *testing.T) {
+func Test_anyScansRunningOrCompleted(t *testing.T) {
 	testScanConfigID := "testID"
-	otherScanConfigID := "otherID"
 	operationTime := time.Now()
 	afterOperationTime := operationTime.Add(time.Minute * 5)
 	beforeOperationTime := operationTime.Add(-time.Minute * 5)
@@ -52,21 +51,6 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 			args: args{
 				scans: &models.Scans{
 					Items: &[]models.Scan{},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: false,
-		},
-		{
-			name: "there are no scans with scan config ID",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{
-						{
-							ScanConfig: &models.ScanConfigRelationship{Id: otherScanConfigID},
-						},
-					},
 				},
 				scanConfigID:  testScanConfigID,
 				operationTime: operationTime,
@@ -122,12 +106,28 @@ func Test_hasRunningOrCompletedScan(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "there is a scans with end time and no start time",
+			args: args{
+				scans: &models.Scans{
+					Items: &[]models.Scan{
+						{
+							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
+							EndTime:    &operationTime,
+						},
+					},
+				},
+				scanConfigID:  testScanConfigID,
+				operationTime: operationTime,
+			},
+			want: false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := hasRunningOrCompletedScan(tt.args.scans, tt.args.scanConfigID, tt.args.operationTime); got != tt.want {
-				t.Errorf("hasRunningOrCompletedScan() = %v, want %v", got, tt.want)
+			if got := anyScansRunningOrCompleted(tt.args.scans, tt.args.operationTime); got != tt.want {
+				t.Errorf("anyScansRunningOrCompleted() = %v, want %v", got, tt.want)
 			}
 		})
 	}

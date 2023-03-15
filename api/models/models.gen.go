@@ -435,8 +435,8 @@ type ScanConfig struct {
 	Id *string `json:"id,omitempty"`
 
 	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
-	MaxParallelScanners *int   `json:"maxParallelScanners,omitempty"`
-	Name                string `json:"name"`
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
@@ -679,7 +679,7 @@ type Target struct {
 
 	// Summary A summary of the scan findings.
 	Summary    *ScanFindingsSummary `json:"summary,omitempty"`
-	TargetInfo TargetType           `json:"targetInfo"`
+	TargetInfo *TargetType          `json:"targetInfo,omitempty"`
 }
 
 // TargetCommon defines model for TargetCommon.
