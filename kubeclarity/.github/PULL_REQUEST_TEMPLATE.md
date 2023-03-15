@@ -8,12 +8,12 @@ change, which may lead to your PR taking much longer to review, or result in it 
 
 ## Type of Change
 
-- [ ] Bug Fix
-- [ ] New Feature
-- [ ] Breaking Change
-- [ ] Refactor
-- [ ] Documentation
-- [ ] Other (please describe)
+[ ] Bug Fix
+[ ] New Feature
+[ ] Breaking Change
+[ ] Refactor
+[ ] Documentation
+[ ] Other (please describe)
 
 ## Checklist
 
