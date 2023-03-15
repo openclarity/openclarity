@@ -166,7 +166,7 @@ func (scw *ScanConfigWatcher) createTarget(ctx context.Context, instance types.I
 		return "", fmt.Errorf("failed to create VMInfo: %v", err)
 	}
 	createdTarget, err := scw.backendClient.PostTarget(ctx, models.Target{
-		TargetInfo: &info,
+		TargetInfo: info,
 	})
 	if err != nil {
 		var conErr backendclient.TargetConflictError
