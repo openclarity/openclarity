@@ -564,6 +564,8 @@ Resources:
             - "ec2:DescribeInstanceStatus"
             - "ec2:DescribeVolumeAttribute"
             - "ec2:DescribeRegions"
+            - "ec2:DescribeVpcs"
+            - "ec2:DescribeSecurityGroups"
             Resource: "*"
           #
           # ##########################
