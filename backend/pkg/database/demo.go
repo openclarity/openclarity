@@ -142,7 +142,7 @@ func CreateDemoData(db types.Database) {
 	}
 }
 
-func createVMInfo(instanceID, location string, instanceProvider models.CloudProvider) *models.TargetType {
+func createVMInfo(instanceID, location string, instanceProvider models.CloudProvider) models.TargetType {
 	info := models.TargetType{}
 	err := info.FromVMInfo(models.VMInfo{
 		InstanceID:       instanceID,
@@ -152,7 +152,7 @@ func createVMInfo(instanceID, location string, instanceProvider models.CloudProv
 	if err != nil {
 		panic(err)
 	}
-	return &info
+	return info
 }
 
 func createScopes() (models.Scopes, error) {
