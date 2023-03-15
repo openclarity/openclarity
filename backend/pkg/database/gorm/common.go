@@ -16,10 +16,13 @@
 package gorm
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
+
+	jsonpatch "github.com/evanphx/json-patch"
 
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
 )
@@ -47,4 +50,19 @@ func deleteObjByID(db *gorm.DB, objID string, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func patchObject(original []byte, newobject interface{}) ([]byte, error) {
+	marshaled, err := json.Marshal(newobject)
+	if err != nil {
+		return []byte{}, fmt.Errorf("failed to marshal API model to DB model: %w", err)
+	}
+
+	// Apply the input doc as a json patch to the doc stored in the DB
+	updated, err := jsonpatch.MergePatch(original, marshaled)
+	if err != nil {
+		return []byte{}, fmt.Errorf("failed to apply patch to existing data: %w", err)
+	}
+
+	return updated, nil
 }

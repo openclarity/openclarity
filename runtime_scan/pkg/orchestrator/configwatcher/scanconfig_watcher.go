@@ -51,17 +51,20 @@ func CreateScanConfigWatcher(
 }
 
 func (scw *ScanConfigWatcher) hasRunningScansByScanConfigIDAndOperationTime(scanConfigID string, operationTime time.Time) (bool, error) {
-	//odataFilter := fmt.Sprintf("scanConfigId eq '%s' and (endTime eq null or startTime gte '%s')", scanConfigID, operationTime.String())
-	//params := &models.GetScansParams{
-	//	Filter: &odataFilter,
-	//}
-	scans, err := scw.backendClient.GetScans(context.TODO(), models.GetScansParams{})
+	// TODO(sambetts) Once we can validate that gte/eq works with times
+	// correctly then we can add them to the filter like:
+	//
+	//	scanConfig/id eq '%s' and (endTime eq null or startTime gte '%s')
+	//
+	filter := fmt.Sprintf("scanConfig/id eq '%s'", scanConfigID)
+	scans, err := scw.backendClient.GetScans(context.TODO(), models.GetScansParams{
+		Filter: &filter,
+	})
 	if err != nil {
 		return false, fmt.Errorf("failed to get a scans: %v", err)
 	}
 
-	// After Odata filters will be implemented on the backend the filter function can be removed
-	return hasRunningOrCompletedScan(scans, scanConfigID, operationTime), nil
+	return anyScansRunningOrCompleted(scans, operationTime), nil
 }
 
 func (scw *ScanConfigWatcher) getScanConfigsToScan() ([]models.ScanConfig, error) {
@@ -102,19 +105,19 @@ func (scw *ScanConfigWatcher) getScanConfigsToScan() ([]models.ScanConfig, error
 	return scanConfigsToScan, nil
 }
 
-func hasRunningOrCompletedScan(scans *models.Scans, scanConfigID string, operationTime time.Time) bool {
+func anyScansRunningOrCompleted(scans *models.Scans, operationTime time.Time) bool {
 	if scans.Items == nil {
 		return false
 	}
 	for _, scan := range *scans.Items {
-		if scan.ScanConfig.Id != scanConfigID {
-			continue
-		}
 		if scan.EndTime == nil {
 			// There is a running scan for this scanConfig
 			return true
 		}
-		if scan.StartTime.After(operationTime) {
+
+		// If StartTime isn't set on a Scan then it is assumed that its
+		// not started, this should never happen.
+		if scan.StartTime != nil && scan.StartTime.After(operationTime) {
 			// There is a completed scan that started after the operation time
 			return true
 		}
