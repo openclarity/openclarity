@@ -93,7 +93,13 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID) er
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if scan.Id != nil && *scan.Id != scanID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scan.Id, scanID))
+	}
 	scan.Id = &scanID
+
 	updatedScan, err := s.dbHandler.ScansTable().UpdateScan(scan)
 	if err != nil {
 		if errors.Is(err, databaseTypes.ErrNotFound) {
@@ -114,6 +120,9 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID) erro
 
 	// PUT request might not contain the ID in the body, so set it from the
 	// URL field so that the DB layer knows which object is being updated.
+	if scan.Id != nil && *scan.Id != scanID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scan.Id, scanID))
+	}
 	scan.Id = &scanID
 
 	updatedScan, err := s.dbHandler.ScansTable().SaveScan(scan)

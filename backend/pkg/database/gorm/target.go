@@ -103,6 +103,11 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 		return models.Target{}, fmt.Errorf("can not specify Id field when creating a new Target")
 	}
 
+	// Check that targetInfo was provided by the user its a required field for a target.
+	if target.TargetInfo == nil {
+		return models.Target{}, fmt.Errorf("targetInfo is a required field")
+	}
+
 	// Generate a new UUID
 	target.Id = utils.PointerTo(uuid.New().String())
 
@@ -154,6 +159,11 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, error) {
 	if target.Id == nil || *target.Id == "" {
 		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
+	}
+
+	// Check that targetInfo was provided by the user its a required field for a target.
+	if target.TargetInfo == nil {
+		return models.Target{}, fmt.Errorf("targetInfo is a required field")
 	}
 
 	var dbTarget Target

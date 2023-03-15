@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 
-	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -179,24 +178,11 @@ func (s *ScansTableHandler) UpdateScan(scan models.Scan) (models.Scan, error) {
 		return models.Scan{}, err
 	}
 
-	marshaled, err := json.Marshal(scan)
-	if err != nil {
-		return models.Scan{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
-	}
-
-	// Calculate the diffs between the current doc and the user doc
-	patch, err := jsonpatch.CreateMergePatch(dbScan.Data, marshaled)
-	if err != nil {
-		return models.Scan{}, fmt.Errorf("failed to calculate patch changes: %w", err)
-	}
-
-	// Apply the diff to the doc stored in the DB
-	updated, err := jsonpatch.MergePatch(dbScan.Data, patch)
+	var err error
+	dbScan.Data, err = patchObject(dbScan.Data, scan)
 	if err != nil {
 		return models.Scan{}, fmt.Errorf("failed to apply patch: %w", err)
 	}
-
-	dbScan.Data = updated
 
 	if err := s.DB.Save(&dbScan).Error; err != nil {
 		return models.Scan{}, fmt.Errorf("failed to save scan in db: %w", err)

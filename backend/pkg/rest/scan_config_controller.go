@@ -94,7 +94,11 @@ func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID
 
 	// PATCH request might not contain the ID in the body, so set it from
 	// the URL field so that the DB layer knows which object is being updated.
+	if scanConfig.Id != nil && *scanConfig.Id != scanConfigID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scanConfig.Id, scanConfigID))
+	}
 	scanConfig.Id = &scanConfigID
+
 	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().UpdateScanConfig(scanConfig)
 	if err != nil {
 		if errors.Is(err, databaseTypes.ErrNotFound) {
@@ -115,7 +119,11 @@ func (s *ServerImpl) PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID m
 
 	// PUT request might not contain the ID in the body, so set it from the
 	// URL field so that the DB layer knows which object is being updated.
+	if scanConfig.Id != nil && *scanConfig.Id != scanConfigID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scanConfig.Id, scanConfigID))
+	}
 	scanConfig.Id = &scanConfigID
+
 	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().SaveScanConfig(scanConfig)
 	if err != nil {
 		if errors.Is(err, databaseTypes.ErrNotFound) {

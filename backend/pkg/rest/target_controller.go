@@ -80,7 +80,13 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	// PUT request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if target.Id != nil && *target.Id != targetID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *target.Id, targetID))
+	}
 	target.Id = &targetID
+
 	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
 	if err != nil {
 		if errors.Is(err, databaseTypes.ErrNotFound) {

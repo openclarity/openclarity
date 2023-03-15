@@ -94,6 +94,9 @@ func (s *ServerImpl) PatchFindingsFindingID(ctx echo.Context, findingID models.F
 
 	// PATCH request might not contain the ID in the body, so set it from
 	// the URL field so that the DB layer knows which object is being updated.
+	if finding.Id != nil && *finding.Id != findingID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *finding.Id, findingID))
+	}
 	finding.Id = &findingID
 	updatedFinding, err := s.dbHandler.FindingsTable().UpdateFinding(finding)
 	if err != nil {
@@ -115,7 +118,11 @@ func (s *ServerImpl) PutFindingsFindingID(ctx echo.Context, findingID models.Fin
 
 	// PUT request might not contain the ID in the body, so set it from the
 	// URL field so that the DB layer knows which object is being updated.
+	if finding.Id != nil && *finding.Id != findingID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *finding.Id, findingID))
+	}
 	finding.Id = &findingID
+
 	updatedFinding, err := s.dbHandler.FindingsTable().SaveFinding(finding)
 	if err != nil {
 		if errors.Is(err, databaseTypes.ErrNotFound) {
