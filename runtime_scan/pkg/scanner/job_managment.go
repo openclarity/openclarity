@@ -570,11 +570,11 @@ func (s *Scanner) createInitTargetScanStatus(ctx context.Context, scanID, target
 	}
 	scanResult := models.TargetScanResult{
 		Summary: createInitScanResultSummary(),
-		Scan: models.ScanRelationship{
+		Scan: &models.ScanRelationship{
 			Id: scanID,
 		},
 		Status: initScanStatus,
-		Target: models.TargetRelationship{
+		Target: &models.TargetRelationship{
 			Id: targetID,
 		},
 	}

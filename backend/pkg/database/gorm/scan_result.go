@@ -99,10 +99,10 @@ func (s *ScanResultsTableHandler) GetScanResult(scanResultID models.ScanResultID
 // nolint:cyclop
 func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
 	// Check the user provided scan id and target id fields
-	if scanResult.Scan.Id == "" {
+	if scanResult.Scan != nil && scanResult.Scan.Id == "" {
 		return models.TargetScanResult{}, fmt.Errorf("scan.id is a required field")
 	}
-	if scanResult.Target.Id == "" {
+	if scanResult.Target != nil && scanResult.Target.Id == "" {
 		return models.TargetScanResult{}, fmt.Errorf("target.id is a required field")
 	}
 
@@ -168,9 +168,18 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 	return tsr, nil
 }
 
+// nolint:cyclop
 func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
 	if scanResult.Id == nil || *scanResult.Id == "" {
 		return models.TargetScanResult{}, fmt.Errorf("ID is required to update scan result in DB")
+	}
+
+	// Check the user provided scan id and target id fields
+	if scanResult.Scan != nil && scanResult.Scan.Id == "" {
+		return models.TargetScanResult{}, fmt.Errorf("scan.id is a required field")
+	}
+	if scanResult.Target != nil && scanResult.Target.Id == "" {
+		return models.TargetScanResult{}, fmt.Errorf("target.id is a required field")
 	}
 
 	var dbScanResult ScanResult

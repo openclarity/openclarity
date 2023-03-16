@@ -1392,9 +1392,17 @@ components:
           $ref: '#/components/schemas/ExploitScan'
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
-      required:
-        - target
-        - scan
+      # TODO(sambetts) Decide if we want the validation here by having
+      # separate schemas for GET, POST and PATCH.
+      #
+      # We can't make anything readOnly or required here if we want to
+      # use the same schema for PATCH otherwise it will require you
+      # always send the required fields and remove the readOnly fields
+      # on the client side.
+      #
+      # required:
+      #  - target
+      #  - scan
 
     TargetScanResultExists:
       type: object
