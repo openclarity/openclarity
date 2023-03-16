@@ -16,122 +16,10 @@
 package configwatcher
 
 import (
+	"reflect"
 	"testing"
 	"time"
-
-	"github.com/openclarity/vmclarity/api/models"
 )
-
-func Test_anyScansRunningOrCompleted(t *testing.T) {
-	testScanConfigID := "testID"
-	operationTime := time.Now()
-	afterOperationTime := operationTime.Add(time.Minute * 5)
-	beforeOperationTime := operationTime.Add(-time.Minute * 5)
-	type args struct {
-		scans         *models.Scans
-		scanConfigID  string
-		operationTime time.Time
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{
-			name: "scans.Items is null",
-			args: args{
-				scans:         &models.Scans{},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: false,
-		},
-		{
-			name: "scans.Items is empty list",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: false,
-		},
-		{
-			name: "there is a scans without end time",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{
-						{
-							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
-						},
-					},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: true,
-		},
-		{
-			name: "there is a scans with end time and start time after operation time",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{
-						{
-							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
-							StartTime:  &afterOperationTime,
-							EndTime:    &operationTime,
-						},
-					},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: true,
-		},
-		{
-			name: "there is a scans with end time and start time before operation time",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{
-						{
-							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
-							StartTime:  &beforeOperationTime,
-							EndTime:    &operationTime,
-						},
-					},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: false,
-		},
-		{
-			name: "there is a scans with end time and no start time",
-			args: args{
-				scans: &models.Scans{
-					Items: &[]models.Scan{
-						{
-							ScanConfig: &models.ScanConfigRelationship{Id: testScanConfigID},
-							EndTime:    &operationTime,
-						},
-					},
-				},
-				scanConfigID:  testScanConfigID,
-				operationTime: operationTime,
-			},
-			want: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := anyScansRunningOrCompleted(tt.args.scans, tt.args.operationTime); got != tt.want {
-				t.Errorf("anyScansRunningOrCompleted() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func Test_isWithinTheWindow(t *testing.T) {
 	type args struct {
@@ -176,6 +64,49 @@ func Test_isWithinTheWindow(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := isWithinTheWindow(tt.args.operationTime, tt.args.now, tt.args.window); got != tt.want {
 				t.Errorf("test() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_findFirstOperationTimeInTheFuture(t *testing.T) {
+	now, _ := time.Parse(time.RFC3339, "2006-01-02T20:00:00Z")
+	oneHourFromNow := now.Add(1 * time.Hour)
+	fiveHoursFromNow := now.Add(5 * time.Hour)
+	fiveHoursBeforeNow := now.Add(-5 * time.Hour)
+	type args struct {
+		operationTime time.Time
+		now           time.Time
+		cronLine      string
+	}
+	tests := []struct {
+		name string
+		args args
+		want time.Time
+	}{
+		{
+			name: "operation time already in the future",
+			args: args{
+				operationTime: fiveHoursFromNow,
+				now:           now,
+				cronLine:      "0 */4 * * *",
+			},
+			want: fiveHoursFromNow,
+		},
+		{
+			name: "operation time in the past",
+			args: args{
+				operationTime: fiveHoursBeforeNow,
+				now:           now,
+				cronLine:      "0 */3 * * *",
+			},
+			want: oneHourFromNow,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := findFirstOperationTimeInTheFuture(tt.args.operationTime, tt.args.now, tt.args.cronLine); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("findFirstOperationTimeInTheFuture() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -346,7 +346,7 @@ type RootkitsConfig struct {
 	Enabled *bool `json:"enabled,omitempty"`
 }
 
-// RuntimeScheduleScanConfig Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the "from time" to start the future scheduling according to the cronLine.
+// RuntimeScheduleScanConfig Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
 type RuntimeScheduleScanConfig struct {
 	// CronLine Cron schedule expressions.
 	CronLine *string `json:"cronLine,omitempty"`
@@ -403,6 +403,8 @@ type ScanStateReason string
 
 // ScanConfig defines model for ScanConfig.
 type ScanConfig struct {
+	// Disabled if true, the scan config is disabled and no scan should run from it
+	Disabled            *bool   `json:"disabled,omitempty"`
 	Id                  *string `json:"id,omitempty"`
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
 	Name                *string `json:"name,omitempty"`
@@ -413,7 +415,7 @@ type ScanConfig struct {
 	// ScannerInstanceCreationConfig Configuration of scanner instance
 	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
 
-	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the "from time" to start the future scheduling according to the cronLine.
+	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
 	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
 	Scope     *ScanScopeType             `json:"scope,omitempty"`
 }
@@ -422,6 +424,9 @@ type ScanConfig struct {
 // ScanConfigRelationship and used for the ScanConfig snapshot in the
 // scan.
 type ScanConfigData struct {
+	// Disabled if true, the scan config is disabled and no scan should run from it
+	Disabled *bool `json:"disabled,omitempty"`
+
 	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
 	Name                *string `json:"name,omitempty"`
@@ -432,7 +437,7 @@ type ScanConfigData struct {
 	// ScannerInstanceCreationConfig Configuration of scanner instance
 	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
 
-	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the "from time" to start the future scheduling according to the cronLine.
+	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
 	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
 	Scope     *ScanScopeType             `json:"scope,omitempty"`
 }
@@ -448,6 +453,7 @@ type ScanConfigExists struct {
 
 // ScanConfigRelationship defines model for ScanConfigRelationship.
 type ScanConfigRelationship struct {
+	Disabled            *interface{} `json:"disabled,omitempty"`
 	Id                  string       `json:"id"`
 	MaxParallelScanners *interface{} `json:"maxParallelScanners,omitempty"`
 	Name                *interface{} `json:"name,omitempty"`
