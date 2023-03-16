@@ -24,7 +24,7 @@ Update the cloud formation with the pushed docker images, for example:
 ```
 @@ -123,7 +123,7 @@ Resources:
                      DATABASE_DRIVER=LOCAL
-                     BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
+                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
                      BACKEND_REST_PORT=8888
 -                    SCANNER_CONTAINER_IMAGE=ghcr.io/openclarity/vmclarity-cli:latest
 +                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:9bba94334c1de1aeed63ed12de3784d561fc4f1b
