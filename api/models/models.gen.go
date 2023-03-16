@@ -722,7 +722,7 @@ type TargetScanResult struct {
 	Sboms             *SbomScan             `json:"sboms,omitempty"`
 
 	// Scan Describes an expandable relationship to Scan object
-	Scan    ScanRelationship  `json:"scan"`
+	Scan    *ScanRelationship `json:"scan,omitempty"`
 	Secrets *SecretScan       `json:"secrets,omitempty"`
 	Status  *TargetScanStatus `json:"status,omitempty"`
 
@@ -730,8 +730,8 @@ type TargetScanResult struct {
 	Summary *ScanFindingsSummary `json:"summary,omitempty"`
 
 	// Target Describes a relationship to a target which can be expanded.
-	Target          TargetRelationship `json:"target"`
-	Vulnerabilities *VulnerabilityScan `json:"vulnerabilities,omitempty"`
+	Target          *TargetRelationship `json:"target,omitempty"`
+	Vulnerabilities *VulnerabilityScan  `json:"vulnerabilities,omitempty"`
 }
 
 // TargetScanResultExists defines model for TargetScanResultExists.

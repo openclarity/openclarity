@@ -500,7 +500,7 @@ func createScanResults(scans []models.Scan) []models.TargetScanResult {
 				Misconfigurations: nil,
 				Rootkits:          nil,
 				Sboms:             nil,
-				Scan: models.ScanRelationship{
+				Scan: &models.ScanRelationship{
 					Id: *scan.Id,
 				},
 				Secrets: nil,
@@ -520,7 +520,7 @@ func createScanResults(scans []models.Scan) []models.TargetScanResult {
 						TotalNegligibleVulnerabilities: utils.PointerTo(73),
 					},
 				},
-				Target: models.TargetRelationship{
+				Target: &models.TargetRelationship{
 					Id: targetID,
 				},
 				Vulnerabilities: nil,
