@@ -17,7 +17,6 @@ package orchestrator
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -40,11 +39,7 @@ type orchestrator struct {
 	cancelFunc        context.CancelFunc
 }
 
-func Create(config *_config.OrchestratorConfig, providerClient provider.Client) (Orchestrator, error) {
-	backendClient, err := backendclient.Create(config.ScannerBackendAddress)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create a backend client: %v", err)
-	}
+func Create(config *_config.OrchestratorConfig, providerClient provider.Client, backendClient *backendclient.BackendClient) (Orchestrator, error) {
 	orc := &orchestrator{
 		config:            config,
 		scanConfigWatcher: configwatcher.CreateScanConfigWatcher(backendClient, providerClient, config.ScannerConfig),

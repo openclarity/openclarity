@@ -147,7 +147,7 @@ Resources:
                 #!/bin/bash
                 set -euo pipefail
                 local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-                sed -i "s/__BACKEND_REST_ADDRESS__/${local_ip_address}/" /etc/vmclarity/config.env
+                sed -i "s/__BACKEND_REST_HOST__/${local_ip_address}/" /etc/vmclarity/config.env
               mode: "000744"
             "/etc/vmclarity/config.env":
               content:
@@ -161,7 +161,7 @@ Resources:
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
                     LOCAL_DB_PATH=/data/vmclarity.db
-                    BACKEND_REST_ADDRESS=__BACKEND_REST_ADDRESS__
+                    BACKEND_REST_HOST=__BACKEND_REST_HOST__
                     BACKEND_REST_PORT=8888
                     SCANNER_CONTAINER_IMAGE=ghcr.io/openclarity/vmclarity-cli:latest
                   - JobImageID: !FindInMap

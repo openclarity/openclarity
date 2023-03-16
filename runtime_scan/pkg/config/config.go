@@ -86,23 +86,23 @@ type ScannerConfig struct {
 	DeviceName string
 }
 
-func setConfigDefaults(backendAddress string, backendPort int, backendBaseURL string) {
+func setConfigDefaults(backendHost string, backendPort int, backendBaseURL string) {
 	viper.SetDefault(ScannerAWSRegion, defaultScannerAWSRegion)
 	viper.SetDefault(JobResultTimeout, "120m")
 	viper.SetDefault(JobResultsPollingInterval, "30s")
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
 	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicySuccessful))
-	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendAddress, strconv.Itoa(backendPort)), backendBaseURL))
+	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L21-L23
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
-	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendAddress, "1326")))
+	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
 	viper.SetDefault(AttachedVolumeDeviceName, defaultAttachedVolumeDeviceName)
 
 	viper.AutomaticEnv()
 }
 
-func LoadConfig(backendAddress string, backendPort int, baseURL string) (*OrchestratorConfig, error) {
-	setConfigDefaults(backendAddress, backendPort, baseURL)
+func LoadConfig(backendHost string, backendPort int, baseURL string) (*OrchestratorConfig, error) {
+	setConfigDefaults(backendHost, backendPort, baseURL)
 
 	config := &OrchestratorConfig{
 		AWSConfig:             aws.LoadConfig(),

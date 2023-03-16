@@ -27,13 +27,17 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/server"
+	uiserver "github.com/openclarity/vmclarity/api/ui_backend/server"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
+	uirest "github.com/openclarity/vmclarity/backend/pkg/ui/rest"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
 const (
 	shutdownTimeoutSec = 10
 	BaseURL            = "/api"
+	UIBackendBaseURL   = "/ui/api"
 )
 
 type ServerImpl struct {
@@ -45,8 +49,8 @@ type Server struct {
 	echoServer *echo.Echo
 }
 
-func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, error) {
-	e, err := createEchoServer(dbHandler)
+func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backendclient.BackendClient) (*Server, error) {
+	e, err := createEchoServer(dbHandler, client)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rest server: %v", err)
 	}
@@ -56,7 +60,7 @@ func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, erro
 	}, nil
 }
 
-func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
+func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.BackendClient) (*echo.Echo, error) {
 	swagger, err := server.GetSwagger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
@@ -70,7 +74,7 @@ func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
 	// Recover any panics into a HTTP 500
 	e.Use(echomiddleware.Recover())
 
-	// Create a router group for API base URL
+	// Create a router group for the backend /api base URL
 	apiGroup := e.Group(BaseURL)
 
 	// Use oapi-codegen validation middleware to validate
@@ -83,6 +87,23 @@ func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
 	// Register paths with the backend implementation
 	server.RegisterHandlers(apiGroup, apiImpl)
 
+	uiBackendSwagger, err := uiserver.GetSwagger()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load UI swagger spec: %v", err)
+	}
+	// Create a router group for the UI backend /ui/api base URL
+	uiBackendAPIGroup := e.Group(UIBackendBaseURL)
+
+	uiBackendAPIGroup.Use(middleware.OapiRequestValidator(uiBackendSwagger))
+
+	uiBackendAPIImpl := &uirest.ServerImpl{
+		BackendClient: client,
+	}
+
+	// Register paths with the UI backend implementation
+	uiserver.RegisterHandlers(uiBackendAPIGroup, uiBackendAPIImpl)
+
+	// set the static UI site path.
 	uiSitePath, ok := os.LookupEnv("UI_SITE_PATH")
 	if !ok || uiSitePath == "" {
 		uiSitePath = "/app/site"
