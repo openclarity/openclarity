@@ -58,7 +58,8 @@ const (
 func (s *Scanner) jobBatchManagement(ctx context.Context) {
 	s.Lock()
 	targetIDToScanData := s.targetIDToScanData
-	numberOfWorkers := 2 // TODO: create this in the API
+	// Since this value has a default in the API, I assume it is safe to dereference it.
+	numberOfWorkers := *s.scanConfig.MaxParallelScanners
 	s.Unlock()
 
 	// queue of scan data

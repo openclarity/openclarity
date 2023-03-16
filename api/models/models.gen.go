@@ -432,8 +432,11 @@ type ScanStateReason string
 
 // ScanConfig defines model for ScanConfig.
 type ScanConfig struct {
-	Id   *string `json:"id,omitempty"`
-	Name string  `json:"name"`
+	Id *string `json:"id,omitempty"`
+
+	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
+	MaxParallelScanners *int   `json:"maxParallelScanners,omitempty"`
+	Name                string `json:"name"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
@@ -445,7 +448,9 @@ type ScanConfig struct {
 // ScanConfigRelationship and used for the ScanConfig snapshot in the
 // scan.
 type ScanConfigData struct {
-	Name *string `json:"name,omitempty"`
+	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
@@ -464,11 +469,12 @@ type ScanConfigExists struct {
 
 // ScanConfigRelationship defines model for ScanConfigRelationship.
 type ScanConfigRelationship struct {
-	Id                 string       `json:"id"`
-	Name               *interface{} `json:"name,omitempty"`
-	ScanFamiliesConfig *interface{} `json:"scanFamiliesConfig,omitempty"`
-	Scheduled          *interface{} `json:"scheduled,omitempty"`
-	Scope              *interface{} `json:"scope,omitempty"`
+	Id                  string       `json:"id"`
+	MaxParallelScanners *interface{} `json:"maxParallelScanners,omitempty"`
+	Name                *interface{} `json:"name,omitempty"`
+	ScanFamiliesConfig  *interface{} `json:"scanFamiliesConfig,omitempty"`
+	Scheduled           *interface{} `json:"scheduled,omitempty"`
+	Scope               *interface{} `json:"scope,omitempty"`
 }
 
 // ScanConfigs defines model for ScanConfigs.
