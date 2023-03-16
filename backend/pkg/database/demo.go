@@ -384,16 +384,18 @@ func createScanConfigs() []models.ScanConfig {
 
 	return []models.ScanConfig{
 		{
-			Name:               "demo scan 1",
-			ScanFamiliesConfig: scanFamiliesConfig1,
-			Scheduled:          &scheduled1,
-			Scope:              &scanScopeType1,
+			Name:                "demo scan 1",
+			ScanFamiliesConfig:  scanFamiliesConfig1,
+			Scheduled:           &scheduled1,
+			Scope:               &scanScopeType1,
+			MaxParallelScanners: utils.PointerTo(2),
 		},
 		{
-			Name:               "demo scan 2",
-			ScanFamiliesConfig: scanFamiliesConfig2,
-			Scheduled:          &scanConfig2Scheduled,
-			Scope:              &scanScopeType2,
+			Name:                "demo scan 2",
+			ScanFamiliesConfig:  scanFamiliesConfig2,
+			Scheduled:           &scanConfig2Scheduled,
+			Scope:               &scanScopeType2,
+			MaxParallelScanners: utils.PointerTo(3),
 		},
 	}
 }
