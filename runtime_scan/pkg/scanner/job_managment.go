@@ -336,7 +336,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 		ScanResultID:     data.scanResultID,
 		KeyPairName:      s.config.ScannerKeyPairName,
 	}
-	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot.GetID(), launchSnapshot.GetRegion(), scanningJobConfig)
+	launchInstance, err = s.providerClient.RunScanningJob(ctx, launchSnapshot.GetRegion(), launchSnapshot.GetID(), scanningJobConfig)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to launch a new instance: %v", err)
 	}
