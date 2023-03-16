@@ -947,6 +947,12 @@ components:
           $ref: '#/components/schemas/ScanScopeType'
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfigType'
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          default: 2
+          description: "The maximum number of scanners that can run in parallel for each scan"
 
     ScanConfigRelationship:
       type: object
@@ -964,6 +970,8 @@ components:
             scope:
               readOnly: true
             scheduled:
+              readOnly: true
+            maxParallelScanners:
               readOnly: true
           required: ['id']
 
