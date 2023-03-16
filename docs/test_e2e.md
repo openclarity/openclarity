@@ -86,7 +86,7 @@ Update the cloud formation with the pushed docker images, for example:
       "sbom": {
         "enabled": true
       },
-      "vulnerabilties": {
+      "vulnerabilities": {
         "enabled": true
       },
       "exploits": {

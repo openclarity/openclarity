@@ -278,6 +278,39 @@ func (b *BackendClient) GetScanConfigs(ctx context.Context, params models.GetSca
 	}
 }
 
+// nolint:cyclop
+func (b *BackendClient) PatchScanConfig(ctx context.Context, scanConfigID string, scanConfig *models.ScanConfig) error {
+	newPatchScanConfigResultError := func(err error) error {
+		return fmt.Errorf("failed to patch scan config %v: %w", scanConfigID, err)
+	}
+
+	resp, err := b.apiClient.PatchScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, *scanConfig)
+	if err != nil {
+		return newPatchScanConfigResultError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return newPatchScanConfigResultError(fmt.Errorf("empty body"))
+		}
+		return nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return newPatchScanConfigResultError(fmt.Errorf("empty body on not found"))
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return newPatchScanConfigResultError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+		}
+		return newPatchScanConfigResultError(fmt.Errorf("not found"))
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return newPatchScanConfigResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return newPatchScanConfigResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
 func (b *BackendClient) GetScans(ctx context.Context, params models.GetScansParams) (*models.Scans, error) {
 	resp, err := b.apiClient.GetScansWithResponse(ctx, &params)
 	if err != nil {

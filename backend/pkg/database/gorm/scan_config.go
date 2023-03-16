@@ -19,7 +19,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
+	"github.com/aptible/supercronic/cronexpr"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -93,6 +95,7 @@ func (s *ScanConfigsTableHandler) GetScanConfig(scanConfigID models.ScanConfigID
 	return sc, nil
 }
 
+// nolint:cyclop
 func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	// Check the user provided the name field
 	if scanConfig.Name != nil && *scanConfig.Name == "" {
@@ -102,6 +105,11 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 	// Check the user didn't provide an ID
 	if scanConfig.Id != nil {
 		return models.ScanConfig{}, fmt.Errorf("can not specify Id field when creating a new ScanConfig")
+	}
+
+	if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
+		// Should we return a BadRequest error here?
+		return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
 	}
 
 	// Generate a new UUID
@@ -162,17 +170,35 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 	return sc, nil
 }
 
-func getExistingScanConfigByID(db *gorm.DB, scanConfigID models.ScanConfigID) (ScanConfig, error) {
-	var dbScanConfig ScanConfig
-	filter := fmt.Sprintf("id eq '%s'", scanConfigID)
-	err := ODataQuery(db, "ScanConfig", &filter, nil, nil, nil, nil, nil, false, &dbScanConfig)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ScanConfig{}, types.ErrNotFound
-		}
-		return ScanConfig{}, err
+func validateRuntimeScheduleScanConfig(scheduled *models.RuntimeScheduleScanConfig) error {
+	if scheduled == nil {
+		return fmt.Errorf("scheduled must be configured")
 	}
-	return dbScanConfig, nil
+
+	if scheduled.CronLine == nil && isEmptyOperationTime(scheduled.OperationTime) {
+		return fmt.Errorf("both operationTime and cronLine are not set, " +
+			"at least one should be set")
+	}
+
+	if scheduled.CronLine != nil {
+		// validate cron expression
+		expr, err := cronexpr.Parse(*scheduled.CronLine)
+		if err != nil {
+			return fmt.Errorf("malformed cron expression: %v", err)
+		}
+
+		// set operation time if missing
+		if isEmptyOperationTime(scheduled.OperationTime) {
+			operationTime := expr.Next(time.Now())
+			scheduled.OperationTime = &operationTime
+		}
+	}
+
+	return nil
+}
+
+func isEmptyOperationTime(operationTime *time.Time) bool {
+	return operationTime == nil || (*operationTime).IsZero()
 }
 
 func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
@@ -185,9 +211,14 @@ func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (
 		return models.ScanConfig{}, fmt.Errorf("name must be provided and can not be empty")
 	}
 
-	dbScanConfig, err := getExistingScanConfigByID(s.DB, *scanConfig.Id)
-	if err != nil {
-		return models.ScanConfig{}, err
+	if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
+		// Should we return a BadRequest error here?
+		return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
+	}
+
+	var dbScanConfig ScanConfig
+	if err := getExistingObjByID(s.DB, "ScanConfig", *scanConfig.Id, &dbScanConfig); err != nil {
+		return models.ScanConfig{}, fmt.Errorf("failed to get scan config from db: %w", err)
 	}
 
 	marshaled, err := json.Marshal(scanConfig)
@@ -217,11 +248,20 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 		return models.ScanConfig{}, fmt.Errorf("ID is required to update scan config in DB")
 	}
 
-	dbScanConfig, err := getExistingScanConfigByID(s.DB, *scanConfig.Id)
-	if err != nil {
-		return models.ScanConfig{}, err
+	// we will want to validate Scheduled upon update only if exists.
+	if scanConfig.Scheduled != nil {
+		if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
+			// Should we return a BadRequest error here?
+			return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
+		}
 	}
 
+	var dbScanConfig ScanConfig
+	if err := getExistingObjByID(s.DB, "ScanConfig", *scanConfig.Id, &dbScanConfig); err != nil {
+		return models.ScanConfig{}, fmt.Errorf("failed to get scan config from db: %w", err)
+	}
+
+	var err error
 	dbScanConfig.Data, err = patchObject(dbScanConfig.Data, scanConfig)
 	if err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to apply patch: %w", err)
@@ -243,11 +283,7 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 }
 
 func (s *ScanConfigsTableHandler) DeleteScanConfig(scanConfigID models.ScanConfigID) error {
-	jsonQuotedID := fmt.Sprintf("\"%s\"", scanConfigID)
-	if err := s.DB.Where("`Data` -> '$.id' = ?", jsonQuotedID).Delete(&ScanConfig{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return types.ErrNotFound
-		}
+	if err := deleteObjByID(s.DB, scanConfigID, &ScanConfig{}); err != nil {
 		return fmt.Errorf("failed to delete scan config: %w", err)
 	}
 	return nil

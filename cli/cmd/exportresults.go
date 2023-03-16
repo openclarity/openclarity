@@ -493,7 +493,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	if config.Vulnerabilities.Enabled {
 		err := e.ExportVulResult(res, famerr)
 		if err != nil {
-			err = fmt.Errorf("failed to export vulnerabilties to server: %w", err)
+			err = fmt.Errorf("failed to export vulnerabilities to server: %w", err)
 			logger.Error(err)
 			errors = append(errors, err)
 		}

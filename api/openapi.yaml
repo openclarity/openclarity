@@ -961,6 +961,9 @@ components:
           minimum: 1
           maximum: 20
           description: "The maximum number of scanners that can run in parallel for each scan"
+        disabled:
+          description: 'if true, the scan config is disabled and no scan should run from it'
+          type: boolean
         scannerInstanceCreationConfig:
           $ref: '#/components/schemas/ScannerInstanceCreationConfig'
 
@@ -996,6 +999,8 @@ components:
               readOnly: true
             maxParallelScanners:
               readOnly: true
+            disabled:
+              readOnly: true
           required: ['id']
 
     ScanConfig:
@@ -1021,6 +1026,9 @@ components:
               default: 2
           # required:
           #   - name
+          #   - scanFamiliesConfig
+          #   - scope
+          #   - scheduled
 
     ScanConfigExists:
       type: object
@@ -1164,7 +1172,7 @@ components:
           If only operationTime is set, it will be a single scan scheduled for the operationTime.
           If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine.
           If both operationTime and cronLine are set, the first scan will run at operationTime 
-          and the operationTime will be the "from time" to start the future scheduling according to the cronLine.'
+          and the operationTime will be the first time that the cronLine will be effective from.'
       properties:
         cronLine:
           description: 'Cron schedule expressions.'
