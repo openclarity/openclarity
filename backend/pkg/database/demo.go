@@ -488,7 +488,7 @@ func createTargets() []models.Target {
 
 func createScanConfigs() []models.ScanConfig {
 	// Scan config 1
-	scanFamiliesConfig1 := &models.ScanFamiliesConfig{
+	scanFamiliesConfig1 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
 			Enabled: utils.BoolPtr(false),
 		},
@@ -562,17 +562,8 @@ func createScanConfigs() []models.ScanConfig {
 		log.Fatalf("failed to convert scope1: %v", err)
 	}
 
-	single1 := models.SingleScheduleScanConfig{
-		OperationTime: time.Now().Add(-10 * time.Hour),
-	}
-	var scheduled1 models.RuntimeScheduleScanConfigType
-	err = scheduled1.FromSingleScheduleScanConfig(single1)
-	if err != nil {
-		log.Fatalf("failed to create FromSingleScheduleScanConfig: %v", err)
-	}
-
 	// Scan config 2
-	scanFamiliesConfig2 := &models.ScanFamiliesConfig{
+	scanFamiliesConfig2 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
 			Enabled: utils.BoolPtr(true),
 		},
@@ -631,34 +622,29 @@ func createScanConfigs() []models.ScanConfig {
 		log.Fatalf("failed to convert scanConfig2Scope: %v", err)
 	}
 
-	single2 := models.SingleScheduleScanConfig{
-		OperationTime: time.Now().Add(-5 * time.Minute),
-	}
-	var scanConfig2Scheduled models.RuntimeScheduleScanConfigType
-	err = scanConfig2Scheduled.FromSingleScheduleScanConfig(single2)
-	if err != nil {
-		log.Fatalf("failed to create FromSingleScheduleScanConfig: %v", err)
-	}
-
 	return []models.ScanConfig{
 		{
-			Name:                utils.PointerTo("Scan Config 1"),
-			ScanFamiliesConfig:  scanFamiliesConfig1,
-			Scheduled:           &scheduled1,
+			Name:               utils.PointerTo("Scan Config 1"),
+			ScanFamiliesConfig: &scanFamiliesConfig1,
+			Scheduled: &models.RuntimeScheduleScanConfig{
+				OperationTime: utils.PointerTo(time.Now().Add(5 * time.Hour)),
+			},
 			Scope:               &scanScopeType1,
 			MaxParallelScanners: utils.PointerTo(2),
 		},
 		{
 			MaxParallelScanners: utils.PointerTo(3),
 			Name:                utils.PointerTo("Scan Config 2"),
-			ScanFamiliesConfig:  scanFamiliesConfig2,
+			ScanFamiliesConfig:  &scanFamiliesConfig2,
 			ScannerInstanceCreationConfig: &models.ScannerInstanceCreationConfig{
 				MaxPrice:         utils.PointerTo("1000000"),
 				RetryMaxAttempts: utils.PointerTo(4),
 				UseSpotInstances: true,
 			},
-			Scheduled: &scanConfig2Scheduled,
-			Scope:     &scanScopeType2,
+			Scheduled: &models.RuntimeScheduleScanConfig{
+				CronLine: utils.PointerTo("0 */4 * * *"),
+			},
+			Scope: &scanScopeType2,
 		},
 	}
 }

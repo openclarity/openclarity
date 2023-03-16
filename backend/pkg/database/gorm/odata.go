@@ -350,16 +350,16 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"ScanConfig": {
 		Table: "scan_configs",
 		Fields: odatasql.Schema{
-			"id":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"name": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scanFamiliesConfig": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
 			},
 			"scheduled": odatasql.FieldMeta{
-				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"SingleScheduleScanConfig"},
-				DiscriminatorProperty: "objectType",
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
 			},
 			"scope": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
@@ -377,15 +377,15 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"ScanConfigData": {
 		Fields: odatasql.Schema{
-			"name": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scanFamiliesConfig": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
 			},
 			"scheduled": odatasql.FieldMeta{
-				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"SingleScheduleScanConfig"},
-				DiscriminatorProperty: "objectType",
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
 			},
 			"scope": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
@@ -406,6 +406,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"useSpotInstances": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"maxPrice":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"retryMaxAttempts": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"RuntimeScheduleScanConfig": {
+		Fields: odatasql.Schema{
+			"cronLine":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"operationTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"ScanFamiliesConfig": {
@@ -473,12 +479,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"VulnerabilitiesConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-		},
-	},
-	"SingleScheduleScanConfig": {
-		Fields: odatasql.Schema{
-			"objectType":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"operationTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	scopesSchemaName: {
