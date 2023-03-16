@@ -132,6 +132,14 @@ gomod-tidy:
 	go mod tidy
 
 .PHONY: api
-api: ## Generating API code
-	@(echo "Generating API code ..." )
+api: api-backend api-ui ## Generating API code
+
+.PHONY: api-backend
+api-backend: ## Generating API for backend code
+	@(echo "Generating API for backend code ..." )
 	@(cd api; go generate)
+
+.PHONY: api-ui
+api-ui: ## Generating API for UI backend code
+	@(echo "Generating API for UI backend code ..." )
+	@(cd api/ui_backend; go generate)
