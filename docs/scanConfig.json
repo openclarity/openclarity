@@ -4,7 +4,7 @@
            "sbom": {
              "enabled": true
            },
-           "vulnerabilties": {
+           "vulnerabilities": {
              "enabled": true
            },
            "exploits": {
@@ -17,6 +17,6 @@
         },
         "scope": {
            "objectType": "AwsScanScope",
-           "all": true
+           "allRegions": true
         }
 }
