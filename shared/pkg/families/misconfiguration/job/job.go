@@ -19,11 +19,12 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/fake"
+	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/lynis"
 )
 
 var Factory = job_manager.NewJobFactory()
 
 func init() {
 	Factory.Register(fake.ScannerName, fake.New)
-	// TODO(sambetts) add factories here when we add scanners
+	Factory.Register(lynis.ScannerName, lynis.New)
 }

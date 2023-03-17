@@ -37,6 +37,7 @@ const (
 	ScannerKeyPairName              = "SCANNER_KEY_PAIR_NAME"
 	GitleaksBinaryPath              = "GITLEAKS_BINARY_PATH"
 	ClamBinaryPath                  = "CLAM_BINARY_PATH"
+	LynisInstallPath                = "LYNIS_INSTALL_PATH"
 	AttachedVolumeDeviceName        = "ATTACHED_VOLUME_DEVICE_NAME"
 	defaultAttachedVolumeDeviceName = "xvdh"
 	ScannerBackendAddress           = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
@@ -86,6 +87,9 @@ type ScannerConfig struct {
 	// The clam binary path in the scanner image container.
 	ClamBinaryPath string
 
+	// The location where Lynis is installed in the scanner image
+	LynisInstallPath string
+
 	// the name of the block device to attach to the scanner job
 	DeviceName string
 }
@@ -97,8 +101,10 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
 	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicySuccessful))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
-	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L21-L23
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L35
+	viper.SetDefault(LynisInstallPath, "/artifacts/lynis")
 	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
 	viper.SetDefault(AttachedVolumeDeviceName, defaultAttachedVolumeDeviceName)
 	viper.SetDefault(ClamBinaryPath, "clamscan")
@@ -122,6 +128,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 			ScannerBackendAddress:     viper.GetString(ScannerBackendAddress),
 			ScannerKeyPairName:        viper.GetString(ScannerKeyPairName),
 			GitleaksBinaryPath:        viper.GetString(GitleaksBinaryPath),
+			LynisInstallPath:          viper.GetString(LynisInstallPath),
 			DeviceName:                viper.GetString(AttachedVolumeDeviceName),
 			ExploitsDBAddress:         viper.GetString(ExploitDBAddress),
 			ClamBinaryPath:            viper.GetString(ClamBinaryPath),
