@@ -27,7 +27,7 @@ import (
 )
 
 type ODataObject struct {
-	gorm.Model
+	ID   uint `gorm:"primarykey"`
 	Data datatypes.JSON
 }
 
