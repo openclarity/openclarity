@@ -106,7 +106,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/targetID'
       responses:
-        204:
+        200:
           $ref: '#/components/responses/Success'
         404:
           description: Target ID not found
@@ -362,7 +362,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/scanID'
       responses:
-        204:
+        200:
           $ref: '#/components/responses/Success'
         404:
           description: Scan ID not found
@@ -498,7 +498,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
       responses:
-        204:
+        200:
           $ref: '#/components/responses/Success'
         404:
           description: Scan config ID not found
@@ -668,7 +668,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/findingID'
       responses:
-        204:
+        200:
           $ref: '#/components/responses/Success'
         404:
           description: Finding ID not found

@@ -2954,7 +2954,7 @@ func (r PostFindingsResponse) StatusCode() int {
 type DeleteFindingsFindingIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON204      *SuccessResponse
+	JSON200      *SuccessResponse
 	JSON404      *ApiResponse
 	JSONDefault  *ApiResponse
 }
@@ -3097,7 +3097,7 @@ func (r PostScanConfigsResponse) StatusCode() int {
 type DeleteScanConfigsScanConfigIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON204      *SuccessResponse
+	JSON200      *SuccessResponse
 	JSON404      *ApiResponse
 	JSONDefault  *ApiResponse
 }
@@ -3359,7 +3359,7 @@ func (r PostScansResponse) StatusCode() int {
 type DeleteScansScanIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON204      *SuccessResponse
+	JSON200      *SuccessResponse
 	JSON404      *ApiResponse
 	JSONDefault  *ApiResponse
 }
@@ -3502,7 +3502,7 @@ func (r PostTargetsResponse) StatusCode() int {
 type DeleteTargetsTargetIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON204      *SuccessResponse
+	JSON200      *SuccessResponse
 	JSON404      *ApiResponse
 	JSONDefault  *ApiResponse
 }
@@ -4114,12 +4114,12 @@ func ParseDeleteFindingsFindingIDResponse(rsp *http.Response) (*DeleteFindingsFi
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON204 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ApiResponse
@@ -4347,12 +4347,12 @@ func ParseDeleteScanConfigsScanConfigIDResponse(rsp *http.Response) (*DeleteScan
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON204 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ApiResponse
@@ -4773,12 +4773,12 @@ func ParseDeleteScansScanIDResponse(rsp *http.Response) (*DeleteScansScanIDRespo
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON204 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ApiResponse
@@ -5006,12 +5006,12 @@ func ParseDeleteTargetsTargetIDResponse(rsp *http.Response) (*DeleteTargetsTarge
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON204 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ApiResponse

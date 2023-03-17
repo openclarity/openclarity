@@ -110,5 +110,5 @@ func (s *ServerImpl) DeleteTargetsTargetID(ctx echo.Context, targetID models.Tar
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to delete target from db. targetID=%v: %v", targetID, err))
 	}
 
-	return sendResponse(ctx, http.StatusNoContent, &success)
+	return sendResponse(ctx, http.StatusOK, &success)
 }
