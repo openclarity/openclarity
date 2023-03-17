@@ -182,29 +182,30 @@ func Test_patchObject(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		existing, err := json.Marshal(test.existing)
-		if err != nil {
-			t.Errorf("[%s] failed to marshal existing object: %v", test.name, err)
-			continue
-		}
-
-		updatedBytes, err := patchObject(existing, test.patch)
-		if err != nil {
-			if !test.wantErr {
-				t.Errorf("[%s] unexpected error: %v", test.name, err)
+		t.Run(test.name, func(t *testing.T) {
+			existing, err := json.Marshal(test.existing)
+			if err != nil {
+				t.Fatalf("failed to marshal existing object: %v", err)
 			}
-			continue
-		}
 
-		var updated patchObjectTestObject
-		err = json.Unmarshal(updatedBytes, &updated)
-		if err != nil {
-			t.Errorf("[%s] failed to unmarshal updated bytes: %v", test.name, err)
-			continue
-		}
+			updatedBytes, err := patchObject(existing, test.patch)
+			if err != nil {
+				if !test.wantErr {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				// Expected this error so return successful
+				return
+			}
 
-		if diff := cmp.Diff(test.want, updated); diff != "" {
-			t.Errorf("[%s] patchObject mismatch (-want +got):\n%s", test.name, diff)
-		}
+			var updated patchObjectTestObject
+			err = json.Unmarshal(updatedBytes, &updated)
+			if err != nil {
+				t.Fatalf("failed to unmarshal updated bytes: %v", err)
+			}
+
+			if diff := cmp.Diff(test.want, updated); diff != "" {
+				t.Fatalf("patchObject mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
