@@ -82,7 +82,7 @@ func (s *ServerImpl) DeleteScanConfigsScanConfigID(ctx echo.Context, scanConfigI
 		return sendError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	return sendResponse(ctx, http.StatusNoContent, &success)
+	return sendResponse(ctx, http.StatusOK, &success)
 }
 
 func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {

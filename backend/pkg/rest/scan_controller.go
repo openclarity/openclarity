@@ -72,7 +72,7 @@ func (s *ServerImpl) DeleteScansScanID(ctx echo.Context, scanID models.ScanID) e
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to delete scan from db. scanID=%v: %v", scanID, err))
 	}
 
-	return sendResponse(ctx, http.StatusNoContent, &success)
+	return sendResponse(ctx, http.StatusOK, &success)
 }
 
 func (s *ServerImpl) GetScansScanID(ctx echo.Context, scanID models.ScanID, params models.GetScansScanIDParams) error {

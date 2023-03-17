@@ -82,7 +82,7 @@ func (s *ServerImpl) DeleteFindingsFindingID(ctx echo.Context, findingID models.
 		return sendError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	return sendResponse(ctx, http.StatusNoContent, &success)
+	return sendResponse(ctx, http.StatusOK, &success)
 }
 
 func (s *ServerImpl) PatchFindingsFindingID(ctx echo.Context, findingID models.FindingID) error {
