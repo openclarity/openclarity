@@ -392,8 +392,8 @@ func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
 		Secrets:          userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
 		Exploits:         userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
-		Misconfiguration: userMisconfigurationConfigToFamiliesMisconfigurationConfig(s.scanConfig.ScanFamiliesConfig.Misconfigurations),
 		Malware:          userMalwareConfigToFamiliesMalwareConfig(s.scanConfig.ScanFamiliesConfig.Malware, s.config.ClamBinaryPath),
+		Misconfiguration: userMisconfigurationConfigToFamiliesMisconfigurationConfig(s.scanConfig.ScanFamiliesConfig.Misconfigurations, s.config.LynisInstallPath),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -444,17 +444,20 @@ func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig) familiesS
 	}
 }
 
-func userMisconfigurationConfigToFamiliesMisconfigurationConfig(misconfigurationConfig *models.MisconfigurationsConfig) misconfigurationTypes.Config {
+func userMisconfigurationConfigToFamiliesMisconfigurationConfig(misconfigurationConfig *models.MisconfigurationsConfig, lynisInstallPath string) misconfigurationTypes.Config {
 	if misconfigurationConfig == nil || misconfigurationConfig.Enabled == nil || !*misconfigurationConfig.Enabled {
 		return misconfigurationTypes.Config{}
 	}
 	return misconfigurationTypes.Config{
 		Enabled: true,
 		// TODO(sambetts) This choice should come from the user's configuration
-		ScannersList:   []string{"fake"},
-		Inputs:         nil, // rootfs directory will be determined by the CLI after mount.
+		ScannersList: []string{"lynis"},
+		Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 		ScannersConfig: misconfigurationTypes.ScannersConfig{
 			// TODO(sambetts) Add scanner configurations here as we add them like Lynis
+			Lynis: misconfigurationTypes.LynisConfig{
+				InstallPath: lynisInstallPath,
+			},
 		},
 	}
 }

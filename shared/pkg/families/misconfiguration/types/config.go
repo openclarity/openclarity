@@ -33,6 +33,12 @@ type Input struct {
 // For example if the scanner name is "lynis":
 //
 //	Lynis LynisConfig `yaml:"lynis" mapstructure:"lynis"`
-type ScannersConfig struct{}
+type ScannersConfig struct {
+	Lynis LynisConfig `yaml:"lynis" mapstructure:"lynis"`
+}
 
 func (ScannersConfig) IsConfig() {}
+
+type LynisConfig struct {
+	InstallPath string `yaml:"install_path" mapstructure:"install_path"`
+}
