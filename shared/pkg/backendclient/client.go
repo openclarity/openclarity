@@ -132,7 +132,7 @@ func (b *BackendClient) PostScan(ctx context.Context, scan models.Scan) (*models
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to post scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to post scan. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to post scan. status code=%v", resp.StatusCode())
 	}
@@ -162,7 +162,7 @@ func (b *BackendClient) PostScanResult(ctx context.Context, scanResult models.Ta
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to post scan result. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to post scan result. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to post scan result. status code=%v", resp.StatusCode())
 	}
@@ -181,7 +181,7 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, sca
 		return nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return fmt.Errorf("failed to patch scan. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return fmt.Errorf("failed to patch scan. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return fmt.Errorf("failed to patch scan. status code=%v", resp.StatusCode())
 	}
@@ -234,7 +234,7 @@ func (b *BackendClient) PatchTargetScanStatus(ctx context.Context, scanResultID 
 		return fmt.Errorf("failed to update scan result status, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return fmt.Errorf("failed to update scan result status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return fmt.Errorf("failed to update scan result status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return fmt.Errorf("failed to update scan result status. status code=%v", resp.StatusCode())
 	}
@@ -253,7 +253,7 @@ func (b *BackendClient) GetScan(ctx context.Context, scanID string, params model
 		return resp.JSON200, nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get a scan status. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to get a scan status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to get a scan status. status code=%v", resp.StatusCode())
 	}
@@ -321,7 +321,7 @@ func (b *BackendClient) PostTarget(ctx context.Context, target models.Target) (*
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to post target. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to post target. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to post target. status code=%v", resp.StatusCode())
 	}
