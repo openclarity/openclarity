@@ -19,6 +19,10 @@ import (
 	"context"
 	"fmt"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
@@ -26,6 +30,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
@@ -51,14 +56,7 @@ func convertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {
 
 	if sbomResults.SBOM.Components != nil {
 		for _, component := range *sbomResults.SBOM.Components {
-			pkg := models.Package{
-				Id: utils.StringPtr(component.BOMRef),
-				PackageInfo: &models.PackageInfo{
-					PackageName:    utils.StringPtr(component.Name),
-					PackageVersion: utils.StringPtr(component.Version),
-				},
-			}
-			packages = append(packages, pkg)
+			packages = append(packages, *convertPackageInfoToAPIModel(component))
 		}
 	}
 
@@ -67,8 +65,37 @@ func convertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {
 	}
 }
 
+func convertPackageInfoToAPIModel(component cdx.Component) *models.Package {
+	return &models.Package{
+		Cpes:     utils.PointerTo([]string{component.CPE}),
+		Language: utils.PointerTo(cyclonedx_helper.GetComponentLanguage(component)),
+		Licenses: convertPackageLicencesToAPIModel(component.Licenses),
+		Name:     utils.PointerTo(component.Name),
+		Purl:     utils.PointerTo(component.PackageURL),
+		Type:     utils.PointerTo(string(component.Type)),
+		Version:  utils.PointerTo(component.Version),
+	}
+}
+
+func convertPackageLicencesToAPIModel(licenses *cdx.Licenses) *[]string {
+	if licenses == nil {
+		return nil
+	}
+	// nolint:prealloc
+	var ret []string
+	for _, lic := range *licenses {
+		if lic.License == nil {
+			continue
+		}
+		ret = append(ret, lic.License.Name)
+	}
+
+	return &ret
+}
+
 func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results) *models.VulnerabilityScan {
-	vulnerabilities := []models.Vulnerability{}
+	// nolint:prealloc
+	var vuls []models.Vulnerability
 	for _, vulCandidates := range vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey {
 		if len(vulCandidates) < 1 {
 			continue
@@ -77,19 +104,79 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 		vulCandidate := vulCandidates[0]
 
 		vul := models.Vulnerability{
-			Id: utils.StringPtr(vulCandidate.ID),
-			VulnerabilityInfo: &models.VulnerabilityInfo{
-				VulnerabilityName: utils.StringPtr(vulCandidate.Vulnerability.ID),
-				Description:       utils.StringPtr(vulCandidate.Vulnerability.Description),
-				Severity:          (*models.VulnerabilitySeverity)(utils.StringPtr(vulCandidate.Vulnerability.Severity)),
-			},
+			Cvss:              convertVulnCvssToAPIModel(vulCandidate.Vulnerability.CVSS),
+			Description:       utils.PointerTo(vulCandidate.Vulnerability.Description),
+			Distro:            convertVulnDistroToAPIModel(vulCandidate.Vulnerability.Distro),
+			Fix:               convertVulnFixToAPIModel(vulCandidate.Vulnerability.Fix),
+			LayerId:           utils.PointerTo(vulCandidate.Vulnerability.LayerID),
+			Links:             utils.PointerTo(vulCandidate.Vulnerability.Links),
+			Package:           convertVulnPackageToAPIModel(vulCandidate.Vulnerability.Package),
+			Path:              utils.PointerTo(vulCandidate.Vulnerability.Path),
+			Severity:          utils.PointerTo(models.VulnerabilitySeverity(vulCandidate.Vulnerability.Severity)),
+			VulnerabilityName: utils.PointerTo(vulCandidate.Vulnerability.ID),
 		}
-		vulnerabilities = append(vulnerabilities, vul)
+		vuls = append(vuls, vul)
 	}
 
 	return &models.VulnerabilityScan{
-		Vulnerabilities: &vulnerabilities,
+		Vulnerabilities: &vuls,
 	}
+}
+
+func convertVulnFixToAPIModel(fix scanner.Fix) *models.VulnerabilityFix {
+	return &models.VulnerabilityFix{
+		State:    utils.PointerTo(fix.State),
+		Versions: utils.PointerTo(fix.Versions),
+	}
+}
+
+func convertVulnDistroToAPIModel(distro scanner.Distro) *models.VulnerabilityDistro {
+	return &models.VulnerabilityDistro{
+		IDLike:  utils.PointerTo(distro.IDLike),
+		Name:    utils.PointerTo(distro.Name),
+		Version: utils.PointerTo(distro.Version),
+	}
+}
+
+func convertVulnPackageToAPIModel(p scanner.Package) *models.Package {
+	return &models.Package{
+		Cpes:     utils.PointerTo(p.CPEs),
+		Language: utils.PointerTo(p.Language),
+		Licenses: utils.PointerTo(p.Licenses),
+		Name:     utils.PointerTo(p.Name),
+		Purl:     utils.PointerTo(p.PURL),
+		Type:     utils.PointerTo(p.Type),
+		Version:  utils.PointerTo(p.Version),
+	}
+}
+
+func convertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]models.VulnerabilityCvss {
+	if cvss == nil {
+		return nil
+	}
+	// nolint:prealloc
+	var ret []models.VulnerabilityCvss
+	for _, c := range cvss {
+		var exploitabilityScore *float32
+		if c.Metrics.ExploitabilityScore != nil {
+			exploitabilityScore = utils.PointerTo[float32](float32(*c.Metrics.ExploitabilityScore))
+		}
+		var impactScore *float32
+		if c.Metrics.ImpactScore != nil {
+			impactScore = utils.PointerTo[float32](float32(*c.Metrics.ImpactScore))
+		}
+		ret = append(ret, models.VulnerabilityCvss{
+			Metrics: &models.VulnerabilityCvssMetrics{
+				BaseScore:           utils.PointerTo(float32(c.Metrics.BaseScore)),
+				ExploitabilityScore: exploitabilityScore,
+				ImpactScore:         impactScore,
+			},
+			Vector:  utils.PointerTo(c.Vector),
+			Version: utils.PointerTo(c.Version),
+		})
+	}
+
+	return &ret
 }
 
 func (e *Exporter) MarkScanResultInProgress() error {
@@ -231,7 +318,7 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 		} else {
 			scanResult.Vulnerabilities = convertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
-		scanResult.Summary.TotalVulnerabilities = getVulnerabilityTotalsPerSeverity(scanResult.Vulnerabilities.Vulnerabilities)
+		scanResult.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(scanResult.Vulnerabilities.Vulnerabilities)
 	}
 
 	state := models.DONE
@@ -244,34 +331,6 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 	}
 
 	return nil
-}
-
-func getVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) *models.VulnerabilityScanSummary {
-	ret := &models.VulnerabilityScanSummary{
-		TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
-		TotalHighVulnerabilities:       utils.PointerTo[int](0),
-		TotalMediumVulnerabilities:     utils.PointerTo[int](0),
-		TotalLowVulnerabilities:        utils.PointerTo[int](0),
-		TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
-	}
-	if vulnerabilities == nil {
-		return ret
-	}
-	for _, vulnerability := range *vulnerabilities {
-		switch *vulnerability.VulnerabilityInfo.Severity {
-		case models.CRITICAL:
-			ret.TotalCriticalVulnerabilities = utils.PointerTo[int](*ret.TotalCriticalVulnerabilities + 1)
-		case models.HIGH:
-			ret.TotalHighVulnerabilities = utils.PointerTo[int](*ret.TotalHighVulnerabilities + 1)
-		case models.MEDIUM:
-			ret.TotalMediumVulnerabilities = utils.PointerTo[int](*ret.TotalMediumVulnerabilities + 1)
-		case models.LOW:
-			ret.TotalLowVulnerabilities = utils.PointerTo[int](*ret.TotalLowVulnerabilities + 1)
-		case models.NEGLIGIBLE:
-			ret.TotalNegligibleVulnerabilities = utils.PointerTo[int](*ret.TotalNegligibleVulnerabilities + 1)
-		}
-	}
-	return ret
 }
 
 func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.RunErrors) error {
@@ -329,14 +388,11 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 		for i := range resultsCandidate.Findings {
 			finding := resultsCandidate.Findings[i]
 			secretsSlice = append(secretsSlice, models.Secret{
-				SecretInfo: &models.SecretInfo{
-					Description: &finding.Description,
-					EndLine:     &finding.EndLine,
-					FilePath:    &finding.File,
-					Fingerprint: &finding.Fingerprint,
-					StartLine:   &finding.StartLine,
-				},
-				Id: &finding.Fingerprint, // TODO: Do we need the ID in the secret?
+				Description: &finding.Description,
+				EndLine:     &finding.EndLine,
+				FilePath:    &finding.File,
+				Fingerprint: &finding.Fingerprint,
+				StartLine:   &finding.StartLine,
 			})
 		}
 	}
@@ -361,15 +417,12 @@ func convertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.
 	for i := range exploitsResults.Exploits {
 		exploit := exploitsResults.Exploits[i]
 		retExploits = append(retExploits, models.Exploit{
-			ExploitInfo: &models.ExploitInfo{
-				CveID:       &exploit.CveID,
-				Description: &exploit.Description,
-				Name:        &exploit.Name,
-				SourceDB:    &exploit.SourceDB,
-				Title:       &exploit.Title,
-				Urls:        &exploit.URLs,
-			},
-			Id: &exploit.ID,
+			CveID:       &exploit.CveID,
+			Description: &exploit.Description,
+			Name:        &exploit.Name,
+			SourceDB:    &exploit.SourceDB,
+			Title:       &exploit.Title,
+			Urls:        &exploit.URLs,
 		})
 	}
 
