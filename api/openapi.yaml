@@ -959,7 +959,6 @@ components:
           type: 'integer'
           minimum: 1
           maximum: 20
-          default: 2
           description: "The maximum number of scanners that can run in parallel for each scan"
 
     ScanConfigRelationship:
@@ -1001,6 +1000,9 @@ components:
               # on the client side.
               #
               # readOnly: true
+            maxParallelScanners:
+              type: 'integer'
+              default: 2
           # required:
           #   - name
 
