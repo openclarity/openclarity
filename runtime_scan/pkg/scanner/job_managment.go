@@ -92,7 +92,7 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 		var err error
 		select {
 		case targetID := <-done:
-			numberOfCompletedJobs := numberOfCompletedJobs + 1
+			numberOfCompletedJobs = numberOfCompletedJobs + 1
 			data := targetIDToScanData[targetID]
 			if !data.success {
 				anyJobsFailed = true
