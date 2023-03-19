@@ -432,9 +432,7 @@ type ScanStateReason string
 
 // ScanConfig defines model for ScanConfig.
 type ScanConfig struct {
-	Id *string `json:"id,omitempty"`
-
-	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
+	Id                  *string `json:"id,omitempty"`
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
 	Name                *string `json:"name,omitempty"`
 
