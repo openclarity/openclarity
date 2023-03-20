@@ -1,4 +1,5 @@
 import React from 'react';
+import { isEmpty } from 'lodash';
 import { FETCH_METHODS } from 'hooks';
 import WizardModal from 'components/WizardModal';
 import { formatStringInstancesToTags, formatTagsToStringInstances } from '../utils';
@@ -12,7 +13,7 @@ const padDateTime = time => String(time).padStart(2, "0");
 
 const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     const {id, name, scope, scanFamiliesConfig, scheduled} = initialData || {};
-    const {all, regions, shouldScanStoppedInstances, instanceTagSelector, instanceTagExclusion} = scope || {};
+    const {allRegions, regions, shouldScanStoppedInstances, instanceTagSelector, instanceTagExclusion} = scope || {};
     
     const isEditForm = !!id;
     
@@ -20,7 +21,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
         id: id || null,
         name: name || "",
         scope: {
-            scopeSelect: (!regions || all) ? SCOPE_ITEMS.ALL.value : SCOPE_ITEMS.DEFINED.value,
+            scopeSelect: (!regions || allRegions) ? SCOPE_ITEMS.ALL.value : SCOPE_ITEMS.DEFINED.value,
             regions: REGIONS_EMPTY_VALUE,
             shouldScanStoppedInstances: shouldScanStoppedInstances || false,
             instanceTagSelector: formatTagsToStringInstances(instanceTagSelector || []),
@@ -42,9 +43,9 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
         }
     }
     
-    if (!!regions) {
-        initialValues.scope.regions = regions.map(({id, vpcs}) => {
-            return {id, vpcs: !vpcs ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
+    if (!isEmpty(regions)) {
+        initialValues.scope.regions = regions.map(({name, vpcs}) => {
+            return {name, vpcs: !vpcs ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
                 return {id: id || "", securityGroups: (securityGroups || []).map(({id}) => id)}
             })}
         })
@@ -95,9 +96,9 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
 
                 submitData.scope = {
                     objectType: "AwsScanScope",
-                    all: isAllScope,
-                    regions: isAllScope ? null : regions.map(({id, vpcs}) => {
-                        return {id, vpcs: vpcs.map(({id, securityGroups}) => {
+                    allRegions: isAllScope,
+                    regions: isAllScope ? [] : regions.map(({name, vpcs}) => {
+                        return {name, vpcs: vpcs.map(({id, securityGroups}) => {
                             return {id, securityGroups: securityGroups.map(id => ({id}))}
                         })}
                     }),
@@ -105,12 +106,6 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     instanceTagSelector: formatStringInstancesToTags(instanceTagSelector),
                     instanceTagExclusion: formatStringInstancesToTags(instanceTagExclusion),
                 }
-
-                regions.map(({id, vpcs}) => {
-                    return {id, vpcs: !vpcs ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
-                        return {id: id || "", securityGroups: (securityGroups || []).map(({id}) => id)}
-                    })}
-                })
 
                 const {scheduledSelect, laterDate, laterTime} = scheduled;
                 const isNow = scheduledSelect === SCHEDULE_TYPES_ITEMS.NOW.value;

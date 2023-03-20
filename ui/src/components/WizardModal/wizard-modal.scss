@@ -37,7 +37,7 @@ $navigation-width: 180px;
             .wizard-step-display {
                 padding: 0 20px;
                 width: calc(100% - #{$navigation-width});
-                height: calc(100vh - #{$top-bar-height} - #{$actions-panel-height} - #{$top-padding} - 65px);
+                height: calc(100vh - #{$top-bar-height} - #{$actions-panel-height} - #{$top-padding} - 85px);
                 overflow-y: auto;
 
                 .main-error-message {

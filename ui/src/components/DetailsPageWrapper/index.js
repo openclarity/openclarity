@@ -23,16 +23,17 @@ const DetailsContentWrapper = ({data, getTitleData, detailsContent: DetailsConte
     )
 }
 
-const DetailsPageWrapper = ({className, backTitle, url, getUrl, getReplace, getTitleData, detailsContent}) => {
+const DetailsPageWrapper = ({className, backTitle, url, getUrl, getTitleData, detailsContent, withPadding=false}) => {
     const {pathname} = useLocation();
     const params = useParams();
     const {id} = params;
+    const innerPath = params["*"];
     
     const [{loading, data, error}] = useFetch(!!url ? `${url}/${id}` : getUrl(params));
 
     return (
-        <div className={classnames("details-page-wrapper", className)}>
-            <BackRouteButton title={backTitle} pathname={pathname.replace(!!getReplace ? getReplace(params) : `/${id}`, "")} />
+        <div className={classnames("details-page-wrapper", className, {"with-padding": withPadding})}>
+            <BackRouteButton title={backTitle} pathname={pathname.replace(!!innerPath ? `/${id}/${innerPath}` : `/${id}`, "")} />
             {loading ? <Loader /> : (!!error ? null : <DetailsContentWrapper detailsContent={detailsContent} getTitleData={getTitleData} data={data} />)}
         </div>
     )

@@ -5,6 +5,7 @@ import './button.scss';
 
 const Button = ({children, secondary, tertiary, disabled, onClick, className}) => (
     <button
+        type="button"
         className={classnames(
             "clarity-button",
             className,

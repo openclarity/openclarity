@@ -6,10 +6,13 @@ import IconTemplates from 'components/Icon/IconTemplates';
 import Notification from 'components/Notification';
 import { TooltipWrapper } from 'components/Tooltip';
 import Title from 'components/Title';
+import { NotificationProvider, useNotificationState, useNotificationDispatch, removeNotification } from 'context/NotificationProvider';
+import { FiltersProvider, useFilterDispatch, resetFilters, resetAllFilters, FILTER_TYPES } from 'context/FiltersProvider';
+import { ROUTES } from 'utils/systemConsts';
 import Scans from 'layout/Scans';
 import Findings from 'layout/Findings';
-import { NotificationProvider, useNotificationState, useNotificationDispatch, removeNotification } from 'context/NotificationProvider';
-import { ROUTES } from 'utils/systemConsts';
+import Assets from 'layout/Assets';
+import AssetScans from 'layout/AssetScans';
 
 import brandImage from 'utils/images/brand.svg';
 
@@ -18,28 +21,39 @@ import './app.scss';
 const ROUTES_CONFIG = [
     {
 		path: ROUTES.DEFAULT,
-		component: () => "TBD",
+		component: () => <div style={{margin: "30px"}}>TBD</div>,
         icon: ICON_NAMES.DASHBOARD,
         isIndex: true,
-        title: "Dashboard"
-	},
-	{
-		path: ROUTES.SCANS,
-		component: Scans,
-        icon: ICON_NAMES.SCANS,
-        title: "Scans"
+        title: "Dashboard",
+        resetFilterAll: true
 	},
 	{
 		path: ROUTES.ASSETS,
-		component: () => "TBD",
+		component: Assets,
         icon: ICON_NAMES.ASSETS,
-        title: "Assets"
+        title: "Assets",
+        resetFilters: [FILTER_TYPES.ASSETS]
+	},
+    {
+		path: ROUTES.ASSET_SCANS,
+		component: AssetScans,
+        icon: ICON_NAMES.ASSET_SCANS,
+        title: "Asset scans",
+        resetFilters: [FILTER_TYPES.ASSET_SCANS]
 	},
 	{
 		path: ROUTES.FINDINGS,
 		component: Findings,
         icon: ICON_NAMES.FINDINGS,
-        title: "Findings"
+        title: "Findings",
+        resetFilters: [FILTER_TYPES.FINDINGS]
+	},
+    {
+		path: ROUTES.SCANS,
+		component: Scans,
+        icon: ICON_NAMES.SCANS,
+        title: "Scans",
+        resetFilters: [FILTER_TYPES.SCANS, FILTER_TYPES.SCAN_CONFIGURATIONS]
 	}
 ];
 
@@ -54,14 +68,21 @@ const ConnectedNotification = () => {
     return <Notification message={message} type={type} onClose={() => removeNotification(dispatch)} />
 }
 
-const NavLinkItem = ({pathname, icon}) => {
+const NavLinkItem = ({pathname, icon, resetFilterNames, resetFilterAll=false}) => {
     const location = useLocation();
     const match = useMatch(`${pathname}/*`);
     const isActive = pathname === location.pathname ? true : !!match;
 
     const navigate = useNavigate();
+    const filtersDispatch = useFilterDispatch();
 
     const onClick = () => {
+        if (resetFilterAll) {
+            resetAllFilters(filtersDispatch);
+        } else if (!!resetFilterNames) {
+            resetFilters(filtersDispatch, resetFilterNames);
+        }
+
         navigate(pathname);
     }
     
@@ -79,38 +100,39 @@ const Layout = () => {
     const pageTitle = ROUTES_CONFIG.find(({path, isIndex}) => (isIndex && !mainPath) || path === `/${mainPath}`)?.title;
     
     return (
-        <div id="main-wrapper">  
-            <div className="topbar-container">
-                <img src={brandImage} alt="VMClarity" />
-                {!!pageTitle &&
-                    <div className="topbar-page-title">
-                        <Title medium removeMargin>{pageTitle}</Title>
-                        <Icon name={ICON_NAMES.REFRESH} onClick={() => navigate(0)} />
-                    </div>
-                }
-            </div>
-            <div className="sidebar-container">
-                {
-                    ROUTES_CONFIG.map(({path, icon, title}) => (
-                        <TooltipWrapper key={path} tooltipId={`sidebar-item-tooltip-${path}`} tooltipText={title}>
-                            <NavLinkItem pathname={path} icon={icon} />
-                        </TooltipWrapper>
-                    ))
-                }
-            </div>
-            <main role="main">
-                <NotificationProvider>
-                    <Outlet />
-                    <ConnectedNotification />
-                </NotificationProvider>
-            </main>
+        <div id="main-wrapper">
+            <FiltersProvider>
+                <div className="topbar-container">
+                    <img src={brandImage} alt="VMClarity" />
+                    {!!pageTitle &&
+                        <div className="topbar-page-title">
+                            <Title medium removeMargin>{pageTitle}</Title>
+                            <Icon name={ICON_NAMES.REFRESH} onClick={() => navigate(0)} />
+                        </div>
+                    }
+                </div>
+                <div className="sidebar-container">
+                    {
+                        ROUTES_CONFIG.map(({path, icon, title, resetFilters, resetFilterAll}) => (
+                            <TooltipWrapper key={path} tooltipId={`sidebar-item-tooltip-${path}`} tooltipText={title}>
+                                <NavLinkItem pathname={path} icon={icon} resetFilterNames={resetFilters} resetFilterAll={resetFilterAll} />
+                            </TooltipWrapper>
+                        ))
+                    }
+                </div>
+                <main role="main">
+                    <NotificationProvider>
+                        <Outlet />
+                        <ConnectedNotification />
+                    </NotificationProvider>
+                </main>
+            </FiltersProvider>
         </div>
     )
 }
 
 const App = () => (
     <div className="app-wrapper">
-        
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
