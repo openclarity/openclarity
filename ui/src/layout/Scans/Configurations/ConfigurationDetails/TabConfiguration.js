@@ -39,7 +39,7 @@ const ConfigurationScansDisplay = ({configId, configName}) => {
     }
 
     if (loading) {
-        return <Loader />
+        return <Loader absolute={false} small />;
     }
     
     return (
