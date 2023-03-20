@@ -33,7 +33,7 @@ const AssetScansDisplay = ({assetName, targetId}) => {
     }
 
     if (loading) {
-        return <Loader />
+        return <Loader absolute={false} small />
     }
     
     return (
