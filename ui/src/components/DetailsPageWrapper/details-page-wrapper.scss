@@ -1,4 +1,9 @@
+@import 'utils/scss_variables.module.scss';
+
 .details-page-wrapper {
+    &.with-padding {
+        padding: $main-content-padding;
+    }
     .details-page-content-wrapper {
         .details-page-title {
             display: flex;

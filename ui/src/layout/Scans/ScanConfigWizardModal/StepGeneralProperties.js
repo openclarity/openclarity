@@ -2,13 +2,10 @@ import React, { useEffect } from 'react';
 import { usePrevious, useFetch } from 'hooks';
 import { TextField, RadioField, MultiselectField, SelectField, FieldsPair, useFormikContext, CheckboxField,
     FieldLabel, validators } from 'components/Form';
-
-const DISCOVERY_URL = "discovery/scopes";
-
-const idToValueLabel = items => items?.map(({id}) => ({value: id, label: id}));
+import { APIS } from 'utils/systemConsts';
 
 export const VPCS_EMPTY_VALUE = [{id: "", securityGroups: []}]
-export const REGIONS_EMPTY_VALUE = [{id: "", vpcs: VPCS_EMPTY_VALUE}];
+export const REGIONS_EMPTY_VALUE = [{name: "", vpcs: VPCS_EMPTY_VALUE}];
 
 export const SCOPE_ITEMS = {
     ALL: {value: "ALL", label: "All"},
@@ -16,33 +13,30 @@ export const SCOPE_ITEMS = {
 }
 
 const SecurityGroupField = ({index, name, placeholder, disabled, regionData}) => {
-    const {id: regionId, vpcs=[]} = regionData || {};
+    const {name: regionId, vpcs=[]} = regionData || {};
     const vpcId = vpcs[index]?.id;
     const prevVpsId = usePrevious(vpcId);
-
-    const [{data, loading, error}, fetchSecurityGroups] = useFetch(DISCOVERY_URL, {loadOnMount: false});
+    
+    const [{data, loading, error}, fetchSecurityGroups] = useFetch(APIS.SCOPES_DISCOVERY, {loadOnMount: false});
 
     useEffect(() => {
         if (!!vpcId && prevVpsId !== vpcId) {
             fetchSecurityGroups({queryParams: {
-                "$select": "AwsScope.Regions.Vpcs.securityGroups",
-                "$filter": `AwsScope.Regions.ID eq '${regionId}' and AwsScope.Regions.Vpcs.ID eq '${vpcId}'`
+                "$select": `scopeInfo/regions($filter=name eq '${regionId}';$select=name,vpcs($filter=id eq '${vpcId}';$select=securityGroups))`
             }});
         }
     }, [prevVpsId, vpcId, regionId, fetchSecurityGroups]);
-
+    
     if (error) {
         return null;
     }
-
-    const vpcData = data?.regions[0]?.vpcs[0];
 
     return (
         <MultiselectField
             name={name}
             placeholder={placeholder}
             disabled={disabled}
-            items={!!data ? idToValueLabel(vpcData?.securityGroups) : []}
+            items={!data ? [] : data?.scopeInfo?.regions[0]?.vpcs[0].securityGroups.map(({id}) => ({value: id, label: id}))}
             loading={loading}
         />
     )
@@ -52,20 +46,19 @@ const RegionFields = ({index, name, disabled}) => {
     const {values} = useFormikContext();
     const {regions} = values.scope;
     
-    const regionId = regions[index]?.id;
+    const regionId = regions[index]?.name;
     const prevRegionId = usePrevious(regionId);
 
-    const [{data, loading, error}, fetchVpcs] = useFetch(DISCOVERY_URL, {loadOnMount: false});
+    const [{data, loading, error}, fetchVpcs] = useFetch(APIS.SCOPES_DISCOVERY, {loadOnMount: false});
 
     useEffect(() => {
         if (!!regionId && prevRegionId !== regionId) {
             fetchVpcs({queryParams: {
-                "$select": "AwsScope.Regions.Vpcs",
-                "$filter": `AwsScope.Regions.ID eq '${regionId}'`
+                "$select": `scopeInfo/regions($filter=name eq '${regionId}';$select=id,vpcs/id)`,
             }});
         }
     }, [prevRegionId, regionId, fetchVpcs]);
-
+    
     if (error) {
         return null;
     }
@@ -78,7 +71,7 @@ const RegionFields = ({index, name, disabled}) => {
                 component: SelectField,
                 key: "id",
                 placeholder: "Select VPC...",
-                items: !!data ? idToValueLabel(data?.regions[0]?.vpcs) : [],
+                items: !data ? [] : data?.scopeInfo?.regions[0]?.vpcs.map(({id}) => ({value: id, label: id})),
                 clearable: true,
                 loading: loading
             }}
@@ -94,7 +87,7 @@ const RegionFields = ({index, name, disabled}) => {
 }
 
 const DefinedScopeFields = () => {
-    const [{data, loading, error}] = useFetch(DISCOVERY_URL, {queryParams: {"$select": "AwsScope.Regions"}});
+    const [{data, loading, error}] = useFetch(APIS.SCOPES_DISCOVERY, {queryParams: {"$select": "scopeInfo/regions/name"}});
 
     if (error) {
         return null;
@@ -105,9 +98,9 @@ const DefinedScopeFields = () => {
             name="scope.regions"
             firstFieldProps={{
                 component: SelectField,
-                key: "id",
+                key: "name",
                 placeholder: "Select region...",
-                items: idToValueLabel(data?.regions),
+                items: data?.scopeInfo?.regions.map(({name}) => ({value: name, label: name})),
                 validate: validators.validateRequired,
                 loading: loading
             }}
@@ -151,7 +144,7 @@ const StepGeneralProperties = () => {
                 <FieldLabel>Instances</FieldLabel>
                 <CheckboxField
                     name="scope.shouldScanStoppedInstances"
-                    title="Scan non-running instances"
+                    title="Scan also non-running instances"
                 />
                 <MultiselectField
                     name="scope.instanceTagSelector"

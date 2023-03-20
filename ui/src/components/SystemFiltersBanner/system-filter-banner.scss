@@ -1,0 +1,31 @@
+@import 'utils/scss_variables.module.scss';
+
+.system-filter-banner {
+    background-color: $color-blue;
+    box-shadow: 0px 5px 10px rgba(34, 43, 54, 0.11);
+    height: 50px;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 400;
+    font-size: 12px;
+    position: fixed;
+    top: $top-bar-height;
+    left: $side-bar-width;
+    width: calc(100% - #{$side-bar-width});
+    z-index: 1;
+    
+    .system-filter-content {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+
+        .icon {
+            margin-right: 10px;
+        }
+    }
+}
