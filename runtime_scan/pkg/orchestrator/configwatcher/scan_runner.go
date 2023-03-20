@@ -63,8 +63,11 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 			Id: *scanConfig.Id,
 		},
 		ScanConfigSnapshot: &models.ScanConfigData{
-			Scope:              scanConfig.Scope,
-			ScanFamiliesConfig: scanConfig.ScanFamiliesConfig,
+			MaxParallelScanners: scanConfig.MaxParallelScanners,
+			Name:                scanConfig.Name,
+			ScanFamiliesConfig:  scanConfig.ScanFamiliesConfig,
+			Scheduled:           scanConfig.Scheduled,
+			Scope:               scanConfig.Scope,
 		},
 		StartTime: &now,
 		State:     utils.PointerTo(models.ScanStatePending),
