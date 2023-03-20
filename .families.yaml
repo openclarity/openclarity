@@ -76,3 +76,12 @@ exploits:
   scanners_config:
     exploit_db:
       base_url: "http://localhost:1326"
+
+misconfiguration:
+  enabled: true
+  scanners_list:
+    - "fake"
+  inputs:
+    - input: "./"
+      input_type: "rootfs"
+  scanners_configs: {}
