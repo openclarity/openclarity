@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@turingpointde/cvss.js": "^1.4.7",
     "classnames": "^2.3.2",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
@@ -20,16 +18,15 @@
     "react-time-picker": "^5.2.0",
     "react-tooltip": "^4.2.15",
     "sass": "^1.58.0",
-    "spinners-react": "^1.0.7",
-    "web-vitals": "^2.1.4"
+    "spinners-react": "^1.0.7"
   },
   "overrides": {
-    "nth-check": "^2.0.1"
+    "nth-check": "^2.0.1",
+    "webpack": "^5.76.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

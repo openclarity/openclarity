@@ -1,64 +1,36 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import TabbedPage from 'components/TabbedPage';
+import Vulnerabilities from './Vulnerabilities';
+import Exploits from './Exploits';
+import Misconfigurations from './Misconfigurations';
+import Secrets from './Secrets';
+import Malware from './Malware';
+import Rootkits from './Rootkits';
+import Packages from './Packages';
 
-const FINDINGS_PATHS = {
-    VULNERABILITIES: "vulnerabilities",
-    EXPLOITS: "exploits",
-    MISCONFIGURATIONS: "misconfigurations",
-    SECRETS: "secrets",
-    MALWARE: "malware",
-    ROOTKITS: "rootkits",
-    PACKAGES: "packages"
+const FINDINGS_TAB_ITEMS = {
+    VULNERABILITIES: {id: "vulnerabilities", path: "vulnerabilities", title: "Vulnerabilities", component: Vulnerabilities},
+    EXPLOITS: {id: "exploits", path: "exploits", title: "Exploits", component: Exploits},
+    MISCONFIGURATIONS: {id: "misconfigurations", path: "misconfigurations", title: "Misconfigurations", component: Misconfigurations},
+    SECRETS: {id: "secrets", path: "secrets", title: "Secrets", component: Secrets},
+    MALWARE: {id: "malware", path: "malware", title: "Malware", component: Malware},
+    ROOTKITS: {id: "rootkits", path: "rootkits", title: "Rootkits", component: Rootkits},
+    PACKAGES: {id: "packages", path: "packages", title: "Packages", component: Packages},
 }
 
-const Findings = () => (
-    <TabbedPage
-        items={[
-            {
-                id: "vulnerabilities",
-                title: "Vulnerabilities",
-                isIndex: true,
-                component: () => "TBD"
-            },
-            {
-                id: "exploits",
-                title: "Exploits",
-                path: FINDINGS_PATHS.EXPLOITS,
-                component: () => "TBD"
-            },
-            {
-                id: "misconfigurations",
-                title: "misconfigurations",
-                path: FINDINGS_PATHS.MISCONFIGURATIONS,
-                component: () => "TBD"
-            },
-            {
-                id: "secrets",
-                title: "Secrets",
-                path: FINDINGS_PATHS.SECRETS,
-                component: () => "TBD"
-            },
-            {
-                id: "malware",
-                title: "Malware",
-                path: FINDINGS_PATHS.MALWARE,
-                component: () => "TBD"
-            },
-            {
-                id: "rootkits",
-                title: "Rootkits",
-                path: FINDINGS_PATHS.ROOTKITS,
-                component: () => "TBD"
-            },
-            {
-                id: "packages",
-                title: "Packages",
-                path: FINDINGS_PATHS.PACKAGES,
-                component: () => "TBD"
-            }
-        ]}
-        withStickyTabs
-    />
-)
+export const FINDINGS_PATHS = Object.keys(FINDINGS_TAB_ITEMS).reduce((acc, curr) => ({...acc, [curr]: FINDINGS_TAB_ITEMS[curr].path}), {});
+
+const Findings = () => {
+    const {pathname} = useLocation();
+    
+    return (
+        <TabbedPage
+            redirectTo={`${pathname}/${FINDINGS_PATHS.VULNERABILITIES}`}
+            items={Object.values(FINDINGS_TAB_ITEMS)}
+            withStickyTabs
+        />
+    )
+}
 
 export default Findings;

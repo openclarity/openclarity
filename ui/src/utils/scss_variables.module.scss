@@ -46,6 +46,13 @@ $color-status-violet: #721BD5;
 $color-status-blue: #30749E;
 $color-status-yellow: #FAEFDB;
 
+//Findings:
+$color-findings-1: #2C5A9C;
+$color-findings-2: #3984B6;
+$color-findings-3: #52BAE6;
+$color-findings-4: #7FCFCE;
+$color-findings-5: #8DD7C9;
+
 :export {
     color-main: $color-main;
     color-main-light: $color-main-light;
@@ -62,4 +69,9 @@ $color-status-yellow: #FAEFDB;
     color-warning-low: $color-warning-low;
     color-status-blue: $color-status-blue;
     color-grey-black: $color-grey-black;
+    color-findings-1: $color-findings-1;
+    color-findings-2: $color-findings-2;
+    color-findings-3: $color-findings-3;
+    color-findings-4: $color-findings-4;
+    color-findings-5: $color-findings-5;
 }

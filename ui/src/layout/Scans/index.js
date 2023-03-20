@@ -9,8 +9,13 @@ import { APIS } from 'utils/systemConsts';
 import ScanConfigWizardModal from './ScanConfigWizardModal';
 import { ModalDisplayProvider, useModalDisplayState, useModalDisplayDispatch,
     MODAL_DISPLAY_ACTIONS } from './ScanConfigWizardModal/ModalDisplayProvider';
-import Scans, { SCAN_SCANS_PATH } from './Scans';
-import Configurations, { SCAN_CONFIGS_PATH } from './Configurations';
+import Scans from './Scans';
+import Configurations from './Configurations';
+import { SCANS_PATHS } from './utils';
+
+export {
+    SCANS_PATHS
+}
 
 const ScansTabbedPage = () => {
     const {pathname} = useLocation();
@@ -36,7 +41,7 @@ const ScansTabbedPage = () => {
 
     return (
         <>
-            {(!scans?.total && !scanConfigs?.total) ?
+            {(scans?.length === 0 && scanConfigs?.total === 0) ?
                 <EmptyDisplay
                     message={(
                         <>
@@ -48,18 +53,18 @@ const ScansTabbedPage = () => {
                     onClick={() => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {}})}
                 /> :
                 <TabbedPage
-                    redirectTo={`${pathname}/${SCAN_SCANS_PATH}`}
+                    redirectTo={`${pathname}/${SCANS_PATHS.SCANS}`}
                     items={[
                         {
                             id: "scans",
                             title: "Scans",
-                            path: SCAN_SCANS_PATH,
+                            path: SCANS_PATHS.SCANS,
                             component: Scans
                         },
                         {
                             id: "configs",
                             title: "Configurations",
-                            path: SCAN_CONFIGS_PATH,
+                            path: SCANS_PATHS.CONFIGURATIONS,
                             component: Configurations
                         }
                     ]}

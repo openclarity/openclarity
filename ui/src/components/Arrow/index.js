@@ -18,7 +18,7 @@ const Arrow = ({name=ARROW_NAMES.TOP, onClick, disabled, small=false}) => {
 
     return (
         <Icon
-            name={ICON_NAMES.ARROW_LEFT}
+            name={ICON_NAMES.ARROW_HEAD_LEFT}
             className={classnames("arrow-icon", `${name}-arrow`, {small}, {clickable: !!onClick})}
             onClick={onClick}
             disabled={disabled}

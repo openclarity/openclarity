@@ -11,7 +11,7 @@ const Tooltip = ({id, text, placement="top"}) => (
         effect='solid'
         place={placement}
         textColor="white"
-        backgroundColor="rgba(34, 37, 41, 0.95)"
+        backgroundColor="rgba(34, 37, 41, 1)"
     >
         <span>{text}</span>
     </ReactTooltip>

@@ -1,41 +1,14 @@
+@import 'utils/scss_variables.module.scss';
+
 .configuration-details-page-wrapper {
-    .content-container-wrapper {
-        display: flex;
-        flex-direction: column;
-
-        .tabbed-page-container {
+    .configuration-details-content {
+        .configuration-details-content-header {
+            height: 40px;
+            border-bottom: 1px solid $color-grey-light;
             display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-
-            .tab-content {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-
-                .double-pane-display-wrapper {
-                    flex-grow: 1;
-                }
-            }
-        }
-    }
-}
-
-.configuration-details-tab-scans {
-    .clarity-title {
-        margin-bottom: 30px;
-    }
-    .configuration-details-tab-scans-list {
-        margin-bottom: 54px;
-        
-        .clarity-button {
-            font-weight: 400;
-            font-size: 14px;
-            line-height: 14px;
-
-            &:not(:last-child) {
-                margin-bottom: 30px;
-            }
+            justify-content: flex-end;
+            align-items: center;
+            padding-right: $main-content-padding;
         }
     }
 }

@@ -1,5 +1,10 @@
 import { isEmpty, isNull } from 'lodash';
 
+export const SCANS_PATHS = {
+    SCANS: "scans",
+    CONFIGURATIONS: "configurations"
+}
+
 export const formatStringInstancesToTags = items => items.map(item => {
     const [key, value] = item.split("=");
 
@@ -12,7 +17,7 @@ export const formatRegionsToStrings = regions => {
     const SEPARATOR = "/";
     
     return regions.reduce((acc, curr) => {
-        const {id: region, vpcs} = curr;
+        const {name: region, vpcs} = curr;
 
         const formattedVpcs = vpcs.reduce((acc, curr) => {
             const {id: vpc, securityGroups} = curr;

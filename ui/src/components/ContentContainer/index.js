@@ -1,9 +1,10 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import './content-container.scss';
 
-const ContentContainer = ({children}) => (
-    <div className="content-container-wrapper">
+const ContentContainer = ({children, withMargin=false}) => (
+    <div className={classnames("content-container-wrapper", {"with-margin": withMargin})}>
         {children}
     </div>
 );
