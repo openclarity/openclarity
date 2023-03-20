@@ -1,8 +1,6 @@
 @import 'utils/scss_variables.module.scss';
 
 .scan-progres-bar-wrapper {
-    margin-bottom: 20px;
-
     .error-display-wrapper {
         margin-top: 25px;
 
@@ -18,6 +16,7 @@
             color: $color-main;
             background-color: $color-status-yellow;
             padding: 5px 10px;
+            margin: 10px 0 20px 0;
             margin-top: 10px;
         }
     }

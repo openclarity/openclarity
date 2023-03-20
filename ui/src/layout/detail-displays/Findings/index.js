@@ -10,8 +10,8 @@ import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProv
 import FindingsCounterDisplay from './FindingsCounterDisplay';
 import FindingsSystemFilterLinks from './FindingsSystemFilterLinks';
 
-const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, findingsFilterSuffix=""}) => {
-    const {totalVulnerabilities} = findingsSummary || {};
+const Findings = ({findingsSummary={}, findingsFilter, findingsFilterTitle, findingsFilterSuffix=""}) => {
+    const {totalVulnerabilities} = findingsSummary;
 
     const {pathname} = useLocation();
     const filtersDispatch = useFilterDispatch();
