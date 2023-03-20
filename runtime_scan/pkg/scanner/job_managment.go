@@ -36,6 +36,7 @@ import (
 	familiesExploits "github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	exploitsCommon "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
 	exploitdbConfig "github.com/openclarity/vmclarity/shared/pkg/families/exploits/exploitdb/config"
+	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
@@ -384,10 +385,11 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 
 func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 	famConfig := families.Config{
-		SBOM:            userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom),
-		Vulnerabilities: userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
-		Secrets:         userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
-		Exploits:        userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
+		SBOM:             userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom),
+		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
+		Secrets:          userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
+		Exploits:         userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
+		Misconfiguration: userMisconfigurationConfigToFamiliesMisconfigurationConfig(s.scanConfig.ScanFamiliesConfig.Misconfigurations),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -434,6 +436,21 @@ func userSBOMConfigToFamiliesSbomConfig(sbomConfig *models.SBOMConfig) familiesS
 					Timeout: TrivyTimeout,
 				},
 			},
+		},
+	}
+}
+
+func userMisconfigurationConfigToFamiliesMisconfigurationConfig(misconfigurationConfig *models.MisconfigurationsConfig) misconfigurationTypes.Config {
+	if misconfigurationConfig == nil || misconfigurationConfig.Enabled == nil || !*misconfigurationConfig.Enabled {
+		return misconfigurationTypes.Config{}
+	}
+	return misconfigurationTypes.Config{
+		Enabled: true,
+		// TODO(sambetts) This choice should come from the user's configuration
+		ScannersList:   []string{"fake"},
+		Inputs:         nil, // rootfs directory will be determined by the CLI after mount.
+		ScannersConfig: misconfigurationTypes.ScannersConfig{
+			// TODO(sambetts) Add scanner configurations here as we add them like Lynis
 		},
 	}
 }
