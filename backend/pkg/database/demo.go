@@ -649,11 +649,16 @@ func createScanConfigs() []models.ScanConfig {
 			MaxParallelScanners: utils.PointerTo(2),
 		},
 		{
+			MaxParallelScanners: utils.PointerTo(3),
 			Name:                utils.PointerTo("Scan Config 2"),
 			ScanFamiliesConfig:  scanFamiliesConfig2,
-			Scheduled:           &scanConfig2Scheduled,
-			Scope:               &scanScopeType2,
-			MaxParallelScanners: utils.PointerTo(3),
+			ScannerInstanceCreationConfig: &models.ScannerInstanceCreationConfig{
+				MaxPrice:         utils.PointerTo("1000000"),
+				RetryMaxAttempts: utils.PointerTo(4),
+				UseSpotInstances: true,
+			},
+			Scheduled: &scanConfig2Scheduled,
+			Scope:     &scanScopeType2,
 		},
 	}
 }
