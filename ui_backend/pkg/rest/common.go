@@ -16,16 +16,20 @@
 package rest
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/ui_backend/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
-func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context, params models.GetDashboardRiskiestRegionsParams) error {
-	return sendResponse(ctx, http.StatusOK, models.RiskiestRegions{
-		Message: utils.StringPtr("riskiest regions!"),
-	})
+// nolint:wrapcheck,unused
+func sendError(ctx echo.Context, code int, message string) error {
+	log.Error(message)
+	response := &models.ApiResponse{Message: &message}
+	return ctx.JSON(code, response)
+}
+
+// nolint:wrapcheck
+func sendResponse(ctx echo.Context, code int, object interface{}) error {
+	return ctx.JSON(code, object)
 }

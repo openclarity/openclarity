@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	. "github.com/openclarity/vmclarity/api/ui_backend/models"
+	. "github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
