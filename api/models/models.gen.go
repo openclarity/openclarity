@@ -232,7 +232,7 @@ type FindingExists struct {
 
 // Findings defines model for Findings.
 type Findings struct {
-	// Count Total scans count according to the given filters
+	// Count Total findings count according to the given filters
 	Count *int `json:"count,omitempty"`
 
 	// Items List of findings according to the given filters
@@ -675,11 +675,8 @@ type TargetExists struct {
 
 // TargetRelationship defines model for TargetRelationship.
 type TargetRelationship struct {
-	Id        string       `json:"id"`
-	ScanCount *interface{} `json:"scanCount,omitempty"`
-
-	// ScansCount Total number of scans that have ever run for this target
-	ScansCount *int         `json:"scansCount,omitempty"`
+	Id         string       `json:"id"`
+	ScansCount *interface{} `json:"scansCount,omitempty"`
 	Summary    *interface{} `json:"summary,omitempty"`
 	TargetInfo *interface{} `json:"targetInfo,omitempty"`
 }
