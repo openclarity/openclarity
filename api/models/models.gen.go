@@ -417,9 +417,12 @@ type ScanConfig struct {
 	Name                *string `json:"name,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
-	Scheduled          *RuntimeScheduleScanConfigType `json:"scheduled,omitempty"`
-	Scope              *ScanScopeType                 `json:"scope,omitempty"`
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Scheduled                     *RuntimeScheduleScanConfigType `json:"scheduled,omitempty"`
+	Scope                         *ScanScopeType                 `json:"scope,omitempty"`
 }
 
 // ScanConfigData Fields for a ScanConfig so they can be shared between the ScanConfig,
@@ -431,9 +434,12 @@ type ScanConfigData struct {
 	Name                *string `json:"name,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig            `json:"scanFamiliesConfig,omitempty"`
-	Scheduled          *RuntimeScheduleScanConfigType `json:"scheduled,omitempty"`
-	Scope              *ScanScopeType                 `json:"scope,omitempty"`
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Scheduled                     *RuntimeScheduleScanConfigType `json:"scheduled,omitempty"`
+	Scope                         *ScanScopeType                 `json:"scope,omitempty"`
 }
 
 // ScanConfigExists defines model for ScanConfigExists.
@@ -451,8 +457,11 @@ type ScanConfigRelationship struct {
 	MaxParallelScanners *interface{} `json:"maxParallelScanners,omitempty"`
 	Name                *interface{} `json:"name,omitempty"`
 	ScanFamiliesConfig  *interface{} `json:"scanFamiliesConfig,omitempty"`
-	Scheduled           *interface{} `json:"scheduled,omitempty"`
-	Scope               *interface{} `json:"scope,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Scheduled                     *interface{}                   `json:"scheduled,omitempty"`
+	Scope                         *interface{}                   `json:"scope,omitempty"`
 }
 
 // ScanConfigs defines model for ScanConfigs.
@@ -568,6 +577,13 @@ type ScanSummary struct {
 
 // ScanType defines model for ScanType.
 type ScanType string
+
+// ScannerInstanceCreationConfig Configuration of scanner instance
+type ScannerInstanceCreationConfig struct {
+	MaxPrice         *string `json:"maxPrice,omitempty"`
+	RetryMaxAttempts *int    `json:"retryMaxAttempts,omitempty"`
+	UseSpotInstances bool    `json:"useSpotInstances"`
+}
 
 // Scans defines model for Scans.
 type Scans struct {

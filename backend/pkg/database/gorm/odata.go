@@ -369,6 +369,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"maxParallelScanners": odatasql.FieldMeta{
 				FieldType: odatasql.PrimitiveFieldType,
 			},
+			"scannerInstanceCreationConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
+			},
 		},
 	},
 	"ScanConfigData": {
@@ -391,6 +395,17 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"maxParallelScanners": odatasql.FieldMeta{
 				FieldType: odatasql.PrimitiveFieldType,
 			},
+			"scannerInstanceCreationConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
+			},
+		},
+	},
+	"ScannerInstanceCreationConfig": {
+		Fields: odatasql.Schema{
+			"useSpotInstances": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"maxPrice":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"retryMaxAttempts": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"ScanFamiliesConfig": {
