@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
@@ -132,6 +133,9 @@ type Car struct {
 	// Example field which is a collection of relationships to a
 	// different collection
 	Manufacturers []Manufacturer `json:"Manufacturers"`
+
+	// Example time field
+	BuiltOn *time.Time `json:"BuiltOn"`
 }
 
 // Gorm Table Definitions.
@@ -179,6 +183,7 @@ var carSchemaMetas = map[string]SchemaMeta{
 				RelationshipSchema:   "Manufacturer",
 				RelationshipProperty: "Id",
 			},
+			"BuiltOn": {FieldType: PrimitiveFieldType},
 		},
 	},
 	"Manufacturer": {
@@ -268,7 +273,7 @@ func addManufacturer(db *gorm.DB, postfix string) (Manufacturer, error) {
 	return manufacturer, nil
 }
 
-func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool) (Car, error) {
+func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool, builtOn *time.Time) (Car, error) {
 	id := uuid.New().String()
 
 	otherMs := []Manufacturer{}
@@ -358,6 +363,7 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, s
 			ID: manuID,
 		},
 		Manufacturers: otherMs,
+		BuiltOn:       builtOn,
 	}
 	carBytes, err := json.Marshal(car)
 	if err != nil {
@@ -414,6 +420,31 @@ func Test_BuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to run auto migration: %v", err)
 	}
 
+	oldtime, err := time.Parse(time.RFC3339, "2021-03-21T08:50:00+00:00")
+	if err != nil {
+		t.Fatalf("failed to parse old time: %v", err)
+	}
+
+	oldtimeAltFormat, err := time.Parse(time.RFC3339, "2021-03-21T08:50:00Z")
+	if err != nil {
+		t.Fatalf("failed to parse old time alternative format: %v", err)
+	}
+
+	oldtimeDiffTz, err := time.Parse(time.RFC3339, "2021-03-21T07:50:00-01:00")
+	if err != nil {
+		t.Fatalf("failed to parse old time alternative format: %v", err)
+	}
+
+	inbetweentime, err := time.Parse(time.RFC3339, "2022-03-21T08:50:00Z")
+	if err != nil {
+		t.Fatalf("failed to parse in-between time: %v", err)
+	}
+
+	newtime, err := time.Parse(time.RFC3339, "2023-03-21T08:50:00+08:00")
+	if err != nil {
+		t.Fatalf("failed to parse new time: %v", err)
+	}
+
 	manu1, err := addManufacturer(db, "1")
 	if err != nil {
 		t.Errorf("failed to add manufacturer to db %v", err)
@@ -429,22 +460,22 @@ func Test_BuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add manufacturer to db %v", err)
 	}
 
-	car1, err := addCar(db, "model1", manu1.ID, []string{}, 5, false)
+	car1, err := addCar(db, "model1", manu1.ID, []string{}, 5, false, &oldtime)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true)
+	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true, &oldtime)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false)
+	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false, &newtime)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true)
+	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true, nil)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
@@ -918,6 +949,45 @@ func Test_BuildSQLQuery(t *testing.T) {
 						},
 					},
 				},
+			},
+		},
+		{
+			name:         "filter by time less than",
+			filterString: PointerTo(fmt.Sprintf("BuiltOn lt %v", inbetweentime.Format(time.RFC3339))),
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name:         "filter by time greater than",
+			filterString: PointerTo(fmt.Sprintf("BuiltOn gt %v", inbetweentime.Format(time.RFC3339))),
+			want: []Car{
+				car3,
+			},
+		},
+		{
+			name:         "filter by time equal",
+			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtime.Format(time.RFC3339))),
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name:         "filter by time equal alternative format",
+			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeAltFormat.Format(time.RFC3339))),
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name:         "filter by time equal diff tz",
+			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeDiffTz.Format(time.RFC3339))),
+			want: []Car{
+				car1,
+				car2,
 			},
 		},
 	}
