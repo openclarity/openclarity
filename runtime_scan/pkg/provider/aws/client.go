@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 
+	awstype "github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -286,13 +287,36 @@ func (c *Client) RunScanningJob(ctx context.Context, region, id string, config p
 		},
 	}
 
+	var retryMaxAttempts int
+	// Use spot instances if there is a configuration for it.
+	if config.ScannerInstanceCreationConfig != nil {
+		if config.ScannerInstanceCreationConfig.UseSpotInstances {
+			runInstancesInput.InstanceMarketOptions = &ec2types.InstanceMarketOptionsRequest{
+				MarketType: ec2types.MarketTypeSpot,
+				SpotOptions: &ec2types.SpotMarketOptions{
+					InstanceInterruptionBehavior: ec2types.InstanceInterruptionBehaviorTerminate,
+					SpotInstanceType:             ec2types.SpotInstanceTypeOneTime,
+					MaxPrice:                     config.ScannerInstanceCreationConfig.MaxPrice,
+				},
+			}
+		}
+		// In the case of spot instances, we have higher probability to start an instance
+		// by increasing RetryMaxAttempts
+		if config.ScannerInstanceCreationConfig.RetryMaxAttempts != nil {
+			retryMaxAttempts = *config.ScannerInstanceCreationConfig.RetryMaxAttempts
+		}
+	}
+
 	if config.KeyPairName != "" {
 		// Set a key-pair to the instance.
 		runInstancesInput.KeyName = &config.KeyPairName
 	}
 
+	// if retryMaxAttempts value is 0 it will be ignored
 	out, err := c.ec2Client.RunInstances(ctx, runInstancesInput, func(options *ec2.Options) {
 		options.Region = region
+		options.RetryMaxAttempts = retryMaxAttempts
+		options.RetryMode = awstype.RetryModeStandard
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run instances: %v", err)

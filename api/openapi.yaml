@@ -960,6 +960,21 @@ components:
           minimum: 1
           maximum: 20
           description: "The maximum number of scanners that can run in parallel for each scan"
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+
+    ScannerInstanceCreationConfig:
+      type: object
+      description: Configuration of scanner instance
+      properties:
+        useSpotInstances:
+          type: boolean
+        retryMaxAttempts:
+          type: integer
+        maxPrice:
+          type: string
+      required:
+        - useSpotInstances
 
     ScanConfigRelationship:
       type: object
