@@ -15,6 +15,7 @@ import FieldsPair from './form-fields/FieldsPair';
 import CheckboxField from './form-fields/CheckboxField';
 import DateField from './form-fields/DateField';
 import TimeField from './form-fields/TimeField';
+import CronField from './form-fields/CronField';
 import FieldLabel from './FieldLabel';
 
 import './form.scss';
@@ -30,6 +31,7 @@ export {
 	FieldsPair,
 	DateField,
 	TimeField,
+	CronField,
 	FieldLabel
 }
 

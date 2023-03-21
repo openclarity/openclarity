@@ -71,11 +71,13 @@ const ConfigurationsTable = () => {
             Header: "Time config",
             id: "timeConfig",
             Cell: ({row}) => {
-                const {operationTime} = row.original.scheduled;
-                const isScheduled = (Date.now() - (new Date(operationTime)).valueOf() <= 0);
+                const {operationTime, cronLine} = row.original.scheduled;
+                const isPeriodic = !!cronLine;
+                const isScheduled = !isPeriodic && (Date.now() - (new Date(operationTime)).valueOf() <= 0);
                 
                 return (
                     <div>
+                        {!!isPeriodic && <BoldText>Periodic</BoldText>}
                         {!!isScheduled && <BoldText>Scheduled</BoldText>}
                         <div>{formatDate(operationTime)}</div>
                     </div>
