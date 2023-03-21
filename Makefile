@@ -142,4 +142,4 @@ api-backend: ## Generating API for backend code
 .PHONY: api-ui
 api-ui: ## Generating API for UI backend code
 	@(echo "Generating API for UI backend code ..." )
-	@(cd api/ui_backend; go generate)
+	@(cd ui_backend/api; go generate)
