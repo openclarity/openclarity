@@ -439,6 +439,10 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 			} else {
 				return "", fmt.Errorf("unsupported ExpressionTokenNull operator %s", operator)
 			}
+		case godata.ExpressionTokenDateTime:
+			value = singleQuote(rhs.Token.Value)
+			extractFunction = "->>"
+			return fmt.Sprintf("datetime(%s %s '%s') %s datetime(%s)", source, extractFunction, queryPath, sqlOperator, value), nil
 		default:
 			return "", fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
