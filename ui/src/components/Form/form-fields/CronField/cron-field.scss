@@ -1,0 +1,81 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-wrapper.cron-field-wrapper {
+    .cron-field-title {
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 18px;
+        margin-bottom: 10px;
+    }
+    .cron-field-quick-options-wrapper {
+        .cron-field-quick-options {
+            display: flex;
+    
+            .clarity-tag:not(:last-child) {
+                margin-right: 14px;
+            }
+        }
+        .cron-field-quick-separator {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+
+            .cron-field-quick-separator-line {
+                border-bottom: 1px solid $color-grey-light;
+                flex-grow: 1;
+            }
+            .cron-field-quick-separator-text {
+                margin: 0 10px;
+            }
+        }
+    }
+    .cron-field-output-wrapper {
+        font-size: 14px;
+        line-height: 18px;
+        margin-top: 30px;
+
+        .cron-field-output-expression {
+            color: $color-grey;
+            margin-top: 10px;
+        }
+    }
+    .cron-field-select {
+        > .cron-field-select-field:first-child {
+            > span {
+                display: none;
+            }
+            > .cron-field-select-select {
+                margin: 0;
+            }
+        }
+        .cron-field-select-field .cron-field-select-select {
+            outline: none;
+            font-family: CiscoSansTT;
+            color: $color-grey-black;
+            z-index: 0;
+    
+            .ant-select-selector {
+                height: 36px;
+                border-radius: 2px;
+                border-color: $color-grey-light !important;
+                outline: none !important;
+                box-shadow: none !important;
+    
+                .ant-select-selection-search,
+                .ant-select-selection-item {
+                    outline: none !important;
+                    color: $color-grey-black !important;
+                }
+            }
+        }
+    }
+}
+
+.cron-field-select-select-dropdown {
+    border-top: 2px solid $color-main-light;
+    border-radius: 0;
+
+    .ant-select-item-option.ant-select-item-option-selected {
+        background-color: $color-grey-light;
+    }
+}
