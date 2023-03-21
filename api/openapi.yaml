@@ -1274,7 +1274,7 @@ components:
               type: string
             targetInfo:
               readOnly: true
-            scanCount:
+            scansCount:
               readOnly: true
             summary:
               readOnly: true
@@ -1723,7 +1723,7 @@ components:
       type: object
       properties:
         count:
-          description: Total scans count according to the given filters
+          description: Total findings count according to the given filters
           type: integer
         items:
           description: List of findings according to the given filters

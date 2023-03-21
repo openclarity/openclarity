@@ -27,11 +27,11 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/server"
-	uiserver "github.com/openclarity/vmclarity/api/ui_backend/server"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	uirest "github.com/openclarity/vmclarity/backend/pkg/ui/rest"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	uiserver "github.com/openclarity/vmclarity/ui_backend/api/server"
+	uirest "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
 
 const (
