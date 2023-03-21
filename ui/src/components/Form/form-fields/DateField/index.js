@@ -1,8 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
-import { isNull } from 'lodash';
+import { isNull, isEmpty } from 'lodash';
 import DateTimePicker from 'react-datetime-picker';
-import { isEmpty } from 'lodash';
 import { useField } from 'formik';
 import Arrow from 'components/Arrow';
 import { formatDateBy } from 'utils/utils';

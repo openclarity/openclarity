@@ -1,9 +1,10 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import './tag.scss';
 
-const Tag = ({children}) => (
-    <div className="clarity-tag">{children}</div>
+const Tag = ({children, onClick}) => (
+    <div className={classnames("clarity-tag", {clickable: !!onClick})} onClick={onClick}>{children}</div>
 )
 
 export const TagsList = ({items}) => (

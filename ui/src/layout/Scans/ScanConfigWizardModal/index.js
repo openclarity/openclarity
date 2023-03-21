@@ -5,7 +5,7 @@ import WizardModal from 'components/WizardModal';
 import { formatStringInstancesToTags, formatTagsToStringInstances } from '../utils';
 import StepGeneralProperties, { REGIONS_EMPTY_VALUE, VPCS_EMPTY_VALUE, SCOPE_ITEMS } from './StepGeneralProperties';
 import StepScanTypes from './StepScanTypes';
-import StepTimeConfiguration, { SCHEDULE_TYPES_ITEMS } from './StepTimeConfiguration';
+import StepTimeConfiguration, { SCHEDULE_TYPES_ITEMS, CRON_QUICK_OPTIONS } from './StepTimeConfiguration';
 
 import './scan-config-wizard-modal.scss';
 
@@ -14,6 +14,7 @@ const padDateTime = time => String(time).padStart(2, "0");
 const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     const {id, name, scope, scanFamiliesConfig, scheduled} = initialData || {};
     const {allRegions, regions, shouldScanStoppedInstances, instanceTagSelector, instanceTagExclusion} = scope || {};
+    const {operationTime, cronLine} = scheduled || {};
     
     const isEditForm = !!id;
     
@@ -37,9 +38,10 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             exploits: {enabled: false}
         },
         scheduled: {
-            scheduledSelect: !!scheduled?.objectType ? SCHEDULE_TYPES_ITEMS.LATER.value : SCHEDULE_TYPES_ITEMS.NOW.value,
+            scheduledSelect: !!cronLine ? SCHEDULE_TYPES_ITEMS.REPETITIVE.value : SCHEDULE_TYPES_ITEMS.NOW.value,
             laterDate: "",
-            laterTime: ""
+            laterTime: "",
+            cronLine: cronLine || CRON_QUICK_OPTIONS[0].value
         }
     }
     
@@ -51,9 +53,9 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
         })
     }
     
-    const {operationTime} = scheduled || {};
-    if (!!operationTime) {
+    if (!!operationTime && !cronLine) {
         const dateTime = new Date(operationTime);
+        initialValues.scheduled.scheduledSelect = SCHEDULE_TYPES_ITEMS.LATER.value;
         initialValues.scheduled.laterTime = `${padDateTime(dateTime.getHours())}:${padDateTime(dateTime.getMinutes())}`;
         initialValues.scheduled.laterDate = `${dateTime.getFullYear()}-${padDateTime(dateTime.getMonth() + 1)}-${padDateTime(dateTime.getDate())}`;
     }
@@ -107,7 +109,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     instanceTagExclusion: formatStringInstancesToTags(instanceTagExclusion),
                 }
 
-                const {scheduledSelect, laterDate, laterTime} = scheduled;
+                const {scheduledSelect, laterDate, laterTime, cronLine} = scheduled;
                 const isNow = scheduledSelect === SCHEDULE_TYPES_ITEMS.NOW.value;
                 
                 let formattedDate = new Date();
@@ -118,9 +120,12 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     formattedDate.setHours(hours, minutes);
                 }
 
-                submitData.scheduled = {
-                    objectType: "SingleScheduleScanConfig",
-                    operationTime: formattedDate.toISOString()
+                submitData.scheduled = {};
+
+                if (scheduledSelect === SCHEDULE_TYPES_ITEMS.REPETITIVE.value) {
+                    submitData.scheduled.cronLine = cronLine;
+                } else {
+                    submitData.scheduled.operationTime = formattedDate.toISOString();
                 }
 
                 return !isEditForm ? {submitData} : {
