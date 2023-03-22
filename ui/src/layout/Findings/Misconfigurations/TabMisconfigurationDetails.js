@@ -10,7 +10,7 @@ const TabMisconfigurationDetails = ({data}) => {
             leftPaneDisplay={() => (
                 <>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="Path">{path}</TitleValueDisplay>
+                        <TitleValueDisplay title="File path">{path}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Description" withOpen defaultOpen>{description}</TitleValueDisplay>

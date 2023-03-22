@@ -24,6 +24,7 @@ $navigation-width: 180px;
     
                 .wizard-navigation-item {
                     cursor: pointer;
+                    color: $color-main;
     
                     &.is-active {
                         font-weight: bold;
@@ -31,6 +32,9 @@ $navigation-width: 180px;
                     }
                     &.disabled {
                         cursor: not-allowed;
+                    }
+                    &:not(.is-active) {
+                        text-decoration: underline;
                     }
                 }
             }
@@ -50,6 +54,24 @@ $navigation-width: 180px;
                 }
                 .form-field-label-wrapper{
                     margin-top: 30px;
+                }
+                .wizard-next-step-wrapper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    margin: 40px 0;
+                    color: $color-main;
+                    cursor: pointer;
+                    
+                    &.disabled {
+                        cursor: not-allowed;
+                    }
+                    .wizard-next-step-title {
+                        font-weight: 400;
+                        font-size: 14px;
+                        text-decoration: underline;
+                        margin-right: 5px;
+                    }
                 }
             }
         }

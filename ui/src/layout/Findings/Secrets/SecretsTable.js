@@ -17,7 +17,7 @@ const SecretsTable = () => {
             disableSort: true
         },
         {
-            Header: "FilePath",
+            Header: "File path",
             id: "findingInfo",
             accessor: "findingInfo.filePath",
             disableSort: true

@@ -36,8 +36,8 @@ const AssetScansTable = () => {
             },
             disableSort: true
         },
-        getVulnerabilitiesColumnConfigItem({tableTitle: TABLE_TITLE, idKey: "scan.id", summaryKey: "scan.summary"}),
-        ...getFindingsColumnsConfigList({tableTitle: TABLE_TITLE, summaryKey: "scan.summary"})
+        getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
+        ...getFindingsColumnsConfigList(TABLE_TITLE)
     ], []);
 
     return (

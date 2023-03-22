@@ -7,6 +7,7 @@ import Button from 'components/Button';
 import Modal from 'components/Modal';
 import Loader from 'components/Loader';
 import Title from 'components/Title';
+import Arrow, { ARROW_NAMES } from 'components/Arrow';
 
 import './wizard-modal.scss';
 
@@ -15,7 +16,9 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
 
     const [activeStepId, setActiveStepId] = useState(steps[0].id);
     
-    const {component: ActiveStepComponent, title: activeTitle} = steps.find(({id}) => id === activeStepId);
+    const activeStepIndex = steps.findIndex(({id}) => id === activeStepId);
+    const {component: ActiveStepComponent, title: activeTitle} = steps[activeStepIndex];
+    const {title: nextStepTitle, id: nextStepId} = steps[activeStepIndex + 1] || {};
 
     const disableStepDone = isSubmitting || isValidating || !isValid;
 
@@ -84,6 +87,12 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
                     {!!status && <div className="main-error-message">{status}</div>}
                     <Title medium>{activeTitle}</Title>
                     <ActiveStepComponent />
+                    {!!nextStepTitle &&
+                        <div className={classnames("wizard-next-step-wrapper", {disabled: disableStepDone})} onClick={disableStepDone ? undefined : () => onStepClick(nextStepId)}>
+                            <div className="wizard-next-step-title">{`Go to ${nextStepTitle}`}</div>
+                            <Arrow name={ARROW_NAMES.RIGHT} />
+                        </div>
+                    }
                 </div>
             </div>
             <div className="wizard-action-buttons">

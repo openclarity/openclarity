@@ -26,8 +26,8 @@ const AssetsTable = () => {
             accessor: "targetInfo.location",
             disableSort: true
         },
-        getVulnerabilitiesColumnConfigItem({tableTitle: TABLE_TITLE}),
-        ...getFindingsColumnsConfigList({tableTitle: TABLE_TITLE})
+        getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
+        ...getFindingsColumnsConfigList(TABLE_TITLE)
     ], []);
 
     return (

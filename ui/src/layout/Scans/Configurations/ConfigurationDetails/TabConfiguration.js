@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFetch } from 'hooks';
-import TitleValueDisplay, { TitleValueDisplayColumn } from 'components/TitleValueDisplay';
+import { TitleValueDisplayColumn } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Button from 'components/Button';
 import Title from 'components/Title';
 import Loader from 'components/Loader';
-import { ScopeDisplay, ScanTypesDisplay, InstancesDisplay } from 'layout/Scans/scopeDisplayUtils';
+import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
 import { ROUTES, APIS } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
@@ -51,8 +51,7 @@ const ConfigurationScansDisplay = ({configId, configName}) => {
 }
 
 const TabConfiguration = ({data}) => {
-    const {id, name, scope, scanFamiliesConfig} = data || {};
-    const {allRegions, regions, instanceTagSelector, instanceTagExclusion} = scope;
+    const {id, name} = data || {};
     
     return (
         <DoublePaneDisplay
@@ -60,10 +59,7 @@ const TabConfiguration = ({data}) => {
                 <>
                     <Title medium>Configuration</Title>
                     <TitleValueDisplayColumn>
-                        <TitleValueDisplay title="Scope"><ScopeDisplay all={allRegions} regions={regions} /></TitleValueDisplay>
-                        <TitleValueDisplay title="Included instances"><InstancesDisplay tags={instanceTagSelector}/></TitleValueDisplay>
-                        <TitleValueDisplay title="Excluded instances"><InstancesDisplay tags={instanceTagExclusion}/></TitleValueDisplay>
-                        <TitleValueDisplay title="Scan types"><ScanTypesDisplay scanFamiliesConfig={scanFamiliesConfig} /></TitleValueDisplay>
+                        <ConfigurationReadOnlyDisplay configData={data} />
                     </TitleValueDisplayColumn>
                 </>
             )}

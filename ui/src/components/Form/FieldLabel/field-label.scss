@@ -3,7 +3,7 @@
 .form-field-label-wrapper {
     display: flex;
     align-items: center;
-    margin-bottom: 3px;
+    margin-bottom: 12px;
 
     .form-field-label {
         font-weight: 400;
@@ -11,6 +11,5 @@
         line-height: 22px;
         color: $color-grey-black;
         margin-right: 10px;
-        margin-bottom: 12px;
     }
 }
