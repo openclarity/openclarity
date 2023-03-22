@@ -6,7 +6,7 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import ScanProgressBar from 'components/ScanProgressBar';
 import Button from 'components/Button';
-import { ScopeDisplay, ScanTypesDisplay, InstancesDisplay } from 'layout/Scans/scopeDisplayUtils';
+import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
 import { formatDate } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
@@ -28,8 +28,6 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
     const filtersDispatch = useFilterDispatch();
 
     const {id, scanConfig, scanConfigSnapshot, startTime, endTime, summary, state, stateMessage, stateReason} = scanData || {};
-    const {scope, scanFamiliesConfig} = scanConfigSnapshot;
-    const {allRegions, regions, instanceTagSelector, instanceTagExclusion, shouldScanStoppedInstances} = scope;
     const {jobsCompleted, jobsLeftToRun} = summary;
 
     const formattedStartTime = formatDate(startTime);
@@ -54,15 +52,7 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
             leftPaneDisplay={() => (
                 <TitleValueDisplayColumn>
                     <ConfigurationAlertLink updatedConfigData={scanConfig} scanConfigData={scanConfigSnapshot} />
-                    <TitleValueDisplay title="Scope"><ScopeDisplay all={allRegions} regions={regions} /></TitleValueDisplay>
-                    <TitleValueDisplay title="Instances">
-                        <div style={{margin: "10px 0 20px 0"}}>
-                            {shouldScanStoppedInstances ? "Running and non-running instances" : "Running instances only"}
-                        </div>
-                        <TitleValueDisplay title="Included instances" isSubItem><InstancesDisplay tags={instanceTagSelector}/></TitleValueDisplay>
-                        <TitleValueDisplay title="Excluded instances" isSubItem><InstancesDisplay tags={instanceTagExclusion}/></TitleValueDisplay>
-                    </TitleValueDisplay>
-                    <TitleValueDisplay title="Scan types"><ScanTypesDisplay scanFamiliesConfig={scanFamiliesConfig} /></TitleValueDisplay>
+                    <ConfigurationReadOnlyDisplay configData={scanConfigSnapshot} />
                 </TitleValueDisplayColumn>
             )}
             rightPlaneDisplay={() => (

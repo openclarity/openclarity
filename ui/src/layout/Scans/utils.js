@@ -46,3 +46,15 @@ export const getEnabledScanTypesList = scanFamiliesConfig => (
         return enabled ? scanType : null;
     })
 ).filter(scanType => !isNull(scanType));
+
+export const getScanTimeTypeTag = ({operationTime, cronLine}) => {
+    if (!!cronLine) {
+        return "Repetitive";
+    }
+    
+    if (Date.now() - (new Date(operationTime)).valueOf() <= 0) {
+        return "Scheduled";
+    }
+
+    return "Once";
+}

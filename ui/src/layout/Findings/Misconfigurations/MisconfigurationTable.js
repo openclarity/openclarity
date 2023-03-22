@@ -5,7 +5,7 @@ import FindingsTablePage from '../FindingsTablePage';
 const MisconfigurationsTable = () => {
     const columns = useMemo(() => [
         {
-            Header: "Path",
+            Header: "File path",
             id: "path",
             accessor: "findingInfo.path",
             disableSort: true

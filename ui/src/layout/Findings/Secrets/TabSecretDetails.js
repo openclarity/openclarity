@@ -14,11 +14,11 @@ const TabSecretDetails = ({data}) => {
                         <TitleValueDisplay title="Description">{description}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="StartLine">{startLine}</TitleValueDisplay>
-                        <TitleValueDisplay title="EndLine">{endLine}</TitleValueDisplay>
+                        <TitleValueDisplay title="Start Line">{startLine}</TitleValueDisplay>
+                        <TitleValueDisplay title="End line">{endLine}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="FilePath">{filePath}</TitleValueDisplay>
+                        <TitleValueDisplay title="File path">{filePath}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>  
             )}

@@ -1,9 +1,9 @@
 import React from 'react';
 import classnames from 'classnames';
 import { Cron } from 'react-js-cron';
-import cronstrue from 'cronstrue';
 import { useField } from 'formik';
 import Tag from 'components/Tag';
+import { cronExpressionToHuman } from 'utils/utils';
 
 import './cron-field.scss';
 
@@ -44,7 +44,7 @@ const CronField = (props) => {
             />
             {!!value &&
                 <div className="cron-field-output-wrapper">
-                    <div>{cronstrue.toString(value, {use24HourTimeFormat: true})}</div>
+                    <div>{cronExpressionToHuman(value)}</div>
                     <div className="cron-field-output-expression">{`Cron expression: ${value}`}</div>
                 </div>
             }
