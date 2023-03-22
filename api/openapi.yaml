@@ -1179,7 +1179,7 @@ components:
           example: '5 4 * * 1'
           type: string
         operationTime:
-          description: 'The operation time to run the scan.'
+          description: 'The next time this ScanConfig should trigger a scan.'
           type: string
           format: date-time
 
