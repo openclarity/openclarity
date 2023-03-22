@@ -163,7 +163,7 @@ Resources:
                     LOCAL_DB_PATH=/data/vmclarity.db
                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
                     BACKEND_REST_PORT=8888
-                    SCANNER_CONTAINER_IMAGE=ghcr.io/openclarity/vmclarity-cli:latest
+                    SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -200,28 +200,29 @@ Resources:
                     vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch inthewild
               mode: "000744"
             "/lib/systemd/system/vmclarity.service":
-              content: |
-                [Unit]
-                Description=VmClarity
-                After=docker.service
-                Requires=docker.service
-
-                [Service]
-                TimeoutStartSec=0
-                Restart=always
-                ExecStartPre=-/usr/bin/docker stop %n
-                ExecStartPre=-/usr/bin/docker rm %n
-                ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                ExecStartPre=/usr/bin/docker pull ghcr.io/openclarity/vmclarity-backend:latest
-                ExecStart=/usr/bin/docker run \
-                  --rm --name %n \
-                  -p 0.0.0.0:8888:8888/tcp \
-                  -v /opt/vmclarity:/data \
-                  --env-file /etc/vmclarity/config.env \
-                  ghcr.io/openclarity/vmclarity-backend:latest run --log-level info
-
-                [Install]
-                WantedBy=multi-user.target
+              content:
+                Fn::Sub: |
+                  [Unit]
+                  Description=VmClarity
+                  After=docker.service
+                  Requires=docker.service
+  
+                  [Service]
+                  TimeoutStartSec=0
+                  Restart=always
+                  ExecStartPre=-/usr/bin/docker stop %n
+                  ExecStartPre=-/usr/bin/docker rm %n
+                  ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
+                  ExecStartPre=/usr/bin/docker pull ${BackendContainerImage}
+                  ExecStart=/usr/bin/docker run \
+                    --rm --name %n \
+                    -p 0.0.0.0:8888:8888/tcp \
+                    -v /opt/vmclarity:/data \
+                    --env-file /etc/vmclarity/config.env \
+                    ${BackendContainerImage} run --log-level info
+  
+                  [Install]
+                  WantedBy=multi-user.target
 
               mode: "000644"
             "/lib/systemd/system/exploit_server.service":
@@ -632,6 +633,36 @@ Parameters:
     Default: 0.0.0.0/0
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  BackendContainerImage:
+    Description: Name of the container image used for deploying VMClarity server.
+    Type: String
+    Default: ghcr.io/openclarity/vmclarity-backend:latest
+  ScannerContainerImage:
+    Description: Name of the container image used for running scans on targets.
+    Type: String
+    Default: ghcr.io/openclarity/vmclarity-cli:latest
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: EC2 Configuration
+        Parameters:
+          - InstanceType
+          - KeyName
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - SSHLocation
+      - Label:
+          default: Advanced Configuration
+        Parameters:
+          - BackendContainerImage
+          - ScannerContainerImage
+    ParameterLabels:
+      BackendContainerImage:
+        default: Backend Container Image
+      ScannerContainerImage:
+        default: Scanner Container Image
 Mappings:
   # For every type we want AWS hardware virtualisation on amd64 (HVM64)
   AWSInstanceType2Arch:
@@ -683,3 +714,4 @@ Outputs:
   URL:
     Value: !Sub "${VmClarityServer.PublicIp}"
     Description: VmClarity SSH Address
+

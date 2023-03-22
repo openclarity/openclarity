@@ -17,47 +17,16 @@
 DOCKER_REGISTRY=<your docker registry> make push-docker
 ```
 
-### 2. Update installation/aws/VMClarity.cfn
-
-Update the cloud formation with the pushed docker images, for example:
-
-```
-@@ -123,7 +123,7 @@ Resources:
-                     DATABASE_DRIVER=LOCAL
-                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
-                     BACKEND_REST_PORT=8888
--                    SCANNER_CONTAINER_IMAGE=ghcr.io/openclarity/vmclarity-cli:latest
-+                    SCANNER_CONTAINER_IMAGE=tehsmash/vmclarity-cli:9bba94334c1de1aeed63ed12de3784d561fc4f1b
-                   - JobImageID: !FindInMap
-                       - AWSRegionArch2AMI
-                       - !Ref "AWS::Region"
-@@ -145,13 +145,13 @@ Resources:
-                 ExecStartPre=-/usr/bin/docker stop %n
-                 ExecStartPre=-/usr/bin/docker rm %n
-                 ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
--                ExecStartPre=/usr/bin/docker pull ghcr.io/openclarity/vmclarity-backend:latest
-+                ExecStartPre=/usr/bin/docker pull tehsmash/vmclarity-backend:9bba94334c1de1aeed63ed12de3784d561fc4f1b
-                 ExecStart=/usr/bin/docker run \
-                   --rm --name %n \
-                   -p 0.0.0.0:8888:8888/tcp \
-                   -v /opt/vmclarity:/data \
-                   --env-file /etc/vmclarity/config.env \
--                  ghcr.io/openclarity/vmclarity-backend:latest run --log-level info
-+                  tehsmash/vmclarity-backend:9bba94334c1de1aeed63ed12de3784d561fc4f1b run --log-level info
-
-                 [Install]
-                 WantedBy=multi-user.target
-```
-
-### 3. Install VMClarity cloudformation
+### 2. Install VMClarity cloudformation
 
 1. Ensure you have an SSH key pair uploaded to AWS Ec2
 2. Go to CloudFormation -> Create Stack -> Upload template.
-3. Upload the modified VMClarity.cfn
+3. Upload the VMClarity.cfn
 4. Follow the wizard through to the end
+    * Set the `VMClarity Backend Container Image` and `VMClarity Scanner Container Image` parameters in the wizard to use custom images (from step 1.) for deployment.
 5. Wait for install to complete
 
-### 4. Ensure that VMClarity backend is working correctly
+### 3. Ensure that VMClarity backend is working correctly
 
 1. Get the IP address from the CloudFormation stack's Output Tab
 2. `ssh ubuntu@<ip address>`
