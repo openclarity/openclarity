@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"testing"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
@@ -27,6 +28,8 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	common2 "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
+	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
+	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
@@ -606,6 +609,203 @@ func Test_convertExploitsResultToAPIModel(t *testing.T) {
 			got := convertExploitsResultToAPIModel(tt.args.exploitsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Exploit) bool { return *a.CveID < *b.CveID })); diff != "" {
 				t.Errorf("convertExploitsResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_misconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
+	type args struct {
+		sev misconfigurationTypes.Severity
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    models.MisconfigurationSeverity
+		wantErr bool
+	}{
+		{
+			name: "high severity",
+			args: args{
+				sev: misconfigurationTypes.HighSeverity,
+			},
+			want: models.MisconfigurationSeverityHighSeverity,
+		},
+		{
+			name: "medium severity",
+			args: args{
+				sev: misconfigurationTypes.MediumSeverity,
+			},
+			want: models.MisconfigurationSeverityMediumSeverity,
+		},
+		{
+			name: "low severity",
+			args: args{
+				sev: misconfigurationTypes.LowSeverity,
+			},
+			want: models.MisconfigurationSeverityLowSeverity,
+		},
+		{
+			name: "unknown severity",
+			args: args{
+				sev: misconfigurationTypes.Severity("doesn't exist"),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := misconfigurationSeverityToAPIMisconfigurationSeverity(tt.args.sev)
+			if err != nil {
+				if !tt.wantErr {
+					t.Fatalf("Unexpected error: %v", err)
+				}
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("misconfigurationSeverityToAPIMisconfigurationSeverity() mismatch (-want +got)\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
+	misconfiguration1 := misconfiguration.FlattenedMisconfiguration{
+		ScannerName: "foo",
+		Misconfiguration: misconfigurationTypes.Misconfiguration{
+			ScannedPath: "/scanned/path",
+
+			TestCategory:    "category1",
+			TestID:          "testid1",
+			TestDescription: "Test description 1",
+
+			Severity:    misconfigurationTypes.HighSeverity,
+			Message:     "You got a problem with 1",
+			Remediation: "Fix your stuff",
+		},
+	}
+
+	misconfiguration2 := misconfiguration.FlattenedMisconfiguration{
+		ScannerName: "foo",
+		Misconfiguration: misconfigurationTypes.Misconfiguration{
+			ScannedPath: "/scanned/path",
+
+			TestCategory:    "category2",
+			TestID:          "testid2",
+			TestDescription: "Test description 2",
+
+			Severity:    misconfigurationTypes.MediumSeverity,
+			Message:     "You got a problem",
+			Remediation: "Fix your stuff",
+		},
+	}
+
+	misconfiguration3 := misconfiguration.FlattenedMisconfiguration{
+		ScannerName: "bar",
+		Misconfiguration: misconfigurationTypes.Misconfiguration{
+			ScannedPath: "/scanned/path",
+
+			TestCategory:    "category1",
+			TestID:          "testid3",
+			TestDescription: "Test description 1",
+
+			Severity:    misconfigurationTypes.HighSeverity,
+			Message:     "You got a problem with 1",
+			Remediation: "Fix your stuff",
+		},
+	}
+
+	timestamp := time.Now()
+
+	type args struct {
+		misconfigurationResults *misconfiguration.Results
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.MisconfigurationScan
+	}{
+		{
+			name: "nil misconfigurationResults",
+			args: args{
+				misconfigurationResults: nil,
+			},
+			want: &models.MisconfigurationScan{},
+		},
+		{
+			name: "nil misconfigurationResults.Misconfigurations",
+			args: args{
+				misconfigurationResults: &misconfiguration.Results{
+					Metadata: misconfiguration.Metadata{
+						Timestamp: timestamp,
+						Scanners:  []string{"foo", "bar"},
+					},
+					Misconfigurations: nil,
+				},
+			},
+			want: &models.MisconfigurationScan{},
+		},
+		{
+			name: "sanity",
+			args: args{
+				misconfigurationResults: &misconfiguration.Results{
+					Metadata: misconfiguration.Metadata{
+						Timestamp: timestamp,
+						Scanners:  []string{"foo", "bar"},
+					},
+					Misconfigurations: []misconfiguration.FlattenedMisconfiguration{
+						misconfiguration1,
+						misconfiguration2,
+						misconfiguration3,
+					},
+				},
+			},
+			want: &models.MisconfigurationScan{
+				Scanners: &[]string{"foo", "bar"},
+				Misconfigurations: &[]models.Misconfiguration{
+					{
+						Message:         utils.PointerTo(misconfiguration1.Message),
+						Remediation:     utils.PointerTo(misconfiguration1.Remediation),
+						ScannedPath:     utils.PointerTo(misconfiguration1.ScannedPath),
+						ScannerName:     utils.PointerTo(misconfiguration1.ScannerName),
+						Severity:        utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
+						TestCategory:    utils.PointerTo(misconfiguration1.TestCategory),
+						TestDescription: utils.PointerTo(misconfiguration1.TestDescription),
+						TestID:          utils.PointerTo(misconfiguration1.TestID),
+					},
+					{
+						Message:         utils.PointerTo(misconfiguration2.Message),
+						Remediation:     utils.PointerTo(misconfiguration2.Remediation),
+						ScannedPath:     utils.PointerTo(misconfiguration2.ScannedPath),
+						ScannerName:     utils.PointerTo(misconfiguration2.ScannerName),
+						Severity:        utils.PointerTo(models.MisconfigurationSeverityMediumSeverity),
+						TestCategory:    utils.PointerTo(misconfiguration2.TestCategory),
+						TestDescription: utils.PointerTo(misconfiguration2.TestDescription),
+						TestID:          utils.PointerTo(misconfiguration2.TestID),
+					},
+					{
+						Message:         utils.PointerTo(misconfiguration3.Message),
+						Remediation:     utils.PointerTo(misconfiguration3.Remediation),
+						ScannedPath:     utils.PointerTo(misconfiguration3.ScannedPath),
+						ScannerName:     utils.PointerTo(misconfiguration3.ScannerName),
+						Severity:        utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
+						TestCategory:    utils.PointerTo(misconfiguration3.TestCategory),
+						TestDescription: utils.PointerTo(misconfiguration3.TestDescription),
+						TestID:          utils.PointerTo(misconfiguration3.TestID),
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := convertMisconfigurationResultToAPIModel(tt.args.misconfigurationResults)
+			if err != nil {
+				t.Fatalf("Unexpected error: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Misconfiguration) bool { return *a.TestID < *b.TestID })); diff != "" {
+				t.Errorf("convertMisconfigurationResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
