@@ -44,6 +44,8 @@ func main() {
 	viper.SetDefault(config.HealthCheckAddress, ":8081")
 	viper.SetDefault(config.BackendRestPort, "8888")
 	viper.SetDefault(config.DatabaseDriver, databaseTypes.DBDriverTypeLocal)
+	viper.SetDefault(config.DisableOrchestrator, "false")
+	viper.SetDefault(config.UISitePath, "/app/site")
 	viper.AutomaticEnv()
 	app := cli.NewApp()
 	app.Usage = ""
