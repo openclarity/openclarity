@@ -8,9 +8,27 @@ type ApiResponse struct {
 	Message *string `json:"message,omitempty"`
 }
 
-// RiskiestRegions Riskiest regions.
+// FindingsCount total count of each finding type
+type FindingsCount struct {
+	Exploits          *int `json:"exploits,omitempty"`
+	Malware           *int `json:"malware,omitempty"`
+	Misconfigurations *int `json:"misconfigurations,omitempty"`
+	Rootkits          *int `json:"rootkits,omitempty"`
+	Secrets           *int `json:"secrets,omitempty"`
+	Vulnerabilities   *int `json:"vulnerabilities,omitempty"`
+}
+
+// RegionFindings Total findings for a region
+type RegionFindings struct {
+	// FindingsCount total count of each finding type
+	FindingsCount *FindingsCount `json:"findingsCount,omitempty"`
+	RegionName    *string        `json:"regionName,omitempty"`
+}
+
+// RiskiestRegions defines model for RiskiestRegions.
 type RiskiestRegions struct {
-	Message *string `json:"message,omitempty"`
+	// Regions List of regions with the findings that was found on them. Regions with no findings will not be reported.
+	Regions *[]RegionFindings `json:"regions,omitempty"`
 }
 
 // ExampleFilter defines model for exampleFilter.
@@ -18,8 +36,3 @@ type ExampleFilter = string
 
 // UnknownError An object that is returned in all cases of failures.
 type UnknownError = ApiResponse
-
-// GetDashboardRiskiestRegionsParams defines parameters for GetDashboardRiskiestRegions.
-type GetDashboardRiskiestRegionsParams struct {
-	Example *ExampleFilter `form:"example,omitempty" json:"example,omitempty"`
-}

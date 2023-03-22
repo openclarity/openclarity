@@ -11,8 +11,6 @@ paths:
   /dashboard/riskiestRegions:
     get:
       summary: Get a list of riskiest regions for the dashboard.
-      parameters:
-        - $ref: '#/components/parameters/exampleFilter'
       responses:
         200:
           description: Success
@@ -36,9 +34,39 @@ components:
     RiskiestRegions:
       type: object
       properties:
-        message:
+        regions:
+          type: array
+          description: List of regions with the findings that was found on them. 
+            Regions with no findings will not be reported.
+          items:
+            $ref: '#/components/schemas/RegionFindings'
+          readOnly: true
+
+    RegionFindings:
+      type: object
+      description: Total findings for a region
+      properties:
+        regionName:
           type: string
-      description: Riskiest regions.
+        findingsCount:
+          $ref: '#/components/schemas/FindingsCount'
+
+    FindingsCount:
+      type: object
+      description: total count of each finding type
+      properties:
+        vulnerabilities:
+          type: integer
+        malware:
+          type: integer
+        rootkits:
+          type: integer
+        secrets:
+          type: integer
+        misconfigurations:
+          type: integer
+        exploits:
+          type: integer
 
   responses:
     UnknownError:
