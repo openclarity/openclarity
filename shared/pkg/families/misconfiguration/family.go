@@ -44,7 +44,7 @@ func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error
 	for _, input := range m.conf.Inputs {
 		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for exploits: %v", input.Input, err)
+			return nil, fmt.Errorf("failed to scan input %q for misconfigurations: %v", input.Input, err)
 		}
 
 		// Merge results.
