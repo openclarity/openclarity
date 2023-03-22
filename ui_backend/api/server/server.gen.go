@@ -8,22 +8,19 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
 
-	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
-	. "github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get a list of riskiest regions for the dashboard.
 	// (GET /dashboard/riskiestRegions)
-	GetDashboardRiskiestRegions(ctx echo.Context, params GetDashboardRiskiestRegionsParams) error
+	GetDashboardRiskiestRegions(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -35,17 +32,8 @@ type ServerInterfaceWrapper struct {
 func (w *ServerInterfaceWrapper) GetDashboardRiskiestRegions(ctx echo.Context) error {
 	var err error
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetDashboardRiskiestRegionsParams
-	// ------------- Optional query parameter "example" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "example", ctx.QueryParams(), &params.Example)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter example: %s", err))
-	}
-
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetDashboardRiskiestRegions(ctx, params)
+	err = w.Handler.GetDashboardRiskiestRegions(ctx)
 	return err
 }
 
@@ -84,14 +72,17 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/6xTTY/TQAz9KyPDMUq6cJvbii/1gEBFywXtwZs47exOZgbbWaiq/Hc0k21L2wUu3Fr7",
-	"+b039ssO2jikGCiogN1BQsaBlLj8o584JE/vnVfiXHABLHwfibdQQcCBwO5BUIG0Gxow43SbckuUXVjD",
-	"NE0VMEmKQagQ34SHEH+Ed8yx8LYxKAXNPzEl71pUF0NzLzHk2pH4JVMPFl40R9vN3JXmOrnVk8gs2ZG0",
-	"7FKmArvXNFREc/9pMPP+Pmt3Z5PXwcS7e2rV6AbVODFMOnKgzrhg0HvTopCY2JsenR+ZpIYKEsdErG5+",
-	"8kAiuC7sTNh9Cn4LVnmk6mJbh8qsClMFKycPjkRXtHYxyKXHPcDwjPirgX8K5pILfSxgpz73vn5845Gd",
-	"bs3N0lx/XgpU8Egss/5VvagX2WlMFDA5sPC6XtRX2QbqpjhoOpTNXUTuGr58z5rK/bPlcv1lBxY+kL7d",
-	"D53voDpJ67fnw3GENKdpnm7PMvlqsfhvUTy3+kwcv4xtSyJQGj2OXv9EenDZnHw2JcHjMCBv50UZNN6J",
-	"5hjyWRpMH9nohszhAvXsSYgf9+sb2YOFZnRNvt90O/0KAAD//+9O9F4dBAAA",
+	"H4sIAAAAAAAC/6yVTW/bPAzHv4rA5zkGcbrdfCu6dSiwN2TrLsMOjE0nbGVKo+SmQZDvPkjOS+Mk2w67",
+	"JaLIP/kjRa+hcq13QhIDlGvwqNhSJM3/6Blbb+mWbSRNByxQws+OdAUjEGwJyt0lGEGoFtRiuhdXPplC",
+	"VJY5bDabESgF7yRQDnwvj+KW8lbV5biVk0gS00/03nKFkZ0UD8FJOjsE/l+pgRL+Kw5pF701FNeep1uR",
+	"XrKmUCn7FArKnaahLJrsW8cU96VvuR54XotxsweqookLjIaDUYqdCtWGxaC1psJAwbjGNMi2UwpjGIFX",
+	"50kj9yW3FALOc3QlrD+JXUEZtaPRCa39Sa8KmxHcstQs83Djuh7TcYbRRbSmSsaUBWG1ME3vYnKsYTb0",
+	"7K3jvudbMZZIc9Kk1qJdotIFI4fKScPzTnOXLsRQ5+LjRYVAldIl41NnhRRnbHmX7/DSOUZTmrOTHalT",
+	"SF8zpC2WYBqnBo1mpxM+zZD37wbvuDl51lPQj/l9rP+mvVMOj0wh9iX0L/EoHz0Yjot6zyG3fHvBLDku",
+	"TFzQoc48s0tMBXdSGyfJ3I7N9KWHuIPDkq014qKZkVHyTiPVaZ45Uhv+xGLQhAzj7LSjKq7O0UhHLI3L",
+	"6DjaZPv24caiclyZ+ztz/fkuwAieSEPP4Go8GU+SlPMk6BlKeD2ejK9SVzEucs5FjWExc6h1oaew55Sb",
+	"nIjnmb6roYR3FN/snIYNGuyzV5PJP1tjQ6kzq+xLV1UUMt2aGuzsxRHdZ1kcrdy8/bq2RV31hRo0djdJ",
+	"W/39SKWHkiZqT3Dc5xRIn/KH4vsaOrVQQtFxkfhvfmx+BQAA//8QmWDoWQYAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
