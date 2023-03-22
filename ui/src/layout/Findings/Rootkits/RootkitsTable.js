@@ -11,7 +11,7 @@ const RootkitsTable = () => {
             disableSort: true
         },
         {
-            Header: "path",
+            Header: "File path",
             id: "path",
             accessor: "findingInfo.path",
             disableSort: true

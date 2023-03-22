@@ -8,7 +8,7 @@ $size-large: 14px;
     width: $size;
     height: $size;
     border-radius: 50%;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: space-around;
     

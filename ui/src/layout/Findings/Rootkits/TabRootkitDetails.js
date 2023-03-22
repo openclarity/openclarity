@@ -13,7 +13,7 @@ const TabPackageDetails = ({data}) => {
                         <TitleValueDisplay title="Rootkit name">{rootkitName}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="Path">{path}</TitleValueDisplay>
+                        <TitleValueDisplay title="File path">{path}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>  
             )}
