@@ -351,7 +351,7 @@ type RuntimeScheduleScanConfig struct {
 	// CronLine Cron schedule expressions.
 	CronLine *string `json:"cronLine,omitempty"`
 
-	// OperationTime The operation time to run the scan.
+	// OperationTime The next time this ScanConfig should trigger a scan.
 	OperationTime *time.Time `json:"operationTime,omitempty"`
 }
 

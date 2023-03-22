@@ -89,7 +89,7 @@ func (scw *ScanConfigWatcher) reconcileScanConfigs(ctx context.Context) error {
 		operationTime := *scanConfig.Scheduled.OperationTime
 		shouldScan, err = scw.shouldScan(ctx, scanConfigID, operationTime, now)
 		if err != nil {
-			log.Errorf("Failed to check wether should scan according to scan config (%s): %v", scanConfigID, err)
+			log.Errorf("Failed to check whether should scan according to scan config (%s): %v", scanConfigID, err)
 			continue
 		}
 
