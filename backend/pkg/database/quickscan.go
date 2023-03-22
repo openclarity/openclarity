@@ -34,7 +34,8 @@ const (
 type QuickScanConfig struct {
 	ID string `gorm:"primarykey" faker:"-"`
 
-	CISDockerBenchmarkEnabled bool `json:"cis_docker_benchmark_enabled,omitempty" gorm:"column:cis_docker_benchmark_enabled"`
+	CISDockerBenchmarkEnabled bool  `json:"cis_docker_benchmark_enabled,omitempty" gorm:"column:cis_docker_benchmark_enabled"`
+	MaxScanParallelism        int64 `json:"max_scan_parallelism,omitempty" gorm:"column:max_scan_parallelism"`
 }
 
 type QuickScanConfigTable interface {
@@ -55,12 +56,14 @@ func DBQuickScanConfigFromAPI(runtimeQuickScanConfig *models.RuntimeQuickScanCon
 	return &QuickScanConfig{
 		ID:                        "1", // We want to keep a single quick scan config at a time.
 		CISDockerBenchmarkEnabled: runtimeQuickScanConfig.CisDockerBenchmarkScanEnabled,
+		MaxScanParallelism:        runtimeQuickScanConfig.MaxScanParallelism,
 	}
 }
 
 func RuntimeQuickScanConfigFromDB(config *QuickScanConfig) *models.RuntimeQuickScanConfig {
 	return &models.RuntimeQuickScanConfig{
 		CisDockerBenchmarkScanEnabled: config.CISDockerBenchmarkEnabled,
+		MaxScanParallelism:            config.MaxScanParallelism,
 	}
 }
 
@@ -99,5 +102,6 @@ func (q *QuickScanConfigTableHandler) SetDefault() error {
 func createDefaultRuntimeQuickScanConfig() *models.RuntimeQuickScanConfig {
 	return &models.RuntimeQuickScanConfig{
 		CisDockerBenchmarkScanEnabled: false,
+		MaxScanParallelism:            10, // nolint: gomnd
 	}
 }

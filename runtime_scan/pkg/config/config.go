@@ -29,15 +29,12 @@ const (
 	ScannerJobTemplateConfigMapName      = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAME"
 	ScannerJobTemplateConfigMapNamespace = "SCANNER_JOB_TEMPLATE_CONFIG_MAP_NAMESPACE"
 	defaultScannerJobResultListenPort    = 8888
-
-	DefaultScanParallelism = "DEFAULT_SCAN_PARALLELISM"
 )
 
 type Config struct {
 	ScannerJobResultListenPort int
 	CredsSecretNamespace       string
 	ScannerJobTemplate         *batchv1.Job
-	DefaultScanParallelism     int
 }
 
 func setConfigDefaults() {
@@ -45,7 +42,6 @@ func setConfigDefaults() {
 	viper.SetDefault(ScannerJobTemplateConfigMapName, "")
 	viper.SetDefault(ScannerJobTemplateConfigMapNamespace, "kubeclarity")
 	viper.SetDefault(ScannerJobResultListenPort, defaultScannerJobResultListenPort)
-	viper.SetDefault(DefaultScanParallelism, 10) // nolint: gomnd
 
 	viper.AutomaticEnv()
 }
@@ -63,7 +59,6 @@ func LoadConfig(clientset kubernetes.Interface) (*Config, error) {
 		ScannerJobResultListenPort: viper.GetInt(ScannerJobResultListenPort),
 		CredsSecretNamespace:       viper.GetString(CredsSecretNamespace),
 		ScannerJobTemplate:         scannerJobTemplate,
-		DefaultScanParallelism:     viper.GetInt(DefaultScanParallelism),
 	}
 
 	return config, nil

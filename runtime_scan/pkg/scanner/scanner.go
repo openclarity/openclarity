@@ -39,15 +39,14 @@ import (
 )
 
 type Scanner struct {
-	imageIDToScanData      map[string]*scanData
-	progress               _types.ScanProgress
-	scannerJobTemplate     *batchv1.Job
-	scanConfig             *_config.ScanConfig
-	defaultScanParallelism int
-	killSignal             chan bool
-	clientset              kubernetes.Interface
-	logFields              log.Fields
-	credentialAdders       []_creds.CredentialAdder
+	imageIDToScanData  map[string]*scanData
+	progress           _types.ScanProgress
+	scannerJobTemplate *batchv1.Job
+	scanConfig         *_config.ScanConfig
+	killSignal         chan bool
+	clientset          kubernetes.Interface
+	logFields          log.Fields
+	credentialAdders   []_creds.CredentialAdder
 	sync.Mutex
 }
 
@@ -61,13 +60,12 @@ func CreateScanner(config *_config.Config, clientset kubernetes.Interface) *Scan
 		progress: _types.ScanProgress{
 			Status: _types.Idle,
 		},
-		scannerJobTemplate:     config.ScannerJobTemplate,
-		defaultScanParallelism: config.DefaultScanParallelism,
-		killSignal:             make(chan bool),
-		clientset:              clientset,
-		logFields:              log.Fields{"scanner id": uuid.NewV4().String()},
-		credentialAdders:       credentialAdders,
-		Mutex:                  sync.Mutex{},
+		scannerJobTemplate: config.ScannerJobTemplate,
+		killSignal:         make(chan bool),
+		clientset:          clientset,
+		logFields:          log.Fields{"scanner id": uuid.NewV4().String()},
+		credentialAdders:   credentialAdders,
+		Mutex:              sync.Mutex{},
 	}
 
 	return s

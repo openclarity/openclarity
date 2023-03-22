@@ -20,7 +20,7 @@ import (
 )
 
 type ScanConfig struct {
-	MaxScanParallelism           int
+	MaxScanParallelism           int64
 	TargetNamespaces             []string
 	IgnoredNamespaces            []string
 	JobResultTimeout             time.Duration

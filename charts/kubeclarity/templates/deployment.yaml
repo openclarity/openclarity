@@ -149,8 +149,6 @@ spec:
               value: "{{ .Release.Namespace }}"
             - name: CREDS_SECRET_NAMESPACE
               value: "{{ .Release.Namespace }}"
-            - name: DEFAULT_SCAN_PARALLELISM
-              value: "{{ index .Values "kubeclarity-runtime-scan" "defaultScanParallelism" }}"
           ports:
             - containerPort: 8080
               name: http
