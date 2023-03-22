@@ -98,7 +98,7 @@ func Run() {
 		log.Fatalf("Failed to create a backend client: %v", err)
 	}
 
-	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler, backendClient)
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler, backendClient, config.UISitePath)
 	if err != nil {
 		log.Fatalf("Failed to create REST server: %v", err)
 	}
@@ -125,7 +125,8 @@ func Run() {
 }
 
 func startRuntimeScanOrchestratorIfNeeded(ctx context.Context, config *_config.Config, backendClient *backendclient.BackendClient) {
-	if _, ok := os.LookupEnv("DISABLE_ORCHESTRATOR"); ok {
+	if config.DisableOrchestrator {
+		log.Infof("Runtime orchestrator is disabled")
 		return
 	}
 

@@ -39,8 +39,11 @@ const (
 
 	LocalDBPath = "LOCAL_DB_PATH"
 
-	FakeDataEnvVar           = "FAKE_DATA"
-	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"
+	FakeDataEnvVar      = "FAKE_DATA"
+	DisableOrchestrator = "DISABLE_ORCHESTRATOR"
+
+	UISitePath = "UI_SITE_PATH" // TODO: UI site should be moved out of the backend to nginx
+
 )
 
 type Config struct {
@@ -48,16 +51,19 @@ type Config struct {
 	BackendRestPort    int    `json:"backend-rest-port,omitempty"`
 	HealthCheckAddress string `json:"health-check-address,omitempty"`
 
+	DisableOrchestrator bool `json:"disable_orchestrator"`
+
+	UISitePath string `json:"ui_site_path"`
+
 	// database config
-	DatabaseDriver           string `json:"database-driver,omitempty"`
-	DBName                   string `json:"db-name,omitempty"`
-	DBUser                   string `json:"db-user,omitempty"`
-	DBPassword               string `json:"-"`
-	DBHost                   string `json:"db-host,omitempty"`
-	DBPort                   string `json:"db-port,omitempty"`
-	EnableDBInfoLogs         bool   `json:"enable-db-info-logs"`
-	EnableFakeData           bool   `json:"enable-fake-data"`
-	EnableFakeRuntimeScanner bool   `json:"enable-fake-runtime-scanner"`
+	DatabaseDriver   string `json:"database-driver,omitempty"`
+	DBName           string `json:"db-name,omitempty"`
+	DBUser           string `json:"db-user,omitempty"`
+	DBPassword       string `json:"-"`
+	DBHost           string `json:"db-host,omitempty"`
+	DBPort           string `json:"db-port,omitempty"`
+	EnableDBInfoLogs bool   `json:"enable-db-info-logs"`
+	EnableFakeData   bool   `json:"enable-fake-data"`
 
 	LocalDBPath string `json:"local-db-path,omitempty"`
 }
@@ -69,6 +75,10 @@ func LoadConfig() (*Config, error) {
 	config.BackendRestPort = viper.GetInt(BackendRestPort)
 	config.HealthCheckAddress = viper.GetString(HealthCheckAddress)
 
+	config.DisableOrchestrator = viper.GetBool(DisableOrchestrator)
+
+	config.UISitePath = viper.GetString(UISitePath)
+
 	config.DatabaseDriver = viper.GetString(DatabaseDriver)
 	config.DBPassword = viper.GetString(DBPasswordEnvVar)
 	config.DBUser = viper.GetString(DBUserEnvVar)
@@ -77,7 +87,6 @@ func LoadConfig() (*Config, error) {
 	config.DBName = viper.GetString(DBNameEnvVar)
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
-	config.EnableFakeRuntimeScanner = viper.GetBool(FakeRuntimeScannerEnvVar)
 
 	config.LocalDBPath = viper.GetString(LocalDBPath)
 
