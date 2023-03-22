@@ -16,9 +16,10 @@
 package configwatcher
 
 import (
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func Test_isWithinTheWindow(t *testing.T) {
@@ -105,8 +106,9 @@ func Test_findFirstOperationTimeInTheFuture(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := findFirstOperationTimeInTheFuture(tt.args.operationTime, tt.args.now, tt.args.cronLine); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("findFirstOperationTimeInTheFuture() = %v, want %v", got, tt.want)
+			got := findFirstOperationTimeInTheFuture(tt.args.operationTime, tt.args.now, tt.args.cronLine)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("findFirstOperationTimeInTheFuture() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
