@@ -191,6 +191,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"MisconfigurationScan": {
 		Fields: odatasql.Schema{
+			"scanners": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			},
 			"misconfigurations": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
