@@ -18,7 +18,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
@@ -49,8 +48,8 @@ type Server struct {
 	echoServer *echo.Echo
 }
 
-func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backendclient.BackendClient) (*Server, error) {
-	e, err := createEchoServer(dbHandler, client)
+func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backendclient.BackendClient, uiSitePath string) (*Server, error) {
+	e, err := createEchoServer(dbHandler, client, uiSitePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rest server: %v", err)
 	}
@@ -60,7 +59,7 @@ func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backen
 	}, nil
 }
 
-func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.BackendClient) (*echo.Echo, error) {
+func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.BackendClient, uiSitePath string) (*echo.Echo, error) {
 	swagger, err := server.GetSwagger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
@@ -102,12 +101,6 @@ func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.Ba
 
 	// Register paths with the UI backend implementation
 	uiserver.RegisterHandlers(uiBackendAPIGroup, uiBackendAPIImpl)
-
-	// set the static UI site path.
-	uiSitePath, ok := os.LookupEnv("UI_SITE_PATH")
-	if !ok || uiSitePath == "" {
-		uiSitePath = "/app/site"
-	}
 
 	// https://sunde.dev/blog/Echo_Golang_server_for_a_Single_Page_Application_(SPA)
 	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
