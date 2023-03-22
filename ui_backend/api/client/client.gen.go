@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	. "github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
@@ -90,11 +89,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// GetDashboardRiskiestRegions request
-	GetDashboardRiskiestRegions(ctx context.Context, params *GetDashboardRiskiestRegionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetDashboardRiskiestRegions(ctx context.Context, params *GetDashboardRiskiestRegionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDashboardRiskiestRegionsRequest(c.Server, params)
+func (c *Client) GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDashboardRiskiestRegionsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +105,7 @@ func (c *Client) GetDashboardRiskiestRegions(ctx context.Context, params *GetDas
 }
 
 // NewGetDashboardRiskiestRegionsRequest generates requests for GetDashboardRiskiestRegions
-func NewGetDashboardRiskiestRegionsRequest(server string, params *GetDashboardRiskiestRegionsParams) (*http.Request, error) {
+func NewGetDashboardRiskiestRegionsRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -123,26 +122,6 @@ func NewGetDashboardRiskiestRegionsRequest(server string, params *GetDashboardRi
 	if err != nil {
 		return nil, err
 	}
-
-	queryValues := queryURL.Query()
-
-	if params.Example != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "example", runtime.ParamLocationQuery, *params.Example); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-	}
-
-	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -196,7 +175,7 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 	// GetDashboardRiskiestRegions request
-	GetDashboardRiskiestRegionsWithResponse(ctx context.Context, params *GetDashboardRiskiestRegionsParams, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error)
+	GetDashboardRiskiestRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error)
 }
 
 type GetDashboardRiskiestRegionsResponse struct {
@@ -223,8 +202,8 @@ func (r GetDashboardRiskiestRegionsResponse) StatusCode() int {
 }
 
 // GetDashboardRiskiestRegionsWithResponse request returning *GetDashboardRiskiestRegionsResponse
-func (c *ClientWithResponses) GetDashboardRiskiestRegionsWithResponse(ctx context.Context, params *GetDashboardRiskiestRegionsParams, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error) {
-	rsp, err := c.GetDashboardRiskiestRegions(ctx, params, reqEditors...)
+func (c *ClientWithResponses) GetDashboardRiskiestRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error) {
+	rsp, err := c.GetDashboardRiskiestRegions(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

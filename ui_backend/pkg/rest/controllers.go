@@ -16,16 +16,121 @@
 package rest
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 
+	backendmodels "github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 	"github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
-func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context, params models.GetDashboardRiskiestRegionsParams) error {
-	return sendResponse(ctx, http.StatusOK, models.RiskiestRegions{
-		Message: utils.StringPtr("riskiest regions!"),
+func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
+	targets, err := s.BackendClient.GetTargets(context.TODO(), backendmodels.GetTargetsParams{
+		Filter: utils.StringPtr("targetInfo/objectType eq 'VMInfo'"),
 	})
+	if err != nil {
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get targets: %v", err))
+	}
+
+	regionFindings := createRegionFindingsFromTargets(targets)
+	return sendResponse(ctx, http.StatusOK, &models.RiskiestRegions{
+		Regions: &regionFindings,
+	})
+}
+
+func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.RegionFindings {
+	// Map regions to findings count per finding type
+	findingsPerRegion := make(map[string]*models.FindingsCount)
+
+	// Sum all asset findings counts (the latest findings per asset) to the total region findings count.
+	// target/ScanFindingsSummary should contain the latest results per family.
+	for _, target := range *targets.Items {
+		location, err := getTargetLocation(target)
+		if err != nil {
+			log.Warnf("Couldn't get target location, skipping target: %v", err)
+			continue
+		}
+		if _, ok := findingsPerRegion[location]; !ok {
+			findingsPerRegion[location] = &models.FindingsCount{
+				Exploits:          utils.PointerTo(0),
+				Malware:           utils.PointerTo(0),
+				Misconfigurations: utils.PointerTo(0),
+				Rootkits:          utils.PointerTo(0),
+				Secrets:           utils.PointerTo(0),
+				Vulnerabilities:   utils.PointerTo(0),
+			}
+		}
+		regionFindings := findingsPerRegion[location]
+		findingsPerRegion[location] = addTargetSummaryToFindingsCount(regionFindings, target.Summary)
+	}
+
+	items := []models.RegionFindings{}
+	for region, findings := range findingsPerRegion {
+		r := region
+		items = append(items, models.RegionFindings{
+			FindingsCount: findings,
+			RegionName:    &r,
+		})
+	}
+
+	return items
+}
+
+func getTargetLocation(target backendmodels.Target) (string, error) {
+	discriminator, err := target.TargetInfo.ValueByDiscriminator()
+	if err != nil {
+		return "", fmt.Errorf("failed to get value by discriminator: %w", err)
+	}
+
+	switch info := discriminator.(type) {
+	case backendmodels.VMInfo:
+		return info.Location, nil
+	default:
+		return "", fmt.Errorf("target type is not supported (%T): %w", discriminator, err)
+	}
+}
+
+func addTargetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary *backendmodels.ScanFindingsSummary) *models.FindingsCount {
+	if summary == nil {
+		return findingsCount
+	}
+
+	secrets := *findingsCount.Secrets + *summary.TotalSecrets
+	exploits := *findingsCount.Exploits + *summary.TotalExploits
+	vulnerabilities := *findingsCount.Vulnerabilities + getTotalVulnerabilities(summary.TotalVulnerabilities)
+	rootkits := *findingsCount.Rootkits + *summary.TotalRootkits
+	malware := *findingsCount.Malware + *summary.TotalMalware
+	misconfigurations := *findingsCount.Misconfigurations + *summary.TotalMisconfigurations
+	return &models.FindingsCount{
+		Exploits:          &exploits,
+		Malware:           &malware,
+		Misconfigurations: &misconfigurations,
+		Rootkits:          &rootkits,
+		Secrets:           &secrets,
+		Vulnerabilities:   &vulnerabilities,
+	}
+}
+
+func getTotalVulnerabilities(summary *backendmodels.VulnerabilityScanSummary) int {
+	total := 0
+	if summary.TotalCriticalVulnerabilities != nil {
+		total += *summary.TotalCriticalVulnerabilities
+	}
+	if summary.TotalHighVulnerabilities != nil {
+		total += *summary.TotalHighVulnerabilities
+	}
+	if summary.TotalMediumVulnerabilities != nil {
+		total += *summary.TotalMediumVulnerabilities
+	}
+	if summary.TotalLowVulnerabilities != nil {
+		total += *summary.TotalLowVulnerabilities
+	}
+	if summary.TotalNegligibleVulnerabilities != nil {
+		total += *summary.TotalNegligibleVulnerabilities
+	}
+	return total
 }
