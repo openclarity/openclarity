@@ -181,8 +181,8 @@ func convertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]models.VulnerabilityCvss 
 	return &ret
 }
 
-func (e *Exporter) MarkScanResultInProgress() error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) MarkScanResultInProgress(ctx context.Context) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -197,7 +197,7 @@ func (e *Exporter) MarkScanResultInProgress() error {
 	state := models.INPROGRESS
 	scanResult.Status.General.State = &state
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -205,8 +205,8 @@ func (e *Exporter) MarkScanResultInProgress() error {
 	return nil
 }
 
-func (e *Exporter) MarkScanResultDone(errors []error) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) MarkScanResultDone(ctx context.Context, errors []error) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -241,7 +241,7 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 		}
 	}
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -249,8 +249,8 @@ func (e *Exporter) MarkScanResultDone(errors []error) error {
 	return nil
 }
 
-func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErrors) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) ExportSbomResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -285,7 +285,7 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 	scanResult.Status.Sbom.State = &state
 	scanResult.Status.Sbom.Errors = &errors
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -293,8 +293,8 @@ func (e *Exporter) ExportSbomResult(res *results.Results, famerr families.RunErr
 	return nil
 }
 
-func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErrors) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) ExportVulResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -327,7 +327,7 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 	scanResult.Status.Vulnerabilities.State = &state
 	scanResult.Status.Vulnerabilities.Errors = &errors
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -335,8 +335,8 @@ func (e *Exporter) ExportVulResult(res *results.Results, famerr families.RunErro
 	return nil
 }
 
-func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.RunErrors) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) ExportSecretsResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -372,7 +372,7 @@ func (e *Exporter) ExportSecretsResult(res *results.Results, famerr families.Run
 	scanResult.Status.Secrets.State = &state
 	scanResult.Status.Secrets.Errors = &errors
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -437,8 +437,8 @@ func convertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.
 	}
 }
 
-func (e *Exporter) ExportExploitsResult(res *results.Results, famerr families.RunErrors) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) ExportExploitsResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -473,7 +473,7 @@ func (e *Exporter) ExportExploitsResult(res *results.Results, famerr families.Ru
 	scanResult.Status.Exploits.State = &state
 	scanResult.Status.Exploits.Errors = &errors
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -530,8 +530,8 @@ func convertMisconfigurationResultToAPIModel(misconfigurationResults *misconfigu
 	}, nil
 }
 
-func (e *Exporter) ExportMisconfigurationResult(res *results.Results, famerr families.RunErrors) error {
-	scanResult, err := e.client.GetScanResult(context.TODO(), scanResultID, models.GetScanResultsScanResultIDParams{})
+func (e *Exporter) ExportMisconfigurationResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := e.client.GetScanResult(ctx, scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
 	}
@@ -569,7 +569,7 @@ func (e *Exporter) ExportMisconfigurationResult(res *results.Results, famerr fam
 	scanResult.Status.Misconfigurations.State = &state
 	scanResult.Status.Misconfigurations.Errors = &errors
 
-	err = e.client.PatchScanResult(context.TODO(), scanResult, scanResultID)
+	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
@@ -578,10 +578,10 @@ func (e *Exporter) ExportMisconfigurationResult(res *results.Results, famerr fam
 }
 
 // nolint:cyclop
-func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors) []error {
+func (e *Exporter) ExportResults(ctx context.Context, res *results.Results, famerr families.RunErrors) []error {
 	var errors []error
 	if config.SBOM.Enabled {
-		err := e.ExportSbomResult(res, famerr)
+		err := e.ExportSbomResult(ctx, res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export sbom to server: %w", err)
 			logger.Error(err)
@@ -590,7 +590,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	}
 
 	if config.Vulnerabilities.Enabled {
-		err := e.ExportVulResult(res, famerr)
+		err := e.ExportVulResult(ctx, res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export vulnerabilities to server: %w", err)
 			logger.Error(err)
@@ -599,7 +599,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	}
 
 	if config.Secrets.Enabled {
-		err := e.ExportSecretsResult(res, famerr)
+		err := e.ExportSecretsResult(ctx, res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export secrets findings to server: %w", err)
 			logger.Error(err)
@@ -608,7 +608,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	}
 
 	if config.Exploits.Enabled {
-		err := e.ExportExploitsResult(res, famerr)
+		err := e.ExportExploitsResult(ctx, res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export exploits results to server: %w", err)
 			logger.Error(err)
@@ -617,7 +617,7 @@ func (e *Exporter) ExportResults(res *results.Results, famerr families.RunErrors
 	}
 
 	if config.Misconfiguration.Enabled {
-		err := e.ExportMisconfigurationResult(res, famerr)
+		err := e.ExportMisconfigurationResult(ctx, res, famerr)
 		if err != nil {
 			err = fmt.Errorf("failed to export misconfiguration results to server: %w", err)
 			logger.Error(err)
