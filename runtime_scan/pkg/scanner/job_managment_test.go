@@ -20,12 +20,16 @@ import (
 
 	"github.com/anchore/syft/syft/source"
 	"github.com/google/go-cmp/cmp"
+
 	kubeclarityConfig "github.com/openclarity/kubeclarity/shared/pkg/config"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
+	"github.com/openclarity/vmclarity/shared/pkg/families/malware/clam/config"
+	malwarecommon "github.com/openclarity/vmclarity/shared/pkg/families/malware/common"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
+	secretscommon "github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	gitleaksconfig "github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks/config"
 	familiesVulnerabilities "github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
@@ -246,7 +250,7 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 			want: secrets.Config{
 				Enabled:      true,
 				ScannersList: []string{"gitleaks"},
-				ScannersConfig: &common.ScannersConfig{
+				ScannersConfig: &secretscommon.ScannersConfig{
 					Gitleaks: gitleaksconfig.Config{
 						BinaryPath: "gitleaksBinaryPath",
 					},
@@ -257,6 +261,76 @@ func Test_userSecretsConfigToFamiliesSecretsConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := userSecretsConfigToFamiliesSecretsConfig(tt.args.secretsConfig, tt.args.gitleaksBinaryPath)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("userSecretsConfigToFamiliesSecretsConfig() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_userMalwareConfigToFamiliesMalwareConfig(t *testing.T) {
+	type args struct {
+		malwareConfig  *models.MalwareConfig
+		clamBinaryPath string
+	}
+	tests := []struct {
+		name string
+		args args
+		want malware.Config
+	}{
+		{
+			name: "no config",
+			args: args{
+				malwareConfig: nil,
+			},
+			want: malware.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "no config enabled",
+			args: args{
+				malwareConfig: &models.MalwareConfig{
+					Enabled: nil,
+				},
+			},
+			want: malware.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "disabled",
+			args: args{
+				malwareConfig: &models.MalwareConfig{
+					Enabled: utils.BoolPtr(false),
+				},
+			},
+			want: malware.Config{
+				Enabled: false,
+			},
+		},
+		{
+			name: "enabled",
+			args: args{
+				malwareConfig: &models.MalwareConfig{
+					Enabled: utils.BoolPtr(true),
+				},
+				clamBinaryPath: "clamscan",
+			},
+			want: malware.Config{
+				Enabled:      true,
+				ScannersList: []string{"clam"},
+				ScannersConfig: &malwarecommon.ScannersConfig{
+					Clam: config.Config{
+						BinaryPath: "clamscan",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := userMalwareConfigToFamiliesMalwareConfig(tt.args.malwareConfig, tt.args.clamBinaryPath)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("userSecretsConfigToFamiliesSecretsConfig() mismatch (-want +got):\n%s", diff)
 			}

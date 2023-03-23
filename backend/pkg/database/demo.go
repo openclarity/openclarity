@@ -924,17 +924,17 @@ func createMalwareResult() *[]models.Malware {
 	return &[]models.Malware{
 		{
 			MalwareName: utils.PointerTo("Pdf.Exploit.CVE_2009_4324-1"),
-			MalwareType: utils.PointerTo(models.WORM),
+			MalwareType: utils.StringPtr("WORM"),
 			Path:        utils.PointerTo("/test/metasploit-framework/modules/exploits/windows/browser/asus_net4switch_ipswcom.rb"),
 		},
 		{
 			MalwareName: utils.PointerTo("Xml.Malware.Squiblydoo-6728833-0"),
-			MalwareType: utils.PointerTo(models.SPYWARE),
+			MalwareType: utils.StringPtr("SPYWARE"),
 			Path:        utils.PointerTo("/test/metasploit-framework/modules/exploits/windows/fileformat/office_ms17_11882.rb"),
 		},
 		{
 			MalwareName: utils.PointerTo("Unix.Trojan.MSShellcode-27"),
-			MalwareType: utils.PointerTo(models.TROJAN),
+			MalwareType: utils.StringPtr("TROJAN"),
 			Path:        utils.PointerTo("/test/metasploit-framework/documentation/modules/exploit/multi/http/makoserver_cmd_exec.md"),
 		},
 	}

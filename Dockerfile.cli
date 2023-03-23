@@ -20,6 +20,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 FROM ${VMCLARITY_TOOLS_BASE}
 
+RUN apk upgrade
 RUN apk add util-linux
 
 WORKDIR /app

@@ -36,6 +36,9 @@ import (
 	familiesExploits "github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	exploitsCommon "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
 	exploitdbConfig "github.com/openclarity/vmclarity/shared/pkg/families/exploits/exploitdb/config"
+	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
+	malwareconfig "github.com/openclarity/vmclarity/shared/pkg/families/malware/clam/config"
+	malwarecommon "github.com/openclarity/vmclarity/shared/pkg/families/malware/common"
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	familiesSbom "github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
@@ -390,6 +393,7 @@ func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 		Secrets:          userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
 		Exploits:         userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
 		Misconfiguration: userMisconfigurationConfigToFamiliesMisconfigurationConfig(s.scanConfig.ScanFamiliesConfig.Misconfigurations),
+		Malware:          userMalwareConfigToFamiliesMalwareConfig(s.scanConfig.ScanFamiliesConfig.Malware, s.config.ClamBinaryPath),
 		// TODO(sambetts) Configure other families once we've got the known working ones working e2e
 	}
 
@@ -498,6 +502,24 @@ func userExploitsConfigToFamiliesExploitsConfig(exploitsConfig *models.ExploitsC
 		ScannersConfig: &exploitsCommon.ScannersConfig{
 			ExploitDB: exploitdbConfig.Config{
 				BaseURL: baseURL,
+			},
+		},
+	}
+}
+
+func userMalwareConfigToFamiliesMalwareConfig(malwareConfig *models.MalwareConfig, clamBinaryPath string) malware.Config {
+	if malwareConfig == nil || malwareConfig.Enabled == nil || !*malwareConfig.Enabled {
+		return malware.Config{}
+	}
+
+	log.Debugf("clam binary path: %s", clamBinaryPath)
+	return malware.Config{
+		Enabled:      true,
+		ScannersList: []string{"clam"},
+		Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
+		ScannersConfig: &malwarecommon.ScannersConfig{
+			Clam: malwareconfig.Config{
+				BinaryPath: clamBinaryPath,
 			},
 		},
 	}
