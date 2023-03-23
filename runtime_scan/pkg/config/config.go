@@ -36,10 +36,11 @@ const (
 	ScannerContainerImage           = "SCANNER_CONTAINER_IMAGE"
 	ScannerKeyPairName              = "SCANNER_KEY_PAIR_NAME"
 	GitleaksBinaryPath              = "GITLEAKS_BINARY_PATH"
-	ScannerBackendAddress           = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
-	ScanConfigWatchInterval         = "SCAN_CONFIG_WATCH_INTERVAL"
+	ClamBinaryPath                  = "CLAM_BINARY_PATH"
 	AttachedVolumeDeviceName        = "ATTACHED_VOLUME_DEVICE_NAME"
 	defaultAttachedVolumeDeviceName = "xvdh"
+	ScannerBackendAddress           = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
+	ScanConfigWatchInterval         = "SCAN_CONFIG_WATCH_INTERVAL"
 	ExploitDBAddress                = "EXPLOIT_DB_ADDRESS"
 )
 
@@ -82,6 +83,9 @@ type ScannerConfig struct {
 	// The gitleaks binary path in the scanner image container.
 	GitleaksBinaryPath string
 
+	// The clam binary path in the scanner image container.
+	ClamBinaryPath string
+
 	// the name of the block device to attach to the scanner job
 	DeviceName string
 }
@@ -97,6 +101,7 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
 	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
 	viper.SetDefault(AttachedVolumeDeviceName, defaultAttachedVolumeDeviceName)
+	viper.SetDefault(ClamBinaryPath, "clamscan")
 
 	viper.AutomaticEnv()
 }
@@ -119,6 +124,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 			GitleaksBinaryPath:        viper.GetString(GitleaksBinaryPath),
 			DeviceName:                viper.GetString(AttachedVolumeDeviceName),
 			ExploitsDBAddress:         viper.GetString(ExploitDBAddress),
+			ClamBinaryPath:            viper.GetString(ClamBinaryPath),
 		},
 	}
 

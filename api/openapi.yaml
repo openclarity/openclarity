@@ -1529,6 +1529,36 @@ components:
         - LOW
         - NEGLIGIBLE
 
+    ScannerSummary:
+      type: object
+      properties:
+        KnownViruses:
+          type: integer
+        EngineVersion:
+          type: string
+        ScannedDirectories:
+          type: integer
+        ScannedFiles:
+          type: integer
+        InfectedFiles:
+          type: integer
+        SuspectedFiles:
+          type: integer
+        DataScanned:
+          type: string
+        DataRead:
+          type: string
+        TimeTaken:
+          type: string
+
+    ScannerMetadata:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        scannerSummary:
+          $ref: '#/components/schemas/ScannerSummary'
+
     Malware:
       type: object
       properties:
@@ -1636,6 +1666,10 @@ components:
           items:
             $ref: '#/components/schemas/Malware'
           nullable: true
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScannerMetadata'
 
     RootkitScan:
       type: object
@@ -1679,13 +1713,6 @@ components:
 
     MalwareType:
       type: string
-      enum:
-        - ADWARE
-        - VIRUS
-        - TROJAN
-        - WORM
-        - SPYWARE
-        - RANSOMWARE
 
     RootkitType:
       type: string
@@ -1937,3 +1964,4 @@ components:
       required: true
       schema:
         type: string
+        
