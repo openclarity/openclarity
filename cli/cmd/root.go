@@ -18,6 +18,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -68,6 +69,9 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
 
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
 		var exporter *Exporter
 		if server != "" {
 			exp, err := CreateExporter()
@@ -77,9 +81,9 @@ var rootCmd = &cobra.Command{
 			exporter = exp
 		}
 
-		if mountVolume {
+		if mountVolume && exporter != nil {
 			// wait for volume to be attached.
-			if err := waitForAttached(exporter); err != nil {
+			if err := waitForAttached(ctx, exporter); err != nil {
 				return fmt.Errorf("failed to wait for volume attached: %v", err)
 			}
 			logger.Infof("got volume attached state")
@@ -93,7 +97,7 @@ var rootCmd = &cobra.Command{
 
 		if exporter != nil {
 			// TODO ideally we want to mark the state of each family, and not just general.
-			err := exporter.MarkScanResultInProgress()
+			err := exporter.MarkScanResultInProgress(ctx)
 			if err != nil {
 				return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
 			}
@@ -105,14 +109,14 @@ var rootCmd = &cobra.Command{
 			logger.Infof("Exporting results to the backend...")
 			var generalErrors []error
 
-			exportErrors := exporter.ExportResults(res, famerr)
+			exportErrors := exporter.ExportResults(ctx, res, famerr)
 			generalErrors = append(generalErrors, exportErrors...)
 
 			if len(famerr) > 0 {
 				generalErrors = append(generalErrors, fmt.Errorf("at least one family failed to run"))
 			}
 
-			err := exporter.MarkScanResultDone(generalErrors)
+			err := exporter.MarkScanResultDone(ctx, generalErrors)
 			if err != nil {
 				return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
 			}
@@ -130,14 +134,19 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func waitForAttached(exporter *Exporter) error {
+func waitForAttached(ctx context.Context, exporter *Exporter) error {
+	if exporter != nil {
+		return errors.New("the Exporter parameter must not be nil")
+	}
+
 	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
+	defer cancel()
 
 	for {
 		select {
 		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
-			status, err := exporter.client.GetScanResultStatus(ctxWithTimeout, scanResultID)
+			status, err := exporter.client.GetScanResultStatus(ctx, scanResultID)
 			if err != nil {
 				return fmt.Errorf("failed to get scan result status: %v", err)
 			}
@@ -145,8 +154,8 @@ func waitForAttached(exporter *Exporter) error {
 			if *status.General.State == models.ATTACHED {
 				return nil
 			}
-		case <-ctxWithTimeout.Done():
-			return fmt.Errorf("waiting for volume ready was canceled: %v", ctxWithTimeout.Err())
+		case <-ctx.Done():
+			return fmt.Errorf("waiting for volume ready was canceled: %v", ctx.Err())
 		}
 	}
 }
