@@ -136,7 +136,7 @@ var rootCmd = &cobra.Command{
 }
 
 func waitForAttached(ctx context.Context, exporter *Exporter) error {
-	if exporter != nil {
+	if exporter == nil {
 		return errors.New("the Exporter parameter must not be nil")
 	}
 
