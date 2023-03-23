@@ -85,8 +85,7 @@ func (s *Scanner) initScan(ctx context.Context) error {
 	for _, targetInstance := range s.targetInstances {
 		scanResultID, err := s.createInitTargetScanStatus(ctx, s.scanID, targetInstance.TargetID)
 		if err != nil {
-			log.Errorf("Failed to create an init scan result. instance id=%v, scan id=%v: %v", targetInstance.TargetID, s.scanID, err)
-			continue
+			return fmt.Errorf("failed to create an init scan result for instance id=%v, scan id=%v: %v", targetInstance.TargetID, s.scanID, err)
 		}
 		targetIDToScanData[targetInstance.TargetID] = &scanData{
 			targetInstance: targetInstance,
@@ -136,7 +135,7 @@ func createInitScanSummary() *models.ScanSummary {
 	}
 }
 
-func (s *Scanner) Scan(ctx context.Context) error {
+func (s *Scanner) Scan(ctx context.Context) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -144,7 +143,18 @@ func (s *Scanner) Scan(ctx context.Context) error {
 
 	err := s.initScan(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to init scan ID=%s: %v", s.scanID, err)
+		log.WithFields(s.logFields).Errorf("failed to init scan: %v", err)
+		scan := &models.Scan{
+			EndTime:      utils.PointerTo(time.Now()),
+			State:        utils.PointerTo(models.ScanStateFailed),
+			StateMessage: utils.PointerTo(fmt.Sprintf("failed to init scan: %v", err)),
+			StateReason:  utils.PointerTo(models.ScanStateReasonUnexpected),
+		}
+		err := s.backendClient.PatchScan(ctx, s.scanID, scan)
+		if err != nil {
+			log.Errorf("failed to patch scan as failed ID=%s: %v", s.scanID, err)
+		}
+		return
 	}
 
 	if len(s.targetIDToScanData) == 0 {
@@ -159,14 +169,12 @@ func (s *Scanner) Scan(ctx context.Context) error {
 		}
 		err := s.backendClient.PatchScan(ctx, s.scanID, scan)
 		if err != nil {
-			return fmt.Errorf("failed to set end time of the scan ID=%s: %v", s.scanID, err)
+			log.Errorf("failed to patch scan as nothing to scan ID=%s: %v", s.scanID, err)
 		}
-		return nil
+		return
 	}
 
 	go s.jobBatchManagement(ctx)
-
-	return nil
 }
 
 func (s *Scanner) SetTargetScanStatusCompletionError(ctx context.Context, scanResultID, errMsg string) error {
