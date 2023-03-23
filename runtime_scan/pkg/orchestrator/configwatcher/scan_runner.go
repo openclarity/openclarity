@@ -38,9 +38,7 @@ func (scw *ScanConfigWatcher) scan(ctx context.Context, scanConfig *models.ScanC
 	}
 
 	scanner := _scanner.CreateScanner(scw.scannerConfig, scw.providerClient, scw.backendClient, scanConfig, targetInstances, scanID)
-	if err := scanner.Scan(ctx); err != nil {
-		return fmt.Errorf("failed to scan: %v", err)
-	}
+	go scanner.Scan(ctx)
 
 	return nil
 }
