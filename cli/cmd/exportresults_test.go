@@ -28,6 +28,8 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	common2 "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
+	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
+	malwarecommon "github.com/openclarity/vmclarity/shared/pkg/families/malware/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
@@ -500,6 +502,117 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 			got := convertSecretsResultToAPIModel(tt.args.secretsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Secret) bool { return *a.Fingerprint < *b.Fingerprint })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_convertMalwareResultToAPIModel(t *testing.T) {
+	type args struct {
+		mergedResults *malware.MergedResults
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.MalwareScan
+	}{
+		{
+			name: "nil mergedResults",
+			args: args{
+				mergedResults: nil,
+			},
+			want: &models.MalwareScan{},
+		},
+		{
+			name: "nil malwareResults.Malware",
+			args: args{
+				mergedResults: &malware.MergedResults{
+					DetectedMalware: nil,
+				},
+			},
+			want: &models.MalwareScan{
+				Malware:  &[]models.Malware{},
+				Metadata: &[]models.ScannerMetadata{},
+			},
+		},
+		{
+			name: "sanity",
+			args: args{
+				mergedResults: &malware.MergedResults{
+					DetectedMalware: []malwarecommon.DetectedMalware{
+						{
+							MalwareName: "Worm<3",
+							MalwareType: "WORM",
+							Path:        "/somepath/innocent.exe",
+						},
+						{
+							MalwareName: "Trojan:)",
+							MalwareType: "TROJAN",
+							Path:        "/somepath/gift.jar",
+						},
+						{
+							MalwareName: "Ransom!",
+							MalwareType: "RANSOMWARE",
+							Path:        "/somepath/givememoney.exe",
+						},
+					},
+					Metadata: map[string]*malwarecommon.ScanSummary{
+						"clam": {
+							KnownViruses:       100,
+							EngineVersion:      "1",
+							ScannedDirectories: 10,
+							ScannedFiles:       1000,
+							InfectedFiles:      3,
+							SuspectedFiles:     4,
+							DataScanned:        "800 MB",
+							DataRead:           "1.6 GB",
+							TimeTaken:          "1000000 ms",
+						},
+					},
+				},
+			},
+			want: &models.MalwareScan{
+				Malware: &[]models.Malware{
+					{
+						MalwareName: utils.StringPtr("Ransom!"),
+						MalwareType: utils.PointerTo[models.MalwareType]("RANSOMWARE"),
+						Path:        utils.StringPtr("/somepath/givememoney.exe"),
+					},
+					{
+						MalwareName: utils.StringPtr("Trojan:)"),
+						MalwareType: utils.PointerTo[models.MalwareType]("TROJAN"),
+						Path:        utils.StringPtr("/somepath/gift.jar"),
+					},
+					{
+						MalwareName: utils.StringPtr("Worm<3"),
+						MalwareType: utils.PointerTo[models.MalwareType]("WORM"),
+						Path:        utils.StringPtr("/somepath/innocent.exe"),
+					},
+				},
+				Metadata: &[]models.ScannerMetadata{
+					{
+						ScannerName: utils.StringPtr("clam"),
+						ScannerSummary: &models.ScannerSummary{
+							KnownViruses:       utils.PointerTo(100),
+							EngineVersion:      utils.StringPtr("1"),
+							ScannedDirectories: utils.PointerTo(10),
+							ScannedFiles:       utils.PointerTo(1000),
+							InfectedFiles:      utils.PointerTo(3),
+							SuspectedFiles:     utils.PointerTo(4),
+							DataScanned:        utils.StringPtr("800 MB"),
+							DataRead:           utils.StringPtr("1.6 GB"),
+							TimeTaken:          utils.StringPtr("1000000 ms"),
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := convertMalwareResultToAPIModel(tt.args.mergedResults)
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Malware) bool { return *a.MalwareType < *b.MalwareType })); diff != "" {
+				t.Errorf("convertMalwareResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
