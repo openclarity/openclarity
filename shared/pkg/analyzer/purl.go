@@ -86,6 +86,12 @@ var validPurlTypes = map[string]struct{}{
 	"swift":       {},
 }
 
+func isValidPurlType(t string) bool {
+	_, ok := validPurlTypes[t]
+	return ok
+}
+
+// nolint:gomnd
 func purlStringToStruct(purlInput string) purl {
 	if purlInput == "" {
 		return newPurl()
@@ -105,25 +111,45 @@ func purlStringToStruct(purlInput string) purl {
 
 	purlParts := strings.Split(purlURL.Opaque, "/")
 
-	// nolint:gomnd
-	if len(purlParts) == 2 {
-		// Check type sometimes the anaylzers goof up and forget the
-		// type part, looking at you syft....
-		if _, ok := validPurlTypes[purlParts[0]]; ok {
+	// Purls Opaques have 2 valid formats:
+	//
+	// * type/namespace/name@version
+	// * type/name@version
+	//
+	// Namespace part is optional and type specific, the other fields are
+	// required.
+	if len(purlParts) == 3 {
+		output.typ = purlParts[0]
+		output.namespace = purlParts[1]
+	} else if len(purlParts) == 2 {
+		// Check type is a valid PURL type, if it is then use it.
+		//
+		// Otherwise check if the type is a namespace we know belong to
+		// one of the types, sometimes the anaylzers goof up and forget
+		// the type part, looking at you syft....
+		//
+		// If its a recognised namespace then we can correct the PURL,
+		// otherwise this is an invalid PURL so return the empty purl
+		// struct.
+		if isValidPurlType(purlParts[0]) {
 			output.typ = purlParts[0]
 		} else {
 			// Fix known cases otherwise just exclude the type from
 			// the purl or error maybe, havn't decided
-			if purlParts[0] == "alpine" {
+			switch purlParts[0] {
+			case "alpine":
 				output.typ = "apk"
 				output.namespace = "alpine"
+			default:
+				return newPurl()
 			}
 		}
 	} else {
-		output.typ = purlParts[0]
-		output.namespace = purlParts[1]
+		// No other length is valid
+		return newPurl()
 	}
 
+	// Version is optional, so no need to check if we found the separator
 	name, version, _ := strings.Cut(purlParts[len(purlParts)-1], "@")
 	output.name = name
 	output.version = version
