@@ -47,3 +47,12 @@ type ScanResultConflictError struct {
 func (t ScanResultConflictError) Error() string {
 	return fmt.Sprintf("Conflicting Scan Result Found with ID %s: %s", *t.ConflictingScanResult.Id, t.Message)
 }
+
+type FindingConflictError struct {
+	ConflictingFinding *models.Finding
+	Message            string
+}
+
+func (t FindingConflictError) Error() string {
+	return fmt.Sprintf("Conflicting Finding Found with ID %s: %s", *t.ConflictingFinding.Id, t.Message)
+}

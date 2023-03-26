@@ -32,8 +32,9 @@ type FieldMeta struct {
 	CollectionItemMeta *FieldMeta
 
 	// Fields for complex field types
-	ComplexFieldSchemas   []string
-	DiscriminatorProperty string
+	ComplexFieldSchemas        []string
+	DiscriminatorProperty      string
+	DiscriminatorSchemaMapping map[string]string
 
 	// Fields for relationship and relationship collection types
 	RelationshipSchema   string
