@@ -100,12 +100,16 @@ func (t *TargetsTableHandler) GetTarget(targetID models.TargetID, params models.
 func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target, error) {
 	// Check the user didn't provide an ID
 	if target.Id != nil {
-		return models.Target{}, fmt.Errorf("can not specify Id field when creating a new Target")
+		return models.Target{}, &common.BadRequestError{
+			Reason: "can not specify id field when creating a new Target",
+		}
 	}
 
-	// Check that targetInfo was provided by the user its a required field for a target.
+	// Check that targetInfo was provided by the user, it's a required field for a target.
 	if target.TargetInfo == nil {
-		return models.Target{}, fmt.Errorf("targetInfo is a required field")
+		return models.Target{}, &common.BadRequestError{
+			Reason: "targetInfo is a required field",
+		}
 	}
 
 	// Generate a new UUID
@@ -158,12 +162,16 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 
 func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, error) {
 	if target.Id == nil || *target.Id == "" {
-		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
+		return models.Target{}, &common.BadRequestError{
+			Reason: "id is required to save target",
+		}
 	}
 
-	// Check that targetInfo was provided by the user its a required field for a target.
+	// Check that targetInfo was provided by the user, it's a required field for a target.
 	if target.TargetInfo == nil {
-		return models.Target{}, fmt.Errorf("targetInfo is a required field")
+		return models.Target{}, &common.BadRequestError{
+			Reason: "targetInfo is a required field",
+		}
 	}
 
 	var dbTarget Target

@@ -57,14 +57,19 @@ func (s *ServerImpl) PostFindings(ctx echo.Context) error {
 	createdFinding, err := s.dbHandler.FindingsTable().CreateFinding(finding)
 	if err != nil {
 		var conflictErr *common.ConflictError
-		if errors.As(err, &conflictErr) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.As(err, &conflictErr):
 			existResponse := &models.FindingExists{
 				Message: utils.StringPtr(conflictErr.Reason),
 				Finding: &createdFinding,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create finding in db: %v", err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create finding in db: %v", err))
 	}
 
 	return sendResponse(ctx, http.StatusCreated, createdFinding)
@@ -100,10 +105,15 @@ func (s *ServerImpl) PatchFindingsFindingID(ctx echo.Context, findingID models.F
 	finding.Id = &findingID
 	updatedFinding, err := s.dbHandler.FindingsTable().UpdateFinding(finding)
 	if err != nil {
-		if errors.Is(err, databaseTypes.ErrNotFound) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedFinding)
@@ -125,10 +135,15 @@ func (s *ServerImpl) PutFindingsFindingID(ctx echo.Context, findingID models.Fin
 
 	updatedFinding, err := s.dbHandler.FindingsTable().SaveFinding(finding)
 	if err != nil {
-		if errors.Is(err, databaseTypes.ErrNotFound) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Finding with ID %v not found", findingID))
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update finding in db. findingID=%v: %v", findingID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedFinding)

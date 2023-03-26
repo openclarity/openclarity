@@ -26,3 +26,11 @@ type ConflictError struct {
 func (ec *ConflictError) Error() string {
 	return fmt.Sprintf("Unable to create due to conflict, %v", ec.Reason)
 }
+
+type BadRequestError struct {
+	Reason string
+}
+
+func (ec *BadRequestError) Error() string {
+	return fmt.Sprintf("Object validation failed: %v", ec.Reason)
+}

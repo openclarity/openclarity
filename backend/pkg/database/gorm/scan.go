@@ -100,7 +100,9 @@ func (s *ScansTableHandler) GetScan(scanID models.ScanID, params models.GetScans
 func (s *ScansTableHandler) CreateScan(scan models.Scan) (models.Scan, error) {
 	// Check the user didn't provide an ID
 	if scan.Id != nil {
-		return models.Scan{}, fmt.Errorf("can not specify Id field when creating a new Scan")
+		return models.Scan{}, &common.BadRequestError{
+			Reason: "can not specify id field when creating a new Scan",
+		}
 	}
 
 	// Generate a new UUID
@@ -141,7 +143,9 @@ func (s *ScansTableHandler) CreateScan(scan models.Scan) (models.Scan, error) {
 
 func (s *ScansTableHandler) SaveScan(scan models.Scan) (models.Scan, error) {
 	if scan.Id == nil || *scan.Id == "" {
-		return models.Scan{}, fmt.Errorf("ID is required to update scan in DB")
+		return models.Scan{}, &common.BadRequestError{
+			Reason: "id is required to save scan",
+		}
 	}
 
 	var dbScan Scan
@@ -170,7 +174,9 @@ func (s *ScansTableHandler) SaveScan(scan models.Scan) (models.Scan, error) {
 
 func (s *ScansTableHandler) UpdateScan(scan models.Scan) (models.Scan, error) {
 	if scan.Id == nil || *scan.Id == "" {
-		return models.Scan{}, fmt.Errorf("ID is required to update scan in DB")
+		return models.Scan{}, &common.BadRequestError{
+			Reason: "id is required to update scan",
+		}
 	}
 
 	var dbScan Scan
