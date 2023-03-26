@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { isEmpty } from 'lodash';
 import { usePrevious, useFetch } from 'hooks';
 import { TextField, RadioField, MultiselectField, SelectField, FieldsPair, useFormikContext, CheckboxField,
     FieldLabel, validators } from 'components/Form';
@@ -13,8 +14,8 @@ export const SCOPE_ITEMS = {
 }
 
 const SecurityGroupField = ({index, name, placeholder, disabled, regionData}) => {
-    const {name: regionId, vpcs=[]} = regionData || {};
-    const vpcId = vpcs[index]?.id;
+    const {name: regionId, vpcs} = regionData || {};
+    const vpcId = isEmpty(vpcs) ? null : vpcs[index]?.id;
     const prevVpsId = usePrevious(vpcId);
     
     const [{data, loading, error}, fetchSecurityGroups] = useFetch(APIS.SCOPES_DISCOVERY, {loadOnMount: false});
@@ -31,12 +32,15 @@ const SecurityGroupField = ({index, name, placeholder, disabled, regionData}) =>
         return null;
     }
 
+    const regionsData = !data ? [] : data?.scopeInfo?.regions;
+    const vpcsData = !regionsData ? [] : regionsData[0]?.vpcs;
+
     return (
         <MultiselectField
             name={name}
             placeholder={placeholder}
             disabled={disabled}
-            items={!data ? [] : data?.scopeInfo?.regions[0]?.vpcs[0].securityGroups.map(({id}) => ({value: id, label: id}))}
+            items={!vpcsData ? [] : vpcsData[0].securityGroups?.map(({id}) => ({value: id, label: id}))}
             loading={loading}
         />
     )
@@ -62,6 +66,8 @@ const RegionFields = ({index, name, disabled}) => {
     if (error) {
         return null;
     }
+
+    const regionsData = !data ? [] : data?.scopeInfo?.regions;
     
     return (
         <FieldsPair
@@ -71,7 +77,7 @@ const RegionFields = ({index, name, disabled}) => {
                 component: SelectField,
                 key: "id",
                 placeholder: "Select VPC...",
-                items: !data ? [] : data?.scopeInfo?.regions[0]?.vpcs.map(({id}) => ({value: id, label: id})),
+                items: !regionsData ? [] : regionsData[0]?.vpcs?.map(({id}) => ({value: id, label: id})),
                 clearable: true,
                 loading: loading
             }}
@@ -80,7 +86,7 @@ const RegionFields = ({index, name, disabled}) => {
                 key: "securityGroups",
                 placeholder: "Select security group...",
                 emptyValue: [],
-                regionData: regions[index]
+                regionData: !!regionsData ? regions[index] : null
             }}
         />
     );
@@ -100,7 +106,7 @@ const DefinedScopeFields = () => {
                 component: SelectField,
                 key: "name",
                 placeholder: "Select region...",
-                items: data?.scopeInfo?.regions.map(({name}) => ({value: name, label: name})),
+                items: data?.scopeInfo?.regions?.map(({name}) => ({value: name, label: name})),
                 validate: validators.validateRequired,
                 loading: loading
             }}

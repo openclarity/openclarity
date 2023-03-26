@@ -11,15 +11,15 @@ export const formatStringInstancesToTags = items => items.map(item => {
     return {key, value};
 });
 
-export const formatTagsToStringInstances = tags => tags.map(({key, value}) => `${key}=${value}`);
+export const formatTagsToStringInstances = tags => tags?.map(({key, value}) => `${key}=${value}`);
 
 export const formatRegionsToStrings = regions => {
     const SEPARATOR = "/";
     
-    return regions.reduce((acc, curr) => {
+    return regions?.reduce((acc, curr) => {
         const {name: region, vpcs} = curr;
 
-        const formattedVpcs = vpcs.reduce((acc, curr) => {
+        const formattedVpcs = vpcs?.reduce((acc, curr) => {
             const {id: vpc, securityGroups} = curr;
 
             if (!vpc) {

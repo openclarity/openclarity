@@ -1,7 +1,11 @@
-import { orderBy } from 'lodash';
+import { orderBy, isEmpty } from 'lodash';
 import CVSS from '@turingpointde/cvss.js';
 
 export const getHigestVersionCvssData = (cvssData) => {
+    if (isEmpty(cvssData)) {
+        return {};
+    }
+    
     const sortedCvss = orderBy(cvssData || [], ["version"], ["desc"]);
 
     const {vector, metrics, version} = sortedCvss[0];

@@ -11,13 +11,17 @@ const SEVERITY_NOT_ALIGNED_MESSAGE = (
 );
 
 const SeverityWithCvssDisplay = ({severity, cvssScore, cvssSeverity, compareTooltipId}) => {
+    if (!severity) {
+        return null;
+    }
+    
     const showSeverityTooltip = !!cvssSeverity && cvssSeverity !== severity &&
         !(cvssSeverity === SEVERITY_ITEMS.NONE.value && severity === SEVERITY_ITEMS.NEGLIGIBLE.value);
     
     return (
         <div className="severity-with-cvss-display">
             <SeverityDisplay severity={severity} />
-            <div className="cvss-score-display">{`(cvss ${cvssScore})`}</div>
+            {!!cvssScore && <div className="cvss-score-display">{`(cvss ${cvssScore})`}</div>}
             {!!showSeverityTooltip && <TooltipWrapper tooltipId={compareTooltipId} tooltipText={SEVERITY_NOT_ALIGNED_MESSAGE}>*</TooltipWrapper>}
         </div>
     );

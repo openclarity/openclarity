@@ -24,8 +24,8 @@ const VulnerabilitiesTable = () => {
                 return (
                     <SeverityWithCvssDisplay
                         severity={severity}
-                        cvssScore={cvssScoreData.score}
-                        cvssSeverity={cvssScoreData.severity.toLocaleUpperCase()}
+                        cvssScore={cvssScoreData?.score}
+                        cvssSeverity={cvssScoreData?.severity?.toLocaleUpperCase()}
                         compareTooltipId={`severity-compare-tooltip-${id}`}
                     />
                 )
