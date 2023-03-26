@@ -34,6 +34,22 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /dashboard/findingsTrends:
+    get:
+      summary: Get a list of finding trends for all finding types.
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingsTrends'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
 components:
   schemas:
     ApiResponse:
@@ -43,6 +59,49 @@ components:
           type: string
           readOnly: true
       description: An object that is returned in all cases of failures.
+
+    FindingsTrends:
+      description: List of finding trends for all finding types.
+      type: array
+      items:
+        $ref: '#/components/schemas/FindingTrends'
+      readOnly: true
+
+    FindingTrends:
+      description: List of the total number of findings per time slot for the specific findingType.
+      type: object
+      properties:
+        findingType:
+          $ref: '#/components/schemas/FindingType'
+        trends:
+          type: array
+          items:
+            $ref: '#/components/schemas/FindingTrend'
+          readOnly: true
+
+    FindingTrend:
+      description: Represents the total number of findings in the time slot (between startTime and endTime).
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        count:
+          type: integer
+
+    FindingType:
+      type: string
+      enum:
+        - PACKAGE
+        - VULNERABILITY
+        - MALWARE
+        - SECRET
+        - MISCONFIGURATION
+        - ROOTKIT
+        - EXPLOIT
 
     RiskiestRegions:
       type: object
@@ -176,3 +235,19 @@ components:
       in: query
       schema:
         type: string
+
+    startTime:
+      name: 'startTime'
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: true
+
+    endTime:
+      name: 'endTime'
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: true

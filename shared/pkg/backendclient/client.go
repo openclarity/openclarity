@@ -397,3 +397,22 @@ func (b *BackendClient) GetTargets(ctx context.Context, params models.GetTargets
 		return nil, fmt.Errorf("failed to get targets. status code=%v", resp.StatusCode())
 	}
 }
+
+func (b *BackendClient) GetFindings(ctx context.Context, params models.GetFindingsParams) (*models.Findings, error) {
+	resp, err := b.apiClient.GetFindingsWithResponse(ctx, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get findings: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("no findings: empty body")
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get findings. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get findings. status code=%v", resp.StatusCode())
+	}
+}

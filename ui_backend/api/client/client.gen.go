@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	. "github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
@@ -88,11 +89,26 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetDashboardFindingsTrends request
+	GetDashboardFindingsTrends(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDashboardRiskiestAssets request
 	GetDashboardRiskiestAssets(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDashboardRiskiestRegions request
 	GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetDashboardFindingsTrends(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDashboardFindingsTrendsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetDashboardRiskiestAssets(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -117,6 +133,61 @@ func (c *Client) GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetDashboardFindingsTrendsRequest generates requests for GetDashboardFindingsTrends
+func NewGetDashboardFindingsTrendsRequest(server string, params *GetDashboardFindingsTrendsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dashboard/findingsTrends")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "startTime", runtime.ParamLocationQuery, params.StartTime); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "endTime", runtime.ParamLocationQuery, params.EndTime); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetDashboardRiskiestAssetsRequest generates requests for GetDashboardRiskiestAssets
@@ -216,11 +287,37 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetDashboardFindingsTrends request
+	GetDashboardFindingsTrendsWithResponse(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*GetDashboardFindingsTrendsResponse, error)
+
 	// GetDashboardRiskiestAssets request
 	GetDashboardRiskiestAssetsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestAssetsResponse, error)
 
 	// GetDashboardRiskiestRegions request
 	GetDashboardRiskiestRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error)
+}
+
+type GetDashboardFindingsTrendsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *FindingsTrends
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDashboardFindingsTrendsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDashboardFindingsTrendsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetDashboardRiskiestAssetsResponse struct {
@@ -269,6 +366,15 @@ func (r GetDashboardRiskiestRegionsResponse) StatusCode() int {
 	return 0
 }
 
+// GetDashboardFindingsTrendsWithResponse request returning *GetDashboardFindingsTrendsResponse
+func (c *ClientWithResponses) GetDashboardFindingsTrendsWithResponse(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*GetDashboardFindingsTrendsResponse, error) {
+	rsp, err := c.GetDashboardFindingsTrends(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDashboardFindingsTrendsResponse(rsp)
+}
+
 // GetDashboardRiskiestAssetsWithResponse request returning *GetDashboardRiskiestAssetsResponse
 func (c *ClientWithResponses) GetDashboardRiskiestAssetsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestAssetsResponse, error) {
 	rsp, err := c.GetDashboardRiskiestAssets(ctx, reqEditors...)
@@ -285,6 +391,39 @@ func (c *ClientWithResponses) GetDashboardRiskiestRegionsWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseGetDashboardRiskiestRegionsResponse(rsp)
+}
+
+// ParseGetDashboardFindingsTrendsResponse parses an HTTP response from a GetDashboardFindingsTrendsWithResponse call
+func ParseGetDashboardFindingsTrendsResponse(rsp *http.Response) (*GetDashboardFindingsTrendsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDashboardFindingsTrendsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FindingsTrends
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetDashboardRiskiestAssetsResponse parses an HTTP response from a GetDashboardRiskiestAssetsWithResponse call
