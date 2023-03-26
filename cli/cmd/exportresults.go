@@ -18,6 +18,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
@@ -197,6 +198,7 @@ func (e *Exporter) MarkScanResultInProgress(ctx context.Context) error {
 
 	state := models.INPROGRESS
 	scanResult.Status.General.State = &state
+	scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
 
 	err = e.client.PatchScanResult(ctx, scanResult, scanResultID)
 	if err != nil {
@@ -221,6 +223,7 @@ func (e *Exporter) MarkScanResultDone(ctx context.Context, errors []error) error
 
 	state := models.DONE
 	scanResult.Status.General.State = &state
+	scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
 
 	// If we had any errors running the family or exporting results add it
 	// to the general errors
@@ -476,6 +479,8 @@ func convertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 				FilePath:    &finding.File,
 				Fingerprint: &finding.Fingerprint,
 				StartLine:   &finding.StartLine,
+				StartColumn: &finding.StartColumn,
+				EndColumn:   &finding.EndColumn,
 			})
 		}
 	}
@@ -565,13 +570,13 @@ func (e *Exporter) ExportExploitsResult(ctx context.Context, res *results.Result
 func misconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationTypes.Severity) (models.MisconfigurationSeverity, error) {
 	switch sev {
 	case misconfigurationTypes.HighSeverity:
-		return models.MisconfigurationSeverityHighSeverity, nil
+		return models.MisconfigurationHighSeverity, nil
 	case misconfigurationTypes.MediumSeverity:
-		return models.MisconfigurationSeverityMediumSeverity, nil
+		return models.MisconfigurationMediumSeverity, nil
 	case misconfigurationTypes.LowSeverity:
-		return models.MisconfigurationSeverityLowSeverity, nil
+		return models.MisconfigurationLowSeverity, nil
 	default:
-		return models.MisconfigurationSeverityLowSeverity, fmt.Errorf("unknown severity level %v", sev)
+		return models.MisconfigurationLowSeverity, fmt.Errorf("unknown severity level %v", sev)
 	}
 }
 

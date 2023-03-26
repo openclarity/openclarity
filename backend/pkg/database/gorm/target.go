@@ -201,6 +201,34 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 	return apiTarget, nil
 }
 
+func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target, error) {
+	if target.Id == nil || *target.Id == "" {
+		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
+	}
+
+	var dbTarget Target
+	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbTarget); err != nil {
+		return models.Target{}, err
+	}
+
+	var err error
+	dbTarget.Data, err = patchObject(dbTarget.Data, target)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to apply patch: %w", err)
+	}
+
+	if err := t.DB.Save(&dbTarget).Error; err != nil {
+		return models.Target{}, fmt.Errorf("failed to save target in db: %w", err)
+	}
+
+	var ret models.Target
+	err = json.Unmarshal(dbTarget.Data, &ret)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+	return ret, nil
+}
+
 func (t *TargetsTableHandler) DeleteTarget(targetID models.TargetID) error {
 	if err := deleteObjByID(t.DB, targetID, &Target{}); err != nil {
 		return fmt.Errorf("failed to delete target: %w", err)

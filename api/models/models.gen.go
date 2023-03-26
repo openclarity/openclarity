@@ -18,16 +18,9 @@ const (
 
 // Defines values for MisconfigurationSeverity.
 const (
-	MisconfigurationSeverityHighSeverity   MisconfigurationSeverity = "HighSeverity"
-	MisconfigurationSeverityLowSeverity    MisconfigurationSeverity = "LowSeverity"
-	MisconfigurationSeverityMediumSeverity MisconfigurationSeverity = "MediumSeverity"
-)
-
-// Defines values for MisconfigurationFindingInfoSeverity.
-const (
-	MisconfigurationFindingInfoSeverityHighSeverity   MisconfigurationFindingInfoSeverity = "HighSeverity"
-	MisconfigurationFindingInfoSeverityLowSeverity    MisconfigurationFindingInfoSeverity = "LowSeverity"
-	MisconfigurationFindingInfoSeverityMediumSeverity MisconfigurationFindingInfoSeverity = "MediumSeverity"
+	MisconfigurationHighSeverity   MisconfigurationSeverity = "MisconfigurationHighSeverity"
+	MisconfigurationLowSeverity    MisconfigurationSeverity = "MisconfigurationLowSeverity"
+	MisconfigurationMediumSeverity MisconfigurationSeverity = "MisconfigurationMediumSeverity"
 )
 
 // Defines values for RootkitType.
@@ -275,30 +268,27 @@ type Misconfiguration struct {
 	TestID          *string                   `json:"testID,omitempty"`
 }
 
-// MisconfigurationSeverity defines model for Misconfiguration.Severity.
-type MisconfigurationSeverity string
-
 // MisconfigurationFindingInfo defines model for MisconfigurationFindingInfo.
 type MisconfigurationFindingInfo struct {
-	Message         *string                              `json:"message,omitempty"`
-	ObjectType      string                               `json:"objectType"`
-	Remediation     *string                              `json:"remediation,omitempty"`
-	ScannedPath     *string                              `json:"scannedPath,omitempty"`
-	ScannerName     *string                              `json:"scannerName,omitempty"`
-	Severity        *MisconfigurationFindingInfoSeverity `json:"severity,omitempty"`
-	TestCategory    *string                              `json:"testCategory,omitempty"`
-	TestDescription *string                              `json:"testDescription,omitempty"`
-	TestID          *string                              `json:"testID,omitempty"`
+	Message         *string                   `json:"message,omitempty"`
+	ObjectType      string                    `json:"objectType"`
+	Remediation     *string                   `json:"remediation,omitempty"`
+	ScannedPath     *string                   `json:"scannedPath,omitempty"`
+	ScannerName     *string                   `json:"scannerName,omitempty"`
+	Severity        *MisconfigurationSeverity `json:"severity,omitempty"`
+	TestCategory    *string                   `json:"testCategory,omitempty"`
+	TestDescription *string                   `json:"testDescription,omitempty"`
+	TestID          *string                   `json:"testID,omitempty"`
 }
-
-// MisconfigurationFindingInfoSeverity defines model for MisconfigurationFindingInfo.Severity.
-type MisconfigurationFindingInfoSeverity string
 
 // MisconfigurationScan defines model for MisconfigurationScan.
 type MisconfigurationScan struct {
 	Misconfigurations *[]Misconfiguration `json:"misconfigurations"`
 	Scanners          *[]string           `json:"scanners,omitempty"`
 }
+
+// MisconfigurationSeverity defines model for MisconfigurationSeverity.
+type MisconfigurationSeverity string
 
 // MisconfigurationsConfig defines model for MisconfigurationsConfig.
 type MisconfigurationsConfig struct {
@@ -647,27 +637,31 @@ type Scopes struct {
 // Secret defines model for Secret.
 type Secret struct {
 	Description *string `json:"description,omitempty"`
+	EndColumn   *int    `json:"endColumn,omitempty"`
 	EndLine     *int    `json:"endLine,omitempty"`
 
 	// FilePath Name of the file containing the secret
 	FilePath *string `json:"filePath,omitempty"`
 
-	// Fingerprint Unique identification of the SecretInfo
+	// Fingerprint Note: this is not unique
 	Fingerprint *string `json:"fingerprint,omitempty"`
+	StartColumn *int    `json:"startColumn,omitempty"`
 	StartLine   *int    `json:"startLine,omitempty"`
 }
 
 // SecretFindingInfo defines model for SecretFindingInfo.
 type SecretFindingInfo struct {
 	Description *string `json:"description,omitempty"`
+	EndColumn   *int    `json:"endColumn,omitempty"`
 	EndLine     *int    `json:"endLine,omitempty"`
 
 	// FilePath Name of the file containing the secret
 	FilePath *string `json:"filePath,omitempty"`
 
-	// Fingerprint Unique identification of the SecretInfo
+	// Fingerprint Note: this is not unique
 	Fingerprint *string `json:"fingerprint,omitempty"`
 	ObjectType  string  `json:"objectType"`
+	StartColumn *int    `json:"startColumn,omitempty"`
 	StartLine   *int    `json:"startLine,omitempty"`
 }
 
@@ -734,6 +728,7 @@ type TargetRelationship struct {
 // TargetScanResult defines model for TargetScanResult.
 type TargetScanResult struct {
 	Exploits          *ExploitScan          `json:"exploits,omitempty"`
+	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
 	Id                *string               `json:"id,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
@@ -771,8 +766,9 @@ type TargetScanResults struct {
 
 // TargetScanState defines model for TargetScanState.
 type TargetScanState struct {
-	Errors *[]string             `json:"errors"`
-	State  *TargetScanStateState `json:"state,omitempty"`
+	Errors             *[]string             `json:"errors"`
+	LastTransitionTime *time.Time            `json:"lastTransitionTime,omitempty"`
+	State              *TargetScanStateState `json:"state,omitempty"`
 }
 
 // TargetScanStateState defines model for TargetScanState.State.
@@ -1074,6 +1070,9 @@ type PutScansScanIDJSONRequestBody = Scan
 
 // PostTargetsJSONRequestBody defines body for PostTargets for application/json ContentType.
 type PostTargetsJSONRequestBody = Target
+
+// PatchTargetsTargetIDJSONRequestBody defines body for PatchTargetsTargetID for application/json ContentType.
+type PatchTargetsTargetIDJSONRequestBody = Target
 
 // PutTargetsTargetIDJSONRequestBody defines body for PutTargetsTargetID for application/json ContentType.
 type PutTargetsTargetIDJSONRequestBody = Target

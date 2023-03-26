@@ -108,6 +108,31 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 	return sendResponse(ctx, http.StatusOK, updatedTarget)
 }
 
+func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
+	var target models.Target
+	err := ctx.Bind(&target)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if target.Id != nil && *target.Id != targetID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *target.Id, targetID))
+	}
+	target.Id = &targetID
+
+	updatedTarget, err := s.dbHandler.TargetsTable().UpdateTarget(target)
+	if err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update target in db. targetID=%v: %v", targetID, err))
+	}
+
+	return sendResponse(ctx, http.StatusOK, updatedTarget)
+}
+
 func (s *ServerImpl) DeleteTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
 	success := models.Success{
 		Message: utils.StringPtr(fmt.Sprintf("target %v deleted", targetID)),

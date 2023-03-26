@@ -61,14 +61,14 @@ type Engine struct {
 // CDPlayer StereoType.
 type CDPlayer struct {
 	ObjectType    string `json:"ObjectType"`
-	Brand         string `json:"Brand"`
+	Brand         string `json:"Brand,omitempty"`
 	NumberOfDisks int    `json:"NumberOfDisks,omitempty"`
 }
 
 // Radio StereoType.
 type Radio struct {
 	ObjectType string `json:"ObjectType"`
-	Brand      string `json:"Brand"`
+	Brand      string `json:"Brand,omitempty"`
 	Frequency  string `json:"Frequency,omitempty"`
 }
 
@@ -759,6 +759,16 @@ func Test_BuildSQLQuery(t *testing.T) {
 						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
 						fromCDPlayer(t, CDPlayer{Brand: "Unknown"}),
 					},
+				},
+			},
+		},
+		{
+			name:         "select fields from discriminator type",
+			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			selectString: PointerTo("MainStereo/NumberOfDisks"),
+			want: []Car{
+				{
+					MainStereo: fromCDPlayer(t, CDPlayer{NumberOfDisks: 12}),
 				},
 			},
 		},
