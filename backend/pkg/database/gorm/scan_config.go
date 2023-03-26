@@ -99,17 +99,22 @@ func (s *ScanConfigsTableHandler) GetScanConfig(scanConfigID models.ScanConfigID
 func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	// Check the user provided the name field
 	if scanConfig.Name != nil && *scanConfig.Name == "" {
-		return models.ScanConfig{}, fmt.Errorf("name must be provided and can not be empty")
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: "name must be provided and can not be empty",
+		}
 	}
 
 	// Check the user didn't provide an ID
 	if scanConfig.Id != nil {
-		return models.ScanConfig{}, fmt.Errorf("can not specify Id field when creating a new ScanConfig")
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: "can not specify id field when creating a new ScanConfig",
+		}
 	}
 
 	if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
-		// Should we return a BadRequest error here?
-		return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: fmt.Sprintf("failed to validate runtime schedule scan config: %v", err),
+		}
 	}
 
 	// Generate a new UUID
@@ -203,17 +208,22 @@ func isEmptyOperationTime(operationTime *time.Time) bool {
 
 func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	if scanConfig.Id == nil || *scanConfig.Id == "" {
-		return models.ScanConfig{}, fmt.Errorf("ID is required to update scan config in DB")
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: "id is required to save scan config",
+		}
 	}
 
 	// Check the user provided the name field
 	if scanConfig.Name != nil && *scanConfig.Name == "" {
-		return models.ScanConfig{}, fmt.Errorf("name must be provided and can not be empty")
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: "name must be provided and can not be empty",
+		}
 	}
 
 	if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
-		// Should we return a BadRequest error here?
-		return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: fmt.Sprintf("runtime schedule scan config validation failed: %v", err),
+		}
 	}
 
 	var dbScanConfig ScanConfig
@@ -245,14 +255,17 @@ func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (
 
 func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	if scanConfig.Id == nil || *scanConfig.Id == "" {
-		return models.ScanConfig{}, fmt.Errorf("ID is required to update scan config in DB")
+		return models.ScanConfig{}, &common.BadRequestError{
+			Reason: "id is required to update scan config",
+		}
 	}
 
-	// we will want to validate Scheduled upon update only if exists.
+	// We will want to validate Scheduled upon update only if exists.
 	if scanConfig.Scheduled != nil {
 		if err := validateRuntimeScheduleScanConfig(scanConfig.Scheduled); err != nil {
-			// Should we return a BadRequest error here?
-			return models.ScanConfig{}, fmt.Errorf("failed to validate runtime schedule scan config: %v", err)
+			return models.ScanConfig{}, &common.BadRequestError{
+				Reason: fmt.Sprintf("failed to validate runtime schedule scan config: %v", err),
+			}
 		}
 	}
 

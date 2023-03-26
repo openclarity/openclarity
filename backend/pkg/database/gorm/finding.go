@@ -24,6 +24,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/backend/pkg/common"
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
 )
 
@@ -92,9 +93,11 @@ func (s *FindingsTableHandler) GetFinding(findingID models.FindingID, params mod
 }
 
 func (s *FindingsTableHandler) CreateFinding(finding models.Finding) (models.Finding, error) {
-	// Check the user didn't provide an Id
+	// Check the user didn't provide an ID
 	if finding.Id != nil {
-		return models.Finding{}, fmt.Errorf("can not specify Id field when creating a new Finding")
+		return models.Finding{}, &common.BadRequestError{
+			Reason: "can not specify id field when creating a new Finding",
+		}
 	}
 
 	// Generate a new UUID
@@ -126,6 +129,12 @@ func (s *FindingsTableHandler) CreateFinding(finding models.Finding) (models.Fin
 }
 
 func (s *FindingsTableHandler) SaveFinding(finding models.Finding) (models.Finding, error) {
+	if finding.Id == nil || *finding.Id == "" {
+		return models.Finding{}, &common.BadRequestError{
+			Reason: "id is required to save finding",
+		}
+	}
+
 	var dbFinding Finding
 	err := getExistingObjByID(s.DB, "Finding", *finding.Id, &dbFinding)
 	if err != nil {
@@ -155,6 +164,12 @@ func (s *FindingsTableHandler) SaveFinding(finding models.Finding) (models.Findi
 }
 
 func (s *FindingsTableHandler) UpdateFinding(finding models.Finding) (models.Finding, error) {
+	if finding.Id == nil || *finding.Id == "" {
+		return models.Finding{}, &common.BadRequestError{
+			Reason: "id is required to update finding",
+		}
+	}
+
 	var dbFinding Finding
 	err := getExistingObjByID(s.DB, "Finding", *finding.Id, &dbFinding)
 	if err != nil {

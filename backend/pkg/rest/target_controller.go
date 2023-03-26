@@ -48,14 +48,19 @@ func (s *ServerImpl) PostTargets(ctx echo.Context) error {
 	createdTarget, err := s.dbHandler.TargetsTable().CreateTarget(target)
 	if err != nil {
 		var conflictErr *common.ConflictError
-		if errors.As(err, &conflictErr) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetExists{
 				Message: utils.StringPtr(conflictErr.Reason),
 				Target:  &createdTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create target in db: %v", err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create target in db: %v", err))
 	}
 
 	return sendResponse(ctx, http.StatusCreated, createdTarget)
@@ -89,10 +94,15 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 
 	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
 	if err != nil {
-		if errors.Is(err, databaseTypes.ErrNotFound) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedTarget)

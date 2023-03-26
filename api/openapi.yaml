@@ -43,6 +43,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Target'
+        400:
+          description: Invalid target supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         409:
           description: Target already exists.
           content:
@@ -92,6 +98,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Target'
+        400:
+          description: Invalid target supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Target ID not found
           content:
@@ -108,6 +120,12 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/Success'
+        400:
+          description: Invalid target supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Target ID not found
           content:
@@ -153,6 +171,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetScanResult'
+        400:
+          description: Invalid scan result supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         409:
           description: Scan results already exist for target and scan.
           content:
@@ -202,6 +226,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetScanResult'
+        400:
+          description: Invalid scan result supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan result ID not found
           content:
@@ -228,6 +258,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetScanResult'
+        400:
+          description: Invalid scan result supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan result ID not found
           content:
@@ -273,6 +309,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         409:
           description: Scan already exists.
           content:
@@ -322,6 +364,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan ID not found
           content:
@@ -348,6 +396,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan ID not found
           content:
@@ -409,6 +463,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         409:
           description: Scan config already exists.
           content:
@@ -458,6 +518,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan config ID not found
           content:
@@ -484,6 +550,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Scan config ID not found
           content:
@@ -544,6 +616,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         409:
           description: Finding conflict.
           content:
@@ -628,6 +706,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Finding ID not found
           content:
@@ -654,6 +738,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         404:
           description: Finding ID not found
           content:
