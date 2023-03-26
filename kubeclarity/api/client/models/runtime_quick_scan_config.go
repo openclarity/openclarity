@@ -8,8 +8,10 @@ package models
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // RuntimeQuickScanConfig Runtime quick scan configuration
@@ -19,10 +21,35 @@ type RuntimeQuickScanConfig struct {
 
 	// cis docker benchmark scan enabled
 	CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
+
+	// max scan parallelism
+	// Minimum: 1
+	MaxScanParallelism int64 `json:"maxScanParallelism,omitempty"`
 }
 
 // Validate validates this runtime quick scan config
 func (m *RuntimeQuickScanConfig) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateMaxScanParallelism(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *RuntimeQuickScanConfig) validateMaxScanParallelism(formats strfmt.Registry) error {
+	if swag.IsZero(m.MaxScanParallelism) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("maxScanParallelism", "body", m.MaxScanParallelism, 1, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -15,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // RuntimeScheduleScanConfig Scheduled runtime scan configuration
@@ -24,6 +25,10 @@ type RuntimeScheduleScanConfig struct {
 
 	// cis docker benchmark scan enabled
 	CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
+
+	// max scan parallelism
+	// Minimum: 1
+	MaxScanParallelism int64 `json:"maxScanParallelism,omitempty"`
 
 	// namespaces
 	Namespaces []string `json:"namespaces"`
@@ -45,6 +50,8 @@ func (m *RuntimeScheduleScanConfig) SetScanConfigType(val RuntimeScheduleScanCon
 func (m *RuntimeScheduleScanConfig) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
+
+		MaxScanParallelism int64 `json:"maxScanParallelism,omitempty"`
 
 		Namespaces []string `json:"namespaces"`
 
@@ -72,6 +79,9 @@ func (m *RuntimeScheduleScanConfig) UnmarshalJSON(raw []byte) error {
 	// cisDockerBenchmarkScanEnabled
 	result.CisDockerBenchmarkScanEnabled = data.CisDockerBenchmarkScanEnabled
 
+	// maxScanParallelism
+	result.MaxScanParallelism = data.MaxScanParallelism
+
 	// namespaces
 	result.Namespaces = data.Namespaces
 
@@ -90,10 +100,14 @@ func (m RuntimeScheduleScanConfig) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		CisDockerBenchmarkScanEnabled bool `json:"cisDockerBenchmarkScanEnabled,omitempty"`
 
+		MaxScanParallelism int64 `json:"maxScanParallelism,omitempty"`
+
 		Namespaces []string `json:"namespaces"`
 	}{
 
 		CisDockerBenchmarkScanEnabled: m.CisDockerBenchmarkScanEnabled,
+
+		MaxScanParallelism: m.MaxScanParallelism,
 
 		Namespaces: m.Namespaces,
 	})
@@ -117,6 +131,10 @@ func (m RuntimeScheduleScanConfig) MarshalJSON() ([]byte, error) {
 func (m *RuntimeScheduleScanConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMaxScanParallelism(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScanConfigType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -124,6 +142,18 @@ func (m *RuntimeScheduleScanConfig) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *RuntimeScheduleScanConfig) validateMaxScanParallelism(formats strfmt.Registry) error {
+	if swag.IsZero(m.MaxScanParallelism) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("maxScanParallelism", "body", m.MaxScanParallelism, 1, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
