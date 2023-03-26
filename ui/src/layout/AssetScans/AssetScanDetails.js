@@ -15,8 +15,8 @@ const ASSET_SCAN_DETAILS_PATHS = {
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, scan, target} = data;
-    const {scanConfigSnapshot, startTime} = scan;
+    const {id, scan, target, summary} = data;
+    const {id: scanId, scanConfigSnapshot, startTime} = scan;
     const {id: targetId, targetInfo} = target;
     
     return (
@@ -41,8 +41,8 @@ const DetailsContent = ({data}) => {
                     path: ASSET_SCAN_DETAILS_PATHS.FINDINGHS,
                     component: () => (
                         <Findings
-                            findingsSummary={scan?.summary}
-                            findingsFilter={`scan/id eq '${id}' and asset/id eq '${targetId}'`}
+                            findingsSummary={summary}
+                            findingsFilter={`scan/id eq '${scanId}' and asset/id eq '${targetId}'`}
                             findingsFilterTitle={`${targetInfo.instanceID} scanned by ${getScanName({name: scanConfigSnapshot.name, startTime})}`}
                         />
                     )

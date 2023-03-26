@@ -14,7 +14,7 @@ export const TitleValueDisplayColumn = ({children}) => (
 
 export const ValuesListDisplay = ({values}) => (
     <div className="title-value-values-list">
-        {values.map((value, index) => <div key={index} className="title-value-values-list-item">{value}</div>)}
+        {values?.map((value, index) => <div key={index} className="title-value-values-list-item">{value}</div>)}
     </div>
 )
 
