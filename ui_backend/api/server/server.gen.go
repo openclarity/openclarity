@@ -8,16 +8,22 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"strings"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
+	. "github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get a list of finding trends for all finding types.
+	// (GET /dashboard/findingsTrends)
+	GetDashboardFindingsTrends(ctx echo.Context, params GetDashboardFindingsTrendsParams) error
 	// Get a list of riskiest assets for the dashboard.
 	// (GET /dashboard/riskiestAssets)
 	GetDashboardRiskiestAssets(ctx echo.Context) error
@@ -29,6 +35,31 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetDashboardFindingsTrends converts echo context to params.
+func (w *ServerInterfaceWrapper) GetDashboardFindingsTrends(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetDashboardFindingsTrendsParams
+	// ------------- Required query parameter "startTime" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "startTime", ctx.QueryParams(), &params.StartTime)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter startTime: %s", err))
+	}
+
+	// ------------- Required query parameter "endTime" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "endTime", ctx.QueryParams(), &params.EndTime)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter endTime: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetDashboardFindingsTrends(ctx, params)
+	return err
 }
 
 // GetDashboardRiskiestAssets converts echo context to params.
@@ -77,6 +108,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/dashboard/findingsTrends", wrapper.GetDashboardFindingsTrends)
 	router.GET(baseURL+"/dashboard/riskiestAssets", wrapper.GetDashboardRiskiestAssets)
 	router.GET(baseURL+"/dashboard/riskiestRegions", wrapper.GetDashboardRiskiestRegions)
 
@@ -85,22 +117,26 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8RXTY/bNhD9KwTbo2BtUvSim7FNCgP9wmazPQQ50NJImiw1VIfUOsLC/70gJa1lWcra",
-	"Rd3ebA5n5s2b4SP1LFNT1YaAnJXJs6wVqwoccPgHX1VVa3iP2gH7BSSZyL8a4FZGklQFMhk2yUjatIRK",
-	"+X2urb3JOkYq5H6/jySDrQ1ZCIE/0iOZHb1jNiFuasgBOf9T1bXGVDk0FH+xhvzaIfD3DLlM5HfxAXbc",
-	"WW28rvGuT9KlzMCmjLUPJZMhp4CQ1Nt7Rx937Js8TzzXJMz2C6ROuFI5gVYwuIYJMoEklNYiVRasMLnI",
-	"FeqGwa5kJGs2NbDDruQKrFVFiM6gst9JtzJx3EB0wtbLSpdV7iO5thbchnITmnQUWJuOrRnehx7NGLqF",
-	"Vwj1Se/9xmVM930coKaSySe5/vODeHf7VmzIOkUpyM/RafL3SBlSYW9N0zX9mG9nnNIi9UbPKai0FHnn",
-	"IkKsKbfwtdYGuwnukyE5KIB9tkrpnWJYMKJNDeVYNBxYXIjBxrjHxQwWUoYl41OjCVhtUeOAd7ppjt07",
-	"KNDQwNQpSfeBpJ4WK3LDQgkOTif85FO+v9X14+aEk+uD/jY/SbPQ0T4iWBcGxJ5O7Lhd06Jq8aPg3l+o",
-	"EEBYww4ysW3F4NkNh4wkOqjsaxV5PG0A05Uze/oUs2on43IZuN7xqtjmpvVClNMQ18Q7PjaXwRw8r4lu",
-	"dGwvA9c7XhPbjGpchnEa4EyUDyO39hLI3xKCTstmlIAPhuPqfkEbtL/fIHboSuFKOAheuIp3yitfQ5kw",
-	"5M3VStyNPcgcHHaotSDjxBYEQx2IWp3dvGM1/sds9GwuqDk11RY4vCOOdJ269p7ouhq/Cl69ycPGfSTT",
-	"4RY45xpamodXKxjPX3vdehgdpko/HE/87VKZkSyxKM/frc3u/M0VZNhU5+8nKDQWuNVwrs9pl/wS9qw5",
-	"dNrbHn691Yo99R83Yv3HxgvAE7DtmvVmdbO68elNDaRqlIn8YXWzeuM7olwZmhFnypZboziL+eRCL7oR",
-	"8M0Lt8gmk4n8GdxPg8/kDTB5/7+9ufnXnv2TTDMv/w9NmoINpzaDXDV68Q30AjI++kIJHwtNVSluuzKF",
-	"EnpQqIkC+wH3QvXC3iq4z7A5UsWz6Rx8/gM+h1T/G6GD9s8yGq5vfgofqp+eZcNaJjJuMPbTvP+8/zsA",
-	"AP//MqphYdkOAAA=",
+	"H4sIAAAAAAAC/8RYTW/jNhD9KwTbQwuodnaLXnRTXScQNhsHjpNtsciBlsY2NxSpHVLxGoH/e0FKsmV9",
+	"2HJbb2+JOB+Pb4aPQ7/RSCWpkiCNpv4bTRmyBAyg+w9kPOMJ2D+5pD79mgFuqEclsx93yx5F+JpxhJj6",
+	"BjPwqI5WkDDrt1CYMEN9GjMDv5jc3GxS668Ncrmk261H4RtLUgHXXBjAzny5Ea3Gb4bShqE5Bntv8K+B",
+	"b20EnSqpwRH2KF+kWssxonK7iJQ0II39k6Wp4BEzXMnhF62k/bbP9iPCgvr0h+G+HMN8VQ+DlE+LJHnK",
+	"GHSEPLWhqF/mJOCSOgZyRxu36uu/1TwDSdT8C0SGmBUzhGuCYDKUEBMuCROCREyDJmpBFoyLDEEPqEdT",
+	"VCmg4fmWE9CaLV10BBZPpNiUZDZrU3zJs9KtRwOtwYRyoVzzHQQWKmerpcplKVsW8g8nCLVJZ9awG9Os",
+	"iAMyS6j/mQafHsh49J6EUhsmI6DPXjP5NZcxl8sZgoybdE8hRdAWCTErIEYZJojMkjmgozh31pZ7t84T",
+	"IFooQ36ag1kDSLLrXMJkTIrj93OzJpHK8qYrEHJpYAloIVaOdJ8Orx2nnqe5QWmVGN1k5pZrYyk4SksK",
+	"WOFkodCZ6xQivuBRaWfr1iSksniqOa4rpnYrO8jcQKL7ersOcOrQeiQYItscp6rWf/fB6ENwM6YefXq8",
+	"vRtPg9/D23D2F/Xox+D2UzC1Kw/j0XQ8s5/Ch9Hk7jq8eZwGs3ByRz06nUxmH0K7OP7z/nYSzo41sB6V",
+	"DXRYp7w2rrtsaYBFq5J34mLVeYdvqVA8v1qavZgwsWYIHYtcR0ou+DJDJwMdMVAp89KZQUOE0LX4mgkJ",
+	"yOZc8BJv3ehIgfSpZt4R4+xcw1pJrfLl5PTsvtKnG8ujU1hyJUusTZQzV8rd4XLoCDqnrtOz74oeSAtj",
+	"h9QGvWsX7DaCp1y/cNDG6bBuXgzVpqpvKiW/ESz8CXMBiFZoICbzDSk98xbuy73Fs3Fg+hBfaerzwBWO",
+	"F8XWdqbORFkPcUm81cN9HszS85LoKuJyHrjC8ZLYWrTtPIz1AD1RPlXcNudAPiYEuZa1KAHuF9o1uDAg",
+	"a25WblzYCZ6beNfMKl8mY6LczJUMyLTqIdXeYc2FIFIZMgeCkDqiest3TY3/MRsFmx1q3jI0OV2XeXkb",
+	"us6qw/fJgdkZbr3u4bINdFc/nNxBtf82l90PcsMjJp4OO37UPUOv+HLV31qodX/jBGKeJf3tJSwFX/K5",
+	"gL4+zSrZT7xgzXAj7NrTx5FgaKl/DElwH1oBeAXUebHeDa4GVza9SkGylFOf/jq4GryzFWFm5YoxjJle",
+	"zRXDeLhoTEzLvAVs8dwtEsbUpzdg/ih9akOWd/DDxOf26u5NhvtHy9Y7aVw+ibbPtdf8+6ur/+wRX9tQ",
+	"yzv+IYsi0E4cYliwTHSOWjuQw4PfG9zTP0sShpucTcKIOGsYtREqdcPGIHaybrXZ7YKE1jJ9b0LrN2f5",
+	"Ht2x18lm5TbrTWfp8x34LFP9b4SWd3Yro27swtdSBjIU1KfDjA+tCm2ft38HAAD//7q1H/zQFAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
