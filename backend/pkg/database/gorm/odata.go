@@ -734,6 +734,52 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
+	"TargetScanStatus": {
+		Fields: odatasql.Schema{
+			"general": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"sbom": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"vulnerabilities": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"malware": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"rootkits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"secrets": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"misconfigurations": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+			"exploits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"TargetScanState"},
+			},
+		},
+	},
+	"TargetScanState": {
+		Fields: odatasql.Schema{
+			"state":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"errors": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			},
+		},
+	},
 }
 
 func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandString, orderby *string, top, skip *int, collection bool, result interface{}) error {
