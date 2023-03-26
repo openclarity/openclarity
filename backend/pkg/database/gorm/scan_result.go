@@ -100,15 +100,21 @@ func (s *ScanResultsTableHandler) GetScanResult(scanResultID models.ScanResultID
 func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
 	// Check the user provided scan id and target id fields
 	if scanResult.Scan != nil && scanResult.Scan.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("scan.id is a required field")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "scan.id is a required field",
+		}
 	}
 	if scanResult.Target != nil && scanResult.Target.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("target.id is a required field")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "target.id is a required field",
+		}
 	}
 
 	// Check the user didn't provide an ID
 	if scanResult.Id != nil {
-		return models.TargetScanResult{}, fmt.Errorf("can not specify ID field when creating a new ScanResult")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "can not specify id field when creating a new ScanResult",
+		}
 	}
 
 	// Generate a new UUID
@@ -171,15 +177,21 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 // nolint:cyclop
 func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
 	if scanResult.Id == nil || *scanResult.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("ID is required to update scan result in DB")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "id is required to save scan result",
+		}
 	}
 
 	// Check the user provided scan id and target id fields
 	if scanResult.Scan != nil && scanResult.Scan.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("scan.id is a required field")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "scan.id is a required field",
+		}
 	}
 	if scanResult.Target != nil && scanResult.Target.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("target.id is a required field")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "target.id is a required field",
+		}
 	}
 
 	var dbScanResult ScanResult
@@ -212,7 +224,9 @@ func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanRes
 
 func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
 	if scanResult.Id == nil || *scanResult.Id == "" {
-		return models.TargetScanResult{}, fmt.Errorf("ID is required to update scan result in DB")
+		return models.TargetScanResult{}, &common.BadRequestError{
+			Reason: "id is required to update scan result",
+		}
 	}
 
 	var dbScanResult ScanResult

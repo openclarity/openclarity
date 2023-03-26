@@ -47,14 +47,19 @@ func (s *ServerImpl) PostScans(ctx echo.Context) error {
 	createdScan, err := s.dbHandler.ScansTable().CreateScan(scan)
 	if err != nil {
 		var conflictErr *common.ConflictError
-		if errors.As(err, &conflictErr) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanExists{
 				Message: utils.StringPtr(conflictErr.Reason),
 				Scan:    &createdScan,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create scan in db: %v", err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to create scan in db: %v", err))
 	}
 
 	return sendResponse(ctx, http.StatusCreated, createdScan)
@@ -102,10 +107,15 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID) er
 
 	updatedScan, err := s.dbHandler.ScansTable().UpdateScan(scan)
 	if err != nil {
-		if errors.Is(err, databaseTypes.ErrNotFound) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan in db. scanID=%v: %v", scanID, err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan in db. scanID=%v: %v", scanID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedScan)
@@ -127,10 +137,15 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID) erro
 
 	updatedScan, err := s.dbHandler.ScansTable().SaveScan(scan)
 	if err != nil {
-		if errors.Is(err, databaseTypes.ErrNotFound) {
+		var validationErr *common.BadRequestError
+		switch true {
+		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		case errors.As(err, &validationErr):
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		default:
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to save scan in db. scanID=%v: %v", scanID, err))
 		}
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to save scan in db. scanID=%v: %v", scanID, err))
 	}
 
 	return sendResponse(ctx, http.StatusOK, updatedScan)
