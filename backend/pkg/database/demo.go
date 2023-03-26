@@ -20,6 +20,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/rand"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
@@ -156,6 +157,7 @@ func CreateDemoData(db types.Database) {
 // nolint:gocognit,prealloc,cyclop
 func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 	var ret []models.Finding
+	rand.Seed(uint64(time.Now().Unix()))
 
 	for _, scanResult := range scanResults {
 		var foundOn *time.Time
@@ -166,6 +168,9 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 			} else {
 				foundOn = startTime
 			}
+		} else {
+			randMin := rand.Intn(59) + 1
+			foundOn = utils.PointerTo(time.Now().Add(time.Duration(-randMin) * time.Minute))
 		}
 		findingBase := models.Finding{
 			Asset: &models.TargetRelationship{
@@ -173,7 +178,7 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 			},
 			FindingInfo:   nil,
 			FoundOn:       foundOn,
-			InvalidatedOn: nil, // TODO
+			InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
 			Scan: &models.ScanRelationship{
 				Id: scanResult.Scan.Id,
 			},
