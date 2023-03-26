@@ -58,13 +58,15 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
             rightPlaneDisplay={() => (
                 <>
                     <Title medium>Status</Title>
-                    <ScanProgressBar
-                        state={state}
-                        stateReason={stateReason}
-                        stateMessage={stateMessage}
-                        itemsCompleted={jobsCompleted}
-                        itemsLeft={jobsLeftToRun}
-                    />
+                    <div style={{marginBottom: "20px"}}>
+                        <ScanProgressBar
+                            state={state}
+                            stateReason={stateReason}
+                            stateMessage={stateMessage}
+                            itemsCompleted={jobsCompleted}
+                            itemsLeft={jobsLeftToRun}
+                        />
+                    </div>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Started">{formattedStartTime}</TitleValueDisplay>
                         <TitleValueDisplay title="Ended">{formatDate(endTime)}</TitleValueDisplay>
