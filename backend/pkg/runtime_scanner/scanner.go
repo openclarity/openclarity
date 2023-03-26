@@ -64,6 +64,7 @@ type ScanConfig struct {
 	ScanType                      models.ScanType
 	CisDockerBenchmarkScanEnabled bool
 	Namespaces                    []string
+	MaxScanParallelism            int64
 }
 
 func CreateRuntimeScanner(scanner orchestrator.VulnerabilitiesScanner, scanChan chan *ScanConfig, resultsChan chan *types.ScanResults) Scanner {
@@ -177,7 +178,7 @@ func (s *RuntimeScanner) startScan(scanConfig *ScanConfig) error {
 	}
 
 	done, err := s.vulnerabilitiesScanner.Scan(&runtime_scan_config.ScanConfig{
-		MaxScanParallelism:           10, // nolint:gomnd
+		MaxScanParallelism:           scanConfig.MaxScanParallelism,
 		TargetNamespaces:             namespaces,
 		IgnoredNamespaces:            nil,
 		JobResultTimeout:             10 * time.Minute, // nolint:gomnd
