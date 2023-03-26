@@ -394,6 +394,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description1",
 		StartLine:   1,
 		EndLine:     11,
+		StartColumn: 101,
+		EndColumn:   111,
 		File:        "File1",
 		Fingerprint: "Fingerprint1",
 	}
@@ -401,6 +403,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description2",
 		StartLine:   2,
 		EndLine:     22,
+		StartColumn: 102,
+		EndColumn:   122,
 		File:        "File2",
 		Fingerprint: "Fingerprint2",
 	}
@@ -408,6 +412,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 		Description: "Description3",
 		StartLine:   3,
 		EndLine:     33,
+		StartColumn: 103,
+		EndColumn:   133,
 		File:        "File3",
 		Fingerprint: "Fingerprint3",
 	}
@@ -478,6 +484,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						FilePath:    &finding1.File,
 						Fingerprint: &finding1.Fingerprint,
 						StartLine:   &finding1.StartLine,
+						StartColumn: &finding1.StartColumn,
+						EndColumn:   &finding1.EndColumn,
 					},
 					{
 						Description: &finding2.Description,
@@ -485,6 +493,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						FilePath:    &finding2.File,
 						Fingerprint: &finding2.Fingerprint,
 						StartLine:   &finding2.StartLine,
+						StartColumn: &finding2.StartColumn,
+						EndColumn:   &finding2.EndColumn,
 					},
 					{
 						Description: &finding3.Description,
@@ -492,6 +502,8 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 						FilePath:    &finding3.File,
 						Fingerprint: &finding3.Fingerprint,
 						StartLine:   &finding3.StartLine,
+						StartColumn: &finding3.StartColumn,
+						EndColumn:   &finding3.EndColumn,
 					},
 				},
 			},
@@ -742,21 +754,21 @@ func Test_misconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 			args: args{
 				sev: misconfigurationTypes.HighSeverity,
 			},
-			want: models.MisconfigurationSeverityHighSeverity,
+			want: models.MisconfigurationHighSeverity,
 		},
 		{
 			name: "medium severity",
 			args: args{
 				sev: misconfigurationTypes.MediumSeverity,
 			},
-			want: models.MisconfigurationSeverityMediumSeverity,
+			want: models.MisconfigurationMediumSeverity,
 		},
 		{
 			name: "low severity",
 			args: args{
 				sev: misconfigurationTypes.LowSeverity,
 			},
-			want: models.MisconfigurationSeverityLowSeverity,
+			want: models.MisconfigurationLowSeverity,
 		},
 		{
 			name: "unknown severity",
@@ -881,7 +893,7 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 						Remediation:     utils.PointerTo(misconfiguration1.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration1.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration1.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
+						Severity:        utils.PointerTo(models.MisconfigurationHighSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration1.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration1.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration1.TestID),
@@ -891,7 +903,7 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 						Remediation:     utils.PointerTo(misconfiguration2.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration2.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration2.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationSeverityMediumSeverity),
+						Severity:        utils.PointerTo(models.MisconfigurationMediumSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration2.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration2.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration2.TestID),
@@ -901,7 +913,7 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 						Remediation:     utils.PointerTo(misconfiguration3.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration3.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration3.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
+						Severity:        utils.PointerTo(models.MisconfigurationHighSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration3.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration3.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration3.TestID),

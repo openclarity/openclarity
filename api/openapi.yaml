@@ -113,6 +113,32 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
+    patch:
+      summary: Update target.
+      parameters:
+        - $ref: '#/components/parameters/targetID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Target'
+        required: true
+      responses:
+        200:
+          description: Updated target successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        404:
+          description: Target ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
     delete:
       summary: Delete target.
       parameters:
@@ -1448,6 +1474,8 @@ components:
           $ref: '#/components/schemas/MisconfigurationScan'
         exploits:
           $ref: '#/components/schemas/ExploitScan'
+        findingsProcessed:
+          type: boolean
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
       # TODO(sambetts) Decide if we want the validation here by having
@@ -1503,6 +1531,9 @@ components:
             - ATTACHED
             - IN_PROGRESS
             - DONE
+        lastTransitionTime:
+          type: string
+          format: date-time
         errors:
           type: array
           items:
@@ -1671,6 +1702,13 @@ components:
           type: string
           description: Path of the file that contains rootkit
 
+    MisconfigurationSeverity:
+      type: string
+      enum:
+        - MisconfigurationHighSeverity
+        - MisconfigurationMediumSeverity
+        - MisconfigurationLowSeverity
+
     Misconfiguration:
       type: object
       properties:
@@ -1685,11 +1723,7 @@ components:
         testDescription:
           type: string
         severity:
-          type: string
-          enum:
-            - HighSeverity
-            - MediumSeverity
-            - LowSeverity
+          $ref: '#/components/schemas/MisconfigurationSeverity'
         message:
           type: string
         remediation:
@@ -1707,8 +1741,12 @@ components:
           type: integer
         endLine:
           type: integer
+        startColumn:
+          type: integer
+        endColumn:
+          type: integer
         fingerprint:
-          description: "Unique identification of the SecretInfo"
+          description: "Note: this is not unique"
           type: string
 
     Exploit:

@@ -86,7 +86,7 @@ type TargetsTable interface {
 	GetTarget(targetID models.TargetID, params models.GetTargetsTargetIDParams) (models.Target, error)
 
 	CreateTarget(target models.Target) (models.Target, error)
-	// UpdateTarget(target models.Target) (models.Target, error)
+	UpdateTarget(target models.Target) (models.Target, error)
 	SaveTarget(target models.Target) (models.Target, error)
 
 	DeleteTarget(targetID models.TargetID) error

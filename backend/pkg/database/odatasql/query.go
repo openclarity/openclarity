@@ -256,6 +256,13 @@ func buildSelectFieldsForRelationshipFieldType(schemaMetas map[string]SchemaMeta
 	return fmt.Sprintf("(SELECT %s FROM %s WHERE %s -> '$.%s' == %s -> '%s.%s')", object, schema.Table, newsource, field.RelationshipProperty, source, path, field.RelationshipProperty)
 }
 
+func getDiscriminatorValue(schemaName string, field FieldMeta) string {
+	if t, ok := field.DiscriminatorSchemaMapping[schemaName]; ok {
+		return t
+	}
+	return schemaName
+}
+
 // nolint:cyclop
 func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	// If there are no children in the select tree for this complex
@@ -272,7 +279,8 @@ func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, fie
 
 		parts := []string{}
 		if field.DiscriminatorProperty != "" {
-			parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DiscriminatorProperty, schemaName))
+			objectType := getDiscriminatorValue(schemaName, field)
+			parts = append(parts, fmt.Sprintf("'%s', '%s'", field.DiscriminatorProperty, objectType))
 		}
 		for key, fm := range schema.Fields {
 			if field.DiscriminatorProperty != "" && key == field.DiscriminatorProperty {

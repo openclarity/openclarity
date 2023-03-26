@@ -955,7 +955,7 @@ func createMisconfigurationsResult() *[]models.Misconfiguration {
 			TestDescription: utils.PointerTo("Checking presence password strength testing tools (PAM)"),
 
 			Message:  utils.PointerTo("Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc. Details: /lib/x86_64-linux-gnu/security/pam_access.so"),
-			Severity: utils.PointerTo(models.MisconfigurationSeverityHighSeverity),
+			Severity: utils.PointerTo(models.MisconfigurationHighSeverity),
 		},
 		{
 			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
@@ -965,7 +965,7 @@ func createMisconfigurationsResult() *[]models.Misconfiguration {
 			TestDescription: utils.PointerTo("Checking /tmp sticky bit"),
 
 			Message:  utils.PointerTo("Set the sticky bit on /home/ubuntu/debian11/tmp, to prevent users deleting (by other owned) files in the /tmp directory. Details: /tmp"),
-			Severity: utils.PointerTo(models.MisconfigurationSeverityMediumSeverity),
+			Severity: utils.PointerTo(models.MisconfigurationMediumSeverity),
 		},
 		{
 			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
@@ -975,7 +975,7 @@ func createMisconfigurationsResult() *[]models.Misconfiguration {
 			TestDescription: utils.PointerTo("Check if USB storage is disabled"),
 
 			Message:  utils.PointerTo("Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft. Details: /etc/cron.d/e2scrub_all"),
-			Severity: utils.PointerTo(models.MisconfigurationSeverityLowSeverity),
+			Severity: utils.PointerTo(models.MisconfigurationLowSeverity),
 		},
 	}
 }
