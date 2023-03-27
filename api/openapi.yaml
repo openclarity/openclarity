@@ -907,6 +907,7 @@ components:
             - Pending
             - Discovered
             - InProgress
+            - Aborted
             - Failed
             - Done
         stateMessage:
@@ -1578,6 +1579,7 @@ components:
             - INIT
             - ATTACHED
             - IN_PROGRESS
+            - ABORTED
             - DONE
         lastTransitionTime:
           type: string
