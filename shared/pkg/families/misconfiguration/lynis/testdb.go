@@ -71,6 +71,8 @@ func (a *TestDB) GetDescriptionForTestID(testid string) string {
 func parseTestsFromDBFile(logger *log.Entry, lynisInstallPath string) (testdb, error) {
 	output := testdb{}
 
+	// Comes from the Lynis install:
+	// https://github.com/CISOfy/lynis/blob/master/db/tests.db
 	lynisDBPath := path.Join(lynisInstallPath, "db", "tests.db")
 	if _, err := os.Stat(lynisDBPath); err != nil {
 		return output, fmt.Errorf("failed to find DB @ %v: %w", lynisDBPath, err)
