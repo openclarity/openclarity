@@ -54,7 +54,8 @@ func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Co
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing package findings for this scan: %v", len(existingMap), existingMap)
+	srp.logger.Infof("Found %d existing package findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing package map: %v", existingMap)
 
 	return existingMap, nil
 }
