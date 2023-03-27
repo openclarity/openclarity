@@ -106,7 +106,7 @@ func (scw *ScanConfigWatcher) reconcileScanConfigs(ctx context.Context) error {
 					log.Debugf("Patching ScanConfig %s with a new operation time (%s)", scanConfigID, nextOperationTime.String())
 				} else {
 					// not a periodic scan, we should disable the scan config, so it will not be fetched again.
-					scanConfig.Disabled = utils.PointerTo(false)
+					scanConfig.Disabled = utils.PointerTo(true)
 					log.Debugf("Patching ScanConfig %s with disabled (%v)", scanConfigID, *scanConfig.Disabled)
 				}
 				if err = scw.backendClient.PatchScanConfig(ctx, scanConfigID, &scanConfig); err != nil {
