@@ -53,7 +53,7 @@ func (a *ReportParser) ParseLynisReport(scanPath string, reportPath string) ([]t
 		line := scanner.Text()
 		isMisconfiguration, misconfiguration, err := a.parseLynisReportLine(scanPath, line)
 		if err != nil {
-			return output, fmt.Errorf("failed to parse report line \"%s\": %w", line, err)
+			return output, fmt.Errorf("failed to parse report line %q: %w", line, err)
 		}
 		if isMisconfiguration {
 			output = append(output, misconfiguration)
@@ -85,7 +85,7 @@ func (a *ReportParser) parseLynisReportLine(scanPath string, line string) (bool,
 	case "suggestion[]":
 		mis, err := a.valueToMisconfiguration(scanPath, value, types.LowSeverity)
 		if err != nil {
-			return false, types.Misconfiguration{}, fmt.Errorf("could not convert value %s to misconfiguration: %w", value, err)
+			return false, types.Misconfiguration{}, fmt.Errorf("could not convert suggestion value %s to low misconfiguration: %w", value, err)
 		}
 
 		// LYNIS suggestions are about the lynis install itself, we
@@ -98,7 +98,7 @@ func (a *ReportParser) parseLynisReportLine(scanPath string, line string) (bool,
 	case "warning[]":
 		mis, err := a.valueToMisconfiguration(scanPath, value, types.HighSeverity)
 		if err != nil {
-			return false, types.Misconfiguration{}, fmt.Errorf("could not convert value %s to misconfiguration: %w", value, err)
+			return false, types.Misconfiguration{}, fmt.Errorf("could not convert warning value %s to high misconfiguration: %w", value, err)
 		}
 		return true, mis, nil
 	default:
@@ -107,6 +107,16 @@ func (a *ReportParser) parseLynisReportLine(scanPath string, line string) (bool,
 	}
 }
 
+// valueToMisconfiguration converts a lynis warning/suggestion into a
+// Misconfiguration. They are made up of parts separated by pipes for example:
+//
+// BOOT-5122|Set a password on GRUB boot loader to prevent altering boot configuration (e.g. boot in single user mode without password)|-|-|
+//
+// These are translated as:
+//
+// <TestID>|<Message>|<Message Details/Part 2>|<Remediation>|
+//
+// The function will error if the value is malformed.
 func (a *ReportParser) valueToMisconfiguration(scanPath string, value string, severity types.Severity) (types.Misconfiguration, error) {
 	parts := strings.Split(value, "|")
 	if len(parts) != lynisSuggestionWarningParts {
