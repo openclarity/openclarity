@@ -57,7 +57,8 @@ func (srp *ScanResultProcessor) getExistingMisconfigurationFindingsForScan(ctx c
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing misconfiguration findings for this scan: %v", len(existingMap), existingMap)
+	srp.logger.Infof("Found %d existing misconfiguration findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing misconfiguration map: %v", existingMap)
 
 	return existingMap, nil
 }

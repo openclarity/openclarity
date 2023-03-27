@@ -62,7 +62,8 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing vulnerability findings for this scan: %v", len(existingMap), existingMap)
+	srp.logger.Infof("Found %d existing vulnerabilties findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing vulnerabilties map: %v", existingMap)
 
 	// Create new findings for all the found vulnerabilties
 	for _, vuln := range *scanResult.Vulnerabilities.Vulnerabilities {
