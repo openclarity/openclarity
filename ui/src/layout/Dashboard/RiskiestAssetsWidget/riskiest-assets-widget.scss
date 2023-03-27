@@ -1,0 +1,19 @@
+@import 'utils/scss_variables.module.scss';
+
+.tabbed-widget-table {
+    font-size: 14px;
+    border-collapse: collapse;
+    width: 100%;
+
+    thead {
+        font-size: 12px;
+        text-align: left;
+    }
+    tbody tr {
+        border-bottom: 1px solid $color-grey-light;
+    }
+    th,
+    td {
+        padding: 14px 0 7px 0;
+    }
+}

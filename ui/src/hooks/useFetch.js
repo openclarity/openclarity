@@ -21,10 +21,11 @@ const queryString = (params) => Object.keys(params).map((key) => {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
 }).join('&');
 
-export const formatFetchUrl = ({url, queryParams, formatUrl}) => {
+export const formatFetchUrl = ({url, queryParams, formatUrl, urlPrefix}) => {
     const formattedUrl = !!formatUrl ? formatUrl(url) : url;
+    const formattedPrefix = !!urlPrefix ? `${urlPrefix}/api` : "api";
 
-    return isEmpty(queryParams) ? `/api/${formattedUrl}` : `/api/${formattedUrl}?${queryString(queryParams)}`;
+    return isEmpty(queryParams) ? `/${formattedPrefix}/${formattedUrl}` : `/${formattedPrefix}/${formattedUrl}?${queryString(queryParams)}`;
 }
 
 export const formatFetchOptions = ({method, stringifiedSubmitData}) => {
@@ -68,14 +69,14 @@ function reducer(state, action) {
 }
 
 function useFetch(baseUrl, options){
-    const {queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount=true} = options || {};
+    const {queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount=true, urlPrefix=""} = options || {};
 
     const [state, dispatch] = useReducer(reducer, {
         loading: false,
         error: null,
         data: loadOnMount ? undefined : null,
         baseUrl,
-        url: formatFetchUrl({url: baseUrl, queryParams, formatUrl}),
+        url: formatFetchUrl({url: baseUrl, queryParams, formatUrl, urlPrefix}),
         method: !!initialMethod ? initialMethod.toUpperCase() : FETCH_METHODS.GET,
         submitData: !!inititalSubmitData ? JSON.stringify(inititalSubmitData) : null,
         loadData: loadOnMount || false

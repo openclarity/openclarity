@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+.dashboard-counter {
+    box-sizing: border-box;
+    border: 1px solid $color-grey-light;
+    font-weight: 400;
+    font-size: 18px;
+    padding: 10px 30px;
+    overflow: hidden;
+
+    .dashboard-counter-content {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+
+        .dashboard-counter-count {
+            font-weight: 350;
+            font-size: 26px;
+            margin-right: 10px;
+        }
+    }
+}

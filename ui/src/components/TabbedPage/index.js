@@ -1,11 +1,11 @@
 import React from 'react';
 import { Routes, Route, useNavigate, Outlet, useLocation, useParams, Navigate } from 'react-router-dom';
 import classnames from 'classnames';
-import { TooltipWrapper } from 'components/Tooltip';
+import Tabs from 'components/Tabs';
 
 import './tabbed-page.scss';
 
-const TabbedPage= ({items, redirectTo, basePath, headerCustomDisplay: HeaderCustomDisplay, withInnerPadding=true, withStickyTabs=false}) => {
+const TabbedPage= ({items, redirectTo, basePath, headerCustomDisplay, withInnerPadding=true, withStickyTabs=false}) => {
     const navigate = useNavigate();
 
     const {pathname} = useLocation();
@@ -21,31 +21,13 @@ const TabbedPage= ({items, redirectTo, basePath, headerCustomDisplay: HeaderCust
     return (
         <div className="tabbed-page-container">
             {isInTab &&
-                <div className={classnames("tabs-container", {sticky: withStickyTabs})}>
-                    {
-                        items.map(({id, path, title, isIndex, disabled, tabTooltip}) => {
-                            const isActive = checkIsActive({isIndex, path});
-
-                            const onTabClick = () => {
-                                if (disabled) {
-                                    return;
-                                }
-                                
-                                navigate(isIndex ? cleanPath : path);
-                            }
-
-                            const WrapperElement = !!tabTooltip ? TooltipWrapper : "div";
-                            const wrapperProps = !!tabTooltip ? {tooltipId: `tab-disabled-tooltip-${id}`, tooltipText: tabTooltip} : {};
-                            
-                            return (
-                                <WrapperElement key={id} {...wrapperProps} className={classnames("tab-item", {active: isActive}, {disabled})} onClick={onTabClick}>
-                                    {title}
-                                </WrapperElement>
-                            )
-                        })
-                    }
-                    {!!HeaderCustomDisplay && <div className="tabs-header-custom-content-wrapper"><HeaderCustomDisplay /></div>}
-                </div>
+                <Tabs
+                    items={items}
+                    checkIsActive={checkIsActive}
+                    onClick={({isIndex, path}) => navigate(isIndex ? cleanPath : path)}
+                    headerCustomDisplay={headerCustomDisplay}
+                    withStickyTabs={withStickyTabs}
+                />
             }
             <Routes>
                 <Route path="/" element={<div className={classnames("tab-content", {"with-padding": withInnerPadding})}><Outlet /></div>}>

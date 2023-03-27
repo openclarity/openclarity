@@ -4,8 +4,7 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import LinksList from 'components/LinksList';
 import VulnerabilitiesDisplay, { getTotlalVulnerabilitiesFromCounters } from 'components/VulnerabilitiesDisplay';
-import { ROUTES, FINDINGS_MAPPING } from 'utils/systemConsts';
-import { FINDINGS_PATHS } from 'layout/Findings'
+import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsCounterDisplay from './FindingsCounterDisplay';
 import FindingsSystemFilterLinks from './FindingsSystemFilterLinks';
@@ -43,17 +42,17 @@ const Findings = ({findingsSummary={}, findingsFilter, findingsFilterTitle, find
                     <LinksList
                         items={[
                             {
-                                path: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.VULNERABILITIES}`,
+                                path: VULNERABIITY_FINDINGS_ITEM.appRoute,
                                 component: () => <VulnerabilitiesDisplay counters={totalVulnerabilities} />,
                                 callback: onFindingsClick
                             },
                             ...Object.keys(FINDINGS_MAPPING).map(findingType => {
-                                const {dataKey, title, icon, color, appRoute} = FINDINGS_MAPPING[findingType];
+                                const {totalKey, title, icon, color, appRoute} = FINDINGS_MAPPING[findingType];
                                 
                                 return {
                                     path: appRoute,
                                     component: () => (
-                                        <FindingsCounterDisplay key={dataKey} icon={icon} color={color} count={findingsSummary[dataKey] || 0} title={title} />
+                                        <FindingsCounterDisplay key={totalKey} icon={icon} color={color} count={findingsSummary[totalKey] || 0} title={title} />
                                     ),
                                     callback: onFindingsClick
                                 }
