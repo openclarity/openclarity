@@ -140,7 +140,7 @@ func (a *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	case utils.ROOTFS:
 		return true
 	case utils.DIR, utils.FILE, utils.IMAGE, utils.SBOM:
-		a.logger.Infof("source type %v is not supported for exploitsdb, skipping.", sourceType)
+		a.logger.Infof("source type %v is not supported for lynis, skipping.", sourceType)
 	default:
 		a.logger.Infof("unknown source type %v, skipping.", sourceType)
 	}
