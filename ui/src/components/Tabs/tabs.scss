@@ -1,0 +1,38 @@
+@import 'utils/scss_variables.module.scss';
+
+.tabs-container {
+    display: flex;
+    height: 44px;
+    border-bottom: 2px solid $color-grey-lighter;
+    background-color: white;
+    position: relative;
+
+    &.sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .tab-item {
+        display: inline-flex;
+        align-items: center;
+        font-size: 14px;
+        line-height: 16px;
+        text-align: center;
+        cursor: pointer;
+
+        &.active {
+            font-weight: bold;
+            border-bottom: 2px solid $color-main-light;
+        }
+        &.disabled {
+            color: $color-grey-light;
+            cursor: not-allowed;
+        }
+    }
+    .tabs-header-custom-content-wrapper {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+    }
+}

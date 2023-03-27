@@ -46,7 +46,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             laterTime: "",
             cronLine: cronLine || CRON_QUICK_OPTIONS[0].value
         },
-        maxParallelScanners: maxParallelScanners || 1,
+        maxParallelScanners: maxParallelScanners || 2,
         scannerInstanceCreationConfig: {
             useSpotInstances: useSpotInstances || false
         }

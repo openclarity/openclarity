@@ -17,47 +17,63 @@ export const APIS = {
     ASSETS: "targets",
     ASSET_SCANS: "scanResults",
     SCOPES_DISCOVERY: "discovery/scopes",
-    FINDINGS: "findings"
+    FINDINGS: "findings",
+    DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",
+    DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets"
 }
 
 export const FINDINGS_MAPPING = {
     EXPLOITS: {
-        dataKey: "totalExploits",
+        value: "EXPLOITS",
+        dataKey: "exploits",
+        totalKey: "totalExploits",
         title: "Exploits",
         icon: ICON_NAMES.BOMB,
         color: COLORS["color-main"],
+        darkColor: COLORS["color-main-variation-dark"],
         appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.EXPLOITS}`
     },
     MISCONFIGURATIONS: {
-        dataKey: "totalMisconfigurations",
+        value: "MISCONFIGURATIONS",
+        dataKey: "misconfigurations",
+        totalKey: "totalMisconfigurations",
         title: "Misconfigurations",
         icon: ICON_NAMES.COG,
         color: COLORS["color-findings-1"],
+        darkColor: COLORS["color-findings-1-variation-dark"],
         appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.MISCONFIGURATIONS}`
     },
     SECRETS: {
-        dataKey: "totalSecrets",
+        value: "SECRETS",
+        dataKey: "secrets",
+        totalKey: "totalSecrets",
         title: "Secrets",
         icon: ICON_NAMES.KEY,
         color: COLORS["color-findings-2"],
         appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.SECRETS}`
     },
     MALWARE: {
-        dataKey: "totalMalware",
-        title: "Malwares",
+        value: "MALWARE",
+        dataKey: "malware",
+        totalKey: "totalMalware",
+        title: "Malware",
         icon: ICON_NAMES.BUG,
         color: COLORS["color-findings-3"],
         appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.MALWARE}`
     },
     ROOTKITS: {
-        dataKey: "totalRootkits",
+        value: "ROOTKITS",
+        dataKey: "rootkits",
+        totalKey: "totalRootkits",
         title: "Rootkits",
         icon: ICON_NAMES.GHOST,
         color: COLORS["color-findings-4"],
         appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.ROOTKITS}`
     },
     PACKAGES: {
-        dataKey: "totalPackages",
+        value: "PACKAGES",
+        dataKey:"packages",
+        totalKey: "totalPackages",
         title: "Packages",
         icon: ICON_NAMES.PACKAGE,
         color: COLORS["color-findings-5"],
@@ -65,4 +81,12 @@ export const FINDINGS_MAPPING = {
     }
 }
 
-export const VULNERABILITIES_ICON_NAME = ICON_NAMES.SHIELD;
+export const VULNERABIITY_FINDINGS_ITEM = {
+    value: "VULNERABIITIES",
+    dataKey: "vulnerabilities",
+    title: "Vulnerabilities",
+    icon: ICON_NAMES.SHIELD,
+    color: COLORS["color-main-dark"],
+    darkColor: COLORS["color-main-dark-variation-dark"],
+    appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.VULNERABILITIES}`
+}

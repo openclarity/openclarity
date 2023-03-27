@@ -2,7 +2,7 @@ import React from 'react';
 import { TooltipWrapper } from 'components/Tooltip';
 import Icon from 'components/Icon';
 import { SEVERITY_ITEMS } from 'components/SeverityDisplay';
-import { VULNERABILITIES_ICON_NAME } from 'utils/systemConsts';
+import { VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -14,33 +14,38 @@ export const getTotlalVulnerabilitiesFromCounters = counters => (
     }, 0)
 )
 
-const VULNERABILITY_SEVERITY_ITEMS = {
+export const VULNERABILITY_SEVERITY_ITEMS = {
     totalCriticalVulnerabilities: {
         totalKey: "totalCriticalVulnerabilities",
+        countKey: "criticalVulnerabilitiesCount",
         title: "Critical",
         color: SEVERITY_ITEMS.CRITICAL.color,
         innerTextColor: "white"
     },
     totalHighVulnerabilities: {
         totalKey: "totalHighVulnerabilities",
+        countKey: "highVulnerabilitiesCount",
         title: "High",
         color: SEVERITY_ITEMS.HIGH.color,
         innerTextColor: "white"
     },
     meditotalMediumVulnerabilitiesum: {
         totalKey: "totalMediumVulnerabilities",
+        countKey: "mediumVulnerabilitiesCount",
         title: "Medium",
         color: SEVERITY_ITEMS.MEDIUM.color,
         innerTextColor: COLORS["color-grey-black"]
     },
     totalLowVulnerabilities: {
         totalKey: "totalLowVulnerabilities",
+        countKey: "lowVulnerabilitiesCount",
         title: "Low",
         color: SEVERITY_ITEMS.LOW.color,
         innerTextColor: COLORS["color-grey-black"]
     },
     totalNegligibleVulnerabilities: {
         totalKey: "totalNegligibleVulnerabilities",
+        countKey: "negligibleVulnerabilitiesCount",
         title: "Negligible",
         color: SEVERITY_ITEMS.NEGLIGIBLE.color,
         innerTextColor: COLORS["color-grey-black"],
@@ -55,7 +60,7 @@ const TooltipContentDisplay = ({total, counters}) => (
             {
                 Object.values(VULNERABILITY_SEVERITY_ITEMS).map(({totalKey, color}) => (
                     <div key={totalKey} className="vulnerabilities-tooltip-counters-item">
-                        <Icon name={VULNERABILITIES_ICON_NAME} style={{color}} size={18} /><span>{counters[totalKey] || 0}</span>
+                        <Icon name={VULNERABIITY_FINDINGS_ITEM.icon} style={{color}} size={18} /><span>{counters[totalKey] || 0}</span>
                     </div>
                 ))
             }
@@ -65,6 +70,7 @@ const TooltipContentDisplay = ({total, counters}) => (
 
 const MinimizedVulnerabilitiesDisplay = ({id, highestSeverity, total, counters}) => {
     const {color, innerTextColor, backgroundColor} = VULNERABILITY_SEVERITY_ITEMS[highestSeverity];
+
     return (
         <div className="vulnerabilities-minimized-display-wrapper">
             <TooltipWrapper tooltipId={`vulnerability-minimized-display-${id}`} tooltipText={<TooltipContentDisplay total={total} counters={counters} />}>
@@ -85,12 +91,13 @@ const CounterItemDisplay = ({count, title, color}) => (
 
 const VulnerabilitiesDisplay = ({highestSeverity, total, counters}) => {
     const {color} = VULNERABILITY_SEVERITY_ITEMS[highestSeverity];
+    const {color: vulnerabilitiesColor, title: vulnerabilitiesTitle, icon: vulnerabilitiesIcon} = VULNERABIITY_FINDINGS_ITEM;
 
     return (
         <div className="vulnerabilities-display-wrapper">
             <div className="vulnerabilities-display-summary">
-                <Icon name={VULNERABILITIES_ICON_NAME} style={{color}} size={30} />
-                <CounterItemDisplay count={total} title="Vulnerabilities" color={COLORS["color-main"]} />
+                <Icon name={vulnerabilitiesIcon} style={{color}} size={30} />
+                <CounterItemDisplay count={total} title={vulnerabilitiesTitle} color={vulnerabilitiesColor} />
             </div>
             <div className="vulnerabilities-display-counters">
                 {

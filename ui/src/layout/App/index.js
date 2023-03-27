@@ -9,6 +9,7 @@ import Title from 'components/Title';
 import { NotificationProvider, useNotificationState, useNotificationDispatch, removeNotification } from 'context/NotificationProvider';
 import { FiltersProvider, useFilterDispatch, resetFilters, resetAllFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { ROUTES } from 'utils/systemConsts';
+import Dashboard from 'layout/Dashboard';
 import Scans from 'layout/Scans';
 import Findings from 'layout/Findings';
 import Assets from 'layout/Assets';
@@ -21,7 +22,7 @@ import './app.scss';
 const ROUTES_CONFIG = [
     {
 		path: ROUTES.DEFAULT,
-		component: () => <div style={{margin: "30px"}}>TBD</div>,
+		component: Dashboard,
         icon: ICON_NAMES.DASHBOARD,
         isIndex: true,
         title: "Dashboard",
