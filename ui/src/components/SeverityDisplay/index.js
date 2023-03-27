@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from 'components/Icon';
 import { toCapitalized } from 'utils/utils';
-import { VULNERABILITIES_ICON_NAME } from 'utils/systemConsts';
+import { VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 
 import './severity-display.scss';
 
@@ -21,7 +21,7 @@ const SeverityDisplay = ({severity, score}) => {
 
     return (
         <div className="severity-display">
-            {!!score ? <div style={{color}}>{score}</div> : <Icon name={VULNERABILITIES_ICON_NAME} size={25} style={{color}} />}
+            {!!score ? <div style={{color}}>{score}</div> : <Icon name={VULNERABIITY_FINDINGS_ITEM.icon} size={25} style={{color}} />}
             <div className="severity-title" style={!!score ? {color} : undefined}>{toCapitalized(severity)}</div>
         </div>
     )
