@@ -33,6 +33,7 @@ const (
 
 // Defines values for ScanState.
 const (
+	ScanStateAborted    ScanState = "Aborted"
 	ScanStateDiscovered ScanState = "Discovered"
 	ScanStateDone       ScanState = "Done"
 	ScanStateFailed     ScanState = "Failed"
@@ -53,6 +54,7 @@ const (
 
 // Defines values for ScanDataState.
 const (
+	ScanDataStateAborted    ScanDataState = "Aborted"
 	ScanDataStateDiscovered ScanDataState = "Discovered"
 	ScanDataStateDone       ScanDataState = "Done"
 	ScanDataStateFailed     ScanDataState = "Failed"
@@ -84,6 +86,7 @@ const (
 
 // Defines values for TargetScanStateState.
 const (
+	ABORTED    TargetScanStateState = "ABORTED"
 	ATTACHED   TargetScanStateState = "ATTACHED"
 	DONE       TargetScanStateState = "DONE"
 	INIT       TargetScanStateState = "INIT"
