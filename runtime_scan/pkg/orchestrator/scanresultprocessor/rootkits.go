@@ -55,7 +55,8 @@ func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Co
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing rootkit findings for this scan: %v", len(existingMap), existingMap)
+	srp.logger.Infof("Found %d existing rootkit findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing rootkit map: %v", existingMap)
 
 	return existingMap, nil
 }

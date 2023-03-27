@@ -55,7 +55,8 @@ func (srp *ScanResultProcessor) getExistingSecretFindingsForScan(ctx context.Con
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing secret findings for this scan: %v", len(existingMap), existingMap)
+	srp.logger.Infof("Found %d existing secret findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing secret map: %v", existingMap)
 
 	return existingMap, nil
 }
