@@ -6,27 +6,3 @@
         stroke: $color-grey-lighter;
     }
 }
-
-.riskiest-regions-widget-tooltip {
-    .riskiest-regions-widget-tooltip-header {
-        border-bottom: 1px solid $color-grey-dark;
-        padding-bottom: 5px;
-        margin-bottom: 5px;
-    }
-    .riskiest-regions-widget-tooltip-content {
-        padding-right: 20px;
-
-        .riskiest-regions-widget-tooltip-content-item {
-            display: flex;
-            align-items: center;
-            
-            &:not(:last-child) {
-                margin-bottom: 9px;
-            }
-            .riskiest-regions-widget-tooltip-content-item-text {
-                font-size: 11px;
-                margin-left: 6px;
-            }
-        }
-    }
-}

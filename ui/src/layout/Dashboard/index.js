@@ -1,7 +1,7 @@
 import React from 'react';
 import { APIS } from 'utils/systemConsts';
 import CounterDisplay from './CounterDisplay';
-import WidgetWrapper from './WidgetWrapper';
+import FindingsTrendsWidget from './FindingsTrendsWidget';
 import RiskiestRegionsWidget from './RiskiestRegionsWidget';
 import RiskiestAssetsWidget from './RiskiestAssetsWidget';
 import FindingsTabsWidget from './FindingsTabsWidget';
@@ -25,11 +25,9 @@ const Dashboard = () => {
                 ))
             }
             <RiskiestRegionsWidget className="riskiest-regions" />
-            <WidgetWrapper className="findings-trend" title="Findings trend">
-                TBD
-            </WidgetWrapper>
+            <FindingsTrendsWidget className="findings-trend" />
             <RiskiestAssetsWidget className="riskiest-assets" />
-            <FindingsTabsWidget className="findings-impact" title="Findings impact" />
+            <FindingsTabsWidget className="findings-impact" title="Findings impact" widgetName="findings-impact" />
         </div>
     )
 }

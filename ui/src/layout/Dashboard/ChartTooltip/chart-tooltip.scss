@@ -1,0 +1,25 @@
+@import 'utils/scss_variables.module.scss';
+
+.widget-chart-tooltip {
+    .widget-chart-tooltip-header {
+        border-bottom: 1px solid $color-grey-dark;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+    .widget-chart-tooltip-content {
+        padding-right: 20px;
+
+        .widget-chart-content-item {
+            display: flex;
+            align-items: center;
+            
+            &:not(:last-child) {
+                margin-bottom: 9px;
+            }
+            .widget-chart-content-item-text {
+                font-size: 11px;
+                margin-left: 6px;
+            }
+        }
+    }
+}

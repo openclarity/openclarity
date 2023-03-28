@@ -4,9 +4,9 @@ import Title from 'components/Title';
 
 import './widget-wrapper.scss';
 
-const WidgetWrapper = ({className, title, children}) => (
+const WidgetWrapper = ({className, title, children, titleMargin=20}) => (
     <div className={classnames("dashboard-widget-wrapper", className)}>
-        <Title removeMargin medium>{title}</Title>
+        <div style={{marginBottom: `${titleMargin}px`}}><Title removeMargin medium>{title}</Title></div>
         {children}
     </div>
 )

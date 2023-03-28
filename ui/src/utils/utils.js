@@ -24,8 +24,8 @@ export const getFindingsColumnsConfigList = (tableTitle) => Object.keys(FINDINGS
         id: totalKey,
         accessor: original => {
             const {summary}  = original;
-    
-            return !isNull(summary) ? 0 : (summary[totalKey] || 0);
+            
+            return isNull(summary) ? 0 : (summary[totalKey] || 0);
         },
         width: 50,
         disableSort: true
