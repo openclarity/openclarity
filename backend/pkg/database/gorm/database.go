@@ -53,6 +53,7 @@ func (base *Base) BeforeCreate(db *gorm.DB) error {
 	return nil
 }
 
+// nolint:cyclop
 func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	dbDriver := config.DriverType
 	dbLogger := logger.Default
@@ -76,6 +77,55 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	); err != nil {
 		return nil, fmt.Errorf("failed to run auto migration: %w", err)
 	}
+
+	// Create indexes for our objects
+	//
+	// First for all objects index the ID field this speeds up anywhere
+	// we're getting a single object out of the DB, including in PATCH/PUT
+	// etc.
+	idb := db.Exec("CREATE INDEX IF NOT EXISTS targets_id_idx ON targets(Data -> 'id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index targets_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_results_id_idx ON scan_results(Data -> 'id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index scan_results_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_configs_id_idx ON scan_configs(Data -> 'id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index scan_configs_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS scans_id_idx ON scans(Data -> 'id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index scans_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS findings_id_idx ON findings(Data -> 'id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index findings_id_idx: %w", idb.Error)
+	}
+
+	// For processing scan results to findings we need to find all the scan
+	// results by general status and findingsProcessed, so add an index for
+	// that.
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_results_findings_processed_idx ON scan_results(Data -> 'findingsProcessed', Data -> 'status.general.state')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index scan_results_findings_processed_idx: %w", idb.Error)
+	}
+
+	// The UI needs to find all the findings for a specific finding type
+	// and the scan result processor needs to filter that list by a
+	// specific asset. So add a combined index for those cases.
+	idb = db.Exec("CREATE INDEX IF NOT EXISTS findings_by_type_and_asset_idx ON findings(Data -> 'findingInfo.objectType', Data -> 'asset.id')")
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index findings_by_type_and_asset_idx: %w", idb.Error)
+	}
+
+	// TODO(sambetts) Add indexes for all the uniqueness checks we need to
+	// do for each object
 
 	return db, nil
 }
