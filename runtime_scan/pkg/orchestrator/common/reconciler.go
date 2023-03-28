@@ -22,11 +22,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Reconciler[T any] struct {
+type Reconciler[T comparable] struct {
 	Logger *log.Entry
-
-	// Channel on which reconcile events will be received
-	EventChan chan T
 
 	// Reconcile function which will be called whenever there is an event on EventChan
 	ReconcileFunction func(context.Context, T) error
@@ -34,21 +31,35 @@ type Reconciler[T any] struct {
 	// Maximum amount of time to spend trying to reconcile one item before
 	// moving onto the next item.
 	ReconcileTimeout time.Duration
+
+	// The queue which the reconciler will receive events to reconcile on.
+	Queue Dequeuer[T]
 }
 
 func (r *Reconciler[T]) Start(ctx context.Context) {
 	go func() {
 		for {
-			select {
-			case item := <-r.EventChan:
+			// queue.Get will block until an item is available to
+			// return.
+			item, err := r.Queue.Dequeue(ctx)
+			if err != nil {
+				r.Logger.Errorf("Failed to get item from queue: %v", err)
+			} else {
 				timeoutCtx, cancel := context.WithTimeout(ctx, r.ReconcileTimeout)
 				err := r.ReconcileFunction(timeoutCtx, item)
 				if err != nil {
 					r.Logger.Errorf("Failed to reconcile item: %v", err)
 				}
 				cancel()
+			}
+
+			// Check if the parent context done if so we also need
+			// to exit.
+			select {
 			case <-ctx.Done():
+				r.Logger.Infof("Shutting down: %v", ctx.Err())
 				return
+			default:
 			}
 		}
 	}()
