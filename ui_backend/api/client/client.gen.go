@@ -89,6 +89,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetDashboardFindingsImpact request
+	GetDashboardFindingsImpact(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDashboardFindingsTrends request
 	GetDashboardFindingsTrends(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -97,6 +100,18 @@ type ClientInterface interface {
 
 	// GetDashboardRiskiestRegions request
 	GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetDashboardFindingsImpact(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDashboardFindingsImpactRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetDashboardFindingsTrends(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -133,6 +148,33 @@ func (c *Client) GetDashboardRiskiestRegions(ctx context.Context, reqEditors ...
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetDashboardFindingsImpactRequest generates requests for GetDashboardFindingsImpact
+func NewGetDashboardFindingsImpactRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dashboard/findingsImpact")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetDashboardFindingsTrendsRequest generates requests for GetDashboardFindingsTrends
@@ -287,6 +329,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetDashboardFindingsImpact request
+	GetDashboardFindingsImpactWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardFindingsImpactResponse, error)
+
 	// GetDashboardFindingsTrends request
 	GetDashboardFindingsTrendsWithResponse(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*GetDashboardFindingsTrendsResponse, error)
 
@@ -295,6 +340,29 @@ type ClientWithResponsesInterface interface {
 
 	// GetDashboardRiskiestRegions request
 	GetDashboardRiskiestRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardRiskiestRegionsResponse, error)
+}
+
+type GetDashboardFindingsImpactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *FindingsImpact
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDashboardFindingsImpactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDashboardFindingsImpactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetDashboardFindingsTrendsResponse struct {
@@ -366,6 +434,15 @@ func (r GetDashboardRiskiestRegionsResponse) StatusCode() int {
 	return 0
 }
 
+// GetDashboardFindingsImpactWithResponse request returning *GetDashboardFindingsImpactResponse
+func (c *ClientWithResponses) GetDashboardFindingsImpactWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDashboardFindingsImpactResponse, error) {
+	rsp, err := c.GetDashboardFindingsImpact(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDashboardFindingsImpactResponse(rsp)
+}
+
 // GetDashboardFindingsTrendsWithResponse request returning *GetDashboardFindingsTrendsResponse
 func (c *ClientWithResponses) GetDashboardFindingsTrendsWithResponse(ctx context.Context, params *GetDashboardFindingsTrendsParams, reqEditors ...RequestEditorFn) (*GetDashboardFindingsTrendsResponse, error) {
 	rsp, err := c.GetDashboardFindingsTrends(ctx, params, reqEditors...)
@@ -391,6 +468,39 @@ func (c *ClientWithResponses) GetDashboardRiskiestRegionsWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseGetDashboardRiskiestRegionsResponse(rsp)
+}
+
+// ParseGetDashboardFindingsImpactResponse parses an HTTP response from a GetDashboardFindingsImpactWithResponse call
+func ParseGetDashboardFindingsImpactResponse(rsp *http.Response) (*GetDashboardFindingsImpactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDashboardFindingsImpactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FindingsImpact
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetDashboardFindingsTrendsResponse parses an HTTP response from a GetDashboardFindingsTrendsWithResponse call
