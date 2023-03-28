@@ -34,6 +34,19 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /dashboard/findingsImpact:
+    get:
+      summary: Get a list of findings impact for the dashboard.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingsImpact'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
   /dashboard/findingsTrends:
     get:
       summary: Get a list of finding trends for all finding types.
@@ -59,6 +72,271 @@ components:
           type: string
           readOnly: true
       description: An object that is returned in all cases of failures.
+
+    FindingsImpact:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          description: Top 5 vulnerability findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/VulnerabilityFindingImpact'
+          readOnly: true
+        malware:
+          type: array
+          description: Top 5 malware findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/MalwareFindingImpact'
+          readOnly: true
+        rootkits:
+          type: array
+          description: Top 5 rootkit findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/RootkitFindingImpact'
+          readOnly: true
+        secrets:
+          type: array
+          description: Top 5 secret findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/SecretFindingImpact'
+          readOnly: true
+        misconfigurations:
+          type: array
+          description: Top 5 misconfiguration findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/MisconfigurationFindingImpact'
+          readOnly: true
+        exploits:
+          type: array
+          description: Top 5 exploit findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/ExploitFindingImpact'
+          readOnly: true
+        packages:
+          type: array
+          description: Top 5 package findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/PackageFindingImpact'
+          readOnly: true
+
+    PackageFindingImpact:
+      type: object
+      properties:
+        exploit:
+          $ref: '#/components/schemas/Package'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Package:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        purl:
+          type: string
+
+    ExploitFindingImpact:
+      type: object
+      properties:
+        exploit:
+          $ref: '#/components/schemas/Exploit'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Exploit:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        cveID:
+          type: string
+        sourceDB:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    MisconfigurationFindingImpact:
+      type: object
+      properties:
+        misconfiguration:
+          $ref: '#/components/schemas/Misconfiguration'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Misconfiguration:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        scannedPath:
+          type: string
+        testCategory:
+          type: string
+        testID:
+          type: string
+        testDescription:
+          type: string
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
+        message:
+          type: string
+        remediation:
+          type: string
+
+    MisconfigurationSeverity:
+      type: string
+      enum:
+        - MisconfigurationHighSeverity
+        - MisconfigurationMediumSeverity
+        - MisconfigurationLowSeverity
+
+    SecretFindingImpact:
+      type: object
+      properties:
+        secret:
+          $ref: '#/components/schemas/Secret'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Secret:
+      type: object
+      properties:
+        filePath:
+          description: "Name of the file containing the secret"
+          type: string
+        startLine:
+          type: integer
+        endLine:
+          type: integer
+        startColumn:
+          type: integer
+        endColumn:
+          type: integer
+        fingerprint:
+          description: "Note: this is not unique"
+          type: string
+
+    RootkitFindingImpact:
+      type: object
+      properties:
+        rootkit:
+          $ref: '#/components/schemas/Rootkit'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Rootkit:
+      type: object
+      properties:
+        rootkitName:
+          type: string
+        rootkitType:
+          $ref: '#/components/schemas/RootkitType'
+        path:
+          type: string
+          description: Path of the file that contains rootkit
+
+    RootkitType:
+      type: string
+      enum:
+        - MEMORY
+        - KERNEL
+        - APPLICATION
+        - FIRMWARE
+
+    MalwareFindingImpact:
+      type: object
+      properties:
+        malware:
+          $ref: '#/components/schemas/Malware'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Malware:
+      type: object
+      properties:
+        malwareName:
+          type: string
+        malwareType:
+          $ref: '#/components/schemas/MalwareType'
+        path:
+          type: string
+          description: Path of the file that contains malware
+
+    MalwareType:
+      type: string
+
+    VulnerabilityFindingImpact:
+      type: object
+      properties:
+        vulnerability:
+          $ref: '#/components/schemas/Vulnerability'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Vulnerability:
+      type: object
+      readOnly: true
+      properties:
+        vulnerabilityName:
+          type: string
+        severity:
+          $ref: '#/components/schemas/VulnerabilitySeverity'
+        cvss:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilityCvss'
+          nullable: true
+
+    VulnerabilitiesFindingImpact:
+      type: array
+      items:
+        $ref: '#/components/schemas/VulnerabilityFindingImpact'
+      readOnly: true
+
+    VulnerabilityCvss:
+      type: object
+      properties:
+        version:
+          type: string
+        vector:
+          type: string
+        metrics:
+          $ref: '#/components/schemas/VulnerabilityCvssMetrics'
+
+    VulnerabilityCvssMetrics:
+      type: object
+      properties:
+        baseScore:
+          type: number
+        exploitabilityScore:
+          type: number
+        impactScore:
+          type: number
+
+    VulnerabilitySeverity:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - NEGLIGIBLE
 
     FindingsTrends:
       description: List of finding trends for all finding types.
