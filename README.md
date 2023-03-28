@@ -1,16 +1,20 @@
 # VMClarity
 
+![VMClarity](https://github.com/openclarity/vmclarity/img/logos/vmclarity_logo.png "VMClarity")
+
 VMClarity is a tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and vulnerabilities
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [Installing on AWS](#installing-on-aws)
-  - [Accessing the API](#accessing-the-api)
-- [Contributing](#contributing)
-- [Code of Conduct](#code-of-conduct)
-- [License](#license)
+- [VMClarity](#vmclarity)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Installing on AWS](#installing-on-aws)
+    - [Accessing the API](#accessing-the-api)
+  - [Contributing](#contributing)
+  - [Code of Conduct](#code-of-conduct)
+  - [License](#license)
 
 ## Getting Started
 
