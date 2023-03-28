@@ -1,0 +1,38 @@
+@import 'utils/scss_variables.module.scss';
+
+.findings-trends-widget {
+    position: relative;
+
+    .findings-trends-widget-header {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .findings-trends-widget-filters {
+            display: flex;
+            gap: 16px;
+
+            .widget-filter-button {
+                height: 30px;
+                box-sizing: border-box;
+                padding: 5px 10px;
+                border: 1px solid $color-grey-light;
+                border-radius: 50px;
+                background-color: $color-grey-off-white;
+                cursor: pointer;
+            }
+        }
+        .dropdown-select {
+            width: 140px;
+        }
+    }
+    .findings-trends-widget-chart {
+        .recharts-cartesian-axis-line,
+        .recharts-cartesian-axis-tick-line {
+            stroke: $color-grey-lighter;
+        }
+    }
+}

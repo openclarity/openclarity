@@ -45,6 +45,7 @@ const AssetScansTable = () => {
             columns={columns}
             url={APIS.ASSET_SCANS}
             expand="scan,target"
+            select="id,target,summary,scan"
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSET_SCANS}
             withMargin

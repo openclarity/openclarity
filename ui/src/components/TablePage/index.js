@@ -6,7 +6,7 @@ import SystemFilterBanner from 'components/SystemFiltersBanner';
 import { toCapitalized, BoldText } from 'utils/utils';
 import { useFilterState, useFilterDispatch, resetSystemFilters } from 'context/FiltersProvider';
 
-const TablePage = ({tableTitle, filterType, filters, expand, withMargin, ...tableProps}) => {
+const TablePage = ({tableTitle, filterType, filters, expand, select, withMargin, ...tableProps}) => {
     const navigate = useNavigate();
     const {pathname} = useLocation();
 
@@ -38,6 +38,7 @@ const TablePage = ({tableTitle, filterType, filters, expand, withMargin, ...tabl
                     paginationItemsName={tableTitle.toLowerCase()}
                     filters={{
                         ...(!!expand ? {"$expand": expand} : {}),
+                        ...(!!select ? {"$select": select} : {}),
                         ...(fitlersList.length > 0 ? {"$filter": fitlersList.join(" and ")} : {})
                     }}
                     noResultsTitle={tableTitle}

@@ -17,28 +17,20 @@ const FindingFilterLink = ({icon, title, appRoute}) => {
     )
 }
 
-const FindingsSystemFilterLinks = ({totalVulnerabilitiesCount, findingsSummary}) => {
-    const {appRoute: vulnerabilitiesAppRoute, title: vulnerabilitiesTitle, icon: vulnerabilitiesIcon} = VULNERABIITY_FINDINGS_ITEM;
+const FindingsSystemFilterLinks = ({totalVulnerabilitiesCount, findingsSummary}) => (
+    <div className="findings-system-filters-links">
+        <div className="findings-system-filters-title">See other findings:</div>
+        {
+            [VULNERABIITY_FINDINGS_ITEM, ...Object.values(FINDINGS_MAPPING)].map(({value, totalKey, title, icon, appRoute}) => {
+                const LinkTitle = VULNERABIITY_FINDINGS_ITEM.value === value ? `${totalVulnerabilitiesCount} ${title}` :
+                    `${findingsSummary[totalKey] || 0} ${title}`;
 
-    return (
-        <div className="findings-system-filters-links">
-            <div className="findings-system-filters-title">See other findings:</div>
-            <FindingFilterLink
-                icon={vulnerabilitiesIcon}
-                title={`${totalVulnerabilitiesCount} ${vulnerabilitiesTitle}`}
-                appRoute={vulnerabilitiesAppRoute}
-            />
-            {
-                Object.keys(FINDINGS_MAPPING).map(findingType => {
-                    const {totalKey, title, icon, appRoute} = FINDINGS_MAPPING[findingType];
-    
-                    return (
-                        <FindingFilterLink key={findingType} icon={icon} title={`${findingsSummary[totalKey] || 0} ${title}`} appRoute={appRoute} />
-                    )
-                })
-            }
-        </div>
-    )
-}
+                return (
+                    <FindingFilterLink key={value} icon={icon} title={LinkTitle} appRoute={appRoute} />
+                )
+            })
+        }
+    </div>
+)
 
 export default FindingsSystemFilterLinks;

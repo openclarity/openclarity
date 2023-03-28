@@ -25,8 +25,10 @@ const AssetScansDisplay = ({assetName, targetId}) => {
 
         navigate(ROUTES.ASSET_SCANS);
     }
-
-    const [{loading, data, error}] = useFetch(APIS.ASSET_SCANS, {queryParams: {"$filter": filter, "$count": true}});
+    
+    const [{loading, data, error}] = useFetch(APIS.ASSET_SCANS, {
+        queryParams: {"$filter": filter, "$count": true, "$select": "id,target,summary,scan"}
+    });
     
     if (error) {
         return null;
