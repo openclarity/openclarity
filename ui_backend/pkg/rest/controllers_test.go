@@ -175,6 +175,13 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 		want int
 	}{
 		{
+			name: "nil",
+			args: args{
+				summary: nil,
+			},
+			want: 0,
+		},
+		{
 			name: "sanity",
 			args: args{
 				summary: &backendmodels.VulnerabilityScanSummary{
@@ -344,6 +351,46 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 			got := createRegionFindingsFromTargets(tt.args.targets)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.RegionFindings) bool { return *a.RegionName < *b.RegionName })); diff != "" {
 				t.Errorf("createRegionFindingsFromTargets() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_getPointerValOrZero(t *testing.T) {
+	type args struct {
+		val *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "nil should be 0",
+			args: args{
+				val: nil,
+			},
+			want: 0,
+		},
+		{
+			name: "not nil",
+			args: args{
+				val: utils.PointerTo(5),
+			},
+			want: 5,
+		},
+		{
+			name: "not nit 0",
+			args: args{
+				val: utils.PointerTo(0),
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getPointerValOrZero(tt.args.val); got != tt.want {
+				t.Errorf("getPointerValOrZero() = %v, want %v", got, tt.want)
 			}
 		})
 	}

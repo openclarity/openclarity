@@ -99,12 +99,12 @@ func addTargetSummaryToFindingsCount(findingsCount *models.FindingsCount, summar
 		return findingsCount
 	}
 
-	secrets := *findingsCount.Secrets + *summary.TotalSecrets
-	exploits := *findingsCount.Exploits + *summary.TotalExploits
+	secrets := *findingsCount.Secrets + getPointerValOrZero(summary.TotalSecrets)
+	exploits := *findingsCount.Exploits + getPointerValOrZero(summary.TotalExploits)
 	vulnerabilities := *findingsCount.Vulnerabilities + getTotalVulnerabilities(summary.TotalVulnerabilities)
-	rootkits := *findingsCount.Rootkits + *summary.TotalRootkits
-	malware := *findingsCount.Malware + *summary.TotalMalware
-	misconfigurations := *findingsCount.Misconfigurations + *summary.TotalMisconfigurations
+	rootkits := *findingsCount.Rootkits + getPointerValOrZero(summary.TotalRootkits)
+	malware := *findingsCount.Malware + getPointerValOrZero(summary.TotalMalware)
+	misconfigurations := *findingsCount.Misconfigurations + getPointerValOrZero(summary.TotalMisconfigurations)
 	return &models.FindingsCount{
 		Exploits:          &exploits,
 		Malware:           &malware,
@@ -115,22 +115,23 @@ func addTargetSummaryToFindingsCount(findingsCount *models.FindingsCount, summar
 	}
 }
 
+func getPointerValOrZero(val *int) int {
+	if val == nil {
+		return 0
+	}
+	return *val
+}
+
 func getTotalVulnerabilities(summary *backendmodels.VulnerabilityScanSummary) int {
 	total := 0
-	if summary.TotalCriticalVulnerabilities != nil {
-		total += *summary.TotalCriticalVulnerabilities
+	if summary == nil {
+		return total
 	}
-	if summary.TotalHighVulnerabilities != nil {
-		total += *summary.TotalHighVulnerabilities
-	}
-	if summary.TotalMediumVulnerabilities != nil {
-		total += *summary.TotalMediumVulnerabilities
-	}
-	if summary.TotalLowVulnerabilities != nil {
-		total += *summary.TotalLowVulnerabilities
-	}
-	if summary.TotalNegligibleVulnerabilities != nil {
-		total += *summary.TotalNegligibleVulnerabilities
-	}
+	total += getPointerValOrZero(summary.TotalCriticalVulnerabilities)
+	total += getPointerValOrZero(summary.TotalHighVulnerabilities)
+	total += getPointerValOrZero(summary.TotalMediumVulnerabilities)
+	total += getPointerValOrZero(summary.TotalLowVulnerabilities)
+	total += getPointerValOrZero(summary.TotalNegligibleVulnerabilities)
+
 	return total
 }
