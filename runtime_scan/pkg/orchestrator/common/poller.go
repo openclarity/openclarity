@@ -22,7 +22,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Poller[T any] struct {
+type Poller[T comparable] struct {
 	Logger *log.Entry
 
 	// How often to re-poll the API for new items and try to publish them
@@ -33,12 +33,13 @@ type Poller[T any] struct {
 	// The function which will be called to get the list of items to be
 	// published on the event channel.
 	GetItems func(context.Context) ([]T, error)
+
+	// The queue to which we add items to reconcile.
+	Queue Enqueuer[T]
 }
 
-func (p *Poller[T]) Start(ctx context.Context) chan T {
-	eventChan := make(chan T)
+func (p *Poller[T]) Start(ctx context.Context) {
 	go func() {
-		defer close(eventChan)
 		for {
 			// Create a timeout context so that we can re-poll the
 			// items at fixed intervals regardless of how far
@@ -51,28 +52,16 @@ func (p *Poller[T]) Start(ctx context.Context) chan T {
 			if err != nil {
 				p.Logger.Errorf("Failed to get items to reconcile: %v", err)
 			} else {
-				p.Logger.Infof("Found %d items", len(items))
-			itemLoop:
+				p.Logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
 				for _, item := range items {
-					select {
-					// Try to send item to the reconcile event listener
-					case eventChan <- item:
-
-					// We've been stopped from reconciling
-					// any more items, either we've been
-					// cancelled or we've timed out.
-					case <-timeoutCtx.Done():
-						p.Logger.Errorf("Failed to reconcile all items within PollPeriod")
-						break itemLoop
-					}
+					p.Queue.Enqueue(item)
 				}
 			}
 
-			// If we've completed all the reconciles within the
-			// reconcile period, keep waiting for the reconcile
-			// time to be up before re-requesting items. This
-			// ensures that each reconcile is a fixed length of
-			// time.
+			// Once we've added all the items to the queue wait for
+			// the poll period time to be up before re-requesting
+			// items. This ensures that each reconcile is a fixed
+			// length of time.
 			<-timeoutCtx.Done()
 
 			select {
@@ -88,5 +77,4 @@ func (p *Poller[T]) Start(ctx context.Context) chan T {
 			}
 		}
 	}()
-	return eventChan
 }
