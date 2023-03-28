@@ -122,7 +122,7 @@ components:
     PackageFindingImpact:
       type: object
       properties:
-        exploit:
+        package:
           $ref: '#/components/schemas/Package'
         affectedAssetsCount:
           type: integer
