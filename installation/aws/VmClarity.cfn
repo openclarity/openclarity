@@ -164,6 +164,7 @@ Resources:
                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
                     BACKEND_REST_PORT=8888
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
+                    TRIVY_SERVER_ADDRESS=http://__BACKEND_REST_HOST__:9992
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -206,7 +207,7 @@ Resources:
                   Description=VmClarity
                   After=docker.service
                   Requires=docker.service
-  
+
                   [Service]
                   TimeoutStartSec=0
                   Restart=always
@@ -220,7 +221,7 @@ Resources:
                     -v /opt/vmclarity:/data \
                     --env-file /etc/vmclarity/config.env \
                     ${BackendContainerImage} run --log-level info
-  
+
                   [Install]
                   WantedBy=multi-user.target
 
@@ -275,6 +276,36 @@ Resources:
                 [Install]
                 WantedBy=multi-user.target
               mode: "000644"
+            "/etc/trivy-server/config.env":
+              content: |
+                TRIVY_LISTEN=0.0.0.0:9992
+                TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
+              mode: "000644"
+            "/lib/systemd/system/trivy_server.service":
+              content:
+                Fn::Sub: |
+                  [Unit]
+                  Description=Trivy Server
+                  After=docker.service
+                  Requires=docker.service
+
+                  [Service]
+                  TimeoutStartSec=0
+                  Restart=always
+                  ExecStartPre=-/usr/bin/docker stop %n
+                  ExecStartPre=-/usr/bin/docker rm %n
+                  ExecStartPre=/usr/bin/mkdir -p /opt/trivy-server
+                  ExecStartPre=/usr/bin/docker pull ${TrivyServerContainerImage}
+                  ExecStart=/usr/bin/docker run \
+                    --rm --name %n \
+                    -p 0.0.0.0:9992:9992/tcp \
+                    -v /opt/trivy-server:/home/scanner/.cache \
+                    --env-file /etc/trivy-server/config.env \
+                    ${TrivyServerContainerImage} server
+
+                  [Install]
+                  WantedBy=multi-user.target
+              mode: "000644"
           commands:
             01subsitute_rest_address:
               command: /etc/vmclarity/render_config.sh
@@ -282,10 +313,10 @@ Resources:
               command: systemctl enable --now exploit_fetcher.timer
             03enable_exploit_server:
               command: systemctl enable --now exploit_server.service
-            04enable_vmclarity:
-              command: systemctl enable vmclarity.service
-            05start_vmclarity:
-              command: systemctl start vmclarity.service
+            04start_trivy_server:
+              command: systemctl enable --now trivy_server.service
+            05enable_vmclarity:
+              command: systemctl enable --now vmclarity.service
     DependsOn:
       - VmClarityServerPublicRoute
   # Create a Security Group for the VMClarity server. Allow on the public
@@ -337,6 +368,17 @@ Resources:
       IpProtocol: tcp
       FromPort: 1326
       ToPort: 1326
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Trivy Server on port 9992 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToTrivyServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9992
+      ToPort: 9992
       SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
 
   # Create an Internet Gateway to allow VMClarityServer to talk to the internet
@@ -641,6 +683,10 @@ Parameters:
     Description: Name of the container image used for running scans on targets.
     Type: String
     Default: ghcr.io/openclarity/vmclarity-cli:latest
+  TrivyServerContainerImage:
+    Description: Name of the container image used for the trivy server.
+    Type: String
+    Default: docker.io/aquasec/trivy:0.34.0
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:

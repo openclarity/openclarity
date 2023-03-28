@@ -114,6 +114,7 @@ func Test_userSBOMConfigToFamiliesSbomConfig(t *testing.T) {
 func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 	type args struct {
 		vulnerabilitiesConfig *models.VulnerabilitiesConfig
+		trivyServerAddress    string
 	}
 	type returns struct {
 		config familiesVulnerabilities.Config
@@ -127,6 +128,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 			name: "No Vulnerability Config",
 			args: args{
 				vulnerabilitiesConfig: nil,
+				trivyServerAddress:    "http://10.0.0.1:9992",
 			},
 			want: returns{
 				config: familiesVulnerabilities.Config{},
@@ -136,6 +138,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 			name: "Missing Enabled",
 			args: args{
 				vulnerabilitiesConfig: &models.VulnerabilitiesConfig{},
+				trivyServerAddress:    "http://10.0.0.1:9992",
 			},
 			want: returns{
 				config: familiesVulnerabilities.Config{},
@@ -147,6 +150,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 				vulnerabilitiesConfig: &models.VulnerabilitiesConfig{
 					Enabled: utils.BoolPtr(false),
 				},
+				trivyServerAddress: "http://10.0.0.1:9992",
 			},
 			want: returns{
 				config: familiesVulnerabilities.Config{},
@@ -158,6 +162,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 				vulnerabilitiesConfig: &models.VulnerabilitiesConfig{
 					Enabled: utils.BoolPtr(true),
 				},
+				trivyServerAddress: "http://10.0.0.1:9992",
 			},
 			want: returns{
 				config: familiesVulnerabilities.Config{
@@ -179,7 +184,8 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 								},
 							},
 							TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
-								Timeout: TrivyTimeout,
+								Timeout:    TrivyTimeout,
+								ServerAddr: "http://10.0.0.1:9992",
 							},
 						},
 					},
@@ -190,7 +196,7 @@ func Test_userVulnConfigToFamiliesVulnConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := userVulnConfigToFamiliesVulnConfig(tt.args.vulnerabilitiesConfig)
+			got := userVulnConfigToFamiliesVulnConfig(tt.args.vulnerabilitiesConfig, tt.args.trivyServerAddress)
 			if diff := cmp.Diff(tt.want.config, got); diff != "" {
 				t.Errorf("userVulnConfigToFamiliesVulnConfig() mismatch (-want +got):\n%s", diff)
 			}

@@ -389,7 +389,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 	famConfig := families.Config{
 		SBOM:             userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom),
-		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities),
+		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities, s.config.TrivyServerAddress),
 		Secrets:          userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
 		Exploits:         userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
 		Malware:          userMalwareConfigToFamiliesMalwareConfig(s.scanConfig.ScanFamiliesConfig.Malware, s.config.ClamBinaryPath),
@@ -462,7 +462,7 @@ func userMisconfigurationConfigToFamiliesMisconfigurationConfig(misconfiguration
 	}
 }
 
-func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig) familiesVulnerabilities.Config {
+func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig, trivyServerAddr string) familiesVulnerabilities.Config {
 	if vulnerabilitiesConfig == nil || vulnerabilitiesConfig.Enabled == nil || !*vulnerabilitiesConfig.Enabled {
 		return familiesVulnerabilities.Config{}
 	}
@@ -486,7 +486,8 @@ func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.Vulnerabil
 					},
 				},
 				TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
-					Timeout: TrivyTimeout,
+					Timeout:    TrivyTimeout,
+					ServerAddr: trivyServerAddr,
 				},
 			},
 		},
