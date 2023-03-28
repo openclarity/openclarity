@@ -16,7 +16,7 @@ const WidgetContent = ({data=[], maxItems, getCountDisplay}) => {
                 <tr>
                     <th>Name</th>
                     <th>Type</th>
-                    <th>No. exploits</th>
+                    <th>Findings</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,8 +45,9 @@ const RiskiestAssetsWidget = ({className, maxItems=5}) => {
         <FindingsTabsWidget
             className={className}
             title="Riskiest assets"
+            widgetName="riskiers-assets"
             tabContent={({selectedTabId}) => (
-                loading ? <Loader /> : (error ? null :
+                loading ? <Loader absolute={false} /> : (error ? null :
                     <WidgetContent
                         data={!!data ? data[selectedTabId] : []}
                         maxItems={maxItems}

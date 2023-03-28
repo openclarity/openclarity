@@ -53,11 +53,11 @@ function reducer(state, action) {
         case FETCH_ACTIONS.LOAD_DATA_ERROR:
             return {...state, loading: false, error: action.payload, loadData: false, data: null};
         case FETCH_ACTIONS.UPDATE_FETCH_PARAMS:
-            const {queryParams, method=FETCH_METHODS.GET, submitData, formatUrl} = action.payload || {};
+            const {queryParams, method=FETCH_METHODS.GET, submitData, formatUrl, urlPrefix} = action.payload || {};
             
             return {
                 ...state,
-                url: formatFetchUrl({url: state.baseUrl, queryParams, formatUrl}),
+                url: formatFetchUrl({url: state.baseUrl, queryParams, formatUrl, urlPrefix}),
                 method: method.toUpperCase(),
                 submitData: !!submitData ? JSON.stringify(submitData) : null,
                 loadData: true,
@@ -69,7 +69,7 @@ function reducer(state, action) {
 }
 
 function useFetch(baseUrl, options){
-    const {queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount=true, urlPrefix=""} = options || {};
+    const {queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount=true, urlPrefix} = options || {};
 
     const [state, dispatch] = useReducer(reducer, {
         loading: false,

@@ -19,7 +19,8 @@ export const APIS = {
     SCOPES_DISCOVERY: "discovery/scopes",
     FINDINGS: "findings",
     DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",
-    DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets"
+    DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets",
+    DASHBOARD_FINDINGS_TRENDS: "dashboard/findingsTrends"
 }
 
 export const FINDINGS_MAPPING = {
@@ -27,6 +28,7 @@ export const FINDINGS_MAPPING = {
         value: "EXPLOITS",
         dataKey: "exploits",
         totalKey: "totalExploits",
+        typeKey: "EXPLOIT",
         title: "Exploits",
         icon: ICON_NAMES.BOMB,
         color: COLORS["color-main"],
@@ -37,6 +39,7 @@ export const FINDINGS_MAPPING = {
         value: "MISCONFIGURATIONS",
         dataKey: "misconfigurations",
         totalKey: "totalMisconfigurations",
+        typeKey: "MISCONFIGURATION",
         title: "Misconfigurations",
         icon: ICON_NAMES.COG,
         color: COLORS["color-findings-1"],
@@ -47,6 +50,7 @@ export const FINDINGS_MAPPING = {
         value: "SECRETS",
         dataKey: "secrets",
         totalKey: "totalSecrets",
+        typeKey: "SECRET",
         title: "Secrets",
         icon: ICON_NAMES.KEY,
         color: COLORS["color-findings-2"],
@@ -56,6 +60,7 @@ export const FINDINGS_MAPPING = {
         value: "MALWARE",
         dataKey: "malware",
         totalKey: "totalMalware",
+        typeKey: "MALWARE",
         title: "Malware",
         icon: ICON_NAMES.BUG,
         color: COLORS["color-findings-3"],
@@ -65,6 +70,7 @@ export const FINDINGS_MAPPING = {
         value: "ROOTKITS",
         dataKey: "rootkits",
         totalKey: "totalRootkits",
+        typeKey: "ROOTKIT",
         title: "Rootkits",
         icon: ICON_NAMES.GHOST,
         color: COLORS["color-findings-4"],
@@ -74,6 +80,7 @@ export const FINDINGS_MAPPING = {
         value: "PACKAGES",
         dataKey:"packages",
         totalKey: "totalPackages",
+        typeKey: "PACKAGE",
         title: "Packages",
         icon: ICON_NAMES.PACKAGE,
         color: COLORS["color-findings-5"],
@@ -84,6 +91,7 @@ export const FINDINGS_MAPPING = {
 export const VULNERABIITY_FINDINGS_ITEM = {
     value: "VULNERABIITIES",
     dataKey: "vulnerabilities",
+    typeKey: "VULNERABILITY",
     title: "Vulnerabilities",
     icon: ICON_NAMES.SHIELD,
     color: COLORS["color-main-dark"],
