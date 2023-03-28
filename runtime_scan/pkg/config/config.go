@@ -43,6 +43,7 @@ const (
 	ScannerBackendAddress           = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
 	ScanConfigWatchInterval         = "SCAN_CONFIG_WATCH_INTERVAL"
 	ExploitDBAddress                = "EXPLOIT_DB_ADDRESS"
+	TrivyServerAddress              = "TRIVY_SERVER_ADDRESS"
 )
 
 type OrchestratorConfig struct {
@@ -66,6 +67,8 @@ type ScannerConfig struct {
 	ScannerBackendAddress string
 
 	ExploitsDBAddress string
+
+	TrivyServerAddress string
 
 	JobResultTimeout          time.Duration
 	JobResultsPollingInterval time.Duration
@@ -132,6 +135,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 			DeviceName:                viper.GetString(AttachedVolumeDeviceName),
 			ExploitsDBAddress:         viper.GetString(ExploitDBAddress),
 			ClamBinaryPath:            viper.GetString(ClamBinaryPath),
+			TrivyServerAddress:        viper.GetString(TrivyServerAddress),
 		},
 	}
 
