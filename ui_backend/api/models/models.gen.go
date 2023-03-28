@@ -180,7 +180,7 @@ type Package struct {
 // PackageFindingImpact defines model for PackageFindingImpact.
 type PackageFindingImpact struct {
 	AffectedAssetsCount *int     `json:"affectedAssetsCount,omitempty"`
-	Exploit             *Package `json:"exploit,omitempty"`
+	Package             *Package `json:"package,omitempty"`
 }
 
 // RegionFindings Total findings for a region
