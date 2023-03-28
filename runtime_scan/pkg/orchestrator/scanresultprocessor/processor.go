@@ -48,14 +48,10 @@ func statusCompletedWithNoErrors(tss *models.TargetScanState) bool {
 }
 
 // nolint:cyclop
-func (srp *ScanResultProcessor) Reconcile(ctx context.Context, scanResult models.TargetScanResult) error {
-	newFailedToReconcileTypeError := func(err error, t string) error {
-		return fmt.Errorf("failed to reconcile scan result %s %s to findings: %w", *scanResult.Id, t, err)
-	}
-
+func (srp *ScanResultProcessor) Reconcile(ctx context.Context, event ScanResultReconcileEvent) error {
 	// Get latest information, in case we've been sat in the reconcile
 	// queue for a while
-	scanResult, err := srp.client.GetScanResult(ctx, *scanResult.Id, models.GetScanResultsScanResultIDParams{})
+	scanResult, err := srp.client.GetScanResult(ctx, event.ScanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result from API: %w", err)
 	}
@@ -64,6 +60,10 @@ func (srp *ScanResultProcessor) Reconcile(ctx context.Context, scanResult models
 	// while already being reconciled, if so we can short circuit here.
 	if scanResult.FindingsProcessed != nil && *scanResult.FindingsProcessed {
 		return nil
+	}
+
+	newFailedToReconcileTypeError := func(err error, t string) error {
+		return fmt.Errorf("failed to reconcile scan result %s %s to findings: %w", *scanResult.Id, t, err)
 	}
 
 	// Process each of the successfully scanned (state DONE and no errors) families into findings.
@@ -119,14 +119,25 @@ func (srp *ScanResultProcessor) Reconcile(ctx context.Context, scanResult models
 	return nil
 }
 
-func (srp *ScanResultProcessor) GetItems(ctx context.Context) ([]models.TargetScanResult, error) {
+type ScanResultReconcileEvent struct {
+	ScanResultID string
+}
+
+func (srp *ScanResultProcessor) GetItems(ctx context.Context) ([]ScanResultReconcileEvent, error) {
 	scanResults, err := srp.client.GetScanResults(ctx, models.GetScanResultsParams{
 		Filter: utils.PointerTo("status/general/state eq 'DONE' and (findingsProcessed eq false or findingsProcessed eq null)"),
+		Select: utils.PointerTo("id"),
 	})
 	if err != nil {
-		return []models.TargetScanResult{}, fmt.Errorf("failed to get scan results from API: %w", err)
+		return []ScanResultReconcileEvent{}, fmt.Errorf("failed to get scan results from API: %w", err)
 	}
-	return *scanResults.Items, nil
+
+	items := make([]ScanResultReconcileEvent, len(*scanResults.Items))
+	for i, res := range *scanResults.Items {
+		items[i] = ScanResultReconcileEvent{*res.Id}
+	}
+
+	return items, nil
 }
 
 const (
@@ -135,18 +146,21 @@ const (
 )
 
 func (srp *ScanResultProcessor) Start(ctx context.Context) {
-	poller := common.Poller[models.TargetScanResult]{
+	queue := common.NewQueue[ScanResultReconcileEvent]()
+
+	poller := common.Poller[ScanResultReconcileEvent]{
 		Logger:     srp.logger,
 		PollPeriod: pollPeriodSeconds * time.Second,
 		GetItems:   srp.GetItems,
+		Queue:      queue,
 	}
-	eventChan := poller.Start(ctx)
+	poller.Start(ctx)
 
-	reconciler := common.Reconciler[models.TargetScanResult]{
+	reconciler := common.Reconciler[ScanResultReconcileEvent]{
 		Logger:            srp.logger,
-		EventChan:         eventChan,
 		ReconcileFunction: srp.Reconcile,
 		ReconcileTimeout:  reconcileTimeoutSeconds * time.Second,
+		Queue:             queue,
 	}
 	reconciler.Start(ctx)
 }
