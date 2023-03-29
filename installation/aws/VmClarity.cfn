@@ -165,6 +165,7 @@ Resources:
                     BACKEND_REST_PORT=8888
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                     TRIVY_SERVER_ADDRESS=http://__BACKEND_REST_HOST__:9992
+                    GRYPE_SERVER_ADDRESS=__BACKEND_REST_HOST__:9991
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -306,6 +307,36 @@ Resources:
                   [Install]
                   WantedBy=multi-user.target
               mode: "000644"
+            "/etc/grype-server/config.env":
+              content: |
+                DB_ROOT_DIR=/opt/grype-server/db
+              mode: "000644"
+            "/lib/systemd/system/grype_server.service":
+              content:
+                Fn::Sub: |
+                  [Unit]
+                  Description=Grype Server
+                  After=docker.service
+                  Requires=docker.service
+
+                  [Service]
+                  TimeoutStartSec=0
+                  Restart=always
+                  ExecStartPre=-/usr/bin/docker stop %n
+                  ExecStartPre=-/usr/bin/docker rm %n
+                  ExecStartPre=/usr/bin/mkdir -p /opt/grype-server
+                  ExecStartPre=/usr/bin/chown -R 1000:1000 /opt/grype-server
+                  ExecStartPre=/usr/bin/docker pull ${GrypeServerContainerImage}
+                  ExecStart=/usr/bin/docker run \
+                    --rm --name %n \
+                    -p 0.0.0.0:9991:9991/tcp \
+                    -v /opt/grype-server:/opt/grype-server \
+                    --env-file /etc/grype-server/config.env \
+                    ${GrypeServerContainerImage} run --log-level warning
+
+                  [Install]
+                  WantedBy=multi-user.target
+              mode: "000644"
           commands:
             01subsitute_rest_address:
               command: /etc/vmclarity/render_config.sh
@@ -315,7 +346,9 @@ Resources:
               command: systemctl enable --now exploit_server.service
             04start_trivy_server:
               command: systemctl enable --now trivy_server.service
-            05enable_vmclarity:
+            05start_grype_server:
+              command: systemctl enable --now grype_server.service
+            06enable_vmclarity:
               command: systemctl enable --now vmclarity.service
     DependsOn:
       - VmClarityServerPublicRoute
@@ -379,6 +412,17 @@ Resources:
       IpProtocol: tcp
       FromPort: 9992
       ToPort: 9992
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Grype Server on port 9992 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToGrypeServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9991
+      ToPort: 9991
       SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
 
   # Create an Internet Gateway to allow VMClarityServer to talk to the internet
@@ -687,6 +731,10 @@ Parameters:
     Description: Name of the container image used for the trivy server.
     Type: String
     Default: docker.io/aquasec/trivy:0.34.0
+  GrypeServerContainerImage:
+    Description: Name of the container image used for the grype server.
+    Type: String
+    Default: gcr.io/eticloud/k8sec/grype-server:v0.1.5
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
