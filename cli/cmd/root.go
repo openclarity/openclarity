@@ -50,9 +50,10 @@ var (
 	logger  *logrus.Entry
 	output  string
 
-	server       string
-	scanResultID string
-	mountVolume  bool
+	server                string
+	scanResultID          string
+	mountVolume           bool
+	waitForServerAttached bool
 )
 
 const (
@@ -82,13 +83,15 @@ var rootCmd = &cobra.Command{
 			exporter = exp
 		}
 
-		if mountVolume && exporter != nil {
+		if waitForServerAttached && exporter != nil {
 			// wait for volume to be attached.
 			if err := waitForAttached(ctx, exporter); err != nil {
 				return fmt.Errorf("failed to wait for volume attached: %v", err)
 			}
 			logger.Infof("got volume attached state")
+		}
 
+		if mountVolume {
 			mountPoints, err := mountAttachedVolume()
 			if err != nil {
 				return fmt.Errorf("failed to mount attached volume: %v", err)
@@ -305,6 +308,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
 	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
 	rootCmd.PersistentFlags().BoolVar(&mountVolume, "mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
+	rootCmd.PersistentFlags().BoolVar(&waitForServerAttached, "wait-for-server-attached", false, "wait for the VMClarity server to attach the volume")
 
 	// TODO(sambetts) we may have to change this to our own validation when
 	// we add the CI/CD scenario and there isn't an existing scan-result-id
