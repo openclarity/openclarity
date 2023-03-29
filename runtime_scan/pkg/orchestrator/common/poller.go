@@ -38,38 +38,45 @@ type Poller[T comparable] struct {
 	Queue Enqueuer[T]
 }
 
+func (p *Poller[T]) pollThenWait(ctx context.Context) {
+	// Create a timeout context so that we can re-poll the
+	// items at fixed intervals regardless of how far
+	// through the items we got, this prevents us holding
+	// onto to stale items.
+	timeoutCtx, cancel := context.WithTimeout(ctx, p.PollPeriod)
+
+	// Defer cancel even though we're waiting on the timeout at the bottom
+	// of the function, so that even if we panic for some reason the
+	// context is cleaned up
+	defer cancel()
+
+	items, err := p.GetItems(timeoutCtx)
+	if err != nil {
+		p.Logger.Errorf("Failed to get items to reconcile: %v", err)
+	} else {
+		p.Logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
+		for _, item := range items {
+			p.Queue.Enqueue(item)
+		}
+	}
+
+	// Once we've added all the items to the queue wait for
+	// the poll period time to be up before re-requesting
+	// items. This ensures that each reconcile is a fixed
+	// length of time regardless of how long the GetItems
+	// request and Enqueuing logic took.
+	<-timeoutCtx.Done()
+}
+
 func (p *Poller[T]) Start(ctx context.Context) {
 	go func() {
 		for {
-			// Create a timeout context so that we can re-poll the
-			// items at fixed intervals regardless of how far
-			// through the items we got, this prevents us holding
-			// onto to stale items.
-			timeoutCtx, cancel := context.WithTimeout(ctx, p.PollPeriod)
-			defer cancel()
-
-			items, err := p.GetItems(timeoutCtx)
-			if err != nil {
-				p.Logger.Errorf("Failed to get items to reconcile: %v", err)
-			} else {
-				p.Logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
-				for _, item := range items {
-					p.Queue.Enqueue(item)
-				}
-			}
-
-			// Once we've added all the items to the queue wait for
-			// the poll period time to be up before re-requesting
-			// items. This ensures that each reconcile is a fixed
-			// length of time.
-			<-timeoutCtx.Done()
+			p.pollThenWait(ctx)
 
 			select {
-			// Check if the parent context was the reason
-			// timeoutCtx was canceled, if it was the parent
-			// context then we've been cancelled so we must stop
-			// and return, otherwise continue to the next
-			// poll.
+			// Check if the parent context was canceled, if it was
+			// we must stop and return, otherwise continue to the
+			// next poll.
 			case <-ctx.Done():
 				p.Logger.Info("Shutting down")
 				return
