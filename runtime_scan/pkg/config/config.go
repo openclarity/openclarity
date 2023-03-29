@@ -44,6 +44,7 @@ const (
 	ScanConfigWatchInterval         = "SCAN_CONFIG_WATCH_INTERVAL"
 	ExploitDBAddress                = "EXPLOIT_DB_ADDRESS"
 	TrivyServerAddress              = "TRIVY_SERVER_ADDRESS"
+	GrypeServerAddress              = "GRYPE_SERVER_ADDRESS"
 )
 
 type OrchestratorConfig struct {
@@ -69,6 +70,8 @@ type ScannerConfig struct {
 	ExploitsDBAddress string
 
 	TrivyServerAddress string
+
+	GrypeServerAddress string
 
 	JobResultTimeout          time.Duration
 	JobResultsPollingInterval time.Duration
@@ -136,6 +139,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 			ExploitsDBAddress:         viper.GetString(ExploitDBAddress),
 			ClamBinaryPath:            viper.GetString(ClamBinaryPath),
 			TrivyServerAddress:        viper.GetString(TrivyServerAddress),
+			GrypeServerAddress:        viper.GetString(GrypeServerAddress),
 		},
 	}
 
