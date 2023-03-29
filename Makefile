@@ -101,9 +101,18 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
 	@mv bin/golangci-lint $@
 
-.PHONY: lint
-lint: bin/golangci-lint ## Run linter
+.PHONY: lint-go
+lint-go: bin/golangci-lint
 	./bin/golangci-lint run
+
+.PHONY: lint-cfn
+lint-cfn:
+	# Requires cfn-lint to be installed
+	# https://github.com/aws-cloudformation/cfn-lint#install
+	cfn-lint installation/aws/VmClarity.cfn
+
+.PHONY: lint
+lint: lint-go lint-cfn ## Run linters
 
 .PHONY: fix
 fix: bin/golangci-lint ## Fix lint violations
