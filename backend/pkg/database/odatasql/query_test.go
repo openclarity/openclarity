@@ -395,7 +395,7 @@ func fromRadio(t *testing.T, cdp Radio) StereoType {
 }
 
 // nolint:cyclop,maintidx
-func Test_BuildSQLQuery(t *testing.T) {
+func TestBuildSQLQuery(t *testing.T) {
 	dbLogger := logger.Default
 	dbLogger = dbLogger.LogMode(logger.Info)
 
@@ -460,7 +460,7 @@ func Test_BuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add manufacturer to db %v", err)
 	}
 
-	car1, err := addCar(db, "model1", manu1.ID, []string{}, 5, false, &oldtime)
+	car1, err := addCar(db, "model1", manu1.ID, []string{}, 12, false, &oldtime)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
@@ -480,141 +480,115 @@ func Test_BuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
+	type args struct {
+		schemaMetas   map[string]SchemaMeta
+		schema        string
+		filterString  *string
+		selectString  *string
+		expandString  *string
+		orderbyString *string
+		top           *int
+		skip          *int
+	}
 	tests := []struct {
-		name            string
-		filterString    *string
-		selectString    *string
-		expandString    *string
-		orderbyString   *string
-		top             *int
-		skip            *int
-		want            []Car
-		buildQueryError bool
+		name    string
+		args    args
+		want    []Car
+		wantErr bool
 	}{
 		{
-			name:         "All cars, no filter, select, expand or pagination",
-			filterString: nil,
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1, car2, car3, car4},
+			name: "All cars, no filter, select, expand or pagination",
+			want: []Car{car1, car2, car3, car4},
 		},
 		{
-			name:         "eq filter by primitive type ModelName",
-			filterString: PointerTo("ModelName eq 'model1'"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1},
+			name: "eq filter by primitive type ModelName",
+			args: args{
+				filterString: PointerTo("ModelName eq 'model1'"),
+			},
+			want: []Car{car1},
 		},
 		{
-			name:         "gt by primitive type Seats",
-			filterString: PointerTo("Seats gt 2"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1, car2},
+			name: "gt by primitive type Seats",
+			args: args{
+				filterString: PointerTo("Seats gt 2"),
+			},
+			want: []Car{car1, car2},
 		},
 		{
-			name:         "gt by primitive type on Seats with float",
-			filterString: PointerTo("Seats gt 2.0"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1, car2},
+			name: "gt by primitive type on Seats with float",
+			args: args{
+				filterString: PointerTo("Seats gt 2.0"),
+			},
+			want: []Car{car1, car2},
 		},
 		{
-			name:         "gt by primitive type Seats with no results",
-			filterString: PointerTo("Seats gt 10"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{},
+			name: "gt by primitive type Seats with no results",
+			args: args{
+				filterString: PointerTo("Seats gt 14"),
+			},
+			want: []Car{},
 		},
 		{
-			name:         "gt by primitive type with float on Seats with no results",
-			filterString: PointerTo("Seats gt 10.0"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{},
+			name: "gt by primitive type with float on Seats with no results",
+			args: args{
+				filterString: PointerTo("Seats gt 14.0"),
+			},
+			want: []Car{},
 		},
 		{
-			name:         "combined 'and' filter",
-			filterString: PointerTo("Seats gt 2 and ModelName eq 'model2'"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car2},
+			name: "combined 'and' filter",
+			args: args{
+				filterString: PointerTo("Seats gt 2 and ModelName eq 'model2'"),
+			},
+			want: []Car{car2},
 		},
 		{
-			name:         "combined 'and' filter with no results",
-			filterString: PointerTo("Seats gt 2 and ModelName eq 'doesnotexist'"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{},
+			name: "combined 'and' filter with no results",
+			args: args{
+				filterString: PointerTo("Seats gt 2 and ModelName eq 'doesnotexist'"),
+			},
+			want: []Car{},
 		},
 		{
-			name:         "combined 'or' filter",
-			filterString: PointerTo("ModelName eq 'model3' or Seats eq 5"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1, car2, car3},
+			name: "combined 'or' filter",
+			args: args{
+				filterString: PointerTo("ModelName eq 'model3' or Seats eq 5"),
+			},
+			want: []Car{car2, car3},
 		},
 		{
-			name:         "'contains' filter",
-			filterString: PointerTo("contains(ModelName, '1')"),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1},
+			name: "'contains' filter",
+			args: args{
+				filterString: PointerTo("contains(ModelName, '1')"),
+			},
+			want: []Car{car1},
 		},
 		{
-			name:         "filter on nested field",
-			filterString: PointerTo(fmt.Sprintf("Engine/Manufacturer/Id eq '%s'", manu1.ID)),
-			selectString: nil,
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
-			want:         []Car{car1, car2},
+			name: "filter on nested field",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Engine/Manufacturer/Id eq '%s'", manu1.ID)),
+			},
+			want: []Car{car1, car2},
 		},
 		{
-			name:            "mismatched brackets",
-			filterString:    PointerTo("contains(ModelName, '1'"),
-			selectString:    nil,
-			expandString:    nil,
-			top:             nil,
-			skip:            nil,
-			buildQueryError: true,
+			name: "mismatched brackets",
+			args: args{
+				filterString: PointerTo("contains(ModelName, '1'"),
+			},
+			wantErr: true,
 		},
 		{
-			name:            "non-boolean filter",
-			filterString:    PointerTo("ModelName eq"),
-			selectString:    nil,
-			expandString:    nil,
-			top:             nil,
-			skip:            nil,
-			buildQueryError: true,
+			name: "non-boolean filter",
+			args: args{
+				filterString: PointerTo("ModelName eq"),
+			},
+			wantErr: true,
 		},
 		{
-			name:         "simple select one field",
-			filterString: nil,
-			selectString: PointerTo("ModelName"),
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
+			name: "simple select one field",
+			args: args{
+				selectString: PointerTo("ModelName"),
+			},
 			want: []Car{
 				{
 					ModelName: car1.ModelName,
@@ -631,12 +605,10 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "simple select + select nested field",
-			filterString: nil,
-			selectString: PointerTo("Seats,Engine/Manufacturer"),
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
+			name: "simple select + select nested field",
+			args: args{
+				selectString: PointerTo("Seats,Engine/Manufacturer"),
+			},
 			want: []Car{
 				{
 					Seats: car1.Seats,
@@ -665,12 +637,10 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "select with nested filter",
-			filterString: nil,
-			selectString: PointerTo("ModelName,Engine/Options/SubOptions($filter=contains(Name, 'blue'))"),
-			expandString: nil,
-			top:          nil,
-			skip:         nil,
+			name: "select with nested filter",
+			args: args{
+				selectString: PointerTo("ModelName,Engine/Options/SubOptions($filter=contains(Name, 'blue'))"),
+			},
 			want: []Car{
 				{
 					ModelName: car1.ModelName,
@@ -735,9 +705,11 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "select fields from nested list",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("OtherStereos/Brand"),
+			name: "select fields from nested list",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("OtherStereos/Brand"),
+			},
 			want: []Car{
 				{
 					OtherStereos: []StereoType{
@@ -749,9 +721,11 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "select fields from nested list",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("OtherStereos($select=Brand)"),
+			name: "select fields from nested list",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("OtherStereos($select=Brand)"),
+			},
 			want: []Car{
 				{
 					OtherStereos: []StereoType{
@@ -763,9 +737,11 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "select fields from discriminator type",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("MainStereo/NumberOfDisks"),
+			name: "select fields from discriminator type",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("MainStereo/NumberOfDisks"),
+			},
 			want: []Car{
 				{
 					MainStereo: fromCDPlayer(t, CDPlayer{NumberOfDisks: 12}),
@@ -773,12 +749,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("ModelName,Manufacturer"),
-			expandString: PointerTo("Manufacturer"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("ModelName,Manufacturer"),
+				expandString: PointerTo("Manufacturer"),
+			},
 			want: []Car{
 				{
 					ModelName:    car1.ModelName,
@@ -787,12 +763,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship, relationship not in select",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("ModelName"),
-			expandString: PointerTo("Manufacturer"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship, relationship not in select",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("ModelName"),
+				expandString: PointerTo("Manufacturer"),
+			},
 			want: []Car{
 				{
 					ModelName:    car1.ModelName,
@@ -801,12 +777,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship with nested select",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("ModelName"),
-			expandString: PointerTo("Manufacturer($select=Name)"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship with nested select",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("ModelName"),
+				expandString: PointerTo("Manufacturer($select=Name)"),
+			},
 			want: []Car{
 				{
 					ModelName: car1.ModelName,
@@ -817,12 +793,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship collection",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-			selectString: PointerTo("ModelName"),
-			expandString: PointerTo("Manufacturers"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship collection",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
+				selectString: PointerTo("ModelName"),
+				expandString: PointerTo("Manufacturers"),
+			},
 			want: []Car{
 				{
 					ModelName: car2.ModelName,
@@ -834,12 +810,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship collection with filter",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-			selectString: PointerTo("ModelName"),
-			expandString: PointerTo("Manufacturers($filter=Name eq 'manu2')"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship collection with filter",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
+				selectString: PointerTo("ModelName"),
+				expandString: PointerTo("Manufacturers($filter=Name eq 'manu2')"),
+			},
 			want: []Car{
 				{
 					ModelName: car2.ModelName,
@@ -850,12 +826,12 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "expand on relationship within complex property",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-			selectString: PointerTo("ModelName,Engine/Manufacturer"),
-			expandString: PointerTo("Engine/Manufacturer"),
-			top:          nil,
-			skip:         nil,
+			name: "expand on relationship within complex property",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
+				selectString: PointerTo("ModelName,Engine/Manufacturer"),
+				expandString: PointerTo("Engine/Manufacturer"),
+			},
 			want: []Car{
 				{
 					ModelName: car2.ModelName,
@@ -866,49 +842,59 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:            "expand mismatched brackets",
-			filterString:    PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-			selectString:    PointerTo("ModelName,Engine/Manufacturer"),
-			expandString:    PointerTo("Engine/Manufacturer($filter=Name eq 'foo'"),
-			top:             nil,
-			skip:            nil,
-			want:            []Car{},
-			buildQueryError: true,
+			name: "expand mismatched brackets",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
+				selectString: PointerTo("ModelName,Engine/Manufacturer"),
+				expandString: PointerTo("Engine/Manufacturer($filter=Name eq 'foo'"),
+			},
+			want:    []Car{},
+			wantErr: true,
 		},
 		{
-			name:            "expand bad nested filter",
-			filterString:    PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-			selectString:    PointerTo("ModelName,Engine/Manufacturer"),
-			expandString:    PointerTo("Engine/Manufacturer($filter=Name eq)"),
-			top:             nil,
-			skip:            nil,
-			want:            []Car{},
-			buildQueryError: true,
+			name: "expand bad nested filter",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
+				selectString: PointerTo("ModelName,Engine/Manufacturer"),
+				expandString: PointerTo("Engine/Manufacturer($filter=Name eq)"),
+			},
+			want:    []Car{},
+			wantErr: true,
 		},
 		{
-			name:          "orderby number of seats decending",
-			orderbyString: PointerTo("Seats desc"),
-			want:          []Car{car1, car2, car3, car4},
+			name: "orderby number of seats decending",
+			args: args{
+				orderbyString: PointerTo("Seats desc"),
+			},
+			want: []Car{car1, car2, car3, car4},
 		},
 		{
-			name:          "orderby number of seats ascending",
-			orderbyString: PointerTo("Seats asc"),
-			want:          []Car{car3, car4, car1, car2},
+			name: "orderby number of seats ascending",
+			args: args{
+				orderbyString: PointerTo("Seats asc"),
+			},
+			want: []Car{car3, car4, car2, car1},
 		},
 		{
-			name:          "orderby number of seats ascending (direction not specified by user)",
-			orderbyString: PointerTo("Seats"),
-			want:          []Car{car3, car4, car1, car2},
+			name: "orderby number of seats ascending (direction not specified by user)",
+			args: args{
+				orderbyString: PointerTo("Seats"),
+			},
+			want: []Car{car3, car4, car2, car1},
 		},
 		{
-			name:          "orderby model name decending",
-			orderbyString: PointerTo("ModelName desc"),
-			want:          []Car{car4, car3, car2, car1},
+			name: "orderby model name decending",
+			args: args{
+				orderbyString: PointerTo("ModelName desc"),
+			},
+			want: []Car{car4, car3, car2, car1},
 		},
 		{
-			name:         "order selected list ascending",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("OtherStereos($orderby=NumberOfDisks asc)"),
+			name: "order selected list ascending",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("OtherStereos($orderby=NumberOfDisks asc)"),
+			},
 			want: []Car{
 				{
 					OtherStereos: []StereoType{
@@ -920,9 +906,11 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "order selected list decending",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("OtherStereos($orderby=NumberOfDisks desc)"),
+			name: "order selected list decending",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("OtherStereos($orderby=NumberOfDisks desc)"),
+			},
 			want: []Car{
 				{
 					OtherStereos: []StereoType{
@@ -934,19 +922,25 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:          "orderby sub-object field ascending",
-			orderbyString: PointerTo("Engine/Options/Supercharger asc"),
-			want:          []Car{car1, car3, car2, car4},
+			name: "orderby sub-object field ascending",
+			args: args{
+				orderbyString: PointerTo("Engine/Options/Supercharger asc"),
+			},
+			want: []Car{car1, car3, car2, car4},
 		},
 		{
-			name:          "orderby two fields",
-			orderbyString: PointerTo("Engine/Options/Supercharger asc, ModelName desc"),
-			want:          []Car{car3, car1, car4, car2},
+			name: "orderby two fields",
+			args: args{
+				orderbyString: PointerTo("Engine/Options/Supercharger asc, ModelName desc"),
+			},
+			want: []Car{car3, car1, car4, car2},
 		},
 		{
-			name:         "select collection of primitives",
-			filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-			selectString: PointerTo("ModelName,Engine/Options/OtherThings"),
+			name: "select collection of primitives",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("ModelName,Engine/Options/OtherThings"),
+			},
 			want: []Car{
 				{
 					ModelName: car1.ModelName,
@@ -962,64 +956,77 @@ func Test_BuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name:         "filter by time less than",
-			filterString: PointerTo(fmt.Sprintf("BuiltOn lt %v", inbetweentime.Format(time.RFC3339))),
+			name: "filter by time less than",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("BuiltOn lt %v", inbetweentime.Format(time.RFC3339))),
+			},
 			want: []Car{
 				car1,
 				car2,
 			},
 		},
 		{
-			name:         "filter by time greater than",
-			filterString: PointerTo(fmt.Sprintf("BuiltOn gt %v", inbetweentime.Format(time.RFC3339))),
+			name: "filter by time greater than",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("BuiltOn gt %v", inbetweentime.Format(time.RFC3339))),
+			},
 			want: []Car{
 				car3,
 			},
 		},
 		{
-			name:         "filter by time equal",
-			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtime.Format(time.RFC3339))),
+			name: "filter by time equal",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtime.Format(time.RFC3339))),
+			},
 			want: []Car{
 				car1,
 				car2,
 			},
 		},
 		{
-			name:         "filter by time equal alternative format",
-			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeAltFormat.Format(time.RFC3339))),
+			name: "filter by time equal alternative format",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeAltFormat.Format(time.RFC3339))),
+			},
 			want: []Car{
 				car1,
 				car2,
 			},
 		},
 		{
-			name:         "filter by time equal diff tz",
-			filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeDiffTz.Format(time.RFC3339))),
+			name: "filter by time equal diff tz",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeDiffTz.Format(time.RFC3339))),
+			},
 			want: []Car{
 				car1,
 				car2,
 			},
 		},
 	}
-
-	for _, test := range tests {
-		query, err := BuildSQLQuery(carSchemaMetas, "Car", test.filterString, test.selectString, test.expandString, test.orderbyString, test.top, test.skip)
-		if err != nil {
-			if !test.buildQueryError {
-				t.Errorf("[%s] failed to build query for DB: %v", test.name, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			query, err := BuildSQLQuery(carSchemaMetas, "Car", tt.args.filterString, tt.args.selectString, tt.args.expandString, tt.args.orderbyString, tt.args.top, tt.args.skip)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BuildSQLQuery() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
-			continue
-		}
 
-		carResult, err := findCars(db, query)
-		if err != nil {
-			t.Errorf("[%s] failed to fetch cars: %v", test.name, err)
-			continue
-		}
+			if err != nil {
+				return
+			}
 
-		if diff := cmp.Diff(test.want, carResult, cmp.AllowUnexported(StereoType{})); diff != "" {
-			t.Errorf("[%s] []Car mismatch (-want +got):\n%s", test.name, diff)
-		}
+			carResult, err := findCars(db, query)
+			if err != nil {
+				t.Errorf("BuildSQLQuery() failed to fetch cars: %v", err)
+				return
+			}
+
+			if diff := cmp.Diff(tt.want, carResult, cmp.AllowUnexported(StereoType{})); diff != "" {
+				t.Errorf("BuildSQLQuery() Car mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 

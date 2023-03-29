@@ -508,7 +508,7 @@ func buildOrderByFromOdata(source string, orderbyItems []*godata.OrderByItem) (s
 			return "", fmt.Errorf("failed to convert odata path to json path: %w", err)
 		}
 
-		conditions = append(conditions, fmt.Sprintf("%s -> '$.%s' %s", source, queryPath, strings.ToUpper(item.Order)))
+		conditions = append(conditions, fmt.Sprintf("%s ->> '$.%s' %s", source, queryPath, strings.ToUpper(item.Order)))
 	}
 
 	return strings.Join(conditions, ", "), nil
