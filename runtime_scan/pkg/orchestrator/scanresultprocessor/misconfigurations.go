@@ -80,49 +80,51 @@ func (srp *ScanResultProcessor) reconcileResultMisconfigurationsToFindings(ctx c
 		return fmt.Errorf("failed to check existing misconfiguration findings: %w", err)
 	}
 
-	// Create new or update existing findings all the misconfigurations found by the
-	// scan.
-	for _, item := range *scanResult.Misconfigurations.Misconfigurations {
-		itemFindingInfo := models.MisconfigurationFindingInfo{
-			Message:         item.Message,
-			Remediation:     item.Remediation,
-			ScannedPath:     item.ScannedPath,
-			ScannerName:     item.ScannerName,
-			Severity:        item.Severity,
-			TestCategory:    item.TestCategory,
-			TestDescription: item.TestDescription,
-			TestID:          item.TestID,
-		}
-
-		findingInfo := models.Finding_FindingInfo{}
-		err = findingInfo.FromMisconfigurationFindingInfo(itemFindingInfo)
-		if err != nil {
-			return fmt.Errorf("unable to convert MisconfigurationFindingInfo into FindingInfo: %w", err)
-		}
-
-		finding := models.Finding{
-			Scan:        scanResult.Scan,
-			Asset:       scanResult.Target,
-			FoundOn:     scanResult.Status.General.LastTransitionTime,
-			FindingInfo: &findingInfo,
-		}
-
-		// Set InvalidatedOn time to the FoundOn time of the oldest
-		// finding, found after this scan result.
-		if newerFound {
-			finding.InvalidatedOn = &newerTime
-		}
-
-		key := misconfigurationKey{*item.ScannerName, *item.TestID, *item.Message}
-		if id, ok := existingMap[key]; ok {
-			err = srp.client.PatchFinding(ctx, id, finding)
-			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+	if scanResult.Misconfigurations != nil && scanResult.Misconfigurations.Misconfigurations != nil {
+		// Create new or update existing findings all the misconfigurations found by the
+		// scan.
+		for _, item := range *scanResult.Misconfigurations.Misconfigurations {
+			itemFindingInfo := models.MisconfigurationFindingInfo{
+				Message:         item.Message,
+				Remediation:     item.Remediation,
+				ScannedPath:     item.ScannedPath,
+				ScannerName:     item.ScannerName,
+				Severity:        item.Severity,
+				TestCategory:    item.TestCategory,
+				TestDescription: item.TestDescription,
+				TestID:          item.TestID,
 			}
-		} else {
-			_, err = srp.client.PostFinding(ctx, finding)
+
+			findingInfo := models.Finding_FindingInfo{}
+			err = findingInfo.FromMisconfigurationFindingInfo(itemFindingInfo)
 			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+				return fmt.Errorf("unable to convert MisconfigurationFindingInfo into FindingInfo: %w", err)
+			}
+
+			finding := models.Finding{
+				Scan:        scanResult.Scan,
+				Asset:       scanResult.Target,
+				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				FindingInfo: &findingInfo,
+			}
+
+			// Set InvalidatedOn time to the FoundOn time of the oldest
+			// finding, found after this scan result.
+			if newerFound {
+				finding.InvalidatedOn = &newerTime
+			}
+
+			key := misconfigurationKey{*item.ScannerName, *item.TestID, *item.Message}
+			if id, ok := existingMap[key]; ok {
+				err = srp.client.PatchFinding(ctx, id, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
+			} else {
+				_, err = srp.client.PostFinding(ctx, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
 			}
 		}
 	}

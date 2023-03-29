@@ -128,6 +128,7 @@ func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingTyp
 		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,targetInfo", totalFindingField)),
 		Top:     utils.PointerTo(topRiskiestAssetsCount),
 		OrderBy: utils.PointerTo(getOrderByOData(totalFindingField)),
+		Filter:  utils.PointerTo(fmt.Sprintf("summary/%s ne null", totalFindingField)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get targets: %v", err)
