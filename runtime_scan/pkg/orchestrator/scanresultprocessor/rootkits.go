@@ -78,44 +78,46 @@ func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Co
 		return fmt.Errorf("failed to check existing rootkit findings: %w", err)
 	}
 
-	// Create new or update existing findings all the rootkits found by the
-	// scan.
-	for _, item := range *scanResult.Rootkits.Rootkits {
-		itemFindingInfo := models.RootkitFindingInfo{
-			Path:        item.Path,
-			RootkitName: item.RootkitName,
-			RootkitType: item.RootkitType,
-		}
-
-		findingInfo := models.Finding_FindingInfo{}
-		err = findingInfo.FromRootkitFindingInfo(itemFindingInfo)
-		if err != nil {
-			return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
-		}
-
-		finding := models.Finding{
-			Scan:        scanResult.Scan,
-			Asset:       scanResult.Target,
-			FoundOn:     scanResult.Status.General.LastTransitionTime,
-			FindingInfo: &findingInfo,
-		}
-
-		// Set InvalidatedOn time to the FoundOn time of the oldest
-		// finding, found after this scan result.
-		if newerFound {
-			finding.InvalidatedOn = &newerTime
-		}
-
-		key := rootkitKey{*item.RootkitName, string(*item.RootkitType), *item.Path}
-		if id, ok := existingMap[key]; ok {
-			err = srp.client.PatchFinding(ctx, id, finding)
-			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+	if scanResult.Rootkits != nil && scanResult.Rootkits.Rootkits != nil {
+		// Create new or update existing findings all the rootkits found by the
+		// scan.
+		for _, item := range *scanResult.Rootkits.Rootkits {
+			itemFindingInfo := models.RootkitFindingInfo{
+				Path:        item.Path,
+				RootkitName: item.RootkitName,
+				RootkitType: item.RootkitType,
 			}
-		} else {
-			_, err = srp.client.PostFinding(ctx, finding)
+
+			findingInfo := models.Finding_FindingInfo{}
+			err = findingInfo.FromRootkitFindingInfo(itemFindingInfo)
 			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+				return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
+			}
+
+			finding := models.Finding{
+				Scan:        scanResult.Scan,
+				Asset:       scanResult.Target,
+				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				FindingInfo: &findingInfo,
+			}
+
+			// Set InvalidatedOn time to the FoundOn time of the oldest
+			// finding, found after this scan result.
+			if newerFound {
+				finding.InvalidatedOn = &newerTime
+			}
+
+			key := rootkitKey{*item.RootkitName, string(*item.RootkitType), *item.Path}
+			if id, ok := existingMap[key]; ok {
+				err = srp.client.PatchFinding(ctx, id, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
+			} else {
+				_, err = srp.client.PostFinding(ctx, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
 			}
 		}
 	}

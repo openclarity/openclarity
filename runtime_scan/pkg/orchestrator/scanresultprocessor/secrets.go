@@ -78,48 +78,50 @@ func (srp *ScanResultProcessor) reconcileResultSecretsToFindings(ctx context.Con
 		return fmt.Errorf("failed to check existing secret findings: %w", err)
 	}
 
-	// Create new or update existing findings all the secrets found by the
-	// scan.
-	for _, item := range *scanResult.Secrets.Secrets {
-		itemFindingInfo := models.SecretFindingInfo{
-			Description: item.Description,
-			EndLine:     item.EndLine,
-			FilePath:    item.FilePath,
-			Fingerprint: item.Fingerprint,
-			StartLine:   item.StartLine,
-			StartColumn: item.StartColumn,
-			EndColumn:   item.EndColumn,
-		}
-
-		findingInfo := models.Finding_FindingInfo{}
-		err = findingInfo.FromSecretFindingInfo(itemFindingInfo)
-		if err != nil {
-			return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)
-		}
-
-		finding := models.Finding{
-			Scan:        scanResult.Scan,
-			Asset:       scanResult.Target,
-			FoundOn:     scanResult.Status.General.LastTransitionTime,
-			FindingInfo: &findingInfo,
-		}
-
-		// Set InvalidatedOn time to the FoundOn time of the oldest
-		// finding, found after this scan result.
-		if newerFound {
-			finding.InvalidatedOn = &newerTime
-		}
-
-		key := secretKey{*item.Fingerprint, *item.StartColumn, *item.EndColumn}
-		if id, ok := existingMap[key]; ok {
-			err = srp.client.PatchFinding(ctx, id, finding)
-			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+	if scanResult.Secrets != nil && scanResult.Secrets.Secrets != nil {
+		// Create new or update existing findings all the secrets found by the
+		// scan.
+		for _, item := range *scanResult.Secrets.Secrets {
+			itemFindingInfo := models.SecretFindingInfo{
+				Description: item.Description,
+				EndLine:     item.EndLine,
+				FilePath:    item.FilePath,
+				Fingerprint: item.Fingerprint,
+				StartLine:   item.StartLine,
+				StartColumn: item.StartColumn,
+				EndColumn:   item.EndColumn,
 			}
-		} else {
-			_, err = srp.client.PostFinding(ctx, finding)
+
+			findingInfo := models.Finding_FindingInfo{}
+			err = findingInfo.FromSecretFindingInfo(itemFindingInfo)
 			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+				return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)
+			}
+
+			finding := models.Finding{
+				Scan:        scanResult.Scan,
+				Asset:       scanResult.Target,
+				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				FindingInfo: &findingInfo,
+			}
+
+			// Set InvalidatedOn time to the FoundOn time of the oldest
+			// finding, found after this scan result.
+			if newerFound {
+				finding.InvalidatedOn = &newerTime
+			}
+
+			key := secretKey{*item.Fingerprint, *item.StartColumn, *item.EndColumn}
+			if id, ok := existingMap[key]; ok {
+				err = srp.client.PatchFinding(ctx, id, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
+			} else {
+				_, err = srp.client.PostFinding(ctx, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
 			}
 		}
 	}
