@@ -50,7 +50,8 @@ import (
 // TODO this code is taken from KubeClarity, we can make improvements base on the discussions here: https://github.com/openclarity/vmclarity/pull/3
 
 const (
-	TrivyTimeout = 300
+	TrivyTimeout       = 300
+	GrypeServerTimeout = 2 * time.Minute
 
 	SnapshotCreationTimeout = 3 * time.Minute
 	SnapshotCopyTimeout     = 15 * time.Minute
@@ -389,7 +390,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 func (s *Scanner) generateFamiliesConfigurationYaml() (string, error) {
 	famConfig := families.Config{
 		SBOM:             userSBOMConfigToFamiliesSbomConfig(s.scanConfig.ScanFamiliesConfig.Sbom),
-		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities, s.config.TrivyServerAddress),
+		Vulnerabilities:  userVulnConfigToFamiliesVulnConfig(s.scanConfig.ScanFamiliesConfig.Vulnerabilities, s.config.TrivyServerAddress, s.config.GrypeServerAddress),
 		Secrets:          userSecretsConfigToFamiliesSecretsConfig(s.scanConfig.ScanFamiliesConfig.Secrets, s.config.GitleaksBinaryPath),
 		Exploits:         userExploitsConfigToFamiliesExploitsConfig(s.scanConfig.ScanFamiliesConfig.Exploits, s.config.ExploitsDBAddress),
 		Malware:          userMalwareConfigToFamiliesMalwareConfig(s.scanConfig.ScanFamiliesConfig.Malware, s.config.ClamBinaryPath),
@@ -462,10 +463,32 @@ func userMisconfigurationConfigToFamiliesMisconfigurationConfig(misconfiguration
 	}
 }
 
-func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig, trivyServerAddr string) familiesVulnerabilities.Config {
+func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.VulnerabilitiesConfig, trivyServerAddr string, grypeServerAddr string) familiesVulnerabilities.Config {
 	if vulnerabilitiesConfig == nil || vulnerabilitiesConfig.Enabled == nil || !*vulnerabilitiesConfig.Enabled {
 		return familiesVulnerabilities.Config{}
 	}
+
+	var grypeConfig kubeclarityConfig.GrypeConfig
+	if grypeServerAddr != "" {
+		grypeConfig = kubeclarityConfig.GrypeConfig{
+			Mode: kubeclarityConfig.ModeRemote,
+			RemoteGrypeConfig: kubeclarityConfig.RemoteGrypeConfig{
+				GrypeServerAddress: grypeServerAddr,
+				GrypeServerTimeout: GrypeServerTimeout,
+			},
+		}
+	} else {
+		grypeConfig = kubeclarityConfig.GrypeConfig{
+			Mode: kubeclarityConfig.ModeLocal,
+			LocalGrypeConfig: kubeclarityConfig.LocalGrypeConfig{
+				UpdateDB:   true,
+				DBRootDir:  "/tmp/",
+				ListingURL: "https://toolbox-data.anchore.io/grype/databases/listing.json",
+				Scope:      source.SquashedScope,
+			},
+		}
+	}
+
 	return familiesVulnerabilities.Config{
 		Enabled: true,
 		// TODO(sambetts) This choice should come from the user's configuration
@@ -475,16 +498,7 @@ func userVulnConfigToFamiliesVulnConfig(vulnerabilitiesConfig *models.Vulnerabil
 			// TODO(sambetts) The user needs to be able to provide this configuration
 			Registry: &kubeclarityConfig.Registry{},
 			Scanner: &kubeclarityConfig.Scanner{
-				GrypeConfig: kubeclarityConfig.GrypeConfig{
-					// TODO(sambetts) Should run grype in remote mode eventually
-					Mode: kubeclarityConfig.ModeLocal,
-					LocalGrypeConfig: kubeclarityConfig.LocalGrypeConfig{
-						UpdateDB:   true,
-						DBRootDir:  "/tmp/",
-						ListingURL: "https://toolbox-data.anchore.io/grype/databases/listing.json",
-						Scope:      source.SquashedScope,
-					},
-				},
+				GrypeConfig: grypeConfig,
 				TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
 					Timeout:    TrivyTimeout,
 					ServerAddr: trivyServerAddr,
