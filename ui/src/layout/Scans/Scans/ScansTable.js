@@ -61,7 +61,7 @@ const ScansTable = () => {
             id: "status",
             Cell: ({row}) => {
                 const {id, state, stateReason, stateMessage, summary} = row.original;
-                const {jobsCompleted, jobsLeftToRun} = summary;
+                const {jobsCompleted, jobsLeftToRun} = summary || {};
 
                 return (
                     <ScanProgressBar
@@ -85,7 +85,7 @@ const ScansTable = () => {
             Header: "Scanned assets",
             id: "assets",
             accessor: original => {
-                const {jobsCompleted, jobsLeftToRun} = original.summary;
+                const {jobsCompleted, jobsLeftToRun} = original.summary || {};
                 
                 return `${jobsCompleted}/${jobsCompleted + jobsLeftToRun}`;
             },

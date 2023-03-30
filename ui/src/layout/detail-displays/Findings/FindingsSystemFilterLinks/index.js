@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from 'components/Button';
 import Icon from 'components/Icon';
 import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
+import { getFindingsAbsolutePathByFindingType } from 'layout/Findings';
 
 import './findings-system-filter-links.scss';
 
@@ -21,12 +22,12 @@ const FindingsSystemFilterLinks = ({totalVulnerabilitiesCount, findingsSummary})
     <div className="findings-system-filters-links">
         <div className="findings-system-filters-title">See other findings:</div>
         {
-            [VULNERABIITY_FINDINGS_ITEM, ...Object.values(FINDINGS_MAPPING)].map(({value, totalKey, title, icon, appRoute}) => {
+            [VULNERABIITY_FINDINGS_ITEM, ...Object.values(FINDINGS_MAPPING)].map(({value, totalKey, title, icon}) => {
                 const LinkTitle = VULNERABIITY_FINDINGS_ITEM.value === value ? `${totalVulnerabilitiesCount} ${title}` :
-                    `${findingsSummary[totalKey] || 0} ${title}`;
+                    `${!!findingsSummary ? (findingsSummary[totalKey] || 0) : 0} ${title}`;
 
                 return (
-                    <FindingFilterLink key={value} icon={icon} title={LinkTitle} appRoute={appRoute} />
+                    <FindingFilterLink key={value} icon={icon} title={LinkTitle} appRoute={getFindingsAbsolutePathByFindingType(value)} />
                 )
             })
         }

@@ -105,7 +105,7 @@ const WidgetChart = ({data, selectedFilters}) => {
 }
 
 const FindingsTrendsWidget = ({className}) => {
-    const {value, label} = TIME_RANGES.HOUR;
+    const {value, label} = TIME_RANGES.WEEK;
     const [selectedRange, setSelectedRange] = useState({value, label});
 
     const [{data, error, loading}, fetchData] = useFetch(APIS.DASHBOARD_FINDINGS_TRENDS, {loadOnMount: false});
@@ -121,7 +121,7 @@ const FindingsTrendsWidget = ({className}) => {
     ]);
     
     return (
-        <WidgetWrapper className={classnames("findings-trends-widget", className)} title="Findings trend">
+        <WidgetWrapper className={classnames("findings-trends-widget", className)} title="Findings trends">
             <div className="findings-trends-widget-header">
                 <div className="findings-trends-widget-filters">
                     {

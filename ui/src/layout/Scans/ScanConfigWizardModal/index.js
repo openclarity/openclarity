@@ -54,7 +54,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     
     if (!isEmpty(regions)) {
         initialValues.scope.regions = regions.map(({name, vpcs}) => {
-            return {name, vpcs: !vpcs ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
+            return {name, vpcs: isEmpty(vpcs) ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
                 return {id: id || "", securityGroups: (securityGroups || []).map(({id}) => id)}
             })}
         })
@@ -112,7 +112,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     objectType: "AwsScanScope",
                     allRegions: isAllScope,
                     regions: isAllScope ? [] : regions.map(({name, vpcs}) => {
-                        return {name, vpcs: vpcs.map(({id, securityGroups}) => {
+                        return {name, vpcs: vpcs.filter(({id}) => !!id).map(({id, securityGroups}) => {
                             return {id, securityGroups: securityGroups.map(id => ({id}))}
                         })}
                     }),
