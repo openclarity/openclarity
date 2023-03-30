@@ -16,7 +16,6 @@
 package rest
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -29,7 +28,7 @@ import (
 )
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
-	targets, err := s.BackendClient.GetTargets(context.TODO(), backendmodels.GetTargetsParams{
+	targets, err := s.BackendClient.GetTargets(ctx.Request().Context(), backendmodels.GetTargetsParams{
 		Filter: utils.StringPtr("targetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
@@ -90,7 +89,7 @@ func getTargetLocation(target backendmodels.Target) (string, error) {
 	case backendmodels.VMInfo:
 		return info.Location, nil
 	default:
-		return "", fmt.Errorf("target type is not supported (%T): %w", discriminator, err)
+		return "", fmt.Errorf("target type is not supported (%T)", discriminator)
 	}
 }
 

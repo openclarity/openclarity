@@ -21,15 +21,11 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
 )
 
-type packageKey struct {
-	packageName    string
-	pacakgeVersion string
-}
-
-func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[packageKey]string, error) {
-	existingMap := map[packageKey]string{}
+func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.PackageKey]string, error) {
+	existingMap := map[findingkey.PackageKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and asset/id eq '%s' and scan/id eq '%s'",
 		scanResult.Target.Id, scanResult.Scan.Id)
@@ -47,7 +43,7 @@ func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Co
 			return existingMap, fmt.Errorf("unable to get package finding info: %w", err)
 		}
 
-		key := packageKey{*info.Name, *info.Version}
+		key := findingkey.GeneratePackageKey(info)
 		if _, ok := existingMap[key]; ok {
 			return existingMap, fmt.Errorf("found multiple matching existing findings for package %s version %s", *info.Name, *info.Version)
 		}
@@ -110,7 +106,7 @@ func (srp *ScanResultProcessor) reconcileResultPackagesToFindings(ctx context.Co
 				finding.InvalidatedOn = &newerTime
 			}
 
-			key := packageKey{*item.Name, *item.Version}
+			key := findingkey.GeneratePackageKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
 				err = srp.client.PatchFinding(ctx, id, finding)
 				if err != nil {

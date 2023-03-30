@@ -13,23 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rest
+package findingkey
 
 import (
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 
-	"github.com/openclarity/vmclarity/ui_backend/api/models"
+	"github.com/openclarity/vmclarity/api/models"
 )
 
-// nolint:wrapcheck,unparam
-func sendError(ctx echo.Context, code int, message string) error {
-	log.Error(message)
-	response := &models.ApiResponse{Message: &message}
-	return ctx.JSON(code, response)
+type RootkitKey struct {
+	Name        string
+	RootkitType string
+	Path        string
 }
 
-// nolint:wrapcheck,unparam
-func sendResponse(ctx echo.Context, code int, object interface{}) error {
-	return ctx.JSON(code, object)
+func (k RootkitKey) String() string {
+	return fmt.Sprintf("%s.%s.%s", k.Name, k.RootkitType, k.Path)
+}
+
+func GenerateRootkitKey(info models.RootkitFindingInfo) RootkitKey {
+	return RootkitKey{
+		Name:        *info.RootkitName,
+		RootkitType: string(*info.RootkitType),
+		Path:        *info.Path,
+	}
 }
