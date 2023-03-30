@@ -277,8 +277,20 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 		return models.ScanConfig{}, fmt.Errorf("failed to get scan config from db: %w", err)
 	}
 
+	var err error
+	dbScanConfig.Data, err = patchObject(dbScanConfig.Data, scanConfig)
+	if err != nil {
+		return models.ScanConfig{}, fmt.Errorf("failed to apply patch: %w", err)
+	}
+
+	var sc models.ScanConfig
+	err = json.Unmarshal(dbScanConfig.Data, &sc)
+	if err != nil {
+		return models.ScanConfig{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
 	// Check the existing DB entries to ensure that the name field is unique
-	existingScanConfig, err := s.checkUniqueness(scanConfig)
+	existingScanConfig, err := s.checkUniqueness(sc)
 	if err != nil {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
@@ -287,23 +299,10 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 		return models.ScanConfig{}, fmt.Errorf("failed to check existing scan config: %w", err)
 	}
 
-	dbScanConfig.Data, err = patchObject(dbScanConfig.Data, scanConfig)
-	if err != nil {
-		return models.ScanConfig{}, fmt.Errorf("failed to apply patch: %w", err)
-	}
-
 	if err := s.DB.Save(&dbScanConfig).Error; err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to save scan config in db: %w", err)
 	}
 
-	// TODO(sambetts) Maybe this isn't required now because the DB isn't
-	// creating any of the data (like the ID) so we can just return the
-	// scanConfig pre-marshal above.
-	var sc models.ScanConfig
-	err = json.Unmarshal(dbScanConfig.Data, &sc)
-	if err != nil {
-		return models.ScanConfig{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
-	}
 	return sc, nil
 }
 

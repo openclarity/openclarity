@@ -162,13 +162,15 @@ func (s *ScansTableHandler) SaveScan(scan models.Scan) (models.Scan, error) {
 		return models.Scan{}, fmt.Errorf("scan config id validation failed: %w", err)
 	}
 
-	existingScan, err := s.checkUniqueness(scan)
-	if err != nil {
-		var conflictErr *common.ConflictError
-		if errors.As(err, &conflictErr) {
-			return existingScan, err
+	if scan.ScanConfig != nil {
+		existingScan, err := s.checkUniqueness(scan)
+		if err != nil {
+			var conflictErr *common.ConflictError
+			if errors.As(err, &conflictErr) {
+				return existingScan, err
+			}
+			return models.Scan{}, fmt.Errorf("failed to check existing scan: %w", err)
 		}
-		return models.Scan{}, fmt.Errorf("failed to check existing scan: %w", err)
 	}
 
 	marshaled, err := json.Marshal(scan)
@@ -211,22 +213,10 @@ func (s *ScansTableHandler) UpdateScan(scan models.Scan) (models.Scan, error) {
 		return models.Scan{}, fmt.Errorf("scan config id validation failed: %w", err)
 	}
 
-	existingScan, err := s.checkUniqueness(scan)
-	if err != nil {
-		var conflictErr *common.ConflictError
-		if errors.As(err, &conflictErr) {
-			return existingScan, err
-		}
-		return models.Scan{}, fmt.Errorf("failed to check existing scan: %w", err)
-	}
-
+	var err error
 	dbScan.Data, err = patchObject(dbScan.Data, scan)
 	if err != nil {
 		return models.Scan{}, fmt.Errorf("failed to apply patch: %w", err)
-	}
-
-	if err := s.DB.Save(&dbScan).Error; err != nil {
-		return models.Scan{}, fmt.Errorf("failed to save scan in db: %w", err)
 	}
 
 	var ret models.Scan
@@ -234,6 +224,22 @@ func (s *ScansTableHandler) UpdateScan(scan models.Scan) (models.Scan, error) {
 	if err != nil {
 		return models.Scan{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
+
+	if ret.ScanConfig != nil {
+		existingScan, err := s.checkUniqueness(ret)
+		if err != nil {
+			var conflictErr *common.ConflictError
+			if errors.As(err, &conflictErr) {
+				return existingScan, err
+			}
+			return models.Scan{}, fmt.Errorf("failed to check existing scan: %w", err)
+		}
+	}
+
+	if err := s.DB.Save(&dbScan).Error; err != nil {
+		return models.Scan{}, fmt.Errorf("failed to save scan in db: %w", err)
+	}
+
 	return ret, nil
 }
 

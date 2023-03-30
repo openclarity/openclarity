@@ -236,8 +236,20 @@ func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanR
 		return models.TargetScanResult{}, err
 	}
 
+	var err error
+	dbScanResult.Data, err = patchObject(dbScanResult.Data, scanResult)
+	if err != nil {
+		return models.TargetScanResult{}, fmt.Errorf("failed to apply patch: %w", err)
+	}
+
+	var tsr models.TargetScanResult
+	err = json.Unmarshal(dbScanResult.Data, &tsr)
+	if err != nil {
+		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
 	// Check the existing DB entries to ensure that the scan id and target id fields are unique
-	existingScanResult, err := s.checkUniqueness(scanResult)
+	existingScanResult, err := s.checkUniqueness(tsr)
 	if err != nil {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
@@ -246,23 +258,10 @@ func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanR
 		return models.TargetScanResult{}, fmt.Errorf("failed to check existing scan: %w", err)
 	}
 
-	dbScanResult.Data, err = patchObject(dbScanResult.Data, scanResult)
-	if err != nil {
-		return models.TargetScanResult{}, fmt.Errorf("failed to apply patch: %w", err)
-	}
-
 	if err := s.DB.Save(&dbScanResult).Error; err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to save scan result in db: %w", err)
 	}
 
-	// TODO(sambetts) Maybe this isn't required now because the DB isn't
-	// creating any of the data (like the ID) so we can just return the
-	// scanResult pre-marshal above.
-	var tsr models.TargetScanResult
-	err = json.Unmarshal(dbScanResult.Data, &tsr)
-	if err != nil {
-		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
-	}
 	return tsr, nil
 }
 
