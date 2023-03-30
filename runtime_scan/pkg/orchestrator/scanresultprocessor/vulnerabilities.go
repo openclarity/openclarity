@@ -24,7 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
 )
 
-// nolint:cyclop
+// nolint:cyclop,gocognit
 func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
 	completedTime := scanResult.Status.General.LastTransitionTime
 
@@ -60,7 +60,7 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 	srp.logger.Infof("Found %d existing vulnerabilities findings for this scan", len(existingMap))
 	srp.logger.Debugf("Existing vulnerabilities map: %v", existingMap)
 
-	if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Secrets != nil {
+	if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Vulnerabilities != nil {
 		// Create new findings for all the found vulnerabilities
 		for _, vuln := range *scanResult.Vulnerabilities.Vulnerabilities {
 			vulFindingInfo := models.VulnerabilityFindingInfo{
