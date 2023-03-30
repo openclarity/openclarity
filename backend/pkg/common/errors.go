@@ -23,14 +23,14 @@ type ConflictError struct {
 	Reason string
 }
 
-func (ec *ConflictError) Error() string {
-	return fmt.Sprintf("Unable to create due to conflict, %v", ec.Reason)
-}
-
 type BadRequestError struct {
 	Reason string
 }
 
-func (ec *BadRequestError) Error() string {
-	return fmt.Sprintf("Object validation failed: %v", ec.Reason)
+func (ec *ConflictError) Error() string {
+	return fmt.Sprintf("Unable to create due to conflict, %v", ec.Reason)
+}
+
+func (bre *BadRequestError) Error() string {
+	return fmt.Sprintf("Object validation failed: %v", bre.Reason)
 }

@@ -99,7 +99,14 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 	updatedScanResult, err := s.dbHandler.ScanResultsTable().UpdateScanResult(scanResult)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.ConflictError
 		switch true {
+		case errors.As(err, &conflictErr):
+			existResponse := &models.TargetScanResultExists{
+				Message:          utils.StringPtr(conflictErr.Reason),
+				TargetScanResult: &updatedScanResult,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:
@@ -137,7 +144,14 @@ func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID m
 	updatedScanResult, err := s.dbHandler.ScanResultsTable().SaveScanResult(scanResult)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.ConflictError
 		switch true {
+		case errors.As(err, &conflictErr):
+			existResponse := &models.TargetScanResultExists{
+				Message:          utils.StringPtr(conflictErr.Reason),
+				TargetScanResult: &updatedScanResult,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:
