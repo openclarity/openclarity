@@ -67,12 +67,12 @@ func Test_convertSBOMResultToAPIModel(t *testing.T) {
 								Licenses: utils.PointerTo[cdx.Licenses]([]cdx.LicenseChoice{
 									{
 										License: &cdx.License{
-											Name: "lic1",
+											ID: "lic1",
 										},
 									},
 									{
 										License: &cdx.License{
-											Name: "lic2",
+											ID: "lic2",
 										},
 									},
 								}),
@@ -87,12 +87,12 @@ func Test_convertSBOMResultToAPIModel(t *testing.T) {
 								Licenses: utils.PointerTo[cdx.Licenses]([]cdx.LicenseChoice{
 									{
 										License: &cdx.License{
-											Name: "lic3",
+											ID: "lic3",
 										},
 									},
 									{
 										License: &cdx.License{
-											Name: "lic4",
+											ID: "lic4",
 										},
 									},
 								}),
