@@ -481,8 +481,6 @@ func TestBuildSQLQuery(t *testing.T) {
 	}
 
 	type args struct {
-		schemaMetas   map[string]SchemaMeta
-		schema        string
 		filterString  *string
 		selectString  *string
 		expandString  *string
