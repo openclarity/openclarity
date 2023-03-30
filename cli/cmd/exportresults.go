@@ -73,28 +73,12 @@ func convertPackageInfoToAPIModel(component cdx.Component) *models.Package {
 	return &models.Package{
 		Cpes:     utils.PointerTo([]string{component.CPE}),
 		Language: utils.PointerTo(cyclonedx_helper.GetComponentLanguage(component)),
-		Licenses: convertPackageLicencesToAPIModel(component.Licenses),
+		Licenses: utils.PointerTo(cyclonedx_helper.GetComponentLicenses(component)),
 		Name:     utils.PointerTo(component.Name),
 		Purl:     utils.PointerTo(component.PackageURL),
 		Type:     utils.PointerTo(string(component.Type)),
 		Version:  utils.PointerTo(component.Version),
 	}
-}
-
-func convertPackageLicencesToAPIModel(licenses *cdx.Licenses) *[]string {
-	if licenses == nil {
-		return nil
-	}
-	// nolint:prealloc
-	var ret []string
-	for _, lic := range *licenses {
-		if lic.License == nil {
-			continue
-		}
-		ret = append(ret, lic.License.Name)
-	}
-
-	return &ret
 }
 
 func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results) *models.VulnerabilityScan {
