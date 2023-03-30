@@ -57,53 +57,55 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing vulnerabilties findings for this scan", len(existingMap))
-	srp.logger.Debugf("Existing vulnerabilties map: %v", existingMap)
+	srp.logger.Infof("Found %d existing vulnerabilities findings for this scan", len(existingMap))
+	srp.logger.Debugf("Existing vulnerabilities map: %v", existingMap)
 
-	// Create new findings for all the found vulnerabilties
-	for _, vuln := range *scanResult.Vulnerabilities.Vulnerabilities {
-		vulFindingInfo := models.VulnerabilityFindingInfo{
-			VulnerabilityName: vuln.VulnerabilityName,
-			Description:       vuln.Description,
-			Severity:          vuln.Severity,
-			Links:             vuln.Links,
-			Distro:            vuln.Distro,
-			Cvss:              vuln.Cvss,
-			Package:           vuln.Package,
-			Fix:               vuln.Fix,
-			LayerId:           vuln.LayerId,
-			Path:              vuln.Path,
-		}
-
-		findingInfo := models.Finding_FindingInfo{}
-		err = findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
-		if err != nil {
-			return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)
-		}
-
-		finding := models.Finding{
-			Scan:        scanResult.Scan,
-			Asset:       scanResult.Target,
-			FoundOn:     scanResult.Status.General.LastTransitionTime,
-			FindingInfo: &findingInfo,
-		}
-
-		// Set InvalidatedOn time to the FoundOn time of the oldest
-		// finding, found after this scan result.
-		if newerFound {
-			finding.InvalidatedOn = &newerTime
-		}
-
-		key := findingkey.GenerateVulnerabilityKey(vulFindingInfo)
-		if id, ok := existingMap[key]; ok {
-			err = srp.client.PatchFinding(ctx, id, finding)
-			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+	if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Secrets != nil {
+		// Create new findings for all the found vulnerabilities
+		for _, vuln := range *scanResult.Vulnerabilities.Vulnerabilities {
+			vulFindingInfo := models.VulnerabilityFindingInfo{
+				VulnerabilityName: vuln.VulnerabilityName,
+				Description:       vuln.Description,
+				Severity:          vuln.Severity,
+				Links:             vuln.Links,
+				Distro:            vuln.Distro,
+				Cvss:              vuln.Cvss,
+				Package:           vuln.Package,
+				Fix:               vuln.Fix,
+				LayerId:           vuln.LayerId,
+				Path:              vuln.Path,
 			}
-		} else {
-			_, err = srp.client.PostFinding(ctx, finding)
+
+			findingInfo := models.Finding_FindingInfo{}
+			err = findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
 			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+				return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)
+			}
+
+			finding := models.Finding{
+				Scan:        scanResult.Scan,
+				Asset:       scanResult.Target,
+				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				FindingInfo: &findingInfo,
+			}
+
+			// Set InvalidatedOn time to the FoundOn time of the oldest
+			// finding, found after this scan result.
+			if newerFound {
+				finding.InvalidatedOn = &newerTime
+			}
+
+			key := findingkey.GenerateVulnerabilityKey(vulFindingInfo)
+			if id, ok := existingMap[key]; ok {
+				err = srp.client.PatchFinding(ctx, id, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
+			} else {
+				_, err = srp.client.PostFinding(ctx, finding)
+				if err != nil {
+					return fmt.Errorf("failed to create finding: %w", err)
+				}
 			}
 		}
 	}
