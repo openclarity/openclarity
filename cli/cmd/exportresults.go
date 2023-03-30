@@ -674,7 +674,7 @@ func (e *Exporter) ExportResults(ctx context.Context, res *results.Results, fame
 
 	if config.Vulnerabilities.Enabled {
 		if err := e.ExportVulResult(ctx, res, famerr); err != nil {
-			errors = appendExportError("vulnerabilties", err, errors)
+			errors = appendExportError("vulnerabilities", err, errors)
 		}
 	}
 

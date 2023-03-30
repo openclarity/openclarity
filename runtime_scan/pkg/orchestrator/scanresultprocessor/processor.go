@@ -69,7 +69,7 @@ func (srp *ScanResultProcessor) Reconcile(ctx context.Context, event ScanResultR
 	// Process each of the successfully scanned (state DONE and no errors) families into findings.
 	if statusCompletedWithNoErrors(scanResult.Status.Vulnerabilities) {
 		if err := srp.reconcileResultVulnerabilitiesToFindings(ctx, scanResult); err != nil {
-			return newFailedToReconcileTypeError(err, "vulnerabilties")
+			return newFailedToReconcileTypeError(err, "vulnerabilities")
 		}
 	}
 
