@@ -13,23 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rest
+package findingkey
 
 import (
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 
-	"github.com/openclarity/vmclarity/ui_backend/api/models"
+	"github.com/openclarity/vmclarity/api/models"
 )
 
-// nolint:wrapcheck,unparam
-func sendError(ctx echo.Context, code int, message string) error {
-	log.Error(message)
-	response := &models.ApiResponse{Message: &message}
-	return ctx.JSON(code, response)
+// MisconfigurationKey One test can report multiple misconfigurations so we need to include the
+// message in the unique key.
+type MisconfigurationKey struct {
+	ScannerName string
+	TestID      string
+	Message     string
 }
 
-// nolint:wrapcheck,unparam
-func sendResponse(ctx echo.Context, code int, object interface{}) error {
-	return ctx.JSON(code, object)
+func (k MisconfigurationKey) String() string {
+	return fmt.Sprintf("%s.%s.%s", k.ScannerName, k.TestID, k.Message)
+}
+
+func GenerateMisconfigurationKey(info models.MisconfigurationFindingInfo) MisconfigurationKey {
+	return MisconfigurationKey{
+		ScannerName: *info.ScannerName,
+		TestID:      *info.TestID,
+		Message:     *info.Message,
+	}
 }

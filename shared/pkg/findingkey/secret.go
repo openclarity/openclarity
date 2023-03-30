@@ -13,23 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rest
+package findingkey
 
 import (
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 
-	"github.com/openclarity/vmclarity/ui_backend/api/models"
+	"github.com/openclarity/vmclarity/api/models"
 )
 
-// nolint:wrapcheck,unparam
-func sendError(ctx echo.Context, code int, message string) error {
-	log.Error(message)
-	response := &models.ApiResponse{Message: &message}
-	return ctx.JSON(code, response)
+type SecretKey struct {
+	Fingerprint string
+	StartColumn int
+	EndColumn   int
 }
 
-// nolint:wrapcheck,unparam
-func sendResponse(ctx echo.Context, code int, object interface{}) error {
-	return ctx.JSON(code, object)
+func (k SecretKey) String() string {
+	return fmt.Sprintf("%s.%d.%d", k.Fingerprint, k.StartColumn, k.EndColumn)
+}
+
+func GenerateSecretKey(secret models.SecretFindingInfo) SecretKey {
+	return SecretKey{
+		Fingerprint: *secret.Fingerprint,
+		StartColumn: *secret.StartColumn,
+		EndColumn:   *secret.EndColumn,
+	}
 }

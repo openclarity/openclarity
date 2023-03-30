@@ -13,23 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rest
+package findingkey
 
 import (
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 
-	"github.com/openclarity/vmclarity/ui_backend/api/models"
+	"github.com/openclarity/vmclarity/api/models"
 )
 
-// nolint:wrapcheck,unparam
-func sendError(ctx echo.Context, code int, message string) error {
-	log.Error(message)
-	response := &models.ApiResponse{Message: &message}
-	return ctx.JSON(code, response)
+type PackageKey struct {
+	PackageName    string
+	PackageVersion string
 }
 
-// nolint:wrapcheck,unparam
-func sendResponse(ctx echo.Context, code int, object interface{}) error {
-	return ctx.JSON(code, object)
+func (k PackageKey) String() string {
+	return fmt.Sprintf("%s.%s", k.PackageName, k.PackageVersion)
+}
+
+func GeneratePackageKey(info models.PackageFindingInfo) PackageKey {
+	return PackageKey{
+		PackageName:    *info.Name,
+		PackageVersion: *info.Version,
+	}
 }

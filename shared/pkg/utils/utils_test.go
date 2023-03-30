@@ -16,8 +16,12 @@
 package utils
 
 import (
+	"log"
 	"reflect"
+	"sort"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
@@ -108,6 +112,109 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GetVulnerabilityTotalsPerSeverity(tt.args.vulnerabilities); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetVulnerabilityTotalsPerSeverity() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// nolint:forcetypeassert
+func TestStringKeyMapToArray(t *testing.T) {
+	type TestObject struct {
+		TestInt     int
+		TestStr     string
+		TestPointer *bool
+	}
+	type args struct {
+		m map[string]any
+	}
+	tests := []struct {
+		name string
+		args args
+		want []any
+	}{
+		{
+			name: "nil map",
+			args: args{
+				m: nil,
+			},
+			want: []any{},
+		},
+		{
+			name: "empty map",
+			args: args{
+				m: map[string]any{},
+			},
+			want: []any{},
+		},
+		{
+			name: "string to int map",
+			args: args{
+				m: map[string]any{
+					"a": 1,
+					"b": 2,
+					"c": 3,
+				},
+			},
+			want: []any{1, 2, 3},
+		},
+		{
+			name: "string to object map",
+			args: args{
+				m: map[string]any{
+					"a": TestObject{
+						TestInt:     1,
+						TestStr:     "1",
+						TestPointer: utils.PointerTo(true),
+					},
+					"b": TestObject{
+						TestInt:     2,
+						TestStr:     "2",
+						TestPointer: utils.PointerTo(true),
+					},
+					"c": TestObject{
+						TestInt:     3,
+						TestStr:     "3",
+						TestPointer: utils.PointerTo(false),
+					},
+				},
+			},
+			want: []any{
+				TestObject{
+					TestInt:     1,
+					TestStr:     "1",
+					TestPointer: utils.PointerTo(true),
+				},
+				TestObject{
+					TestInt:     2,
+					TestStr:     "2",
+					TestPointer: utils.PointerTo(true),
+				},
+				TestObject{
+					TestInt:     3,
+					TestStr:     "3",
+					TestPointer: utils.PointerTo(false),
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := StringKeyMapToArray(tt.args.m)
+			if got != nil {
+				sort.Slice(got, func(i, j int) bool {
+					switch got[0].(type) {
+					case int:
+						return got[i].(int) < got[j].(int)
+					case TestObject:
+						return got[i].(TestObject).TestInt < got[j].(TestObject).TestInt
+					default:
+						log.Fatalf("unknown type returned %T", got[0])
+					}
+					return false
+				})
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("StringKeyMapToArray() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

@@ -29,7 +29,7 @@ func sendError(ctx echo.Context, code int, message string) error {
 	return ctx.JSON(code, response)
 }
 
-// nolint:wrapcheck
+// nolint:wrapcheck,unparam
 func sendResponse(ctx echo.Context, code int, object interface{}) error {
 	return ctx.JSON(code, object)
 }

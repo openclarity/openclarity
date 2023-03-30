@@ -176,9 +176,9 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 			Asset: &models.TargetRelationship{
 				Id: scanResult.Target.Id,
 			},
-			FindingInfo:   nil,
-			FoundOn:       foundOn,
-			InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
+			FindingInfo: nil,
+			FoundOn:     foundOn,
+			// InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
 			Scan: &models.ScanRelationship{
 				Id: scanResult.Scan.Id,
 			},
@@ -842,23 +842,29 @@ func createSecretsResult() *[]models.Secret {
 	return &[]models.Secret{
 		{
 			Description: utils.PointerTo("AWS Credentials"),
+			EndColumn:   utils.PointerTo(8),
 			EndLine:     utils.PointerTo(43),
 			FilePath:    utils.PointerTo("/.aws/credentials"),
 			Fingerprint: utils.PointerTo("credentials:aws-access-token:4"),
+			StartColumn: utils.PointerTo(7),
 			StartLine:   utils.PointerTo(43),
 		},
 		{
 			Description: utils.PointerTo("export BUNDLE_ENTERPRISE__CONTRIBSYS__COM=cafebabe:deadbeef"),
+			EndColumn:   utils.PointerTo(10),
 			EndLine:     utils.PointerTo(26),
 			FilePath:    utils.PointerTo("cmd/generate/config/rules/sidekiq.go"),
 			Fingerprint: utils.PointerTo("cd5226711335c68be1e720b318b7bc3135a30eb2:cmd/generate/config/rules/sidekiq.go:sidekiq-secret:23"),
+			StartColumn: utils.PointerTo(7),
 			StartLine:   utils.PointerTo(23),
 		},
 		{
 			Description: utils.PointerTo("GitLab Personal Access Token"),
+			EndColumn:   utils.PointerTo(22),
 			EndLine:     utils.PointerTo(7),
 			FilePath:    utils.PointerTo("Applications/Firefox.app/Contents/Resources/browser/omni.ja"),
 			Fingerprint: utils.PointerTo("Applications/Firefox.app/Contents/Resources/browser/omni.ja:generic-api-key:sfs2"),
+			StartColumn: utils.PointerTo(20),
 			StartLine:   utils.PointerTo(7),
 		},
 	}
@@ -869,14 +875,17 @@ func createRootkitsResult() *[]models.Rootkit {
 		{
 			Path:        utils.PointerTo("/usr/lwp-request"),
 			RootkitName: utils.PointerTo("Ambient's Rootkit (ARK)"),
+			RootkitType: utils.PointerTo(models.RootkitType("ARK")),
 		},
 		{
 			Path:        utils.PointerTo("/var/log/lastlog"),
 			RootkitName: utils.PointerTo("Linux.Xor.DDoS Malware"),
+			RootkitType: utils.PointerTo(models.RootkitType("Malware")),
 		},
 		{
 			Path:        utils.PointerTo("/var/adm/wtmpx"),
 			RootkitName: utils.PointerTo("Mumblehard backdoor/botnet"),
+			RootkitType: utils.PointerTo(models.RootkitType("Botnet")),
 		},
 	}
 }
@@ -948,34 +957,34 @@ func createMalwareResult() *[]models.Malware {
 func createMisconfigurationsResult() *[]models.Misconfiguration {
 	return &[]models.Misconfiguration{
 		{
-			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
-
+			Message:         utils.PointerTo("Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc. Details: /lib/x86_64-linux-gnu/security/pam_access.so"),
+			Remediation:     utils.PointerTo("remediation2"),
+			ScannedPath:     utils.PointerTo("/home/ubuntu/debian11"),
+			ScannerName:     utils.PointerTo("scanner2"),
+			Severity:        utils.PointerTo(models.MisconfigurationHighSeverity),
 			TestCategory:    utils.PointerTo("AUTH"),
-			TestID:          utils.PointerTo("AUTH-9262"),
 			TestDescription: utils.PointerTo("Checking presence password strength testing tools (PAM)"),
-
-			Message:  utils.PointerTo("Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc. Details: /lib/x86_64-linux-gnu/security/pam_access.so"),
-			Severity: utils.PointerTo(models.MisconfigurationHighSeverity),
+			TestID:          utils.PointerTo("AUTH-9262"),
 		},
 		{
-			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
-
+			Message:         utils.PointerTo("Set the sticky bit on /home/ubuntu/debian11/tmp, to prevent users deleting (by other owned) files in the /tmp directory. Details: /tmp"),
+			Remediation:     utils.PointerTo("remediation1"),
+			ScannedPath:     utils.PointerTo("/home/ubuntu/debian11"),
+			ScannerName:     utils.PointerTo("scanner1"),
+			Severity:        utils.PointerTo(models.MisconfigurationMediumSeverity),
 			TestCategory:    utils.PointerTo("FILE"),
-			TestID:          utils.PointerTo("FILE-6362"),
 			TestDescription: utils.PointerTo("Checking /tmp sticky bit"),
-
-			Message:  utils.PointerTo("Set the sticky bit on /home/ubuntu/debian11/tmp, to prevent users deleting (by other owned) files in the /tmp directory. Details: /tmp"),
-			Severity: utils.PointerTo(models.MisconfigurationMediumSeverity),
+			TestID:          utils.PointerTo("FILE-6362"),
 		},
 		{
-			ScannedPath: utils.PointerTo("/home/ubuntu/debian11"),
-
+			Message:         utils.PointerTo("Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft. Details: /etc/cron.d/e2scrub_all"),
+			Remediation:     utils.PointerTo("remediation1"),
+			ScannedPath:     utils.PointerTo("/home/ubuntu/debian11"),
+			ScannerName:     utils.PointerTo("scanner1"),
+			Severity:        utils.PointerTo(models.MisconfigurationLowSeverity),
 			TestCategory:    utils.PointerTo("USB"),
-			TestID:          utils.PointerTo("USB-1000"),
 			TestDescription: utils.PointerTo("Check if USB storage is disabled"),
-
-			Message:  utils.PointerTo("Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft. Details: /etc/cron.d/e2scrub_all"),
-			Severity: utils.PointerTo(models.MisconfigurationLowSeverity),
+			TestID:          utils.PointerTo("USB-1000"),
 		},
 	}
 }
