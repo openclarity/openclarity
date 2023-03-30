@@ -220,7 +220,19 @@ func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target,
 		return models.Target{}, err
 	}
 
-	existingTarget, err := t.checkUniqueness(target)
+	var err error
+	dbTarget.Data, err = patchObject(dbTarget.Data, target)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to apply patch: %w", err)
+	}
+
+	var ret models.Target
+	err = json.Unmarshal(dbTarget.Data, &ret)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
+	existingTarget, err := t.checkUniqueness(ret)
 	if err != nil {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
@@ -229,20 +241,10 @@ func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target,
 		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
 	}
 
-	dbTarget.Data, err = patchObject(dbTarget.Data, target)
-	if err != nil {
-		return models.Target{}, fmt.Errorf("failed to apply patch: %w", err)
-	}
-
 	if err := t.DB.Save(&dbTarget).Error; err != nil {
 		return models.Target{}, fmt.Errorf("failed to save target in db: %w", err)
 	}
 
-	var ret models.Target
-	err = json.Unmarshal(dbTarget.Data, &ret)
-	if err != nil {
-		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
-	}
 	return ret, nil
 }
 
