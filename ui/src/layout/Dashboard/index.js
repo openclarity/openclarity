@@ -4,7 +4,7 @@ import CounterDisplay from './CounterDisplay';
 import FindingsTrendsWidget from './FindingsTrendsWidget';
 import RiskiestRegionsWidget from './RiskiestRegionsWidget';
 import RiskiestAssetsWidget from './RiskiestAssetsWidget';
-import FindingsTabsWidget from './FindingsTabsWidget';
+import FindingsImpactWidget from './FindingsImpactWidget';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -27,7 +27,7 @@ const Dashboard = () => {
             <RiskiestRegionsWidget className="riskiest-regions" />
             <FindingsTrendsWidget className="findings-trend" />
             <RiskiestAssetsWidget className="riskiest-assets" />
-            <FindingsTabsWidget className="findings-impact" title="Findings impact" widgetName="findings-impact" />
+            <FindingsImpactWidget className="findings-impact" />
         </div>
     )
 }

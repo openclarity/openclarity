@@ -1,5 +1,4 @@
 import { ICON_NAMES } from 'components/Icon';
-import { FINDINGS_PATHS } from 'layout/Findings'
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -20,7 +19,8 @@ export const APIS = {
     FINDINGS: "findings",
     DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",
     DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets",
-    DASHBOARD_FINDINGS_TRENDS: "dashboard/findingsTrends"
+    DASHBOARD_FINDINGS_TRENDS: "dashboard/findingsTrends",
+    DASHBOARD_FINDINGS_IMPACT: "dashboard/findingsImpact"
 }
 
 export const FINDINGS_MAPPING = {
@@ -32,8 +32,7 @@ export const FINDINGS_MAPPING = {
         title: "Exploits",
         icon: ICON_NAMES.BOMB,
         color: COLORS["color-main"],
-        darkColor: COLORS["color-main-variation-dark"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.EXPLOITS}`
+        darkColor: COLORS["color-main-variation-dark"]
     },
     MISCONFIGURATIONS: {
         value: "MISCONFIGURATIONS",
@@ -43,8 +42,7 @@ export const FINDINGS_MAPPING = {
         title: "Misconfigurations",
         icon: ICON_NAMES.COG,
         color: COLORS["color-findings-1"],
-        darkColor: COLORS["color-findings-1-variation-dark"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.MISCONFIGURATIONS}`
+        darkColor: COLORS["color-findings-1-variation-dark"]
     },
     SECRETS: {
         value: "SECRETS",
@@ -53,8 +51,7 @@ export const FINDINGS_MAPPING = {
         typeKey: "SECRET",
         title: "Secrets",
         icon: ICON_NAMES.KEY,
-        color: COLORS["color-findings-2"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.SECRETS}`
+        color: COLORS["color-findings-2"]
     },
     MALWARE: {
         value: "MALWARE",
@@ -63,8 +60,7 @@ export const FINDINGS_MAPPING = {
         typeKey: "MALWARE",
         title: "Malware",
         icon: ICON_NAMES.BUG,
-        color: COLORS["color-findings-3"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.MALWARE}`
+        color: COLORS["color-findings-3"]
     },
     ROOTKITS: {
         value: "ROOTKITS",
@@ -73,8 +69,7 @@ export const FINDINGS_MAPPING = {
         typeKey: "ROOTKIT",
         title: "Rootkits",
         icon: ICON_NAMES.GHOST,
-        color: COLORS["color-findings-4"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.ROOTKITS}`
+        color: COLORS["color-findings-4"]
     },
     PACKAGES: {
         value: "PACKAGES",
@@ -83,8 +78,7 @@ export const FINDINGS_MAPPING = {
         typeKey: "PACKAGE",
         title: "Packages",
         icon: ICON_NAMES.PACKAGE,
-        color: COLORS["color-findings-5"],
-        appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.PACKAGES}`
+        color: COLORS["color-findings-5"]
     }
 }
 
@@ -96,5 +90,4 @@ export const VULNERABIITY_FINDINGS_ITEM = {
     icon: ICON_NAMES.SHIELD,
     color: COLORS["color-main-dark"],
     darkColor: COLORS["color-main-dark-variation-dark"],
-    appRoute: `${ROUTES.FINDINGS}/${FINDINGS_PATHS.VULNERABILITIES}`
 }

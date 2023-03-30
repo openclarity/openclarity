@@ -28,7 +28,7 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
     const filtersDispatch = useFilterDispatch();
 
     const {id, scanConfig, scanConfigSnapshot, startTime, endTime, summary, state, stateMessage, stateReason} = scanData || {};
-    const {jobsCompleted, jobsLeftToRun} = summary;
+    const {jobsCompleted, jobsLeftToRun} = summary || {};
 
     const formattedStartTime = formatDate(startTime);
     

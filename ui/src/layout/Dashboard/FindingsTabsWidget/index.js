@@ -1,13 +1,46 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
+import { get } from 'lodash';
+import { useFetch } from 'hooks';
+import Loader from 'components/Loader';
 import Tabs from 'components/Tabs';
 import IconWithTooltip from 'components/IconWithTooltip';
-import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import WidgetWrapper from '../WidgetWrapper';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
-const FINDINGS_ITEMS = [VULNERABIITY_FINDINGS_ITEM, ...Object.values(FINDINGS_MAPPING).filter(({value}) => value !== FINDINGS_MAPPING.PACKAGES.value)];
+import './findings-tabs-widget.scss';
+
+const WidgetContent = ({data=[], getHeaderItems, getBodyItems, selectedId}) => {
+    const displayData = (data || []).slice(0, 5);
+
+    return (
+        <table className="tabbed-widget-table">
+            <thead>
+                <tr>
+                    {getHeaderItems(selectedId).map((item, index, items) => (
+                        <th key={index} style={items.length - 1 === index ? {textAlign: "right"} : {}}>{item}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    displayData.map((item, index) => {
+                        return (
+                            <tr key={index}>
+                                {getBodyItems(selectedId).map(({dataKey, customDisplay: CustomDisplay}, index, items) => (
+                                    <td key={index} style={items.length - 1 === index ? {textAlign: "right"} : {}}>
+                                        {!!CustomDisplay ? <CustomDisplay {...item} /> : get(item, dataKey)}
+                                    </td>
+                                ))}
+                            </tr>
+                        )
+                    })
+                }
+            </tbody>
+        </table>
+    )
+}
 
 const Tab = ({widgetName, title, icon, isActive}) => (
     <IconWithTooltip
@@ -19,8 +52,10 @@ const Tab = ({widgetName, title, icon, isActive}) => (
     />
 )
 
-const FindingsTabsWidget = ({widgetName, className, title, tabContent: TabContent}) => {
-    const WIDGET_TAB_ITEMS = FINDINGS_ITEMS.map(({dataKey, icon, title}) => (
+const FindingsTabsWidget = ({widgetName, findingsItems, className, title, url, getHeaderItems, getBodyItems}) => {
+    const [{data, error, loading}] = useFetch(url, {urlPrefix: "ui"});
+    
+    const WIDGET_TAB_ITEMS = findingsItems.map(({dataKey, icon, title}) => (
         {id: dataKey, customTitle: ({isActive}) => <Tab widgetName={widgetName} title={title} icon={icon} isActive={isActive} />}
     ))
 
@@ -34,7 +69,18 @@ const FindingsTabsWidget = ({widgetName, className, title, tabContent: TabConten
                 onClick={({id}) => setSelectedTabId(id)}
                 tabItemPadding={15}
             />
-            <div>{!!TabContent ? <TabContent selectedTabId={selectedTabId} /> : <div style={{margin: "10px 0"}}>TBD</div>}</div>
+            <div className="tabbed-widget-table-wrapper">
+                {
+                    loading ? <Loader absolute={false} /> : (error ? null :
+                        <WidgetContent
+                            data={!!data ? data[selectedTabId] : []}
+                            getHeaderItems={getHeaderItems}
+                            getBodyItems={getBodyItems}
+                            selectedId={selectedTabId}
+                        />
+                    )
+                }
+            </div>
         </WidgetWrapper>
     )
 }

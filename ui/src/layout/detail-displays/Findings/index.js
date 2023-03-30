@@ -6,11 +6,12 @@ import LinksList from 'components/LinksList';
 import VulnerabilitiesDisplay, { getTotlalVulnerabilitiesFromCounters } from 'components/VulnerabilitiesDisplay';
 import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
+import { getFindingsAbsolutePathByFindingType } from 'layout/Findings';
 import FindingsCounterDisplay from './FindingsCounterDisplay';
 import FindingsSystemFilterLinks from './FindingsSystemFilterLinks';
 
-const Findings = ({findingsSummary={}, findingsFilter, findingsFilterTitle, findingsFilterSuffix=""}) => {
-    const {totalVulnerabilities} = findingsSummary;
+const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, findingsFilterSuffix=""}) => {
+    const {totalVulnerabilities} = findingsSummary || {};
 
     const {pathname} = useLocation();
     const filtersDispatch = useFilterDispatch();
@@ -25,7 +26,7 @@ const Findings = ({findingsSummary={}, findingsFilter, findingsFilterTitle, find
                 backPath: pathname,
                 customDisplay: () => (
                     <FindingsSystemFilterLinks
-                        findingsSummary={findingsSummary}
+                        findingsSummary={findingsSummary || {}}
                         totalVulnerabilitiesCount={getTotlalVulnerabilitiesFromCounters(totalVulnerabilities)}
                     />
                 )
@@ -42,15 +43,15 @@ const Findings = ({findingsSummary={}, findingsFilter, findingsFilterTitle, find
                     <LinksList
                         items={[
                             {
-                                path: VULNERABIITY_FINDINGS_ITEM.appRoute,
+                                path: getFindingsAbsolutePathByFindingType(VULNERABIITY_FINDINGS_ITEM.value),
                                 component: () => <VulnerabilitiesDisplay counters={totalVulnerabilities} />,
                                 callback: onFindingsClick
                             },
                             ...Object.keys(FINDINGS_MAPPING).map(findingType => {
-                                const {totalKey, title, icon, color, appRoute} = FINDINGS_MAPPING[findingType];
+                                const {totalKey, title, icon, color, value} = FINDINGS_MAPPING[findingType];
                                 
                                 return {
-                                    path: appRoute,
+                                    path: getFindingsAbsolutePathByFindingType(value),
                                     component: () => (
                                         <FindingsCounterDisplay key={totalKey} icon={icon} color={color} count={findingsSummary[totalKey] || 0} title={title} />
                                     ),

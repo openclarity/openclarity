@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import ExpandableList from 'components/ExpandableList';
+import SeverityWithCvssDisplay from 'components/SeverityWithCvssDisplay';
+import { getHigestVersionCvssData } from 'utils/utils';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
 import FindingsTablePage from '../FindingsTablePage';
-import SeverityWithCvssDisplay from './SeverityWithCvssDisplay';
-import { getHigestVersionCvssData } from './utils';
 
 const VulnerabilitiesTable = () => {
     const columns = useMemo(() => [
@@ -25,7 +25,7 @@ const VulnerabilitiesTable = () => {
                     <SeverityWithCvssDisplay
                         severity={severity}
                         cvssScore={cvssScoreData?.score}
-                        cvssSeverity={cvssScoreData?.severity?.toLocaleUpperCase()}
+                        cvssSeverity={cvssScoreData?.severity?.toUpperCase()}
                         compareTooltipId={`severity-compare-tooltip-${id}`}
                     />
                 )

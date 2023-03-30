@@ -8,7 +8,8 @@ const SecretsTable = () => {
             Header: "Fingerprint",
             id: "fingerprint",
             accessor: "findingInfo.fingerprint",
-            disableSort: true
+            disableSort: true,
+            width: 200
         },
         {
             Header: "Description",
@@ -20,7 +21,8 @@ const SecretsTable = () => {
             Header: "File path",
             id: "findingInfo",
             accessor: "findingInfo.filePath",
-            disableSort: true
+            disableSort: true,
+            width: 200
         },
         ...getAssetAndScanColumnsConfigList()
     ], []);

@@ -254,7 +254,15 @@ const Table = props => {
                     
                             return (
                                 <React.Fragment key={row.id}>
-                                    <div className={classnames("table-tr", {clickable: !!onLineClick}, {"with-row-actions": withRowActions})} {...row.getRowProps()}>
+                                    <div
+                                        className={classnames("table-tr", {clickable: !!onLineClick}, {"with-row-actions": withRowActions})}
+                                        {...row.getRowProps()}
+                                        onClick={() => {
+                                            if (!!onLineClick) {
+                                                onLineClick(row.original);
+                                            }
+                                        }}
+                                    >
                                         {
                                             row.cells.map(cell => {
                                                 const {className, alignToTop} = cell.column;
@@ -267,15 +275,7 @@ const Table = props => {
                                                 const isTextValue = !!cell.column.accessor;
                                                 
                                                 return (
-                                                    <div
-                                                        className={cellClassName}
-                                                        {...cell.getCellProps()}
-                                                        onClick={() => {
-                                                            if (!!onLineClick) {
-                                                                onLineClick(row.original);
-                                                            }
-                                                        }}
-                                                    >{isTextValue ? cell.value : cell.render('Cell')}</div>
+                                                    <div className={cellClassName} {...cell.getCellProps()}>{isTextValue ? cell.value : cell.render('Cell')}</div>
                                                 )
                                             })
                                         }

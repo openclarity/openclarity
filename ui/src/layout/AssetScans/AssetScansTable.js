@@ -6,6 +6,14 @@ import { FILTER_TYPES } from 'context/FiltersProvider';
 
 const TABLE_TITLE = "asset scans";
 
+const STATUS_MAPPING = {
+    NOT_SCANNED: "Not Scanned",
+    INIT: "Initialized",
+    ATTACHED: "Volume Snapshot Attached",
+    IN_PROGRESS: "In Progress",
+    DONE: "Done"
+}
+
 const AssetScansTable = () => {
     const columns = useMemo(() => [
         {
@@ -36,6 +44,16 @@ const AssetScansTable = () => {
             },
             disableSort: true
         },
+        {
+            Header: "Scan status",
+            id: "status",
+            accessor: original => {
+                const {state} = original?.status?.general || {};
+
+                return STATUS_MAPPING[state];
+            },
+            disableSort: true
+        },
         getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
         ...getFindingsColumnsConfigList(TABLE_TITLE)
     ], []);
@@ -45,7 +63,7 @@ const AssetScansTable = () => {
             columns={columns}
             url={APIS.ASSET_SCANS}
             expand="scan,target"
-            select="id,target,summary,scan"
+            select="id,target,summary,scan,status"
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSET_SCANS}
             withMargin
