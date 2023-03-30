@@ -21,16 +21,11 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
 )
 
-type rootkitKey struct {
-	name        string
-	rootkitType string
-	path        string
-}
-
-func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[rootkitKey]string, error) {
-	existingMap := map[rootkitKey]string{}
+func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.RootkitKey]string, error) {
+	existingMap := map[findingkey.RootkitKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and asset/id eq '%s' and scan/id eq '%s'",
 		scanResult.Target.Id, scanResult.Scan.Id)
@@ -48,7 +43,7 @@ func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Co
 			return existingMap, fmt.Errorf("unable to get rootkit finding info: %w", err)
 		}
 
-		key := rootkitKey{*info.RootkitName, string(*info.RootkitType), *info.Path}
+		key := findingkey.GenerateRootkitKey(info)
 		if _, ok := existingMap[key]; ok {
 			return existingMap, fmt.Errorf("found multiple matching existing findings for rootkit %v", key)
 		}
@@ -107,7 +102,7 @@ func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Co
 				finding.InvalidatedOn = &newerTime
 			}
 
-			key := rootkitKey{*item.RootkitName, string(*item.RootkitType), *item.Path}
+			key := findingkey.GenerateRootkitKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
 				err = srp.client.PatchFinding(ctx, id, finding)
 				if err != nil {

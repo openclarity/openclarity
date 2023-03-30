@@ -21,13 +21,8 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
 )
-
-type vulKey struct {
-	vulName        string
-	packageName    string
-	pacakgeVersion string
-}
 
 // nolint:cyclop
 func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
@@ -48,14 +43,14 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 		return fmt.Errorf("failed to check for existing finding: %w", err)
 	}
 
-	existingMap := map[vulKey]string{}
+	existingMap := map[findingkey.VulKey]string{}
 	for _, finding := range *existingFindings.Items {
 		vuln, err := (*finding.FindingInfo).AsVulnerabilityFindingInfo()
 		if err != nil {
 			return fmt.Errorf("unable to get vulnerability finding info: %w", err)
 		}
 
-		key := vulKey{*vuln.VulnerabilityName, *vuln.Package.Name, *vuln.Package.Version}
+		key := findingkey.GenerateVulnerabilityKey(vuln)
 		if _, ok := existingMap[key]; ok {
 			return fmt.Errorf("found multiple matching existing findings for vulnerability %s for package %s version %s", *vuln.VulnerabilityName, *vuln.Package.Name, *vuln.Package.Version)
 		}
@@ -99,7 +94,7 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 			finding.InvalidatedOn = &newerTime
 		}
 
-		key := vulKey{*vuln.VulnerabilityName, *vuln.Package.Name, *vuln.Package.Version}
+		key := findingkey.GenerateVulnerabilityKey(vulFindingInfo)
 		if id, ok := existingMap[key]; ok {
 			err = srp.client.PatchFinding(ctx, id, finding)
 			if err != nil {

@@ -69,13 +69,16 @@ func BoolPtr(val bool) *bool {
 	return &ret
 }
 
-func Int32Ptr(val int32) *int32 {
-	ret := val
-	return &ret
-}
-
 func PointerTo[T any](value T) *T {
 	return &value
+}
+
+func StringKeyMapToArray[T any](m map[string]T) []T {
+	ret := make([]T, 0, len(m))
+	for _, t := range m {
+		ret = append(ret, t)
+	}
+	return ret
 }
 
 func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) *models.VulnerabilityScanSummary {
