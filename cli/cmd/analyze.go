@@ -27,6 +27,7 @@ import (
 	"github.com/openclarity/kubeclarity/cli/pkg/utils"
 	sharedanalyzer "github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/job"
+	sharedanalyzertypes "github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	sharedutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -99,8 +100,12 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get input SBOM filepath: %v", err)
 	}
 
-	manager := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.Factory)
-	results, err := manager.Run(sourceType, args[0])
+	manager, err := job_manager.New(appConfig.SharedConfig.Analyzer.AnalyzerList, appConfig.SharedConfig, logger, job.Factory)
+	if err != nil {
+		logger.Fatalf("Failed to create jobs to run: %v", err)
+	}
+
+	results, err := manager.Run(sharedutils.SourceInput{Type: sourceType, Source: args[0]})
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
 	}
@@ -121,11 +126,7 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	// Merge results
 	mergedResults := sharedanalyzer.NewMergedResults(sourceType, hash)
 	for _, result := range results {
-		if res, ok := result.(*sharedanalyzer.Results); ok {
-			mergedResults = mergedResults.Merge(res)
-		} else {
-			logger.Errorf("Type assertion of result failed.")
-		}
+		mergedResults = mergedResults.Merge(result)
 	}
 
 	mergedSboms, err := mergedResults.CreateMergedSBOMBytes(appConfig.SharedConfig.Analyzer.OutputFormat, pkg.GitRevision)
@@ -147,6 +148,6 @@ func analyzeContent(cmd *cobra.Command, args []string) {
 	}
 }
 
-func createResultFromInputSBOM(sbom *cdx.BOM, inputSBOMFile string) *sharedanalyzer.Results {
-	return sharedanalyzer.CreateResults(sbom, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
+func createResultFromInputSBOM(sbom *cdx.BOM, inputSBOMFile string) sharedanalyzertypes.Results {
+	return sharedanalyzertypes.CreateResults(sbom, inputSBOMName, inputSBOMFile, sharedutils.SBOM)
 }

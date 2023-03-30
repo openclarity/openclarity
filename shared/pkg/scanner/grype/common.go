@@ -16,6 +16,7 @@
 package grype
 
 import (
+	"fmt"
 	"strings"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
@@ -24,7 +25,8 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 )
 
@@ -32,51 +34,39 @@ const (
 	ScannerName = "grype"
 )
 
-func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
+func New(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	switch conf.Scanner.GrypeConfig.Mode {
 	case config.ModeLocal:
-		return newLocalScanner(conf, logger, resultChan)
+		return newLocalScanner(conf, logger)
 	case config.ModeRemote:
-		return newRemoteScanner(conf, logger, resultChan)
+		return newRemoteScanner(conf, logger)
+	default:
+		return nil, fmt.Errorf("unsupported grype mode %q", conf.Scanner.GrypeConfig.Mode)
 	}
-
-	// We shouldn't get here since grype mode was already validated.
-	log.Fatalf("Unsupported grype mode %q.", conf.Scanner.GrypeConfig.Mode)
-	return nil
 }
 
-func ReportError(resultChan chan job_manager.Result, err error, logger *log.Entry) {
-	res := &scanner.Results{
-		Error: err,
-	}
-
-	logger.Error(res.Error)
-	resultChan <- res
-}
-
-func CreateResults(doc grype_models.Document, userInput, scannerName, hash string) *scanner.Results {
+func CreateResults(doc grype_models.Document, userInput, scannerName, hash string) types.Results {
 	distro := getDistro(doc)
 
-	matches := make(scanner.Matches, len(doc.Matches))
+	matches := make(types.Matches, len(doc.Matches))
 	for i := range doc.Matches {
 		match := doc.Matches[i]
 
 		layerID, path := getLayerIDAndPath(match.Artifact.Locations)
 
-		matches[i] = scanner.Match{
-			Vulnerability: scanner.Vulnerability{
+		matches[i] = types.Match{
+			Vulnerability: types.Vulnerability{
 				ID:          match.Vulnerability.ID,
 				Description: getDescription(match),
 				Links:       match.Vulnerability.URLs,
 				Distro:      distro,
 				CVSS:        getCVSS(match),
-				Fix: scanner.Fix{
+				Fix: types.Fix{
 					Versions: match.Vulnerability.Fix.Versions,
 					State:    match.Vulnerability.Fix.State,
 				},
 				Severity: strings.ToUpper(match.Vulnerability.Severity),
-				Package: scanner.Package{
+				Package: types.Package{
 					Name:     match.Artifact.Name,
 					Version:  match.Artifact.Version,
 					Type:     string(match.Artifact.Type),
@@ -91,17 +81,17 @@ func CreateResults(doc grype_models.Document, userInput, scannerName, hash strin
 		}
 	}
 
-	return &scanner.Results{
+	return types.Results{
 		Matches: matches,
-		ScannerInfo: scanner.Info{
+		ScannerInfo: types.Info{
 			Name: scannerName,
 		},
 		Source: getSource(doc, userInput, hash),
 	}
 }
 
-func getSource(doc grype_models.Document, userInput, hash string) scanner.Source {
-	var source scanner.Source
+func getSource(doc grype_models.Document, userInput, hash string) types.Source {
+	var source types.Source
 	if doc.Source == nil {
 		return source
 	}
@@ -130,34 +120,34 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 		srcName = doc.Source.Target.(string) // nolint:forcetypeassert
 	}
 
-	return scanner.Source{
+	return types.Source{
 		Type: doc.Source.Type,
 		Name: srcName,
 		Hash: hash,
 	}
 }
 
-func getDistro(doc grype_models.Document) scanner.Distro {
-	return scanner.Distro{
+func getDistro(doc grype_models.Document) types.Distro {
+	return types.Distro{
 		Name:    doc.Distro.Name,
 		Version: doc.Distro.Version,
 		IDLike:  doc.Distro.IDLike,
 	}
 }
 
-func getCVSS(match grype_models.Match) []scanner.CVSS {
+func getCVSS(match grype_models.Match) []types.CVSS {
 	cvssFromMatch := getCVSSFromMatch(match)
 	if len(cvssFromMatch) == 0 {
 		return nil
 	}
 
-	ret := make([]scanner.CVSS, len(cvssFromMatch))
+	ret := make([]types.CVSS, len(cvssFromMatch))
 	for i := range cvssFromMatch {
 		cvss := cvssFromMatch[i]
-		ret[i] = scanner.CVSS{
+		ret[i] = types.CVSS{
 			Version: cvss.Version,
 			Vector:  cvss.Vector,
-			Metrics: scanner.CvssMetrics{
+			Metrics: types.CvssMetrics{
 				BaseScore:           cvss.Metrics.BaseScore,
 				ExploitabilityScore: cvss.Metrics.ExploitabilityScore,
 				ImpactScore:         cvss.Metrics.ImpactScore,

@@ -19,10 +19,13 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/cdx_gomod"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/syft"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/trivy"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
+	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
-var Factory = job_manager.NewJobFactory()
+var Factory = job_manager.NewJobFactory[*config.Config, utils.SourceInput, types.Results]()
 
 func init() {
 	Factory.Register(trivy.AnalyzerName, trivy.New)

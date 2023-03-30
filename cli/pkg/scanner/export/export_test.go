@@ -24,6 +24,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/api/client/models"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func Test_getScannerInfo(t *testing.T) {
@@ -39,7 +40,7 @@ func Test_getScannerInfo(t *testing.T) {
 			name: "get scaner info",
 			args: args{
 				mergedVulnerability: scanner.MergedVulnerability{
-					ScannersInfo: []scanner.Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "grype",
 						},
@@ -63,7 +64,7 @@ func Test_getScannerInfo(t *testing.T) {
 
 func Test_getPackageInfo(t *testing.T) {
 	type args struct {
-		vulnerability scanner.Vulnerability
+		vulnerability types.Vulnerability
 	}
 	tests := []struct {
 		name string
@@ -73,8 +74,8 @@ func Test_getPackageInfo(t *testing.T) {
 		{
 			name: "licenses are not set",
 			args: args{
-				vulnerability: scanner.Vulnerability{
-					Package: scanner.Package{
+				vulnerability: types.Vulnerability{
+					Package: types.Package{
 						Name:     "test",
 						Version:  "1.0.0",
 						Language: "golang",
@@ -90,8 +91,8 @@ func Test_getPackageInfo(t *testing.T) {
 		{
 			name: "licenses are set",
 			args: args{
-				vulnerability: scanner.Vulnerability{
-					Package: scanner.Package{
+				vulnerability: types.Vulnerability{
+					Package: types.Package{
 						Name:     "test",
 						Version:  "1.0.0",
 						Language: "golang",
@@ -119,7 +120,7 @@ func Test_getPackageInfo(t *testing.T) {
 func Test_getCVSS(t *testing.T) {
 	score := float64(1111)
 	type args struct {
-		vulnerability scanner.Vulnerability
+		vulnerability types.Vulnerability
 	}
 	tests := []struct {
 		name string
@@ -129,7 +130,7 @@ func Test_getCVSS(t *testing.T) {
 		{
 			name: "CVSS not found for vulnerability",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "fake",
 				},
 			},
@@ -138,9 +139,9 @@ func Test_getCVSS(t *testing.T) {
 		{
 			name: "CVSS version 3 not found for vulnerability",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "fake",
-					CVSS: []scanner.CVSS{
+					CVSS: []types.CVSS{
 						{
 							Version: "2.0",
 						},
@@ -152,13 +153,13 @@ func Test_getCVSS(t *testing.T) {
 		{
 			name: "CVSS version 3 found for vulnerability",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "fake",
-					CVSS: []scanner.CVSS{
+					CVSS: []types.CVSS{
 						{
 							Version: "2.0",
 							Vector:  "AV:N/AC:L/Au:S/C:P/I:P/A:P",
-							Metrics: scanner.CvssMetrics{
+							Metrics: types.CvssMetrics{
 								BaseScore:           score,
 								ExploitabilityScore: &score,
 								ImpactScore:         &score,
@@ -167,7 +168,7 @@ func Test_getCVSS(t *testing.T) {
 						{
 							Version: "3.1",
 							Vector:  "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
-							Metrics: scanner.CvssMetrics{
+							Metrics: types.CvssMetrics{
 								BaseScore:           score,
 								ExploitabilityScore: &score,
 								ImpactScore:         &score,

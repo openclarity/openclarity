@@ -33,12 +33,12 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/bom"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/project"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/client/vulnerability"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	utilsVul "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
@@ -52,10 +52,9 @@ const (
 var referencesRegexp = regexp.MustCompile(`\[([^\[\]]*)]`)
 
 type Scanner struct {
-	logger     *log.Entry
-	client     *client.DependencyTrackAPI
-	config     config.DependencyTrackConfig
-	resultChan chan job_manager.Result
+	logger *log.Entry
+	client *client.DependencyTrackAPI
+	config config.DependencyTrackConfig
 }
 
 func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Registry) error {
@@ -65,15 +64,13 @@ func (s *Scanner) AuthenticateRequest(request runtime.ClientRequest, _ strfmt.Re
 	return nil
 }
 
-func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
+func New(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	config := config.ConvertToDependencyTrackConfig(conf.Scanner, logger)
 	return &Scanner{
-		logger:     logger.Dup().WithField("scanner", ScannerName),
-		config:     config,
-		client:     newHTTPClient(config),
-		resultChan: resultChan,
-	}
+		logger: logger.Dup().WithField("scanner", ScannerName),
+		config: config,
+		client: newHTTPClient(config),
+	}, nil
 }
 
 func newHTTPClient(conf config.DependencyTrackConfig) *client.DependencyTrackAPI {
@@ -92,30 +89,26 @@ func newHTTPClient(conf config.DependencyTrackConfig) *client.DependencyTrackAPI
 	return apiClient
 }
 
-func (s *Scanner) Run(sourceType utils.SourceType, source string) error {
-	if sourceType != utils.SBOM {
-		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceType)
-		s.resultChan <- &scanner.Results{
-			Matches: nil, // empty results
-			ScannerInfo: scanner.Info{
-				Name: ScannerName,
-			},
-		}
-		return nil
+// nolint:cyclop
+func (s *Scanner) Run(sourceInput utils.SourceInput) (types.Results, error) {
+	res := types.Results{
+		Matches: nil, // empty results
+		ScannerInfo: types.Info{
+			Name: ScannerName,
+		},
 	}
-	go s.run(source)
 
-	return nil
-}
+	if sourceInput.Type != utils.SBOM {
+		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceInput.Type)
+		return res, nil
+	}
 
-func (s *Scanner) run(source string) {
 	projectName := s.getProjectName()
 	projectVersion := s.getProjectVersion()
 
-	sbom, err := ioutil.ReadFile(source)
+	sbom, err := ioutil.ReadFile(sourceInput.Source)
 	if err != nil {
-		s.reportError(fmt.Errorf("failed to read SBOM from file (%s): %w", source, err))
-		return
+		return res, fmt.Errorf("failed to read SBOM from file (%s): %w", sourceInput.Source, err)
 	}
 
 	sbomS := string(sbom)
@@ -138,14 +131,12 @@ func (s *Scanner) run(source string) {
 			s.logger.Infof("Project already exists.")
 			getProject, err := s.client.Project.GetProject1(project.NewGetProject1Params().WithName(projectName).WithVersion(projectVersion), s)
 			if err != nil {
-				s.reportError(fmt.Errorf("failed to get project: %w", err))
-				return
+				return res, fmt.Errorf("failed to get project: %w", err)
 			}
 			s.logger.Debugf("Project already exists. payload=%+v", getProject.GetPayload())
 			projectUUID = string(*getProject.GetPayload().UUID)
 		default:
-			s.reportError(fmt.Errorf("failed to create project: %w", err))
-			return
+			return res, fmt.Errorf("failed to create project: %w", err)
 		}
 	} else {
 		projectUUID = string(*projectCreated.GetPayload().UUID)
@@ -166,23 +157,21 @@ func (s *Scanner) run(source string) {
 		WithProject(&projectUUID).
 		WithBom(&sbomS)
 	if _, err := s.client.Bom.UploadBom(uploadBomParams, s); err != nil {
-		s.reportError(fmt.Errorf("failed to upload bom: %w", err))
-		return
+		return res, fmt.Errorf("failed to upload bom: %w", err)
 	}
 
 	s.logger.Infof("SBOM was uploaded successfully. project uuid=%v", projectUUID)
 
 	vulnerabilitiesByProject, err := s.getVulnerabilitiesWithRetry(projectUUID)
 	if err != nil {
-		s.reportError(fmt.Errorf("failed to get vulnerabilities result: %w", err))
-		return
+		return res, fmt.Errorf("failed to get vulnerabilities result: %w", err)
 	}
 
 	s.logger.Infof("Vulnerabilities by project was found. project uuid=%v, total vulnerabilities=%v",
 		projectUUID, vulnerabilitiesByProject.XTotalCount)
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- s.createResults(vulnerabilitiesByProject.GetPayload())
+	return s.createResults(vulnerabilitiesByProject.GetPayload()), nil
 }
 
 func (s *Scanner) getProjectVersion() string {
@@ -229,26 +218,17 @@ func (s *Scanner) getVulnerabilitiesWithRetry(projectUUID string) (*vulnerabilit
 	return nil, fmt.Errorf("failed to get vulnerabilities by project: %w", err)
 }
 
-func (s *Scanner) reportError(err error) {
-	res := &scanner.Results{
-		Error: err,
-	}
-
-	s.logger.Error(res.Error)
-	s.resultChan <- res
-}
-
-func (s *Scanner) createResults(vulnerabilities []*models.Vulnerability) *scanner.Results {
+func (s *Scanner) createResults(vulnerabilities []*models.Vulnerability) types.Results {
 	// TODO:
 	// distro := getDistro(doc)
-	matches := make([]scanner.Match, len(vulnerabilities))
+	matches := make([]types.Match, len(vulnerabilities))
 	for i := range vulnerabilities {
 		vul := vulnerabilities[i]
 		for j := range vul.Components {
 			component := vul.Components[j]
 
-			matches[i] = scanner.Match{
-				Vulnerability: scanner.Vulnerability{
+			matches[i] = types.Match{
+				Vulnerability: types.Vulnerability{
 					ID:          vul.VulnID,
 					Description: vul.Description,
 					Links:       getLinks(vul.References),
@@ -256,7 +236,7 @@ func (s *Scanner) createResults(vulnerabilities []*models.Vulnerability) *scanne
 					CVSS:     getCVSS(vul),
 					Fix:      getFix(vul),
 					Severity: strings.ToUpper(vul.Severity),
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    component.Name,
 						Version: getVersion(component),
 						// TODO: can take it from purl
@@ -275,12 +255,12 @@ func (s *Scanner) createResults(vulnerabilities []*models.Vulnerability) *scanne
 		}
 	}
 
-	return &scanner.Results{
+	return types.Results{
 		Matches: matches,
-		ScannerInfo: scanner.Info{
+		ScannerInfo: types.Info{
 			Name: ScannerName,
 		},
-		Source: scanner.Source{
+		Source: types.Source{
 			// The Type and Name of Source is populated after the merge,
 			// because the input of dependency-track is an SBOM which contains the values of them.
 			Type: "",
@@ -321,8 +301,8 @@ func getLicense(component *models.Component) []string {
 	return ret
 }
 
-func getFix(vul *models.Vulnerability) scanner.Fix {
-	fix := scanner.Fix{
+func getFix(vul *models.Vulnerability) types.Fix {
+	fix := types.Fix{
 		State: "not-fixed",
 	}
 
@@ -345,14 +325,14 @@ func getLinks(references string) []string {
 	return links
 }
 
-func getCVSS(vul *models.Vulnerability) []scanner.CVSS {
-	var ret []scanner.CVSS
+func getCVSS(vul *models.Vulnerability) []types.CVSS {
+	var ret []types.CVSS
 
 	if vul.CvssV2Vector != "" {
-		ret = append(ret, scanner.CVSS{
+		ret = append(ret, types.CVSS{
 			Version: "2.0",
 			Vector:  removeParentheses(vul.CvssV2Vector),
-			Metrics: scanner.CvssMetrics{
+			Metrics: types.CvssMetrics{
 				BaseScore:           vul.CvssV2BaseScore,
 				ExploitabilityScore: &vul.CvssV2ExploitabilitySubScore,
 				ImpactScore:         &vul.CvssV2ImpactSubScore,
@@ -360,10 +340,10 @@ func getCVSS(vul *models.Vulnerability) []scanner.CVSS {
 		})
 	}
 	if vul.CvssV3Vector != "" {
-		ret = append(ret, scanner.CVSS{
+		ret = append(ret, types.CVSS{
 			Version: utilsVul.GetCVSSV3VersionFromVector(vul.CvssV3Vector),
 			Vector:  vul.CvssV3Vector,
-			Metrics: scanner.CvssMetrics{
+			Metrics: types.CvssMetrics{
 				BaseScore:           vul.CvssV3BaseScore,
 				ExploitabilityScore: &vul.CvssV3ExploitabilitySubScore,
 				ImpactScore:         &vul.CvssV3ImpactSubScore,

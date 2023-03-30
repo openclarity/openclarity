@@ -26,7 +26,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gotest.tools/assert"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func TestCreateResults(t *testing.T) {
@@ -42,7 +42,7 @@ func TestCreateResults(t *testing.T) {
 		RepoDigests:    []string{"sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"},
 	}
 	// read expected results
-	var results scanner.Results
+	var results types.Results
 	file, err = os.ReadFile("./test_data/nginx.results.json")
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &results))
@@ -56,7 +56,7 @@ func TestCreateResults(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *scanner.Results
+		want types.Results
 	}{
 		{
 			name: "sanity",
@@ -65,7 +65,7 @@ func TestCreateResults(t *testing.T) {
 				userInput:   "nginx",
 				scannerName: "grype",
 			},
-			want: &results,
+			want: results,
 		},
 	}
 	for _, tt := range tests {
@@ -114,7 +114,7 @@ func Test_getSource(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want scanner.Source
+		want types.Source
 	}{
 		{
 			name: "input is an image",
@@ -123,7 +123,7 @@ func Test_getSource(t *testing.T) {
 				userInput: "nginx",
 				hash:      "",
 			},
-			want: scanner.Source{
+			want: types.Source{
 				Type: "image",
 				Name: "nginx",
 				Hash: "43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
@@ -136,7 +136,7 @@ func Test_getSource(t *testing.T) {
 				userInput: "nginx",
 				hash:      "testhash",
 			},
-			want: scanner.Source{
+			want: types.Source{
 				Type: "image",
 				Name: "nginx",
 				Hash: "testhash",
@@ -149,7 +149,7 @@ func Test_getSource(t *testing.T) {
 				userInput: "test",
 				hash:      "testhash",
 			},
-			want: scanner.Source{
+			want: types.Source{
 				Type: "image",
 				Name: "test",
 				Hash: "testhash",

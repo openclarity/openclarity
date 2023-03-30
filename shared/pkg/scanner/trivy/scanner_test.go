@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func Test_getTypeFromPurl(t *testing.T) {
@@ -93,12 +93,12 @@ func Test_getCVSSesFromVul(t *testing.T) {
 	tests := []struct {
 		name   string
 		cvsses trivyDBTypes.VendorCVSS
-		want   []scanner.CVSS
+		want   []types.CVSS
 	}{
 		{
 			name:   "no cvsses",
 			cvsses: trivyDBTypes.VendorCVSS{},
-			want:   []scanner.CVSS{},
+			want:   []types.CVSS{},
 		},
 		{
 			name: "one of each",
@@ -112,11 +112,11 @@ func Test_getCVSSesFromVul(t *testing.T) {
 					V3Score:  v3score1,
 				},
 			},
-			want: []scanner.CVSS{
+			want: []types.CVSS{
 				{
 					Version: v3version1,
 					Vector:  v3vector1,
-					Metrics: scanner.CvssMetrics{
+					Metrics: types.CvssMetrics{
 						BaseScore:           v3score1,
 						ExploitabilityScore: &v3exploit1,
 						ImpactScore:         &v3impact1,
@@ -125,7 +125,7 @@ func Test_getCVSSesFromVul(t *testing.T) {
 				{
 					Version: v2version,
 					Vector:  v2vector,
-					Metrics: scanner.CvssMetrics{
+					Metrics: types.CvssMetrics{
 						BaseScore:           v2score,
 						ExploitabilityScore: &v2exploit,
 						ImpactScore:         &v2impact,
@@ -149,11 +149,11 @@ func Test_getCVSSesFromVul(t *testing.T) {
 					V3Score:  v3score1,
 				},
 			},
-			want: []scanner.CVSS{
+			want: []types.CVSS{
 				{
 					Version: v3version2,
 					Vector:  v3vector2,
-					Metrics: scanner.CvssMetrics{
+					Metrics: types.CvssMetrics{
 						BaseScore:           v3score2,
 						ExploitabilityScore: &v3exploit2,
 						ImpactScore:         &v3impact2,
@@ -162,7 +162,7 @@ func Test_getCVSSesFromVul(t *testing.T) {
 				{
 					Version: v2version,
 					Vector:  v2vector,
-					Metrics: scanner.CvssMetrics{
+					Metrics: types.CvssMetrics{
 						BaseScore:           v2score,
 						ExploitabilityScore: &v2exploit,
 						ImpactScore:         &v2impact,
@@ -174,7 +174,7 @@ func Test_getCVSSesFromVul(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getCVSSesFromVul(tt.cvsses)
-			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b scanner.CVSS) bool { return a.Vector < b.Vector })); diff != "" {
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b types.CVSS) bool { return a.Vector < b.Vector })); diff != "" {
 				t.Errorf("getCVSSesFromVul() mismatch (-want +got):\n%s", diff)
 			}
 		})

@@ -13,21 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanner
+package types
 
-type Match struct {
-	Vulnerability Vulnerability `json:"vulnerability"`
-}
-
-type Matches []Match
-
-type Results struct {
-	Matches     Matches `json:"matches"`
-	ScannerInfo Info    `json:"scanner"`
-	Source      Source  `json:"source"`
-	Error       error   `json:"-"`
-}
-
-func (r *Results) GetError() error {
-	return r.Error
+type Source struct {
+	Type string `json:"type"`
+	// Name is the path in the case of the input type is dir or file, and userInput in the case of input type is image
+	Name string `json:"name"`
+	Hash string `json:"hash"`
 }

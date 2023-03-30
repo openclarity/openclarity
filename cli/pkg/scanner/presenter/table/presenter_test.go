@@ -24,6 +24,7 @@ import (
 	"gotest.tools/assert"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func TestTablePresenter(t *testing.T) {
@@ -32,18 +33,18 @@ func TestTablePresenter(t *testing.T) {
 		"cve-1.pkg-name-1.pkg-ver-1": {
 			{
 				ID: "1",
-				Vulnerability: scanner.Vulnerability{
+				Vulnerability: types.Vulnerability{
 					ID: "cve-1",
-					Fix: scanner.Fix{
+					Fix: types.Fix{
 						Versions: []string{"fix1", "fix2"},
 					},
 					Severity: "CRITICAL",
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    "pkg-name-1",
 						Version: "pkg-ver-1",
 					},
 				},
-				ScannersInfo: []scanner.Info{
+				ScannersInfo: []types.Info{
 					{
 						Name: "scanner-1",
 					},
@@ -55,18 +56,18 @@ func TestTablePresenter(t *testing.T) {
 			},
 			{
 				ID: "2",
-				Vulnerability: scanner.Vulnerability{
+				Vulnerability: types.Vulnerability{
 					ID: "cve-1",
-					Fix: scanner.Fix{
+					Fix: types.Fix{
 						Versions: []string{"fix1", "fix2"},
 					},
 					Severity: "HIGH",
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    "pkg-name-1",
 						Version: "pkg-ver-1",
 					},
 				},
-				ScannersInfo: []scanner.Info{
+				ScannersInfo: []types.Info{
 					{
 						Name: "scanner-3",
 					},
@@ -87,15 +88,15 @@ func TestTablePresenter(t *testing.T) {
 		"cve-2.pkg-name-2.pkg-ver-2": { // simulate second finding with higher severity
 			{
 				ID: "1",
-				Vulnerability: scanner.Vulnerability{
+				Vulnerability: types.Vulnerability{
 					ID:       "cve-2",
 					Severity: "LOW",
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    "pkg-name-2",
 						Version: "pkg-ver-2",
 					},
 				},
-				ScannersInfo: []scanner.Info{
+				ScannersInfo: []types.Info{
 					{
 						Name: "scanner-1",
 					},
@@ -104,15 +105,15 @@ func TestTablePresenter(t *testing.T) {
 			},
 			{
 				ID: "2",
-				Vulnerability: scanner.Vulnerability{
+				Vulnerability: types.Vulnerability{
 					ID:       "cve-2",
 					Severity: "HIGH",
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    "pkg-name-2",
 						Version: "pkg-ver-2",
 					},
 				},
-				ScannersInfo: []scanner.Info{
+				ScannersInfo: []types.Info{
 					{
 						Name: "scanner-2",
 					},
@@ -130,15 +131,15 @@ func TestTablePresenter(t *testing.T) {
 		"cve-3.pkg-name-3.pkg-ver-3": { // simulate finding with no diffs
 			{
 				ID: "1",
-				Vulnerability: scanner.Vulnerability{
+				Vulnerability: types.Vulnerability{
 					ID:       "cve-3",
 					Severity: "MEDIUM",
-					Package: scanner.Package{
+					Package: types.Package{
 						Name:    "pkg-name-3",
 						Version: "pkg-ver-3",
 					},
 				},
-				ScannersInfo: []scanner.Info{
+				ScannersInfo: []types.Info{
 					{
 						Name: "scanner-1",
 					},

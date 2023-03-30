@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package analyzer
+package types
 
 import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -25,11 +25,6 @@ type Results struct {
 	Sbom         *cdx.BOM
 	AnalyzerInfo string
 	AppInfo      AppInfo
-	Error        error
-}
-
-func (r *Results) GetError() error {
-	return r.Error
 }
 
 type AppInfo struct {
@@ -38,8 +33,8 @@ type AppInfo struct {
 	SourceHash string
 }
 
-func CreateResults(sbomBytes *cdx.BOM, analyzerName, userInput string, srcType utils.SourceType) *Results {
-	return &Results{
+func CreateResults(sbomBytes *cdx.BOM, analyzerName, userInput string, srcType utils.SourceType) Results {
+	return Results{
 		Sbom:         sbomBytes,
 		AnalyzerInfo: analyzerName,
 		AppInfo: AppInfo{

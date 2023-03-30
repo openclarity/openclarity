@@ -27,6 +27,7 @@ import (
 	"github.com/openclarity/kubeclarity/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/api/client/models"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 	sharedUtilsVulnerability "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
@@ -135,7 +136,7 @@ func createPackagesVulnerabilitiesScan(m *scanner.MergedResults) []*models.Packa
 		packageVulnerabilityScan = append(packageVulnerabilityScan, &models.PackageVulnerabilityScan{
 			Cvss:              getCVSS(vulnerability.Vulnerability),
 			Description:       vulnerability.Vulnerability.Description,
-			FixVersion:        scanner.GetFixVersion(vulnerability.Vulnerability),
+			FixVersion:        types.GetFixVersion(vulnerability.Vulnerability),
 			LayerID:           vulnerability.Vulnerability.LayerID,
 			Links:             vulnerability.Vulnerability.Links,
 			Package:           getPackageInfo(vulnerability.Vulnerability),
@@ -162,7 +163,7 @@ func getResourceType(m *scanner.MergedResults) models.ResourceType {
 	return ""
 }
 
-func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
+func getCVSS(vulnerability types.Vulnerability) *models.CVSS {
 	for _, cvss := range vulnerability.CVSS {
 		version := strings.Split(cvss.Version, ".")
 		if version[0] == "3" {
@@ -185,7 +186,7 @@ func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
 	return nil
 }
 
-func getPackageInfo(vulnerability scanner.Vulnerability) *models.PackageInfo {
+func getPackageInfo(vulnerability types.Vulnerability) *models.PackageInfo {
 	var license string
 	if len(vulnerability.Package.Licenses) > 0 {
 		license = vulnerability.Package.Licenses[0]

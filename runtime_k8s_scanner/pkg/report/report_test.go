@@ -23,6 +23,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
@@ -44,31 +45,31 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 						"VulnerabilityKey with diff": {
 							{
 								ID: "ID1",
-								Vulnerability: scanner.Vulnerability{
+								Vulnerability: types.Vulnerability{
 									ID:          "Vulnerability.ID",
 									Description: "Vulnerability.Description",
 									Links:       []string{"link"},
-									Distro: scanner.Distro{
+									Distro: types.Distro{
 										Name:    "Vulnerability.Distro.Name",
 										Version: "Vulnerability.Distro.Version",
 									},
-									CVSS: []scanner.CVSS{
+									CVSS: []types.CVSS{
 										{
 											Version: "3.1",
 											Vector:  cvssVector,
-											Metrics: scanner.CvssMetrics{
+											Metrics: types.CvssMetrics{
 												BaseScore:           score,
 												ExploitabilityScore: &score,
 												ImpactScore:         &score,
 											},
 										},
 									},
-									Fix: scanner.Fix{
+									Fix: types.Fix{
 										Versions: []string{"fix"},
 										State:    "",
 									},
 									Severity: "LOW",
-									Package: scanner.Package{
+									Package: types.Package{
 										Name:     "Vulnerability.Package.Name",
 										Version:  "Vulnerability.Package.Version",
 										Type:     "Vulnerability.Package.Type",
@@ -80,7 +81,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 									LayerID: "Vulnerability.LayerID",
 									Path:    "Vulnerability.Path",
 								},
-								ScannersInfo: []scanner.Info{
+								ScannersInfo: []types.Info{
 									{
 										Name: "scanner2",
 									},
@@ -88,31 +89,31 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 							},
 							{
 								ID: "ID2",
-								Vulnerability: scanner.Vulnerability{
+								Vulnerability: types.Vulnerability{
 									ID:          "Vulnerability.ID",
 									Description: "Vulnerability.Description",
 									Links:       []string{"link"},
-									Distro: scanner.Distro{
+									Distro: types.Distro{
 										Name:    "Vulnerability.Distro.Name",
 										Version: "Vulnerability.Distro.Version",
 									},
-									CVSS: []scanner.CVSS{
+									CVSS: []types.CVSS{
 										{
 											Version: "3.1",
 											Vector:  cvssVector,
-											Metrics: scanner.CvssMetrics{
+											Metrics: types.CvssMetrics{
 												BaseScore:           score,
 												ExploitabilityScore: &score,
 												ImpactScore:         &score,
 											},
 										},
 									},
-									Fix: scanner.Fix{
+									Fix: types.Fix{
 										Versions: []string{"fix"},
 										State:    "",
 									},
 									Severity: "HIGH",
-									Package: scanner.Package{
+									Package: types.Package{
 										Name:     "Vulnerability.Package.Name",
 										Version:  "Vulnerability.Package.Version",
 										Type:     "Vulnerability.Package.Type",
@@ -124,7 +125,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 									LayerID: "Vulnerability.LayerID",
 									Path:    "Vulnerability.Path",
 								},
-								ScannersInfo: []scanner.Info{
+								ScannersInfo: []types.Info{
 									{
 										Name: "scanner1",
 									},
@@ -140,31 +141,31 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 						"VulnerabilityKey with no diff": {
 							{
 								ID: "ID3",
-								Vulnerability: scanner.Vulnerability{
+								Vulnerability: types.Vulnerability{
 									ID:          "Vulnerability.ID3",
 									Description: "Vulnerability.Description3",
 									Links:       []string{"link3"},
-									Distro: scanner.Distro{
+									Distro: types.Distro{
 										Name:    "Vulnerability.Distro.Name3",
 										Version: "Vulnerability.Distro.Version3",
 									},
-									CVSS: []scanner.CVSS{
+									CVSS: []types.CVSS{
 										{
 											Version: "3.1",
 											Vector:  cvssVector,
-											Metrics: scanner.CvssMetrics{
+											Metrics: types.CvssMetrics{
 												BaseScore:           score,
 												ExploitabilityScore: &score,
 												ImpactScore:         &score,
 											},
 										},
 									},
-									Fix: scanner.Fix{
+									Fix: types.Fix{
 										Versions: []string{"fix3"},
 										State:    "",
 									},
 									Severity: "HIGH",
-									Package: scanner.Package{
+									Package: types.Package{
 										Name:     "Vulnerability.Package.Name2",
 										Version:  "Vulnerability.Package.Version2",
 										Type:     "Vulnerability.Package.Type2",
@@ -176,7 +177,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 									LayerID: "Vulnerability.LayerID3",
 									Path:    "Vulnerability.Path3",
 								},
-								ScannersInfo: []scanner.Info{
+								ScannersInfo: []types.Info{
 									{
 										Name: "scanner3",
 									},
@@ -184,7 +185,7 @@ func Test_createPackagesVulnerabilitiesScan(t *testing.T) {
 							},
 						},
 					},
-					Source: scanner.Source{
+					Source: types.Source{
 						Type: "Source.Type",
 						Name: "Source.Name",
 						Hash: "Source.Hash",

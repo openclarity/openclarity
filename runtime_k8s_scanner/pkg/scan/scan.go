@@ -24,11 +24,12 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	sharedscanner "github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/job"
+	sharedscannertypes "github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
 type Scanner interface {
-	Scan(config *config.Config, sbomFilePath string, src sharedscanner.Source) (*sharedscanner.MergedResults, error)
+	Scan(config *config.Config, sbomFilePath string, src sharedscannertypes.Source) (*sharedscanner.MergedResults, error)
 }
 
 type ScannerImpl struct {
@@ -42,8 +43,12 @@ func Create(logger *logrus.Entry) *ScannerImpl {
 }
 
 func (s *ScannerImpl) Scan(config *config.Config, sbomFilePath string) (*sharedscanner.MergedResults, error) {
-	manager := job_manager.New(config.SharedConfig.Scanner.ScannersList, config.SharedConfig, s.logger, job.Factory)
-	results, err := manager.Run(utils.SBOM, sbomFilePath)
+	manager, err := job_manager.New(config.SharedConfig.Scanner.ScannersList, config.SharedConfig, s.logger, job.Factory)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create job manager: %v", err)
+	}
+
+	results, err := manager.Run(utils.SourceInput{Type: utils.SBOM, Source: sbomFilePath})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run job manager: %v", err)
 	}
@@ -52,11 +57,11 @@ func (s *ScannerImpl) Scan(config *config.Config, sbomFilePath string) (*shareds
 	mergedResults := sharedscanner.NewMergedResults()
 	for name, result := range results {
 		s.logger.Infof("Merging result from %q", name)
-		mergedResults = mergedResults.Merge(result.(*sharedscanner.Results)) // nolint:forcetypeassert
+		mergedResults = mergedResults.Merge(result)
 	}
 
 	// Set source values.
-	mergedResults.SetSource(sharedscanner.Source{
+	mergedResults.SetSource(sharedscannertypes.Source{
 		Type: "image",
 		Name: config.ImageIDToScan,
 		Hash: config.ImageHashToScan,

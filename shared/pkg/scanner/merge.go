@@ -24,20 +24,22 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/yudai/gojsondiff"
 	"github.com/yudai/gojsondiff/formatter"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 type VulnerabilityKey string // Unique identification of a vulnerability ID per package (name and version)
 
 type MergedResults struct {
 	MergedVulnerabilitiesByKey map[VulnerabilityKey][]MergedVulnerability
-	Source                     Source
+	Source                     types.Source
 }
 
 type MergedVulnerability struct {
-	ID            string        `json:"id"` // Merged vulnerability ID used in DiffInfo - THIS IS NOT THE CVE ID
-	Vulnerability Vulnerability `json:"vulnerability"`
-	ScannersInfo  []Info        `json:"scanners"`
-	Diffs         []DiffInfo    `json:"diffs"`
+	ID            string              `json:"id"` // Merged vulnerability ID used in DiffInfo - THIS IS NOT THE CVE ID
+	Vulnerability types.Vulnerability `json:"vulnerability"`
+	ScannersInfo  []types.Info        `json:"scanners"`
+	Diffs         []DiffInfo          `json:"diffs"`
 }
 
 type DiffInfo struct {
@@ -46,7 +48,7 @@ type DiffInfo struct {
 	ASCIIDiff   string                 `json:"asciiDiff"`
 }
 
-func (mv *MergedVulnerability) AppendScannerInfo(info Info) *MergedVulnerability {
+func (mv *MergedVulnerability) AppendScannerInfo(info types.Info) *MergedVulnerability {
 	mv.ScannersInfo = append(mv.ScannersInfo, info)
 	return mv
 }
@@ -74,7 +76,7 @@ func (m *MergedResults) SetType(srcType string) {
 	m.Source.Type = srcType
 }
 
-func (m *MergedResults) SetSource(src Source) {
+func (m *MergedResults) SetSource(src types.Source) {
 	m.Source = src
 }
 
@@ -88,7 +90,7 @@ func (m *MergedResults) ToSlice() [][]MergedVulnerability {
 	return ret
 }
 
-func (m *MergedResults) Merge(other *Results) *MergedResults {
+func (m *MergedResults) Merge(other types.Results) *MergedResults {
 	otherVulnerabilityByKey := toVulnerabilityByKey(other.Matches)
 
 	// go over other vulnerabilities list
@@ -106,7 +108,7 @@ func (m *MergedResults) Merge(other *Results) *MergedResults {
 	}
 
 	// TODO: what should we do with other.Source
-	// Set Source only once
+	// Set types.Source only once
 	if m.Source.Type == "" {
 		m.Source = other.Source
 	}
@@ -117,7 +119,7 @@ func (m *MergedResults) Merge(other *Results) *MergedResults {
 // handleVulnerabilityWithExistingKey will look for an identical vulnerability for the given otherVulnerability in the mergedVulnerabilities list,
 // if identical vulnerability was found, the new scanner info (otherScannerInfo) will be added
 // if no identical vulnerability was found, a new MergedVulnerability (with all the differences that was found) will be added.
-func handleVulnerabilityWithExistingKey(mergedVulnerabilities []MergedVulnerability, otherVulnerability Vulnerability, otherScannerInfo Info) []MergedVulnerability {
+func handleVulnerabilityWithExistingKey(mergedVulnerabilities []MergedVulnerability, otherVulnerability types.Vulnerability, otherScannerInfo types.Info) []MergedVulnerability {
 	shouldAppendMergedVulnerabilityCandidate := true
 	mergedVulnerabilityCandidate := newMergedVulnerability(otherVulnerability, otherScannerInfo)
 
@@ -145,7 +147,7 @@ func handleVulnerabilityWithExistingKey(mergedVulnerabilities []MergedVulnerabil
 	return mergedVulnerabilities
 }
 
-func getDiff(vulnerability, compareToVulnerability Vulnerability, compareToID string) (*DiffInfo, error) {
+func getDiff(vulnerability, compareToVulnerability types.Vulnerability, compareToID string) (*DiffInfo, error) {
 	compareToVulnerabilityB, err := json.Marshal(sortArrays(compareToVulnerability))
 	if err != nil {
 		return nil, fmt.Errorf("failed to Marshal. compareToVulnerability=%+v: %v", compareToVulnerability, err)
@@ -207,7 +209,7 @@ func getASCIIFormatDiff(compareToVulnerabilityB []byte, diff gojsondiff.Diff) (s
 	return asciiDiff, nil
 }
 
-func sortArrays(vulnerability Vulnerability) Vulnerability {
+func sortArrays(vulnerability types.Vulnerability) types.Vulnerability {
 	sort.Slice(vulnerability.CVSS, func(i, j int) bool {
 		return vulnerability.CVSS[i].Version < vulnerability.CVSS[j].Version
 	})
@@ -218,8 +220,8 @@ func sortArrays(vulnerability Vulnerability) Vulnerability {
 	return vulnerability
 }
 
-func toVulnerabilityByKey(matches Matches) map[VulnerabilityKey]Vulnerability {
-	ret := make(map[VulnerabilityKey]Vulnerability, len(matches))
+func toVulnerabilityByKey(matches types.Matches) map[VulnerabilityKey]types.Vulnerability {
+	ret := make(map[VulnerabilityKey]types.Vulnerability, len(matches))
 	for _, match := range matches {
 		key := createVulnerabilityKey(match.Vulnerability)
 		if log.IsLevelEnabled(log.DebugLevel) {
@@ -243,15 +245,15 @@ func toVulnerabilityByKey(matches Matches) map[VulnerabilityKey]Vulnerability {
 	return ret
 }
 
-func createVulnerabilityKey(vulnerability Vulnerability) VulnerabilityKey {
+func createVulnerabilityKey(vulnerability types.Vulnerability) VulnerabilityKey {
 	return VulnerabilityKey(fmt.Sprintf("%s.%s.%s", vulnerability.ID, vulnerability.Package.Name, vulnerability.Package.Version))
 }
 
-func newMergedVulnerability(vulnerability Vulnerability, scannerInfo Info) *MergedVulnerability {
+func newMergedVulnerability(vulnerability types.Vulnerability, scannerInfo types.Info) *MergedVulnerability {
 	return &MergedVulnerability{
 		ID:            uuid.NewV4().String(),
 		Vulnerability: vulnerability,
-		ScannersInfo:  []Info{scannerInfo},
+		ScannersInfo:  []types.Info{scannerInfo},
 	}
 }
 

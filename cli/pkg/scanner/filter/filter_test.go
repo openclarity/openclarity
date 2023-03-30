@@ -18,12 +18,12 @@ package filter
 import (
 	"testing"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func Test_shouldIgnore(t *testing.T) {
 	type args struct {
-		vulnerability scanner.Vulnerability
+		vulnerability types.Vulnerability
 		ignores       Ignores
 	}
 	tests := []struct {
@@ -34,7 +34,7 @@ func Test_shouldIgnore(t *testing.T) {
 		{
 			name: "no ignores",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "CVE-123",
 				},
 			},
@@ -43,7 +43,7 @@ func Test_shouldIgnore(t *testing.T) {
 		{
 			name: "ignore no fix, the vulnerability doesn't have any fix",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "CVE-123",
 				},
 				ignores: Ignores{
@@ -55,9 +55,9 @@ func Test_shouldIgnore(t *testing.T) {
 		{
 			name: "ignore no fix, the vulnerability has fix",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "CVE-123",
-					Fix: scanner.Fix{
+					Fix: types.Fix{
 						Versions: []string{
 							"1.1.1",
 						},
@@ -72,7 +72,7 @@ func Test_shouldIgnore(t *testing.T) {
 		{
 			name: "the vulnerability is in the ignore list",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "CVE-123",
 				},
 				ignores: Ignores{
@@ -87,9 +87,9 @@ func Test_shouldIgnore(t *testing.T) {
 		{
 			name: "ignore no fix, the vulnerability has fix but it's in the ignore list",
 			args: args{
-				vulnerability: scanner.Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "CVE-123",
-					Fix: scanner.Fix{
+					Fix: types.Fix{
 						Versions: []string{
 							"1.1.1",
 						},

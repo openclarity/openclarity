@@ -17,74 +17,76 @@ package job_manager // nolint:revive,stylecheck
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
-
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
-type Manager struct {
-	jobNames   []string
-	config     IsConfig
-	logger     *logrus.Entry
-	jobFactory *Factory
+type Manager[I any, R any] struct {
+	jobs   map[string]Job[I, R]
+	logger *logrus.Entry
 }
 
-func New(jobNames []string, config IsConfig, logger *logrus.Entry, factory *Factory) *Manager {
-	return &Manager{
-		jobNames:   jobNames,
-		config:     config,
-		logger:     logger,
-		jobFactory: factory,
-	}
-}
-
-func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string]Result, error) {
-	nameToResultChan := make(map[string]chan Result, len(m.jobNames))
-
+func New[C any, I any, R any](jobNames []string, config C, logger *logrus.Entry, factory *Factory[C, I, R]) (*Manager[I, R], error) {
 	// create jobs
-	jobs := make([]Job, len(m.jobNames))
-	for i, name := range m.jobNames {
-		nameToResultChan[name] = make(chan Result, 10) // nolint:gomnd
-		job, err := m.jobFactory.CreateJob(name, m.config, m.logger, nameToResultChan[name])
+	jobs := make(map[string]Job[I, R], len(jobNames))
+	for _, name := range jobNames {
+		job, err := factory.CreateJob(name, config, logger)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create job: %v", err)
 		}
 
-		jobs[i] = job
+		jobs[name] = job
 	}
 
-	// start jobs
-	for _, j := range jobs {
-		err := j.Run(sourceType, userInput)
-		if err != nil {
-			return nil, fmt.Errorf("failed to run job: %v", err)
-		}
+	return &Manager[I, R]{
+		jobs:   jobs,
+		logger: logger,
+	}, nil
+}
+
+func (m *Manager[I, R]) Run(input I) (map[string]R, error) {
+	results := make(map[string]R, len(m.jobs))
+	errors := make(map[string]error, len(m.jobs))
+
+	var wg sync.WaitGroup
+
+	// run jobs in parallel
+	for name, j := range m.jobs {
+		jobName := name
+		job := j
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// TODO: maybe need a ctx + timeout for each job to
+			// prevent them locking up forever
+			result, err := job.Run(input)
+			if err != nil {
+				err = fmt.Errorf("%q job failed: %v", jobName, err)
+				m.logger.Warning(err)
+			}
+			results[jobName] = result
+			errors[jobName] = err
+		}()
 	}
 
-	// wait for results
+	wg.Wait()
+
+	// Merge errors together and count them
+	errCount := 0
 	var resultError error
-	totalSuccessfulResultsCount := 0
-	results := make(map[string]Result, len(m.jobNames))
-	for name, channel := range nameToResultChan {
-		// TODO: maybe need a timeout while waiting for a specific job result?
-		result := <-channel
-
-		if err := result.GetError(); err != nil {
-			errStr := fmt.Errorf("%q job failed: %v", name, err)
-			m.logger.Warning(errStr)
-			resultError = multierror.Append(resultError, errStr)
-		} else {
-			m.logger.Infof("Got result for job %q", name)
-			results[name] = result
-			totalSuccessfulResultsCount++
+	for _, err := range errors {
+		if err != nil {
+			resultError = multierror.Append(resultError, err)
+			errCount++
 		}
 	}
 
 	// Return error if all jobs failed to return results.
 	// TODO: should it be configurable? allow the user to decide failure threshold?
-	if totalSuccessfulResultsCount == 0 {
+	if errCount == len(m.jobs) {
 		return nil, resultError // nolint:wrapcheck
 	}
 

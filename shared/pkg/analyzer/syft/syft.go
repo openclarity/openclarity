@@ -28,7 +28,7 @@ import (
 	"github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -41,64 +41,58 @@ type Analyzer struct {
 	name       string
 	logger     *log.Entry
 	config     config.SyftConfig
-	resultChan chan job_manager.Result
 	localImage bool
 }
 
-func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
+func New(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
 		config:     config.CreateSyftConfig(conf.Analyzer, conf.Registry),
-		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
-	}
+	}, nil
 }
 
-func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
-	src := utils.CreateSource(sourceType, userInput, a.localImage)
+func (a *Analyzer) Run(sourceInput utils.SourceInput) (types.Results, error) {
+	res := types.Results{}
+	src := utils.CreateSource(sourceInput.Type, sourceInput.Source, a.localImage)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
+
 	// TODO platform can be defined
 	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
 	input, err := source.ParseInput(src, "", false)
 	if err != nil {
-		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
+		return res, fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
 	}
 	s, _, err := source.New(*input, a.config.RegistryOptions, []string{})
 	if err != nil {
-		return fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
+		return res, fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
 	}
 
-	go func() {
-		res := &analyzer.Results{}
-		catalogerConfig := cataloger.Config{
-			Search: cataloger.DefaultSearchConfig(),
-		}
-		catalogerConfig.Search.Scope = a.config.Scope
+	catalogerConfig := cataloger.Config{
+		Search: cataloger.DefaultSearchConfig(),
+	}
+	catalogerConfig.Search.Scope = a.config.Scope
 
-		p, r, d, err := syft.CatalogPackages(s, catalogerConfig)
-		if err != nil {
-			a.setError(res, fmt.Errorf("failed to write results: %v", err))
-			return
-		}
-		sbom := generateSBOM(p, r, d, s)
+	p, r, d, err := syft.CatalogPackages(s, catalogerConfig)
+	if err != nil {
+		return res, fmt.Errorf("failed to write results: %v", err)
+	}
+	sbom := generateSBOM(p, r, d, s)
 
-		cdxBom := cyclonedxhelpers.ToFormatModel(sbom)
-		res = analyzer.CreateResults(cdxBom, a.name, src, sourceType)
+	cdxBom := cyclonedxhelpers.ToFormatModel(sbom)
+	res = types.CreateResults(cdxBom, a.name, src, sourceInput.Type)
 
-		// Syft uses ManifestDigest to fill version information in the case of an image.
-		// We need RepoDigest as well which is not set by Syft if we using cycloneDX output.
-		// Get the RepoDigest from image metadata and use it as SourceHash in the Result
-		// that will be added to the component hash of metadata during the merge.
-		if sourceType == utils.IMAGE {
-			res.AppInfo.SourceHash = getImageHash(sbom, userInput)
-		}
-		a.logger.Infof("Sending successful results")
-		a.resultChan <- res
-	}()
+	// Syft uses ManifestDigest to fill version information in the case of an image.
+	// We need RepoDigest as well which is not set by Syft if we using cycloneDX output.
+	// Get the RepoDigest from image metadata and use it as SourceHash in the Result
+	// that will be added to the component hash of metadata during the merge.
+	if sourceInput.Type == utils.IMAGE {
+		res.AppInfo.SourceHash = getImageHash(sbom, sourceInput.Source)
+	}
+	a.logger.Infof("Sending successful results")
 
-	return nil
+	return res, nil
 }
 
 func generateSBOM(c *syft_pkg.Catalog, r []syft_artifact.Relationship, d *linux.Release, s *source.Source) syft_sbom.SBOM {
@@ -110,12 +104,6 @@ func generateSBOM(c *syft_pkg.Catalog, r []syft_artifact.Relationship, d *linux.
 		Source:        s.Metadata,
 		Relationships: r,
 	}
-}
-
-func (a *Analyzer) setError(res *analyzer.Results, err error) {
-	res.Error = err
-	a.logger.Error(res.Error)
-	a.resultChan <- res
 }
 
 func getImageHash(sbom syft_sbom.SBOM, src string) string {

@@ -134,8 +134,12 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 		logger.Fatalf("Unable to get ignore-vul flag: %v", err)
 	}
 
-	manager := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.Factory)
-	results, err := manager.Run(sourceType, args[0])
+	manager, err := job_manager.New(appConfig.SharedConfig.Scanner.ScannersList, appConfig.SharedConfig, logger, job.Factory)
+	if err != nil {
+		logger.Fatalf("Failed to create jobs to run: %v", err)
+	}
+
+	results, err := manager.Run(sharedutils.SourceInput{Type: sourceType, Source: args[0]})
 	if err != nil {
 		logger.Fatalf("Failed to run job manager: %v", err)
 	}
@@ -144,11 +148,7 @@ func vulnerabilityScanner(cmd *cobra.Command, args []string) {
 	mergedResults := sharedscanner.NewMergedResults()
 	for name, result := range results {
 		logger.Infof("Merging result from %q", name)
-		if res, ok := result.(*sharedscanner.Results); ok {
-			mergedResults = mergedResults.Merge(res)
-		} else {
-			logger.Errorf("Type assertion of result failed.")
-		}
+		mergedResults = mergedResults.Merge(result)
 	}
 
 	var hash string

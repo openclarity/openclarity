@@ -28,7 +28,7 @@ import (
 	zero_log "github.com/rs/zerolog/log"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -37,78 +37,61 @@ import (
 const AnalyzerName = "gomod"
 
 type Analyzer struct {
-	name       string
-	logger     *log.Entry
-	config     config.GomodConfig
-	resultChan chan job_manager.Result
+	name   string
+	logger *log.Entry
+	config config.GomodConfig
 }
 
-func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
+func New(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	return &Analyzer{
-		name:       AnalyzerName,
-		logger:     logger.Dup().WithField("analyzer", AnalyzerName),
-		config:     config.ConvertToGomodConfig(conf.Analyzer),
-		resultChan: resultChan,
+		name:   AnalyzerName,
+		logger: logger.Dup().WithField("analyzer", AnalyzerName),
+		config: config.ConvertToGomodConfig(conf.Analyzer),
+	}, nil
+}
+
+func (a *Analyzer) Run(sourceInput utils.SourceInput) (types.Results, error) {
+	res := types.Results{}
+	if sourceInput.Type != utils.DIR {
+		a.logger.Infof("Skipping analyze unsupported source type: %s", sourceInput.Type)
+		return res, nil
 	}
-}
 
-func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
-	go func() {
-		res := &analyzer.Results{}
-		if sourceType != utils.DIR {
-			a.logger.Infof("Skipping analyze unsupported source type: %s", sourceType)
-			a.resultChan <- res
-			return
-		}
+	zeroLogger := newZeroLogger(a.logger)
+	licenseDetector := local.NewDetector(zeroLogger)
 
-		zeroLogger := newZeroLogger(a.logger)
-		licenseDetector := local.NewDetector(zeroLogger)
+	generator, err := mod.NewGenerator(sourceInput.Source,
+		mod.WithLogger(zeroLogger),
+		mod.WithComponentType(cdx.ComponentTypeApplication),
+		mod.WithIncludeStdlib(true),
+		mod.WithIncludeTestModules(false),
+		mod.WithLicenseDetector(licenseDetector))
+	if err != nil {
+		return res, fmt.Errorf("failed to create new CycloneDX-gomod generator: %v", err)
+	}
 
-		generator, err := mod.NewGenerator(userInput,
-			mod.WithLogger(zeroLogger),
-			mod.WithComponentType(cdx.ComponentTypeApplication),
-			mod.WithIncludeStdlib(true),
-			mod.WithIncludeTestModules(false),
-			mod.WithLicenseDetector(licenseDetector))
-		if err != nil {
-			a.setError(res, fmt.Errorf("failed to create new CycloneDX-gomod generator: %v", err))
-			return
-		}
+	bom, err := generator.Generate()
+	if err != nil {
+		return res, fmt.Errorf("failed to generate sbom: %v", err)
+	}
 
-		bom, err := generator.Generate()
-		if err != nil {
-			a.setError(res, fmt.Errorf("failed to generate sbom: %v", err))
-			return
-		}
+	bom.SerialNumber = uuid.New().URN()
+	if bom.Metadata == nil {
+		bom.Metadata = &cdx.Metadata{}
+	}
+	// create cycloneDX sbom metadata
+	tool, err := buildToolMetadata()
+	if err != nil {
+		return res, fmt.Errorf("failed to build tool metadata: %v", err)
+	}
 
-		bom.SerialNumber = uuid.New().URN()
-		if bom.Metadata == nil {
-			bom.Metadata = &cdx.Metadata{}
-		}
-		// create cycloneDX sbom metadata
-		tool, err := buildToolMetadata()
-		if err != nil {
-			a.setError(res, fmt.Errorf("failed to build tool metadata: %v", err))
-			return
-		}
+	bom.Metadata.Timestamp = time.Now().Format(time.RFC3339)
+	bom.Metadata.Tools = &[]cdx.Tool{*tool}
+	assertLicenses(bom)
 
-		bom.Metadata.Timestamp = time.Now().Format(time.RFC3339)
-		bom.Metadata.Tools = &[]cdx.Tool{*tool}
-		assertLicenses(bom)
-
-		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
-		a.logger.Infof("Sending successful results")
-		a.resultChan <- res
-	}()
-
-	return nil
-}
-
-func (a *Analyzer) setError(res *analyzer.Results, err error) {
-	res.Error = err
-	a.logger.Error(res.Error)
-	a.resultChan <- res
+	res = types.CreateResults(bom, a.name, sourceInput.Source, sourceInput.Type)
+	a.logger.Infof("Sending successful results")
+	return res, nil
 }
 
 // newZeroLogger returns a zerolog.Logger.

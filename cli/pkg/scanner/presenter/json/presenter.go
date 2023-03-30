@@ -21,6 +21,7 @@ import (
 	"io"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 type Presenter struct {
@@ -36,7 +37,7 @@ func NewPresenter(mergedResults *scanner.MergedResults) *Presenter {
 
 type results struct {
 	Vulnerabilities [][]scanner.MergedVulnerability `json:"vulnerabilities"`
-	Source          scanner.Source                  `json:"source"`
+	Source          types.Source                    `json:"source"`
 }
 
 // Present creates a JSON-based reporting.

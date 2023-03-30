@@ -42,10 +42,13 @@ func Create(logger *logrus.Entry) Analyzer {
 }
 
 func (a *AnalyzerImpl) Analyze(config *config.Config) (*analyzer.MergedResults, error) {
-	manager := job_manager.New(config.SharedConfig.Analyzer.AnalyzerList, config.SharedConfig, a.logger,
-		job.Factory)
+	manager, err := job_manager.New(
+		config.SharedConfig.Analyzer.AnalyzerList, config.SharedConfig, a.logger, job.Factory)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create job manager: %w", err)
+	}
 
-	results, err := manager.Run(utils.IMAGE, config.ImageIDToScan)
+	results, err := manager.Run(utils.SourceInput{Type: utils.IMAGE, Source: config.ImageIDToScan})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run job manager: %v", err)
 	}
@@ -54,11 +57,7 @@ func (a *AnalyzerImpl) Analyze(config *config.Config) (*analyzer.MergedResults, 
 	mergedResults := analyzer.NewMergedResults(utils.IMAGE, config.ImageHashToScan)
 	for name, result := range results {
 		a.logger.Infof("Merging result from %q", name)
-		if res, ok := result.(*analyzer.Results); ok {
-			mergedResults = mergedResults.Merge(res)
-		} else {
-			a.logger.Errorf("Type assertion of result failed.")
-		}
+		mergedResults = mergedResults.Merge(result)
 	}
 
 	return mergedResults, nil

@@ -15,10 +15,6 @@
 
 package job_manager // nolint:revive,stylecheck
 
-import (
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-)
-
-type Job interface {
-	Run(sourceType utils.SourceType, source string) error
+type Job[I any, R any] interface {
+	Run(I) (R, error)
 }

@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/kubeclarity/runtime_scan/api/client/models"
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	cdx_helper "github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 	sharedUtilsVulnerability "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
@@ -173,7 +174,7 @@ func createPackagesVulnerabilitiesScan(results *scanner.MergedResults) []*models
 // TODO: Do we want to unified the convert logic below with the logic in cli/pkg/scanner/export/export.go
 // Same logic but returns different models
 // We can use the generate the shared types and create a converter for each model, not sure it is better.
-func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
+func getCVSS(vulnerability types.Vulnerability) *models.CVSS {
 	for _, cvss := range vulnerability.CVSS {
 		version := strings.Split(cvss.Version, ".")
 		if version[0] == "3" {
@@ -197,14 +198,14 @@ func getCVSS(vulnerability scanner.Vulnerability) *models.CVSS {
 }
 
 // TODO can be multiple fix version?
-func getFixVersion(vulnerability scanner.Vulnerability) string {
+func getFixVersion(vulnerability types.Vulnerability) string {
 	if len(vulnerability.Fix.Versions) > 0 {
 		return vulnerability.Fix.Versions[0]
 	}
 	return ""
 }
 
-func getPackageInfo(vulnerability scanner.Vulnerability) *models.PackageInfo {
+func getPackageInfo(vulnerability types.Vulnerability) *models.PackageInfo {
 	var license string
 	if len(vulnerability.Package.Licenses) > 0 {
 		license = vulnerability.Package.Licenses[0]

@@ -24,6 +24,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
@@ -280,7 +281,7 @@ func TestMergedResults_Merge(t *testing.T) {
 		SourceHash           string
 	}
 	type args struct {
-		other *Results
+		other types.Results
 	}
 	tests := []struct {
 		name   string
@@ -296,7 +297,7 @@ func TestMergedResults_Merge(t *testing.T) {
 				},
 			},
 			args: args{
-				other: &Results{
+				other: types.Results{
 					Sbom:         expectedSbom,
 					AnalyzerInfo: "gomod",
 				},

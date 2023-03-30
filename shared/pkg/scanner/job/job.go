@@ -16,13 +16,16 @@
 package job
 
 import (
+	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/dependency_track"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/grype"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner/trivy"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
 
-var Factory = job_manager.NewJobFactory()
+var Factory = job_manager.NewJobFactory[*config.Config, utils.SourceInput, types.Results]()
 
 func init() {
 	Factory.Register(grype.ScannerName, grype.New)

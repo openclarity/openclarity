@@ -24,6 +24,7 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/analyzer/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
@@ -53,7 +54,7 @@ func NewMergedResults(sourceType utils.SourceType, hash string) *MergedResults {
 	}
 }
 
-func (m *MergedResults) Merge(other *Results) *MergedResults {
+func (m *MergedResults) Merge(other types.Results) *MergedResults {
 	if other.Sbom == nil {
 		return m
 	}

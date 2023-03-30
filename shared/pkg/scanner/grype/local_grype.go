@@ -35,6 +35,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
 )
@@ -47,28 +48,21 @@ const (
 type LocalScanner struct {
 	logger     *log.Entry
 	config     config.LocalGrypeConfigEx
-	resultChan chan job_manager.Result
 	localImage bool
 }
 
-func newLocalScanner(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func newLocalScanner(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	return &LocalScanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName).WithField("mode", "local"),
 		config:     config.ConvertToLocalGrypeConfig(conf.Scanner, conf.Registry),
-		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
-	}
+	}, nil
 }
 
-func (s *LocalScanner) Run(sourceType utils.SourceType, userInput string) error {
-	go s.run(sourceType, userInput)
-
-	return nil
-}
-
-func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
+func (s *LocalScanner) Run(sourceInput utils.SourceInput) (types.Results, error) {
 	// TODO: make `loading DB` and `gathering packages` work in parallel
 	// https://github.com/anchore/grype/blob/7e8ee40996ba3a4defb5e887ab0177d99cd0e663/cmd/root.go#L240
+	res := types.Results{}
 
 	dbConfig := db.Config{
 		DBRootDir:           s.config.DBRootDir,
@@ -80,21 +74,19 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	store, dbStatus, _, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
 
 	if err = validateDBLoad(err, dbStatus); err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to load vulnerability DB: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to load vulnerability DB: %w", err)
 	}
 
 	var hash string
-	origInput := userInput
-	if sourceType == utils.SBOM {
-		origInput, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
+	origInput := sourceInput.Source
+	if sourceInput.Type == utils.SBOM {
+		origInput, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(sourceInput.Source)
 		if err != nil {
-			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
-			return
+			return res, fmt.Errorf("failed to get original source and hash from SBOM: %w", err)
 		}
 	}
 
-	source := utils.CreateSource(sourceType, userInput, s.localImage)
+	source := utils.CreateSource(sourceInput.Type, sourceInput.Source, s.localImage)
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		RegistryOptions: s.config.RegistryOptions,
@@ -105,8 +97,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
 	packages, context, err := pkg.Provide(source, providerConfig)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to analyze packages: %w", err)
 	}
 
 	s.logger.Infof("Found %d packages", len(packages))
@@ -142,12 +133,11 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
 	doc, err := grype_models.NewDocument(packages, context, allMatches, nil, store.MetadataProvider, nil, dbStatus)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to create document: %w", err)
 	}
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
+	return CreateResults(doc, origInput, ScannerName, hash), nil
 }
 
 func validateDBLoad(loadErr error, status *db.Status) error {

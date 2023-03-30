@@ -19,6 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/slice"
 )
 
@@ -45,13 +46,13 @@ func FilterIgnoredVulnerabilities(m *scanner.MergedResults, ignores Ignores) *sc
 	return filteredMergedResults
 }
 
-func shouldIgnore(vulnerability scanner.Vulnerability, ignores Ignores) bool {
+func shouldIgnore(vulnerability types.Vulnerability, ignores Ignores) bool {
 	if slice.Contains(ignores.Vulnerabilities, vulnerability.ID) {
 		log.Debugf("Ignoring vulnerability due to ignore list %q", vulnerability.ID)
 		return true
 	}
 	if ignores.NoFix {
-		if scanner.GetFixVersion(vulnerability) == "" {
+		if types.GetFixVersion(vulnerability) == "" {
 			log.Debugf("Ignoring vulnerability due to no fix %q", vulnerability.ID)
 			return true
 		}

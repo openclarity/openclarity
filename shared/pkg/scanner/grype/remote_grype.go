@@ -31,68 +31,58 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
 )
 
 type RemoteScanner struct {
-	logger     *log.Entry
-	resultChan chan job_manager.Result
-	client     *grype_client.GrypeServer
-	timeout    time.Duration
+	logger  *log.Entry
+	client  *grype_client.GrypeServer
+	timeout time.Duration
 }
 
-func newRemoteScanner(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func newRemoteScanner(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	cfg := grype_client.DefaultTransportConfig().WithHost(conf.Scanner.GrypeConfig.GrypeServerAddress)
 
 	return &RemoteScanner{
-		logger:     logger.Dup().WithField("scanner", ScannerName).WithField("scanner-mode", "remote"),
-		resultChan: resultChan,
-		client:     grype_client.New(transport.New(cfg.Host, cfg.BasePath, cfg.Schemes), strfmt.Default),
-		timeout:    conf.Scanner.GrypeConfig.GrypeServerTimeout,
-	}
+		logger:  logger.Dup().WithField("scanner", ScannerName).WithField("scanner-mode", "remote"),
+		client:  grype_client.New(transport.New(cfg.Host, cfg.BasePath, cfg.Schemes), strfmt.Default),
+		timeout: conf.Scanner.GrypeConfig.GrypeServerTimeout,
+	}, nil
 }
 
-func (s *RemoteScanner) Run(sourceType utils.SourceType, userInput string) error {
+func (s *RemoteScanner) Run(sourceInput utils.SourceInput) (types.Results, error) {
+	res := types.Results{
+		Matches: nil, // empty results
+		ScannerInfo: types.Info{
+			Name: ScannerName,
+		},
+	}
+
 	// remote-grype supports only SBOM as a source input since it sends the SBOM to a centralized grype server for scanning.
-	if sourceType != utils.SBOM {
-		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceType)
-		s.resultChan <- &scanner.Results{
-			Matches: nil, // empty results
-			ScannerInfo: scanner.Info{
-				Name: ScannerName,
-			},
-		}
-		return nil
+	if sourceInput.Type != utils.SBOM {
+		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceInput.Type)
+		return res, nil
 	}
 
-	go s.run(userInput)
-
-	return nil
-}
-
-func (s *RemoteScanner) run(sbomInputFilePath string) {
-	sbom, err := os.ReadFile(sbomInputFilePath)
+	sbom, err := os.ReadFile(sourceInput.Source)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to read input file: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to read input file: %w", err)
 	}
 
 	doc, err := s.scanSbomWithGrypeServer(sbom)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to scan sbom with grype server: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to scan sbom with grype server: %w", err)
 	}
 
-	userInput, hash, err := utilsSBOM.GetTargetNameAndHashFromSBOM(sbomInputFilePath)
+	userInput, hash, err := utilsSBOM.GetTargetNameAndHashFromSBOM(sourceInput.Source)
 	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
-		return
+		return res, fmt.Errorf("failed to get original source and hash from SBOM: %w", err)
 	}
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(*doc, userInput, ScannerName, hash)
+	return CreateResults(*doc, userInput, ScannerName, hash), nil
 }
 
 func (s *RemoteScanner) scanSbomWithGrypeServer(sbom []byte) (*grype_models.Document, error) {

@@ -20,12 +20,13 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	vulutil "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
 func Test_getCVSSBaseScore(t *testing.T) {
 	type args struct {
-		cvss    []CVSS
+		cvss    []types.CVSS
 		version string
 	}
 	tests := []struct {
@@ -36,22 +37,22 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "CVSSv3.1",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.1",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.1,
 						},
 					},
 					{
 						Version: "3.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.0,
 						},
 					},
 					{
 						Version: "2.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 2.0,
 						},
 					},
@@ -63,22 +64,22 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "CVSSv3.0",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.1",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.1,
 						},
 					},
 					{
 						Version: "3.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.0,
 						},
 					},
 					{
 						Version: "2.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 2.0,
 						},
 					},
@@ -90,22 +91,22 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "CVSSv2.0",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.1",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.1,
 						},
 					},
 					{
 						Version: "3.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.0,
 						},
 					},
 					{
 						Version: "2.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 2.0,
 						},
 					},
@@ -117,16 +118,16 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "missing CVSSv3.1",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.0,
 						},
 					},
 					{
 						Version: "2.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 2.0,
 						},
 					},
@@ -138,16 +139,16 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "missing CVSSv3.0",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.1",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.1,
 						},
 					},
 					{
 						Version: "2.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 2.0,
 						},
 					},
@@ -159,16 +160,16 @@ func Test_getCVSSBaseScore(t *testing.T) {
 		{
 			name: "missing CVSSv2.0",
 			args: args{
-				cvss: []CVSS{
+				cvss: []types.CVSS{
 					{
 						Version: "3.1",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.1,
 						},
 					},
 					{
 						Version: "3.0",
-						Metrics: CvssMetrics{
+						Metrics: types.CvssMetrics{
 							BaseScore: 3.0,
 						},
 					},
@@ -209,17 +210,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			args: args{
 				vulnerabilities: []MergedVulnerability{
 					{
-						Vulnerability: Vulnerability{
+						Vulnerability: types.Vulnerability{
 							Severity: vulutil.HIGH,
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
+						Vulnerability: types.Vulnerability{
 							Severity: vulutil.CRITICAL,
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
+						Vulnerability: types.Vulnerability{
 							Severity: vulutil.LOW,
 						},
 					},
@@ -227,17 +228,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			},
 			want: []MergedVulnerability{
 				{
-					Vulnerability: Vulnerability{
+					Vulnerability: types.Vulnerability{
 						Severity: vulutil.CRITICAL,
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
+					Vulnerability: types.Vulnerability{
 						Severity: vulutil.HIGH,
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
+					Vulnerability: types.Vulnerability{
 						Severity: vulutil.LOW,
 					},
 				},
@@ -248,11 +249,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			args: args{
 				vulnerabilities: []MergedVulnerability{
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.1",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 8,
 									},
 								},
@@ -261,11 +262,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.1",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 10,
 									},
 								},
@@ -274,11 +275,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.1",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 6,
 									},
 								},
@@ -290,11 +291,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			},
 			want: []MergedVulnerability{
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.1",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 10,
 								},
 							},
@@ -303,11 +304,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.1",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 8,
 								},
 							},
@@ -316,11 +317,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.1",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 6,
 								},
 							},
@@ -335,11 +336,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			args: args{
 				vulnerabilities: []MergedVulnerability{
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 8,
 									},
 								},
@@ -348,11 +349,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 10,
 									},
 								},
@@ -361,11 +362,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 6,
 									},
 								},
@@ -377,11 +378,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			},
 			want: []MergedVulnerability{
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 10,
 								},
 							},
@@ -390,11 +391,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 8,
 								},
 							},
@@ -403,11 +404,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 6,
 								},
 							},
@@ -422,11 +423,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			args: args{
 				vulnerabilities: []MergedVulnerability{
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 8,
 									},
 								},
@@ -435,11 +436,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 10,
 									},
 								},
@@ -448,11 +449,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 6,
 									},
 								},
@@ -464,11 +465,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			},
 			want: []MergedVulnerability{
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 10,
 								},
 							},
@@ -477,11 +478,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 8,
 								},
 							},
@@ -490,11 +491,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 6,
 								},
 							},
@@ -509,11 +510,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			args: args{
 				vulnerabilities: []MergedVulnerability{
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 8,
 									},
 								},
@@ -522,17 +523,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 10,
 									},
 								},
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 6,
 									},
 								},
@@ -541,17 +542,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 10,
 									},
 								},
 								{
 									Version: "2.0",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 7,
 									},
 								},
@@ -560,11 +561,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.1",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 5,
 									},
 								},
@@ -573,11 +574,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 						},
 					},
 					{
-						Vulnerability: Vulnerability{
-							CVSS: []CVSS{
+						Vulnerability: types.Vulnerability{
+							CVSS: []types.CVSS{
 								{
 									Version: "3.1",
-									Metrics: CvssMetrics{
+									Metrics: types.CvssMetrics{
 										BaseScore: 6,
 									},
 								},
@@ -589,11 +590,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 			},
 			want: []MergedVulnerability{
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.1",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 6,
 								},
 							},
@@ -602,11 +603,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.1",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 5,
 								},
 							},
@@ -615,17 +616,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 10,
 								},
 							},
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 7,
 								},
 							},
@@ -634,17 +635,17 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "3.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 10,
 								},
 							},
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 6,
 								},
 							},
@@ -653,11 +654,11 @@ func TestSortBySeverityAndCVSS(t *testing.T) {
 					},
 				},
 				{
-					Vulnerability: Vulnerability{
-						CVSS: []CVSS{
+					Vulnerability: types.Vulnerability{
+						CVSS: []types.CVSS{
 							{
 								Version: "2.0",
-								Metrics: CvssMetrics{
+								Metrics: types.CvssMetrics{
 									BaseScore: 8,
 								},
 							},

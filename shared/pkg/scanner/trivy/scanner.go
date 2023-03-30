@@ -39,7 +39,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/image_helper"
 	utilsSBOM "github.com/openclarity/kubeclarity/shared/pkg/utils/sbom"
@@ -49,12 +49,7 @@ import (
 
 const ScannerName = "trivy"
 
-func New(c job_manager.IsConfig,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
-	conf := c.(*config.Config) // nolint:forcetypeassert
-
+func New(conf *config.Config, logger *log.Entry) (job_manager.Job[utils.SourceInput, types.Results], error) {
 	logger = logger.Dup().WithField("scanner", ScannerName)
 
 	// Init trivy's loggers with a hook into our logger
@@ -67,15 +62,13 @@ func New(c job_manager.IsConfig,
 	return &Scanner{
 		logger:     logger,
 		config:     config.CreateScannerTrivyConfigEx(conf.Scanner, conf.Registry),
-		resultChan: resultChan,
 		localImage: conf.LocalImageScan,
-	}
+	}, nil
 }
 
 type Scanner struct {
 	logger     *log.Entry
 	config     config.ScannerTrivyConfigEx
-	resultChan chan job_manager.Result
 	localImage bool
 }
 
@@ -162,60 +155,54 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 	return trivyOptions, nil
 }
 
-func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
-	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
-	go func() {
-		var hash string
-		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
-		case utils.SBOM:
-			var err error
-			_, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
-			if err != nil {
-				a.setError(fmt.Errorf("failed to get original source and hash from SBOM: %w", err))
-				return
-			}
-		default:
-			a.logger.Infof("Skipping scan for unsupported source type: %s", sourceType)
-			a.resultChan <- a.CreateResult(nil, hash)
-			return
-		}
+func (a *Scanner) Run(sourceInput utils.SourceInput) (types.Results, error) {
+	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceInput.Type, sourceInput.Source)
 
-		var output bytes.Buffer
-		trivyOptions, err := a.createTrivyOptions(&output, userInput)
+	res := types.Results{}
+
+	var hash string
+	switch sourceInput.Type {
+	case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+	case utils.SBOM:
+		var err error
+		_, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(sourceInput.Source)
 		if err != nil {
-			a.setError(fmt.Errorf("unable to create trivy options: %w", err))
-			return
+			return res, fmt.Errorf("failed to get original source and hash from SBOM: %w", err)
 		}
+	default:
+		a.logger.Infof("Skipping scan for unsupported source type: %s", sourceInput.Type)
+		return a.CreateResult(nil, hash)
+	}
 
-		// Convert the kubeclarity source to the trivy source type
-		trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceType)
-		if err != nil {
-			a.setError(fmt.Errorf("failed to configure trivy: %w", err))
-			return
-		}
+	var output bytes.Buffer
+	trivyOptions, err := a.createTrivyOptions(&output, sourceInput.Source)
+	if err != nil {
+		return res, fmt.Errorf("unable to create trivy options: %w", err)
+	}
 
-		// Ensure we're configured for private registry if required
-		trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
+	// Convert the kubeclarity source to the trivy source type
+	trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceInput.Type)
+	if err != nil {
+		return res, fmt.Errorf("failed to configure trivy: %w", err)
+	}
 
-		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
-		if err != nil {
-			a.setError(fmt.Errorf("failed to scan for vulnerabilities: %w", err))
-			return
-		}
+	// Ensure we're configured for private registry if required
+	trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
 
-		a.logger.Infof("Sending successful results")
-		a.resultChan <- a.CreateResult(output.Bytes(), hash)
-	}()
+	err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+	if err != nil {
+		return res, fmt.Errorf("failed to scan for vulnerabilities: %w", err)
+	}
 
-	return nil
+	a.logger.Infof("Sending successful results")
+	return a.CreateResult(output.Bytes(), hash)
 }
 
-func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
+func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []types.CVSS {
 	// TODO(sambetts) Work out how to include all the
 	// CVSS's by vendor ID in our report, for now only
 	// collect one of each version.
-	cvsses := []scanner.CVSS{}
+	cvsses := []types.CVSS{}
 	v2Collected := false
 	v3Collected := false
 
@@ -233,10 +220,10 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 		if cvss.V3Vector != "" && !v3Collected {
 			exploit, impact := utilsVul.ExploitScoreAndImpactScoreFromV3Vector(cvss.V3Vector)
 
-			cvsses = append(cvsses, scanner.CVSS{
+			cvsses = append(cvsses, types.CVSS{
 				Version: utilsVul.GetCVSSV3VersionFromVector(cvss.V3Vector),
 				Vector:  cvss.V3Vector,
-				Metrics: scanner.CvssMetrics{
+				Metrics: types.CvssMetrics{
 					BaseScore:           cvss.V3Score,
 					ExploitabilityScore: &exploit,
 					ImpactScore:         &impact,
@@ -247,10 +234,10 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 		if cvss.V2Vector != "" && !v2Collected {
 			exploit, impact := utilsVul.ExploitScoreAndImpactScoreFromV2Vector(cvss.V2Vector)
 
-			cvsses = append(cvsses, scanner.CVSS{
+			cvsses = append(cvsses, types.CVSS{
 				Version: "2.0",
 				Vector:  cvss.V2Vector,
-				Metrics: scanner.CvssMetrics{
+				Metrics: types.CvssMetrics{
 					BaseScore:           cvss.V2Score,
 					ExploitabilityScore: &exploit,
 					ImpactScore:         &impact,
@@ -262,27 +249,27 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	return cvsses
 }
 
-func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
-	result := &scanner.Results{
+func (a *Scanner) CreateResult(trivyJSON []byte, hash string) (types.Results, error) {
+	result := types.Results{
 		Matches: nil, // empty results,
-		ScannerInfo: scanner.Info{
+		ScannerInfo: types.Info{
 			Name: ScannerName,
 		},
 	}
 
 	if len(trivyJSON) == 0 {
-		return result
+		return result, nil
 	}
 
 	var report trivyTypes.Report
 	err := json.Unmarshal(trivyJSON, &report)
 	if err != nil {
+		err = fmt.Errorf("failed to unmarshal trivy report: %w", err)
 		a.logger.Error(err)
-		result.Error = err
-		return result
+		return result, err
 	}
 
-	matches := []scanner.Match{}
+	matches := []types.Match{}
 	for _, result := range report.Results {
 		for _, vul := range result.Vulnerabilities {
 			typ, err := getTypeFromPurl(vul.Ref)
@@ -293,14 +280,14 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 
 			cvsses := getCVSSesFromVul(vul.CVSS)
 
-			fix := scanner.Fix{}
+			fix := types.Fix{}
 			if vul.FixedVersion != "" {
 				fix.Versions = []string{
 					vul.FixedVersion,
 				}
 			}
 
-			distro := scanner.Distro{}
+			distro := types.Distro{}
 			if report.Metadata.OS != nil {
 				// Trivy calls the distro name (ubuntu, debian, alpine) the family
 				distro.Name = report.Metadata.OS.Family
@@ -310,7 +297,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 
 			links := make([]string, 0, len(vul.Vulnerability.References))
 			links = append(links, vul.Vulnerability.References...)
-			kbVul := scanner.Vulnerability{
+			kbVul := types.Vulnerability{
 				ID:          vul.VulnerabilityID,
 				Description: vul.Description,
 				Links:       links,
@@ -318,7 +305,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 				CVSS:        cvsses,
 				Fix:         fix,
 				Severity:    strings.ToUpper(vul.Severity),
-				Package: scanner.Package{
+				Package: types.Package{
 					Name:    vul.PkgName,
 					Version: vul.InstalledVersion,
 					PURL:    vul.Ref,
@@ -335,7 +322,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 				Path:    vul.PkgPath,
 			}
 
-			matches = append(matches, scanner.Match{
+			matches = append(matches, types.Match{
 				Vulnerability: kbVul,
 			})
 		}
@@ -347,7 +334,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 		hash = image_helper.GetHashFromRepoDigest(report.Metadata.RepoDigests, report.ArtifactName)
 	}
 
-	source := scanner.Source{
+	source := types.Source{
 		Name: report.ArtifactName,
 		Type: string(report.ArtifactType),
 		Hash: hash,
@@ -355,7 +342,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 
 	result.Matches = matches
 	result.Source = source
-	return result
+	return result, nil
 }
 
 func getTypeFromPurl(purl string) (string, error) {
@@ -370,15 +357,4 @@ func getTypeFromPurl(purl string) (string, error) {
 	}
 
 	return typ, nil
-}
-
-func (a *Scanner) setError(err error) {
-	a.logger.Error(err)
-	a.resultChan <- &scanner.Results{
-		Matches: nil, // empty results,
-		ScannerInfo: scanner.Info{
-			Name: ScannerName,
-		},
-		Error: err,
-	}
 }

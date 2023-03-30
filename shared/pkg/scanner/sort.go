@@ -18,6 +18,7 @@ package scanner
 import (
 	"sort"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 	vulutil "github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 )
 
@@ -50,7 +51,7 @@ func SortBySeverityAndCVSS(vulnerabilities []MergedVulnerability) []MergedVulner
 	return vulnerabilities
 }
 
-func getCVSSBaseScore(cvss []CVSS, version string) float64 {
+func getCVSSBaseScore(cvss []types.CVSS, version string) float64 {
 	for _, c := range cvss {
 		if c.Version == version {
 			return c.Metrics.BaseScore

@@ -21,19 +21,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Factory struct {
-	createJobFuncs map[string]CreateJobFunc // scanner name to CreateJobFunc
+type CreateJobFunc[C any, I any, R any] func(conf C, logger *logrus.Entry) (Job[I, R], error)
+
+type Factory[C any, I any, R any] struct {
+	createJobFuncs map[string]CreateJobFunc[C, I, R] // scanner name to CreateJobFunc
 }
 
-func NewJobFactory() *Factory {
-	return &Factory{createJobFuncs: make(map[string]CreateJobFunc)}
+func NewJobFactory[C any, I any, R any]() *Factory[C, I, R] {
+	return &Factory[C, I, R]{createJobFuncs: make(map[string]CreateJobFunc[C, I, R])}
 }
 
-type CreateJobFunc func(conf IsConfig, logger *logrus.Entry, resultChan chan Result) Job
-
-func (f *Factory) Register(name string, createJobFunc CreateJobFunc) {
+func (f *Factory[C, I, R]) Register(name string, createJobFunc CreateJobFunc[C, I, R]) {
 	if f.createJobFuncs == nil {
-		f.createJobFuncs = make(map[string]CreateJobFunc)
+		f.createJobFuncs = make(map[string]CreateJobFunc[C, I, R])
 	}
 
 	if _, ok := f.createJobFuncs[name]; ok {
@@ -43,11 +43,11 @@ func (f *Factory) Register(name string, createJobFunc CreateJobFunc) {
 	f.createJobFuncs[name] = createJobFunc
 }
 
-func (f *Factory) CreateJob(name string, conf IsConfig, logger *logrus.Entry, resultChan chan Result) (Job, error) {
+func (f *Factory[C, I, R]) CreateJob(name string, conf C, logger *logrus.Entry) (Job[I, R], error) {
 	createFunc, ok := f.createJobFuncs[name]
 	if !ok {
 		return nil, fmt.Errorf("%v not a registered job", name)
 	}
 
-	return createFunc(conf, logger, resultChan), nil
+	return createFunc(conf, logger)
 }

@@ -22,37 +22,39 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/yudai/gojsondiff/formatter"
 	"gotest.tools/assert"
+
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner/types"
 )
 
 func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
-	highVul := Vulnerability{
+	highVul := types.Vulnerability{
 		ID:       "highVul",
 		Severity: "HIGH",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
 	}
-	lowVul := Vulnerability{
+	lowVul := types.Vulnerability{
 		ID:       "highVul",
 		Severity: "LOW",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
 	}
-	medVul := Vulnerability{
+	medVul := types.Vulnerability{
 		ID:       "highVul",
 		Severity: "MEDIUM",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
 	}
 	type args struct {
 		mergedVulnerabilities []MergedVulnerability
-		otherVulnerability    Vulnerability
-		otherScannerInfo      Info
+		otherVulnerability    types.Vulnerability
+		otherScannerInfo      types.Info
 	}
 	tests := []struct {
 		name                       string
@@ -67,7 +69,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "1",
 						Vulnerability: highVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner1",
 							},
@@ -75,7 +77,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					},
 				},
 				otherVulnerability: highVul,
-				otherScannerInfo: Info{
+				otherScannerInfo: types.Info{
 					Name: "scanner2",
 				},
 			},
@@ -83,7 +85,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "1",
 					Vulnerability: highVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner1",
 						},
@@ -101,7 +103,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "1",
 						Vulnerability: highVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner1",
 							},
@@ -109,7 +111,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					},
 				},
 				otherVulnerability: lowVul,
-				otherScannerInfo: Info{
+				otherScannerInfo: types.Info{
 					Name: "scanner2",
 				},
 			},
@@ -117,7 +119,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "1",
 					Vulnerability: highVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner1",
 						},
@@ -126,7 +128,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "2",
 					Vulnerability: lowVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner2",
 						},
@@ -153,7 +155,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "1",
 						Vulnerability: highVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner1",
 							},
@@ -162,7 +164,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "2",
 						Vulnerability: lowVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner2",
 							},
@@ -178,7 +180,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					},
 				},
 				otherVulnerability: lowVul,
-				otherScannerInfo: Info{
+				otherScannerInfo: types.Info{
 					Name: "scanner3",
 				},
 			},
@@ -186,7 +188,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "1",
 					Vulnerability: highVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner1",
 						},
@@ -195,7 +197,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "2",
 					Vulnerability: lowVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner2",
 						},
@@ -221,7 +223,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "1",
 						Vulnerability: highVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner1",
 							},
@@ -230,7 +232,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					{
 						ID:            "2",
 						Vulnerability: lowVul,
-						ScannersInfo: []Info{
+						ScannersInfo: []types.Info{
 							{
 								Name: "scanner2",
 							},
@@ -246,7 +248,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 					},
 				},
 				otherVulnerability: medVul,
-				otherScannerInfo: Info{
+				otherScannerInfo: types.Info{
 					Name: "scanner3",
 				},
 			},
@@ -254,7 +256,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "1",
 					Vulnerability: highVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner1",
 						},
@@ -263,7 +265,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "2",
 					Vulnerability: lowVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner2",
 						},
@@ -280,7 +282,7 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 				{
 					ID:            "3",
 					Vulnerability: medVul,
-					ScannersInfo: []Info{
+					ScannersInfo: []types.Info{
 						{
 							Name: "scanner3",
 						},
@@ -320,8 +322,8 @@ func Test_handleVulnerabilityWithExistingKey(t *testing.T) {
 
 func Test_getDiff(t *testing.T) {
 	type args struct {
-		vulnerability          Vulnerability
-		compareToVulnerability Vulnerability
+		vulnerability          types.Vulnerability
+		compareToVulnerability types.Vulnerability
 		compareToID            string
 	}
 	tests := []struct {
@@ -333,16 +335,16 @@ func Test_getDiff(t *testing.T) {
 		{
 			name: "diff in fix",
 			args: args{
-				vulnerability: Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID: "id",
-					Fix: Fix{
+					Fix: types.Fix{
 						Versions: []string{"1", "3"},
 						State:    "not fixed",
 					},
 				},
-				compareToVulnerability: Vulnerability{
+				compareToVulnerability: types.Vulnerability{
 					ID: "id",
-					Fix: Fix{
+					Fix: types.Fix{
 						Versions: []string{"1", "2"},
 						State:    "fixed",
 					},
@@ -366,11 +368,11 @@ func Test_getDiff(t *testing.T) {
 		{
 			name: "diff in links",
 			args: args{
-				vulnerability: Vulnerability{
+				vulnerability: types.Vulnerability{
 					ID:    "id",
 					Links: []string{"link1", "link2"},
 				},
-				compareToVulnerability: Vulnerability{
+				compareToVulnerability: types.Vulnerability{
 					ID:    "id",
 					Links: []string{"link1", "link3", "link4"},
 				},
@@ -394,8 +396,8 @@ func Test_getDiff(t *testing.T) {
 		{
 			name: "no diff - CVSS sort is needed",
 			args: args{
-				vulnerability: Vulnerability{
-					CVSS: []CVSS{
+				vulnerability: types.Vulnerability{
+					CVSS: []types.CVSS{
 						{
 							Version: "3",
 							Vector:  "456",
@@ -406,18 +408,18 @@ func Test_getDiff(t *testing.T) {
 						},
 					},
 				},
-				compareToVulnerability: Vulnerability{
-					CVSS: []CVSS{
+				compareToVulnerability: types.Vulnerability{
+					CVSS: []types.CVSS{
 						{
 							Version:        "2",
 							Vector:         "123",
-							Metrics:        CvssMetrics{},
+							Metrics:        types.CvssMetrics{},
 							VendorMetadata: nil,
 						},
 						{
 							Version:        "3",
 							Vector:         "456",
-							Metrics:        CvssMetrics{},
+							Metrics:        types.CvssMetrics{},
 							VendorMetadata: nil,
 						},
 					},
@@ -442,19 +444,19 @@ func Test_getDiff(t *testing.T) {
 
 func Test_sortArrays(t *testing.T) {
 	type args struct {
-		vulnerability Vulnerability
+		vulnerability types.Vulnerability
 	}
 	tests := []struct {
 		name string
 		args args
-		want Vulnerability
+		want types.Vulnerability
 	}{
 		{
 			name: "sort",
 			args: args{
-				vulnerability: Vulnerability{
+				vulnerability: types.Vulnerability{
 					Links: []string{"link2", "link1"},
-					CVSS: []CVSS{
+					CVSS: []types.CVSS{
 						{
 							Version: "3",
 							Vector:  "456",
@@ -464,18 +466,18 @@ func Test_sortArrays(t *testing.T) {
 							Vector:  "123",
 						},
 					},
-					Fix: Fix{
+					Fix: types.Fix{
 						Versions: []string{"ver2", "ver1"},
 					},
-					Package: Package{
+					Package: types.Package{
 						Licenses: []string{"lic2", "lic1"},
 						CPEs:     []string{"cpes2", "cpes1"},
 					},
 				},
 			},
-			want: Vulnerability{
+			want: types.Vulnerability{
 				Links: []string{"link1", "link2"},
-				CVSS: []CVSS{
+				CVSS: []types.CVSS{
 					{
 						Version: "2",
 						Vector:  "123",
@@ -485,10 +487,10 @@ func Test_sortArrays(t *testing.T) {
 						Vector:  "456",
 					},
 				},
-				Fix: Fix{
+				Fix: types.Fix{
 					Versions: []string{"ver1", "ver2"},
 				},
-				Package: Package{
+				Package: types.Package{
 					Licenses: []string{"lic1", "lic2"},
 					CPEs:     []string{"cpes1", "cpes2"},
 				},
@@ -505,26 +507,26 @@ func Test_sortArrays(t *testing.T) {
 }
 
 func TestMergedResults_Merge(t *testing.T) {
-	vul := Vulnerability{
+	vul := types.Vulnerability{
 		ID:       "id1",
 		Severity: "HIGH",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
 	}
-	sameVulDifferentSeverity := Vulnerability{
+	sameVulDifferentSeverity := types.Vulnerability{
 		ID:       "id1",
 		Severity: "LOW",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
 	}
-	differentVulID := Vulnerability{
+	differentVulID := types.Vulnerability{
 		ID:       "id2",
 		Severity: "HIGH",
-		Package: Package{
+		Package: types.Package{
 			Name:    "pkg-name",
 			Version: "pkg-version",
 		},
@@ -533,7 +535,7 @@ func TestMergedResults_Merge(t *testing.T) {
 		MergedVulnerabilities map[VulnerabilityKey][]MergedVulnerability
 	}
 	type args struct {
-		other *Results
+		other types.Results
 	}
 	tests := []struct {
 		name                       string
@@ -548,8 +550,8 @@ func TestMergedResults_Merge(t *testing.T) {
 				MergedVulnerabilities: NewMergedResults().MergedVulnerabilitiesByKey,
 			},
 			args: args{
-				other: &Results{
-					Matches: Matches{
+				other: types.Results{
+					Matches: types.Matches{
 						{
 							Vulnerability: vul,
 						},
@@ -557,7 +559,7 @@ func TestMergedResults_Merge(t *testing.T) {
 							Vulnerability: differentVulID,
 						},
 					},
-					ScannerInfo: Info{
+					ScannerInfo: types.Info{
 						Name: "scanner1",
 					},
 				},
@@ -568,7 +570,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: vul,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -579,7 +581,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "1",
 							Vulnerability: differentVulID,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -602,7 +604,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: vul,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -612,8 +614,8 @@ func TestMergedResults_Merge(t *testing.T) {
 				},
 			},
 			args: args{
-				other: &Results{
-					Matches: Matches{
+				other: types.Results{
+					Matches: types.Matches{
 						{
 							Vulnerability: vul,
 						},
@@ -621,7 +623,7 @@ func TestMergedResults_Merge(t *testing.T) {
 							Vulnerability: differentVulID,
 						},
 					},
-					ScannerInfo: Info{
+					ScannerInfo: types.Info{
 						Name: "scanner2",
 					},
 				},
@@ -632,7 +634,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: vul,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -646,7 +648,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "1",
 							Vulnerability: differentVulID,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner2",
 								},
@@ -669,7 +671,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: vul,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -679,8 +681,8 @@ func TestMergedResults_Merge(t *testing.T) {
 				},
 			},
 			args: args{
-				other: &Results{
-					Matches: Matches{
+				other: types.Results{
+					Matches: types.Matches{
 						{
 							Vulnerability: sameVulDifferentSeverity, // mutual vulnerability with diff
 						},
@@ -688,7 +690,7 @@ func TestMergedResults_Merge(t *testing.T) {
 							Vulnerability: differentVulID, // non mutual
 						},
 					},
-					ScannerInfo: Info{
+					ScannerInfo: types.Info{
 						Name: "scanner2",
 					},
 				},
@@ -699,7 +701,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: vul,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner1",
 								},
@@ -708,7 +710,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "1",
 							Vulnerability: sameVulDifferentSeverity,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner2",
 								},
@@ -727,7 +729,7 @@ func TestMergedResults_Merge(t *testing.T) {
 						{
 							ID:            "0",
 							Vulnerability: differentVulID,
-							ScannersInfo: []Info{
+							ScannersInfo: []types.Info{
 								{
 									Name: "scanner2",
 								},

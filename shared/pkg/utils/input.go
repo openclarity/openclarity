@@ -17,6 +17,11 @@ package utils
 
 import "fmt"
 
+type SourceInput struct {
+	Type   SourceType
+	Source string
+}
+
 type SourceType string
 
 const (

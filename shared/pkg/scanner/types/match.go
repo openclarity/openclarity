@@ -13,8 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package job_manager // nolint:revive,stylecheck
+package types
 
-type IsConfig interface {
-	IsConfig()
+type Match struct {
+	Vulnerability Vulnerability `json:"vulnerability"`
+}
+
+type Matches []Match
+
+type Results struct {
+	Matches     Matches `json:"matches"`
+	ScannerInfo Info    `json:"scanner"`
+	Source      Source  `json:"source"`
 }
