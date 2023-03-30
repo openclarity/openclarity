@@ -133,22 +133,13 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig models.ScanConfig)
 	// locking the table.
 
 	// Check the existing DB entries to ensure that the name field is unique
-	var scanConfigs []ScanConfig
-	filter := fmt.Sprintf("name eq '%s'", *scanConfig.Name)
-	err := ODataQuery(s.DB, "ScanConfig", &filter, nil, nil, nil, nil, nil, true, &scanConfigs)
+	existingScanConfig, err := s.checkUniqueness(scanConfig)
 	if err != nil {
-		return models.ScanConfig{}, err
-	}
-
-	if len(scanConfigs) > 0 {
-		var sc models.ScanConfig
-		err := json.Unmarshal(scanConfigs[0].Data, &sc)
-		if err != nil {
-			return models.ScanConfig{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return existingScanConfig, err
 		}
-		return sc, &common.ConflictError{
-			Reason: fmt.Sprintf("Scan config exists with name=%s", *sc.Name),
-		}
+		return models.ScanConfig{}, fmt.Errorf("failed to check existing scan config: %w", err)
 	}
 
 	marshaled, err := json.Marshal(scanConfig)
@@ -206,6 +197,7 @@ func isEmptyOperationTime(operationTime *time.Time) bool {
 	return operationTime == nil || (*operationTime).IsZero()
 }
 
+// nolint: cyclop
 func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	if scanConfig.Id == nil || *scanConfig.Id == "" {
 		return models.ScanConfig{}, &common.BadRequestError{
@@ -231,6 +223,16 @@ func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (
 		return models.ScanConfig{}, fmt.Errorf("failed to get scan config from db: %w", err)
 	}
 
+	// Check the existing DB entries to ensure that the name field is unique
+	existingScanConfig, err := s.checkUniqueness(scanConfig)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return existingScanConfig, err
+		}
+		return models.ScanConfig{}, fmt.Errorf("failed to check existing scan config: %w", err)
+	}
+
 	marshaled, err := json.Marshal(scanConfig)
 	if err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
@@ -253,6 +255,7 @@ func (s *ScanConfigsTableHandler) SaveScanConfig(scanConfig models.ScanConfig) (
 	return sc, nil
 }
 
+// nolint: cyclop
 func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error) {
 	if scanConfig.Id == nil || *scanConfig.Id == "" {
 		return models.ScanConfig{}, &common.BadRequestError{
@@ -274,7 +277,16 @@ func (s *ScanConfigsTableHandler) UpdateScanConfig(scanConfig models.ScanConfig)
 		return models.ScanConfig{}, fmt.Errorf("failed to get scan config from db: %w", err)
 	}
 
-	var err error
+	// Check the existing DB entries to ensure that the name field is unique
+	existingScanConfig, err := s.checkUniqueness(scanConfig)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return existingScanConfig, err
+		}
+		return models.ScanConfig{}, fmt.Errorf("failed to check existing scan config: %w", err)
+	}
+
 	dbScanConfig.Data, err = patchObject(dbScanConfig.Data, scanConfig)
 	if err != nil {
 		return models.ScanConfig{}, fmt.Errorf("failed to apply patch: %w", err)
@@ -300,4 +312,26 @@ func (s *ScanConfigsTableHandler) DeleteScanConfig(scanConfigID models.ScanConfi
 		return fmt.Errorf("failed to delete scan config: %w", err)
 	}
 	return nil
+}
+
+func (s *ScanConfigsTableHandler) checkUniqueness(scanConfig models.ScanConfig) (models.ScanConfig, error) {
+	var scanConfigs []ScanConfig
+	// In the case of creating or updating a scan config, needs to be checked whether other scan config exists with same name.
+	filter := fmt.Sprintf("id ne '%s' and name eq '%s'", *scanConfig.Id, *scanConfig.Name)
+	err := ODataQuery(s.DB, "ScanConfig", &filter, nil, nil, nil, nil, nil, true, &scanConfigs)
+	if err != nil {
+		return models.ScanConfig{}, err
+	}
+	if len(scanConfigs) > 0 {
+		var sc models.ScanConfig
+		err := json.Unmarshal(scanConfigs[0].Data, &sc)
+		if err != nil {
+			return models.ScanConfig{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+		}
+		// In the case of updating a scan config, needs to be checked whether other scan config exists with same name.
+		return sc, &common.ConflictError{
+			Reason: fmt.Sprintf("Scan config exists with name=%s", *sc.Name),
+		}
+	}
+	return models.ScanConfig{}, nil
 }

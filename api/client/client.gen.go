@@ -3233,6 +3233,7 @@ type PatchScanConfigsScanConfigIDResponse struct {
 	JSON200      *ScanConfig
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *ScanConfigExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3258,6 +3259,7 @@ type PutScanConfigsScanConfigIDResponse struct {
 	JSON200      *ScanConfig
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *ScanConfigExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3355,6 +3357,7 @@ type PatchScanResultsScanResultIDResponse struct {
 	JSON200      *TargetScanResult
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *TargetScanResultExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3380,6 +3383,7 @@ type PutScanResultsScanResultIDResponse struct {
 	JSON200      *TargetScanResult
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *TargetScanResultExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3501,6 +3505,7 @@ type PatchScansScanIDResponse struct {
 	JSON200      *Scan
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *ScanExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3526,6 +3531,7 @@ type PutScansScanIDResponse struct {
 	JSON200      *Scan
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *ScanExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3647,6 +3653,7 @@ type PatchTargetsTargetIDResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *Target
 	JSON404      *ApiResponse
+	JSON409      *TargetExists
 	JSONDefault  *ApiResponse
 }
 
@@ -3672,6 +3679,7 @@ type PutTargetsTargetIDResponse struct {
 	JSON200      *Target
 	JSON400      *ApiResponse
 	JSON404      *ApiResponse
+	JSON409      *TargetExists
 	JSONDefault  *ApiResponse
 }
 
@@ -4613,6 +4621,13 @@ func ParsePatchScanConfigsScanConfigIDResponse(rsp *http.Response) (*PatchScanCo
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ScanConfigExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -4659,6 +4674,13 @@ func ParsePutScanConfigsScanConfigIDResponse(rsp *http.Response) (*PutScanConfig
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ScanConfigExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
@@ -4827,6 +4849,13 @@ func ParsePatchScanResultsScanResultIDResponse(rsp *http.Response) (*PatchScanRe
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest TargetScanResultExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -4873,6 +4902,13 @@ func ParsePutScanResultsScanResultIDResponse(rsp *http.Response) (*PutScanResult
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest TargetScanResultExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
@@ -5081,6 +5117,13 @@ func ParsePatchScansScanIDResponse(rsp *http.Response) (*PatchScansScanIDRespons
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ScanExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -5127,6 +5170,13 @@ func ParsePutScansScanIDResponse(rsp *http.Response) (*PutScansScanIDResponse, e
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ScanExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
@@ -5335,6 +5385,13 @@ func ParsePatchTargetsTargetIDResponse(rsp *http.Response) (*PatchTargetsTargetI
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest TargetExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -5381,6 +5438,13 @@ func ParsePutTargetsTargetIDResponse(rsp *http.Response) (*PutTargetsTargetIDRes
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest TargetExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse

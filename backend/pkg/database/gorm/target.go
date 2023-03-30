@@ -179,6 +179,15 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 		return models.Target{}, fmt.Errorf("failed to get target from db: %w", err)
 	}
 
+	existingTarget, err := t.checkUniqueness(target)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return *existingTarget, err
+		}
+		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
+	}
+
 	marshaled, err := json.Marshal(target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
@@ -211,7 +220,15 @@ func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target,
 		return models.Target{}, err
 	}
 
-	var err error
+	existingTarget, err := t.checkUniqueness(target)
+	if err != nil {
+		var conflictErr *common.ConflictError
+		if errors.As(err, &conflictErr) {
+			return *existingTarget, err
+		}
+		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
+	}
+
 	dbTarget.Data, err = patchObject(dbTarget.Data, target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to apply patch: %w", err)
@@ -246,24 +263,23 @@ func (t *TargetsTableHandler) checkUniqueness(target models.Target) (*models.Tar
 	switch info := discriminator.(type) {
 	case models.VMInfo:
 		var targets []Target
-		filter := fmt.Sprintf("targetInfo/instanceID eq '%s' and targetInfo/location eq '%s'", info.InstanceID, info.Location)
+		// In the case of creating or updating a target, needs to be checked whether other target exists with same InstanceID and Location.
+		filter := fmt.Sprintf("id ne '%s' and targetInfo/instanceID eq '%s' and targetInfo/location eq '%s'", *target.Id, info.InstanceID, info.Location)
 		err = ODataQuery(t.DB, targetSchemaName, &filter, nil, nil, nil, nil, nil, true, &targets)
 		if err != nil {
 			return nil, err
 		}
-
 		if len(targets) > 0 {
 			var apiTarget models.Target
-			if err = json.Unmarshal(targets[0].Data, &apiTarget); err != nil {
+			if err := json.Unmarshal(targets[0].Data, &apiTarget); err != nil {
 				return nil, fmt.Errorf("failed to convert DB model to API model: %w", err)
 			}
 			return &apiTarget, &common.ConflictError{
-				Reason: fmt.Sprintf("Target VM exists with instanceID=%q and location=%q", info.InstanceID, info.Location),
+				Reason: fmt.Sprintf("Target VM exists with same instanceID=%q and location=%q", info.InstanceID, info.Location),
 			}
 		}
+		return nil, nil // nolint:nilnil
 	default:
 		return nil, fmt.Errorf("target type is not supported (%T): %w", discriminator, err)
 	}
-
-	return nil, nil // nolint:nilnil
 }
