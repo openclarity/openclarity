@@ -108,9 +108,16 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID) er
 	updatedScan, err := s.dbHandler.ScansTable().UpdateScan(scan)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.BadRequestError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		case errors.As(err, &conflictErr):
+			existResponse := &models.ScanExists{
+				Message: utils.StringPtr(conflictErr.Reason),
+				Scan:    &updatedScan,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:
@@ -138,9 +145,16 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID) erro
 	updatedScan, err := s.dbHandler.ScansTable().SaveScan(scan)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.ConflictError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
+		case errors.As(err, &conflictErr):
+			existResponse := &models.ScanExists{
+				Message: utils.StringPtr(conflictErr.Reason),
+				Scan:    &updatedScan,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:

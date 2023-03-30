@@ -107,9 +107,16 @@ func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID
 	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().UpdateScanConfig(scanConfig)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.ConflictError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
+		case errors.As(err, &conflictErr):
+			existResponse := &models.ScanConfigExists{
+				Message:    utils.StringPtr(conflictErr.Reason),
+				ScanConfig: &updatedScanConfig,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:
@@ -137,9 +144,16 @@ func (s *ServerImpl) PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID m
 	updatedScanConfig, err := s.dbHandler.ScanConfigsTable().SaveScanConfig(scanConfig)
 	if err != nil {
 		var validationErr *common.BadRequestError
+		var conflictErr *common.ConflictError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
+		case errors.As(err, &conflictErr):
+			existResponse := &models.ScanConfigExists{
+				Message:    utils.StringPtr(conflictErr.Reason),
+				ScanConfig: &updatedScanConfig,
+			}
+			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
 		default:
