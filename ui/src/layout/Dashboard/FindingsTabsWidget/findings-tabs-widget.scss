@@ -1,0 +1,32 @@
+@import 'utils/scss_variables.module.scss';
+
+.findings-tabs-widget {
+    .tabbed-widget-table-wrapper {
+        height: calc(100% - 90px);
+        overflow-y: auto;
+
+        .tabbed-widget-table {
+            font-size: 14px;
+            border-collapse: collapse;
+            width: 100%;
+        
+            thead {
+                font-size: 12px;
+                text-align: left;
+                text-transform: uppercase;
+                
+            }
+            tbody tr {
+                border-bottom: 1px solid $color-grey-light;
+            }
+            th {
+                padding-top: 10px;
+                white-space: nowrap;
+            }
+            td {
+                padding: 12px 0 5px 0;
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+}

@@ -346,6 +346,9 @@ func toModelsVulnerabilitySeverity(severity *backendmodels.VulnerabilitySeverity
 }
 
 func toModelsVulnerabilityCVSSArray(cvss *[]backendmodels.VulnerabilityCvss) *[]models.VulnerabilityCvss {
+	if cvss == nil {
+		return nil
+	}
 	ret := make([]models.VulnerabilityCvss, len(*cvss))
 	for i, vulnerabilityCvss := range *cvss {
 		ret[i] = toModelsVulnerabilityCVSS(vulnerabilityCvss)
@@ -362,6 +365,9 @@ func toModelsVulnerabilityCVSS(cvss backendmodels.VulnerabilityCvss) models.Vuln
 }
 
 func toModelsVulnerabilityCVSSMetrics(metrics *backendmodels.VulnerabilityCvssMetrics) *models.VulnerabilityCvssMetrics {
+	if metrics == nil {
+		return nil
+	}
 	return &models.VulnerabilityCvssMetrics{
 		BaseScore:           metrics.BaseScore,
 		ExploitabilityScore: metrics.ExploitabilityScore,
