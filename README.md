@@ -1,4 +1,8 @@
-![](images/kubeclarity-logo.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/logos/KubeClarity-logo-dark-bg-horizontal@4x.png">
+  <source media="(prefers-color-scheme: light)" srcset="./images/logos/KubeClarity-logo-light-bg-horizontal@4x.png">
+  <img alt="KubeClarity Logo" src="./images/logos/KubeClarity-logo-light-bg-horizontal@4x.png">
+</picture>
 
 KubeClarity is a tool for detection and management of Software Bill Of Materials (SBOM) and vulnerabilities of container images and filesystems. It scans both runtime K8s clusters and CI/CD pipelines for enhanced software supply chain security.
 
