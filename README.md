@@ -1,5 +1,5 @@
 
-![VMClarity](img/logos/vmclarity_logo.png)
+![VMClarity](img/logos/vmclarity_dark_logo.png)
 
 VMClarity is a tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and vulnerabilities
