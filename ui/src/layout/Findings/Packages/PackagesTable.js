@@ -18,8 +18,8 @@ const PackagesTable = () => {
             disableSort: true
         },
         {
-            Header: "Languege",
-            id: "languege",
+            Header: "Language",
+            id: "language",
             accessor: "findingInfo.language",
             disableSort: true
         },
