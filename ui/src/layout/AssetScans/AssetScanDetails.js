@@ -4,11 +4,11 @@ import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import TabbedPage from 'components/TabbedPage';
 import { APIS } from 'utils/systemConsts';
 import { formatDate, getScanName } from 'utils/utils';
-import { AssetDetails as AssetDetailsTab, Findings, ScanDetails as ScanDetailsTab } from 'layout/detail-displays';
+import { Findings } from 'layout/detail-displays';
+import TabAssetScanDetails from './TabAssetScanDetails';
 
 const ASSET_SCAN_DETAILS_PATHS = {
-    ASSET_DETAILS: "",
-    SCAN_DETAILS: "scan",
+    ASSET_SCAN_DETAILS: "",
     FINDINGHS: "findings"
 }
 
@@ -25,15 +25,9 @@ const DetailsContent = ({data}) => {
             items={[
                 {
                     id: "general",
-                    title: "Asset details",
+                    title: "Asset scan details",
                     isIndex: true,
-                    component: () => <AssetDetailsTab assetData={target} withAssetLink />
-                },
-                {
-                    id: "scan",
-                    title: "Scan details",
-                    path: ASSET_SCAN_DETAILS_PATHS.SCAN_DETAILS,
-                    component: () => <ScanDetailsTab scanData={scan} />
+                    component: () => <TabAssetScanDetails data={data} />
                 },
                 {
                     id: "findings",

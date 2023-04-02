@@ -1,5 +1,6 @@
 import React from 'react';
 import ProgressBar, { STATUS_MAPPPING } from 'components/ProgressBar';
+import ErrorMessageDisplay from 'components/ErrorMessageDisplay';
 
 import './scan-progress-bar.scss';
 
@@ -32,7 +33,7 @@ const ScanProgressBar = ({itemsCompleted, itemsLeft, state, stateReason, stateMe
             {!isMinimized && errorTitle &&
                 <div className="error-display-wrapper">
                     <div className="error-display-title">{errorTitle}</div>
-                    <div className="error-display-message">{stateMessage || errorTitle}</div>
+                    <ErrorMessageDisplay>{stateMessage || errorTitle}</ErrorMessageDisplay>
                 </div>
             }
         </div>

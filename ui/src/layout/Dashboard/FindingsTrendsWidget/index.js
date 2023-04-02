@@ -4,12 +4,12 @@ import classnames from 'classnames';
 import moment from 'moment';
 import { useFetch } from 'hooks';
 import Loader from 'components/Loader';
-import IconWithTooltip from 'components/IconWithTooltip';
 import DropdownSelect from 'components/DropdownSelect';
 import { APIS, FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import { formatDate } from 'utils/utils';
 import WidgetWrapper from '../WidgetWrapper';
 import ChartTooltip from '../ChartTooltip';
+import FindingsFilters from '../FindingsFilters';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -48,18 +48,6 @@ const TIME_RANGES = {
 }
 
 const TooltipHeader = ({data}) => (<div>{data.formattedEndTime}</div>)
-
-const FilterButton = ({icon, title, color, selected, onClick}) => (
-    <div className="widget-filter-button" onClick={onClick}>
-        <IconWithTooltip
-            tooltipId={`findings-trends-${title}`}
-            tooltipText={title}
-            name={icon}
-            style={{color: selected ? color : COLORS["color-grey"]}}
-            size={20}
-        />
-    </div>
-)
 
 const WidgetChart = ({data, selectedFilters}) => {
     const formattedData = data?.reduce((acc, curr) => {
@@ -123,28 +111,13 @@ const FindingsTrendsWidget = ({className}) => {
     return (
         <WidgetWrapper className={classnames("findings-trends-widget", className)} title="Findings trends">
             <div className="findings-trends-widget-header">
-                <div className="findings-trends-widget-filters">
-                    {
-                        WIDGET_FINDINGS_ITEMS.map(({color, icon, title, typeKey}) => (
-                            <FilterButton
-                                key={title}
-                                icon={icon}
-                                title={title}
-                                color={color}
-                                selected={selectedFilters.includes(typeKey)}
-                                onClick={() => {
-                                    setSelectedFilters(selectedFilters => {
-                                        if (selectedFilters.includes(typeKey)) {
-                                            return selectedFilters.filter(selectedType => selectedType !== typeKey);
-                                        } else {
-                                            return [...selectedFilters, typeKey];
-                                        }
-                                    })
-                                }}
-                            />
-                        ))
-                    }
-                </div>
+                <FindingsFilters
+                    widgetName="findings-trends"
+                    findingsItems={WIDGET_FINDINGS_ITEMS}
+                    findingKeyName="typeKey"
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                />
                 <DropdownSelect
                     name="timeRangeSelect"
                     value={selectedRange}
@@ -152,7 +125,7 @@ const FindingsTrendsWidget = ({className}) => {
                     onChange={selectedItem =>  setSelectedRange(selectedItem)}
                 />
             </div>
-            {loading ? <Loader absolute={false} /> : (error ? null : <WidgetChart data={data} selectedFilters={selectedFilters} />)}
+            {loading ? <Loader /> : (error ? null : <WidgetChart data={data} selectedFilters={selectedFilters} />)}
         </WidgetWrapper>
     )
 }
