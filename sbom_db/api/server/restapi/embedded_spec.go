@@ -101,8 +101,8 @@ func init() {
       "type": "object",
       "properties": {
         "sbom": {
-          "type": "string",
-          "format": "byte"
+          "description": "base64 gzipped sbom",
+          "type": "string"
         }
       }
     },
@@ -235,8 +235,8 @@ func init() {
       "type": "object",
       "properties": {
         "sbom": {
-          "type": "string",
-          "format": "byte"
+          "description": "base64 gzipped sbom",
+          "type": "string"
         }
       }
     },

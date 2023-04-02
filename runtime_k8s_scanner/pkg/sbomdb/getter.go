@@ -23,6 +23,7 @@ import (
 
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/gzip"
 )
 
 type Getter interface {
@@ -55,5 +56,10 @@ func (g *GetterImpl) Get(ctx context.Context, imageHash string) ([]byte, error) 
 		}
 	}
 
-	return sbom.Payload.Sbom, nil
+	uncompressedSbom, err := gzip.UnCompress(sbom.Payload.Sbom)
+	if err != nil {
+		return nil, fmt.Errorf("failed to uncompress data: %v", err)
+	}
+
+	return uncompressedSbom, nil
 }
