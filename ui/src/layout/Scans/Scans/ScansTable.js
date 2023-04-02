@@ -7,7 +7,7 @@ import EmptyDisplay from 'components/EmptyDisplay';
 import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
 import { useModalDisplayDispatch, MODAL_DISPLAY_ACTIONS } from 'layout/Scans/ScanConfigWizardModal/ModalDisplayProvider';
 import { APIS } from 'utils/systemConsts';
-import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem } from 'utils/utils';
+import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatNumber } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import { SCANS_PATHS } from '../utils';
 // import ScanActionsDisplay from '../ScanActionsDisplay';
@@ -87,7 +87,7 @@ const ScansTable = () => {
             accessor: original => {
                 const {jobsCompleted, jobsLeftToRun} = original.summary || {};
                 
-                return `${jobsCompleted}/${jobsCompleted + jobsLeftToRun}`;
+                return `${formatNumber(jobsCompleted)}/${formatNumber(jobsCompleted + jobsLeftToRun)}`;
             },
             disableSort: true
         }

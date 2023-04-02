@@ -3,6 +3,7 @@ import { TooltipWrapper } from 'components/Tooltip';
 import Icon from 'components/Icon';
 import { SEVERITY_ITEMS } from 'components/SeverityDisplay';
 import { VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
+import { formatNumber } from 'utils/utils';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -55,12 +56,12 @@ export const VULNERABILITY_SEVERITY_ITEMS = {
 
 const TooltipContentDisplay = ({total, counters}) => (
     <div className="vulnerabilities-minimized-tooltip-content">
-        <div>{`Vulnerabilities: ${total || 0}`}</div>
+        <div>{`Vulnerabilities: ${formatNumber(total || 0)}`}</div>
         <div className="vulnerabilities-tooltip-counters">
             {
                 Object.values(VULNERABILITY_SEVERITY_ITEMS).map(({totalKey, color}) => (
                     <div key={totalKey} className="vulnerabilities-tooltip-counters-item">
-                        <Icon name={VULNERABIITY_FINDINGS_ITEM.icon} style={{color}} size={18} /><span>{counters[totalKey] || 0}</span>
+                        <Icon name={VULNERABIITY_FINDINGS_ITEM.icon} style={{color}} size={18} /><span>{formatNumber(counters[totalKey] || 0)}</span>
                     </div>
                 ))
             }
@@ -75,7 +76,7 @@ const MinimizedVulnerabilitiesDisplay = ({id, highestSeverity, total, counters})
         <div className="vulnerabilities-minimized-display-wrapper">
             <TooltipWrapper tooltipId={`vulnerability-minimized-display-${id}`} tooltipText={<TooltipContentDisplay total={total} counters={counters} />}>
                 <div className="vulnerabilities-minimized-display-summary-item" style={{color: innerTextColor, backgroundColor: backgroundColor || color}}>
-                    {counters[highestSeverity] || 0}
+                    {formatNumber(counters[highestSeverity] || 0)}
                 </div>
             </TooltipWrapper>
         </div>
@@ -97,12 +98,12 @@ const VulnerabilitiesDisplay = ({highestSeverity, total, counters}) => {
         <div className="vulnerabilities-display-wrapper">
             <div className="vulnerabilities-display-summary">
                 <Icon name={vulnerabilitiesIcon} style={{color}} size={30} />
-                <CounterItemDisplay count={total} title={vulnerabilitiesTitle} color={vulnerabilitiesColor} />
+                <CounterItemDisplay count={formatNumber(total)} title={vulnerabilitiesTitle} color={vulnerabilitiesColor} />
             </div>
             <div className="vulnerabilities-display-counters">
                 {
                     Object.values(VULNERABILITY_SEVERITY_ITEMS).map(({totalKey, title, color}) => (
-                        <CounterItemDisplay key={totalKey} count={counters[totalKey]} title={title} color={color} />
+                        <CounterItemDisplay key={totalKey} count={formatNumber(counters[totalKey])} title={title} color={color} />
                     ))
                 }
             </div>
