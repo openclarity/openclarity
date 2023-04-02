@@ -1,7 +1,7 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { isNull } from 'lodash';
-import { useMountMultiFetch } from 'hooks';
+import { useMountMultiFetch, usePrevious } from 'hooks';
 import TabbedPage from 'components/TabbedPage';
 import Loader from 'components/Loader';
 import EmptyDisplay from 'components/EmptyDisplay';
@@ -14,15 +14,27 @@ import Configurations from './Configurations';
 import { SCANS_PATHS } from './utils';
 
 export {
-    SCANS_PATHS
+    SCANS_PATHS,
 }
+
+export const OPEN_CONFIG_FORM_PARAM = "openConfigForm";
 
 const ScansTabbedPage = () => {
     const {pathname} = useLocation();
-
+    const [searchParams] = useSearchParams();
+    const openConfigForm = searchParams.get(OPEN_CONFIG_FORM_PARAM);
+    const prevOpenConfigForm = usePrevious(openConfigForm);
+    
     const {modalDisplayData} = useModalDisplayState();
     const modalDisplayDispatch = useModalDisplayDispatch();
     const closeDisplayModal = () => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.CLOSE_DISPLAY_MODAL});
+    const openDisplayModal = useCallback(() => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {}}), [modalDisplayDispatch]);
+
+    useEffect(() => {
+        if (!prevOpenConfigForm && openConfigForm) {
+            openDisplayModal();
+        }
+    }, [prevOpenConfigForm, openConfigForm, openDisplayModal]);
 
     const [{data, error, loading}, fetchData] = useMountMultiFetch([
         {key: "scans", url: APIS.SCANS},
@@ -50,7 +62,7 @@ const ScansTabbedPage = () => {
                         </>
                     )}
                     title="New scan configuration"
-                    onClick={() => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {}})}
+                    onClick={openDisplayModal}
                 /> :
                 <TabbedPage
                     redirectTo={`${pathname}/${SCANS_PATHS.SCANS}`}

@@ -14,7 +14,7 @@ const TabPackageDetails = ({data}) => {
                         <TitleValueDisplay title="Version">{version}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="Languege">{language}</TitleValueDisplay>
+                        <TitleValueDisplay title="Language">{language}</TitleValueDisplay>
                         <TitleValueDisplay title="Licenses"><ValuesListDisplay values={licenses} /></TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>  
