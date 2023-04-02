@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+
+.error-message-display {
+    margin: 10px 0 20px 0;
+
+    .error-message-display-title {
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 18px;
+        color: $color-warning;
+        margin-bottom: 5px;
+    }
+    .error-message-display-message {
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 18px;
+        background-color: $color-status-yellow;
+        color: $color-grey-black;
+        padding: 5px 10px;
+    }
+}

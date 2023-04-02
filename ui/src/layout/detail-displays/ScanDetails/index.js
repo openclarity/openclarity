@@ -1,26 +1,15 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import moment from 'moment';
 import TitleValueDisplay, { TitleValueDisplayColumn, TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import ScanProgressBar from 'components/ScanProgressBar';
 import Button from 'components/Button';
 import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
-import { formatDate } from 'utils/utils';
+import { formatDate, calculateDuration } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import ConfigurationAlertLink from './ConfigurationAlertLink';
-
-export const calculateDuration = (startTime, endTime) => {
-    const startMoment = moment(startTime);
-    const endMoment = moment(endTime);
-    
-    const range = ["days", "hours", "minutes", "seconds"].map(item => ({diff: endMoment.diff(startMoment, item), label: item}))
-        .find(({diff}) => diff > 1);
-
-    return !!range ? `${range.diff} ${range.label}` : null;
-}
 
 const ScanDetails = ({scanData, withAssetScansLink=false}) => {
     const {pathname} = useLocation();
