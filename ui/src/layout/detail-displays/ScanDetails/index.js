@@ -6,7 +6,7 @@ import Title from 'components/Title';
 import ScanProgressBar from 'components/ScanProgressBar';
 import Button from 'components/Button';
 import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
-import { formatDate, calculateDuration } from 'utils/utils';
+import { formatDate, calculateDuration, formatNumber } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import ConfigurationAlertLink from './ConfigurationAlertLink';
@@ -64,7 +64,7 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
                     {withAssetScansLink &&
                         <div style={{marginTop: "50px"}}>
                             <Title medium>Asset scans</Title>
-                            <Button onClick={onAssetScansClick}>{`See asset scans (${jobsCompleted || 0})`}</Button>
+                            <Button onClick={onAssetScansClick}>{`See asset scans (${formatNumber(jobsCompleted || 0)})`}</Button>
                         </div>
                     }
                 </>

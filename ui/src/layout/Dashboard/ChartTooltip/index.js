@@ -1,13 +1,13 @@
 import React from 'react';
 import Icon from 'components/Icon';
-import { BoldText } from 'utils/utils';
+import { BoldText, formatNumber } from 'utils/utils';
 
 import './chart-tooltip.scss';
 
 const TooltipCountItem = ({color, icon, value, title}) => (
     <div className="widget-chart-content-item">
         <Icon name={icon} size={18} style={{color}} />
-        <div className="widget-chart-content-item-text"><BoldText>{value}</BoldText>{` ${title}`}</div>
+        <div className="widget-chart-content-item-text"><BoldText>{formatNumber(value)}</BoldText>{` ${title}`}</div>
     </div>
 )
 

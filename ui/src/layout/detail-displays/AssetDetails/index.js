@@ -7,6 +7,7 @@ import Title from 'components/Title';
 import Button from 'components/Button';
 import Loader from 'components/Loader';
 import { ROUTES, APIS } from 'utils/systemConsts';
+import { formatNumber } from 'utils/utils';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
 const AssetScansDisplay = ({assetName, targetId}) => {
@@ -41,7 +42,7 @@ const AssetScansDisplay = ({assetName, targetId}) => {
     return (
         <>
             <Title medium>Asset scans</Title>
-            <Button onClick={onAssetScansClick} >{`See all asset scans (${data?.count || 0})`}</Button>
+            <Button onClick={onAssetScansClick} >{`See all asset scans (${formatNumber(data?.count || 0)})`}</Button>
         </>
     )
 }

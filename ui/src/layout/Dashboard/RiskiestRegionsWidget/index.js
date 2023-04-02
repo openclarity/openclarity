@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Toolti
 import { useFetch } from 'hooks';
 import Loader from 'components/Loader';
 import { APIS, FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
-import { BoldText } from 'utils/utils';
+import { BoldText, formatNumber } from 'utils/utils';
 import WidgetWrapper from '../WidgetWrapper';
 import ChartTooltip from '../ChartTooltip';
 import FindingsFilters from '../FindingsFilters';
@@ -26,7 +26,7 @@ const TooltipHeader = ({data}) => {
     return (
         <>
             <BoldText>{regionName}</BoldText>
-            <div style={{marginTop: "3px"}}>{`Total findings: `}<BoldText>{total}</BoldText></div>
+            <div style={{marginTop: "3px"}}>{`Total findings: `}<BoldText>{formatNumber(total)}</BoldText></div>
         </>
     )
 }
