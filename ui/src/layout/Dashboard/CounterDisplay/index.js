@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFetch } from 'hooks';
+import { formatNumber } from 'utils/utils';
 
 import './counter-display.scss';
 
@@ -9,7 +10,7 @@ const CounterDisplay = ({url, title, background}) => {
     return (
         <div className="dashboard-counter" style={{background}}>
             {loading || error ? "" : 
-                <div className="dashboard-counter-content"><div className="dashboard-counter-count">{data.count}</div>{` ${title}`}</div>
+                <div className="dashboard-counter-content"><div className="dashboard-counter-count">{formatNumber(data.count)}</div>{` ${title}`}</div>
             }
         </div>
     )

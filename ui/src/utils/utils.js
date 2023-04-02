@@ -29,6 +29,10 @@ export const BoldText = ({children, style={}}) => <span style={{fontWeight: "bol
 
 export const cronExpressionToHuman = value => cronstrue.toString(value, {use24HourTimeFormat: true});
 
+export const formatNumber = value => (
+    new Intl.NumberFormat("en-US").format(parseInt(value || 0, 10))
+)
+
 export const getScanName = ({name, startTime}) => `${name} ${formatDate(startTime)}`;
 
 export const getHigestVersionCvssData = (cvssData) => {
@@ -71,7 +75,7 @@ export const getFindingsColumnsConfigList = (tableTitle) => Object.keys(FINDINGS
         accessor: original => {
             const {summary}  = original;
             
-            return isEmpty(summary) ? 0 : (summary[totalKey] || 0);
+            return isEmpty(summary) ? 0 : (formatNumber(summary[totalKey] || 0));
         },
         width: 50,
         disableSort: true

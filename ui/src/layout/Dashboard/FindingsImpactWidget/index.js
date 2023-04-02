@@ -1,6 +1,6 @@
 import React from 'react';
 import SeverityWithCvssDisplay from 'components/SeverityWithCvssDisplay';
-import { getHigestVersionCvssData } from 'utils/utils';
+import { getHigestVersionCvssData, formatNumber } from 'utils/utils';
 import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM, APIS } from 'utils/systemConsts';
 import FindingsTabsWidget from '../FindingsTabsWidget';
 
@@ -82,7 +82,7 @@ const FindingsImpactWidget = ({className}) => (
 		getBodyItems={(selectedId) => {
 			const {bodyItems=[]} = TABS_COLUMNS_MAPPING[selectedId] || {};
 
-			return ([...bodyItems, {dataKey: "affectedAssetsCount"}])
+			return ([...bodyItems, {customDisplay: ({affectedAssetsCount}) => (formatNumber(affectedAssetsCount))}])
 		}}
 	/>
 )

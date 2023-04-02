@@ -8,6 +8,7 @@ import Title from 'components/Title';
 import Loader from 'components/Loader';
 import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
 import { ROUTES, APIS } from 'utils/systemConsts';
+import { formatNumber } from 'utils/utils';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
 const ConfigurationScansDisplay = ({configId, configName}) => {
@@ -45,7 +46,7 @@ const ConfigurationScansDisplay = ({configId, configName}) => {
     return (
         <>
             <Title medium>Configuration's scans</Title>
-            <Button onClick={onScansClick}>{`See all scans (${data?.count || 0})`}</Button>
+            <Button onClick={onScansClick}>{`See all scans (${formatNumber(data?.count || 0)})`}</Button>
         </>
     )
 }
