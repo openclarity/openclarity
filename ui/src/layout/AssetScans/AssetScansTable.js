@@ -3,16 +3,9 @@ import TablePage from 'components/TablePage';
 import { APIS } from 'utils/systemConsts';
 import { getScanName, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
+import StatusIndicator from './StatusIndicator';
 
 const TABLE_TITLE = "asset scans";
-
-const STATUS_MAPPING = {
-    NOT_SCANNED: "Not Scanned",
-    INIT: "Initialized",
-    ATTACHED: "Volume Snapshot Attached",
-    IN_PROGRESS: "In Progress",
-    DONE: "Done"
-}
 
 const AssetScansTable = () => {
     const columns = useMemo(() => [
@@ -48,9 +41,9 @@ const AssetScansTable = () => {
             Header: "Scan status",
             id: "status",
             accessor: original => {
-                const {state} = original?.status?.general || {};
-
-                return STATUS_MAPPING[state];
+                const {state, errors} = original?.status?.general || {};
+                
+                return <StatusIndicator state={state} errors={errors} tooltipId={original.id} />;
             },
             disableSort: true
         },

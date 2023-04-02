@@ -1,6 +1,8 @@
 @import 'utils/scss_variables.module.scss';
 
 .findings-tabs-widget {
+    position: relative;
+    
     .tabbed-widget-table-wrapper {
         height: calc(100% - 90px);
         overflow-y: auto;

@@ -1,0 +1,18 @@
+@import 'utils/scss_variables.module.scss';
+
+$indicator-size: 6px;
+
+.status-indicator-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    line-height: 18px;
+    color: $color-grey-black;
+
+    .status-indicator {
+        width: $indicator-size;
+        height: $indicator-size;
+        border-radius: 50px;
+    }
+}

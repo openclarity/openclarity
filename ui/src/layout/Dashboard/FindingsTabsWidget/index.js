@@ -71,7 +71,7 @@ const FindingsTabsWidget = ({widgetName, findingsItems, className, title, url, g
             />
             <div className="tabbed-widget-table-wrapper">
                 {
-                    loading ? <Loader absolute={false} /> : (error ? null :
+                    loading ? <Loader /> : (error ? null :
                         <WidgetContent
                             data={!!data ? data[selectedTabId] : []}
                             getHeaderItems={getHeaderItems}

@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { useFetch } from 'hooks';
 import Loader from 'components/Loader';
-import IconWithTooltip from 'components/IconWithTooltip';
 import { APIS, FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import { BoldText } from 'utils/utils';
 import WidgetWrapper from '../WidgetWrapper';
 import ChartTooltip from '../ChartTooltip';
+import FindingsFilters from '../FindingsFilters';
 
 import COLORS from 'utils/scss_variables.module.scss';
 
@@ -34,21 +34,19 @@ const TooltipHeader = ({data}) => {
 const WidgetContent = ({data}) => {
     const formattedData = data.map(({regionName, findingsCount}) => ({regionName, ...findingsCount}))
 
+    const [selectedFilters, setSelectedFilters] = useState([
+        ...WIDGET_FINDINGS_ITEMS.map(({dataKey}) => dataKey)
+    ]);
+
     return (
         <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
-            <div style={{display: "flex", justifyContent: "space-between"}}>
-                {
-                    WIDGET_FINDINGS_ITEMS.map(({value, title, icon, color}) => (
-                        <IconWithTooltip
-                            key={value}
-                            tooltipId={`riskiest-regions-${title}`}
-                            tooltipText={title}
-                            name={icon}
-                            style={{color}}
-                        />
-                    ))
-                }
-            </div>
+            <FindingsFilters
+                widgetName="riskiest-regions"
+                findingsItems={WIDGET_FINDINGS_ITEMS}
+                findingKeyName="dataKey"
+                selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
+            />
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={formattedData} layout="vertical" barSize={10} margin={{top: 12, right: 10, left: 20, bottom: 60}}>
                     <CartesianGrid horizontal={false} style={{stroke: COLORS["color-grey-lighter"]}}/>
@@ -61,7 +59,7 @@ const WidgetContent = ({data}) => {
                     />
                     {
                         WIDGET_FINDINGS_ITEMS.map(({dataKey, color}) => (
-                            <Bar key={dataKey} dataKey={dataKey} stackId={BAR_STACK_ID} fill={color} />
+                            selectedFilters.includes(dataKey) && <Bar key={dataKey} dataKey={dataKey} stackId={BAR_STACK_ID} fill={color} />
                         ))
                     }
                 </BarChart>
@@ -75,7 +73,7 @@ const RiskiestRegionsWidget = ({className}) => {
 
     return (
         <WidgetWrapper className={classnames("riskiest-regions-widget", className)} title="Riskiest regions">
-            {loading ? <Loader absolute={false} /> : (error ? null : <WidgetContent data={data?.regions} />)}
+            {loading ? <Loader /> : (error ? null : <WidgetContent data={data?.regions} />)}
         </WidgetWrapper>
     )
 }
