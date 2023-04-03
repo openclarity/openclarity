@@ -72,13 +72,13 @@ export const getFindingsColumnsConfigList = (tableTitle) => Object.keys(FINDINGS
     return {
         Header: <IconWithTooltip tooltipId={`table-header-${tableTitle}-${totalKey}`} tooltipText={title} name={icon} />,
         id: totalKey,
+        sortIds: [`summary.${totalKey}`],
         accessor: original => {
             const {summary}  = original;
             
             return isEmpty(summary) ? 0 : (formatNumber(summary[totalKey] || 0));
         },
-        width: 50,
-        disableSort: true
+        width: 50
     }
 });
 
@@ -94,6 +94,13 @@ export const getVulnerabilitiesColumnConfigItem = (tableTitle) => {
             />
         ),
         id: "vulnerabilities",
+        sortIds: [
+            "summary.totalVulnerabilities.totalCriticalVulnerabilities",
+            "summary.totalVulnerabilities.totalHighVulnerabilities",
+            "summary.totalVulnerabilities.totalMediumVulnerabilities",
+            "summary.totalVulnerabilities.totalLowVulnerabilities",
+            "summary.totalVulnerabilities.totalNegligibleVulnerabilities"
+        ],
         Cell: ({row}) => {
             const {id, summary} = row.original;
             
@@ -101,7 +108,6 @@ export const getVulnerabilitiesColumnConfigItem = (tableTitle) => {
                 <VulnerabilitiesDisplay minimizedTooltipId={id} counters={summary?.totalVulnerabilities} isMinimized />
             )
         },
-        width: 50,
-        disableSort: true
+        width: 50
     }
 };

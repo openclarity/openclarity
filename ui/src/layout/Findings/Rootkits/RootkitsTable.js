@@ -7,14 +7,14 @@ const RootkitsTable = () => {
         {
             Header: "Rootkit name",
             id: "rootkitName",
-            accessor: "findingInfo.rootkitName",
-            disableSort: true
+            sortIds: ["findingInfo.rootkitName"],
+            accessor: "findingInfo.rootkitName"
         },
         {
             Header: "File path",
             id: "path",
-            accessor: "findingInfo.path",
-            disableSort: true
+            sortIds: ["findingInfo.path"],
+            accessor: "findingInfo.path"
         },
         ...getAssetAndScanColumnsConfigList()
     ], []);

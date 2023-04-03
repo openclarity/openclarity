@@ -9,9 +9,9 @@ import COLORS from 'utils/scss_variables.module.scss';
 
 import './vulnerabilities-display.scss';
 
-export const getTotlalVulnerabilitiesFromCounters = counters => (
+export const getTotlalVulnerabilitiesFromCounters = (counters={}) => (
     Object.values(VULNERABILITY_SEVERITY_ITEMS).reduce((acc, curr) => {
-        return acc + counters[curr.totalKey];
+        return acc + (counters[curr.totalKey] || 0);
     }, 0)
 )
 

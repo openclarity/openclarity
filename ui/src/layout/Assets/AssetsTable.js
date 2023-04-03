@@ -6,25 +6,27 @@ import { FILTER_TYPES } from 'context/FiltersProvider';
 
 const TABLE_TITLE = "assets";
 
+const LOCATION_SORT_IDS = ["targetInfo.location"];
+
 const AssetsTable = () => {
     const columns = useMemo(() => [
         {
             Header: "Name",
-            id: "name",
-            accessor: "targetInfo.instanceID",
-            disableSort: true
+            id: "instanceID",
+            sortIds: ["targetInfo.instanceID"],
+            accessor: "targetInfo.instanceID"
         },
         {
             Header: "Type",
-            id: "type",
-            accessor: "targetInfo.objectType",
-            disableSort: true
+            id: "objectType",
+            sortIds: ["targetInfo.objectType"],
+            accessor: "targetInfo.objectType"
         },
         {
             Header: "Location",
             id: "location",
-            accessor: "targetInfo.location",
-            disableSort: true
+            sortIds: LOCATION_SORT_IDS,
+            accessor: "targetInfo.location"
         },
         getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
         ...getFindingsColumnsConfigList(TABLE_TITLE)
@@ -36,6 +38,7 @@ const AssetsTable = () => {
             url={APIS.ASSETS}
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSETS}
+            defaultSortBy={{sortIds: LOCATION_SORT_IDS, desc: false}}
             withMargin
         />
     )

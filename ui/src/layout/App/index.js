@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Route, Routes, BrowserRouter, Outlet, useNavigate, useMatch, useLocation} from 'react-router-dom';
 import classnames from 'classnames';
 import Icon, { ICON_NAMES } from 'components/Icon';
@@ -95,10 +95,11 @@ const NavLinkItem = ({pathname, icon, resetFilterNames, resetFilterAll=false}) =
 }
 
 const Layout = () => {
-    const navigate = useNavigate()
     const {pathname} = useLocation();
     const mainPath = pathname.split("/").find(item => !!item);
     const pageTitle = ROUTES_CONFIG.find(({path, isIndex}) => (isIndex && !mainPath) || path === `/${mainPath}`)?.title;
+
+    const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
     
     return (
         <div id="main-wrapper">
@@ -108,7 +109,7 @@ const Layout = () => {
                     {!!pageTitle &&
                         <div className="topbar-page-title">
                             <Title medium removeMargin>{pageTitle}</Title>
-                            <Icon name={ICON_NAMES.REFRESH} onClick={() => navigate(0)} />
+                            <Icon name={ICON_NAMES.REFRESH} onClick={() => setRefreshTimestamp(Date.now())} />
                         </div>
                     }
                 </div>
@@ -121,7 +122,7 @@ const Layout = () => {
                         ))
                     }
                 </div>
-                <main role="main">
+                <main role="main" key={refreshTimestamp}>
                     <NotificationProvider>
                         <Outlet />
                         <ConnectedNotification />
