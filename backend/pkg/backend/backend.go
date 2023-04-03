@@ -38,16 +38,6 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
-type Backend struct {
-	dbHandler databaseTypes.Database
-}
-
-func CreateBackend(dbHandler databaseTypes.Database) *Backend {
-	return &Backend{
-		dbHandler: dbHandler,
-	}
-}
-
 func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
 	return databaseTypes.DBConfig{
 		DriverType:     config.DatabaseDriver,
@@ -90,7 +80,6 @@ func Run() {
 	if config.EnableFakeData {
 		go database.CreateDemoData(dbHandler)
 	}
-	_ = CreateBackend(dbHandler)
 
 	backendAddress := fmt.Sprintf("http://%s%s", net.JoinHostPort(config.BackendRestHost, strconv.Itoa(config.BackendRestPort)), rest.BaseURL)
 	backendClient, err := backendclient.Create(backendAddress)
