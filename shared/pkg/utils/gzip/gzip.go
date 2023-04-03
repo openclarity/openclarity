@@ -23,8 +23,8 @@ import (
 	"io"
 )
 
-// Compress gzip and base64 encode the source input.
-func Compress(source []byte) (string, error) {
+// CompressAndEncode gzip and base64 encode the source input.
+func CompressAndEncode(source []byte) (string, error) {
 	if source == nil {
 		return "", nil
 	}
@@ -42,8 +42,8 @@ func Compress(source []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(b.Bytes()), nil
 }
 
-// UnCompress base64 decode and unzip the source input.
-func UnCompress(source string) ([]byte, error) {
+// DecodeAndUncompress base64 decode and unzip the source input.
+func DecodeAndUncompress(source string) ([]byte, error) {
 	if source == "" {
 		return nil, nil
 	}

@@ -56,7 +56,7 @@ func (g *GetterImpl) Get(ctx context.Context, imageHash string) ([]byte, error) 
 		}
 	}
 
-	uncompressedSbom, err := gzip.UnCompress(sbom.Payload.Sbom)
+	uncompressedSbom, err := gzip.DecodeAndUncompress(sbom.Payload.Sbom)
 	if err != nil {
 		return nil, fmt.Errorf("failed to uncompress data: %v", err)
 	}

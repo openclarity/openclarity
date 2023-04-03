@@ -40,7 +40,7 @@ func createSetter(client *client.KubeClaritySBOMDBAPIs) Setter {
 }
 
 func (g *SetterImpl) Set(ctx context.Context, imageHash string, sbom []byte) error {
-	base64CompressedSbom, err := gzip.Compress(sbom)
+	base64CompressedSbom, err := gzip.CompressAndEncode(sbom)
 	if err != nil {
 		return fmt.Errorf("failed to compress data: %v", err)
 	}
