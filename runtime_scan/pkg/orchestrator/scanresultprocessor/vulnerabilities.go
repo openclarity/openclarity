@@ -128,23 +128,23 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 		target.Summary = &models.ScanFindingsSummary{}
 	}
 
-	critialVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, models.CRITICAL)
+	critialVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.CRITICAL)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	highVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, models.HIGH)
+	highVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.HIGH)
 	if err != nil {
 		return fmt.Errorf("failed to list active high vulnerabilities: %w", err)
 	}
-	mediumVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, models.MEDIUM)
+	mediumVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.MEDIUM)
 	if err != nil {
 		return fmt.Errorf("failed to list active medium vulnerabilities: %w", err)
 	}
-	lowVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, models.LOW)
+	lowVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.LOW)
 	if err != nil {
 		return fmt.Errorf("failed to list active low vulnerabilities: %w", err)
 	}
-	negligibleVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, models.NEGLIGIBLE)
+	negligibleVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.NEGLIGIBLE)
 	if err != nil {
 		return fmt.Errorf("failed to list active negligible vulnerabilities: %w", err)
 	}
@@ -165,8 +165,8 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 	return nil
 }
 
-func (srp *ScanResultProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, severity models.VulnerabilitySeverity) (int, error) {
-	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and invalidatedOn eq null and findingInfo/severity eq '%s'", string(severity))
+func (srp *ScanResultProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity models.VulnerabilitySeverity) (int, error) {
+	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and invalidatedOn eq null and findingInfo/severity eq '%s'", assetID, string(severity))
 	activeFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
 		Count:  utils.PointerTo(true),
 		Filter: &filter,
