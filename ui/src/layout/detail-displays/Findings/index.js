@@ -18,7 +18,7 @@ const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, finding
 
     const onFindingsClick = () => {
         setFilters(filtersDispatch, {
-            type: FILTER_TYPES.FINDINGS,
+            type: FILTER_TYPES.FINDINGS_GENERAL,
             filters: {
                 filter: findingsFilter,
                 name: findingsFilterTitle,

@@ -21,8 +21,10 @@ $box-size: 30px;
         display: flex;
 
         .pagination-item {
-            width: $box-size;
+            min-width: $box-size;
             height: $box-size;
+            box-sizing: border-box;
+            padding: 0 5px;
             background-color: $color-grey-lighter;
             display: flex;
             align-items: center;

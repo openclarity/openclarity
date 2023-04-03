@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import classnames from 'classnames';
-import { isEmpty, isEqual, pickBy, isNull } from 'lodash';
+import { isEmpty, isEqual, pickBy, isNull, isUndefined } from 'lodash';
 import { useTable, usePagination, useResizeColumns, useFlexLayout, useRowSelect } from 'react-table';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import Loader from 'components/Loader';
@@ -18,8 +18,8 @@ const ACTIONS_COLUMN_ID = "ACTIONS";
 const STATIC_COLUMN_IDS = [ACTIONS_COLUMN_ID];
 
 const Table = props => {
-    const {columns, defaultSortBy, onLineClick, paginationItemsName, url, formatFetchedData, filters,
-        noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
+    const {columns, defaultSortBy, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
+        onPageChange, noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
         actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, actionsColumnWidth=80} = props;
 
     const [sortBy, setSortBy] = useState(defaultSortBy || {});
@@ -60,7 +60,7 @@ const Table = props => {
             data: tableItems,
             defaultColumn,
             initialState: {
-                pageIndex: 0,
+                pageIndex: defaultPageIndex,
                 pageSize: 50,
                 selectedRowIds: {}
             },
@@ -106,10 +106,18 @@ const Table = props => {
         }
     );
 
+    const updatePage = useCallback(pageIndex => {
+        if (!!onPageChange) {
+            onPageChange(pageIndex);
+        }
+
+        gotoPage(pageIndex);
+    }, [gotoPage, onPageChange]);
+
     const cleanFilters = pickBy(filters, value => !isNull(value) && value !== "");
     const prevCleanFilters = usePrevious(cleanFilters);
-    const filtersChanged = !isEqual(cleanFilters, prevCleanFilters);
-
+    const filtersChanged = !isEqual(cleanFilters, prevCleanFilters) && !isUndefined(prevCleanFilters);
+    
     const prevPageIndex = usePrevious(pageIndex);
 
     const {sortIds: sortKeys, desc: sortDesc} = sortBy || {};
@@ -144,14 +152,14 @@ const Table = props => {
         
         fetchData({queryParams: {...getQueryParams()}});
     }, [fetchData, getQueryParams, loading])
-
+    
     useEffect(() => {
         if (!filtersChanged && pageIndex === prevPageIndex && !sortingChanged && prevRefreshTimestamp === refreshTimestamp) {
             return;
         }
 
         if (filtersChanged && pageIndex !== 0) {
-            gotoPage(0);
+            updatePage(0);
 
             return;
         }
@@ -159,7 +167,7 @@ const Table = props => {
         if (!!url) {
             doFetchWithQueryParams();
         }
-    }, [filtersChanged, pageIndex, prevPageIndex, doFetchWithQueryParams, gotoPage, sortingChanged, refreshTimestamp, prevRefreshTimestamp, url]);
+    }, [filtersChanged, pageIndex, prevPageIndex, doFetchWithQueryParams, updatePage, sortingChanged, refreshTimestamp, prevRefreshTimestamp, url]);
 
     const selectedRows = Object.keys(selectedRowIds);
     const prevSelectedRows = usePrevious(selectedRows);
@@ -202,7 +210,7 @@ const Table = props => {
                     pageIndex={pageIndex}
                     pageSize={pageSize}
                     displayName={paginationItemsName}
-                    gotoPage={gotoPage}
+                    gotoPage={updatePage}
                     loading={loading}
                     total={count}
                     page={page}

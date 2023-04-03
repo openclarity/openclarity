@@ -47,7 +47,16 @@ const ROUTES_CONFIG = [
 		component: Findings,
         icon: ICON_NAMES.FINDINGS,
         title: "Findings",
-        resetFilters: [FILTER_TYPES.FINDINGS]
+        resetFilters: [
+            FILTER_TYPES.FINDINGS_GENERAL,
+            FILTER_TYPES.FINDINGS_VULNERABILITIES,
+            FILTER_TYPES.FINDINGS_EXPLOITS,
+            FILTER_TYPES.FINDINGS_MISCONFIGURATIONS,
+            FILTER_TYPES.FINDINGS_SECRETS,
+            FILTER_TYPES.FINDINGS_MALWARE,
+            FILTER_TYPES.FINDINGS_ROOTKITS,
+            FILTER_TYPES.FINDINGS_PACKAGES
+        ]
 	},
     {
 		path: ROUTES.SCANS,

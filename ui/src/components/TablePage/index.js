@@ -4,19 +4,20 @@ import ContentContainer from 'components/ContentContainer';
 import Table from 'components/Table';
 import SystemFilterBanner from 'components/SystemFiltersBanner';
 import { toCapitalized, BoldText } from 'utils/utils';
-import { useFilterState, useFilterDispatch, resetSystemFilters } from 'context/FiltersProvider';
+import { useFilterState, useFilterDispatch, resetSystemFilters, setPage } from 'context/FiltersProvider';
 
-const TablePage = ({tableTitle, filterType, filters, expand, select, withMargin, ...tableProps}) => {
+const TablePage = ({tableTitle, filterType, systemFilterType, filters, expand, select, withMargin, ...tableProps}) => {
     const navigate = useNavigate();
     const {pathname} = useLocation();
 
     const filtersState = useFilterState();
-    const {systemFilters} = filtersState[filterType];
+    const {systemFilters} = filtersState[systemFilterType || filterType];
+    const {selectedPageIndex} = filtersState[filterType];
     const filtersDispatch = useFilterDispatch();
     
     const {name: systemFilterName, suffix: systemSuffix, backPath: systemFilterBackPath, filter: systemFilter, customDisplay} = systemFilters;
 
-    const onSystemFilterClose = () => resetSystemFilters(filtersDispatch, filterType);
+    const onSystemFilterClose = () => resetSystemFilters(filtersDispatch, systemFilterType || filterType);
     
     const fitlersList = [
         ...(!!filters ? [filters] : []),
@@ -43,6 +44,8 @@ const TablePage = ({tableTitle, filterType, filters, expand, select, withMargin,
                     }}
                     noResultsTitle={tableTitle}
                     onLineClick={({id}) => navigate(`${pathname}/${id}`)}
+                    defaultPageIndex={selectedPageIndex}
+                    onPageChange={pageIndex => setPage(filtersDispatch, {type: filterType, pageIndex})}
                     {...tableProps}
                 />
             </ContentContainer>
