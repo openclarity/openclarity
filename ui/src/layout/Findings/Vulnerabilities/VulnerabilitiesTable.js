@@ -3,6 +3,7 @@ import ExpandableList from 'components/ExpandableList';
 import SeverityWithCvssDisplay from 'components/SeverityWithCvssDisplay';
 import { getHigestVersionCvssData } from 'utils/utils';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 
 const VulnerabilitiesTable = () => {
@@ -62,6 +63,7 @@ const VulnerabilitiesTable = () => {
     return (
         <FindingsTablePage
             columns={columns}
+            filterType={FILTER_TYPES.FINDINGS_VULNERABILITIES}
             tableTitle="vulnerabilities"
             findingsObjectType="Vulnerability"
         />

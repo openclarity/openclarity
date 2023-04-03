@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import ExpandableList from 'components/ExpandableList';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 
 const PackagesTable = () => {
@@ -41,6 +42,7 @@ const PackagesTable = () => {
     return (
         <FindingsTablePage
             columns={columns}
+            filterType={FILTER_TYPES.FINDINGS_PACKAGES}
             tableTitle="packages"
             findingsObjectType="Package"
         />
