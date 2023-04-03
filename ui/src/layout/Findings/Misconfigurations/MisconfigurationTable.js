@@ -8,20 +8,20 @@ const MisconfigurationsTable = () => {
         {
             Header: "Test ID",
             id: "testId",
-            accessor: "findingInfo.testID",
-            disableSort: true
+            sortIds: ["findingInfo.testID"],
+            accessor: "findingInfo.testID"
         },
         {
             Header: "Severity",
             id: "severity",
-            accessor: original => MISCONFIGURATION_SEVERITY_MAP[original.findingInfo?.severity],
-            disableSort: true
+            sortIds: ["findingInfo.severity"],
+            accessor: original => MISCONFIGURATION_SEVERITY_MAP[original.findingInfo?.severity]
         },
         {
             Header: "Description",
             id: "description",
+            sortIds: ["findingInfo.testDescription"],
             accessor: "findingInfo.testDescription",
-            disableSort: true,
             width: 200
         },
         ...getAssetAndScanColumnsConfigList()

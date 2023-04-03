@@ -1,26 +1,28 @@
-import { getScanName } from 'utils/utils';
+import { formatDate } from 'utils/utils';
 
 export const getAssetAndScanColumnsConfigList = () => ([
     {
         Header: "Asset name",
         id: "assetName",
-        accessor: "asset.targetInfo.instanceID",
-        disableSort: true
+        sortIds: ["asset.targetInfo.instanceID"],
+        accessor: "asset.targetInfo.instanceID"
     },
     {
         Header: "Asset location",
         id: "assetLocation",
-        accessor: "asset.targetInfo.location",
-        disableSort: true
+        sortIds: ["asset.targetInfo.location"],
+        accessor: "asset.targetInfo.location"
     },
     {
-        Header: "Scan",
-        id: "scan",
-        accessor: original => {
-            const {scanConfigSnapshot, startTime} = original.scan || {};
-
-            return getScanName({name: scanConfigSnapshot.name, startTime})
-        },
-        disableSort: true
+        Header: "Scan name",
+        id: "scanName",
+        sortIds: ["scan.scanConfigSnapshot.name"],
+        accessor: "scan.scanConfigSnapshot.name"
+    },
+    {
+        Header: "Scan start",
+        id: "startTime",
+        sortIds: ["scan.startTime"],
+        accessor: original => formatDate(original.scan?.startTime)
     }
 ]);
