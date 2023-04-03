@@ -23,6 +23,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
@@ -100,7 +101,7 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 			Links:             utils.PointerTo(vulCandidate.Vulnerability.Links),
 			Package:           convertVulnPackageToAPIModel(vulCandidate.Vulnerability.Package),
 			Path:              utils.PointerTo(vulCandidate.Vulnerability.Path),
-			Severity:          utils.PointerTo(models.VulnerabilitySeverity(vulCandidate.Vulnerability.Severity)),
+			Severity:          convertVulnSeverityToAPIModel(vulCandidate.Vulnerability.Severity),
 			VulnerabilityName: utils.PointerTo(vulCandidate.Vulnerability.ID),
 		}
 		vuls = append(vuls, vul)
@@ -108,6 +109,24 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 
 	return &models.VulnerabilityScan{
 		Vulnerabilities: &vuls,
+	}
+}
+
+func convertVulnSeverityToAPIModel(severity string) *models.VulnerabilitySeverity {
+	switch severity {
+	case vulnerability.DEFCON1, vulnerability.CRITICAL:
+		return utils.PointerTo(models.CRITICAL)
+	case vulnerability.HIGH:
+		return utils.PointerTo(models.HIGH)
+	case vulnerability.MEDIUM:
+		return utils.PointerTo(models.MEDIUM)
+	case vulnerability.LOW:
+		return utils.PointerTo(models.LOW)
+	case vulnerability.NEGLIGIBLE, vulnerability.UNKNOWN, vulnerability.NONE:
+		return utils.PointerTo(models.NEGLIGIBLE)
+	default:
+		logger.Errorf("Can't convert severity %v, treating as negligible", severity)
+		return utils.PointerTo(models.NEGLIGIBLE)
 	}
 }
 
