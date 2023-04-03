@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 import { MISCONFIGURATION_SEVERITY_MAP } from './utils';
 
@@ -30,6 +31,7 @@ const MisconfigurationsTable = () => {
     return (
         <FindingsTablePage
             columns={columns}
+            filterType={FILTER_TYPES.FINDINGS_MISCONFIGURATIONS}
             tableTitle="misconfigurations"
             findingsObjectType="Misconfiguration"
         />

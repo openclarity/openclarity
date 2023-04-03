@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 
 const SecretsTable = () => {
@@ -30,6 +31,7 @@ const SecretsTable = () => {
     return (
         <FindingsTablePage
             columns={columns}
+            filterType={FILTER_TYPES.FINDINGS_SECRETS}
             tableTitle="secrets"
             findingsObjectType="Secret"
         />
