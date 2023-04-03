@@ -253,7 +253,7 @@ type MalwareFindingInfo struct {
 // MalwareScan defines model for MalwareScan.
 type MalwareScan struct {
 	Malware  *[]Malware         `json:"malware"`
-	Metadata *[]ScannerMetadata `json:"metadata,omitempty"`
+	Metadata *[]ScannerMetadata `json:"metadata"`
 }
 
 // MalwareType defines model for MalwareType.
@@ -287,7 +287,7 @@ type MisconfigurationFindingInfo struct {
 // MisconfigurationScan defines model for MisconfigurationScan.
 type MisconfigurationScan struct {
 	Misconfigurations *[]Misconfiguration `json:"misconfigurations"`
-	Scanners          *[]string           `json:"scanners,omitempty"`
+	Scanners          *[]string           `json:"scanners"`
 }
 
 // MisconfigurationSeverity defines model for MisconfigurationSeverity.
@@ -878,7 +878,7 @@ type VulnerabilityFindingInfo struct {
 // VulnerabilityFix defines model for VulnerabilityFix.
 type VulnerabilityFix struct {
 	State    *string   `json:"state,omitempty"`
-	Versions *[]string `json:"versions,omitempty"`
+	Versions *[]string `json:"versions"`
 }
 
 // VulnerabilityScan defines model for VulnerabilityScan.
