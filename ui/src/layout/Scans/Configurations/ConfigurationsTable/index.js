@@ -25,12 +25,16 @@ const ConfigurationsTable = () => {
         {
             Header: "Name",
             id: "name",
-            accessor: "name",
-            disableSort: true
+            sortIds: ["name"],
+            accessor: "name"
         },
         {
             Header: "Scope",
             id: "scope",
+            sortIds: [
+                "scope.allRegions",
+                "scope.regions"
+            ],
             Cell: ({row}) => {
                 const {allRegions, regions} = row.original.scope;
 
@@ -38,12 +42,12 @@ const ConfigurationsTable = () => {
                     <ExpandableScopeDisplay all={allRegions} regions={regions} />
                 )
             },
-            alignToTop: true,
-            disableSort: true
+            alignToTop: true
         },
         {
             Header: "Excluded instances",
             id: "instanceTagExclusion",
+            sortIds: ["scope.instanceTagExclusion"],
             Cell: ({row}) => {
                 const {instanceTagExclusion} = row.original.scope;
                 
@@ -51,12 +55,12 @@ const ConfigurationsTable = () => {
                     <ExpandableList items={formatTagsToStringInstances(instanceTagExclusion)} withTagWrap />
                 )
             },
-            alignToTop: true,
-            disableSort: true
+            alignToTop: true
         },
         {
             Header: "Included instances",
             id: "instanceTagSelector",
+            sortIds: ["scope.instanceTagSelector"],
             Cell: ({row}) => {
                 const {instanceTagSelector} = row.original.scope;
                 
@@ -64,12 +68,12 @@ const ConfigurationsTable = () => {
                     <ExpandableList items={formatTagsToStringInstances(instanceTagSelector)} withTagWrap />
                 )
             },
-            alignToTop: true,
-            disableSort: true
+            alignToTop: true
         },
         {
             Header: "Scan time",
             id: "timeConfig",
+            sortIds: ["scheduled.operationTime"],
             Cell: ({row}) => {
                 const {operationTime, cronLine} = row.original.scheduled;
                 const scanType = getScanTimeTypeTag({operationTime, cronLine});
@@ -80,12 +84,20 @@ const ConfigurationsTable = () => {
                         <div>{formatDate(operationTime)}</div>
                     </div>
                 )
-            },
-            disableSort: true
+            }
         },
         {
             Header: "Scan types",
             id: "scanTypes",
+            sortIds: [
+                "scanFamiliesConfig.exploits.enabled",
+                "scanFamiliesConfig.malware.enabled",
+                "scanFamiliesConfig.misconfigurations.enabled",
+                "scanFamiliesConfig.rootkits.enabled",
+                "scanFamiliesConfig.sbom.enabled",
+                "scanFamiliesConfig.secrets.enabled",
+                "scanFamiliesConfig.vulnerabilities.enabled"
+            ],
             Cell: ({row}) => {
                 const {scanFamiliesConfig} = row.original;
 
@@ -100,11 +112,10 @@ const ConfigurationsTable = () => {
                         }
                     </div>
                 )
-            },
-            disableSort: true
+            }
         }
     ], []);
-
+    
     const [refreshTimestamp, setRefreshTimestamp] = useState(Date());
     const doRefreshTimestamp = useCallback(() => setRefreshTimestamp(Date()), []);
 

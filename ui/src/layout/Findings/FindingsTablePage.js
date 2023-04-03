@@ -11,6 +11,7 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns}) => (
         filterType={FILTER_TYPES.FINDINGS}
         filters={`findingInfo/objectType eq '${findingsObjectType}'`}
         expand="asset,scan"
+        defaultSortBy={{sortIds: ["scan.startTime"], desc: true}}
     />
 )
 

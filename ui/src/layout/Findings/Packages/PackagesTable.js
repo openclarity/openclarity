@@ -8,32 +8,32 @@ const PackagesTable = () => {
         {
             Header: "Package name",
             id: "name",
-            accessor: "findingInfo.name",
-            disableSort: true
+            sortIds: ["findingInfo.name"],
+            accessor: "findingInfo.name"
         },
         {
             Header: "Version",
             id: "version",
-            accessor: "findingInfo.version",
-            disableSort: true
+            sortIds: ["findingInfo.version"],
+            accessor: "findingInfo.version"
         },
         {
             Header: "Language",
             id: "language",
-            accessor: "findingInfo.language",
-            disableSort: true
+            sortIds: ["findingInfo.language"],
+            accessor: "findingInfo.language"
         },
         {
             Header: "Licenses",
             id: "licenses",
+            sortIds: ["findingInfo.licenses"],
             Cell: ({row}) => {
                 const {licenses} = row.original.findingInfo || {};
 
                 return (
                     <ExpandableList items={licenses || []} />
                 )
-            },
-            disableSort: true
+            }
         },
         ...getAssetAndScanColumnsConfigList()
     ], []);
