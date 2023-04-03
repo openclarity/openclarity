@@ -18,6 +18,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -113,7 +114,7 @@ func convertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 }
 
 func convertVulnSeverityToAPIModel(severity string) *models.VulnerabilitySeverity {
-	switch severity {
+	switch strings.ToUpper(severity) {
 	case vulnerability.DEFCON1, vulnerability.CRITICAL:
 		return utils.PointerTo(models.CRITICAL)
 	case vulnerability.HIGH:
@@ -125,7 +126,7 @@ func convertVulnSeverityToAPIModel(severity string) *models.VulnerabilitySeverit
 	case vulnerability.NEGLIGIBLE, vulnerability.UNKNOWN, vulnerability.NONE:
 		return utils.PointerTo(models.NEGLIGIBLE)
 	default:
-		logger.Errorf("Can't convert severity %v, treating as negligible", severity)
+		logger.Errorf("Can't convert severity %q, treating as negligible", severity)
 		return utils.PointerTo(models.NEGLIGIBLE)
 	}
 }

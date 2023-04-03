@@ -1010,6 +1010,13 @@ func Test_convertVulnSeverityToAPIModel(t *testing.T) {
 			},
 			want: utils.PointerTo(models.NEGLIGIBLE),
 		},
+		{
+			name: "high -> HIGH",
+			args: args{
+				severity: "high",
+			},
+			want: utils.PointerTo(models.HIGH),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
