@@ -16,14 +16,15 @@
 package cmd
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
@@ -931,6 +932,89 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Misconfiguration) bool { return *a.TestID < *b.TestID })); diff != "" {
 				t.Errorf("convertMisconfigurationResultToAPIModel() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_convertVulnSeverityToAPIModel(t *testing.T) {
+	initLogger()
+	type args struct {
+		severity string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.VulnerabilitySeverity
+	}{
+		{
+			name: "DEFCON1 -> CRITICAL",
+			args: args{
+				severity: vulnerability.DEFCON1,
+			},
+			want: utils.PointerTo(models.CRITICAL),
+		},
+		{
+			name: "CRITICAL -> CRITICAL",
+			args: args{
+				severity: vulnerability.CRITICAL,
+			},
+			want: utils.PointerTo(models.CRITICAL),
+		},
+		{
+			name: "HIGH -> HIGH",
+			args: args{
+				severity: vulnerability.HIGH,
+			},
+			want: utils.PointerTo(models.HIGH),
+		},
+		{
+			name: "MEDIUM -> MEDIUM",
+			args: args{
+				severity: vulnerability.MEDIUM,
+			},
+			want: utils.PointerTo(models.MEDIUM),
+		},
+		{
+			name: "LOW -> LOW",
+			args: args{
+				severity: vulnerability.LOW,
+			},
+			want: utils.PointerTo(models.LOW),
+		},
+		{
+			name: "NEGLIGIBLE -> NEGLIGIBLE",
+			args: args{
+				severity: vulnerability.NEGLIGIBLE,
+			},
+			want: utils.PointerTo(models.NEGLIGIBLE),
+		},
+		{
+			name: "UNKNOWN -> NEGLIGIBLE",
+			args: args{
+				severity: vulnerability.UNKNOWN,
+			},
+			want: utils.PointerTo(models.NEGLIGIBLE),
+		},
+		{
+			name: "NONE -> NEGLIGIBLE",
+			args: args{
+				severity: vulnerability.NONE,
+			},
+			want: utils.PointerTo(models.NEGLIGIBLE),
+		},
+		{
+			name: "invalid -> NEGLIGIBLE",
+			args: args{
+				severity: "catastrophic",
+			},
+			want: utils.PointerTo(models.NEGLIGIBLE),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := convertVulnSeverityToAPIModel(tt.args.severity); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertVulnSeverityToAPIModel() = %v, want %v", got, tt.want)
 			}
 		})
 	}
