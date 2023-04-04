@@ -18,11 +18,19 @@ const ACTIONS_COLUMN_ID = "ACTIONS";
 const STATIC_COLUMN_IDS = [ACTIONS_COLUMN_ID];
 
 const Table = props => {
-    const {columns, defaultSortBy, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
+    const {columns, defaultSortBy, onSortChnage, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
         onPageChange, noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
         actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, actionsColumnWidth=80} = props;
 
     const [sortBy, setSortBy] = useState(defaultSortBy || {});
+    const prevSortBy = usePrevious(sortBy);
+
+    useEffect(() => {
+        if (!!onSortChnage && !isEqual(prevSortBy, sortBy)) {
+            onSortChnage(sortBy);
+        }
+    }, [prevSortBy, sortBy, onSortChnage]);
+
 
     const defaultColumn = React.useMemo(() => ({
         minWidth: 30,
