@@ -166,6 +166,7 @@ Resources:
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                     TRIVY_SERVER_ADDRESS=http://__BACKEND_REST_HOST__:9992
                     GRYPE_SERVER_ADDRESS=__BACKEND_REST_HOST__:9991
+                    DELETE_JOB_POLICY=${AssetScanDeletePolicy}
                   - JobImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
@@ -735,6 +736,14 @@ Parameters:
     Description: Name of the container image used for the grype server.
     Type: String
     Default: gcr.io/eticloud/k8sec/grype-server:v0.1.5
+  AssetScanDeletePolicy:
+    Description: When VMClarity should delete resources after a completed asset scan.
+    Type: String
+    Default: Always
+    AllowedValues:
+      - Always
+      - OnSuccess
+      - Never
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -752,11 +761,20 @@ Metadata:
         Parameters:
           - BackendContainerImage
           - ScannerContainerImage
+          - TrivyServerContainerImage
+          - GrypeServerContainerImage
+          - AssetScanDeletePolicy
     ParameterLabels:
       BackendContainerImage:
         default: Backend Container Image
       ScannerContainerImage:
         default: Scanner Container Image
+      TrivyServerContainerImage:
+        default: Trivy Server Container Image
+      GrypeServerContainerImage:
+        default: Grype Server Container Image
+      AssetScanDeletePolicy:
+        default: Asset Scan Delete Policy
 Mappings:
   # For every type we want AWS hardware virtualisation on amd64 (HVM64)
   AWSInstanceType2Arch:
