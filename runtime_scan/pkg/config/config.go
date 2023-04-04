@@ -105,7 +105,7 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(JobResultTimeout, "120m")
 	viper.SetDefault(JobResultsPollingInterval, "30s")
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
-	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicySuccessful))
+	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicyAlways))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
@@ -149,8 +149,8 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 func getDeleteJobPolicyType(policyType string) DeleteJobPolicyType {
 	deleteJobPolicy := DeleteJobPolicyType(policyType)
 	if !deleteJobPolicy.IsValid() {
-		log.Warnf("Invalid %s type (%s) - using default `%s`", DeleteJobPolicy, policyType, DeleteJobPolicySuccessful)
-		deleteJobPolicy = DeleteJobPolicySuccessful
+		log.Warnf("Invalid %s type (%s) - using default `%s`", DeleteJobPolicy, policyType, DeleteJobPolicyAlways)
+		deleteJobPolicy = DeleteJobPolicyAlways
 	}
 
 	return deleteJobPolicy

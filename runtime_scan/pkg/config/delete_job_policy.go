@@ -18,14 +18,14 @@ package config
 type DeleteJobPolicyType string
 
 const (
-	DeleteJobPolicyAll        DeleteJobPolicyType = "All"
-	DeleteJobPolicyNever      DeleteJobPolicyType = "Never"
-	DeleteJobPolicySuccessful DeleteJobPolicyType = "Successful"
+	DeleteJobPolicyAlways    DeleteJobPolicyType = "Always"
+	DeleteJobPolicyNever     DeleteJobPolicyType = "Never"
+	DeleteJobPolicyOnSuccess DeleteJobPolicyType = "OnSuccess"
 )
 
 func (dj DeleteJobPolicyType) IsValid() bool {
 	switch dj {
-	case DeleteJobPolicyAll, DeleteJobPolicyNever, DeleteJobPolicySuccessful:
+	case DeleteJobPolicyAlways, DeleteJobPolicyNever, DeleteJobPolicyOnSuccess:
 		return true
 	default:
 		return false

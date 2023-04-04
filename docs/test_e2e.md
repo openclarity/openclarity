@@ -24,6 +24,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
 3. Upload the VMClarity.cfn
 4. Follow the wizard through to the end
     * Set the `VMClarity Backend Container Image` and `VMClarity Scanner Container Image` parameters in the wizard to use custom images (from step 1.) for deployment.
+    * Change the Asset Scan Delete Policy to `OnSuccess` or `Never` if debugging scanner VMs is required.
 5. Wait for install to complete
 
 ### 3. Ensure that VMClarity backend is working correctly
