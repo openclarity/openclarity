@@ -139,13 +139,13 @@ func findFirstOperationTimeInTheFuture(operationTime time.Time, now time.Time, c
 	return operationTime
 }
 
-// isWithinTheWindow checks if `checkTime` is within the window (after `now` and before `now + window`).
+// isWithinTheWindow checks if `checkTime` is within the window (after `now - window/2` and before `now + window/2`).
 func isWithinTheWindow(checkTime, now time.Time, window time.Duration) bool {
-	if checkTime.Before(now) {
+	if checkTime.Before(now.Add(-window / 2)) { //nolint: gomnd
 		return false
 	}
 
-	endWindowTime := now.Add(window)
+	endWindowTime := now.Add(window / 2) //nolint: gomnd
 	return checkTime.Before(endWindowTime)
 }
 
@@ -153,7 +153,7 @@ func (scw *ScanConfigWatcher) shouldScan(ctx context.Context, scanConfigID strin
 	// Skip processing ScanConfig because its operationTime is not within the start window
 	if !isWithinTheWindow(operationTime, now, timeWindow) {
 		log.Debugf("ScanConfig %s start time %v outside of the start window %v - %v",
-			scanConfigID, operationTime.Format(time.RFC3339), now.Format(time.RFC3339), now.Add(timeWindow).Format(time.RFC3339))
+			scanConfigID, operationTime.Format(time.RFC3339), now.Add(-timeWindow/2).Format(time.RFC3339), now.Add(timeWindow/2).Format(time.RFC3339)) //nolint: gomnd
 		return false, nil
 	}
 

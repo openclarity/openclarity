@@ -34,11 +34,20 @@ func Test_isWithinTheWindow(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "in the window",
+			name: "in the window - after now",
 			args: args{
-				operationTime: time.Now().Add(2 * time.Minute),
+				operationTime: time.Now().Add(1 * time.Minute),
 				now:           time.Now(),
 				window:        3 * time.Minute,
+			},
+			want: true,
+		},
+		{
+			name: "in the window - before now",
+			args: args{
+				operationTime: time.Now().Add(-2 * time.Minute),
+				now:           time.Now(),
+				window:        5 * time.Minute,
 			},
 			want: true,
 		},
