@@ -557,9 +557,9 @@ func (s *Scanner) deleteJobIfNeeded(ctx context.Context, job *types.Job, isSucce
 	switch s.config.DeleteJobPolicy {
 	case config.DeleteJobPolicyNever:
 		// do nothing
-	case config.DeleteJobPolicyAll:
+	case config.DeleteJobPolicyAlways:
 		s.deleteJob(ctx, job)
-	case config.DeleteJobPolicySuccessful:
+	case config.DeleteJobPolicyOnSuccess:
 		if isSuccessfulJob {
 			s.deleteJob(ctx, job)
 		}
