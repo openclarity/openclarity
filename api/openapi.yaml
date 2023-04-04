@@ -1282,6 +1282,7 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         vpcs:
           type: array
           items:
@@ -1297,6 +1298,7 @@ components:
       properties:
         id:
           type: string
+          minLength: 1
         securityGroups:
           type: array
           items:
@@ -1312,6 +1314,7 @@ components:
       properties:
         id:
           type: string
+          minLength: 1
       required:
         - id
       additionalProperties: false
