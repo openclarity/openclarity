@@ -36,6 +36,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	uibackend "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
 
 func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
@@ -87,7 +88,9 @@ func Run() {
 		log.Fatalf("Failed to create a backend client: %v", err)
 	}
 
-	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler, backendClient, config.UISitePath)
+	uiBackendServer := uibackend.CreateUIBackedServer(backendClient)
+
+	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler, config.UISitePath, uiBackendServer)
 	if err != nil {
 		log.Fatalf("Failed to create REST server: %v", err)
 	}
@@ -95,6 +98,9 @@ func Run() {
 	defer restServer.Stop()
 
 	startRuntimeScanOrchestratorIfNeeded(ctx, config, backendClient)
+
+	// Background processing must start after rest server was started.
+	uiBackendServer.StartBackgroundProcessing(ctx)
 
 	healthServer.SetIsReady(true)
 	log.Info("VMClarity backend is ready")

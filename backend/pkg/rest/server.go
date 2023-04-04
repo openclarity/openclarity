@@ -28,7 +28,6 @@ import (
 	"github.com/openclarity/vmclarity/api/server"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	uiserver "github.com/openclarity/vmclarity/ui_backend/api/server"
 	uirest "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
@@ -48,8 +47,8 @@ type Server struct {
 	echoServer *echo.Echo
 }
 
-func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backendclient.BackendClient, uiSitePath string) (*Server, error) {
-	e, err := createEchoServer(dbHandler, client, uiSitePath)
+func CreateRESTServer(port int, dbHandler databaseTypes.Database, uiSitePath string, uiBackendAPIImpl *uirest.ServerImpl) (*Server, error) {
+	e, err := createEchoServer(dbHandler, uiSitePath, uiBackendAPIImpl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rest server: %v", err)
 	}
@@ -59,7 +58,7 @@ func CreateRESTServer(port int, dbHandler databaseTypes.Database, client *backen
 	}, nil
 }
 
-func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.BackendClient, uiSitePath string) (*echo.Echo, error) {
+func createEchoServer(dbHandler databaseTypes.Database, uiSitePath string, uiBackendAPIImpl *uirest.ServerImpl) (*echo.Echo, error) {
 	swagger, err := server.GetSwagger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
@@ -94,10 +93,6 @@ func createEchoServer(dbHandler databaseTypes.Database, client *backendclient.Ba
 	uiBackendAPIGroup := e.Group(UIBackendBaseURL)
 
 	uiBackendAPIGroup.Use(middleware.OapiRequestValidator(uiBackendSwagger))
-
-	uiBackendAPIImpl := &uirest.ServerImpl{
-		BackendClient: client,
-	}
 
 	// Register paths with the UI backend implementation
 	uiserver.RegisterHandlers(uiBackendAPIGroup, uiBackendAPIImpl)

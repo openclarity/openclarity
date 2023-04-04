@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"sync"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -52,38 +53,74 @@ type findingInfoCount struct {
 	AssetCount  int
 }
 
+type findingsImpactData struct {
+	findingsImpact               models.FindingsImpact
+	findingsImpactFetchedChannel chan struct{}
+	findingsImpactMutex          sync.RWMutex
+	once                         sync.Once
+}
+
 func (s *ServerImpl) GetDashboardFindingsImpact(ctx echo.Context) error {
-	reqCtx := ctx.Request().Context()
-	exploits, err := s.getExploitsFindingImpact(reqCtx)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get exploits finding impact: %v", err))
+	// Blocking call until data will be fetched at least once.
+	select {
+	case <-s.findingsImpactFetchedChannel:
+	case <-ctx.Request().Context().Done():
+		return sendError(ctx, http.StatusRequestTimeout, "request timeout")
 	}
-	malware, err := s.getMalwareFindingImpact(reqCtx)
+	s.findingsImpactMutex.RLock()
+	findingsImpact := s.findingsImpact
+	s.findingsImpactMutex.RUnlock()
+
+	return sendResponse(ctx, http.StatusOK, findingsImpact)
+}
+
+func (s *ServerImpl) recalculateFindingsImpact(ctx context.Context) {
+	log.Debugf("Recalculating findings impact...")
+	findingsImpact, err := s.getFindingsImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get malware finding impact: %v", err))
+		log.Errorf("failed to get findings impact: %v", err)
+	} else {
+		s.findingsImpactMutex.Lock()
+		s.findingsImpact = findingsImpact
+		s.once.Do(func() {
+			close(s.findingsImpactFetchedChannel)
+		})
+		s.findingsImpactMutex.Unlock()
 	}
-	misconfigurations, err := s.getMisconfigurationsFindingImpact(reqCtx)
+	log.Debugf("Done recalculating findings impact...")
+}
+
+func (s *ServerImpl) getFindingsImpact(ctx context.Context) (models.FindingsImpact, error) {
+	exploits, err := s.getExploitsFindingImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get misconfigurations finding impact: %v", err))
+		return models.FindingsImpact{}, fmt.Errorf("failed to get exploits finding impact: %v", err)
 	}
-	rootkits, err := s.getRootkitsFindingImpact(reqCtx)
+	malware, err := s.getMalwareFindingImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get rootkits finding impact: %v", err))
+		return models.FindingsImpact{}, fmt.Errorf("failed to get malware finding impact: %v", err)
 	}
-	secrets, err := s.getSecretsFindingImpact(reqCtx)
+	misconfigurations, err := s.getMisconfigurationsFindingImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get secrets finding impact: %v", err))
+		return models.FindingsImpact{}, fmt.Errorf("failed to get misconfigurations finding impact: %v", err)
 	}
-	vulnerabilities, err := s.getVulnerabilitiesFindingImpact(reqCtx)
+	rootkits, err := s.getRootkitsFindingImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get vulnerabilities finding impact: %v", err))
+		return models.FindingsImpact{}, fmt.Errorf("failed to get rootkits finding impact: %v", err)
 	}
-	packages, err := s.getPackagesFindingImpact(reqCtx)
+	secrets, err := s.getSecretsFindingImpact(ctx)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get packages finding impact: %v", err))
+		return models.FindingsImpact{}, fmt.Errorf("failed to get secrets finding impact: %v", err)
+	}
+	vulnerabilities, err := s.getVulnerabilitiesFindingImpact(ctx)
+	if err != nil {
+		return models.FindingsImpact{}, fmt.Errorf("failed to get vulnerabilities finding impact: %v", err)
+	}
+	packages, err := s.getPackagesFindingImpact(ctx)
+	if err != nil {
+		return models.FindingsImpact{}, fmt.Errorf("failed to get packages finding impact: %v", err)
 	}
 
-	return sendResponse(ctx, http.StatusOK, models.FindingsImpact{
+	return models.FindingsImpact{
 		Exploits:          &exploits,
 		Malware:           &malware,
 		Misconfigurations: &misconfigurations,
@@ -91,7 +128,7 @@ func (s *ServerImpl) GetDashboardFindingsImpact(ctx echo.Context) error {
 		Rootkits:          &rootkits,
 		Secrets:           &secrets,
 		Vulnerabilities:   &vulnerabilities,
-	})
+	}, nil
 }
 
 func (s *ServerImpl) getExploitsFindingImpact(ctx context.Context) ([]models.ExploitFindingImpact, error) {
@@ -427,9 +464,7 @@ func (s *ServerImpl) getFindingToAssetCountMapWithFilter(ctx context.Context, fi
 	// We will fetch findings in batches of 100
 	top := 100
 	skip := 0
-	// We will temporarily fetch up to 'top' * 10 findings
-	maxGetFindingsCount := 10
-	for i := 0; i < maxGetFindingsCount; i++ {
+	for {
 		f, err := s.BackendClient.GetFindings(ctx, backendmodels.GetFindingsParams{
 			Filter: &filter,
 			Top:    &top,

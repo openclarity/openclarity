@@ -16,9 +16,49 @@
 package rest
 
 import (
+	"context"
+	"time"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+)
+
+const (
+	backgroundRecalculationInterval = 15 * time.Minute
 )
 
 type ServerImpl struct {
 	BackendClient *backendclient.BackendClient
+	findingsImpactData
+}
+
+func CreateUIBackedServer(client *backendclient.BackendClient) *ServerImpl {
+	return &ServerImpl{
+		BackendClient: client,
+		findingsImpactData: findingsImpactData{
+			findingsImpactFetchedChannel: make(chan struct{}),
+		},
+	}
+}
+
+func (s *ServerImpl) StartBackgroundProcessing(ctx context.Context) {
+	go func() {
+		s.runBackgroundRecalculation(ctx)
+		for {
+			select {
+			case <-time.After(backgroundRecalculationInterval):
+				s.runBackgroundRecalculation(ctx)
+			case <-ctx.Done():
+				log.Infof("Stop background recalculation")
+				return
+			}
+		}
+	}()
+}
+
+func (s *ServerImpl) runBackgroundRecalculation(ctx context.Context) {
+	log.Infof("Background recalculation started...")
+	s.recalculateFindingsImpact(ctx)
+	log.Infof("Background recalculation ended...")
 }
