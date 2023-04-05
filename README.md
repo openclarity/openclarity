@@ -13,28 +13,32 @@ Software Bill Of Materials (SBOM) and vulnerabilities.
 - [Overview](#overview)
 - [VMClarity Project Goals](#vmclarity-project-goals)
 - [High Level Architecture](#high-level-architecture)
-- [VMClarity Deployment Overview](#vmclarity-deployment-overview)
 - [Getting Started](#getting-started)
   - [Installing on AWS](#installing-on-aws)
-  - [Deploy the VMClarity AWS CloudFormation Stack](#deploy-the-vmclarity-aws-cloudformation-stack)
-    - [Accessing the API](#accessing-the-api)
-    - [Configure a Scan](#configure-a-scan)
-  - [Deployment Guide](#deployment-guide)
+    - [Deploy the VMClarity AWS CloudFormation Stack](#deploy-the-vmclarity-aws-cloudformation-stack)
+    - [Accessing the API and UI](#accessing-the-api-and-ui)
+  - [Configure Your First Scan](#configure-your-first-scan)
+- [Detailed Deployment Guide](#detailed-deployment-guide)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
 # Why VMClarity?
 
-Virtual machines (VMs) are the most used service across all hypescalers. AWS, Azure, GCP, and others have virtual computing services that are used not only as standalone VM services but also as the most popular method for hosting containers (e.g., Docker, Kubernetes).
+Virtual machines (VMs) are the most used service across all hypescalers. AWS,
+Azure, GCP, and others have virtual computing services that are used not only
+as standalone VM services but also as the most popular method for hosting
+containers (e.g., Docker, Kubernetes).
 
 VMs are vulnerable to multiple threats:
+- Software vulnerabilties
 - Leaked Secrets/Passwords
 - Malware
 - System Misconfiguration
 - Rootkits
 
-There are many very good open source and commercial-based solutions for providing threat detection for VMs including:
+There are many very good open source and commercial-based solutions for
+providing threat detection for VMs including:
 - Vulnerability detection
 - Malware detection
 - Exploit detection
@@ -45,9 +49,11 @@ There are challenges with assembling and managing these tools yourself:
 - Integration with deployment automation
 - Siloed reporting and visualization
 
-The VMClarity project is focused on unifying detection and management of VM vulnerabilities.
+The VMClarity project is focused on unifying detection and management of VM
+vulnerabilities.
 
 # Overview
+
 VMClarity uses a pluggable scanning infrastructure to provide:
 - SBOM analysis
 - Package and OS vulnerability detection
@@ -57,7 +63,9 @@ VMClarity uses a pluggable scanning infrastructure to provide:
 - Misconfiguration detection
 - Rootkit detection
 
-The pluggable scanning infrastructure uses several tools that can be enabled/disabled on an individual basis. VMClarity normalizes, merges and provides a robust visualization of the results from these various tools.
+The pluggable scanning infrastructure uses several tools that can be
+enabled/disabled on an individual basis. VMClarity normalizes, merges and
+provides a robust visualization of the results from these various tools.
 
 These tools include:
 - SBOM Generation and Analysis
@@ -80,46 +88,128 @@ These tools include:
   - [Chkrootkit](https://github.com/Magentron/chkrootkit)
 
 # VMClarity Project Goals
-- **Increase the adoption of VMClarity**: One of the primary goals of VMClarity is to reduce the number of vulnerable VMs in the world. We hope to do this by getting more people involved in the project. This involves feature development, marketing efforts, improving the user experience, and providing additional documentation and resources to make it easier for users to get started.
-- **Improve the accuracy of VMClarity**: Another goal is to enhance the accuracy of VMClarity's agentless detection and management of VM SBOMs. This involves researching and developing improved algorithms and heuristics used by VMClarity.
-- **Expand VMClarity's functionality**: A third goal is to expand the functionality of VMClarity beyond just agentless detection and to add new features such as integration with other security tools to provide a more comprehensive security solution.
-- **Foster a community around VMClarity**: VMClarity will only be successful if we foster a community of users and developers around the project. The health of VMClarity depends on organizing events, creating a forum for users to drive requirements and use cases, and contributing to open-source projects related to VMClarity. Building a strong community around VMClarity will help it be more widely adopted and more effective at detecting and managing virtual machine threats.
+
+- **Increase the adoption of VMClarity**: One of the primary goals of VMClarity
+  is to reduce the number of vulnerable VMs in the world. We hope to do this by
+  getting more people involved in the project. This involves feature development,
+  marketing efforts, improving the user experience, and providing additional
+  documentation and resources to make it easier for users to get started.
+
+- **Improve the accuracy of VMClarity**: Another goal is to enhance the
+  accuracy across all supported types of threat detection by improving the
+  analysis and result merging logic performed by VMClarity to reduce false
+  positives. This involves researching and developing improved algorithms and
+  heuristics used by VMClarity.
+
+- **Expand VMClarity's functionality**: A third goal is to expand the
+  functionality of VMClarity by adding additional tools to each family, adding
+  additional families of threats to detect, and integrating with other security
+  tools to provide a more comprehensive security solution.
+
+- **Foster a community around VMClarity**: VMClarity will only be successful if
+  we foster a community of users and developers around the project. The health
+  of VMClarity depends on organizing events, creating a forum for users to drive
+  requirements and use cases, and contributing to open-source projects related to
+  VMClarity. Building a strong community around VMClarity will help it be more
+  widely adopted and more effective at detecting and managing virtual machine
+  threats.
 
 # High Level Architecture
 
-Today, VMClarity is deployed in an AWS Virtual Private Cloud (VPC) **Note**: Additional hyperscaler support is on the roadmap. VMClarity is deployed in its own VPC and scans EC2 resources known to the AWS account-id from which the environment is built. In Figure 1, shown below, a VMClarity server instance is deployed in a dedicated AWS VPC, and on that server instance are several components:
-- **API**: An OpenAPI-based API that users interact with via command line interface (e.g., curl) and the VMClarity User Interface (UI)
-- **Backend**: A core component for the orchestration and management of the other components including the SBOM database
-- **SBOM DB**: The database responsible for hosting the vulnerability and exploit details, and the findings (after a scan)
-- **Runtime scan orchestrator**: The component responsible for configuring the scans on the scanner VM
+Today, VMClarity has two halves, the VMClarity infrastructure, and the VMClarity CLI.
 
-Once the VMClarity server instance has been deployed, and the scan configurations have been created, VMClarity will scan for VM resources within the scan range previously defined (e.g., by region, instance tag, and security group). Once the target list has been created, snapshots of the targets are taken, and a new scanner VM are launched using the snapshots as attached volumes. The VMClarity CLI running within the scanner VM will perform the configured analysis on the mounted snapshot, and report the results to the VMClarity API. These results are then processed by the VMClarity backend into findings.
+The VMClarity infrastructure includes:
+
+- **Backend**: The core component of VMClarity. Within this service there are
+  sub-components (it is in the roadmap to break these into dedicated microservices):
+
+  - **API**: The VMClarity API for managing all objects in the VMClarity
+    system. This is the only component in the system which talks to the DB.
+
+  - **Orchestrator**: Orchestrates and manages the life cycle of VMClarity scan
+    configs, scans and scan results. Within the Orchestrator there is a
+    pluggable "provider" which connects the orchstrator to the environment to be
+    scanned and abstracts target discovery, VM snapshotting as well as creation of
+    the scanner VMs. (**Note** The only supported provider today is AWS, other
+    hyperscalers are on the roadmap)
+
+  - **UI Backend**: A separate backend API which offloads some processing from
+    the browser to the infrastructure to process and filter data closer to the
+    source.
+
+  - **UI Server**: A server serving the UI static files.
+
+- **DB**: Stores the VMClarity objects from the API. Today this is SQLite but
+  the database interface in VMClarity is pluggable and additional DB support
+  can be added. (Postgres is in the roadmap)
+
+- **Scanner services**: These services provide support to the VMClarity
+  CLI to offload work that would need to be done in ever scanner, for example
+  downloading the latest vulnerability or malware signatures from the various DB
+  sources. The components included today are:
+  - grype-server: A rest API wrapper around the grype vulnerbility scanner
+  - trivy-server: Trivy vulnerability scanner server
+  - exploitDB server: A test API which wraps the Exploit DB CVE to exploit mapping logic
+  - freshclam-mirror: A mirror of the ClamAV malware signatures
+
+The VMClarity CLI contains all the logic for performing a scan, from mounting
+attached volumes and all the pluggable infrastructure for all the families, to
+exporting the results to VMClarity API.
+
+These components are containerized and can be deployed in a number of different
+ways. For example our cloudformation installer deploys VMClarity on a VM using
+docker in an dedicated AWS Virtual Private Cloud (VPC).
+
+Once the VMClarity server instance has been deployed, and the scan
+configurations have been created, VMClarity will discover VM resources within
+the scan range defined by the scan configuration (e.g., by region, instance
+tag, and security group). Once the target list has been created, snapshots of
+the targets are taken, and a new scanner VM are launched using the snapshots as
+attached volumes. The VMClarity CLI running within the scanner VM will perform
+the configured analysis on the mounted snapshot, and report the results to the
+VMClarity API. These results are then processed by the VMClarity backend into
+findings.
 
 Figure 1. VMClarity Architecture Overview
 ![VMClarity Architecture Overview](img/vmclarity-arch-overview.svg)
-
-# VMClarity Deployment Overview
-
-An AWS CloudFormation template is provided for quick deployment of the VMClarity environment. **Note**: To avoid extra costs (cross-region snapshots), you may want to deploy the VMClarity AWS CloudFormation template in the same region where the majority of VMs are that you want VMClarity to scan.
-
-Figure 2 illustrates the basic AWS resources that the VMClarity CloudFormation template creates. The AWS CloudFormation template creates a single VPC with a public and private subnet. An AWS Internet Gateway (IGW) and NAT Gateway (NGW) are deployed in the VPC.
-
-The public subnet (VmClarityServerSubnet) hosts the VMClarity Server (VmClarityServer) EC2 instance. The VMClarity server is what houses the scanning configuration, UI and other control components. The EC2 instance is assigned an external IPv4 address (EIP) for SSH and web UI access.
-
-The private subnet (VmClarityScannerSubnet) hosts the VM snapshot instances (EC2) that are scanned for security vulnerabilities.
-
-Figure 2. VMClarity Cloud Formation Resources
-![VMClarity CloudFormation Resources](img/vmclarity-cf-basic.svg)
 
 # Getting Started
 
 ## Installing on AWS
 
-To begin, clone the VMClarity repo or copy the ![AWS CloudFormation template](installation/aws/VmClarity.cfn) file.
+An AWS CloudFormation template is provided for quick deployment of the
+VMClarity environment. **Note**: To avoid extra costs (cross-region snapshots),
+you may want to deploy the VMClarity AWS CloudFormation template in the same
+region where the majority of VMs are that you want VMClarity to scan.
 
-## Deploy the VMClarity AWS CloudFormation Stack
+Figure 2 illustrates the basic AWS resources that the VMClarity CloudFormation
+template creates. The AWS CloudFormation template creates a single VPC with a
+public and private subnet. An AWS Internet Gateway (IGW) and NAT Gateway (NGW)
+are deployed in the VPC.
 
-Go to the AWS CloudFormation service page: > Create Stack > With New Resources (standard)> Check "Template is ready", and Check "Upload a template file" > Upload a template file/Choose file.
+The public subnet (VmClarityServerSubnet) hosts the VMClarity Server
+(VmClarityServer) EC2 instance. The VMClarity server is what houses the
+scanning configuration, UI and other control components. The EC2 instance is
+assigned an external IPv4 address (EIP) for SSH and web UI access.
+
+The private subnet (VmClarityScannerSubnet) hosts the VM snapshot instances
+(EC2) that are scanned for security vulnerabilities.
+
+Figure 2. VMClarity Cloud Formation Resources
+![VMClarity CloudFormation Resources](img/vmclarity-cf-basic.svg)
+
+To begin either:
+* Download the latest stable VMClarity.cfn from the choosen VMClarity release
+  [here](https://github.com/openclarity/vmclarity/releases)
+
+* Clone or copy the ![AWS CloudFormation template](installation/aws/VmClarity.cfn)
+  file from main to deploy the latest development code.
+
+### Deploy the VMClarity AWS CloudFormation Stack
+
+Go to the AWS CloudFormation service page: > Create Stack > With New Resources
+(standard)> Check "Template is ready", and Check "Upload a template file" >
+Upload a template file/Choose file.
 
 - Name the stack
 - Select the InstanceType (defaults to t2.large for the VMClarity Server, and the scanner VMs)
@@ -137,9 +227,10 @@ Scroll to the bottom of the screen, and check "I acknowledge..."
 
 Click "SUBMIT"
 
-After a few minutes the stack will be deployed, and you can get the VMClarity server instance public IPv4 address from the AWS CloudFormation "Outputs" tab.
+After a few minutes the stack will be deployed, and you can get the VMClarity
+server instance public IPv4 address from the AWS CloudFormation "Outputs" tab.
 
-### Accessing the API
+### Accessing the API and UI
 
 - To access the API, a tunnel to the HTTP ports must be opened using the
 VMClarity server as a bastion.
@@ -148,13 +239,16 @@ VMClarity server as a bastion.
 ssh -N -L 8888:localhost:8888 ubuntu@<VMClarity public IP address>
 ```
 
-- Once SSH tunnel has been configured, the VMClarity API can be accessed on <http://localhost:8888>. Figure 3 shows the default VMClarity UI dashboard. No scans, assets or findings will be shown yet. A scan configuration is required to be added to the environment.
+- Once SSH tunnel has been configured, the VMClarity API can be accessed on
+  <http://localhost:8888>. Figure 3 shows the default VMClarity UI dashboard.
+  No scans, assets or findings will be shown yet. A scan configuration is
+  required to be added to the environment.
 
 Figure 3. VMClarity UI Dashboard
 
 ![VMClarity UI Dashboard](img/vmclarity-ui-1.png)
 
-### Configure a Scan
+## Configure Your First Scan
 
 - Click on the "Scans" icon as shown in Figure 4. In the Scans window, you can create a new scan configuration.
 
@@ -206,9 +300,9 @@ Figure 11. VMClarity Dashboard
 
 <img src="img/vmclarity-dashboard-data.png" alt="VMClarity Dashboard with Findings" width="90%" height="90%" title="VMClarity Dashboard with Findings" />
 
-## Deployment Guide
+# Detailed Deployment Guide
 
-As mentioned before, a detailed Deployment Guide is available at: <URL FOR docs/deployment-guide.md> and includes information on:
+A detailed Deployment Guide is available at: <URL FOR docs/deployment-guide.md> and includes information on:
 - AWS CloudFormation Stack build with screenshots
 - How to interact with the VMClarity API via command line and UI
 - How to check logs (cloud-init in the scanner VM, real-time scanner logs)
