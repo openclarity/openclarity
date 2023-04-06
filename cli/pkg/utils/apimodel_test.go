@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package utils
 
 import (
 	"reflect"
@@ -40,7 +40,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func Test_convertSBOMResultToAPIModel(t *testing.T) {
+func Test_ConvertSBOMResultToAPIModel(t *testing.T) {
 	type args struct {
 		result *sbom.Results
 	}
@@ -146,7 +146,7 @@ func Test_convertSBOMResultToAPIModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertSBOMResultToAPIModel(tt.args.result)
+			got := ConvertSBOMResultToAPIModel(tt.args.result)
 			if diff := cmp.Diff(tt.want.sbomScan, got, cmpopts.SortSlices(func(a, b models.Package) bool { return *a.Purl < *b.Purl })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
@@ -154,7 +154,7 @@ func Test_convertSBOMResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_convertVulnResultToAPIModel(t *testing.T) {
+func Test_ConvertVulnResultToAPIModel(t *testing.T) {
 	type args struct {
 		result *vulnerabilities.Results
 	}
@@ -382,7 +382,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertVulnResultToAPIModel(tt.args.result)
+			got := ConvertVulnResultToAPIModel(tt.args.result)
 			if diff := cmp.Diff(tt.want.vulScan, got, cmpopts.SortSlices(func(a, b models.Vulnerability) bool { return *a.VulnerabilityName < *b.VulnerabilityName })); diff != "" {
 				t.Errorf("convertVulnResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
@@ -390,7 +390,7 @@ func Test_convertVulnResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_convertSecretsResultToAPIModel(t *testing.T) {
+func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 	finding1 := common.Findings{
 		Description: "Description1",
 		StartLine:   1,
@@ -512,7 +512,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertSecretsResultToAPIModel(tt.args.secretsResults)
+			got := ConvertSecretsResultToAPIModel(tt.args.secretsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Secret) bool { return *a.Fingerprint < *b.Fingerprint })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
@@ -520,7 +520,7 @@ func Test_convertSecretsResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_convertMalwareResultToAPIModel(t *testing.T) {
+func Test_ConvertMalwareResultToAPIModel(t *testing.T) {
 	type args struct {
 		mergedResults *malware.MergedResults
 	}
@@ -623,7 +623,7 @@ func Test_convertMalwareResultToAPIModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertMalwareResultToAPIModel(tt.args.mergedResults)
+			got := ConvertMalwareResultToAPIModel(tt.args.mergedResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Malware) bool { return *a.MalwareType < *b.MalwareType })); diff != "" {
 				t.Errorf("convertMalwareResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
@@ -631,7 +631,7 @@ func Test_convertMalwareResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_convertExploitsResultToAPIModel(t *testing.T) {
+func Test_ConvertExploitsResultToAPIModel(t *testing.T) {
 	exploit1 := common2.Exploit{
 		ID:          "id1",
 		Name:        "name1",
@@ -732,7 +732,7 @@ func Test_convertExploitsResultToAPIModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertExploitsResultToAPIModel(tt.args.exploitsResults)
+			got := ConvertExploitsResultToAPIModel(tt.args.exploitsResults)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Exploit) bool { return *a.CveID < *b.CveID })); diff != "" {
 				t.Errorf("convertExploitsResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
@@ -740,7 +740,7 @@ func Test_convertExploitsResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_misconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
+func Test_MisconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 	type args struct {
 		sev misconfigurationTypes.Severity
 	}
@@ -781,7 +781,7 @@ func Test_misconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := misconfigurationSeverityToAPIMisconfigurationSeverity(tt.args.sev)
+			got, err := MisconfigurationSeverityToAPIMisconfigurationSeverity(tt.args.sev)
 			if err != nil {
 				if !tt.wantErr {
 					t.Fatalf("Unexpected error: %v", err)
@@ -795,7 +795,7 @@ func Test_misconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 	}
 }
 
-func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
+func Test_ConvertMisconfigurationResultToAPIModel(t *testing.T) {
 	misconfiguration1 := misconfiguration.FlattenedMisconfiguration{
 		ScannerName: "foo",
 		Misconfiguration: misconfigurationTypes.Misconfiguration{
@@ -925,7 +925,7 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := convertMisconfigurationResultToAPIModel(tt.args.misconfigurationResults)
+			got, err := ConvertMisconfigurationResultToAPIModel(tt.args.misconfigurationResults)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -937,8 +937,7 @@ func Test_convertMisconfigurationResultToAPIModel(t *testing.T) {
 	}
 }
 
-func Test_convertVulnSeverityToAPIModel(t *testing.T) {
-	initLogger()
+func Test_ConvertVulnSeverityToAPIModel(t *testing.T) {
 	type args struct {
 		severity string
 	}
@@ -1020,7 +1019,7 @@ func Test_convertVulnSeverityToAPIModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := convertVulnSeverityToAPIModel(tt.args.severity); !reflect.DeepEqual(got, tt.want) {
+			if got := ConvertVulnSeverityToAPIModel(tt.args.severity); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("convertVulnSeverityToAPIModel() = %v, want %v", got, tt.want)
 			}
 		})
