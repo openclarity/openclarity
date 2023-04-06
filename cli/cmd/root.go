@@ -17,31 +17,27 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/ghodss/yaml"
 	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
-	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/cli/pkg"
-	"github.com/openclarity/vmclarity/cli/pkg/mount"
+	"github.com/openclarity/vmclarity/cli/pkg/cli"
+	"github.com/openclarity/vmclarity/cli/pkg/presenter"
+	"github.com/openclarity/vmclarity/cli/pkg/state"
+	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
-	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 var (
@@ -56,11 +52,6 @@ var (
 	waitForServerAttached bool
 )
 
-const (
-	fsTypeExt4 = "ext4"
-	fsTypeXFS  = "xfs"
-)
-
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:          "vmclarity",
@@ -71,220 +62,54 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		var exporter *Exporter
-		if server != "" {
-			exp, err := CreateExporter()
-			if err != nil {
-				return fmt.Errorf("failed to create a result exporter: %w", err)
-			}
-			exporter = exp
+		cli, err := newCli()
+		if err != nil {
+			return fmt.Errorf("failed to initialize CLI: %w", err)
 		}
 
-		if waitForServerAttached && exporter != nil {
-			// wait for volume to be attached.
-			if err := waitForAttached(ctx, exporter); err != nil {
-				return fmt.Errorf("failed to wait for volume attached: %v", err)
+		if waitForServerAttached {
+			if err := cli.WaitForVolumeAttachment(ctx); err != nil {
+				return fmt.Errorf("failed to wait for block device being attached: %w", err)
 			}
-			logger.Infof("got volume attached state")
 		}
 
 		if mountVolume {
-			mountPoints, err := mountAttachedVolume()
+			mountPoints, err := cli.MountVolumes(ctx)
 			if err != nil {
 				return fmt.Errorf("failed to mount attached volume: %v", err)
 			}
 			setMountPointsForFamiliesInput(mountPoints, config)
 		}
 
-		if exporter != nil {
-			// TODO ideally we want to mark the state of each family, and not just general.
-			err := exporter.MarkScanResultInProgress(ctx)
-			if err != nil {
-				return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
-			}
+		err = cli.MarkInProgress(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
 		}
 
-		res, famerr := families.New(logger, config).Run()
+		res, familiesErr := families.New(logger, config).Run()
 
-		if exporter != nil {
-			logger.Infof("Exporting results to the backend...")
-			var generalErrors []error
-
-			exportErrors := exporter.ExportResults(ctx, res, famerr)
-			generalErrors = append(generalErrors, exportErrors...)
-
-			if len(famerr) > 0 {
-				generalErrors = append(generalErrors, fmt.Errorf("at least one family failed to run"))
-			}
-
-			err := exporter.MarkScanResultDone(ctx, generalErrors)
-			if err != nil {
-				return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
-			}
+		logger.Infof("Exporting results...")
+		var generalErrors []error
+		exportErrors := cli.ExportResults(ctx, res, familiesErr)
+		generalErrors = append(generalErrors, exportErrors...)
+		if len(familiesErr) > 0 {
+			generalErrors = append(generalErrors, fmt.Errorf("at least one family failed to run"))
 		}
 
-		if len(famerr) > 0 {
-			return fmt.Errorf("failed to run families: %+v", famerr)
+		err = cli.MarkDone(ctx, generalErrors)
+		if err != nil {
+			return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
 		}
 
-		if err := outputResults(config, res); err != nil {
-			return fmt.Errorf("failed to output results: %v", err)
+		if len(familiesErr) > 0 {
+			return fmt.Errorf("failed to run families: %+v", familiesErr)
 		}
 
 		return nil
 	},
-}
-
-func waitForAttached(ctx context.Context, exporter *Exporter) error {
-	if exporter == nil {
-		return errors.New("the Exporter parameter must not be nil")
-	}
-
-	// nolint:govet
-	ctx, cancel := context.WithTimeout(ctx, utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
-	defer cancel()
-
-	for {
-		select {
-		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
-			status, err := exporter.client.GetScanResultStatus(ctx, scanResultID)
-			if err != nil {
-				return fmt.Errorf("failed to get scan result status: %v", err)
-			}
-			// wait for status attached (meaning volume was attached and can be mounted).
-			if *status.General.State == models.ATTACHED {
-				return nil
-			}
-		case <-ctx.Done():
-			return fmt.Errorf("waiting for volume ready was canceled: %v", ctx.Err())
-		}
-	}
-}
-
-// nolint:cyclop
-func outputResults(config *families.Config, res *results.Results) error {
-	if config.SBOM.Enabled {
-		if err := outputSBOMResults(config, res); err != nil {
-			return err
-		}
-	}
-
-	if config.Vulnerabilities.Enabled {
-		if err := outputVulnerabilitiesResults(res); err != nil {
-			return err
-		}
-	}
-
-	if config.Secrets.Enabled {
-		if err := outputSecretsResults(res); err != nil {
-			return err
-		}
-	}
-
-	if config.Exploits.Enabled {
-		if err := outputExploitsResults(res); err != nil {
-			return err
-		}
-	}
-
-	if config.Malware.Enabled {
-		if err := outputMalwareResults(res); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func outputSBOMResults(config *families.Config, res *results.Results) error {
-	sbomResults, err := results.GetResult[*sbom.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get sbom results: %v", err)
-	}
-
-	outputFormat := config.SBOM.AnalyzersConfig.Analyzer.OutputFormat
-	sbomBytes, err := sbomResults.EncodeToBytes(outputFormat)
-	if err != nil {
-		return fmt.Errorf("failed to encode sbom results to bytes: %w", err)
-	}
-
-	// TODO: Need to implement a better presenter
-	err = Output(sbomBytes, "sbom")
-	if err != nil {
-		return fmt.Errorf("failed to output sbom results: %v", err)
-	}
-	return nil
-}
-
-func outputVulnerabilitiesResults(res *results.Results) error {
-	vulnerabilitiesResults, err := results.GetResult[*vulnerabilities.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get sbom results: %v", err)
-	}
-
-	bytes, err := json.Marshal(vulnerabilitiesResults.MergedResults)
-	if err != nil {
-		return fmt.Errorf("failed to output vulnerabilities results: %v", err)
-	}
-	err = Output(bytes, "vulnerabilities")
-	if err != nil {
-		return fmt.Errorf("failed to output vulnerabilities results: %v", err)
-	}
-	return nil
-}
-
-func outputSecretsResults(res *results.Results) error {
-	secretsResults, err := results.GetResult[*secrets.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get secrets results: %v", err)
-	}
-
-	bytes, err := json.Marshal(secretsResults)
-	if err != nil {
-		return fmt.Errorf("failed to output secrets results: %v", err)
-	}
-	err = Output(bytes, "secrets")
-	if err != nil {
-		return fmt.Errorf("failed to output secrets results: %v", err)
-	}
-	return nil
-}
-
-func outputExploitsResults(res *results.Results) error {
-	exploitsResults, err := results.GetResult[*exploits.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get exploits results: %v", err)
-	}
-
-	bytes, err := json.Marshal(exploitsResults)
-	if err != nil {
-		return fmt.Errorf("failed to marshal exploits results: %v", err)
-	}
-	err = Output(bytes, "exploits")
-	if err != nil {
-		return fmt.Errorf("failed to output exploits results: %v", err)
-	}
-	return nil
-}
-
-func outputMalwareResults(res *results.Results) error {
-	malwareResults, err := results.GetResult[*malware.MergedResults](res)
-	if err != nil {
-		return fmt.Errorf("failed to get malware results: %v", err)
-	}
-
-	bytes, err := json.Marshal(malwareResults)
-	if err != nil {
-		return fmt.Errorf("failed to marshal malware results: %v", err)
-	}
-	err = Output(bytes, "malware")
-	if err != nil {
-		return fmt.Errorf("failed to output  %v", err)
-	}
-	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -304,7 +129,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vmclarity.yaml)")
-	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set file path output (default: stdout)")
+	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set output directory path. Stdout is used if not set.")
 	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
 	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
 	rootCmd.PersistentFlags().BoolVar(&mountVolume, "mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
@@ -358,37 +183,55 @@ func initLogger() {
 	logger = log.WithField("app", "vmclarity")
 }
 
-func Output(bytes []byte, outputPrefix string) error {
-	if output == "" {
-		os.Stdout.Write([]byte(fmt.Sprintf("%s results:\n", outputPrefix)))
-		os.Stdout.Write(bytes)
-		os.Stdout.Write([]byte("\n=================================================\n"))
-		return nil
+func newCli() (*cli.CLI, error) {
+	var manager state.Manager
+	var presenters []presenter.Presenter
+	var err error
+
+	if config == nil {
+		return nil, errors.New("families config must not be nil")
 	}
 
-	filePath := outputPrefix + "." + output
-	logger.Infof("Writing results to %v...", filePath)
+	if server != "" {
+		var client *backendclient.BackendClient
+		var p presenter.Presenter
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666) // nolint:gomnd,gofumpt
-	if err != nil {
-		return fmt.Errorf("failed open file %s: %v", filePath, err)
+		client, err = backendclient.Create(server)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
+		}
+
+		manager, err = state.NewVMClarityState(client, scanResultID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create VMClarity state manager: %w", err)
+		}
+
+		p, err = presenter.NewVMClarityPresenter(client, scanResultID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create VMClarity presenter: %w", err)
+		}
+		presenters = append(presenters, p)
+	} else {
+		manager, err = state.NewLocalState()
+		if err != nil {
+			return nil, fmt.Errorf("failed to create local state: %w", err)
+		}
 	}
-	defer file.Close()
 
-	_, err = file.Write(bytes)
-	if err != nil {
-		return fmt.Errorf("failed to write bytes to file %s: %v", filePath, err)
+	if output != "" {
+		presenters = append(presenters, presenter.NewFilePresenter(output, config))
+	} else {
+		presenters = append(presenters, presenter.NewConsolePresenter(os.Stdout, config))
 	}
 
-	return nil
-}
-
-func isSupportedFS(fs string) bool {
-	switch fs {
-	case fsTypeExt4, fsTypeXFS:
-		return true
+	var p presenter.Presenter
+	if len(presenters) == 1 {
+		p = presenters[0]
+	} else {
+		p = &presenter.MultiPresenter{Presenters: presenters}
 	}
-	return false
+
+	return &cli.CLI{Manager: manager, Presenter: p, FamiliesConfig: config}, nil
 }
 
 func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *families.Config) *families.Config {
@@ -433,27 +276,4 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 		}
 	}
 	return familiesConfig
-}
-
-func mountAttachedVolume() ([]string, error) {
-	var mountPoints []string
-
-	devices, err := mount.ListBlockDevices()
-	if err != nil {
-		return nil, fmt.Errorf("failed to list block devices: %v", err)
-	}
-	for _, device := range devices {
-		// if the device is not mounted and of a supported filesystem type,
-		// we assume it belongs to the attached volume, so we mount it.
-		if device.MountPoint == "" && isSupportedFS(device.FilesystemType) {
-			mountDir := "/mnt/snapshot" + uuid.NewV4().String()
-
-			if err := device.Mount(mountDir); err != nil {
-				return nil, fmt.Errorf("failed to mount device: %v", err)
-			}
-			logger.Infof("Mounted device %v on %v", device.DeviceName, mountDir)
-			mountPoints = append(mountPoints, mountDir)
-		}
-	}
-	return mountPoints, nil
 }
