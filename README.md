@@ -171,7 +171,7 @@ VMClarity API. These results are then processed by the VMClarity backend into
 findings.
 
 Figure 1. VMClarity Architecture Overview
-![VMClarity Architecture Overview](img/vmclarity-arch-overview.svg)
+![VMClarity Architecture Overview](img/vmclarity-arch-20230406.svg)
 
 # Getting Started
 
