@@ -45,6 +45,7 @@ const (
 	ExploitDBAddress                = "EXPLOIT_DB_ADDRESS"
 	TrivyServerAddress              = "TRIVY_SERVER_ADDRESS"
 	GrypeServerAddress              = "GRYPE_SERVER_ADDRESS"
+	ChkrootkitBinaryPath            = "CHKROOTKIT_BINARY_PATH"
 )
 
 type OrchestratorConfig struct {
@@ -96,6 +97,9 @@ type ScannerConfig struct {
 	// The location where Lynis is installed in the scanner image
 	LynisInstallPath string
 
+	// The chkrootkit binary path in the scanner image container.
+	ChkrootkitBinaryPath string
+
 	// the name of the block device to attach to the scanner job
 	DeviceName string
 }
@@ -107,10 +111,12 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(ScanConfigWatchInterval, "30s")
 	viper.SetDefault(DeleteJobPolicy, string(DeleteJobPolicyAlways))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
-	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
-	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L35
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile
 	viper.SetDefault(LynisInstallPath, "/artifacts/lynis")
+	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile
+	viper.SetDefault(ChkrootkitBinaryPath, "/artifacts/chkrootkit")
 	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
 	viper.SetDefault(AttachedVolumeDeviceName, defaultAttachedVolumeDeviceName)
 	viper.SetDefault(ClamBinaryPath, "clamscan")
@@ -140,6 +146,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Orchestra
 			ClamBinaryPath:            viper.GetString(ClamBinaryPath),
 			TrivyServerAddress:        viper.GetString(TrivyServerAddress),
 			GrypeServerAddress:        viper.GetString(GrypeServerAddress),
+			ChkrootkitBinaryPath:      viper.GetString(ChkrootkitBinaryPath),
 		},
 	}
 

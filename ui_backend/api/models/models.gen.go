@@ -225,8 +225,6 @@ type RiskyAsset struct {
 
 // Rootkit defines model for Rootkit.
 type Rootkit struct {
-	// Path Path of the file that contains rootkit
-	Path        *string      `json:"path,omitempty"`
 	RootkitName *string      `json:"rootkitName,omitempty"`
 	RootkitType *RootkitType `json:"rootkitType,omitempty"`
 }

@@ -272,7 +272,6 @@ func createRootkitFindingImpact(findingInfo *backendmodels.Finding_FindingInfo, 
 	return models.RootkitFindingImpact{
 		AffectedAssetsCount: &count,
 		Rootkit: &models.Rootkit{
-			Path:        info.Path,
 			RootkitName: info.RootkitName,
 			RootkitType: toModelsRootkitType(info.RootkitType),
 		},

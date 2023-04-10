@@ -245,9 +245,6 @@ components:
           type: string
         rootkitType:
           $ref: '#/components/schemas/RootkitType'
-        path:
-          type: string
-          description: Path of the file that contains rootkit
 
     RootkitType:
       type: string

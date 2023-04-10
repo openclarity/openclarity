@@ -3,7 +3,7 @@ import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDi
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
 
 const TabPackageDetails = ({data}) => {
-    const {rootkitName, path} = data.findingInfo;
+    const {rootkitName, message} = data.findingInfo;
 
     return (
         <DoublePaneDisplay
@@ -13,7 +13,7 @@ const TabPackageDetails = ({data}) => {
                         <TitleValueDisplay title="Rootkit name">{rootkitName}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="File path">{path}</TitleValueDisplay>
+                        <TitleValueDisplay title="Message">{message}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>  
             )}

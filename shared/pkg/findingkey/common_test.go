@@ -27,7 +27,7 @@ import (
 
 func TestGenerateFindingKey(t *testing.T) {
 	rootkitFindingInfo := models.RootkitFindingInfo{
-		Path:        utils.PointerTo("Path"),
+		Message:     utils.PointerTo("Message"),
 		RootkitName: utils.PointerTo("RootkitName"),
 		RootkitType: utils.PointerTo(models.RootkitType("RootkitType")),
 	}

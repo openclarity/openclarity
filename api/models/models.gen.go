@@ -29,6 +29,7 @@ const (
 	FIRMWARE    RootkitType = "FIRMWARE"
 	KERNEL      RootkitType = "KERNEL"
 	MEMORY      RootkitType = "MEMORY"
+	UNKNOWN     RootkitType = "UNKNOWN"
 )
 
 // Defines values for ScanState.
@@ -330,18 +331,15 @@ type PodInfo struct {
 
 // Rootkit defines model for Rootkit.
 type Rootkit struct {
-	// Path Path of the file that contains rootkit
-	Path        *string      `json:"path,omitempty"`
+	Message     *string      `json:"message,omitempty"`
 	RootkitName *string      `json:"rootkitName,omitempty"`
 	RootkitType *RootkitType `json:"rootkitType,omitempty"`
 }
 
 // RootkitFindingInfo defines model for RootkitFindingInfo.
 type RootkitFindingInfo struct {
-	ObjectType string `json:"objectType"`
-
-	// Path Path of the file that contains rootkit
-	Path        *string      `json:"path,omitempty"`
+	Message     *string      `json:"message,omitempty"`
+	ObjectType  string       `json:"objectType"`
 	RootkitName *string      `json:"rootkitName,omitempty"`
 	RootkitType *RootkitType `json:"rootkitType,omitempty"`
 }
