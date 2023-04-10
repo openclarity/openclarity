@@ -17,6 +17,7 @@ package analyzer
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -311,12 +312,9 @@ func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[
 		}
 
 		if dependency.Dependencies != nil {
-			newDependsOn := []cdx.Dependency{}
+			var newDependsOn []string
 			for _, dependsOnRef := range *dependency.Dependencies {
-				newDependsOn = append(
-					newDependsOn,
-					cdx.Dependency{Ref: m.getRealBomRefFromPreviousBomRef(dependsOnRef.Ref)},
-				)
+				newDependsOn = append(newDependsOn, m.getRealBomRefFromPreviousBomRef(dependsOnRef))
 			}
 			newDep.Dependencies = &newDependsOn
 		}
@@ -329,7 +327,7 @@ func (m *MergedResults) normalizeDependencies(dependencies *[]cdx.Dependency) *[
 
 func mergeDependencies(depsA, depsB *[]cdx.Dependency) *[]cdx.Dependency {
 	refToDepends := map[string]map[string]struct{}{}
-	addDepsToRefToDepends := func(ref string, deps *[]cdx.Dependency) {
+	addDepsToRefToDepends := func(ref string, deps *[]string) {
 		if deps == nil {
 			return
 		}
@@ -343,7 +341,7 @@ func mergeDependencies(depsA, depsB *[]cdx.Dependency) *[]cdx.Dependency {
 
 		// add entries to the refToDepends set
 		for _, dependsOnRef := range *deps {
-			existing[dependsOnRef.Ref] = struct{}{}
+			existing[dependsOnRef] = struct{}{}
 		}
 	}
 
@@ -361,12 +359,11 @@ func mergeDependencies(depsA, depsB *[]cdx.Dependency) *[]cdx.Dependency {
 
 	output := []cdx.Dependency{}
 	for ref, depends := range refToDepends {
-		dependsOn := []cdx.Dependency{}
+		var dependsOn []string
 		for dRef := range depends {
-			dependsOn = append(dependsOn, cdx.Dependency{
-				Ref: dRef,
-			})
+			dependsOn = append(dependsOn, dRef)
 		}
+		sort.Strings(dependsOn)
 		output = append(output, cdx.Dependency{
 			Ref:          ref,
 			Dependencies: &dependsOn,
