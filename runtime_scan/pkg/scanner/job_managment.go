@@ -355,6 +355,7 @@ func (s *Scanner) runJob(ctx context.Context, data *scanData) (types.Job, error)
 	if err != nil {
 		return types.Job{}, fmt.Errorf("failed to create volume: %v", err)
 	}
+	job.Volume = newVolume
 
 	// wait for instance to be in a running state.
 	if err := job.Instance.WaitForReady(ctx); err != nil {
