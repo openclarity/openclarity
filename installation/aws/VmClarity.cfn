@@ -768,7 +768,7 @@ Parameters:
   FreshclamMirrorContainerImage:
     Description: Name of the container image used for the freshclam mirror server.
     Type: String
-    Default: ghcr.io/openclarity/vmclarity-freshclam-mirror:latest
+    Default: ghcr.io/openclarity/freshclam-mirror:v0.1.0
   TrivyServerContainerImage:
     Description: Name of the container image used for the trivy server.
     Type: String
