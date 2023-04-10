@@ -18,7 +18,6 @@ Software Bill Of Materials (SBOM) and security threats such as vulnerabilities, 
     - [Deploy the VMClarity AWS CloudFormation Stack](#deploy-the-vmclarity-aws-cloudformation-stack)
     - [Accessing the API and UI](#accessing-the-api-and-ui)
   - [Configure Your First Scan](#configure-your-first-scan)
-- [Detailed Deployment Guide](#detailed-deployment-guide)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -294,14 +293,6 @@ Figure 10. VMClarity Scan List
 Figure 11. VMClarity Dashboard
 
 <img src="img/vmclarity-dashboard-data.png" alt="VMClarity Dashboard with Findings" width="90%" height="90%" title="VMClarity Dashboard with Findings" />
-
-# Detailed Deployment Guide
-
-A detailed Deployment Guide is available at: <URL FOR docs/deployment-guide.md> and includes information on:
-- AWS CloudFormation Stack build with screenshots
-- How to interact with the VMClarity API via command line and UI
-- How to check logs (cloud-init in the scanner VM, real-time scanner logs)
-- How to use the VMClarity UI
 
 # Contributing
 
