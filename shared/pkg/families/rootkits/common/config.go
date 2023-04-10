@@ -1,4 +1,4 @@
-// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,28 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package findingkey
+package common
 
-import (
-	"fmt"
+import "github.com/openclarity/vmclarity/shared/pkg/families/rootkits/chkrootkit/config"
 
-	"github.com/openclarity/vmclarity/api/models"
-)
-
-type RootkitKey struct {
-	Name        string
-	RootkitType string
-	Message     string
+type ScannersConfig struct {
+	Chkrootkit config.Config `yaml:"chkrootkit" mapstructure:"chkrootkit"`
 }
 
-func (k RootkitKey) String() string {
-	return fmt.Sprintf("%s.%s.%s", k.Name, k.RootkitType, k.Message)
-}
-
-func GenerateRootkitKey(info models.RootkitFindingInfo) RootkitKey {
-	return RootkitKey{
-		Name:        *info.RootkitName,
-		RootkitType: string(*info.RootkitType),
-		Message:     *info.Message,
-	}
-}
+func (ScannersConfig) IsConfig() {}

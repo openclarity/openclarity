@@ -78,7 +78,7 @@ func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Co
 		// scan.
 		for _, item := range *scanResult.Rootkits.Rootkits {
 			itemFindingInfo := models.RootkitFindingInfo{
-				Path:        item.Path,
+				Message:     item.Message,
 				RootkitName: item.RootkitName,
 				RootkitType: item.RootkitType,
 			}

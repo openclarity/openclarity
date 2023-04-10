@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
@@ -299,6 +300,46 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 
 	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
 	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Rootkits == nil {
+		scanResult.Status.Rootkits = &models.TargetScanState{}
+	}
+
+	var errs []string
+
+	if err, ok := famerr[types.Rootkits]; ok {
+		errs = append(errs, err.Error())
+	} else {
+		rootkitsResults, err := results.GetResult[*rootkits.Results](res)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to get rootkits results from scan: %w", err).Error())
+		} else {
+			scanResult.Rootkits = cliutils.ConvertRootkitsResultToAPIModel(rootkitsResults)
+			if scanResult.Rootkits.Rootkits != nil {
+				scanResult.Summary.TotalRootkits = utils.PointerTo[int](len(*scanResult.Rootkits.Rootkits))
+			}
+		}
+	}
+
+	state := models.DONE
+	scanResult.Status.Rootkits.State = &state
+	scanResult.Status.Rootkits.Errors = &errs
+
+	if err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID); err != nil {
 		return fmt.Errorf("failed to patch scan result: %w", err)
 	}
 

@@ -873,17 +873,17 @@ func createSecretsResult() *[]models.Secret {
 func createRootkitsResult() *[]models.Rootkit {
 	return &[]models.Rootkit{
 		{
-			Path:        utils.PointerTo("/usr/lwp-request"),
+			Message:     utils.PointerTo("/usr/lwp-request"),
 			RootkitName: utils.PointerTo("Ambient's Rootkit (ARK)"),
 			RootkitType: utils.PointerTo(models.RootkitType("ARK")),
 		},
 		{
-			Path:        utils.PointerTo("/var/log/lastlog"),
-			RootkitName: utils.PointerTo("Linux.Xor.DDoS Malware"),
+			Message:     utils.PointerTo("Possible Linux/Ebury 1.4 - Operation Windigo installed"),
+			RootkitName: utils.PointerTo("Linux/Ebury - Operation Windigo ssh"),
 			RootkitType: utils.PointerTo(models.RootkitType("Malware")),
 		},
 		{
-			Path:        utils.PointerTo("/var/adm/wtmpx"),
+			Message:     utils.PointerTo("/var/adm/wtmpx"),
 			RootkitName: utils.PointerTo("Mumblehard backdoor/botnet"),
 			RootkitType: utils.PointerTo(models.RootkitType("Botnet")),
 		},

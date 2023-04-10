@@ -29,4 +29,5 @@ type Presenter interface {
 	ExportMalwareResult(context.Context, *results.Results, families.RunErrors) error
 	ExportExploitsResult(context.Context, *results.Results, families.RunErrors) error
 	ExportMisconfigurationResult(context.Context, *results.Results, families.RunErrors) error
+	ExportRootkitResult(context.Context, *results.Results, families.RunErrors) error
 }

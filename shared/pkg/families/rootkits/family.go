@@ -16,10 +16,17 @@
 package rootkits
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
+
+	familiesinterface "github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
+	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/common"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/job"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
@@ -28,11 +35,29 @@ type Rootkits struct {
 	logger *log.Entry
 }
 
-func (r Rootkits) Run(res *results.Results) (interfaces.IsResults, error) {
-	// TODO implement me
+func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults, error) {
 	r.logger.Info("Rootkits Run...")
+
+	manager := job_manager.New(r.conf.ScannersList, r.conf.ScannersConfig, r.logger, job.Factory)
+	mergedResults := NewMergedResults()
+
+	for _, input := range r.conf.Inputs {
+		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan input %q for rootkits: %v", input.Input, err)
+		}
+
+		// Merge results.
+		for name, result := range results {
+			r.logger.Infof("Merging result from %q", name)
+			mergedResults = mergedResults.Merge(result.(*common.Results)) // nolint:forcetypeassert
+		}
+	}
+
 	r.logger.Info("Rootkits Done...")
-	return &Results{}, nil
+	return &Results{
+		MergedResults: mergedResults,
+	}, nil
 }
 
 func (r Rootkits) GetType() types.FamilyType {
@@ -40,7 +65,7 @@ func (r Rootkits) GetType() types.FamilyType {
 }
 
 // ensure types implement the requisite interfaces.
-var _ interfaces.Family = &Rootkits{}
+var _ familiesinterface.Family = &Rootkits{}
 
 func New(logger *log.Entry, conf Config) *Rootkits {
 	return &Rootkits{
