@@ -22,6 +22,7 @@ import (
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/models"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/gzip"
 )
 
 type Setter interface {
@@ -39,10 +40,15 @@ func createSetter(client *client.KubeClaritySBOMDBAPIs) Setter {
 }
 
 func (g *SetterImpl) Set(ctx context.Context, imageHash string, sbom []byte) error {
+	base64CompressedSbom, err := gzip.CompressAndEncode(sbom)
+	if err != nil {
+		return fmt.Errorf("failed to compress data: %v", err)
+	}
+
 	params := operations.NewPutSbomDBResourceHashParams().
 		WithResourceHash(imageHash).
 		WithBody(&models.SBOM{
-			Sbom: sbom,
+			Sbom: base64CompressedSbom,
 		}).
 		WithContext(ctx)
 	if _, err := g.client.Operations.PutSbomDBResourceHash(params); err != nil {

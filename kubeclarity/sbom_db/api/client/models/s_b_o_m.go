@@ -17,9 +17,8 @@ import (
 // swagger:model SBOM
 type SBOM struct {
 
-	// sbom
-	// Format: byte
-	Sbom strfmt.Base64 `json:"sbom,omitempty"`
+	// base64 gzipped sbom
+	Sbom string `json:"sbom,omitempty"`
 }
 
 // Validate validates this s b o m

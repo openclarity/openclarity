@@ -23,10 +23,14 @@ import (
 
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client"
 	"github.com/openclarity/kubeclarity/sbom_db/api/client/client/operations"
+	"github.com/openclarity/kubeclarity/shared/pkg/utils/gzip"
 )
 
 type Getter interface {
+	// Get will return a decoded and uncompressed sbom.
 	Get(ctx context.Context, imageHash string) ([]byte, error)
+	// GetCompressed will return an encoded and compressed sbom.
+	GetCompressed(ctx context.Context, imageHash string) (string, error)
 }
 
 type GetterImpl struct {
@@ -40,6 +44,20 @@ func createGetter(client *client.KubeClaritySBOMDBAPIs) Getter {
 }
 
 func (g *GetterImpl) Get(ctx context.Context, imageHash string) ([]byte, error) {
+	compressedSbom, err := g.GetCompressed(ctx, imageHash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get compress data: %v", err)
+	}
+
+	uncompressedSbom, err := gzip.DecodeAndUncompress(compressedSbom)
+	if err != nil {
+		return nil, fmt.Errorf("failed to uncompress data: %v", err)
+	}
+
+	return uncompressedSbom, nil
+}
+
+func (g *GetterImpl) GetCompressed(ctx context.Context, imageHash string) (string, error) {
 	params := operations.NewGetSbomDBResourceHashParams().
 		WithResourceHash(imageHash).
 		WithContext(ctx)
@@ -49,9 +67,9 @@ func (g *GetterImpl) Get(ctx context.Context, imageHash string) ([]byte, error) 
 		switch err.(type) {
 		case *operations.GetSbomDBResourceHashNotFound:
 			log.Infof("SBOM for image hash %q was not found", imageHash)
-			return nil, nil
+			return "", nil
 		default:
-			return nil, fmt.Errorf("failed to get sbom: %v", err)
+			return "", fmt.Errorf("failed to get sbom: %v", err)
 		}
 	}
 
