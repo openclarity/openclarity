@@ -139,7 +139,7 @@ The VMClarity infrastructure includes:
   can be added. (Postgres is in the roadmap)
 
 - **Scanner services**: These services provide support to the VMClarity
-  CLI to offload work that would need to be done in ever scanner, for example
+  CLI to offload work that would need to be done in every scanner, for example
   downloading the latest vulnerability or malware signatures from the various DB
   sources. The components included today are:
   - grype-server: A rest API wrapper around the grype vulnerbility scanner
