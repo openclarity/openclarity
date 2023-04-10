@@ -13,28 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package findingkey
+package types
 
-import (
-	"fmt"
+type RootkitType string
 
-	"github.com/openclarity/vmclarity/api/models"
+const (
+	APPLICATION RootkitType = "APPLICATION"
+	FIRMWARE    RootkitType = "FIRMWARE"
+	KERNEL      RootkitType = "KERNEL"
+	MEMORY      RootkitType = "MEMORY"
+	UNKNOWN     RootkitType = "UNKNOWN"
 )
-
-type RootkitKey struct {
-	Name        string
-	RootkitType string
-	Message     string
-}
-
-func (k RootkitKey) String() string {
-	return fmt.Sprintf("%s.%s.%s", k.Name, k.RootkitType, k.Message)
-}
-
-func GenerateRootkitKey(info models.RootkitFindingInfo) RootkitKey {
-	return RootkitKey{
-		Name:        *info.RootkitName,
-		RootkitType: string(*info.RootkitType),
-		Message:     *info.Message,
-	}
-}

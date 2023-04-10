@@ -30,6 +30,8 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
+	rootkitsTypes "github.com/openclarity/vmclarity/shared/pkg/families/rootkits/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
@@ -312,4 +314,42 @@ func ConvertMisconfigurationResultToAPIModel(misconfigurationResults *misconfigu
 		Scanners:          utils.PointerTo(misconfigurationResults.Metadata.Scanners),
 		Misconfigurations: &retMisconfigurations,
 	}, nil
+}
+
+func ConvertRootkitsResultToAPIModel(rootkitsResults *rootkits.Results) *models.RootkitScan {
+	if rootkitsResults == nil || rootkitsResults.MergedResults == nil {
+		return &models.RootkitScan{}
+	}
+
+	rootkitsList := []models.Rootkit{}
+	for _, r := range rootkitsResults.MergedResults.Rootkits {
+		rootkit := r // Prevent loop variable pointer export
+		rootkitsList = append(rootkitsList, models.Rootkit{
+			Message:     &rootkit.Message,
+			RootkitName: &rootkit.RootkitName,
+			RootkitType: ConvertRootkitTypeToAPIModel(rootkit.RootkitType),
+		})
+	}
+
+	return &models.RootkitScan{
+		Rootkits: &rootkitsList,
+	}
+}
+
+func ConvertRootkitTypeToAPIModel(rootkitType rootkitsTypes.RootkitType) *models.RootkitType {
+	switch rootkitType {
+	case rootkitsTypes.APPLICATION:
+		return utils.PointerTo(models.APPLICATION)
+	case rootkitsTypes.FIRMWARE:
+		return utils.PointerTo(models.FIRMWARE)
+	case rootkitsTypes.KERNEL:
+		return utils.PointerTo(models.KERNEL)
+	case rootkitsTypes.MEMORY:
+		return utils.PointerTo(models.MEMORY)
+	case rootkitsTypes.UNKNOWN:
+		return utils.PointerTo(models.UNKNOWN)
+	default:
+		log.Errorf("Can't convert rootkit type %q, treating as %v", rootkitType, models.UNKNOWN)
+		return utils.PointerTo(models.UNKNOWN)
+	}
 }

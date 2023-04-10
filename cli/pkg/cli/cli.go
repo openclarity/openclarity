@@ -105,6 +105,11 @@ func (c *CLI) ExportResults(ctx context.Context, res *results.Results, errs fami
 			"misconfiguration",
 			c.ExportMisconfigurationResult,
 		},
+		{
+			c.FamiliesConfig.Rootkits.Enabled,
+			"rootkits",
+			c.ExportRootkitResult,
+		},
 	}
 
 	result := make([]error, 0, len(familiesSet))

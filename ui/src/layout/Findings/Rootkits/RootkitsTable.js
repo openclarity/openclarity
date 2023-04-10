@@ -12,10 +12,10 @@ const RootkitsTable = () => {
             accessor: "findingInfo.rootkitName"
         },
         {
-            Header: "File path",
-            id: "path",
-            sortIds: ["findingInfo.path"],
-            accessor: "findingInfo.path"
+            Header: "Message",
+            id: "message",
+            sortIds: ["findingInfo.message"],
+            accessor: "findingInfo.message"
         },
         ...getAssetAndScanColumnsConfigList()
     ], []);

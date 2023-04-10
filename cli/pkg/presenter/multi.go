@@ -86,3 +86,13 @@ func (m *MultiPresenter) ExportMisconfigurationResult(ctx context.Context, res *
 
 	return nil
 }
+
+func (m *MultiPresenter) ExportRootkitResult(ctx context.Context, res *results.Results, famErr families.RunErrors) error {
+	for _, p := range m.Presenters {
+		if err := p.ExportRootkitResult(ctx, res, famErr); err != nil {
+			return fmt.Errorf("failed to export result: %w", err)
+		}
+	}
+
+	return nil
+}

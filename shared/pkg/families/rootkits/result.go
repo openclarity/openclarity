@@ -15,6 +15,8 @@
 
 package rootkits
 
-type Results struct{}
+type Results struct {
+	MergedResults *MergedResults `yaml:"merged_results"`
+}
 
 func (*Results) IsResults() {}

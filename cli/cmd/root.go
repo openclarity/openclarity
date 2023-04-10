@@ -35,6 +35,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
@@ -243,6 +244,7 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 				InputType: string(kubeclarityutils.ROOTFS),
 			})
 		}
+
 		if familiesConfig.Vulnerabilities.Enabled {
 			if familiesConfig.SBOM.Enabled {
 				familiesConfig.Vulnerabilities.InputFromSbom = true
@@ -253,18 +255,28 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 				})
 			}
 		}
+
 		if familiesConfig.Secrets.Enabled {
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
 				Input:     mountDir,
 				InputType: string(kubeclarityutils.ROOTFS),
 			})
 		}
+
 		if familiesConfig.Malware.Enabled {
 			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, malware.Input{
 				Input:     mountDir,
 				InputType: string(kubeclarityutils.ROOTFS),
 			})
 		}
+
+		if familiesConfig.Rootkits.Enabled {
+			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, rootkits.Input{
+				Input:     mountDir,
+				InputType: string(kubeclarityutils.ROOTFS),
+			})
+		}
+
 		if familiesConfig.Misconfiguration.Enabled {
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,

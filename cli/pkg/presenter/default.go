@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
+	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
@@ -124,5 +125,22 @@ func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res *results.
 
 func (p *DefaultPresenter) ExportMisconfigurationResult(context.Context, *results.Results, families.RunErrors) error {
 	// TODO: implement
+	return nil
+}
+
+func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
+	rootkitsResults, err := results.GetResult[*rootkits.Results](res)
+	if err != nil {
+		return fmt.Errorf("failed to get rootkits results: %w", err)
+	}
+
+	bytes, err := json.Marshal(rootkitsResults)
+	if err != nil {
+		return fmt.Errorf("failed to marshal rootkits results: %w", err)
+	}
+	err = p.Write(bytes, "rootkits.json")
+	if err != nil {
+		return fmt.Errorf("failed to output rootkits results: %w", err)
+	}
 	return nil
 }

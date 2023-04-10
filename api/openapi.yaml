@@ -1752,9 +1752,8 @@ components:
           type: string
         rootkitType:
           $ref: '#/components/schemas/RootkitType'
-        path:
+        message:
           type: string
-          description: Path of the file that contains rootkit
 
     MisconfigurationSeverity:
       type: string
@@ -1905,6 +1904,7 @@ components:
         - KERNEL
         - APPLICATION
         - FIRMWARE
+        - UNKNOWN
 
     ScanType:
       type: string
