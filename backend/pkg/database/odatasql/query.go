@@ -493,7 +493,7 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		default:
 			return query, fmt.Errorf("unsupported token type")
 		}
-		query = fmt.Sprintf("%s -> '$.%s' LIKE '%s'", source, queryPath, value)
+		query = fmt.Sprintf("%s ->> '%s' LIKE '%s'", source, queryPath, value)
 	}
 
 	return query, nil

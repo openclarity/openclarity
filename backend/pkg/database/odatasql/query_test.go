@@ -562,6 +562,20 @@ func TestBuildSQLQuery(t *testing.T) {
 			want: []Car{car1},
 		},
 		{
+			name: "'startswith' filter",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("startswith(Manufacturer/Id, '%s')", manu1.ID[0:3])),
+			},
+			want: []Car{car1, car2},
+		},
+		{
+			name: "'endswith' filter",
+			args: args{
+				filterString: PointerTo("endswith(ModelName, '3')"),
+			},
+			want: []Car{car3},
+		},
+		{
 			name: "filter on nested field",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Engine/Manufacturer/Id eq '%s'", manu1.ID)),
