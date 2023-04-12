@@ -29,6 +29,16 @@ var fixSelectToken sync.Once
 
 // nolint:cyclop
 func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterString *string) (string, error) {
+	table := schemaMetas[schema].Table
+	if table == "" {
+		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
+	}
+
+	// Build query selecting fields based on the selectTree
+	// For now all queries must start with a root "object" so we create a
+	// complex field meta to represent that object
+	rootObject := FieldMeta{FieldType: ComplexFieldType, ComplexFieldSchemas: []string{schema}}
+
 	// Parse top level $filter and create the top level "WHERE"
 	var where string
 	if filterString != nil && *filterString != "" {
@@ -38,17 +48,12 @@ func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterStr
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter("Data", filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
 
 		where = fmt.Sprintf("WHERE %s", conditions)
-	}
-
-	table := schemaMetas[schema].Table
-	if table == "" {
-		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
 	}
 
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s %s", table, where), nil
@@ -61,6 +66,16 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		godata.GlobalExpandTokenizer.Add("^[a-zA-Z0-9_\\'\\.:\\$ \\*-]+", godata.ExpandTokenLiteral)
 	})
 
+	table := schemaMetas[schema].Table
+	if table == "" {
+		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
+	}
+
+	// Build query selecting fields based on the selectTree
+	// For now all queries must start with a root "object" so we create a
+	// complex field meta to represent that object
+	rootObject := FieldMeta{FieldType: ComplexFieldType, ComplexFieldSchemas: []string{schema}}
+
 	// Parse top level $filter and create the top level "WHERE"
 	var where string
 	if filterString != nil && *filterString != "" {
@@ -70,7 +85,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter("Data", filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
@@ -85,7 +100,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 			return "", fmt.Errorf("failed to parse $orderby: %w", err)
 		}
 
-		conditions, err := buildOrderByFromOdata("Data", orderbyQuery.OrderByItems)
+		conditions, err := buildOrderByFromOdata(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), orderbyQuery.OrderByItems)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $orderby: %w", err)
 		}
@@ -93,6 +108,29 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		orderby = fmt.Sprintf("ORDER BY %s", conditions)
 	}
 
+	selectFields, err := buildSelectFieldsFromSelectAndExpand(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), selectString, expandString)
+	if err != nil {
+		return "", fmt.Errorf("failed to construct fields to select: %w", err)
+	}
+
+	// Build paging statement
+	var limitStm string
+	if top != nil || skip != nil {
+		limitVal := -1 // Negative means no limit, if no "$top" is specified this is what we want
+		if top != nil {
+			limitVal = *top
+		}
+		limitStm = fmt.Sprintf("LIMIT %d", limitVal)
+
+		if skip != nil {
+			limitStm = fmt.Sprintf("%s OFFSET %d", limitStm, *skip)
+		}
+	}
+
+	return fmt.Sprintf("SELECT ID, %s AS Data FROM %s %s %s %s", selectFields, table, where, orderby, limitStm), nil
+}
+
+func buildSelectFieldsFromSelectAndExpand(schemaMetas map[string]SchemaMeta, rootObject FieldMeta, identifier string, source string, selectString, expandString *string) (string, error) {
 	var selectQuery *godata.GoDataSelectQuery
 	if selectString != nil && *selectString != "" {
 		// NOTE(sambetts):
@@ -125,33 +163,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		return "", fmt.Errorf("failed to parse select and expand: %w", err)
 	}
 
-	table := schemaMetas[schema].Table
-
-	// Build query selecting fields based on the selectTree
-	// For now all queries must start with a root "object" so we create a
-	// complex field meta to represent that object
-	rootObject := FieldMeta{FieldType: ComplexFieldType, ComplexFieldSchemas: []string{schema}}
-	selectFields := buildSelectFields(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), "$", selectTree)
-
-	// Build paging statement
-	var limitStm string
-	if top != nil || skip != nil {
-		limitVal := -1 // Negative means no limit, if no "$top" is specified this is what we want
-		if top != nil {
-			limitVal = *top
-		}
-		limitStm = fmt.Sprintf("LIMIT %d", limitVal)
-
-		if skip != nil {
-			limitStm = fmt.Sprintf("%s OFFSET %d", limitStm, *skip)
-		}
-	}
-
-	if table == "" {
-		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
-	}
-
-	return fmt.Sprintf("SELECT ID, %s AS Data FROM %s %s %s %s", selectFields, table, where, orderby, limitStm), nil
+	return buildSelectFields(schemaMetas, rootObject, identifier, source, "$", selectTree), nil
 }
 
 func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
@@ -163,13 +175,17 @@ func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, ident
 		}
 		return fmt.Sprintf("%s -> '%s'", source, path)
 	case CollectionFieldType:
+		if field.CollectionItemMeta.FieldType == RelationshipFieldType {
+			// This is an optimisation to allow us to do a single
+			// aggregate query to the foreign table instead of a
+			// sub query per item in the collection.
+			return buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas, field, identifier, source, path, st)
+		}
 		return buildSelectFieldsForCollectionFieldType(schemaMetas, field, identifier, source, path, st)
 	case ComplexFieldType:
 		return buildSelectFieldsForComplexFieldType(schemaMetas, field, identifier, source, path, st)
 	case RelationshipFieldType:
 		return buildSelectFieldsForRelationshipFieldType(schemaMetas, field, identifier, source, path, st)
-	case RelationshipCollectionFieldType:
-		return buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas, field, identifier, source, path, st)
 	default:
 		log.Errorf("Unsupported field type %v", field.FieldType)
 		// TODO(sambetts) Return an error here
@@ -182,35 +198,32 @@ func buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas map[string]
 		return fmt.Sprintf("%s -> '%s'", source, path)
 	}
 
-	schemaName := field.RelationshipSchema
+	schemaName := field.CollectionItemMeta.RelationshipSchema
 	schema := schemaMetas[schemaName]
 	newSource := fmt.Sprintf("%s.Data", schema.Table)
 
-	where := fmt.Sprintf("WHERE %s -> '$.%s' = %s.value -> '$.%s'", newSource, field.RelationshipProperty, identifier, field.RelationshipProperty)
+	where := fmt.Sprintf("WHERE %s -> '$.%s' = %s.value -> '$.%s'", newSource, field.CollectionItemMeta.RelationshipProperty, identifier, field.CollectionItemMeta.RelationshipProperty)
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(schemaMetas, field, newSource, newSource, st.filter.Tree)
 			where = fmt.Sprintf("%s and %s", where, conditions)
 		}
 	}
 
 	parts := []string{}
 	for key, fm := range schema.Fields {
-		var sel *selectNode
-		if st != nil {
-			// If there are any select children
-			// then we need to make sure this is
-			// either a select child or a expand
-			// child, otherwise skip this field.
-			if len(st.selectChildren) > 0 {
-				_, isSelect := st.selectChildren[key]
-				_, isExpand := st.expandChildren[key]
-				if !isSelect && !isExpand {
-					continue
-				}
+		// If there are any select children
+		// then we need to make sure this is
+		// either a select child or a expand
+		// child, otherwise skip this field.
+		if len(st.selectChildren) > 0 {
+			_, isSelect := st.selectChildren[key]
+			_, isExpand := st.expandChildren[key]
+			if !isSelect && !isExpand {
+				continue
 			}
-			sel = st.children[key]
 		}
+		sel := st.children[key]
 
 		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
 		part := fmt.Sprintf("'%s', %s", key, extract)
@@ -231,21 +244,18 @@ func buildSelectFieldsForRelationshipFieldType(schemaMetas map[string]SchemaMeta
 	newsource := fmt.Sprintf("%s.Data", schema.Table)
 	parts := []string{}
 	for key, fm := range schema.Fields {
-		var sel *selectNode
-		if st != nil {
-			// If there are any select children
-			// then we need to make sure this is
-			// either a select child or a expand
-			// child, otherwise skip this field.
-			if len(st.selectChildren) > 0 {
-				_, isSelect := st.selectChildren[key]
-				_, isExpand := st.expandChildren[key]
-				if !isSelect && !isExpand {
-					continue
-				}
+		// If there are any select children
+		// then we need to make sure this is
+		// either a select child or a expand
+		// child, otherwise skip this field.
+		if len(st.selectChildren) > 0 {
+			_, isSelect := st.selectChildren[key]
+			_, isExpand := st.expandChildren[key]
+			if !isSelect && !isExpand {
+				continue
 			}
-			sel = st.children[key]
 		}
+		sel := st.children[key]
 
 		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
 		part := fmt.Sprintf("'%s', %s", key, extract)
@@ -336,12 +346,12 @@ func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, 
 	var newSelectNode *selectNode
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.filter.Tree)
 			where = fmt.Sprintf("WHERE %s", conditions)
 		}
 
 		if st.orderby != nil {
-			conditions, err := buildOrderByFromOdata(newSource, st.orderby.OrderByItems)
+			conditions, err := buildOrderByFromOdata(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.orderby.OrderByItems)
 			// TODO(sambetts) Add error handling to buildSelectFields
 			if err != nil {
 				log.Errorf("Failed to build DB query from $orderby: %v", err)
@@ -411,9 +421,67 @@ func buildJSONPathFromParseNode(node *godata.ParseNode) (string, error) {
 	}
 }
 
+// nolint:cyclop
+func expandItemsToReachPath(schemaMetas map[string]SchemaMeta, field FieldMeta, currentPath, path string) string {
+	switch field.FieldType {
+	case PrimitiveFieldType:
+		return ""
+	case CollectionFieldType:
+		return expandItemsToReachPath(schemaMetas, *field.CollectionItemMeta, currentPath, path)
+	case RelationshipFieldType:
+		schema := schemaMetas[field.RelationshipSchema]
+		fieldName, pathRemainder, _ := strings.Cut(path, "/")
+		newfield := schema.Fields[fieldName]
+
+		newPath := fieldName
+		if currentPath != "" {
+			newPath = fmt.Sprintf("%s/%s", currentPath, fieldName)
+		}
+
+		otherExpands := expandItemsToReachPath(schemaMetas, newfield, newPath, pathRemainder)
+
+		expands := currentPath
+		if otherExpands != "" {
+			expands = fmt.Sprintf("%s,%s", currentPath, otherExpands)
+		}
+		return expands
+	case ComplexFieldType:
+		// We've reached the bottom of the path and its a complex type
+		// so isn't in expanded.
+		if path == "" {
+			return ""
+		}
+
+		expands := []string{}
+		fieldName, pathRemainder, _ := strings.Cut(path, "/")
+		for _, schemaName := range field.ComplexFieldSchemas {
+			schema := schemaMetas[schemaName]
+
+			newField, ok := schema.Fields[fieldName]
+			if !ok {
+				continue
+			}
+
+			newPath := fieldName
+			if currentPath != "" {
+				newPath = fmt.Sprintf("%s/%s", currentPath, fieldName)
+			}
+
+			otherExpands := expandItemsToReachPath(schemaMetas, newField, newPath, pathRemainder)
+
+			if otherExpands != "" {
+				expands = append(expands, otherExpands)
+			}
+		}
+		return strings.Join(expands, ",")
+	default:
+		return ""
+	}
+}
+
 // TODO: create a unit test
 // nolint:cyclop
-func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error) {
+func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode) (string, error) {
 	operator := node.Token.Value
 
 	var query string
@@ -425,6 +493,13 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		if err != nil {
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
+
+		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		if err != nil {
+			return "", fmt.Errorf("unable to build source for filter %w", err)
+		}
+
+		queryPath = fmt.Sprintf("$.%s", queryPath)
 
 		rhs := node.Children[1]
 		extractFunction := "->"
@@ -455,23 +530,23 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 			return "", fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
 
-		query = fmt.Sprintf("%s %s '%s' %s %s", source, extractFunction, queryPath, sqlOperator, value)
+		query = fmt.Sprintf("%s %s '%s' %s %s", fieldSource, extractFunction, queryPath, sqlOperator, value)
 	case "and":
-		left, err := buildWhereFromFilter(source, node.Children[0])
+		left, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[0])
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(source, node.Children[1])
+		right, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[1])
 		if err != nil {
 			return query, err
 		}
 		query = fmt.Sprintf("(%s AND %s)", left, right)
 	case "or":
-		left, err := buildWhereFromFilter(source, node.Children[0])
+		left, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[0])
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(source, node.Children[1])
+		right, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[1])
 		if err != nil {
 			return query, err
 		}
@@ -484,6 +559,11 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
 
+		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		if err != nil {
+			return "", fmt.Errorf("unable to build source for filter %w", err)
+		}
+
 		right := node.Children[1].Token.Value
 		var value interface{}
 		switch node.Children[1].Token.Type {
@@ -493,13 +573,36 @@ func buildWhereFromFilter(source string, node *godata.ParseNode) (string, error)
 		default:
 			return query, fmt.Errorf("unsupported token type")
 		}
-		query = fmt.Sprintf("%s ->> '%s' LIKE '%s'", source, queryPath, value)
+		query = fmt.Sprintf("%s ->> '$.%s' LIKE '%s'", fieldSource, queryPath, value)
 	}
 
 	return query, nil
 }
 
-func buildOrderByFromOdata(source string, orderbyItems []*godata.OrderByItem) (string, error) {
+func sourceFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, queryPath string) (string, error) {
+	// ODATA path that would be present if we were to $select the
+	// field being filtered
+	selectPath := strings.ReplaceAll(queryPath, ".", "/")
+
+	// Calculate any $expands that would be required to reach that
+	// selected path
+	expandItems := expandItemsToReachPath(schemaMetas, field, "", selectPath)
+
+	// If this filter requires expanded items then build a
+	// JSON_OBJECT with the just the required fields selected and
+	// expanded to perform the filter against.
+	fieldSource := source
+	if expandItems != "" {
+		var err error
+		fieldSource, err = buildSelectFieldsFromSelectAndExpand(schemaMetas, field, identifier, source, &selectPath, &expandItems)
+		if err != nil {
+			return "", fmt.Errorf("unable to build source %w", err)
+		}
+	}
+	return fieldSource, nil
+}
+
+func buildOrderByFromOdata(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, orderbyItems []*godata.OrderByItem) (string, error) {
 	conditions := []string{}
 
 	for _, item := range orderbyItems {
@@ -508,7 +611,12 @@ func buildOrderByFromOdata(source string, orderbyItems []*godata.OrderByItem) (s
 			return "", fmt.Errorf("failed to convert odata path to json path: %w", err)
 		}
 
-		conditions = append(conditions, fmt.Sprintf("%s ->> '$.%s' %s", source, queryPath, strings.ToUpper(item.Order)))
+		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		if err != nil {
+			return "", fmt.Errorf("unable to build source for filter %w", err)
+		}
+
+		conditions = append(conditions, fmt.Sprintf("%s ->> '$.%s' %s", fieldSource, queryPath, strings.ToUpper(item.Order)))
 	}
 
 	return strings.Join(conditions, ", "), nil

@@ -18,11 +18,10 @@ package odatasql
 type FieldType string
 
 const (
-	PrimitiveFieldType              FieldType = "primitive"
-	CollectionFieldType             FieldType = "collection"
-	ComplexFieldType                FieldType = "complex"
-	RelationshipFieldType           FieldType = "relationship"
-	RelationshipCollectionFieldType FieldType = "relationshipCollection"
+	PrimitiveFieldType    FieldType = "primitive"
+	CollectionFieldType   FieldType = "collection"
+	ComplexFieldType      FieldType = "complex"
+	RelationshipFieldType FieldType = "relationship"
 )
 
 type FieldMeta struct {
