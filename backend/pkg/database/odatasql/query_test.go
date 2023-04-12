@@ -34,6 +34,8 @@ import (
 
 type SubOption struct {
 	Name string `json:"Name"`
+
+	Manufacturer *Manufacturer `json:"Manufacturer"`
 }
 
 type Options struct {
@@ -179,9 +181,12 @@ var carSchemaMetas = map[string]SchemaMeta{
 				RelationshipProperty: "Id",
 			},
 			"Manufacturers": {
-				FieldType:            RelationshipCollectionFieldType,
-				RelationshipSchema:   "Manufacturer",
-				RelationshipProperty: "Id",
+				FieldType: CollectionFieldType,
+				CollectionItemMeta: &FieldMeta{
+					FieldType:            RelationshipFieldType,
+					RelationshipSchema:   "Manufacturer",
+					RelationshipProperty: "Id",
+				},
 			},
 			"BuiltOn": {FieldType: PrimitiveFieldType},
 		},
@@ -230,6 +235,11 @@ var carSchemaMetas = map[string]SchemaMeta{
 	"SubOption": {
 		Fields: map[string]FieldMeta{
 			"Name": {FieldType: PrimitiveFieldType},
+			"Manufacturer": {
+				FieldType:            RelationshipFieldType,
+				RelationshipSchema:   "Manufacturer",
+				RelationshipProperty: "Id",
+			},
 		},
 	},
 	"CDPlayer": {
@@ -273,7 +283,7 @@ func addManufacturer(db *gorm.DB, postfix string) (Manufacturer, error) {
 	return manufacturer, nil
 }
 
-func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool, builtOn *time.Time) (Car, error) {
+func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool, builtOn *time.Time, optionManu1 string, optionManu2 string) (Car, error) {
 	id := uuid.New().String()
 
 	otherMs := []Manufacturer{}
@@ -333,15 +343,27 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, s
 				SubOptions: []SubOption{
 					{
 						Name: "bluePaint",
+						Manufacturer: &Manufacturer{
+							ID: optionManu1,
+						},
 					},
 					{
 						Name: "blueShoes",
+						Manufacturer: &Manufacturer{
+							ID: optionManu1,
+						},
 					},
 					{
 						Name: "greenPaint",
+						Manufacturer: &Manufacturer{
+							ID: optionManu2,
+						},
 					},
 					{
 						Name: "yellowPaint",
+						Manufacturer: &Manufacturer{
+							ID: optionManu2,
+						},
 					},
 				},
 				OtherThings: []string{
@@ -460,22 +482,22 @@ func TestBuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add manufacturer to db %v", err)
 	}
 
-	car1, err := addCar(db, "model1", manu1.ID, []string{}, 12, false, &oldtime)
+	car1, err := addCar(db, "model1", manu1.ID, []string{}, 12, false, &oldtime, manu1.ID, manu2.ID)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true, &oldtime)
+	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true, &oldtime, manu1.ID, manu2.ID)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false, &newtime)
+	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false, &newtime, manu2.ID, manu3.ID)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true, nil)
+	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true, nil, manu2.ID, manu3.ID)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
@@ -651,7 +673,7 @@ func TestBuildSQLQuery(t *testing.T) {
 		{
 			name: "select with nested filter",
 			args: args{
-				selectString: PointerTo("ModelName,Engine/Options/SubOptions($filter=contains(Name, 'blue'))"),
+				selectString: PointerTo("ModelName,Engine/Options/SubOptions($select=Name;$filter=contains(Name, 'blue'))"),
 			},
 			want: []Car{
 				{
@@ -1012,6 +1034,86 @@ func TestBuildSQLQuery(t *testing.T) {
 				filterString: PointerTo(fmt.Sprintf("BuiltOn eq %v", oldtimeDiffTz.Format(time.RFC3339))),
 			},
 			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name: "filter on expanded property",
+			args: args{
+				selectString: PointerTo("ModelName,Manufacturer/Name"),
+				filterString: PointerTo("Manufacturer/Name eq 'manu2'"),
+				expandString: PointerTo("Manufacturer"),
+			},
+			want: []Car{
+				{
+					ModelName: car3.ModelName,
+					Manufacturer: &Manufacturer{
+						Name: manu2.Name,
+					},
+				},
+			},
+		},
+		{
+			name: "filter on expanded property not selected",
+			args: args{
+				selectString: PointerTo("ModelName,Manufacturer/Id"),
+				filterString: PointerTo("Manufacturer/Name eq 'manu2'"),
+				expandString: PointerTo("Manufacturer"),
+			},
+			want: []Car{
+				{
+					ModelName: car3.ModelName,
+					Manufacturer: &Manufacturer{
+						ID: manu2.ID,
+					},
+				},
+			},
+		},
+		{
+			name: "filter on expanded property not expanded or selected",
+			args: args{
+				selectString: PointerTo("ModelName"),
+				filterString: PointerTo("Manufacturer/Name eq 'manu2'"),
+			},
+			want: []Car{
+				{
+					ModelName: car3.ModelName,
+				},
+			},
+		},
+		{
+			name: "filter selected collection on expand entity",
+			args: args{
+				selectString: PointerTo("ModelName,Engine/Options/SubOptions($select=Name;$filter=Manufacturer/Name eq 'manu1')"),
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+			},
+			want: []Car{
+				{
+					ModelName: car1.ModelName,
+					Engine: &Engine{
+						Options: &Options{
+							SubOptions: []SubOption{
+								{
+									Name: "bluePaint",
+								},
+								{
+									Name: "blueShoes",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "order by expanded property",
+			args: args{
+				orderbyString: PointerTo("Manufacturer/Name desc"),
+			},
+			want: []Car{
+				car4,
+				car3,
 				car1,
 				car2,
 			},
