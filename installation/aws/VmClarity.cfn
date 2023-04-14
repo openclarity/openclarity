@@ -157,6 +157,7 @@ Resources:
                     SCANNER_AWS_REGION=${AWS::Region}
                     AWS_SUBNET_ID=${VmClarityScannerSubnet}
                     AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    AWS_INSTANCE_TYPE=${ScannerInstanceType}
                     SCANNER_KEY_PAIR_NAME=${KeyName}
                     AWS_JOB_IMAGE_ID=${JobImageID}
                     DATABASE_DRIVER=LOCAL
@@ -745,6 +746,15 @@ Parameters:
       - t2.large
       - t3.large
     ConstraintDescription: must be a valid EC2 instance type.
+  ScannerInstanceType:
+    Description: VmClarity Scanner Instance Type
+    Type: String
+    Default: t2.large
+    AllowedValues:
+      - m6i.large
+      - t2.large
+      - t3.large
+    ConstraintDescription: must be a valid EC2 instance type.
   KeyName:
     Description: Name of an EC2 KeyPair to enable SSH access to the instance.
     Type: "AWS::EC2::KeyPair::KeyName"
@@ -792,6 +802,7 @@ Metadata:
           default: EC2 Configuration
         Parameters:
           - InstanceType
+          - ScannerInstanceType
           - KeyName
       - Label:
           default: Network Configuration
@@ -804,8 +815,13 @@ Metadata:
           - ScannerContainerImage
           - TrivyServerContainerImage
           - GrypeServerContainerImage
+          - FreshclamMirrorContainerImage
           - AssetScanDeletePolicy
     ParameterLabels:
+      InstanceType:
+        default: VMClarity Server Instance Type
+      ScannerInstanceType:
+        default: Scanner Job Instance Type
       BackendContainerImage:
         default: Backend Container Image
       ScannerContainerImage:
@@ -814,6 +830,8 @@ Metadata:
         default: Trivy Server Container Image
       GrypeServerContainerImage:
         default: Grype Server Container Image
+      FreshclamMirrorContainerImage:
+        default: freshclam-mirror Container Image
       AssetScanDeletePolicy:
         default: Asset Scan Delete Policy
 Mappings:
