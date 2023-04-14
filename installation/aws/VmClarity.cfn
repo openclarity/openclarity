@@ -109,6 +109,7 @@ Resources:
                   [main]
                   stack=${AWS::StackId}
                   region=${AWS::Region}
+                  interval=5
               mode: "000400"
               owner: root
               group: root
@@ -133,10 +134,12 @@ Resources:
                 [Install]
                 WantedBy=multi-user.target
           commands:
-            01enable_cfn_hup:
+            01reload_systemctl:
+              command: systemctl daemon-reload
+            02enable_cfn_hup:
               command: systemctl enable cfn-hup.service
-            02start_cfn_hup:
-              command: systemctl start cfn-hup.service
+            03start_restart_cfn_hup:
+              command: systemctl restart cfn-hup.service
         install_vmclarity:
           packages:
             apt:
@@ -366,18 +369,39 @@ Resources:
           commands:
             01subsitute_rest_address:
               command: /etc/vmclarity/render_config.sh
+            02reload_systemctl:
+              command: systemctl daemon-reload
+
             02enable_exploit_db_fetcher_timer:
-              command: systemctl enable --now exploit_fetcher.timer
+              command: systemctl enable exploit_fetcher.timer
+            03start_restart_exploit_db_fetcher_timer:
+              command: systemctl restart exploit_fetcher.timer
+
             03enable_exploit_server:
-              command: systemctl enable --now exploit_server.service
-            04start_trivy_server:
-              command: systemctl enable --now trivy_server.service
-            05start_grype_server:
-              command: systemctl enable --now grype_server.service
-            06enable_vmclarity:
-              command: systemctl enable --now vmclarity.service
-            07enable_vmclarity_freshclam_mirror:
-              command: systemctl enable --now vmclarity_freshclam_mirror.service
+              command: systemctl enable exploit_server.service
+            04start_restart_exploit_server:
+              command: systemctl restart exploit_server.service
+
+            05enable_trivy_server:
+              command: systemctl enable trivy_server.service
+            06start_restart_trivy_server:
+              command: systemctl restart trivy_server.service
+
+            07enable_grype_server:
+              command: systemctl enable grype_server.service
+            08start_restart_grype_server:
+              command: systemctl restart grype_server.service
+
+            09enable_vmclarity_freshclam_mirror:
+              command: systemctl enable vmclarity_freshclam_mirror.service
+            10start_restart_vmclarity_freshclam_mirror:
+              command: systemctl restart vmclarity_freshclam_mirror.service
+
+            11enable_vmclarity:
+              command: systemctl enable vmclarity.service
+            12start_restart_vmclarity:
+              command: systemctl restart vmclarity.service
+
     DependsOn:
       - VmClarityServerPublicRoute
   # Create a Security Group for the VMClarity server. Allow on the public
