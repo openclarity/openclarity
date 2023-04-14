@@ -403,11 +403,17 @@ Resources:
     Properties:
       VpcId: !Ref VmClarityVPC
       GroupDescription: Allow only required network traffic for VMClarity scanners
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          SourceSecurityGroupId: !Ref VmClarityServerSecurityGroup
+  # Allow the VMClarity Server in the VmClarityScannerSecurityGroup to access
+  # the Scanner VMs through SSH by adding an ingress rule to the
+  # VmClarityScannerSecurityGroup.
+  VmClarityScannerSecurityGroupServerIngressToSSH:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityScannerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      SourceSecurityGroupId: !Ref VmClarityServerSecurityGroup
   # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
   # VMClarity server API on 8888 by adding an ingress rule to the
   # VmClarityServerSecurityGroup.
