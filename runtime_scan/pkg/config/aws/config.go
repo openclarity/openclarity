@@ -18,20 +18,24 @@ package aws
 import "github.com/spf13/viper"
 
 const (
-	AWSSubnetID          = "AWS_SUBNET_ID"
-	AWSJobImageID        = "AWS_JOB_IMAGE_ID"
-	AWSSecurityGroupID   = "AWS_SECURITY_GROUP_ID"
-	defaultAWSJobImageID = "ami-0568773882d492fc8" // ubuntu server 22.04 LTS (HVM), SSD volume type
+	AWSSubnetID            = "AWS_SUBNET_ID"
+	AWSJobImageID          = "AWS_JOB_IMAGE_ID"
+	AWSSecurityGroupID     = "AWS_SECURITY_GROUP_ID"
+	AWSInstanceType        = "AWS_INSTANCE_TYPE"
+	defaultAWSJobImageID   = "ami-0568773882d492fc8" // ubuntu server 22.04 LTS (HVM), SSD volume type
+	defaultAWSInstanceType = "t2.large"
 )
 
 type Config struct {
 	AmiID           string // image id of a scanner job
 	SubnetID        string // the scanner's subnet ID
 	SecurityGroupID string // the scanner's security group
+	InstanceType    string // the scanner's instance type
 }
 
 func setConfigDefaults() {
 	viper.SetDefault(AWSJobImageID, defaultAWSJobImageID)
+	viper.SetDefault(AWSInstanceType, defaultAWSInstanceType)
 
 	viper.AutomaticEnv()
 }
@@ -43,6 +47,7 @@ func LoadConfig() *Config {
 		AmiID:           viper.GetString(AWSJobImageID),
 		SubnetID:        viper.GetString(AWSSubnetID),
 		SecurityGroupID: viper.GetString(AWSSecurityGroupID),
+		InstanceType:    viper.GetString(AWSInstanceType),
 	}
 
 	return config
