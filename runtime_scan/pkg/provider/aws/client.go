@@ -262,7 +262,7 @@ func (c *Client) RunScanningJob(ctx context.Context, region, id string, config p
 		MaxCount:     utils.Int32Ptr(1),
 		MinCount:     utils.Int32Ptr(1),
 		ImageId:      &c.awsConfig.AmiID,
-		InstanceType: ec2types.InstanceTypeT2Large, // TODO need to decide instance type
+		InstanceType: ec2types.InstanceType(c.awsConfig.InstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
