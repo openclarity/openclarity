@@ -44,6 +44,7 @@ type Scanner struct {
 	scannerJobTemplate *batchv1.Job
 	scanConfig         *_config.ScanConfig
 	killSignal         chan bool
+	killChanClosed     atomic.Bool
 	clientset          kubernetes.Interface
 	logFields          log.Fields
 	credentialAdders   []_creds.CredentialAdder
@@ -497,5 +498,9 @@ func (s *Scanner) Clear() {
 	defer s.Unlock()
 
 	log.WithFields(s.logFields).Infof("Clearing...")
-	close(s.killSignal)
+	// Make sure that the channel is not closed
+	if !s.killChanClosed.Load() {
+		close(s.killSignal)
+		s.killChanClosed.Store(true)
+	}
 }
