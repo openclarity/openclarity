@@ -10,6 +10,8 @@ import { formatDate, calculateDuration } from 'utils/utils';
 import { SCANS_PATHS } from 'layout/Scans';
 import StatusIndicator from './StatusIndicator';
 
+import COLORS from 'utils/scss_variables.module.scss';
+
 const STATUS_DISPLAY_ITEMS = [
     VULNERABIITY_FINDINGS_ITEM,
     ...Object.values(FINDINGS_MAPPING).filter(({value}) => value !== FINDINGS_MAPPING.PACKAGES.value)
@@ -59,7 +61,10 @@ const TabAssetScanDetails = ({data}) => {
             rightPlaneDisplay={() => (
                 <>
                     <Title medium>Asset scan status</Title>
-                    <StatusDisplay state={state} errors={errors} />
+                    <TitleValueDisplay title="Overview">
+                        <StatusDisplay state={state} errors={errors} />
+                    </TitleValueDisplay>
+                    <div style={{borderBottom: `2px solid ${COLORS["color-grey-lighter"]}`, margin: "20px 0"}}></div>
                     {
                         STATUS_DISPLAY_ITEMS.map(({dataKey, title}) => {
                             const {state, errors} = (status || {})[dataKey] || {};
