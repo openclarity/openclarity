@@ -2,12 +2,14 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TablePage from 'components/TablePage';
 import { utils } from 'components/Table';
-import ScanProgressBar from 'components/ScanProgressBar';
+import ScanProgressBar, { SCAN_STATUS_ITEMS } from 'components/ScanProgressBar';
 import EmptyDisplay from 'components/EmptyDisplay';
+import { OPERATORS } from 'components/Filter';
 import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
 import { useModalDisplayDispatch, MODAL_DISPLAY_ACTIONS } from 'layout/Scans/ScanConfigWizardModal/ModalDisplayProvider';
-import { APIS } from 'utils/systemConsts';
-import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatNumber } from 'utils/utils';
+import { APIS, ROUTES } from 'utils/systemConsts';
+import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatNumber, findingsColumnsFiltersConfig,
+    vulnerabilitiesCountersColumnsFiltersConfig, getScanScopeColumnFiltersConfig } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import { SCANS_PATHS } from '../utils';
 // import ScanActionsDisplay from '../ScanActionsDisplay';
@@ -104,6 +106,36 @@ const ScansTable = () => {
             url={APIS.SCANS}
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.SCANS}
+            filtersConfig={[
+                {value: "scanConfigSnapshot.name", label: "Config name", operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.startswith},
+                    {...OPERATORS.endswith},
+                    {...OPERATORS.contains, valueItems: [], creatable: true}
+                ]},
+                {value: "startTime", label: "Started", isDate: true, operators: [
+                    {...OPERATORS.ge},
+                    {...OPERATORS.le},
+                ]},
+                {value: "endTime", label: "Ended", isDate: true, operators: [
+                    {...OPERATORS.ge},
+                    {...OPERATORS.le},
+                ]},
+                ...getScanScopeColumnFiltersConfig("scanConfigSnapshot.scope"),
+                {value: "state", label: "Status", operators: [
+                    {...OPERATORS.eq, valueItems: SCAN_STATUS_ITEMS},
+                    {...OPERATORS.ne, valueItems: SCAN_STATUS_ITEMS}
+                ]},
+                ...vulnerabilitiesCountersColumnsFiltersConfig,
+                ...findingsColumnsFiltersConfig,
+                {value: "summary.jobsCompleted", label: "Scanned assets", isNumber: true, operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.ge},
+                    {...OPERATORS.le},
+                ]}
+            ]}
             defaultSortBy={{sortIds: START_TIME_SORT_IDS, desc: true}}
             // actionsComponent={({original}) => (
             //     <ScanActionsDisplay data={original} />
@@ -119,7 +151,7 @@ const ScansTable = () => {
                     title="New scan configuration"
                     onClick={() => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {}})}
                     subTitle="Start scan from config"
-                    onSubClick={() => navigate(SCANS_PATHS.CONFIGURATIONS)}
+                    onSubClick={() => navigate(`${ROUTES.SCANS}/${SCANS_PATHS.CONFIGURATIONS}`)}
                 />
             )}
             absoluteSystemBanner

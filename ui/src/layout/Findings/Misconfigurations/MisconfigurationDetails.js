@@ -49,7 +49,7 @@ const MisconfigurationDetails = () => (
     <DetailsPageWrapper
         backTitle="Misconfigurations"
         getUrl={({id}) => `${APIS.FINDINGS}/${id}?$expand=asset,scan`}
-        getTitleData={({findingInfo}) => ({title: findingInfo.path})}
+        getTitleData={({findingInfo}) => ({title: findingInfo.testID})}
         detailsContent={props => <DetailsContent {...props} />}
     />
 )

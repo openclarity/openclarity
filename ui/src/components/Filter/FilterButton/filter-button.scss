@@ -1,0 +1,25 @@
+@import 'utils/scss_variables.module.scss';
+
+.filter-button {
+    border: 1px solid $color-blue;
+    color: $color-main-dark;
+    background-color: $color-blue;
+    font-weight: 400;
+    font-size: 14px;
+    border-radius: 100px;
+    box-sizing: border-box;
+    height: 28px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    &.pressed {
+        border: 1px solid $color-findings-3;
+        color: $color-findings-3;
+        background-color: white;
+    }
+    .icon {
+        margin-right: 5px;
+    }
+}

@@ -5,18 +5,27 @@ $calendar-backgroud-color: white;
 
 .form-field-wrapper.date-field-wrapper {
     .react-datetime-picker.date-field-select {
-        height: 32px;
+        height: 36px;
+        background-color: white;
         
         .react-datetime-picker__wrapper {
             border: 1px solid $color-grey-light;
             border-radius: 2px;
 
-            .react-datetime-picker__inputGroup__input {
-                color: $color-grey-black;
-                font-size: 14px;
-
-                &:focus-visible {
-                    outline: none;
+            .react-datetime-picker__inputGroup {
+                padding: 0 8px;
+                
+                .react-datetime-picker__inputGroup__input,
+                .react-datetime-picker__inputGroup__leadingZero {
+                    color: $color-grey-black;
+                    font-size: 14px;
+    
+                    &:invalid {
+                        background-color: white;
+                    }
+                    &:focus-visible {
+                        outline: none;
+                    }
                 }
             }
         }

@@ -1,20 +1,23 @@
 import React from 'react';
+import { uniqBy } from 'lodash';
 import ProgressBar, { STATUS_MAPPPING } from 'components/ProgressBar';
 import ErrorMessageDisplay from 'components/ErrorMessageDisplay';
 
 import './scan-progress-bar.scss';
 
 const SCAN_STATES_AND_REASONS_MAPPINGS = [
-    {state: "Pending", status: STATUS_MAPPPING.IN_PROGRESS.value},
-    {state: "Discovered", status: STATUS_MAPPPING.IN_PROGRESS.value},
-    {state: "InProgress", status: STATUS_MAPPPING.IN_PROGRESS.value},
-    {state: "Failed", stateReason: "Aborted", status: STATUS_MAPPPING.STOPPED.value},
-    {state: "Failed", stateReason: "TimedOut", status: STATUS_MAPPPING.WARNING.value},
-    {state: "Failed", stateReason: "OneOrMoreTargetFailedToScan", status: STATUS_MAPPPING.WARNING.value, errorTitle: "Some of the elements were failed to be scanned"},
-    {state: "Failed", stateReason: "DiscoveryFailed", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Discovery failed"},
-    {state: "Failed", stateReason: "Unexpected", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Unexpected error occured"},
-    {state: "Done", status: STATUS_MAPPPING.SUCCESS.value}
+    {state: "Pending", title: "Pending", status: STATUS_MAPPPING.IN_PROGRESS.value},
+    {state: "Discovered", title: "Discovered", status: STATUS_MAPPPING.IN_PROGRESS.value},
+    {state: "InProgress", title: "In progress", status: STATUS_MAPPPING.IN_PROGRESS.value},
+    {state: "Failed", title: "Failed", stateReason: "Aborted", status: STATUS_MAPPPING.STOPPED.value},
+    {state: "Failed", title: "Failed", stateReason: "TimedOut", status: STATUS_MAPPPING.WARNING.value},
+    {state: "Failed", title: "Failed", stateReason: "OneOrMoreTargetFailedToScan", status: STATUS_MAPPPING.WARNING.value, errorTitle: "Some of the elements were failed to be scanned"},
+    {state: "Failed", title: "Failed", stateReason: "DiscoveryFailed", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Discovery failed"},
+    {state: "Failed", title: "Failed", stateReason: "Unexpected", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Unexpected error occured"},
+    {state: "Done", title: "Done", status: STATUS_MAPPPING.SUCCESS.value}
 ];
+
+export const SCAN_STATUS_ITEMS = uniqBy(SCAN_STATES_AND_REASONS_MAPPINGS, "state").map(({state, title}) => ({value: state, label: title}))
 
 const ScanProgressBar = ({itemsCompleted, itemsLeft, state, stateReason, stateMessage, barWidth, isMinimized=false, minimizedTooltipId=null}) => {
     const {status, errorTitle} = SCAN_STATES_AND_REASONS_MAPPINGS
