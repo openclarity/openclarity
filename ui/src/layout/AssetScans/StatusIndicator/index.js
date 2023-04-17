@@ -6,7 +6,7 @@ import COLORS from 'utils/scss_variables.module.scss';
 
 import './status-indicator.scss';
 
-const STATUS_MAPPING = {
+export const STATUS_MAPPING = {
     NOT_SCANNED: {title: "Not Scanned", color: COLORS["color-grey"]},
     INIT: {title: "Initialized", color: COLORS["color-main"]},
     ATTACHED: {title: "Volume Snapshot Attached", color: COLORS["color-main"]},

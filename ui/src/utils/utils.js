@@ -4,7 +4,8 @@ import CVSS from '@turingpointde/cvss.js';
 import { isEmpty, orderBy } from 'lodash';
 import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import IconWithTooltip from 'components/IconWithTooltip';
-import VulnerabilitiesDisplay from 'components/VulnerabilitiesDisplay';
+import VulnerabilitiesDisplay, { VULNERABILITY_SEVERITY_ITEMS } from 'components/VulnerabilitiesDisplay';
+import { OPERATORS } from 'components/Filter';
 
 export const formatDateBy = (date, format) => !!date ? moment(date).format(format): "";
 export const formatDate = (date) => formatDateBy(date, "MMM Do, YYYY HH:mm:ss");
@@ -66,9 +67,7 @@ export const getHigestVersionCvssData = (cvssData) => {
     }
 }
 
-export const getFindingsColumnsConfigList = (tableTitle) => Object.keys(FINDINGS_MAPPING).map(findingKey => {
-    const {totalKey, title, icon} = FINDINGS_MAPPING[findingKey];
-
+export const getFindingsColumnsConfigList = (tableTitle) => Object.values(FINDINGS_MAPPING).map(({totalKey, title, icon}) => {
     return {
         Header: <IconWithTooltip tooltipId={`table-header-${tableTitle}-${totalKey}`} tooltipText={title} name={icon} />,
         id: totalKey,
@@ -111,3 +110,94 @@ export const getVulnerabilitiesColumnConfigItem = (tableTitle) => {
         width: 50
     }
 };
+
+export const findingsColumnsFiltersConfig = Object.values(FINDINGS_MAPPING).map(({totalKey, title}) => {
+    const fitlerKey = `summary.${totalKey}`;
+
+    return {value: fitlerKey, label: title, isNumber: true, operators: [
+        {...OPERATORS.eq, valueItems: [], creatable: true},
+        {...OPERATORS.ne, valueItems: [], creatable: true},
+        {...OPERATORS.ge},
+        {...OPERATORS.le},
+    ]}
+});
+
+export const vulnerabilitiesCountersColumnsFiltersConfig = Object.values(VULNERABILITY_SEVERITY_ITEMS).map(({totalKey, title}) => {
+    const fitlerKey = `summary.totalVulnerabilities.${totalKey}`;
+
+    return {value: fitlerKey, label: `${title} vulnerabilities`, isNumber: true, operators: [
+        {...OPERATORS.eq, valueItems: [], creatable: true},
+        {...OPERATORS.ne, valueItems: [], creatable: true},
+        {...OPERATORS.ge},
+        {...OPERATORS.le},
+    ]}
+});
+
+export const scanColumnsFiltersConfig = [
+    {value: "scan.scanConfigSnapshot.name", label: "Scan name", operators: [
+        {...OPERATORS.eq, valueItems: [], creatable: true},
+        {...OPERATORS.ne, valueItems: [], creatable: true},
+        {...OPERATORS.startswith},
+        {...OPERATORS.endswith},
+        {...OPERATORS.contains, valueItems: [], creatable: true}
+    ]},
+    {value: "scan.endTime", label: "Scan end time", isDate: true, operators: [
+        {...OPERATORS.ge},
+        {...OPERATORS.le},
+    ]}
+]
+
+export const getAssetColumnsFiltersConfig = (props) => {
+    const {prefix="targetInfo", withType=true} = props || {};
+    
+    const ASSET_TYPE_ITEMS = [
+        {value: "VMInfo", label: "VMInfo"},
+        {value: "PodInfo", label: "PodInfo"},
+        {value: "DirInfo", label: "DirInfo"}
+    ]
+
+    return [
+        {value: `${prefix}.instanceID`, label: "Asset name", operators: [
+            {...OPERATORS.eq, valueItems: [], creatable: true},
+            {...OPERATORS.ne, valueItems: [], creatable: true},
+            {...OPERATORS.startswith},
+            {...OPERATORS.endswith},
+            {...OPERATORS.contains, valueItems: [], creatable: true}
+        ]},
+        ...(!withType ? [] : [{value: `${prefix}.objectType`, label: "Asset type", operators: [
+            {...OPERATORS.eq, valueItems: ASSET_TYPE_ITEMS},
+            {...OPERATORS.ne, valueItems: ASSET_TYPE_ITEMS}
+        ]}]),
+        {value: `${prefix}.location`, label: "Asset location", operators: [
+            {...OPERATORS.eq, valueItems: [], creatable: true},
+            {...OPERATORS.ne, valueItems: [], creatable: true},
+            {...OPERATORS.startswith},
+            {...OPERATORS.endswith},
+            {...OPERATORS.contains, valueItems: [], creatable: true}
+        ]},
+    ]
+}
+
+export const getScanScopeColumnFiltersConfig = (scopePrefix="scope") => {
+    const SCOPE_ALL_REGIONS_FILTER_ITEMS = [
+        {value: `${scopePrefix}.allRegions`, label: "All"}
+    ]
+
+    const formatScanScopeToOdata = (valuesList, operator, scope) => (
+        valuesList.map(value => {
+            if (operator === OPERATORS.contains.value) {
+                return `${operator}(${scope},'${value}')`;
+            }
+    
+            return `(${value} eq ${operator === OPERATORS.eq.value ? "true" : "false"})`;
+        }).join(` or `)
+    )
+
+    return [
+        {value: `${scopePrefix}.regions`, label: "Scope", customOdataFormat: formatScanScopeToOdata, operators: [
+            {...OPERATORS.eq, valueItems: SCOPE_ALL_REGIONS_FILTER_ITEMS},
+            {...OPERATORS.ne, valueItems: SCOPE_ALL_REGIONS_FILTER_ITEMS},
+            {...OPERATORS.contains, valueItems: [], creatable: true}
+        ]}
+    ]
+}

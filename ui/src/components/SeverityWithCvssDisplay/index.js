@@ -5,6 +5,10 @@ import { toCapitalized } from 'utils/utils';
 
 import './severity-with-cvss-display.scss';
 
+export {
+    SEVERITY_ITEMS
+}
+
 const SeverityWithCvssDisplay = ({severity, cvssScore, cvssSeverity, compareTooltipId}) => {
     if (!severity) {
         return null;

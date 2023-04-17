@@ -62,7 +62,7 @@ const TabAssetScanDetails = ({data}) => {
                     <StatusDisplay state={state} errors={errors} />
                     {
                         STATUS_DISPLAY_ITEMS.map(({dataKey, title}) => {
-                            const {state, errors} = (status ||{})[dataKey];
+                            const {state, errors} = (status || {})[dataKey] || {};
 
                             return (
                                 <div key={dataKey} style={{marginTop: "46px"}}>

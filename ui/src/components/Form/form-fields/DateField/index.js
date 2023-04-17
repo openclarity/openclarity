@@ -10,21 +10,19 @@ import FieldLabel from 'components/Form/FieldLabel';
 
 import './date-field.scss';
 
-const DATE_FORMAT = 'YYYY-MM-DD';
-
 const DateField = (props) => {
-    const {label, className, tooltipText, displayFormat="MMM dd"} = props;
+    const {label, className, tooltipText, displayFormat="MMM dd", valueFormat="YYYY-MM-DD", disabled, minDate} = props;
     const [field, meta, helpers] = useField(props);
     const {name, value} = field; 
     const {setValue, setTouched} = helpers;
-
+    
     const formattedValue = !!value ? new Date(value) : null;
 
     return (
         <div className={classnames("form-field-wrapper", "date-field-wrapper", {[className]: className})} onBlur={() => setTouched(true, true)}>
             {!isEmpty(label) && <FieldLabel tooltipId={name} tooltipText={tooltipText}>{label}</FieldLabel>}
             <DateTimePicker
-                onChange={date => setValue(isNull(date) ? "" : formatDateBy(date, DATE_FORMAT))}
+                onChange={date => setValue(isNull(date) ? "" : formatDateBy(date, valueFormat))}
                 value={formattedValue}
                 className="date-field-select"
                 calendarClassName="date-field-select-calendar"
@@ -34,13 +32,20 @@ const DateField = (props) => {
                 format={displayFormat}
                 name={name}
                 openWidgetsOnFocus={true}
-                minDate={new Date()}
+                minDate={minDate}
                 prevLabel={<Arrow name="left" />}
                 nextLabel={<Arrow name="right" />}
                 prev2Label={null}
                 next2Label={null}
                 minDetail="month"
                 calendarType="US"
+                disabled={disabled}
+                yearPlaceholder="____"
+                dayPlaceholder="__"
+                hourPlaceholder="__"
+                minutePlaceholder="__"
+                monthPlaceholder="__"
+                secondPlaceholder="__"
             />
             {meta.touched && meta.error && <FieldError>{meta.error}</FieldError>}
         </div>

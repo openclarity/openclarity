@@ -1,10 +1,18 @@
 import React, { useMemo } from 'react';
 import ExpandableList from 'components/ExpandableList';
-import SeverityWithCvssDisplay from 'components/SeverityWithCvssDisplay';
-import { getHigestVersionCvssData } from 'utils/utils';
+import SeverityWithCvssDisplay, { SEVERITY_ITEMS } from 'components/SeverityWithCvssDisplay';
+import { OPERATORS } from 'components/Filter';
+import { getHigestVersionCvssData, toCapitalized } from 'utils/utils';
 import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
+
+const FILTER_SEVERITY_ITEMS = Object.values(SEVERITY_ITEMS).filter(({valueKey}) => valueKey !== SEVERITY_ITEMS.NONE.valueKey)
+    .map(({valueKey}) => ({value: valueKey, label: toCapitalized(valueKey)}));
+
+const FILTER_FIX_AVAILABLE_ITEMS = [
+    {value: "fixed", label: "available"}
+]
 
 const VulnerabilitiesTable = () => {
     const columns = useMemo(() => [
@@ -64,6 +72,37 @@ const VulnerabilitiesTable = () => {
         <FindingsTablePage
             columns={columns}
             filterType={FILTER_TYPES.FINDINGS_VULNERABILITIES}
+            filtersConfig={[
+                {value: "findingInfo.vulnerabilityName", label: "Vulnerability name", operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.startswith},
+                    {...OPERATORS.endswith},
+                    {...OPERATORS.contains, valueItems: [], creatable: true}
+                ]},
+                {value: "findingInfo.severity", label: "Vulnerability severity", operators: [
+                    {...OPERATORS.eq, valueItems: FILTER_SEVERITY_ITEMS},
+                    {...OPERATORS.ne, valueItems: FILTER_SEVERITY_ITEMS}
+                ]},
+                {value: "findingInfo.package.name", label: "Package name", operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.startswith},
+                    {...OPERATORS.endswith},
+                    {...OPERATORS.contains, valueItems: [], creatable: true}
+                ]},
+                {value: "findingInfo.package.version", label: "Package version", operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.startswith},
+                    {...OPERATORS.endswith},
+                    {...OPERATORS.contains, valueItems: [], creatable: true}
+                ]},
+                {value: "findingInfo.fix.state", label: "Fix version", operators: [
+                    {...OPERATORS.eq, valueItems: FILTER_FIX_AVAILABLE_ITEMS},
+                    {...OPERATORS.ne, valueItems: FILTER_FIX_AVAILABLE_ITEMS}
+                ]}
+            ]}
             tableTitle="vulnerabilities"
             findingsObjectType="Vulnerability"
         />
