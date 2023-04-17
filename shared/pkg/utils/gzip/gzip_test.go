@@ -23,7 +23,7 @@ import (
 )
 
 func TestCompress(t *testing.T) {
-	file, err := os.ReadFile("testdata/examples-bookinfo-reviews-v1:1.17.0.cdx.json")
+	file, err := os.ReadFile("testdata/examples-bookinfo-reviews-v1-1.17.0.cdx.json")
 	assert.NilError(t, err)
 	t.Logf("file len %v", len(file))
 	compress, err := CompressAndEncode(file)
