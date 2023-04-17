@@ -5,13 +5,14 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import ScanProgressBar from 'components/ScanProgressBar';
 import Button from 'components/Button';
+import { SCANS_PATHS } from 'layout/Scans';
 import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
 import { formatDate, calculateDuration, formatNumber } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import ConfigurationAlertLink from './ConfigurationAlertLink';
 
-const ScanDetails = ({scanData, withAssetScansLink=false}) => {
+const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) => {
     const {pathname} = useLocation();
     const navigate = useNavigate();
     const filtersDispatch = useFilterDispatch();
@@ -46,7 +47,7 @@ const ScanDetails = ({scanData, withAssetScansLink=false}) => {
             )}
             rightPlaneDisplay={() => (
                 <>
-                    <Title medium>Status</Title>
+                    <Title medium onClick={withScanLink ? () => navigate(`${ROUTES.SCANS}/${SCANS_PATHS.SCANS}/${id}`) : undefined}>Scan</Title>
                     <div style={{marginBottom: "20px"}}>
                         <ScanProgressBar
                             state={state}

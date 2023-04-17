@@ -56,7 +56,7 @@ const AssetScanDetails = () => (
 
             return ({
                 title: target?.targetInfo?.instanceID,
-                subTitle: `scanned by ${scanConfigSnapshot?.name} on ${formatDate(startTime)}`
+                subTitle: `scanned by '${scanConfigSnapshot?.name}' on ${formatDate(startTime)}`
             })
         }}
         detailsContent={props => <DetailsContent {...props} />}

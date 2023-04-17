@@ -47,15 +47,17 @@ const AssetScansDisplay = ({assetName, targetId}) => {
     )
 }
 
-const AssetDetails = ({assetData, withAssetScansLink=false}) => {
+const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}) => {
+    const navigate = useNavigate();
+
     const {id, targetInfo} = assetData;
     const {instanceID, objectType, location} = targetInfo || {};
-
+    
     return (
         <DoublePaneDisplay
             leftPaneDisplay={() => (
                 <>
-                    <Title medium>Asset</Title>
+                    <Title medium onClick={withAssetLink ? () => navigate(`${ROUTES.ASSETS}/${id}`) : undefined}>Asset</Title>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Name">{instanceID}</TitleValueDisplay>
                         <TitleValueDisplay title="Type">{objectType}</TitleValueDisplay>
