@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
+import { orderBy } from 'lodash';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { useFetch } from 'hooks';
 import Loader from 'components/Loader';
@@ -32,11 +33,17 @@ const TooltipHeader = ({data}) => {
 }
 
 const WidgetContent = ({data}) => {
-    const formattedData = data.map(({regionName, findingsCount}) => ({regionName, ...findingsCount}))
-
     const [selectedFilters, setSelectedFilters] = useState([
         ...WIDGET_FINDINGS_ITEMS.map(({dataKey}) => dataKey)
     ]);
+
+    const formattedData = orderBy(data || [], ({findingsCount}) => {
+        return Object.keys(findingsCount || {}).reduce((acc, currFindingKey) => {
+            const count = findingsCount[currFindingKey] || 0;
+            
+            return acc + (selectedFilters.includes(currFindingKey) ? count : 0);
+        }, 0);
+    }, ["desc"]).map(({regionName, findingsCount}) => ({regionName, ...findingsCount}));
 
     return (
         <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
