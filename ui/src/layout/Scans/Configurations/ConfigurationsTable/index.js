@@ -5,7 +5,8 @@ import { ICON_NAMES } from 'components/Icon';
 import EmptyDisplay from 'components/EmptyDisplay';
 import ExpandableList from 'components/ExpandableList';
 import TablePage from 'components/TablePage';
-import { BoldText, toCapitalized, formatDate } from 'utils/utils';
+import { OPERATORS } from 'components/Filter';
+import { BoldText, toCapitalized, formatDate, getScanScopeColumnFiltersConfig } from 'utils/utils';
 import { APIS } from 'utils/systemConsts';
 import { formatTagsToStringInstances, getScanTimeTypeTag } from 'layout/Scans/utils';
 import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
@@ -16,6 +17,20 @@ import ConfigurationActionsDisplay from '../ConfigurationActionsDisplay';
 import './configurations-table.scss';
 
 const TABLE_TITLE = "scan configurations";
+
+const SCAN_TYPES_FILTER_ITEMS = [
+    "vulnerabilities",
+    "exploits",
+    "malware",
+    "misconfigurations",
+    "rootkits",
+    "secrets",
+    "sbom"
+].map(type => ({value: `scanFamiliesConfig.${type}.enabled`, label: toCapitalized(type)}));
+
+const formatScanTypesToOdata = (valuesList, operator) => (
+    valuesList.map(value => `(${value} eq ${operator === OPERATORS.contains.value ? "true" : "false"})`).join(` or `)
+)
 
 const ConfigurationsTable = () => {
     const modalDisplayDispatch = useModalDisplayDispatch();
@@ -121,14 +136,40 @@ const ConfigurationsTable = () => {
 
     return (
         <div className="scan-configs-table-page-wrapper">
-            <ButtonWithIcon iconName={ICON_NAMES.PLUS} onClick={() => setScanConfigFormData({})}>
-                New scan configuration
-            </ButtonWithIcon>
             <TablePage
                 columns={columns}
                 url={APIS.SCAN_CONFIGS}
                 tableTitle={TABLE_TITLE}
                 filterType={FILTER_TYPES.SCAN_CONFIGURATIONS}
+                filtersConfig={[
+                    {value: "name", label: "Name", operators: [
+                        {...OPERATORS.eq, valueItems: [], creatable: true},
+                        {...OPERATORS.ne, valueItems: [], creatable: true},
+                        {...OPERATORS.startswith},
+                        {...OPERATORS.endswith},
+                        {...OPERATORS.contains, valueItems: [], creatable: true}
+                    ]},
+                    ...getScanScopeColumnFiltersConfig(),
+                    {value: "scope.instanceTagExclusion", label: "Excluded instances", operators: [
+                        {...OPERATORS.contains, valueItems: [], creatable: true}
+                    ]},
+                    {value: "scope.instanceTagSelector", label: "Included instances", operators: [
+                        {...OPERATORS.contains, valueItems: [], creatable: true}
+                    ]},
+                    {value: "scheduled.operationTime", label: "Scan time", isDate: true, operators: [
+                        {...OPERATORS.ge},
+                        {...OPERATORS.le},
+                    ]},
+                    {value: "scanTypes", label: "Scan types", customOdataFormat: formatScanTypesToOdata, operators: [
+                        {...OPERATORS.contains, valueItems: SCAN_TYPES_FILTER_ITEMS},
+                        {...OPERATORS.notcontains, valueItems: SCAN_TYPES_FILTER_ITEMS}
+                    ]}
+                ]}
+                customHeaderDisplay={() => (
+                    <ButtonWithIcon className="new-config-button" iconName={ICON_NAMES.PLUS} onClick={() => setScanConfigFormData({})}>
+                        New scan configuration
+                    </ButtonWithIcon>
+                )}
                 refreshTimestamp={refreshTimestamp}
                 actionsColumnWidth={100}
                 actionsComponent={({original}) => (

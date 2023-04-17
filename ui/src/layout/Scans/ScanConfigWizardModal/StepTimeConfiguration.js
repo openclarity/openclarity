@@ -22,6 +22,7 @@ const LaterFormFields = () => (
             name="scheduled.laterDate"
             label="Date*"
             validate={validators.validateRequired}
+            minDate={new Date()}
         />
         <TimeField
             name="scheduled.laterTime"

@@ -20,7 +20,8 @@ const STATIC_COLUMN_IDS = [ACTIONS_COLUMN_ID];
 const Table = props => {
     const {columns, defaultSortBy, onSortChnage, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
         onPageChange, noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
-        actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, actionsColumnWidth=80} = props;
+        actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, showCustomEmptyDisplay=true,
+        actionsColumnWidth=80} = props;
 
     const [sortBy, setSortBy] = useState(defaultSortBy || {});
     const prevSortBy = usePrevious(sortBy);
@@ -202,7 +203,7 @@ const Table = props => {
         )
     }
 
-    if (isEmpty(page) && !loading && !!CustomEmptyResultsDisplay) {
+    if (isEmpty(page) && !loading && showCustomEmptyDisplay && !!CustomEmptyResultsDisplay) {
         return (
             <CustomEmptyResultsDisplay />
         )

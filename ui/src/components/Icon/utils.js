@@ -29,5 +29,6 @@ export const ICON_NAMES = {
     GHOST: "ghost",
     PACKAGE: "package",
     REFRESH: "refresh",
-    STROKE: "stroke"
+    STROKE: "stroke",
+    FILTER: "filter"
 }

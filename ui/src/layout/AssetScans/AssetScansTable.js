@@ -1,13 +1,19 @@
 import React, { useMemo } from 'react';
 import TablePage from 'components/TablePage';
+import { OPERATORS } from 'components/Filter';
 import { APIS } from 'utils/systemConsts';
-import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatDate } from 'utils/utils';
+import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatDate, getAssetColumnsFiltersConfig,
+    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, scanColumnsFiltersConfig } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
-import StatusIndicator from './StatusIndicator';
+import StatusIndicator, { STATUS_MAPPING } from './StatusIndicator';
 
 const TABLE_TITLE = "asset scans";
 
 const SCAN_START_TIME_SORT_IDS = ["scan.startTime"];
+
+const FILTER_SCAN_STATUSES = Object.keys(STATUS_MAPPING).map(statusKey => (
+    {value: statusKey, label: STATUS_MAPPING[statusKey]?.title}
+))
 
 const AssetScansTable = () => {
     const columns = useMemo(() => [
@@ -67,6 +73,16 @@ const AssetScansTable = () => {
             defaultSortBy={{sortIds: SCAN_START_TIME_SORT_IDS, desc: true}}
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSET_SCANS}
+            filtersConfig={[
+                ...getAssetColumnsFiltersConfig({prefix: "target.targetInfo"}),
+                ...scanColumnsFiltersConfig,
+                {value: "status.general.state", label: "Scan status", operators: [
+                    {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUSES},
+                    {...OPERATORS.ne, valueItems: FILTER_SCAN_STATUSES}
+                ]},
+                ...vulnerabilitiesCountersColumnsFiltersConfig,
+                ...findingsColumnsFiltersConfig
+            ]}
             withMargin
         />
     )
