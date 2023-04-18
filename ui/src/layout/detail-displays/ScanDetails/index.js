@@ -65,7 +65,7 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
                     {withAssetScansLink &&
                         <div style={{marginTop: "50px"}}>
                             <Title medium>Asset scans</Title>
-                            <Button onClick={onAssetScansClick}>{`See asset scans (${formatNumber(jobsCompleted || 0)})`}</Button>
+                            <Button onClick={onAssetScansClick}>{`See asset scans (${formatNumber((jobsCompleted || 0) + (jobsLeftToRun || 0))})`}</Button>
                         </div>
                     }
                 </>
