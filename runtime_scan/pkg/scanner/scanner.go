@@ -498,7 +498,7 @@ func (s *Scanner) Clear() {
 	defer s.Unlock()
 
 	log.WithFields(s.logFields).Infof("Clearing...")
-	// Make sure that the channel is not closed
+	// Make sure to close the channel only once.
 	if !s.killChanClosed.Load() {
 		close(s.killSignal)
 		s.killChanClosed.Store(true)
