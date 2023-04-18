@@ -12,9 +12,9 @@ export const formatDate = (date) => formatDateBy(date, "MMM Do, YYYY HH:mm:ss");
 
 export const calculateDuration = (startTime, endTime) => {
     const startMoment = moment(startTime);
-    const endMoment = moment(endTime);
+    const endMoment = moment(endTime || new Date());
     
-    if (!startTime || !endTime) {
+    if (!startTime) {
         return null;
     }
 
