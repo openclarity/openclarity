@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/CycloneDX/cyclonedx-go v0.6.0
 	github.com/CycloneDX/cyclonedx-gomod v1.2.0
-	github.com/Portshift/grype-server/api v0.0.0-20230208095608-6def2f3ebd73
 	github.com/anchore/grype v0.50.1
 	github.com/anchore/stereoscope v0.0.0-20221006201143-d24c9d626b33
 	github.com/anchore/syft v0.60.3
@@ -24,6 +23,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jinzhu/copier v0.3.2
+	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050
 	github.com/package-url/packageurl-go v0.1.1-0.20220203205134-d70459300c8a
 	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
