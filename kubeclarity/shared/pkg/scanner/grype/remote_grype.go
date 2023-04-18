@@ -21,12 +21,12 @@ import (
 	"os"
 	"time"
 
-	grype_client "github.com/Portshift/grype-server/api/client/client"
-	grype_client_operations "github.com/Portshift/grype-server/api/client/client/operations"
-	grype_client_models "github.com/Portshift/grype-server/api/client/models"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	transport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	grype_client "github.com/openclarity/grype-server/api/client/client"
+	grype_client_operations "github.com/openclarity/grype-server/api/client/client/operations"
+	grype_client_models "github.com/openclarity/grype-server/api/client/models"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
