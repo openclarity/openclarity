@@ -35,16 +35,19 @@ write_files:
       [Service]
       Type=oneshot
       WorkingDirectory=/opt/vmclarity
+      ExecStartPre=mkdir -p /var/opt/vmclarity
       ExecStartPre=docker pull {{ .ScannerImage }}
       ExecStart=docker run --rm --name %n --privileged \
           -v /opt/vmclarity:/opt/vmclarity \
           -v /run:/run \
+          -v /var/opt/vmclarity:/var/opt/vmclarity \
           {{ .ScannerImage }} \
           --config /opt/vmclarity/scanconfig.yaml \
           --server {{ .ServerAddress }} \
           --wait-for-server-attached \
           --mount-attached-volume \
-          --scan-result-id {{ .ScanResultID }}
+          --scan-result-id {{ .ScanResultID }} \
+          --output /var/opt/vmclarity
 
       [Install]
       WantedBy=multi-user.target
