@@ -303,7 +303,7 @@ require (
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
-	github.com/opencontainers/runc v1.1.3 // indirect
+	github.com/opencontainers/runc v1.1.5 // indirect
 	github.com/opencontainers/runtime-spec v1.0.3-0.20220311020903-6969a0a09ab1 // indirect
 	github.com/opencontainers/selinux v1.10.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
