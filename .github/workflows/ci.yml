@@ -30,7 +30,7 @@ jobs:
 
   build_all:
     needs: verification
-    name: Build ALL
+    name: Build
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
       image_tag: ${{ github.sha }}
@@ -80,6 +80,15 @@ jobs:
       - name: Run e2e tests
         run: make e2e
 
+# We are using the following step to be the status check in the PRs
+  build:
+    needs: build_all
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build All Done
+        run: echo "Done"
+
   lint_chart:
     name: Lint Helm Chart
     runs-on: ubuntu-latest
@@ -114,12 +123,3 @@ jobs:
 
       - name: Run chart-testing (lint)
         run: ct lint --debug --config charts/testing.yaml
-
-  # We are using the following step to be the status check in the PRs
-  done:
-    needs: [build_all, e2e, lint_chart]
-    name: Done
-    runs-on: ubuntu-latest
-    steps:
-      - name: Build All Done
-        run: echo "Done"
