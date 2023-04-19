@@ -20,6 +20,7 @@ const initialState = Object.keys(FILTER_TYPES).reduce((acc, curr) => ({
     [curr]: {
         tableFilters: [],
         systemFilters: {},
+        customFilters: {},
         selectedPageIndex: 0,
         tableSort: {}
     }
@@ -28,6 +29,7 @@ const initialState = Object.keys(FILTER_TYPES).reduce((acc, curr) => ({
 const FITLER_ACTIONS = {
     SET_TABLE_FILTERS_BY_KEY: "SET_TABLE_FILTERS_BY_KEY",
     SET_SYSTEM_FILTERS_BY_KEY: "SET_SYSTEM_FILTERS_BY_KEY",
+    SET_CUSTOM_FILTERS_BY_KEY: "SET_CUSTOM_FILTERS_BY_KEY",
     SET_TABLE_PAGE_BY_KEY: "SET_TABLE_PAGE_BY_KEY",
     SET_TABLE_SORT_BY_KEY: "SET_TABLE_SORT_BY_KEY",
     RESET_ALL_FILTERS: "RESET_ALL_FILTERS",
@@ -57,6 +59,18 @@ const reducer = (state, action) => {
                     ...state[filterType],
                     tableFilters: [...initialState[filterType].tableFilters],
                     systemFilters: filterData,
+                    selectedPageIndex: 0
+                }
+            };
+        }
+        case FITLER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY: {
+            const {filterType, filterData} = action.payload;
+            
+            return {
+                ...state,
+                [filterType]: {
+                    ...state[filterType],
+                    customFilters: filterData,
                     selectedPageIndex: 0
                 }
             };
@@ -113,8 +127,8 @@ const reducer = (state, action) => {
 
 const [FiltersProvider, useFilterState, useFilterDispatch] = create(reducer, initialState);
 
-const setFilters = (dispatch, {type, filters, isSystem=false}) => dispatch({
-    type: isSystem ? FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY : FITLER_ACTIONS.SET_TABLE_FILTERS_BY_KEY,
+const setFilters = (dispatch, {type, filters, isSystem=false, isCustom=false}) => dispatch({
+    type: isSystem ? FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY : (isCustom ? FITLER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY : FITLER_ACTIONS.SET_TABLE_FILTERS_BY_KEY),
     payload: {filterType: type, filterData: filters}
 });
 const setPage = (dispatch, {type, pageIndex}) => dispatch({type: FITLER_ACTIONS.SET_TABLE_PAGE_BY_KEY, payload: {filterType: type, pageIndex}});

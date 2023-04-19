@@ -1,0 +1,45 @@
+@import 'utils/scss_variables.module.scss';
+
+.toggle-button {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    font-size: 14px;
+    color: $color-grey-black;
+
+    .react-toggle {
+        margin-right: 13px;
+
+        &.react-toggle--focus,
+        &:active {
+            .react-toggle-thumb {
+                box-shadow: none;
+                outline: none;
+            }
+        }
+        &:hover {
+            .react-toggle-track {
+                background-color: $color-grey;
+            }
+        }
+        &.react-toggle--checked {
+            .react-toggle-track {
+                background-color: $color-main-light;
+            }
+            .react-toggle-thumb {
+                left: 18px;
+                border-color: $color-main-light;
+            }
+        }
+        .react-toggle-track {
+            height: 12px;
+            width: 40px;
+            background-color: $color-grey;
+        }
+        .react-toggle-thumb {
+            top: -5px;
+            left: 0;
+            border-color: $color-grey;
+        }
+    }
+}
