@@ -1,9 +1,11 @@
 import React from 'react';
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
+import { FindingsDetailsCommonFields } from '../utils';
 
 const TabSecretDetails = ({data}) => {
-    const {fingerprint, description, startLine, endLine, filePath} = data.findingInfo;
+    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {fingerprint, description, startLine, endLine, filePath} = findingInfo;
 
     return (
         <DoublePaneDisplay
@@ -20,6 +22,7 @@ const TabSecretDetails = ({data}) => {
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="File path">{filePath}</TitleValueDisplay>
                     </TitleValueDisplayRow>
+                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
                 </>  
             )}
         />

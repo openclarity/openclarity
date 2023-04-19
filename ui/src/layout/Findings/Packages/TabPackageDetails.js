@@ -1,9 +1,11 @@
 import React from 'react';
 import TitleValueDisplay, { TitleValueDisplayRow, ValuesListDisplay } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
+import { FindingsDetailsCommonFields } from '../utils';
 
 const TabPackageDetails = ({data}) => {
-    const {name, version, language, licenses} = data.findingInfo;
+    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {name, version, language, licenses} = findingInfo;
 
     return (
         <DoublePaneDisplay
@@ -17,6 +19,7 @@ const TabPackageDetails = ({data}) => {
                         <TitleValueDisplay title="Language">{language}</TitleValueDisplay>
                         <TitleValueDisplay title="Licenses"><ValuesListDisplay values={licenses} /></TitleValueDisplay>
                     </TitleValueDisplayRow>
+                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
                 </>  
             )}
         />

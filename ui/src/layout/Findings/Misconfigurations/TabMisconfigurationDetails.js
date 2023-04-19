@@ -1,10 +1,12 @@
 import React from 'react';
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
+import { FindingsDetailsCommonFields } from '../utils';
 import { MISCONFIGURATION_SEVERITY_MAP } from './utils';
 
 const TabMisconfigurationDetails = ({data}) => {
-    const {testID, severity, testDescription, scannerName, scannedPath, remediation, testCategory, message} = data.findingInfo;
+    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {testID, severity, testDescription, scannerName, scannedPath, remediation, testCategory, message} = findingInfo;
 
     return (
         <DoublePaneDisplay
@@ -28,6 +30,7 @@ const TabMisconfigurationDetails = ({data}) => {
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Description" withOpen defaultOpen>{testDescription}</TitleValueDisplay>
                     </TitleValueDisplayRow>
+                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
                 </>  
             )}
         />

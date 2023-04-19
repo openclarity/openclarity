@@ -1,9 +1,11 @@
 import React from 'react';
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
+import { FindingsDetailsCommonFields } from '../utils';
 
 const TabPackageDetails = ({data}) => {
-    const {rootkitName, message} = data.findingInfo;
+    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {rootkitName, message} = findingInfo;
 
     return (
         <DoublePaneDisplay
@@ -15,6 +17,7 @@ const TabPackageDetails = ({data}) => {
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Message">{message}</TitleValueDisplay>
                     </TitleValueDisplayRow>
+                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
                 </>  
             )}
         />
