@@ -8,27 +8,8 @@ env:
   GO_VERSION: 1.19
 
 jobs:
-  verification:
-    name: Verification
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No verification required"'
-
-  build:
-    name: Build
+  done:
+    name: Done
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No build required"'
-
-  e2e:
-    name: E2E
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No E2E required"'
-
-
-  lint_chart:
-    name: Lint Helm Chart
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No lint required"'
