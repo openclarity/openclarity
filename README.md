@@ -19,6 +19,7 @@ KubeClarity is a tool for detection and management of Software Bill Of Materials
 - [Getting Started](#getting-started)
   - [KubeClarity Backend](#kubeclarity-backend)
     - [Install using Helm](#install-using-helm)
+    - [Uninstall using Helm](#uninstall-using-helm)
     - [Build and Run Locally with Demo Data](#build-and-run-locally-with-demo-data)
   - [CLI](#cli)
     - [Installation](#installation)
@@ -174,6 +175,22 @@ KubeClarity vulnerability scanner integrates with the following scanners:
 > | List pods in cluster scope. | This is required for calculating the target pods that need to be scanned. |
 > | List namespaces. | This is required for fetching the target namespaces to scan in K8s runtime scan UI. |
 > | Create & delete jobs in cluster scope. | This is required for managing the jobs that will scan the target pods in their namespaces. |
+
+### Uninstall using Helm:
+
+1. Helm uninstall
+
+   ```shell
+   helm uninstall kubeclarity -n kubeclarity
+   ```
+
+2. Clean resources
+
+    By default, Helm will not remove the PVCs and PVs for the StatefulSets. Run the following command to delete them all:
+
+    ```shell
+    kubectl delete pvc -l app.kubernetes.io/instance=kubeclarity -n kubeclarity
+    ```
 
 ### Build and Run Locally with Demo Data
 
