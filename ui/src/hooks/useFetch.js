@@ -7,7 +7,8 @@ export const FETCH_METHODS = {
     GET: "GET",
     POST: "POST",
     PUT: "PUT",
-    DELETE: "DELETE"
+    DELETE: "DELETE",
+    PATCH: "PATCH"
 }
 
 const FETCH_ACTIONS = {
@@ -34,7 +35,7 @@ export const formatFetchOptions = ({method, stringifiedSubmitData}) => {
         method
     };
 
-    if (method === FETCH_METHODS.POST || method === FETCH_METHODS.PUT) {
+    if ([FETCH_METHODS.POST, FETCH_METHODS.PUT, FETCH_METHODS.PATCH].includes(method)) {
         options.headers = {'content-type': 'application/json'};
         options.body = stringifiedSubmitData;
     }
@@ -96,7 +97,7 @@ function useFetch(baseUrl, options){
 
     const doFetch = useCallback(async () => {
         const options = formatFetchOptions({method, stringifiedSubmitData: submitData});
-
+        
         dispatch({type: FETCH_ACTIONS.LOADING_DATA});
 
         let isError = false;

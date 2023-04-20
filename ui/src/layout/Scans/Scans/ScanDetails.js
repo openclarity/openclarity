@@ -4,15 +4,15 @@ import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import TabbedPage from 'components/TabbedPage';
 import { APIS } from 'utils/systemConsts';
 import { formatDate, getScanName } from 'utils/utils';
-// import ScanActionsDisplay from '../ScanActionsDisplay';
 import { ScanDetails as ScanDetailsTab, Findings } from 'layout/detail-displays';
+import ScanActionsDisplay from './ScanActionsDisplay';
 
 export const SCAN_DETAILS_PATHS = {
     SCAN_DETALS: "",
     FINDINGS: "findings"
 }
 
-const DetailsContent = ({data}) => {
+const DetailsContent = ({data, fetchData}) => {
     const {pathname} = useLocation();
     
     const {id, scanConfigSnapshot, startTime} = data;
@@ -40,9 +40,9 @@ const DetailsContent = ({data}) => {
                     )
                 }
             ]}
-            // headerCustomDisplay={() => (
-            //     <ScanActionsDisplay data={data} />
-            // )}
+            headerCustomDisplay={() => (
+                <ScanActionsDisplay data={data} onUpdate={fetchData} />
+            )}
             withInnerPadding={false}
         />
     )

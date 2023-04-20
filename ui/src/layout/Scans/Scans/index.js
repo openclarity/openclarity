@@ -7,5 +7,4 @@ const Scans = () => (
     <ListAndDetailsRouter listComponent={ScansTable} detailsComponent={ScanDetails} />
 )
 
-
 export default Scans;
