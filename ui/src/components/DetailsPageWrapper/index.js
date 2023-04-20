@@ -9,7 +9,7 @@ import { useFetch } from 'hooks';
 
 import './details-page-wrapper.scss';
 
-const DetailsContentWrapper = ({data, getTitleData, detailsContent: DetailsContent}) => {
+const DetailsContentWrapper = ({data, getTitleData, detailsContent: DetailsContent, fetchData}) => {
     const {title, subTitle} = getTitleData(data);
 
     return (
@@ -18,7 +18,7 @@ const DetailsContentWrapper = ({data, getTitleData, detailsContent: DetailsConte
                 <Title removeMargin>{title}</Title>
                 {!!subTitle && <div className="details-page-title-sub">{subTitle}</div>}
             </div>
-            <ContentContainer><DetailsContent data={data} /></ContentContainer>
+            <ContentContainer><DetailsContent data={data} fetchData={fetchData} /></ContentContainer>
         </div>
     )
 }
@@ -29,12 +29,14 @@ const DetailsPageWrapper = ({className, backTitle, url, getUrl, getTitleData, de
     const {id} = params;
     const innerPath = params["*"];
     
-    const [{loading, data, error}] = useFetch(!!url ? `${url}/${id}` : getUrl(params));
+    const [{loading, data, error}, fetchData] = useFetch(!!url ? `${url}/${id}` : getUrl(params));
 
     return (
         <div className={classnames("details-page-wrapper", className, {"with-padding": withPadding})}>
             <BackRouteButton title={backTitle} pathname={pathname.replace(!!innerPath ? `/${id}/${innerPath}` : `/${id}`, "")} />
-            {loading ? <Loader /> : (!!error ? null : <DetailsContentWrapper detailsContent={detailsContent} getTitleData={getTitleData} data={data} />)}
+            {loading ? <Loader /> : (!!error ? null :
+                <DetailsContentWrapper detailsContent={detailsContent} getTitleData={getTitleData} data={data} fetchData={fetchData} />)
+            }
         </div>
     )
 }

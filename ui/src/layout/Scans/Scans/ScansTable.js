@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TablePage from 'components/TablePage';
 import { utils } from 'components/Table';
-import ScanProgressBar, { SCAN_STATUS_ITEMS } from 'components/ScanProgressBar';
+import ScanProgressBar, { SCAN_STATES } from 'components/ScanProgressBar';
 import EmptyDisplay from 'components/EmptyDisplay';
 import { OPERATORS } from 'components/Filter';
 import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
@@ -11,13 +11,15 @@ import { APIS, ROUTES } from 'utils/systemConsts';
 import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatNumber, findingsColumnsFiltersConfig,
     vulnerabilitiesCountersColumnsFiltersConfig, getScanScopeColumnFiltersConfig } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
+import ScanActionsDisplay from './ScanActionsDisplay';
 import { SCANS_PATHS } from '../utils';
-// import ScanActionsDisplay from '../ScanActionsDisplay';
 
 const TABLE_TITLE = "scans";
 const TIME_CELL_WIDTH = 110;
 
 const START_TIME_SORT_IDS = ["startTime"];
+
+const FILTER_SCAN_STATUS_ITEMS = Object.values(SCAN_STATES).map(({state, title}) => ({value: state, label: title}));
 
 const TimeDisplay = ({time}) => (
     !!time ? formatDate(time) : <utils.EmptyValue />
@@ -27,6 +29,9 @@ const ScansTable = () => {
     const modalDisplayDispatch = useModalDisplayDispatch();
 
     const navigate = useNavigate();
+
+    const [refreshTimestamp, setRefreshTimestamp] = useState(Date());
+    const doRefreshTimestamp = useCallback(() => setRefreshTimestamp(Date()), []);
 
     const columns = useMemo(() => [
         {
@@ -124,8 +129,8 @@ const ScansTable = () => {
                 ]},
                 ...getScanScopeColumnFiltersConfig("scanConfigSnapshot.scope"),
                 {value: "state", label: "Status", operators: [
-                    {...OPERATORS.eq, valueItems: SCAN_STATUS_ITEMS},
-                    {...OPERATORS.ne, valueItems: SCAN_STATUS_ITEMS}
+                    {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUS_ITEMS},
+                    {...OPERATORS.ne, valueItems: FILTER_SCAN_STATUS_ITEMS}
                 ]},
                 ...vulnerabilitiesCountersColumnsFiltersConfig,
                 ...findingsColumnsFiltersConfig,
@@ -137,9 +142,9 @@ const ScansTable = () => {
                 ]}
             ]}
             defaultSortBy={{sortIds: START_TIME_SORT_IDS, desc: true}}
-            // actionsComponent={({original}) => (
-            //     <ScanActionsDisplay data={original} />
-            // )}
+            actionsComponent={({original}) => (
+                <ScanActionsDisplay data={original} onUpdate={doRefreshTimestamp} />
+            )}
             customEmptyResultsDisplay={() => (
                 <EmptyDisplay
                     message={(
@@ -154,6 +159,7 @@ const ScansTable = () => {
                     onSubClick={() => navigate(`${ROUTES.SCANS}/${SCANS_PATHS.CONFIGURATIONS}`)}
                 />
             )}
+            refreshTimestamp={refreshTimestamp}
             absoluteSystemBanner
         />
     )
