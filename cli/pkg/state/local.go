@@ -28,13 +28,21 @@ func (l *LocalState) WaitForVolumeAttachment(context.Context) error {
 }
 
 func (l *LocalState) MarkInProgress(context.Context) error {
-	log.Info("scanning is in progress")
+	log.Info("Scanning is in progress")
 	return nil
 }
 
-func (l *LocalState) MarkDone(context.Context, []error) error {
-	log.Info("scanning is finished")
+func (l *LocalState) MarkDone(_ context.Context, errs []error) error {
+	if len(errs) > 0 {
+		log.Errorf("scan has been completed with errors: %v", errs)
+		return nil
+	}
+	log.Info("Scan has been completed")
 	return nil
+}
+
+func (l *LocalState) IsAborted(context.Context) (bool, error) {
+	return false, nil
 }
 
 func NewLocalState() (*LocalState, error) {

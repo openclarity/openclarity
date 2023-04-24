@@ -48,6 +48,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	gitleaksconfig "github.com/openclarity/vmclarity/shared/pkg/families/secrets/gitleaks/config"
 	familiesVulnerabilities "github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 // TODO this code is taken from KubeClarity, we can make improvements base on the discussions here: https://github.com/openclarity/vmclarity/pull/3
@@ -61,7 +62,7 @@ const (
 )
 
 // run jobs.
-// nolint:cyclop
+// nolint:cyclop,gocognit
 func (s *Scanner) jobBatchManagement(ctx context.Context) {
 	s.Lock()
 	targetIDToScanData := s.targetIDToScanData
@@ -114,19 +115,36 @@ func (s *Scanner) jobBatchManagement(ctx context.Context) {
 			if numberOfCompletedJobs == len(targetIDToScanData) {
 				scanComplete = true
 
-				state := models.ScanStateDone
-				stateMessage := "All scan jobs completed"
-				stateReason := models.ScanStateReasonSuccess
-				if anyJobsFailed {
-					state = models.ScanStateFailed
-					stateMessage = "One or more ScanJobs failed"
-					stateReason = models.ScanStateReasonOneOrMoreTargetFailedToScan
+				scan.EndTime = utils.PointerTo(time.Now())
+
+				scanState, ok := scan.GetState()
+				if !ok {
+					scan.State = utils.PointerTo(models.ScanStateFailed)
+					scan.StateMessage = utils.PointerTo("Failed to retrieve scan state")
+					scan.StateReason = utils.PointerTo(models.ScanStateReasonUnexpected)
+					break
 				}
-				t := time.Now()
-				scan.EndTime = &t
-				scan.State = &state
-				scan.StateMessage = &stateMessage
-				scan.StateReason = &stateReason
+
+				if scanState == models.ScanStateAborted {
+					log.Warning("Scan is aborted")
+					scan.State = utils.PointerTo(models.ScanStateFailed)
+					scan.StateMessage = utils.PointerTo("User initiated")
+					scan.StateReason = utils.PointerTo(models.ScanStateReasonAborted)
+					break
+				}
+
+				if anyJobsFailed {
+					log.Warning("Scan is failed")
+					scan.State = utils.PointerTo(models.ScanStateFailed)
+					scan.StateMessage = utils.PointerTo("One or more ScanJobs failed")
+					scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreTargetFailedToScan)
+					break
+				}
+
+				log.Info("Scan is completed")
+				scan.State = utils.PointerTo(models.ScanStateDone)
+				scan.StateMessage = utils.PointerTo("All scan jobs completed")
+				scan.StateReason = utils.PointerTo(models.ScanStateReasonSuccess)
 			}
 		case <-s.killSignal:
 			t := time.Now()
@@ -185,33 +203,17 @@ func (s *Scanner) worker(ctx context.Context, queue chan *scanData, workNumber i
 	for {
 		select {
 		case data := <-queue:
-			// TODO: Run the job only if that target scan status is in init phase, else go to wait
-			job, err := s.runJob(ctx, data)
-			var errMsg string
+			job, err := s.handleScanData(ctx, data, ks)
 			if err != nil {
-				errMsg = fmt.Sprintf("failed to run job: %v", err)
-				s.Lock()
-				data.success = false
-				data.completed = true
-				s.Unlock()
-			} else {
-				s.waitForResult(ctx, data, ks)
-				// if there was a timeout, concat errMsg
-				if data.timeout {
-					errMsg = "job has timed out"
-				}
-			}
-
-			if errMsg != "" {
-				log.WithFields(s.logFields).Error(errMsg)
-				err := s.SetTargetScanStatusCompletionError(ctx, data.scanResultID, errMsg)
+				log.WithFields(s.logFields).Error(err)
+				err := s.SetTargetScanStatusCompletionError(ctx, data.scanResultID, err.Error())
 				if err != nil {
-					log.WithFields(s.logFields).Errorf("Couldn't set completion error for target scan status. targetID=%v, scanID=%v: %v", data.targetInstance.TargetID, s.scanID, err)
+					log.WithFields(s.logFields).Errorf("Couldn't set completion error for target scan status. targetID=%v, scanID=%v: %v",
+						data.targetInstance.TargetID, s.scanID, err)
 					// TODO: Should we retry?
 				}
 			}
-
-			s.deleteJobIfNeeded(ctx, &job, data.success, data.completed)
+			s.deleteJobIfNeeded(ctx, job, data.success, data.completed)
 
 			select {
 			case done <- data.targetInstance.TargetID:
@@ -225,32 +227,83 @@ func (s *Scanner) worker(ctx context.Context, queue chan *scanData, workNumber i
 	}
 }
 
-func (s *Scanner) waitForResult(ctx context.Context, data *scanData, ks chan bool) {
-	log.WithFields(s.logFields).Infof("Waiting for result. targetID=%+v", data.targetInstance.TargetID)
-	ticker := time.NewTicker(s.config.JobResultsPollingInterval)
-	timeout := time.After(s.config.JobResultTimeout)
-	for {
-		select {
-		case <-ticker.C:
-			log.WithFields(s.logFields).Infof("Polling scan results for targetID=%v with scanID=%v", data.targetInstance.TargetID, s.scanID)
-			// Get scan results from backend
-			instanceScanResults, err := s.backendClient.GetScanResultStatus(ctx, data.scanResultID)
-			if err != nil {
-				log.WithFields(s.logFields).Errorf("Failed to get target scan status. scanID=%v, targetID=%s: %v", s.scanID, data.targetInstance.TargetID, err)
-				continue
-			}
-			if *instanceScanResults.General.State != models.DONE {
-				log.WithFields(s.logFields).Infof("Scan is not done. scan result id=%v, scan id=%v, targetID=%s, state=%v", data.scanResultID,
-					s.scanID, data.targetInstance.TargetID, *instanceScanResults.General.State)
-				continue
-			}
+func (s *Scanner) handleScanData(ctx context.Context, data *scanData, ks chan bool) (*types.Job, error) {
+	var job types.Job
 
+	scanResultStatus, err := s.backendClient.GetScanResultStatus(ctx, data.scanResultID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch status of ScanResult with id %s: %v", data.scanResultID, err)
+	}
+
+	state, ok := scanResultStatus.GetGeneralState()
+	if !ok {
+		return nil, fmt.Errorf("cannot determine state of ScanResult with id %s", data.scanResultID)
+	}
+
+	switch state {
+	case models.INIT:
+		job, err = s.runJob(ctx, data)
+		if err != nil {
 			s.Lock()
-			data.success = !scanStatusHasErrors(instanceScanResults)
+			data.success = false
 			data.completed = true
 			s.Unlock()
-			return
-		case <-timeout:
+			return nil, fmt.Errorf("failed to run scan job for target %s: %v", data.targetInstance.TargetID, err)
+		}
+		fallthrough
+	case models.ATTACHED, models.INPROGRESS, models.ABORTED:
+		s.waitForResult(ctx, data, ks)
+		if data.timeout {
+			return nil, fmt.Errorf("scan job for target %s timed out: %v", data.targetInstance.TargetID, err)
+		}
+	case models.DONE, models.NOTSCANNED:
+	}
+
+	return &job, nil
+}
+
+// nolint:cyclop
+func (s *Scanner) waitForResult(ctx context.Context, data *scanData, ks chan bool) {
+	log.WithFields(s.logFields).Infof("Waiting for result. targetID=%+v", data.targetInstance.TargetID)
+	timer := time.NewTicker(s.config.JobResultsPollingInterval)
+	defer timer.Stop()
+
+	ctx, cancel := context.WithTimeout(ctx, s.config.JobResultTimeout)
+	defer cancel()
+
+	for {
+		select {
+		case <-timer.C:
+			log.WithFields(s.logFields).Infof("Polling scan results for target id=%v and scan id=%v", data.targetInstance.TargetID, s.scanID)
+			// Get scan results from backend
+			scanResultStatus, err := s.backendClient.GetScanResultStatus(ctx, data.scanResultID)
+			if err != nil {
+				log.WithFields(s.logFields).Errorf("Failed to get target scan status. scanID=%v, target id=%s: %v", s.scanID, data.targetInstance.TargetID, err)
+				break
+			}
+
+			state, ok := scanResultStatus.GetGeneralState()
+			if !ok {
+				log.WithFields(s.logFields).Errorf("Cannot determine state of ScanResult with id %s", data.scanResultID)
+			}
+
+			switch state {
+			case models.INIT, models.ATTACHED, models.INPROGRESS:
+				log.WithFields(s.logFields).Infof("Scan for target is still running. scan result id=%v, scan id=%v, target id=%s, state=%v",
+					data.scanResultID, s.scanID, data.targetInstance.TargetID, state)
+			case models.ABORTED:
+				log.WithFields(s.logFields).Infof("Scan for target is aborted. Waiting for partial results to be reported back. scan result id=%v, scan id=%v, target id=%s, state=%v",
+					data.scanResultID, s.scanID, data.targetInstance.TargetID, state)
+			case models.DONE, models.NOTSCANNED:
+				log.WithFields(s.logFields).Infof("Scan for target is completed. scan result id=%v, scan id=%v, target id=%s, state=%v",
+					data.scanResultID, s.scanID, data.targetInstance.TargetID, state)
+				s.Lock()
+				data.success = !scanStatusHasErrors(scanResultStatus)
+				data.completed = true
+				s.Unlock()
+				return
+			}
+		case <-ctx.Done():
 			log.WithFields(s.logFields).Infof("Job has timed out. targetID=%v", data.targetInstance.TargetID)
 			s.Lock()
 			data.success = false

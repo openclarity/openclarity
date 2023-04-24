@@ -19,6 +19,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -58,7 +59,7 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 			if err := device.Mount(mountDir); err != nil {
 				return nil, fmt.Errorf("failed to mount device: %v", err)
 			}
-			log.Infof("device %v on %v is mounted", device.DeviceName, mountDir)
+			log.Infof("Device %v on %v is mounted", device.DeviceName, mountDir)
 			mountPoints = append(mountPoints, mountDir)
 		}
 		if ctx.Err() != nil {
@@ -125,6 +126,30 @@ func (c *CLI) ExportResults(ctx context.Context, res *results.Results, errs fami
 	}
 
 	return result
+}
+
+func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, interval time.Duration) {
+	go func() {
+		timer := time.NewTicker(interval)
+		defer timer.Stop()
+
+		for {
+			select {
+			case <-timer.C:
+				aborted, err := c.IsAborted(ctx)
+				if err != nil {
+					log.Errorf("Failed to retrieve scan result state: %v", err)
+				}
+				if aborted {
+					cancel()
+					return
+				}
+			case <-ctx.Done():
+				log.Debugf("Stop watching for abort event as context is cancelled")
+				return
+			}
+		}
+	}()
 }
 
 func isSupportedFS(fs string) bool {

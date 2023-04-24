@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ghodss/yaml"
 	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -40,6 +41,8 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
+
+const DefaultWatcherInterval = 2 * time.Minute
 
 var (
 	cfgFile string
@@ -63,24 +66,40 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
 
-		ctx, cancel := context.WithCancel(cmd.Context())
-		defer cancel()
+		// Main context which remains active even if the scan is aborted allowing post-processing operations
+		// like updating scan result state
+		ctx := cmd.Context()
 
 		cli, err := newCli()
 		if err != nil {
 			return fmt.Errorf("failed to initialize CLI: %w", err)
 		}
 
+		// Create context used to signal to operations that the scan is aborted
+		abortCtx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
+		// Start watching for abort event
+		cli.WatchForAbort(ctx, cancel, DefaultWatcherInterval)
+
 		if waitForServerAttached {
-			if err := cli.WaitForVolumeAttachment(ctx); err != nil {
-				return fmt.Errorf("failed to wait for block device being attached: %w", err)
+			if err := cli.WaitForVolumeAttachment(abortCtx); err != nil {
+				err = fmt.Errorf("failed to wait for block device being attached: %w", err)
+				if e := cli.MarkDone(ctx, []error{err}); e != nil {
+					logger.Errorf("Failed to update scan result stat to completed with errors: %v", e)
+				}
+				return err
 			}
 		}
 
 		if mountVolume {
-			mountPoints, err := cli.MountVolumes(ctx)
+			mountPoints, err := cli.MountVolumes(abortCtx)
 			if err != nil {
-				return fmt.Errorf("failed to mount attached volume: %v", err)
+				err = fmt.Errorf("failed to mount attached volume: %w", err)
+				if e := cli.MarkDone(ctx, []error{err}); e != nil {
+					logger.Errorf("Failed to update scan result stat to completed with errors: %v", e)
+				}
+				return err
 			}
 			setMountPointsForFamiliesInput(mountPoints, config)
 		}
@@ -90,17 +109,17 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
 		}
 
-		res, familiesErr := families.New(logger, config).Run()
+		logger.Infof("Running scanners...")
+		res, familiesErr := families.New(logger, config).Run(abortCtx)
 
 		logger.Infof("Exporting results...")
-		var generalErrors []error
-		exportErrors := cli.ExportResults(ctx, res, familiesErr)
-		generalErrors = append(generalErrors, exportErrors...)
+		errs := cli.ExportResults(abortCtx, res, familiesErr)
+
 		if len(familiesErr) > 0 {
-			generalErrors = append(generalErrors, fmt.Errorf("at least one family failed to run"))
+			errs = append(errs, fmt.Errorf("at least one family failed to run"))
 		}
 
-		err = cli.MarkDone(ctx, generalErrors)
+		err = cli.MarkDone(ctx, errs)
 		if err != nil {
 			return fmt.Errorf("failed to inform the server %v the scan was completed: %w", server, err)
 		}

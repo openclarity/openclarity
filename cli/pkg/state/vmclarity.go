@@ -137,6 +137,26 @@ func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
 	return nil
 }
 
+func (v VMClarityState) IsAborted(ctx context.Context) (bool, error) {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{
+		Select: utils.PointerTo("id,status"),
+	})
+	if err != nil {
+		return false, fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	state, ok := scanResult.GetGeneralState()
+	if !ok {
+		return false, errors.New("failed to get general state of scan result")
+	}
+
+	if state == models.ABORTED {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func NewVMClarityState(client *backendclient.BackendClient, id ScanResultID) (*VMClarityState, error) {
 	if client == nil {
 		return nil, errors.New("backend client must not be nil")
