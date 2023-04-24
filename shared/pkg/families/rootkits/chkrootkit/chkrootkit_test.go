@@ -16,11 +16,11 @@
 package chkrootkit
 
 import (
-	"encoding/json"
 	"os"
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"gotest.tools/v3/assert"
 
 	chkrootkitutils "github.com/openclarity/vmclarity/shared/pkg/families/rootkits/chkrootkit/utils"
@@ -46,25 +46,33 @@ func Test_toResultsRootkits(t *testing.T) {
 			args: args{
 				rootkits: rootkits,
 			},
-			want: nil,
+			want: []common.Rootkit{
+				{
+					Message:     "/usr/lib/debug/usr/.dwz /usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/.vmlinuz.hmac /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes\n/usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes",
+					RootkitName: "suspicious files and dirs",
+					RootkitType: "UNKNOWN",
+				},
+				{
+					Message:     "Warning: Possible Showtee Rootkit installed",
+					RootkitName: "Showtee",
+					RootkitType: "UNKNOWN",
+				},
+				{
+					Message:     "/usr/include/file.h /usr/include/proc.h /usr/include/addr.h /usr/include/syslogs.h",
+					RootkitName: "Romanian rootkit",
+					RootkitType: "UNKNOWN",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := toResultsRootkits(tt.args.rootkits)
-			//if diff := cmp.Diff(tt.want, got); diff != "" {
-			//	t.Errorf("toResultsRootkits() mismatch (-want +got):\n%s", diff)
-			//}
-			t.Logf("toResultsRootkits() results: %+v", prettyPrint(t, got))
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("toResultsRootkits() mismatch (-want +got):\n%s", diff)
+			}
 		})
 	}
-}
-
-func prettyPrint(t *testing.T, got any) string {
-	t.Helper()
-	jsonResults, err := json.MarshalIndent(got, "", "    ")
-	assert.NilError(t, err)
-	return string(jsonResults)
 }
 
 func Test_filterResults(t *testing.T) {

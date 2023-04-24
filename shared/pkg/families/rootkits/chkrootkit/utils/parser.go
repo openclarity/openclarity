@@ -51,6 +51,7 @@ func SplitFuncSeparator(sep string) func(data []byte, atEOF bool) (advance int, 
 }
 
 // This list comes from the chkrootkit source code.
+// https://github.com/Magentron/chkrootkit/blob/master/chkrootkit#L28-L33
 var applicationRootkits = []string{
 	"amd", "basename", "biff", "chfn", "chsh", "cron", "crontab", "date", "du", "dirname",
 	"echo", "egrep", "env", "find", "fingerd", "gpm", "grep", "hdparm", "su", "ifconfig",
