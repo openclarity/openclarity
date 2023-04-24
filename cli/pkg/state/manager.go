@@ -23,4 +23,5 @@ type Manager interface {
 	WaitForVolumeAttachment(context.Context) error
 	MarkInProgress(context.Context) error
 	MarkDone(context.Context, []error) error
+	IsAborted(ctx context.Context) (bool, error)
 }
