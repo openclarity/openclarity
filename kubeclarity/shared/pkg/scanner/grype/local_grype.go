@@ -97,13 +97,15 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	source := utils.CreateSource(sourceType, userInput, s.localImage)
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
-		RegistryOptions: s.config.RegistryOptions,
-		CatalogingOptions: cataloger.Config{
-			Search: cataloger.DefaultSearchConfig(),
+		SyftProviderConfig: pkg.SyftProviderConfig{
+			CatalogingOptions: cataloger.Config{
+				Search: cataloger.DefaultSearchConfig(),
+			},
+			RegistryOptions: s.config.RegistryOptions,
 		},
 	}
 	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
-	packages, context, err := pkg.Provide(source, providerConfig)
+	packages, context, _, err := pkg.Provide(source, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
 		return
@@ -113,10 +115,12 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 
 	matchers := matcher.NewDefaultMatchers(matcher.Config{
 		Java: java.MatcherConfig{
-			// Disable searching maven external source (this is the default for grype CLI too)
-			SearchMavenUpstream: false,
-			MavenBaseURL:        defaultMavenBaseURL,
-			UseCPEs:             true,
+			ExternalSearchConfig: java.ExternalSearchConfig{
+				// Disable searching maven external source (this is the default for grype CLI too)
+				SearchMavenUpstream: false,
+				MavenBaseURL:        defaultMavenBaseURL,
+			},
+			UseCPEs: true,
 		},
 		Ruby: ruby.MatcherConfig{
 			UseCPEs: true,

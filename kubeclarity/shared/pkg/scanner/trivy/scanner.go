@@ -35,7 +35,7 @@ import (
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
+	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -109,7 +109,7 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
 	}
 
-	cacheDir := trivyUtils.DefaultCacheDir()
+	cacheDir := trivyFsutils.CacheDir()
 	if a.config.CacheDir != "" {
 		cacheDir = a.config.CacheDir
 	}
@@ -121,8 +121,8 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 		},
 		ScanOptions: trivyFlag.ScanOptions{
 			Target: userInput,
-			SecurityChecks: []string{
-				trivyTypes.SecurityCheckVulnerability, // Enable just vuln scanning
+			Scanners: []trivyTypes.Scanner{
+				trivyTypes.VulnerabilityScanner, // Enable just vuln scanning
 			},
 		},
 		ReportOptions: trivyFlag.ReportOptions{

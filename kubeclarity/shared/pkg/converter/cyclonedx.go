@@ -20,8 +20,11 @@ import (
 	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/anchore/syft/syft"
+	"github.com/anchore/syft/syft/formats"
 	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
+	"github.com/anchore/syft/syft/formats/spdxjson"
+	"github.com/anchore/syft/syft/formats/spdxtagvalue"
+	"github.com/anchore/syft/syft/formats/syftjson"
 	syftSbom "github.com/anchore/syft/syft/sbom"
 )
 
@@ -109,21 +112,21 @@ func cycloneDxToBytesUsingSyftConversion(sbom *cdx.BOM, format SbomFormat) ([]by
 		return nil, fmt.Errorf("unable to convert BOM to intermediary format: %w", err)
 	}
 
-	var syftFormat syftSbom.Format
+	var syftFormatID syftSbom.FormatID
 	switch format {
 	case SpdxJSON:
-		syftFormat = syft.FormatByName("spdxjson")
+		syftFormatID = spdxjson.ID
 	case SpdxTV:
-		syftFormat = syft.FormatByName("spdxtagvalue")
+		syftFormatID = spdxtagvalue.ID
 	case SyftJSON:
-		syftFormat = syft.FormatByName("syftjson")
+		syftFormatID = syftjson.ID
 	case CycloneDxXML, CycloneDxJSON, Unknown:
 		fallthrough
 	default:
 		return nil, fmt.Errorf("format %v is a native cyclonedx format, use CycloneDxToNativeFormatBytes instead", format)
 	}
 
-	data, err := syft.Encode(*syftSBOM, syftFormat)
+	data, err := formats.Encode(*syftSBOM, formats.ByName(string(syftFormatID)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode sbom: %w", err)
 	}
