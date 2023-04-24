@@ -109,6 +109,10 @@ $cell-padding: 10px;
 
                         .icon {
                             color: $color-main;
+
+                            &.disabled {
+                                color: $color-grey;
+                            }
                         }
                     }
                 }
