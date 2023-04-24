@@ -11,7 +11,8 @@ export const STATUS_MAPPING = {
     INIT: {title: "Initialized", color: COLORS["color-main"]},
     ATTACHED: {title: "Volume Snapshot Attached", color: COLORS["color-main"]},
     IN_PROGRESS: {title: "In Progress", color: COLORS["color-main"]},
-    DONE: {title: "Done", color: COLORS["color-success"]}
+    DONE: {title: "Done", color: COLORS["color-success"]},
+    ABORTED: {title: "Aborted", color: COLORS["color-grey"]}
 }
 
 const StatusIndicator = ({state, isError=false}) => {
