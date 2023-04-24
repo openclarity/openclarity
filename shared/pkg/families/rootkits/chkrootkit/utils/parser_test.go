@@ -16,10 +16,11 @@
 package utils
 
 import (
-	"encoding/json"
 	"os"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 )
 
@@ -41,7 +42,50 @@ func TestParseChkrootkitOutput(t *testing.T) {
 			args: args{
 				chkrootkitOutput: chkrootkitOutput,
 			},
-			want:    nil,
+			want: []Rootkit{
+				{
+					RkType:   "APPLICATION",
+					RkName:   "UNKNOWN",
+					Message:  "Application \"amd\" not found",
+					Infected: false,
+				},
+				{
+					RkType:   "APPLICATION",
+					RkName:   "UNKNOWN",
+					Message:  "Application \"basename\" not infected",
+					Infected: false,
+				},
+				{
+					RkType:   "UNKNOWN",
+					RkName:   "sniffer",
+					Message:  "nothing found",
+					Infected: false,
+				},
+				{
+					RkType:   "UNKNOWN",
+					RkName:   "suspicious files and dirs",
+					Message:  "/usr/lib/debug/usr/.dwz /usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/.vmlinuz.hmac /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes\n/usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes",
+					Infected: true,
+				},
+				{
+					RkType:   "UNKNOWN",
+					RkName:   "Showtee",
+					Message:  "Warning: Possible Showtee Rootkit installed",
+					Infected: true,
+				},
+				{
+					RkType:   "UNKNOWN",
+					RkName:   "Romanian rootkit",
+					Message:  "/usr/include/file.h /usr/include/proc.h /usr/include/addr.h /usr/include/syslogs.h",
+					Infected: true,
+				},
+				{
+					RkType:   "UNKNOWN",
+					RkName:   "Linux/Ebury - Operation Windigo ssh",
+					Message:  "not tested",
+					Infected: false,
+				},
+			},
 			wantErr: false,
 		},
 	}
@@ -52,17 +96,9 @@ func TestParseChkrootkitOutput(t *testing.T) {
 				t.Errorf("ParseChkrootkitOutput() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			//if diff := cmp.Diff(tt.want, got); diff != "" {
-			//	t.Errorf("ParseChkrootkitOutput() mismatch (-want +got):\n%s", diff)
-			//}
-			t.Logf("ParseChkrootkitOutput() result: %v", prettyPrint(t, got))
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b Rootkit) bool { return a.RkName < b.RkName })); diff != "" {
+				t.Errorf("ParseChkrootkitOutput() mismatch (-want +got):\n%s", diff)
+			}
 		})
 	}
-}
-
-func prettyPrint(t *testing.T, got any) string {
-	t.Helper()
-	jsonResults, err := json.MarshalIndent(got, "", "    ")
-	assert.NilError(t, err)
-	return string(jsonResults)
 }
