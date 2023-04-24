@@ -816,7 +816,7 @@ Parameters:
   GrypeServerContainerImage:
     Description: Name of the container image used for the grype server.
     Type: String
-    Default: gcr.io/eticloud/k8sec/grype-server:v0.1.5
+    Default: ghcr.io/openclarity/grype-server:v0.2.0
   AssetScanDeletePolicy:
     Description: When VMClarity should delete resources after a completed asset scan.
     Type: String
