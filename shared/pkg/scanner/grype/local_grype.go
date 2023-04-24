@@ -119,7 +119,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	vulnerabilityMatcher := createVulnerabilityMatcher(store)
 	allMatches, ignoredMatches, err := vulnerabilityMatcher.FindMatches(packages, context)
 	// We can ignore ErrAboveSeverityThreshold since we are not setting the FailSeverity on the matcher.
-	if err != nil && errors.Is(err, grypeerr.ErrAboveSeverityThreshold) {
+	if err != nil && !errors.Is(err, grypeerr.ErrAboveSeverityThreshold) {
 		ReportError(s.resultChan, fmt.Errorf("failed to find vulnerabilities: %w", err), s.logger)
 		return
 	}
