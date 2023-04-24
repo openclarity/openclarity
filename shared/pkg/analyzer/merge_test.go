@@ -615,36 +615,28 @@ func TestMergedResults_normalizeDependencies(t *testing.T) {
 			dependencies: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
+					Dependencies: &[]string{
+						"bomref2",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
+					Dependencies: &[]string{
+						"bomref2",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -654,36 +646,28 @@ func TestMergedResults_normalizeDependencies(t *testing.T) {
 			dependencies: &[]cdx.Dependency{
 				{
 					Ref: "oldbomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "oldbomref2",
-						},
+					Dependencies: &[]string{
+						"oldbomref2",
 					},
 				},
 				{
 					Ref: "oldmainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "oldbomref1",
-						},
+					Dependencies: &[]string{
+						"oldbomref1",
 					},
 				},
 			},
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
+					Dependencies: &[]string{
+						"bomref2",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -693,36 +677,28 @@ func TestMergedResults_normalizeDependencies(t *testing.T) {
 			dependencies: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "oldbomref2",
-						},
+					Dependencies: &[]string{
+						"oldbomref2",
 					},
 				},
 				{
 					Ref: "oldmainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
+					Dependencies: &[]string{
+						"bomref2",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -750,58 +726,40 @@ func TestMergedResults_mergeDependencies(t *testing.T) {
 			dependenciesA: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
-						{
-							Ref: "bomref4",
-						},
+					Dependencies: &[]string{
+						"bomref2",
+						"bomref4",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
 			dependenciesB: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
-						{
-							Ref: "bomref3",
-						},
+					Dependencies: &[]string{
+						"bomref2",
+						"bomref3",
 					},
 				},
 			},
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
-						{
-							Ref: "bomref3",
-						},
-						{
-							Ref: "bomref4",
-						},
+					Dependencies: &[]string{
+						"bomref2",
+						"bomref3",
+						"bomref4",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -811,21 +769,15 @@ func TestMergedResults_mergeDependencies(t *testing.T) {
 			dependenciesA: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
-						{
-							Ref: "bomref4",
-						},
+					Dependencies: &[]string{
+						"bomref2",
+						"bomref4",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -833,21 +785,15 @@ func TestMergedResults_mergeDependencies(t *testing.T) {
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref2",
-						},
-						{
-							Ref: "bomref4",
-						},
+					Dependencies: &[]string{
+						"bomref2",
+						"bomref4",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
@@ -858,36 +804,28 @@ func TestMergedResults_mergeDependencies(t *testing.T) {
 			dependenciesB: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref3",
-						},
+					Dependencies: &[]string{
+						"bomref3",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
 			want: &[]cdx.Dependency{
 				{
 					Ref: "bomref1",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref3",
-						},
+					Dependencies: &[]string{
+						"bomref3",
 					},
 				},
 				{
 					Ref: "mainbomref",
-					Dependencies: &[]cdx.Dependency{
-						{
-							Ref: "bomref1",
-						},
+					Dependencies: &[]string{
+						"bomref1",
 					},
 				},
 			},
