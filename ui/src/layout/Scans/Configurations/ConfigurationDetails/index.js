@@ -9,7 +9,7 @@ import './configuration-details.scss';
 
 export const SCAN_CONFIGS_SCAN_TAB_PATH = "scans";
 
-const DetailsContent = ({data}) => {
+const DetailsContent = ({data, fetchData}) => {
     const navigate = useNavigate();
     const {pathname} = useLocation();
     const params = useParams();
@@ -20,7 +20,11 @@ const DetailsContent = ({data}) => {
     return (
         <div className="configuration-details-content">
             <div className="configuration-details-content-header">
-                <ConfigurationActionsDisplay data={data} onDelete={() => navigate(pathname.replace(`/${id}/${innerTab}`, ""))} />
+                <ConfigurationActionsDisplay
+                    data={data}
+                    onDelete={() => navigate(pathname.replace(`/${id}/${innerTab}`, ""))}
+                    onUpdate={fetchData}
+                />
             </div>
             <TabConfiguration data={data} />
         </div>

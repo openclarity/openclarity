@@ -171,12 +171,13 @@ const ConfigurationsTable = () => {
                     </ButtonWithIcon>
                 )}
                 refreshTimestamp={refreshTimestamp}
-                actionsColumnWidth={100}
+                actionsColumnWidth={130}
                 actionsComponent={({original}) => (
                     <ConfigurationActionsDisplay
                         data={original}
                         setScanConfigFormData={setScanConfigFormData}
-                        onDelete={() => doRefreshTimestamp()}
+                        onDelete={doRefreshTimestamp}
+                        onUpdate={doRefreshTimestamp}
                     />
                 )}
                 customEmptyResultsDisplay={() => (
