@@ -21,10 +21,13 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+
 	"gotest.tools/v3/assert"
 
 	chkrootkitutils "github.com/openclarity/vmclarity/shared/pkg/families/rootkits/chkrootkit/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/common"
+	"github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 
 func Test_toResultsRootkits(t *testing.T) {
@@ -68,7 +71,7 @@ func Test_toResultsRootkits(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := toResultsRootkits(tt.args.rootkits)
-			if diff := cmp.Diff(tt.want, got); diff != "" {
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Rootkit) bool { return *a.RootkitName < *b.RootkitName })); diff != "" {
 				t.Errorf("toResultsRootkits() mismatch (-want +got):\n%s", diff)
 			}
 		})
