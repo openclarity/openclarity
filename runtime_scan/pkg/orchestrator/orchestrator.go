@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/configwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultprocessor"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
@@ -38,6 +39,7 @@ type orchestrator struct {
 	scanConfigWatcher   *configwatcher.ScanConfigWatcher
 	scopeDiscoverer     *discovery.ScopeDiscoverer
 	scanResultProcessor *scanresultprocessor.ScanResultProcessor
+	scanWatcher         *scanwatcher.Watcher
 	cancelFunc          context.CancelFunc
 }
 
@@ -47,6 +49,11 @@ func Create(config *_config.OrchestratorConfig, providerClient provider.Client, 
 		scanConfigWatcher:   configwatcher.CreateScanConfigWatcher(backendClient, providerClient, config.ScannerConfig),
 		scopeDiscoverer:     discovery.CreateScopeDiscoverer(backendClient, providerClient),
 		scanResultProcessor: scanresultprocessor.NewScanResultProcessor(backendClient),
+		scanWatcher: scanwatcher.New(scanwatcher.Config{
+			Backend:          backendClient,
+			PollPeriod:       scanwatcher.DefaultPollInterval,
+			ReconcileTimeout: scanwatcher.DefaultReconcileTimeout,
+		}),
 	}
 
 	return orc, nil
@@ -59,6 +66,7 @@ func (o *orchestrator) Start(ctx context.Context) {
 	o.scanConfigWatcher.Start(ctx)
 	o.scopeDiscoverer.Start(ctx)
 	o.scanResultProcessor.Start(ctx)
+	o.scanWatcher.Start(ctx)
 }
 
 func (o *orchestrator) Stop(cancel context.CancelFunc) {
