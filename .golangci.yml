@@ -23,8 +23,6 @@ linters-settings:
       - oras.land/oras-go
       # trivy using non released version, so we need to stick on the released one for other imports that conflicts with it
       - github.com/opencontainers/image-spec
-      # temp until trivy approve https://github.com/aquasecurity/trivy/pull/4058
-      - github.com/aquasecurity/trivy
 
   gosec:
     # To specify a set of rules to explicitly exclude.

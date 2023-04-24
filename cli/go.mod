@@ -68,15 +68,14 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aquasecurity/defsec v0.85.0 // indirect
-	github.com/aquasecurity/go-dep-parser v0.0.0-20230409061252-947ef35e4c24 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15 // indirect
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
-	github.com/aquasecurity/memoryfs v1.4.4 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
-	github.com/aquasecurity/trivy v0.39.1 // indirect
+	github.com/aquasecurity/trivy v0.0.0-20230423203604-48e021ea6bf2 // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20230411140759-3c2ee2168575 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20230209231723-7cddb1406728 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
@@ -423,11 +422,5 @@ replace github.com/containerd/containerd => github.com/containerd/containerd v1.
 
 // Replace these for trivy
 replace oras.land/oras-go => oras.land/oras-go v1.1.1
-
-// v0.3.1-0.20230104082527-d6f58551be3f is taken from github.com/moby/buildkit v0.11.0
-// spdx logic write on v0.3.0 and incompatible with v0.3.1-0.20230104082527-d6f58551be3f
-//replace github.com/spdx/tools-golang => github.com/spdx/tools-golang v0.3.0
-
-replace github.com/aquasecurity/trivy => github.com/FrimIdan/trivy v0.0.0-20230413152647-f57830a4de7c
 
 replace github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.1.0-rc2
