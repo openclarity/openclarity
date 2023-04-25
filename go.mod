@@ -29,8 +29,8 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/urfave/cli v1.22.12
-	github.com/vulsio/go-exploitdb v0.4.2
-	golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
+	github.com/vulsio/go-exploitdb v0.4.4
+	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.1.0
 	gorm.io/driver/sqlite v1.3.6
@@ -447,6 +447,7 @@ exclude (
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.0
 	gorm.io/gorm v1.24.1
+	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
 	gorm.io/gorm v1.24.2
 	gorm.io/gorm v1.24.3
 )
