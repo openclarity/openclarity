@@ -179,6 +179,7 @@ Resources:
                         - AWSInstanceType2Arch
                         - !Ref InstanceType
                         - Arch
+                    ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
               mode: "000644"
             "/etc/vmclarity/fetch_exploit_db.sh":
               content: |
@@ -209,29 +210,30 @@ Resources:
               mode: "000744"
             "/lib/systemd/system/vmclarity.service":
               content:
-                Fn::Sub: |
-                  [Unit]
-                  Description=VmClarity
-                  After=docker.service
-                  Requires=docker.service
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=VmClarity
+                    After=docker.service
+                    Requires=docker.service
 
-                  [Service]
-                  TimeoutStartSec=0
-                  Restart=always
-                  ExecStartPre=-/usr/bin/docker stop %n
-                  ExecStartPre=-/usr/bin/docker rm %n
-                  ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                  ExecStartPre=/usr/bin/docker pull ${BackendContainerImage}
-                  ExecStart=/usr/bin/docker run \
-                    --rm --name %n \
-                    -p 0.0.0.0:8888:8888/tcp \
-                    -v /opt/vmclarity:/data \
-                    --env-file /etc/vmclarity/config.env \
-                    ${BackendContainerImage} run --log-level info
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
+                    ExecStartPre=/usr/bin/docker pull ${BackendContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:8888:8888/tcp \
+                      -v /opt/vmclarity:/data \
+                      --env-file /etc/vmclarity/config.env \
+                      ${BackendContainerImage} run --log-level info
 
-                  [Install]
-                  WantedBy=multi-user.target
-
+                    [Install]
+                    WantedBy=multi-user.target
+                  - BackendContainerImage: !If [BackendContainerImageOverridden, !Ref BackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-backend:latest"]
               mode: "000644"
             "/lib/systemd/system/exploit_server.service":
               content: |
@@ -290,28 +292,30 @@ Resources:
               mode: "000644"
             "/lib/systemd/system/trivy_server.service":
               content:
-                Fn::Sub: |
-                  [Unit]
-                  Description=Trivy Server
-                  After=docker.service
-                  Requires=docker.service
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=Trivy Server
+                    After=docker.service
+                    Requires=docker.service
 
-                  [Service]
-                  TimeoutStartSec=0
-                  Restart=always
-                  ExecStartPre=-/usr/bin/docker stop %n
-                  ExecStartPre=-/usr/bin/docker rm %n
-                  ExecStartPre=/usr/bin/mkdir -p /opt/trivy-server
-                  ExecStartPre=/usr/bin/docker pull ${TrivyServerContainerImage}
-                  ExecStart=/usr/bin/docker run \
-                    --rm --name %n \
-                    -p 0.0.0.0:9992:9992/tcp \
-                    -v /opt/trivy-server:/home/scanner/.cache \
-                    --env-file /etc/trivy-server/config.env \
-                    ${TrivyServerContainerImage} server
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/mkdir -p /opt/trivy-server
+                    ExecStartPre=/usr/bin/docker pull ${TrivyServerContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:9992:9992/tcp \
+                      -v /opt/trivy-server:/home/scanner/.cache \
+                      --env-file /etc/trivy-server/config.env \
+                      ${TrivyServerContainerImage} server
 
-                  [Install]
-                  WantedBy=multi-user.target
+                    [Install]
+                    WantedBy=multi-user.target
+                  - TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.34.0"]
               mode: "000644"
             "/etc/grype-server/config.env":
               content: |
@@ -319,53 +323,56 @@ Resources:
               mode: "000644"
             "/lib/systemd/system/grype_server.service":
               content:
-                Fn::Sub: |
-                  [Unit]
-                  Description=Grype Server
-                  After=docker.service
-                  Requires=docker.service
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=Grype Server
+                    After=docker.service
+                    Requires=docker.service
 
-                  [Service]
-                  TimeoutStartSec=0
-                  Restart=always
-                  ExecStartPre=-/usr/bin/docker stop %n
-                  ExecStartPre=-/usr/bin/docker rm %n
-                  ExecStartPre=/usr/bin/mkdir -p /opt/grype-server
-                  ExecStartPre=/usr/bin/chown -R 1000:1000 /opt/grype-server
-                  ExecStartPre=/usr/bin/docker pull ${GrypeServerContainerImage}
-                  ExecStart=/usr/bin/docker run \
-                    --rm --name %n \
-                    -p 0.0.0.0:9991:9991/tcp \
-                    -v /opt/grype-server:/opt/grype-server \
-                    --env-file /etc/grype-server/config.env \
-                    ${GrypeServerContainerImage} run --log-level warning
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/mkdir -p /opt/grype-server
+                    ExecStartPre=/usr/bin/chown -R 1000:1000 /opt/grype-server
+                    ExecStartPre=/usr/bin/docker pull ${GrypeServerContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:9991:9991/tcp \
+                      -v /opt/grype-server:/opt/grype-server \
+                      --env-file /etc/grype-server/config.env \
+                      ${GrypeServerContainerImage} run --log-level warning
 
-                  [Install]
-                  WantedBy=multi-user.target
+                    [Install]
+                    WantedBy=multi-user.target
+                  - GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "gcr.io/eticloud/k8sec/grype-server:v0.2.0"]
               mode: "000644"
             "/lib/systemd/system/vmclarity_freshclam_mirror.service":
               content:
-                Fn::Sub: |
-                  [Unit]
-                  Description=Deploys the freshclam mirror service
-                  After=docker.service
-                  Requires=docker.service
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=Deploys the freshclam mirror service
+                    After=docker.service
+                    Requires=docker.service
 
-                  [Service]
-                  TimeoutStartSec=0
-                  Restart=always
-                  ExecStartPre=-/usr/bin/docker stop %n
-                  ExecStartPre=-/usr/bin/docker rm %n
-                  ExecStartPre=/usr/bin/docker pull ${FreshclamMirrorContainerImage}
-                  ExecStart=/usr/bin/docker run \
-                    --rm --name %n \
-                    -p 0.0.0.0:1000:80/tcp \
-                    ${FreshclamMirrorContainerImage}
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/docker pull ${FreshclamMirrorContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:1000:80/tcp \
+                      ${FreshclamMirrorContainerImage}
 
-                  [Install]
-                  WantedBy=multi-user.target
+                    [Install]
+                    WantedBy=multi-user.target
+                  - FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.1.0"]
               mode: "000644"
-
           commands:
             01subsitute_rest_address:
               command: /etc/vmclarity/render_config.sh
@@ -797,26 +804,36 @@ Parameters:
     Default: 0.0.0.0/0
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
-  BackendContainerImage:
-    Description: Name of the container image used for deploying VMClarity server.
+  BackendContainerImageOverride:
+    Description: >
+      Name of the container image used for deploying VMClarity server.
+      "ghcr.io/openclarity/vmclarity-backend:latest" will be used if not overridden.
     Type: String
-    Default: ghcr.io/openclarity/vmclarity-backend:latest
-  ScannerContainerImage:
-    Description: Name of the container image used for running scans on targets.
+    Default: ''
+  ScannerContainerImageOverride:
+    Description: >
+      Name of the container image used for running scans on targets.
+      "ghcr.io/openclarity/vmclarity-cli:latest" will be used if not overridden.
     Type: String
-    Default: ghcr.io/openclarity/vmclarity-cli:latest
-  FreshclamMirrorContainerImage:
-    Description: Name of the container image used for the freshclam mirror server.
+    Default: ''
+  FreshclamMirrorContainerImageOverride:
+    Description: >
+      Name of the container image used for the freshclam mirror server.
+      "ghcr.io/openclarity/freshclam-mirror:v0.1.0" will be used if not overridden.
     Type: String
-    Default: ghcr.io/openclarity/freshclam-mirror:v0.1.0
-  TrivyServerContainerImage:
-    Description: Name of the container image used for the trivy server.
+    Default: ''
+  TrivyServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the trivy server.
+      "docker.io/aquasec/trivy:0.34.0" will be used if not overridden.
     Type: String
-    Default: docker.io/aquasec/trivy:0.34.0
-  GrypeServerContainerImage:
-    Description: Name of the container image used for the grype server.
+    Default: ''
+  GrypeServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the grype server.
+      "gcr.io/eticloud/k8sec/grype-server:v0.2.0" will be used if not overridden.
     Type: String
-    Default: ghcr.io/openclarity/grype-server:v0.2.0
+    Default: ''
   AssetScanDeletePolicy:
     Description: When VMClarity should delete resources after a completed asset scan.
     Type: String
@@ -841,27 +858,27 @@ Metadata:
       - Label:
           default: Advanced Configuration
         Parameters:
-          - BackendContainerImage
-          - ScannerContainerImage
-          - TrivyServerContainerImage
-          - GrypeServerContainerImage
-          - FreshclamMirrorContainerImage
+          - BackendContainerImageOverride
+          - ScannerContainerImageOverride
+          - TrivyServerContainerImageOverride
+          - GrypeServerContainerImageOverride
+          - FreshclamMirrorContainerImageOverride
           - AssetScanDeletePolicy
     ParameterLabels:
       InstanceType:
         default: VMClarity Server Instance Type
       ScannerInstanceType:
         default: Scanner Job Instance Type
-      BackendContainerImage:
-        default: Backend Container Image
-      ScannerContainerImage:
-        default: Scanner Container Image
-      TrivyServerContainerImage:
-        default: Trivy Server Container Image
-      GrypeServerContainerImage:
-        default: Grype Server Container Image
-      FreshclamMirrorContainerImage:
-        default: freshclam-mirror Container Image
+      BackendContainerImageOverride:
+        default: Backend Container Image Override
+      ScannerContainerImageOverride:
+        default: Scanner Container Image Override
+      TrivyServerContainerImageOverride:
+        default: Trivy Server Container Image Override
+      GrypeServerContainerImageOverride:
+        default: Grype Server Container Image Override
+      FreshclamMirrorContainerImageOverride:
+        default: freshclam-mirror Container Image Override
       AssetScanDeletePolicy:
         default: Asset Scan Delete Policy
 Mappings:
@@ -911,6 +928,27 @@ Mappings:
       HVM64: ami-0741e7b8b4fb0001c
     cn-northwest-1:
       HVM64: ami-0883e8062ff31f727
+Conditions:
+  BackendContainerImageOverridden: !Not
+    - !Equals
+      - !Ref BackendContainerImageOverride
+      - ''
+  ScannerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref ScannerContainerImageOverride
+      - ''
+  TrivyServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref TrivyServerContainerImageOverride
+      - ''
+  FreshclamMirrorContainerImageOverridden: !Not
+    - !Equals
+      - !Ref FreshclamMirrorContainerImageOverride
+      - ''
+  GrypeServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref GrypeServerContainerImageOverride
+      - ''
 Outputs:
   URL:
     Value: !Sub "${VmClarityServer.PublicIp}"
