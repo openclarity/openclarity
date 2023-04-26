@@ -32,7 +32,7 @@ require (
 	github.com/vulsio/go-exploitdb v0.4.4
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/datatypes v1.1.0
+	gorm.io/datatypes v1.2.0
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.10
 	gotest.tools/v3 v3.4.0
@@ -394,7 +394,7 @@ require (
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/driver/mysql v1.4.4 // indirect
+	gorm.io/driver/mysql v1.4.7 // indirect
 	helm.sh/helm/v3 v3.11.1 // indirect
 	k8s.io/api v0.26.3 // indirect
 	k8s.io/apiextensions-apiserver v0.26.0 // indirect
@@ -445,11 +445,13 @@ exclude (
 	gorm.io/driver/sqlite v1.4.2
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/driver/sqlite v1.4.4
+	gorm.io/driver/sqlite v1.4.7
 	gorm.io/gorm v1.24.0
 	gorm.io/gorm v1.24.1
 	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
 	gorm.io/gorm v1.24.2
 	gorm.io/gorm v1.24.3
+	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
 )
 
 replace github.com/openclarity/vmclarity/api => ./api
