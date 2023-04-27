@@ -354,7 +354,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "gcr.io/eticloud/k8sec/grype-server:v0.2.0"]
+                  - GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.2.0"]
               mode: "000644"
             "/lib/systemd/system/vmclarity_freshclam_mirror.service":
               content:
@@ -838,7 +838,7 @@ Parameters:
   GrypeServerContainerImageOverride:
     Description: >
       Name of the container image used for the grype server.
-      "gcr.io/eticloud/k8sec/grype-server:v0.2.0" will be used if not overridden.
+      "ghcr.io/openclarity/grype-server:v0.2.0" will be used if not overridden.
     Type: String
     Default: ''
   AssetScanDeletePolicy:
