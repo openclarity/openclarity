@@ -676,6 +676,11 @@ type SecretsConfig struct {
 	Enabled *bool `json:"enabled,omitempty"`
 }
 
+// SecurityGroup general cloud security group
+type SecurityGroup struct {
+	Id string `json:"id"`
+}
+
 // SuccessResponse An object that is returned in cases of success that returns nothing.
 type SuccessResponse struct {
 	Message *string `json:"message,omitempty"`
@@ -803,10 +808,16 @@ type Targets struct {
 
 // VMInfo defines model for VMInfo.
 type VMInfo struct {
-	InstanceID       string         `json:"instanceID"`
-	InstanceProvider *CloudProvider `json:"instanceProvider,omitempty"`
-	Location         string         `json:"location"`
-	ObjectType       string         `json:"objectType"`
+	Image            string           `json:"image"`
+	InstanceID       string           `json:"instanceID"`
+	InstanceProvider *CloudProvider   `json:"instanceProvider,omitempty"`
+	InstanceType     string           `json:"instanceType"`
+	LaunchTime       time.Time        `json:"launchTime"`
+	Location         string           `json:"location"`
+	ObjectType       string           `json:"objectType"`
+	Platform         string           `json:"platform"`
+	SecurityGroups   *[]SecurityGroup `json:"securityGroups"`
+	Tags             *[]Tag           `json:"tags"`
 }
 
 // VulnerabilitiesConfig defines model for VulnerabilitiesConfig.

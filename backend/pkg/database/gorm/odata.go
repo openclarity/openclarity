@@ -331,10 +331,33 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"VMInfo": {
 		Fields: odatasql.Schema{
-			"objectType":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"instanceID":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"location":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"instanceID":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"location":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"launchTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"platform":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"instanceType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"image":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"tags": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Tag"},
+				},
+			},
+			"securityGroups": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"SecurityGroup"},
+				},
+			},
 			"instanceProvider": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"SecurityGroup": {
+		Fields: odatasql.Schema{
+			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"ScanFindingsSummary": {

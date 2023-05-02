@@ -15,6 +15,8 @@
 
 package aws
 
+import "github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+
 const (
 	maxResults = 500
 )
@@ -25,15 +27,10 @@ type ScanScope struct {
 	ScanStopped bool
 	// Only targets that have these tags will be selected for scanning within the selected scan scope.
 	// Multiple tags will be treated as an AND operator.
-	TagSelector []Tag
+	TagSelector []types.Tag
 	// Targets that have these tags will be excluded from the scan, even if they match the tag selector.
 	// Multiple tags will be treated as an AND operator.
-	ExcludeTags []Tag
-}
-
-type Tag struct {
-	Key string
-	Val string
+	ExcludeTags []types.Tag
 }
 
 type SecurityGroup struct {
