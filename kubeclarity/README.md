@@ -482,7 +482,7 @@ server in kubernetes/docker which we'll use in the examples here.
 
 To start the server:
 ```
-docker run -p 8080:8080 --rm aquasec/trivy:0.34.0 server --listen 0.0.0.0:8080
+docker run -p 8080:8080 --rm aquasec/trivy:0.41.0 server --listen 0.0.0.0:8080
 ```
 
 To run a scan using the server:
@@ -495,7 +495,7 @@ unauthorized use of a trivy server instance. You can enable it by running the
 server with the extra flag:
 
 ```
-docker run -p 8080:8080 --rm aquasec/trivy:0.34.0 server --listen 0.0.0.0:8080 --token mytoken
+docker run -p 8080:8080 --rm aquasec/trivy:0.41.0 server --listen 0.0.0.0:8080 --token mytoken
 ```
 
 and passing the token to the scanner:
