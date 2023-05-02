@@ -62,7 +62,7 @@ func (v Vulnerabilities) Run(res *results.Results) (interfaces.IsResults, error)
 		}
 
 		// TODO: need to avoid writing sbom to file
-		if err := os.WriteFile(sbomTempFilePath, sbomBytes, 0600 /* read & write */); err != nil { // nolint:gomnd,gofumpt
+		if err := os.WriteFile(sbomTempFilePath, sbomBytes, 0o600 /* read & write */); err != nil { // nolint:gomnd,gofumpt
 			return nil, fmt.Errorf("failed to write sbom to file: %v", err)
 		}
 

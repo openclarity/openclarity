@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/job"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
 )
 
 type Rootkits struct {
@@ -50,7 +51,11 @@ func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults
 		// Merge results.
 		for name, result := range results {
 			r.logger.Infof("Merging result from %q", name)
-			mergedResults = mergedResults.Merge(result.(*common.Results)) // nolint:forcetypeassert
+			scannerResult := result.(*common.Results) // nolint:forcetypeassert
+			if familiesutils.ShouldStripInputPath(input.StripPathFromResult, r.conf.StripInputPaths) {
+				scannerResult = StripPathFromResult(scannerResult, input.Input)
+			}
+			mergedResults = mergedResults.Merge(scannerResult)
 		}
 	}
 
@@ -58,6 +63,14 @@ func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
+}
+
+// StripPathFromResult strip input path from results wherever it is found.
+func StripPathFromResult(result *common.Results, path string) *common.Results {
+	for i := range result.Rootkits {
+		result.Rootkits[i].Message = familiesutils.RemoveMountPathSubStringIfNeeded(result.Rootkits[i].Message, path)
+	}
+	return result
 }
 
 func (r Rootkits) GetType() types.FamilyType {
