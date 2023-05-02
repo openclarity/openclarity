@@ -53,7 +53,7 @@ func (w *FileWriter) Write(b []byte, filename string) error {
 	filePath := path.Join(w.Path, filename)
 	log.Infof("Writing results to %v...", filePath)
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666) // nolint:gomnd,gofumpt
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o666) // nolint:gomnd,gofumpt
 	if err != nil {
 		return fmt.Errorf("failed open file %s: %w", filePath, err)
 	}

@@ -28,6 +28,7 @@ import (
 	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
 )
 
 type Misconfiguration struct {
@@ -51,6 +52,9 @@ func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error
 		for name, result := range managerResults {
 			m.logger.Infof("Merging result from %q", name)
 			if scanResult, ok := result.(misconfigurationTypes.ScannerResult); ok {
+				if familiesutils.ShouldStripInputPath(input.StripPathFromResult, m.conf.StripInputPaths) {
+					scanResult = StripPathFromResult(scanResult, input.Input)
+				}
 				results.AddScannerResult(scanResult)
 			} else {
 				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
@@ -61,6 +65,14 @@ func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error
 	m.logger.Info("Misconfiguration Done...")
 
 	return results, nil
+}
+
+// StripPathFromResult strip input path from results wherever it is found.
+func StripPathFromResult(result misconfigurationTypes.ScannerResult, path string) misconfigurationTypes.ScannerResult {
+	for i := range result.Misconfigurations {
+		result.Misconfigurations[i].ScannedPath = familiesutils.TrimMountPath(result.Misconfigurations[i].ScannedPath, path)
+	}
+	return result
 }
 
 func (m Misconfiguration) GetType() types.FamilyType {

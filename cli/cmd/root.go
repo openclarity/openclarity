@@ -32,6 +32,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/cli"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
@@ -277,22 +278,25 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 
 		if familiesConfig.Secrets.Enabled {
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
-				Input:     mountDir,
-				InputType: string(kubeclarityutils.ROOTFS),
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               mountDir,
+				InputType:           string(kubeclarityutils.ROOTFS),
 			})
 		}
 
 		if familiesConfig.Malware.Enabled {
 			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, malware.Input{
-				Input:     mountDir,
-				InputType: string(kubeclarityutils.ROOTFS),
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               mountDir,
+				InputType:           string(kubeclarityutils.ROOTFS),
 			})
 		}
 
 		if familiesConfig.Rootkits.Enabled {
 			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, rootkits.Input{
-				Input:     mountDir,
-				InputType: string(kubeclarityutils.ROOTFS),
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               mountDir,
+				InputType:           string(kubeclarityutils.ROOTFS),
 			})
 		}
 
@@ -300,8 +304,9 @@ func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *famili
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,
 				misconfigurationTypes.Input{
-					Input:     mountDir,
-					InputType: string(kubeclarityutils.ROOTFS),
+					StripPathFromResult: utils.PointerTo(true),
+					Input:               mountDir,
+					InputType:           string(kubeclarityutils.ROOTFS),
 				},
 			)
 		}
