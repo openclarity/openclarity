@@ -8,8 +8,8 @@ require (
 	github.com/anchore/grype v0.61.0
 	github.com/anchore/stereoscope v0.0.0-20230406143206-e95d60a265e3
 	github.com/anchore/syft v0.77.0
-	github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15
-	github.com/aquasecurity/trivy v0.0.0-20230423203604-48e021ea6bf2
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf
+	github.com/aquasecurity/trivy v0.41.0
 	github.com/aquasecurity/trivy-db v0.0.0-20230411140759-3c2ee2168575
 	github.com/containers/image/v5 v5.19.0
 	github.com/go-openapi/errors v0.20.3
@@ -267,6 +267,7 @@ require (
 	github.com/opencontainers/runtime-spec v1.1.0-rc.1 // indirect
 	github.com/opencontainers/selinux v1.11.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/openvex/go-vex v0.2.0 // indirect
 	github.com/owenrumney/go-sarif/v2 v2.1.2 // indirect
 	github.com/owenrumney/squealer v1.1.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect

@@ -346,8 +346,8 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkE
 github.com/aquasecurity/bolt-fixtures v0.0.0-20200903104109-d34e7f983986 h1:2a30xLN2sUZcMXl50hg+PJCIDdJgIvIbVcKqLJ/ZrtM=
 github.com/aquasecurity/defsec v0.85.0 h1:2HZSWbmVK95iDaEok0EpZlXLjBTFTux1a3JGwAMyhLE=
 github.com/aquasecurity/defsec v0.85.0/go.mod h1:6bb5hLBkDyRlsObkKX4nybiDiCYX/AhrrSIklnPZzBg=
-github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15 h1:umuByPARbGs3sE9BgtrDg6n0rR//O79ONFuWG+SU88I=
-github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15/go.mod h1:lI+o04X85vxgx2jPji9G0tZ6AqqhVcXn8A88qimWfOM=
+github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf h1:MZmenKvakITNp/0RKk6U4MrWmI2DdSYxyrFlntnkDGs=
+github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf/go.mod h1:lI+o04X85vxgx2jPji9G0tZ6AqqhVcXn8A88qimWfOM=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce h1:QgBRgJvtEOBtUXilDb1MLi1p1MWoyFDXAu5DEUl5nwM=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce/go.mod h1:HXgVzOPvXhVGLJs4ZKO817idqr/xhwsTcj17CLYY74s=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 h1:eveqE9ivrt30CJ7dOajOfBavhZ4zPqHcZe/4tKp0alc=
@@ -362,8 +362,8 @@ github.com/aquasecurity/table v1.8.0/go.mod h1:eqOmvjjB7AhXFgFqpJUEE/ietg7RrMSJZ
 github.com/aquasecurity/testdocker v0.0.0-20230111101738-e741bda259da h1:pj/adfN0Wbzc0H8YkI1nX5K92wOU5/1/1TRuuc0y5Nw=
 github.com/aquasecurity/tml v0.6.1 h1:y2ZlGSfrhnn7t4ZJ/0rotuH+v5Jgv6BDDO5jB6A9gwo=
 github.com/aquasecurity/tml v0.6.1/go.mod h1:OnYMWY5lvI9ejU7yH9LCberWaaTBW7hBFsITiIMY2yY=
-github.com/aquasecurity/trivy v0.0.0-20230423203604-48e021ea6bf2 h1:XgQllQ9SJwIz0zBclbVS8IFdVio908a6RD24pCXYTRs=
-github.com/aquasecurity/trivy v0.0.0-20230423203604-48e021ea6bf2/go.mod h1:NttmnqD0F96wB/YL51CMBDSIz+1pt8GIzjlofQGfxyI=
+github.com/aquasecurity/trivy v0.41.0 h1:/wyAgTDFRZatCU4hzXrom86mrwl6TgUZfLbpKHEsQoo=
+github.com/aquasecurity/trivy v0.41.0/go.mod h1:dZkAWgtRMv7OjqeHV/Bs71xOyA8BqpmRmgaBwJkpDkM=
 github.com/aquasecurity/trivy-db v0.0.0-20230411140759-3c2ee2168575 h1:8Y/qLPXGFYGGetDo0uhMRnqF8696tWBVis5scJ42q3w=
 github.com/aquasecurity/trivy-db v0.0.0-20230411140759-3c2ee2168575/go.mod h1:zn8GepvD5wBkCmmtBDwh0BWfiMUxS6xfGRcTPmXRVXo=
 github.com/aquasecurity/trivy-java-db v0.0.0-20230209231723-7cddb1406728 h1:0eS+V7SXHgqoT99tV1mtMW6HL4HdoB9qGLMCb1fZp8A=
@@ -1416,6 +1416,8 @@ github.com/opencontainers/selinux v1.11.0/go.mod h1:E5dMC3VPuVvVHDYmi78qvhJp8+M5
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
+github.com/openvex/go-vex v0.2.0 h1:7Q6VzdpZSZzYUyXB1dio/9LCGHp1iL3JldC+hMsbFg0=
+github.com/openvex/go-vex v0.2.0/go.mod h1:jYmYbhQAO/0hquryXND/jMVDBcob8/KkVgzUEUAHsFI=
 github.com/ostreedev/ostree-go v0.0.0-20190702140239-759a8c1ac913/go.mod h1:J6OG6YJVEWopen4avK3VNQSnALmmjvniMmni/YFYAwc=
 github.com/owenrumney/go-sarif v1.1.1/go.mod h1:dNDiPlF04ESR/6fHlPyq7gHKmrM0sHUvAGjsoh8ZH0U=
 github.com/owenrumney/go-sarif/v2 v2.1.2 h1:PMDK7tXShJ9zsB7bfvlpADH5NEw1dfA9xwU8Xtdj73U=
@@ -1507,8 +1509,8 @@ github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6L
 github.com/rogpeppe/go-internal v1.1.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.2.2/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/rogpeppe/go-internal v1.8.0 h1:FCbCCtXNOY3UtUuHUYaghJg4y7Fd14rXifAYUAtL9R8=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
+github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.29.0 h1:Zes4hju04hjbvkVkOhdl2HpZa+0PmVwigmo8XoORE5w=
 github.com/rs/zerolog v1.29.0/go.mod h1:NILgTygv/Uej1ra5XxGf82ZFSLk58MFGAUS2o6usyD0=
