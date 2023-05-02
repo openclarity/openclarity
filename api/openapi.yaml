@@ -1308,6 +1308,18 @@ components:
         - id
       additionalProperties: false
 
+
+    SecurityGroup:
+      type: object
+      description: general cloud security group
+      properties:
+        id:
+          type: string
+          minLength: 1
+      required:
+        - id
+      additionalProperties: false
+
     AwsSecurityGroup:
       type: object
       description: AWS security group
@@ -1448,10 +1460,33 @@ components:
           $ref: '#/components/schemas/CloudProvider'
         location:
           type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+        securityGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityGroup'
+          nullable: true
+        image:
+          type: string
+        instanceType:
+          type: string
+        platform:
+          type: string
+        launchTime:
+          type: string
+          format: date-time
       required:
         - objectType
         - instanceID
         - location
+        - instanceType
+        - image
+        - platform
+        - launchTime
 
     PodInfo:
       type: object

@@ -32,7 +32,14 @@ type InstanceImpl struct {
 	ec2Client        *ec2.Client
 	id               string
 	region           string
+	vpcID            string
+	securityGroups   []string
 	availabilityZone string
+	image            string
+	ec2Type          string
+	platform         string
+	tags             []types.Tag
+	launchTime       time.Time
 }
 
 func (i *InstanceImpl) GetID() string {
@@ -40,11 +47,35 @@ func (i *InstanceImpl) GetID() string {
 }
 
 func (i *InstanceImpl) GetLocation() string {
-	return i.region
+	return i.region + "/" + i.vpcID
+}
+
+func (i *InstanceImpl) GetSecurityGroups() []string {
+	return i.securityGroups
 }
 
 func (i *InstanceImpl) GetAvailabilityZone() string {
 	return i.availabilityZone
+}
+
+func (i *InstanceImpl) GetImage() string {
+	return i.image
+}
+
+func (i *InstanceImpl) GetType() string {
+	return i.ec2Type
+}
+
+func (i *InstanceImpl) GetLaunchTime() time.Time {
+	return i.launchTime
+}
+
+func (i *InstanceImpl) GetPlatform() string {
+	return i.platform
+}
+
+func (i *InstanceImpl) GetTags() []types.Tag {
+	return i.tags
 }
 
 func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) {
@@ -134,7 +165,7 @@ func (i *InstanceImpl) AttachVolume(ctx context.Context, volume types.Volume, de
 		InstanceId: utils.StringPtr(i.GetID()),
 		VolumeId:   utils.StringPtr(volume.GetID()),
 	}, func(options *ec2.Options) {
-		options.Region = i.GetLocation()
+		options.Region = i.region
 	})
 	if err != nil {
 		return fmt.Errorf("failed to attach volume: %v", err)
