@@ -19,10 +19,12 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
@@ -126,7 +128,7 @@ func Test_createInclusionTagsFilters(t *testing.T) {
 	)
 
 	type args struct {
-		tags []Tag
+		tags []types.Tag
 	}
 	tests := []struct {
 		name string
@@ -143,7 +145,7 @@ func Test_createInclusionTagsFilters(t *testing.T) {
 		{
 			name: "1 tag",
 			args: args{
-				tags: []Tag{
+				tags: []types.Tag{
 					{
 						Key: tagName,
 						Val: tagVal,
@@ -176,7 +178,7 @@ func Test_hasExcludedTags(t *testing.T) {
 	)
 
 	type args struct {
-		excludeTags  []Tag
+		excludeTags  []types.Tag
 		instanceTags []ec2types.Tag
 	}
 	tests := []struct {
@@ -187,7 +189,7 @@ func Test_hasExcludedTags(t *testing.T) {
 		{
 			name: "instance has no tags",
 			args: args{
-				excludeTags: []Tag{
+				excludeTags: []types.Tag{
 					{
 						Key: tagName1,
 						Val: tagVal1,
@@ -221,7 +223,7 @@ func Test_hasExcludedTags(t *testing.T) {
 		{
 			name: "instance does not have ALL the excluded tags (partial matching)",
 			args: args{
-				excludeTags: []Tag{
+				excludeTags: []types.Tag{
 					{
 						Key: tagName1,
 						Val: tagVal1,
@@ -247,7 +249,7 @@ func Test_hasExcludedTags(t *testing.T) {
 		{
 			name: "instance has ALL excluded tags",
 			args: args{
-				excludeTags: []Tag{
+				excludeTags: []types.Tag{
 					{
 						Key: tagName1,
 						Val: tagVal1,
@@ -277,7 +279,7 @@ func Test_hasExcludedTags(t *testing.T) {
 		{
 			name: "instance does not have excluded tags at all",
 			args: args{
-				excludeTags: []Tag{
+				excludeTags: []types.Tag{
 					{
 						Key: "stam1",
 						Val: "stam2",
@@ -472,11 +474,14 @@ func Test_getInstanceState(t *testing.T) {
 	}
 }
 
+// nolint: maintidx
 func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
+	launchTime := time.Now()
+
 	type fields struct{}
 	type args struct {
 		result      *ec2.DescribeInstancesOutput
-		excludeTags []Tag
+		excludeTags []types.Tag
 		regionID    string
 	}
 	tests := []struct {
@@ -511,6 +516,19 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Value: utils.StringPtr("val-1"),
 										},
 									},
+									VpcId:   utils.PointerTo("vpc1"),
+									ImageId: utils.PointerTo("image1"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az1"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group1"),
+										},
+									},
 								},
 								{
 									InstanceId: utils.StringPtr("instance-2"),
@@ -520,6 +538,19 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Value: utils.StringPtr("val-2"),
 										},
 									},
+									VpcId:   utils.PointerTo("vpc2"),
+									ImageId: utils.PointerTo("image2"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az2"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group2"),
+										},
+									},
 								},
 							},
 						},
@@ -527,6 +558,19 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 							Instances: []ec2types.Instance{
 								{
 									InstanceId: utils.StringPtr("instance-3"),
+									VpcId:      utils.PointerTo("vpc3"),
+									ImageId:    utils.PointerTo("image3"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az3"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group3"),
+										},
+									},
 								},
 							},
 						},
@@ -537,16 +581,50 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 			},
 			want: []*InstanceImpl{
 				{
-					id:     "instance-1",
-					region: "region-1",
+					id:               "instance-1",
+					region:           "region-1",
+					vpcID:            "vpc1",
+					securityGroups:   []string{"group1"},
+					availabilityZone: "az1",
+					image:            "image1",
+					ec2Type:          "t2.large",
+					platform:         "linux",
+					tags: []types.Tag{
+						{
+							Key: "key-1",
+							Val: "val-1",
+						},
+					},
+					launchTime: launchTime,
 				},
 				{
-					id:     "instance-2",
-					region: "region-1",
+					id:               "instance-2",
+					region:           "region-1",
+					vpcID:            "vpc2",
+					securityGroups:   []string{"group2"},
+					availabilityZone: "az2",
+					image:            "image2",
+					ec2Type:          "t2.large",
+					platform:         "linux",
+					tags: []types.Tag{
+						{
+							Key: "key-2",
+							Val: "val-2",
+						},
+					},
+					launchTime: launchTime,
 				},
 				{
-					id:     "instance-3",
-					region: "region-1",
+					id:               "instance-3",
+					region:           "region-1",
+					vpcID:            "vpc3",
+					securityGroups:   []string{"group3"},
+					availabilityZone: "az3",
+					image:            "image3",
+					ec2Type:          "t2.large",
+					platform:         "linux",
+					tags:             nil,
+					launchTime:       launchTime,
 				},
 			},
 		},
@@ -565,6 +643,19 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Value: utils.StringPtr("val-1"),
 										},
 									},
+									VpcId:   utils.PointerTo("vpc1"),
+									ImageId: utils.PointerTo("image1"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az1"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group1"),
+										},
+									},
 								},
 								{
 									InstanceId: utils.StringPtr("instance-2"),
@@ -574,6 +665,19 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Value: utils.StringPtr("val-2"),
 										},
 									},
+									VpcId:   utils.PointerTo("vpc2"),
+									ImageId: utils.PointerTo("image2"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az2"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group2"),
+										},
+									},
 								},
 							},
 						},
@@ -581,12 +685,25 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 							Instances: []ec2types.Instance{
 								{
 									InstanceId: utils.StringPtr("instance-3"),
+									VpcId:      utils.PointerTo("vpc3"),
+									ImageId:    utils.PointerTo("image3"),
+									Placement: &ec2types.Placement{
+										AvailabilityZone: utils.PointerTo("az3"),
+									},
+									InstanceType:    "t2.large",
+									PlatformDetails: utils.PointerTo("linux"),
+									LaunchTime:      utils.PointerTo(launchTime),
+									SecurityGroups: []ec2types.GroupIdentifier{
+										{
+											GroupId: utils.PointerTo("group3"),
+										},
+									},
 								},
 							},
 						},
 					},
 				},
-				excludeTags: []Tag{
+				excludeTags: []types.Tag{
 					{
 						Key: "key-1",
 						Val: "val-1",
@@ -596,12 +713,33 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 			},
 			want: []*InstanceImpl{
 				{
-					id:     "instance-2",
-					region: "region-1",
+					id:               "instance-2",
+					region:           "region-1",
+					vpcID:            "vpc2",
+					securityGroups:   []string{"group2"},
+					availabilityZone: "az2",
+					image:            "image2",
+					ec2Type:          "t2.large",
+					platform:         "linux",
+					tags: []types.Tag{
+						{
+							Key: "key-2",
+							Val: "val-2",
+						},
+					},
+					launchTime: launchTime,
 				},
 				{
-					id:     "instance-3",
-					region: "region-1",
+					id:               "instance-3",
+					region:           "region-1",
+					vpcID:            "vpc3",
+					securityGroups:   []string{"group3"},
+					availabilityZone: "az3",
+					image:            "image3",
+					ec2Type:          "t2.large",
+					platform:         "linux",
+					tags:             nil,
+					launchTime:       launchTime,
 				},
 			},
 		},

@@ -405,12 +405,19 @@ func createVulnerabilityFindings(base models.Finding, vulnerabilities []models.V
 	return ret
 }
 
-func createVMInfo(instanceID, location string, instanceProvider models.CloudProvider) *models.TargetType {
+func createVMInfo(instanceID, location, image, instanceType, platform string,
+	tags []models.Tag, launchTime time.Time, instanceProvider models.CloudProvider,
+) *models.TargetType {
 	info := models.TargetType{}
 	err := info.FromVMInfo(models.VMInfo{
+		Image:            image,
 		InstanceID:       instanceID,
 		InstanceProvider: &instanceProvider,
+		InstanceType:     instanceType,
+		LaunchTime:       launchTime,
 		Location:         location,
+		Platform:         platform,
+		Tags:             &tags,
 	})
 	if err != nil {
 		panic(err)
@@ -448,7 +455,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1, models.AWS),
+			TargetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "target1"}}, time.Now(), models.AWS),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -467,7 +475,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1, models.AWS),
+			TargetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "target2"}}, time.Now(), models.AWS),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -486,7 +495,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1, models.AWS),
+			TargetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1+"/"+awsVPCUSEast11+"/"+awsSGUSEast111,
+				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "target3"}}, time.Now(), models.AWS),
 		},
 	}
 }

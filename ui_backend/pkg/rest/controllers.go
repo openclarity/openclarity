@@ -18,6 +18,7 @@ package rest
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -48,13 +49,13 @@ func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.Re
 	// Sum all asset findings counts (the latest findings per asset) to the total region findings count.
 	// target/ScanFindingsSummary should contain the latest results per family.
 	for _, target := range *targets.Items {
-		location, err := getTargetLocation(target)
+		region, err := getTargetRegion(target)
 		if err != nil {
 			log.Warnf("Couldn't get target location, skipping target: %v", err)
 			continue
 		}
-		if _, ok := findingsPerRegion[location]; !ok {
-			findingsPerRegion[location] = &models.FindingsCount{
+		if _, ok := findingsPerRegion[region]; !ok {
+			findingsPerRegion[region] = &models.FindingsCount{
 				Exploits:          utils.PointerTo(0),
 				Malware:           utils.PointerTo(0),
 				Misconfigurations: utils.PointerTo(0),
@@ -63,8 +64,8 @@ func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.Re
 				Vulnerabilities:   utils.PointerTo(0),
 			}
 		}
-		regionFindings := findingsPerRegion[location]
-		findingsPerRegion[location] = addTargetSummaryToFindingsCount(regionFindings, target.Summary)
+		regionFindings := findingsPerRegion[region]
+		findingsPerRegion[region] = addTargetSummaryToFindingsCount(regionFindings, target.Summary)
 	}
 
 	items := []models.RegionFindings{}
@@ -79,7 +80,7 @@ func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.Re
 	return items
 }
 
-func getTargetLocation(target backendmodels.Target) (string, error) {
+func getTargetRegion(target backendmodels.Target) (string, error) {
 	discriminator, err := target.TargetInfo.ValueByDiscriminator()
 	if err != nil {
 		return "", fmt.Errorf("failed to get value by discriminator: %w", err)
@@ -87,10 +88,23 @@ func getTargetLocation(target backendmodels.Target) (string, error) {
 
 	switch info := discriminator.(type) {
 	case backendmodels.VMInfo:
-		return info.Location, nil
+		return getRegionByProvider(info), nil
 	default:
 		return "", fmt.Errorf("target type is not supported (%T)", discriminator)
 	}
+}
+
+func getRegionByProvider(info backendmodels.VMInfo) string {
+	if info.InstanceProvider == nil {
+		log.Warnf("Instace provider is nil. instance id: %v", info.InstanceID)
+		return info.Location
+	}
+	if *info.InstanceProvider == backendmodels.AWS {
+		// AWS location is represented as region/vpc, need to return only the region
+		return strings.Split(info.Location, "/")[0]
+	}
+	// for other clouds, return the location
+	return info.Location
 }
 
 func addTargetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary *backendmodels.ScanFindingsSummary) *models.FindingsCount {

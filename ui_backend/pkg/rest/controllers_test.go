@@ -34,7 +34,8 @@ import (
 func Test_getTargetLocation(t *testing.T) {
 	targetInfo := backendmodels.TargetType{}
 	err := targetInfo.FromVMInfo(backendmodels.VMInfo{
-		Location: "us-east-1",
+		InstanceProvider: utils.PointerTo(backendmodels.AWS),
+		Location:         "us-east-1/vpcid-1/sg-1",
 	})
 	assert.NilError(t, err)
 	nonSupportedTargetInfo := backendmodels.TargetType{}
@@ -73,13 +74,13 @@ func Test_getTargetLocation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getTargetLocation(tt.args.target)
+			got, err := getTargetRegion(tt.args.target)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getTargetLocation() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("getTargetRegion() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("getTargetLocation() got = %v, want %v", got, tt.want)
+				t.Errorf("getTargetRegion() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -391,6 +392,55 @@ func Test_getPointerValOrZero(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getPointerValOrZero(tt.args.val); got != tt.want {
 				t.Errorf("getPointerValOrZero() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getRegionByProvider(t *testing.T) {
+	type args struct {
+		info backendmodels.VMInfo
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "cloud provider is nil",
+			args: args{
+				info: backendmodels.VMInfo{
+					InstanceProvider: nil,
+					Location:         "eu-central-1/vpc-1",
+				},
+			},
+			want: "eu-central-1/vpc-1",
+		},
+		{
+			name: "AWS cloud provider",
+			args: args{
+				info: backendmodels.VMInfo{
+					InstanceProvider: utils.PointerTo(backendmodels.AWS),
+					Location:         "eu-central-1/vpc-1",
+				},
+			},
+			want: "eu-central-1",
+		},
+		{
+			name: "non AWS cloud provider",
+			args: args{
+				info: backendmodels.VMInfo{
+					InstanceProvider: utils.PointerTo(backendmodels.CloudProvider("GCP")),
+					Location:         "eu-central-1/vpc-1",
+				},
+			},
+			want: "eu-central-1/vpc-1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getRegionByProvider(tt.args.info); got != tt.want {
+				t.Errorf("getRegionByProvider() = %v, want %v", got, tt.want)
 			}
 		})
 	}
