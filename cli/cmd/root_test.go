@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
+	utils2 "github.com/openclarity/vmclarity/shared/pkg/utils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 
@@ -81,8 +82,9 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 					Enabled: true,
 					Inputs: []secrets.Input{
 						{
-							Input:     "/mnt/snapshot1",
-							InputType: string(utils.ROOTFS),
+							StripPathFromResult: utils2.PointerTo(true),
+							Input:               "/mnt/snapshot1",
+							InputType:           string(utils.ROOTFS),
 						},
 					},
 				},
@@ -90,8 +92,9 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 					Enabled: true,
 					Inputs: []malware.Input{
 						{
-							Input:     "/mnt/snapshot1",
-							InputType: string(utils.ROOTFS),
+							StripPathFromResult: utils2.PointerTo(true),
+							Input:               "/mnt/snapshot1",
+							InputType:           string(utils.ROOTFS),
 						},
 					},
 				},

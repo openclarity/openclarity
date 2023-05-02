@@ -16,15 +16,18 @@
 package types
 
 type Config struct {
-	Enabled        bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
-	ScannersList   []string       `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs         []Input        `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
+	Enabled         bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	ScannersList    []string       `yaml:"scanners_list" mapstructure:"scanners_list"`
+	StripInputPaths bool           `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
+	Inputs          []Input        `yaml:"inputs" mapstructure:"inputs"`
+	ScannersConfig  ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
 }
 
 type Input struct {
-	Input     string `yaml:"input" mapstructure:"input"`
-	InputType string `yaml:"input_type" mapstructure:"input_type"`
+	// StripPathFromResult overrides global StripInputPaths value
+	StripPathFromResult *bool  `yaml:"strip_path_from_result" mapstructure:"strip_path_from_result"`
+	Input               string `yaml:"input" mapstructure:"input"`
+	InputType           string `yaml:"input_type" mapstructure:"input_type"`
 }
 
 // Add scanner specific configurations here, where the key is the scanner name,

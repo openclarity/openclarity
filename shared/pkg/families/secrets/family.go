@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/job"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
 )
 
 type Secrets struct {
@@ -49,8 +50,12 @@ func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error)
 
 		// Merge results.
 		for name, result := range results {
+			secretResult := result.(*common.Results) // nolint:forcetypeassert
+			if familiesutils.ShouldStripInputPath(input.StripPathFromResult, s.conf.StripInputPaths) {
+				secretResult = StripPathFromResult(secretResult, input.Input)
+			}
 			s.logger.Infof("Merging result from %q", name)
-			mergedResults = mergedResults.Merge(result.(*common.Results)) // nolint:forcetypeassert
+			mergedResults = mergedResults.Merge(secretResult)
 		}
 	}
 
@@ -58,6 +63,15 @@ func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error)
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
+}
+
+// StripPathFromResult strip input path from results wherever it is found.
+func StripPathFromResult(result *common.Results, path string) *common.Results {
+	for i := range result.Findings {
+		result.Findings[i].File = familiesutils.TrimMountPath(result.Findings[i].File, path)
+		result.Findings[i].Fingerprint = familiesutils.RemoveMountPathSubStringIfNeeded(result.Findings[i].Fingerprint, path)
+	}
+	return result
 }
 
 func (s Secrets) GetType() types.FamilyType {
