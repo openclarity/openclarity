@@ -1,6 +1,6 @@
 import React from 'react';
 import { FETCH_METHODS, useFetch } from 'hooks';
-import FormWrapper, { ToggleField } from 'components/Form';
+import FormWrapper, { ToggleField, TextField } from 'components/Form';
 import Modal from 'components/Modal';
 import Loader from 'components/Loader';
 
@@ -10,7 +10,8 @@ const ScanOptionsForm = ({onClose}) => {
     const [{data, loading}] = useFetch(SCAN_CONFIG_URL);
     
     const initialValues = {
-        cisDockerBenchmarkScanEnabled: data?.cisDockerBenchmarkScanEnabled || false
+        cisDockerBenchmarkScanEnabled: data?.cisDockerBenchmarkScanEnabled || false,
+        maxScanParallelism: data?.maxScanParallelism || 10
     };
     
     return (
@@ -35,6 +36,7 @@ const ScanOptionsForm = ({onClose}) => {
                     })}
                 >
                     <ToggleField name="cisDockerBenchmarkScanEnabled" label="CIS Docker Benchmark" />
+                    <TextField name="maxScanParallelism" label="Max Scan Parallelism" type="number" />
                 </FormWrapper>
             }
         </Modal>

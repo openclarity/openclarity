@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FETCH_METHODS, useFetch, usePrevious } from 'hooks';
-import FormWrapper, { ToggleField, MultiselectField, SelectField, useFormikContext, validators } from 'components/Form';
+import FormWrapper, { ToggleField, TextField, MultiselectField, SelectField, useFormikContext, validators } from 'components/Form';
 import Modal from 'components/Modal';
 import Loader from 'components/Loader';
 import { NAMESPACES_SELECT_TITLE, NAMESPACES_SELECT_INFO_MESSAGE } from '../utils';
@@ -35,6 +35,7 @@ const FormFields = ({namespaces}) => {
                 items={namespaces}
             />
             <ToggleField name={GENERAL_FOMR_FIELDS.CIS_ENABLED} label="CIS Docker Benchmark" />
+            <TextField name={GENERAL_FOMR_FIELDS.MAX_SCANPARALLELISM} label="Max Scan Parallelism" type="number" />
             <SelectField
                 name={`${SCHEDULE_TYPE_DATA_WRAPPER}.${GENERAL_FOMR_FIELDS.SCHEDULE_TYPE}`}
                 label="Scan time"
@@ -52,6 +53,7 @@ const ScheduleScanForm = ({namespaces, onClose}) => {
     const initialValues = {
         [GENERAL_FOMR_FIELDS.NAMESPACES]: [],
         [GENERAL_FOMR_FIELDS.CIS_ENABLED]: false,
+        [GENERAL_FOMR_FIELDS.MAX_SCANPARALLELISM]: 10,
         [SCHEDULE_TYPE_DATA_WRAPPER]: {
             [GENERAL_FOMR_FIELDS.SCHEDULE_TYPE]: SCHEDULE_TYPES.LATER.value
         },
@@ -87,7 +89,8 @@ const ScheduleScanForm = ({namespaces, onClose}) => {
                     getSubmitParams={formValues => {
                         const submitData = {
                             namespaces: formValues[GENERAL_FOMR_FIELDS.NAMESPACES],
-                            cisDockerBenchmarkScanEnabled: formValues[GENERAL_FOMR_FIELDS.CIS_ENABLED]
+                            cisDockerBenchmarkScanEnabled: formValues[GENERAL_FOMR_FIELDS.CIS_ENABLED],
+                            maxScanParallelism: formValues[GENERAL_FOMR_FIELDS.MAX_SCANPARALLELISM]
                         }
 
                         const scanConfigTypeData = formValues[SCHEDULE_TYPE_DATA_WRAPPER];

@@ -100,8 +100,10 @@ func waitForScanDone(t *testing.T) error {
 
 func startRuntimeScan(t *testing.T) {
 	t.Helper()
+	// configuration values are based on createDefaultRuntimeQuickScanConfig()
 	_ = common.PutRuntimeQuickScanConfig(t, kubeclarityAPI, &models.RuntimeQuickScanConfig{
 		CisDockerBenchmarkScanEnabled: true,
+		MaxScanParallelism:            10,
 	})
 	_ = common.PutRuntimeScanStart(t, kubeclarityAPI, &models.RuntimeScanConfig{
 		Namespaces: []string{"test"},

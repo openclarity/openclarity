@@ -1,6 +1,8 @@
 name: CI
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
 
 env:
   GO_VERSION: 1.19
@@ -106,12 +108,12 @@ jobs:
         with:
           version: v3.8.1
 
-      - uses: actions/setup-python@v4.5.0
+      - uses: actions/setup-python@v4.6.0
         with:
           python-version: 3.7
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.3.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Add Bitnami Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami

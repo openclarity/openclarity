@@ -170,7 +170,12 @@ func getCVSS(match grype_models.Match) []scanner.CVSS {
 }
 
 func getCVSSFromMatch(match grype_models.Match) []grype_models.Cvss {
-	if len(match.RelatedVulnerabilities) != 0 {
+	// Due to NormalizeByCVE mode we prefer to get the info from the root if exists.
+	if len(match.Vulnerability.VulnerabilityMetadata.Cvss) != 0 {
+		return match.Vulnerability.VulnerabilityMetadata.Cvss
+	}
+
+	if len(match.RelatedVulnerabilities) != 0 && len(match.RelatedVulnerabilities[0].Cvss) > 0 {
 		return match.RelatedVulnerabilities[0].Cvss
 	}
 
@@ -178,6 +183,11 @@ func getCVSSFromMatch(match grype_models.Match) []grype_models.Cvss {
 }
 
 func getDescription(match grype_models.Match) string {
+	// Due to NormalizeByCVE mode we prefer to get the info from the root if exists.
+	if match.Vulnerability.Description != "" {
+		return match.Vulnerability.Description
+	}
+
 	if len(match.RelatedVulnerabilities) != 0 {
 		return match.RelatedVulnerabilities[0].Description
 	}

@@ -78,6 +78,7 @@ func LoadConfig() (*Config, error) {
 	config.DBName = viper.GetString(DBNameEnvVar)
 	config.ViewRefreshIntervalSecond = viper.GetInt(ViewRefreshIntervalEnvVar)
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
+
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 	config.EnableFakeRuntimeScanner = viper.GetBool(FakeRuntimeScannerEnvVar)
 

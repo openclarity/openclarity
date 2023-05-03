@@ -31,7 +31,7 @@ var oopsResponse = &models.APIResponse{
 	Message: "Oops",
 }
 
-// Get SBOM from DB by resource hash.
+// GetSbomDBResourceHash Get SBOM from DB by resource hash.
 func (s *Server) GetSbomDBResourceHash(params operations.GetSbomDBResourceHashParams) middleware.Responder {
 	sbom, err := s.dbHandler.SBOMTable().GetSBOM(params.ResourceHash)
 	if err != nil {
@@ -42,16 +42,16 @@ func (s *Server) GetSbomDBResourceHash(params operations.GetSbomDBResourceHashPa
 	}
 
 	return operations.NewGetSbomDBResourceHashOK().WithPayload(&models.SBOM{
-		Sbom: []byte(sbom.SBOM),
+		Sbom: sbom.SBOM,
 	})
 }
 
-// Put SBOM in DB by resource hash. If resource hash already exists, replace the old SBOM with the new one.
+// PutSbomDBResourceHash Put SBOM in DB by resource hash. If resource hash already exists, replace the old SBOM with the new one.
 func (s *Server) PutSbomDBResourceHash(params operations.PutSbomDBResourceHashParams) middleware.Responder {
 	sbom := database.SBOM{
 		ID:           params.ResourceHash,
 		ResourceHash: params.ResourceHash,
-		SBOM:         string(params.Body.Sbom),
+		SBOM:         params.Body.Sbom,
 	}
 
 	if err := s.dbHandler.SBOMTable().CreateOrUpdateSBOM(&sbom); err != nil {

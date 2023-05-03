@@ -232,8 +232,8 @@ kubeclarity-grype-server:
 
   ## Docker Image values.
   docker:
-    imageRepo: "gcr.io/eticloud/k8sec"
-    imageTag: "v0.1.5"
+    imageRepo: "ghcr.io/openclarity"
+    imageTag: "v0.2.0"
     imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
@@ -316,8 +316,8 @@ kubeclarity-sbom-db:
       memory: "20Mi"
       cpu: "10m"
     limits:
-      memory: "100Mi"
-      cpu: "100m"
+      memory: "1Gi"
+      cpu: "200m"
 
 ## End of KubeClarity SBOM DB Values
 #######################################################################################
