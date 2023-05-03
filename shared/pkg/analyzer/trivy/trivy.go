@@ -27,7 +27,7 @@ import (
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyUtils "github.com/aquasecurity/trivy/pkg/utils"
+	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -76,7 +76,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		cacheDir := trivyUtils.DefaultCacheDir()
+		cacheDir := trivyFsutils.CacheDir()
 		if a.config.CacheDir != "" {
 			cacheDir = a.config.CacheDir
 		}
@@ -88,8 +88,8 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				CacheDir: cacheDir,
 			},
 			ScanOptions: trivyFlag.ScanOptions{
-				Target:         userInput,
-				SecurityChecks: nil, // Disable all security checks for SBOM only scan
+				Target:   userInput,
+				Scanners: []trivyTypes.Scanner{}, // Disable all security checks for SBOM only scan
 			},
 			ReportOptions: trivyFlag.ReportOptions{
 				Format:       "cyclonedx", // Cyconedx format for SBOM so that we don't need to convert

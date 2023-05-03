@@ -16,10 +16,12 @@
 package grype
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/anchore/grype/grype"
 	"github.com/anchore/grype/grype/db"
+	"github.com/anchore/grype/grype/grypeerr"
 	"github.com/anchore/grype/grype/matcher"
 	"github.com/anchore/grype/grype/matcher/dotnet"
 	"github.com/anchore/grype/grype/matcher/golang"
@@ -30,6 +32,7 @@ import (
 	"github.com/anchore/grype/grype/matcher/stock"
 	"github.com/anchore/grype/grype/pkg"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
+	"github.com/anchore/grype/grype/store"
 	"github.com/anchore/syft/syft/pkg/cataloger"
 	log "github.com/sirupsen/logrus"
 
@@ -97,13 +100,15 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	source := utils.CreateSource(sourceType, userInput, s.localImage)
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
-		RegistryOptions: s.config.RegistryOptions,
-		CatalogingOptions: cataloger.Config{
-			Search: cataloger.DefaultSearchConfig(),
+		SyftProviderConfig: pkg.SyftProviderConfig{
+			CatalogingOptions: cataloger.Config{
+				Search: cataloger.DefaultSearchConfig(),
+			},
+			RegistryOptions: s.config.RegistryOptions,
 		},
 	}
 	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
-	packages, context, err := pkg.Provide(source, providerConfig)
+	packages, context, _, err := pkg.Provide(source, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
 		return
@@ -111,12 +116,34 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 
 	s.logger.Infof("Found %d packages", len(packages))
 
+	vulnerabilityMatcher := createVulnerabilityMatcher(store)
+	allMatches, ignoredMatches, err := vulnerabilityMatcher.FindMatches(packages, context)
+	// We can ignore ErrAboveSeverityThreshold since we are not setting the FailSeverity on the matcher.
+	if err != nil && !errors.Is(err, grypeerr.ErrAboveSeverityThreshold) {
+		ReportError(s.resultChan, fmt.Errorf("failed to find vulnerabilities: %w", err), s.logger)
+		return
+	}
+
+	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
+	doc, err := grype_models.NewDocument(packages, context, *allMatches, ignoredMatches, store.MetadataProvider, nil, dbStatus)
+	if err != nil {
+		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
+		return
+	}
+
+	s.logger.Infof("Sending successful results")
+	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
+}
+
+func createVulnerabilityMatcher(store *store.Store) *grype.VulnerabilityMatcher {
 	matchers := matcher.NewDefaultMatchers(matcher.Config{
 		Java: java.MatcherConfig{
-			// Disable searching maven external source (this is the default for grype CLI too)
-			SearchMavenUpstream: false,
-			MavenBaseURL:        defaultMavenBaseURL,
-			UseCPEs:             true,
+			ExternalSearchConfig: java.ExternalSearchConfig{
+				// Disable searching maven external source (this is the default for grype CLI too)
+				SearchMavenUpstream: false,
+				MavenBaseURL:        defaultMavenBaseURL,
+			},
+			UseCPEs: true,
 		},
 		Ruby: ruby.MatcherConfig{
 			UseCPEs: true,
@@ -137,17 +164,11 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 			UseCPEs: true,
 		},
 	})
-
-	allMatches := grype.FindVulnerabilitiesForPackage(*store, context.Distro, matchers, packages)
-	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
-	doc, err := grype_models.NewDocument(packages, context, allMatches, nil, store.MetadataProvider, nil, dbStatus)
-	if err != nil {
-		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
-		return
+	return &grype.VulnerabilityMatcher{
+		Store:          *store,
+		Matchers:       matchers,
+		NormalizeByCVE: true,
 	}
-
-	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
 }
 
 func validateDBLoad(loadErr error, status *db.Status) error {
