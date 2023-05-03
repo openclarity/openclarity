@@ -23,8 +23,10 @@ import (
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/anchore/syft/syft"
+	"github.com/anchore/syft/syft/formats"
 	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
+	"github.com/anchore/syft/syft/formats/cyclonedxjson"
+	"github.com/anchore/syft/syft/formats/cyclonedxxml"
 )
 
 var ErrFailedToGetCycloneDXSBOM = errors.New("failed to get CycloneDX SBOM from file")
@@ -42,7 +44,7 @@ func GetCycloneDXSBOMFromBytes(inputSBOMBytes []byte) (*cdx.BOM, error) {
 	// Ensure input is converted to cyclonedx regardless of the
 	// input SBOM type.
 	r := bytes.NewReader(inputSBOMBytes)
-	sbom, format, err := syft.Decode(r)
+	sbom, format, err := formats.Decode(r)
 	if err != nil {
 		// syft's Decode has an issue with identifying cyclonedx XML
 		// with an empty component list, if syft errors, and the first
@@ -52,7 +54,7 @@ func GetCycloneDXSBOMFromBytes(inputSBOMBytes []byte) (*cdx.BOM, error) {
 		bufReader := bufio.NewReader(bytes.NewReader(inputSBOMBytes))
 		firstLine, _, rErr := bufReader.ReadLine()
 		if rErr == nil && string(firstLine) == `<?xml version="1.0" encoding="UTF-8"?>` {
-			format = syft.FormatByName("cyclonedx")
+			format = formats.ByName(string(cyclonedxxml.ID))
 		} else {
 			// If no luck manually identifying the file as XML,
 			// then just return the syft error.
@@ -68,11 +70,11 @@ func GetCycloneDXSBOMFromBytes(inputSBOMBytes []byte) (*cdx.BOM, error) {
 	// cdx.BOM.
 	var bom *cdx.BOM
 	cdxFormat := cdx.BOMFileFormatXML
-	switch format {
-	case syft.FormatByName("cyclonedxjson"):
+	switch format.ID() {
+	case cyclonedxjson.ID:
 		cdxFormat = cdx.BOMFileFormatJSON
 		fallthrough
-	case syft.FormatByName("cyclonedx"):
+	case cyclonedxxml.ID:
 		bom = new(cdx.BOM)
 		reader := bytes.NewReader(inputSBOMBytes)
 		decoder := cdx.NewBOMDecoder(reader, cdxFormat)
