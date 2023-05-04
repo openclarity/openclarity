@@ -89,14 +89,14 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aquasecurity/defsec v0.85.0 // indirect
-	github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf // indirect
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
-	github.com/aquasecurity/trivy v0.0.0-20230423203604-48e021ea6bf2 // indirect
+	github.com/aquasecurity/trivy v0.41.0 // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20230411140759-3c2ee2168575 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20230209231723-7cddb1406728 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
@@ -297,6 +297,7 @@ require (
 	github.com/opencontainers/runtime-spec v1.1.0-rc.1 // indirect
 	github.com/opencontainers/selinux v1.11.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/openvex/go-vex v0.2.0 // indirect
 	github.com/owenrumney/go-sarif/v2 v2.1.2 // indirect
 	github.com/owenrumney/squealer v1.1.1 // indirect
 	github.com/package-url/packageurl-go v0.1.1-0.20220428063043-89078438f170 // indirect
@@ -426,11 +427,11 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-// github.com/openclarity/kubeclarity v0.0.0-20230424132825-84cfaf7f31c7 (v2.17.0)
+// github.com/openclarity/kubeclarity v0.0.0-20230503074245-0199b41a7b8f (v2.17.1)
 replace (
-	github.com/openclarity/kubeclarity/api => github.com/openclarity/kubeclarity/api v0.0.0-20230424132825-84cfaf7f31c7
-	github.com/openclarity/kubeclarity/cli => github.com/openclarity/kubeclarity/cli v0.0.0-20230424132825-84cfaf7f31c7
-	github.com/openclarity/kubeclarity/shared => github.com/openclarity/kubeclarity/shared v0.0.0-20230424132825-84cfaf7f31c7
+	github.com/openclarity/kubeclarity/api => github.com/openclarity/kubeclarity/api v0.0.0-20230503074245-0199b41a7b8f
+	github.com/openclarity/kubeclarity/cli => github.com/openclarity/kubeclarity/cli v0.0.0-20230503074245-0199b41a7b8f
+	github.com/openclarity/kubeclarity/shared => github.com/openclarity/kubeclarity/shared v0.0.0-20230503074245-0199b41a7b8f
 )
 
 // Replace these for trivy
