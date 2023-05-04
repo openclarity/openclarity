@@ -188,33 +188,6 @@ Resources:
                         - Arch
                     ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
               mode: "000644"
-            "/etc/vmclarity/fetch_exploit_db.sh":
-              content: |
-                #!/bin/bash
-                set -euo pipefail
-
-                exploitsPath=/opt/exploits
-
-                /usr/bin/mkdir -p ${exploitsPath}
-                # since last tagged image (v0.4.2) was not working properly, use the digest of the latest at that time (26.1.23)
-                docker pull vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048
-                docker run --rm \
-                    -v ${exploitsPath}:/vuls \
-                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
-                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch awesomepoc
-                docker run --rm \
-                    -v ${exploitsPath}:/vuls \
-                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
-                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch exploitdb
-                docker run --rm \
-                    -v ${exploitsPath}:/vuls \
-                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
-                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch githubrepos
-                docker run --rm \
-                    -v ${exploitsPath}:/vuls \
-                    -v ${exploitsPath}/go-exploitdb-log:/var/log/go-exploitdb \
-                    vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 --dbpath /vuls/go-exploitdb.sqlite3 fetch inthewild
-              mode: "000744"
             "/lib/systemd/system/vmclarity.service":
               content:
                 Fn::Sub:
@@ -242,55 +215,31 @@ Resources:
                     WantedBy=multi-user.target
                   - BackendContainerImage: !If [BackendContainerImageOverridden, !Ref BackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-backend:latest"]
               mode: "000644"
-            "/lib/systemd/system/exploit_server.service":
-              content: |
-                [Unit]
-                Description=ExploitServer
-                After=docker.service
-                Requires=docker.service
+            "/lib/systemd/system/exploit-db-server.service":
+              content:
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=Exploit DB Server
+                    After=docker.service
+                    Requires=docker.service
 
-                [Service]
-                TimeoutStartSec=0
-                Restart=always
-                ExecStartPre=-/usr/bin/docker stop %n
-                ExecStartPre=-/usr/bin/docker rm %n
-                ExecStart=/usr/bin/docker run --rm -p 1326:1326 -v /opt/exploits:/vuls --name %n vuls/go-exploitdb@sha256:b11855fb2f498c04cabc4bc398fe97bb618e61e129586fce4ebdbc0a8962f048 \
-                   server --bind 0.0.0.0 --dbpath /vuls/go-exploitdb.sqlite3
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/mkdir -p /opt/exploits
+                    ExecStartPre=/usr/bin/docker pull ${ExploitDBServerContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      -p 0.0.0.0:1326:1326/tcp \
+                      -v /opt/exploits:/vuls \
+                      ${ExploitDBServerContainerImage}
 
-                [Install]
-                WantedBy=multi-user.target
-
-              mode: "000644"
-            "/lib/systemd/system/exploit_fetcher.timer":
-              content: |
-                [Unit]
-                Description=Daily exploit DB update
-                After=docker.service
-                Requires=docker.service
-
-                [Timer]
-                OnCalendar=daily
-                OnActiveSec=1s
-                Persistent=true
-
-                [Install]
-                WantedBy=timers.target
-
-              mode: "000644"
-            "/lib/systemd/system/exploit_fetcher.service":
-              content: |
-                [Unit]
-                Description=ExploitFetcher
-                After=docker.service
-                Requires=docker.service
-
-                [Service]
-                Type=oneshot
-                ExecStart=/etc/vmclarity/fetch_exploit_db.sh
-                RemainAfterExit=yes
-
-                [Install]
-                WantedBy=multi-user.target
+                    [Install]
+                    WantedBy=multi-user.target
+                  - ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.1.1"]
               mode: "000644"
             "/etc/trivy-server/config.env":
               content: |
@@ -386,15 +335,10 @@ Resources:
             02reload_systemctl:
               command: systemctl daemon-reload
 
-            02enable_exploit_db_fetcher_timer:
-              command: systemctl enable exploit_fetcher.timer
-            03start_restart_exploit_db_fetcher_timer:
-              command: systemctl restart exploit_fetcher.timer
-
-            03enable_exploit_server:
-              command: systemctl enable exploit_server.service
-            04start_restart_exploit_server:
-              command: systemctl restart exploit_server.service
+            03enable_exploit_db_server:
+              command: systemctl enable exploit-db-server.service
+            04start_restart_exploit_db_server:
+              command: systemctl restart exploit-db-server.service
 
             05enable_trivy_server:
               command: systemctl enable trivy_server.service
@@ -841,6 +785,12 @@ Parameters:
       "ghcr.io/openclarity/grype-server:v0.2.0" will be used if not overridden.
     Type: String
     Default: ''
+  ExploitDBServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the grype server.
+      "ghcr.io/openclarity/exploit-db-server:v0.1.1" will be used if not overridden.
+    Type: String
+    Default: ''
   AssetScanDeletePolicy:
     Description: When VMClarity should delete resources after a completed asset scan.
     Type: String
@@ -869,6 +819,7 @@ Metadata:
           - ScannerContainerImageOverride
           - TrivyServerContainerImageOverride
           - GrypeServerContainerImageOverride
+          - ExploitDBServerContainerImageOverride
           - FreshclamMirrorContainerImageOverride
           - AssetScanDeletePolicy
     ParameterLabels:
@@ -884,6 +835,8 @@ Metadata:
         default: Trivy Server Container Image Override
       GrypeServerContainerImageOverride:
         default: Grype Server Container Image Override
+      ExploitDBServerContainerImageOverride:
+        default: Exploit DB Server Container Image Override
       FreshclamMirrorContainerImageOverride:
         default: freshclam-mirror Container Image Override
       AssetScanDeletePolicy:
@@ -955,6 +908,10 @@ Conditions:
   GrypeServerContainerImageOverridden: !Not
     - !Equals
       - !Ref GrypeServerContainerImageOverride
+      - ''
+  ExploitDBServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref ExploitDBServerContainerImageOverride
       - ''
 Outputs:
   URL:
