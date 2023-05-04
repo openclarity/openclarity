@@ -322,7 +322,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.34.0"]
+                  - TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.41.0"]
               mode: "000644"
             "/etc/grype-server/config.env":
               content: |
@@ -832,7 +832,7 @@ Parameters:
   TrivyServerContainerImageOverride:
     Description: >
       Name of the container image used for the trivy server.
-      "docker.io/aquasec/trivy:0.34.0" will be used if not overridden.
+      "docker.io/aquasec/trivy:0.41.0" will be used if not overridden.
     Type: String
     Default: ''
   GrypeServerContainerImageOverride:
