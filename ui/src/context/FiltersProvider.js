@@ -1,6 +1,6 @@
 import { create } from './utils';
 
-export const FILTERR_TYPES = {
+export const FILTER_TYPES = {
     APPLICATIONS: "APPLICATIONS",
     APPLICATION_RESOURCES: "APPLICATION_RESOURCES",
     PACKAGES: "PACKAGES",
@@ -9,31 +9,21 @@ export const FILTERR_TYPES = {
 }
 
 const initialState = {
-    [FILTERR_TYPES.APPLICATIONS]: {
-        tableFilters: [],
-        systemFilters: {}
-    },
-    [FILTERR_TYPES.APPLICATION_RESOURCES]: {
-        tableFilters: [],
-        systemFilters: {}
-    },
-    [FILTERR_TYPES.PACKAGES]: {
-        tableFilters: [],
-        systemFilters: {}
-    },
-    [FILTERR_TYPES.PACKAGE_RESOURCES]: {
-        tableFilters: []
-    },
-    [FILTERR_TYPES.VULNERABILITIES]: {
-        tableFilters: [],
-        systemFilters: {}
-    },
+    ...Object.keys(FILTER_TYPES).reduce((acc, curr) => ({
+        ...acc,
+        [curr]: {
+            tableFilters: [],
+            systemFilters: {},
+            selectedPageIndex: 0
+        }
+    }), {}),
     currentRuntimeScan: null
-};
+}
 
 const FITLER_ACTIONS = {
     SET_TABLE_FILTERS_BY_KEY: "SET_TABLE_FILTERS_BY_KEY",
     SET_SYSTEM_FILTERS_BY_KEY: "SET_SYSTEM_FILTERS_BY_KEY",
+    SET_TABLE_PAGE_BY_KEY: "SET_TABLE_PAGE_BY_KEY",
     RESET_ALL_FILTERS: "RESET_ALL_FILTERS",
     RESET_FILTERS_BY_KEY: "RESET_FILTERS_BY_KEY"
 }
@@ -47,7 +37,8 @@ const reducer = (state, action) => {
                 ...state,
                 [filterType]: {
                     ...state[filterType],
-                    tableFilters: filterData
+                    tableFilters: filterData,
+                    selectedPageIndex: 0
                 }
             };
         }
@@ -59,7 +50,19 @@ const reducer = (state, action) => {
                 [filterType]: {
                     ...state[filterType],
                     tableFilters: [...initialState[filterType].tableFilters],
-                    systemFilters: filterData
+                    systemFilters: filterData,
+                    selectedPageIndex: 0
+                }
+            };
+        }
+        case FITLER_ACTIONS.SET_TABLE_PAGE_BY_KEY: {
+            const {filterType, pageIndex} = action.payload;
+
+            return {
+                ...state,
+                [filterType]: {
+                    ...state[filterType],
+                    selectedPageIndex: pageIndex
                 }
             };
         }
@@ -90,6 +93,7 @@ const setFilters = (dispatch, {type, filters, isSystem=false}) => dispatch({
     type: isSystem ? FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY : FITLER_ACTIONS.SET_TABLE_FILTERS_BY_KEY,
     payload: {filterType: type, filterData: filters}
 });
+const setPage = (dispatch, {type, pageIndex}) => dispatch({type: FITLER_ACTIONS.SET_TABLE_PAGE_BY_KEY, payload: {filterType: type, pageIndex}});
 const resetAllFilters = (dispatch) => dispatch({type: FITLER_ACTIONS.RESET_ALL_FILTERS});
 const resetFilters = (dispatch, filterType) => dispatch({type: FITLER_ACTIONS.RESET_FILTERS_BY_KEY, payload: {filterType}});
 const resetSystemFilters = (dispatch, type) => setFilters(dispatch, {type, filters: {}, isSystem: true})
@@ -99,6 +103,7 @@ export {
     useFilterState,
     useFilterDispatch,
     setFilters,
+    setPage,
     resetAllFilters,
     resetFilters,
     resetSystemFilters

@@ -7,7 +7,7 @@ import SystemFilterDisplay from 'components/SystemFilterDisplay';
 import Filter, { formatFiltersToQueryParams } from 'components/Filter';
 import PageContainer from 'components/PageContainer';
 import TopBarTitle from 'components/TopBarTitle';
-import { useFilterState, useFilterDispatch, setFilters, resetSystemFilters } from 'context/FiltersProvider';
+import { useFilterState, useFilterDispatch, setFilters, setPage, resetSystemFilters } from 'context/FiltersProvider';
 
 import './table-page.scss';
 
@@ -39,7 +39,7 @@ const TablePage = ({columns, filterType, filtersMap, url, title, defaultSortBy, 
     const doRefreshTimestamp = () => setRefreshTimestamp(Date());
 
     const filtersState = useFilterState();
-    const {tableFilters, systemFilters} = filtersState[filterType];
+    const {tableFilters, systemFilters, selectedPageIndex} = filtersState[filterType];
     const filtersDispatch = useFilterDispatch();
     const setTableFilters = (filters) => setFilters(filtersDispatch, {type: filterType, filters, isSystem: false});
     
@@ -48,7 +48,7 @@ const TablePage = ({columns, filterType, filtersMap, url, title, defaultSortBy, 
     const onSystemFilterClose = () => resetSystemFilters(filtersDispatch, filterType);
 
     const hasSystemFitler = !!systemFilterTitle || !!currentRuntimeScan;
-
+    
     useEffect(() => {
         doRefreshTimestamp();
     }, [externalRefreshTimestamp]);
@@ -79,6 +79,8 @@ const TablePage = ({columns, filterType, filtersMap, url, title, defaultSortBy, 
                                 ...(!!currentRuntimeScan ? {currentRuntimeScan: true} : {})
                             }}
                             onLineClick={onLineClick}
+                            defaultPageIndex={selectedPageIndex}
+                            onPageChange={pageIndex => setPage(filtersDispatch, {type: filterType, pageIndex})}
                             noResultsTitle={title}
                             refreshTimestamp={refreshTimestamp}
                             actionsComponent={actionsComponent}

@@ -13,7 +13,7 @@ import Packages from 'layout/Packages';
 import Vulnerabilities from 'layout/Vulnerabilities';
 import RuntimeScan from 'layout/RuntimeScan';
 import { NotificationProvider, useNotificationState, useNotificationDispatch, removeNotification } from 'context/NotificationProvider';
-import { FiltersProvider, useFilterDispatch, resetFilters, resetAllFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { FiltersProvider, useFilterDispatch, resetFilters, resetAllFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { ROUTES } from 'utils/systemConsts';
 
 import brandImage from 'utils/images/brand.svg';
@@ -33,28 +33,28 @@ const ROUTES_CONFIG = [
 		path: ROUTES.APPLICATIONS,
 		component: Applications,
         icon: ICON_NAMES.APPLICATION,
-        resetFilter: FILTERR_TYPES.APPLICATIONS,
+        resetFilter: FILTER_TYPES.APPLICATIONS,
         title: "Applications"
 	},
     {
 		path: ROUTES.APPLICATION_RESOURCES,
 		component: ApplicationResources,
         icon: ICON_NAMES.RESOURCE,
-        resetFilter: FILTERR_TYPES.APPLICATION_RESOURCES,
+        resetFilter: FILTER_TYPES.APPLICATION_RESOURCES,
         title: "Applications Resources"
 	},
     {
 		path: ROUTES.PACKAGES,
 		component: Packages,
         icon: ICON_NAMES.PACKAGE,
-        resetFilter: FILTERR_TYPES.PACKAGES,
+        resetFilter: FILTER_TYPES.PACKAGES,
         title: "Packages"
 	},
     {
 		path: ROUTES.VULNERABILITIES,
 		component: Vulnerabilities,
         icon: ICON_NAMES.VULNERABILITY,
-        resetFilter: FILTERR_TYPES.VULNERABILITIES,
+        resetFilter: FILTER_TYPES.VULNERABILITIES,
         title: "Vulnerabilities"
 	},
     {

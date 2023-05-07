@@ -1,4 +1,4 @@
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { OPERATORS } from 'components/Filter';
 import InnerAppLink from 'components/InnerAppLink';
 import VulnerabilitiesSummaryDisplay from 'components/VulnerabilitiesSummaryDisplay';
@@ -18,7 +18,7 @@ export const VulnerabilitiesLink = ({vulnerabilities, id, packageVersion, packag
     ];
 
     const onClick = () => {
-        setFilters(filtersDispatch, {type: FILTERR_TYPES.VULNERABILITIES, filters: filterData, isSystem: false});
+        setFilters(filtersDispatch, {type: FILTER_TYPES.VULNERABILITIES, filters: filterData, isSystem: false});
     }
 
     return (

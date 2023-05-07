@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import VulnerabilitiesSummaryDisplay from 'components/VulnerabilitiesSummaryDisplay';
 import { TooltipWrapper } from 'components/Tooltip';
 import { OPERATORS } from 'components/Filter';
-import { FILTERR_TYPES } from 'context/FiltersProvider';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import { useFilterDispatch, setFilters } from 'context/FiltersProvider';
 import { setVulnerabilitiesSystemFilters } from 'layout/Vulnerabilities';
 import { ROUTES } from 'utils/systemConsts';
@@ -63,7 +63,7 @@ const TopVulnerabilitiesWidget = ({data}) => {
                         
                         const onItemClick = () => {
                             if (!!getCustomFilterData) {
-                                setFilters(filtersDispatch, {type: FILTERR_TYPES.VULNERABILITIES, filters: getCustomFilterData(item), isSystem: false});
+                                setFilters(filtersDispatch, {type: FILTER_TYPES.VULNERABILITIES, filters: getCustomFilterData(item), isSystem: false});
                             } else {
                                 setVulnerabilitiesSystemFilters(filtersDispatch, {[systemFilter]: item.id, title: <span>{`${filterTitle}: `}<BoldText>{title}</BoldText></span>});
                             }

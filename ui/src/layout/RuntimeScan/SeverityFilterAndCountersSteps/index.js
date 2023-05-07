@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFetch, usePrevious } from 'hooks';
 import { components } from 'react-select';
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import { OPERATORS } from 'components/Filter';
 import Button from 'components/Button';
@@ -14,14 +14,14 @@ import StepDisplay from '../StepDisplay';
 import './severity-filter-and-counters-steps.scss';
 
 const CIS_LINKS_DISPLAY_MAP = [
-    {title: "Applications", dataKey: "applications", route: ROUTES.APPLICATIONS, filter: FILTERR_TYPES.APPLICATIONS},
-    {title: "Application Resources", dataKey: "resources", route: ROUTES.APPLICATION_RESOURCES, filter: FILTERR_TYPES.APPLICATION_RESOURCES}
+    {title: "Applications", dataKey: "applications", route: ROUTES.APPLICATIONS, filter: FILTER_TYPES.APPLICATIONS},
+    {title: "Application Resources", dataKey: "resources", route: ROUTES.APPLICATION_RESOURCES, filter: FILTER_TYPES.APPLICATION_RESOURCES}
 ];
 
 const LINKS_DISPLAY_MAP = [
     ...CIS_LINKS_DISPLAY_MAP,
-    {title: "Packages", dataKey: "packages", route: ROUTES.PACKAGES, filter: FILTERR_TYPES.PACKAGES},
-    {title: "Vulnerabilities", dataKey: "vulnerabilities", route: ROUTES.VULNERABILITIES, filter: FILTERR_TYPES.VULNERABILITIES}
+    {title: "Packages", dataKey: "packages", route: ROUTES.PACKAGES, filter: FILTER_TYPES.PACKAGES},
+    {title: "Vulnerabilities", dataKey: "vulnerabilities", route: ROUTES.VULNERABILITIES, filter: FILTER_TYPES.VULNERABILITIES}
 ];
 
 const FILTER_TYPE_ITEMS = {
