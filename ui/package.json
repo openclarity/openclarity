@@ -21,7 +21,8 @@
     "spinners-react": "^1.0.6"
   },
   "overrides": {
-    "nth-check": "^2.0.1"
+    "nth-check": "^2.0.1",
+    "webpack": "^5.76.0"
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP='false' react-scripts start",
