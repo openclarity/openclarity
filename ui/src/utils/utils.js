@@ -148,14 +148,14 @@ export const scanColumnsFiltersConfig = [
 ]
 
 export const getAssetColumnsFiltersConfig = (props) => {
-    const {prefix="targetInfo", withType=true} = props || {};
+    const {prefix="targetInfo", withType=true, withLabels=true} = props || {};
     
     const ASSET_TYPE_ITEMS = [
         {value: "VMInfo", label: "VMInfo"},
         {value: "PodInfo", label: "PodInfo"},
         {value: "DirInfo", label: "DirInfo"}
     ]
-
+    
     return [
         {value: `${prefix}.instanceID`, label: "Asset name", operators: [
             {...OPERATORS.eq, valueItems: [], creatable: true},
@@ -164,6 +164,9 @@ export const getAssetColumnsFiltersConfig = (props) => {
             {...OPERATORS.endswith},
             {...OPERATORS.contains, valueItems: [], creatable: true}
         ]},
+        ...(!withLabels ? [] : [{value: `${prefix}.tags`, label: "Labels", operators: [
+            {...OPERATORS.contains, valueItems: [], creatable: true}
+        ]}]),
         ...(!withType ? [] : [{value: `${prefix}.objectType`, label: "Asset type", operators: [
             {...OPERATORS.eq, valueItems: ASSET_TYPE_ITEMS},
             {...OPERATORS.ne, valueItems: ASSET_TYPE_ITEMS}
@@ -201,3 +204,5 @@ export const getScanScopeColumnFiltersConfig = (scopePrefix="scope") => {
         ]}
     ]
 }
+
+export const formatTagsToStringsList = tags => tags?.map(({key, value}) => `${key}=${value}`);

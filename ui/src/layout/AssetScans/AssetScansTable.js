@@ -74,7 +74,7 @@ const AssetScansTable = () => {
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSET_SCANS}
             filtersConfig={[
-                ...getAssetColumnsFiltersConfig({prefix: "target.targetInfo"}),
+                ...getAssetColumnsFiltersConfig({prefix: "target.targetInfo", withLabels: false}),
                 ...scanColumnsFiltersConfig,
                 {value: "status.general.state", label: "Scan status", operators: [
                     {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUSES},

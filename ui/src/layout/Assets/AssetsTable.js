@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import TablePage from 'components/TablePage';
+import ExpandableList from 'components/ExpandableList';
 import { APIS } from 'utils/systemConsts';
 import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, getAssetColumnsFiltersConfig,
-    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig } from 'utils/utils';
+    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, formatTagsToStringsList } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 
 const TABLE_TITLE = "assets";
@@ -16,6 +17,19 @@ const AssetsTable = () => {
             id: "instanceID",
             sortIds: ["targetInfo.instanceID"],
             accessor: "targetInfo.instanceID"
+        },
+        {
+            Header: "Labels",
+            id: "tags",
+            sortIds: ["targetInfo.tags"],
+            Cell: ({row}) => {
+                const {tags} = row.original.targetInfo;
+                
+                return (
+                    <ExpandableList items={formatTagsToStringsList(tags)} withTagWrap />
+                )
+            },
+            alignToTop: true
         },
         {
             Header: "Type",
@@ -41,6 +55,7 @@ const AssetsTable = () => {
             filterType={FILTER_TYPES.ASSETS}
             filtersConfig={[
                 ...getAssetColumnsFiltersConfig(),
+                
                 ...vulnerabilitiesCountersColumnsFiltersConfig,
                 ...findingsColumnsFiltersConfig
             ]}
