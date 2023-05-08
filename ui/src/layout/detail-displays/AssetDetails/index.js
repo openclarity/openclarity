@@ -6,8 +6,9 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import Button from 'components/Button';
 import Loader from 'components/Loader';
+import { TagsList } from 'components/Tag';
 import { ROUTES, APIS } from 'utils/systemConsts';
-import { formatNumber } from 'utils/utils';
+import { formatNumber, formatDate, formatTagsToStringsList } from 'utils/utils';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
 const AssetScansDisplay = ({assetName, targetId}) => {
@@ -51,7 +52,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
     const navigate = useNavigate();
 
     const {id, targetInfo} = assetData;
-    const {instanceID, objectType, location} = targetInfo || {};
+    const {instanceID, objectType, location, tags, image, instanceType, platform, launchTime} = targetInfo || {};
     
     return (
         <DoublePaneDisplay
@@ -64,6 +65,17 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Location">{location}</TitleValueDisplay>
+                    </TitleValueDisplayRow>
+                    <TitleValueDisplayRow>
+                        <TitleValueDisplay title="Labels"><TagsList items={formatTagsToStringsList(tags)} /></TitleValueDisplay>
+                    </TitleValueDisplayRow>
+                    <TitleValueDisplayRow>
+                        <TitleValueDisplay title="Image">{image}</TitleValueDisplay>
+                        <TitleValueDisplay title="Instance type">{instanceType}</TitleValueDisplay>
+                    </TitleValueDisplayRow>
+                    <TitleValueDisplayRow>
+                        <TitleValueDisplay title="Platform">{platform}</TitleValueDisplay>
+                        <TitleValueDisplay title="Launch time">{formatDate(launchTime)}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>
             )}

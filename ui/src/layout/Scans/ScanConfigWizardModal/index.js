@@ -3,7 +3,8 @@ import { isEmpty } from 'lodash';
 import { FETCH_METHODS } from 'hooks';
 import WizardModal from 'components/WizardModal';
 import { APIS } from 'utils/systemConsts';
-import { formatStringInstancesToTags, formatTagsToStringInstances } from '../utils';
+import { formatTagsToStringsList } from 'utils/utils';
+import { formatStringInstancesToTags } from '../utils';
 import StepGeneralProperties, { REGIONS_EMPTY_VALUE, VPCS_EMPTY_VALUE, SCOPE_ITEMS } from './StepGeneralProperties';
 import StepScanTypes from './StepScanTypes';
 import StepTimeConfiguration, { SCHEDULE_TYPES_ITEMS, CRON_QUICK_OPTIONS } from './StepTimeConfiguration';
@@ -28,8 +29,8 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             scopeSelect: (!regions || allRegions) ? SCOPE_ITEMS.ALL.value : SCOPE_ITEMS.DEFINED.value,
             regions: REGIONS_EMPTY_VALUE,
             shouldScanStoppedInstances: shouldScanStoppedInstances || false,
-            instanceTagSelector: formatTagsToStringInstances(instanceTagSelector || []),
-            instanceTagExclusion: formatTagsToStringInstances(instanceTagExclusion || [])
+            instanceTagSelector: formatTagsToStringsList(instanceTagSelector || []),
+            instanceTagExclusion: formatTagsToStringsList(instanceTagExclusion || [])
         },
         scanFamiliesConfig: {
             sbom: {enabled: true},

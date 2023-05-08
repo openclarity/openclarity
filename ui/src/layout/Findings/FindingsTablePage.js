@@ -47,7 +47,7 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
                 filterType={filterType}
                 filtersConfig={[
                     ...filtersConfig,
-                    ...getAssetColumnsFiltersConfig({prefix: "asset.targetInfo", withType: false}),
+                    ...getAssetColumnsFiltersConfig({prefix: "asset.targetInfo", withType: false, withLabels: false}),
                     ...scanColumnsFiltersConfig,
                     {value: "foundOn", label: "Found on", isDate: true, operators: [
                         {...OPERATORS.ge},

@@ -11,8 +11,6 @@ export const formatStringInstancesToTags = items => items.map(item => {
     return {key, value};
 });
 
-export const formatTagsToStringInstances = tags => tags?.map(({key, value}) => `${key}=${value}`);
-
 export const formatRegionsToStrings = regions => {
     const SEPARATOR = "/";
     
