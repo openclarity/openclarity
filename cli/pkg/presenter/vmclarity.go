@@ -268,7 +268,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 	if scanResult.Status == nil {
 		scanResult.Status = &models.TargetScanStatus{}
 	}
-	if scanResult.Status.Exploits == nil {
+	if scanResult.Status.Misconfigurations == nil {
 		scanResult.Status.Misconfigurations = &models.TargetScanState{}
 	}
 	if scanResult.Summary == nil {
