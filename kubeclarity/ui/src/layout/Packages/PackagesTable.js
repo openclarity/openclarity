@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TablePage from 'components/TablePage';
 import { OPERATORS } from 'components/Filter';
-import { useFilterDispatch, resetFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, resetFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { SEVERITY_ITEMS } from 'utils/systemConsts';
 import { VulnerabilitiesLink, ApplicationsLink, ApplicationResourcesLink } from './utils';
 
@@ -75,13 +75,13 @@ const PackagesTable = () => {
     const filtersDispatch = useFilterDispatch();
 
     useEffect(() => {
-        resetFilters(filtersDispatch, FILTERR_TYPES.PACKAGE_RESOURCES);
+        resetFilters(filtersDispatch, FILTER_TYPES.PACKAGE_RESOURCES);
     }, [filtersDispatch]);
 
     return (
         <TablePage
             columns={columns}
-            filterType={FILTERR_TYPES.PACKAGES}
+            filterType={FILTER_TYPES.PACKAGES}
             filtersMap={{
                 packageName: {value: "packageName", label: "Package name", operators: [
                     {...OPERATORS.is, valueItems: [], creatable: true},

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import TablePage from 'components/TablePage';
 import { OPERATORS } from 'components/Filter';
 import VerticalItemsList from 'components/VerticalItemsList';
-import { FILTERR_TYPES } from 'context/FiltersProvider';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
 import { SEVERITY_ITEMS, CIS_SEVERITY_ITEMS } from 'utils/systemConsts';
 import { RESOURCE_TYPES, VulnerabilitiesLink, PackagesLink, ApplicationsLink } from './utils';
@@ -90,7 +90,7 @@ const ApplicationResourcesTable = () => {
     return (
         <TablePage
             columns={columns}
-            filterType={FILTERR_TYPES.APPLICATION_RESOURCES}
+            filterType={FILTER_TYPES.APPLICATION_RESOURCES}
             filtersMap={{
                 resourceName: {value: "resourceName", label: "Resource name", operators: [
                     {...OPERATORS.is, valueItems: [], creatable: true},
