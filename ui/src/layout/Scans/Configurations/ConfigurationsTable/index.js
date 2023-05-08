@@ -6,9 +6,9 @@ import EmptyDisplay from 'components/EmptyDisplay';
 import ExpandableList from 'components/ExpandableList';
 import TablePage from 'components/TablePage';
 import { OPERATORS } from 'components/Filter';
-import { BoldText, toCapitalized, formatDate, getScanScopeColumnFiltersConfig } from 'utils/utils';
+import { BoldText, toCapitalized, formatDate, getScanScopeColumnFiltersConfig, formatTagsToStringsList } from 'utils/utils';
 import { APIS } from 'utils/systemConsts';
-import { formatTagsToStringInstances, getScanTimeTypeTag } from 'layout/Scans/utils';
+import { getScanTimeTypeTag } from 'layout/Scans/utils';
 import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
 import { useModalDisplayDispatch, MODAL_DISPLAY_ACTIONS } from 'layout/Scans/ScanConfigWizardModal/ModalDisplayProvider';
 import { FILTER_TYPES } from 'context/FiltersProvider';
@@ -67,7 +67,7 @@ const ConfigurationsTable = () => {
                 const {instanceTagExclusion} = row.original.scope;
                 
                 return (
-                    <ExpandableList items={formatTagsToStringInstances(instanceTagExclusion)} withTagWrap />
+                    <ExpandableList items={formatTagsToStringsList(instanceTagExclusion)} withTagWrap />
                 )
             },
             alignToTop: true
@@ -80,7 +80,7 @@ const ConfigurationsTable = () => {
                 const {instanceTagSelector} = row.original.scope;
                 
                 return (
-                    <ExpandableList items={formatTagsToStringInstances(instanceTagSelector)} withTagWrap />
+                    <ExpandableList items={formatTagsToStringsList(instanceTagSelector)} withTagWrap />
                 )
             },
             alignToTop: true

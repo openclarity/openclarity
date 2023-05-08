@@ -1,12 +1,12 @@
 import React from 'react';
 import TitleValueDisplay, { ValuesListDisplay } from 'components/TitleValueDisplay';
 import { TagsList } from 'components/Tag';
-import { formatTagsToStringInstances, getEnabledScanTypesList, getScanTimeTypeTag } from 'layout/Scans/utils';
-import { cronExpressionToHuman, formatDate } from 'utils/utils';
+import { getEnabledScanTypesList, getScanTimeTypeTag } from 'layout/Scans/utils';
+import { cronExpressionToHuman, formatDate, formatTagsToStringsList } from 'utils/utils';
 import { ScopeDisplay } from './scopeDisplayUtils';
 
 const InstancesDisplay = ({tags}) => (
-    <TagsList items={formatTagsToStringInstances(tags)} />
+    <TagsList items={formatTagsToStringsList(tags)} />
 )
 
 const FlagPropDisplay = ({checked, label}) => <div style={{marginBottom: "20px"}}>{`${label} ${checked ? "enabled" : "disabled"}`}</div> 
