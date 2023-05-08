@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import { TooltipWrapper } from 'components/Tooltip';
 import { OPERATORS } from 'components/Filter';
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { SEVERITY_ITEMS, ROUTES } from 'utils/systemConsts';
 import WidgetWrapper from '../WidgetWrapper';
 
@@ -56,7 +56,7 @@ const FixableVulnerabilitiesWidget = ({data}) => {
             }
         }
 
-        setFilters(filtersDispatch, {type: FILTERR_TYPES.VULNERABILITIES, filters: filtersData});
+        setFilters(filtersDispatch, {type: FILTER_TYPES.VULNERABILITIES, filters: filtersData});
         navigate(ROUTES.VULNERABILITIES);
     }
 

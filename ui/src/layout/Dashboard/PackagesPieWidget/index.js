@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 import { orderBy, isEmpty } from 'lodash';
 import { PieChart, Pie, Cell } from 'recharts';
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { OPERATORS } from 'components/Filter';
 import { ROUTES } from 'utils/systemConsts';
 import WidgetWrapper from '../WidgetWrapper';
@@ -70,7 +70,7 @@ const PackagesPieWidget = ({data, itemTitleKey, filterName}) => {
     const onLegendItemClick = ({name, filterNamesNot}) => {
         const isIsNotFilter = !isEmpty(filterNamesNot);
         
-        setFilters(filtersDispatch, {type: FILTERR_TYPES.PACKAGES, filters: [{
+        setFilters(filtersDispatch, {type: FILTER_TYPES.PACKAGES, filters: [{
             scope: filterName,
             operator: isIsNotFilter ? OPERATORS.isNot.value : OPERATORS.is.value,
             value: isIsNotFilter ? filterNamesNot : [name]

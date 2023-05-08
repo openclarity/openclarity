@@ -11,7 +11,7 @@ import Modal from 'components/Modal';
 import { TooltipWrapper } from 'components/Tooltip';
 import { LabelsDisplay } from 'components/LabelTag';
 import { CisBenchmarkLevelsDisplay } from 'components/VulnerabilitiesSummaryDisplay';
-import { FILTERR_TYPES } from 'context/FiltersProvider';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import { SEVERITY_ITEMS, CIS_SEVERITY_ITEMS } from 'utils/systemConsts';
 import { APPLICATION_TYPE_ITEMS, VulnerabilitiesLink, PackagesLink, ApplicationResourcesLink } from './utils';
 import ApplicationForm, { APP_FIELD_NAMES } from './ApplicationForm';
@@ -160,7 +160,7 @@ const ApplicationsTable = () => {
             </TableHeaderPortal>
             <TablePage
                 columns={columns}
-                filterType={FILTERR_TYPES.APPLICATIONS}
+                filterType={FILTER_TYPES.APPLICATIONS}
                 filtersMap={{
                     applicationName: {value: "applicationName", label: "Application name", operators: [
                         {...OPERATORS.is, valueItems: [], creatable: true},

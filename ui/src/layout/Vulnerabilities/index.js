@@ -3,14 +3,14 @@ import ListAndDetailsRouter from 'components/ListAndDetailsRouter';
 import InnerAppLink from 'components/InnerAppLink';
 import VulnerabilitiesSummaryDisplay from 'components/VulnerabilitiesSummaryDisplay';
 import { ROUTES } from 'utils/systemConsts';
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import VulnerabilitiesTable from './VulnerabilitiesTable';
 import VulnerabilityDetails from './VulnerabilityDetails';
 
 import './vulnerabilities.scss'
 
 export const setVulnerabilitiesSystemFilters = (filtersDispatch, {applicationID, applicationResourceID, packageID, title}) => (
-    setFilters(filtersDispatch, {type: FILTERR_TYPES.VULNERABILITIES, filters: {applicationID, applicationResourceID, packageID, title}, isSystem: true})
+    setFilters(filtersDispatch, {type: FILTER_TYPES.VULNERABILITIES, filters: {applicationID, applicationResourceID, packageID, title}, isSystem: true})
 )
 
 export const VulnerabilitiesLink = ({id, vulnerabilities, title, applicationID, applicationResourceID, packageID}) => {

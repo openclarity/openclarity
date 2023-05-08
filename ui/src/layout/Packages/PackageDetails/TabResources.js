@@ -3,14 +3,14 @@ import Table from 'components/Table';
 import InnerAppLink from 'components/InnerAppLink';
 import Filter, { OPERATORS, formatFiltersToQueryParams } from 'components/Filter';
 import VerticalItemsList from 'components/VerticalItemsList';
-import { useFilterState, useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterState, useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { ROUTES } from 'utils/systemConsts';
 
 const TABLE_TITLE = "Application Resources";
 
 const TabResources = ({id, refreshTimestamp}) => {
     const filtersState = useFilterState();
-    const {tableFilters: filters} = filtersState[FILTERR_TYPES.PACKAGE_RESOURCES];
+    const {tableFilters: filters} = filtersState[FILTER_TYPES.PACKAGE_RESOURCES];
     const filtersDispatch = useFilterDispatch();
 
     const columns = useMemo(() => [
@@ -28,7 +28,7 @@ const TabResources = ({id, refreshTimestamp}) => {
                 return (
                     <InnerAppLink pathname={ROUTES.APPLICATION_RESOURCES} onClick={() => {
                         setFilters(filtersDispatch, {
-                            type: FILTERR_TYPES.APPLICATION_RESOURCES,
+                            type: FILTER_TYPES.APPLICATION_RESOURCES,
                             filters: [{scope: "resourceHash", operator: OPERATORS.is.value, value: [resourceHash]}]
                         });
                     }}>{resourceHash}</InnerAppLink>
@@ -48,7 +48,7 @@ const TabResources = ({id, refreshTimestamp}) => {
         <div className="package-tab-resources">
             <Filter
                 filters={filters}
-                onFilterUpdate={filters => setFilters(filtersDispatch, {type: FILTERR_TYPES.PACKAGE_RESOURCES, filters, isSystem: false})}
+                onFilterUpdate={filters => setFilters(filtersDispatch, {type: FILTER_TYPES.PACKAGE_RESOURCES, filters, isSystem: false})}
                 filtersMap={{
                     resourceName: {value: "resourceName", label: "Resource name", operators: [
                         {...OPERATORS.is, valueItems: [], creatable: true},

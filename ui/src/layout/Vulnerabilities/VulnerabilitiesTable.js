@@ -5,7 +5,7 @@ import { OPERATORS } from 'components/Filter';
 import VerticalItemsList from 'components/VerticalItemsList';
 import SeverityTag from 'components/SeverityTag';
 import InfoIcon from 'components/InfoIcon';
-import { FILTERR_TYPES } from 'context/FiltersProvider';
+import { FILTER_TYPES } from 'context/FiltersProvider';
 import { SEVERITY_ITEMS } from 'utils/systemConsts';
 import { PackagesLink, ApplicationsLink, ApplicationResourcesLink, CvssScoreMessage } from './utils';
 
@@ -115,7 +115,7 @@ const VulnerabilitiesTable = () => {
     return (
         <TablePage
             columns={columns}
-            filterType={FILTERR_TYPES.VULNERABILITIES}
+            filterType={FILTER_TYPES.VULNERABILITIES}
             filtersMap={{
                 vulnerabilityName: {value: "vulnerabilityName", label: "Vulnerability name", operators: [
                     {...OPERATORS.is, valueItems: [], creatable: true},

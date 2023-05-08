@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect } from 'react';
 import classnames from 'classnames';
-import { isEmpty, isEqual, pickBy, isNull } from 'lodash';
+import { isEmpty, isEqual, pickBy, isNull, isUndefined } from 'lodash';
 import { useTable, usePagination, useSortBy, useResizeColumns, useFlexLayout, useRowSelect } from 'react-table';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import Loader from 'components/Loader';
@@ -38,9 +38,9 @@ const RowSelectCheckbox = React.memo(
 );
 
 const Table = props => {
-    const {columns, defaultSortBy: defaultSortByItems, onLineClick, paginationItemsName, url, formatFetchedData, filters,
+    const {columns, defaultSortBy: defaultSortByItems, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
         noResultsTitle="API", refreshTimestamp, withPagination=true, data: externalData, withMultiSelect=false, onRowSelect,
-        markedRowIds=[], actionsComponent: ActionsComponent} = props;
+        onPageChange, markedRowIds=[], actionsComponent: ActionsComponent} = props;
 
     const defaultSortBy = useMemo(() => defaultSortByItems || [], [defaultSortByItems]);
     const defaultColumn = React.useMemo(() => ({
@@ -78,7 +78,7 @@ const Table = props => {
             data: tableItems,
             defaultColumn,
             initialState: {
-                pageIndex: 0,
+                pageIndex: defaultPageIndex,
                 pageSize: 50,
                 sortBy: defaultSortBy,
                 selectedRowIds: {}
@@ -146,10 +146,18 @@ const Table = props => {
         }
     );
 
+    const updatePage = useCallback(pageIndex => {
+        if (!!onPageChange) {
+            onPageChange(pageIndex);
+        }
+
+        gotoPage(pageIndex);
+    }, [gotoPage, onPageChange]);
+
     const {id: sortKey, desc: sortDesc} = !isEmpty(sortBy) ? sortBy[0] : {};
     const cleanFilters = pickBy(filters, value => !isNull(value) && value !== "");
     const prevCleanFilters = usePrevious(cleanFilters);
-    const filtersChanged = !isEqual(cleanFilters, prevCleanFilters);
+    const filtersChanged = !isEqual(cleanFilters, prevCleanFilters) && !isUndefined(prevCleanFilters);
     const prevPageIndex = usePrevious(pageIndex);
     const prevSortKey = usePrevious(sortKey);
     const prevSortDesc = usePrevious(sortDesc);
@@ -188,7 +196,7 @@ const Table = props => {
         }
 
         if (filtersChanged && pageIndex !== 0) {
-            gotoPage(0);
+            updatePage(0);
 
             return;
         }
@@ -196,7 +204,7 @@ const Table = props => {
         if (!!url) {
             doFetchWithQueryParams();
         }
-    }, [filtersChanged, pageIndex, prevPageIndex, doFetchWithQueryParams, gotoPage, sortingChanged, refreshTimestamp, prevRefreshTimestamp, url]);
+    }, [filtersChanged, pageIndex, prevPageIndex, doFetchWithQueryParams, updatePage, sortingChanged, refreshTimestamp, prevRefreshTimestamp, url]);
 
     const selectedRows = Object.keys(selectedRowIds);
     const prevSelectedRows = usePrevious(selectedRows);
@@ -221,7 +229,7 @@ const Table = props => {
                     pageIndex={pageIndex}
                     pageSize={pageSize}
                     displayName={paginationItemsName}
-                    gotoPage={gotoPage}
+                    gotoPage={updatePage}
                     loading={loading}
                     total={total}
                     page={page}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFilterDispatch, setFilters, FILTERR_TYPES } from 'context/FiltersProvider';
+import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 import { OPERATORS } from 'components/Filter';
 import InnerAppLink from 'components/InnerAppLink';
 import { ROUTES, SEVERITY_ITEMS } from 'utils/systemConsts';
@@ -16,7 +16,7 @@ export const PackagesLink = ({packageVersion, packageName}) => {
     ];
 
     const onClick = () => {
-        setFilters(filtersDispatch, {type: FILTERR_TYPES.PACKAGES, filters: filterData, isSystem: false});
+        setFilters(filtersDispatch, {type: FILTER_TYPES.PACKAGES, filters: filterData, isSystem: false});
     }
 
     return (
