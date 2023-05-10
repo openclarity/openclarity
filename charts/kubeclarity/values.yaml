@@ -119,6 +119,7 @@ kubeclarity-runtime-scan:
     sidecar.istio.io/inject: "false"
 
   ## Scanner jobs namespace.
+  # If left blank, the scanner jobs will run in the same namespace as pod being scanned.
   # If set, the scanner jobs will run in the given namespace unless:
   # 1. The scanner job must run in the pod namespace to fetch image pull secrets, OR
   # 2. The scanner job must run in the release namespace to fetch service credentials (more info in https://github.com/openclarity/kubeclarity#private-registries-support-for-k8s-runtime-scan)
