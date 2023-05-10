@@ -284,19 +284,25 @@ func (s *Scanner) createJob(data *scanData) (*batchv1.Job, error) {
 		removeCISDockerBenchmarkScannerFromJob(job)
 	}
 	job.SetName(jobName)
-	job.SetNamespace(podContext.namespace)
+	if job.Namespace == "" {
+		// Set job namespace to pod namespace if not set in the template.
+		// May be overridden later if support for image pull secrets or SA credentials is needed.
+		job.SetNamespace(podContext.namespace)
+	}
 	setJobScanUUID(job, data.scanUUID)
 	setJobImageIDToScan(job, data.imageID)
 	setJobImageHashToScan(job, data.imageHash)
 	setJobImageNameToScan(job, podContext.imageName)
 
 	if len(podContext.imagePullSecrets) > 0 {
+		// Job must run on pod namespace to be able to mount image pull secrets.
+		job.SetNamespace(podContext.namespace)
 		for _, secretName := range podContext.imagePullSecrets {
 			addJobImagePullSecretVolume(job, secretName)
 		}
 		setJobImagePullSecretPath(job)
 	} else {
-		// Use private repo sa credentials only if there is no imagePullSecret
+		// Use private repo sa credentials only if there is no imagePullSecret.
 		for _, adder := range s.credentialAdders {
 			if adder.ShouldAdd() {
 				adder.Add(job)

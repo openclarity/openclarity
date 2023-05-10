@@ -734,10 +734,114 @@ spec:
             cpu: "1000m"
 `)
 
+var testScannerJobTemplateWithNamespaceSet = []byte(`apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: test
+  labels:
+    app: scanner
+    sidecar.istio.io/inject: "false"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+     labels:
+      app: scanner
+      sidecar.istio.io/inject: "false"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: vulnerability-scanner
+        image: TBD
+        args:
+        - scan
+        env:
+        - name: REGISTRY_INSECURE
+          value: "false"
+        - name: RESULT_SERVICE_HOST
+          value: kubeclarity.kubeclarity
+        - name: RESULT_SERVICE_PORT
+          value: 8888
+        securityContext:
+          capabilities:
+            drop:
+            - all
+          runAsNonRoot: true
+          runAsGroup: 1001
+          runAsUser: 1001
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        resources:
+          requests:
+           memory: "50Mi"
+           cpu: "50m"
+          limits:
+            memory: "1000Mi"
+            cpu: "1000m"
+`)
+
 var expectedScannerJobTemplate = []byte(`apiVersion: batch/v1
 kind: Job
 metadata:
   namespace: namespace
+  labels:
+    app: scanner
+    sidecar.istio.io/inject: "false"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+     labels:
+      app: scanner
+      sidecar.istio.io/inject: "false"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: vulnerability-scanner
+        image: TBD
+        args:
+        - scan
+        env:
+        - name: REGISTRY_INSECURE
+          value: "false"
+        - name: RESULT_SERVICE_HOST
+          value: kubeclarity.kubeclarity
+        - name: RESULT_SERVICE_PORT
+          value: 8888
+        - name: SCAN_UUID
+          value: "scanUUID"
+        - name: IMAGE_ID_TO_SCAN
+          value: "image-id"
+        - name: IMAGE_HASH_TO_SCAN
+          value: "image-hash"
+        - name: IMAGE_NAME_TO_SCAN
+          value: "image-name"
+        securityContext:
+          capabilities:
+            drop:
+            - all
+          runAsNonRoot: true
+          runAsGroup: 1001
+          runAsUser: 1001
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        resources:
+          requests:
+           memory: "50Mi"
+           cpu: "50m"
+          limits:
+            memory: "1000Mi"
+            cpu: "1000m"
+`)
+
+var expectedScannerJobTemplateWithNamespaceSet = []byte(`apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: test
   labels:
     app: scanner
     sidecar.istio.io/inject: "false"
@@ -924,6 +1028,14 @@ func TestScanner_createJob(t *testing.T) {
 	err = yaml.Unmarshal(expectedScannerJobTemplate, &expectedScannerJob)
 	assert.NilError(t, err)
 
+	var scannerJobTemplateWithNamespaceSet batchv1.Job
+	err = yaml.Unmarshal(testScannerJobTemplateWithNamespaceSet, &scannerJobTemplateWithNamespaceSet)
+	assert.NilError(t, err)
+
+	var expectedScannerJobWithNamespaceSet batchv1.Job
+	err = yaml.Unmarshal(expectedScannerJobTemplateWithNamespaceSet, &expectedScannerJobWithNamespaceSet)
+	assert.NilError(t, err)
+
 	var expectedScannerJobWithImagePullSecret batchv1.Job
 	err = yaml.Unmarshal(expectedScannerJobTemplateWithImagePullSecret, &expectedScannerJobWithImagePullSecret)
 	assert.NilError(t, err)
@@ -1001,9 +1113,59 @@ func TestScanner_createJob(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "sanity with scanner namespace set without imagePullSecret",
+			fields: fields{
+				scannerJobTemplate: &scannerJobTemplateWithNamespaceSet,
+			},
+			args: args{
+				data: &scanData{
+					imageHash: "image-hash",
+					imageID:   "image-id",
+					contexts: []*imagePodContext{
+						{
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{},
+							imageName:        "image-name",
+							podUID:           "podUID",
+						},
+					},
+					scanUUID: "scanUUID",
+				},
+			},
+			want:    &expectedScannerJobWithNamespaceSet,
+			wantErr: false,
+		},
+		{
 			name: "sanity with imagePullSecret",
 			fields: fields{
 				scannerJobTemplate: &scannerJobTemplate,
+			},
+			args: args{
+				data: &scanData{
+					imageHash: "image-hash",
+					imageID:   "image-id",
+					contexts: []*imagePodContext{
+						{
+							containerName:    "containerName",
+							podName:          "podName",
+							namespace:        "namespace",
+							imagePullSecrets: []string{"imagePullSecret"},
+							imageName:        "image-name",
+							podUID:           "podUID",
+						},
+					},
+					scanUUID: "scanUUID",
+				},
+			},
+			want:    &expectedScannerJobWithImagePullSecret,
+			wantErr: false,
+		},
+		{
+			name: "sanity with scanner namespace set with imagePullSecret",
+			fields: fields{
+				scannerJobTemplate: &scannerJobTemplateWithNamespaceSet,
 			},
 			args: args{
 				data: &scanData{
