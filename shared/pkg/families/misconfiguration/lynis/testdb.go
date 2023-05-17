@@ -46,7 +46,7 @@ type TestDB struct {
 }
 
 func NewTestDB(logger *log.Entry, lynisInstallPath string) (*TestDB, error) {
-	tests, err := parseTestsFromDBFile(logger, lynisInstallPath)
+	tests, err := parseTestsFromInstallPath(logger, lynisInstallPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialise lynis test DB: %w", err)
 	}
@@ -68,24 +68,30 @@ func (a *TestDB) GetDescriptionForTestID(testid string) string {
 	return unknown
 }
 
-func parseTestsFromDBFile(logger *log.Entry, lynisInstallPath string) (testdb, error) {
-	output := testdb{}
-
+func parseTestsFromInstallPath(logger *log.Entry, lynisInstallPath string) (testdb, error) {
 	// Comes from the Lynis install:
 	// https://github.com/CISOfy/lynis/blob/master/db/tests.db
 	lynisDBPath := path.Join(lynisInstallPath, "db", "tests.db")
 	if _, err := os.Stat(lynisDBPath); err != nil {
-		return output, fmt.Errorf("failed to find DB @ %v: %w", lynisDBPath, err)
+		return nil, fmt.Errorf("failed to find DB @ %v: %w", lynisDBPath, err)
 	}
 
+	return parseTestsFromDBPath(logger, lynisDBPath)
+}
+
+func parseTestsFromDBPath(logger *log.Entry, lynisDBPath string) (testdb, error) {
 	db, err := os.Open(lynisDBPath)
 	if err != nil {
-		return output, fmt.Errorf("failed to open DB from path %v: %w", lynisDBPath, err)
+		return nil, fmt.Errorf("failed to open DB from path %v: %w", lynisDBPath, err)
 	}
 	defer db.Close()
-
 	scanner := bufio.NewScanner(db)
 
+	return parseTestsFromFileScanner(logger, scanner)
+}
+
+func parseTestsFromFileScanner(logger *log.Entry, scanner FileScanner) (testdb, error) {
+	output := testdb{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -113,7 +119,7 @@ func parseTestsFromDBFile(logger *log.Entry, lynisInstallPath string) (testdb, e
 	}
 
 	if err := scanner.Err(); err != nil {
-		return output, fmt.Errorf("failed to read lines from DB file: %w", err)
+		return nil, fmt.Errorf("failed to read lines from DB file: %w", err)
 	}
 
 	return output, nil
