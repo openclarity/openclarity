@@ -39,31 +39,37 @@ func NewReportParser(testdb *TestDB) *ReportParser {
 }
 
 func (a *ReportParser) ParseLynisReport(scanPath string, reportPath string) ([]types.Misconfiguration, error) {
-	output := []types.Misconfiguration{}
-
 	report, err := os.Open(reportPath)
 	if err != nil {
-		return output, fmt.Errorf("failed to open report file from path %v: %w", reportPath, err)
+		return nil, fmt.Errorf("failed to open report file from path %v: %w", reportPath, err)
 	}
 	defer report.Close()
 
 	scanner := bufio.NewScanner(report)
+	return a.scanLynisReportFile(scanPath, scanner)
+}
 
+type FileScanner interface {
+	Scan() bool
+	Text() string
+	Err() error
+}
+
+func (a *ReportParser) scanLynisReportFile(scanPath string, scanner FileScanner) ([]types.Misconfiguration, error) {
+	output := []types.Misconfiguration{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		isMisconfiguration, misconfiguration, err := a.parseLynisReportLine(scanPath, line)
 		if err != nil {
-			return output, fmt.Errorf("failed to parse report line %q: %w", line, err)
+			return nil, fmt.Errorf("failed to parse report line %q: %w", line, err)
 		}
 		if isMisconfiguration {
 			output = append(output, misconfiguration)
 		}
 	}
-
 	if err := scanner.Err(); err != nil {
-		return output, fmt.Errorf("failed to read lines for report: %w", err)
+		return nil, fmt.Errorf("failed to read lines for report: %w", err)
 	}
-
 	return output, nil
 }
 
