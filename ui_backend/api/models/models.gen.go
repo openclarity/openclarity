@@ -78,11 +78,10 @@ type ExploitFindingImpact struct {
 	Exploit             *Exploit `json:"exploit,omitempty"`
 }
 
-// FindingTrend Represents the total number of findings in the time slot (between startTime and endTime).
+// FindingTrend Represents the total number of findings at a specific time
 type FindingTrend struct {
-	Count     *int       `json:"count,omitempty"`
-	EndTime   *time.Time `json:"endTime,omitempty"`
-	StartTime *time.Time `json:"startTime,omitempty"`
+	Count *int       `json:"count,omitempty"`
+	Time  *time.Time `json:"time,omitempty"`
 }
 
 // FindingTrends List of the total number of findings per time slot for the specific findingType.
