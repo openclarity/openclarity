@@ -47,21 +47,21 @@ const TIME_RANGES = {
     }
 }
 
-const TooltipHeader = ({data}) => (<div>{data.formattedEndTime}</div>)
+const TooltipHeader = ({data}) => (<div>{data.formattedTime}</div>)
 
 const WidgetChart = ({data, selectedFilters}) => {
     const formattedData = data?.reduce((acc, curr) => {
         const {findingType, trends} = curr;
 
-        trends.forEach(({endTime, count}) => {
-            const accEndTimeIndex = acc.findIndex(({endTime: accEndTime}) => endTime === accEndTime);
-            const formattedEndTime = formatDate(endTime);
+        trends.forEach(({time, count}) => {
+            const accTimeIndex = acc.findIndex(({time: accTime}) => time === accTime);
+            const formattedTime = formatDate(time);
             
-            acc = accEndTimeIndex < 0 ? [...acc, {endTime, formattedEndTime, [findingType]: count}] :
+            acc = accTimeIndex < 0 ? [...acc, {time, formattedTime, [findingType]: count}] :
                 [
-                    ...acc.slice(0, accEndTimeIndex),
-                    {...acc[accEndTimeIndex], [findingType]: count},
-                    ...acc.slice(accEndTimeIndex + 1)
+                    ...acc.slice(0, accTimeIndex),
+                    {...acc[accTimeIndex], [findingType]: count},
+                    ...acc.slice(accTimeIndex + 1)
                 ];
         });
 
@@ -73,7 +73,7 @@ const WidgetChart = ({data, selectedFilters}) => {
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={formattedData} margin={{top: 5, right: 0, left: 0, bottom: 60}}>
                     <CartesianGrid vertical={false} style={{stroke: COLORS["color-grey-lighter"]}}/>
-                    <XAxis dataKey="formattedEndTime" tick={{fill: COLORS["color-grey"]}} style={{fontSize: "12px"}} />
+                    <XAxis dataKey="formattedTime" tick={{fill: COLORS["color-grey"]}} style={{fontSize: "12px"}} />
                     <YAxis tick={{fill: COLORS["color-grey"]}} style={{fontSize: "12px"}} />
                     <Tooltip
                         content={props => <ChartTooltip {...props} widgetFindings={WIDGET_FINDINGS_ITEMS} headerDisplay={TooltipHeader} countKeyName="typeKey" />}

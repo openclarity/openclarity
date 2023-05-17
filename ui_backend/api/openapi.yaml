@@ -355,13 +355,10 @@ components:
           readOnly: true
 
     FindingTrend:
-      description: Represents the total number of findings in the time slot (between startTime and endTime).
+      description: Represents the total number of findings at a specific time
       type: object
       properties:
-        startTime:
-          type: string
-          format: date-time
-        endTime:
+        time:
           type: string
           format: date-time
         count:
