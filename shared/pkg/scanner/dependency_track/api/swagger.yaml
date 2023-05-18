@@ -666,9 +666,11 @@ definitions:
       created:
         type: number
       published:
-        type: number
+        type: string
+        format: date-time
       updated:
-        type: number
+        type: string
+        format: date-time
       cwe:
         $ref: '#/definitions/Cwe'
       cvssV2BaseScore:
