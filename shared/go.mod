@@ -393,7 +393,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.19.0 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
+	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221020182949-4df8887994e8 // indirect
 	golang.org/x/crypto v0.8.0
 	k8s.io/api v0.26.3
