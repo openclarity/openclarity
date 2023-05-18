@@ -8,7 +8,7 @@ repository:
   description: KubeClarity is a tool for detection and management of Software Bill Of Materials (SBOM) and vulnerabilities of container images and filesystems
 
   # A URL with more information about the repository
-  homepage: https://www.portshift.io/blog/kubernetes-runtime-vulnerabilities-scanner-launch/
+  homepage: https://openclarity.io
 
   # Updates the default branch for this repository.
   default_branch: main
