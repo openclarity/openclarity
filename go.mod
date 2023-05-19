@@ -36,7 +36,7 @@ require (
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.10
 	gotest.tools/v3 v3.4.0
-	k8s.io/mount-utils v0.27.1
+	k8s.io/mount-utils v0.27.2
 )
 
 require (
