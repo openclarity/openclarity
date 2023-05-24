@@ -17,11 +17,14 @@ package state
 
 import (
 	"context"
+
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 type Manager interface {
 	WaitForVolumeAttachment(context.Context) error
 	MarkInProgress(context.Context) error
+	MarkFamilyScanInProgress(context.Context, types.FamilyType) error
 	MarkDone(context.Context, []error) error
 	IsAborted(ctx context.Context) (bool, error)
 }

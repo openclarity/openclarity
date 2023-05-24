@@ -27,7 +27,6 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
 	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
@@ -44,7 +43,30 @@ type VMClarityPresenter struct {
 	scanResultID models.ScanResultID
 }
 
-func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
+	var err error
+
+	switch res.FamilyType {
+	case types.SBOM:
+		err = v.ExportSbomResult(ctx, res)
+	case types.Vulnerabilities:
+		err = v.ExportVulResult(ctx, res)
+	case types.Secrets:
+		err = v.ExportSecretsResult(ctx, res)
+	case types.Exploits:
+		err = v.ExportExploitsResult(ctx, res)
+	case types.Misconfiguration:
+		err = v.ExportMisconfigurationResult(ctx, res)
+	case types.Rootkits:
+		err = v.ExportRootkitResult(ctx, res)
+	case types.Malware:
+		err = v.ExportMalwareResult(ctx, res)
+	}
+
+	return err
+}
+
+func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -62,12 +84,12 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res *results.
 
 	errs := []string{}
 
-	if err, ok := famerr[types.SBOM]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		sbomResults, err := results.GetResult[*sbom.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get sbom from scan: %w", err).Error())
+		sbomResults, ok := res.Result.(*sbom.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to sbom results").Error())
 		} else {
 			scanResult.Sboms = cliutils.ConvertSBOMResultToAPIModel(sbomResults)
 			if scanResult.Sboms.Packages != nil {
@@ -88,7 +110,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res *results.
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -106,12 +128,12 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res *results.R
 
 	errs := []string{}
 
-	if err, ok := famerr[types.Vulnerabilities]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		vulnerabilitiesResults, err := results.GetResult[*vulnerabilities.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get vulnerabilities from scan: %w", err).Error())
+		vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to vulnerabilities results").Error())
 		} else {
 			scanResult.Vulnerabilities = cliutils.ConvertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
@@ -130,7 +152,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res *results.R
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -149,12 +171,12 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res *resul
 
 	errs := []string{}
 
-	if err, ok := famerr[types.Secrets]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		secretsResults, err := results.GetResult[*secrets.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get secrets results from scan: %w", err).Error())
+		secretsResults, ok := res.Result.(*secrets.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to secrets results").Error())
 		} else {
 			scanResult.Secrets = cliutils.ConvertSecretsResultToAPIModel(secretsResults)
 			if scanResult.Secrets.Secrets != nil {
@@ -175,7 +197,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res *resul
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -190,12 +212,12 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res *resul
 
 	errs := []string{}
 
-	if err, ok := famerr[types.Malware]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		malwareResults, err := results.GetResult[*malware.MergedResults](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get malware results from scan: %w", err).Error())
+		malwareResults, ok := res.Result.(*malware.MergedResults)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to malware results").Error())
 		} else {
 			scanResult.Malware = cliutils.ConvertMalwareResultToAPIModel(malwareResults)
 			if scanResult.Malware.Malware != nil {
@@ -215,7 +237,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res *resul
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -233,12 +255,12 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res *resu
 
 	errs := []string{}
 
-	if err, ok := famerr[types.Exploits]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		exploitsResults, err := results.GetResult[*exploits.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get exploits results from scan: %w", err).Error())
+		exploitsResults, ok := res.Result.(*exploits.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to exploits results").Error())
 		} else {
 			scanResult.Exploits = cliutils.ConvertExploitsResultToAPIModel(exploitsResults)
 			if scanResult.Exploits.Exploits != nil {
@@ -259,7 +281,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res *resu
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -277,12 +299,12 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 
 	var errs []string
 
-	if err, ok := famerr[types.Misconfiguration]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		misconfigurationResults, err := results.GetResult[*misconfiguration.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Sprintf("failed to get misconfiguration results from scan: %v", err))
+		misconfigurationResults, ok := res.Result.(*misconfiguration.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to misconfiguration results").Error())
 		} else {
 			apiMisconfigurations, err := cliutils.ConvertMisconfigurationResultToAPIModel(misconfigurationResults)
 			if err != nil {
@@ -306,7 +328,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res *results.Results, famerr families.RunErrors) error {
+func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res families.FamilyResult) error {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get scan result: %w", err)
@@ -321,12 +343,12 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res *resul
 
 	var errs []string
 
-	if err, ok := famerr[types.Rootkits]; ok {
-		errs = append(errs, err.Error())
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
 	} else {
-		rootkitsResults, err := results.GetResult[*rootkits.Results](res)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to get rootkits results from scan: %w", err).Error())
+		rootkitsResults, ok := res.Result.(*rootkits.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to rootkits results").Error())
 		} else {
 			scanResult.Rootkits = cliutils.ConvertRootkitsResultToAPIModel(rootkitsResults)
 			if scanResult.Rootkits.Rootkits != nil {

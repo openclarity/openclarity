@@ -78,22 +78,35 @@ func New(logger *log.Entry, config *Config) *Manager {
 
 type RunErrors map[types.FamilyType]error
 
-type familyResult struct {
-	result interfaces.IsResults
-	err    error
+type FamilyResult struct {
+	Result     interfaces.IsResults
+	FamilyType types.FamilyType
+	Err        error
 }
 
-func (m *Manager) Run(ctx context.Context) (*results.Results, RunErrors) {
-	familyErrors := make(RunErrors)
+type FamilyNotifier interface {
+	FamilyStarted(context.Context, types.FamilyType) error
+	FamilyFinished(ctx context.Context, res FamilyResult) error
+}
+
+func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
+	var oneOrMoreFamilyFailed bool
+	var errors []error
 	familyResults := results.New()
 
 	for _, family := range m.families {
-		result := make(chan familyResult)
+		if err := notifier.FamilyStarted(ctx, family.GetType()); err != nil {
+			errors = append(errors, fmt.Errorf("family started notification failed: %v", err))
+			continue
+		}
+
+		result := make(chan FamilyResult)
 		go func() {
 			ret, err := family.Run(familyResults)
-			result <- familyResult{
-				ret,
-				err,
+			result <- FamilyResult{
+				Result:     ret,
+				Err:        err,
+				FamilyType: family.GetType(),
 			}
 		}()
 
@@ -103,17 +116,30 @@ func (m *Manager) Run(ctx context.Context) (*results.Results, RunErrors) {
 				<-result
 				close(result)
 			}()
-			familyErrors[family.GetType()] = fmt.Errorf("failed to run family %v: aborted", family.GetType())
+			oneOrMoreFamilyFailed = true
+			if err := notifier.FamilyFinished(ctx, FamilyResult{
+				Result:     nil,
+				FamilyType: family.GetType(),
+				Err:        fmt.Errorf("failed to run family %v: aborted", family.GetType()),
+			}); err != nil {
+				errors = append(errors, fmt.Errorf("family finished notification failed: %v", err))
+			}
 		case r := <-result:
-			log.Debugf("received result from family %q: %v", family, r)
-			if r.err != nil {
-				familyErrors[family.GetType()] = fmt.Errorf("failed to run family %v: %w", family.GetType(), r.err)
+			log.Debugf("received result from family %q: %v", family.GetType(), r)
+			if r.Err != nil {
+				oneOrMoreFamilyFailed = true
 			} else {
-				familyResults.SetResults(r.result)
+				familyResults.SetResults(r.Result)
+			}
+			if err := notifier.FamilyFinished(ctx, r); err != nil {
+				errors = append(errors, fmt.Errorf("family finished notification failed: %v", err))
 			}
 			close(result)
 		}
 	}
 
-	return familyResults, familyErrors
+	if oneOrMoreFamilyFailed {
+		errors = append(errors, fmt.Errorf("at least one family failed to run"))
+	}
+	return errors
 }
