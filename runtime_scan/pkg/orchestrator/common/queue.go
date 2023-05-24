@@ -27,6 +27,7 @@ type Enqueuer[T comparable] interface {
 
 type Dequeuer[T comparable] interface {
 	Dequeue(ctx context.Context) (T, error)
+	Done(T)
 }
 
 type Queue[T comparable] struct {
@@ -43,6 +44,16 @@ type Queue[T comparable] struct {
 	// queue without needing to loop through the queue slice.
 	inqueue map[T]struct{}
 
+	// A map used as a set of unique items which are processing. This keeps
+	// track of items which have been Dequeued but are still being
+	// processed outside of the queue and therefore shouldn't be requeued
+	// if an Enqueue request is received for them.
+	//
+	// We use a separate map for this instead of reusing inqueue to prevent
+	// calls to Done() removing items from inqueue when they are actually
+	// in the queue slice.
+	processing map[T]struct{}
+
 	// A mutex lock which protects the queue from simultaneous reads and
 	// writes ensuring the queue can be used by multiple go routines safely.
 	l sync.Mutex
@@ -50,14 +61,17 @@ type Queue[T comparable] struct {
 
 func NewQueue[T comparable]() *Queue[T] {
 	return &Queue[T]{
-		itemAdded: make(chan struct{}),
-		queue:     make([]T, 0),
-		inqueue:   map[T]struct{}{},
+		itemAdded:  make(chan struct{}),
+		queue:      make([]T, 0),
+		inqueue:    map[T]struct{}{},
+		processing: map[T]struct{}{},
 	}
 }
 
-// Dequeue until it can dequeue an item from the queue or the passed
-// context is cancelled.
+// Dequeue until it can dequeue an item from the queue or the passed context is
+// cancelled. The queue will keep track of the item and prevent Enqueuing until
+// "Done" is called with the dequeued item to acknowledge its processing is
+// completed.
 func (q *Queue[T]) Dequeue(ctx context.Context) (T, error) {
 	if len(q.queue) == 0 {
 		// If the queue is empty, block waiting for the itemAdded
@@ -84,6 +98,7 @@ func (q *Queue[T]) Dequeue(ctx context.Context) (T, error) {
 	item := q.queue[0]
 	q.queue = q.queue[1:]
 	delete(q.inqueue, item)
+	q.processing[item] = struct{}{}
 
 	return item, nil
 }
@@ -93,14 +108,16 @@ func (q *Queue[T]) Enqueue(item T) {
 	q.l.Lock()
 	defer q.l.Unlock()
 
-	if _, ok := q.inqueue[item]; !ok {
+	_, inQueue := q.inqueue[item]
+	_, isProcessing := q.processing[item]
+	if !inQueue && !isProcessing {
 		q.queue = append(q.queue, item)
 		q.inqueue[item] = struct{}{}
-	}
 
-	select {
-	case q.itemAdded <- struct{}{}:
-	default:
+		select {
+		case q.itemAdded <- struct{}{}:
+		default:
+		}
 	}
 }
 
@@ -121,6 +138,23 @@ func (q *Queue[T]) Has(item T) bool {
 	q.l.Lock()
 	defer q.l.Unlock()
 
-	_, ok := q.inqueue[item]
-	return ok
+	_, inQueue := q.inqueue[item]
+	_, isProcessing := q.processing[item]
+	return inQueue || isProcessing
+}
+
+// Done will tell the queue that the processing for the item is completed and
+// that it should stop tracking that item.
+func (q *Queue[T]) Done(item T) {
+	q.l.Lock()
+	defer q.l.Unlock()
+	delete(q.processing, item)
+}
+
+// Returns the number of items currently being actively processed.
+func (q *Queue[T]) ProcessingCount() int {
+	q.l.Lock()
+	defer q.l.Unlock()
+
+	return len(q.processing)
 }
