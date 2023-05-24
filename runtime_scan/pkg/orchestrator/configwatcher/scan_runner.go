@@ -51,7 +51,7 @@ func (scw *ScanConfigWatcher) initNewScan(ctx context.Context, scanConfig *model
 		ScanConfig: &models.ScanConfigRelationship{
 			Id: *scanConfig.Id,
 		},
-		ScanConfigSnapshot: &models.ScanConfigData{
+		ScanConfigSnapshot: &models.ScanConfigSnapshot{
 			MaxParallelScanners: scanConfig.MaxParallelScanners,
 			Name:                scanConfig.Name,
 			ScanFamiliesConfig:  scanConfig.ScanFamiliesConfig,

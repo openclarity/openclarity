@@ -274,7 +274,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 			"scanConfigSnapshot": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScanConfigData"},
+				ComplexFieldSchemas: []string{"ScanConfigSnapshot"},
 			},
 			"targetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -411,7 +411,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
-	"ScanConfigData": {
+	"ScanConfigSnapshot": {
 		Fields: odatasql.Schema{
 			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
