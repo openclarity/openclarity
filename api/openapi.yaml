@@ -881,9 +881,83 @@ components:
             $ref: '#/components/schemas/Scan'
           readOnly: true
 
-    ScanData:
+    ScanRelationship:
       type: object
+      description: Describes an expandable relationship to Scan object
       properties:
+        id:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+          readOnly: true
+        endTime:
+          type: string
+          format: date-time
+          readOnly: true
+        scanConfig:
+          $ref: '#/components/schemas/ScanConfigRelationship'
+          readOnly: true
+        scanConfigSnapshot:
+          $ref: '#/components/schemas/ScanConfigSnapshot'
+          readOnly: true
+        targetIDs:
+          description: List of target IDs that are targeted for scanning as part of this scan
+          type: array
+          items:
+            type: string
+          nullable: true
+          readOnly: true
+        state:
+          description: The lifecycle state of this scan.
+          type: string
+          enum:
+            - Pending
+            - Discovered
+            - InProgress
+            - Aborted
+            - Failed
+            - Done
+          readOnly: true
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+          readOnly: true
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - OneOrMoreTargetFailedToScan
+            - DiscoveryFailed
+            - Unexpected
+            - NothingToScan
+            - Success
+          readOnly: true
+        summary:
+          $ref: '#/components/schemas/ScanSummary'
+          readOnly: true
+      required:
+        - id
+
+    # NOTE(sambetts) Any changes made to Scan must be reflected in
+    # ScanRelationship to ensure correct operation of the API when $expanding
+    Scan:
+      type: object
+      description: Describes a multi-target scheduled scan.
+      properties:
+        id:
+          type: string
+          # TODO(sambetts) Decide if we want the validation here by having
+          # separate schemas for GET, POST and PATCH
+          #
+          # We can't make anything readOnly or required here if we want to
+          # use the same schema for PATCH otherwise it will require you
+          # always send the required fields and remove the readOnly fields
+          # on the client side.
+          #
+          # readOnly: true
         startTime:
           type: string
           format: date-time
@@ -893,7 +967,7 @@ components:
         scanConfig:
           $ref: '#/components/schemas/ScanConfigRelationship'
         scanConfigSnapshot:
-          $ref: '#/components/schemas/ScanConfigData'
+          $ref: '#/components/schemas/ScanConfigSnapshot'
         targetIDs:
           description: List of target IDs that are targeted for scanning as part of this scan
           type: array
@@ -926,54 +1000,6 @@ components:
             - Success
         summary:
           $ref: '#/components/schemas/ScanSummary'
-
-    ScanRelationship:
-      type: object
-      description: Describes an expandable relationship to Scan object
-      allOf:
-        - $ref: '#/components/schemas/ScanData'
-        - type: object
-          properties:
-            id:
-              type: string
-            startTime:
-              readOnly: true
-            endTime:
-              readOnly: true
-            scanConfig:
-              readOnly: true
-            scanConfigSnapshot:
-              readOnly: true
-            targetIDs:
-              readOnly: true
-            state:
-              readOnly: true
-            stateMessage:
-              readOnly: true
-            stateReason:
-              readOnly: true
-            summary:
-              readOnly: true
-          required: ['id']
-
-    Scan:
-      type: object
-      description: Describes a multi-target scheduled scan.
-      allOf:
-        - $ref: '#/components/schemas/ScanData'
-        - type: object
-          properties:
-            id:
-              type: string
-              # TODO(sambetts) Decide if we want the validation here by having
-              # separate schemas for GET, POST and PATCH
-              #
-              # We can't make anything readOnly or required here if we want to
-              # use the same schema for PATCH otherwise it will require you
-              # always send the required fields and remove the readOnly fields
-              # on the client side.
-              #
-              # readOnly: true
 
     ScanSummary:
       description: A summary of the progress of a scan for informational purposes.
@@ -1106,12 +1132,12 @@ components:
             $ref: '#/components/schemas/ScanConfig'
           readOnly: true
 
-    ScanConfigData:
+    ScanConfigSnapshot:
       type: object
       description: |
-        Fields for a ScanConfig so they can be shared between the ScanConfig,
-        ScanConfigRelationship and used for the ScanConfig snapshot in the
-        scan.
+        Snapshot of the configuration from the ScanConfig which created the
+        scan, so that changes in the ScanConfig do not affect the existing
+        Scan.
       properties:
         name:
           type: string
@@ -1148,52 +1174,63 @@ components:
     ScanConfigRelationship:
       type: object
       description: Describes a relationship to a scan config which can be expanded.
-      allOf:
-        - $ref: '#/components/schemas/ScanConfigData'
-        - type: object
-          properties:
-            id:
-              type: string
-            name:
-              readOnly: true
-            scanFamiliesConfig:
-              readOnly: true
-            scope:
-              readOnly: true
-            scheduled:
-              readOnly: true
-            maxParallelScanners:
-              readOnly: true
-            disabled:
-              readOnly: true
-          required: ['id']
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          readOnly: true
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+          readOnly: true
+        scope:
+          $ref: '#/components/schemas/ScanScopeType'
+          readOnly: true
+        scheduled:
+          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+          readOnly: true
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          description: "The maximum number of scanners that can run in parallel for each scan"
+          readOnly: true
+        disabled:
+          description: 'if true, the scan config is disabled and no scan should run from it'
+          type: boolean
+          readOnly: true
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+          readOnly: true
+      required: ['id']
 
+    # NOTE(sambetts) Any changes made to ScanConfig must be reflected in
+    # ScanConfigRelationship to ensure correct operation of the API when $expanding
     ScanConfig:
       type: object
       description: Describes a multi-target scheduled scan config.
-      allOf:
-        - $ref: '#/components/schemas/ScanConfigData'
-        - type: object
-          properties:
-            id:
-              type: string
-              # TODO(sambetts) Decide if we want the validation here by having
-              # separate schemas for GET, POST and PATCH
-              #
-              # We can't make anything readOnly or required here if we want to
-              # use the same schema for PATCH otherwise it will require you
-              # always send the required fields and remove the readOnly fields
-              # on the client side.
-              #
-              # readOnly: true
-            maxParallelScanners:
-              type: 'integer'
-              default: 2
-          # required:
-          #   - name
-          #   - scanFamiliesConfig
-          #   - scope
-          #   - scheduled
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scope:
+          $ref: '#/components/schemas/ScanScopeType'
+        scheduled:
+          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+        maxParallelScanners:
+          description: "The maximum number of scanners that can run in parallel for each scan"
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          default: 2
+        disabled:
+          description: 'if true, the scan config is disabled and no scan should run from it'
+          type: boolean
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
 
     ScanConfigExists:
       type: object
@@ -1380,7 +1417,24 @@ components:
 
     TargetCommon:
       type: object
+
+    # NOTE(sambetts) Any changes made to Target must be reflected in
+    # TargetRelationship to ensure correct operation of the API when $expanding
+    Target:
+      type: object
+      description: Describes a target object.
       properties:
+        id:
+          type: string
+          # TODO(sambetts) Decide if we want the validation here by having
+          # separate schemas for GET, POST and PATCH.
+          #
+          # We can't make anything readOnly or required here if we want to
+          # use the same schema for PATCH otherwise it will require you
+          # always send the required fields and remove the readOnly fields
+          # on the client side.
+          #
+          # readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
         scansCount:
@@ -1389,42 +1443,23 @@ components:
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
 
-    Target:
-      type: object
-      description: Describes a target object.
-      allOf:
-        - $ref: '#/components/schemas/TargetCommon'
-        - type: object
-          properties:
-            id:
-              type: string
-              # TODO(sambetts) Decide if we want the validation here by having
-              # separate schemas for GET, POST and PATCH.
-              #
-              # We can't make anything readOnly or required here if we want to
-              # use the same schema for PATCH otherwise it will require you
-              # always send the required fields and remove the readOnly fields
-              # on the client side.
-              #
-              # readOnly: true
-          # required: ['targetInfo']
-
     TargetRelationship:
       type: object
       description: Describes a relationship to a target which can be expanded.
-      allOf:
-        - $ref: '#/components/schemas/TargetCommon'
-        - type: object
-          properties:
-            id:
-              type: string
-            targetInfo:
-              readOnly: true
-            scansCount:
-              readOnly: true
-            summary:
-              readOnly: true
-          required: ['id']
+      properties:
+        id:
+          type: string
+        targetInfo:
+          $ref: '#/components/schemas/TargetType'
+          readOnly: true
+        scansCount:
+          description: Total number of scans that have ever run for this target
+          type: integer
+          readOnly: true
+        summary:
+          $ref: '#/components/schemas/ScanFindingsSummary'
+          readOnly: true
+      required: ['id']
 
     TargetExists:
       type: object
