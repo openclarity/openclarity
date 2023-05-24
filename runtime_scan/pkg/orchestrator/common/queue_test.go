@@ -35,10 +35,15 @@ type HasAction struct {
 	has    bool
 }
 
+type DoneAction struct {
+	object TestObject
+}
+
 type TestObject struct {
 	ID string
 }
 
+// nolint:cyclop
 func TestQueue(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -52,8 +57,11 @@ func TestQueue(t *testing.T) {
 				AddAction{TestObject{ID: "baz"}},
 
 				GetAction{TestObject{ID: "foo"}},
+				DoneAction{TestObject{ID: "foo"}},
 				GetAction{TestObject{ID: "bar"}},
+				DoneAction{TestObject{ID: "bar"}},
 				GetAction{TestObject{ID: "baz"}},
+				DoneAction{TestObject{ID: "baz"}},
 			},
 		},
 		{
@@ -64,7 +72,11 @@ func TestQueue(t *testing.T) {
 				AddAction{TestObject{ID: "foo"}},
 
 				GetAction{TestObject{ID: "foo"}},
+				AddAction{TestObject{ID: "foo"}},
+				DoneAction{TestObject{ID: "foo"}},
+
 				GetAction{TestObject{ID: "bar"}},
+				DoneAction{TestObject{ID: "bar"}},
 			},
 		},
 		{
@@ -72,10 +84,17 @@ func TestQueue(t *testing.T) {
 			actions: []interface{}{
 				AddAction{TestObject{ID: "foo"}},
 				AddAction{TestObject{ID: "bar"}},
+
 				GetAction{TestObject{ID: "foo"}},
+				DoneAction{TestObject{ID: "foo"}},
+
 				AddAction{TestObject{ID: "foo"}},
+
 				GetAction{TestObject{ID: "bar"}},
+				DoneAction{TestObject{ID: "bar"}},
+
 				GetAction{TestObject{ID: "foo"}},
+				DoneAction{TestObject{ID: "foo"}},
 			},
 		},
 		{
@@ -87,7 +106,9 @@ func TestQueue(t *testing.T) {
 				HasAction{TestObject{ID: "bar"}, true},
 				HasAction{TestObject{ID: "baz"}, false},
 				GetAction{TestObject{ID: "foo"}},
+				DoneAction{TestObject{ID: "foo"}},
 				GetAction{TestObject{ID: "bar"}},
+				DoneAction{TestObject{ID: "bar"}},
 			},
 		},
 	}
@@ -108,6 +129,8 @@ func TestQueue(t *testing.T) {
 					if diff := cmp.Diff(ack.object, jtem); diff != "" {
 						t.Fatalf("Dequeue() mismatch (-want, +got):\n%s", diff)
 					}
+				case DoneAction:
+					q.Done(ack.object)
 				case HasAction:
 					h := q.Has(ack.object)
 					if h != ack.has {
