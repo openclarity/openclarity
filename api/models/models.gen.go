@@ -53,25 +53,25 @@ const (
 	ScanStateReasonUnexpected                  ScanStateReason = "Unexpected"
 )
 
-// Defines values for ScanDataState.
+// Defines values for ScanRelationshipState.
 const (
-	ScanDataStateAborted    ScanDataState = "Aborted"
-	ScanDataStateDiscovered ScanDataState = "Discovered"
-	ScanDataStateDone       ScanDataState = "Done"
-	ScanDataStateFailed     ScanDataState = "Failed"
-	ScanDataStateInProgress ScanDataState = "InProgress"
-	ScanDataStatePending    ScanDataState = "Pending"
+	ScanRelationshipStateAborted    ScanRelationshipState = "Aborted"
+	ScanRelationshipStateDiscovered ScanRelationshipState = "Discovered"
+	ScanRelationshipStateDone       ScanRelationshipState = "Done"
+	ScanRelationshipStateFailed     ScanRelationshipState = "Failed"
+	ScanRelationshipStateInProgress ScanRelationshipState = "InProgress"
+	ScanRelationshipStatePending    ScanRelationshipState = "Pending"
 )
 
-// Defines values for ScanDataStateReason.
+// Defines values for ScanRelationshipStateReason.
 const (
-	ScanDataStateReasonAborted                     ScanDataStateReason = "Aborted"
-	ScanDataStateReasonDiscoveryFailed             ScanDataStateReason = "DiscoveryFailed"
-	ScanDataStateReasonNothingToScan               ScanDataStateReason = "NothingToScan"
-	ScanDataStateReasonOneOrMoreTargetFailedToScan ScanDataStateReason = "OneOrMoreTargetFailedToScan"
-	ScanDataStateReasonSuccess                     ScanDataStateReason = "Success"
-	ScanDataStateReasonTimedOut                    ScanDataStateReason = "TimedOut"
-	ScanDataStateReasonUnexpected                  ScanDataStateReason = "Unexpected"
+	ScanRelationshipStateReasonAborted                     ScanRelationshipStateReason = "Aborted"
+	ScanRelationshipStateReasonDiscoveryFailed             ScanRelationshipStateReason = "DiscoveryFailed"
+	ScanRelationshipStateReasonNothingToScan               ScanRelationshipStateReason = "NothingToScan"
+	ScanRelationshipStateReasonOneOrMoreTargetFailedToScan ScanRelationshipStateReason = "OneOrMoreTargetFailedToScan"
+	ScanRelationshipStateReasonSuccess                     ScanRelationshipStateReason = "Success"
+	ScanRelationshipStateReasonTimedOut                    ScanRelationshipStateReason = "TimedOut"
+	ScanRelationshipStateReasonUnexpected                  ScanRelationshipStateReason = "Unexpected"
 )
 
 // Defines values for ScanType.
@@ -376,7 +376,7 @@ type SbomScan struct {
 	Packages *[]Package `json:"packages"`
 }
 
-// Scan defines model for Scan.
+// Scan Describes a multi-target scheduled scan.
 type Scan struct {
 	EndTime *time.Time `json:"endTime,omitempty"`
 	Id      *string    `json:"id,omitempty"`
@@ -384,11 +384,11 @@ type Scan struct {
 	// ScanConfig Describes a relationship to a scan config which can be expanded.
 	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
 
-	// ScanConfigSnapshot Fields for a ScanConfig so they can be shared between the ScanConfig,
-	// ScanConfigRelationship and used for the ScanConfig snapshot in the
-	// scan.
-	ScanConfigSnapshot *ScanConfigData `json:"scanConfigSnapshot,omitempty"`
-	StartTime          *time.Time      `json:"startTime,omitempty"`
+	// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
+	// scan, so that changes in the ScanConfig do not affect the existing
+	// Scan.
+	ScanConfigSnapshot *ScanConfigSnapshot `json:"scanConfigSnapshot,omitempty"`
+	StartTime          *time.Time          `json:"startTime,omitempty"`
 
 	// State The lifecycle state of this scan.
 	State *ScanState `json:"state,omitempty"`
@@ -412,31 +412,11 @@ type ScanState string
 // ScanStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
 type ScanStateReason string
 
-// ScanConfig defines model for ScanConfig.
+// ScanConfig Describes a multi-target scheduled scan config.
 type ScanConfig struct {
 	// Disabled if true, the scan config is disabled and no scan should run from it
-	Disabled            *bool   `json:"disabled,omitempty"`
-	Id                  *string `json:"id,omitempty"`
-	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
-	Name                *string `json:"name,omitempty"`
-
-	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
-
-	// ScannerInstanceCreationConfig Configuration of scanner instance
-	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
-
-	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
-	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
-	Scope     *ScanScopeType             `json:"scope,omitempty"`
-}
-
-// ScanConfigData Fields for a ScanConfig so they can be shared between the ScanConfig,
-// ScanConfigRelationship and used for the ScanConfig snapshot in the
-// scan.
-type ScanConfigData struct {
-	// Disabled if true, the scan config is disabled and no scan should run from it
-	Disabled *bool `json:"disabled,omitempty"`
+	Disabled *bool   `json:"disabled,omitempty"`
+	Id       *string `json:"id,omitempty"`
 
 	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
@@ -462,18 +442,47 @@ type ScanConfigExists struct {
 	ScanConfig *ScanConfig `json:"scanConfig,omitempty"`
 }
 
-// ScanConfigRelationship defines model for ScanConfigRelationship.
+// ScanConfigRelationship Describes a relationship to a scan config which can be expanded.
 type ScanConfigRelationship struct {
-	Disabled            *interface{} `json:"disabled,omitempty"`
-	Id                  string       `json:"id"`
-	MaxParallelScanners *interface{} `json:"maxParallelScanners,omitempty"`
-	Name                *interface{} `json:"name,omitempty"`
-	ScanFamiliesConfig  *interface{} `json:"scanFamiliesConfig,omitempty"`
+	// Disabled if true, the scan config is disabled and no scan should run from it
+	Disabled *bool  `json:"disabled,omitempty"`
+	Id       string `json:"id"`
+
+	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
+
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
 
 	// ScannerInstanceCreationConfig Configuration of scanner instance
 	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
-	Scheduled                     *interface{}                   `json:"scheduled,omitempty"`
-	Scope                         *interface{}                   `json:"scope,omitempty"`
+
+	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
+	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
+	Scope     *ScanScopeType             `json:"scope,omitempty"`
+}
+
+// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
+// scan, so that changes in the ScanConfig do not affect the existing
+// Scan.
+type ScanConfigSnapshot struct {
+	// Disabled if true, the scan config is disabled and no scan should run from it
+	Disabled *bool `json:"disabled,omitempty"`
+
+	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
+
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+
+	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
+	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
+	Scope     *ScanScopeType             `json:"scope,omitempty"`
 }
 
 // ScanConfigs defines model for ScanConfigs.
@@ -484,41 +493,6 @@ type ScanConfigs struct {
 	// Items List of scan configs according to the given filters and page. List length must be lower or equal to pageSize.
 	Items *[]ScanConfig `json:"items,omitempty"`
 }
-
-// ScanData defines model for ScanData.
-type ScanData struct {
-	EndTime *time.Time `json:"endTime,omitempty"`
-
-	// ScanConfig Describes a relationship to a scan config which can be expanded.
-	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
-
-	// ScanConfigSnapshot Fields for a ScanConfig so they can be shared between the ScanConfig,
-	// ScanConfigRelationship and used for the ScanConfig snapshot in the
-	// scan.
-	ScanConfigSnapshot *ScanConfigData `json:"scanConfigSnapshot,omitempty"`
-	StartTime          *time.Time      `json:"startTime,omitempty"`
-
-	// State The lifecycle state of this scan.
-	State *ScanDataState `json:"state,omitempty"`
-
-	// StateMessage Human-readable message indicating details about the last state transition.
-	StateMessage *string `json:"stateMessage,omitempty"`
-
-	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-	StateReason *ScanDataStateReason `json:"stateReason,omitempty"`
-
-	// Summary A summary of the progress of a scan for informational purposes.
-	Summary *ScanSummary `json:"summary,omitempty"`
-
-	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
-	TargetIDs *[]string `json:"targetIDs"`
-}
-
-// ScanDataState The lifecycle state of this scan.
-type ScanDataState string
-
-// ScanDataStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-type ScanDataStateReason string
 
 // ScanExists defines model for ScanExists.
 type ScanExists struct {
@@ -553,19 +527,41 @@ type ScanFindingsSummary struct {
 	TotalVulnerabilities *VulnerabilityScanSummary `json:"totalVulnerabilities,omitempty"`
 }
 
-// ScanRelationship defines model for ScanRelationship.
+// ScanRelationship Describes an expandable relationship to Scan object
 type ScanRelationship struct {
-	EndTime            *interface{} `json:"endTime,omitempty"`
-	Id                 string       `json:"id"`
-	ScanConfig         *interface{} `json:"scanConfig,omitempty"`
-	ScanConfigSnapshot *interface{} `json:"scanConfigSnapshot,omitempty"`
-	StartTime          *interface{} `json:"startTime,omitempty"`
-	State              *interface{} `json:"state,omitempty"`
-	StateMessage       *interface{} `json:"stateMessage,omitempty"`
-	StateReason        *interface{} `json:"stateReason,omitempty"`
-	Summary            *interface{} `json:"summary,omitempty"`
-	TargetIDs          *interface{} `json:"targetIDs,omitempty"`
+	EndTime *time.Time `json:"endTime,omitempty"`
+	Id      string     `json:"id"`
+
+	// ScanConfig Describes a relationship to a scan config which can be expanded.
+	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
+
+	// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
+	// scan, so that changes in the ScanConfig do not affect the existing
+	// Scan.
+	ScanConfigSnapshot *ScanConfigSnapshot `json:"scanConfigSnapshot,omitempty"`
+	StartTime          *time.Time          `json:"startTime,omitempty"`
+
+	// State The lifecycle state of this scan.
+	State *ScanRelationshipState `json:"state,omitempty"`
+
+	// StateMessage Human-readable message indicating details about the last state transition.
+	StateMessage *string `json:"stateMessage,omitempty"`
+
+	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+	StateReason *ScanRelationshipStateReason `json:"stateReason,omitempty"`
+
+	// Summary A summary of the progress of a scan for informational purposes.
+	Summary *ScanSummary `json:"summary,omitempty"`
+
+	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
+	TargetIDs *[]string `json:"targetIDs"`
 }
+
+// ScanRelationshipState The lifecycle state of this scan.
+type ScanRelationshipState string
+
+// ScanRelationshipStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+type ScanRelationshipStateReason string
 
 // ScanScopeType defines model for ScanScopeType.
 type ScanScopeType struct {
@@ -692,7 +688,7 @@ type Tag struct {
 	Value string `json:"value"`
 }
 
-// Target defines model for Target.
+// Target Describes a target object.
 type Target struct {
 	Id *string `json:"id,omitempty"`
 
@@ -705,14 +701,7 @@ type Target struct {
 }
 
 // TargetCommon defines model for TargetCommon.
-type TargetCommon struct {
-	// ScansCount Total number of scans that have ever run for this target
-	ScansCount *int `json:"scansCount,omitempty"`
-
-	// Summary A summary of the scan findings.
-	Summary    *ScanFindingsSummary `json:"summary,omitempty"`
-	TargetInfo *TargetType          `json:"targetInfo,omitempty"`
-}
+type TargetCommon = map[string]interface{}
 
 // TargetExists defines model for TargetExists.
 type TargetExists struct {
@@ -723,12 +712,16 @@ type TargetExists struct {
 	Target *Target `json:"target,omitempty"`
 }
 
-// TargetRelationship defines model for TargetRelationship.
+// TargetRelationship Describes a relationship to a target which can be expanded.
 type TargetRelationship struct {
-	Id         string       `json:"id"`
-	ScansCount *interface{} `json:"scansCount,omitempty"`
-	Summary    *interface{} `json:"summary,omitempty"`
-	TargetInfo *interface{} `json:"targetInfo,omitempty"`
+	Id string `json:"id"`
+
+	// ScansCount Total number of scans that have ever run for this target
+	ScansCount *int `json:"scansCount,omitempty"`
+
+	// Summary A summary of the scan findings.
+	Summary    *ScanFindingsSummary `json:"summary,omitempty"`
+	TargetInfo *TargetType          `json:"targetInfo,omitempty"`
 }
 
 // TargetScanResult defines model for TargetScanResult.

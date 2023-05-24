@@ -162,12 +162,7 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 	for _, scanResult := range scanResults {
 		var foundOn *time.Time
 		if scanResult.Scan.StartTime != nil {
-			startTime, ok := (*scanResult.Scan.StartTime).(*time.Time)
-			if !ok {
-				log.Errorf("invalid interface casting: %T", *scanResult.Scan.StartTime)
-			} else {
-				foundOn = startTime
-			}
+			foundOn = scanResult.Scan.StartTime
 		} else {
 			randMin := rand.Intn(59) + 1
 			foundOn = utils.PointerTo(time.Now().Add(time.Duration(-randMin) * time.Minute))
@@ -688,7 +683,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 		},
 	}
 
-	scan1ConfigSnapshot := &models.ScanConfigData{
+	scan1ConfigSnapshot := &models.ScanConfigSnapshot{
 		MaxParallelScanners: scanConfigs[0].MaxParallelScanners,
 		Name:                utils.PointerTo[string]("Scan Config 1"),
 		ScanFamiliesConfig:  scanConfigs[0].ScanFamiliesConfig,
@@ -718,7 +713,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 		},
 	}
 
-	scan2ConfigSnapshot := &models.ScanConfigData{
+	scan2ConfigSnapshot := &models.ScanConfigSnapshot{
 		MaxParallelScanners: scanConfigs[1].MaxParallelScanners,
 		Name:                utils.PointerTo[string]("Scan Config 2"),
 		ScanFamiliesConfig:  scanConfigs[1].ScanFamiliesConfig,
