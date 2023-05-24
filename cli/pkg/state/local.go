@@ -19,6 +19,8 @@ import (
 	"context"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 )
 
 type LocalState struct{}
@@ -29,6 +31,26 @@ func (l *LocalState) WaitForVolumeAttachment(context.Context) error {
 
 func (l *LocalState) MarkInProgress(context.Context) error {
 	log.Info("Scanning is in progress")
+	return nil
+}
+
+func (l *LocalState) MarkFamilyScanInProgress(ctx context.Context, familyType types.FamilyType) error {
+	switch familyType {
+	case types.SBOM:
+		log.Info("SBOM scan is in progress")
+	case types.Vulnerabilities:
+		log.Info("Vulnerabilities scan is in progress")
+	case types.Secrets:
+		log.Info("Secrets scan is in progress")
+	case types.Exploits:
+		log.Info("Exploits scan is in progress")
+	case types.Misconfiguration:
+		log.Info("Misconfiguration scan is in progress")
+	case types.Rootkits:
+		log.Info("Rootkit scan is in progress")
+	case types.Malware:
+		log.Info("Malware scan is in progress")
+	}
 	return nil
 }
 

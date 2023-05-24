@@ -23,10 +23,10 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
-	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
@@ -36,10 +36,33 @@ type DefaultPresenter struct {
 	FamiliesConfig *families.Config
 }
 
-func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	sbomResults, err := results.GetResult[*sbom.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get sbom results: %w", err)
+func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
+	var err error
+
+	switch res.FamilyType {
+	case types.SBOM:
+		err = p.ExportSbomResult(ctx, res)
+	case types.Vulnerabilities:
+		err = p.ExportVulResult(ctx, res)
+	case types.Secrets:
+		err = p.ExportSecretsResult(ctx, res)
+	case types.Exploits:
+		err = p.ExportExploitsResult(ctx, res)
+	case types.Misconfiguration:
+		err = p.ExportMisconfigurationResult(ctx, res)
+	case types.Rootkits:
+		err = p.ExportRootkitResult(ctx, res)
+	case types.Malware:
+		err = p.ExportMalwareResult(ctx, res)
+	}
+
+	return err
+}
+
+func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res families.FamilyResult) error {
+	sbomResults, ok := res.Result.(*sbom.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to sbom results")
 	}
 
 	outputFormat := p.FamiliesConfig.SBOM.AnalyzersConfig.Analyzer.OutputFormat
@@ -55,10 +78,10 @@ func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res *results.Resu
 	return nil
 }
 
-func (p *DefaultPresenter) ExportVulResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	vulnerabilitiesResults, err := results.GetResult[*vulnerabilities.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get sbom results: %w", err)
+func (p *DefaultPresenter) ExportVulResult(_ context.Context, res families.FamilyResult) error {
+	vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to vulnerabilities results")
 	}
 
 	bytes, err := json.Marshal(vulnerabilitiesResults.MergedResults)
@@ -72,10 +95,10 @@ func (p *DefaultPresenter) ExportVulResult(_ context.Context, res *results.Resul
 	return nil
 }
 
-func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	secretsResults, err := results.GetResult[*secrets.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get secrets results: %w", err)
+func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res families.FamilyResult) error {
+	secretsResults, ok := res.Result.(*secrets.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to secrets results")
 	}
 
 	bytes, err := json.Marshal(secretsResults)
@@ -89,10 +112,10 @@ func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res *results.R
 	return nil
 }
 
-func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	malwareResults, err := results.GetResult[*malware.MergedResults](res)
-	if err != nil {
-		return fmt.Errorf("failed to get malware results: %w", err)
+func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res families.FamilyResult) error {
+	malwareResults, ok := res.Result.(*malware.MergedResults)
+	if !ok {
+		return fmt.Errorf("failed to convert to malware results")
 	}
 
 	bytes, err := json.Marshal(malwareResults)
@@ -106,10 +129,10 @@ func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res *results.R
 	return nil
 }
 
-func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	exploitsResults, err := results.GetResult[*exploits.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get exploits results: %w", err)
+func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res families.FamilyResult) error {
+	exploitsResults, ok := res.Result.(*exploits.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to exploits results")
 	}
 
 	bytes, err := json.Marshal(exploitsResults)
@@ -123,15 +146,15 @@ func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res *results.
 	return nil
 }
 
-func (p *DefaultPresenter) ExportMisconfigurationResult(context.Context, *results.Results, families.RunErrors) error {
+func (p *DefaultPresenter) ExportMisconfigurationResult(context.Context, families.FamilyResult) error {
 	// TODO: implement
 	return nil
 }
 
-func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res *results.Results, _ families.RunErrors) error {
-	rootkitsResults, err := results.GetResult[*rootkits.Results](res)
-	if err != nil {
-		return fmt.Errorf("failed to get rootkits results: %w", err)
+func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res families.FamilyResult) error {
+	rootkitsResults, ok := res.Result.(*rootkits.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to rootkits results")
 	}
 
 	bytes, err := json.Marshal(rootkitsResults)
