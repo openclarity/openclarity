@@ -23,6 +23,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
@@ -137,7 +138,203 @@ func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
 	return nil
 }
 
-func (v VMClarityState) IsAborted(ctx context.Context) (bool, error) {
+func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyType types.FamilyType) error {
+	var err error
+	switch familyType {
+	case types.SBOM:
+		err = v.markSBOMScanInProgress(ctx)
+	case types.Vulnerabilities:
+		err = v.markVulnerabilitiesScanInProgress(ctx)
+	case types.Secrets:
+		err = v.markSecretsScanInProgress(ctx)
+	case types.Exploits:
+		err = v.markExploitsScanInProgress(ctx)
+	case types.Misconfiguration:
+		err = v.markMisconfigurationsScanInProgress(ctx)
+	case types.Rootkits:
+		err = v.markRootkitsScanInProgress(ctx)
+	case types.Malware:
+		err = v.markMalwareScanInProgress(ctx)
+	}
+	return err
+}
+
+func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Exploits == nil {
+		scanResult.Status.Exploits = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Exploits.State = &state
+	scanResult.Status.Exploits.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Secrets == nil {
+		scanResult.Status.Secrets = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Secrets.State = &state
+	scanResult.Status.Secrets.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Sbom == nil {
+		scanResult.Status.Sbom = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Sbom.State = &state
+	scanResult.Status.Sbom.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Vulnerabilities == nil {
+		scanResult.Status.Vulnerabilities = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Vulnerabilities.State = &state
+	scanResult.Status.Vulnerabilities.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Malware == nil {
+		scanResult.Status.Malware = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Malware.State = &state
+	scanResult.Status.Malware.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Misconfigurations == nil {
+		scanResult.Status.Misconfigurations = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Misconfigurations.State = &state
+	scanResult.Status.Misconfigurations.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
+	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get scan result: %w", err)
+	}
+
+	if scanResult.Status == nil {
+		scanResult.Status = &models.TargetScanStatus{}
+	}
+	if scanResult.Status.Rootkits == nil {
+		scanResult.Status.Rootkits = &models.TargetScanState{}
+	}
+
+	state := models.INPROGRESS
+	scanResult.Status.Rootkits.State = &state
+	scanResult.Status.Rootkits.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to patch scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
 	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{
 		Select: utils.PointerTo("id,status"),
 	})
