@@ -188,32 +188,40 @@ Resources:
                         - Arch
                     ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
               mode: "000644"
-            "/lib/systemd/system/vmclarity.service":
+            "/etc/vmclarity/service.env":
               content:
                 Fn::Sub:
                   - |
-                    [Unit]
-                    Description=VmClarity
-                    After=docker.service
-                    Requires=docker.service
+                    BACKEND_CONTAINER_IMAGE=${BackendContainerImage}
+                    BACKEND_LOG_LEVEL=info
+                  - BackendContainerImage: !If [ BackendContainerImageOverridden, !Ref BackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-backend:latest" ]
+              mode: "000644"
+            "/lib/systemd/system/vmclarity.service":
+              content: |
+                [Unit]
+                Description=VmClarity
+                After=docker.service
+                Requires=docker.service
 
-                    [Service]
-                    TimeoutStartSec=0
-                    Restart=always
-                    ExecStartPre=-/usr/bin/docker stop %n
-                    ExecStartPre=-/usr/bin/docker rm %n
-                    ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
-                    ExecStartPre=/usr/bin/docker pull ${BackendContainerImage}
-                    ExecStart=/usr/bin/docker run \
-                      --rm --name %n \
-                      -p 0.0.0.0:8888:8888/tcp \
-                      -v /opt/vmclarity:/data \
-                      --env-file /etc/vmclarity/config.env \
-                      ${BackendContainerImage} run --log-level info
+                [Service]
+                TimeoutStartSec=0
+                Restart=always
+                EnvironmentFile=/etc/vmclarity/service.env
+                ExecStartPre=-/usr/bin/docker stop %n
+                ExecStartPre=-/usr/bin/docker rm %n
+                ExecStartPre=/usr/bin/mkdir -p /opt/vmclarity
+                ExecStartPre=/usr/bin/docker pull ${BACKEND_CONTAINER_IMAGE}
+                ExecStart=/usr/bin/docker run \
+                  --rm --name %n \
+                  -p 0.0.0.0:8888:8888/tcp \
+                  -v /opt/vmclarity:/data \
+                  --env-file /etc/vmclarity/config.env \
+                  ${BACKEND_CONTAINER_IMAGE} \
+                  run \
+                  --log-level ${BACKEND_LOG_LEVEL}
 
-                    [Install]
-                    WantedBy=multi-user.target
-                  - BackendContainerImage: !If [BackendContainerImageOverridden, !Ref BackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-backend:latest"]
+                [Install]
+                WantedBy=multi-user.target
               mode: "000644"
             "/lib/systemd/system/exploit-db-server.service":
               content:
