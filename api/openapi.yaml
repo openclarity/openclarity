@@ -11,6 +11,7 @@ paths:
   /targets:
     get:
       summary: Get targets
+      operationId: GetTargets
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -30,6 +31,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     post:
       summary: Create target
+      operationId: PostTargets
       requestBody:
         content:
           application/json:
@@ -62,6 +64,7 @@ paths:
   /targets/{targetID}:
     get:
       summary: Get target.
+      operationId: GetTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
         - $ref: '#/components/parameters/odataSelect'
@@ -83,6 +86,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Update target.
+      operationId: PutTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
       requestBody:
@@ -121,6 +125,7 @@ paths:
       x-codegen-request-body-name: body
     patch:
       summary: Update target.
+      operationId: PatchTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
       requestBody:
@@ -153,6 +158,7 @@ paths:
       x-codegen-request-body-name: body
     delete:
       summary: Delete target.
+      operationId: DeleteTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
       responses:
@@ -176,6 +182,7 @@ paths:
   /scanResults:
     get:
       summary: Get scan results according to the given filters
+      operationId: GetScanResults
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -196,6 +203,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     post:
       summary: Create a scan result for a specific target for a specific scan
+      operationId: PostScanResults
       requestBody:
         content:
           application/json:
@@ -228,6 +236,7 @@ paths:
   /scanResults/{scanResultID}:
     get:
       summary: Get a scan result.
+      operationId: GetScanResultsScanResultID
       parameters:
         - $ref: '#/components/parameters/scanResultID'
         - $ref: '#/components/parameters/odataSelect'
@@ -249,6 +258,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Update a scan result.
+      operationId: PutScanResultsScanResultID
       parameters:
         - $ref: '#/components/parameters/scanResultID'
       requestBody:
@@ -287,6 +297,7 @@ paths:
       x-codegen-request-body-name: body
     patch:
       summary: Patch a scan result
+      operationId: PatchScanResultsScanResultID
       parameters:
         - $ref: '#/components/parameters/scanResultID'
       requestBody:
@@ -327,6 +338,7 @@ paths:
   /scans:
     get:
       summary: Get all scans. Each scan contains details about a multi-target scheduled scan.
+      operationId: GetScans
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -346,6 +358,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     post:
       summary: Create a multi-target scheduled scan
+      operationId: PostScans
       requestBody:
         content:
           application/json:
@@ -378,6 +391,7 @@ paths:
   /scans/{scanID}:
     get:
       summary: Get the details for a given multi-target scheduled scan.
+      operationId: GetScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
         - $ref: '#/components/parameters/odataSelect'
@@ -399,6 +413,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Update a scan.
+      operationId: PutScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
       requestBody:
@@ -437,6 +452,7 @@ paths:
       x-codegen-request-body-name: body
     patch:
       summary: Patch a scan.
+      operationId: PatchScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
       requestBody:
@@ -475,6 +491,7 @@ paths:
       x-codegen-request-body-name: body
     delete:
       summary: Delete a scan.
+      operationId: DeleteScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
       responses:
@@ -492,6 +509,7 @@ paths:
   /scanConfigs:
     get:
       summary: Get all scan configs.
+      operationId: GetScanConfigs
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -512,6 +530,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     post:
       summary: Create a scan config
+      operationId: PostScanConfigs
       requestBody:
         content:
           application/json:
@@ -544,6 +563,7 @@ paths:
   /scanConfigs/{scanConfigID}:
     get:
       summary: Get the details for a scan config.
+      operationId: GetScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
         - $ref: '#/components/parameters/odataSelect'
@@ -565,6 +585,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Update a scan config.
+      operationId: PutScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
       requestBody:
@@ -603,6 +624,7 @@ paths:
       x-codegen-request-body-name: body
     patch:
       summary: Patch a scan config.
+      operationId: PatchScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
       requestBody:
@@ -641,6 +663,7 @@ paths:
       x-codegen-request-body-name: body
     delete:
       summary: Delete a scan config.
+      operationId: DeleteScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
       responses:
@@ -658,6 +681,7 @@ paths:
   /findings:
     get:
       summary: Get all findings.
+      operationId: GetFindings
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -677,6 +701,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     post:
       summary: Create a finding
+      operationId: PostFindings
       requestBody:
         content:
           application/json:
@@ -709,6 +734,7 @@ paths:
   /discovery/scopes:
     get:
       summary: Get all available scopes
+      operationId: GetDiscoveryScopes
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -724,6 +750,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Set all available scopes
+      operationId: PutDiscoveryScopes
       requestBody:
         content:
           application/json:
@@ -744,6 +771,7 @@ paths:
   /findings/{findingID}:
     get:
       summary: Get the details for a finding.
+      operationId: GetFindingsFindingID
       parameters:
         - $ref: '#/components/parameters/findingID'
         - $ref: '#/components/parameters/odataSelect'
@@ -765,6 +793,7 @@ paths:
           $ref: '#/components/responses/UnknownError'
     put:
       summary: Update a finding.
+      operationId: PutFindingsFindingID
       parameters:
         - $ref: '#/components/parameters/findingID'
       requestBody:
@@ -797,6 +826,7 @@ paths:
       x-codegen-request-body-name: body
     patch:
       summary: Patch a finding.
+      operationId: PatchFindingsFindingID
       parameters:
         - $ref: '#/components/parameters/findingID'
       requestBody:
@@ -829,6 +859,7 @@ paths:
       x-codegen-request-body-name: body
     delete:
       summary: Delete a finding.
+      operationId: DeleteFindingsFindingID
       parameters:
         - $ref: '#/components/parameters/findingID'
       responses:
