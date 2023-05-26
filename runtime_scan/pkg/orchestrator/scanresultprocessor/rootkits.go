@@ -22,9 +22,12 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.RootkitKey]string, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	existingMap := map[findingkey.RootkitKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and asset/id eq '%s' and scan/id eq '%s'",
@@ -50,8 +53,8 @@ func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Co
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing rootkit findings for this scan", len(existingMap))
-	srp.logger.Debugf("Existing rootkit map: %v", existingMap)
+	logger.Infof("Found %d existing rootkit findings for this scan", len(existingMap))
+	logger.Debugf("Existing rootkit map: %v", existingMap)
 
 	return existingMap, nil
 }

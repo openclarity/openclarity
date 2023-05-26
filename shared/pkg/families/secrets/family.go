@@ -16,9 +16,8 @@
 package secrets
 
 import (
+	"context"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -29,17 +28,18 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/job"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Secrets struct {
-	conf   Config
-	logger *log.Entry
+	conf Config
 }
 
-func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
-	s.logger.Info("Secrets Run...")
+func (s Secrets) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.IsResults, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "secrets")
+	logger.Info("Secrets Run...")
 
-	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, s.logger, job.Factory)
+	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, logger, job.Factory)
 	mergedResults := NewMergedResults()
 
 	for _, input := range s.conf.Inputs {
@@ -54,12 +54,12 @@ func (s Secrets) Run(res *familiesresults.Results) (interfaces.IsResults, error)
 			if familiesutils.ShouldStripInputPath(input.StripPathFromResult, s.conf.StripInputPaths) {
 				secretResult = StripPathFromResult(secretResult, input.Input)
 			}
-			s.logger.Infof("Merging result from %q", name)
+			logger.Infof("Merging result from %q", name)
 			mergedResults = mergedResults.Merge(secretResult)
 		}
 	}
 
-	s.logger.Info("Secrets Done...")
+	logger.Info("Secrets Done...")
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
@@ -81,9 +81,8 @@ func (s Secrets) GetType() types.FamilyType {
 // ensure types implement the requisite interfaces.
 var _ interfaces.Family = &Secrets{}
 
-func New(logger *log.Entry, conf Config) *Secrets {
+func New(conf Config) *Secrets {
 	return &Secrets{
-		conf:   conf,
-		logger: logger.Dup().WithField("family", "secrets"),
+		conf: conf,
 	}
 }

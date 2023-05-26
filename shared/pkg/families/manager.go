@@ -19,8 +19,6 @@ import (
 	"context"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
 	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
@@ -31,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Manager struct {
@@ -38,7 +37,7 @@ type Manager struct {
 	families []interfaces.Family
 }
 
-func New(logger *log.Entry, config *Config) *Manager {
+func New(config *Config) *Manager {
 	manager := &Manager{
 		config: config,
 	}
@@ -46,31 +45,31 @@ func New(logger *log.Entry, config *Config) *Manager {
 	// Analyzers.
 	// SBOM MUST come before vulnerabilities.
 	if config.SBOM.Enabled {
-		manager.families = append(manager.families, sbom.New(logger, config.SBOM))
+		manager.families = append(manager.families, sbom.New(config.SBOM))
 	}
 
 	// Scanners.
 	// Vulnerabilities MUST be after SBOM to support the case it is configured to use the output from sbom.
 	if config.Vulnerabilities.Enabled {
-		manager.families = append(manager.families, vulnerabilities.New(logger, config.Vulnerabilities))
+		manager.families = append(manager.families, vulnerabilities.New(config.Vulnerabilities))
 	}
 	if config.Secrets.Enabled {
-		manager.families = append(manager.families, secrets.New(logger, config.Secrets))
+		manager.families = append(manager.families, secrets.New(config.Secrets))
 	}
 	if config.Rootkits.Enabled {
-		manager.families = append(manager.families, rootkits.New(logger, config.Rootkits))
+		manager.families = append(manager.families, rootkits.New(config.Rootkits))
 	}
 	if config.Malware.Enabled {
-		manager.families = append(manager.families, malware.New(logger, config.Malware))
+		manager.families = append(manager.families, malware.New(config.Malware))
 	}
 	if config.Misconfiguration.Enabled {
-		manager.families = append(manager.families, misconfiguration.New(logger, config.Misconfiguration))
+		manager.families = append(manager.families, misconfiguration.New(config.Misconfiguration))
 	}
 
 	// Enrichers.
 	// Exploits MUST be after Vulnerabilities to support the case it is configured to use the output from Vulnerabilities.
 	if config.Exploits.Enabled {
-		manager.families = append(manager.families, exploits.New(logger, config.Exploits))
+		manager.families = append(manager.families, exploits.New(config.Exploits))
 	}
 
 	return manager
@@ -94,6 +93,8 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 	var errors []error
 	familyResults := results.New()
 
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	for _, family := range m.families {
 		if err := notifier.FamilyStarted(ctx, family.GetType()); err != nil {
 			errors = append(errors, fmt.Errorf("family started notification failed: %v", err))
@@ -102,7 +103,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 
 		result := make(chan FamilyResult)
 		go func() {
-			ret, err := family.Run(familyResults)
+			ret, err := family.Run(ctx, familyResults)
 			result <- FamilyResult{
 				Result:     ret,
 				Err:        err,
@@ -125,7 +126,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 				errors = append(errors, fmt.Errorf("family finished notification failed: %v", err))
 			}
 		case r := <-result:
-			log.Debugf("received result from family %q: %v", family.GetType(), r)
+			logger.Debugf("received result from family %q: %v", family.GetType(), r)
 			if r.Err != nil {
 				oneOrMoreFamilyFailed = true
 			} else {

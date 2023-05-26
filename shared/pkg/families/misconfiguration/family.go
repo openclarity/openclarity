@@ -16,9 +16,8 @@
 package misconfiguration
 
 import (
+	"context"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -29,19 +28,20 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Misconfiguration struct {
-	conf   misconfigurationTypes.Config
-	logger *log.Entry
+	conf misconfigurationTypes.Config
 }
 
-func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error) {
-	m.logger.Info("Misconfiguration Run...")
+func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfaces.IsResults, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "misconfiguration")
+	logger.Info("Misconfiguration Run...")
 
-	results := NewResults()
+	misConfigResults := NewResults()
 
-	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, m.logger, job.Factory)
+	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, logger, job.Factory)
 	for _, input := range m.conf.Inputs {
 		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
@@ -50,21 +50,21 @@ func (m Misconfiguration) Run(res *results.Results) (interfaces.IsResults, error
 
 		// Merge results.
 		for name, result := range managerResults {
-			m.logger.Infof("Merging result from %q", name)
+			logger.Infof("Merging result from %q", name)
 			if scanResult, ok := result.(misconfigurationTypes.ScannerResult); ok {
 				if familiesutils.ShouldStripInputPath(input.StripPathFromResult, m.conf.StripInputPaths) {
 					scanResult = StripPathFromResult(scanResult, input.Input)
 				}
-				results.AddScannerResult(scanResult)
+				misConfigResults.AddScannerResult(scanResult)
 			} else {
 				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
 			}
 		}
 	}
 
-	m.logger.Info("Misconfiguration Done...")
+	logger.Info("Misconfiguration Done...")
 
-	return results, nil
+	return misConfigResults, nil
 }
 
 // StripPathFromResult strip input path from results wherever it is found.
@@ -82,9 +82,8 @@ func (m Misconfiguration) GetType() types.FamilyType {
 // ensure types implement the requisite interfaces.
 var _ interfaces.Family = &Misconfiguration{}
 
-func New(logger *log.Entry, conf misconfigurationTypes.Config) *Misconfiguration {
+func New(conf misconfigurationTypes.Config) *Misconfiguration {
 	return &Misconfiguration{
-		conf:   conf,
-		logger: logger.Dup().WithField("family", "misconfiguration"),
+		conf: conf,
 	}
 }

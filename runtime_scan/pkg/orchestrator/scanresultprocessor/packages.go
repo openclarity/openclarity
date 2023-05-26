@@ -22,9 +22,12 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
+	logutils "github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.PackageKey]string, error) {
+	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
+
 	existingMap := map[findingkey.PackageKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and asset/id eq '%s' and scan/id eq '%s'",
@@ -50,8 +53,8 @@ func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Co
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing package findings for this scan", len(existingMap))
-	srp.logger.Debugf("Existing package map: %v", existingMap)
+	logger.Infof("Found %d existing package findings for this scan", len(existingMap))
+	logger.Debugf("Existing package map: %v", existingMap)
 
 	return existingMap, nil
 }

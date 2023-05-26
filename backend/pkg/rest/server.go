@@ -23,11 +23,11 @@ import (
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/server"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	uiserver "github.com/openclarity/vmclarity/ui_backend/api/server"
 	uirest "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
@@ -69,7 +69,7 @@ func createEchoServer(dbHandler databaseTypes.Database, uiSitePath string, uiBac
 	// Log all requests
 	e.Use(echomiddleware.Logger())
 
-	// Recover any panics into a HTTP 500
+	// Recover any panics into HTTP 500
 	e.Use(echomiddleware.Recover())
 
 	// Create a router group for the backend /api base URL
@@ -108,24 +108,28 @@ func createEchoServer(dbHandler databaseTypes.Database, uiSitePath string, uiBac
 	return e, nil
 }
 
-func (s *Server) Start(errChan chan struct{}) {
-	log.Infof("Starting REST server")
+func (s *Server) Start(ctx context.Context, errChan chan struct{}) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	logger.Infof("Starting REST server")
 	go func() {
 		if err := s.echoServer.Start(fmt.Sprintf("0.0.0.0:%d", s.port)); err != nil {
-			log.Errorf("Failed to start REST server: %v", err)
+			logger.Errorf("Failed to start REST server: %v", err)
 			errChan <- common.Empty
 		}
 	}()
-	log.Infof("REST server is running")
+	logger.Infof("REST server is running")
 }
 
-func (s *Server) Stop() {
-	log.Infof("Stopping REST server")
+func (s *Server) Stop(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	logger.Infof("Stopping REST server")
 	if s.echoServer != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSec*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, shutdownTimeoutSec*time.Second)
 		defer cancel()
 		if err := s.echoServer.Shutdown(ctx); err != nil {
-			log.Errorf("Failed to shutdown REST server: %v", err)
+			logger.Errorf("Failed to shutdown REST server: %v", err)
 		}
 	}
 }
