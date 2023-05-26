@@ -25,7 +25,6 @@ import (
 	"syscall"
 
 	"github.com/Portshift/go-utils/healthz"
-	log "github.com/sirupsen/logrus"
 
 	_config "github.com/openclarity/vmclarity/backend/pkg/config"
 	"github.com/openclarity/vmclarity/backend/pkg/database"
@@ -36,6 +35,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	uibackend "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
 
@@ -54,10 +54,12 @@ func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
 
 const defaultChanSize = 100
 
-func Run() {
+func Run(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	config, err := _config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.Fatalf("Failed to load config: %v", err)
 	}
 
 	errChan := make(chan struct{}, defaultChanSize)
@@ -67,35 +69,36 @@ func Run() {
 
 	healthServer.SetIsReady(false)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	log.Info("VMClarity backend is running")
+	logger.Info("VMClarity backend is running")
 
 	dbConfig := createDatabaseConfig(config)
 	dbHandler, err := database.InitializeDatabase(dbConfig)
 	if err != nil {
-		log.Fatalf("Failed to initialise database: %v", err)
+		logger.Fatalf("Failed to initialise database: %v", err)
 	}
 
 	if config.EnableFakeData {
-		go database.CreateDemoData(dbHandler)
+		go database.CreateDemoData(ctx, dbHandler)
 	}
 
 	backendAddress := fmt.Sprintf("http://%s%s", net.JoinHostPort(config.BackendRestHost, strconv.Itoa(config.BackendRestPort)), rest.BaseURL)
 	backendClient, err := backendclient.Create(backendAddress)
 	if err != nil {
-		log.Fatalf("Failed to create a backend client: %v", err)
+		logger.Fatalf("Failed to create a backend client: %v", err)
 	}
 
 	uiBackendServer := uibackend.CreateUIBackedServer(backendClient)
 
+	// nolint:contextcheck
 	restServer, err := rest.CreateRESTServer(config.BackendRestPort, dbHandler, config.UISitePath, uiBackendServer)
 	if err != nil {
-		log.Fatalf("Failed to create REST server: %v", err)
+		logger.Fatalf("Failed to create REST server: %v", err)
 	}
-	restServer.Start(errChan)
-	defer restServer.Stop()
+	restServer.Start(ctx, errChan)
+	defer restServer.Stop(ctx)
 
 	startRuntimeScanOrchestratorIfNeeded(ctx, config, backendClient)
 
@@ -103,7 +106,7 @@ func Run() {
 	uiBackendServer.StartBackgroundProcessing(ctx)
 
 	healthServer.SetIsReady(true)
-	log.Info("VMClarity backend is ready")
+	logger.Info("VMClarity backend is ready")
 
 	// Wait for deactivation
 	sig := make(chan os.Signal, 1)
@@ -112,39 +115,40 @@ func Run() {
 	select {
 	case <-errChan:
 		cancel()
-		log.Errorf("Received an error - shutting down")
+		logger.Errorf("Received an error - shutting down")
 	case s := <-sig:
 		cancel()
-		log.Warningf("Received a termination signal: %v", s)
+		logger.Warningf("Received a termination signal: %v", s)
 	}
 }
 
 func startRuntimeScanOrchestratorIfNeeded(ctx context.Context, config *_config.Config, backendClient *backendclient.BackendClient) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	if config.DisableOrchestrator {
-		log.Infof("Runtime orchestrator is disabled")
+		logger.Infof("Runtime orchestrator is disabled")
 		return
 	}
 
 	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestHost, config.BackendRestPort, rest.BaseURL)
 	if err != nil {
-		log.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
+		logger.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
 	}
 
 	providerClient, err := aws.Create(ctx, runtimeScanConfig.AWSConfig)
 	if err != nil {
-		log.Fatalf("Failed to create provider client: %v", err)
+		logger.Fatalf("Failed to create provider client: %v", err)
 	}
 
 	orc, err := createRuntimeScanOrchestrator(providerClient, runtimeScanConfig, backendClient)
 	if err != nil {
-		log.Fatalf("Failed to create runtime scan orchestrator: %v", err)
+		logger.Fatalf("Failed to create runtime scan orchestrator: %v", err)
 	}
-
 	orc.Start(ctx)
 }
 
 func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig, backendClient *backendclient.BackendClient) (orchestrator.Orchestrator, error) {
-	orc, err := orchestrator.Create(config, client, backendClient)
+	orc, err := orchestrator.New(config, client, backendClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create runtime scan orchestrator: %v", err)
 	}

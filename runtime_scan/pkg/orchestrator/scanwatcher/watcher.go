@@ -22,12 +22,11 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/common"
 	runtimeScanUtils "github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 const (
@@ -52,9 +51,7 @@ type Config struct {
 }
 
 func New(c Config) *Watcher {
-	logger := log.WithFields(log.Fields{"controller": "ScanWatcher"})
 	return &Watcher{
-		logger,
 		c.Backend,
 		c.PollPeriod,
 		c.ReconcileTimeout,
@@ -62,17 +59,18 @@ func New(c Config) *Watcher {
 }
 
 type Watcher struct {
-	logger           *log.Entry
 	client           *backendclient.BackendClient
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
 }
 
 func (w *Watcher) Start(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDefault(ctx).WithField("controller", "ScanWatcher")
+	ctx = log.SetLoggerForContext(ctx, logger)
+
 	queue := common.NewQueue[ScanReconcileEvent]()
 
 	poller := &ScanPoller{
-		Logger:     w.logger,
 		PollPeriod: w.pollPeriod,
 		Queue:      queue,
 		GetItems:   w.GetAbortedScans,
@@ -105,7 +103,9 @@ func (w *Watcher) GetAbortedScans(ctx context.Context) ([]ScanReconcileEvent, er
 }
 
 func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error {
-	w.logger.Infof("Reconciling scan event: %v", event)
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	logger.Infof("Reconciling scan event: %v", event)
 
 	selector := "id,state,stateReason"
 	params := models.GetScansScanIDParams{
@@ -124,7 +124,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error
 
 	switch state {
 	case models.ScanStateDone, models.ScanStateFailed:
-		w.logger.Debugf("Reconciling scan event is skipped as Scan is already finished: %v", event)
+		logger.Debugf("Reconciling scan event is skipped as Scan is already finished: %v", event)
 	case models.ScanStateAborted:
 		return w.reconcileAborted(ctx, event)
 	case models.ScanStatePending, models.ScanStateDiscovered, models.ScanStateInProgress:
@@ -154,6 +154,8 @@ func (w *Watcher) getScansByState(ctx context.Context, s models.ScanState) (mode
 }
 
 func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s'",
 		event.ScanID, models.ABORTED, models.DONE)
 	selector := "id,status"
@@ -190,7 +192,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent
 
 				err := w.client.PatchScanResult(ctx, sr, id)
 				if err != nil {
-					w.logger.Errorf("Failed to patch ScanResult with id: %s", id)
+					logger.Errorf("Failed to patch ScanResult with id: %s", id)
 					reconciliationFailed = true
 					return
 				}

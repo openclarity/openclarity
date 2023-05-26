@@ -20,24 +20,19 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/common"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type ScanResultProcessor struct {
-	logger *log.Entry
 	client *backendclient.BackendClient
 }
 
 func NewScanResultProcessor(client *backendclient.BackendClient) *ScanResultProcessor {
-	logger := log.WithFields(log.Fields{"controller": "ScanResultProcessor"})
-
 	return &ScanResultProcessor{
-		logger: logger,
 		client: client,
 	}
 }
@@ -146,10 +141,12 @@ const (
 )
 
 func (srp *ScanResultProcessor) Start(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("controller", "ScanResultProcessor")
+	ctx = log.SetLoggerForContext(ctx, logger)
+
 	queue := common.NewQueue[ScanResultReconcileEvent]()
 
 	poller := common.Poller[ScanResultReconcileEvent]{
-		Logger:     srp.logger,
 		PollPeriod: pollPeriodSeconds * time.Second,
 		GetItems:   srp.GetItems,
 		Queue:      queue,
@@ -157,7 +154,6 @@ func (srp *ScanResultProcessor) Start(ctx context.Context) {
 	poller.Start(ctx)
 
 	reconciler := common.Reconciler[ScanResultReconcileEvent]{
-		Logger:            srp.logger,
 		ReconcileFunction: srp.Reconcile,
 		ReconcileTimeout:  reconcileTimeoutSeconds * time.Second,
 		Queue:             queue,

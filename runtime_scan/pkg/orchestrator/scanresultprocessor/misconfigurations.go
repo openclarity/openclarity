@@ -22,9 +22,12 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
+	logutils "github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 func (srp *ScanResultProcessor) getExistingMisconfigurationFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.MisconfigurationKey]string, error) {
+	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
+
 	existingMap := map[findingkey.MisconfigurationKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and asset/id eq '%s' and scan/id eq '%s'",
@@ -50,8 +53,8 @@ func (srp *ScanResultProcessor) getExistingMisconfigurationFindingsForScan(ctx c
 		existingMap[key] = *finding.Id
 	}
 
-	srp.logger.Infof("Found %d existing misconfiguration findings for this scan", len(existingMap))
-	srp.logger.Debugf("Existing misconfiguration map: %v", existingMap)
+	logger.Infof("Found %d existing misconfiguration findings for this scan", len(existingMap))
+	logger.Debugf("Existing misconfiguration map: %v", existingMap)
 
 	return existingMap, nil
 }

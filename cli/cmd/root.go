@@ -41,6 +41,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 const DefaultWatcherInterval = 2 * time.Minute
@@ -69,7 +70,7 @@ var rootCmd = &cobra.Command{
 
 		// Main context which remains active even if the scan is aborted allowing post-processing operations
 		// like updating scan result state
-		ctx := cmd.Context()
+		ctx := log.SetLoggerForContext(cmd.Context(), logger)
 
 		cli, err := newCli()
 		if err != nil {
@@ -111,7 +112,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		logger.Infof("Running scanners...")
-		runErrors := families.New(logger, config).Run(abortCtx, cli)
+		runErrors := families.New(config).Run(abortCtx, cli)
 
 		err = cli.MarkDone(ctx, runErrors)
 		if err != nil {
@@ -157,7 +158,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	logrus.Infof("init config")
+	logger.Infof("init config")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -187,14 +188,13 @@ func initConfig() {
 	if logrus.IsLevelEnabled(logrus.InfoLevel) {
 		configB, err := yaml.Marshal(config)
 		cobra.CheckErr(err)
-		logrus.Infof("Using config file (%s):\n%s", viper.ConfigFileUsed(), string(configB))
+		logger.Infof("Using config file (%s):\n%s", viper.ConfigFileUsed(), string(configB))
 	}
 }
 
 func initLogger() {
-	log := logrus.New()
-	log.SetLevel(logrus.InfoLevel)
-	logger = log.WithField("app", "vmclarity")
+	log.InitLogger(logrus.InfoLevel.String(), os.Stderr)
+	logger = logrus.WithField("app", "vmclarity")
 }
 
 func newCli() (*cli.CLI, error) {

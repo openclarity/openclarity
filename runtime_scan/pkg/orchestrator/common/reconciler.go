@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type RequeueAfterError struct {
@@ -41,8 +41,6 @@ func NewRequeueAfterError(d time.Duration, msg string) error {
 }
 
 type Reconciler[T comparable] struct {
-	Logger *log.Entry
-
 	// Reconcile function which will be called whenever there is an event on EventChan
 	ReconcileFunction func(context.Context, T) error
 
@@ -56,17 +54,19 @@ type Reconciler[T comparable] struct {
 
 func (r *Reconciler[T]) Start(ctx context.Context) {
 	go func() {
+		logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 		for {
 			// queue.Get will block until an item is available to
 			// return.
 			item, err := r.Queue.Dequeue(ctx)
 			if err != nil {
-				r.Logger.Errorf("Failed to get item from queue: %v", err)
+				logger.Errorf("Failed to get item from queue: %v", err)
 			} else {
 				timeoutCtx, cancel := context.WithTimeout(ctx, r.ReconcileTimeout)
 				err := r.ReconcileFunction(timeoutCtx, item)
 				if err != nil {
-					r.Logger.Errorf("Failed to reconcile item: %v", err)
+					logger.Errorf("Failed to reconcile item: %v", err)
 				}
 
 				// Make sure timeout context is canceled to
@@ -89,7 +89,7 @@ func (r *Reconciler[T]) Start(ctx context.Context) {
 			// to exit.
 			select {
 			case <-ctx.Done():
-				r.Logger.Infof("Shutting down: %v", ctx.Err())
+				logger.Infof("Shutting down: %v", ctx.Err())
 				return
 			default:
 			}

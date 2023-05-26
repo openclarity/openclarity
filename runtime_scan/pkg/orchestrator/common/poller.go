@@ -19,12 +19,10 @@ import (
 	"context"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Poller[T comparable] struct {
-	Logger *log.Entry
-
 	// How often to re-poll the API for new items and try to publish them
 	// on the event channel. If the current items aren't handled they will
 	// be dropped and new items fetched when the PollPeriod is up.
@@ -39,6 +37,8 @@ type Poller[T comparable] struct {
 }
 
 func (p *Poller[T]) pollThenWait(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	// Create a timeout context so that we can re-poll the
 	// items at fixed intervals regardless of how far
 	// through the items we got, this prevents us holding
@@ -52,9 +52,9 @@ func (p *Poller[T]) pollThenWait(ctx context.Context) {
 
 	items, err := p.GetItems(timeoutCtx)
 	if err != nil {
-		p.Logger.Errorf("Failed to get items to reconcile: %v", err)
+		logger.Errorf("Failed to get items to reconcile: %v", err)
 	} else {
-		p.Logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
+		logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
 		for _, item := range items {
 			p.Queue.Enqueue(item)
 		}
@@ -70,6 +70,8 @@ func (p *Poller[T]) pollThenWait(ctx context.Context) {
 
 func (p *Poller[T]) Start(ctx context.Context) {
 	go func() {
+		logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 		for {
 			p.pollThenWait(ctx)
 
@@ -78,7 +80,7 @@ func (p *Poller[T]) Start(ctx context.Context) {
 			// we must stop and return, otherwise continue to the
 			// next poll.
 			case <-ctx.Done():
-				p.Logger.Info("Shutting down")
+				logger.Info("Shutting down")
 				return
 			default:
 			}
