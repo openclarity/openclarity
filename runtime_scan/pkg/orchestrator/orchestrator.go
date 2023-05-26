@@ -18,8 +18,6 @@ package orchestrator
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
-
 	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/configwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
@@ -27,11 +25,12 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Orchestrator interface {
 	Start(ctx context.Context)
-	Stop(cancel context.CancelFunc)
+	Stop(ctx context.Context)
 }
 
 type orchestrator struct {
@@ -43,7 +42,7 @@ type orchestrator struct {
 	cancelFunc          context.CancelFunc
 }
 
-func Create(config *_config.OrchestratorConfig, providerClient provider.Client, backendClient *backendclient.BackendClient) (Orchestrator, error) {
+func New(config *_config.OrchestratorConfig, providerClient provider.Client, backendClient *backendclient.BackendClient) (Orchestrator, error) {
 	orc := &orchestrator{
 		config:              config,
 		scanConfigWatcher:   configwatcher.CreateScanConfigWatcher(backendClient, providerClient, config.ScannerConfig),
@@ -60,7 +59,9 @@ func Create(config *_config.OrchestratorConfig, providerClient provider.Client, 
 }
 
 func (o *orchestrator) Start(ctx context.Context) {
-	log.Infof("Starting Orchestrator server")
+	logger := log.GetLoggerFromContextOrDefault(ctx)
+
+	logger.Infof("Starting Orchestrator server")
 	ctx, cancel := context.WithCancel(ctx)
 	o.cancelFunc = cancel
 	o.scanConfigWatcher.Start(ctx)
@@ -69,8 +70,10 @@ func (o *orchestrator) Start(ctx context.Context) {
 	o.scanWatcher.Start(ctx)
 }
 
-func (o *orchestrator) Stop(cancel context.CancelFunc) {
-	log.Infof("Stopping Orchestrator server")
+func (o *orchestrator) Stop(ctx context.Context) {
+	logger := log.GetLoggerFromContextOrDefault(ctx)
+
+	logger.Infof("Stopping Orchestrator server")
 	if o.cancelFunc != nil {
 		o.cancelFunc()
 	}

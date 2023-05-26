@@ -18,9 +18,8 @@ package state
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type LocalState struct{}
@@ -29,37 +28,42 @@ func (l *LocalState) WaitForVolumeAttachment(context.Context) error {
 	return nil
 }
 
-func (l *LocalState) MarkInProgress(context.Context) error {
-	log.Info("Scanning is in progress")
+func (l *LocalState) MarkInProgress(ctx context.Context) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	logger.Info("Scanning is in progress")
 	return nil
 }
 
 func (l *LocalState) MarkFamilyScanInProgress(ctx context.Context, familyType types.FamilyType) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	switch familyType {
 	case types.SBOM:
-		log.Info("SBOM scan is in progress")
+		logger.Info("SBOM scan is in progress")
 	case types.Vulnerabilities:
-		log.Info("Vulnerabilities scan is in progress")
+		logger.Info("Vulnerabilities scan is in progress")
 	case types.Secrets:
-		log.Info("Secrets scan is in progress")
+		logger.Info("Secrets scan is in progress")
 	case types.Exploits:
-		log.Info("Exploits scan is in progress")
+		logger.Info("Exploits scan is in progress")
 	case types.Misconfiguration:
-		log.Info("Misconfiguration scan is in progress")
+		logger.Info("Misconfiguration scan is in progress")
 	case types.Rootkits:
-		log.Info("Rootkit scan is in progress")
+		logger.Info("Rootkit scan is in progress")
 	case types.Malware:
-		log.Info("Malware scan is in progress")
+		logger.Info("Malware scan is in progress")
 	}
 	return nil
 }
 
-func (l *LocalState) MarkDone(_ context.Context, errs []error) error {
+func (l *LocalState) MarkDone(ctx context.Context, errs []error) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	if len(errs) > 0 {
-		log.Errorf("scan has been completed with errors: %v", errs)
+		logger.Errorf("scan has been completed with errors: %v", errs)
 		return nil
 	}
-	log.Info("Scan has been completed")
+	logger.Info("Scan has been completed")
 	return nil
 }
 

@@ -16,11 +16,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
-	logutils "github.com/Portshift/go-utils/log"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 
@@ -28,11 +28,21 @@ import (
 	"github.com/openclarity/vmclarity/backend/pkg/config"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/backend/pkg/version"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
-func run(c *cli.Context) {
-	logutils.InitLogs(c, os.Stdout)
-	backend.Run()
+const (
+	LogLevelFlag         = "log-level"
+	LogLevelDefaultValue = "warning"
+)
+
+func run(cliCtx *cli.Context) {
+	log.InitLogger(cliCtx.String(LogLevelFlag), os.Stderr)
+
+	ctx := context.Background()
+	logger := logrus.WithContext(ctx)
+	ctx = log.SetLoggerForContext(ctx, logger)
+	backend.Run(ctx)
 }
 
 func versionCommand(_ *cli.Context) {
@@ -58,9 +68,9 @@ func main() {
 		Action: run,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  logutils.LogLevelFlag,
-				Value: logutils.LogLevelDefaultValue,
-				Usage: logutils.LogLevelFlagUsage,
+				Name:  LogLevelFlag,
+				Value: LogLevelDefaultValue,
+				Usage: fmt.Sprintf("Set log level %s", logrus.AllLevels),
 			},
 		},
 	}
@@ -79,6 +89,6 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 }

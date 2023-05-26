@@ -44,6 +44,7 @@ const (
 
 	UISitePath = "UI_SITE_PATH" // TODO: UI site should be moved out of the backend to nginx
 
+	LogLevel = "LOG_LEVEL"
 )
 
 type Config struct {
@@ -65,7 +66,8 @@ type Config struct {
 	EnableDBInfoLogs bool   `json:"enable-db-info-logs"`
 	EnableFakeData   bool   `json:"enable-fake-data"`
 
-	LocalDBPath string `json:"local-db-path,omitempty"`
+	LocalDBPath string    `json:"local-db-path,omitempty"`
+	LogLevel    log.Level `json:"log-level,omitempty"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -89,6 +91,12 @@ func LoadConfig() (*Config, error) {
 	config.EnableFakeData = viper.GetBool(FakeDataEnvVar)
 
 	config.LocalDBPath = viper.GetString(LocalDBPath)
+
+	logLevel, err := log.ParseLevel(viper.GetString(LogLevel))
+	if err != nil {
+		logLevel = log.WarnLevel
+	}
+	config.LogLevel = logLevel
 
 	configB, err := json.Marshal(config)
 	if err == nil {

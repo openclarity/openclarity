@@ -22,13 +22,13 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/cli/pkg/mount"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 const (
@@ -54,6 +54,8 @@ func (c *CLI) FamilyFinished(ctx context.Context, res families.FamilyResult) err
 func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 	var mountPoints []string
 
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	devices, err := mount.ListBlockDevices()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list block devices: %v", err)
@@ -67,7 +69,7 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 			if err := device.Mount(mountDir); err != nil {
 				return nil, fmt.Errorf("failed to mount device: %v", err)
 			}
-			log.Infof("Device %v on %v is mounted", device.DeviceName, mountDir)
+			logger.Infof("Device %v on %v is mounted", device.DeviceName, mountDir)
 			mountPoints = append(mountPoints, mountDir)
 		}
 		if ctx.Err() != nil {
@@ -82,19 +84,21 @@ func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, inte
 		timer := time.NewTicker(interval)
 		defer timer.Stop()
 
+		logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 		for {
 			select {
 			case <-timer.C:
 				aborted, err := c.IsAborted(ctx)
 				if err != nil {
-					log.Errorf("Failed to retrieve scan result state: %v", err)
+					logger.Errorf("Failed to retrieve scan result state: %v", err)
 				}
 				if aborted {
 					cancel()
 					return
 				}
 			case <-ctx.Done():
-				log.Debugf("Stop watching for abort event as context is cancelled")
+				logger.Debugf("Stop watching for abort event as context is cancelled")
 				return
 			}
 		}

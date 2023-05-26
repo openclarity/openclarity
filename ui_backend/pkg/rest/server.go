@@ -19,9 +19,8 @@ import (
 	"context"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 const (
@@ -44,13 +43,15 @@ func CreateUIBackedServer(client *backendclient.BackendClient) *ServerImpl {
 
 func (s *ServerImpl) StartBackgroundProcessing(ctx context.Context) {
 	go func() {
+		logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 		s.runBackgroundRecalculation(ctx)
 		for {
 			select {
 			case <-time.After(backgroundRecalculationInterval):
 				s.runBackgroundRecalculation(ctx)
 			case <-ctx.Done():
-				log.Infof("Stop background recalculation")
+				logger.Infof("Stop background recalculation")
 				return
 			}
 		}
@@ -58,7 +59,9 @@ func (s *ServerImpl) StartBackgroundProcessing(ctx context.Context) {
 }
 
 func (s *ServerImpl) runBackgroundRecalculation(ctx context.Context) {
-	log.Infof("Background recalculation started...")
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	logger.Infof("Background recalculation started...")
 	s.recalculateFindingsImpact(ctx)
-	log.Infof("Background recalculation ended...")
+	logger.Infof("Background recalculation ended...")
 }

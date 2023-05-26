@@ -16,14 +16,15 @@
 package database
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/rand"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
@@ -93,22 +94,24 @@ var regions = []models.AwsRegion{
 }
 
 // nolint:gomnd,maintidx,cyclop
-func CreateDemoData(db types.Database) {
+func CreateDemoData(ctx context.Context, db types.Database) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	// Create scopes:
 	scopes, err := createScopes()
 	if err != nil {
-		log.Fatalf("failed to create scopes FromAwsScope: %v", err)
+		logger.Fatalf("failed to create scopes FromAwsScope: %v", err)
 	}
 	if _, err := db.ScopesTable().SetScopes(scopes); err != nil {
-		log.Fatalf("failed to save scopes: %v", err)
+		logger.Fatalf("failed to save scopes: %v", err)
 	}
 
 	// Create scan configs:
-	scanConfigs := createScanConfigs()
+	scanConfigs := createScanConfigs(ctx)
 	for i, scanConfig := range scanConfigs {
 		ret, err := db.ScanConfigsTable().CreateScanConfig(scanConfig)
 		if err != nil {
-			log.Fatalf("failed to create scan config [%d]: %v", i, err)
+			logger.Fatalf("failed to create scan config [%d]: %v", i, err)
 		}
 		scanConfigs[i] = ret
 	}
@@ -118,7 +121,7 @@ func CreateDemoData(db types.Database) {
 	for i, target := range targets {
 		retTarget, err := db.TargetsTable().CreateTarget(target)
 		if err != nil {
-			log.Fatalf("failed to create target [%d]: %v", i, err)
+			logger.Fatalf("failed to create target [%d]: %v", i, err)
 		}
 		targets[i] = retTarget
 	}
@@ -128,7 +131,7 @@ func CreateDemoData(db types.Database) {
 	for i, scan := range scans {
 		ret, err := db.ScansTable().CreateScan(scan)
 		if err != nil {
-			log.Fatalf("failed to create scan [%d]: %v", i, err)
+			logger.Fatalf("failed to create scan [%d]: %v", i, err)
 		}
 		scans[i] = ret
 	}
@@ -138,24 +141,24 @@ func CreateDemoData(db types.Database) {
 	for i, scanResult := range scanResults {
 		ret, err := db.ScanResultsTable().CreateScanResult(scanResult)
 		if err != nil {
-			log.Fatalf("failed to create scan result [%d]: %v", i, err)
+			logger.Fatalf("failed to create scan result [%d]: %v", i, err)
 		}
 		scanResults[i] = ret
 	}
 
 	// Create findings
-	findings := createFindings(scanResults)
+	findings := createFindings(ctx, scanResults)
 	for i, finding := range findings {
 		ret, err := db.FindingsTable().CreateFinding(finding)
 		if err != nil {
-			log.Fatalf("failed to create finding [%d]: %v", i, err)
+			logger.Fatalf("failed to create finding [%d]: %v", i, err)
 		}
 		findings[i] = ret
 	}
 }
 
 // nolint:gocognit,prealloc,cyclop
-func createFindings(scanResults []models.TargetScanResult) []models.Finding {
+func createFindings(ctx context.Context, scanResults []models.TargetScanResult) []models.Finding {
 	var ret []models.Finding
 	rand.Seed(uint64(time.Now().Unix()))
 
@@ -179,25 +182,25 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 			},
 		}
 		if scanResult.Sboms != nil && scanResult.Sboms.Packages != nil {
-			ret = append(ret, createPackageFindings(findingBase, *scanResult.Sboms.Packages)...)
+			ret = append(ret, createPackageFindings(ctx, findingBase, *scanResult.Sboms.Packages)...)
 		}
 		if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Vulnerabilities != nil {
-			ret = append(ret, createVulnerabilityFindings(findingBase, *scanResult.Vulnerabilities.Vulnerabilities)...)
+			ret = append(ret, createVulnerabilityFindings(ctx, findingBase, *scanResult.Vulnerabilities.Vulnerabilities)...)
 		}
 		if scanResult.Exploits != nil && scanResult.Exploits.Exploits != nil {
-			ret = append(ret, createExploitFindings(findingBase, *scanResult.Exploits.Exploits)...)
+			ret = append(ret, createExploitFindings(ctx, findingBase, *scanResult.Exploits.Exploits)...)
 		}
 		if scanResult.Malware != nil && scanResult.Malware.Malware != nil {
-			ret = append(ret, createMalwareFindings(findingBase, *scanResult.Malware.Malware)...)
+			ret = append(ret, createMalwareFindings(ctx, findingBase, *scanResult.Malware.Malware)...)
 		}
 		if scanResult.Secrets != nil && scanResult.Secrets.Secrets != nil {
-			ret = append(ret, createSecretFindings(findingBase, *scanResult.Secrets.Secrets)...)
+			ret = append(ret, createSecretFindings(ctx, findingBase, *scanResult.Secrets.Secrets)...)
 		}
 		if scanResult.Misconfigurations != nil && scanResult.Misconfigurations.Misconfigurations != nil {
-			ret = append(ret, createMisconfigurationFindings(findingBase, *scanResult.Misconfigurations.Misconfigurations)...)
+			ret = append(ret, createMisconfigurationFindings(ctx, findingBase, *scanResult.Misconfigurations.Misconfigurations)...)
 		}
 		if scanResult.Rootkits != nil && scanResult.Rootkits.Rootkits != nil {
-			ret = append(ret, createRootkitFindings(findingBase, *scanResult.Rootkits.Rootkits)...)
+			ret = append(ret, createRootkitFindings(ctx, findingBase, *scanResult.Rootkits.Rootkits)...)
 		}
 	}
 
@@ -205,25 +208,27 @@ func createFindings(scanResults []models.TargetScanResult) []models.Finding {
 }
 
 // nolint:gocognit,prealloc
-func createExploitFindings(base models.Finding, exploits []models.Exploit) []models.Finding {
+func createExploitFindings(ctx context.Context, base models.Finding, exploits []models.Exploit) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, exploit := range exploits {
 		val := base
 		convB, err := json.Marshal(exploit)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.ExploitFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromExploitFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromExploitFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromExploitFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -233,25 +238,27 @@ func createExploitFindings(base models.Finding, exploits []models.Exploit) []mod
 }
 
 // nolint:gocognit,prealloc
-func createPackageFindings(base models.Finding, packages []models.Package) []models.Finding {
+func createPackageFindings(ctx context.Context, base models.Finding, packages []models.Package) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, pkg := range packages {
 		val := base
 		convB, err := json.Marshal(pkg)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.PackageFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromPackageFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromPackageFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromPackageFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -261,25 +268,27 @@ func createPackageFindings(base models.Finding, packages []models.Package) []mod
 }
 
 // nolint:gocognit,prealloc
-func createMalwareFindings(base models.Finding, malware []models.Malware) []models.Finding {
+func createMalwareFindings(ctx context.Context, base models.Finding, malware []models.Malware) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, mal := range malware {
 		val := base
 		convB, err := json.Marshal(mal)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.MalwareFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromMalwareFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromMalwareFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromMalwareFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -289,25 +298,27 @@ func createMalwareFindings(base models.Finding, malware []models.Malware) []mode
 }
 
 // nolint:gocognit,prealloc
-func createSecretFindings(base models.Finding, secrets []models.Secret) []models.Finding {
+func createSecretFindings(ctx context.Context, base models.Finding, secrets []models.Secret) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, secret := range secrets {
 		val := base
 		convB, err := json.Marshal(secret)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.SecretFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromSecretFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromSecretFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromSecretFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -317,25 +328,27 @@ func createSecretFindings(base models.Finding, secrets []models.Secret) []models
 }
 
 // nolint:gocognit,prealloc
-func createMisconfigurationFindings(base models.Finding, misconfigurations []models.Misconfiguration) []models.Finding {
+func createMisconfigurationFindings(ctx context.Context, base models.Finding, misconfigurations []models.Misconfiguration) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, misconfiguration := range misconfigurations {
 		val := base
 		convB, err := json.Marshal(misconfiguration)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.MisconfigurationFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromMisconfigurationFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromMisconfigurationFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromMisconfigurationFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -345,25 +358,27 @@ func createMisconfigurationFindings(base models.Finding, misconfigurations []mod
 }
 
 // nolint:gocognit,prealloc
-func createRootkitFindings(base models.Finding, rootkits []models.Rootkit) []models.Finding {
+func createRootkitFindings(ctx context.Context, base models.Finding, rootkits []models.Rootkit) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, rootkit := range rootkits {
 		val := base
 		convB, err := json.Marshal(rootkit)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.RootkitFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromRootkitFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromRootkitFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromRootkitFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -373,25 +388,27 @@ func createRootkitFindings(base models.Finding, rootkits []models.Rootkit) []mod
 }
 
 // nolint:gocognit,prealloc
-func createVulnerabilityFindings(base models.Finding, vulnerabilities []models.Vulnerability) []models.Finding {
+func createVulnerabilityFindings(ctx context.Context, base models.Finding, vulnerabilities []models.Vulnerability) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	var ret []models.Finding
 	for _, vulnerability := range vulnerabilities {
 		val := base
 		convB, err := json.Marshal(vulnerability)
 		if err != nil {
-			log.Errorf("Failed to marshal: %v", err)
+			logger.Errorf("Failed to marshal: %v", err)
 			continue
 		}
 		conv := models.VulnerabilityFindingInfo{}
 		err = json.Unmarshal(convB, &conv)
 		if err != nil {
-			log.Errorf("Failed to unmarshal: %v", err)
+			logger.Errorf("Failed to unmarshal: %v", err)
 			continue
 		}
 		val.FindingInfo = &models.Finding_FindingInfo{}
 		err = val.FindingInfo.FromVulnerabilityFindingInfo(conv)
 		if err != nil {
-			log.Errorf("Failed to convert FromVulnerabilityFindingInfo: %v", err)
+			logger.Errorf("Failed to convert FromVulnerabilityFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -496,7 +513,9 @@ func createTargets() []models.Target {
 	}
 }
 
-func createScanConfigs() []models.ScanConfig {
+func createScanConfigs(ctx context.Context) []models.ScanConfig {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	// Scan config 1
 	scanFamiliesConfig1 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
@@ -569,7 +588,7 @@ func createScanConfigs() []models.ScanConfig {
 
 	err := scanScopeType1.FromAwsScanScope(scope1)
 	if err != nil {
-		log.Fatalf("failed to convert scope1: %v", err)
+		logger.Fatalf("failed to convert scope1: %v", err)
 	}
 
 	// Scan config 2
@@ -629,7 +648,7 @@ func createScanConfigs() []models.ScanConfig {
 
 	err = scanScopeType2.FromAwsScanScope(scanConfig2Scope)
 	if err != nil {
-		log.Fatalf("failed to convert scanConfig2Scope: %v", err)
+		logger.Fatalf("failed to convert scanConfig2Scope: %v", err)
 	}
 
 	return []models.ScanConfig{

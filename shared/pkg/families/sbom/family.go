@@ -16,6 +16,7 @@
 package sbom
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/openclarity/kubeclarity/cli/pkg"
@@ -25,20 +26,20 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/shared/pkg/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/shared/pkg/families/results"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type SBOM struct {
-	logger *log.Entry
-	conf   Config
+	conf Config
 }
 
-func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
-	s.logger.Info("SBOM Run...")
+func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.IsResults, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "sbom")
+	logger.Info("SBOM Run...")
 
 	if len(s.conf.Inputs) == 0 {
 		return nil, fmt.Errorf("inputs list is empty")
@@ -52,7 +53,7 @@ func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 		return nil, fmt.Errorf("failed to generate hash for source %s: %v", s.conf.Inputs[0].Input, err)
 	}
 
-	manager := job_manager.New(s.conf.AnalyzersList, s.conf.AnalyzersConfig, s.logger, job.Factory)
+	manager := job_manager.New(s.conf.AnalyzersList, s.conf.AnalyzersConfig, logger, job.Factory)
 	mergedResults := sharedanalyzer.NewMergedResults(utils.SourceType(s.conf.Inputs[0].InputType), hash)
 
 	for _, input := range s.conf.Inputs {
@@ -63,7 +64,7 @@ func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 
 		// Merge results.
 		for name, result := range results {
-			s.logger.Infof("Merging result from %q", name)
+			logger.Infof("Merging result from %q", name)
 			mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results)) // nolint:forcetypeassert
 		}
 	}
@@ -75,7 +76,7 @@ func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %v", with.SbomPath, err)
 		}
 		results := sharedanalyzer.CreateResults(cdxBOMBytes, name, with.SbomPath, utils.SBOM)
-		s.logger.Infof("Merging result from %q", with.SbomPath)
+		logger.Infof("Merging result from %q", with.SbomPath)
 		mergedResults = mergedResults.Merge(results)
 	}
 
@@ -91,7 +92,7 @@ func (s SBOM) Run(res *familiesresults.Results) (interfaces.IsResults, error) {
 		return nil, fmt.Errorf("failed to load merged output to CDX bom: %w", err)
 	}
 
-	s.logger.Info("SBOM Done...")
+	logger.Info("SBOM Done...")
 
 	return &Results{
 		SBOM: cdxBom,
@@ -105,9 +106,8 @@ func (s SBOM) GetType() types.FamilyType {
 // ensure types implement the requisite interfaces.
 var _ interfaces.Family = &SBOM{}
 
-func New(logger *log.Entry, conf Config) *SBOM {
+func New(conf Config) *SBOM {
 	return &SBOM{
-		conf:   conf,
-		logger: logger.Dup().WithField("family", "sbom"),
+		conf: conf,
 	}
 }

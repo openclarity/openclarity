@@ -16,9 +16,8 @@
 package rootkits
 
 import (
+	"context"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -29,17 +28,18 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits/job"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
 	familiesutils "github.com/openclarity/vmclarity/shared/pkg/families/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Rootkits struct {
-	conf   Config
-	logger *log.Entry
+	conf Config
 }
 
-func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults, error) {
-	r.logger.Info("Rootkits Run...")
+func (r Rootkits) Run(ctx context.Context, _ *familiesresults.Results) (familiesinterface.IsResults, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "rootkits")
+	logger.Info("Rootkits Run...")
 
-	manager := job_manager.New(r.conf.ScannersList, r.conf.ScannersConfig, r.logger, job.Factory)
+	manager := job_manager.New(r.conf.ScannersList, r.conf.ScannersConfig, logger, job.Factory)
 	mergedResults := NewMergedResults()
 
 	for _, input := range r.conf.Inputs {
@@ -50,7 +50,7 @@ func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults
 
 		// Merge results.
 		for name, result := range results {
-			r.logger.Infof("Merging result from %q", name)
+			logger.Infof("Merging result from %q", name)
 			scannerResult := result.(*common.Results) // nolint:forcetypeassert
 			if familiesutils.ShouldStripInputPath(input.StripPathFromResult, r.conf.StripInputPaths) {
 				scannerResult = StripPathFromResult(scannerResult, input.Input)
@@ -59,7 +59,7 @@ func (r Rootkits) Run(res *familiesresults.Results) (familiesinterface.IsResults
 		}
 	}
 
-	r.logger.Info("Rootkits Done...")
+	logger.Info("Rootkits Done...")
 	return &Results{
 		MergedResults: mergedResults,
 	}, nil
@@ -80,9 +80,8 @@ func (r Rootkits) GetType() types.FamilyType {
 // ensure types implement the requisite interfaces.
 var _ familiesinterface.Family = &Rootkits{}
 
-func New(logger *log.Entry, conf Config) *Rootkits {
+func New(conf Config) *Rootkits {
 	return &Rootkits{
-		conf:   conf,
-		logger: logger.Dup().WithField("family", "rootkits"),
+		conf: conf,
 	}
 }
