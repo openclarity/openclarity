@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" -o cli ./main.go
 
-FROM alpine:3.17
+FROM alpine:3.18
 
 WORKDIR /app
 

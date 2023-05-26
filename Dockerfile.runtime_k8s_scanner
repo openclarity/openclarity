@@ -34,7 +34,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
      -o runtime_k8s_scanner ./cmd/main.go
 
-FROM alpine:3.17
+FROM alpine:3.18
 
 WORKDIR /app
 
