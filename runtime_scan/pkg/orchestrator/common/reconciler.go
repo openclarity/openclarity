@@ -17,10 +17,28 @@ package common
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
+
+type RequeueAfterError struct {
+	d   time.Duration
+	msg string
+}
+
+func (rae RequeueAfterError) Error() string {
+	if rae.msg != "" {
+		return fmt.Sprintf("%v so requeuing after %v", rae.msg, rae.d)
+	}
+	return fmt.Sprintf("requeuing after %v", rae.d)
+}
+
+func NewRequeueAfterError(d time.Duration, msg string) error {
+	return RequeueAfterError{d, msg}
+}
 
 type Reconciler[T comparable] struct {
 	Logger *log.Entry
@@ -50,8 +68,21 @@ func (r *Reconciler[T]) Start(ctx context.Context) {
 				if err != nil {
 					r.Logger.Errorf("Failed to reconcile item: %v", err)
 				}
+
+				// Make sure timeout context is canceled to
+				// prevent orphaned resources
 				cancel()
-				r.Queue.Done(item)
+
+				// If reconcile has requested that we requeue the item
+				// by returning a RequeueAfterError then requeue the
+				// item with the duration specified, otherwise mark the
+				// item as Done.
+				var requeueAfterError RequeueAfterError
+				if errors.As(err, &requeueAfterError) {
+					r.Queue.RequeueAfter(item, requeueAfterError.d)
+				} else {
+					r.Queue.Done(item)
+				}
 			}
 
 			// Check if the parent context done if so we also need
