@@ -4,10 +4,9 @@ import InnerAppLink from 'components/InnerAppLink';
 import VulnerabilitiesSummaryDisplay from 'components/VulnerabilitiesSummaryDisplay';
 import { ApplicationsLink as GeneralApplicationsLink } from 'layout/Applications';
 import { ApplicationResourcesLink as GeneralApplicationResourcesLink } from 'layout/ApplicationResources';
-import { BoldText } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 
-const getTitle = name => <span>{`package: `}<BoldText>{name}</BoldText></span>;
+const getTitle = name => `package: ${name}`;
 
 export const VulnerabilitiesLink = ({vulnerabilities, id, packageVersion, packageName}) => {
     const filtersDispatch = useFilterDispatch();

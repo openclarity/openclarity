@@ -1,7 +1,6 @@
 import { PackagesLink as GeneralPackagesLink } from 'layout/Packages';
 import { VulnerabilitiesLink as GeneralVulnerabilitiesLink } from 'layout/Vulnerabilities';
 import { ApplicationsLink as GeneralApplicationsLink } from 'layout/Applications';
-import { BoldText } from 'utils/utils';
 
 export const RESOURCE_TYPES = {
     IMAGE: {value: "IMAGE", label: "Image"},
@@ -9,7 +8,7 @@ export const RESOURCE_TYPES = {
     FILE: {value: "FILE", label: "File"}
 };
 
-const getTitle = name => <span>{`resource: `}<BoldText>{name}</BoldText></span>;
+const getTitle = name => `resource: ${name}`;
 
 export const VulnerabilitiesLink = ({id, applicationResourceID, vulnerabilities, resourceName}) => (
     <GeneralVulnerabilitiesLink id={id} vulnerabilities={vulnerabilities} applicationResourceID={applicationResourceID} title={getTitle(resourceName)} />

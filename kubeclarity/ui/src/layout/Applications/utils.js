@@ -1,7 +1,6 @@
 import { PackagesLink as GeneralPackagesLink } from 'layout/Packages';
 import { VulnerabilitiesLink as GeneralVulnerabilitiesLink } from 'layout/Vulnerabilities';
 import { ApplicationResourcesLink as GeneralApplicationResourcesLink } from 'layout/ApplicationResources';
-import { BoldText } from 'utils/utils';
 
 export const APPLICATION_TYPE_ITEMS = [
     {value: "POD", label: "Pod"},
@@ -9,7 +8,7 @@ export const APPLICATION_TYPE_ITEMS = [
     {value: "LAMBDA", label: "Lambda"}
 ];
 
-const getTitle = name => <span>{`application: `}<BoldText>{name}</BoldText></span>;
+const getTitle = name => `application: ${name}`;
 
 export const VulnerabilitiesLink = ({id, applicationID, vulnerabilities, applicationName}) => (
     <GeneralVulnerabilitiesLink id={id} vulnerabilities={vulnerabilities} applicationID={applicationID} title={getTitle(applicationName)} />
