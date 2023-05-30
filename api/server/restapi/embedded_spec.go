@@ -196,7 +196,7 @@ func init() {
             "description": "Success"
           },
           "404": {
-            "description": "Application not found."
+            "description": "Application resources not found."
           },
           "default": {
             "$ref": "#/responses/UnknownError"
@@ -3511,7 +3511,7 @@ func init() {
             "description": "Success"
           },
           "404": {
-            "description": "Application not found."
+            "description": "Application resources not found."
           },
           "default": {
             "description": "unknown error",

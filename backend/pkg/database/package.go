@@ -75,7 +75,7 @@ type PackageTable interface {
 	GetPackagesCountPerLicense() ([]*models.PackagesCountPerLicense, error)
 	Count(filters *CountFilters) (int64, error)
 	GetMostVulnerable(limit int) ([]*models.Package, error)
-	Delete(pkg *Package) error
+	DeleteByIDs(pkgIDs []string) error
 	GetDBPackage(id string) (*Package, error)
 }
 
@@ -123,9 +123,12 @@ func (p *PackageTableHandler) Create(pkg *Package) error {
 	return nil
 }
 
-func (p *PackageTableHandler) Delete(pkg *Package) error {
-	if err := p.packagesTable.Delete(pkg).Error; err != nil {
-		return fmt.Errorf("failed to delete package: %v", err)
+func (p *PackageTableHandler) DeleteByIDs(pkgIDs []string) error {
+	if len(pkgIDs) == 0 {
+		return nil
+	}
+	if err := p.packagesTable.Delete(&Package{}, pkgIDs).Error; err != nil {
+		return fmt.Errorf("failed to delete packages by ID: %v", err)
 	}
 
 	p.viewRefreshHandler.TableChanged(packageTableName)

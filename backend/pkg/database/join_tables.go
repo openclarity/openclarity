@@ -177,8 +177,9 @@ func (j *JoinTablesHandler) GetResourcePackageIDToAnalyzers(resourceIDs []string
 	if len(resourceIDs) == 0 {
 		return nil, nil
 	}
-	resourcePkgIDToAnalyzers := make(map[ResourcePkgID][]string)
+
 	var resourcePackages []ResourcePackages
+	resourcePkgIDToAnalyzers := make(map[ResourcePkgID][]string)
 
 	tx := j.db.Model(&ResourcePackages{})
 	tx = FilterIs(tx, FieldInTable(ResourcePackagesJoinTableName, columnJoinTableResourceID), resourceIDs)

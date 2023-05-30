@@ -116,8 +116,6 @@ func CreateRESTServer(port int, dbHandler *database.Handler, scanner orchestrato
 		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
 	}
 
-	log.Infof("")
-
 	api := operations.NewKubeClarityAPIsAPI(swaggerSpec)
 
 	api.GetApplicationResourcesHandler = operations.GetApplicationResourcesHandlerFunc(func(params operations.GetApplicationResourcesParams) middleware.Responder {

@@ -86,14 +86,15 @@ func (s *Server) DeleteApplicationResource(id string) middleware.Responder {
 	relatedPackageIDs, err := s.getRelatedPackageIDs(resource.ID)
 	if err != nil {
 		log.Errorf("Failed to get packages for resource ID=%s: %v", resource.ID, err)
-		operations.NewDeleteApplicationResourcesIDNotFound()
+		return operations.NewDeleteApplicationResourcesIDDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
 	}
 
 	// Delete only applications<->resources<->packages relationships.
 	if err = s.dbHandler.JoinTables().DeleteRelationships(database.DeleteRelationshipsParams{
 		ResourceIDsToRemove: []string{resource.ID},
 	}); err != nil {
-		log.Error(fmt.Sprintf("Failed to delete application relationships: %v", err))
+		log.Error(fmt.Sprintf("Failed to delete resource relationships: %v", err))
 		return operations.NewDeleteApplicationResourcesIDDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -102,7 +103,8 @@ func (s *Server) DeleteApplicationResource(id string) middleware.Responder {
 	packageIDsToDelete, err := s.getPackagesToDelete(relatedPackageIDs)
 	if err != nil {
 		log.Errorf("Failed to get remaining packages: %v", err)
-		operations.NewDeleteApplicationResourcesIDNotFound()
+		return operations.NewDeleteApplicationResourcesIDDefault(http.StatusInternalServerError).
+			WithPayload(oopsResponse)
 	}
 
 	// Get list of vulnerability IDs for the packages that needs to be deleted.
@@ -117,7 +119,7 @@ func (s *Server) DeleteApplicationResource(id string) middleware.Responder {
 	if err = s.dbHandler.JoinTables().DeleteRelationships(database.DeleteRelationshipsParams{
 		PackageIDsToRemove: packageIDsToDelete,
 	}); err != nil {
-		log.Errorf("Failed to delete application relationships: %v", err)
+		log.Errorf("Failed to delete package relationships: %v", err)
 		return operations.NewDeleteApplicationResourcesIDDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -131,7 +133,7 @@ func (s *Server) DeleteApplicationResource(id string) middleware.Responder {
 	}
 
 	if err = s.dbHandler.ResourceTable().Delete(resource); err != nil {
-		log.Errorf("Failed to delete application from DB: %v", err)
+		log.Errorf("Failed to delete resource from DB: %v", err)
 		return operations.NewDeleteApplicationResourcesIDDefault(http.StatusInternalServerError).
 			WithPayload(oopsResponse)
 	}
@@ -208,27 +210,13 @@ func (s *Server) getVulnerabilitiesToDelete(relatedVulnerabilityIDs []string) ([
 }
 
 func (s *Server) deletePackages(packageIDs []string) {
-	for _, pkgID := range packageIDs {
-		pkg, err := s.dbHandler.PackageTable().GetDBPackage(pkgID)
-		if err == nil {
-			if err = s.dbHandler.PackageTable().Delete(pkg); err != nil {
-				log.Errorf("Failed to delete package ID=%s: %v", pkgID, err)
-			}
-		} else {
-			log.Errorf("Failed to get package, %v", err)
-		}
+	if err := s.dbHandler.PackageTable().DeleteByIDs(packageIDs); err != nil {
+		log.Errorf("Failed to delete packages IDs=%v: %v", packageIDs, err)
 	}
 }
 
 func (s *Server) deleteVulnerabilities(vulnerabilityIDs []string) {
-	for _, vulID := range vulnerabilityIDs {
-		vul, err := s.dbHandler.VulnerabilityTable().GetDBVulnerability(vulID)
-		if err == nil {
-			if err = s.dbHandler.VulnerabilityTable().Delete(vul); err != nil {
-				log.Errorf("Failed to delete vulnerability ID=%s: %v", vulID, err)
-			}
-		} else {
-			log.Errorf("Failed to get vulnerability, %v", err)
-		}
+	if err := s.dbHandler.VulnerabilityTable().DeleteByIDs(vulnerabilityIDs); err != nil {
+		log.Errorf("Failed to delete vulnerabilites IDs=%v: %v", vulnerabilityIDs, err)
 	}
 }
