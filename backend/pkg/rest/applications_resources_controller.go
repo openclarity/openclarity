@@ -217,6 +217,6 @@ func (s *Server) deletePackages(packageIDs []string) {
 
 func (s *Server) deleteVulnerabilities(vulnerabilityIDs []string) {
 	if err := s.dbHandler.VulnerabilityTable().DeleteByIDs(vulnerabilityIDs); err != nil {
-		log.Errorf("Failed to delete vulnerabilites IDs=%v: %v", vulnerabilityIDs, err)
+		log.Errorf("Failed to delete vulnerabilities IDs=%v: %v", vulnerabilityIDs, err)
 	}
 }
