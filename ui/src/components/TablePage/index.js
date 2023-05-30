@@ -131,6 +131,7 @@ const TablePage = ({columns, filterType, filtersMap, url, title, defaultSortBy, 
                                 filters={tableFilters}
                                 onFilterUpdate={filters => setTableFilters(filters)}
                                 filtersMap={filtersMap}
+                                filtersOnCopyText={window.location.href}
                             />
                         </ErrorBoundary>
                     </div>
