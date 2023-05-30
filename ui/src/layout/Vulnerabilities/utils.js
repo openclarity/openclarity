@@ -24,7 +24,7 @@ export const PackagesLink = ({packageVersion, packageName}) => {
     )
 }
 
-const getTitle = name => <span>{`vulnerability: `}<BoldText>{name}</BoldText></span>;
+const getTitle = name => `vulnerability: ${name}`;
 
 export const ApplicationsLink = ({packageID, applications, vulnerabilityName}) => (
     <GeneralApplicationsLink count={applications} packageID={packageID} title={getTitle(vulnerabilityName)} />
