@@ -9,6 +9,7 @@
     "react": "^17.0.2",
     "react-datetime-picker": "^4.1.1",
     "react-dom": "^17.0.2",
+    "react-error-boundary": "^4.0.7",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.2.2",
