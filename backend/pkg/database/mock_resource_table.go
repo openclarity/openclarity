@@ -62,6 +62,20 @@ func (mr *MockResourceTableMockRecorder) Create(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockResourceTable)(nil).Create), arg0)
 }
 
+// Delete mocks base method
+func (m *MockResourceTable) Delete(arg0 *Resource) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockResourceTableMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockResourceTable)(nil).Delete), arg0)
+}
+
 // GetApplicationResource mocks base method
 func (m *MockResourceTable) GetApplicationResource(arg0 string) (*models.ApplicationResourceEx, error) {
 	m.ctrl.T.Helper()

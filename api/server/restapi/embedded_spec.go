@@ -183,6 +183,25 @@ func init() {
             "$ref": "#/responses/UnknownError"
           }
         }
+      },
+      "delete": {
+        "summary": "Delete Application Resource",
+        "parameters": [
+          {
+            "$ref": "#/parameters/id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "404": {
+            "description": "Application resource not found."
+          },
+          "default": {
+            "$ref": "#/responses/UnknownError"
+          }
+        }
       }
     },
     "/applications": {
@@ -3468,6 +3487,31 @@ func init() {
             "schema": {
               "$ref": "#/definitions/ApplicationResourceEx"
             }
+          },
+          "default": {
+            "description": "unknown error",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Application Resource",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "404": {
+            "description": "Application resource not found."
           },
           "default": {
             "description": "unknown error",
