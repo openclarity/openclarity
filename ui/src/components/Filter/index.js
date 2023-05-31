@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import Button from 'components/Button';
 import { SelectField, MultiselectField, TextField } from 'components/Form';
+import CopyButton from 'components/CopyButton';
 import { OPERATORS, formatFiltersToQueryParams, getValueLabel } from './utils';
 
 import './filter.scss';
@@ -77,7 +78,7 @@ const FormFields = ({onAdd, filtersMap, existingFilters, isSmall}) => {
     )
 }
 
-const Filter = ({filters, onFilterUpdate, filtersMap, customFilterDisplay: CustomFilterDisplay, isSmall=false}) => {
+const Filter = ({filters, onFilterUpdate, filtersMap, customFilterDisplay: CustomFilterDisplay, isSmall=false, filtersOnCopyText}) => {
     const [showFiltersForm, setShowFiltersForm] = useState(false);
 
     return (
@@ -132,7 +133,12 @@ const Filter = ({filters, onFilterUpdate, filtersMap, customFilterDisplay: Custo
                         )
                     })
                 }
-                {!isEmpty(filters) && <Button tertiary onClick={() => onFilterUpdate([])} >Delete all filters</Button>}
+                {!isEmpty(filters) && 
+                    <>
+                        <Button tertiary onClick={() => onFilterUpdate([])} >Delete all filters</Button>
+                        {!!filtersOnCopyText && <div style={{marginLeft: "10px"}}><CopyButton copyText={filtersOnCopyText} /></div>}
+                    </>
+                }
             </div>
         </div>
     );
