@@ -28,9 +28,10 @@ import (
 )
 
 const (
-	ApplicationResourcesJoinTableName   = "application_resources"
-	ResourcePackagesJoinTableName       = "resource_packages"
-	PackageVulnerabilitiesJoinTableName = "package_vulnerabilities"
+	ApplicationResourcesJoinTableName        = "application_resources"
+	ResourcePackagesJoinTableName            = "resource_packages"
+	PackageVulnerabilitiesJoinTableName      = "package_vulnerabilities"
+	ResourceCISDockerBenchmarkCheckTableName = "resource_cis_d_b_checks"
 
 	// NOTE: when changing one of the column names change also the gorm label in JoinTables below.
 	columnJoinTableApplicationID   = "application_id"
@@ -56,6 +57,17 @@ type ResourcePackages struct {
 	ResourceID string `json:"resource_id,omitempty" gorm:"primarykey;column:resource_id"`
 	PackageID  string `json:"package_id,omitempty" gorm:"primarykey;column:package_id"`
 	Analyzers  string `json:"analyzers,omitempty" gorm:"column:analyzers"`
+}
+
+// ResourceCISDBChecks join table of Resource and CISDockerBenchmarkCheck.
+type ResourceCISDBChecks struct {
+	CISDockerBenchmarkCheckID string `json:"cis_docker_benchmark_check_id,omitempty" gorm:"primarykey;column:cis_docker_benchmark_check_id"`
+	ResourceID                string `json:"resource_id,omitempty" gorm:"primarykey;column:resource_id"`
+}
+
+func (ResourceCISDBChecks) TableName() string {
+	return ResourceCISDockerBenchmarkCheckTableName
+
 }
 
 func (rp *ResourcePackages) BeforeSave(db *gorm.DB) error {
@@ -149,6 +161,12 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 			if err := ar.Delete(&ApplicationResources{}).Error; err != nil {
 				return fmt.Errorf("failed to delete relationships in %q join table: %v",
 					ApplicationResourcesJoinTableName, err)
+			}
+			rc := FilterIs(tx.Model(&ResourceCISDBChecks{}),
+				FieldInTable(ResourceCISDockerBenchmarkCheckTableName, columnJoinTableResourceID), params.ResourceIDsToRemove)
+			if err := rc.Delete(&ResourceCISDBChecks{}).Error; err != nil {
+				return fmt.Errorf("failed to delete relationships in %q join table: %v",
+					ResourceCISDockerBenchmarkCheckTableName, err)
 			}
 		}
 
