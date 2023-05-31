@@ -67,7 +67,6 @@ type ResourceCISDBChecks struct {
 
 func (ResourceCISDBChecks) TableName() string {
 	return ResourceCISDockerBenchmarkCheckTableName
-
 }
 
 func (rp *ResourcePackages) BeforeSave(db *gorm.DB) error {
