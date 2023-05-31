@@ -1271,7 +1271,7 @@ paths:
         default:
           $ref: '#/responses/UnknownError'
     delete:
-      summary: 'Delete Application Resources'
+      summary: 'Delete Application Resource'
       parameters:
         - $ref: '#/parameters/id'
       responses:
@@ -1280,7 +1280,7 @@ paths:
         #        '401':
         #          description: 'Unauthorized.'
         '404':
-          description: 'Application resources not found.'
+          description: 'Application resource not found.'
         default:
           $ref: '#/responses/UnknownError'
 

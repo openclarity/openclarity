@@ -75,7 +75,7 @@ func NewDeleteApplicationResourcesIDNotFound() *DeleteApplicationResourcesIDNotF
 
 /* DeleteApplicationResourcesIDNotFound describes a response with status code 404, with default header values.
 
-Application resources not found.
+Application resource not found.
 */
 type DeleteApplicationResourcesIDNotFound struct {
 }

@@ -94,7 +94,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteApplicationResourcesID deletes application resources
+  DeleteApplicationResourcesID deletes application resource
 */
 func (a *Client) DeleteApplicationResourcesID(params *DeleteApplicationResourcesIDParams, opts ...ClientOption) (*DeleteApplicationResourcesIDNoContent, error) {
 	// TODO: Validate the params before sending

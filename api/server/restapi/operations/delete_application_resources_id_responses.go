@@ -40,7 +40,7 @@ func (o *DeleteApplicationResourcesIDNoContent) WriteResponse(rw http.ResponseWr
 // DeleteApplicationResourcesIDNotFoundCode is the HTTP code returned for type DeleteApplicationResourcesIDNotFound
 const DeleteApplicationResourcesIDNotFoundCode int = 404
 
-/*DeleteApplicationResourcesIDNotFound Application resources not found.
+/*DeleteApplicationResourcesIDNotFound Application resource not found.
 
 swagger:response deleteApplicationResourcesIdNotFound
 */

@@ -185,7 +185,7 @@ func init() {
         }
       },
       "delete": {
-        "summary": "Delete Application Resources",
+        "summary": "Delete Application Resource",
         "parameters": [
           {
             "$ref": "#/parameters/id"
@@ -196,7 +196,7 @@ func init() {
             "description": "Success"
           },
           "404": {
-            "description": "Application resources not found."
+            "description": "Application resource not found."
           },
           "default": {
             "$ref": "#/responses/UnknownError"
@@ -3497,7 +3497,7 @@ func init() {
         }
       },
       "delete": {
-        "summary": "Delete Application Resources",
+        "summary": "Delete Application Resource",
         "parameters": [
           {
             "type": "string",
@@ -3511,7 +3511,7 @@ func init() {
             "description": "Success"
           },
           "404": {
-            "description": "Application resources not found."
+            "description": "Application resource not found."
           },
           "default": {
             "description": "unknown error",

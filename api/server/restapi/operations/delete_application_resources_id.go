@@ -31,7 +31,7 @@ func NewDeleteApplicationResourcesID(ctx *middleware.Context, handler DeleteAppl
 
 /* DeleteApplicationResourcesID swagger:route DELETE /applicationResources/{id} deleteApplicationResourcesId
 
-Delete Application Resources
+Delete Application Resource
 
 */
 type DeleteApplicationResourcesID struct {
