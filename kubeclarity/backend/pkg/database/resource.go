@@ -81,6 +81,7 @@ type ResourceTable interface {
 	GetDBResource(id string, shouldGetRelationships bool) (*Resource, error)
 	Count(filters *CountFilters) (int64, error)
 	GetMostVulnerable(limit int) ([]*models.ApplicationResource, error)
+	Delete(resource *Resource) error
 }
 
 type ResourceTableHandler struct {
@@ -227,6 +228,16 @@ func CreateResourceID(info *types.ResourceInfo) string {
 func (r *ResourceTableHandler) Create(resource *Resource) error {
 	if err := r.resourcesTable.Create(resource).Error; err != nil {
 		return fmt.Errorf("failed to create resource: %v", err)
+	}
+
+	r.viewRefreshHandler.TableChanged(resourceTableName)
+
+	return nil
+}
+
+func (r *ResourceTableHandler) Delete(resource *Resource) error {
+	if err := r.resourcesTable.Delete(resource).Error; err != nil {
+		return fmt.Errorf("failed to delete resource: %v", err)
 	}
 
 	r.viewRefreshHandler.TableChanged(resourceTableName)

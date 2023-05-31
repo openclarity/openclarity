@@ -28,14 +28,16 @@ import (
 )
 
 const (
-	ApplicationResourcesJoinTableName   = "application_resources"
-	ResourcePackagesJoinTableName       = "resource_packages"
-	PackageVulnerabilitiesJoinTableName = "package_vulnerabilities"
+	ApplicationResourcesJoinTableName        = "application_resources"
+	ResourcePackagesJoinTableName            = "resource_packages"
+	PackageVulnerabilitiesJoinTableName      = "package_vulnerabilities"
+	ResourceCISDockerBenchmarkCheckTableName = "resource_cis_d_b_checks"
 
 	// NOTE: when changing one of the column names change also the gorm label in JoinTables below.
-	columnJoinTableApplicationID = "application_id"
-	columnJoinTableResourceID    = "resource_id"
-	columnJoinTablePackageID     = "package_id"
+	columnJoinTableApplicationID   = "application_id"
+	columnJoinTableResourceID      = "resource_id"
+	columnJoinTablePackageID       = "package_id"
+	columnJoinTableVulnerabilityID = "vulnerability_id"
 
 	// NOTE: when changing one of the column names change also the gorm label in ResourcePackages below.
 	columnResourcePackagesAnalyzers = "analyzers"
@@ -55,6 +57,16 @@ type ResourcePackages struct {
 	ResourceID string `json:"resource_id,omitempty" gorm:"primarykey;column:resource_id"`
 	PackageID  string `json:"package_id,omitempty" gorm:"primarykey;column:package_id"`
 	Analyzers  string `json:"analyzers,omitempty" gorm:"column:analyzers"`
+}
+
+// ResourceCISDBChecks join table of Resource and CISDockerBenchmarkCheck.
+type ResourceCISDBChecks struct {
+	CISDockerBenchmarkCheckID string `json:"cis_docker_benchmark_check_id,omitempty" gorm:"primarykey;column:cis_docker_benchmark_check_id"`
+	ResourceID                string `json:"resource_id,omitempty" gorm:"primarykey;column:resource_id"`
+}
+
+func (ResourceCISDBChecks) TableName() string {
+	return ResourceCISDockerBenchmarkCheckTableName
 }
 
 func (rp *ResourcePackages) BeforeSave(db *gorm.DB) error {
@@ -108,6 +120,10 @@ type JoinTables interface {
 	// ResourcePackageID is a combination of resource and package ID.
 	GetResourcePackageIDToAnalyzers(resourceIDs []string) (map[ResourcePkgID][]string, error)
 	GetPackageResourcesAndTotal(params operations.GetPackagesIDApplicationResourcesParams) ([]PackageResourcesInfoView, int64, error)
+	GetResourcePackagesByResources(resourceIDs []string) ([]ResourcePackages, error)
+	GetResourcePackagesByPackages(packageIDs []string) ([]ResourcePackages, error)
+	GetPackageVulnerabilitiesByPackages(packageIDs []string) ([]PackageVulnerabilities, error)
+	GetPackageVulnerabilitiesByVulnerabilities(vulnerabilityIDs []string) ([]PackageVulnerabilities, error)
 }
 
 type JoinTablesHandler struct {
@@ -138,6 +154,18 @@ func (j *JoinTablesHandler) DeleteRelationships(params DeleteRelationshipsParams
 			if err := rp.Delete(&ResourcePackages{}).Error; err != nil {
 				return fmt.Errorf("failed to delete relationships in %q join table: %v",
 					ResourcePackagesJoinTableName, err)
+			}
+			ar := FilterIs(tx.Model(&ApplicationResources{}),
+				FieldInTable(ApplicationResourcesJoinTableName, columnJoinTableResourceID), params.ResourceIDsToRemove)
+			if err := ar.Delete(&ApplicationResources{}).Error; err != nil {
+				return fmt.Errorf("failed to delete relationships in %q join table: %v",
+					ApplicationResourcesJoinTableName, err)
+			}
+			rc := FilterIs(tx.Model(&ResourceCISDBChecks{}),
+				FieldInTable(ResourceCISDockerBenchmarkCheckTableName, columnJoinTableResourceID), params.ResourceIDsToRemove)
+			if err := rc.Delete(&ResourceCISDBChecks{}).Error; err != nil {
+				return fmt.Errorf("failed to delete relationships in %q join table: %v",
+					ResourceCISDockerBenchmarkCheckTableName, err)
 			}
 		}
 
@@ -184,6 +212,74 @@ func (j *JoinTablesHandler) GetResourcePackageIDToAnalyzers(resourceIDs []string
 
 	log.Debugf("Returning resourcePkgIDToAnalyzers=%+v", resourcePkgIDToAnalyzers)
 	return resourcePkgIDToAnalyzers, nil
+}
+
+func (j *JoinTablesHandler) GetResourcePackagesByResources(resourceIDs []string) ([]ResourcePackages, error) {
+	// nolint:nilnil
+	if len(resourceIDs) == 0 {
+		return nil, nil
+	}
+
+	var resourcePackages []ResourcePackages
+	tx := j.db.Model(&ResourcePackages{})
+	tx = FilterIs(tx, FieldInTable(ResourcePackagesJoinTableName, columnJoinTableResourceID), resourceIDs)
+	if err := tx.Find(&resourcePackages).Error; err != nil {
+		return nil, fmt.Errorf("failed to find relationships in %q join table: %v",
+			ResourcePackagesJoinTableName, err)
+	}
+
+	return resourcePackages, nil
+}
+
+func (j *JoinTablesHandler) GetResourcePackagesByPackages(packageIDs []string) ([]ResourcePackages, error) {
+	// nolint:nilnil
+	if len(packageIDs) == 0 {
+		return nil, nil
+	}
+
+	var resourcePackages []ResourcePackages
+	tx := j.db.Model(&ResourcePackages{})
+	tx = FilterIs(tx, FieldInTable(ResourcePackagesJoinTableName, columnJoinTablePackageID), packageIDs)
+	if err := tx.Find(&resourcePackages).Error; err != nil {
+		return nil, fmt.Errorf("failed to find relationships in %q join table: %v",
+			ResourcePackagesJoinTableName, err)
+	}
+
+	return resourcePackages, nil
+}
+
+func (j *JoinTablesHandler) GetPackageVulnerabilitiesByPackages(packageIDs []string) ([]PackageVulnerabilities, error) {
+	// nolint:nilnil
+	if len(packageIDs) == 0 {
+		return nil, nil
+	}
+
+	var packageVulnerabilities []PackageVulnerabilities
+	tx := j.db.Model(&PackageVulnerabilities{})
+	tx = FilterIs(tx, FieldInTable(PackageVulnerabilitiesJoinTableName, columnJoinTablePackageID), packageIDs)
+	if err := tx.Find(&packageVulnerabilities).Error; err != nil {
+		return nil, fmt.Errorf("failed to find relationships in %q join table: %v",
+			PackageVulnerabilitiesJoinTableName, err)
+	}
+
+	return packageVulnerabilities, nil
+}
+
+func (j *JoinTablesHandler) GetPackageVulnerabilitiesByVulnerabilities(vulnerabilityIDs []string) ([]PackageVulnerabilities, error) {
+	// nolint:nilnil
+	if len(vulnerabilityIDs) == 0 {
+		return nil, nil
+	}
+
+	var packageVulnerabilities []PackageVulnerabilities
+	tx := j.db.Model(&PackageVulnerabilities{})
+	tx = FilterIs(tx, FieldInTable(PackageVulnerabilitiesJoinTableName, columnJoinTableVulnerabilityID), vulnerabilityIDs)
+	if err := tx.Find(&packageVulnerabilities).Error; err != nil {
+		return nil, fmt.Errorf("failed to find relationships in %q join table: %v",
+			PackageVulnerabilitiesJoinTableName, err)
+	}
+
+	return packageVulnerabilities, nil
 }
 
 func (j *JoinTablesHandler) GetPackageResourcesAndTotal(params operations.GetPackagesIDApplicationResourcesParams) ([]PackageResourcesInfoView, int64, error) {

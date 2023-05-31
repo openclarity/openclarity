@@ -42,6 +42,9 @@ func NewKubeClarityAPIsAPI(spec *loads.Document) *KubeClarityAPIsAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		DeleteApplicationResourcesIDHandler: DeleteApplicationResourcesIDHandlerFunc(func(params DeleteApplicationResourcesIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation DeleteApplicationResourcesID has not yet been implemented")
+		}),
 		DeleteApplicationsIDHandler: DeleteApplicationsIDHandlerFunc(func(params DeleteApplicationsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation DeleteApplicationsID has not yet been implemented")
 		}),
@@ -168,6 +171,8 @@ type KubeClarityAPIsAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// DeleteApplicationResourcesIDHandler sets the operation handler for the delete application resources ID operation
+	DeleteApplicationResourcesIDHandler DeleteApplicationResourcesIDHandler
 	// DeleteApplicationsIDHandler sets the operation handler for the delete applications ID operation
 	DeleteApplicationsIDHandler DeleteApplicationsIDHandler
 	// GetApplicationResourcesHandler sets the operation handler for the get application resources operation
@@ -305,6 +310,9 @@ func (o *KubeClarityAPIsAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.DeleteApplicationResourcesIDHandler == nil {
+		unregistered = append(unregistered, "DeleteApplicationResourcesIDHandler")
+	}
 	if o.DeleteApplicationsIDHandler == nil {
 		unregistered = append(unregistered, "DeleteApplicationsIDHandler")
 	}
@@ -483,6 +491,10 @@ func (o *KubeClarityAPIsAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/applicationResources/{id}"] = NewDeleteApplicationResourcesID(o.context, o.DeleteApplicationResourcesIDHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

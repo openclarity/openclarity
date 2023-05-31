@@ -1270,6 +1270,19 @@ paths:
             $ref: '#/definitions/ApplicationResourceEx'
         default:
           $ref: '#/responses/UnknownError'
+    delete:
+      summary: 'Delete Application Resource'
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '204':
+          description: 'Success'
+        #        '401':
+        #          description: 'Unauthorized.'
+        '404':
+          description: 'Application resource not found.'
+        default:
+          $ref: '#/responses/UnknownError'
 
   /packages:
     get:
