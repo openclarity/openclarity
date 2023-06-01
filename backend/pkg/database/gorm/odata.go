@@ -23,8 +23,11 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql"
+	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
+
+var SQLVariant jsonsql.Variant
 
 type ODataObject struct {
 	ID   uint `gorm:"primarykey"`
@@ -827,7 +830,7 @@ func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandSt
 
 	// Build the raw SQL query using the odatasql library, this will also
 	// parse and validate the ODATA query params.
-	query, err := odatasql.BuildSQLQuery(schemaMetas, schema, filterString, selectString, expandString, orderby, top, skip)
+	query, err := odatasql.BuildSQLQuery(SQLVariant, schemaMetas, schema, filterString, selectString, expandString, orderby, top, skip)
 	if err != nil {
 		return fmt.Errorf("failed to build query for DB: %w", err)
 	}
@@ -849,7 +852,7 @@ func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandSt
 }
 
 func ODataCount(db *gorm.DB, schema string, filterString *string) (int, error) {
-	query, err := odatasql.BuildCountQuery(schemaMetas, schema, filterString)
+	query, err := odatasql.BuildCountQuery(SQLVariant, schemaMetas, schema, filterString)
 	if err != nil {
 		return 0, fmt.Errorf("failed to build query to count objects: %w", err)
 	}
