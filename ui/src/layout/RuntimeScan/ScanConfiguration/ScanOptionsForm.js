@@ -36,7 +36,7 @@ const ScanOptionsForm = ({onClose}) => {
                     })}
                 >
                     <ToggleField name="cisDockerBenchmarkScanEnabled" label="CIS Docker Benchmark" />
-                    <TextField name="maxScanParallelism" label="Max Scan Parallelism" type="number" />
+                    <TextField name="maxScanParallelism" label="Max Scan Parallelism" type="number" min="0" />
                 </FormWrapper>
             }
         </Modal>
