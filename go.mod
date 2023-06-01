@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity
 
-go 1.19
+go 1.20
 
 require (
 	github.com/CiscoM31/godata v1.0.7
