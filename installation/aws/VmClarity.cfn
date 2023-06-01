@@ -152,12 +152,78 @@ Resources:
             apt:
               docker.io: []
           files:
-            "/etc/vmclarity/render_config.sh":
-              content: |
-                #!/bin/bash
-                set -euo pipefail
-                local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-                sed -i "s/__BACKEND_REST_HOST__/${local_ip_address}/" /etc/vmclarity/config.env
+            "/etc/vmclarity/deploy.sh":
+              content:
+                Fn::Sub: |
+                  #!/bin/bash
+                  set -euo pipefail
+
+                  # Create the docker network for the VMClarity services if it
+                  # doesn't exist.
+                  if docker network ls | grep vmclarity; then
+                    echo "network already exists"
+                  else
+                    docker network create vmclarity
+                  fi
+
+                  # Reload the systemd daemon to ensure that all the VMClarity
+                  # units have been detected.
+                  systemctl daemon-reload
+
+                  # Enable and start/restart exploit-db-server
+                  systemctl enable exploit-db-server.service
+                  systemctl restart exploit-db-server.service
+
+                  # Enable and start/restart trivy server
+                  systemctl enable trivy_server.service
+                  systemctl restart trivy_server.service
+
+                  # Enable and start/restart grype_server
+                  systemctl enable grype_server.service
+                  systemctl restart grype_server.service
+
+                  # Enable and start/restart freshclam mirror
+                  systemctl enable vmclarity_freshclam_mirror.service
+                  systemctl restart vmclarity_freshclam_mirror.service
+
+                  if [ "${DatabaseToUse}" == "Postgresql" ]; then
+                    # Enable and start/restart postgres
+                    systemctl enable postgres.service
+                    systemctl restart postgres.service
+
+                    # Configure the VMClarity backend to use the local postgres
+                    # service
+                    echo "DATABASE_DRIVER=POSTGRES" >> /etc/vmclarity/config.env
+                    echo "DB_NAME=vmclarity" >> /etc/vmclarity/config.env
+                    echo "DB_USER=vmclarity" >> /etc/vmclarity/config.env
+                    echo "DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/config.env
+                    echo "DB_HOST=postgres.service" >> /etc/vmclarity/config.env
+                    echo "DB_PORT_NUMBER=5432" >> /etc/vmclarity/config.env
+                  elif [ "${DatabaseToUse}" == "External Postgresql" ]; then
+                    # Configure the VMClarity backend to use the postgres
+                    # database configured by the user.
+                    echo "DATABASE_DRIVER=POSTGRES" >> /etc/vmclarity/config.env
+                    echo "DB_NAME=${ExternalDBName}" >> /etc/vmclarity/config.env
+                    echo "DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/config.env
+                    echo "DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/config.env
+                    echo "DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/config.env
+                    echo "DB_PORT_NUMBER=${ExternalDBPort}" >> /etc/vmclarity/config.env
+                  elif [ "${DatabaseToUse}" == "SQLite" ]; then
+                    # Configure the VMClarity backend to use the SQLite DB
+                    # driver and configure the storage location so that it
+                    # persists.
+                    echo "DATABASE_DRIVER=LOCAL" >> /etc/vmclarity/config.env
+                    echo "LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/config.env
+                  fi
+
+                  # Replace anywhere in the config.env __BACKEND_REST_HOST__
+                  # with the local ipv4 IP address of the VMClarity server.
+                  local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+                  sed -i "s/__BACKEND_REST_HOST__/${!local_ip_address}/" /etc/vmclarity/config.env
+
+                  # Enable and start/restart VMClarity backend
+                  systemctl enable vmclarity.service
+                  systemctl restart vmclarity.service
               mode: "000744"
             "/etc/vmclarity/config.env":
               content:
@@ -170,8 +236,6 @@ Resources:
                     AWS_INSTANCE_TYPE=${ScannerInstanceType}
                     SCANNER_KEY_PAIR_NAME=${KeyName}
                     AWS_JOB_IMAGE_ID=${JobImageID}
-                    DATABASE_DRIVER=LOCAL
-                    LOCAL_DB_PATH=/data/vmclarity.db
                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
                     BACKEND_REST_PORT=8888
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
@@ -213,6 +277,7 @@ Resources:
                 ExecStartPre=/usr/bin/docker pull ${BACKEND_CONTAINER_IMAGE}
                 ExecStart=/usr/bin/docker run \
                   --rm --name %n \
+                  --network vmclarity \
                   -p 0.0.0.0:8888:8888/tcp \
                   -v /opt/vmclarity:/data \
                   --env-file /etc/vmclarity/config.env \
@@ -241,6 +306,7 @@ Resources:
                     ExecStartPre=/usr/bin/docker pull ${ExploitDBServerContainerImage}
                     ExecStart=/usr/bin/docker run \
                       --rm --name %n \
+                      --network vmclarity \
                       -p 0.0.0.0:1326:1326/tcp \
                       -v /opt/exploits:/vuls \
                       ${ExploitDBServerContainerImage}
@@ -272,6 +338,7 @@ Resources:
                     ExecStartPre=/usr/bin/docker pull ${TrivyServerContainerImage}
                     ExecStart=/usr/bin/docker run \
                       --rm --name %n \
+                      --network vmclarity \
                       -p 0.0.0.0:9992:9992/tcp \
                       -v /opt/trivy-server:/home/scanner/.cache \
                       --env-file /etc/trivy-server/config.env \
@@ -304,6 +371,7 @@ Resources:
                     ExecStartPre=/usr/bin/docker pull ${GrypeServerContainerImage}
                     ExecStart=/usr/bin/docker run \
                       --rm --name %n \
+                      --network vmclarity \
                       -p 0.0.0.0:9991:9991/tcp \
                       -v /opt/grype-server:/opt/grype-server \
                       --env-file /etc/grype-server/config.env \
@@ -330,6 +398,7 @@ Resources:
                     ExecStartPre=/usr/bin/docker pull ${FreshclamMirrorContainerImage}
                     ExecStart=/usr/bin/docker run \
                       --rm --name %n \
+                      --network vmclarity \
                       -p 0.0.0.0:1000:80/tcp \
                       ${FreshclamMirrorContainerImage}
 
@@ -337,36 +406,37 @@ Resources:
                     WantedBy=multi-user.target
                   - FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.1.0"]
               mode: "000644"
+            "/lib/systemd/system/postgres.service":
+              content:
+                Fn::Sub:
+                  - |
+                    [Unit]
+                    Description=Postgresql Database Server
+                    After=docker.service
+                    Requires=docker.service
+
+                    [Service]
+                    TimeoutStartSec=0
+                    Restart=always
+                    ExecStartPre=-/usr/bin/docker stop %n
+                    ExecStartPre=-/usr/bin/docker rm %n
+                    ExecStartPre=/usr/bin/docker pull ${PostgresqlContainerImage}
+                    ExecStart=/usr/bin/docker run \
+                      --rm --name %n \
+                      --network vmclarity \
+                      -e POSTGRESQL_USERNAME=vmclarity \
+                      -e POSTGRESQL_PASSWORD=${PostgresDBPassword} \
+                      -e POSTGRESQL_DATABASE=vmclarity \
+                      -p 127.0.0.1:5432:5432/tcp \
+                      ${PostgresqlContainerImage}
+
+                    [Install]
+                    WantedBy=multi-user.target
+                  - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
+              mode: "000644"
           commands:
-            01subsitute_rest_address:
-              command: /etc/vmclarity/render_config.sh
-            02reload_systemctl:
-              command: systemctl daemon-reload
-
-            03enable_exploit_db_server:
-              command: systemctl enable exploit-db-server.service
-            04start_restart_exploit_db_server:
-              command: systemctl restart exploit-db-server.service
-
-            05enable_trivy_server:
-              command: systemctl enable trivy_server.service
-            06start_restart_trivy_server:
-              command: systemctl restart trivy_server.service
-
-            07enable_grype_server:
-              command: systemctl enable grype_server.service
-            08start_restart_grype_server:
-              command: systemctl restart grype_server.service
-
-            09enable_vmclarity_freshclam_mirror:
-              command: systemctl enable vmclarity_freshclam_mirror.service
-            10start_restart_vmclarity_freshclam_mirror:
-              command: systemctl restart vmclarity_freshclam_mirror.service
-
-            11enable_vmclarity:
-              command: systemctl enable vmclarity.service
-            12start_restart_vmclarity:
-              command: systemctl restart vmclarity.service
+            01deploy_vmclarity:
+              command: /etc/vmclarity/deploy.sh
 
     DependsOn:
       - VmClarityServerPublicRoute
@@ -799,6 +869,12 @@ Parameters:
       "ghcr.io/openclarity/exploit-db-server:v0.1.2" will be used if not overridden.
     Type: String
     Default: ''
+  PostgresqlContainerImageOverride:
+    Description: >
+      Name of the container image used for the postgres database server.
+      "bitnami/postgresql:12.14.0-debian-11-r28" will be used if not overridden.
+    Type: String
+    Default: ''
   AssetScanDeletePolicy:
     Description: When VMClarity should delete resources after a completed asset scan.
     Type: String
@@ -807,6 +883,38 @@ Parameters:
       - Always
       - OnSuccess
       - Never
+  DatabaseToUse:
+    Description: Database VMClarity should use to store its objects.
+    Type: String
+    Default: Postgresql
+    AllowedValues:
+      - Postgresql
+      - External Postgresql
+      - SQLite
+  PostgresDBPassword:
+    Description: >
+      Password to configure Postgresql with on first install.
+      Required if Postgres is selected as the Database To Use.
+      Do not change this on stack update.
+    Type: String
+    Default: password123
+  ExternalDBHost:
+    Description: Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use.
+    Type: String
+  ExternalDBPort:
+    Description: Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use.
+    Type: Number
+    MinValue: 0
+    Default: 0
+  ExternalDBName:
+    Description: Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
+  ExternalDBUsername:
+    Description: Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
+  ExternalDBPassword:
+    Description: Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -821,6 +929,16 @@ Metadata:
         Parameters:
           - SSHLocation
       - Label:
+          default: Database Configuration
+        Parameters:
+          - DatabaseToUse
+          - PostgresDBPassword
+          - ExternalDBHost
+          - ExternalDBPort
+          - ExternalDBName
+          - ExternalDBUsername
+          - ExternalDBPassword
+      - Label:
           default: Advanced Configuration
         Parameters:
           - BackendContainerImageOverride
@@ -828,6 +946,7 @@ Metadata:
           - TrivyServerContainerImageOverride
           - GrypeServerContainerImageOverride
           - ExploitDBServerContainerImageOverride
+          - PostgresqlContainerImageOverride
           - FreshclamMirrorContainerImageOverride
           - AssetScanDeletePolicy
     ParameterLabels:
@@ -847,8 +966,24 @@ Metadata:
         default: Exploit DB Server Container Image Override
       FreshclamMirrorContainerImageOverride:
         default: freshclam-mirror Container Image Override
+      PostgresqlContainerImageOverride:
+        default: Postgresql Container Image Override
       AssetScanDeletePolicy:
         default: Asset Scan Delete Policy
+      DatabaseToUse:
+        default: Database To Use
+      PostgresDBPassword:
+        default: Postgresql DB Password
+      ExternalDBHost:
+        default: External DB Hostname or IP
+      ExternalDBPort:
+        default: External DB Port
+      ExternalDBName:
+        default: External DB Database Name
+      ExternalDBUsername:
+        default: External DB Username
+      ExternalDBPassword:
+        default: External DB Password
 Mappings:
   # For every type we want AWS hardware virtualisation on amd64 (HVM64)
   AWSInstanceType2Arch:
@@ -920,6 +1055,10 @@ Conditions:
   ExploitDBServerContainerImageOverridden: !Not
     - !Equals
       - !Ref ExploitDBServerContainerImageOverride
+      - ''
+  PostgresqlContainerImageOverridden: !Not
+    - !Equals
+      - !Ref PostgresqlContainerImageOverride
       - ''
 Outputs:
   URL:

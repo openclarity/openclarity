@@ -20,10 +20,12 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
 )
 
@@ -83,27 +85,27 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	// First for all objects index the ID field this speeds up anywhere
 	// we're getting a single object out of the DB, including in PATCH/PUT
 	// etc.
-	idb := db.Exec("CREATE INDEX IF NOT EXISTS targets_id_idx ON targets(Data -> 'id')")
+	idb := db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS targets_id_idx ON targets((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index targets_id_idx: %w", idb.Error)
 	}
 
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_results_id_idx ON scan_results(Data -> 'id')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_results_id_idx ON scan_results((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scan_results_id_idx: %w", idb.Error)
 	}
 
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_configs_id_idx ON scan_configs(Data -> 'id')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_configs_id_idx ON scan_configs((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scan_configs_id_idx: %w", idb.Error)
 	}
 
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS scans_id_idx ON scans(Data -> 'id')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scans_id_idx ON scans((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scans_id_idx: %w", idb.Error)
 	}
 
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS findings_id_idx ON findings(Data -> 'id')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_id_idx ON findings((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index findings_id_idx: %w", idb.Error)
 	}
@@ -111,7 +113,7 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	// For processing scan results to findings we need to find all the scan
 	// results by general status and findingsProcessed, so add an index for
 	// that.
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS scan_results_findings_processed_idx ON scan_results(Data -> 'findingsProcessed', Data -> 'status.general.state')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_results_findings_processed_idx ON scan_results((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.general.state")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scan_results_findings_processed_idx: %w", idb.Error)
 	}
@@ -119,7 +121,7 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	// The UI needs to find all the findings for a specific finding type
 	// and the scan result processor needs to filter that list by a
 	// specific asset. So add a combined index for those cases.
-	idb = db.Exec("CREATE INDEX IF NOT EXISTS findings_by_type_and_asset_idx ON findings(Data -> 'findingInfo.objectType', Data -> 'asset.id')")
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_asset_idx ON findings((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"), SQLVariant.JSONExtract("Data", "$.asset.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index findings_by_type_and_asset_idx: %w", idb.Error)
 	}
@@ -133,7 +135,11 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 func initDB(config types.DBConfig, dbDriver string, dbLogger logger.Interface) (*gorm.DB, error) {
 	switch dbDriver {
 	case types.DBDriverTypeLocal:
+		SQLVariant = jsonsql.SQLite
 		return initSqlite(config, dbLogger)
+	case types.DBDriverTypePostgres:
+		SQLVariant = jsonsql.Postgres
+		return initPostgres(config, dbLogger)
 	default:
 		return nil, fmt.Errorf("driver type %s is not supported by GORM driver", dbDriver)
 	}
@@ -146,5 +152,19 @@ func initSqlite(config types.DBConfig, dbLogger logger.Interface) (*gorm.DB, err
 	if err != nil {
 		return nil, fmt.Errorf("failed to open db: %w", err)
 	}
+	return db, nil
+}
+
+func initPostgres(config types.DBConfig, dbLogger logger.Interface) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: dbLogger,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to open %s db: %v", config.DBName, err)
+	}
+
 	return db, nil
 }

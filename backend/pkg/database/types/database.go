@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	DBDriverTypeLocal = "LOCAL"
+	DBDriverTypeLocal    = "LOCAL"
+	DBDriverTypePostgres = "POSTGRES"
 )
 
 var ErrNotFound = errors.New("not found")
