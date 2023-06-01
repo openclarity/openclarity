@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import Button from 'components/Button';
 import { SelectField, MultiselectField, TextField, DateField } from 'components/Form';
+import CopyButton from 'components/CopyButton';
 import { OPERATORS, formatFiltersToOdataItems, getValueLabel } from './utils';
 import FilterButton from './FilterButton';
 
@@ -75,7 +76,7 @@ const FormFields = ({onAdd, filtersConfig}) => {
     )
 }
 
-const Filter = ({filters, onFilterUpdate, filtersConfig}) => {
+const Filter = ({filters, onFilterUpdate, filtersConfig, filtersOnCopyText}) => {
     const [showFiltersForm, setShowFiltersForm] = useState(false);
 
     return (
@@ -125,7 +126,12 @@ const Filter = ({filters, onFilterUpdate, filtersConfig}) => {
                         )
                     })
                 }
-                {!isEmpty(filters) && <Button tertiary onClick={() => onFilterUpdate([])} >Delete all filters</Button>}
+                {!isEmpty(filters) && 
+                    <>
+                        <Button tertiary onClick={() => onFilterUpdate([])} >Delete all filters</Button>
+                        {!!filtersOnCopyText && <div style={{marginLeft: "10px"}}><CopyButton copyText={filtersOnCopyText} /></div>}
+                    </>
+                }
             </div>
         </div>
     );

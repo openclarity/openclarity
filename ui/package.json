@@ -5,6 +5,7 @@
   "dependencies": {
     "@turingpointde/cvss.js": "^1.4.7",
     "classnames": "^2.3.2",
+    "copy-to-clipboard": "^3.3.3",
     "cronstrue": "^2.23.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
@@ -12,6 +13,7 @@
     "react": "^18.2.0",
     "react-datetime-picker": "^4.2.0",
     "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.9",
     "react-js-cron": "^3.1.0",
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
