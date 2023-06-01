@@ -38,7 +38,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	targetScanResultsSchemaName: {
 		Table: "scan_results",
 		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"target": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   targetSchemaName,
@@ -268,6 +269,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "scans",
 		Fields: odatasql.Schema{
 			"id":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"revision":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scanConfig": odatasql.FieldMeta{
@@ -320,6 +322,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "targets",
 		Fields: odatasql.Schema{
 			"id":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"revision":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scansCount": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"targetInfo": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
@@ -390,6 +393,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "scan_configs",
 		Fields: odatasql.Schema{
 			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scanFamiliesConfig": odatasql.FieldMeta{

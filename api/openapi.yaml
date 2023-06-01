@@ -89,6 +89,7 @@ paths:
       operationId: PutTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -120,6 +121,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -128,6 +135,7 @@ paths:
       operationId: PatchTargetsTargetID
       parameters:
         - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -153,6 +161,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -261,6 +275,7 @@ paths:
       operationId: PutScanResultsScanResultID
       parameters:
         - $ref: '#/components/parameters/scanResultID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -292,6 +307,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetScanResultExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -300,6 +321,7 @@ paths:
       operationId: PatchScanResultsScanResultID
       parameters:
         - $ref: '#/components/parameters/scanResultID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -331,6 +353,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetScanResultExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -416,6 +444,7 @@ paths:
       operationId: PutScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -447,6 +476,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -455,6 +490,7 @@ paths:
       operationId: PatchScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -486,6 +522,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -588,6 +630,7 @@ paths:
       operationId: PutScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -619,6 +662,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanConfigExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -627,6 +676,7 @@ paths:
       operationId: PatchScanConfigsScanConfigID
       parameters:
         - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
@@ -658,6 +708,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanConfigExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
@@ -918,6 +974,9 @@ components:
       properties:
         id:
           type: string
+        revision:
+          type: integer
+          readOnly: true
         startTime:
           type: string
           format: date-time
@@ -989,6 +1048,8 @@ components:
           # on the client side.
           #
           # readOnly: true
+        revision:
+          type: integer
         startTime:
           type: string
           format: date-time
@@ -1208,6 +1269,9 @@ components:
       properties:
         id:
           type: string
+        revision:
+          type: integer
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -1243,6 +1307,8 @@ components:
       properties:
         id:
           type: string
+        revision:
+          type: integer
         name:
           type: string
         scanFamiliesConfig:
@@ -1466,6 +1532,17 @@ components:
           # on the client side.
           #
           # readOnly: true
+        revision:
+          type: integer
+          # TODO(sambetts) Decide if we want the validation here by having
+          # separate schemas for GET, POST and PATCH.
+          #
+          # We can't make anything readOnly or required here if we want to
+          # use the same schema for PATCH otherwise it will require you
+          # always send the required fields and remove the readOnly fields
+          # on the client side.
+          #
+          # readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
         scansCount:
@@ -1480,6 +1557,9 @@ components:
       properties:
         id:
           type: string
+        revision:
+          type: integer
+          readOnly: true
         targetInfo:
           $ref: '#/components/schemas/TargetType'
           readOnly: true
@@ -1607,6 +1687,8 @@ components:
           # on the client side.
           #
           # readOnly: true
+        revision:
+          type: integer
         target:
           $ref: '#/components/schemas/TargetRelationship'
         scan:
@@ -2250,3 +2332,8 @@ components:
       schema:
         type: string
         
+    ifmatch:
+      name: If-Match
+      in: header
+      schema:
+        type: integer

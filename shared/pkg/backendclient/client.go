@@ -105,7 +105,8 @@ func (b *BackendClient) PatchScanResult(ctx context.Context, scanResult models.T
 		return fmt.Errorf("failed to update scan result %v: %w", scanResultID, err)
 	}
 
-	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, scanResult)
+	params := models.PatchScanResultsScanResultIDParams{}
+	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, &params, scanResult)
 	if err != nil {
 		return newUpdateScanResultError(err)
 	}
@@ -208,7 +209,8 @@ func (b *BackendClient) PostScanResult(ctx context.Context, scanResult models.Ta
 }
 
 func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, scan *models.Scan) error {
-	resp, err := b.apiClient.PatchScansScanIDWithResponse(ctx, scanID, *scan)
+	params := models.PatchScansScanIDParams{}
+	resp, err := b.apiClient.PatchScansScanIDWithResponse(ctx, scanID, &params, *scan)
 	if err != nil {
 		return fmt.Errorf("failed to update a scan: %v", err)
 	}
@@ -265,7 +267,8 @@ func (b *BackendClient) PatchTargetScanStatus(ctx context.Context, scanResultID 
 	scanResult := models.TargetScanResult{
 		Status: status,
 	}
-	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, scanResult)
+	params := models.PatchScanResultsScanResultIDParams{}
+	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, &params, scanResult)
 	if err != nil {
 		return fmt.Errorf("failed to update a scan result status: %v", err)
 	}
@@ -347,7 +350,8 @@ func (b *BackendClient) PatchScanConfig(ctx context.Context, scanConfigID string
 		return fmt.Errorf("failed to update scan config %v: %w", scanConfigID, err)
 	}
 
-	resp, err := b.apiClient.PatchScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, *scanConfig)
+	params := models.PatchScanConfigsScanConfigIDParams{}
+	resp, err := b.apiClient.PatchScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params, *scanConfig)
 	if err != nil {
 		return newPatchScanConfigResultError(err)
 	}
@@ -440,7 +444,8 @@ func (b *BackendClient) PatchTarget(ctx context.Context, target models.Target, t
 		return fmt.Errorf("failed to update target %v: %w", targetID, err)
 	}
 
-	resp, err := b.apiClient.PatchTargetsTargetIDWithResponse(ctx, targetID, target)
+	params := models.PatchTargetsTargetIDParams{}
+	resp, err := b.apiClient.PatchTargetsTargetIDWithResponse(ctx, targetID, &params, target)
 	if err != nil {
 		return newUpdateTargetError(err)
 	}

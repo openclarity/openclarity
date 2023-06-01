@@ -120,6 +120,9 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 	// Generate a new UUID
 	scanResult.Id = utils.PointerTo(uuid.New().String())
 
+	// Initialise revision
+	scanResult.Revision = utils.PointerTo(1)
+
 	// TODO(sambetts) Lock the table here to prevent race conditions
 	// checking the uniqueness.
 	//
@@ -166,8 +169,8 @@ func (s *ScanResultsTableHandler) CreateScanResult(scanResult models.TargetScanR
 	return tsr, nil
 }
 
-// nolint:cyclop
-func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
+// nolint:cyclop,gocognit
+func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanResult, params models.PutScanResultsScanResultIDParams) (models.TargetScanResult, error) {
 	if scanResult.Id == nil || *scanResult.Id == "" {
 		return models.TargetScanResult{}, &common.BadRequestError{
 			Reason: "id is required to save scan result",
@@ -196,19 +199,31 @@ func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanRes
 		return models.TargetScanResult{}, fmt.Errorf("failed to check existing scan: %w", err)
 	}
 
-	var dbScanResult ScanResult
-	if err := getExistingObjByID(s.DB, targetScanResultsSchemaName, *scanResult.Id, &dbScanResult); err != nil {
+	var dbObj ScanResult
+	if err := getExistingObjByID(s.DB, targetScanResultsSchemaName, *scanResult.Id, &dbObj); err != nil {
 		return models.TargetScanResult{}, err
 	}
+
+	var dbScanResult models.TargetScanResult
+	err = json.Unmarshal(dbObj.Data, &dbScanResult)
+	if err != nil {
+		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
+	if err := checkRevisionEtag(params.IfMatch, dbScanResult.Revision); err != nil {
+		return models.TargetScanResult{}, err
+	}
+
+	scanResult.Revision = bumpRevision(dbScanResult.Revision)
 
 	marshaled, err := json.Marshal(scanResult)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
 	}
 
-	dbScanResult.Data = marshaled
+	dbObj.Data = marshaled
 
-	if err := s.DB.Save(&dbScanResult).Error; err != nil {
+	if err := s.DB.Save(&dbObj).Error; err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to save scan result in db: %w", err)
 	}
 
@@ -216,7 +231,7 @@ func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanRes
 	// creating any of the data (like the ID) so we can just return the
 	// scanResult pre-marshal above.
 	var tsr models.TargetScanResult
-	err = json.Unmarshal(dbScanResult.Data, &tsr)
+	err = json.Unmarshal(dbObj.Data, &tsr)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
@@ -224,26 +239,39 @@ func (s *ScanResultsTableHandler) SaveScanResult(scanResult models.TargetScanRes
 	return tsr, nil
 }
 
-func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanResult) (models.TargetScanResult, error) {
+// nolint:cyclop
+func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanResult, params models.PatchScanResultsScanResultIDParams) (models.TargetScanResult, error) {
 	if scanResult.Id == nil || *scanResult.Id == "" {
 		return models.TargetScanResult{}, &common.BadRequestError{
 			Reason: "id is required to update scan result",
 		}
 	}
 
-	var dbScanResult ScanResult
-	if err := getExistingObjByID(s.DB, targetScanResultsSchemaName, *scanResult.Id, &dbScanResult); err != nil {
+	var dbObj ScanResult
+	if err := getExistingObjByID(s.DB, targetScanResultsSchemaName, *scanResult.Id, &dbObj); err != nil {
 		return models.TargetScanResult{}, err
 	}
 
 	var err error
-	dbScanResult.Data, err = patchObject(dbScanResult.Data, scanResult)
+	var dbScanResult models.TargetScanResult
+	err = json.Unmarshal(dbObj.Data, &dbScanResult)
+	if err != nil {
+		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
+	if err := checkRevisionEtag(params.IfMatch, dbScanResult.Revision); err != nil {
+		return models.TargetScanResult{}, err
+	}
+
+	scanResult.Revision = bumpRevision(dbScanResult.Revision)
+
+	dbObj.Data, err = patchObject(dbObj.Data, scanResult)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to apply patch: %w", err)
 	}
 
 	var tsr models.TargetScanResult
-	err = json.Unmarshal(dbScanResult.Data, &tsr)
+	err = json.Unmarshal(dbObj.Data, &tsr)
 	if err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
@@ -258,7 +286,7 @@ func (s *ScanResultsTableHandler) UpdateScanResult(scanResult models.TargetScanR
 		return models.TargetScanResult{}, fmt.Errorf("failed to check existing scan: %w", err)
 	}
 
-	if err := s.DB.Save(&dbScanResult).Error; err != nil {
+	if err := s.DB.Save(&dbObj).Error; err != nil {
 		return models.TargetScanResult{}, fmt.Errorf("failed to save scan result in db: %w", err)
 	}
 

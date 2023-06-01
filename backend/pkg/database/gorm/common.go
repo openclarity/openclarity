@@ -25,6 +25,7 @@ import (
 	jsonpatch "github.com/evanphx/json-patch"
 
 	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func getExistingObjByID(db *gorm.DB, schema, objID string, obj interface{}) error {
@@ -65,4 +66,22 @@ func patchObject(original []byte, newobject interface{}) ([]byte, error) {
 	}
 
 	return updated, nil
+}
+
+func checkRevisionEtag(ifMatch *int, revision *int) error {
+	if (ifMatch != nil && revision != nil && *ifMatch != *revision) || (ifMatch != nil && revision == nil) {
+		return &types.PreconditionFailedError{
+			Reason: fmt.Sprintf(
+				"Revision %d does not match %d. The object may have been modified since you started the request.",
+				*revision, *ifMatch),
+		}
+	}
+	return nil
+}
+
+func bumpRevision(oldrevision *int) *int {
+	if oldrevision != nil {
+		return utils.PointerTo(*oldrevision + 1)
+	}
+	return utils.PointerTo(1)
 }
