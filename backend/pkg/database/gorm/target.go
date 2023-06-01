@@ -115,6 +115,9 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 	// Generate a new UUID
 	target.Id = utils.PointerTo(uuid.New().String())
 
+	// Initialise revision
+	target.Revision = utils.PointerTo(1)
+
 	// TODO(sambetts) Lock the table here to prevent race conditions
 	// checking the uniqueness.
 	//
@@ -160,7 +163,8 @@ func (t *TargetsTableHandler) CreateTarget(target models.Target) (models.Target,
 	return apiTarget, nil
 }
 
-func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, error) {
+// nolint:cyclop
+func (t *TargetsTableHandler) SaveTarget(target models.Target, params models.PutTargetsTargetIDParams) (models.Target, error) {
 	if target.Id == nil || *target.Id == "" {
 		return models.Target{}, &common.BadRequestError{
 			Reason: "id is required to save target",
@@ -174,10 +178,22 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 		}
 	}
 
-	var dbTarget Target
-	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbTarget); err != nil {
+	var dbObj Target
+	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbObj); err != nil {
 		return models.Target{}, fmt.Errorf("failed to get target from db: %w", err)
 	}
+
+	var dbTarget models.Target
+	err := json.Unmarshal(dbObj.Data, &dbTarget)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
+	if err := checkRevisionEtag(params.IfMatch, dbTarget.Revision); err != nil {
+		return models.Target{}, err
+	}
+
+	target.Revision = bumpRevision(dbTarget.Revision)
 
 	existingTarget, err := t.checkUniqueness(target)
 	if err != nil {
@@ -193,9 +209,9 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 		return models.Target{}, fmt.Errorf("failed to convert API model to DB model: %w", err)
 	}
 
-	dbTarget.Data = marshaled
+	dbObj.Data = marshaled
 
-	if err = t.DB.Save(&dbTarget).Error; err != nil {
+	if err = t.DB.Save(&dbObj).Error; err != nil {
 		return models.Target{}, fmt.Errorf("failed to save target in db: %w", err)
 	}
 
@@ -203,31 +219,44 @@ func (t *TargetsTableHandler) SaveTarget(target models.Target) (models.Target, e
 	// creating any of the data (like the ID) so we can just return the
 	// target pre-marshal above.
 	var apiTarget models.Target
-	if err = json.Unmarshal(dbTarget.Data, &apiTarget); err != nil {
+	if err = json.Unmarshal(dbObj.Data, &apiTarget); err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
 
 	return apiTarget, nil
 }
 
-func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target, error) {
+// nolint:cyclop
+func (t *TargetsTableHandler) UpdateTarget(target models.Target, params models.PatchTargetsTargetIDParams) (models.Target, error) {
 	if target.Id == nil || *target.Id == "" {
 		return models.Target{}, fmt.Errorf("ID is required to update target in DB")
 	}
 
-	var dbTarget Target
-	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbTarget); err != nil {
+	var dbObj Target
+	if err := getExistingObjByID(t.DB, targetSchemaName, *target.Id, &dbObj); err != nil {
 		return models.Target{}, err
 	}
 
 	var err error
-	dbTarget.Data, err = patchObject(dbTarget.Data, target)
+	var dbTarget models.Target
+	err = json.Unmarshal(dbObj.Data, &dbTarget)
+	if err != nil {
+		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
+	}
+
+	if err := checkRevisionEtag(params.IfMatch, dbTarget.Revision); err != nil {
+		return models.Target{}, err
+	}
+
+	target.Revision = bumpRevision(dbTarget.Revision)
+
+	dbObj.Data, err = patchObject(dbObj.Data, target)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to apply patch: %w", err)
 	}
 
 	var ret models.Target
-	err = json.Unmarshal(dbTarget.Data, &ret)
+	err = json.Unmarshal(dbObj.Data, &ret)
 	if err != nil {
 		return models.Target{}, fmt.Errorf("failed to convert DB model to API model: %w", err)
 	}
@@ -241,7 +270,7 @@ func (t *TargetsTableHandler) UpdateTarget(target models.Target) (models.Target,
 		return models.Target{}, fmt.Errorf("failed to check existing target: %w", err)
 	}
 
-	if err := t.DB.Save(&dbTarget).Error; err != nil {
+	if err := t.DB.Save(&dbObj).Error; err != nil {
 		return models.Target{}, fmt.Errorf("failed to save target in db: %w", err)
 	}
 
