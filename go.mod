@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
 	github.com/anchore/syft v0.77.0
-	github.com/aptible/supercronic v0.2.24
+	github.com/aptible/supercronic v0.2.25
 	github.com/aws/aws-sdk-go-v2 v1.18.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.25
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.98.0
@@ -31,6 +31,7 @@ require (
 	github.com/urfave/cli v1.22.13
 	github.com/vulsio/go-exploitdb v0.4.5
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
+	google.golang.org/grpc v1.54.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.4.4
@@ -397,7 +398,6 @@ require (
 	google.golang.org/api v0.119.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
-	google.golang.org/grpc v1.54.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
