@@ -25,6 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
+	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
@@ -72,7 +73,8 @@ func (s *ServerImpl) GetScanResultsScanResultID(ctx echo.Context, scanResultID m
 	return sendResponse(ctx, http.StatusOK, dbScanResult)
 }
 
-func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID) error {
+// nolint:cyclop
+func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID, params models.PatchScanResultsScanResultIDParams) error {
 	// TODO: check that the provided scan and target IDs are valid
 	var scanResult models.TargetScanResult
 	err := ctx.Bind(&scanResult)
@@ -96,10 +98,11 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 	}
 	scanResult.Id = &scanResultID
 
-	updatedScanResult, err := s.dbHandler.ScanResultsTable().UpdateScanResult(scanResult)
+	updatedScanResult, err := s.dbHandler.ScanResultsTable().UpdateScanResult(scanResult, params)
 	if err != nil {
 		var validationErr *common.BadRequestError
 		var conflictErr *common.ConflictError
+		var preconditionFailedErr *databaseTypes.PreconditionFailedError
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetScanResultExists{
@@ -109,6 +112,8 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
+		case errors.As(err, &preconditionFailedErr):
+			return sendError(ctx, http.StatusPreconditionFailed, err.Error())
 		default:
 			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan result in db. scanResultID=%v: %v", scanResultID, err))
 		}
@@ -117,7 +122,8 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 	return sendResponse(ctx, http.StatusOK, updatedScanResult)
 }
 
-func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID) error {
+// nolint:cyclop
+func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID models.ScanResultID, params models.PutScanResultsScanResultIDParams) error {
 	// TODO: check that the provided scan and target IDs are valid
 	var scanResult models.TargetScanResult
 	err := ctx.Bind(&scanResult)
@@ -141,10 +147,11 @@ func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID m
 	}
 	scanResult.Id = &scanResultID
 
-	updatedScanResult, err := s.dbHandler.ScanResultsTable().SaveScanResult(scanResult)
+	updatedScanResult, err := s.dbHandler.ScanResultsTable().SaveScanResult(scanResult, params)
 	if err != nil {
 		var validationErr *common.BadRequestError
 		var conflictErr *common.ConflictError
+		var preconditionFailedErr *databaseTypes.PreconditionFailedError
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetScanResultExists{
@@ -154,6 +161,8 @@ func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID m
 			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
+		case errors.As(err, &preconditionFailedErr):
+			return sendError(ctx, http.StatusPreconditionFailed, err.Error())
 		default:
 			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to update scan result in db. scanResultID=%v: %v", scanResultID, err))
 		}

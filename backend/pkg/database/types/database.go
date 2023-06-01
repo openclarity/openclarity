@@ -17,6 +17,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/openclarity/vmclarity/api/models"
 )
@@ -27,6 +28,14 @@ const (
 )
 
 var ErrNotFound = errors.New("not found")
+
+type PreconditionFailedError struct {
+	Reason string
+}
+
+func (e *PreconditionFailedError) Error() string {
+	return fmt.Sprintf("Precondition failed: %s", e.Reason)
+}
 
 type DBConfig struct {
 	EnableInfoLogs bool   `json:"enable-info-logs"`
@@ -54,8 +63,8 @@ type ScansTable interface {
 	GetScan(scanID models.ScanID, params models.GetScansScanIDParams) (models.Scan, error)
 
 	CreateScan(scan models.Scan) (models.Scan, error)
-	UpdateScan(scan models.Scan) (models.Scan, error)
-	SaveScan(scan models.Scan) (models.Scan, error)
+	UpdateScan(scan models.Scan, params models.PatchScansScanIDParams) (models.Scan, error)
+	SaveScan(scan models.Scan, params models.PutScansScanIDParams) (models.Scan, error)
 
 	DeleteScan(scanID models.ScanID) error
 }
@@ -65,8 +74,8 @@ type ScanResultsTable interface {
 	GetScanResult(scanResultID models.ScanResultID, params models.GetScanResultsScanResultIDParams) (models.TargetScanResult, error)
 
 	CreateScanResult(scanResults models.TargetScanResult) (models.TargetScanResult, error)
-	UpdateScanResult(scanResults models.TargetScanResult) (models.TargetScanResult, error)
-	SaveScanResult(scanResults models.TargetScanResult) (models.TargetScanResult, error)
+	UpdateScanResult(scanResults models.TargetScanResult, params models.PatchScanResultsScanResultIDParams) (models.TargetScanResult, error)
+	SaveScanResult(scanResults models.TargetScanResult, params models.PutScanResultsScanResultIDParams) (models.TargetScanResult, error)
 
 	// DeleteScanResult(scanResultID models.ScanResultID) error
 }
@@ -76,8 +85,8 @@ type ScanConfigsTable interface {
 	GetScanConfig(scanConfigID models.ScanConfigID, params models.GetScanConfigsScanConfigIDParams) (models.ScanConfig, error)
 
 	CreateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error)
-	UpdateScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error)
-	SaveScanConfig(scanConfig models.ScanConfig) (models.ScanConfig, error)
+	UpdateScanConfig(scanConfig models.ScanConfig, params models.PatchScanConfigsScanConfigIDParams) (models.ScanConfig, error)
+	SaveScanConfig(scanConfig models.ScanConfig, params models.PutScanConfigsScanConfigIDParams) (models.ScanConfig, error)
 
 	DeleteScanConfig(scanConfigID models.ScanConfigID) error
 }
@@ -87,8 +96,8 @@ type TargetsTable interface {
 	GetTarget(targetID models.TargetID, params models.GetTargetsTargetIDParams) (models.Target, error)
 
 	CreateTarget(target models.Target) (models.Target, error)
-	UpdateTarget(target models.Target) (models.Target, error)
-	SaveTarget(target models.Target) (models.Target, error)
+	UpdateTarget(target models.Target, params models.PatchTargetsTargetIDParams) (models.Target, error)
+	SaveTarget(target models.Target, params models.PutTargetsTargetIDParams) (models.Target, error)
 
 	DeleteTarget(targetID models.TargetID) error
 }

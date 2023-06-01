@@ -78,7 +78,7 @@ func (s *ServerImpl) GetTargetsTargetID(ctx echo.Context, targetID models.Target
 	return sendResponse(ctx, http.StatusOK, target)
 }
 
-func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
+func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.TargetID, params models.PutTargetsTargetIDParams) error {
 	var target models.Target
 	err := ctx.Bind(&target)
 	if err != nil {
@@ -92,10 +92,11 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 	}
 	target.Id = &targetID
 
-	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target)
+	updatedTarget, err := s.dbHandler.TargetsTable().SaveTarget(target, params)
 	if err != nil {
 		var validationErr *common.BadRequestError
 		var conflictErr *common.ConflictError
+		var preconditionFailedErr *databaseTypes.PreconditionFailedError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
@@ -107,6 +108,8 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 			return sendResponse(ctx, http.StatusConflict, existResponse)
 		case errors.As(err, &validationErr):
 			return sendError(ctx, http.StatusBadRequest, err.Error())
+		case errors.As(err, &preconditionFailedErr):
+			return sendError(ctx, http.StatusPreconditionFailed, err.Error())
 		default:
 			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 		}
@@ -115,7 +118,7 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 	return sendResponse(ctx, http.StatusOK, updatedTarget)
 }
 
-func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
+func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.TargetID, params models.PatchTargetsTargetIDParams) error {
 	var target models.Target
 	err := ctx.Bind(&target)
 	if err != nil {
@@ -129,9 +132,10 @@ func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.Targ
 	}
 	target.Id = &targetID
 
-	updatedTarget, err := s.dbHandler.TargetsTable().UpdateTarget(target)
+	updatedTarget, err := s.dbHandler.TargetsTable().UpdateTarget(target, params)
 	if err != nil {
 		var conflictErr *common.ConflictError
+		var preconditionFailedErr *databaseTypes.PreconditionFailedError
 		switch true {
 		case errors.Is(err, databaseTypes.ErrNotFound):
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
@@ -141,6 +145,8 @@ func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.Targ
 				Target:  &updatedTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
+		case errors.As(err, &preconditionFailedErr):
+			return sendError(ctx, http.StatusPreconditionFailed, err.Error())
 		default:
 			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get target from db. targetID=%v: %v", targetID, err))
 		}

@@ -378,8 +378,9 @@ type SbomScan struct {
 
 // Scan Describes a multi-target scheduled scan.
 type Scan struct {
-	EndTime *time.Time `json:"endTime,omitempty"`
-	Id      *string    `json:"id,omitempty"`
+	EndTime  *time.Time `json:"endTime,omitempty"`
+	Id       *string    `json:"id,omitempty"`
+	Revision *int       `json:"revision,omitempty"`
 
 	// ScanConfig Describes a relationship to a scan config which can be expanded.
 	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
@@ -421,6 +422,7 @@ type ScanConfig struct {
 	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
 	Name                *string `json:"name,omitempty"`
+	Revision            *int    `json:"revision,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
@@ -451,6 +453,7 @@ type ScanConfigRelationship struct {
 	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
 	Name                *string `json:"name,omitempty"`
+	Revision            *int    `json:"revision,omitempty"`
 
 	// ScanFamiliesConfig The configuration of the scanner families within a scan config
 	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
@@ -529,8 +532,9 @@ type ScanFindingsSummary struct {
 
 // ScanRelationship Describes an expandable relationship to Scan object
 type ScanRelationship struct {
-	EndTime *time.Time `json:"endTime,omitempty"`
-	Id      string     `json:"id"`
+	EndTime  *time.Time `json:"endTime,omitempty"`
+	Id       string     `json:"id"`
+	Revision *int       `json:"revision,omitempty"`
 
 	// ScanConfig Describes a relationship to a scan config which can be expanded.
 	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
@@ -690,7 +694,8 @@ type Tag struct {
 
 // Target Describes a target object.
 type Target struct {
-	Id *string `json:"id,omitempty"`
+	Id       *string `json:"id,omitempty"`
+	Revision *int    `json:"revision,omitempty"`
 
 	// ScansCount Total number of scans that have ever run for this target
 	ScansCount *int `json:"scansCount,omitempty"`
@@ -714,7 +719,8 @@ type TargetExists struct {
 
 // TargetRelationship Describes a relationship to a target which can be expanded.
 type TargetRelationship struct {
-	Id string `json:"id"`
+	Id       string `json:"id"`
+	Revision *int   `json:"revision,omitempty"`
 
 	// ScansCount Total number of scans that have ever run for this target
 	ScansCount *int `json:"scansCount,omitempty"`
@@ -731,6 +737,7 @@ type TargetScanResult struct {
 	Id                *string               `json:"id,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
+	Revision          *int                  `json:"revision,omitempty"`
 	Rootkits          *RootkitScan          `json:"rootkits,omitempty"`
 	Sboms             *SbomScan             `json:"sboms,omitempty"`
 
@@ -903,6 +910,9 @@ type VulnerabilitySeverity string
 // FindingID defines model for findingID.
 type FindingID = string
 
+// Ifmatch defines model for ifmatch.
+type Ifmatch = int
+
 // OdataCount defines model for odataCount.
 type OdataCount = bool
 
@@ -983,6 +993,16 @@ type GetScanConfigsScanConfigIDParams struct {
 	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
+// PatchScanConfigsScanConfigIDParams defines parameters for PatchScanConfigsScanConfigID.
+type PatchScanConfigsScanConfigIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutScanConfigsScanConfigIDParams defines parameters for PutScanConfigsScanConfigID.
+type PutScanConfigsScanConfigIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
 // GetScanResultsParams defines parameters for GetScanResults.
 type GetScanResultsParams struct {
 	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
@@ -998,6 +1018,16 @@ type GetScanResultsParams struct {
 type GetScanResultsScanResultIDParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
 	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchScanResultsScanResultIDParams defines parameters for PatchScanResultsScanResultID.
+type PatchScanResultsScanResultIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutScanResultsScanResultIDParams defines parameters for PutScanResultsScanResultID.
+type PutScanResultsScanResultIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
 // GetScansParams defines parameters for GetScans.
@@ -1017,6 +1047,16 @@ type GetScansScanIDParams struct {
 	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
 }
 
+// PatchScansScanIDParams defines parameters for PatchScansScanID.
+type PatchScansScanIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutScansScanIDParams defines parameters for PutScansScanID.
+type PutScansScanIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
 // GetTargetsParams defines parameters for GetTargets.
 type GetTargetsParams struct {
 	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
@@ -1032,6 +1072,16 @@ type GetTargetsParams struct {
 type GetTargetsTargetIDParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
 	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchTargetsTargetIDParams defines parameters for PatchTargetsTargetID.
+type PatchTargetsTargetIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutTargetsTargetIDParams defines parameters for PutTargetsTargetID.
+type PutTargetsTargetIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
 // PutDiscoveryScopesJSONRequestBody defines body for PutDiscoveryScopes for application/json ContentType.

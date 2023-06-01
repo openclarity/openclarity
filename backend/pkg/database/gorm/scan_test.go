@@ -16,26 +16,21 @@
 package gorm
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/openclarity/vmclarity/api/models"
 )
 
 func Test_validateScanConfigID(t *testing.T) {
-	apiScan := models.Scan{
+	dbScan := models.Scan{
 		ScanConfig: &models.ScanConfigRelationship{
 			Id: "test",
 		},
 	}
-	dbScan, err := json.Marshal(apiScan)
-	if err != nil {
-		t.Errorf("failed to marshal test scan data: %v", err)
-	}
 
 	type args struct {
 		scan   models.Scan
-		dbScan Scan
+		dbScan models.Scan
 	}
 	tests := []struct {
 		name    string
@@ -50,23 +45,15 @@ func Test_validateScanConfigID(t *testing.T) {
 						Id: "test",
 					},
 				},
-				dbScan: Scan{
-					ODataObject{
-						Data: dbScan,
-					},
-				},
+				dbScan: dbScan,
 			},
 			wantErr: false,
 		},
 		{
 			name: "scan config ID is nil",
 			args: args{
-				scan: models.Scan{},
-				dbScan: Scan{
-					ODataObject{
-						Data: dbScan,
-					},
-				},
+				scan:   models.Scan{},
+				dbScan: dbScan,
 			},
 			wantErr: false,
 		},
@@ -78,11 +65,7 @@ func Test_validateScanConfigID(t *testing.T) {
 						Id: "newID",
 					},
 				},
-				dbScan: Scan{
-					ODataObject{
-						Data: dbScan,
-					},
-				},
+				dbScan: dbScan,
 			},
 			wantErr: true,
 		},
