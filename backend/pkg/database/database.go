@@ -38,6 +38,7 @@ func RegisterDrivers() {
 			DBDrivers = map[string]DBDriver{}
 		}
 		DBDrivers[types.DBDriverTypeLocal] = gorm.NewDatabase
+		DBDrivers[types.DBDriverTypePostgres] = gorm.NewDatabase
 	})
 }
 

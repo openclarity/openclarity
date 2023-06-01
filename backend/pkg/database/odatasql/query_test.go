@@ -30,6 +30,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
 )
 
 type SubOption struct {
@@ -1121,7 +1123,7 @@ func TestBuildSQLQuery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, err := BuildSQLQuery(carSchemaMetas, "Car", tt.args.filterString, tt.args.selectString, tt.args.expandString, tt.args.orderbyString, tt.args.top, tt.args.skip)
+			query, err := BuildSQLQuery(jsonsql.SQLite, carSchemaMetas, "Car", tt.args.filterString, tt.args.selectString, tt.args.expandString, tt.args.orderbyString, tt.args.top, tt.args.skip)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildSQLQuery() error = %v, wantErr %v", err, tt.wantErr)
 				return

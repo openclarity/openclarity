@@ -23,12 +23,16 @@ import (
 
 	"github.com/CiscoM31/godata"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
 )
+
+type jsonExtractFunctionType func(string, string) string
 
 var fixSelectToken sync.Once
 
 // nolint:cyclop
-func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterString *string) (string, error) {
+func BuildCountQuery(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, schema string, filterString *string) (string, error) {
 	table := schemaMetas[schema].Table
 	if table == "" {
 		return "", fmt.Errorf("trying to query complex type schema %s with no source table", schema)
@@ -48,7 +52,7 @@ func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterStr
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
@@ -60,7 +64,7 @@ func BuildCountQuery(schemaMetas map[string]SchemaMeta, schema string, filterStr
 }
 
 // nolint:cyclop,gocognit
-func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterString, selectString, expandString, orderbyString *string, top, skip *int) (string, error) {
+func BuildSQLQuery(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, schema string, filterString, selectString, expandString, orderbyString *string, top, skip *int) (string, error) {
 	// Fix GlobalExpandTokenizer so that it allows for `-` characters in the Literal tokens
 	fixSelectToken.Do(func() {
 		godata.GlobalExpandTokenizer.Add("^[a-zA-Z0-9_\\'\\.:\\$ \\*-]+", godata.ExpandTokenLiteral)
@@ -85,7 +89,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
@@ -100,7 +104,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 			return "", fmt.Errorf("failed to parse $orderby: %w", err)
 		}
 
-		conditions, err := buildOrderByFromOdata(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), orderbyQuery.OrderByItems)
+		conditions, err := buildOrderByFromOdata(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), orderbyQuery.OrderByItems)
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $orderby: %w", err)
 		}
@@ -108,7 +112,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 		orderby = fmt.Sprintf("ORDER BY %s", conditions)
 	}
 
-	selectFields, err := buildSelectFieldsFromSelectAndExpand(schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), selectString, expandString)
+	selectFields, err := buildSelectFieldsFromSelectAndExpand(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), selectString, expandString)
 	if err != nil {
 		return "", fmt.Errorf("failed to construct fields to select: %w", err)
 	}
@@ -130,7 +134,7 @@ func BuildSQLQuery(schemaMetas map[string]SchemaMeta, schema string, filterStrin
 	return fmt.Sprintf("SELECT ID, %s AS Data FROM %s %s %s %s", selectFields, table, where, orderby, limitStm), nil
 }
 
-func buildSelectFieldsFromSelectAndExpand(schemaMetas map[string]SchemaMeta, rootObject FieldMeta, identifier string, source string, selectString, expandString *string) (string, error) {
+func buildSelectFieldsFromSelectAndExpand(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, rootObject FieldMeta, identifier string, source string, selectString, expandString *string) (string, error) {
 	var selectQuery *godata.GoDataSelectQuery
 	if selectString != nil && *selectString != "" {
 		// NOTE(sambetts):
@@ -163,29 +167,29 @@ func buildSelectFieldsFromSelectAndExpand(schemaMetas map[string]SchemaMeta, roo
 		return "", fmt.Errorf("failed to parse select and expand: %w", err)
 	}
 
-	return buildSelectFields(schemaMetas, rootObject, identifier, source, "$", selectTree), nil
+	return buildSelectFields(sqlVariant, schemaMetas, rootObject, identifier, source, "$", selectTree), nil
 }
 
-func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+func buildSelectFields(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	switch field.FieldType {
 	case PrimitiveFieldType:
 		// If root of source (path is just $) is primitive just return the source
 		if path == "$" {
 			return source
 		}
-		return fmt.Sprintf("%s -> '%s'", source, path)
+		return sqlVariant.JSONExtract(source, path)
 	case CollectionFieldType:
 		if field.CollectionItemMeta.FieldType == RelationshipFieldType {
 			// This is an optimisation to allow us to do a single
 			// aggregate query to the foreign table instead of a
 			// sub query per item in the collection.
-			return buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas, field, identifier, source, path, st)
+			return buildSelectFieldsForRelationshipCollectionFieldType(sqlVariant, schemaMetas, field, identifier, source, path, st)
 		}
-		return buildSelectFieldsForCollectionFieldType(schemaMetas, field, identifier, source, path, st)
+		return buildSelectFieldsForCollectionFieldType(sqlVariant, schemaMetas, field, identifier, source, path, st)
 	case ComplexFieldType:
-		return buildSelectFieldsForComplexFieldType(schemaMetas, field, identifier, source, path, st)
+		return buildSelectFieldsForComplexFieldType(sqlVariant, schemaMetas, field, identifier, source, path, st)
 	case RelationshipFieldType:
-		return buildSelectFieldsForRelationshipFieldType(schemaMetas, field, identifier, source, path, st)
+		return buildSelectFieldsForRelationshipFieldType(sqlVariant, schemaMetas, field, identifier, source, path, st)
 	default:
 		log.Errorf("Unsupported field type %v", field.FieldType)
 		// TODO(sambetts) Return an error here
@@ -193,19 +197,26 @@ func buildSelectFields(schemaMetas map[string]SchemaMeta, field FieldMeta, ident
 	}
 }
 
-func buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+func buildSelectFieldsForRelationshipCollectionFieldType(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	if st == nil || !st.expand {
-		return fmt.Sprintf("%s -> '%s'", source, path)
+		return sqlVariant.JSONExtract(source, path)
 	}
 
 	schemaName := field.CollectionItemMeta.RelationshipSchema
 	schema := schemaMetas[schemaName]
 	newSource := fmt.Sprintf("%s.Data", schema.Table)
 
-	where := fmt.Sprintf("WHERE %s -> '$.%s' = %s.value -> '$.%s'", newSource, field.CollectionItemMeta.RelationshipProperty, identifier, field.CollectionItemMeta.RelationshipProperty)
+	where := fmt.Sprintf(
+		"WHERE %s = %s",
+		sqlVariant.JSONExtract(newSource, fmt.Sprintf("$.%s", field.CollectionItemMeta.RelationshipProperty)),
+		sqlVariant.JSONExtract(
+			fmt.Sprintf("%s.value", identifier),
+			fmt.Sprintf("$.%s", field.CollectionItemMeta.RelationshipProperty),
+		),
+	)
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(schemaMetas, field, newSource, newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, field, newSource, newSource, st.filter.Tree)
 			where = fmt.Sprintf("%s and %s", where, conditions)
 		}
 	}
@@ -225,18 +236,18 @@ func buildSelectFieldsForRelationshipCollectionFieldType(schemaMetas map[string]
 		}
 		sel := st.children[key]
 
-		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
+		extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
 		part := fmt.Sprintf("'%s', %s", key, extract)
 		parts = append(parts, part)
 	}
-	subQuery := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
+	subQuery := sqlVariant.JSONObject(parts)
 
-	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM %s,JSON_EACH(%s, '%s') AS %s %s)", subQuery, schema.Table, source, path, identifier, where)
+	return fmt.Sprintf("(SELECT %s FROM %s,%s AS %s %s)", sqlVariant.JSONArrayAggregate(subQuery), schema.Table, sqlVariant.JSONEach(sqlVariant.JSONExtract(source, path)), identifier, where)
 }
 
-func buildSelectFieldsForRelationshipFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+func buildSelectFieldsForRelationshipFieldType(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	if st == nil || !st.expand {
-		return fmt.Sprintf("%s -> '%s'", source, path)
+		return sqlVariant.JSONExtract(source, path)
 	}
 
 	schemaName := field.RelationshipSchema
@@ -257,13 +268,16 @@ func buildSelectFieldsForRelationshipFieldType(schemaMetas map[string]SchemaMeta
 		}
 		sel := st.children[key]
 
-		extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
+		extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
 		part := fmt.Sprintf("'%s', %s", key, extract)
 		parts = append(parts, part)
 	}
-	object := fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ","))
+	object := sqlVariant.JSONObject(parts)
 
-	return fmt.Sprintf("(SELECT %s FROM %s WHERE %s -> '$.%s' == %s -> '%s.%s')", object, schema.Table, newsource, field.RelationshipProperty, source, path, field.RelationshipProperty)
+	return fmt.Sprintf("(SELECT %s FROM %s WHERE %s = %s)", object, schema.Table,
+		sqlVariant.JSONExtract(newsource, fmt.Sprintf("$.%s", field.RelationshipProperty)),
+		sqlVariant.JSONExtract(source, fmt.Sprintf("%s.%s", path, field.RelationshipProperty)),
+	)
 }
 
 func getDiscriminatorValue(schemaName string, field FieldMeta) string {
@@ -274,13 +288,13 @@ func getDiscriminatorValue(schemaName string, field FieldMeta) string {
 }
 
 // nolint:cyclop
-func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+func buildSelectFieldsForComplexFieldType(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	// If there are no children in the select tree for this complex
 	// type, shortcircuit and just return the data from the DB raw,
 	// as there is no need to build the complex query, and it'll
 	// ensure that null values are handled correctly.
 	if st == nil || len(st.children) == 0 {
-		return fmt.Sprintf("%s -> '%s'", source, path)
+		return sqlVariant.JSONExtract(source, path)
 	}
 
 	objects := []string{}
@@ -313,11 +327,11 @@ func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, fie
 				sel = st.children[key]
 			}
 
-			extract := buildSelectFields(schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), source, fmt.Sprintf("%s.%s", path, key), sel)
+			extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), source, fmt.Sprintf("%s.%s", path, key), sel)
 			part := fmt.Sprintf("'%s', %s", key, extract)
 			parts = append(parts, part)
 		}
-		objects = append(objects, fmt.Sprintf("JSON_OBJECT(%s)", strings.Join(parts, ",")))
+		objects = append(objects, sqlVariant.JSONObject(parts))
 	}
 
 	if len(objects) == 1 {
@@ -332,12 +346,14 @@ func buildSelectFieldsForComplexFieldType(schemaMetas map[string]SchemaMeta, fie
 	// }
 
 	return fmt.Sprintf(
-		"(SELECT %s.value FROM JSON_EACH(JSON_ARRAY(%s)) AS %s WHERE %s.value -> '$.%s' = %s -> '%s.%s')",
-		identifier, strings.Join(objects, ","), identifier,
-		identifier, field.DiscriminatorProperty, source, path, field.DiscriminatorProperty)
+		"(SELECT %s.value FROM %s AS %s WHERE %s = %s)",
+		identifier, sqlVariant.JSONEach(sqlVariant.JSONArray(objects)), identifier,
+		sqlVariant.JSONExtract(fmt.Sprintf("%s.value", identifier), fmt.Sprintf("$.%s", field.DiscriminatorProperty)),
+		sqlVariant.JSONExtract(source, fmt.Sprintf("%s.%s", path, field.DiscriminatorProperty)),
+	)
 }
 
-func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
+func buildSelectFieldsForCollectionFieldType(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	newIdentifier := fmt.Sprintf("%sOptions", identifier)
 	newSource := fmt.Sprintf("%s.value", newIdentifier)
 
@@ -346,12 +362,12 @@ func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, 
 	var newSelectNode *selectNode
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.filter.Tree)
 			where = fmt.Sprintf("WHERE %s", conditions)
 		}
 
 		if st.orderby != nil {
-			conditions, err := buildOrderByFromOdata(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.orderby.OrderByItems)
+			conditions, err := buildOrderByFromOdata(sqlVariant, schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.orderby.OrderByItems)
 			// TODO(sambetts) Add error handling to buildSelectFields
 			if err != nil {
 				log.Errorf("Failed to build DB query from $orderby: %v", err)
@@ -369,19 +385,19 @@ func buildSelectFieldsForCollectionFieldType(schemaMetas map[string]SchemaMeta, 
 		newSelectNode.orderby = nil
 	}
 
-	subQuery := buildSelectFields(schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sOptions", newIdentifier), newSource, "$", newSelectNode)
+	subQuery := buildSelectFields(sqlVariant, schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sOptions", newIdentifier), newSource, "$", newSelectNode)
 
 	// This query will produce an exploded list of items (one row per item) from the collection, selected, filtered and ordered
-	listQuery := fmt.Sprintf("SELECT %s AS value FROM JSON_EACH(%s, '%s') AS %s %s %s", subQuery, source, path, newIdentifier, where, orderby)
+	listQuery := fmt.Sprintf("SELECT %s AS value FROM %s AS %s %s %s", subQuery, sqlVariant.JSONEach(sqlVariant.JSONExtract(source, path)), newIdentifier, where, orderby)
 
 	// Now aggregate all the rows back into a JSON array
 	aggregateValue := fmt.Sprintf("%s.value", identifier)
 	if field.CollectionItemMeta.FieldType != PrimitiveFieldType {
 		// For non-primitives use -> '$' to convert the value back to a
 		// json object in the aggregate.
-		aggregateValue = fmt.Sprintf("%s -> '$'", aggregateValue)
+		aggregateValue = sqlVariant.JSONExtract(aggregateValue, "$")
 	}
-	return fmt.Sprintf("(SELECT JSON_GROUP_ARRAY(%s) FROM (%s) AS %s)", aggregateValue, listQuery, identifier)
+	return fmt.Sprintf("(SELECT %s FROM (%s) AS %s)", sqlVariant.JSONArrayAggregate(aggregateValue), listQuery, identifier)
 }
 
 var sqlOperators = map[string]string{
@@ -481,7 +497,7 @@ func expandItemsToReachPath(schemaMetas map[string]SchemaMeta, field FieldMeta, 
 
 // TODO: create a unit test
 // nolint:cyclop
-func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode) (string, error) {
+func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode) (string, error) {
 	operator := node.Token.Value
 
 	var query string
@@ -494,7 +510,7 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
 
-		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
 		if err != nil {
 			return "", fmt.Errorf("unable to build source for filter %w", err)
 		}
@@ -502,7 +518,7 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 		queryPath = fmt.Sprintf("$.%s", queryPath)
 
 		rhs := node.Children[1]
-		extractFunction := "->"
+		var extractFunction jsonExtractFunctionType = sqlVariant.JSONExtract
 		sqlOperator := sqlOperators[operator]
 		var value string
 		switch rhs.Token.Type { // TODO: implement all the relevant cases as ExpressionTokenDate and ExpressionTokenDateTime
@@ -512,7 +528,7 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 			value = singleQuote(rhs.Token.Value)
 		case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:
 			value = rhs.Token.Value
-			extractFunction = "->>"
+			extractFunction = sqlVariant.JSONExtractText
 		case godata.ExpressionTokenNull:
 			value = "NULL"
 			if operator == "eq" {
@@ -524,29 +540,31 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 			}
 		case godata.ExpressionTokenDateTime:
 			value = singleQuote(rhs.Token.Value)
-			extractFunction = "->>"
-			return fmt.Sprintf("datetime(%s %s '%s') %s datetime(%s)", source, extractFunction, queryPath, sqlOperator, value), nil
+			extractFunction = sqlVariant.JSONExtractText
+			originalTime := sqlVariant.CastToDateTime(extractFunction(source, queryPath))
+			timeToCompare := sqlVariant.CastToDateTime(value)
+			return fmt.Sprintf("%s %s %s", originalTime, sqlOperator, timeToCompare), nil
 		default:
 			return "", fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
 
-		query = fmt.Sprintf("%s %s '%s' %s %s", fieldSource, extractFunction, queryPath, sqlOperator, value)
+		query = fmt.Sprintf("%s %s %s", extractFunction(fieldSource, queryPath), sqlOperator, value)
 	case "and":
-		left, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[0])
+		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0])
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[1])
+		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1])
 		if err != nil {
 			return query, err
 		}
 		query = fmt.Sprintf("(%s AND %s)", left, right)
 	case "or":
-		left, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[0])
+		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0])
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(schemaMetas, field, identifier, source, node.Children[1])
+		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1])
 		if err != nil {
 			return query, err
 		}
@@ -559,7 +577,7 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
 
-		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
 		if err != nil {
 			return "", fmt.Errorf("unable to build source for filter %w", err)
 		}
@@ -573,13 +591,17 @@ func buildWhereFromFilter(schemaMetas map[string]SchemaMeta, field FieldMeta, id
 		default:
 			return query, fmt.Errorf("unsupported token type")
 		}
-		query = fmt.Sprintf("%s ->> '$.%s' LIKE '%s'", fieldSource, queryPath, value)
+		query = fmt.Sprintf(
+			"%s LIKE '%s'",
+			sqlVariant.JSONExtractText(fieldSource, fmt.Sprintf("$.%s", queryPath)),
+			value,
+		)
 	}
 
 	return query, nil
 }
 
-func sourceFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, queryPath string) (string, error) {
+func sourceFromQueryPath(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, queryPath string) (string, error) {
 	// ODATA path that would be present if we were to $select the
 	// field being filtered
 	selectPath := strings.ReplaceAll(queryPath, ".", "/")
@@ -594,7 +616,7 @@ func sourceFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, ide
 	fieldSource := source
 	if expandItems != "" {
 		var err error
-		fieldSource, err = buildSelectFieldsFromSelectAndExpand(schemaMetas, field, identifier, source, &selectPath, &expandItems)
+		fieldSource, err = buildSelectFieldsFromSelectAndExpand(sqlVariant, schemaMetas, field, identifier, source, &selectPath, &expandItems)
 		if err != nil {
 			return "", fmt.Errorf("unable to build source %w", err)
 		}
@@ -602,7 +624,7 @@ func sourceFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, ide
 	return fieldSource, nil
 }
 
-func buildOrderByFromOdata(schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, orderbyItems []*godata.OrderByItem) (string, error) {
+func buildOrderByFromOdata(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, orderbyItems []*godata.OrderByItem) (string, error) {
 	conditions := []string{}
 
 	for _, item := range orderbyItems {
@@ -611,12 +633,16 @@ func buildOrderByFromOdata(schemaMetas map[string]SchemaMeta, field FieldMeta, i
 			return "", fmt.Errorf("failed to convert odata path to json path: %w", err)
 		}
 
-		fieldSource, err := sourceFromQueryPath(schemaMetas, field, identifier, source, queryPath)
+		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
 		if err != nil {
 			return "", fmt.Errorf("unable to build source for filter %w", err)
 		}
 
-		conditions = append(conditions, fmt.Sprintf("%s ->> '$.%s' %s", fieldSource, queryPath, strings.ToUpper(item.Order)))
+		conditions = append(conditions, fmt.Sprintf(
+			"%s %s",
+			sqlVariant.JSONExtractText(fieldSource, fmt.Sprintf("$.%s", queryPath)),
+			strings.ToUpper(item.Order)),
+		)
 	}
 
 	return strings.Join(conditions, ", "), nil
