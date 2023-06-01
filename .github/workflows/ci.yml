@@ -4,7 +4,7 @@ on:
   merge_group:
 
 env:
-  GO_VERSION: 1.19
+  GO_VERSION: "1.20"
 
 jobs:
   api-verification:
