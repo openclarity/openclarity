@@ -65,3 +65,11 @@ func (postgres) JSONExtractText(source, path string) string {
 	path = convertJSONPathToPostgresPath(path)
 	return fmt.Sprintf("%s#>>'%s'", source, path)
 }
+
+func (postgres) JSONQuote(value string) string {
+	return fmt.Sprintf("TO_JSONB(%s::text)", value)
+}
+
+func (postgres) JSONCast(value string) string {
+	return fmt.Sprintf("TO_JSONB(%s)", value)
+}
