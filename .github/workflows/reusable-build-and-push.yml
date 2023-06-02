@@ -114,6 +114,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/openclarity/vmclarity-cli:${{ inputs.image_tag }}
           file: Dockerfile.cli
           push: ${{ inputs.push }}
@@ -121,8 +122,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ inputs.image_tag }}
-            BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact

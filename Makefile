@@ -47,7 +47,7 @@ cli: ## Build CLI
 docker: docker-backend docker-cli ## Build All Docker images
 
 .PHONY: push-docker
-push-docker: push-docker-backend push-docker-cli ## Build and Push All Docker images
+push-docker: push-docker-backend build-and-push-docker-cli ## Build and Push All Docker images
 
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
 VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
@@ -56,15 +56,24 @@ endif
 .PHONY: docker-cli
 docker-cli: ## Build CLI Docker image
 	@(echo "Building cli docker image ..." )
-	docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) ${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
-		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} .
+	docker build \
+		--file ./Dockerfile.cli \
+		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
+		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} \
+		.
 
-.PHONY: push-docker-cli
-push-docker-cli: docker-cli ## Build and Push CLI Docker image
+.PHONY: build-and-push-docker-cli
+build-and-push-docker-cli: ## Build and Push CLI Docker image
 	@echo "Publishing cli docker image ..."
-	docker push ${DOCKER_IMAGE}-cli:${DOCKER_TAG}
+	docker buildx build \
+		--push \
+		--platform linux/amd64,linux/arm64 \
+		--file ./Dockerfile.cli \
+		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
+		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} \
+		.
 
 .PHONY: docker-backend
 docker-backend: ## Build Backend Docker image
