@@ -285,7 +285,7 @@ func addManufacturer(db *gorm.DB, postfix string) (Manufacturer, error) {
 	return manufacturer, nil
 }
 
-func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool, builtOn *time.Time, optionManu1 string, optionManu2 string) (Car, error) {
+func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, supercharger bool, builtOn *time.Time, optionManu1 string, optionManu2 string, idWithJSONEscapedChars bool) (Car, error) {
 	id := uuid.New().String()
 
 	otherMs := []Manufacturer{}
@@ -333,6 +333,10 @@ func addCar(db *gorm.DB, model, manuID string, otherManus []string, seats int, s
 	})
 	if err != nil {
 		return Car{}, err
+	}
+
+	if idWithJSONEscapedChars {
+		id = fmt.Sprintf("\"%s\"", id)
 	}
 
 	car := Car{
@@ -425,7 +429,7 @@ func TestBuildSQLQuery(t *testing.T) {
 
 	dir, err := os.MkdirTemp("", "")
 	if err != nil {
-		t.Errorf("Failed to create tmp dir for database: %v", err)
+		t.Fatalf("Failed to create tmp dir for database: %v", err)
 	}
 	defer os.RemoveAll(dir)
 
@@ -434,14 +438,19 @@ func TestBuildSQLQuery(t *testing.T) {
 		Logger: dbLogger,
 	})
 	if err != nil {
-		t.Errorf("failed to open db: %v", err)
+		t.Fatalf("failed to open db: %v", err)
 	}
 
 	if err := db.AutoMigrate(
 		CarRow{},
 		ManufacturerRow{},
 	); err != nil {
-		t.Errorf("failed to run auto migration: %v", err)
+		t.Fatalf("failed to run auto migration: %v", err)
+	}
+
+	indexCmd := db.Exec("CREATE INDEX IF NOT EXISTS car_rows_id_idx ON car_rows((Data -> '$.Id'))")
+	if indexCmd.Error != nil {
+		t.Fatalf("failed to create index cars_id_idx: %v", indexCmd.Error)
 	}
 
 	oldtime, err := time.Parse(time.RFC3339, "2021-03-21T08:50:00+00:00")
@@ -484,22 +493,22 @@ func TestBuildSQLQuery(t *testing.T) {
 		t.Errorf("failed to add manufacturer to db %v", err)
 	}
 
-	car1, err := addCar(db, "model1", manu1.ID, []string{}, 12, false, &oldtime, manu1.ID, manu2.ID)
+	car1, err := addCar(db, "model1", manu1.ID, []string{}, 12, false, &oldtime, manu1.ID, manu2.ID, false)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true, &oldtime, manu1.ID, manu2.ID)
+	car2, err := addCar(db, "model2", manu1.ID, []string{manu2.ID, manu3.ID}, 5, true, &oldtime, manu1.ID, manu2.ID, false)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false, &newtime, manu2.ID, manu3.ID)
+	car3, err := addCar(db, "model3", manu2.ID, []string{}, 2, false, &newtime, manu2.ID, manu3.ID, false)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
 
-	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true, nil, manu2.ID, manu3.ID)
+	car4, err := addCar(db, "model4", manu3.ID, []string{}, 2, true, nil, manu2.ID, manu3.ID, true)
 	if err != nil {
 		t.Errorf("failed to add car to db %v", err)
 	}
@@ -785,14 +794,27 @@ func TestBuildSQLQuery(t *testing.T) {
 			},
 		},
 		{
-			name: "expand on relationship",
+			name: "filter on id with select on id",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-				selectString: PointerTo("ModelName,Manufacturer"),
+				selectString: PointerTo("Id"),
+			},
+			want: []Car{
+				{
+					ID: car1.ID,
+				},
+			},
+		},
+		{
+			name: "expand on relationship with select",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
+				selectString: PointerTo("Id,ModelName,Manufacturer"),
 				expandString: PointerTo("Manufacturer"),
 			},
 			want: []Car{
 				{
+					ID:           car1.ID,
 					ModelName:    car1.ModelName,
 					Manufacturer: &manu1,
 				},
@@ -802,11 +824,12 @@ func TestBuildSQLQuery(t *testing.T) {
 			name: "expand on relationship, relationship not in select",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-				selectString: PointerTo("ModelName"),
+				selectString: PointerTo("Id,ModelName"),
 				expandString: PointerTo("Manufacturer"),
 			},
 			want: []Car{
 				{
+					ID:           car1.ID,
 					ModelName:    car1.ModelName,
 					Manufacturer: &manu1,
 				},
@@ -816,11 +839,12 @@ func TestBuildSQLQuery(t *testing.T) {
 			name: "expand on relationship with nested select",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car1.ID)),
-				selectString: PointerTo("ModelName"),
+				selectString: PointerTo("Id,ModelName"),
 				expandString: PointerTo("Manufacturer($select=Name)"),
 			},
 			want: []Car{
 				{
+					ID:        car1.ID,
 					ModelName: car1.ModelName,
 					Manufacturer: &Manufacturer{
 						Name: manu1.Name,
@@ -832,11 +856,12 @@ func TestBuildSQLQuery(t *testing.T) {
 			name: "expand on relationship collection",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-				selectString: PointerTo("ModelName"),
+				selectString: PointerTo("Id,ModelName"),
 				expandString: PointerTo("Manufacturers"),
 			},
 			want: []Car{
 				{
+					ID:        car2.ID,
 					ModelName: car2.ModelName,
 					Manufacturers: []Manufacturer{
 						manu2,
@@ -849,11 +874,12 @@ func TestBuildSQLQuery(t *testing.T) {
 			name: "expand on relationship collection with filter",
 			args: args{
 				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car2.ID)),
-				selectString: PointerTo("ModelName"),
+				selectString: PointerTo("Id,ModelName"),
 				expandString: PointerTo("Manufacturers($filter=Name eq 'manu2')"),
 			},
 			want: []Car{
 				{
+					ID:        car2.ID,
 					ModelName: car2.ModelName,
 					Manufacturers: []Manufacturer{
 						manu2,
@@ -1118,6 +1144,15 @@ func TestBuildSQLQuery(t *testing.T) {
 				car3,
 				car1,
 				car2,
+			},
+		},
+		{
+			name: "get object where field includes json escaped chars",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Id eq '%s'", car4.ID)),
+			},
+			want: []Car{
+				car4,
 			},
 		},
 	}

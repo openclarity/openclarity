@@ -237,7 +237,7 @@ func buildSelectFieldsForRelationshipCollectionFieldType(sqlVariant jsonsql.Vari
 		sel := st.children[key]
 
 		extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newSource, fmt.Sprintf("$.%s", key), sel)
-		part := fmt.Sprintf("'%s', %s", key, extract)
+		part := fmt.Sprintf("'%s', %s", key, sqlVariant.JSONCast(extract))
 		parts = append(parts, part)
 	}
 	subQuery := sqlVariant.JSONObject(parts)
@@ -269,7 +269,7 @@ func buildSelectFieldsForRelationshipFieldType(sqlVariant jsonsql.Variant, schem
 		sel := st.children[key]
 
 		extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), newsource, fmt.Sprintf("$.%s", key), sel)
-		part := fmt.Sprintf("'%s', %s", key, extract)
+		part := fmt.Sprintf("'%s', %s", key, sqlVariant.JSONCast(extract))
 		parts = append(parts, part)
 	}
 	object := sqlVariant.JSONObject(parts)
@@ -328,7 +328,7 @@ func buildSelectFieldsForComplexFieldType(sqlVariant jsonsql.Variant, schemaMeta
 			}
 
 			extract := buildSelectFields(sqlVariant, schemaMetas, fm, fmt.Sprintf("%s%s", identifier, key), source, fmt.Sprintf("%s.%s", path, key), sel)
-			part := fmt.Sprintf("'%s', %s", key, extract)
+			part := fmt.Sprintf("'%s', %s", key, sqlVariant.JSONCast(extract))
 			parts = append(parts, part)
 		}
 		objects = append(objects, sqlVariant.JSONObject(parts))
@@ -523,7 +523,10 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 		var value string
 		switch rhs.Token.Type { // TODO: implement all the relevant cases as ExpressionTokenDate and ExpressionTokenDateTime
 		case godata.ExpressionTokenString:
-			value = singleQuote(strings.ReplaceAll(rhs.Token.Value, "'", "\""))
+			// rhs.Token.Value is already enforced to be single
+			// quoted by the odata validation so we can pass it
+			// straight in to json quote.
+			value = sqlVariant.JSONQuote(rhs.Token.Value)
 		case godata.ExpressionTokenBoolean:
 			value = singleQuote(rhs.Token.Value)
 		case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:

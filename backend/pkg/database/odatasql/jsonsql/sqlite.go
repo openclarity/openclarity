@@ -51,3 +51,11 @@ func (sqlite) JSONExtract(source, path string) string {
 func (sqlite) JSONExtractText(source, path string) string {
 	return fmt.Sprintf("%s->>'%s'", source, path)
 }
+
+func (sqlite) JSONQuote(value string) string {
+	return fmt.Sprintf("JSON_QUOTE(%s)", value)
+}
+
+func (sqlite) JSONCast(value string) string {
+	return fmt.Sprintf("JSON(%s)", value)
+}
