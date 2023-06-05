@@ -11,7 +11,7 @@ const TextField = ({className, small=false, label, disabled, tooltipText, type="
     return (
         <div className={classnames("form-field-wrapper", "text-field", {small}, className)}>
             {!!label && <FieldLabel tooltipId={`form-tooltip-${field.name}`} tooltipText={tooltipText}>{label}</FieldLabel>}
-            <input type={type} {...field} className="form-field" disabled={disabled} />
+            <input type={type} {...field} className="form-field" disabled={disabled} {...(props.min && { "min": props.min })} />
             {meta.touched && meta.error && <FieldError>{meta.error}</FieldError>}
         </div>
     )
