@@ -329,7 +329,7 @@ func (b *BackendClient) GetScan(ctx context.Context, scanID string, params model
 func (b *BackendClient) GetScanConfigs(ctx context.Context, params models.GetScanConfigsParams) (*models.ScanConfigs, error) {
 	resp, err := b.apiClient.GetScanConfigsWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get scan configs: %v", err)
+		return nil, fmt.Errorf("failed to get scan configs: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -342,6 +342,33 @@ func (b *BackendClient) GetScanConfigs(ctx context.Context, params models.GetSca
 			return nil, fmt.Errorf("failed to get scan configs. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to get scan configs. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) GetScanConfig(ctx context.Context, scanConfigID string, params models.GetScanConfigsScanConfigIDParams) (*models.ScanConfig, error) {
+	resp, err := b.apiClient.GetScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get a scan config: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to get scan config: empty body")
+		}
+		return resp.JSON200, nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return nil, fmt.Errorf("failed to get a scan config: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return nil, fmt.Errorf("failed to get a scan config, not found: %v", *resp.JSON404.Message)
+		}
+		return nil, fmt.Errorf("failed to get a scan config, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get a scan config. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get a scan config. status code=%v", resp.StatusCode())
 	}
 }
 

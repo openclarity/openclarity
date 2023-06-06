@@ -13,23 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package cloudinit
 
-type ScanError struct {
-	ErrMsg    string
-	ErrType   string
-	ErrSource ScanErrorSource
+import (
+	"bytes"
+	_ "embed"
+	"fmt"
+	"text/template"
+
+	"github.com/Masterminds/sprig/v3"
+)
+
+//go:embed cloud-init.tmpl.yaml
+var cloudInitTemplate string
+
+func New(data any) (string, error) {
+	tmpl, err := template.New("cloud-init").Funcs(sprig.FuncMap()).Parse(cloudInitTemplate)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse cloud-init template: %w", err)
+	}
+
+	var b bytes.Buffer
+	if err = tmpl.Execute(&b, data); err != nil {
+		return "", fmt.Errorf("failed to generate cloud-init from template: %w", err)
+	}
+
+	return b.String(), nil
 }
-
-type ScanErrorType string
-
-const (
-	JobRun     ScanErrorType = "errorJobRun"
-	JobTimeout ScanErrorType = "errorJobTimeout"
-)
-
-type ScanErrorSource string
-
-const (
-	ScanErrSourceJob ScanErrorSource = "ScanErrSourceJob"
-)

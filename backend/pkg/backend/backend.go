@@ -30,9 +30,7 @@ import (
 	"github.com/openclarity/vmclarity/backend/pkg/database"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/backend/pkg/rest"
-	runtime_scan_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
@@ -100,7 +98,13 @@ func Run(ctx context.Context) {
 	restServer.Start(ctx, errChan)
 	defer restServer.Stop(ctx)
 
-	startRuntimeScanOrchestratorIfNeeded(ctx, config, backendClient)
+	if config.DisableOrchestrator {
+		logger.Infof("Runtime orchestrator is disabled")
+	} else {
+		if err = startOrchestrator(ctx, config, backendClient); err != nil {
+			logger.Fatalf("Failed to start orchestrator: %v", err)
+		}
+	}
 
 	// Background processing must start after rest server was started.
 	uiBackendServer.StartBackgroundProcessing(ctx)
@@ -122,36 +126,18 @@ func Run(ctx context.Context) {
 	}
 }
 
-func startRuntimeScanOrchestratorIfNeeded(ctx context.Context, config *_config.Config, backendClient *backendclient.BackendClient) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	if config.DisableOrchestrator {
-		logger.Infof("Runtime orchestrator is disabled")
-		return
-	}
-
-	runtimeScanConfig, err := runtime_scan_config.LoadConfig(config.BackendRestHost, config.BackendRestPort, rest.BaseURL)
+func startOrchestrator(ctx context.Context, config *_config.Config, client *backendclient.BackendClient) error {
+	orchestratorConfig, err := orchestrator.LoadConfig(config.BackendRestHost, config.BackendRestPort, rest.BaseURL)
 	if err != nil {
-		logger.Fatalf("Failed to load runtime scan orchestrator config: %v", err)
+		return fmt.Errorf("failed to load runtime scan orchestrator config: %w", err)
 	}
 
-	providerClient, err := aws.Create(ctx, runtimeScanConfig.AWSConfig)
+	p, err := aws.New(ctx, orchestratorConfig.AWSConfig)
 	if err != nil {
-		logger.Fatalf("Failed to create provider client: %v", err)
+		return fmt.Errorf("failed to create provider client: %w", err)
 	}
 
-	orc, err := createRuntimeScanOrchestrator(providerClient, runtimeScanConfig, backendClient)
-	if err != nil {
-		logger.Fatalf("Failed to create runtime scan orchestrator: %v", err)
-	}
-	orc.Start(ctx)
-}
+	orchestrator.New(orchestratorConfig, p, client).Start(ctx)
 
-func createRuntimeScanOrchestrator(client provider.Client, config *runtime_scan_config.OrchestratorConfig, backendClient *backendclient.BackendClient) (orchestrator.Orchestrator, error) {
-	orc, err := orchestrator.New(config, client, backendClient)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create runtime scan orchestrator: %v", err)
-	}
-
-	return orc, nil
+	return nil
 }

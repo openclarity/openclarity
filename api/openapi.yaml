@@ -1436,7 +1436,7 @@ components:
         securityGroups:
           type: array
           items:
-            $ref: '#/components/schemas/AwsSecurityGroup'
+            $ref: '#/components/schemas/SecurityGroup'
           nullable: true
       required:
         - id
@@ -1446,17 +1446,6 @@ components:
     SecurityGroup:
       type: object
       description: general cloud security group
-      properties:
-        id:
-          type: string
-          minLength: 1
-      required:
-        - id
-      additionalProperties: false
-
-    AwsSecurityGroup:
-      type: object
-      description: AWS security group
       properties:
         id:
           type: string
@@ -1673,6 +1662,14 @@ components:
             $ref: '#/components/schemas/TargetScanResult'
           readOnly: true
 
+    ResourceCleanupState:
+      type: string
+      enum:
+        - DONE
+        - PENDING
+        - SKIPPED
+        - FAILED
+
     TargetScanResult:
       type: object
       properties:
@@ -1711,6 +1708,8 @@ components:
           $ref: '#/components/schemas/ExploitScan'
         findingsProcessed:
           type: boolean
+        resourceCleanup:
+          $ref: '#/components/schemas/ResourceCleanupState'
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
       # TODO(sambetts) Decide if we want the validation here by having

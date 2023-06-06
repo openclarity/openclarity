@@ -61,7 +61,7 @@ func ListBlockDevices() ([]BlockDevice, error) {
 	}
 
 	log.Info("executing lsblk...")
-	//nolint: gosec
+	// nolint: gosec
 	output, err := exec.Command(
 		"lsblk",
 		"-b", // output size in bytes
@@ -114,7 +114,7 @@ func ListBlockDevices() ([]BlockDevice, error) {
 		blockDeviceMap[dev.DeviceName] = dev
 	}
 	if err := s.Err(); err != nil {
-		return nil, fmt.Errorf("cannot parse lsblk output: %v", err)
+		return nil, fmt.Errorf("cannot parse lsblk output: %w", err)
 	}
 
 	blockDevices := make([]BlockDevice, 0, len(blockDeviceMap))
@@ -127,13 +127,13 @@ func ListBlockDevices() ([]BlockDevice, error) {
 func (b BlockDevice) Mount(mountPoint string) error {
 	// Make a directory for the device to mount to
 	if err := os.MkdirAll(mountPoint, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to run mkdir comand: %v", err)
+		return fmt.Errorf("failed to run mkdir comand: %w", err)
 	}
 
 	// Do the mount
 	mounter := mount.New(mountPoint)
 	if err := mounter.Mount("/dev/"+b.DeviceName, mountPoint, b.FilesystemType, nil); err != nil {
-		return fmt.Errorf("failed to run mount command: %v", err)
+		return fmt.Errorf("failed to run mount command: %w", err)
 	}
 
 	return nil

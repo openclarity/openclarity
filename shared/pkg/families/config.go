@@ -39,3 +39,15 @@ type Config struct {
 	// Enrichers
 	Exploits exploits.Config `json:"exploits" yaml:"exploits" mapstructure:"exploits"`
 }
+
+func NewConfig() *Config {
+	return &Config{
+		SBOM:             sbom.Config{},
+		Vulnerabilities:  vulnerabilities.Config{},
+		Secrets:          secrets.Config{},
+		Rootkits:         rootkits.Config{},
+		Malware:          malware.Config{},
+		Misconfiguration: misconfigurationTypes.Config{},
+		Exploits:         exploits.Config{},
+	}
+}
