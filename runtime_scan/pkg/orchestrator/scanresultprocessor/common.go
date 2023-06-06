@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (srp *ScanResultProcessor) newerExistingFindingTime(ctx context.Context, targetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {

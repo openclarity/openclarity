@@ -32,7 +32,6 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/cli"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
@@ -42,6 +41,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 const (

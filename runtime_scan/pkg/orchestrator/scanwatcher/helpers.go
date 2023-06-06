@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func isScanTimedOut(scan *models.Scan, timeout time.Duration) bool {

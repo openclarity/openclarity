@@ -21,7 +21,6 @@ import (
 	"os/exec"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 type CmdRunError struct {
@@ -54,16 +53,6 @@ func RunCommand(cmd *exec.Cmd) ([]byte, error) {
 	return outb.Bytes(), nil
 }
 
-func StringPtr(val string) *string {
-	ret := val
-	return &ret
-}
-
-func BoolPtr(val bool) *bool {
-	ret := val
-	return &ret
-}
-
 func PointerTo[T any](value T) *T {
 	return &value
 }
@@ -78,11 +67,11 @@ func StringKeyMapToArray[T any](m map[string]T) []T {
 
 func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) *models.VulnerabilityScanSummary {
 	ret := &models.VulnerabilityScanSummary{
-		TotalCriticalVulnerabilities:   utils.PointerTo(0),
-		TotalHighVulnerabilities:       utils.PointerTo(0),
-		TotalMediumVulnerabilities:     utils.PointerTo(0),
-		TotalLowVulnerabilities:        utils.PointerTo(0),
-		TotalNegligibleVulnerabilities: utils.PointerTo(0),
+		TotalCriticalVulnerabilities:   PointerTo(0),
+		TotalHighVulnerabilities:       PointerTo(0),
+		TotalMediumVulnerabilities:     PointerTo(0),
+		TotalLowVulnerabilities:        PointerTo(0),
+		TotalNegligibleVulnerabilities: PointerTo(0),
 	}
 	if vulnerabilities == nil {
 		return ret
@@ -90,15 +79,15 @@ func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) 
 	for _, vulnerability := range *vulnerabilities {
 		switch *vulnerability.Severity {
 		case models.CRITICAL:
-			ret.TotalCriticalVulnerabilities = utils.PointerTo(*ret.TotalCriticalVulnerabilities + 1)
+			ret.TotalCriticalVulnerabilities = PointerTo(*ret.TotalCriticalVulnerabilities + 1)
 		case models.HIGH:
-			ret.TotalHighVulnerabilities = utils.PointerTo(*ret.TotalHighVulnerabilities + 1)
+			ret.TotalHighVulnerabilities = PointerTo(*ret.TotalHighVulnerabilities + 1)
 		case models.MEDIUM:
-			ret.TotalMediumVulnerabilities = utils.PointerTo(*ret.TotalMediumVulnerabilities + 1)
+			ret.TotalMediumVulnerabilities = PointerTo(*ret.TotalMediumVulnerabilities + 1)
 		case models.LOW:
-			ret.TotalLowVulnerabilities = utils.PointerTo(*ret.TotalLowVulnerabilities + 1)
+			ret.TotalLowVulnerabilities = PointerTo(*ret.TotalLowVulnerabilities + 1)
 		case models.NEGLIGIBLE:
-			ret.TotalNegligibleVulnerabilities = utils.PointerTo(*ret.TotalNegligibleVulnerabilities + 1)
+			ret.TotalNegligibleVulnerabilities = PointerTo(*ret.TotalNegligibleVulnerabilities + 1)
 		}
 	}
 	return ret

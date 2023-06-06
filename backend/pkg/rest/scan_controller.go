@@ -25,7 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (s *ServerImpl) GetScans(ctx echo.Context, params models.GetScansParams) error {
@@ -51,7 +51,7 @@ func (s *ServerImpl) PostScans(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Scan:    &createdScan,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -67,7 +67,7 @@ func (s *ServerImpl) PostScans(ctx echo.Context) error {
 
 func (s *ServerImpl) DeleteScansScanID(ctx echo.Context, scanID models.ScanID) error {
 	success := models.Success{
-		Message: utils.StringPtr(fmt.Sprintf("scan %v deleted", scanID)),
+		Message: utils.PointerTo(fmt.Sprintf("scan %v deleted", scanID)),
 	}
 
 	if err := s.dbHandler.ScansTable().DeleteScan(scanID); err != nil {
@@ -115,7 +115,7 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID, pa
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Scan:    &updatedScan,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -155,7 +155,7 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID, para
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Scan with ID %v not found", scanID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Scan:    &updatedScan,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
