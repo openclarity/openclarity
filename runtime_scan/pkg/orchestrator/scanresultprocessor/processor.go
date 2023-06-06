@@ -28,18 +28,22 @@ import (
 )
 
 type ScanResultProcessor struct {
-	client *backendclient.BackendClient
+	client           *backendclient.BackendClient
+	pollPeriod       time.Duration
+	reconcileTimeout time.Duration
 }
 
-func NewScanResultProcessor(client *backendclient.BackendClient) *ScanResultProcessor {
+func New(config Config) *ScanResultProcessor {
 	return &ScanResultProcessor{
-		client: client,
+		client:           config.Backend,
+		pollPeriod:       config.PollPeriod,
+		reconcileTimeout: config.ReconcileTimeout,
 	}
 }
 
 // Returns true if TargetScanStatus.State is DONE and there are no Errors.
 func statusCompletedWithNoErrors(tss *models.TargetScanState) bool {
-	return tss != nil && tss.State != nil && *tss.State == models.DONE && (tss.Errors == nil || len(*tss.Errors) == 0)
+	return tss != nil && tss.State != nil && *tss.State == models.TargetScanStateStateDONE && (tss.Errors == nil || len(*tss.Errors) == 0)
 }
 
 // nolint:cyclop
@@ -104,7 +108,7 @@ func (srp *ScanResultProcessor) Reconcile(ctx context.Context, event ScanResultR
 		}
 	}
 
-	// Mark post processing completed for this scan result
+	// Mark post-processing completed for this scan result
 	scanResult.FindingsProcessed = utils.PointerTo(true)
 	err = srp.client.PatchScanResult(ctx, scanResult, *scanResult.Id)
 	if err != nil {
@@ -135,11 +139,6 @@ func (srp *ScanResultProcessor) GetItems(ctx context.Context) ([]ScanResultRecon
 	return items, nil
 }
 
-const (
-	reconcileTimeoutSeconds = 120
-	pollPeriodSeconds       = 60
-)
-
 func (srp *ScanResultProcessor) Start(ctx context.Context) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("controller", "ScanResultProcessor")
 	ctx = log.SetLoggerForContext(ctx, logger)
@@ -147,7 +146,7 @@ func (srp *ScanResultProcessor) Start(ctx context.Context) {
 	queue := common.NewQueue[ScanResultReconcileEvent]()
 
 	poller := common.Poller[ScanResultReconcileEvent]{
-		PollPeriod: pollPeriodSeconds * time.Second,
+		PollPeriod: srp.pollPeriod,
 		GetItems:   srp.GetItems,
 		Queue:      queue,
 	}
@@ -155,7 +154,7 @@ func (srp *ScanResultProcessor) Start(ctx context.Context) {
 
 	reconciler := common.Reconciler[ScanResultReconcileEvent]{
 		ReconcileFunction: srp.Reconcile,
-		ReconcileTimeout:  reconcileTimeoutSeconds * time.Second,
+		ReconcileTimeout:  srp.reconcileTimeout,
 		Queue:             queue,
 	}
 	reconciler.Start(ctx)

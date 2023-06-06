@@ -31,13 +31,13 @@ const (
 
 type ScopeDiscoverer struct {
 	backendClient  *backendclient.BackendClient
-	providerClient provider.Client
+	providerClient provider.Provider
 }
 
-func CreateScopeDiscoverer(backendClient *backendclient.BackendClient, providerClient provider.Client) *ScopeDiscoverer {
+func New(config Config) *ScopeDiscoverer {
 	return &ScopeDiscoverer{
-		backendClient:  backendClient,
-		providerClient: providerClient,
+		backendClient:  config.Backend,
+		providerClient: config.Provider,
 	}
 }
 

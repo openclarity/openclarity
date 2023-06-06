@@ -87,6 +87,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				ComplexFieldSchemas: []string{"ScanFindingsSummary"},
 			},
 			"findingsProcessed": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"resourceCleanup":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"SbomScan": {

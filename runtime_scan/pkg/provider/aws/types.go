@@ -15,10 +15,33 @@
 
 package aws
 
-import "github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+import (
+	"github.com/openclarity/vmclarity/api/models"
+)
 
 const (
-	maxResults = 500
+	maxResults                       = 500
+	AWSProvider models.CloudProvider = "aws"
+)
+
+const (
+	EC2TagKeyOwner          = "Owner"
+	EC2TagKeyName           = "Name"
+	EC2TagValueNamePattern  = "vmclarity-scanner-%s"
+	EC2TagValueOwner        = "VMClarity"
+	EC2TagKeyScanID         = "VMClarity.ScanID"
+	EC2TagKeyScanResultID   = "VMClarity.ScanResultID"
+	EC2TagKeyTargetID       = "VMClarity.TargetID"
+	EC2TagKeyTargetVolumeID = "VMClarity.TargetVolumeID"
+
+	EC2SnapshotDescription = "Volume snapshot created by VMClarity for scanning"
+)
+
+const (
+	VpcIDFilterName           = "vpc-id"
+	SecurityGroupIDFilterName = "instance.group-id"
+	InstanceStateFilterName   = "instance-state-name"
+	SnapshotIDFilterName      = "snapshot-id"
 )
 
 type ScanScope struct {
@@ -27,19 +50,15 @@ type ScanScope struct {
 	ScanStopped bool
 	// Only targets that have these tags will be selected for scanning within the selected scan scope.
 	// Multiple tags will be treated as an AND operator.
-	TagSelector []types.Tag
+	TagSelector []models.Tag
 	// Targets that have these tags will be excluded from the scan, even if they match the tag selector.
 	// Multiple tags will be treated as an AND operator.
-	ExcludeTags []types.Tag
-}
-
-type SecurityGroup struct {
-	ID string
+	ExcludeTags []models.Tag
 }
 
 type VPC struct {
 	ID             string
-	SecurityGroups []SecurityGroup
+	SecurityGroups []models.SecurityGroup
 }
 
 type Region struct {

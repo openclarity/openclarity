@@ -18,139 +18,83 @@ package aws
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-type InstanceImpl struct {
-	ec2Client        *ec2.Client
-	id               string
-	region           string
-	vpcID            string
-	securityGroups   []string
-	availabilityZone string
-	image            string
-	ec2Type          string
-	platform         string
-	tags             []types.Tag
-	launchTime       time.Time
+type Instance struct {
+	ID               string
+	Region           string
+	VpcID            string
+	SecurityGroups   []models.SecurityGroup
+	AvailabilityZone string
+	Image            string
+	InstanceType     string
+	Platform         string
+	Tags             []models.Tag
+	LaunchTime       time.Time
+	RootDeviceName   string
+	Volumes          []Volume
+
+	Metadata provider.ScanMetadata
+
+	ec2Client *ec2.Client
 }
 
-func (i *InstanceImpl) GetID() string {
-	return i.id
+func (i *Instance) Location() string {
+	return Location{
+		Region: i.Region,
+		Vpc:    i.VpcID,
+	}.String()
 }
 
-func (i *InstanceImpl) GetLocation() string {
-	return i.region + "/" + i.vpcID
+func (i *Instance) RootVolume() *Volume {
+	for _, vol := range i.Volumes {
+		if vol.BlockDeviceName == i.RootDeviceName {
+			return &vol
+		}
+	}
+
+	return nil
 }
 
-func (i *InstanceImpl) GetSecurityGroups() []string {
-	return i.securityGroups
-}
+func (i *Instance) IsReady(ctx context.Context) (bool, error) {
+	var ready bool
 
-func (i *InstanceImpl) GetAvailabilityZone() string {
-	return i.availabilityZone
-}
-
-func (i *InstanceImpl) GetImage() string {
-	return i.image
-}
-
-func (i *InstanceImpl) GetType() string {
-	return i.ec2Type
-}
-
-func (i *InstanceImpl) GetLaunchTime() time.Time {
-	return i.launchTime
-}
-
-func (i *InstanceImpl) GetPlatform() string {
-	return i.platform
-}
-
-func (i *InstanceImpl) GetTags() []types.Tag {
-	return i.tags
-}
-
-func (i *InstanceImpl) GetRootVolume(ctx context.Context) (types.Volume, error) {
 	out, err := i.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
-		InstanceIds: []string{i.id},
+		InstanceIds: []string{i.ID},
 	}, func(options *ec2.Options) {
-		options.Region = i.region
+		options.Region = i.Region
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to describe instances: %v", err)
+		return ready, fmt.Errorf("failed to get VM instance. InstanceID=%s: %w", i.ID, err)
 	}
 
-	if len(out.Reservations) == 0 {
-		return nil, fmt.Errorf("no reservations were found")
-	}
-	if len(out.Reservations) > 1 {
-		return nil, fmt.Errorf("more than one reservations were found")
-	}
-	if len(out.Reservations[0].Instances) == 0 {
-		return nil, fmt.Errorf("no instances were found")
-	}
-	if len(out.Reservations[0].Instances) > 1 {
-		return nil, fmt.Errorf("more than one instances were found")
+	state := getInstanceState(out, i.ID)
+	if state == ec2types.InstanceStateNameRunning {
+		ready = true
 	}
 
-	outInstance := out.Reservations[0].Instances[0]
-	rootDeviceName := *outInstance.RootDeviceName
-
-	// find root volume of the instance
-	for _, blkDevice := range outInstance.BlockDeviceMappings {
-		if strings.Compare(*blkDevice.DeviceName, rootDeviceName) == 0 {
-			return &VolumeImpl{
-				ec2Client: i.ec2Client,
-				id:        *blkDevice.Ebs.VolumeId,
-				region:    i.region,
-			}, nil
-		}
-	}
-	return nil, fmt.Errorf("failed to find root device volume")
+	return ready, nil
 }
 
-func (i *InstanceImpl) WaitForReady(ctx context.Context) error {
-	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
-
-	for {
-		select {
-		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
-			out, err := i.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
-				InstanceIds: []string{i.id},
-			}, func(options *ec2.Options) {
-				options.Region = i.region
-			})
-			if err != nil {
-				return fmt.Errorf("failed to describe instance. instanceID=%v: %v", i.id, err)
-			}
-			state := getInstanceState(out, i.id)
-			if state == ec2types.InstanceStateNameRunning {
-				return nil
-			}
-		case <-ctxWithTimeout.Done():
-			return fmt.Errorf("timeout: %v", ctxWithTimeout.Err())
-		}
-	}
-}
-
-func (i *InstanceImpl) Delete(ctx context.Context) error {
+func (i *Instance) Delete(ctx context.Context) error {
 	if i == nil {
 		return nil
 	}
 
 	_, err := i.ec2Client.TerminateInstances(ctx, &ec2.TerminateInstancesInput{
-		InstanceIds: []string{i.id},
+		InstanceIds: []string{i.ID},
 	}, func(options *ec2.Options) {
-		options.Region = i.region
+		options.Region = i.Region
 	})
 	if err != nil {
 		return fmt.Errorf("failed to terminate instances: %v", err)
@@ -159,17 +103,68 @@ func (i *InstanceImpl) Delete(ctx context.Context) error {
 	return nil
 }
 
-func (i *InstanceImpl) AttachVolume(ctx context.Context, volume types.Volume, deviceName string) error {
-	_, err := i.ec2Client.AttachVolume(ctx, &ec2.AttachVolumeInput{
-		Device:     utils.StringPtr(deviceName),
-		InstanceId: utils.StringPtr(i.GetID()),
-		VolumeId:   utils.StringPtr(volume.GetID()),
-	}, func(options *ec2.Options) {
-		options.Region = i.region
+// nolint:cyclop
+func (i *Instance) AttachVolume(ctx context.Context, volume *Volume, deviceName string) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(logrus.Fields{
+		"InstanceID": i.ID,
+		"Operation":  "AttachVolume",
+		"VolumeID":   volume.ID,
 	})
-	if err != nil {
-		return fmt.Errorf("failed to attach volume: %v", err)
+
+	options := func(options *ec2.Options) {
+		options.Region = volume.Region
 	}
 
-	return nil
+	descParams := &ec2.DescribeVolumesInput{
+		VolumeIds: []string{volume.ID},
+	}
+
+	describeOut, err := i.ec2Client.DescribeVolumes(ctx, descParams, options)
+	if err != nil {
+		return fmt.Errorf("failed to fetch volume. VolumeID=%s: %w", volume.ID, err)
+	}
+
+	logger.Tracef("Found %d volumes", len(describeOut.Volumes))
+
+	for _, vol := range describeOut.Volumes {
+		logger.WithFields(logrus.Fields{
+			"VolumeState": vol.State,
+		}).Trace("Found volume")
+
+		switch vol.State {
+		case ec2types.VolumeStateInUse:
+			for _, attachment := range vol.Attachments {
+				if *attachment.VolumeId == volume.ID && *attachment.InstanceId == i.ID {
+					logger.Trace("Volume is already attached to the instance")
+					return nil
+				}
+			}
+		case ec2types.VolumeStateAvailable:
+			logger.Trace("Attaching volume to instance")
+
+			attachVolParams := &ec2.AttachVolumeInput{
+				Device:     utils.PointerTo(deviceName),
+				InstanceId: utils.PointerTo(i.ID),
+				VolumeId:   utils.PointerTo(volume.ID),
+			}
+			_, err := i.ec2Client.AttachVolume(ctx, attachVolParams, options)
+			if err != nil {
+				return fmt.Errorf("failed to attach volume: %w", err)
+			}
+			return nil
+		case ec2types.VolumeStateDeleted, ec2types.VolumeStateDeleting, ec2types.VolumeStateError:
+			return FatalError{
+				Err: fmt.Errorf("cannot attach volume with state: %s", vol.State),
+			}
+		case ec2types.VolumeStateCreating:
+			return RetryableError{
+				Err:   fmt.Errorf("cannot attach volume with state: %s", vol.State),
+				After: VolumeReadynessAfter,
+			}
+		}
+	}
+
+	return FatalError{
+		Err: fmt.Errorf("failed to find volume. VolumeID=%s", volume.ID),
+	}
 }

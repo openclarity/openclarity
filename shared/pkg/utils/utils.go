@@ -24,11 +24,6 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
-const (
-	DefaultResourceReadyWaitTimeoutMin   = 3
-	DefaultResourceReadyCheckIntervalSec = 3
-)
-
 type CmdRunError struct {
 	Cmd    *exec.Cmd
 	Err    error

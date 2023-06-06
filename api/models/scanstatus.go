@@ -15,17 +15,6 @@
 
 package models
 
-func (s *TargetScanState) GetState() (TargetScanStateState, bool) {
-	var state TargetScanStateState
-	var ok bool
-
-	if s.State != nil {
-		state = *s.State
-		ok = true
-	}
-	return state, ok
-}
-
 func (s *TargetScanStatus) GetGeneralState() (TargetScanStateState, bool) {
 	var state TargetScanStateState
 	var ok bool
@@ -37,25 +26,12 @@ func (s *TargetScanStatus) GetGeneralState() (TargetScanStateState, bool) {
 	return state, ok
 }
 
-func (r *TargetScanResult) GetGeneralState() (TargetScanStateState, bool) {
-	var state TargetScanStateState
-	var ok bool
+func (s *TargetScanStatus) GetGeneralErrors() []string {
+	var errs []string
 
-	if r.Status != nil {
-		state, ok = r.Status.GetGeneralState()
+	if s.General != nil {
+		errs = s.General.GetErrors()
 	}
 
-	return state, ok
-}
-
-func (s *Scan) GetState() (ScanState, bool) {
-	var state ScanState
-	var ok bool
-
-	if s.State != nil {
-		state = *s.State
-		ok = true
-	}
-
-	return state, ok
+	return errs
 }

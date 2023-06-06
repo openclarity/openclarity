@@ -18,62 +18,53 @@ package orchestrator
 import (
 	"context"
 
-	_config "github.com/openclarity/vmclarity/runtime_scan/pkg/config"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/configwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanconfigwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultprocessor"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
-type Orchestrator interface {
-	Start(ctx context.Context)
-	Stop(ctx context.Context)
+type Orchestrator struct {
+	controllers []Controller
+	cancelFunc  context.CancelFunc
 }
 
-type orchestrator struct {
-	config              *_config.OrchestratorConfig
-	scanConfigWatcher   *configwatcher.ScanConfigWatcher
-	scopeDiscoverer     *discovery.ScopeDiscoverer
-	scanResultProcessor *scanresultprocessor.ScanResultProcessor
-	scanWatcher         *scanwatcher.Watcher
-	cancelFunc          context.CancelFunc
-}
+func New(config *Config, p provider.Provider, b *backendclient.BackendClient) *Orchestrator {
+	scanConfigWatcherConfig := config.ScanConfigWatcherConfig.WithBackendClient(b)
+	discoveryConfig := config.DiscoveryConfig.WithBackendClient(b).WithProviderClient(p)
+	scanWatcherConfig := config.ScanWatcherConfig.WithBackendClient(b).WithProviderClient(p)
+	scanResultWatcherConfig := config.ScanResultWatcherConfig.WithBackendClient(b).WithProviderClient(p)
+	scanResultProcessorConfig := config.ScanResultProcessorConfig.WithBackendClient(b)
 
-func New(config *_config.OrchestratorConfig, providerClient provider.Client, backendClient *backendclient.BackendClient) (Orchestrator, error) {
-	orc := &orchestrator{
-		config:              config,
-		scanConfigWatcher:   configwatcher.CreateScanConfigWatcher(backendClient, providerClient, config.ScannerConfig),
-		scopeDiscoverer:     discovery.CreateScopeDiscoverer(backendClient, providerClient),
-		scanResultProcessor: scanresultprocessor.NewScanResultProcessor(backendClient),
-		scanWatcher: scanwatcher.New(scanwatcher.Config{
-			Backend:          backendClient,
-			PollPeriod:       scanwatcher.DefaultPollInterval,
-			ReconcileTimeout: scanwatcher.DefaultReconcileTimeout,
-		}),
+	return &Orchestrator{
+		controllers: []Controller{
+			scanconfigwatcher.New(scanConfigWatcherConfig),
+			discovery.New(discoveryConfig),
+			scanresultprocessor.New(scanResultProcessorConfig),
+			scanwatcher.New(scanWatcherConfig),
+			scanresultwatcher.New(scanResultWatcherConfig),
+		},
 	}
-
-	return orc, nil
 }
 
-func (o *orchestrator) Start(ctx context.Context) {
-	logger := log.GetLoggerFromContextOrDefault(ctx)
+func (o *Orchestrator) Start(ctx context.Context) {
+	log.GetLoggerFromContextOrDiscard(ctx).Infof("Starting Orchestrator server")
 
-	logger.Infof("Starting Orchestrator server")
 	ctx, cancel := context.WithCancel(ctx)
 	o.cancelFunc = cancel
-	o.scanConfigWatcher.Start(ctx)
-	o.scopeDiscoverer.Start(ctx)
-	o.scanResultProcessor.Start(ctx)
-	o.scanWatcher.Start(ctx)
+
+	for _, controller := range o.controllers {
+		controller.Start(ctx)
+	}
 }
 
-func (o *orchestrator) Stop(ctx context.Context) {
-	logger := log.GetLoggerFromContextOrDefault(ctx)
+func (o *Orchestrator) Stop(ctx context.Context) {
+	log.GetLoggerFromContextOrDiscard(ctx).Infof("Stopping Orchestrator server")
 
-	logger.Infof("Stopping Orchestrator server")
 	if o.cancelFunc != nil {
 		o.cancelFunc()
 	}

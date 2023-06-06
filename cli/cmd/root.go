@@ -44,7 +44,9 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
-const DefaultWatcherInterval = 2 * time.Minute
+const (
+	DefaultWatcherInterval = 2 * time.Minute
+)
 
 var (
 	cfgFile string
@@ -158,7 +160,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	logger.Infof("init config")
+	logger.Infof("Initializing configuration...")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)

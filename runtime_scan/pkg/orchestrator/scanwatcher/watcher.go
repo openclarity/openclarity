@@ -24,19 +24,11 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/common"
-	runtimeScanUtils "github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
-
-const (
-	DefaultPollInterval     = time.Minute
-	DefaultReconcileTimeout = time.Minute
-)
-
-type ScanReconcileEvent struct {
-	ScanID models.ScanID
-}
 
 type (
 	ScanQueue      = common.Queue[ScanReconcileEvent]
@@ -44,129 +36,464 @@ type (
 	ScanReconciler = common.Reconciler[ScanReconcileEvent]
 )
 
-type Config struct {
-	Backend          *backendclient.BackendClient
-	PollPeriod       time.Duration
-	ReconcileTimeout time.Duration
-}
-
 func New(c Config) *Watcher {
 	return &Watcher{
-		c.Backend,
-		c.PollPeriod,
-		c.ReconcileTimeout,
+		backend:          c.Backend,
+		provider:         c.Provider,
+		pollPeriod:       c.PollPeriod,
+		reconcileTimeout: c.ReconcileTimeout,
+		scanTimeout:      c.ScanTimeout,
+		queue:            common.NewQueue[ScanReconcileEvent](),
 	}
 }
 
 type Watcher struct {
-	client           *backendclient.BackendClient
+	backend          *backendclient.BackendClient
+	provider         provider.Provider
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
+	scanTimeout      time.Duration
+
+	queue *ScanQueue
 }
 
 func (w *Watcher) Start(ctx context.Context) {
-	logger := log.GetLoggerFromContextOrDefault(ctx).WithField("controller", "ScanWatcher")
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("controller", "ScanWatcher")
 	ctx = log.SetLoggerForContext(ctx, logger)
-
-	queue := common.NewQueue[ScanReconcileEvent]()
 
 	poller := &ScanPoller{
 		PollPeriod: w.pollPeriod,
-		Queue:      queue,
-		GetItems:   w.GetAbortedScans,
+		Queue:      w.queue,
+		GetItems:   w.GetRunningScans,
 	}
 	poller.Start(ctx)
 
 	reconciler := &ScanReconciler{
 		ReconcileTimeout:  w.reconcileTimeout,
-		Queue:             queue,
+		Queue:             w.queue,
 		ReconcileFunction: w.Reconcile,
 	}
 	reconciler.Start(ctx)
 }
 
-func (w *Watcher) GetAbortedScans(ctx context.Context) ([]ScanReconcileEvent, error) {
-	scans, err := w.getScansByState(ctx, models.ScanStateAborted)
-	if err != nil || scans.Items == nil || len(*scans.Items) <= 0 {
-		return nil, err
+// nolint:cyclop
+func (w *Watcher) GetRunningScans(ctx context.Context) ([]ScanReconcileEvent, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	logger.Debugf("Fetching running Scans")
+
+	filter := fmt.Sprintf("state ne '%s' and state ne '%s'", models.ScanStateDone, models.ScanStateFailed)
+	selector := "id"
+	params := models.GetScansParams{
+		Filter: &filter,
+		Select: &selector,
+		Count:  utils.PointerTo(true),
+	}
+	scans, err := w.backend.GetScans(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get running scans: %v", err)
 	}
 
-	count := len(*scans.Items)
-	r := make([]ScanReconcileEvent, count)
-	for i, scan := range *scans.Items {
-		r[i] = ScanReconcileEvent{
-			ScanID: *scan.Id,
+	switch {
+	case scans.Items == nil && scans.Count == nil:
+		return nil, fmt.Errorf("failed to fetch running Scans: invalid API response: %v", scans)
+	case scans.Count != nil && *scans.Count <= 0:
+		fallthrough
+	case scans.Items != nil && len(*scans.Items) <= 0:
+		return nil, nil
+	}
+
+	events := make([]ScanReconcileEvent, 0, *scans.Count)
+	for _, scan := range *scans.Items {
+		scanID, ok := scan.GetID()
+		if !ok {
+			logger.Warnf("Skipping to invalid Scan: ID is nil: %v", scan)
+			continue
 		}
+
+		events = append(events, ScanReconcileEvent{
+			ScanID: scanID,
+		})
 	}
 
-	return r, nil
+	return events, nil
 }
 
+// nolint:cyclop
 func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
+	ctx = log.SetLoggerForContext(ctx, logger)
 
-	logger.Infof("Reconciling scan event: %v", event)
+	logger.Infof("Reconciling Scan event")
 
-	selector := "id,state,stateReason"
 	params := models.GetScansScanIDParams{
-		Select: &selector,
+		Expand: utils.PointerTo("scanConfig"),
+	}
+	scan, err := w.backend.GetScan(ctx, event.ScanID, params)
+	if err != nil || scan == nil {
+		return fmt.Errorf("failed to fetch Scan. ScanID=%s: %w", event.ScanID, err)
 	}
 
-	scan, err := w.client.GetScan(ctx, event.ScanID, params)
-	if err != nil || scan == nil {
-		return fmt.Errorf("getting scan with id %s failed: %v", event.ScanID, err)
+	if isScanTimedOut(scan, w.scanTimeout) {
+		scan.State = utils.PointerTo(models.ScanStateAborted)
+		scan.StateMessage = utils.PointerTo("Scan has been timed out")
+		scan.StateReason = utils.PointerTo(models.ScanStateReasonTimedOut)
+
+		err = w.backend.PatchScan(ctx, *scan.Id, &models.Scan{
+			State:        scan.State,
+			StateMessage: scan.StateMessage,
+			StateReason:  scan.StateReason,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to patch Scan. ScanID=%s: %w", event.ScanID, err)
+		}
 	}
 
 	state, ok := scan.GetState()
 	if !ok {
-		return fmt.Errorf("cannot determine state of Scan with %s id", event.ScanID)
+		return fmt.Errorf("failed to determine state of Scan. ScanID=%s", event.ScanID)
 	}
+	logger.Tracef("Reconciling Scan state: %s", state)
 
 	switch state {
-	case models.ScanStateDone, models.ScanStateFailed:
-		logger.Debugf("Reconciling scan event is skipped as Scan is already finished: %v", event)
+	case models.ScanStatePending:
+		if err = w.reconcilePending(ctx, scan); err != nil {
+			return err
+		}
+	case models.ScanStateDiscovered:
+		if err = w.reconcileDiscovered(ctx, scan); err != nil {
+			return err
+		}
+	case models.ScanStateInProgress:
+		if err = w.reconcileInProgress(ctx, scan); err != nil {
+			return err
+		}
 	case models.ScanStateAborted:
-		return w.reconcileAborted(ctx, event)
-	case models.ScanStatePending, models.ScanStateDiscovered, models.ScanStateInProgress:
+		if err = w.reconcileAborted(ctx, scan); err != nil {
+			return err
+		}
+	case models.ScanStateDone, models.ScanStateFailed:
+		logger.Debug("Reconciling Scan is skipped as it is already finished.")
 		fallthrough
 	default:
+		return nil
 	}
 
 	return nil
 }
 
-func (w *Watcher) getScansByState(ctx context.Context, s models.ScanState) (models.Scans, error) {
-	filter := fmt.Sprintf("state eq '%s'", s)
-	selector := "id"
-	params := models.GetScansParams{
-		Filter: &filter,
-		Select: &selector,
-	}
-	scans, err := w.client.GetScans(ctx, params)
-	if err != nil {
-		err = fmt.Errorf("getting Scan(s) by their state failed: %v", err)
-	}
-	if scans == nil {
-		scans = &models.Scans{}
-	}
-
-	return *scans, err
-}
-
-func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent) error {
+func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
+	if scan == nil {
+		return errors.New("invalid Scan: object is nil")
+	}
+
+	scanID, ok := scan.GetID()
+	if !ok {
+		return errors.New("invalid Scan: Id is nil")
+	}
+
+	scope, ok := scan.GetScanConfigScope()
+	if !ok {
+		return fmt.Errorf("invalid Scan: Scope is nil. ScanID=%s", scanID)
+	}
+
+	targets, err := w.provider.DiscoverTargets(ctx, &scope)
+	if err != nil {
+		return fmt.Errorf("failed to discover Targets for Scan. ScanID=%s: %w", scanID, err)
+	}
+	numOfTargets := len(targets)
+
+	if numOfTargets > 0 {
+		if err = w.createTargets(ctx, scan, targets); err != nil {
+			return fmt.Errorf("failed to create Targets for Scan. ScanID=%s: %w", scanID, err)
+		}
+		scan.State = utils.PointerTo(models.ScanStateDiscovered)
+		scan.StateMessage = utils.PointerTo("Targets for Scan are successfully discovered")
+	} else {
+		scan.State = utils.PointerTo(models.ScanStateDone)
+		scan.StateReason = utils.PointerTo(models.ScanStateReasonNothingToScan)
+		scan.StateMessage = utils.PointerTo("No instances found in scope for Scan")
+	}
+	logger.Debugf("%d Target(s) have been created for Scan", numOfTargets)
+
+	scanPatch := &models.Scan{
+		TargetIDs:    scan.TargetIDs,
+		State:        scan.State,
+		StateReason:  scan.StateReason,
+		StateMessage: scan.StateMessage,
+	}
+
+	if err = w.backend.PatchScan(ctx, scanID, scanPatch); err != nil {
+		return fmt.Errorf("failed to patch Scan. ScanID=%s: %w", scanID, err)
+	}
+
+	return nil
+}
+
+func (w *Watcher) createTargets(ctx context.Context, scan *models.Scan, targetTypes []models.TargetType) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	var creatingTargetsFailed bool
+	var wg sync.WaitGroup
+
+	results := make(chan string, len(targetTypes))
+	for _, t := range targetTypes {
+		targetType := t
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			targetID, err := w.createTarget(ctx, targetType)
+			if err != nil {
+				creatingTargetsFailed = true
+				return
+			}
+
+			logger.WithField("TargetID", targetID).Trace("Pushing Target to channel")
+			results <- targetID
+		}()
+	}
+	logger.Trace("Waiting until all Target(s) are created")
+	wg.Wait()
+	close(results)
+
+	if creatingTargetsFailed {
+		return fmt.Errorf("failed to create Target(s) for Scan. ScanID=%s", *scan.Id)
+	}
+
+	targetIDs := make([]string, 0)
+	for targetID := range results {
+		targetIDs = append(targetIDs, targetID)
+	}
+	scan.TargetIDs = &targetIDs
+
+	logger.Tracef("Created Target(s): %v", targetIDs)
+
+	return nil
+}
+
+func (w *Watcher) createTarget(ctx context.Context, targetType models.TargetType) (string, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	target, err := w.backend.PostTarget(ctx, models.Target{
+		TargetInfo: &targetType,
+	})
+	if err != nil {
+		var conErr backendclient.TargetConflictError
+		if errors.As(err, &conErr) {
+			logger.WithField("TargetID", *conErr.ConflictingTarget.Id).Trace("Target already exist")
+			return *conErr.ConflictingTarget.Id, nil
+		}
+		return "", fmt.Errorf("failed to post Target: %w", err)
+	}
+	logger.WithField("TargetID", *target.Id).Debug("Target object created")
+
+	return *target.Id, nil
+}
+
+func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *models.Scan) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	if scan == nil {
+		return errors.New("invalid Scan: object is nil")
+	}
+
+	scanID, ok := scan.GetID()
+	if !ok {
+		return errors.New("invalid Scan: Id is nil")
+	}
+
+	if err := w.createScanResultsForScan(ctx, scan); err != nil {
+		return fmt.Errorf("failed to creates ScanResult(s) for Scan. ScanID=%s: %w", scanID, err)
+	}
+	scan.State = utils.PointerTo(models.ScanStateInProgress)
+
+	scanPatch := &models.Scan{
+		State:     scan.State,
+		Summary:   scan.Summary,
+		TargetIDs: scan.TargetIDs,
+	}
+	err := w.backend.PatchScan(ctx, scanID, scanPatch)
+	if err != nil {
+		return fmt.Errorf("failed to update Scan. ScanID=%s: %w", scanID, err)
+	}
+
+	logger.Infof("Total %d unique targets for Scan", len(*scan.TargetIDs))
+
+	return nil
+}
+
+func (w *Watcher) createScanResultsForScan(ctx context.Context, scan *models.Scan) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	if scan.TargetIDs == nil || *scan.TargetIDs == nil {
+		return nil
+	}
+	numOfTargets := len(*scan.TargetIDs)
+
+	errs := make(chan error, numOfTargets)
+	var wg sync.WaitGroup
+	for _, id := range *scan.TargetIDs {
+		wg.Add(1)
+		targetID := id
+		go func() {
+			defer wg.Done()
+
+			err := w.createScanResultForTarget(ctx, scan, targetID)
+			if err != nil {
+				logger.WithField("TargetID", targetID).Errorf("Failed to create TargetScanResult: %v", err)
+				errs <- err
+
+				return
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	targetErrs := make([]error, 0, numOfTargets)
+	for err := range errs {
+		targetErrs = append(targetErrs, err)
+	}
+	numOfErrs := len(targetErrs)
+
+	if numOfErrs > 0 {
+		return fmt.Errorf("failed to create %d ScanResult(s) for Scan. ScanID=%s: %w", numOfErrs, *scan.Id, targetErrs[0])
+	}
+
+	scan.Summary.JobsLeftToRun = utils.PointerTo(numOfTargets)
+
+	return nil
+}
+
+func (w *Watcher) createScanResultForTarget(ctx context.Context, scan *models.Scan, targetID string) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	scanResultData, err := newScanResultFromScan(scan, targetID)
+	if err != nil {
+		return fmt.Errorf("failed to generate new ScanResult for Scan. ScanID=%s, TargetID=%s: %w", *scan.Id, targetID, err)
+	}
+
+	_, err = w.backend.PostScanResult(ctx, *scanResultData)
+	if err != nil {
+		var conErr backendclient.ScanResultConflictError
+		if errors.As(err, &conErr) {
+			scanResultID := *conErr.ConflictingScanResult.Id
+			logger.WithField("ScanResultID", scanResultID).Debug("ScanResult already exist.")
+			return nil
+		}
+		return fmt.Errorf("failed to post ScanResult to backend API: %w", err)
+	}
+	return nil
+}
+
+// nolint:cyclop
+func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	if scan == nil {
+		return errors.New("invalid Scan: object is nil")
+	}
+
+	scanID, ok := scan.GetID()
+	if !ok {
+		return errors.New("invalid Scan: ID is nil")
+	}
+
+	// FIXME(chrisgacsal):a add pagination to API queries in poller/reconciler logic by using Top/Skip
+	filter := fmt.Sprintf("scan/id eq '%s'", scanID)
+	selector := "id,status/general,summary"
+	targetScanResults, err := w.backend.GetScanResults(ctx, models.GetScanResultsParams{
+		Filter: &filter,
+		Select: &selector,
+		Count:  utils.PointerTo(true),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to retrieve TargetScans for Scan. ScanID=%s: %w", scanID, err)
+	}
+
+	if targetScanResults.Count == nil || targetScanResults.Items == nil {
+		return fmt.Errorf("invalid response for getting TargetScans for Scan. ScanID=%s: Count and/or Items parameters are nil", scanID)
+	}
+
+	// Reset Scan Summary as it is going to be recalculated
+	scan.Summary = newScanSummary()
+
+	var targetScanResultsWithErr int
+	for _, targetScanResult := range *targetScanResults.Items {
+		scanResultID, ok := targetScanResult.GetID()
+		if !ok {
+			return errors.New("invalid ScanResult: ID is nil")
+		}
+
+		if err := updateScanSummaryFromScanResult(scan, targetScanResult); err != nil {
+			return fmt.Errorf("failed to update Scan Summary from ScanResult. ScanID=%s ScanResultID=%s: %w",
+				scanID, scanResultID, err)
+		}
+
+		errs := targetScanResult.GetGeneralErrors()
+		if len(errs) > 0 {
+			targetScanResultsWithErr++
+		}
+	}
+	logger.Tracef("Scan Summary updated. JobCompleted=%d JobLeftToRun=%d", *scan.Summary.JobsCompleted,
+		*scan.Summary.JobsLeftToRun)
+
+	if *scan.Summary.JobsLeftToRun <= 0 {
+		if targetScanResultsWithErr > 0 {
+			scan.State = utils.PointerTo(models.ScanStateFailed)
+			scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreTargetFailedToScan)
+		} else {
+			scan.State = utils.PointerTo(models.ScanStateDone)
+			scan.StateReason = utils.PointerTo(models.ScanStateReasonSuccess)
+		}
+		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total target scans",
+			*targetScanResults.Count-targetScanResultsWithErr, targetScanResultsWithErr, *targetScanResults.Count))
+
+		scan.EndTime = utils.PointerTo(time.Now().UTC())
+	}
+
+	scanPatch := &models.Scan{
+		State:        scan.State,
+		Summary:      scan.Summary,
+		StateMessage: scan.StateMessage,
+		EndTime:      scan.EndTime,
+		TargetIDs:    scan.TargetIDs,
+	}
+	err = w.backend.PatchScan(ctx, scanID, scanPatch)
+	if err != nil {
+		return fmt.Errorf("failed to patch Scan. ScanID=%s: %w", scanID, err)
+	}
+
+	return nil
+}
+
+// nolint:cyclop
+func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	if scan == nil {
+		return fmt.Errorf("scan must not be nil: %v", scan)
+	}
+
+	scanID, ok := scan.GetID()
+	if !ok {
+		return fmt.Errorf("scan id must not be nil: %v", scan)
+	}
+
 	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s'",
-		event.ScanID, models.ABORTED, models.DONE)
+		scanID, models.TargetScanStateStateABORTED, models.TargetScanStateStateDONE)
 	selector := "id,status"
 	params := models.GetScanResultsParams{
 		Filter: &filter,
 		Select: &selector,
 	}
 
-	scanResults, err := w.client.GetScanResults(ctx, params)
+	scanResults, err := w.backend.GetScanResults(ctx, params)
 	if err != nil {
-		return fmt.Errorf("getting ScanResult(s) for Scan with %s id failed: %v", event.ScanID, err)
+		return fmt.Errorf("failed to get ScanResult(s) for Scan with %s id: %w", scanID, err)
 	}
 
 	if scanResults.Items != nil && len(*scanResults.Items) > 0 {
@@ -177,7 +504,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent
 			if scanResult.Id == nil {
 				continue
 			}
-			id := *scanResult.Id
+			scanResultID := *scanResult.Id
 
 			wg.Add(1)
 			go func() {
@@ -185,14 +512,14 @@ func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent
 				sr := models.TargetScanResult{
 					Status: &models.TargetScanStatus{
 						General: &models.TargetScanState{
-							State: runtimeScanUtils.PointerTo(models.ABORTED),
+							State: utils.PointerTo(models.TargetScanStateStateABORTED),
 						},
 					},
 				}
 
-				err := w.client.PatchScanResult(ctx, sr, id)
+				err = w.backend.PatchScanResult(ctx, sr, scanResultID)
 				if err != nil {
-					logger.Errorf("Failed to patch ScanResult with id: %s", id)
+					logger.WithField("ScanResultID", scanResultID).Error("Failed to patch ScanResult")
 					reconciliationFailed = true
 					return
 				}
@@ -208,18 +535,13 @@ func (w *Watcher) reconcileAborted(ctx context.Context, event ScanReconcileEvent
 		}
 	}
 
-	// FIXME(chrisgacsal): updating the Scan state here collides the Scan logic in Scanner.job_management
-	//                     therefore it is disabled until Scan lifecycle management is moved to ScanWatcher.
-	// scan := &models.Scan{
-	// 	EndTime:     runtimeScanUtils.PointerTo(time.Now().UTC()),
-	// 	State:       runtimeScanUtils.PointerTo(models.ScanStateFailed),
-	// 	StateReason: runtimeScanUtils.PointerTo(models.ScanStateReasonAborted),
-	// }
-	//
-	// err = w.client.PatchScan(ctx, event.ScanID, scan)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to patch Scan with id: %s: %v", event.ScanID, err)
-	// }
+	scan.EndTime = utils.PointerTo(time.Now().UTC())
+	scan.State = utils.PointerTo(models.ScanStateFailed)
+
+	err = w.backend.PatchScan(ctx, scanID, scan)
+	if err != nil {
+		return fmt.Errorf("failed to patch Scan with %s id: %w", scanID, err)
+	}
 
 	return nil
 }

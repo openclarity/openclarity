@@ -23,6 +23,14 @@ const (
 	MisconfigurationMediumSeverity MisconfigurationSeverity = "MisconfigurationMediumSeverity"
 )
 
+// Defines values for ResourceCleanupState.
+const (
+	ResourceCleanupStateDONE    ResourceCleanupState = "DONE"
+	ResourceCleanupStateFAILED  ResourceCleanupState = "FAILED"
+	ResourceCleanupStatePENDING ResourceCleanupState = "PENDING"
+	ResourceCleanupStateSKIPPED ResourceCleanupState = "SKIPPED"
+)
+
 // Defines values for RootkitType.
 const (
 	APPLICATION RootkitType = "APPLICATION"
@@ -87,12 +95,12 @@ const (
 
 // Defines values for TargetScanStateState.
 const (
-	ABORTED    TargetScanStateState = "ABORTED"
-	ATTACHED   TargetScanStateState = "ATTACHED"
-	DONE       TargetScanStateState = "DONE"
-	INIT       TargetScanStateState = "INIT"
-	INPROGRESS TargetScanStateState = "IN_PROGRESS"
-	NOTSCANNED TargetScanStateState = "NOT_SCANNED"
+	TargetScanStateStateABORTED    TargetScanStateState = "ABORTED"
+	TargetScanStateStateATTACHED   TargetScanStateState = "ATTACHED"
+	TargetScanStateStateDONE       TargetScanStateState = "DONE"
+	TargetScanStateStateINIT       TargetScanStateState = "INIT"
+	TargetScanStateStateINPROGRESS TargetScanStateState = "IN_PROGRESS"
+	TargetScanStateStateNOTSCANNED TargetScanStateState = "NOT_SCANNED"
 )
 
 // Defines values for VulnerabilitySeverity.
@@ -136,15 +144,10 @@ type AwsScanScope struct {
 	ShouldScanStoppedInstances *bool        `json:"shouldScanStoppedInstances,omitempty"`
 }
 
-// AwsSecurityGroup AWS security group
-type AwsSecurityGroup struct {
-	Id string `json:"id"`
-}
-
 // AwsVPC AWS VPC
 type AwsVPC struct {
-	Id             string              `json:"id"`
-	SecurityGroups *[]AwsSecurityGroup `json:"securityGroups"`
+	Id             string           `json:"id"`
+	SecurityGroups *[]SecurityGroup `json:"securityGroups"`
 }
 
 // CloudProvider defines model for CloudProvider.
@@ -328,6 +331,9 @@ type PodInfo struct {
 	ObjectType string  `json:"objectType"`
 	PodName    *string `json:"podName,omitempty"`
 }
+
+// ResourceCleanupState defines model for ResourceCleanupState.
+type ResourceCleanupState string
 
 // Rootkit defines model for Rootkit.
 type Rootkit struct {
@@ -737,6 +743,7 @@ type TargetScanResult struct {
 	Id                *string               `json:"id,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
+	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
 	Revision          *int                  `json:"revision,omitempty"`
 	Rootkits          *RootkitScan          `json:"rootkits,omitempty"`
 	Sboms             *SbomScan             `json:"sboms,omitempty"`
