@@ -587,34 +587,34 @@ func Test_ConvertMalwareResultToAPIModel(t *testing.T) {
 			want: &models.MalwareScan{
 				Malware: &[]models.Malware{
 					{
-						MalwareName: utils.StringPtr("Ransom!"),
+						MalwareName: utils.PointerTo("Ransom!"),
 						MalwareType: utils.PointerTo[models.MalwareType]("RANSOMWARE"),
-						Path:        utils.StringPtr("/somepath/givememoney.exe"),
+						Path:        utils.PointerTo("/somepath/givememoney.exe"),
 					},
 					{
-						MalwareName: utils.StringPtr("Trojan:)"),
+						MalwareName: utils.PointerTo("Trojan:)"),
 						MalwareType: utils.PointerTo[models.MalwareType]("TROJAN"),
-						Path:        utils.StringPtr("/somepath/gift.jar"),
+						Path:        utils.PointerTo("/somepath/gift.jar"),
 					},
 					{
-						MalwareName: utils.StringPtr("Worm<3"),
+						MalwareName: utils.PointerTo("Worm<3"),
 						MalwareType: utils.PointerTo[models.MalwareType]("WORM"),
-						Path:        utils.StringPtr("/somepath/innocent.exe"),
+						Path:        utils.PointerTo("/somepath/innocent.exe"),
 					},
 				},
 				Metadata: &[]models.ScannerMetadata{
 					{
-						ScannerName: utils.StringPtr("clam"),
+						ScannerName: utils.PointerTo("clam"),
 						ScannerSummary: &models.ScannerSummary{
 							KnownViruses:       utils.PointerTo(100),
-							EngineVersion:      utils.StringPtr("1"),
+							EngineVersion:      utils.PointerTo("1"),
 							ScannedDirectories: utils.PointerTo(10),
 							ScannedFiles:       utils.PointerTo(1000),
 							InfectedFiles:      utils.PointerTo(3),
 							SuspectedFiles:     utils.PointerTo(4),
-							DataScanned:        utils.StringPtr("800 MB"),
-							DataRead:           utils.StringPtr("1.6 GB"),
-							TimeTaken:          utils.StringPtr("1000000 ms"),
+							DataScanned:        utils.PointerTo("800 MB"),
+							DataRead:           utils.PointerTo("1.6 GB"),
+							TimeTaken:          utils.PointerTo("1000000 ms"),
 						},
 					},
 				},

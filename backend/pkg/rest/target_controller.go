@@ -25,7 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (s *ServerImpl) GetTargets(ctx echo.Context, params models.GetTargetsParams) error {
@@ -52,7 +52,7 @@ func (s *ServerImpl) PostTargets(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Target:  &createdTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -102,7 +102,7 @@ func (s *ServerImpl) PutTargetsTargetID(ctx echo.Context, targetID models.Target
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Target:  &updatedTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -141,7 +141,7 @@ func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.Targ
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Target with ID %v not found", targetID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Target:  &updatedTarget,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -157,7 +157,7 @@ func (s *ServerImpl) PatchTargetsTargetID(ctx echo.Context, targetID models.Targ
 
 func (s *ServerImpl) DeleteTargetsTargetID(ctx echo.Context, targetID models.TargetID) error {
 	success := models.Success{
-		Message: utils.StringPtr(fmt.Sprintf("target %v deleted", targetID)),
+		Message: utils.PointerTo(fmt.Sprintf("target %v deleted", targetID)),
 	}
 
 	if err := s.dbHandler.TargetsTable().DeleteTarget(targetID); err != nil {

@@ -20,9 +20,9 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.RootkitKey]string, error) {

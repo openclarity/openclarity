@@ -308,13 +308,13 @@ func createVPCFilters(vpc VPC) []ec2types.Filter {
 
 	// create per vpc filters
 	ret = append(ret, ec2types.Filter{
-		Name:   utils.StringPtr(VpcIDFilterName),
+		Name:   utils.PointerTo(VpcIDFilterName),
 		Values: []string{vpc.ID},
 	})
 	sgs := getVPCSecurityGroupsIDs(vpc)
 	if len(sgs) > 0 {
 		ret = append(ret, ec2types.Filter{
-			Name:   utils.StringPtr(SecurityGroupIDFilterName),
+			Name:   utils.PointerTo(SecurityGroupIDFilterName),
 			Values: sgs,
 		})
 	}

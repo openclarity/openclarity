@@ -26,7 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (s *ServerImpl) GetScanResults(ctx echo.Context, params models.GetScanResultsParams) error {
@@ -50,7 +50,7 @@ func (s *ServerImpl) PostScanResults(ctx echo.Context) error {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
 			existResponse := &models.TargetScanResultExists{
-				Message:          utils.StringPtr(conflictErr.Reason),
+				Message:          utils.PointerTo(conflictErr.Reason),
 				TargetScanResult: &createdScanResult,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -106,7 +106,7 @@ func (s *ServerImpl) PatchScanResultsScanResultID(ctx echo.Context, scanResultID
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetScanResultExists{
-				Message:          utils.StringPtr(conflictErr.Reason),
+				Message:          utils.PointerTo(conflictErr.Reason),
 				TargetScanResult: &updatedScanResult,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -155,7 +155,7 @@ func (s *ServerImpl) PutScanResultsScanResultID(ctx echo.Context, scanResultID m
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.TargetScanResultExists{
-				Message:          utils.StringPtr(conflictErr.Reason),
+				Message:          utils.PointerTo(conflictErr.Reason),
 				TargetScanResult: &updatedScanResult,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)

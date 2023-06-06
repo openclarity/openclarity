@@ -24,7 +24,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 )
 
 func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
@@ -42,69 +41,69 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 				vulnerabilities: nil,
 			},
 			want: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo(0),
-				TotalHighVulnerabilities:       utils.PointerTo(0),
-				TotalMediumVulnerabilities:     utils.PointerTo(0),
-				TotalLowVulnerabilities:        utils.PointerTo(0),
-				TotalNegligibleVulnerabilities: utils.PointerTo(0),
+				TotalCriticalVulnerabilities:   PointerTo(0),
+				TotalHighVulnerabilities:       PointerTo(0),
+				TotalMediumVulnerabilities:     PointerTo(0),
+				TotalLowVulnerabilities:        PointerTo(0),
+				TotalNegligibleVulnerabilities: PointerTo(0),
 			},
 		},
 		{
 			name: "check one type",
 			args: args{
-				vulnerabilities: utils.PointerTo([]models.Vulnerability{
+				vulnerabilities: PointerTo([]models.Vulnerability{
 					{
-						Description:       utils.PointerTo("desc1"),
-						Severity:          utils.PointerTo(models.CRITICAL),
-						VulnerabilityName: utils.PointerTo("CVE-1"),
+						Description:       PointerTo("desc1"),
+						Severity:          PointerTo(models.CRITICAL),
+						VulnerabilityName: PointerTo("CVE-1"),
 					},
 				}),
 			},
 			want: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo(1),
-				TotalHighVulnerabilities:       utils.PointerTo(0),
-				TotalMediumVulnerabilities:     utils.PointerTo(0),
-				TotalLowVulnerabilities:        utils.PointerTo(0),
-				TotalNegligibleVulnerabilities: utils.PointerTo(0),
+				TotalCriticalVulnerabilities:   PointerTo(1),
+				TotalHighVulnerabilities:       PointerTo(0),
+				TotalMediumVulnerabilities:     PointerTo(0),
+				TotalLowVulnerabilities:        PointerTo(0),
+				TotalNegligibleVulnerabilities: PointerTo(0),
 			},
 		},
 		{
 			name: "check all severity types",
 			args: args{
-				vulnerabilities: utils.PointerTo([]models.Vulnerability{
+				vulnerabilities: PointerTo([]models.Vulnerability{
 					{
-						Description:       utils.PointerTo("desc1"),
-						Severity:          utils.PointerTo(models.CRITICAL),
-						VulnerabilityName: utils.PointerTo("CVE-1"),
+						Description:       PointerTo("desc1"),
+						Severity:          PointerTo(models.CRITICAL),
+						VulnerabilityName: PointerTo("CVE-1"),
 					},
 					{
-						Description:       utils.PointerTo("desc2"),
-						Severity:          utils.PointerTo(models.HIGH),
-						VulnerabilityName: utils.PointerTo("CVE-2"),
+						Description:       PointerTo("desc2"),
+						Severity:          PointerTo(models.HIGH),
+						VulnerabilityName: PointerTo("CVE-2"),
 					},
 					{
-						Description:       utils.PointerTo("desc3"),
-						Severity:          utils.PointerTo(models.MEDIUM),
-						VulnerabilityName: utils.PointerTo("CVE-3"),
+						Description:       PointerTo("desc3"),
+						Severity:          PointerTo(models.MEDIUM),
+						VulnerabilityName: PointerTo("CVE-3"),
 					},
 					{
-						Description:       utils.PointerTo("desc4"),
-						Severity:          utils.PointerTo(models.LOW),
-						VulnerabilityName: utils.PointerTo("CVE-4"),
+						Description:       PointerTo("desc4"),
+						Severity:          PointerTo(models.LOW),
+						VulnerabilityName: PointerTo("CVE-4"),
 					},
 					{
-						Description:       utils.PointerTo("desc5"),
-						Severity:          utils.PointerTo(models.NEGLIGIBLE),
-						VulnerabilityName: utils.PointerTo("CVE-5"),
+						Description:       PointerTo("desc5"),
+						Severity:          PointerTo(models.NEGLIGIBLE),
+						VulnerabilityName: PointerTo("CVE-5"),
 					},
 				}),
 			},
 			want: &models.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo(1),
-				TotalHighVulnerabilities:       utils.PointerTo(1),
-				TotalMediumVulnerabilities:     utils.PointerTo(1),
-				TotalLowVulnerabilities:        utils.PointerTo(1),
-				TotalNegligibleVulnerabilities: utils.PointerTo(1),
+				TotalCriticalVulnerabilities:   PointerTo(1),
+				TotalHighVulnerabilities:       PointerTo(1),
+				TotalMediumVulnerabilities:     PointerTo(1),
+				TotalLowVulnerabilities:        PointerTo(1),
+				TotalNegligibleVulnerabilities: PointerTo(1),
 			},
 		},
 	}
@@ -164,17 +163,17 @@ func TestStringKeyMapToArray(t *testing.T) {
 					"a": TestObject{
 						TestInt:     1,
 						TestStr:     "1",
-						TestPointer: utils.PointerTo(true),
+						TestPointer: PointerTo(true),
 					},
 					"b": TestObject{
 						TestInt:     2,
 						TestStr:     "2",
-						TestPointer: utils.PointerTo(true),
+						TestPointer: PointerTo(true),
 					},
 					"c": TestObject{
 						TestInt:     3,
 						TestStr:     "3",
-						TestPointer: utils.PointerTo(false),
+						TestPointer: PointerTo(false),
 					},
 				},
 			},
@@ -182,17 +181,17 @@ func TestStringKeyMapToArray(t *testing.T) {
 				TestObject{
 					TestInt:     1,
 					TestStr:     "1",
-					TestPointer: utils.PointerTo(true),
+					TestPointer: PointerTo(true),
 				},
 				TestObject{
 					TestInt:     2,
 					TestStr:     "2",
-					TestPointer: utils.PointerTo(true),
+					TestPointer: PointerTo(true),
 				},
 				TestObject{
 					TestInt:     3,
 					TestStr:     "3",
-					TestPointer: utils.PointerTo(false),
+					TestPointer: PointerTo(false),
 				},
 			},
 		},

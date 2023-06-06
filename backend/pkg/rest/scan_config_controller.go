@@ -25,7 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (s *ServerImpl) GetScanConfigs(ctx echo.Context, params models.GetScanConfigsParams) error {
@@ -61,7 +61,7 @@ func (s *ServerImpl) PostScanConfigs(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanConfigExists{
-				Message:    utils.StringPtr(conflictErr.Reason),
+				Message:    utils.PointerTo(conflictErr.Reason),
 				ScanConfig: &createdScanConfig,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -77,7 +77,7 @@ func (s *ServerImpl) PostScanConfigs(ctx echo.Context) error {
 
 func (s *ServerImpl) DeleteScanConfigsScanConfigID(ctx echo.Context, scanConfigID models.ScanConfigID) error {
 	success := models.Success{
-		Message: utils.StringPtr(fmt.Sprintf("scan config %v deleted", scanConfigID)),
+		Message: utils.PointerTo(fmt.Sprintf("scan config %v deleted", scanConfigID)),
 	}
 
 	if err := s.dbHandler.ScanConfigsTable().DeleteScanConfig(scanConfigID); err != nil {
@@ -114,7 +114,7 @@ func (s *ServerImpl) PatchScanConfigsScanConfigID(ctx echo.Context, scanConfigID
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanConfigExists{
-				Message:    utils.StringPtr(conflictErr.Reason),
+				Message:    utils.PointerTo(conflictErr.Reason),
 				ScanConfig: &updatedScanConfig,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -154,7 +154,7 @@ func (s *ServerImpl) PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID m
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("ScanConfig with ID %v not found", scanConfigID))
 		case errors.As(err, &conflictErr):
 			existResponse := &models.ScanConfigExists{
-				Message:    utils.StringPtr(conflictErr.Reason),
+				Message:    utils.PointerTo(conflictErr.Reason),
 				ScanConfig: &updatedScanConfig,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
