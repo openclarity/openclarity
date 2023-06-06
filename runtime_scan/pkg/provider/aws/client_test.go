@@ -26,7 +26,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func Test_createVPCFilters(t *testing.T) {
@@ -267,8 +267,8 @@ func Test_hasExcludedTags(t *testing.T) {
 						Value: &tagVal2,
 					},
 					{
-						Key:   utils.StringPtr("stam"),
-						Value: utils.StringPtr("stam"),
+						Key:   utils.PointerTo("stam"),
+						Value: utils.PointerTo("stam"),
 					},
 				},
 			},
@@ -328,17 +328,17 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-1"),
+									InstanceId: utils.PointerTo("instance-1"),
 								},
 								{
-									InstanceId: utils.StringPtr("instance-2"),
+									InstanceId: utils.PointerTo("instance-2"),
 								},
 							},
 						},
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-3"),
+									InstanceId: utils.PointerTo("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -359,10 +359,10 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-1"),
+									InstanceId: utils.PointerTo("instance-1"),
 								},
 								{
-									InstanceId: utils.StringPtr("instance-2"),
+									InstanceId: utils.PointerTo("instance-2"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNamePending,
 									},
@@ -372,7 +372,7 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-3"),
+									InstanceId: utils.PointerTo("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -393,10 +393,10 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-1"),
+									InstanceId: utils.PointerTo("instance-1"),
 								},
 								{
-									InstanceId: utils.StringPtr("instance-2"),
+									InstanceId: utils.PointerTo("instance-2"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNamePending,
 									},
@@ -406,7 +406,7 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-3"),
+									InstanceId: utils.PointerTo("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -464,11 +464,11 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-1"),
+									InstanceId: utils.PointerTo("instance-1"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.StringPtr("key-1"),
-											Value: utils.StringPtr("val-1"),
+											Key:   utils.PointerTo("key-1"),
+											Value: utils.PointerTo("val-1"),
 										},
 									},
 									VpcId:   utils.PointerTo("vpc1"),
@@ -486,11 +486,11 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 									},
 								},
 								{
-									InstanceId: utils.StringPtr("instance-2"),
+									InstanceId: utils.PointerTo("instance-2"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.StringPtr("key-2"),
-											Value: utils.StringPtr("val-2"),
+											Key:   utils.PointerTo("key-2"),
+											Value: utils.PointerTo("val-2"),
 										},
 									},
 									VpcId:   utils.PointerTo("vpc2"),
@@ -512,7 +512,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-3"),
+									InstanceId: utils.PointerTo("instance-3"),
 									VpcId:      utils.PointerTo("vpc3"),
 									ImageId:    utils.PointerTo("image3"),
 									Placement: &ec2types.Placement{
@@ -597,11 +597,11 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-1"),
+									InstanceId: utils.PointerTo("instance-1"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.StringPtr("key-1"),
-											Value: utils.StringPtr("val-1"),
+											Key:   utils.PointerTo("key-1"),
+											Value: utils.PointerTo("val-1"),
 										},
 									},
 									VpcId:   utils.PointerTo("vpc1"),
@@ -619,11 +619,11 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 									},
 								},
 								{
-									InstanceId: utils.StringPtr("instance-2"),
+									InstanceId: utils.PointerTo("instance-2"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.StringPtr("key-2"),
-											Value: utils.StringPtr("val-2"),
+											Key:   utils.PointerTo("key-2"),
+											Value: utils.PointerTo("val-2"),
 										},
 									},
 									VpcId:   utils.PointerTo("vpc2"),
@@ -645,7 +645,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.StringPtr("instance-3"),
+									InstanceId: utils.PointerTo("instance-3"),
 									VpcId:      utils.PointerTo("vpc3"),
 									ImageId:    utils.PointerTo("image3"),
 									Placement: &ec2types.Placement{

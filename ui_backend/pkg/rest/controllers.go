@@ -30,7 +30,7 @@ import (
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
 	targets, err := s.BackendClient.GetTargets(ctx.Request().Context(), backendmodels.GetTargetsParams{
-		Filter: utils.StringPtr("targetInfo/objectType eq 'VMInfo'"),
+		Filter: utils.PointerTo("targetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get targets: %v", err))

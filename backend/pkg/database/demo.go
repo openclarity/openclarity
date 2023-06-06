@@ -519,25 +519,25 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 	// Scan config 1
 	scanFamiliesConfig1 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Malware: &models.MalwareConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Misconfigurations: &models.MisconfigurationsConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Rootkits: &models.RootkitsConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Sbom: &models.SBOMConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Secrets: &models.SecretsConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Vulnerabilities: &models.VulnerabilitiesConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 	}
 	tag1 := models.Tag{
@@ -576,12 +576,12 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 	scanConfig1SelectorTags := []models.Tag{tag1, tag2}
 	scanConfig1ExclusionTags := []models.Tag{tag3, tag4}
 	scope1 := models.AwsScanScope{
-		AllRegions:                 utils.BoolPtr(false),
+		AllRegions:                 utils.PointerTo(false),
 		InstanceTagExclusion:       &scanConfig1ExclusionTags,
 		InstanceTagSelector:        &scanConfig1SelectorTags,
 		ObjectType:                 "AwsScanScope",
 		Regions:                    &ScanConfig1Regions,
-		ShouldScanStoppedInstances: utils.BoolPtr(false),
+		ShouldScanStoppedInstances: utils.PointerTo(false),
 	}
 
 	var scanScopeType1 models.ScanScopeType
@@ -594,25 +594,25 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 	// Scan config 2
 	scanFamiliesConfig2 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Malware: &models.MalwareConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Misconfigurations: &models.MisconfigurationsConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Rootkits: &models.RootkitsConfig{
-			Enabled: utils.BoolPtr(true),
+			Enabled: utils.PointerTo(true),
 		},
 		Sbom: &models.SBOMConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Secrets: &models.SecretsConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 		Vulnerabilities: &models.VulnerabilitiesConfig{
-			Enabled: utils.BoolPtr(false),
+			Enabled: utils.PointerTo(false),
 		},
 	}
 
@@ -636,12 +636,12 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 	scanConfig2SelectorTags := []models.Tag{tag2}
 	scanConfig2ExclusionTags := []models.Tag{tag4}
 	scanConfig2Scope := models.AwsScanScope{
-		AllRegions:                 utils.BoolPtr(false),
+		AllRegions:                 utils.PointerTo(false),
 		InstanceTagExclusion:       &scanConfig2ExclusionTags,
 		InstanceTagSelector:        &scanConfig2SelectorTags,
 		ObjectType:                 "AwsScanScope",
 		Regions:                    &ScanConfig2Regions,
-		ShouldScanStoppedInstances: utils.BoolPtr(true),
+		ShouldScanStoppedInstances: utils.PointerTo(true),
 	}
 
 	var scanScopeType2 models.ScanScopeType
@@ -749,7 +749,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 			ScanConfigSnapshot: scan1ConfigSnapshot,
 			StartTime:          &scan1Start,
 			State:              utils.PointerTo(models.ScanStateDone),
-			StateMessage:       utils.StringPtr("Scan was completed successfully"),
+			StateMessage:       utils.PointerTo("Scan was completed successfully"),
 			StateReason:        utils.PointerTo(models.ScanStateReasonSuccess),
 			Summary:            scan1Summary,
 			TargetIDs:          &scan1Targets,
@@ -761,7 +761,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 			ScanConfigSnapshot: scan2ConfigSnapshot,
 			StartTime:          &scan2Start,
 			State:              utils.PointerTo(models.ScanStateInProgress),
-			StateMessage:       utils.StringPtr("Scan is in progress"),
+			StateMessage:       utils.PointerTo("Scan is in progress"),
 			StateReason:        nil,
 			Summary:            scan2Summary,
 			TargetIDs:          &scan2Targets,
@@ -962,17 +962,17 @@ func createMalwareResult() *[]models.Malware {
 	return &[]models.Malware{
 		{
 			MalwareName: utils.PointerTo("Pdf.Exploit.CVE_2009_4324-1"),
-			MalwareType: utils.StringPtr("WORM"),
+			MalwareType: utils.PointerTo("WORM"),
 			Path:        utils.PointerTo("/test/metasploit-framework/modules/exploits/windows/browser/asus_net4switch_ipswcom.rb"),
 		},
 		{
 			MalwareName: utils.PointerTo("Xml.Malware.Squiblydoo-6728833-0"),
-			MalwareType: utils.StringPtr("SPYWARE"),
+			MalwareType: utils.PointerTo("SPYWARE"),
 			Path:        utils.PointerTo("/test/metasploit-framework/modules/exploits/windows/fileformat/office_ms17_11882.rb"),
 		},
 		{
 			MalwareName: utils.PointerTo("Unix.Trojan.MSShellcode-27"),
-			MalwareType: utils.StringPtr("TROJAN"),
+			MalwareType: utils.PointerTo("TROJAN"),
 			Path:        utils.PointerTo("/test/metasploit-framework/documentation/modules/exploit/multi/http/makoserver_cmd_exec.md"),
 		},
 	}
@@ -1027,7 +1027,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 					Version: utils.PointerTo("3.1"),
 				},
 			}),
-			Description: utils.StringPtr("A vulnerability exists in curl <7.87.0 HSTS check that could be bypassed to trick it to keep using HTTP. Using its HSTS support, curl can be instructed to use HTTPS instead of using an insecure clear-text HTTP step even when HTTP is provided in the\nURL. However, the HSTS mechanism could be bypassed if the host name in the given URL first uses IDN characters that get replaced to ASCII counterparts as part of the IDN conversion. Like using the character UTF-8 U+3002 (IDEOGRAPHIC FULL STOP) instead of the common ASCI\nI full stop (U+002E) `.`. Then in a subsequent request, it does not detect the HSTS state and makes a clear text transfer. Because it would store the info IDN encoded but look for it IDN decoded."),
+			Description: utils.PointerTo("A vulnerability exists in curl <7.87.0 HSTS check that could be bypassed to trick it to keep using HTTP. Using its HSTS support, curl can be instructed to use HTTPS instead of using an insecure clear-text HTTP step even when HTTP is provided in the\nURL. However, the HSTS mechanism could be bypassed if the host name in the given URL first uses IDN characters that get replaced to ASCII counterparts as part of the IDN conversion. Like using the character UTF-8 U+3002 (IDEOGRAPHIC FULL STOP) instead of the common ASCI\nI full stop (U+002E) `.`. Then in a subsequent request, it does not detect the HSTS state and makes a clear text transfer. Because it would store the info IDN encoded but look for it IDN decoded."),
 			Distro: &models.VulnerabilityDistro{
 				IDLike:  utils.PointerTo([]string{"debian"}),
 				Name:    utils.PointerTo("ubuntu"),
@@ -1050,7 +1050,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 			},
 			Path:              utils.PointerTo("/var/lib/dpkg/status"),
 			Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.HIGH),
-			VulnerabilityName: utils.StringPtr("CVE-2022-43551"),
+			VulnerabilityName: utils.PointerTo("CVE-2022-43551"),
 		},
 		{
 			Cvss: utils.PointerTo([]models.VulnerabilityCvss{
@@ -1073,7 +1073,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 					Version: utils.PointerTo("2.0"),
 				},
 			}),
-			Description: utils.StringPtr("GNU Libtasn1 before 4.19.0 has an ETYPE_OK off-by-one array size check that affects asn1_encode_simple_der."),
+			Description: utils.PointerTo("GNU Libtasn1 before 4.19.0 has an ETYPE_OK off-by-one array size check that affects asn1_encode_simple_der."),
 			Distro: &models.VulnerabilityDistro{
 				IDLike:  utils.PointerTo([]string{"debian"}),
 				Name:    utils.PointerTo("ubuntu"),
@@ -1096,7 +1096,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 			},
 			Path:              utils.PointerTo("/var/lib/dpkg/status"),
 			Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.CRITICAL),
-			VulnerabilityName: utils.StringPtr("CVE-2021-46848"),
+			VulnerabilityName: utils.PointerTo("CVE-2021-46848"),
 		},
 		{
 			Cvss: utils.PointerTo([]models.VulnerabilityCvss{
@@ -1119,7 +1119,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 					Version: utils.PointerTo("2.0"),
 				},
 			}),
-			Description: utils.StringPtr("SQLite3 from 3.6.0 to and including 3.27.2 is vulnerable to heap out-of-bound read in the rtreenode() function when handling invalid rtree tables."),
+			Description: utils.PointerTo("SQLite3 from 3.6.0 to and including 3.27.2 is vulnerable to heap out-of-bound read in the rtreenode() function when handling invalid rtree tables."),
 			Distro: &models.VulnerabilityDistro{
 				IDLike:  utils.PointerTo([]string{"debian"}),
 				Name:    utils.PointerTo("ubuntu"),
@@ -1142,7 +1142,7 @@ func createVulnerabilitiesResult() *[]models.Vulnerability {
 			},
 			Path:              utils.PointerTo("/var/lib/dpkg/status"),
 			Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.LOW),
-			VulnerabilityName: utils.StringPtr("CVE-2019-8457"),
+			VulnerabilityName: utils.PointerTo("CVE-2019-8457"),
 		},
 	}
 }

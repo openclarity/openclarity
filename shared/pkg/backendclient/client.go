@@ -23,7 +23,6 @@ import (
 
 	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/api/models"
-	runtimeScanUtils "github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
@@ -243,7 +242,7 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, sca
 
 func (b *BackendClient) GetScanResultSummary(ctx context.Context, scanResultID string) (*models.ScanFindingsSummary, error) {
 	params := models.GetScanResultsScanResultIDParams{
-		Select: runtimeScanUtils.StringPtr("summary"),
+		Select: utils.PointerTo("summary"),
 	}
 	scanResult, err := b.GetScanResult(ctx, scanResultID, params)
 	if err != nil {
@@ -254,7 +253,7 @@ func (b *BackendClient) GetScanResultSummary(ctx context.Context, scanResultID s
 
 func (b *BackendClient) GetScanResultStatus(ctx context.Context, scanResultID string) (*models.TargetScanStatus, error) {
 	params := models.GetScanResultsScanResultIDParams{
-		Select: utils.StringPtr("status"),
+		Select: utils.PointerTo("status"),
 	}
 	scanResult, err := b.GetScanResult(ctx, scanResultID, params)
 	if err != nil {

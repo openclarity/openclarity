@@ -25,7 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/backend/pkg/common"
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/utils"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func (s *ServerImpl) GetFindings(ctx echo.Context, params models.GetFindingsParams) error {
@@ -61,7 +61,7 @@ func (s *ServerImpl) PostFindings(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &models.FindingExists{
-				Message: utils.StringPtr(conflictErr.Reason),
+				Message: utils.PointerTo(conflictErr.Reason),
 				Finding: &createdFinding,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -77,7 +77,7 @@ func (s *ServerImpl) PostFindings(ctx echo.Context) error {
 
 func (s *ServerImpl) DeleteFindingsFindingID(ctx echo.Context, findingID models.FindingID) error {
 	success := models.Success{
-		Message: utils.StringPtr(fmt.Sprintf("finding %v deleted", findingID)),
+		Message: utils.PointerTo(fmt.Sprintf("finding %v deleted", findingID)),
 	}
 
 	if err := s.dbHandler.FindingsTable().DeleteFinding(findingID); err != nil {
