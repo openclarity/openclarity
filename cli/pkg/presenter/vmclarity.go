@@ -98,7 +98,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Sbom.State = &state
 	scanResult.Status.Sbom.Errors = &errs
 
@@ -140,7 +140,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 		scanResult.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(scanResult.Vulnerabilities.Vulnerabilities)
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Vulnerabilities.State = &state
 	scanResult.Status.Vulnerabilities.Errors = &errs
 
@@ -185,7 +185,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Secrets.State = &state
 	scanResult.Status.Secrets.Errors = &errs
 
@@ -226,7 +226,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Malware.State = &state
 	scanResult.Status.Malware.Errors = &errs
 
@@ -269,7 +269,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Exploits.State = &state
 	scanResult.Status.Exploits.Errors = &errs
 
@@ -316,7 +316,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Misconfigurations.State = &state
 	scanResult.Status.Misconfigurations.Errors = &errs
 
@@ -357,7 +357,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		}
 	}
 
-	state := models.DONE
+	state := models.TargetScanStateStateDONE
 	scanResult.Status.Rootkits.State = &state
 	scanResult.Status.Rootkits.Errors = &errs
 

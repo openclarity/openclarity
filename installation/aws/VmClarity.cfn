@@ -623,6 +623,11 @@ Resources:
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.ScanResultID
+                  - VMClarity.TargetID
+                  - VMClarity.TargetVolumeID
           #
           # ##########################
 
@@ -641,8 +646,30 @@ Resources:
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.ScanResultID
+                  - VMClarity.TargetID
+                  - VMClarity.TargetVolumeID
           #
           # ##########################
+
+          - Effect: "Allow"
+            Action:
+              - "ec2:CreateVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.ScanResultID
+                  - VMClarity.TargetID
+                  - VMClarity.TargetVolumeID
 
           # ##########################
           # Only allow RunInstances inside of the VMClarity VPC by enforcing
@@ -656,8 +683,12 @@ Resources:
                 "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarityVPC}"
           # Force that we tag the instance when we create it, this is so that
           # we can limit the instances we're allow to terminate. The only tag
-          # keys allowed are "Owner" and "Name". "Owner" must be set to
-          # "VmClarity".
+          # keys allowed are:
+          #  * Owner
+          #  * VMClarity.ScanID
+          #  * VMClarity.ScanResultID
+          #  * VMClarity.TargetID
+          # "Owner" must be set to "VmClarity".
           - Effect: "Allow"
             Action:
               - "ec2:RunInstances"
@@ -672,6 +703,9 @@ Resources:
                 "aws:TagKeys":
                   - Owner
                   - Name
+                  - VMClarity.ScanID
+                  - VMClarity.ScanResultID
+                  - VMClarity.TargetID
           # Allow instance to be created using snapshots, only if the snapshot
           # has the Owner:VMClarity tag.
           - Effect: "Allow"
@@ -684,6 +718,10 @@ Resources:
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.ScanResultID
+                  - VMClarity.TargetID
           # Allow the creation of network interfaces, and allow instances to be
           # created with any security group and image in our account and
           # region.

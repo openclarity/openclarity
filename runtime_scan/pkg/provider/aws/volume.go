@@ -22,111 +22,185 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/types"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-type VolumeImpl struct {
+type Volume struct {
+	ID     string
+	Region string
+
+	BlockDeviceName string
+	Metadata        provider.ScanMetadata
+
 	ec2Client *ec2.Client
-	id        string
-	region    string
 }
 
-func (v *VolumeImpl) GetID() string {
-	return v.id
-}
+func (v *Volume) CreateSnapshot(ctx context.Context) (*Snapshot, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(logrus.Fields{
+		"VolumeID":  v.ID,
+		"Operation": "CreateSnapshot",
+	})
 
-func (v *VolumeImpl) TakeSnapshot(ctx context.Context) (types.Snapshot, error) {
-	params := ec2.CreateSnapshotInput{
-		VolumeId:    &v.id,
-		Description: &snapshotDescription,
+	options := func(options *ec2.Options) {
+		options.Region = v.Region
+	}
+
+	ec2TagsForSnapshot := EC2TagsFromScanMetadata(v.Metadata)
+	ec2TagsForSnapshot = append(ec2TagsForSnapshot, ec2types.Tag{
+		Key:   utils.PointerTo(EC2TagKeyTargetVolumeID),
+		Value: utils.PointerTo(v.ID),
+	})
+
+	ec2Filters := EC2FiltersFromEC2Tags(ec2TagsForSnapshot)
+
+	describeParams := &ec2.DescribeSnapshotsInput{
+		Filters: ec2Filters,
+	}
+	describeOut, err := v.ec2Client.DescribeSnapshots(ctx, describeParams, options)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch snapshots for volume. VolumeID=%s: %w", v.ID, err)
+	}
+
+	if len(describeOut.Snapshots) > 1 {
+		logger.Warnf("Multiple snapshots found for volume: %d", len(describeOut.Snapshots))
+	}
+
+	for _, snap := range describeOut.Snapshots {
+		switch snap.State {
+		case ec2types.SnapshotStateError, ec2types.SnapshotStateRecoverable:
+			// We want to recreate the snapshot if it is in error or recoverable state. Cleanup will take care of
+			// removing these as well.
+		case ec2types.SnapshotStateRecovering, ec2types.SnapshotStatePending, ec2types.SnapshotStateCompleted:
+			fallthrough
+		default:
+			return &Snapshot{
+				ec2Client: v.ec2Client,
+				ID:        *snap.SnapshotId,
+				Region:    v.Region,
+				Metadata:  v.Metadata,
+				VolumeID:  v.ID,
+			}, nil
+		}
+	}
+
+	createParams := ec2.CreateSnapshotInput{
+		VolumeId:    &v.ID,
+		Description: utils.PointerTo(EC2SnapshotDescription),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeSnapshot,
-				Tags:         vmclarityTags,
+				Tags:         ec2TagsForSnapshot,
 			},
 		},
 	}
-	out, err := v.ec2Client.CreateSnapshot(ctx, &params, func(options *ec2.Options) {
-		options.Region = v.region
-	})
+	createOut, err := v.ec2Client.CreateSnapshot(ctx, &createParams, options)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create snapshot: %v", err)
+		return nil, fmt.Errorf("failed to create snapshot for volume. VolumeID=%s: %w", v.ID, err)
 	}
-	return &SnapshotImpl{
+
+	return &Snapshot{
 		ec2Client: v.ec2Client,
-		id:        *out.SnapshotId,
-		region:    v.region,
+		ID:        *createOut.SnapshotId,
+		Region:    v.Region,
+		Metadata:  v.Metadata,
+		VolumeID:  v.ID,
 	}, nil
 }
 
-func (v *VolumeImpl) WaitForReady(ctx context.Context) error {
-	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
+func (v *Volume) WaitForReady(ctx context.Context, timeout time.Duration, interval time.Duration) error {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
+	timer := time.NewTicker(interval)
+	defer timer.Stop()
+
 	for {
 		select {
-		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
-			out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
-				VolumeIds: []string{v.id},
-			}, func(options *ec2.Options) {
-				options.Region = v.region
-			})
+		case <-timer.C:
+			ready, err := v.IsReady(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to describe volumes. volumeID=%v: %v", v.id, err)
+				return fmt.Errorf("failed to get volume state. VolumeID=%s: %w", v.ID, err)
 			}
-			if len(out.Volumes) != 1 {
-				return fmt.Errorf("got unexcpected number of volumes (%v) with volume id %v. excpecting 1", len(out.Volumes), v.id)
-			}
-			if out.Volumes[0].State == ec2types.VolumeStateAvailable {
+			if ready {
 				return nil
 			}
-		case <-ctxWithTimeout.Done():
-			return fmt.Errorf("waiting for volume ready was canceled: %v", ctx.Err())
+		case <-ctx.Done():
+			return fmt.Errorf("failed to wait until VM Instance is in ready state. VolumeID=%s: %w", v.ID, ctx.Err())
 		}
 	}
 }
 
-func (v *VolumeImpl) WaitForAttached(ctx context.Context) error {
-	// nolint:govet
-	ctxWithTimeout, _ := context.WithTimeout(context.Background(), utils.DefaultResourceReadyWaitTimeoutMin*time.Minute)
-
-	for {
-		select {
-		case <-time.After(utils.DefaultResourceReadyCheckIntervalSec * time.Second):
-			out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
-				VolumeIds: []string{v.id},
-			}, func(options *ec2.Options) {
-				options.Region = v.region
-			})
-			if err != nil {
-				return fmt.Errorf("failed to describe volumes. volumeID=%v: %v", v.id, err)
-			}
-			if len(out.Volumes) != 1 {
-				return fmt.Errorf("got unexcpected number of volumes (%v) with volume id %v. excpecting 1", len(out.Volumes), v.id)
-			}
-			if out.Volumes[0].Attachments[0].State == ec2types.VolumeAttachmentStateAttached {
-				return nil
-			}
-		case <-ctxWithTimeout.Done():
-			return fmt.Errorf("waiting for volume ready was canceled: %v", ctxWithTimeout.Err())
-		}
+func (v *Volume) IsReady(ctx context.Context) (bool, error) {
+	out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
+		VolumeIds: []string{v.ID},
+	}, func(options *ec2.Options) {
+		options.Region = v.Region
+	})
+	if err != nil {
+		return false, fmt.Errorf("failed to describe volumes. VolumeID=%s: %w", v.ID, err)
 	}
+
+	if len(out.Volumes) != 1 {
+		return false, fmt.Errorf("got unexcpected number of volumes (%d). Excpecting 1. VolumeID=%s",
+			len(out.Volumes), v.ID)
+	}
+
+	volState := out.Volumes[0].State
+	switch volState {
+	case ec2types.VolumeStateAvailable, ec2types.VolumeStateInUse:
+		return true, nil
+	case ec2types.VolumeStateCreating:
+		return false, nil
+	case ec2types.VolumeStateDeleted, ec2types.VolumeStateDeleting, ec2types.VolumeStateError:
+		return false, FatalError{
+			Err: fmt.Errorf("volume is not ready due to its state: %s", volState),
+		}
+	default:
+	}
+
+	return false, nil
 }
 
-func (v *VolumeImpl) Delete(ctx context.Context) error {
+func (v *Volume) IsAttached(ctx context.Context) (bool, error) {
+	var attached bool
+
+	out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
+		VolumeIds: []string{v.ID},
+	}, func(options *ec2.Options) {
+		options.Region = v.Region
+	})
+	if err != nil {
+		return attached, fmt.Errorf("failed to describe volumes. VolumeID=%s: %w", v.ID, err)
+	}
+
+	if len(out.Volumes) != 1 {
+		return attached, fmt.Errorf("got unexcpected number of volumes (%d). Excpecting 1. VolumeID=%s",
+			len(out.Volumes), v.ID)
+	}
+
+	if out.Volumes[0].Attachments[0].State == ec2types.VolumeAttachmentStateAttached {
+		attached = true
+	}
+
+	return attached, nil
+}
+
+func (v *Volume) Delete(ctx context.Context) error {
 	if v == nil {
 		return nil
 	}
 
 	_, err := v.ec2Client.DeleteVolume(ctx, &ec2.DeleteVolumeInput{
-		VolumeId: &v.id,
+		VolumeId: &v.ID,
 	}, func(options *ec2.Options) {
-		options.Region = v.region
+		options.Region = v.Region
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete volume: %v", err)
+		return fmt.Errorf("failed to delete volume: %w", err)
 	}
 
 	return nil

@@ -51,7 +51,7 @@ var regions = []models.AwsRegion{
 		Vpcs: utils.PointerTo([]models.AwsVPC{
 			{
 				Id: awsVPCEUCentral11,
-				SecurityGroups: utils.PointerTo([]models.AwsSecurityGroup{
+				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
 					{
 						Id: awsSGEUCentral111,
 					},
@@ -59,7 +59,7 @@ var regions = []models.AwsRegion{
 			},
 			{
 				Id: awsVPCEUCentral12,
-				SecurityGroups: utils.PointerTo([]models.AwsSecurityGroup{
+				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
 					{
 						Id: awsSGEUCentral121,
 					},
@@ -72,7 +72,7 @@ var regions = []models.AwsRegion{
 		Vpcs: utils.PointerTo([]models.AwsVPC{
 			{
 				Id: awsVPCUSEast11,
-				SecurityGroups: utils.PointerTo([]models.AwsSecurityGroup{
+				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
 					{
 						Id: awsSGUSEast111,
 					},
@@ -80,7 +80,7 @@ var regions = []models.AwsRegion{
 			},
 			{
 				Id: awsVPCUSEast12,
-				SecurityGroups: utils.PointerTo([]models.AwsSecurityGroup{
+				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
 					{
 						Id: awsSGUSEast121,
 					},
@@ -556,7 +556,7 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 		Key:   "system",
 		Value: "sys2",
 	}
-	ScanConfig1SecurityGroups := []models.AwsSecurityGroup{
+	ScanConfig1SecurityGroups := []models.SecurityGroup{
 		{
 			Id: awsSGEUCentral111,
 		},
@@ -616,7 +616,7 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 		},
 	}
 
-	ScanConfig2SecurityGroups := []models.AwsSecurityGroup{
+	ScanConfig2SecurityGroups := []models.SecurityGroup{
 		{
 			Id: awsSGUSEast111,
 		},

@@ -19,6 +19,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -58,8 +59,9 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 
 	devices, err := mount.ListBlockDevices()
 	if err != nil {
-		return nil, fmt.Errorf("failed to list block devices: %v", err)
+		return nil, fmt.Errorf("failed to list block devices: %w", err)
 	}
+	logger.Infof("Found block devices: %v", devices)
 	for _, device := range devices {
 		// if the device is not mounted and of a supported filesystem type,
 		// we assume it belongs to the attached volume, so we mount it.
@@ -67,7 +69,7 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 			mountDir := "/mnt/snapshot" + uuid.NewV4().String()
 
 			if err := device.Mount(mountDir); err != nil {
-				return nil, fmt.Errorf("failed to mount device: %v", err)
+				return nil, fmt.Errorf("failed to mount device: %w", err)
 			}
 			logger.Infof("Device %v on %v is mounted", device.DeviceName, mountDir)
 			mountPoints = append(mountPoints, mountDir)
@@ -79,6 +81,8 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 	return mountPoints, nil
 }
 
+// WatchForAbort is responsible for watching for abort events triggered and invoking the provided cancel function to mark
+// the ctx context cancelled.
 func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, interval time.Duration) {
 	go func() {
 		timer := time.NewTicker(interval)
@@ -106,9 +110,10 @@ func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, inte
 }
 
 func isSupportedFS(fs string) bool {
-	switch fs {
+	switch strings.ToLower(fs) {
 	case fsTypeExt4, fsTypeXFS:
 		return true
 	}
+
 	return false
 }
