@@ -21,7 +21,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/onsi/gomega v1.27.6
+	github.com/onsi/gomega v1.27.8
 	github.com/openclarity/kubeclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
@@ -171,7 +171,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.4.1 // indirect
 	github.com/go-git/go-git/v5 v5.6.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
 	github.com/go-openapi/errors v0.20.3 // indirect
@@ -389,12 +389,12 @@ require (
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.7.0 // indirect
+	golang.org/x/tools v0.9.1 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
 	google.golang.org/api v0.122.0 // indirect
