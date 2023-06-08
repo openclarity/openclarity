@@ -74,7 +74,7 @@ func (r *TargetScanResult) IsDone() (bool, bool) {
 	var ok bool
 	var state TargetScanStateState
 
-	if state, ok = r.GetGeneralState(); ok && state == TargetScanStateStateDONE {
+	if state, ok = r.GetGeneralState(); ok && state == TargetScanStateStateDone {
 		done = true
 	}
 

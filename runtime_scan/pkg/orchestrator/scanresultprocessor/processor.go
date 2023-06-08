@@ -43,7 +43,7 @@ func New(config Config) *ScanResultProcessor {
 
 // Returns true if TargetScanStatus.State is DONE and there are no Errors.
 func statusCompletedWithNoErrors(tss *models.TargetScanState) bool {
-	return tss != nil && tss.State != nil && *tss.State == models.TargetScanStateStateDONE && (tss.Errors == nil || len(*tss.Errors) == 0)
+	return tss != nil && tss.State != nil && *tss.State == models.TargetScanStateStateDone && (tss.Errors == nil || len(*tss.Errors) == 0)
 }
 
 // nolint:cyclop

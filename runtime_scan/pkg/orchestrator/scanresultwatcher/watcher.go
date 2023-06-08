@@ -81,7 +81,7 @@ func (w *Watcher) GetScanResults(ctx context.Context) ([]ScanResultReconcileEven
 	logger.Debugf("Fetching ScanResults which need to be reconciled")
 
 	filter := fmt.Sprintf("status/general/state ne '%s' or status/general/state ne '%s' or resourceCleanup eq '%s'",
-		models.TargetScanStateStateDONE, models.TargetScanStateStateNOTSCANNED, models.ResourceCleanupStatePENDING)
+		models.TargetScanStateStateDone, models.TargetScanStateStateNotScanned, models.ResourceCleanupStatePending)
 	selector := "id,scan/id,target/id"
 	params := models.GetScanResultsParams{
 		Filter: &filter,
@@ -152,17 +152,21 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanResultReconcileEvent)
 	logger.Tracef("Reconciling ScanResult state: %s", state)
 
 	switch state {
-	case models.TargetScanStateStateINIT:
-		if err = w.reconcileInit(ctx, &scanResult); err != nil {
+	case models.TargetScanStateStatePending:
+		if err = w.reconcilePending(ctx, &scanResult); err != nil {
 			return err
 		}
-	case models.TargetScanStateStateATTACHED, models.TargetScanStateStateINPROGRESS:
+	case models.TargetScanStateStateScheduled:
+		if err = w.reconcileScheduled(ctx, &scanResult); err != nil {
+			return err
+		}
+	case models.TargetScanStateStateReadyToScan, models.TargetScanStateStateInProgress:
 		// TODO(chrisgacsal): make sure that TargetScanResult state is set to ABORTED state once the TargetScanResult
 		//                    schema is extended with timeout field and the deadline is missed.
 		break
-	case models.TargetScanStateStateABORTED, models.TargetScanStateStateNOTSCANNED:
+	case models.TargetScanStateStateAborted, models.TargetScanStateStateNotScanned:
 		break
-	case models.TargetScanStateStateDONE:
+	case models.TargetScanStateStateDone:
 		if err = w.reconcileDone(ctx, &scanResult); err != nil {
 			return err
 		}
@@ -173,7 +177,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanResultReconcileEvent)
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileInit(ctx context.Context, scanResult *models.TargetScanResult) error {
+func (w *Watcher) reconcilePending(ctx context.Context, scanResult *models.TargetScanResult) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	scanResultID, ok := scanResult.GetID()
@@ -181,25 +185,14 @@ func (w *Watcher) reconcileInit(ctx context.Context, scanResult *models.TargetSc
 		return errors.New("invalid ScanResult: ID is nil")
 	}
 
-	if scanResult.Scan == nil {
-		return errors.New("invalid ScanResult: Scan is nil")
+	if scanResult.Scan == nil || scanResult.Scan.ScanConfigSnapshot == nil {
+		return errors.New("invalid ScanResult: Scan or ScanConfigSnapshot is nil")
 	}
-
-	scan, err := w.backend.GetScan(ctx, scanResult.Scan.Id, models.GetScansScanIDParams{
-		Select: utils.PointerTo("id,scanConfigSnapshot"),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to fetch Scan with %s id: %w", scanResult.Scan.Id, err)
-	}
-	if scan == nil || scan.ScanConfigSnapshot == nil {
-		return errors.New("invalid API response: Scan and/or Scan.ScanConfigSnapshot are nil")
-	}
-	scanConfig := scan.ScanConfigSnapshot
 
 	// Check whether we have reached the maximum number of running scans
 	// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
 	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s' and resourceCleanup eq '%s'",
-		scanResult.Scan.Id, models.TargetScanStateStateDONE, models.TargetScanStateStateINIT, models.ResourceCleanupStatePENDING)
+		scanResult.Scan.Id, models.TargetScanStateStateDone, models.TargetScanStateStatePending, models.ResourceCleanupStatePending)
 	scanResults, err := w.backend.GetScanResults(ctx, models.GetScanResultsParams{
 		Filter: utils.PointerTo(filter),
 		Count:  utils.PointerTo(true),
@@ -217,28 +210,57 @@ func (w *Watcher) reconcileInit(ctx context.Context, scanResult *models.TargetSc
 		return errors.New("invalid API response: Count is nil")
 	}
 
-	maxParallelScanners := scanConfig.GetMaxParallelScanners()
+	maxParallelScanners := scanResult.Scan.ScanConfigSnapshot.GetMaxParallelScanners()
 	if scanResultsInProgress >= maxParallelScanners {
 		logger.Infof("Reconciliation is skipped as maximum number of running scans is reached: %d", maxParallelScanners)
 		return nil
 	}
 
-	target, err := w.backend.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{
-		Select: utils.PointerTo("id,targetInfo"),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to fetch Target. TargetID=%s: %w", scanResult.Target.Id, err)
+	scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateScheduled)
+	scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now().UTC())
+
+	scanResultPatch := models.TargetScanResult{
+		Status: scanResult.Status,
 	}
-	if target.TargetInfo == nil {
-		return errors.New("invalid API response: TargetInfo is nil")
+	err = w.backend.PatchScanResult(ctx, scanResultPatch, scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to update ScanResult. ScanResult=%s: %w", scanResultID, err)
+	}
+
+	// nolint:wrapcheck
+	return common.NewRequeueAfterError(time.Second,
+		fmt.Sprintf("ScanResult state moved to Scheduled. Skip waiting for another reconcile cycle. ScanResultID=%s",
+			scanResultID))
+}
+
+// nolint:cyclop
+func (w *Watcher) reconcileScheduled(ctx context.Context, scanResult *models.TargetScanResult) error {
+	scanResultID, ok := scanResult.GetID()
+	if !ok {
+		return errors.New("invalid ScanResult: ID is nil")
+	}
+
+	if scanResult.Scan == nil || scanResult.Scan.ScanConfigSnapshot == nil {
+		return errors.New("invalid ScanResult: Scan or ScanConfigSnapshot is nil")
+	}
+
+	if scanResult.Target == nil || scanResult.Target.TargetInfo == nil {
+		return errors.New("invalid ScanResult: Target or TargetInfo is nil")
+	}
+	target := &models.Target{
+		Id:         utils.PointerTo(scanResult.Target.Id),
+		Revision:   scanResult.Target.Revision,
+		ScansCount: scanResult.Target.ScansCount,
+		Summary:    scanResult.Target.Summary,
+		TargetInfo: scanResult.Target.TargetInfo,
 	}
 
 	// Run scan for ScanResult
 	jobConfig, err := newJobConfig(&jobConfigInput{
 		config:     &w.scannerConfig,
 		scanResult: scanResult,
-		scanConfig: scanConfig,
-		target:     &target,
+		scanConfig: scanResult.Scan.ScanConfigSnapshot,
+		target:     target,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create ScanJobConfig for ScanResult. ScanResult=%s: %w", scanResultID, err)
@@ -250,18 +272,18 @@ func (w *Watcher) reconcileInit(ctx context.Context, scanResult *models.TargetSc
 	var retryableError provider.RetryableError
 	switch {
 	case errors.As(err, &fatalError):
-		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateDONE)
+		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateDone)
 		scanResult.Status.General.Errors = utils.PointerTo([]string{fatalError.Error()})
 		scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now().UTC())
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
 		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
-		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateDONE)
+		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateDone)
 		scanResult.Status.General.Errors = utils.PointerTo(utils.UnwrapErrorStrings(err))
 		scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now().UTC())
 	default:
-		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateATTACHED)
+		scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateReadyToScan)
 		scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now().UTC())
 	}
 
@@ -281,7 +303,7 @@ func (w *Watcher) reconcileDone(ctx context.Context, scanResult *models.TargetSc
 		return errors.New("invalid ScanResult: Scan and/or ResourceCleanup are nil")
 	}
 
-	if *scanResult.ResourceCleanup != models.ResourceCleanupStatePENDING {
+	if *scanResult.ResourceCleanup != models.ResourceCleanupStatePending {
 		return nil
 	}
 
@@ -306,10 +328,10 @@ func (w *Watcher) cleanupResources(ctx context.Context, scanResult *models.Targe
 
 	switch w.scannerConfig.DeleteJobPolicy {
 	case DeleteJobPolicyNever:
-		scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateSKIPPED)
+		scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateSkipped)
 	case DeleteJobPolicyOnSuccess:
 		if isDone && scanResult.HasErrors() {
-			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateSKIPPED)
+			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateSkipped)
 			break
 		}
 		fallthrough
@@ -356,14 +378,14 @@ func (w *Watcher) cleanupResources(ctx context.Context, scanResult *models.Targe
 		var retryableError provider.RetryableError
 		switch {
 		case errors.As(err, &fatalError):
-			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFAILED)
+			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFailed)
 		case errors.As(err, &retryableError):
 			// nolint:wrapcheck
 			return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 		case err != nil:
-			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFAILED)
+			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFailed)
 		default:
-			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateDONE)
+			scanResult.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateDone)
 		}
 	}
 

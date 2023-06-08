@@ -475,16 +475,16 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scan == nil {
-		return fmt.Errorf("scan must not be nil: %v", scan)
+		return errors.New("invalid Scan: object is nil")
 	}
 
 	scanID, ok := scan.GetID()
 	if !ok {
-		return fmt.Errorf("scan id must not be nil: %v", scan)
+		return errors.New("invalid Scan: ID is nil")
 	}
 
 	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s'",
-		scanID, models.TargetScanStateStateABORTED, models.TargetScanStateStateDONE)
+		scanID, models.TargetScanStateStateAborted, models.TargetScanStateStateDone)
 	selector := "id,status"
 	params := models.GetScanResultsParams{
 		Filter: &filter,
@@ -493,7 +493,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 
 	scanResults, err := w.backend.GetScanResults(ctx, params)
 	if err != nil {
-		return fmt.Errorf("failed to get ScanResult(s) for Scan with %s id: %w", scanID, err)
+		return fmt.Errorf("failed to fetch ScanResult(s) for Scan. ScanID=%s: %w", scanID, err)
 	}
 
 	if scanResults.Items != nil && len(*scanResults.Items) > 0 {
@@ -512,7 +512,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 				sr := models.TargetScanResult{
 					Status: &models.TargetScanStatus{
 						General: &models.TargetScanState{
-							State: utils.PointerTo(models.TargetScanStateStateABORTED),
+							State: utils.PointerTo(models.TargetScanStateStateAborted),
 						},
 					},
 				}
