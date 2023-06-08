@@ -35,9 +35,9 @@ require (
 	google.golang.org/grpc v1.55.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.0
-	gorm.io/driver/postgres v1.4.4
-	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.10
+	gorm.io/driver/postgres v1.5.2
+	gorm.io/driver/sqlite v1.5.1
+	gorm.io/gorm v1.25.0
 	gotest.tools/v3 v3.4.0
 	k8s.io/apimachinery v0.27.2
 	k8s.io/mount-utils v0.27.2
@@ -234,14 +234,9 @@ require (
 	github.com/in-toto/in-toto-golang v0.9.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
-	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.13.0 // indirect
-	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.1 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgtype v1.12.0 // indirect
-	github.com/jackc/pgx/v4 v4.17.2 // indirect
+	github.com/jackc/pgx/v5 v5.3.1 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jdkato/prose v1.1.0 // indirect
 	github.com/jinzhu/copier v0.3.5 // indirect
@@ -421,7 +416,7 @@ require (
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/driver/mysql v1.4.7 // indirect
+	gorm.io/driver/mysql v1.5.0 // indirect
 	helm.sh/helm/v3 v3.11.1 // indirect
 	k8s.io/api v0.26.3 // indirect
 	k8s.io/apiextensions-apiserver v0.26.0 // indirect
@@ -433,16 +428,16 @@ require (
 	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
 	k8s.io/kubectl v0.26.3 // indirect
 	k8s.io/utils v0.0.0-20230308161112-d77c459e9343 // indirect
-	lukechampine.com/uint128 v1.2.0 // indirect
+	lukechampine.com/uint128 v1.3.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/sqlite v1.22.0 // indirect
+	modernc.org/sqlite v1.22.1 // indirect
 	modernc.org/strutil v1.1.3 // indirect
-	modernc.org/token v1.0.1 // indirect
+	modernc.org/token v1.1.0 // indirect
 	moul.io/http2curl v1.0.0 // indirect
 	oras.land/oras-go v1.2.2 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
@@ -462,29 +457,8 @@ replace (
 // Replace these for trivy
 replace oras.land/oras-go => oras.land/oras-go v1.1.1
 
-// Exclude all this versions of gorm, they broke their API by changing an int
-// to an *int so github.com/anchore/sqlite is incompatible with it.
-// We'll need to keep adding versions until anchore fixes it.
-exclude (
-	gorm.io/driver/mysql v1.5.0
-	gorm.io/driver/postgres v1.4.5
-	gorm.io/driver/postgres v1.4.6
-	gorm.io/driver/postgres v1.4.7
-	gorm.io/driver/postgres v1.4.8
-	gorm.io/driver/postgres v1.5.0
-	gorm.io/driver/sqlite v1.4.0
-	gorm.io/driver/sqlite v1.4.1
-	gorm.io/driver/sqlite v1.4.2
-	gorm.io/driver/sqlite v1.4.3
-	gorm.io/driver/sqlite v1.4.4
-	gorm.io/driver/sqlite v1.4.7
-	gorm.io/gorm v1.24.0
-	gorm.io/gorm v1.24.1
-	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
-	gorm.io/gorm v1.24.2
-	gorm.io/gorm v1.24.3
-	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
-	gorm.io/gorm v1.25.0
-)
-
 replace github.com/openclarity/vmclarity/api => ./api
+
+// This replace allows us to bump GORM version to the latest
+// TODO(chrisgacsal): remove when https://github.com/anchore/sqlite/pull/3 is merged
+replace github.com/anchore/sqlite => github.com/k4leung4/gorm-sqlite v0.0.0-20230506221113-60fddc722574
