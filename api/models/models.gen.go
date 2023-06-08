@@ -25,10 +25,10 @@ const (
 
 // Defines values for ResourceCleanupState.
 const (
-	ResourceCleanupStateDONE    ResourceCleanupState = "DONE"
-	ResourceCleanupStateFAILED  ResourceCleanupState = "FAILED"
-	ResourceCleanupStatePENDING ResourceCleanupState = "PENDING"
-	ResourceCleanupStateSKIPPED ResourceCleanupState = "SKIPPED"
+	ResourceCleanupStateDone    ResourceCleanupState = "Done"
+	ResourceCleanupStateFailed  ResourceCleanupState = "Failed"
+	ResourceCleanupStatePending ResourceCleanupState = "Pending"
+	ResourceCleanupStateSkipped ResourceCleanupState = "Skipped"
 )
 
 // Defines values for RootkitType.
@@ -95,12 +95,13 @@ const (
 
 // Defines values for TargetScanStateState.
 const (
-	TargetScanStateStateABORTED    TargetScanStateState = "ABORTED"
-	TargetScanStateStateATTACHED   TargetScanStateState = "ATTACHED"
-	TargetScanStateStateDONE       TargetScanStateState = "DONE"
-	TargetScanStateStateINIT       TargetScanStateState = "INIT"
-	TargetScanStateStateINPROGRESS TargetScanStateState = "IN_PROGRESS"
-	TargetScanStateStateNOTSCANNED TargetScanStateState = "NOT_SCANNED"
+	TargetScanStateStateAborted     TargetScanStateState = "Aborted"
+	TargetScanStateStateDone        TargetScanStateState = "Done"
+	TargetScanStateStateInProgress  TargetScanStateState = "InProgress"
+	TargetScanStateStateNotScanned  TargetScanStateState = "NotScanned"
+	TargetScanStateStatePending     TargetScanStateState = "Pending"
+	TargetScanStateStateReadyToScan TargetScanStateState = "ReadyToScan"
+	TargetScanStateStateScheduled   TargetScanStateState = "Scheduled"
 )
 
 // Defines values for VulnerabilitySeverity.

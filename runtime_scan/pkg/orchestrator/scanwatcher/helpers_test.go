@@ -68,42 +68,42 @@ func TestNewScanResultFromScan(t *testing.T) {
 			TargetID:             targetID,
 			ExpectedErrorMatcher: Not(HaveOccurred()),
 			ExpectedScanResult: &models.TargetScanResult{
-				ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePENDING),
+				ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
 				Scan: &models.ScanRelationship{
 					Id: scanID,
 				},
 				Status: &models.TargetScanStatus{
 					Exploits: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateINIT),
+						State:  utils.PointerTo(models.TargetScanStateStatePending),
 					},
 					General: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateINIT),
+						State:  utils.PointerTo(models.TargetScanStateStatePending),
 					},
 					Malware: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateINIT),
+						State:  utils.PointerTo(models.TargetScanStateStatePending),
 					},
 					Misconfigurations: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNOTSCANNED),
+						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
 					},
 					Rootkits: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNOTSCANNED),
+						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
 					},
 					Sbom: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateINIT),
+						State:  utils.PointerTo(models.TargetScanStateStatePending),
 					},
 					Secrets: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNOTSCANNED),
+						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
 					},
 					Vulnerabilities: &models.TargetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateINIT),
+						State:  utils.PointerTo(models.TargetScanStateStatePending),
 					},
 				},
 				Summary: newScanResultSummary(),

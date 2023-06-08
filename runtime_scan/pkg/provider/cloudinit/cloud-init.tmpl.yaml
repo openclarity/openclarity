@@ -28,7 +28,6 @@ write_files:
           {{ .ScannerImage }} \
           --config /opt/vmclarity/scanconfig.yaml \
           --server {{ .VMClarityAddress }} \
-          --wait-for-server-attached \
           --mount-attached-volume \
           --scan-result-id {{ .ScanResultID }} \
           --output /var/opt/vmclarity

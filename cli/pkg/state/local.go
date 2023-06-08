@@ -24,7 +24,7 @@ import (
 
 type LocalState struct{}
 
-func (l *LocalState) WaitForVolumeAttachment(context.Context) error {
+func (l *LocalState) WaitForReadyState(context.Context) error {
 	return nil
 }
 
