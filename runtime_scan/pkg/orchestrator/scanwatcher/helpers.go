@@ -80,7 +80,7 @@ func newScanResultFromScan(scan *models.Scan, targetID string) (*models.TargetSc
 			},
 			General: &models.TargetScanState{
 				Errors: nil,
-				State:  utils.PointerTo(models.TargetScanStateStateINIT),
+				State:  utils.PointerTo(models.TargetScanStateStatePending),
 			},
 			Malware: &models.TargetScanState{
 				Errors: nil,
@@ -107,16 +107,16 @@ func newScanResultFromScan(scan *models.Scan, targetID string) (*models.TargetSc
 				State:  getInitStateFromFamilyConfig(familiesConfig.Vulnerabilities),
 			},
 		},
-		ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePENDING),
+		ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
 	}, nil
 }
 
 func getInitStateFromFamilyConfig(config models.FamilyConfigEnabler) *models.TargetScanStateState {
 	if config == nil || !config.IsEnabled() {
-		return utils.PointerTo(models.TargetScanStateStateNOTSCANNED)
+		return utils.PointerTo(models.TargetScanStateStateNotScanned)
 	}
 
-	return utils.PointerTo(models.TargetScanStateStateINIT)
+	return utils.PointerTo(models.TargetScanStateStatePending)
 }
 
 func newScanSummary() *models.ScanSummary {
@@ -156,12 +156,12 @@ func updateScanSummaryFromScanResult(scan *models.Scan, result models.TargetScan
 	s, r := scan.Summary, result.Summary
 
 	switch state {
-	case models.TargetScanStateStateNOTSCANNED:
-	case models.TargetScanStateStateINIT, models.TargetScanStateStateATTACHED:
+	case models.TargetScanStateStateNotScanned:
+	case models.TargetScanStateStatePending, models.TargetScanStateStateScheduled, models.TargetScanStateStateReadyToScan:
 		fallthrough
-	case models.TargetScanStateStateINPROGRESS, models.TargetScanStateStateABORTED:
+	case models.TargetScanStateStateInProgress, models.TargetScanStateStateAborted:
 		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
-	case models.TargetScanStateStateDONE:
+	case models.TargetScanStateStateDone:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
 		s.TotalMalware = utils.PointerTo(*s.TotalMalware + *r.TotalMalware)

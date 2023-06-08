@@ -22,7 +22,7 @@ import (
 )
 
 type Manager interface {
-	WaitForVolumeAttachment(context.Context) error
+	WaitForReadyState(context.Context) error
 	MarkInProgress(context.Context) error
 	MarkFamilyScanInProgress(context.Context, types.FamilyType) error
 	MarkDone(context.Context, []error) error

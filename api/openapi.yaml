@@ -1665,10 +1665,10 @@ components:
     ResourceCleanupState:
       type: string
       enum:
-        - DONE
-        - PENDING
-        - SKIPPED
-        - FAILED
+        - Pending
+        - Skipped
+        - Failed
+        - Done
 
     TargetScanResult:
       type: object
@@ -1760,12 +1760,13 @@ components:
         state:
           type: string
           enum:
-            - NOT_SCANNED
-            - INIT
-            - ATTACHED
-            - IN_PROGRESS
-            - ABORTED
-            - DONE
+            - NotScanned
+            - Pending
+            - Scheduled
+            - ReadyToScan
+            - InProgress
+            - Aborted
+            - Done
         lastTransitionTime:
           type: string
           format: date-time

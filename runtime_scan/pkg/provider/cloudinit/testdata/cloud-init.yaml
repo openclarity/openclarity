@@ -38,7 +38,6 @@ write_files:
           ghcr.io/openclarity/vmclarity-cli:latest \
           --config /opt/vmclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \
-          --wait-for-server-attached \
           --mount-attached-volume \
           --scan-result-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \
           --output /var/opt/vmclarity

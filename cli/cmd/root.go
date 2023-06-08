@@ -54,10 +54,9 @@ var (
 	logger  *logrus.Entry
 	output  string
 
-	server                string
-	scanResultID          string
-	mountVolume           bool
-	waitForServerAttached bool
+	server       string
+	scanResultID string
+	mountVolume  bool
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -86,14 +85,12 @@ var rootCmd = &cobra.Command{
 		// Start watching for abort event
 		cli.WatchForAbort(ctx, cancel, DefaultWatcherInterval)
 
-		if waitForServerAttached {
-			if err := cli.WaitForVolumeAttachment(abortCtx); err != nil {
-				err = fmt.Errorf("failed to wait for block device being attached: %w", err)
-				if e := cli.MarkDone(ctx, []error{err}); e != nil {
-					logger.Errorf("Failed to update scan result stat to completed with errors: %v", e)
-				}
-				return err
+		if err := cli.WaitForReadyState(abortCtx); err != nil {
+			err = fmt.Errorf("failed to wait for ScanResult being ready to scan: %w", err)
+			if e := cli.MarkDone(ctx, []error{err}); e != nil {
+				logger.Errorf("Failed to update ScanResult status to completed with errors: %v", e)
 			}
+			return err
 		}
 
 		if mountVolume {
@@ -150,7 +147,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
 	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
 	rootCmd.PersistentFlags().BoolVar(&mountVolume, "mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
-	rootCmd.PersistentFlags().BoolVar(&waitForServerAttached, "wait-for-server-attached", false, "wait for the VMClarity server to attach the volume")
 
 	// TODO(sambetts) we may have to change this to our own validation when
 	// we add the CI/CD scenario and there isn't an existing scan-result-id
