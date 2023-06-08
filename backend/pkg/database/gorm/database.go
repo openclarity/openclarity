@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -51,7 +51,7 @@ type Base struct {
 
 // BeforeCreate will set a UUID rather than numeric ID.
 func (base *Base) BeforeCreate(db *gorm.DB) error {
-	base.ID = uuid.NewV4()
+	base.ID = uuid.New()
 	return nil
 }
 
