@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/openclarity/vmclarity/cli/pkg/mount"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
@@ -66,7 +66,7 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 		// if the device is not mounted and of a supported filesystem type,
 		// we assume it belongs to the attached volume, so we mount it.
 		if device.MountPoint == "" && isSupportedFS(device.FilesystemType) {
-			mountDir := "/mnt/snapshot" + uuid.NewV4().String()
+			mountDir := "/mnt/snapshot" + uuid.New().String()
 
 			if err := device.Mount(mountDir); err != nil {
 				return nil, fmt.Errorf("failed to mount device: %w", err)
