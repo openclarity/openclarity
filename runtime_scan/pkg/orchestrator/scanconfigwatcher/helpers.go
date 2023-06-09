@@ -31,6 +31,7 @@ func newScanFromScanConfig(scanConfig *models.ScanConfig) *models.Scan {
 			ScanFamiliesConfig:  scanConfig.ScanFamiliesConfig,
 			Scheduled:           scanConfig.Scheduled,
 			Scope:               scanConfig.Scope,
+			TimeoutSeconds:      scanConfig.TimeoutSeconds,
 		},
 		State: utils.PointerTo(models.ScanStatePending),
 		Summary: &models.ScanSummary{
