@@ -125,7 +125,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 
 	// nolint:gomnd
 	scheduleWindowSize := w.pollPeriod * 2
-	scheduleWindow := NewScheduleWindow(time.Now().UTC(), scheduleWindowSize)
+	scheduleWindow := NewScheduleWindow(time.Now(), scheduleWindowSize)
 
 	scanConfigSchedule, err := NewScanConfigSchedule(scanConfig, scheduleWindow)
 	if err != nil {
@@ -178,7 +178,7 @@ func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *models.ScanConfi
 	scanConfigPatch := &models.ScanConfig{
 		Scheduled: &models.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
-			OperationTime: utils.PointerTo(nextOperationTime.Time().UTC()),
+			OperationTime: utils.PointerTo(nextOperationTime.Time()),
 		},
 	}
 
@@ -216,7 +216,7 @@ func (w *Watcher) createScan(ctx context.Context, scanConfig *models.ScanConfig)
 	}
 
 	scan := newScanFromScanConfig(scanConfig)
-	scan.StartTime = utils.PointerTo(time.Now().UTC())
+	scan.StartTime = utils.PointerTo(time.Now())
 
 	_, err = w.backend.PostScan(ctx, *scan)
 	if err != nil {
@@ -238,7 +238,7 @@ func (w *Watcher) reconcileOverdue(ctx context.Context, scanConfig *models.ScanC
 	scanConfigPatch := &models.ScanConfig{
 		Scheduled: &models.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
-			OperationTime: utils.PointerTo(nextOperationTime.Time().UTC()),
+			OperationTime: utils.PointerTo(nextOperationTime.Time()),
 		},
 	}
 
