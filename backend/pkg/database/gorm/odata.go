@@ -417,6 +417,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
 			},
+			"timeoutSeconds": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
+			},
 		},
 	},
 	"ScanConfigSnapshot": {
@@ -442,6 +445,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"scannerInstanceCreationConfig": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
+			},
+			"timeoutSeconds": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
 			},
 		},
 	},

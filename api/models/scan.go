@@ -15,6 +15,8 @@
 
 package models
 
+import "time"
+
 func (s *Scan) GetState() (ScanState, bool) {
 	var state ScanState
 	var ok bool
@@ -46,4 +48,29 @@ func (s *Scan) GetScanConfigScope() (ScanScopeType, bool) {
 	}
 
 	return scope, ok
+}
+
+func (s *Scan) GetTimeoutSeconds() int {
+	var timeoutSec int
+
+	if s.ScanConfigSnapshot != nil {
+		timeoutSec = s.ScanConfigSnapshot.GetTimeoutSeconds()
+	}
+
+	return timeoutSec
+}
+
+func (s *Scan) IsTimedOut(defaultTimeout time.Duration) bool {
+	if s == nil || s.StartTime == nil {
+		return false
+	}
+	// Use the provided timeout to calculate the timeoutTime by default.
+	timeoutTime := s.StartTime.Add(defaultTimeout)
+	// Use Scan.ScanConfigSnapshot.TimeoutSeconds to calculate timeoutTime
+	// if it is set and its value is bigger than zero.
+	if timeoutSeconds := s.GetTimeoutSeconds(); timeoutSeconds > 0 {
+		timeoutTime = s.StartTime.Add(time.Duration(timeoutSeconds) * time.Second)
+	}
+
+	return time.Now().After(timeoutTime)
 }

@@ -1237,6 +1237,12 @@ components:
           $ref: '#/components/schemas/ScanFamiliesConfig'
         scope:
           $ref: '#/components/schemas/ScanScopeType'
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfig'
         maxParallelScanners:
@@ -1281,6 +1287,13 @@ components:
         scope:
           $ref: '#/components/schemas/ScanScopeType'
           readOnly: true
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
+          readOnly: true
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfig'
           readOnly: true
@@ -1315,6 +1328,12 @@ components:
           $ref: '#/components/schemas/ScanFamiliesConfig'
         scope:
           $ref: '#/components/schemas/ScanScopeType'
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfig'
         maxParallelScanners:

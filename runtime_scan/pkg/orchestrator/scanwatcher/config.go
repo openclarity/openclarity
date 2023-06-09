@@ -26,7 +26,6 @@ const (
 	DefaultPollInterval     = time.Minute
 	DefaultReconcileTimeout = 5 * time.Minute
 	DefaultScanTimeout      = 48 * time.Hour
-	DefaultRequeueInterval  = 10 * time.Minute
 )
 
 type Config struct {
