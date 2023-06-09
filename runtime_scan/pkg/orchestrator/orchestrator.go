@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"time"
 
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanconfigwatcher"
@@ -31,6 +32,8 @@ import (
 type Orchestrator struct {
 	controllers []Controller
 	cancelFunc  context.CancelFunc
+
+	controllerStartupDelay time.Duration
 }
 
 func New(config *Config, p provider.Provider, b *backendclient.BackendClient) *Orchestrator {
@@ -48,6 +51,7 @@ func New(config *Config, p provider.Provider, b *backendclient.BackendClient) *O
 			scanwatcher.New(scanWatcherConfig),
 			scanresultwatcher.New(scanResultWatcherConfig),
 		},
+		controllerStartupDelay: config.ControllerStartupDelay,
 	}
 }
 
@@ -59,6 +63,7 @@ func (o *Orchestrator) Start(ctx context.Context) {
 
 	for _, controller := range o.controllers {
 		controller.Start(ctx)
+		time.Sleep(o.controllerStartupDelay)
 	}
 }
 
