@@ -80,7 +80,7 @@ func (w *Watcher) GetScanResults(ctx context.Context) ([]ScanResultReconcileEven
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching ScanResults which need to be reconciled")
 
-	filter := fmt.Sprintf("status/general/state ne '%s' or status/general/state ne '%s' or resourceCleanup eq '%s'",
+	filter := fmt.Sprintf("(status/general/state ne '%s' and status/general/state ne '%s') or resourceCleanup eq '%s'",
 		models.TargetScanStateStateDone, models.TargetScanStateStateNotScanned, models.ResourceCleanupStatePending)
 	selector := "id,scan/id,target/id"
 	params := models.GetScanResultsParams{
