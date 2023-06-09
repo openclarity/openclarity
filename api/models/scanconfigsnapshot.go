@@ -32,3 +32,13 @@ func (s *ScanConfigSnapshot) GetMaxParallelScanners() int {
 
 	return DefaultMaxParallelScanners
 }
+
+func (s *ScanConfigSnapshot) GetTimeoutSeconds() int {
+	var timeoutSec int
+
+	if s.TimeoutSeconds != nil {
+		timeoutSec = *s.TimeoutSeconds
+	}
+
+	return timeoutSec
+}

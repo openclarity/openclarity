@@ -18,20 +18,10 @@ package scanwatcher
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
-
-func isScanTimedOut(scan *models.Scan, timeout time.Duration) bool {
-	if scan == nil || scan.StartTime == nil {
-		return false
-	}
-	deadline := (*scan.StartTime).Add(timeout)
-
-	return time.Now().UTC().After(deadline)
-}
 
 func newVulnerabilityScanSummary() *models.VulnerabilityScanSummary {
 	return &models.VulnerabilityScanSummary{
