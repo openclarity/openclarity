@@ -268,7 +268,7 @@ func NewScanConfigSchedule(scanConfig *models.ScanConfig, window *ScheduleWindow
 
 	var oTime time.Time
 	if scanConfig.Scheduled.OperationTime != nil {
-		oTime = (*scanConfig.Scheduled.OperationTime).UTC()
+		oTime = *scanConfig.Scheduled.OperationTime
 	}
 
 	operationTime := NewOperationTime(oTime, cronExpr)

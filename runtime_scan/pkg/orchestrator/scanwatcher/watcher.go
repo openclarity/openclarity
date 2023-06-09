@@ -452,7 +452,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total target scans",
 			*targetScanResults.Count-targetScanResultsWithErr, targetScanResultsWithErr, *targetScanResults.Count))
 
-		scan.EndTime = utils.PointerTo(time.Now().UTC())
+		scan.EndTime = utils.PointerTo(time.Now())
 	}
 
 	scanPatch := &models.Scan{
@@ -535,7 +535,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 		}
 	}
 
-	scan.EndTime = utils.PointerTo(time.Now().UTC())
+	scan.EndTime = utils.PointerTo(time.Now())
 	scan.State = utils.PointerTo(models.ScanStateFailed)
 
 	err = w.backend.PatchScan(ctx, scanID, scan)
