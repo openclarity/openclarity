@@ -123,8 +123,10 @@ type ScanResultReconcileEvent struct {
 }
 
 func (srp *ScanResultProcessor) GetItems(ctx context.Context) ([]ScanResultReconcileEvent, error) {
+	filter := fmt.Sprintf("status/general/state eq '%s' and (findingsProcessed eq false or findingsProcessed eq null)",
+		models.TargetScanStateStateDone)
 	scanResults, err := srp.client.GetScanResults(ctx, models.GetScanResultsParams{
-		Filter: utils.PointerTo("status/general/state eq 'DONE' and (findingsProcessed eq false or findingsProcessed eq null)"),
+		Filter: utils.PointerTo(filter),
 		Select: utils.PointerTo("id"),
 	})
 	if err != nil {
