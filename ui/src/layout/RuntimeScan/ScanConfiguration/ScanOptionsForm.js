@@ -1,6 +1,6 @@
 import React from 'react';
 import { FETCH_METHODS, useFetch } from 'hooks';
-import FormWrapper, { ToggleField, TextField } from 'components/Form';
+import FormWrapper, { ToggleField, TextField, validators } from 'components/Form';
 import Modal from 'components/Modal';
 import Loader from 'components/Loader';
 
@@ -36,7 +36,13 @@ const ScanOptionsForm = ({onClose}) => {
                     })}
                 >
                     <ToggleField name="cisDockerBenchmarkScanEnabled" label="CIS Docker Benchmark" />
-                    <TextField name="maxScanParallelism" label="Max Scan Parallelism" type="number" />
+                    <TextField 
+                        name="maxScanParallelism" 
+                        label="Max Scan Parallelism" 
+                        type="number" 
+                        validate={validators.validateMaxScanField}
+                        min="1" 
+                    />
                 </FormWrapper>
             }
         </Modal>
