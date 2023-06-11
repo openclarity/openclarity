@@ -35,7 +35,13 @@ const FormFields = ({namespaces}) => {
                 items={namespaces}
             />
             <ToggleField name={GENERAL_FOMR_FIELDS.CIS_ENABLED} label="CIS Docker Benchmark" />
-            <TextField name={GENERAL_FOMR_FIELDS.MAX_SCANPARALLELISM} label="Max Scan Parallelism" type="number" />
+            <TextField 
+                name={GENERAL_FOMR_FIELDS.MAX_SCANPARALLELISM} 
+                label="Max Scan Parallelism" 
+                type="number" 
+                validate={validators.validateMaxScanField} 
+                min="1" 
+            />
             <SelectField
                 name={`${SCHEDULE_TYPE_DATA_WRAPPER}.${GENERAL_FOMR_FIELDS.SCHEDULE_TYPE}`}
                 label="Scan time"
