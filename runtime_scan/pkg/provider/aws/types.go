@@ -20,8 +20,7 @@ import (
 )
 
 const (
-	maxResults                       = 500
-	AWSProvider models.CloudProvider = "aws"
+	maxResults = 500
 )
 
 const (

@@ -57,7 +57,7 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 }
 
 func (c Client) Kind() models.CloudProvider {
-	return AWSProvider
+	return models.AWS
 }
 
 func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
