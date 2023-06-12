@@ -101,7 +101,7 @@ func EC2FiltersFromTags(tags []models.Tag) []ec2types.Filter {
 	return filters
 }
 
-func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, config *provider.ScanJobConfig) *Instance {
+func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, region string, config *provider.ScanJobConfig) *Instance {
 	securityGroups := getSecurityGroupsFromEC2GroupIdentifiers(i.SecurityGroups)
 	tags := getTagsFromECTags(i.Tags)
 
@@ -116,7 +116,7 @@ func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, config *p
 		volumes[idx] = Volume{
 			ec2Client:       client,
 			ID:              *blkDevice.Ebs.VolumeId,
-			Region:          config.Region,
+			Region:          region,
 			BlockDeviceName: blockDeviceName,
 			Metadata:        config.ScanMetadata,
 		}
@@ -124,7 +124,7 @@ func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, config *p
 
 	return &Instance{
 		ID:               *i.InstanceId,
-		Region:           config.Region,
+		Region:           region,
 		VpcID:            *i.VpcId,
 		SecurityGroups:   securityGroups,
 		AvailabilityZone: *i.Placement.AvailabilityZone,

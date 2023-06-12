@@ -83,7 +83,7 @@ func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 			return &Snapshot{
 				ec2Client: s.ec2Client,
 				ID:        *snap.SnapshotId,
-				Region:    s.Region,
+				Region:    region,
 				Metadata:  s.Metadata,
 				VolumeID:  *snap.VolumeId,
 			}, nil
