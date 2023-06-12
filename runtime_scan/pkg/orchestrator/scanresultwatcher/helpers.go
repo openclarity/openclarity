@@ -79,7 +79,7 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		ScannerCLIConfig: string(scannerConfigYAML),
 		VMClarityAddress: i.config.ScannerBackendAddress,
 		KeyPairName:      i.config.ScannerKeyPairName,
-		Region:           i.config.Region,
+		ScannerRegion:    i.config.Region,
 		BlockDeviceName:  i.config.DeviceName,
 		ScanMetadata: provider.ScanMetadata{
 			ScanID:       i.scanResult.Scan.Id,
