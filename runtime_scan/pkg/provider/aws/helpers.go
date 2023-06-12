@@ -419,7 +419,7 @@ func getVMInfoFromInstance(i Instance) (models.TargetType, error) {
 	err := targetType.FromVMInfo(models.VMInfo{
 		Image:            i.Image,
 		InstanceID:       i.ID,
-		InstanceProvider: utils.PointerTo(AWSProvider),
+		InstanceProvider: utils.PointerTo(models.AWS),
 		InstanceType:     i.InstanceType,
 		LaunchTime:       i.LaunchTime,
 		Location:         i.Location(),
