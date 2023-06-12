@@ -17,8 +17,10 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -37,45 +39,47 @@ func (s *ServerImpl) GetDashboardFindingsTrends(ctx echo.Context, params models.
 	if err := validateParams(params); err != nil {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("Request params are not valid: %v", err))
 	}
+
 	times := createTimes(params)
-	exploitTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.EXPLOIT, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get exploit trends: %v", err))
+
+	findingTypes := models.GetFindingTypes()
+	errs := make(chan error, len(findingTypes))
+	findingsTrendsChan := make(chan models.FindingTrends, len(findingTypes))
+
+	var wg sync.WaitGroup
+	for _, findingType := range findingTypes {
+		ft := findingType
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			trends, err := s.getFindingTrendsForFindingType(reqCtx, ft, times)
+			if err != nil {
+				errs <- fmt.Errorf("failed to get %s trends: %v", ft, err)
+				return
+			}
+			findingsTrendsChan <- trends
+		}()
 	}
-	malwareTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.MALWARE, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get malware trends: %v", err))
+	wg.Wait()
+	close(errs)
+	close(findingsTrendsChan)
+
+	var err error
+	for e := range errs {
+		if e != nil {
+			err = errors.Join(err, e)
+		}
 	}
-	misconfigurationTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.MISCONFIGURATION, times)
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get misconfiguration trends: %v", err))
-	}
-	packageTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.PACKAGE, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get package trends: %v", err))
-	}
-	rootkitTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.ROOTKIT, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get rootkit trends: %v", err))
-	}
-	secretTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.SECRET, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get secret trends: %v", err))
-	}
-	vulnerabilityTrends, err := s.getFindingTrendsForFindingType(reqCtx, models.VULNERABILITY, times)
-	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get vulnerability trends: %v", err))
+		return sendError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	return sendResponse(ctx, http.StatusOK, models.FindingsTrends{
-		exploitTrends,
-		malwareTrends,
-		misconfigurationTrends,
-		packageTrends,
-		rootkitTrends,
-		secretTrends,
-		vulnerabilityTrends,
-	})
+	var findingsTrends models.FindingsTrends
+	for findingTrends := range findingsTrendsChan {
+		findingsTrends = append(findingsTrends, findingTrends)
+	}
+
+	return sendResponse(ctx, http.StatusOK, findingsTrends)
 }
 
 func validateParams(params models.GetDashboardFindingsTrendsParams) error {
