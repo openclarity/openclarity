@@ -184,9 +184,9 @@ func (c *Client) getInstanceWithID(ctx context.Context, id string, region string
 }
 
 // nolint:cyclop
-func (c *Client) createInstance(ctx context.Context, config *provider.ScanJobConfig) (*Instance, error) {
+func (c *Client) createInstance(ctx context.Context, region string, config *provider.ScanJobConfig) (*Instance, error) {
 	options := func(options *ec2.Options) {
-		options.Region = config.Region
+		options.Region = region
 	}
 
 	ec2TagsForInstance := EC2TagsFromScanMetadata(config.ScanMetadata)
@@ -210,7 +210,7 @@ func (c *Client) createInstance(ctx context.Context, config *provider.ScanJobCon
 
 			ec2State := ec2Instance.State.Name
 			if ec2State == ec2types.InstanceStateNameRunning || ec2State == ec2types.InstanceStateNamePending {
-				return instanceFromEC2Instance(&ec2Instance, c.ec2Client, config), nil
+				return instanceFromEC2Instance(&ec2Instance, c.ec2Client, region, config), nil
 			}
 		}
 	}
@@ -291,7 +291,7 @@ func (c *Client) createInstance(ctx context.Context, config *provider.ScanJobCon
 		return nil, errors.New("failed to create instance: 0 instance in response")
 	}
 
-	return instanceFromEC2Instance(&out.Instances[0], c.ec2Client, config), nil
+	return instanceFromEC2Instance(&out.Instances[0], c.ec2Client, region, config), nil
 }
 
 // nolint:cyclop,gocognit,maintidx
@@ -304,7 +304,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
 		"TargetInstanceID": vmInfo.InstanceID,
 		"TargetLocation":   vmInfo.Location,
-		"ScannerLocation":  config.Region,
+		"ScannerLocation":  config.ScannerRegion,
 		"Provider":         string(c.Kind()),
 	})
 
@@ -323,7 +323,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		logger.Trace("Creating scanner VM instance")
 
 		var err error
-		scannnerInstance, err = c.createInstance(ctx, config)
+		scannnerInstance, err = c.createInstance(ctx, config.ScannerRegion, config)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to create scanner VM instance: %w", err))
 			return
@@ -376,7 +376,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 			}
 			return
 		}
-		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, config)
+		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, targetVMLocation.Region, config)
 
 		logger.WithField("TargetInstanceID", srcInstance.ID).Trace("Found target VM instance")
 
@@ -420,10 +420,10 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 			"TargetVolumeID":         srcVol.ID,
 			"TargetVolumeSnapshotID": srcVolSnapshot.ID,
 		}).Debug("Copying target volume snapshot to scanner location")
-		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, config.Region)
+		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, config.ScannerRegion)
 		if err != nil {
 			err = fmt.Errorf("failed to copy target volume snapshot to location. TargetVolumeSnapshotID=%s Location=%s: %w",
-				srcVolSnapshot.ID, config.Region, err)
+				srcVolSnapshot.ID, config.ScannerRegion, err)
 			errs <- WrapError(err)
 			return
 		}
@@ -662,7 +662,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 	}
 
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
-		"ScannerLocation": config.Region,
+		"ScannerLocation": config.ScannerRegion,
 		"Provider":        string(c.Kind()),
 	})
 
@@ -679,7 +679,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 
 		// Delete scanner instance
 		logger.Debug("Deleting scanner VM Instance.")
-		done, err := c.deleteInstances(ctx, ec2Filters, config.Region)
+		done, err := c.deleteInstances(ctx, ec2Filters, config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner VM instance: %w", err))
 			return
@@ -695,7 +695,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 
 		// Delete scanner volume
 		logger.Debug("Deleting scanner volume.")
-		done, err = c.deleteVolumes(ctx, ec2Filters, config.Region)
+		done, err = c.deleteVolumes(ctx, ec2Filters, config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume: %w", err))
 			return
@@ -716,7 +716,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 		defer wg.Done()
 
 		logger.Debug("Deleting scanner volume snapshot.")
-		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, config.Region)
+		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume snapshot: %w", err))
 			return
@@ -743,7 +743,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 			return
 		}
 
-		if location.Region == config.Region {
+		if location.Region == config.ScannerRegion {
 			return
 		}
 
