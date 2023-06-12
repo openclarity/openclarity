@@ -126,6 +126,19 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to create index findings_by_type_and_asset_idx: %w", idb.Error)
 	}
 
+	// The finding trends widget in the backend UI needs to count all the findings for a specific finding type
+	// that was active during a given time point. So add a combined index for those cases.
+	// Example query:
+	//	SELECT COUNT(*) FROM findings WHERE ((findings.Data->'$.findingInfo.objectType' = JSON_QUOTE('Vulnerability') AND datetime(findings.Data->>'$.foundOn') <= datetime('2023-06-11T14:24:28Z')) AND (findings.Data->'$.invalidatedOn' is NULL OR datetime(findings.Data->>'$.invalidatedOn') > datetime('2023-06-11T14:24:28Z')))
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_foundOn_and_invalidatedOn_idx ON findings((%s), (%s), (%s), (%s))",
+		SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"),
+		SQLVariant.CastToDateTime(SQLVariant.JSONExtractText("Data", "$.foundOn")),
+		SQLVariant.CastToDateTime(SQLVariant.JSONExtractText("Data", "$.invalidatedOn")),
+		SQLVariant.JSONExtract("Data", "$.invalidatedOn")))
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index findings_by_type_and_foundOn_and_invalidatedOn_idx: %w", idb.Error)
+	}
+
 	// TODO(sambetts) Add indexes for all the uniqueness checks we need to
 	// do for each object
 
