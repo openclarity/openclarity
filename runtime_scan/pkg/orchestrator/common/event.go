@@ -15,9 +15,15 @@
 
 package common
 
-import log "github.com/sirupsen/logrus"
+import (
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+)
 
 type ReconcileEvent interface {
-	ToFields() log.Fields
-	String() string
+	fmt.Stringer
+
+	Hash() string
+	ToFields() logrus.Fields
 }

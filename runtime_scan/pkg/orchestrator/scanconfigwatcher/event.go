@@ -27,7 +27,7 @@ type ScanConfigReconcileEvent struct {
 	ScanConfigID models.ScanConfigID
 }
 
-func (e *ScanConfigReconcileEvent) ToFields() log.Fields {
+func (e ScanConfigReconcileEvent) ToFields() log.Fields {
 	return log.Fields{
 		"ScanConfigID": e.ScanConfigID,
 	}
@@ -35,4 +35,8 @@ func (e *ScanConfigReconcileEvent) ToFields() log.Fields {
 
 func (e ScanConfigReconcileEvent) String() string {
 	return fmt.Sprintf("ScanConfigID=%s", e.ScanConfigID)
+}
+
+func (e ScanConfigReconcileEvent) Hash() string {
+	return e.ScanConfigID
 }

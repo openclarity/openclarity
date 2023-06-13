@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/sirupsen/logrus"
 )
 
 type AddAction struct {
@@ -41,6 +42,20 @@ type DoneAction struct {
 
 type TestObject struct {
 	ID string
+}
+
+func (o TestObject) ToFields() logrus.Fields {
+	return logrus.Fields{
+		"ID": o.ID,
+	}
+}
+
+func (o TestObject) String() string {
+	return o.ID
+}
+
+func (o TestObject) Hash() string {
+	return o.ID
 }
 
 // nolint:cyclop
