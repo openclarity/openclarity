@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.2
-FROM node:20-slim AS site-build
+FROM --platform=$BUILDPLATFORM node:20-slim AS site-build
 
 WORKDIR /app/ui-build
 
@@ -7,9 +7,9 @@ COPY ui .
 RUN npm i
 RUN npm run build
 
-FROM golang:1.20.5-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.20.5-alpine AS builder
 
-RUN apk add --update --no-cache gcc g++ git
+RUN apk add --update --no-cache gcc g++ git binutils-gold
 
 # Copy vmclarity code to /build
 COPY . /build
@@ -20,9 +20,12 @@ WORKDIR /build/backend
 ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
+ARG TARGETOS
+ARG TARGETARCH
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
