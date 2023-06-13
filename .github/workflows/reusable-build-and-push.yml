@@ -62,6 +62,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/openclarity/vmclarity-backend:${{ inputs.image_tag }}
           file: Dockerfile.backend
           push: ${{ inputs.push }}
