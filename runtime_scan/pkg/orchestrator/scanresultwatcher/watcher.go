@@ -135,8 +135,6 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanResultReconcileEvent)
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	logger.Infof("Reconciling ScanResult event")
-
 	scanResult, err := w.backend.GetScanResult(ctx, event.ScanResultID, models.GetScanResultsScanResultIDParams{
 		Expand: utils.PointerTo("scan,target"),
 	})
