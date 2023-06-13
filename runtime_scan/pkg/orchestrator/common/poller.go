@@ -22,7 +22,7 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
-type Poller[T comparable] struct {
+type Poller[T ReconcileEvent] struct {
 	// How often to re-poll the API for new items and try to publish them
 	// on the event channel. If the current items aren't handled they will
 	// be dropped and new items fetched when the PollPeriod is up.
@@ -54,8 +54,9 @@ func (p *Poller[T]) pollThenWait(ctx context.Context) {
 	if err != nil {
 		logger.Errorf("Failed to get items to reconcile: %v", err)
 	} else {
-		logger.Infof("Found %d items to reconcile, adding them to the queue", len(items))
+		logger.Debugf("Found %d items to reconcile, adding them to the queue", len(items))
 		for _, item := range items {
+			logger.WithFields(item.ToFields()).Debugf("Adding item to the queue")
 			p.Queue.Enqueue(item)
 		}
 	}

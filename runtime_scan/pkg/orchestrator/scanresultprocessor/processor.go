@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/common"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
@@ -119,7 +121,21 @@ func (srp *ScanResultProcessor) Reconcile(ctx context.Context, event ScanResultR
 }
 
 type ScanResultReconcileEvent struct {
-	ScanResultID string
+	ScanResultID models.ScanResultID
+}
+
+func (e ScanResultReconcileEvent) ToFields() logrus.Fields {
+	return logrus.Fields{
+		"ScanResultID": e.ScanResultID,
+	}
+}
+
+func (e ScanResultReconcileEvent) String() string {
+	return fmt.Sprintf("ScanResultID=%s", e.ScanResultID)
+}
+
+func (e ScanResultReconcileEvent) Hash() string {
+	return e.ScanResultID
 }
 
 func (srp *ScanResultProcessor) GetItems(ctx context.Context) ([]ScanResultReconcileEvent, error) {

@@ -111,8 +111,6 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	logger.Infof("Reconciling ScanConfig event")
-
 	scanConfig, err := w.backend.GetScanConfig(ctx, event.ScanConfigID, models.GetScanConfigsScanConfigIDParams{})
 	if err != nil || scanConfig == nil {
 		return fmt.Errorf("failed to fetch ScanConfig. Event=%s: %w", event, err)

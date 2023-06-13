@@ -40,7 +40,7 @@ func NewRequeueAfterError(d time.Duration, msg string) error {
 	return RequeueAfterError{d, msg}
 }
 
-type Reconciler[T comparable] struct {
+type Reconciler[T ReconcileEvent] struct {
 	// Reconcile function which will be called whenever there is an event on EventChan
 	ReconcileFunction func(context.Context, T) error
 
@@ -63,11 +63,11 @@ func (r *Reconciler[T]) Start(ctx context.Context) {
 			if err != nil {
 				logger.Errorf("Failed to get item from queue: %v", err)
 			} else {
+				// NOTE: shadowing logger variable is intentional
+				logger := logger.WithFields(item.ToFields())
+				logger.Infof("Reconciling item")
 				timeoutCtx, cancel := context.WithTimeout(ctx, r.ReconcileTimeout)
 				err := r.ReconcileFunction(timeoutCtx, item)
-				if err != nil {
-					logger.Errorf("Failed to reconcile item: %v", err)
-				}
 
 				// Make sure timeout context is canceled to
 				// prevent orphaned resources
@@ -78,9 +78,14 @@ func (r *Reconciler[T]) Start(ctx context.Context) {
 				// item with the duration specified, otherwise mark the
 				// item as Done.
 				var requeueAfterError RequeueAfterError
-				if errors.As(err, &requeueAfterError) {
+				switch {
+				case errors.As(err, &requeueAfterError):
+					logger.Infof("Requeue item: %v", err)
 					r.Queue.RequeueAfter(item, requeueAfterError.d)
-				} else {
+				case err != nil:
+					logger.Errorf("Failed to reconcile item: %v", err)
+					fallthrough
+				default:
 					r.Queue.Done(item)
 				}
 			}
