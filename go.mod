@@ -29,7 +29,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	github.com/urfave/cli v1.22.13
+	github.com/urfave/cli v1.22.14
 	github.com/vulsio/go-exploitdb v0.4.5
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	google.golang.org/grpc v1.55.0
@@ -61,7 +61,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/CycloneDX/cyclonedx-gomod v1.4.0 // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible // indirect
@@ -355,7 +355,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/sylabs/sif/v2 v2.8.1 // indirect
 	github.com/sylabs/squashfs v0.6.1 // indirect
