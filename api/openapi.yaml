@@ -2429,6 +2429,8 @@ components:
           format: date-time
         rootVolume:
           $ref: '#/components/schemas/RootVolume'
+        architecture:
+          type: string
       required:
         - objectType
         - instanceID

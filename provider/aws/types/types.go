@@ -43,10 +43,14 @@ const (
 )
 
 const (
-	VpcIDFilterName           = "vpc-id"
-	SecurityGroupIDFilterName = "instance.group-id"
-	InstanceStateFilterName   = "instance-state-name"
-	SnapshotIDFilterName      = "snapshot-id"
+	VpcIDFilterName              = "vpc-id"
+	SecurityGroupIDFilterName    = "instance.group-id"
+	InstanceStateFilterName      = "instance-state-name"
+	SnapshotIDFilterName         = "snapshot-id"
+	AMINameFilterName            = "name"
+	ENASupportFilterName         = "ena-support"
+	ArchitectureFilterName       = "architecture"
+	VirtualizationTypeFilterName = "virtualization-type"
 )
 
 type ScanScope struct {

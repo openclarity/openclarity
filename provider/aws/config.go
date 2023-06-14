@@ -18,14 +18,30 @@ package aws
 import (
 	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
 const (
-	DefaultEnvPrefix           = "OPENCLARITY_AWS"
-	DefaultScannerInstanceType = "t2.large"
-	DefaultBlockDeviceName     = "xvdh"
+	DefaultEnvPrefix       = "OPENCLARITY_AWS"
+	DefaultImageNameFilter = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*"
+	DefaultBlockDeviceName = "xvdh"
+
+	AMD64 = "x86_64"
+	ARM64 = "arm64"
+)
+
+var (
+	DefaultImageOwners = []string{
+		"099720109477", // Official Ubuntu Cloud account
+	}
+
+	DefaultInstanceTypeMapping = map[string]string{
+		AMD64: "t3.large",
+		ARM64: "t4g.large",
+	}
 )
 
 type Config struct {
@@ -36,11 +52,18 @@ type Config struct {
 	// SecurityGroupID which needs to be attached to the Scanner instance
 	SecurityGroupID string `mapstructure:"security_group_id"`
 	// KeyPairName is the name of the SSH KeyPair to use for Scanner instance launch
-	KeyPairName string `mapstructure:"keypair_name"`
-	// ScannerImage is the AMI image used for creating Scanner instance
-	ScannerImage string `mapstructure:"scanner_ami_id"`
-	// ScannerInstanceType is the instance type used for Scanner instance
-	ScannerInstanceType string `mapstructure:"scanner_instance_type"`
+	KeyPairName     string `mapstructure:"keypair_name"`
+	ImageNameFilter string `mapstructure:"image_filter_name"`
+	// ImageOwners is a comma separated list of OwnerID(s)/OwnerAliases used as Owners filter for finding AMI
+	// to instantiate Scanner instance.
+	// See: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html
+	ImageOwners []string `mapstructure:"image_owners"`
+	// InstanceTypeMapping contains Architecture:InstanceType pairs
+	InstanceTypeMapping InstanceTypeMapping `mapstructure:"instance_type_mapping"`
+	// InstanceArchToUse contains the architecture to be used for Scanner instance which prevents the Provider
+	// to dynamically determine it based on the Target architecture. The Provider will use this value to lookup
+	// for InstanceType in InstanceTypeMapping.
+	InstanceArchToUse string `mapstructure:"instance_arch_to_use"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -58,13 +81,40 @@ func (c *Config) Validate() error {
 		return errors.New("parameter SecurityGroupID must be provided")
 	}
 
-	if c.ScannerImage == "" {
-		return errors.New("parameter ScannerImage must be provided")
+	switch c.InstanceArchToUse {
+	case AMD64, ARM64:
+		if _, ok := c.InstanceTypeMapping[c.InstanceArchToUse]; !ok {
+			return fmt.Errorf("invalid InstanceArchToUse: %s architecture is missing from InstanceTypeMapping", c.InstanceArchToUse)
+		}
+	case "":
+	default:
+		return fmt.Errorf("invalid InstanceArchToUse: %s is not supported", c.InstanceArchToUse)
 	}
 
-	if c.ScannerInstanceType == "" {
-		return errors.New("parameter ScannerInstanceType must be provided")
+	return nil
+}
+
+type InstanceTypeMapping map[string]string
+
+func (m *InstanceTypeMapping) UnmarshalText(text []byte) error {
+	mapping := make(InstanceTypeMapping)
+	items := strings.Split(string(text), ",")
+
+	numOfParts := 2
+	for _, item := range items {
+		pair := strings.Split(item, ":")
+		if len(pair) != numOfParts {
+			continue
+		}
+
+		switch pair[0] {
+		case AMD64, ARM64:
+			mapping[pair[0]] = pair[1]
+		default:
+			return fmt.Errorf("unsupported architecture: %s", pair[0])
+		}
 	}
+	*m = mapping
 
 	return nil
 }
@@ -83,14 +133,30 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("keypair_name")
 	_ = v.BindEnv("scanner_ami_id")
 
-	_ = v.BindEnv("scanner_instance_type")
-	v.SetDefault("scanner_instance_type", DefaultScannerInstanceType)
+	_ = v.BindEnv("image_filter_name")
+	v.SetDefault("image_filter_name", DefaultImageNameFilter)
+
+	_ = v.BindEnv("image_owners")
+	v.SetDefault("image_owners", DefaultImageOwners)
+
+	_ = v.BindEnv("instance_type_mapping")
+	v.SetDefault("instance_type_mapping", DefaultInstanceTypeMapping)
+
+	_ = v.BindEnv("instance_arch_to_use")
 
 	_ = v.BindEnv("block_device_name")
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)
 
+	decodeHooks := mapstructure.ComposeDecodeHookFunc(
+		// TextUnmarshallerHookFunc is needed to decode InstanceTypeMapping
+		mapstructure.TextUnmarshallerHookFunc(),
+		// Default decoders
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+	)
+
 	config := &Config{}
-	if err := v.Unmarshal(config); err != nil {
+	if err := v.Unmarshal(config, viper.DecodeHook(decodeHooks)); err != nil {
 		return nil, fmt.Errorf("failed to parse provider configuration. Provider=AWS: %w", err)
 	}
 

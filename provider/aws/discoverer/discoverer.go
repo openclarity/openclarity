@@ -142,6 +142,7 @@ func (d *Discoverer) GetInstances(ctx context.Context, filters []ec2types.Filter
 func getVMInfoFromInstance(i types.Instance) (apitypes.AssetType, error) {
 	assetType := apitypes.AssetType{}
 	err := assetType.FromVMInfo(apitypes.VMInfo{
+		Architecture:     to.Ptr(i.Architecture),
 		Image:            i.Image,
 		InstanceID:       i.ID,
 		InstanceProvider: to.Ptr(apitypes.AWS),

@@ -46,6 +46,7 @@ type Instance struct {
 	RootVolumeSizeGB    int32
 	RootVolumeEncrypted apitypes.RootVolumeEncrypted
 	Volumes             []Volume
+	Architecture        string
 
 	Metadata provider.ScanMetadata
 
