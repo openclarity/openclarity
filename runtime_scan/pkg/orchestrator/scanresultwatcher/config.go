@@ -61,12 +61,6 @@ func (c Config) WithScannerConfig(s ScannerConfig) Config {
 }
 
 type ScannerConfig struct {
-	// We need to know where the VMClarity scanner is running so that we
-	// can boot the scanner jobs in the same region, there isn't a
-	// mechanism to discover this right now so its passed in as a config
-	// value.
-	Region string
-
 	// Address that the Scanner should use to talk to the VMClarity backend
 	// We use a configuration variable for this instead of discovering it
 	// automatically in case VMClarity backend has multiple IPs (internal
@@ -89,10 +83,6 @@ type ScannerConfig struct {
 	// tools.
 	ScannerImage string
 
-	// The key pair name that should be attached to the scanner VM instance.
-	// Mainly used for debugging.
-	ScannerKeyPairName string
-
 	// The gitleaks binary path in the scanner image container.
 	GitleaksBinaryPath string
 
@@ -110,7 +100,4 @@ type ScannerConfig struct {
 
 	// The chkrootkit binary path in the scanner image container.
 	ChkrootkitBinaryPath string
-
-	// the name of the block device to attach to the scanner job
-	DeviceName string
 }

@@ -31,7 +31,6 @@ import (
 	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
 	"github.com/openclarity/vmclarity/backend/pkg/rest"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 	uibackend "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
@@ -129,15 +128,15 @@ func Run(ctx context.Context) {
 func startOrchestrator(ctx context.Context, config *_config.Config, client *backendclient.BackendClient) error {
 	orchestratorConfig, err := orchestrator.LoadConfig(config.BackendRestHost, config.BackendRestPort, rest.BaseURL)
 	if err != nil {
-		return fmt.Errorf("failed to load runtime scan orchestrator config: %w", err)
+		return fmt.Errorf("failed to load Orchestrator config: %w", err)
 	}
 
-	p, err := aws.New(ctx, orchestratorConfig.AWSConfig)
+	o, err := orchestrator.New(ctx, orchestratorConfig, client)
 	if err != nil {
-		return fmt.Errorf("failed to create provider client: %w", err)
+		return fmt.Errorf("failed to initialize Orchestrator: %w", err)
 	}
 
-	orchestrator.New(orchestratorConfig, p, client).Start(ctx)
+	o.Start(ctx)
 
 	return nil
 }
