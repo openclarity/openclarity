@@ -9,7 +9,7 @@ require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
 	github.com/anchore/syft v0.77.0
 	github.com/aptible/supercronic v0.2.25
-	github.com/aws/aws-sdk-go-v2 v1.18.0
+	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.25
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.99.0
 	github.com/aws/smithy-go v1.13.5
