@@ -229,21 +229,46 @@ Resources:
               content:
                 Fn::Sub:
                   - |
-                    AWS_REGION=${AWS::Region}
-                    SCANNER_AWS_REGION=${AWS::Region}
-                    AWS_SUBNET_ID=${VmClarityScannerSubnet}
-                    AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
-                    AWS_INSTANCE_TYPE=${ScannerInstanceType}
-                    SCANNER_KEY_PAIR_NAME=${KeyName}
-                    AWS_JOB_IMAGE_ID=${JobImageID}
+                    ##
+                    ## Orchestrator configuration
+                    ##
+                    # Host for the VMClarity backend server
                     BACKEND_REST_HOST=__BACKEND_REST_HOST__
+                    # Port number for the VMClarity backend server
                     BACKEND_REST_PORT=8888
+                    # Container image for Scanner instance
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
+                    # Trivy server address
                     TRIVY_SERVER_ADDRESS=http://__BACKEND_REST_HOST__:9992
+                    # Grype server address
                     GRYPE_SERVER_ADDRESS=__BACKEND_REST_HOST__:9991
-                    DELETE_JOB_POLICY=${AssetScanDeletePolicy}
+                    # FreshClam mirror URL
                     ALTERNATIVE_FRESHCLAM_MIRROR_URL=http://__BACKEND_REST_HOST__:1000/clamav
-                  - JobImageID: !FindInMap
+                    # Resource cleanup policy
+                    DELETE_JOB_POLICY=${AssetScanDeletePolicy}
+                    # Provider to use
+                    PROVIDER=aws
+
+                    ##
+                    ## Provider configuration
+                    ##
+                    # The AWS region where the provider is deployed
+                    AWS_REGION=${AWS::Region}
+                    # Region where the Scanner instance needs to be created
+                    VMCLARITY_AWS_SCANNER_REGION=${AWS::Region}
+                    # SubnetID where the Scanner instance needs to be created
+                    VMCLARITY_AWS_SUBNET_ID=${VmClarityScannerSubnet}
+                    # SecurityGroupId which needs to be attached to the Scanner instance
+                    VMCLARITY_AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    # Name of the SSH KeyPair to use for Scanner instance launch
+                    VMCLARITY_AWS_KEYPAIR_NAME=${KeyName}
+                    # The AMI image used for creating Scanner instance
+                    VMCLARITY_AWS_SCANNER_AMI_ID=${ScannerImageID}
+                    # The instance type used for Scanner instance
+                    VMCLARITY_AWS_SCANNER_INSTANCE_TYPE=${ScannerInstanceType}
+                    # Block device name used for attaching Scanner volume to the Scanner instance
+                    #VMCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
+                  - ScannerImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"
                       - !FindInMap
