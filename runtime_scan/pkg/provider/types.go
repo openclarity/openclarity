@@ -61,9 +61,6 @@ type ScanJobConfig struct {
 	ScannerImage     string // Scanner Container Image to use containing the vmclarity-cli and tools
 	ScannerCLIConfig string // Scanner CLI config yaml (families config yaml)
 	VMClarityAddress string // The backend address for the scanner CLI to export too
-	KeyPairName      string // The name of the key pair to set on the instance, ignored if not set, used mainly for debugging.
-	ScannerRegion    string // The region where the VMClarity Scanner instance needs to be deployed
-	BlockDeviceName  string // The block device name used for attaching target volume to the scanner vm
 
 	ScanMetadata
 	models.ScannerInstanceCreationConfig

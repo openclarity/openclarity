@@ -19,31 +19,28 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
 
+	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanconfigwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultprocessor"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
-	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 )
 
 const (
-	ScannerAWSRegion              = "SCANNER_AWS_REGION"
 	DeleteJobPolicy               = "DELETE_JOB_POLICY"
 	ScannerContainerImage         = "SCANNER_CONTAINER_IMAGE"
-	ScannerKeyPairName            = "SCANNER_KEY_PAIR_NAME"
 	GitleaksBinaryPath            = "GITLEAKS_BINARY_PATH"
 	ClamBinaryPath                = "CLAM_BINARY_PATH"
 	FreshclamBinaryPath           = "FRESHCLAM_BINARY_PATH"
 	AlternativeFreshclamMirrorURL = "ALTERNATIVE_FRESHCLAM_MIRROR_URL"
 	LynisInstallPath              = "LYNIS_INSTALL_PATH"
-	AttachedVolumeDeviceName      = "ATTACHED_VOLUME_DEVICE_NAME"
 	ScannerBackendAddress         = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
-	ScanConfigWatchInterval       = "SCAN_CONFIG_WATCH_INTERVAL"
 	ExploitDBAddress              = "EXPLOIT_DB_ADDRESS"
 	TrivyServerAddress            = "TRIVY_SERVER_ADDRESS"
 	TrivyServerTimeout            = "TRIVY_SERVER_TIMEOUT"
@@ -67,20 +64,21 @@ const (
 	DiscoveryInterval = "DISCOVERY_INTERVAL"
 
 	ControllerStartupDelay = "CONTROLLER_STARTUP_DELAY"
+
+	ProviderKind = "PROVIDER"
 )
 
 const (
-	DefaultScannerAWSRegion         = "us-east-1"
-	DefaultAttachedVolumeDeviceName = "xvdh"
-
 	DefaultTrivyServerTimeout = 5 * time.Minute
 	DefaultGrypeServerTimeout = 2 * time.Minute
 
 	DefaultControllerStartupDelay = 15 * time.Second
+	DefaultProviderKind           = models.AWS
 )
 
 type Config struct {
-	AWSConfig             *aws.Config
+	ProviderKind models.CloudProvider
+
 	ScannerBackendAddress string
 
 	// The Orchestrator starts the Controller(s) in a sequence and the ControllerStartupDelay is used for waiting
@@ -96,8 +94,6 @@ type Config struct {
 }
 
 func setConfigDefaults(backendHost string, backendPort int, backendBaseURL string) {
-	viper.SetDefault(ScannerAWSRegion, DefaultScannerAWSRegion)
-	viper.SetDefault(ScanConfigWatchInterval, "30s")
 	viper.SetDefault(DeleteJobPolicy, string(scanresultwatcher.DeleteJobPolicyAlways))
 	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
@@ -107,7 +103,6 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile
 	viper.SetDefault(ChkrootkitBinaryPath, "/artifacts/chkrootkit")
 	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
-	viper.SetDefault(AttachedVolumeDeviceName, DefaultAttachedVolumeDeviceName)
 	viper.SetDefault(ClamBinaryPath, "clamscan")
 	viper.SetDefault(FreshclamBinaryPath, "freshclam")
 	viper.SetDefault(TrivyServerTimeout, DefaultTrivyServerTimeout)
@@ -123,6 +118,7 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(ScanResultProcessorReconcileTimeout, scanresultprocessor.DefaultReconcileTimeout.String())
 	viper.SetDefault(DiscoveryInterval, discovery.DefaultInterval.String())
 	viper.SetDefault(ControllerStartupDelay, DefaultControllerStartupDelay.String())
+	viper.SetDefault(ProviderKind, DefaultProviderKind)
 
 	viper.AutomaticEnv()
 }
@@ -130,11 +126,17 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, error) {
 	setConfigDefaults(backendHost, backendPort, baseURL)
 
+	var providerKind models.CloudProvider
+	switch strings.ToLower(viper.GetString(ProviderKind)) {
+	case strings.ToLower(string(models.AWS)):
+		fallthrough
+	default:
+		providerKind = models.AWS
+	}
+
 	c := &Config{
-		AWSConfig: aws.LoadConfig(),
-
+		ProviderKind:           providerKind,
 		ControllerStartupDelay: viper.GetDuration(ControllerStartupDelay),
-
 		DiscoveryConfig: discovery.Config{
 			DiscoveryInterval: viper.GetDuration(DiscoveryInterval),
 		},
@@ -152,14 +154,11 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, e
 			PollPeriod:       viper.GetDuration(ScanResultPollingInterval),
 			ReconcileTimeout: viper.GetDuration(ScanResultReconcileTimeout),
 			ScannerConfig: scanresultwatcher.ScannerConfig{
-				Region:                        viper.GetString(ScannerAWSRegion),
 				DeleteJobPolicy:               scanresultwatcher.GetDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
 				ScannerImage:                  viper.GetString(ScannerContainerImage),
 				ScannerBackendAddress:         viper.GetString(ScannerBackendAddress),
-				ScannerKeyPairName:            viper.GetString(ScannerKeyPairName),
 				GitleaksBinaryPath:            viper.GetString(GitleaksBinaryPath),
 				LynisInstallPath:              viper.GetString(LynisInstallPath),
-				DeviceName:                    viper.GetString(AttachedVolumeDeviceName),
 				ExploitsDBAddress:             viper.GetString(ExploitDBAddress),
 				ClamBinaryPath:                viper.GetString(ClamBinaryPath),
 				FreshclamBinaryPath:           viper.GetString(FreshclamBinaryPath),

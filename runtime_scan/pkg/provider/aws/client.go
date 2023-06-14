@@ -37,12 +37,21 @@ import (
 
 type Client struct {
 	ec2Client *ec2.Client
-	awsConfig *Config
+	config    *Config
 }
 
-func New(ctx context.Context, config *Config) (*Client, error) {
+func New(ctx context.Context) (*Client, error) {
+	config, err := NewConfig()
+	if err != nil {
+		return nil, fmt.Errorf("invalid configuration. Provider=AWS: %w", err)
+	}
+
+	if err = config.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to validate provider configuration. Provider=AWS: %w", err)
+	}
+
 	awsClient := Client{
-		awsConfig: config,
+		config: config,
 	}
 
 	cfg, err := awsconfig.LoadDefaultConfig(ctx)
@@ -226,8 +235,8 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 	runParams := &ec2.RunInstancesInput{
 		MaxCount:     utils.PointerTo[int32](1),
 		MinCount:     utils.PointerTo[int32](1),
-		ImageId:      &c.awsConfig.AmiID,
-		InstanceType: ec2types.InstanceType(c.awsConfig.InstanceType),
+		ImageId:      utils.PointerTo(c.config.ScannerImage),
+		InstanceType: ec2types.InstanceType(c.config.ScannerInstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
@@ -251,8 +260,8 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 			AssociatePublicIpAddress: utils.PointerTo(false),
 			DeleteOnTermination:      utils.PointerTo(true),
 			DeviceIndex:              utils.PointerTo[int32](0),
-			Groups:                   []string{c.awsConfig.SecurityGroupID},
-			SubnetId:                 &c.awsConfig.SubnetID,
+			Groups:                   []string{c.config.SecurityGroupID},
+			SubnetId:                 &c.config.SubnetID,
 		},
 	}
 
@@ -274,9 +283,9 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 		retryMaxAttempts = *config.ScannerInstanceCreationConfig.RetryMaxAttempts
 	}
 
-	if config.KeyPairName != "" {
+	if c.config.KeyPairName != "" {
 		// Set a key-pair to the instance.
-		runParams.KeyName = &config.KeyPairName
+		runParams.KeyName = &c.config.KeyPairName
 	}
 
 	// if retryMaxAttempts value is 0 it will be ignored
@@ -304,7 +313,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
 		"TargetInstanceID": vmInfo.InstanceID,
 		"TargetLocation":   vmInfo.Location,
-		"ScannerLocation":  config.ScannerRegion,
+		"ScannerLocation":  c.config.ScannerRegion,
 		"Provider":         string(c.Kind()),
 	})
 
@@ -323,7 +332,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		logger.Trace("Creating scanner VM instance")
 
 		var err error
-		scannnerInstance, err = c.createInstance(ctx, config.ScannerRegion, config)
+		scannnerInstance, err = c.createInstance(ctx, c.config.ScannerRegion, config)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to create scanner VM instance: %w", err))
 			return
@@ -376,6 +385,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 			}
 			return
 		}
+
 		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, targetVMLocation.Region, config)
 
 		logger.WithField("TargetInstanceID", srcInstance.ID).Trace("Found target VM instance")
@@ -420,10 +430,10 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 			"TargetVolumeID":         srcVol.ID,
 			"TargetVolumeSnapshotID": srcVolSnapshot.ID,
 		}).Debug("Copying target volume snapshot to scanner location")
-		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, config.ScannerRegion)
+		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, c.config.ScannerRegion)
 		if err != nil {
 			err = fmt.Errorf("failed to copy target volume snapshot to location. TargetVolumeSnapshotID=%s Location=%s: %w",
-				srcVolSnapshot.ID, config.ScannerRegion, err)
+				srcVolSnapshot.ID, c.config.ScannerRegion, err)
 			errs <- WrapError(err)
 			return
 		}
@@ -500,7 +510,7 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		"ScannerVolumeID":         scannerVol.ID,
 		"ScannerIntanceID":        scannnerInstance.ID,
 	}).Debug("Attaching scanner volume to scanner VM instance")
-	err = scannnerInstance.AttachVolume(ctx, scannerVol, config.BlockDeviceName)
+	err = scannnerInstance.AttachVolume(ctx, scannerVol, c.config.BlockDeviceName)
 	if err != nil {
 		err = fmt.Errorf("failed to attach volume to scanner instance. ScannerVolumeID=%s ScannerInstanceID=%s: %w",
 			scannerVol.ID, scannnerInstance.ID, err)
@@ -662,7 +672,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 	}
 
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
-		"ScannerLocation": config.ScannerRegion,
+		"ScannerLocation": c.config.ScannerRegion,
 		"Provider":        string(c.Kind()),
 	})
 
@@ -679,7 +689,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 
 		// Delete scanner instance
 		logger.Debug("Deleting scanner VM Instance.")
-		done, err := c.deleteInstances(ctx, ec2Filters, config.ScannerRegion)
+		done, err := c.deleteInstances(ctx, ec2Filters, c.config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner VM instance: %w", err))
 			return
@@ -695,7 +705,8 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 
 		// Delete scanner volume
 		logger.Debug("Deleting scanner volume.")
-		done, err = c.deleteVolumes(ctx, ec2Filters, config.ScannerRegion)
+		done, err = c.deleteVolumes(ctx, ec2Filters, c.config.ScannerRegion)
+
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume: %w", err))
 			return
@@ -716,7 +727,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 		defer wg.Done()
 
 		logger.Debug("Deleting scanner volume snapshot.")
-		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, config.ScannerRegion)
+		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, c.config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume snapshot: %w", err))
 			return
@@ -743,7 +754,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 			return
 		}
 
-		if location.Region == config.ScannerRegion {
+		if location.Region == c.config.ScannerRegion {
 			return
 		}
 

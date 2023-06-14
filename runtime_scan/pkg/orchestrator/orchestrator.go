@@ -17,14 +17,17 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanconfigwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultprocessor"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanresultwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
@@ -36,7 +39,10 @@ type Orchestrator struct {
 	controllerStartupDelay time.Duration
 }
 
-func New(config *Config, p provider.Provider, b *backendclient.BackendClient) *Orchestrator {
+// NewWithProvider returns an Orchestrator initialized using the p provider.Provider.
+// Use this method when Orchestrator needs to rely on custom provider.Provider implementation.
+// E.g. End-to-End testing.
+func NewWithProvider(config *Config, p provider.Provider, b *backendclient.BackendClient) (*Orchestrator, error) {
 	scanConfigWatcherConfig := config.ScanConfigWatcherConfig.WithBackendClient(b)
 	discoveryConfig := config.DiscoveryConfig.WithBackendClient(b).WithProviderClient(p)
 	scanWatcherConfig := config.ScanWatcherConfig.WithBackendClient(b).WithProviderClient(p)
@@ -52,11 +58,22 @@ func New(config *Config, p provider.Provider, b *backendclient.BackendClient) *O
 			scanresultwatcher.New(scanResultWatcherConfig),
 		},
 		controllerStartupDelay: config.ControllerStartupDelay,
-	}
+	}, nil
 }
 
+// New returns a new Orchestrator initialized using the provided configuration.
+func New(ctx context.Context, config *Config, b *backendclient.BackendClient) (*Orchestrator, error) {
+	p, err := NewProvider(ctx, config.ProviderKind)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize provider. Provider=%s: %w", config.ProviderKind, err)
+	}
+
+	return NewWithProvider(config, p, b)
+}
+
+// Start makes the Orchestrator to start all Controller(s).
 func (o *Orchestrator) Start(ctx context.Context) {
-	log.GetLoggerFromContextOrDiscard(ctx).Infof("Starting Orchestrator server")
+	log.GetLoggerFromContextOrDiscard(ctx).Info("Starting Orchestrator server")
 
 	ctx, cancel := context.WithCancel(ctx)
 	o.cancelFunc = cancel
@@ -67,10 +84,22 @@ func (o *Orchestrator) Start(ctx context.Context) {
 	}
 }
 
+// Start makes the Orchestrator to stop all Controller(s).
 func (o *Orchestrator) Stop(ctx context.Context) {
-	log.GetLoggerFromContextOrDiscard(ctx).Infof("Stopping Orchestrator server")
+	log.GetLoggerFromContextOrDiscard(ctx).Info("Stopping Orchestrator server")
 
 	if o.cancelFunc != nil {
 		o.cancelFunc()
+	}
+}
+
+// nolint:wrapcheck
+// NewProvider returns an initialized provider.Provider based on the kind models.CloudProvider.
+func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provider, error) {
+	switch kind {
+	case models.AWS:
+		return aws.New(ctx)
+	default:
+		return nil, fmt.Errorf("unsupported provider: %s", kind)
 	}
 }
