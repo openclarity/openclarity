@@ -949,10 +949,10 @@ Parameters:
   DatabaseToUse:
     Description: Database VMClarity should use to store its objects.
     Type: String
-    Default: Postgresql
+    Default: SQLite
     AllowedValues:
-      - Postgresql
-      - External Postgresql
+      #- Postgresql
+      #- External Postgresql
       - SQLite
   PostgresDBPassword:
     Description: >
