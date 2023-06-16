@@ -15,13 +15,20 @@
 
 package provider
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type operationError interface {
 	error
 
 	Retryable() bool
 	RetryAfter() time.Duration
+}
+
+func FatalErrorf(tmpl string, parts ...interface{}) FatalError {
+	return FatalError{Err: fmt.Errorf(tmpl, parts...)}
 }
 
 type FatalError struct {
@@ -42,6 +49,13 @@ func (e FatalError) Retryable() bool {
 
 func (e FatalError) RetryAfter() time.Duration {
 	return -1
+}
+
+func RetryableErrorf(d time.Duration, tmpl string, parts ...interface{}) RetryableError {
+	return RetryableError{
+		Err:   fmt.Errorf(tmpl, parts...),
+		After: d,
+	}
 }
 
 type RetryableError struct {

@@ -10,6 +10,7 @@ import (
 // Defines values for AssetType.
 const (
 	AWSEC2Instance AssetType = "AWS EC2 Instance"
+	AzureInstance  AssetType = "Azure Instance"
 )
 
 // Defines values for FindingType.

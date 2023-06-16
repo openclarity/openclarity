@@ -492,6 +492,7 @@ components:
       type: string
       enum:
         - 'AWS EC2 Instance'
+        - 'Azure Instance'
 
   responses:
     UnknownError:
