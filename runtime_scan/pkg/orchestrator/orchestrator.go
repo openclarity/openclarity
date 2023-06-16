@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/azure"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
@@ -97,6 +98,8 @@ func (o *Orchestrator) Stop(ctx context.Context) {
 // NewProvider returns an initialized provider.Provider based on the kind models.CloudProvider.
 func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provider, error) {
 	switch kind {
+	case models.Azure:
+		return azure.New(ctx)
 	case models.AWS:
 		return aws.New(ctx)
 	default:

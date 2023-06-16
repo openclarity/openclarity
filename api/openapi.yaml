@@ -952,6 +952,7 @@ components:
       type: string
       enum:
         - AWS
+        - Azure
 
     Scans:
       type: object
@@ -1369,10 +1370,53 @@ components:
       type: object
       anyOf:
         - $ref: '#/components/schemas/AwsScanScope'
+        - $ref: '#/components/schemas/AzureScanScope'
       discriminator:
         propertyName: objectType
         mapping:
           AwsScanScope: '#/components/schemas/AwsScanScope'
+          AzureScanScope: '#/components/schemas/AzureScanScope'
+
+    AzureScanScope:
+      type: object
+      description: The scope of a configured scan within a subscription.
+      properties:
+        objectType:
+          type: string
+        allResourceGroups:
+          description: Scan all resource groups in the subscription, if set will override anything set in resourceGroups.
+          type: boolean
+        resourceGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/AzureResourceGroup'
+          nullable: true
+        instanceTagSelector:
+          type: array
+          description: VM instances will be scanned if they contain all of these tags. If empty, not taken into account.
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+        instanceTagExclusion:
+          type: array
+          description: VM instances will not be scanned if they contain all of these tags (even if they match instanceTagSelector). If empty, not taken into account.
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+      required:
+        - objectType
+      additionalProperties: false
+
+    AzureResourceGroup:
+      type: object
+      description: Azure Resource Group
+      properties:
+        name:
+          type: string
+          minLength: 1
+      required:
+        - name
+      additionalProperties: false
 
     AwsScanScope:
       type: object
@@ -1410,10 +1454,28 @@ components:
       type: object
       anyOf:
         - $ref: '#/components/schemas/AwsAccountScope'
+        - $ref: '#/components/schemas/AzureSubscriptionScope'
       discriminator:
         propertyName: objectType
         mapping:
           AwsAccountScope: '#/components/schemas/AwsAccountScope'
+          AzureSubscriptionScope: '#/components/schemas/AzureSubscriptionScope'
+
+    AzureSubscriptionScope:
+      type: object
+      description: Azure subscription scope
+      properties:
+        objectType:
+          type: string
+        subscriptionID:
+          type: string
+        resourceGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/AzureResourceGroup'
+          nullable: true
+      required:
+        - objectType
 
     AwsAccountScope:
       type: object
@@ -1460,7 +1522,6 @@ components:
       required:
         - id
       additionalProperties: false
-
 
     SecurityGroup:
       type: object
