@@ -32,7 +32,7 @@ require (
 	github.com/urfave/cli v1.22.14
 	github.com/vulsio/go-exploitdb v0.4.5
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
-	google.golang.org/grpc v1.55.0
+	google.golang.org/grpc v1.56.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.2
@@ -45,7 +45,7 @@ require (
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
-	cloud.google.com/go/compute v1.19.0 // indirect
+	cloud.google.com/go/compute v1.19.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
