@@ -21,9 +21,6 @@ linters-settings:
       # Replace these for trivy
       - github.com/docker/docker
       - oras.land/oras-go
-      # Replace for GORM update
-      # TODO(chrisgacsal): remove when https://github.com/anchore/sqlite/pull/3 is merged
-      - github.com/anchore/sqlite
 
   gosec:
     # To specify a set of rules to explicitly exclude.

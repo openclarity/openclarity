@@ -86,7 +86,7 @@ require (
 	github.com/anchore/go-version v1.2.2-0.20210903204242-51efa5b487c4 // indirect
 	github.com/anchore/grype v0.61.0 // indirect
 	github.com/anchore/packageurl-go v0.1.1-0.20230104203445-02e0a6721501 // indirect
-	github.com/anchore/sqlite v1.4.6-0.20220607210448-bcc6ee5c4963 // indirect
+	github.com/anchore/sqlite v1.4.6-0.20230614161951-ddbd0fa20cdc // indirect
 	github.com/anchore/stereoscope v0.0.0-20230406143206-e95d60a265e3 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
@@ -458,7 +458,3 @@ replace (
 replace oras.land/oras-go => oras.land/oras-go v1.1.1
 
 replace github.com/openclarity/vmclarity/api => ./api
-
-// This replace allows us to bump GORM version to the latest
-// TODO(chrisgacsal): remove when https://github.com/anchore/sqlite/pull/3 is merged
-replace github.com/anchore/sqlite => github.com/k4leung4/gorm-sqlite v0.0.0-20230506221113-60fddc722574
