@@ -13,7 +13,8 @@ import (
 
 // Defines values for CloudProvider.
 const (
-	AWS CloudProvider = "AWS"
+	AWS   CloudProvider = "AWS"
+	Azure CloudProvider = "Azure"
 )
 
 // Defines values for MisconfigurationSeverity.
@@ -149,6 +150,32 @@ type AwsScanScope struct {
 type AwsVPC struct {
 	Id             string           `json:"id"`
 	SecurityGroups *[]SecurityGroup `json:"securityGroups"`
+}
+
+// AzureResourceGroup Azure Resource Group
+type AzureResourceGroup struct {
+	Name string `json:"name"`
+}
+
+// AzureScanScope The scope of a configured scan within a subscription.
+type AzureScanScope struct {
+	// AllResourceGroups Scan all resource groups in the subscription, if set will override anything set in resourceGroups.
+	AllResourceGroups *bool `json:"allResourceGroups,omitempty"`
+
+	// InstanceTagExclusion VM instances will not be scanned if they contain all of these tags (even if they match instanceTagSelector). If empty, not taken into account.
+	InstanceTagExclusion *[]Tag `json:"instanceTagExclusion"`
+
+	// InstanceTagSelector VM instances will be scanned if they contain all of these tags. If empty, not taken into account.
+	InstanceTagSelector *[]Tag                `json:"instanceTagSelector"`
+	ObjectType          string                `json:"objectType"`
+	ResourceGroups      *[]AzureResourceGroup `json:"resourceGroups"`
+}
+
+// AzureSubscriptionScope Azure subscription scope
+type AzureSubscriptionScope struct {
+	ObjectType     string                `json:"objectType"`
+	ResourceGroups *[]AzureResourceGroup `json:"resourceGroups"`
+	SubscriptionID *string               `json:"subscriptionID,omitempty"`
 }
 
 // CloudProvider defines model for CloudProvider.
@@ -1419,6 +1446,34 @@ func (t *ScanScopeType) MergeAwsScanScope(v AwsScanScope) error {
 	return err
 }
 
+// AsAzureScanScope returns the union data inside the ScanScopeType as a AzureScanScope
+func (t ScanScopeType) AsAzureScanScope() (AzureScanScope, error) {
+	var body AzureScanScope
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAzureScanScope overwrites any union data inside the ScanScopeType as the provided AzureScanScope
+func (t *ScanScopeType) FromAzureScanScope(v AzureScanScope) error {
+	v.ObjectType = "AzureScanScope"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAzureScanScope performs a merge with any union data inside the ScanScopeType, using the provided AzureScanScope
+func (t *ScanScopeType) MergeAzureScanScope(v AzureScanScope) error {
+	v.ObjectType = "AzureScanScope"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
 func (t ScanScopeType) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"objectType"`
@@ -1435,6 +1490,8 @@ func (t ScanScopeType) ValueByDiscriminator() (interface{}, error) {
 	switch discriminator {
 	case "AwsScanScope":
 		return t.AsAwsScanScope()
+	case "AzureScanScope":
+		return t.AsAzureScanScope()
 	default:
 		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
@@ -1478,6 +1535,34 @@ func (t *ScopeType) MergeAwsAccountScope(v AwsAccountScope) error {
 	return err
 }
 
+// AsAzureSubscriptionScope returns the union data inside the ScopeType as a AzureSubscriptionScope
+func (t ScopeType) AsAzureSubscriptionScope() (AzureSubscriptionScope, error) {
+	var body AzureSubscriptionScope
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAzureSubscriptionScope overwrites any union data inside the ScopeType as the provided AzureSubscriptionScope
+func (t *ScopeType) FromAzureSubscriptionScope(v AzureSubscriptionScope) error {
+	v.ObjectType = "AzureSubscriptionScope"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAzureSubscriptionScope performs a merge with any union data inside the ScopeType, using the provided AzureSubscriptionScope
+func (t *ScopeType) MergeAzureSubscriptionScope(v AzureSubscriptionScope) error {
+	v.ObjectType = "AzureSubscriptionScope"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
 func (t ScopeType) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"objectType"`
@@ -1494,6 +1579,8 @@ func (t ScopeType) ValueByDiscriminator() (interface{}, error) {
 	switch discriminator {
 	case "AwsAccountScope":
 		return t.AsAwsAccountScope()
+	case "AzureSubscriptionScope":
+		return t.AsAzureSubscriptionScope()
 	default:
 		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}

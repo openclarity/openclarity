@@ -236,6 +236,8 @@ func getAssetType(provider *backendmodels.CloudProvider) (*models.AssetType, err
 	switch *provider {
 	case backendmodels.AWS:
 		return utils.PointerTo(models.AWSEC2Instance), nil
+	case backendmodels.Azure:
+		return utils.PointerTo(models.AzureInstance), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider: %v", *provider)
 	}
