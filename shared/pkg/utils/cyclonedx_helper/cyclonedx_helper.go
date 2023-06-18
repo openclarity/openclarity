@@ -102,7 +102,13 @@ func GetComponentLicenses(component cdx.Component) []string {
 		// https://github.com/CycloneDX/specification/blob/1.4/schema/bom-1.4.xsd#L1398
 		// https://spdx.github.io/spdx-spec/v2.3/SPDX-license-expressions/
 		if license.License != nil {
-			licenses = append(licenses, license.License.ID)
+			// A license must either have one of ID OR Name specified according to the CDX spec, otherwise its invalid CDX:
+			// https://cyclonedx.org/docs/1.4/json/#tab-pane_components_items_licenses_items_oneOf_i0
+			if license.License.ID != "" {
+				licenses = append(licenses, license.License.ID)
+			} else if license.License.Name != "" {
+				licenses = append(licenses, license.License.Name)
+			}
 		}
 
 		if license.Expression != "" {

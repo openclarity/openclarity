@@ -16,6 +16,7 @@
 package cyclonedx_helper // nolint:revive,stylecheck
 
 import (
+	"reflect"
 	"testing"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -125,6 +126,176 @@ func TestGetComponentHash(t *testing.T) {
 			got, err := GetComponentHash(tt.args.component)
 			if got != tt.want || (err != nil && err.Error() != tt.err) {
 				t.Errorf("GetComponentHash() = %v, want %v, err %v", got, tt.want, tt.err)
+			}
+		})
+	}
+}
+
+func TestGetComponentLicenses(t *testing.T) {
+	type args struct {
+		component cdx.Component
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "licenses are nil in component",
+			args: args{
+				component: cdx.Component{
+					Licenses: nil,
+				},
+			},
+			want: nil,
+		},
+		{
+			name: "licenses are empty in component",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{},
+				},
+			},
+			want: nil,
+		},
+		{
+			name: "licenses are empty in component",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{},
+				},
+			},
+			want: nil,
+		},
+		{
+			name: "License with no id an no name",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID:   "",
+								Name: "",
+								URL:  "test.com",
+							},
+							Expression: "",
+						},
+					},
+				},
+			},
+			want: []string{},
+		},
+		{
+			name: "License with id and no name",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID:   "test-id",
+								Name: "",
+								URL:  "test.com",
+							},
+							Expression: "",
+						},
+					},
+				},
+			},
+			want: []string{"test-id"},
+		},
+		{
+			name: "License with id and name - prefer id",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID:   "test-id",
+								Name: "test-name",
+								URL:  "test.com",
+							},
+							Expression: "",
+						},
+					},
+				},
+			},
+			want: []string{"test-id"},
+		},
+		{
+			name: "License with no id but with name",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID:   "",
+								Name: "test-name",
+								URL:  "test.com",
+							},
+							Expression: "",
+						},
+					},
+				},
+			},
+			want: []string{"test-name"},
+		},
+		{
+			name: "License with expression",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							Expression: "test-expression",
+						},
+					},
+				},
+			},
+			want: []string{"test-expression"},
+		},
+		{
+			name: "License with id and expression",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID:   "test-id",
+								Name: "test-name",
+								URL:  "test.com",
+							},
+							Expression: "test-expression",
+						},
+					},
+				},
+			},
+			want: []string{"test-id", "test-expression"},
+		},
+		{
+			name: "One with license with id and expression",
+			args: args{
+				component: cdx.Component{
+					Licenses: &cdx.Licenses{
+						{
+							License: &cdx.License{
+								ID: "test-id",
+							},
+						},
+						{
+							License: &cdx.License{
+								URL: "test.com",
+							},
+							Expression: "test-expression",
+						},
+					},
+				},
+			},
+			want: []string{"test-id", "test-expression"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetComponentLicenses(tt.args.component); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetComponentLicenses() = %v, want %v", got, tt.want)
 			}
 		})
 	}
