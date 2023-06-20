@@ -1,9 +1,8 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import TabbedPage from 'components/TabbedPage';
-import { APIS } from 'utils/systemConsts';
 import { AssetDetails, ScanDetails } from 'layout/detail-displays';
+import FindingsDetailsPage from '../FindingsDetailsPage';
 import TabRootkitDetails from './TabRootkitDetails';
 
 const ROOTKIT_DETAILS_PATHS = {
@@ -46,11 +45,10 @@ const DetailsContent = ({data}) => {
 }
 
 const RootkitDetails = () => (
-    <DetailsPageWrapper
+    <FindingsDetailsPage
         backTitle="Rootkits"
-        getUrl={({id}) => `${APIS.FINDINGS}/${id}?$expand=asset,scan`}
         getTitleData={({findingInfo}) => ({title: findingInfo.rootkitName})}
-        detailsContent={props => <DetailsContent {...props} />}
+        detailsContent={DetailsContent}
     />
 )
 

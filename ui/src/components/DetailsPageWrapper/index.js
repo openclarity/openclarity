@@ -23,13 +23,17 @@ const DetailsContentWrapper = ({data, getTitleData, detailsContent: DetailsConte
     )
 }
 
-const DetailsPageWrapper = ({className, backTitle, url, getUrl, getTitleData, detailsContent, withPadding=false}) => {
+const DetailsPageWrapper = ({className, backTitle, url, expand, select, getTitleData, detailsContent, withPadding=false}) => {
     const {pathname} = useLocation();
     const params = useParams();
     const {id} = params;
     const innerPath = params["*"];
     
-    const [{loading, data, error}, fetchData] = useFetch(!!url ? `${url}/${id}` : getUrl(params));
+    const expandParams = !!expand ? `$expand=${expand}` : "";
+    const selectParams = !!select ? `$select=${select}` : "";
+    const [{loading, data, error}, fetchData] = useFetch(
+        `${url}/${id}${!!expandParams || !!selectParams ? "?" : ""}${selectParams}${!!selectParams ? "&" : ""}${expandParams}`
+    );
 
     return (
         <div className={classnames("details-page-wrapper", className, {"with-padding": withPadding})}>

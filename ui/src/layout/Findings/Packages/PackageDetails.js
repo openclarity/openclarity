@@ -1,9 +1,8 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import DetailsPageWrapper from 'components/DetailsPageWrapper';
 import TabbedPage from 'components/TabbedPage';
-import { APIS } from 'utils/systemConsts';
 import { AssetDetails, ScanDetails } from 'layout/detail-displays';
+import FindingsDetailsPage from '../FindingsDetailsPage';
 import TabPackageDetails from './TabPackageDetails';
 
 const PACKAGE_DETAILS_PATHS = {
@@ -46,11 +45,10 @@ const DetailsContent = ({data}) => {
 }
 
 const PackageDetails = () => (
-    <DetailsPageWrapper
+    <FindingsDetailsPage
         backTitle="Packages"
-        getUrl={({id}) => `${APIS.FINDINGS}/${id}?$expand=asset,scan`}
         getTitleData={({findingInfo}) => ({title: findingInfo.name, subTitle: findingInfo.version})}
-        detailsContent={props => <DetailsContent {...props} />}
+        detailsContent={DetailsContent}
     />
 )
 
