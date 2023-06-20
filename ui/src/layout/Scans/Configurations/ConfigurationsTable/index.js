@@ -139,6 +139,7 @@ const ConfigurationsTable = () => {
             <TablePage
                 columns={columns}
                 url={APIS.SCAN_CONFIGS}
+                select="id,name,scope,scheduled,scanFamiliesConfig"
                 tableTitle={TABLE_TITLE}
                 filterType={FILTER_TYPES.SCAN_CONFIGURATIONS}
                 filtersConfig={[

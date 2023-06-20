@@ -36,6 +36,7 @@ const ConfigurationDetails = () => (
         className="configuration-details-page-wrapper"
         backTitle="Scan configurations"
         url={APIS.SCAN_CONFIGS}
+        select="id,name,scope,scanFamiliesConfig,scheduled,maxParallelScanners,scannerInstanceCreationConfig"
         getTitleData={data => ({title: data?.name})}
         detailsContent={DetailsContent}
     />
