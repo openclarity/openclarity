@@ -13,6 +13,7 @@ import StatusIndicator from './StatusIndicator';
 import COLORS from 'utils/scss_variables.module.scss';
 
 const STATUS_DISPLAY_ITEMS = [
+    {dataKey: "sbom", title: "SBOM"},
     VULNERABIITY_FINDINGS_ITEM,
     ...Object.values(FINDINGS_MAPPING).filter(({value}) => value !== FINDINGS_MAPPING.PACKAGES.value)
 ]
