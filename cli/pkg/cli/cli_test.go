@@ -17,11 +17,13 @@ package cli
 
 import (
 	"testing"
+
+	"github.com/openclarity/vmclarity/shared/pkg/fsutils/filesystem"
 )
 
 func Test_isSupportedFS(t *testing.T) {
 	type args struct {
-		fs string
+		fs filesystem.FilesystemType
 	}
 	tests := []struct {
 		name string
@@ -29,21 +31,35 @@ func Test_isSupportedFS(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "supported ext4",
+			name: "ext2 is supported",
 			args: args{
-				fs: fsTypeExt4,
+				fs: filesystem.Ext2,
 			},
 			want: true,
 		},
 		{
-			name: "supported xfs",
+			name: "ext3 is supported",
 			args: args{
-				fs: fsTypeXFS,
+				fs: filesystem.Ext3,
 			},
 			want: true,
 		},
 		{
-			name: "not supported btrfs",
+			name: "ext4 is supported",
+			args: args{
+				fs: filesystem.Ext4,
+			},
+			want: true,
+		},
+		{
+			name: "xfs is supported",
+			args: args{
+				fs: filesystem.Xfs,
+			},
+			want: true,
+		},
+		{
+			name: "btrfs is not supported",
 			args: args{
 				fs: "btrfs",
 			},
@@ -52,7 +68,7 @@ func Test_isSupportedFS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isSupportedFS(tt.args.fs); got != tt.want {
+			if got := isSupportedFS(string(tt.args.fs)); got != tt.want {
 				t.Errorf("isSupportedFS() = %v, want %v", got, tt.want)
 			}
 		})
