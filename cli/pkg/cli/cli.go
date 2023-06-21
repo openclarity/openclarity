@@ -19,23 +19,36 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 
-	"github.com/openclarity/vmclarity/cli/pkg/mount"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/types"
+	"github.com/openclarity/vmclarity/shared/pkg/fsutils/blockdevice"
+	"github.com/openclarity/vmclarity/shared/pkg/fsutils/filesystem"
+	"github.com/openclarity/vmclarity/shared/pkg/fsutils/mount"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 const (
-	fsTypeExt4 = "ext4"
-	fsTypeXFS  = "xfs"
+	MountPointTemplate = "/mnt/snapshots/%s"
+	MountPointDirPerm  = 0o770
 )
+
+// DefaultMountOptions is a set of filesystem independent mount options.
+var DefaultMountOptions = []string{
+	"noatime",    // Do not update inode access times on this filesystem (e.g. for faster access on the news spool to speed up news servers).
+	"noauto",     // Can only be mounted explicitly (i.e., the -a option will not cause the filesystem to be mounted).
+	"noexec",     // Do not permit direct execution of any binaries on the mounted filesystem.
+	"norelatime", // Do not use the relatime feature: Update inode access times relative to modify or change time. Access time is only updated if the previous access time was earlier than the current modify or change time.
+	"nosuid",     // Do not honor set-user-ID and set-group-ID bits or file capabilities when executing programs from this filesystem.
+	"ro",         // Mount the filesystem read-only.
+}
 
 type CLI struct {
 	state.Manager
@@ -53,31 +66,36 @@ func (c *CLI) FamilyFinished(ctx context.Context, res families.FamilyResult) err
 }
 
 func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
-	var mountPoints []string
-
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	devices, err := mount.ListBlockDevices()
+	blockDevices, err := blockdevice.List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list block devices: %w", err)
 	}
-	logger.Infof("Found block devices: %v", devices)
-	for _, device := range devices {
-		// if the device is not mounted and of a supported filesystem type,
-		// we assume it belongs to the attached volume, so we mount it.
-		if device.MountPoint == "" && isSupportedFS(device.FilesystemType) {
-			mountDir := "/mnt/snapshot" + uuid.New().String()
+	logger.Debugf("Found block devices: %s", blockDevices)
 
-			if err := device.Mount(mountDir); err != nil {
-				return nil, fmt.Errorf("failed to mount device: %w", err)
+	var mountPoints []string
+	for _, device := range blockDevices {
+		// It is assumed that the device is part of the attached volume if it is not mounted
+		// and it has a supported filesystem.
+		if device.MountPoint == "" && isSupportedFS(device.FSType) {
+			mountPoint := fmt.Sprintf(MountPointTemplate, uuid.New())
+
+			if err := os.MkdirAll(mountPoint, MountPointDirPerm); err != nil {
+				return nil, fmt.Errorf("failed to create mountpoint. Device=%s MountPoint=%s: %w",
+					device.Path, mountPoint, err)
 			}
-			logger.Infof("Device %v on %v is mounted", device.DeviceName, mountDir)
-			mountPoints = append(mountPoints, mountDir)
-		}
-		if ctx.Err() != nil {
-			return mountPoints, fmt.Errorf("failed to mount block devices: %w", ctx.Err())
+
+			if err := mount.Mount(ctx, device.Path, mountPoint, device.FSType, DefaultMountOptions); err != nil {
+				return nil, fmt.Errorf("failed to mount device. Device=%s MountPoint=%s: %w",
+					device.Path, mountPoint, err)
+			}
+			logger.Infof("Device is mounted. Device=%s MountPoint=%s", device.Path, mountPoint)
+
+			mountPoints = append(mountPoints, mountPoint)
 		}
 	}
+
 	return mountPoints, nil
 }
 
@@ -111,9 +129,11 @@ func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, inte
 
 func isSupportedFS(fs string) bool {
 	switch strings.ToLower(fs) {
-	case fsTypeExt4, fsTypeXFS:
+	case string(filesystem.Ext2), string(filesystem.Ext3), string(filesystem.Ext4):
 		return true
+	case string(filesystem.Xfs):
+		return true
+	default:
+		return false
 	}
-
-	return false
 }
