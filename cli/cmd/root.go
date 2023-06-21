@@ -46,6 +46,7 @@ import (
 
 const (
 	DefaultWatcherInterval = 2 * time.Minute
+	DefaultMountTimeout    = 10 * time.Minute
 )
 
 var (
@@ -94,7 +95,11 @@ var rootCmd = &cobra.Command{
 		}
 
 		if mountVolume {
-			mountPoints, err := cli.MountVolumes(abortCtx)
+			// Set timeout for mounting volumes
+			mountCtx, mountCancel := context.WithTimeout(abortCtx, DefaultMountTimeout)
+			defer mountCancel()
+
+			mountPoints, err := cli.MountVolumes(mountCtx)
 			if err != nil {
 				err = fmt.Errorf("failed to mount attached volume: %w", err)
 				if e := cli.MarkDone(ctx, []error{err}); e != nil {
