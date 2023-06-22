@@ -40,7 +40,7 @@ require (
 	github.com/urfave/cli v1.22.14
 	github.com/vulsio/go-exploitdb v0.4.5
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
-	google.golang.org/grpc v1.56.0
+	google.golang.org/grpc v1.56.1
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.2
