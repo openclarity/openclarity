@@ -7,9 +7,18 @@ COPY ui .
 RUN npm i
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM golang:1.20.5-alpine AS builder
+# xx is a helper for cross-compilation
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.2.1@sha256:8879a398dedf0aadaacfbd332b29ff2f84bc39ae6d4e9c0a1109db27ac5ba012 AS xx
 
-RUN apk add --update --no-cache gcc g++ git binutils-gold
+FROM --platform=$BUILDPLATFORM golang:1.20.5-bullseye AS builder
+
+COPY --from=xx / /
+
+ARG TARGETPLATFORM
+
+RUN apt-get update && xx-apt-get install -y --no-install-recommends gcc libc6-dev
+
+RUN xx-go --wrap
 
 # Copy vmclarity code to /build
 COPY . /build
@@ -20,16 +29,15 @@ WORKDIR /build/backend
 ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
-ARG TARGETOS
-ARG TARGETARCH
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-    go build -ldflags="-s -w \
+ENV CGO_ENABLED=1
+
+RUN go build -ldflags="-s -w -extldflags -static \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
+
+RUN xx-verify backend
 
 FROM alpine:3.18
 
