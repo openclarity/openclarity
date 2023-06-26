@@ -1,0 +1,1103 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.18.4.5664",
+      "templateHash": "1975093144371206712"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "metadata": {
+        "description": "Location for the VMClarity resource group"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username for the VMClarity Server VM"
+      }
+    },
+    "adminSSHKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SSH Public Key for the VMClarity Server VM"
+      }
+    },
+    "serverVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "The size of the VMClarity Server VM"
+      }
+    },
+    "scannerVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "The size of the Scanner VMs"
+      }
+    },
+    "securityType": {
+      "type": "string",
+      "defaultValue": "TrustedLaunch",
+      "allowedValues": [
+        "Standard",
+        "TrustedLaunch"
+      ],
+      "metadata": {
+        "description": "Security Type of the VMClartiy Server VM"
+      }
+    },
+    "backendContainerImage": {
+      "type": "string",
+      "defaultValue": "ghcr.io/openclarity/vmclarity-backend:latest",
+      "metadata": {
+        "description": "VMClarity Backend Container Image"
+      }
+    },
+    "scannerContainerImage": {
+      "type": "string",
+      "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+      "metadata": {
+        "description": "VMClarity Scanner Container Image"
+      }
+    },
+    "trivyServerContainerImage": {
+      "type": "string",
+      "defaultValue": "docker.io/aquasec/trivy:0.41.0",
+      "metadata": {
+        "description": "Trivy Server Container Image"
+      }
+    },
+    "grypeServerContainerImage": {
+      "type": "string",
+      "defaultValue": "ghcr.io/openclarity/grype-server:v0.2.0",
+      "metadata": {
+        "description": "Grype Server Container Image"
+      }
+    },
+    "exploitDBContainerImage": {
+      "type": "string",
+      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.1.2",
+      "metadata": {
+        "description": "Exploit DB Container Image"
+      }
+    },
+    "freshclamMirrorContainerImage": {
+      "type": "string",
+      "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.1.0",
+      "metadata": {
+        "description": "Freshclam Mirror Container Image"
+      }
+    },
+    "postgresContainerImage": {
+      "type": "string",
+      "defaultValue": "docker.io/bitnami/postgresql:12.14.0-debian-11-r28",
+      "metadata": {
+        "description": "Postgres Container Image"
+      }
+    },
+    "assetScanDeletePolicy": {
+      "type": "string",
+      "defaultValue": "Always",
+      "allowedValues": [
+        "Always",
+        "OnSuccess",
+        "Never"
+      ],
+      "metadata": {
+        "description": "Asset Scan Delete Policy"
+      }
+    },
+    "databaseToUse": {
+      "type": "string",
+      "defaultValue": "SQLite",
+      "allowedValues": [
+        "SQLite"
+      ],
+      "metadata": {
+        "description": "Database to Use"
+      }
+    },
+    "postgresDBPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password to configure Postgresql with on first install. Required if Postgres is selected as the Database To Use. Do not change this on stack update."
+      }
+    },
+    "externalDBHost": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use."
+      }
+    },
+    "externalDBPort": {
+      "type": "int",
+      "defaultValue": 0,
+      "minValue": 0,
+      "metadata": {
+        "description": "Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use."
+      }
+    },
+    "externalDBName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use."
+      }
+    },
+    "externalDBUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use."
+      }
+    },
+    "externalDBPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use."
+      }
+    },
+    "deploypostfix": {
+      "type": "string",
+      "metadata": {
+        "description": "VMClarity Deploy Postfix"
+      }
+    }
+  },
+  "variables": {
+    "resourceGroupName": "[format('vmclarity-{0}', parameters('deploypostfix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('resourceGroupName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vmclarity-managed-identity",
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "240849925380037017"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location where to create the resources"
+              }
+            }
+          },
+          "variables": {
+            "vmClarityIdentityName": "[format('vmclarity-discoverer-deployer-{0}', uniqueString(resourceGroup().id))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[variables('vmClarityIdentityName')]",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "vmClarityIdentityId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vmClarityIdentityName'))]"
+            },
+            "vmClarityIdentityPrincipalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vmClarityIdentityName')), '2018-11-30').principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vmclarity-{0}-scan-role', parameters('deploypostfix'))]",
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "principalID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity'), '2022-09-01').outputs.vmClarityIdentityPrincipalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "7040041022808729062"
+            }
+          },
+          "parameters": {
+            "principalID": {
+              "type": "string",
+              "metadata": {
+                "description": "VMClarity Managed Identity Principal ID"
+              }
+            }
+          },
+          "variables": {
+            "scanRoleName": "[guid(resourceGroup().id, 'vmclarity-scanner')]",
+            "scanRoleDescription": "IAM Role to allow VMClarity to deploy virtual machines that mount and scan snapshots."
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleDefinitions",
+              "apiVersion": "2022-04-01",
+              "name": "[variables('scanRoleName')]",
+              "properties": {
+                "roleName": "[variables('scanRoleName')]",
+                "description": "[variables('scanRoleDescription')]",
+                "type": "customRole",
+                "assignableScopes": [
+                  "[resourceGroup().id]"
+                ],
+                "permissions": [
+                  {
+                    "actions": [
+                      "Microsoft.Compute/virtualMachines/read",
+                      "Microsoft.Compute/virtualMachines/write",
+                      "Microsoft.Compute/virtualMachines/delete",
+                      "Microsoft.Compute/snapshots/read",
+                      "Microsoft.Compute/snapshots/write",
+                      "Microsoft.Compute/snapshots/delete",
+                      "Microsoft.Compute/disks/read",
+                      "Microsoft.Compute/disks/write",
+                      "Microsoft.Compute/disks/delete",
+                      "Microsoft.Network/networkInterfaces/write",
+                      "Microsoft.Network/networkInterfaces/read",
+                      "Microsoft.Network/networkInterfaces/delete",
+                      "Microsoft.Network/networkSecurityGroups/join/action",
+                      "Microsoft.Network/virtualNetworks/subnets/join/action",
+                      "Microsoft.Network/networkInterfaces/join/action",
+                      "Microsoft.Compute/snapshots/beginGetAccess/action",
+                      "Microsoft.Compute/snapshots/endGetAccess/action",
+                      "Microsoft.Storage/storageAccounts/listkeys/action"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid(resourceGroup().id, 'vmclarity-server', resourceId('Microsoft.Authorization/roleDefinitions', variables('scanRoleName')))]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('scanRoleName'))]",
+                "principalId": "[parameters('principalID')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleDefinitions', variables('scanRoleName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vmclarity-{0}-discover-role', parameters('deploypostfix'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "resourceGroupName": {
+            "value": "[variables('resourceGroupName')]"
+          },
+          "principalID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity'), '2022-09-01').outputs.vmClarityIdentityPrincipalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "10497713072497503606"
+            }
+          },
+          "parameters": {
+            "resourceGroupName": {
+              "type": "string",
+              "metadata": {
+                "description": "VMClarity Resource Group Name"
+              }
+            },
+            "principalID": {
+              "type": "string",
+              "metadata": {
+                "description": "VMClarity Managed Identity Principal ID"
+              }
+            }
+          },
+          "variables": {
+            "discoverRoleName": "[guid(subscription().id, parameters('resourceGroupName'), 'vmclarity-discoverer-snapshotter')]",
+            "discoverRoleDescription": "IAM Role to allow VMClarity to discover and snapshot virtual machines."
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleDefinitions",
+              "apiVersion": "2022-04-01",
+              "name": "[variables('discoverRoleName')]",
+              "properties": {
+                "roleName": "[variables('discoverRoleName')]",
+                "description": "[variables('discoverRoleDescription')]",
+                "type": "customRole",
+                "assignableScopes": [
+                  "[subscription().id]"
+                ],
+                "permissions": [
+                  {
+                    "actions": [
+                      "Microsoft.Resources/subscriptions/resourceGroups/read",
+                      "Microsoft.Resources/subscriptions/resourceGroups/moveResources/action",
+                      "Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action",
+                      "Microsoft.Compute/virtualMachines/read",
+                      "Microsoft.Compute/disks/read",
+                      "Microsoft.Compute/snapshots/read",
+                      "Microsoft.Compute/snapshots/write",
+                      "Microsoft.Compute/snapshots/delete",
+                      "Microsoft.Compute/disks/beginGetAccess/action"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid(subscription().id, parameters('resourceGroupName'), 'vmclarity-server', variables('discoverRoleName'))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('discoverRoleName'))]",
+                "principalId": "[parameters('principalID')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('discoverRoleName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vmclarity-deploy",
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "adminSSHKey": {
+            "value": "[parameters('adminSSHKey')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "serverVmSize": {
+            "value": "[parameters('serverVmSize')]"
+          },
+          "scannerVmSize": {
+            "value": "[parameters('scannerVmSize')]"
+          },
+          "securityType": {
+            "value": "[parameters('securityType')]"
+          },
+          "vmClarityIdentityID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity'), '2022-09-01').outputs.vmClarityIdentityId.value]"
+          },
+          "principalID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity'), '2022-09-01').outputs.vmClarityIdentityPrincipalId.value]"
+          },
+          "backendContainerImage": {
+            "value": "[parameters('backendContainerImage')]"
+          },
+          "scannerContainerImage": {
+            "value": "[parameters('scannerContainerImage')]"
+          },
+          "trivyServerContainerImage": {
+            "value": "[parameters('trivyServerContainerImage')]"
+          },
+          "grypeServerContainerImage": {
+            "value": "[parameters('grypeServerContainerImage')]"
+          },
+          "exploitDBContainerImage": {
+            "value": "[parameters('exploitDBContainerImage')]"
+          },
+          "freshclamMirrorContainerImage": {
+            "value": "[parameters('freshclamMirrorContainerImage')]"
+          },
+          "postgresContainerImage": {
+            "value": "[parameters('postgresContainerImage')]"
+          },
+          "assetScanDeletePolicy": {
+            "value": "[parameters('assetScanDeletePolicy')]"
+          },
+          "databaseToUse": {
+            "value": "[parameters('databaseToUse')]"
+          },
+          "postgresDBPassword": {
+            "value": "[parameters('postgresDBPassword')]"
+          },
+          "externalDBHost": {
+            "value": "[parameters('externalDBHost')]"
+          },
+          "externalDBPort": {
+            "value": "[parameters('externalDBPort')]"
+          },
+          "externalDBName": {
+            "value": "[parameters('externalDBName')]"
+          },
+          "externalDBUsername": {
+            "value": "[parameters('externalDBUsername')]"
+          },
+          "externalDBPassword": {
+            "value": "[parameters('externalDBPassword')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "17417527612845233996"
+            }
+          },
+          "parameters": {
+            "adminUsername": {
+              "type": "string",
+              "metadata": {
+                "description": "Username for the VMClarity Server VM"
+              }
+            },
+            "adminSSHKey": {
+              "type": "securestring",
+              "metadata": {
+                "description": "SSH Public Key for the VMClarity Server VM"
+              }
+            },
+            "serverVmSize": {
+              "type": "string",
+              "defaultValue": "Standard_D2s_v3",
+              "metadata": {
+                "description": "The size of the VMClarity Server VM"
+              }
+            },
+            "scannerVmSize": {
+              "type": "string",
+              "defaultValue": "Standard_D2s_v3",
+              "metadata": {
+                "description": "The size of the Scanner VMs"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location where to create the resources"
+              }
+            },
+            "dnsLabelPrefix": {
+              "type": "string",
+              "defaultValue": "[toLower(format('vmclarity-server-{0}', uniqueString(resourceGroup().id)))]",
+              "metadata": {
+                "description": "Public IP DNS prefix"
+              }
+            },
+            "securityType": {
+              "type": "string",
+              "defaultValue": "TrustedLaunch",
+              "allowedValues": [
+                "Standard",
+                "TrustedLaunch"
+              ],
+              "metadata": {
+                "description": "Security Type of the VMClartiy Server VM"
+              }
+            },
+            "vmClarityIdentityID": {
+              "type": "string",
+              "metadata": {
+                "description": "VMClarity Server Identity ID"
+              }
+            },
+            "principalID": {
+              "type": "string",
+              "metadata": {
+                "description": "VMClarity Managed Identity Principal ID"
+              }
+            },
+            "backendContainerImage": {
+              "type": "string",
+              "defaultValue": "ghcr.io/openclarity/vmclarity-backend:latest",
+              "metadata": {
+                "description": "VMClarity Backend Container Image"
+              }
+            },
+            "scannerContainerImage": {
+              "type": "string",
+              "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+              "metadata": {
+                "description": "VMClarity Scanner Container Image"
+              }
+            },
+            "trivyServerContainerImage": {
+              "type": "string",
+              "defaultValue": "docker.io/aquasec/trivy:0.41.0",
+              "metadata": {
+                "description": "Trivy Server Container Image"
+              }
+            },
+            "grypeServerContainerImage": {
+              "type": "string",
+              "defaultValue": "ghcr.io/openclarity/grype-server:v0.2.0",
+              "metadata": {
+                "description": "Grype Server Container Image"
+              }
+            },
+            "exploitDBContainerImage": {
+              "type": "string",
+              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.1.2",
+              "metadata": {
+                "description": "Exploit DB Container Image"
+              }
+            },
+            "freshclamMirrorContainerImage": {
+              "type": "string",
+              "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.1.0",
+              "metadata": {
+                "description": "Freshclam Mirror Container Image"
+              }
+            },
+            "postgresContainerImage": {
+              "type": "string",
+              "defaultValue": "docker.io/bitnami/postgresql:12.14.0-debian-11-r28",
+              "metadata": {
+                "description": "Postgres Container Image"
+              }
+            },
+            "assetScanDeletePolicy": {
+              "type": "string",
+              "defaultValue": "Always",
+              "allowedValues": [
+                "Always",
+                "OnSuccess",
+                "Never"
+              ],
+              "metadata": {
+                "description": "Asset Scan Delete Policy"
+              }
+            },
+            "databaseToUse": {
+              "type": "string",
+              "defaultValue": "Postgresql",
+              "allowedValues": [
+                "Postgresql",
+                "External Postgresql",
+                "SQLite"
+              ],
+              "metadata": {
+                "description": "Database to Use"
+              }
+            },
+            "postgresDBPassword": {
+              "type": "securestring",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Password to configure Postgresql with on first install. Required if Postgres is selected as the Database To Use. Do not change this on stack update."
+              }
+            },
+            "externalDBHost": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use."
+              }
+            },
+            "externalDBPort": {
+              "type": "int",
+              "defaultValue": 0,
+              "minValue": 0,
+              "metadata": {
+                "description": "Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use."
+              }
+            },
+            "externalDBName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use."
+              }
+            },
+            "externalDBUsername": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use."
+              }
+            },
+            "externalDBPassword": {
+              "type": "securestring",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use."
+              }
+            }
+          },
+          "variables": {
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "0001-com-ubuntu-server-focal",
+              "sku": "20_04-lts-gen2",
+              "version": "latest"
+            },
+            "vmClarityNetName": "vmclarity-server-net",
+            "addressPrefix": "10.1.0.0/16",
+            "vmClarityServerSubnetName": "vmclarity-server-subnet",
+            "vmClarityServerSecurityGroupName": "vmclarity-server-security-group",
+            "vmClarityServerSubnetAddressPrefix": "10.1.0.0/24",
+            "vmClarityScannerSubnetName": "vmclarity-scanner-subnet",
+            "vmClarityScannerSecurityGroupName": "vmclarity-scanner-security-group",
+            "vmClarityScannerSubnetAddressPrefix": "10.1.1.0/24",
+            "vmclarityServerVMName": "vmclarity-server",
+            "publicIPAddressName": "[format('{0}-public-ip', variables('vmclarityServerVMName'))]",
+            "networkInterfaceName": "[format('{0}-net-int', variables('vmclarityServerVMName'))]",
+            "params": {
+              "BackendContainerImage": "[parameters('backendContainerImage')]",
+              "ScannerContainerImage": "[parameters('scannerContainerImage')]",
+              "TrivyServerContainerImage": "[parameters('trivyServerContainerImage')]",
+              "GrypeServerContainerImage": "[parameters('grypeServerContainerImage')]",
+              "ExploitDBServerContainerImage": "[parameters('exploitDBContainerImage')]",
+              "FreshclamMirrorContainerImage": "[parameters('freshclamMirrorContainerImage')]",
+              "PostgresqlContainerImage": "[parameters('postgresContainerImage')]",
+              "ScannerInstanceType": "[parameters('scannerVmSize')]",
+              "AssetScanDeletePolicy": "[parameters('assetScanDeletePolicy')]",
+              "DatabaseToUse": "[parameters('databaseToUse')]",
+              "PostgresDBPassword": "[parameters('postgresDBPassword')]",
+              "ExternalDBHost": "[parameters('externalDBHost')]",
+              "ExternalDBPort": "[string(parameters('externalDBPort'))]",
+              "ExternalDBName": "[parameters('externalDBName')]",
+              "ExternalDBUsername": "[parameters('externalDBUsername')]",
+              "ExternalDBPassword": "[parameters('externalDBPassword')]",
+              "AZURE_SUBSCRIPTION_ID": "[subscription().subscriptionId]",
+              "AZURE_SCANNER_LOCATION": "[parameters('location')]",
+              "AZURE_SCANNER_RESOURCE_GROUP": "[resourceGroup().name]",
+              "AZURE_SCANNER_SUBNET_ID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vmClarityNetName'), variables('vmClarityScannerSubnetName'))]",
+              "AZURE_SCANNER_PUBLIC_KEY": "[base64(parameters('adminSSHKey'))]",
+              "AZURE_SCANNER_VM_SIZE": "[parameters('scannerVmSize')]",
+              "AZURE_SCANNER_IMAGE_PUBLISHER": "[variables('imageReference').publisher]",
+              "AZURE_SCANNER_IMAGE_OFFER": "[variables('imageReference').offer]",
+              "AZURE_SCANNER_IMAGE_SKU": "[variables('imageReference').sku]",
+              "AZURE_SCANNER_IMAGE_VERSION": "[variables('imageReference').version]",
+              "AZURE_SCANNER_SECURITY_GROUP": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmClarityScannerSecurityGroupName'))]",
+              "AZURE_SCANNER_STORAGE_ACCOUNT_NAME": "[variables('storageAccountName')]",
+              "AZURE_SCANNER_STORAGE_CONTAINER_NAME": "[variables('snapshotContainerName')]"
+            },
+            "scriptTemplate": "#!/bin/bash \n\nset -euo pipefail\n\napt-get update\napt-get install -y docker.io \n\nmkdir -p /etc/vmclarity\nmkdir -p /opt/vmclarity\n\ncat << 'EOF' > /etc/vmclarity/deploy.sh\n#!/bin/bash\nset -euo pipefail\n\n# Create the docker network for the VMClarity services if it\n# doesn't exist.\nif docker network ls | grep vmclarity; then\n  echo \"network already exists\"\nelse\n  docker network create vmclarity\nfi\n\n# Reload the systemd daemon to ensure that all the VMClarity\n# units have been detected.\nsystemctl daemon-reload\n\n# Enable and start/restart exploit-db-server\nsystemctl enable exploit-db-server.service\nsystemctl restart exploit-db-server.service\n\n# Enable and start/restart trivy server\nsystemctl enable trivy_server.service\nsystemctl restart trivy_server.service\n\n# Enable and start/restart grype_server\nsystemctl enable grype_server.service\nsystemctl restart grype_server.service\n\n# Enable and start/restart freshclam mirror\nsystemctl enable vmclarity_freshclam_mirror.service\nsystemctl restart vmclarity_freshclam_mirror.service\n\nif [ \"__DatabaseToUse__\" == \"Postgresql\" ]; then\n  # Enable and start/restart postgres\n  systemctl enable postgres.service\n  systemctl restart postgres.service\n\n  # Configure the VMClarity backend to use the local postgres\n  # service\n  echo \"DATABASE_DRIVER=POSTGRES\" >> /etc/vmclarity/config.env\n  echo \"DB_NAME=vmclarity\" >> /etc/vmclarity/config.env\n  echo \"DB_USER=vmclarity\" >> /etc/vmclarity/config.env\n  echo \"DB_PASS=__PostgresDBPassword__\" >> /etc/vmclarity/config.env\n  echo \"DB_HOST=postgres.service\" >> /etc/vmclarity/config.env\n  echo \"DB_PORT_NUMBER=5432\" >> /etc/vmclarity/config.env\nelif [ \"__DatabaseToUse__\" == \"External Postgresql\" ]; then\n  # Configure the VMClarity backend to use the postgres\n  # database configured by the user.\n  echo \"DATABASE_DRIVER=POSTGRES\" >> /etc/vmclarity/config.env\n  echo \"DB_NAME=__ExternalDBName__\" >> /etc/vmclarity/config.env\n  echo \"DB_USER=__ExternalDBUsername__\" >> /etc/vmclarity/config.env\n  echo \"DB_PASS=__ExternalDBPassword__\" >> /etc/vmclarity/config.env\n  echo \"DB_HOST=__ExternalDBHost__\" >> /etc/vmclarity/config.env\n  echo \"DB_PORT_NUMBER=__ExternalDBPort__\" >> /etc/vmclarity/config.env\nelif [ \"__DatabaseToUse__\" == \"SQLite\" ]; then\n  # Configure the VMClarity backend to use the SQLite DB\n  # driver and configure the storage location so that it\n  # persists.\n  echo \"DATABASE_DRIVER=LOCAL\" >> /etc/vmclarity/config.env\n  echo \"LOCAL_DB_PATH=/data/vmclarity.db\" >> /etc/vmclarity/config.env\nfi\n\n# Replace anywhere in the config.env __BACKEND_REST_HOST__\n# with the local ipv4 IP address of the VMClarity server.\nlocal_ip_address=\"$(curl -s -H Metadata:true --noproxy \"*\" \"http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2021-02-01&format=text\")\"\nsed -i \"s/__BACKEND_REST_HOST__/${local_ip_address}/\" /etc/vmclarity/config.env\n\n# Enable and start/restart VMClarity backend\nsystemctl enable vmclarity.service\nsystemctl restart vmclarity.service\nEOF\nchmod 744 /etc/vmclarity/deploy.sh\n\ncat << 'EOF' > /etc/vmclarity/config.env\nPROVIDER=Azure\nVMCLARITY_AZURE_SUBSCRIPTION_ID=__AZURE_SUBSCRIPTION_ID__\nVMCLARITY_AZURE_SCANNER_LOCATION=__AZURE_SCANNER_LOCATION__\nVMCLARITY_AZURE_SCANNER_RESOURCE_GROUP=__AZURE_SCANNER_RESOURCE_GROUP__\nVMCLARITY_AZURE_SCANNER_SUBNET_ID=__AZURE_SCANNER_SUBNET_ID__\nVMCLARITY_AZURE_SCANNER_PUBLIC_KEY=__AZURE_SCANNER_PUBLIC_KEY__\nVMCLARITY_AZURE_SCANNER_VM_SIZE=__AZURE_SCANNER_VM_SIZE__\nVMCLARITY_AZURE_SCANNER_IMAGE_PUBLISHER=__AZURE_SCANNER_IMAGE_PUBLISHER__\nVMCLARITY_AZURE_SCANNER_IMAGE_OFFER=__AZURE_SCANNER_IMAGE_OFFER__\nVMCLARITY_AZURE_SCANNER_IMAGE_SKU=__AZURE_SCANNER_IMAGE_SKU__\nVMCLARITY_AZURE_SCANNER_IMAGE_VERSION=__AZURE_SCANNER_IMAGE_VERSION__\nVMCLARITY_AZURE_SCANNER_SECURITY_GROUP=__AZURE_SCANNER_SECURITY_GROUP__\nVMCLARITY_AZURE_SCANNER_STORAGE_ACCOUNT_NAME=__AZURE_SCANNER_STORAGE_ACCOUNT_NAME__\nVMCLARITY_AZURE_SCANNER_STORAGE_CONTAINER_NAME=__AZURE_SCANNER_STORAGE_CONTAINER_NAME__\n\nBACKEND_REST_HOST=__BACKEND_REST_HOST__\nBACKEND_REST_PORT=8888\nSCANNER_CONTAINER_IMAGE=__ScannerContainerImage__\nTRIVY_SERVER_ADDRESS=http://__BACKEND_REST_HOST__:9992\nGRYPE_SERVER_ADDRESS=__BACKEND_REST_HOST__:9991\nDELETE_JOB_POLICY=__AssetScanDeletePolicy__\nALTERNATIVE_FRESHCLAM_MIRROR_URL=http://__BACKEND_REST_HOST__:1000/clamav\nEOF\nchmod 644 /etc/vmclarity/config.env \n\ncat << 'EOF' > /etc/vmclarity/service.env\nBACKEND_CONTAINER_IMAGE=__BackendContainerImage__\nBACKEND_LOG_LEVEL=info\nEOF\nchmod 644 /etc/vmclarity/service.env \n\ncat << 'EOF' > /lib/systemd/system/vmclarity.service\n[Unit]\nDescription=VmClarity\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nEnvironmentFile=/etc/vmclarity/service.env\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/mkdir -p /opt/vmclarity\nExecStartPre=/usr/bin/docker pull ${BACKEND_CONTAINER_IMAGE}\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -p 0.0.0.0:8888:8888/tcp \\\n  -v /opt/vmclarity:/data \\\n  --env-file /etc/vmclarity/config.env \\\n  ${BACKEND_CONTAINER_IMAGE} \\\n  run \\\n  --log-level ${BACKEND_LOG_LEVEL}\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/vmclarity.service\n\ncat << 'EOF' > /lib/systemd/system/exploit-db-server.service\n[Unit]\nDescription=Exploit DB Server\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/mkdir -p /opt/exploits\nExecStartPre=/usr/bin/docker pull __ExploitDBServerContainerImage__\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -p 0.0.0.0:1326:1326/tcp \\\n  -v /opt/exploits:/vuls \\\n  __ExploitDBServerContainerImage__\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/exploit-db-server.service \n\nmkdir -p /etc/trivy-server\n\ncat << 'EOF' > /etc/trivy-server/config.env\nTRIVY_LISTEN=0.0.0.0:9992\nTRIVY_CACHE_DIR=/home/scanner/.cache/trivy\nEOF\nchmod 644 /etc/trivy-server/config.env\n\ncat << 'EOF' > /lib/systemd/system/trivy_server.service\n[Unit]\nDescription=Trivy Server\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/mkdir -p /opt/trivy-server\nExecStartPre=/usr/bin/docker pull __TrivyServerContainerImage__\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -p 0.0.0.0:9992:9992/tcp \\\n  -v /opt/trivy-server:/home/scanner/.cache \\\n  --env-file /etc/trivy-server/config.env \\\n  __TrivyServerContainerImage__ server\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/trivy_server.service \n\nmkdir -p /etc/grype-server\n\ncat << 'EOF' > /etc/grype-server/config.env\nDB_ROOT_DIR=/opt/grype-server/db\nEOF\nchmod 644 /etc/grype-server/config.env \n\ncat << 'EOF' > /lib/systemd/system/grype_server.service\n[Unit]\nDescription=Grype Server\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/mkdir -p /opt/grype-server\nExecStartPre=/usr/bin/chown -R 1000:1000 /opt/grype-server\nExecStartPre=/usr/bin/docker pull __GrypeServerContainerImage__\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -p 0.0.0.0:9991:9991/tcp \\\n  -v /opt/grype-server:/opt/grype-server \\\n  --env-file /etc/grype-server/config.env \\\n  __GrypeServerContainerImage__ run --log-level warning\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/grype_server.service\n\ncat << 'EOF' > /lib/systemd/system/vmclarity_freshclam_mirror.service\n[Unit]\nDescription=Deploys the freshclam mirror service\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/docker pull __FreshclamMirrorContainerImage__\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -p 0.0.0.0:1000:80/tcp \\\n  __FreshclamMirrorContainerImage__\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/vmclarity_freshclam_mirror.service \n\ncat << 'EOF' > /lib/systemd/system/postgres.service\n[Unit]\nDescription=Postgresql Database Server\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nTimeoutStartSec=0\nRestart=always\nExecStartPre=-/usr/bin/docker stop %n\nExecStartPre=-/usr/bin/docker rm %n\nExecStartPre=/usr/bin/docker pull __PostgresqlContainerImage__\nExecStart=/usr/bin/docker run \\\n  --rm --name %n \\\n  --network vmclarity \\\n  -e POSTGRESQL_USERNAME=vmclarity \\\n  -e POSTGRESQL_PASSWORD=__PostgresDBPassword__ \\\n  -e POSTGRESQL_DATABASE=vmclarity \\\n  -p 127.0.0.1:5432:5432/tcp \\\n  __PostgresqlContainerImage__\n\n[Install]\nWantedBy=multi-user.target\nEOF\nchmod 644 /lib/systemd/system/postgres.service\n\n/etc/vmclarity/deploy.sh\n",
+            "renderedScript": "[reduce(items(variables('params')), createObject('value', variables('scriptTemplate')), lambda('curr', 'next', createObject('value', replace(lambdaVariables('curr').value, format('__{0}__', lambdaVariables('next').key), lambdaVariables('next').value)))).value]",
+            "osDiskType": "StandardSSD_LRS",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": true,
+              "ssh": {
+                "publicKeys": [
+                  {
+                    "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                    "keyData": "[parameters('adminSSHKey')]"
+                  }
+                ]
+              }
+            },
+            "securityProfileJson": {
+              "uefiSettings": {
+                "secureBootEnabled": true,
+                "vTpmEnabled": true
+              },
+              "securityType": "[parameters('securityType')]"
+            },
+            "vmClarityGuestAttestationName": "VmClarityServerGuestAttestation",
+            "extensionName": "GuestAttestation",
+            "extensionPublisher": "Microsoft.Azure.Security.LinuxAttestation",
+            "extensionVersion": "1.0",
+            "maaTenantName": "GuestAttestation",
+            "maaEndpoint": "[substring('emptystring', 0, 0)]",
+            "vmClarityServerCustomScriptName": "VmClarityServerCustomScript",
+            "storageAccountName": "[toLower(format('store{0}', uniqueString(resourceGroup().id)))]",
+            "storageAccountType": "Standard_LRS",
+            "snapshotContainerName": "snapshots"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('networkInterfaceName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vmClarityNetName'), variables('vmClarityServerSubnetName'))]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+                      }
+                    }
+                  }
+                ],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmClarityServerSecurityGroupName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vmClarityNetName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmClarityServerSecurityGroupName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('vmClarityServerSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "SSH",
+                    "properties": {
+                      "priority": 1000,
+                      "protocol": "Tcp",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "*",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "22"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('vmClarityNetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[variables('addressPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "[variables('vmClarityServerSubnetName')]",
+                    "properties": {
+                      "addressPrefix": "[variables('vmClarityServerSubnetAddressPrefix')]",
+                      "serviceEndpoints": [
+                        {
+                          "service": "Microsoft.Storage"
+                        }
+                      ],
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                  },
+                  {
+                    "name": "[variables('vmClarityScannerSubnetName')]",
+                    "properties": {
+                      "addressPrefix": "[variables('vmClarityScannerSubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('publicIPAddressName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAddressVersion": "IPv4",
+                "dnsSettings": {
+                  "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+                },
+                "idleTimeoutInMinutes": 4
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2021-11-01",
+              "name": "[variables('vmclarityServerVMName')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('vmClarityIdentityID'))]": {}
+                }
+              },
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('serverVmSize')]"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "[variables('osDiskType')]"
+                    }
+                  },
+                  "imageReference": "[variables('imageReference')]"
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[variables('vmclarityServerVMName')]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "linuxConfiguration": "[variables('linuxConfiguration')]"
+                },
+                "securityProfile": "[if(equals(parameters('securityType'), 'TrustedLaunch'), variables('securityProfileJson'), null())]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+              ]
+            },
+            {
+              "condition": "[and(equals(parameters('securityType'), 'TrustedLaunch'), and(equals(variables('securityProfileJson').uefiSettings.secureBootEnabled, true()), equals(variables('securityProfileJson').uefiSettings.vTpmEnabled, true())))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2022-03-01",
+              "name": "[format('{0}/{1}', variables('vmclarityServerVMName'), variables('vmClarityGuestAttestationName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "[variables('extensionPublisher')]",
+                "type": "[variables('extensionName')]",
+                "typeHandlerVersion": "[variables('extensionVersion')]",
+                "autoUpgradeMinorVersion": true,
+                "enableAutomaticUpgrade": true,
+                "settings": {
+                  "AttestationConfig": {
+                    "MaaSettings": {
+                      "maaEndpoint": "[variables('maaEndpoint')]",
+                      "maaTenantName": "[variables('maaTenantName')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vmclarityServerVMName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', variables('vmclarityServerVMName'), variables('vmClarityServerCustomScriptName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "protectedSettings": {
+                  "script": "[base64(variables('renderedScript'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vmClarityNetName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmClarityScannerSecurityGroupName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vmclarityServerVMName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vmclarityServerVMName'), variables('vmClarityGuestAttestationName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('vmClarityScannerSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "SSH-From-VMClarity-Server",
+                    "properties": {
+                      "priority": 1000,
+                      "protocol": "Tcp",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "[variables('vmClarityServerSubnetAddressPrefix')]",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "22"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2022-09-01",
+              "name": "[variables('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[variables('storageAccountType')]"
+              },
+              "kind": "StorageV2",
+              "properties": {
+                "accessTier": "Hot",
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "virtualNetworkRules": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vmClarityNetName'), variables('vmClarityServerSubnetName'))]",
+                      "action": "Allow"
+                    }
+                  ],
+                  "defaultAction": "Deny"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vmClarityNetName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2021-02-01",
+              "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', variables('snapshotContainerName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageAccountName'))]",
+              "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), parameters('vmClarityIdentityID'), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalId": "[parameters('principalID')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "adminUsername": {
+              "type": "string",
+              "value": "[parameters('adminUsername')]"
+            },
+            "hostname": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2021-05-01').dnsSettings.fqdn]"
+            },
+            "sshCommand": {
+              "type": "string",
+              "value": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2021-05-01').dnsSettings.fqdn)]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-managed-identity')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "adminUsername": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-deploy'), '2022-09-01').outputs.adminUsername.value]"
+    },
+    "hostname": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-deploy'), '2022-09-01').outputs.hostname.value]"
+    },
+    "sshCommand": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', 'vmclarity-deploy'), '2022-09-01').outputs.sshCommand.value]"
+    }
+  }
+}
