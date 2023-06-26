@@ -10,8 +10,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "kubeclarity.name" . }}-scanner-template
   namespace: '{{ .Release.Namespace }}'
-  labels:
-    {{ include "kubeclarity.labels" . }}
+  labels: {{ include "kubeclarity.labels" . | nindent 4 }}
 data:
   config: |-
     apiVersion: batch/v1
@@ -43,7 +42,7 @@ data:
           {{- if not .Values.global.openShiftRestricted }}
           securityContext:
             fsGroup: 1001
-          {{- end }}         
+          {{- end }}
           containers:
           - name: vulnerability-scanner
             {{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "docker" "imageName" }}

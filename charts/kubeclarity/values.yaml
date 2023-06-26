@@ -49,6 +49,9 @@ kubeclarity:
 
   prometheus:
     enabled: false
+    serviceMonitor:
+      enabled: false
+      interval: 30s
     refreshIntervalSeconds: 300
 
   podAnnotations: {}

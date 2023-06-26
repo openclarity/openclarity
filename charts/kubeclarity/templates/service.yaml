@@ -3,8 +3,8 @@ kind: Service
 metadata:
   name: {{ include "kubeclarity.name" . }}
   namespace: '{{ .Release.Namespace }}'
-  labels:
-    {{ include "kubeclarity.labels" . }}
+  labels: {{ include "kubeclarity.labels" . | nindent 4 }}
+    app: {{ include "kubeclarity.name" . }}
   annotations:
     helm.sh/hook: pre-install
 {{ template "kubeclarity.service.annotations" .}}
@@ -19,5 +19,11 @@ spec:
       port: {{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}
       protocol: TCP
       targetPort: {{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}
+    {{- if ((.Values.kubeclarity).prometheus).enabled }}
+    - name: metrics
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    {{- end }}
   selector:
     app: {{ include "kubeclarity.name" . }}
