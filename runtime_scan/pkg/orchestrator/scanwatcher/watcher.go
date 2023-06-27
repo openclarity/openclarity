@@ -191,21 +191,37 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 		return errors.New("invalid Scan: Id is nil")
 	}
 
+	// We don't want to scan terminated assets. These are historic assets
+	// and we'll just get a not found error during the asset scan.
+	assetFilter := "terminated eq null"
+
 	scope, ok := scan.GetScanConfigScope()
 	if !ok {
 		return fmt.Errorf("invalid Scan: Scope is nil. ScanID=%s", scanID)
 	}
 
-	assets, err := w.provider.DiscoverAssets(ctx, &scope)
+	// If the scan has a scope configured, 'and' it with the check for
+	// not terminated to make sure that we take both into account.
+	if scope != "" {
+		assetFilter = fmt.Sprintf("(%s) and (%s)", assetFilter, scope)
+	}
+
+	assets, err := w.backend.GetAssets(ctx, models.GetAssetsParams{
+		Filter: &assetFilter,
+		Select: utils.PointerTo("id"),
+	})
 	if err != nil {
 		return fmt.Errorf("failed to discover Assets for Scan. ScanID=%s: %w", scanID, err)
 	}
-	numOfAssets := len(assets)
+
+	numOfAssets := len(*assets.Items)
 
 	if numOfAssets > 0 {
-		if err = w.createAssets(ctx, scan, assets); err != nil {
-			return fmt.Errorf("failed to create Assets for Scan. ScanID=%s: %w", scanID, err)
+		assetIds := []string{}
+		for _, asset := range *assets.Items {
+			assetIds = append(assetIds, *asset.Id)
 		}
+		scan.AssetIDs = &assetIds
 		scan.State = utils.PointerTo(models.ScanStateDiscovered)
 		scan.StateMessage = utils.PointerTo("Assets for Scan are successfully discovered")
 	} else {
@@ -227,68 +243,6 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 	}
 
 	return nil
-}
-
-func (w *Watcher) createAssets(ctx context.Context, scan *models.Scan, assetTypes []models.AssetType) error {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	var creatingAssetsFailed bool
-	var wg sync.WaitGroup
-
-	results := make(chan string, len(assetTypes))
-	for _, t := range assetTypes {
-		assetType := t
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			assetID, err := w.createAsset(ctx, assetType)
-			if err != nil {
-				creatingAssetsFailed = true
-				return
-			}
-
-			logger.WithField("AssetID", assetID).Trace("Pushing Asset to channel")
-			results <- assetID
-		}()
-	}
-	logger.Trace("Waiting until all Asset(s) are created")
-	wg.Wait()
-	close(results)
-
-	if creatingAssetsFailed {
-		return fmt.Errorf("failed to create Asset(s) for Scan. ScanID=%s", *scan.Id)
-	}
-
-	assetIDs := make([]string, 0)
-	for assetID := range results {
-		assetIDs = append(assetIDs, assetID)
-	}
-	scan.AssetIDs = &assetIDs
-
-	logger.Tracef("Created Asset(s): %v", assetIDs)
-
-	return nil
-}
-
-func (w *Watcher) createAsset(ctx context.Context, assetType models.AssetType) (string, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	asset, err := w.backend.PostAsset(ctx, models.Asset{
-		AssetInfo: &assetType,
-	})
-	if err != nil {
-		var conErr backendclient.AssetConflictError
-		if errors.As(err, &conErr) {
-			logger.WithField("AssetID", *conErr.ConflictingAsset.Id).Trace("Asset already exist")
-			return *conErr.ConflictingAsset.Id, nil
-		}
-		return "", fmt.Errorf("failed to post Asset: %w", err)
-	}
-	logger.WithField("AssetID", *asset.Id).Debug("Asset object created")
-
-	return *asset.Id, nil
 }
 
 func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *models.Scan) error {

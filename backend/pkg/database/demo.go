@@ -45,66 +45,9 @@ const (
 	awsInstanceUSEast11    = "i-instance-1-from-us-east-1"
 )
 
-var regions = []models.AwsRegion{
-	{
-		Name: awsRegionEUCentral1,
-		Vpcs: utils.PointerTo([]models.AwsVPC{
-			{
-				Id: awsVPCEUCentral11,
-				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
-					{
-						Id: awsSGEUCentral111,
-					},
-				}),
-			},
-			{
-				Id: awsVPCEUCentral12,
-				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
-					{
-						Id: awsSGEUCentral121,
-					},
-				}),
-			},
-		}),
-	},
-	{
-		Name: awsRegionUSEast1,
-		Vpcs: utils.PointerTo([]models.AwsVPC{
-			{
-				Id: awsVPCUSEast11,
-				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
-					{
-						Id: awsSGUSEast111,
-					},
-				}),
-			},
-			{
-				Id: awsVPCUSEast12,
-				SecurityGroups: utils.PointerTo([]models.SecurityGroup{
-					{
-						Id: awsSGUSEast121,
-					},
-					{
-						Id: awsSGUSEast122,
-					},
-				}),
-			},
-		}),
-	},
-}
-
 // nolint:gomnd,maintidx,cyclop
 func CreateDemoData(ctx context.Context, db types.Database) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	// Create scopes:
-	scopes, err := createScopes()
-	if err != nil {
-		logger.Fatalf("failed to create scopes FromAwsScope: %v", err)
-	}
-	if _, err := db.ScopesTable().SetScopes(scopes); err != nil {
-		logger.Fatalf("failed to save scopes: %v", err)
-	}
 
 	// Create scan configs:
 	scanConfigs := createScanConfigs(ctx)
@@ -437,17 +380,6 @@ func createVMInfo(instanceID, location, image, instanceType, platform string,
 	return &info
 }
 
-func createScopes() (models.Scopes, error) {
-	scopesType := models.ScopeType{}
-	err := scopesType.FromAwsAccountScope(models.AwsAccountScope{
-		Regions: utils.PointerTo(regions),
-	})
-	// nolint:wrapcheck
-	return models.Scopes{
-		ScopeInfo: &scopesType,
-	}, err
-}
-
 func createAssets() []models.Asset {
 	return []models.Asset{
 		{
@@ -513,9 +445,7 @@ func createAssets() []models.Asset {
 	}
 }
 
-func createScanConfigs(ctx context.Context) []models.ScanConfig {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
+func createScanConfigs(_ context.Context) []models.ScanConfig {
 	// Scan config 1
 	scanFamiliesConfig1 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
@@ -539,56 +469,6 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 		Vulnerabilities: &models.VulnerabilitiesConfig{
 			Enabled: utils.PointerTo(true),
 		},
-	}
-	tag1 := models.Tag{
-		Key:   "app",
-		Value: "my-app1",
-	}
-	tag2 := models.Tag{
-		Key:   "app",
-		Value: "my-app2",
-	}
-	tag3 := models.Tag{
-		Key:   "system",
-		Value: "sys1",
-	}
-	tag4 := models.Tag{
-		Key:   "system",
-		Value: "sys2",
-	}
-	ScanConfig1SecurityGroups := []models.SecurityGroup{
-		{
-			Id: awsSGEUCentral111,
-		},
-	}
-	ScanConfig1VPCs := []models.AwsVPC{
-		{
-			Id:             awsVPCEUCentral11,
-			SecurityGroups: &ScanConfig1SecurityGroups,
-		},
-	}
-	ScanConfig1Regions := []models.AwsRegion{
-		{
-			Name: awsRegionEUCentral1,
-			Vpcs: &ScanConfig1VPCs,
-		},
-	}
-	scanConfig1SelectorTags := []models.Tag{tag1, tag2}
-	scanConfig1ExclusionTags := []models.Tag{tag3, tag4}
-	scope1 := models.AwsScanScope{
-		AllRegions:                 utils.PointerTo(false),
-		InstanceTagExclusion:       &scanConfig1ExclusionTags,
-		InstanceTagSelector:        &scanConfig1SelectorTags,
-		ObjectType:                 "AwsScanScope",
-		Regions:                    &ScanConfig1Regions,
-		ShouldScanStoppedInstances: utils.PointerTo(false),
-	}
-
-	var scanScopeType1 models.ScanScopeType
-
-	err := scanScopeType1.FromAwsScanScope(scope1)
-	if err != nil {
-		logger.Fatalf("failed to convert scope1: %v", err)
 	}
 
 	// Scan config 2
@@ -616,41 +496,6 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 		},
 	}
 
-	ScanConfig2SecurityGroups := []models.SecurityGroup{
-		{
-			Id: awsSGUSEast111,
-		},
-	}
-	ScanConfig2VPCs := []models.AwsVPC{
-		{
-			Id:             awsVPCUSEast11,
-			SecurityGroups: &ScanConfig2SecurityGroups,
-		},
-	}
-	ScanConfig2Regions := []models.AwsRegion{
-		{
-			Name: awsRegionUSEast1,
-			Vpcs: &ScanConfig2VPCs,
-		},
-	}
-	scanConfig2SelectorTags := []models.Tag{tag2}
-	scanConfig2ExclusionTags := []models.Tag{tag4}
-	scanConfig2Scope := models.AwsScanScope{
-		AllRegions:                 utils.PointerTo(false),
-		InstanceTagExclusion:       &scanConfig2ExclusionTags,
-		InstanceTagSelector:        &scanConfig2SelectorTags,
-		ObjectType:                 "AwsScanScope",
-		Regions:                    &ScanConfig2Regions,
-		ShouldScanStoppedInstances: utils.PointerTo(true),
-	}
-
-	var scanScopeType2 models.ScanScopeType
-
-	err = scanScopeType2.FromAwsScanScope(scanConfig2Scope)
-	if err != nil {
-		logger.Fatalf("failed to convert scanConfig2Scope: %v", err)
-	}
-
 	return []models.ScanConfig{
 		{
 			Name:               utils.PointerTo("Scan Config 1"),
@@ -658,7 +503,7 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 			Scheduled: &models.RuntimeScheduleScanConfig{
 				OperationTime: utils.PointerTo(time.Now().Add(5 * time.Hour)),
 			},
-			Scope:               &scanScopeType1,
+			Scope:               utils.PointerTo("startswith(targetInfo.location, 'eu-central-1')"),
 			MaxParallelScanners: utils.PointerTo(2),
 		},
 		{
@@ -673,7 +518,7 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 			Scheduled: &models.RuntimeScheduleScanConfig{
 				CronLine: utils.PointerTo("0 */4 * * *"),
 			},
-			Scope: &scanScopeType2,
+			Scope: utils.PointerTo("startswith(targetInfo.location, 'us-east-1')"),
 		},
 	}
 }

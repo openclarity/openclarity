@@ -69,97 +69,28 @@ func (c Client) Kind() models.CloudProvider {
 	return models.AWS
 }
 
-func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
-	regions, err := c.ListAllRegions(ctx, true)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list all regions: %w", err)
-	}
-
-	scopes := models.ScopeType{}
-	err = scopes.FromAwsAccountScope(models.AwsAccountScope{
-		Regions: convertToAPIRegions(regions),
-	})
-	if err != nil {
-		return nil, FatalError{
-			Err: fmt.Errorf("failed to cast AwsAccountScope to ScopeType: %w", err),
-		}
-	}
-
-	return &models.Scopes{
-		ScopeInfo: &scopes,
-	}, nil
-}
-
 // nolint:cyclop
-func (c *Client) DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error) {
-	var filters []ec2types.Filter
-
-	awsScanScope, err := scanScope.AsAwsScanScope()
+func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
+	regions, err := c.ListAllRegions(ctx)
 	if err != nil {
-		return nil, FatalError{
-			Err: fmt.Errorf("failed to cast ScanScopeType to AwsAccountScope: %w", err),
-		}
+		return nil, fmt.Errorf("failed to get regions: %w", err)
 	}
-
-	scope := convertFromAPIScanScope(&awsScanScope)
-
-	regions, err := c.getRegionsToScan(ctx, scope)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get regions to scan: %w", err)
-	}
-	if len(regions) == 0 {
-		return nil, FatalError{
-			Err: errors.New("no regions to scan"),
-		}
-	}
-
-	filters = append(filters, EC2FiltersFromTags(scope.TagSelector)...)
-
-	instanceStates := []ec2types.InstanceStateName{ec2types.InstanceStateNameRunning}
-	if scope.ScanStopped {
-		instanceStates = append(instanceStates, ec2types.InstanceStateNameStopped)
-	}
-	filters = append(filters, EC2FiltersFromInstanceState(instanceStates...)...)
 
 	assets := make([]models.AssetType, 0)
 	for _, region := range regions {
-		// if no vpcs, that mean that we don't need any vpc filters
-		if len(region.VPCs) == 0 {
-			instances, err := c.GetInstances(ctx, filters, scope.ExcludeTags, region.Name)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get instances: %w", err)
-			}
-
-			for _, instance := range instances {
-				asset, err := getVMInfoFromInstance(instance)
-				if err != nil {
-					return nil, FatalError{
-						Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
-					}
-				}
-				assets = append(assets, asset)
-			}
-
-			continue
+		instances, err := c.GetInstances(ctx, []ec2types.Filter{}, []models.Tag{}, region.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get instances: %w", err)
 		}
 
-		// need to do a per vpc call for DescribeInstances
-		for _, vpc := range region.VPCs {
-			vpcFilters := append(filters, createVPCFilters(vpc)...)
-
-			instances, err := c.GetInstances(ctx, vpcFilters, scope.ExcludeTags, region.Name)
+		for _, instance := range instances {
+			asset, err := getVMInfoFromInstance(instance)
 			if err != nil {
-				return nil, fmt.Errorf("failed to get instances: %w", err)
-			}
-			for _, instance := range instances {
-				asset, err := getVMInfoFromInstance(instance)
-				if err != nil {
-					return nil, FatalError{
-						Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
-					}
+				return nil, FatalError{
+					Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
 				}
-				assets = append(assets, asset)
 			}
+			assets = append(assets, asset)
 		}
 	}
 
@@ -790,10 +721,14 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, excludeTags []models.Tag, regionID string) ([]Instance, error) {
 	ret := make([]Instance, 0)
 
-	out, err := c.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
-		Filters:    filters,
+	input := &ec2.DescribeInstancesInput{
 		MaxResults: utils.PointerTo[int32](maxResults), // TODO what will be a good number?
-	}, func(options *ec2.Options) {
+	}
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	out, err := c.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
 		options.Region = regionID
 	})
 	if err != nil {
@@ -804,11 +739,15 @@ func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, ex
 	// use pagination
 	// TODO we can make it better by not saving all results in memory. See https://github.com/openclarity/vmclarity/pull/3#discussion_r1021656861
 	for out.NextToken != nil {
-		out, err = c.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
-			Filters:    filters,
-			MaxResults: utils.PointerTo[int32](maxResults),
+		input := &ec2.DescribeInstancesInput{
+			MaxResults: utils.PointerTo[int32](maxResults), // TODO what will be a good number?
 			NextToken:  out.NextToken,
-		}, func(options *ec2.Options) {
+		}
+		if len(filters) > 0 {
+			input.Filters = filters
+		}
+
+		out, err = c.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
 			options.Region = regionID
 		})
 		if err != nil {
@@ -829,6 +768,13 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 			if hasExcludeTags(excludeTags, instance.Tags) {
 				continue
 			}
+
+			// Ignore terminated instances they are destroyed and
+			// will be garbage collected by AWS.
+			if instance.State.Name == ec2types.InstanceStateNameTerminated {
+				continue
+			}
+
 			if err := validateInstanceFields(instance); err != nil {
 				logger.Errorf("Instance validation failed. instance id=%v: %v", getPointerValOrEmpty(instance.InstanceId), err)
 				continue
@@ -852,17 +798,7 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 	return ret
 }
 
-func (c *Client) getRegionsToScan(ctx context.Context, scope *ScanScope) ([]Region, error) {
-	if scope.AllRegions {
-		return c.ListAllRegions(ctx, false)
-	}
-
-	return scope.Regions, nil
-}
-
-func (c *Client) ListAllRegions(ctx context.Context, isRecursive bool) ([]Region, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
+func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {
 	ret := make([]Region, 0)
 	out, err := c.ec2Client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{
 		AllRegions: nil, // display also disabled regions?
@@ -875,41 +811,6 @@ func (c *Client) ListAllRegions(ctx context.Context, isRecursive bool) ([]Region
 		ret = append(ret, Region{
 			Name: *region.RegionName,
 		})
-	}
-
-	if isRecursive {
-		for i, region := range ret {
-			// List region VPCs
-			vpcs, err := c.ec2Client.DescribeVpcs(ctx, &ec2.DescribeVpcsInput{
-				MaxResults: utils.PointerTo[int32](maxResults),
-			}, func(options *ec2.Options) {
-				options.Region = region.Name
-			})
-			if err != nil {
-				logger.Errorf("Failed to describe vpcs. Region=%s: %v", region.Name, err)
-				continue
-			}
-			ret[i].VPCs = convertAwsVPCs(vpcs.Vpcs)
-			for i2, vpc := range ret[i].VPCs {
-				// List VPC's security groups
-				securityGroups, err := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{
-					Filters: []ec2types.Filter{
-						{
-							Name:   utils.PointerTo(VpcIDFilterName),
-							Values: []string{vpc.ID},
-						},
-					},
-					MaxResults: utils.PointerTo[int32](maxResults),
-				}, func(options *ec2.Options) {
-					options.Region = region.Name
-				})
-				if err != nil {
-					logger.Errorf("Failed to describe security groups. Region=%s, VpcID=%s: %v", region.Name, vpc.ID, err)
-					continue
-				}
-				ret[i].VPCs[i2].SecurityGroups = getSecurityGroupsFromEC2SecurityGroups(securityGroups.SecurityGroups)
-			}
-		}
 	}
 
 	return ret, nil

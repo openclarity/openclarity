@@ -178,74 +178,21 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 	return nil
 }
 
-func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
-	var ret models.Scopes
-	ret.ScopeInfo = &models.ScopeType{}
-	resourceGroups := []models.AzureResourceGroup{}
-
-	// discover all resource groups in the user subscription
-	res := c.rgClient.NewListPager(nil)
+// nolint: cyclop
+func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
+	var ret []models.AssetType
+	// list all vms in all resourceGroups in the subscription
+	res := c.vmClient.NewListAllPager(nil)
 	for res.More() {
 		page, err := res.NextPage(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get next page: %w", err)
 		}
-		for _, rg := range page.Value {
-			resourceGroups = append(resourceGroups, models.AzureResourceGroup{Name: *rg.Name})
+		ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult)
+		if err != nil {
+			return nil, err
 		}
-	}
-
-	err := ret.ScopeInfo.FromAzureSubscriptionScope(models.AzureSubscriptionScope{
-		ResourceGroups: &resourceGroups,
-		SubscriptionID: &c.azureConfig.SubscriptionID,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert from azure subscription scope: %v", err)
-	}
-
-	return &ret, nil
-}
-
-// nolint: cyclop
-func (c *Client) DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error) {
-	var ret []models.AssetType
-
-	azureScanScope, err := scanScope.AsAzureScanScope()
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert as azure scan scope: %v", err)
-	}
-
-	if azureScanScope.AllResourceGroups != nil && *azureScanScope.AllResourceGroups {
-		// list all vms in all resourceGroups in the subscription
-		res := c.vmClient.NewListAllPager(nil)
-		for res.More() {
-			page, err := res.NextPage(ctx)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get next page: %w", err)
-			}
-			ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult, azureScanScope)
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, ts...)
-		}
-		return ret, nil
-	}
-
-	// if scan scope is only for specific resource groups and not all:
-	for _, resourceGroup := range *azureScanScope.ResourceGroups {
-		res := c.vmClient.NewListPager(resourceGroup.Name, nil)
-		for res.More() {
-			page, err := res.NextPage(ctx)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get next page: %w", err)
-			}
-			ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult, azureScanScope)
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, ts...)
-		}
+		ret = append(ret, ts...)
 	}
 	return ret, nil
 }
@@ -263,16 +210,9 @@ func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, erro
 	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
 
-func processVirtualMachineListIntoAssetTypes(vmList armcompute.VirtualMachineListResult, azureScanScope models.AzureScanScope) ([]models.AssetType, error) {
+func processVirtualMachineListIntoAssetTypes(vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
 	ret := make([]models.AssetType, 0, len(vmList.Value))
 	for _, vm := range vmList.Value {
-		// filter by tags:
-		if !hasIncludeTags(vm, azureScanScope.InstanceTagSelector) {
-			continue
-		}
-		if hasExcludeTags(vm, azureScanScope.InstanceTagExclusion) {
-			continue
-		}
 		info, err := getVMInfoFromVirtualMachine(vm)
 		if err != nil {
 			return nil, fmt.Errorf("unable to convert instance to vminfo: %w", err)
@@ -301,56 +241,6 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.AssetTyp
 	}
 
 	return assetType, err
-}
-
-// AND logic - if tags = {tag1:val1, tag2:val2},
-// then a vm will be excluded/included only if it has ALL of these tags ({tag1:val1, tag2:val2}).
-func hasIncludeTags(vm *armcompute.VirtualMachine, tags *[]models.Tag) bool {
-	if tags == nil {
-		return true
-	}
-	if len(*tags) == 0 {
-		return true
-	}
-	if len(vm.Tags) == 0 {
-		return false
-	}
-
-	for _, tag := range *tags {
-		val, ok := vm.Tags[tag.Key]
-		if !ok {
-			return false
-		}
-		if !(strings.Compare(*val, tag.Value) == 0) {
-			return false
-		}
-	}
-	return true
-}
-
-// AND logic - if tags = {tag1:val1, tag2:val2},
-// then a vm will be excluded/included only if it has ALL of these tags ({tag1:val1, tag2:val2}).
-func hasExcludeTags(vm *armcompute.VirtualMachine, tags *[]models.Tag) bool {
-	if tags == nil {
-		return false
-	}
-	if len(*tags) == 0 {
-		return false
-	}
-	if len(vm.Tags) == 0 {
-		return false
-	}
-
-	for _, tag := range *tags {
-		val, ok := vm.Tags[tag.Key]
-		if !ok {
-			return false
-		}
-		if !(strings.Compare(*val, tag.Value) == 0) {
-			return false
-		}
-	}
-	return true
 }
 
 func convertTags(tags map[string]*string) *[]models.Tag {

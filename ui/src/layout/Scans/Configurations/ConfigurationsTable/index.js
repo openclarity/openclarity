@@ -3,13 +3,11 @@ import { isNull } from 'lodash';
 import ButtonWithIcon from 'components/ButtonWithIcon';
 import { ICON_NAMES } from 'components/Icon';
 import EmptyDisplay from 'components/EmptyDisplay';
-import ExpandableList from 'components/ExpandableList';
 import TablePage from 'components/TablePage';
 import { OPERATORS } from 'components/Filter';
-import { BoldText, toCapitalized, formatDate, getScanScopeColumnFiltersConfig, formatTagsToStringsList } from 'utils/utils';
+import { BoldText, toCapitalized, formatDate } from 'utils/utils';
 import { APIS } from 'utils/systemConsts';
 import { getScanTimeTypeTag } from 'layout/Scans/utils';
-import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
 import { useModalDisplayDispatch, MODAL_DISPLAY_ACTIONS } from 'layout/Scans/ScanConfigWizardModal/ModalDisplayProvider';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import ConfigurationActionsDisplay from '../ConfigurationActionsDisplay';
@@ -44,46 +42,10 @@ const ConfigurationsTable = () => {
             accessor: "name"
         },
         {
-            Header: "Scope",
+            Header: "Asset Query",
             id: "scope",
-            sortIds: [
-                "scope.allRegions",
-                "scope.regions"
-            ],
-            Cell: ({row}) => {
-                const {allRegions, regions} = row.original.scope;
-
-                return (
-                    <ExpandableScopeDisplay all={allRegions} regions={regions} />
-                )
-            },
-            alignToTop: true
-        },
-        {
-            Header: "Excluded instances",
-            id: "instanceTagExclusion",
-            sortIds: ["scope.instanceTagExclusion"],
-            Cell: ({row}) => {
-                const {instanceTagExclusion} = row.original.scope;
-                
-                return (
-                    <ExpandableList items={formatTagsToStringsList(instanceTagExclusion)} withTagWrap />
-                )
-            },
-            alignToTop: true
-        },
-        {
-            Header: "Included instances",
-            id: "instanceTagSelector",
-            sortIds: ["scope.instanceTagSelector"],
-            Cell: ({row}) => {
-                const {instanceTagSelector} = row.original.scope;
-                
-                return (
-                    <ExpandableList items={formatTagsToStringsList(instanceTagSelector)} withTagWrap />
-                )
-            },
-            alignToTop: true
+            sortIds: ["scope"],
+            accessor: "scope"
         },
         {
             Header: "Scan time",
@@ -150,11 +112,11 @@ const ConfigurationsTable = () => {
                         {...OPERATORS.endswith},
                         {...OPERATORS.contains, valueItems: [], creatable: true}
                     ]},
-                    ...getScanScopeColumnFiltersConfig(),
-                    {value: "scope.instanceTagExclusion", label: "Excluded instances", operators: [
-                        {...OPERATORS.contains, valueItems: [], creatable: true}
-                    ]},
-                    {value: "scope.instanceTagSelector", label: "Included instances", operators: [
+                    {value: "scope", label: "Asset Query", operators: [
+                        {...OPERATORS.eq, valueItems: [], creatable: true},
+                        {...OPERATORS.ne, valueItems: [], creatable: true},
+                        {...OPERATORS.startswith},
+                        {...OPERATORS.endswith},
                         {...OPERATORS.contains, valueItems: [], creatable: true}
                     ]},
                     {value: "scheduled.operationTime", label: "Scan time", isDate: true, operators: [

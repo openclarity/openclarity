@@ -324,6 +324,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Fields: odatasql.Schema{
 			"id":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"revision":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"terminated": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"lastSeen":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scansCount": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"assetInfo": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
@@ -405,11 +407,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
 			},
-			"scope": odatasql.FieldMeta{
-				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"AwsScanScope"},
-				DiscriminatorProperty: "objectType",
-			},
+			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"maxParallelScanners": odatasql.FieldMeta{
 				FieldType: odatasql.PrimitiveFieldType,
 			},
@@ -434,11 +432,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
 			},
-			"scope": odatasql.FieldMeta{
-				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"AwsScanScope"},
-				DiscriminatorProperty: "objectType",
-			},
+			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"maxParallelScanners": odatasql.FieldMeta{
 				FieldType: odatasql.PrimitiveFieldType,
 			},
@@ -531,89 +525,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
-	scopesSchemaName: {
-		Table: "scopes",
-		Fields: odatasql.Schema{
-			"scopeInfo": odatasql.FieldMeta{
-				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"AwsAccountScope"},
-				DiscriminatorProperty: "objectType",
-			},
-		},
-	},
-	"AwsAccountScope": {
-		Fields: odatasql.Schema{
-			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"regions": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"AwsRegion"},
-				},
-			},
-		},
-	},
-	"AwsScanScope": {
-		Fields: odatasql.Schema{
-			"objectType":                 odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"allRegions":                 odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"shouldScanStoppedInstances": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"instanceTagExclusion": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"Tag"},
-				},
-			},
-			"instanceTagSelector": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"Tag"},
-				},
-			},
-			"regions": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"AwsRegion"},
-				},
-			},
-		},
-	},
 	"Tag": {
 		Fields: odatasql.Schema{
 			"key":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"value": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-		},
-	},
-	"AwsRegion": {
-		Fields: odatasql.Schema{
-			"name": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"vpcs": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"AwsVPC"},
-				},
-			},
-		},
-	},
-	"AwsVPC": {
-		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"securityGroups": odatasql.FieldMeta{
-				FieldType: odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType:           odatasql.ComplexFieldType,
-					ComplexFieldSchemas: []string{"AwsSecurityGroup"},
-				},
-			},
-		},
-	},
-	"AwsSecurityGroup": {
-		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"Finding": {

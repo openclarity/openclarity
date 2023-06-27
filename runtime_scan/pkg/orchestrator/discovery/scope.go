@@ -17,12 +17,16 @@ package discovery
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 const (
@@ -44,17 +48,12 @@ func New(config Config) *ScopeDiscoverer {
 func (sd *ScopeDiscoverer) Start(ctx context.Context) {
 	go func() {
 		for {
-			log.Debug("Discovering available scopes")
-			// nolint:contextcheck
-			scopes, err := sd.providerClient.DiscoverScopes(ctx)
+			log.Debug("Discovering available assets")
+			err := sd.DiscoverAndCreateAssets(ctx)
 			if err != nil {
-				log.Warnf("Failed to discover scopes: %v", err)
-			} else {
-				_, err := sd.backendClient.PutDiscoveryScopes(ctx, scopes)
-				if err != nil {
-					log.Warnf("Failed to set scopes: %v", err)
-				}
+				log.Warnf("Failed to discover assets: %v", err)
 			}
+
 			select {
 			case <-time.After(discoveryInterval):
 				log.Debug("Discovery interval elapsed")
@@ -64,4 +63,76 @@ func (sd *ScopeDiscoverer) Start(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+func (sd *ScopeDiscoverer) DiscoverAndCreateAssets(ctx context.Context) error {
+	discoveryTime := time.Now()
+
+	assetTypes, err := sd.providerClient.DiscoverAssets(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to discover assets from provider: %w", err)
+	}
+
+	errs := []error{}
+	for _, assetType := range assetTypes {
+		assetData := models.Asset{
+			AssetInfo: utils.PointerTo(assetType),
+			LastSeen:  &discoveryTime,
+		}
+		_, err := sd.backendClient.PostAsset(ctx, assetData)
+		if err == nil {
+			continue
+		}
+
+		var conflictError backendclient.AssetConflictError
+		if !errors.As(err, &conflictError) {
+			// If there is an error, and its not a conflict telling
+			// us that the asset already exists, then we need to
+			// keep track of it and log it as a failure to
+			// complete discovery. We don't fail instantly here
+			// because discovering the assets is a heavy operation
+			// so we want to give the best chance to create all the
+			// assets in the DB before failing.
+			errs = append(errs, fmt.Errorf("failed to post asset: %v", err))
+			continue
+		}
+
+		// As we got a conflict it means there is an existing asset
+		// which matches the unique properties of this asset, in this
+		// case we'll patch the data instead.
+		err = sd.backendClient.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to patch asset: %v", err))
+		}
+	}
+
+	// Find all assets which are not already terminated and were not
+	// updated or created by this discovery run by comparing their
+	// lastSeen time to this discovery's time stamp
+	//
+	// TODO(sambetts) when we add multiple providers/standalone support we
+	// need to filter these assets by provider so that we don't find assets
+	// which don't belong to us. We need to give the provider some kind of
+	// identity in this case.
+	assetResp, err := sd.backendClient.GetAssets(ctx, models.GetAssetsParams{
+		Filter: utils.PointerTo(fmt.Sprintf("terminated eq null and (lastSeen eq null or lastSeen lt %s)", discoveryTime.Format(time.RFC3339))),
+		Select: utils.PointerTo("id"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get existing Assets: %w", err)
+	}
+
+	// Patch all assets which were not found by this discovery as terminated
+	for _, asset := range *assetResp.Items {
+		assetData := models.Asset{
+			Terminated: &discoveryTime,
+		}
+
+		err := sd.backendClient.PatchAsset(ctx, assetData, *asset.Id)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to patch asset: %v", err))
+		}
+	}
+
+	return errors.Join(errs...)
 }

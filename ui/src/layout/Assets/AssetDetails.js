@@ -48,7 +48,7 @@ const AssetDetails = () => (
     <DetailsPageWrapper
         backTitle="Assets"
         url={APIS.ASSETS}
-        select="id,assetInfo,summary"
+        select="id,assetInfo,summary,lastSeen,terminated"
         getTitleData={({assetInfo}) => ({title: assetInfo?.instanceID})}
         detailsContent={props => <DetailsContent {...props} />}
         withPadding

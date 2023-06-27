@@ -15,8 +15,8 @@
 
 package models
 
-func (d *ScanConfigSnapshot) GetScope() (ScanScopeType, bool) {
-	var scope ScanScopeType
+func (d *ScanConfigSnapshot) GetScope() (string, bool) {
+	var scope string
 	var ok bool
 
 	if d.Scope != nil {

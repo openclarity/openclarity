@@ -5,11 +5,10 @@ import { utils } from 'components/Table';
 import ScanProgressBar, { SCAN_STATES } from 'components/ScanProgressBar';
 import EmptyDisplay from 'components/EmptyDisplay';
 import { OPERATORS } from 'components/Filter';
-import { ExpandableScopeDisplay } from 'layout/Scans/scopeDisplayUtils';
 import { useModalDisplayDispatch, MODAL_DISPLAY_ACTIONS } from 'layout/Scans/ScanConfigWizardModal/ModalDisplayProvider';
 import { APIS, ROUTES } from 'utils/systemConsts';
 import { formatDate, getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatNumber, findingsColumnsFiltersConfig,
-    vulnerabilitiesCountersColumnsFiltersConfig, getScanScopeColumnFiltersConfig } from 'utils/utils';
+    vulnerabilitiesCountersColumnsFiltersConfig } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import ScanActionsDisplay from './ScanActionsDisplay';
 import { SCANS_PATHS } from '../utils';
@@ -57,16 +56,8 @@ const ScansTable = () => {
         {
             Header: "Scope",
             id: "scope",
-            sortIds: [
-                "scanConfigSnapshot.scope.allRegions",
-                "scanConfigSnapshot.scope.regions"
-            ],
-            Cell: ({row}) => {
-                const {allRegions, regions} = row.original.scanConfigSnapshot?.scope;
-
-                return <ExpandableScopeDisplay all={allRegions} regions={regions || []} />
-            },
-            width: 260
+            sortIds: ["scanConfigSnapshot.scope"],
+            accessor: "scanConfigSnapshot.scope"
         },
         {
             Header: "Status",
@@ -113,11 +104,18 @@ const ScansTable = () => {
             filterType={FILTER_TYPES.SCANS}
             filtersConfig={[
                 {value: "scanConfigSnapshot.name", label: "Config name", operators: [
-                    {...OPERATORS.eq, valueItems: [], creatable: true},
-                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                   {...OPERATORS.eq, valueItems: [], creatable: true},
+                   {...OPERATORS.ne, valueItems: [], creatable: true},
+                   {...OPERATORS.startswith},
+                   {...OPERATORS.endswith},
+                   {...OPERATORS.contains, valueItems: [], creatable: true}
+                ]},
+                {value: "scope", label: "Asset Query", operators: [
+                    {...OPERATORS.eq, valueitems: [], creatable: true},
+                    {...OPERATORS.ne, valueitems: [], creatable: true},
                     {...OPERATORS.startswith},
                     {...OPERATORS.endswith},
-                    {...OPERATORS.contains, valueItems: [], creatable: true}
+                    {...OPERATORS.contains, valueitems: [], creatable: true}
                 ]},
                 {value: "startTime", label: "Started", isDate: true, operators: [
                     {...OPERATORS.ge},
@@ -127,7 +125,6 @@ const ScansTable = () => {
                     {...OPERATORS.ge},
                     {...OPERATORS.le},
                 ]},
-                ...getScanScopeColumnFiltersConfig("scanConfigSnapshot.scope"),
                 {value: "state", label: "Status", operators: [
                     {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUS_ITEMS},
                     {...OPERATORS.ne, valueItems: FILTER_SCAN_STATUS_ITEMS}

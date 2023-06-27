@@ -21,7 +21,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
@@ -141,86 +140,6 @@ func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, region st
 	}
 }
 
-func convertFromAPIScanScope(scope *models.AwsScanScope) *ScanScope {
-	var tagSelector []models.Tag
-	if scope.InstanceTagSelector != nil {
-		tagSelector = *scope.InstanceTagSelector
-	}
-
-	var excludeTags []models.Tag
-	if scope.InstanceTagExclusion != nil {
-		excludeTags = *scope.InstanceTagExclusion
-	}
-
-	return &ScanScope{
-		AllRegions:  convertBool(scope.AllRegions),
-		Regions:     convertFromAPIRegions(scope.Regions),
-		ScanStopped: convertBool(scope.ShouldScanStoppedInstances),
-		TagSelector: tagSelector,
-		ExcludeTags: excludeTags,
-	}
-}
-
-func convertFromAPIRegions(regions *[]models.AwsRegion) []Region {
-	var ret []Region
-	if regions != nil {
-		for _, region := range *regions {
-			ret = append(ret, Region{
-				Name: region.Name,
-				VPCs: convertFromAPIVPCs(region.Vpcs),
-			})
-		}
-	}
-
-	return ret
-}
-
-func convertFromAPIVPCs(vpcs *[]models.AwsVPC) []VPC {
-	if vpcs == nil {
-		return nil
-	}
-	ret := make([]VPC, len(*vpcs))
-	for i, vpc := range *vpcs {
-		ret[i] = VPC{
-			ID:             vpc.Id,
-			SecurityGroups: *vpc.SecurityGroups,
-		}
-	}
-
-	return ret
-}
-
-func convertToAPIRegions(regions []Region) *[]models.AwsRegion {
-	ret := make([]models.AwsRegion, len(regions))
-	for i := range regions {
-		ret[i] = models.AwsRegion{
-			Name: regions[i].Name,
-			Vpcs: convertToAPIVPCs(regions[i].VPCs),
-		}
-	}
-
-	return &ret
-}
-
-func convertToAPIVPCs(vpcs []VPC) *[]models.AwsVPC {
-	ret := make([]models.AwsVPC, len(vpcs))
-	for i := range vpcs {
-		ret[i] = models.AwsVPC{
-			Id:             vpcs[i].ID,
-			SecurityGroups: utils.PointerTo(vpcs[i].SecurityGroups),
-		}
-	}
-
-	return &ret
-}
-
-func convertBool(all *bool) bool {
-	if all != nil {
-		return *all
-	}
-	return false
-}
-
 func getTagsFromECTags(tags []ec2types.Tag) []models.Tag {
 	if len(tags) == 0 {
 		return nil
@@ -295,55 +214,6 @@ func getSecurityGroupsIDs(sg []ec2types.GroupIdentifier) []models.SecurityGroup 
 	return securityGroups
 }
 
-func getVPCSecurityGroupsIDs(vpc VPC) []string {
-	sgs := make([]string, len(vpc.SecurityGroups))
-	for i, sg := range vpc.SecurityGroups {
-		sgs[i] = sg.Id
-	}
-	return sgs
-}
-
-func createVPCFilters(vpc VPC) []ec2types.Filter {
-	ret := make([]ec2types.Filter, 0)
-
-	// create per vpc filters
-	ret = append(ret, ec2types.Filter{
-		Name:   utils.PointerTo(VpcIDFilterName),
-		Values: []string{vpc.ID},
-	})
-	sgs := getVPCSecurityGroupsIDs(vpc)
-	if len(sgs) > 0 {
-		ret = append(ret, ec2types.Filter{
-			Name:   utils.PointerTo(SecurityGroupIDFilterName),
-			Values: sgs,
-		})
-	}
-
-	log.Infof("VPC filter created: %+v", ret)
-
-	return ret
-}
-
-func EC2FiltersFromInstanceState(states ...ec2types.InstanceStateName) []ec2types.Filter {
-	values := make([]string, 0, len(states))
-	for _, state := range states {
-		values = append(values, string(state))
-	}
-
-	return []ec2types.Filter{
-		{
-			Name:   utils.PointerTo(InstanceStateFilterName),
-			Values: values,
-		},
-	}
-}
-
-// If you specify multiple filters, the filters are joined with an AND, and the request returns
-// only results that match all the specified filters.
-func createInclusionTagsFilters(tags []models.Tag) []ec2types.Filter {
-	return EC2FiltersFromTags(tags)
-}
-
 func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdentifier) []models.SecurityGroup {
 	var ret []models.SecurityGroup
 
@@ -351,34 +221,6 @@ func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdenti
 		if identifier.GroupId != nil {
 			ret = append(ret, models.SecurityGroup{
 				Id: *identifier.GroupId,
-			})
-		}
-	}
-
-	return ret
-}
-
-func getSecurityGroupsFromEC2SecurityGroups(groups []ec2types.SecurityGroup) []models.SecurityGroup {
-	var ret []models.SecurityGroup
-
-	for _, securityGroup := range groups {
-		if securityGroup.GroupId != nil {
-			ret = append(ret, models.SecurityGroup{
-				Id: *securityGroup.GroupId,
-			})
-		}
-	}
-
-	return ret
-}
-
-func convertAwsVPCs(vpcs []ec2types.Vpc) []VPC {
-	var ret []VPC
-	for _, vpc := range vpcs {
-		if vpc.VpcId != nil {
-			ret = append(ret, VPC{
-				ID:             *vpc.VpcId,
-				SecurityGroups: nil,
 			})
 		}
 	}

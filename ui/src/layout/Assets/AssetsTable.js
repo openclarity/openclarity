@@ -3,7 +3,7 @@ import TablePage from 'components/TablePage';
 import ExpandableList from 'components/ExpandableList';
 import { APIS } from 'utils/systemConsts';
 import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, getAssetColumnsFiltersConfig,
-    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, formatTagsToStringsList } from 'utils/utils';
+    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, formatTagsToStringsList, formatDate} from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 
 const TABLE_TITLE = "assets";
@@ -43,6 +43,18 @@ const AssetsTable = () => {
             sortIds: LOCATION_SORT_IDS,
             accessor: "assetInfo.location"
         },
+        {
+            Header: "LastSeen",
+            id: "lastSeen",
+            sortIds: ["lastSeen"],
+            accessor: original => formatDate(original.lastSeen)
+        },
+        {
+            Header: "Terminated",
+            id: "terminated",
+            sortIds: ["terminated"],
+            accessor: original => formatDate(original?.terminated)
+        },
         getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
         ...getFindingsColumnsConfigList(TABLE_TITLE)
     ], []);
@@ -51,7 +63,7 @@ const AssetsTable = () => {
         <TablePage
             columns={columns}
             url={APIS.ASSETS}
-            select="id,assetInfo,summary"
+            select="id,assetInfo,summary,lastSeen,terminated"
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSETS}
             filtersConfig={[
@@ -59,7 +71,7 @@ const AssetsTable = () => {
                 ...vulnerabilitiesCountersColumnsFiltersConfig,
                 ...findingsColumnsFiltersConfig
             ]}
-            defaultSortBy={{sortIds: LOCATION_SORT_IDS, desc: false}}
+            defaultSortBy={{sortIds: ["lastSeen", "terminated"], desc: true}}
             withMargin
         />
     )
