@@ -190,7 +190,7 @@ kubeclarity-runtime-scan:
       analyzerScope: "squashed"
 
       trivy:
-        ## Enable trivy scanner, if true make sure to add it to analyzerList above
+        ## Enable trivy analyzer, if true make sure to add it to analyzerList above
         ##
         enabled: false
         timeout: "300"
