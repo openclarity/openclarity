@@ -11,7 +11,8 @@ import FindingsCounterDisplay from './FindingsCounterDisplay';
 import FindingsSystemFilterLinks from './FindingsSystemFilterLinks';
 
 const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, findingsFilterSuffix=""}) => {
-    const {totalVulnerabilities} = findingsSummary || {};
+    findingsSummary = findingsSummary || {};
+    const {totalVulnerabilities} = findingsSummary;
 
     const {pathname} = useLocation();
     const filtersDispatch = useFilterDispatch();
@@ -26,7 +27,7 @@ const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, finding
                 backPath: pathname,
                 customDisplay: () => (
                     <FindingsSystemFilterLinks
-                        findingsSummary={findingsSummary || {}}
+                        findingsSummary={findingsSummary}
                         totalVulnerabilitiesCount={getTotlalVulnerabilitiesFromCounters(totalVulnerabilities)}
                     />
                 )
