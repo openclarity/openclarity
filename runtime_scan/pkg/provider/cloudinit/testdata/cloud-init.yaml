@@ -31,6 +31,7 @@ write_files:
       ExecStartPre=mkdir -p /var/opt/vmclarity
       ExecStartPre=docker pull ghcr.io/openclarity/vmclarity-cli:latest
       ExecStart=docker run --rm --name %n --privileged \
+          -v /:/hostfs \
           -v /dev:/dev \
           -v /opt/vmclarity:/opt/vmclarity \
           -v /run:/run \
