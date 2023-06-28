@@ -21,6 +21,7 @@ write_files:
       ExecStartPre=mkdir -p /var/opt/vmclarity
       ExecStartPre=docker pull {{ .ScannerImage }}
       ExecStart=docker run --rm --name %n --privileged \
+          -v /:/hostfs \
           -v /dev:/dev \
           -v /opt/vmclarity:/opt/vmclarity \
           -v /run:/run \
