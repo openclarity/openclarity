@@ -32,7 +32,9 @@ ARG COMMIT_HASH
 
 ENV CGO_ENABLED=1
 
-RUN go build -ldflags="-s -w -extldflags -static \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w -extldflags -static \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/vmclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
