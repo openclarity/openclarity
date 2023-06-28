@@ -51,7 +51,7 @@ const AssetsTable = () => {
         <TablePage
             columns={columns}
             url={APIS.ASSETS}
-            select="id,targetInfo"
+            select="id,targetInfo,summary"
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSETS}
             filtersConfig={[
