@@ -1,4 +1,4 @@
-{{- if (((.Values.kubeclarity).prometheus).serviceMonitor).enabled -}}
+{{- if .Values.kubeclarity.prometheus.serviceMonitor.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -16,5 +16,5 @@ spec:
   endpoints:
   - port: metrics
     path: "/metrics"
-    interval: {{ (((.Values.kubeclarity).prometheus).serviceMonitor).interval }}
+    interval: {{ .Values.kubeclarity.prometheus.serviceMonitor.interval }}
 {{- end }}
