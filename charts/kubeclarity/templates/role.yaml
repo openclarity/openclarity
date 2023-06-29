@@ -4,7 +4,7 @@ metadata:
   name: {{ include "kubeclarity.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "kubeclarity.labels" . }}
+    {{- include "kubeclarity.labels" . | nindent 4 }}
 rules:
   # Runtime scan permissions. Only within the kubeclarity namespace do we need to:
   # a) read the configmaps to get the scanner job template
