@@ -16,4 +16,4 @@ spec:
   - port: metrics
     path: "/metrics"
     interval: {{ (((.Values.kubeclarity).prometheus).serviceMonitor).interval }}
-{{- end -}}
+{{- end }}
