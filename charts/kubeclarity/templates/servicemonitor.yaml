@@ -3,8 +3,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "kubeclarity.name" . }}
-  {{- if (((.Values.kubeclarity).prometheus).serviceMonitor).annotations }}
-  annotations: {{- toYaml (((.Values.kubeclarity).prometheus).serviceMonitor).annotations | nindent 4 }}
+  {{- with (((.Values.kubeclarity).prometheus).serviceMonitor).annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
     {{- include "kubeclarity.labels" . | nindent 4 }}
