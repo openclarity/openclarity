@@ -10,7 +10,8 @@ kind: ConfigMap
 metadata:
   name: {{ include "kubeclarity.name" . }}-scanner-template
   namespace: '{{ .Release.Namespace }}'
-  labels: {{ include "kubeclarity.labels" . | nindent 4 }}
+  labels:
+    {{- include "kubeclarity.labels" . | nindent 4 }}
 data:
   config: |-
     apiVersion: batch/v1
