@@ -91,7 +91,7 @@ func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
 }
 
 // nolint:cyclop
-func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.TargetType, error) {
+func (c *Client) DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error) {
 	var filters []ec2types.Filter
 
 	awsScanScope, err := scanScope.AsAwsScanScope()
@@ -121,7 +121,7 @@ func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScop
 	}
 	filters = append(filters, EC2FiltersFromInstanceState(instanceStates...)...)
 
-	targets := make([]models.TargetType, 0)
+	assets := make([]models.AssetType, 0)
 	for _, region := range regions {
 		// if no vpcs, that mean that we don't need any vpc filters
 		if len(region.VPCs) == 0 {
@@ -131,13 +131,13 @@ func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScop
 			}
 
 			for _, instance := range instances {
-				target, err := getVMInfoFromInstance(instance)
+				asset, err := getVMInfoFromInstance(instance)
 				if err != nil {
 					return nil, FatalError{
-						Err: fmt.Errorf("failed convert EC2 Instance to TargetType: %w", err),
+						Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
 					}
 				}
-				targets = append(targets, target)
+				assets = append(assets, asset)
 			}
 
 			continue
@@ -152,18 +152,18 @@ func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScop
 				return nil, fmt.Errorf("failed to get instances: %w", err)
 			}
 			for _, instance := range instances {
-				target, err := getVMInfoFromInstance(instance)
+				asset, err := getVMInfoFromInstance(instance)
 				if err != nil {
 					return nil, FatalError{
-						Err: fmt.Errorf("failed convert EC2 Instance to TargetType: %w", err),
+						Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
 					}
 				}
-				targets = append(targets, target)
+				assets = append(assets, asset)
 			}
 		}
 	}
 
-	return targets, nil
+	return assets, nil
 }
 
 // nolint:nilnil
@@ -304,17 +304,17 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 }
 
 // nolint:cyclop,gocognit,maintidx
-func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	vmInfo, err := config.TargetInfo.AsVMInfo()
+func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
 		return FatalError{Err: err}
 	}
 
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
-		"TargetInstanceID": vmInfo.InstanceID,
-		"TargetLocation":   vmInfo.Location,
-		"ScannerLocation":  c.config.ScannerRegion,
-		"Provider":         string(c.Kind()),
+		"AssetInstanceID": vmInfo.InstanceID,
+		"AssetLocation":   vmInfo.Location,
+		"ScannerLocation": c.config.ScannerRegion,
+		"Provider":        string(c.Kind()),
 	})
 
 	// Note(chrisgacsal): In order to speed up the initialization process the scanner instance and the volume are created
@@ -354,85 +354,85 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		}
 	}()
 
-	// Create volume snapshot from the root volume of the Target Instance used for scanning by:
-	// * fetching the Target Instance from provider
-	// * creating a volume snapshot from the root volume of the Target Instance
+	// Create volume snapshot from the root volume of the Asset Instance used for scanning by:
+	// * fetching the Asset Instance from provider
+	// * creating a volume snapshot from the root volume of the Asset Instance
 	// * copying the volume snapshot to the region/location of the scanner instance if they are deployed in separate locations
 	var destVolSnapshot *Snapshot
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		logger.Debug("Getting target VM instance")
+		logger.Debug("Getting asset VM instance")
 
-		targetVMLocation, err := NewLocation(vmInfo.Location)
+		assetVMLocation, err := NewLocation(vmInfo.Location)
 		if err != nil {
 			errs <- FatalError{
-				Err: fmt.Errorf("failed to parse Location for target VM instance: %w", err),
+				Err: fmt.Errorf("failed to parse Location for asset VM instance: %w", err),
 			}
 			return
 		}
 
 		var SrcEC2Instance *ec2types.Instance
-		SrcEC2Instance, err = c.getInstanceWithID(ctx, vmInfo.InstanceID, targetVMLocation.Region)
+		SrcEC2Instance, err = c.getInstanceWithID(ctx, vmInfo.InstanceID, assetVMLocation.Region)
 		if err != nil {
-			errs <- WrapError(fmt.Errorf("failed to fetch target VM instance: %w", err))
+			errs <- WrapError(fmt.Errorf("failed to fetch asset VM instance: %w", err))
 			return
 		}
 		if SrcEC2Instance == nil {
 			errs <- FatalError{
-				Err: fmt.Errorf("failed to find target VM instance. InstanceID=%s", vmInfo.InstanceID),
+				Err: fmt.Errorf("failed to find asset VM instance. InstanceID=%s", vmInfo.InstanceID),
 			}
 			return
 		}
 
-		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, targetVMLocation.Region, config)
+		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, assetVMLocation.Region, config)
 
-		logger.WithField("TargetInstanceID", srcInstance.ID).Trace("Found target VM instance")
+		logger.WithField("AssetInstanceID", srcInstance.ID).Trace("Found asset VM instance")
 
 		srcVol := srcInstance.RootVolume()
 		if srcVol == nil {
 			errs <- FatalError{
-				Err: errors.New("failed to get root block device for target VM instance"),
+				Err: errors.New("failed to get root block device for asset VM instance"),
 			}
 			return
 		}
 
-		logger.WithField("TargetVolumeID", srcVol.ID).Debug("Creating target volume snapshot for target VM instance")
+		logger.WithField("AssetVolumeID", srcVol.ID).Debug("Creating asset volume snapshot for asset VM instance")
 		srcVolSnapshot, err := srcVol.CreateSnapshot(ctx)
 		if err != nil {
-			errs <- WrapError(fmt.Errorf("failed to create volume snapshot from target volume. TargetVolumeID=%s: %w",
+			errs <- WrapError(fmt.Errorf("failed to create volume snapshot from asset volume. AssetVolumeID=%s: %w",
 				srcVol.ID, err))
 			return
 		}
 
 		ready, err := srcVolSnapshot.IsReady(ctx)
 		if err != nil {
-			err = fmt.Errorf("failed to get volume snapshot state. TargetVolumeSnapshotID=%s: %w",
+			err = fmt.Errorf("failed to get volume snapshot state. AssetVolumeSnapshotID=%s: %w",
 				srcVolSnapshot.ID, err)
 			errs <- WrapError(err)
 			return
 		}
 
 		logger.WithFields(logrus.Fields{
-			"TargetVolumeID":         srcVol.ID,
-			"TargetVolumeSnapshotID": srcVolSnapshot.ID,
-		}).Debugf("Target volume snapshot is ready: %t", ready)
+			"AssetVolumeID":         srcVol.ID,
+			"AssetVolumeSnapshotID": srcVolSnapshot.ID,
+		}).Debugf("Asset volume snapshot is ready: %t", ready)
 		if !ready {
 			errs <- RetryableError{
-				Err:   errors.New("target volume snapshot is not ready"),
+				Err:   errors.New("asset volume snapshot is not ready"),
 				After: SnapshotReadynessAfter,
 			}
 			return
 		}
 
 		logger.WithFields(logrus.Fields{
-			"TargetVolumeID":         srcVol.ID,
-			"TargetVolumeSnapshotID": srcVolSnapshot.ID,
-		}).Debug("Copying target volume snapshot to scanner location")
+			"AssetVolumeID":         srcVol.ID,
+			"AssetVolumeSnapshotID": srcVolSnapshot.ID,
+		}).Debug("Copying asset volume snapshot to scanner location")
 		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, c.config.ScannerRegion)
 		if err != nil {
-			err = fmt.Errorf("failed to copy target volume snapshot to location. TargetVolumeSnapshotID=%s Location=%s: %w",
+			err = fmt.Errorf("failed to copy asset volume snapshot to location. AssetVolumeSnapshotID=%s Location=%s: %w",
 				srcVolSnapshot.ID, c.config.ScannerRegion, err)
 			errs <- WrapError(err)
 			return
@@ -447,8 +447,8 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		}
 
 		logger.WithFields(logrus.Fields{
-			"TargetVolumeID":          srcVol.ID,
-			"TargetVolumeSnapshotID":  srcVolSnapshot.ID,
+			"AssetVolumeID":           srcVol.ID,
+			"AssetVolumeSnapshotID":   srcVolSnapshot.ID,
 			"ScannerVolumeSnapshotID": destVolSnapshot.ID,
 		}).Debugf("Scanner volume snapshot is ready: %t", ready)
 
@@ -662,11 +662,11 @@ func (c *Client) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.F
 	return true, nil
 }
 
-// RemoveTargetScan removes all the cloud resources associated with a Scan defined by config parameter.
+// RemoveAssetScan removes all the cloud resources associated with a Scan defined by config parameter.
 // The operation is idempotent, therefore it is safe to call it multiple times.
 // nolint:cyclop,gocognit
-func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	vmInfo, err := config.TargetInfo.AsVMInfo()
+func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
 		return FatalError{Err: err}
 	}
@@ -741,7 +741,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 		}
 	}()
 
-	// Delete volume snapshot created from the Target instance volume
+	// Delete volume snapshot created from the Asset instance volume
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -758,16 +758,16 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 			return
 		}
 
-		logger.WithField("TargetLocation", vmInfo.Location).Debug("Deleting target volume snapshot.")
+		logger.WithField("AssetLocation", vmInfo.Location).Debug("Deleting asset volume snapshot.")
 		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, location.Region)
 		if err != nil {
-			errs <- fmt.Errorf("failed to delete target volume snapshot: %w", err)
+			errs <- fmt.Errorf("failed to delete asset volume snapshot: %w", err)
 			return
 		}
 
 		if !done {
 			errs <- RetryableError{
-				Err:   errors.New("deleting Target volume snapshot is in-progress"),
+				Err:   errors.New("deleting Asset volume snapshot is in-progress"),
 				After: SnapshotReadynessAfter,
 			}
 			return

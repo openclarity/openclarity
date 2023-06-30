@@ -198,7 +198,7 @@ func (s *FindingsTableHandler) UpdateFinding(finding models.Finding) (models.Fin
 
 func (s *FindingsTableHandler) DeleteFinding(findingID models.FindingID) error {
 	if err := deleteObjByID(s.DB, findingID, &Finding{}); err != nil {
-		return fmt.Errorf("failed to delete target: %w", err)
+		return fmt.Errorf("failed to delete asset: %w", err)
 	}
 
 	return nil

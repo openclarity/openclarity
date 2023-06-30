@@ -110,28 +110,28 @@ func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findin
 }
 
 func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) ([]models.VulnerabilityRiskyAsset, error) {
-	targets, err := s.getRiskiestAssetsPerFinding(ctx, backendmodels.VULNERABILITY)
+	assets, err := s.getRiskiestAssetsPerFinding(ctx, backendmodels.VULNERABILITY)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get riskiest assets: %v", err)
 	}
 
-	return toAPIVulnerabilityRiskyAssets(*targets.Items), nil
+	return toAPIVulnerabilityRiskyAssets(*assets.Items), nil
 }
 
-func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingType backendmodels.ScanType) (*backendmodels.Targets, error) {
+func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingType backendmodels.ScanType) (*backendmodels.Assets, error) {
 	totalFindingField, err := getTotalFindingFieldName(findingType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get total findings field name: %v", err)
 	}
 
-	riskiestAssets, err := s.BackendClient.GetTargets(ctx, backendmodels.GetTargetsParams{
-		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,targetInfo", totalFindingField)),
+	riskiestAssets, err := s.BackendClient.GetAssets(ctx, backendmodels.GetAssetsParams{
+		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
 		Top:     utils.PointerTo(topRiskiestAssetsCount),
 		OrderBy: utils.PointerTo(getOrderByOData(totalFindingField)),
 		Filter:  utils.PointerTo(fmt.Sprintf("summary/%s ne null", totalFindingField)),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get targets: %v", err)
+		return nil, fmt.Errorf("failed to get assets: %v", err)
 	}
 
 	return riskiestAssets, nil
@@ -154,17 +154,17 @@ func getOrderByOdataForVulnerabilities() string {
 	return strings.Join(ret, ",")
 }
 
-func toAPIVulnerabilityRiskyAssets(targets []backendmodels.Target) []models.VulnerabilityRiskyAsset {
-	ret := make([]models.VulnerabilityRiskyAsset, 0, len(targets))
+func toAPIVulnerabilityRiskyAssets(assets []backendmodels.Asset) []models.VulnerabilityRiskyAsset {
+	ret := make([]models.VulnerabilityRiskyAsset, 0, len(assets))
 
-	for _, target := range targets {
-		assetInfo, err := getAssetInfo(target.TargetInfo)
+	for _, asset := range assets {
+		assetInfo, err := getAssetInfo(asset.AssetInfo)
 		if err != nil {
-			log.Warningf("Failed to get asset info, skipping target: %v", err)
+			log.Warningf("Failed to get asset info, skipping asset: %v", err)
 			continue
 		}
 
-		summary := target.Summary.TotalVulnerabilities
+		summary := asset.Summary.TotalVulnerabilities
 		ret = append(ret, models.VulnerabilityRiskyAsset{
 			AssetInfo:                      assetInfo,
 			CriticalVulnerabilitiesCount:   summary.TotalCriticalVulnerabilities,
@@ -178,19 +178,19 @@ func toAPIVulnerabilityRiskyAssets(targets []backendmodels.Target) []models.Vuln
 	return ret
 }
 
-func toAPIRiskyAssets(targets []backendmodels.Target, findingType backendmodels.ScanType) []models.RiskyAsset {
-	ret := make([]models.RiskyAsset, 0, len(targets))
+func toAPIRiskyAssets(assets []backendmodels.Asset, findingType backendmodels.ScanType) []models.RiskyAsset {
+	ret := make([]models.RiskyAsset, 0, len(assets))
 
-	for _, target := range targets {
-		assetInfo, err := getAssetInfo(target.TargetInfo)
+	for _, asset := range assets {
+		assetInfo, err := getAssetInfo(asset.AssetInfo)
 		if err != nil {
-			log.Warningf("Failed to get asset info, skipping target: %v", err)
+			log.Warningf("Failed to get asset info, skipping asset: %v", err)
 			continue
 		}
 
-		count, err := getCountForFindingType(target.Summary, findingType)
+		count, err := getCountForFindingType(asset.Summary, findingType)
 		if err != nil {
-			log.Warningf("Failed to get count from summary, skipping target (%v/%v): %v", *assetInfo.Location, *assetInfo.Name, err)
+			log.Warningf("Failed to get count from summary, skipping asset (%v/%v): %v", *assetInfo.Location, *assetInfo.Name, err)
 			continue
 		}
 
@@ -203,8 +203,8 @@ func toAPIRiskyAssets(targets []backendmodels.Target, findingType backendmodels.
 	return ret
 }
 
-func getAssetInfo(target *backendmodels.TargetType) (*models.AssetInfo, error) {
-	discriminator, err := target.ValueByDiscriminator()
+func getAssetInfo(asset *backendmodels.AssetType) (*models.AssetInfo, error) {
+	discriminator, err := asset.ValueByDiscriminator()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
@@ -213,7 +213,7 @@ func getAssetInfo(target *backendmodels.TargetType) (*models.AssetInfo, error) {
 	case backendmodels.VMInfo:
 		return vmInfoToAssetInfo(info)
 	default:
-		return nil, fmt.Errorf("target type is not supported (%T)", discriminator)
+		return nil, fmt.Errorf("asset type is not supported (%T)", discriminator)
 	}
 }
 

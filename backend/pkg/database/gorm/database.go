@@ -70,8 +70,8 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 
 	// this will ensure table is created
 	if err := db.AutoMigrate(
-		Target{},
-		ScanResult{},
+		Asset{},
+		AssetScan{},
 		ScanConfig{},
 		Scan{},
 		Scopes{},
@@ -85,14 +85,14 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	// First for all objects index the ID field this speeds up anywhere
 	// we're getting a single object out of the DB, including in PATCH/PUT
 	// etc.
-	idb := db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS targets_id_idx ON targets((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	idb := db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS assets_id_idx ON assets((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index targets_id_idx: %w", idb.Error)
+		return nil, fmt.Errorf("failed to create index assets_id_idx: %w", idb.Error)
 	}
 
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_results_id_idx ON scan_results((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scans_id_idx ON asset_scans((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index scan_results_id_idx: %w", idb.Error)
+		return nil, fmt.Errorf("failed to create index asset_scans_id_idx: %w", idb.Error)
 	}
 
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_configs_id_idx ON scan_configs((%s))", SQLVariant.JSONExtract("Data", "$.id")))
@@ -110,16 +110,16 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to create index findings_id_idx: %w", idb.Error)
 	}
 
-	// For processing scan results to findings we need to find all the scan
+	// For processing asset scans to findings we need to find all the scan
 	// results by general status and findingsProcessed, so add an index for
 	// that.
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_results_findings_processed_idx ON scan_results((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.general.state")))
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scans_findings_processed_idx ON asset_scans((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.general.state")))
 	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index scan_results_findings_processed_idx: %w", idb.Error)
+		return nil, fmt.Errorf("failed to create index asset_scans_findings_processed_idx: %w", idb.Error)
 	}
 
 	// The UI needs to find all the findings for a specific finding type
-	// and the scan result processor needs to filter that list by a
+	// and the asset scan processor needs to filter that list by a
 	// specific asset. So add a combined index for those cases.
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_asset_idx ON findings((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"), SQLVariant.JSONExtract("Data", "$.asset.id")))
 	if idb.Error != nil {

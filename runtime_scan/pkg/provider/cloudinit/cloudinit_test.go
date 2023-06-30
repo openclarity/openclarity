@@ -44,7 +44,7 @@ func TestNewCloudInit(t *testing.T) {
 				ScannerCLIConfig: ScannerCLIConfig,
 				VMClarityAddress: "10.1.1.1:8888",
 				ScanMetadata: provider.ScanMetadata{
-					ScanResultID: "d6ff6f55-5d53-4934-bef5-c3abb70a7f76",
+					AssetScanID: "d6ff6f55-5d53-4934-bef5-c3abb70a7f76",
 				},
 			},
 			ExpectedCloudInit: ExpectedCloudInit,
@@ -56,7 +56,7 @@ func TestNewCloudInit(t *testing.T) {
 				ScannerCLIConfig: ScannerCLIConfig,
 				VMClarityAddress: "10.1.1.1:8888",
 				ScanMetadata: provider.ScanMetadata{
-					ScanResultID: "d6ff6f55-5d53-4934-bef5-c3abb70a7f76",
+					AssetScanID: "d6ff6f55-5d53-4934-bef5-c3abb70a7f76",
 				},
 			},
 			ExpectedCloudInit: ExpectedCloudInit,

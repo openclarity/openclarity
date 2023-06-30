@@ -9,7 +9,7 @@ const ToggleButton = ({title, checked, onChange}) => (
         <Toggle
             icons={false}
             checked={checked}
-            onChange={({target}) => onChange(target.checked)}
+            onChange={({asset}) => onChange(asset.checked)}
         />
         <div>{title}</div>
     </div>

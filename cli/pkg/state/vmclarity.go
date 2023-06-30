@@ -32,12 +32,12 @@ const (
 	DefaultWaitForVolRetryInterval = 15 * time.Second
 )
 
-type ScanResultID = models.ScanResultID
+type AssetScanID = models.AssetScanID
 
 type VMClarityState struct {
 	client *backendclient.BackendClient
 
-	scanResultID models.ScanResultID
+	assetScanID models.AssetScanID
 }
 
 // nolint:cyclop
@@ -50,9 +50,9 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 	for {
 		select {
 		case <-timer.C:
-			status, err := v.client.GetScanResultStatus(ctx, v.scanResultID)
+			status, err := v.client.GetAssetScanStatus(ctx, v.assetScanID)
 			if err != nil {
-				logger.Errorf("failed to get scan result status: %v", err)
+				logger.Errorf("failed to get asset scan status: %v", err)
 				break
 			}
 
@@ -61,13 +61,13 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 			}
 
 			switch *status.General.State {
-			case models.TargetScanStateStatePending, models.TargetScanStateStateScheduled:
-			case models.TargetScanStateStateAborted:
+			case models.AssetScanStateStatePending, models.AssetScanStateStateScheduled:
+			case models.AssetScanStateStateAborted:
 				// Do nothing as WaitForAborted is responsible for handling this case
-			case models.TargetScanStateStateReadyToScan, models.TargetScanStateStateInProgress:
+			case models.AssetScanStateStateReadyToScan, models.AssetScanStateStateInProgress:
 				return nil
-			case models.TargetScanStateStateDone, models.TargetScanStateStateNotScanned:
-				return fmt.Errorf("failed to wait for ScanResult become ready as it is in %s state", *status.General.State)
+			case models.AssetScanStateStateDone, models.AssetScanStateStateNotScanned:
+				return fmt.Errorf("failed to wait for AssetScan become ready as it is in %s state", *status.General.State)
 			}
 		case <-ctx.Done():
 			return fmt.Errorf("waiting for volume ready was canceled: %w", ctx.Err())
@@ -76,46 +76,46 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 }
 
 func (v *VMClarityState) MarkInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.General == nil {
-		scanResult.Status.General = &models.TargetScanState{}
+	if assetScan.Status.General == nil {
+		assetScan.Status.General = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.General.State = &state
-	scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.General.State = &state
+	assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.General == nil {
-		scanResult.Status.General = &models.TargetScanState{}
+	if assetScan.Status.General == nil {
+		assetScan.Status.General = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.General.State = &state
-	scanResult.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateDone
+	assetScan.Status.General.State = &state
+	assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
 
 	// If we had any errors running the family or exporting results add it
 	// to the general errors
@@ -124,8 +124,8 @@ func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
 		// Pull the errors list out so that we can append to it (if there are
 		// any errors at this point I would have hoped the orcestrator wouldn't
 		// have spawned the VM) but we never know.
-		if scanResult.Status.General.Errors != nil {
-			errorStrs = *scanResult.Status.General.Errors
+		if assetScan.Status.General.Errors != nil {
+			errorStrs = *assetScan.Status.General.Errors
 		}
 		for _, err := range errors {
 			if err != nil {
@@ -133,13 +133,13 @@ func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
 			}
 		}
 		if len(errorStrs) > 0 {
-			scanResult.Status.General.Errors = &errorStrs
+			assetScan.Status.General.Errors = &errorStrs
 		}
 	}
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
@@ -167,206 +167,206 @@ func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyTyp
 }
 
 func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Exploits == nil {
-		scanResult.Status.Exploits = &models.TargetScanState{}
+	if assetScan.Status.Exploits == nil {
+		assetScan.Status.Exploits = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Exploits.State = &state
-	scanResult.Status.Exploits.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Exploits.State = &state
+	assetScan.Status.Exploits.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Secrets == nil {
-		scanResult.Status.Secrets = &models.TargetScanState{}
+	if assetScan.Status.Secrets == nil {
+		assetScan.Status.Secrets = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Secrets.State = &state
-	scanResult.Status.Secrets.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Secrets.State = &state
+	assetScan.Status.Secrets.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Sbom == nil {
-		scanResult.Status.Sbom = &models.TargetScanState{}
+	if assetScan.Status.Sbom == nil {
+		assetScan.Status.Sbom = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Sbom.State = &state
-	scanResult.Status.Sbom.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Sbom.State = &state
+	assetScan.Status.Sbom.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Vulnerabilities == nil {
-		scanResult.Status.Vulnerabilities = &models.TargetScanState{}
+	if assetScan.Status.Vulnerabilities == nil {
+		assetScan.Status.Vulnerabilities = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Vulnerabilities.State = &state
-	scanResult.Status.Vulnerabilities.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Vulnerabilities.State = &state
+	assetScan.Status.Vulnerabilities.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Malware == nil {
-		scanResult.Status.Malware = &models.TargetScanState{}
+	if assetScan.Status.Malware == nil {
+		assetScan.Status.Malware = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Malware.State = &state
-	scanResult.Status.Malware.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Malware.State = &state
+	assetScan.Status.Malware.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Misconfigurations == nil {
-		scanResult.Status.Misconfigurations = &models.TargetScanState{}
+	if assetScan.Status.Misconfigurations == nil {
+		assetScan.Status.Misconfigurations = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Misconfigurations.State = &state
-	scanResult.Status.Misconfigurations.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Misconfigurations.State = &state
+	assetScan.Status.Misconfigurations.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Rootkits == nil {
-		scanResult.Status.Rootkits = &models.TargetScanState{}
+	if assetScan.Status.Rootkits == nil {
+		assetScan.Status.Rootkits = &models.AssetScanState{}
 	}
 
-	state := models.TargetScanStateStateInProgress
-	scanResult.Status.Rootkits.State = &state
-	scanResult.Status.Rootkits.LastTransitionTime = utils.PointerTo(time.Now())
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.Rootkits.State = &state
+	assetScan.Status.Rootkits.LastTransitionTime = utils.PointerTo(time.Now())
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{
 		Select: utils.PointerTo("id,status"),
 	})
 	if err != nil {
-		return false, fmt.Errorf("failed to get scan result: %w", err)
+		return false, fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	state, ok := scanResult.GetGeneralState()
+	state, ok := assetScan.GetGeneralState()
 	if !ok {
-		return false, errors.New("failed to get general state of scan result")
+		return false, errors.New("failed to get general state of asset scan")
 	}
 
-	if state == models.TargetScanStateStateAborted {
+	if state == models.AssetScanStateStateAborted {
 		return true, nil
 	}
 
 	return false, nil
 }
 
-func NewVMClarityState(client *backendclient.BackendClient, id ScanResultID) (*VMClarityState, error) {
+func NewVMClarityState(client *backendclient.BackendClient, id AssetScanID) (*VMClarityState, error) {
 	if client == nil {
 		return nil, errors.New("backend client must not be nil")
 	}
 	return &VMClarityState{
-		client:       client,
-		scanResultID: id,
+		client:      client,
+		assetScanID: id,
 	}, nil
 }

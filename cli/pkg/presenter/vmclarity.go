@@ -35,12 +35,12 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-type ScanResultID = models.ScanResultID
+type AssetScanID = models.AssetScanID
 
 type VMClarityPresenter struct {
 	client *backendclient.BackendClient
 
-	scanResultID models.ScanResultID
+	assetScanID models.AssetScanID
 }
 
 func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
@@ -67,19 +67,19 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 }
 
 func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Sbom == nil {
-		scanResult.Status.Sbom = &models.TargetScanState{}
+	if assetScan.Status.Sbom == nil {
+		assetScan.Status.Sbom = &models.AssetScanState{}
 	}
-	if scanResult.Summary == nil {
-		scanResult.Summary = &models.ScanFindingsSummary{}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
 
 	errs := []string{}
@@ -91,39 +91,39 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to sbom results").Error())
 		} else {
-			scanResult.Sboms = cliutils.ConvertSBOMResultToAPIModel(sbomResults)
-			if scanResult.Sboms.Packages != nil {
-				scanResult.Summary.TotalPackages = utils.PointerTo(len(*scanResult.Sboms.Packages))
+			assetScan.Sboms = cliutils.ConvertSBOMResultToAPIModel(sbomResults)
+			if assetScan.Sboms.Packages != nil {
+				assetScan.Summary.TotalPackages = utils.PointerTo(len(*assetScan.Sboms.Packages))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Sbom.State = &state
-	scanResult.Status.Sbom.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Sbom.State = &state
+	assetScan.Status.Sbom.Errors = &errs
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Vulnerabilities == nil {
-		scanResult.Status.Vulnerabilities = &models.TargetScanState{}
+	if assetScan.Status.Vulnerabilities == nil {
+		assetScan.Status.Vulnerabilities = &models.AssetScanState{}
 	}
-	if scanResult.Summary == nil {
-		scanResult.Summary = &models.ScanFindingsSummary{}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
 
 	errs := []string{}
@@ -135,38 +135,38 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to vulnerabilities results").Error())
 		} else {
-			scanResult.Vulnerabilities = cliutils.ConvertVulnResultToAPIModel(vulnerabilitiesResults)
+			assetScan.Vulnerabilities = cliutils.ConvertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
-		scanResult.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(scanResult.Vulnerabilities.Vulnerabilities)
+		assetScan.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(assetScan.Vulnerabilities.Vulnerabilities)
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Vulnerabilities.State = &state
-	scanResult.Status.Vulnerabilities.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Vulnerabilities.State = &state
+	assetScan.Status.Vulnerabilities.Errors = &errs
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Secrets == nil {
-		scanResult.Status.Secrets = &models.TargetScanState{}
+	if assetScan.Status.Secrets == nil {
+		assetScan.Status.Secrets = &models.AssetScanState{}
 	}
 
-	if scanResult.Summary == nil {
-		scanResult.Summary = &models.ScanFindingsSummary{}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
 
 	errs := []string{}
@@ -178,36 +178,36 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to secrets results").Error())
 		} else {
-			scanResult.Secrets = cliutils.ConvertSecretsResultToAPIModel(secretsResults)
-			if scanResult.Secrets.Secrets != nil {
-				scanResult.Summary.TotalSecrets = utils.PointerTo(len(*scanResult.Secrets.Secrets))
+			assetScan.Secrets = cliutils.ConvertSecretsResultToAPIModel(secretsResults)
+			if assetScan.Secrets.Secrets != nil {
+				assetScan.Summary.TotalSecrets = utils.PointerTo(len(*assetScan.Secrets.Secrets))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Secrets.State = &state
-	scanResult.Status.Secrets.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Secrets.State = &state
+	assetScan.Status.Secrets.Errors = &errs
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Malware == nil {
-		scanResult.Status.Malware = &models.TargetScanState{}
+	if assetScan.Status.Malware == nil {
+		assetScan.Status.Malware = &models.AssetScanState{}
 	}
 
 	errs := []string{}
@@ -219,38 +219,38 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to malware results").Error())
 		} else {
-			scanResult.Malware = cliutils.ConvertMalwareResultToAPIModel(malwareResults)
-			if scanResult.Malware.Malware != nil {
-				scanResult.Summary.TotalMalware = utils.PointerTo[int](len(*scanResult.Malware.Malware))
+			assetScan.Malware = cliutils.ConvertMalwareResultToAPIModel(malwareResults)
+			if assetScan.Malware.Malware != nil {
+				assetScan.Summary.TotalMalware = utils.PointerTo[int](len(*assetScan.Malware.Malware))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Malware.State = &state
-	scanResult.Status.Malware.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Malware.State = &state
+	assetScan.Status.Malware.Errors = &errs
 
-	if err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID); err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+	if err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID); err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Exploits == nil {
-		scanResult.Status.Exploits = &models.TargetScanState{}
+	if assetScan.Status.Exploits == nil {
+		assetScan.Status.Exploits = &models.AssetScanState{}
 	}
-	if scanResult.Summary == nil {
-		scanResult.Summary = &models.ScanFindingsSummary{}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
 
 	errs := []string{}
@@ -262,39 +262,39 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to exploits results").Error())
 		} else {
-			scanResult.Exploits = cliutils.ConvertExploitsResultToAPIModel(exploitsResults)
-			if scanResult.Exploits.Exploits != nil {
-				scanResult.Summary.TotalExploits = utils.PointerTo(len(*scanResult.Exploits.Exploits))
+			assetScan.Exploits = cliutils.ConvertExploitsResultToAPIModel(exploitsResults)
+			if assetScan.Exploits.Exploits != nil {
+				assetScan.Summary.TotalExploits = utils.PointerTo(len(*assetScan.Exploits.Exploits))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Exploits.State = &state
-	scanResult.Status.Exploits.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Exploits.State = &state
+	assetScan.Status.Exploits.Errors = &errs
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Misconfigurations == nil {
-		scanResult.Status.Misconfigurations = &models.TargetScanState{}
+	if assetScan.Status.Misconfigurations == nil {
+		assetScan.Status.Misconfigurations = &models.AssetScanState{}
 	}
-	if scanResult.Summary == nil {
-		scanResult.Summary = &models.ScanFindingsSummary{}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
 
 	var errs []string
@@ -310,35 +310,35 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 			if err != nil {
 				errs = append(errs, fmt.Sprintf("failed to convert misconfiguration results from scan to API model: %v", err))
 			} else {
-				scanResult.Misconfigurations = apiMisconfigurations
-				scanResult.Summary.TotalMisconfigurations = utils.PointerTo(len(misconfigurationResults.Misconfigurations))
+				assetScan.Misconfigurations = apiMisconfigurations
+				assetScan.Summary.TotalMisconfigurations = utils.PointerTo(len(misconfigurationResults.Misconfigurations))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Misconfigurations.State = &state
-	scanResult.Status.Misconfigurations.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Misconfigurations.State = &state
+	assetScan.Status.Misconfigurations.Errors = &errs
 
-	err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID)
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
 func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res families.FamilyResult) error {
-	scanResult, err := v.client.GetScanResult(ctx, v.scanResultID, models.GetScanResultsScanResultIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get scan result: %w", err)
+		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	if scanResult.Status == nil {
-		scanResult.Status = &models.TargetScanStatus{}
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
 	}
-	if scanResult.Status.Rootkits == nil {
-		scanResult.Status.Rootkits = &models.TargetScanState{}
+	if assetScan.Status.Rootkits == nil {
+		assetScan.Status.Rootkits = &models.AssetScanState{}
 	}
 
 	var errs []string
@@ -350,30 +350,30 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		if !ok {
 			errs = append(errs, fmt.Errorf("failed to convert to rootkits results").Error())
 		} else {
-			scanResult.Rootkits = cliutils.ConvertRootkitsResultToAPIModel(rootkitsResults)
-			if scanResult.Rootkits.Rootkits != nil {
-				scanResult.Summary.TotalRootkits = utils.PointerTo[int](len(*scanResult.Rootkits.Rootkits))
+			assetScan.Rootkits = cliutils.ConvertRootkitsResultToAPIModel(rootkitsResults)
+			if assetScan.Rootkits.Rootkits != nil {
+				assetScan.Summary.TotalRootkits = utils.PointerTo[int](len(*assetScan.Rootkits.Rootkits))
 			}
 		}
 	}
 
-	state := models.TargetScanStateStateDone
-	scanResult.Status.Rootkits.State = &state
-	scanResult.Status.Rootkits.Errors = &errs
+	state := models.AssetScanStateStateDone
+	assetScan.Status.Rootkits.State = &state
+	assetScan.Status.Rootkits.Errors = &errs
 
-	if err = v.client.PatchScanResult(ctx, scanResult, v.scanResultID); err != nil {
-		return fmt.Errorf("failed to patch scan result: %w", err)
+	if err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID); err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
-func NewVMClarityPresenter(client *backendclient.BackendClient, id ScanResultID) (*VMClarityPresenter, error) {
+func NewVMClarityPresenter(client *backendclient.BackendClient, id AssetScanID) (*VMClarityPresenter, error) {
 	if client == nil {
 		return nil, errors.New("backend client must not be nil")
 	}
 	return &VMClarityPresenter{
-		client:       client,
-		scanResultID: id,
+		client:      client,
+		assetScanID: id,
 	}, nil
 }

@@ -8,10 +8,10 @@ servers:
   - url: /api
 
 paths:
-  /targets:
+  /assets:
     get:
-      summary: Get targets
-      operationId: GetTargets
+      summary: Get assets
+      operationId: GetAssets
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -26,47 +26,47 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Targets'
+                $ref: '#/components/schemas/Assets'
         default:
           $ref: '#/components/responses/UnknownError'
     post:
-      summary: Create target
-      operationId: PostTargets
+      summary: Create asset
+      operationId: PostAssets
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Target'
+              $ref: '#/components/schemas/Asset'
         required: true
       responses:
         201:
-          description: A new target was created.
+          description: A new asset was created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Target'
+                $ref: '#/components/schemas/Asset'
         400:
-          description: Invalid target supplied.
+          description: Invalid asset supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Target already exists.
+          description: Asset already exists.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetExists'
+                $ref: '#/components/schemas/AssetExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
 
-  /targets/{targetID}:
+  /assets/{assetID}:
     get:
-      summary: Get target.
-      operationId: GetTargetsTargetID
+      summary: Get asset.
+      operationId: GetAssetsAssetID
       parameters:
-        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/assetID'
         - $ref: '#/components/parameters/odataSelect'
         - $ref: '#/components/parameters/odataExpand'
       responses:
@@ -75,9 +75,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Target'
+                $ref: '#/components/schemas/Asset'
         404:
-          description: Target ID not found
+          description: Asset ID not found
           content:
             application/json:
               schema:
@@ -85,42 +85,42 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
     put:
-      summary: Update target.
-      operationId: PutTargetsTargetID
+      summary: Update asset.
+      operationId: PutAssetsAssetID
       parameters:
-        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/assetID'
         - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Target'
+              $ref: '#/components/schemas/Asset'
         required: true
       responses:
         200:
-          description: Updated target successfully.
+          description: Updated asset successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Target'
+                $ref: '#/components/schemas/Asset'
         400:
-          description: Invalid target supplied.
+          description: Invalid asset supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         404:
-          description: Target ID not found
+          description: Asset ID not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Target already exists.
+          description: Asset already exists.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetExists'
+                $ref: '#/components/schemas/AssetExists'
         412:
           description: Etag didn't match.
           content:
@@ -131,36 +131,36 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
     patch:
-      summary: Update target.
-      operationId: PatchTargetsTargetID
+      summary: Update asset.
+      operationId: PatchAssetsAssetID
       parameters:
-        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/assetID'
         - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Target'
+              $ref: '#/components/schemas/Asset'
         required: true
       responses:
         200:
-          description: Updated target successfully.
+          description: Updated asset successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Target'
+                $ref: '#/components/schemas/Asset'
         404:
-          description: Target ID not found
+          description: Asset ID not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Target already exists.
+          description: Asset already exists.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetExists'
+                $ref: '#/components/schemas/AssetExists'
         412:
           description: Etag didn't match.
           content:
@@ -171,21 +171,21 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
     delete:
-      summary: Delete target.
-      operationId: DeleteTargetsTargetID
+      summary: Delete asset.
+      operationId: DeleteAssetsAssetID
       parameters:
-        - $ref: '#/components/parameters/targetID'
+        - $ref: '#/components/parameters/assetID'
       responses:
         200:
           $ref: '#/components/responses/Success'
         400:
-          description: Invalid target supplied.
+          description: Invalid asset supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         404:
-          description: Target ID not found
+          description: Asset ID not found
           content:
             application/json:
               schema:
@@ -193,10 +193,10 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
-  /scanResults:
+  /assetScans:
     get:
-      summary: Get scan results according to the given filters
-      operationId: GetScanResults
+      summary: Get asset scans according to the given filters
+      operationId: GetAssetScans
       parameters:
         - $ref: '#/components/parameters/odataFilter'
         - $ref: '#/components/parameters/odataSelect'
@@ -211,48 +211,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResults'
+                $ref: '#/components/schemas/AssetScans'
 
         default:
           $ref: '#/components/responses/UnknownError'
     post:
-      summary: Create a scan result for a specific target for a specific scan
-      operationId: PostScanResults
+      summary: Create an asset scan for a specified asset
+      operationId: PostAssetScans
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TargetScanResult'
+              $ref: '#/components/schemas/AssetScan'
         required: true
       responses:
         201:
-          description: New results were added to the target for a specific scan.
+          description: AssetScan was created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResult'
+                $ref: '#/components/schemas/AssetScan'
         400:
-          description: Invalid scan result supplied.
+          description: Invalid asset scan supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Scan results already exist for target and scan.
+          description: Conflicting asset scan found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResultExists'
+                $ref: '#/components/schemas/AssetScanExists'
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
 
-  /scanResults/{scanResultID}:
+  /assetScans/{assetScanID}:
     get:
-      summary: Get a scan result.
-      operationId: GetScanResultsScanResultID
+      summary: Get an asset scan.
+      operationId: GetAssetScansAssetScanID
       parameters:
-        - $ref: '#/components/parameters/scanResultID'
+        - $ref: '#/components/parameters/assetScanID'
         - $ref: '#/components/parameters/odataSelect'
         - $ref: '#/components/parameters/odataExpand'
       responses:
@@ -261,9 +261,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResult'
+                $ref: '#/components/schemas/AssetScan'
         404:
-          description: Scan result ID not found
+          description: AssetScan ID not found
           content:
             application/json:
               schema:
@@ -271,42 +271,42 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
     put:
-      summary: Update a scan result.
-      operationId: PutScanResultsScanResultID
+      summary: Update an asset scan.
+      operationId: PutAssetScansAssetScanID
       parameters:
-        - $ref: '#/components/parameters/scanResultID'
+        - $ref: '#/components/parameters/assetScanID'
         - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TargetScanResult'
+              $ref: '#/components/schemas/AssetScan'
         required: true
       responses:
         200:
-          description: Updated a scan result successfully.
+          description: Updated an asset scan successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResult'
+                $ref: '#/components/schemas/AssetScan'
         400:
-          description: Invalid scan result supplied.
+          description: Invalid asset scan supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         404:
-          description: Scan result ID not found
+          description: AssetScan ID not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Scan results already exist for target and scan.
+          description: Conflicting asset scan found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResultExists'
+                $ref: '#/components/schemas/AssetScanExists'
         412:
           description: Etag didn't match.
           content:
@@ -317,42 +317,42 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
     patch:
-      summary: Patch a scan result
-      operationId: PatchScanResultsScanResultID
+      summary: Patch an asset scan
+      operationId: PatchAssetScansAssetScanID
       parameters:
-        - $ref: '#/components/parameters/scanResultID'
+        - $ref: '#/components/parameters/assetScanID'
         - $ref: '#/components/parameters/ifmatch'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TargetScanResult'
+              $ref: '#/components/schemas/AssetScan'
         required: true
       responses:
         200:
-          description: Target scan results were patched for the target for a specific scan.
+          description: Updated an asset scan successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResult'
+                $ref: '#/components/schemas/AssetScan'
         400:
-          description: Invalid scan result supplied.
+          description: Invalid asset scan supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         404:
-          description: Scan result ID not found
+          description: AssetScan ID not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         409:
-          description: Scan results already exist for target and scan.
+          description: Conflicting asset scan found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TargetScanResultExists'
+                $ref: '#/components/schemas/AssetScanExists'
         412:
           description: Etag didn't match.
           content:
@@ -365,7 +365,7 @@ paths:
 
   /scans:
     get:
-      summary: Get all scans. Each scan contains details about a multi-target scheduled scan.
+      summary: Get all scans. Each scan contains details about a multi-asset scheduled scan.
       operationId: GetScans
       parameters:
         - $ref: '#/components/parameters/odataFilter'
@@ -385,7 +385,7 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
     post:
-      summary: Create a multi-target scheduled scan
+      summary: Create a multi-asset scheduled scan
       operationId: PostScans
       requestBody:
         content:
@@ -418,7 +418,7 @@ paths:
 
   /scans/{scanID}:
     get:
-      summary: Get the details for a given multi-target scheduled scan.
+      summary: Get the details for a given multi-asset scheduled scan.
       operationId: GetScansScanID
       parameters:
         - $ref: '#/components/parameters/scanID'
@@ -992,8 +992,8 @@ components:
         scanConfigSnapshot:
           $ref: '#/components/schemas/ScanConfigSnapshot'
           readOnly: true
-        targetIDs:
-          description: List of target IDs that are targeted for scanning as part of this scan
+        assetIDs:
+          description: List of asset IDs to be scanned
           type: array
           items:
             type: string
@@ -1020,7 +1020,7 @@ components:
           enum:
             - Aborted
             - TimedOut
-            - OneOrMoreTargetFailedToScan
+            - OneOrMoreAssetFailedToScan
             - DiscoveryFailed
             - Unexpected
             - NothingToScan
@@ -1036,7 +1036,7 @@ components:
     # ScanRelationship to ensure correct operation of the API when $expanding
     Scan:
       type: object
-      description: Describes a multi-target scheduled scan.
+      description: Describes a multi-asset scheduled scan.
       properties:
         id:
           type: string
@@ -1061,8 +1061,8 @@ components:
           $ref: '#/components/schemas/ScanConfigRelationship'
         scanConfigSnapshot:
           $ref: '#/components/schemas/ScanConfigSnapshot'
-        targetIDs:
-          description: List of target IDs that are targeted for scanning as part of this scan
+        assetIDs:
+          description: List of asset IDs to be scanned
           type: array
           items:
             type: string
@@ -1086,7 +1086,7 @@ components:
           enum:
             - Aborted
             - TimedOut
-            - OneOrMoreTargetFailedToScan
+            - OneOrMoreAssetFailedToScan
             - DiscoveryFailed
             - Unexpected
             - NothingToScan
@@ -1317,7 +1317,7 @@ components:
     # ScanConfigRelationship to ensure correct operation of the API when $expanding
     ScanConfig:
       type: object
-      description: Describes a multi-target scheduled scan config.
+      description: Describes a multi-asset scheduled scan config.
       properties:
         id:
           type: string
@@ -1566,29 +1566,29 @@ components:
           type: string
           format: date-time
 
-    Targets:
+    Assets:
       type: object
       properties:
         count:
           type: integer
-          description: Total targets count according the given filters
+          description: Total assets count according the given filters
           readOnly: true
         items:
           type: array
-          description: List of targets in the given filters and page.
+          description: List of assets in the given filters and page.
             List length must be lower or equal to pageSize.
           items:
-            $ref: '#/components/schemas/Target'
+            $ref: '#/components/schemas/Asset'
           readOnly: true
 
-    TargetCommon:
+    AssetCommon:
       type: object
 
-    # NOTE(sambetts) Any changes made to Target must be reflected in
-    # TargetRelationship to ensure correct operation of the API when $expanding
-    Target:
+    # NOTE(sambetts) Any changes made to Asset must be reflected in
+    # AssetRelationship to ensure correct operation of the API when $expanding
+    Asset:
       type: object
-      description: Describes a target object.
+      description: Describes an asset object.
       properties:
         id:
           type: string
@@ -1612,28 +1612,28 @@ components:
           # on the client side.
           #
           # readOnly: true
-        targetInfo:
-          $ref: '#/components/schemas/TargetType'
+        assetInfo:
+          $ref: '#/components/schemas/AssetType'
         scansCount:
-          description: Total number of scans that have ever run for this target
+          description: Total number of scans that have ever run for this asset
           type: integer
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
 
-    TargetRelationship:
+    AssetRelationship:
       type: object
-      description: Describes a relationship to a target which can be expanded.
+      description: Describes a relationship to an asset which can be expanded.
       properties:
         id:
           type: string
         revision:
           type: integer
           readOnly: true
-        targetInfo:
-          $ref: '#/components/schemas/TargetType'
+        assetInfo:
+          $ref: '#/components/schemas/AssetType'
           readOnly: true
         scansCount:
-          description: Total number of scans that have ever run for this target
+          description: Total number of scans that have ever run for this asset
           type: integer
           readOnly: true
         summary:
@@ -1641,17 +1641,17 @@ components:
           readOnly: true
       required: ['id']
 
-    TargetExists:
+    AssetExists:
       type: object
       properties:
         message:
           description: Describes which unique constraint combination causes the conflict.
           type: string
           readOnly: true
-        target:
-          $ref: '#/components/schemas/Target'
+        asset:
+          $ref: '#/components/schemas/Asset'
 
-    TargetType:
+    AssetType:
       type: object
       anyOf:
         - $ref: '#/components/schemas/VMInfo'
@@ -1727,19 +1727,19 @@ components:
       required:
         - objectType
 
-    TargetScanResults:
+    AssetScans:
       type: object
       properties:
         count:
           type: integer
-          description: Total scan results count according to the given filters
+          description: Total asset scans count according to the given filters
           readOnly: true
         items:
           type: array
-          description: List of scan results according to the given filters and page.
+          description: List of asset scans according to the given filters and page.
             List length must be lower or equal to pageSize.
           items:
-            $ref: '#/components/schemas/TargetScanResult'
+            $ref: '#/components/schemas/AssetScan'
           readOnly: true
 
     ResourceCleanupState:
@@ -1750,7 +1750,7 @@ components:
         - Failed
         - Done
 
-    TargetScanResult:
+    AssetScan:
       type: object
       properties:
         id:
@@ -1766,12 +1766,12 @@ components:
           # readOnly: true
         revision:
           type: integer
-        target:
-          $ref: '#/components/schemas/TargetRelationship'
+        asset:
+          $ref: '#/components/schemas/AssetRelationship'
         scan:
           $ref: '#/components/schemas/ScanRelationship'
         status:
-          $ref: '#/components/schemas/TargetScanStatus'
+          $ref: '#/components/schemas/AssetScanStatus'
         sboms:
           $ref: '#/components/schemas/SbomScan'
         vulnerabilities:
@@ -1801,40 +1801,40 @@ components:
       # on the client side.
       #
       # required:
-      #  - target
+      #  - asset
       #  - scan
 
-    TargetScanResultExists:
+    AssetScanExists:
       type: object
       properties:
         message:
           description: Describes which unique constraint combination causes the conflict.
           readOnly: true
           type: string
-        targetScanResult:
-          $ref: '#/components/schemas/TargetScanResult'
+        assetScan:
+          $ref: '#/components/schemas/AssetScan'
 
-    TargetScanStatus:
+    AssetScanStatus:
       type: object
       properties:
         general:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         sbom:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         vulnerabilities:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         malware:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         rootkits:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         secrets:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         misconfigurations:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
         exploits:
-          $ref: '#/components/schemas/TargetScanState'
+          $ref: '#/components/schemas/AssetScanState'
 
-    TargetScanState:
+    AssetScanState:
       type: object
       properties:
         state:
@@ -2289,7 +2289,7 @@ components:
         scan:
           $ref: '#/components/schemas/ScanRelationship'
         asset:
-          $ref: '#/components/schemas/TargetRelationship'
+          $ref: '#/components/schemas/AssetRelationship'
         foundOn:
           description: When this finding was discovered by a scan
           type: string
@@ -2334,8 +2334,8 @@ components:
             $ref: '#/components/schemas/ApiResponse'
 
   parameters:
-    targetID:
-      name: targetID
+    assetID:
+      name: assetID
       in: path
       required: true
       schema:
@@ -2391,8 +2391,8 @@ components:
       schema:
         type: string
 
-    scanResultID:
-      name: scanResultID
+    assetScanID:
+      name: assetScanID
       in: path
       required: true
       schema:

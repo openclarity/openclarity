@@ -20,7 +20,7 @@ const CheckboxField = ({title, className, label, disabled, tooltipText, ...props
             {!!label && <FieldLabel tooltipId={tooltipId} tooltipText={tooltipText}>{label}</FieldLabel>}
             <label className={classnames("checkbox-wrapper", {disabled})}>
                 <div className="inner-checkbox-wrapper">
-                    <input type="checkbox" checked={value} value={value} name={name} onChange={event => disabled ? null : setValue(event.target.checked)} />
+                    <input type="checkbox" checked={value} value={value} name={name} onChange={event => disabled ? null : setValue(event.asset.checked)} />
                     <span className="checkmark"></span>
                 </div>
                 <span className="checkbox-title">{title}</span>

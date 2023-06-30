@@ -37,7 +37,7 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
             <div style={{position: "absolute", top: 0, right: 0, zIndex: 1, display: "flex", alignItems: "center"}}>
                 <ToggleButton title="Hide history" checked={hideHistory} onChange={setHideHistory} />
                 <div style={{marginLeft: "5px"}}>
-                    <InfoIcon tooltipId="hide-hostory-info-icon" tooltipText="Hide findings that were replaced by a newer asset scan results of that type" />
+                    <InfoIcon tooltipId="hide-hostory-info-icon" tooltipText="Hide findings that were replaced by a newer asset asset scans of that type" />
                 </div>
             </div>
             <TablePage
@@ -47,7 +47,7 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
                 filterType={filterType}
                 filtersConfig={[
                     ...filtersConfig,
-                    ...getAssetColumnsFiltersConfig({prefix: "asset.targetInfo", withType: false, withLabels: false}),
+                    ...getAssetColumnsFiltersConfig({prefix: "asset.assetInfo", withType: false, withLabels: false}),
                     ...scanColumnsFiltersConfig,
                     {value: "foundOn", label: "Found on", isDate: true, operators: [
                         {...OPERATORS.ge},

@@ -15,8 +15,8 @@
 
 package models
 
-func (s *TargetScanState) GetState() (TargetScanStateState, bool) {
-	var state TargetScanStateState
+func (s *AssetScanState) GetState() (AssetScanStateState, bool) {
+	var state AssetScanStateState
 	var ok bool
 
 	if s.State != nil {
@@ -25,7 +25,7 @@ func (s *TargetScanState) GetState() (TargetScanStateState, bool) {
 	return state, ok
 }
 
-func (s *TargetScanState) GetErrors() []string {
+func (s *AssetScanState) GetErrors() []string {
 	var errs []string
 
 	if s.Errors != nil {

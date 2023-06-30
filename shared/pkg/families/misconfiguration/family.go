@@ -51,11 +51,11 @@ func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfac
 		// Merge results.
 		for name, result := range managerResults {
 			logger.Infof("Merging result from %q", name)
-			if scanResult, ok := result.(misconfigurationTypes.ScannerResult); ok {
+			if assetScan, ok := result.(misconfigurationTypes.ScannerResult); ok {
 				if familiesutils.ShouldStripInputPath(input.StripPathFromResult, m.conf.StripInputPaths) {
-					scanResult = StripPathFromResult(scanResult, input.Input)
+					assetScan = StripPathFromResult(assetScan, input.Input)
 				}
-				misConfigResults.AddScannerResult(scanResult)
+				misConfigResults.AddScannerResult(assetScan)
 			} else {
 				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
 			}

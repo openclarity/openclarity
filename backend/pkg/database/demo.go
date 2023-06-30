@@ -116,18 +116,18 @@ func CreateDemoData(ctx context.Context, db types.Database) {
 		scanConfigs[i] = ret
 	}
 
-	// Create targets:
-	targets := createTargets()
-	for i, target := range targets {
-		retTarget, err := db.TargetsTable().CreateTarget(target)
+	// Create assets:
+	assets := createAssets()
+	for i, asset := range assets {
+		retAsset, err := db.AssetsTable().CreateAsset(asset)
 		if err != nil {
-			logger.Fatalf("failed to create target [%d]: %v", i, err)
+			logger.Fatalf("failed to create asset [%d]: %v", i, err)
 		}
-		targets[i] = retTarget
+		assets[i] = retAsset
 	}
 
 	// Create scans:
-	scans := createScans(targets, scanConfigs)
+	scans := createScans(assets, scanConfigs)
 	for i, scan := range scans {
 		ret, err := db.ScansTable().CreateScan(scan)
 		if err != nil {
@@ -136,18 +136,18 @@ func CreateDemoData(ctx context.Context, db types.Database) {
 		scans[i] = ret
 	}
 
-	// Create scan results:
-	scanResults := createScanResults(scans)
-	for i, scanResult := range scanResults {
-		ret, err := db.ScanResultsTable().CreateScanResult(scanResult)
+	// Create asset scans:
+	assetScans := createAssetScans(scans)
+	for i, assetScan := range assetScans {
+		ret, err := db.AssetScansTable().CreateAssetScan(assetScan)
 		if err != nil {
-			logger.Fatalf("failed to create scan result [%d]: %v", i, err)
+			logger.Fatalf("failed to create asset scan [%d]: %v", i, err)
 		}
-		scanResults[i] = ret
+		assetScans[i] = ret
 	}
 
 	// Create findings
-	findings := createFindings(ctx, scanResults)
+	findings := createFindings(ctx, assetScans)
 	for i, finding := range findings {
 		ret, err := db.FindingsTable().CreateFinding(finding)
 		if err != nil {
@@ -158,49 +158,49 @@ func CreateDemoData(ctx context.Context, db types.Database) {
 }
 
 // nolint:gocognit,prealloc,cyclop
-func createFindings(ctx context.Context, scanResults []models.TargetScanResult) []models.Finding {
+func createFindings(ctx context.Context, assetScans []models.AssetScan) []models.Finding {
 	var ret []models.Finding
 	rand.Seed(uint64(time.Now().Unix()))
 
-	for _, scanResult := range scanResults {
+	for _, assetScan := range assetScans {
 		var foundOn *time.Time
-		if scanResult.Scan.StartTime != nil {
-			foundOn = scanResult.Scan.StartTime
+		if assetScan.Scan.StartTime != nil {
+			foundOn = assetScan.Scan.StartTime
 		} else {
 			randMin := rand.Intn(59) + 1
 			foundOn = utils.PointerTo(time.Now().Add(time.Duration(-randMin) * time.Minute))
 		}
 		findingBase := models.Finding{
-			Asset: &models.TargetRelationship{
-				Id: scanResult.Target.Id,
+			Asset: &models.AssetRelationship{
+				Id: assetScan.Asset.Id,
 			},
 			FindingInfo: nil,
 			FoundOn:     foundOn,
 			// InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
 			Scan: &models.ScanRelationship{
-				Id: scanResult.Scan.Id,
+				Id: assetScan.Scan.Id,
 			},
 		}
-		if scanResult.Sboms != nil && scanResult.Sboms.Packages != nil {
-			ret = append(ret, createPackageFindings(ctx, findingBase, *scanResult.Sboms.Packages)...)
+		if assetScan.Sboms != nil && assetScan.Sboms.Packages != nil {
+			ret = append(ret, createPackageFindings(ctx, findingBase, *assetScan.Sboms.Packages)...)
 		}
-		if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Vulnerabilities != nil {
-			ret = append(ret, createVulnerabilityFindings(ctx, findingBase, *scanResult.Vulnerabilities.Vulnerabilities)...)
+		if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
+			ret = append(ret, createVulnerabilityFindings(ctx, findingBase, *assetScan.Vulnerabilities.Vulnerabilities)...)
 		}
-		if scanResult.Exploits != nil && scanResult.Exploits.Exploits != nil {
-			ret = append(ret, createExploitFindings(ctx, findingBase, *scanResult.Exploits.Exploits)...)
+		if assetScan.Exploits != nil && assetScan.Exploits.Exploits != nil {
+			ret = append(ret, createExploitFindings(ctx, findingBase, *assetScan.Exploits.Exploits)...)
 		}
-		if scanResult.Malware != nil && scanResult.Malware.Malware != nil {
-			ret = append(ret, createMalwareFindings(ctx, findingBase, *scanResult.Malware.Malware)...)
+		if assetScan.Malware != nil && assetScan.Malware.Malware != nil {
+			ret = append(ret, createMalwareFindings(ctx, findingBase, *assetScan.Malware.Malware)...)
 		}
-		if scanResult.Secrets != nil && scanResult.Secrets.Secrets != nil {
-			ret = append(ret, createSecretFindings(ctx, findingBase, *scanResult.Secrets.Secrets)...)
+		if assetScan.Secrets != nil && assetScan.Secrets.Secrets != nil {
+			ret = append(ret, createSecretFindings(ctx, findingBase, *assetScan.Secrets.Secrets)...)
 		}
-		if scanResult.Misconfigurations != nil && scanResult.Misconfigurations.Misconfigurations != nil {
-			ret = append(ret, createMisconfigurationFindings(ctx, findingBase, *scanResult.Misconfigurations.Misconfigurations)...)
+		if assetScan.Misconfigurations != nil && assetScan.Misconfigurations.Misconfigurations != nil {
+			ret = append(ret, createMisconfigurationFindings(ctx, findingBase, *assetScan.Misconfigurations.Misconfigurations)...)
 		}
-		if scanResult.Rootkits != nil && scanResult.Rootkits.Rootkits != nil {
-			ret = append(ret, createRootkitFindings(ctx, findingBase, *scanResult.Rootkits.Rootkits)...)
+		if assetScan.Rootkits != nil && assetScan.Rootkits.Rootkits != nil {
+			ret = append(ret, createRootkitFindings(ctx, findingBase, *assetScan.Rootkits.Rootkits)...)
 		}
 	}
 
@@ -419,8 +419,8 @@ func createVulnerabilityFindings(ctx context.Context, base models.Finding, vulne
 
 func createVMInfo(instanceID, location, image, instanceType, platform string,
 	tags []models.Tag, launchTime time.Time, instanceProvider models.CloudProvider,
-) *models.TargetType {
-	info := models.TargetType{}
+) *models.AssetType {
+	info := models.AssetType{}
 	err := info.FromVMInfo(models.VMInfo{
 		Image:            image,
 		InstanceID:       instanceID,
@@ -448,8 +448,8 @@ func createScopes() (models.Scopes, error) {
 	}, err
 }
 
-func createTargets() []models.Target {
-	return []models.Target{
+func createAssets() []models.Asset {
+	return []models.Asset{
 		{
 			ScansCount: utils.PointerTo(1),
 			Summary: &models.ScanFindingsSummary{
@@ -467,8 +467,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "target1"}}, time.Now(), models.AWS),
+			AssetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset1"}}, time.Now(), models.AWS),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -487,8 +487,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "target2"}}, time.Now(), models.AWS),
+			AssetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset2"}}, time.Now(), models.AWS),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -507,8 +507,8 @@ func createTargets() []models.Target {
 					TotalNegligibleVulnerabilities: utils.PointerTo(0),
 				},
 			},
-			TargetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1+"/"+awsVPCUSEast11+"/"+awsSGUSEast111,
-				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "target3"}}, time.Now(), models.AWS),
+			AssetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1+"/"+awsVPCUSEast11+"/"+awsSGUSEast111,
+				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "asset3"}}, time.Now(), models.AWS),
 		},
 	}
 }
@@ -678,11 +678,11 @@ func createScanConfigs(ctx context.Context) []models.ScanConfig {
 	}
 }
 
-func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []models.Scan {
+func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []models.Scan {
 	// Create scan 1: already ended
 	scan1Start := time.Now().Add(-10 * time.Hour)
 	scan1End := scan1Start.Add(5*time.Hour + 27*time.Minute + 56*time.Second)
-	scan1Targets := []string{*targets[0].Id, *targets[1].Id}
+	scan1Assets := []string{*assets[0].Id, *assets[1].Id}
 
 	scan1Summary := &models.ScanSummary{
 		JobsCompleted:          utils.PointerTo[int](2),
@@ -712,7 +712,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 
 	// Create scan 2: Running
 	scan2Start := time.Now().Add(-5 * time.Minute)
-	scan2Targets := []string{*targets[2].Id}
+	scan2Assets := []string{*assets[2].Id}
 
 	scan2Summary := &models.ScanSummary{
 		JobsCompleted:          utils.PointerTo[int](1),
@@ -752,7 +752,7 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 			StateMessage:       utils.PointerTo("Scan was completed successfully"),
 			StateReason:        utils.PointerTo(models.ScanStateReasonSuccess),
 			Summary:            scan1Summary,
-			TargetIDs:          &scan1Targets,
+			AssetIDs:           &scan1Assets,
 		},
 		{
 			ScanConfig: &models.ScanConfigRelationship{
@@ -764,17 +764,17 @@ func createScans(targets []models.Target, scanConfigs []models.ScanConfig) []mod
 			StateMessage:       utils.PointerTo("Scan is in progress"),
 			StateReason:        nil,
 			Summary:            scan2Summary,
-			TargetIDs:          &scan2Targets,
+			AssetIDs:           &scan2Assets,
 		},
 	}
 }
 
 // nolint:gocognit
-func createScanResults(scans []models.Scan) []models.TargetScanResult {
-	var scanResults []models.TargetScanResult
+func createAssetScans(scans []models.Scan) []models.AssetScan {
+	var assetScans []models.AssetScan
 	for _, scan := range scans {
-		for _, targetID := range *scan.TargetIDs {
-			result := models.TargetScanResult{
+		for _, assetID := range *scan.AssetIDs {
+			result := models.AssetScan{
 				Id: nil,
 				Scan: &models.ScanRelationship{
 					Id: *scan.Id,
@@ -782,8 +782,8 @@ func createScanResults(scans []models.Scan) []models.TargetScanResult {
 				Secrets: nil,
 				Status:  nil,
 				Summary: &models.ScanFindingsSummary{},
-				Target: &models.TargetRelationship{
-					Id: targetID,
+				Asset: &models.AssetRelationship{
+					Id: assetID,
 				},
 			}
 			// Create Exploits if needed
@@ -856,10 +856,10 @@ func createScanResults(scans []models.Scan) []models.TargetScanResult {
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(nil)
 			}
 
-			scanResults = append(scanResults, result)
+			assetScans = append(assetScans, result)
 		}
 	}
-	return scanResults
+	return assetScans
 }
 
 func createSecretsResult() *[]models.Secret {

@@ -13,7 +13,7 @@ const ASSET_DETAILS_PATHS = {
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, targetInfo, summary} = data || {};
+    const {id, assetInfo, summary} = data || {};
     
     return (
         <TabbedPage
@@ -33,7 +33,7 @@ const DetailsContent = ({data}) => {
                         <Findings
                             findingsSummary={summary}
                             findingsFilter={`asset/id eq '${id}'`}
-                            findingsFilterTitle={targetInfo.instanceID}
+                            findingsFilterTitle={assetInfo.instanceID}
                             findingsFilterSuffix="asset"
                         />
                     )
@@ -48,8 +48,8 @@ const AssetDetails = () => (
     <DetailsPageWrapper
         backTitle="Assets"
         url={APIS.ASSETS}
-        select="id,targetInfo,summary"
-        getTitleData={({targetInfo}) => ({title: targetInfo?.instanceID})}
+        select="id,assetInfo,summary"
+        getTitleData={({assetInfo}) => ({title: assetInfo?.instanceID})}
         detailsContent={props => <DetailsContent {...props} />}
         withPadding
     />

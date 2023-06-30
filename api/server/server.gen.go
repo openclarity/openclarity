@@ -21,6 +21,39 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get asset scans according to the given filters
+	// (GET /assetScans)
+	GetAssetScans(ctx echo.Context, params GetAssetScansParams) error
+	// Create an asset scan for a specified asset
+	// (POST /assetScans)
+	PostAssetScans(ctx echo.Context) error
+	// Get an asset scan.
+	// (GET /assetScans/{assetScanID})
+	GetAssetScansAssetScanID(ctx echo.Context, assetScanID AssetScanID, params GetAssetScansAssetScanIDParams) error
+	// Patch an asset scan
+	// (PATCH /assetScans/{assetScanID})
+	PatchAssetScansAssetScanID(ctx echo.Context, assetScanID AssetScanID, params PatchAssetScansAssetScanIDParams) error
+	// Update an asset scan.
+	// (PUT /assetScans/{assetScanID})
+	PutAssetScansAssetScanID(ctx echo.Context, assetScanID AssetScanID, params PutAssetScansAssetScanIDParams) error
+	// Get assets
+	// (GET /assets)
+	GetAssets(ctx echo.Context, params GetAssetsParams) error
+	// Create asset
+	// (POST /assets)
+	PostAssets(ctx echo.Context) error
+	// Delete asset.
+	// (DELETE /assets/{assetID})
+	DeleteAssetsAssetID(ctx echo.Context, assetID AssetID) error
+	// Get asset.
+	// (GET /assets/{assetID})
+	GetAssetsAssetID(ctx echo.Context, assetID AssetID, params GetAssetsAssetIDParams) error
+	// Update asset.
+	// (PATCH /assets/{assetID})
+	PatchAssetsAssetID(ctx echo.Context, assetID AssetID, params PatchAssetsAssetIDParams) error
+	// Update asset.
+	// (PUT /assets/{assetID})
+	PutAssetsAssetID(ctx echo.Context, assetID AssetID, params PutAssetsAssetIDParams) error
 	// Get all available scopes
 	// (GET /discovery/scopes)
 	GetDiscoveryScopes(ctx echo.Context, params GetDiscoveryScopesParams) error
@@ -63,31 +96,16 @@ type ServerInterface interface {
 	// Update a scan config.
 	// (PUT /scanConfigs/{scanConfigID})
 	PutScanConfigsScanConfigID(ctx echo.Context, scanConfigID ScanConfigID, params PutScanConfigsScanConfigIDParams) error
-	// Get scan results according to the given filters
-	// (GET /scanResults)
-	GetScanResults(ctx echo.Context, params GetScanResultsParams) error
-	// Create a scan result for a specific target for a specific scan
-	// (POST /scanResults)
-	PostScanResults(ctx echo.Context) error
-	// Get a scan result.
-	// (GET /scanResults/{scanResultID})
-	GetScanResultsScanResultID(ctx echo.Context, scanResultID ScanResultID, params GetScanResultsScanResultIDParams) error
-	// Patch a scan result
-	// (PATCH /scanResults/{scanResultID})
-	PatchScanResultsScanResultID(ctx echo.Context, scanResultID ScanResultID, params PatchScanResultsScanResultIDParams) error
-	// Update a scan result.
-	// (PUT /scanResults/{scanResultID})
-	PutScanResultsScanResultID(ctx echo.Context, scanResultID ScanResultID, params PutScanResultsScanResultIDParams) error
-	// Get all scans. Each scan contains details about a multi-target scheduled scan.
+	// Get all scans. Each scan contains details about a multi-asset scheduled scan.
 	// (GET /scans)
 	GetScans(ctx echo.Context, params GetScansParams) error
-	// Create a multi-target scheduled scan
+	// Create a multi-asset scheduled scan
 	// (POST /scans)
 	PostScans(ctx echo.Context) error
 	// Delete a scan.
 	// (DELETE /scans/{scanID})
 	DeleteScansScanID(ctx echo.Context, scanID ScanID) error
-	// Get the details for a given multi-target scheduled scan.
+	// Get the details for a given multi-asset scheduled scan.
 	// (GET /scans/{scanID})
 	GetScansScanID(ctx echo.Context, scanID ScanID, params GetScansScanIDParams) error
 	// Patch a scan.
@@ -96,29 +114,373 @@ type ServerInterface interface {
 	// Update a scan.
 	// (PUT /scans/{scanID})
 	PutScansScanID(ctx echo.Context, scanID ScanID, params PutScansScanIDParams) error
-	// Get targets
-	// (GET /targets)
-	GetTargets(ctx echo.Context, params GetTargetsParams) error
-	// Create target
-	// (POST /targets)
-	PostTargets(ctx echo.Context) error
-	// Delete target.
-	// (DELETE /targets/{targetID})
-	DeleteTargetsTargetID(ctx echo.Context, targetID TargetID) error
-	// Get target.
-	// (GET /targets/{targetID})
-	GetTargetsTargetID(ctx echo.Context, targetID TargetID, params GetTargetsTargetIDParams) error
-	// Update target.
-	// (PATCH /targets/{targetID})
-	PatchTargetsTargetID(ctx echo.Context, targetID TargetID, params PatchTargetsTargetIDParams) error
-	// Update target.
-	// (PUT /targets/{targetID})
-	PutTargetsTargetID(ctx echo.Context, targetID TargetID, params PutTargetsTargetIDParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetAssetScans converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAssetScans(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAssetScansParams
+	// ------------- Optional query parameter "$filter" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$filter", ctx.QueryParams(), &params.Filter)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $filter: %s", err))
+	}
+
+	// ------------- Optional query parameter "$select" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
+	}
+
+	// ------------- Optional query parameter "$count" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$count", ctx.QueryParams(), &params.Count)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $count: %s", err))
+	}
+
+	// ------------- Optional query parameter "$top" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$top", ctx.QueryParams(), &params.Top)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $top: %s", err))
+	}
+
+	// ------------- Optional query parameter "$skip" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$skip", ctx.QueryParams(), &params.Skip)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $skip: %s", err))
+	}
+
+	// ------------- Optional query parameter "$expand" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
+	}
+
+	// ------------- Optional query parameter "$orderby" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$orderby", ctx.QueryParams(), &params.OrderBy)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $orderby: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetAssetScans(ctx, params)
+	return err
+}
+
+// PostAssetScans converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAssetScans(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostAssetScans(ctx)
+	return err
+}
+
+// GetAssetScansAssetScanID converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAssetScansAssetScanID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetScanID" -------------
+	var assetScanID AssetScanID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetScanID", runtime.ParamLocationPath, ctx.Param("assetScanID"), &assetScanID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetScanID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAssetScansAssetScanIDParams
+	// ------------- Optional query parameter "$select" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
+	}
+
+	// ------------- Optional query parameter "$expand" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetAssetScansAssetScanID(ctx, assetScanID, params)
+	return err
+}
+
+// PatchAssetScansAssetScanID converts echo context to params.
+func (w *ServerInterfaceWrapper) PatchAssetScansAssetScanID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetScanID" -------------
+	var assetScanID AssetScanID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetScanID", runtime.ParamLocationPath, ctx.Param("assetScanID"), &assetScanID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetScanID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PatchAssetScansAssetScanIDParams
+
+	headers := ctx.Request().Header
+	// ------------- Optional header parameter "If-Match" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
+		var IfMatch Ifmatch
+		n := len(valueList)
+		if n != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
+		}
+
+		params.IfMatch = &IfMatch
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PatchAssetScansAssetScanID(ctx, assetScanID, params)
+	return err
+}
+
+// PutAssetScansAssetScanID converts echo context to params.
+func (w *ServerInterfaceWrapper) PutAssetScansAssetScanID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetScanID" -------------
+	var assetScanID AssetScanID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetScanID", runtime.ParamLocationPath, ctx.Param("assetScanID"), &assetScanID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetScanID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PutAssetScansAssetScanIDParams
+
+	headers := ctx.Request().Header
+	// ------------- Optional header parameter "If-Match" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
+		var IfMatch Ifmatch
+		n := len(valueList)
+		if n != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
+		}
+
+		params.IfMatch = &IfMatch
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PutAssetScansAssetScanID(ctx, assetScanID, params)
+	return err
+}
+
+// GetAssets converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAssets(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAssetsParams
+	// ------------- Optional query parameter "$filter" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$filter", ctx.QueryParams(), &params.Filter)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $filter: %s", err))
+	}
+
+	// ------------- Optional query parameter "$select" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
+	}
+
+	// ------------- Optional query parameter "$count" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$count", ctx.QueryParams(), &params.Count)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $count: %s", err))
+	}
+
+	// ------------- Optional query parameter "$top" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$top", ctx.QueryParams(), &params.Top)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $top: %s", err))
+	}
+
+	// ------------- Optional query parameter "$skip" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$skip", ctx.QueryParams(), &params.Skip)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $skip: %s", err))
+	}
+
+	// ------------- Optional query parameter "$expand" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
+	}
+
+	// ------------- Optional query parameter "$orderby" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$orderby", ctx.QueryParams(), &params.OrderBy)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $orderby: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetAssets(ctx, params)
+	return err
+}
+
+// PostAssets converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAssets(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostAssets(ctx)
+	return err
+}
+
+// DeleteAssetsAssetID converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteAssetsAssetID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetID" -------------
+	var assetID AssetID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetID", runtime.ParamLocationPath, ctx.Param("assetID"), &assetID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetID: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeleteAssetsAssetID(ctx, assetID)
+	return err
+}
+
+// GetAssetsAssetID converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAssetsAssetID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetID" -------------
+	var assetID AssetID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetID", runtime.ParamLocationPath, ctx.Param("assetID"), &assetID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAssetsAssetIDParams
+	// ------------- Optional query parameter "$select" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
+	}
+
+	// ------------- Optional query parameter "$expand" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetAssetsAssetID(ctx, assetID, params)
+	return err
+}
+
+// PatchAssetsAssetID converts echo context to params.
+func (w *ServerInterfaceWrapper) PatchAssetsAssetID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetID" -------------
+	var assetID AssetID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetID", runtime.ParamLocationPath, ctx.Param("assetID"), &assetID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PatchAssetsAssetIDParams
+
+	headers := ctx.Request().Header
+	// ------------- Optional header parameter "If-Match" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
+		var IfMatch Ifmatch
+		n := len(valueList)
+		if n != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
+		}
+
+		params.IfMatch = &IfMatch
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PatchAssetsAssetID(ctx, assetID, params)
+	return err
+}
+
+// PutAssetsAssetID converts echo context to params.
+func (w *ServerInterfaceWrapper) PutAssetsAssetID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetID" -------------
+	var assetID AssetID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetID", runtime.ParamLocationPath, ctx.Param("assetID"), &assetID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetID: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PutAssetsAssetIDParams
+
+	headers := ctx.Request().Header
+	// ------------- Optional header parameter "If-Match" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
+		var IfMatch Ifmatch
+		n := len(valueList)
+		if n != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
+		}
+
+		params.IfMatch = &IfMatch
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PutAssetsAssetID(ctx, assetID, params)
+	return err
 }
 
 // GetDiscoveryScopes converts echo context to params.
@@ -500,179 +862,6 @@ func (w *ServerInterfaceWrapper) PutScanConfigsScanConfigID(ctx echo.Context) er
 	return err
 }
 
-// GetScanResults converts echo context to params.
-func (w *ServerInterfaceWrapper) GetScanResults(ctx echo.Context) error {
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetScanResultsParams
-	// ------------- Optional query parameter "$filter" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$filter", ctx.QueryParams(), &params.Filter)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $filter: %s", err))
-	}
-
-	// ------------- Optional query parameter "$select" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
-	}
-
-	// ------------- Optional query parameter "$count" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$count", ctx.QueryParams(), &params.Count)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $count: %s", err))
-	}
-
-	// ------------- Optional query parameter "$top" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$top", ctx.QueryParams(), &params.Top)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $top: %s", err))
-	}
-
-	// ------------- Optional query parameter "$skip" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$skip", ctx.QueryParams(), &params.Skip)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $skip: %s", err))
-	}
-
-	// ------------- Optional query parameter "$expand" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
-	}
-
-	// ------------- Optional query parameter "$orderby" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$orderby", ctx.QueryParams(), &params.OrderBy)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $orderby: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetScanResults(ctx, params)
-	return err
-}
-
-// PostScanResults converts echo context to params.
-func (w *ServerInterfaceWrapper) PostScanResults(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostScanResults(ctx)
-	return err
-}
-
-// GetScanResultsScanResultID converts echo context to params.
-func (w *ServerInterfaceWrapper) GetScanResultsScanResultID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "scanResultID" -------------
-	var scanResultID ScanResultID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "scanResultID", runtime.ParamLocationPath, ctx.Param("scanResultID"), &scanResultID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter scanResultID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetScanResultsScanResultIDParams
-	// ------------- Optional query parameter "$select" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
-	}
-
-	// ------------- Optional query parameter "$expand" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetScanResultsScanResultID(ctx, scanResultID, params)
-	return err
-}
-
-// PatchScanResultsScanResultID converts echo context to params.
-func (w *ServerInterfaceWrapper) PatchScanResultsScanResultID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "scanResultID" -------------
-	var scanResultID ScanResultID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "scanResultID", runtime.ParamLocationPath, ctx.Param("scanResultID"), &scanResultID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter scanResultID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params PatchScanResultsScanResultIDParams
-
-	headers := ctx.Request().Header
-	// ------------- Optional header parameter "If-Match" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
-		var IfMatch Ifmatch
-		n := len(valueList)
-		if n != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
-		}
-
-		params.IfMatch = &IfMatch
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PatchScanResultsScanResultID(ctx, scanResultID, params)
-	return err
-}
-
-// PutScanResultsScanResultID converts echo context to params.
-func (w *ServerInterfaceWrapper) PutScanResultsScanResultID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "scanResultID" -------------
-	var scanResultID ScanResultID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "scanResultID", runtime.ParamLocationPath, ctx.Param("scanResultID"), &scanResultID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter scanResultID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params PutScanResultsScanResultIDParams
-
-	headers := ctx.Request().Header
-	// ------------- Optional header parameter "If-Match" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
-		var IfMatch Ifmatch
-		n := len(valueList)
-		if n != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
-		}
-
-		params.IfMatch = &IfMatch
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PutScanResultsScanResultID(ctx, scanResultID, params)
-	return err
-}
-
 // GetScans converts echo context to params.
 func (w *ServerInterfaceWrapper) GetScans(ctx echo.Context) error {
 	var err error
@@ -862,195 +1051,6 @@ func (w *ServerInterfaceWrapper) PutScansScanID(ctx echo.Context) error {
 	return err
 }
 
-// GetTargets converts echo context to params.
-func (w *ServerInterfaceWrapper) GetTargets(ctx echo.Context) error {
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetTargetsParams
-	// ------------- Optional query parameter "$filter" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$filter", ctx.QueryParams(), &params.Filter)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $filter: %s", err))
-	}
-
-	// ------------- Optional query parameter "$select" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
-	}
-
-	// ------------- Optional query parameter "$count" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$count", ctx.QueryParams(), &params.Count)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $count: %s", err))
-	}
-
-	// ------------- Optional query parameter "$top" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$top", ctx.QueryParams(), &params.Top)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $top: %s", err))
-	}
-
-	// ------------- Optional query parameter "$skip" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$skip", ctx.QueryParams(), &params.Skip)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $skip: %s", err))
-	}
-
-	// ------------- Optional query parameter "$expand" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
-	}
-
-	// ------------- Optional query parameter "$orderby" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$orderby", ctx.QueryParams(), &params.OrderBy)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $orderby: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetTargets(ctx, params)
-	return err
-}
-
-// PostTargets converts echo context to params.
-func (w *ServerInterfaceWrapper) PostTargets(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostTargets(ctx)
-	return err
-}
-
-// DeleteTargetsTargetID converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteTargetsTargetID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "targetID" -------------
-	var targetID TargetID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "targetID", runtime.ParamLocationPath, ctx.Param("targetID"), &targetID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter targetID: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.DeleteTargetsTargetID(ctx, targetID)
-	return err
-}
-
-// GetTargetsTargetID converts echo context to params.
-func (w *ServerInterfaceWrapper) GetTargetsTargetID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "targetID" -------------
-	var targetID TargetID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "targetID", runtime.ParamLocationPath, ctx.Param("targetID"), &targetID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter targetID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetTargetsTargetIDParams
-	// ------------- Optional query parameter "$select" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$select", ctx.QueryParams(), &params.Select)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $select: %s", err))
-	}
-
-	// ------------- Optional query parameter "$expand" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "$expand", ctx.QueryParams(), &params.Expand)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter $expand: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetTargetsTargetID(ctx, targetID, params)
-	return err
-}
-
-// PatchTargetsTargetID converts echo context to params.
-func (w *ServerInterfaceWrapper) PatchTargetsTargetID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "targetID" -------------
-	var targetID TargetID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "targetID", runtime.ParamLocationPath, ctx.Param("targetID"), &targetID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter targetID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params PatchTargetsTargetIDParams
-
-	headers := ctx.Request().Header
-	// ------------- Optional header parameter "If-Match" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
-		var IfMatch Ifmatch
-		n := len(valueList)
-		if n != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
-		}
-
-		params.IfMatch = &IfMatch
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PatchTargetsTargetID(ctx, targetID, params)
-	return err
-}
-
-// PutTargetsTargetID converts echo context to params.
-func (w *ServerInterfaceWrapper) PutTargetsTargetID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "targetID" -------------
-	var targetID TargetID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "targetID", runtime.ParamLocationPath, ctx.Param("targetID"), &targetID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter targetID: %s", err))
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params PutTargetsTargetIDParams
-
-	headers := ctx.Request().Header
-	// ------------- Optional header parameter "If-Match" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("If-Match")]; found {
-		var IfMatch Ifmatch
-		n := len(valueList)
-		if n != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for If-Match, got %d", n))
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, valueList[0], &IfMatch)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter If-Match: %s", err))
-		}
-
-		params.IfMatch = &IfMatch
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PutTargetsTargetID(ctx, targetID, params)
-	return err
-}
-
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -1079,6 +1079,17 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/assetScans", wrapper.GetAssetScans)
+	router.POST(baseURL+"/assetScans", wrapper.PostAssetScans)
+	router.GET(baseURL+"/assetScans/:assetScanID", wrapper.GetAssetScansAssetScanID)
+	router.PATCH(baseURL+"/assetScans/:assetScanID", wrapper.PatchAssetScansAssetScanID)
+	router.PUT(baseURL+"/assetScans/:assetScanID", wrapper.PutAssetScansAssetScanID)
+	router.GET(baseURL+"/assets", wrapper.GetAssets)
+	router.POST(baseURL+"/assets", wrapper.PostAssets)
+	router.DELETE(baseURL+"/assets/:assetID", wrapper.DeleteAssetsAssetID)
+	router.GET(baseURL+"/assets/:assetID", wrapper.GetAssetsAssetID)
+	router.PATCH(baseURL+"/assets/:assetID", wrapper.PatchAssetsAssetID)
+	router.PUT(baseURL+"/assets/:assetID", wrapper.PutAssetsAssetID)
 	router.GET(baseURL+"/discovery/scopes", wrapper.GetDiscoveryScopes)
 	router.PUT(baseURL+"/discovery/scopes", wrapper.PutDiscoveryScopes)
 	router.GET(baseURL+"/findings", wrapper.GetFindings)
@@ -1093,127 +1104,115 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/scanConfigs/:scanConfigID", wrapper.GetScanConfigsScanConfigID)
 	router.PATCH(baseURL+"/scanConfigs/:scanConfigID", wrapper.PatchScanConfigsScanConfigID)
 	router.PUT(baseURL+"/scanConfigs/:scanConfigID", wrapper.PutScanConfigsScanConfigID)
-	router.GET(baseURL+"/scanResults", wrapper.GetScanResults)
-	router.POST(baseURL+"/scanResults", wrapper.PostScanResults)
-	router.GET(baseURL+"/scanResults/:scanResultID", wrapper.GetScanResultsScanResultID)
-	router.PATCH(baseURL+"/scanResults/:scanResultID", wrapper.PatchScanResultsScanResultID)
-	router.PUT(baseURL+"/scanResults/:scanResultID", wrapper.PutScanResultsScanResultID)
 	router.GET(baseURL+"/scans", wrapper.GetScans)
 	router.POST(baseURL+"/scans", wrapper.PostScans)
 	router.DELETE(baseURL+"/scans/:scanID", wrapper.DeleteScansScanID)
 	router.GET(baseURL+"/scans/:scanID", wrapper.GetScansScanID)
 	router.PATCH(baseURL+"/scans/:scanID", wrapper.PatchScansScanID)
 	router.PUT(baseURL+"/scans/:scanID", wrapper.PutScansScanID)
-	router.GET(baseURL+"/targets", wrapper.GetTargets)
-	router.POST(baseURL+"/targets", wrapper.PostTargets)
-	router.DELETE(baseURL+"/targets/:targetID", wrapper.DeleteTargetsTargetID)
-	router.GET(baseURL+"/targets/:targetID", wrapper.GetTargetsTargetID)
-	router.PATCH(baseURL+"/targets/:targetID", wrapper.PatchTargetsTargetID)
-	router.PUT(baseURL+"/targets/:targetID", wrapper.PutTargetsTargetID)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

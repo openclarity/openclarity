@@ -15,8 +15,8 @@
 
 package models
 
-func (r *TargetScanResult) GetGeneralState() (TargetScanStateState, bool) {
-	var state TargetScanStateState
+func (r *AssetScan) GetGeneralState() (AssetScanStateState, bool) {
+	var state AssetScanStateState
 	var ok bool
 
 	if r.Status != nil {
@@ -26,7 +26,7 @@ func (r *TargetScanResult) GetGeneralState() (TargetScanStateState, bool) {
 	return state, ok
 }
 
-func (r *TargetScanResult) GetGeneralErrors() []string {
+func (r *AssetScan) GetGeneralErrors() []string {
 	var errs []string
 
 	if r.Status != nil {
@@ -36,7 +36,7 @@ func (r *TargetScanResult) GetGeneralErrors() []string {
 	return errs
 }
 
-func (r *TargetScanResult) GetID() (string, bool) {
+func (r *AssetScan) GetID() (string, bool) {
 	var id string
 	var ok bool
 
@@ -47,7 +47,7 @@ func (r *TargetScanResult) GetID() (string, bool) {
 	return id, ok
 }
 
-func (r *TargetScanResult) GetScanID() (string, bool) {
+func (r *AssetScan) GetScanID() (string, bool) {
 	var scanID string
 	var ok bool
 
@@ -58,30 +58,30 @@ func (r *TargetScanResult) GetScanID() (string, bool) {
 	return scanID, ok
 }
 
-func (r *TargetScanResult) GetTargetID() (string, bool) {
-	var targetID string
+func (r *AssetScan) GetAssetID() (string, bool) {
+	var assetID string
 	var ok bool
 
-	if r.Target != nil {
-		targetID, ok = r.Target.Id, true
+	if r.Asset != nil {
+		assetID, ok = r.Asset.Id, true
 	}
 
-	return targetID, ok
+	return assetID, ok
 }
 
-func (r *TargetScanResult) IsDone() (bool, bool) {
+func (r *AssetScan) IsDone() (bool, bool) {
 	var done bool
 	var ok bool
-	var state TargetScanStateState
+	var state AssetScanStateState
 
-	if state, ok = r.GetGeneralState(); ok && state == TargetScanStateStateDone {
+	if state, ok = r.GetGeneralState(); ok && state == AssetScanStateStateDone {
 		done = true
 	}
 
 	return done, ok
 }
 
-func (r *TargetScanResult) HasErrors() bool {
+func (r *AssetScan) HasErrors() bool {
 	var has bool
 
 	if errs := r.GetGeneralErrors(); len(errs) > 0 {

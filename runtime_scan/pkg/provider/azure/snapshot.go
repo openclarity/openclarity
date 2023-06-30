@@ -32,7 +32,7 @@ var (
 )
 
 func snapshotNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("snapshot-%s", config.ScanResultID)
+	return fmt.Sprintf("snapshot-%s", config.AssetScanID)
 }
 
 func (c *Client) ensureSnapshotForVMRootVolume(ctx context.Context, config *provider.ScanJobConfig, vm armcompute.VirtualMachine) (armcompute.Snapshot, error) {
