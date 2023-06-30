@@ -13,36 +13,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanwatcher
 
 import (
-	"time"
+	"fmt"
 
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/api/models"
 )
 
-const (
-	DefaultPollInterval     = 2 * time.Minute
-	DefaultReconcileTimeout = 5 * time.Minute
-)
-
-type Config struct {
-	Backend          *backendclient.BackendClient
-	PollPeriod       time.Duration
-	ReconcileTimeout time.Duration
+type AssetScanReconcileEvent struct {
+	AssetScanID models.AssetScanID
+	ScanID      models.ScanID
+	AssetID     models.AssetID
 }
 
-func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
-	c.Backend = b
-	return c
+func (e AssetScanReconcileEvent) ToFields() log.Fields {
+	return log.Fields{
+		"AssetScanID": e.AssetScanID,
+		"ScanID":      e.ScanID,
+		"AssetID":     e.AssetID,
+	}
 }
 
-func (c Config) WithReconcileTimeout(t time.Duration) Config {
-	c.ReconcileTimeout = t
-	return c
+func (e AssetScanReconcileEvent) String() string {
+	return fmt.Sprintf("AssetScanID=%s ScanID=%s AssetID=%s", e.AssetScanID, e.ScanID, e.AssetID)
 }
 
-func (c Config) WithPollPeriod(t time.Duration) Config {
-	c.PollPeriod = t
-	return c
+func (e AssetScanReconcileEvent) Hash() string {
+	return e.AssetScanID
 }

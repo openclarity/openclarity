@@ -19,7 +19,7 @@ const SCAN_STATES_AND_REASONS_MAPPINGS = [
     {...SCAN_STATES.InProgress, status: STATUS_MAPPPING.IN_PROGRESS.value},
     {...SCAN_STATES.Failed, stateReason: "Aborted", status: STATUS_MAPPPING.STOPPED.value},
     {...SCAN_STATES.Failed, stateReason: "TimedOut", status: STATUS_MAPPPING.WARNING.value},
-    {...SCAN_STATES.Failed, stateReason: "OneOrMoreTargetFailedToScan", status: STATUS_MAPPPING.WARNING.value, errorTitle: "Some of the elements were failed to be scanned"},
+    {...SCAN_STATES.Failed, stateReason: "OneOrMoreAssetFailedToScan", status: STATUS_MAPPPING.WARNING.value, errorTitle: "Some of the elements were failed to be scanned"},
     {...SCAN_STATES.Failed, stateReason: "DiscoveryFailed", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Discovery failed"},
     {...SCAN_STATES.Failed, stateReason: "Unexpected", status: STATUS_MAPPPING.ERROR.value, errorTitle: "Unexpected error occured"},
     {...SCAN_STATES.Done, status: STATUS_MAPPPING.SUCCESS.value},

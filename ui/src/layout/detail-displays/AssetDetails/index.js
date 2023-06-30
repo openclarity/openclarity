@@ -11,12 +11,12 @@ import { ROUTES, APIS } from 'utils/systemConsts';
 import { formatNumber, formatDate, formatTagsToStringsList } from 'utils/utils';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
-const AssetScansDisplay = ({assetName, targetId}) => {
+const AssetScansDisplay = ({assetName, assetId}) => {
     const {pathname} = useLocation();
     const navigate = useNavigate();
     const filtersDispatch = useFilterDispatch();
 
-    const filter = `target/id eq '${targetId}'`;
+    const filter = `asset/id eq '${assetId}'`;
     
     const onAssetScansClick = () => {
         setFilters(filtersDispatch, {
@@ -29,7 +29,7 @@ const AssetScansDisplay = ({assetName, targetId}) => {
     }
     
     const [{loading, data, error}] = useFetch(APIS.ASSET_SCANS, {
-        queryParams: {"$filter": filter, "$count": true, "$select": "id,target,summary,scan"}
+        queryParams: {"$filter": filter, "$count": true, "$select": "id,asset,summary,scan"}
     });
     
     if (error) {
@@ -51,8 +51,8 @@ const AssetScansDisplay = ({assetName, targetId}) => {
 const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}) => {
     const navigate = useNavigate();
 
-    const {id, targetInfo} = assetData;
-    const {instanceID, objectType, location, tags, image, instanceType, platform, launchTime} = targetInfo || {};
+    const {id, assetInfo} = assetData;
+    const {instanceID, objectType, location, tags, image, instanceType, platform, launchTime} = assetInfo || {};
     
     return (
         <DoublePaneDisplay
@@ -79,7 +79,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                     </TitleValueDisplayRow>
                 </>
             )}
-            rightPlaneDisplay={!withAssetScansLink ? null : () => <AssetScansDisplay assetName={instanceID} targetId={id} />}
+            rightPlaneDisplay={!withAssetScansLink ? null : () => <AssetScansDisplay assetName={instanceID} assetId={id} />}
         />
     )
 }

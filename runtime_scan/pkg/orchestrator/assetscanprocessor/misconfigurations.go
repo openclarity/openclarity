@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -25,14 +25,14 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func (srp *ScanResultProcessor) getExistingMisconfigurationFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.MisconfigurationKey]string, error) {
+func (asp *AssetScanProcessor) getExistingMisconfigurationFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.MisconfigurationKey]string, error) {
 	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.MisconfigurationKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and asset/id eq '%s' and scan/id eq '%s'",
-		scanResult.Target.Id, scanResult.Scan.Id)
-	existingFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/scannerName,findingInfo/testId,findingInfo/message"),
 	})
@@ -60,26 +60,26 @@ func (srp *ScanResultProcessor) getExistingMisconfigurationFindingsForScan(ctx c
 }
 
 // nolint:cyclop
-func (srp *ScanResultProcessor) reconcileResultMisconfigurationsToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
-	completedTime := scanResult.Status.General.LastTransitionTime
+func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx context.Context, assetScan models.AssetScan) error {
+	completedTime := assetScan.Status.General.LastTransitionTime
 
-	newerFound, newerTime, err := srp.newerExistingFindingTime(ctx, scanResult.Target.Id, "Misconfiguration", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Misconfiguration", *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing misconfiguration findings: %v", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
 	// recreating existings ones as we might be re-reconciling the same
-	// scan result because of downtime or a previous failure.
-	existingMap, err := srp.getExistingMisconfigurationFindingsForScan(ctx, scanResult)
+	// asset scan because of downtime or a previous failure.
+	existingMap, err := asp.getExistingMisconfigurationFindingsForScan(ctx, assetScan)
 	if err != nil {
 		return fmt.Errorf("failed to check existing misconfiguration findings: %w", err)
 	}
 
-	if scanResult.Misconfigurations != nil && scanResult.Misconfigurations.Misconfigurations != nil {
+	if assetScan.Misconfigurations != nil && assetScan.Misconfigurations.Misconfigurations != nil {
 		// Create new or update existing findings all the misconfigurations found by the
 		// scan.
-		for _, item := range *scanResult.Misconfigurations.Misconfigurations {
+		for _, item := range *assetScan.Misconfigurations.Misconfigurations {
 			itemFindingInfo := models.MisconfigurationFindingInfo{
 				Message:         item.Message,
 				Remediation:     item.Remediation,
@@ -98,26 +98,26 @@ func (srp *ScanResultProcessor) reconcileResultMisconfigurationsToFindings(ctx c
 			}
 
 			finding := models.Finding{
-				Scan:        scanResult.Scan,
-				Asset:       scanResult.Target,
-				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				Scan:        assetScan.Scan,
+				Asset:       assetScan.Asset,
+				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
 			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this scan result.
+			// finding, found after this asset scan.
 			if newerFound {
 				finding.InvalidatedOn = &newerTime
 			}
 
 			key := findingkey.GenerateMisconfigurationKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
-				err = srp.client.PatchFinding(ctx, id, finding)
+				err = asp.client.PatchFinding(ctx, id, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
 			} else {
-				_, err = srp.client.PostFinding(ctx, finding)
+				_, err = asp.client.PostFinding(ctx, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
@@ -126,31 +126,31 @@ func (srp *ScanResultProcessor) reconcileResultMisconfigurationsToFindings(ctx c
 	}
 
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	err = srp.invalidateOlderFindingsByType(ctx, "Misconfiguration", scanResult.Target.Id, *completedTime)
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	err = asp.invalidateOlderFindingsByType(ctx, "Misconfiguration", assetScan.Asset.Id, *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older misconfiguration finding: %v", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	target, err := srp.client.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
-	if target.Summary == nil {
-		target.Summary = &models.ScanFindingsSummary{}
+	if asset.Summary == nil {
+		asset.Summary = &models.ScanFindingsSummary{}
 	}
 
-	totalMisconfigurations, err := srp.getActiveFindingsByType(ctx, "Misconfiguration", scanResult.Target.Id)
+	totalMisconfigurations, err := asp.getActiveFindingsByType(ctx, "Misconfiguration", assetScan.Asset.Id)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	target.Summary.TotalMisconfigurations = &totalMisconfigurations
+	asset.Summary.TotalMisconfigurations = &totalMisconfigurations
 
-	err = srp.client.PatchTarget(ctx, target, scanResult.Target.Id)
+	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to patch target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	return nil

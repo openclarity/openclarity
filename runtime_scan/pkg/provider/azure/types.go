@@ -25,10 +25,10 @@ type ScanScope struct {
 	AllResourceGroups bool
 	ResourceGroups    []ResourceGroup
 	ScanStopped       bool
-	// Only targets that have these tags will be selected for scanning within the selected scan scope.
+	// Only assets that have these tags will be selected for scanning within the selected scan scope.
 	// Multiple tags will be treated as an AND operator.
 	TagSelector []models.Tag
-	// Targets that have these tags will be excluded from the scan, even if they match the tag selector.
+	// Assets that have these tags will be excluded from the scan, even if they match the tag selector.
 	// Multiple tags will be treated as an AND operator.
 	ExcludeTags []models.Tag
 }

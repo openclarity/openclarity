@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -26,19 +26,19 @@ import (
 )
 
 // nolint:cyclop,gocognit
-func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
+func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, assetScan models.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	completedTime := scanResult.Status.General.LastTransitionTime
+	completedTime := assetScan.Status.General.LastTransitionTime
 
-	newerFound, newerTime, err := srp.newerExistingFindingTime(ctx, scanResult.Target.Id, "Vulnerability", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Vulnerability", *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing vulnerability findings: %v", err)
 	}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and scan/id eq '%s'",
-		scanResult.Target.Id, scanResult.Scan.Id)
-	existingFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/vulnerabilityName,findingInfo/package/name,findingInfo/package/version"),
 	})
@@ -63,9 +63,9 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 	logger.Infof("Found %d existing vulnerabilities findings for this scan", len(existingMap))
 	logger.Debugf("Existing vulnerabilities map: %v", existingMap)
 
-	if scanResult.Vulnerabilities != nil && scanResult.Vulnerabilities.Vulnerabilities != nil {
+	if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
 		// Create new findings for all the found vulnerabilities
-		for _, vuln := range *scanResult.Vulnerabilities.Vulnerabilities {
+		for _, vuln := range *assetScan.Vulnerabilities.Vulnerabilities {
 			vulFindingInfo := models.VulnerabilityFindingInfo{
 				VulnerabilityName: vuln.VulnerabilityName,
 				Description:       vuln.Description,
@@ -86,26 +86,26 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 			}
 
 			finding := models.Finding{
-				Scan:        scanResult.Scan,
-				Asset:       scanResult.Target,
-				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				Scan:        assetScan.Scan,
+				Asset:       assetScan.Asset,
+				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
 			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this scan result.
+			// finding, found after this asset scan.
 			if newerFound {
 				finding.InvalidatedOn = &newerTime
 			}
 
 			key := findingkey.GenerateVulnerabilityKey(vulFindingInfo)
 			if id, ok := existingMap[key]; ok {
-				err = srp.client.PatchFinding(ctx, id, finding)
+				err = asp.client.PatchFinding(ctx, id, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
 			} else {
-				_, err = srp.client.PostFinding(ctx, finding)
+				_, err = asp.client.PostFinding(ctx, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
@@ -114,45 +114,45 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 	}
 
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	err = srp.invalidateOlderFindingsByType(ctx, "Vulnerability", scanResult.Target.Id, *completedTime)
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	err = asp.invalidateOlderFindingsByType(ctx, "Vulnerability", assetScan.Asset.Id, *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older vulnerability finding: %v", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	target, err := srp.client.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 
-	if target.Summary == nil {
-		target.Summary = &models.ScanFindingsSummary{}
+	if asset.Summary == nil {
+		asset.Summary = &models.ScanFindingsSummary{}
 	}
 
-	critialVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.CRITICAL)
+	critialVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.CRITICAL)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	highVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.HIGH)
+	highVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.HIGH)
 	if err != nil {
 		return fmt.Errorf("failed to list active high vulnerabilities: %w", err)
 	}
-	mediumVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.MEDIUM)
+	mediumVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.MEDIUM)
 	if err != nil {
 		return fmt.Errorf("failed to list active medium vulnerabilities: %w", err)
 	}
-	lowVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.LOW)
+	lowVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.LOW)
 	if err != nil {
 		return fmt.Errorf("failed to list active low vulnerabilities: %w", err)
 	}
-	negligibleVuls, err := srp.getActiveVulnerabilityFindingsCount(ctx, scanResult.Target.Id, models.NEGLIGIBLE)
+	negligibleVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.NEGLIGIBLE)
 	if err != nil {
 		return fmt.Errorf("failed to list active negligible vulnerabilities: %w", err)
 	}
 
-	target.Summary.TotalVulnerabilities = &models.VulnerabilityScanSummary{
+	asset.Summary.TotalVulnerabilities = &models.VulnerabilityScanSummary{
 		TotalCriticalVulnerabilities:   &critialVuls,
 		TotalHighVulnerabilities:       &highVuls,
 		TotalMediumVulnerabilities:     &mediumVuls,
@@ -160,17 +160,17 @@ func (srp *ScanResultProcessor) reconcileResultVulnerabilitiesToFindings(ctx con
 		TotalNegligibleVulnerabilities: &negligibleVuls,
 	}
 
-	err = srp.client.PatchTarget(ctx, target, scanResult.Target.Id)
+	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to patch target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	return nil
 }
 
-func (srp *ScanResultProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity models.VulnerabilitySeverity) (int, error) {
+func (asp *AssetScanProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity models.VulnerabilitySeverity) (int, error) {
 	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and invalidatedOn eq null and findingInfo/severity eq '%s'", assetID, string(severity))
-	activeFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+	activeFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Count:  utils.PointerTo(true),
 		Filter: &filter,
 

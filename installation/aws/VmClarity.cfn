@@ -650,9 +650,9 @@ Resources:
                   - Owner
                   - Name
                   - VMClarity.ScanID
-                  - VMClarity.ScanResultID
-                  - VMClarity.TargetID
-                  - VMClarity.TargetVolumeID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
           #
           # ##########################
 
@@ -673,9 +673,9 @@ Resources:
                   - Owner
                   - Name
                   - VMClarity.ScanID
-                  - VMClarity.ScanResultID
-                  - VMClarity.TargetID
-                  - VMClarity.TargetVolumeID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
           #
           # ##########################
 
@@ -692,9 +692,9 @@ Resources:
                   - Owner
                   - Name
                   - VMClarity.ScanID
-                  - VMClarity.ScanResultID
-                  - VMClarity.TargetID
-                  - VMClarity.TargetVolumeID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
 
           # ##########################
           # Only allow RunInstances inside of the VMClarity VPC by enforcing
@@ -711,8 +711,8 @@ Resources:
           # keys allowed are:
           #  * Owner
           #  * VMClarity.ScanID
-          #  * VMClarity.ScanResultID
-          #  * VMClarity.TargetID
+          #  * VMClarity.AssetScanID
+          #  * VMClarity.AssetID
           # "Owner" must be set to "VmClarity".
           - Effect: "Allow"
             Action:
@@ -729,8 +729,8 @@ Resources:
                   - Owner
                   - Name
                   - VMClarity.ScanID
-                  - VMClarity.ScanResultID
-                  - VMClarity.TargetID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
           # Allow instance to be created using snapshots, only if the snapshot
           # has the Owner:VMClarity tag.
           - Effect: "Allow"
@@ -745,8 +745,8 @@ Resources:
                   - Owner
                   - Name
                   - VMClarity.ScanID
-                  - VMClarity.ScanResultID
-                  - VMClarity.TargetID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
           # Allow the creation of network interfaces, and allow instances to be
           # created with any security group and image in our account and
           # region.
@@ -904,7 +904,7 @@ Parameters:
     Default: ''
   ScannerContainerImageOverride:
     Description: >
-      Name of the container image used for running scans on targets.
+      Name of the container image used for running scans on assets.
       "ghcr.io/openclarity/vmclarity-cli:latest" will be used if not overridden.
     Type: String
     Default: ''

@@ -26,20 +26,20 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func TestNewScanResultFromScan(t *testing.T) {
+func TestNewAssetScanFromScan(t *testing.T) {
 	scanID := string(uuid.NewUUID())
-	targetID := string(uuid.NewUUID())
+	assetID := string(uuid.NewUUID())
 
 	tests := []struct {
-		Name     string
-		Scan     *models.Scan
-		TargetID string
+		Name    string
+		Scan    *models.Scan
+		AssetID string
 
 		ExpectedErrorMatcher types.GomegaMatcher
-		ExpectedScanResult   *models.TargetScanResult
+		ExpectedAssetScan    *models.AssetScan
 	}{
 		{
-			Name: "TargetResult from valid Scan",
+			Name: "AssetResult from valid Scan",
 			Scan: &models.Scan{
 				Id: utils.PointerTo(scanID),
 				ScanConfigSnapshot: &models.ScanConfigSnapshot{
@@ -65,50 +65,50 @@ func TestNewScanResultFromScan(t *testing.T) {
 					},
 				},
 			},
-			TargetID:             targetID,
+			AssetID:              assetID,
 			ExpectedErrorMatcher: Not(HaveOccurred()),
-			ExpectedScanResult: &models.TargetScanResult{
+			ExpectedAssetScan: &models.AssetScan{
 				ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
 				Scan: &models.ScanRelationship{
 					Id: scanID,
 				},
-				Status: &models.TargetScanStatus{
-					Exploits: &models.TargetScanState{
+				Status: &models.AssetScanStatus{
+					Exploits: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStatePending),
+						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
-					General: &models.TargetScanState{
+					General: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStatePending),
+						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
-					Malware: &models.TargetScanState{
+					Malware: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStatePending),
+						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
-					Misconfigurations: &models.TargetScanState{
+					Misconfigurations: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
+						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
 					},
-					Rootkits: &models.TargetScanState{
+					Rootkits: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
+						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
 					},
-					Sbom: &models.TargetScanState{
+					Sbom: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStatePending),
+						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
-					Secrets: &models.TargetScanState{
+					Secrets: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStateNotScanned),
+						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
 					},
-					Vulnerabilities: &models.TargetScanState{
+					Vulnerabilities: &models.AssetScanState{
 						Errors: nil,
-						State:  utils.PointerTo(models.TargetScanStateStatePending),
+						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
 				},
-				Summary: newScanResultSummary(),
-				Target: &models.TargetRelationship{
-					Id: targetID,
+				Summary: newAssetScanSummary(),
+				Asset: &models.AssetRelationship{
+					Id: assetID,
 				},
 			},
 		},
@@ -118,10 +118,10 @@ func TestNewScanResultFromScan(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			result, err := newScanResultFromScan(test.Scan, test.TargetID)
+			result, err := newAssetScanFromScan(test.Scan, test.AssetID)
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)
-			g.Expect(result).Should(Equal(test.ExpectedScanResult))
+			g.Expect(result).Should(Equal(test.ExpectedAssetScan))
 		})
 	}
 }

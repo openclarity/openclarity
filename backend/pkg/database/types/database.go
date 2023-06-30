@@ -50,10 +50,10 @@ type DBConfig struct {
 }
 
 type Database interface {
-	ScanResultsTable() ScanResultsTable
+	AssetScansTable() AssetScansTable
 	ScanConfigsTable() ScanConfigsTable
 	ScansTable() ScansTable
-	TargetsTable() TargetsTable
+	AssetsTable() AssetsTable
 	ScopesTable() ScopesTable
 	FindingsTable() FindingsTable
 }
@@ -69,15 +69,15 @@ type ScansTable interface {
 	DeleteScan(scanID models.ScanID) error
 }
 
-type ScanResultsTable interface {
-	GetScanResults(params models.GetScanResultsParams) (models.TargetScanResults, error)
-	GetScanResult(scanResultID models.ScanResultID, params models.GetScanResultsScanResultIDParams) (models.TargetScanResult, error)
+type AssetScansTable interface {
+	GetAssetScans(params models.GetAssetScansParams) (models.AssetScans, error)
+	GetAssetScan(assetScanID models.AssetScanID, params models.GetAssetScansAssetScanIDParams) (models.AssetScan, error)
 
-	CreateScanResult(scanResults models.TargetScanResult) (models.TargetScanResult, error)
-	UpdateScanResult(scanResults models.TargetScanResult, params models.PatchScanResultsScanResultIDParams) (models.TargetScanResult, error)
-	SaveScanResult(scanResults models.TargetScanResult, params models.PutScanResultsScanResultIDParams) (models.TargetScanResult, error)
+	CreateAssetScan(assetScans models.AssetScan) (models.AssetScan, error)
+	UpdateAssetScan(assetScans models.AssetScan, params models.PatchAssetScansAssetScanIDParams) (models.AssetScan, error)
+	SaveAssetScan(assetScans models.AssetScan, params models.PutAssetScansAssetScanIDParams) (models.AssetScan, error)
 
-	// DeleteScanResult(scanResultID models.ScanResultID) error
+	// DeleteAssetScan(assetScanID models.AssetScanID) error
 }
 
 type ScanConfigsTable interface {
@@ -91,15 +91,15 @@ type ScanConfigsTable interface {
 	DeleteScanConfig(scanConfigID models.ScanConfigID) error
 }
 
-type TargetsTable interface {
-	GetTargets(params models.GetTargetsParams) (models.Targets, error)
-	GetTarget(targetID models.TargetID, params models.GetTargetsTargetIDParams) (models.Target, error)
+type AssetsTable interface {
+	GetAssets(params models.GetAssetsParams) (models.Assets, error)
+	GetAsset(assetID models.AssetID, params models.GetAssetsAssetIDParams) (models.Asset, error)
 
-	CreateTarget(target models.Target) (models.Target, error)
-	UpdateTarget(target models.Target, params models.PatchTargetsTargetIDParams) (models.Target, error)
-	SaveTarget(target models.Target, params models.PutTargetsTargetIDParams) (models.Target, error)
+	CreateAsset(asset models.Asset) (models.Asset, error)
+	UpdateAsset(asset models.Asset, params models.PatchAssetsAssetIDParams) (models.Asset, error)
+	SaveAsset(asset models.Asset, params models.PutAssetsAssetIDParams) (models.Asset, error)
 
-	DeleteTarget(targetID models.TargetID) error
+	DeleteAsset(assetID models.AssetID) error
 }
 
 type ScopesTable interface {

@@ -55,9 +55,9 @@ var (
 	logger  *logrus.Entry
 	output  string
 
-	server       string
-	scanResultID string
-	mountVolume  bool
+	server      string
+	assetScanID string
+	mountVolume bool
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -71,7 +71,7 @@ var rootCmd = &cobra.Command{
 		logger.Infof("Running...")
 
 		// Main context which remains active even if the scan is aborted allowing post-processing operations
-		// like updating scan result state
+		// like updating asset scan state
 		ctx := log.SetLoggerForContext(cmd.Context(), logger)
 
 		cli, err := newCli()
@@ -87,9 +87,9 @@ var rootCmd = &cobra.Command{
 		cli.WatchForAbort(ctx, cancel, DefaultWatcherInterval)
 
 		if err := cli.WaitForReadyState(abortCtx); err != nil {
-			err = fmt.Errorf("failed to wait for ScanResult being ready to scan: %w", err)
+			err = fmt.Errorf("failed to wait for AssetScan being ready to scan: %w", err)
 			if e := cli.MarkDone(ctx, []error{err}); e != nil {
-				logger.Errorf("Failed to update ScanResult status to completed with errors: %v", e)
+				logger.Errorf("Failed to update AssetScan status to completed with errors: %v", e)
 			}
 			return err
 		}
@@ -103,7 +103,7 @@ var rootCmd = &cobra.Command{
 			if err != nil {
 				err = fmt.Errorf("failed to mount attached volume: %w", err)
 				if e := cli.MarkDone(ctx, []error{err}); e != nil {
-					logger.Errorf("Failed to update scan result stat to completed with errors: %v", e)
+					logger.Errorf("Failed to update asset scan stat to completed with errors: %v", e)
 				}
 				return err
 			}
@@ -149,14 +149,14 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vmclarity.yaml)")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "set output directory path. Stdout is used if not set.")
-	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export scan results to, for example: http://localhost:9999/api")
-	rootCmd.PersistentFlags().StringVar(&scanResultID, "scan-result-id", "", "the ScanResult ID to export the scan results to")
+	rootCmd.PersistentFlags().StringVar(&server, "server", "", "VMClarity server to export asset scans to, for example: http://localhost:9999/api")
+	rootCmd.PersistentFlags().StringVar(&assetScanID, "asset-scan-id", "", "the AssetScan ID to monitor and report results to")
 	rootCmd.PersistentFlags().BoolVar(&mountVolume, "mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
 
 	// TODO(sambetts) we may have to change this to our own validation when
-	// we add the CI/CD scenario and there isn't an existing scan-result-id
+	// we add the CI/CD scenario and there isn't an existing asset-scan-id
 	// in the backend to PATCH
-	rootCmd.MarkFlagsRequiredTogether("server", "scan-result-id")
+	rootCmd.MarkFlagsRequiredTogether("server", "asset-scan-id")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -218,12 +218,12 @@ func newCli() (*cli.CLI, error) {
 			return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 		}
 
-		manager, err = state.NewVMClarityState(client, scanResultID)
+		manager, err = state.NewVMClarityState(client, assetScanID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create VMClarity state manager: %w", err)
 		}
 
-		p, err = presenter.NewVMClarityPresenter(client, scanResultID)
+		p, err = presenter.NewVMClarityPresenter(client, assetScanID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create VMClarity presenter: %w", err)
 		}

@@ -23,13 +23,13 @@
 | `SCAN_POLLING_INTERVAL`                   |           |         |                                              |
 | `SCAN_RECONCILE_TIMEOUT`                  |           |         |                                              |
 | `SCAN_TIMEOUT`                            |           |         |                                              |
-| `SCAN_RESULT_POLLING_INTERVAL`            |           |         |                                              |
-| `SCAN_RESULT_RECONCILE_TIMEOUT`           |           |         |                                              |
-| `SCAN_RESULT_PROCESSOR_POLLING_INTERVAL`  |           |         |                                              |
-| `SCAN_RESULT_PROCESSOR_RECONCILE_TIMEOUT` |           |         |                                              |
+| `ASSET_SCAN_POLLING_INTERVAL`            |           |         |                                              |
+| `ASSET_SCAN_RECONCILE_TIMEOUT`           |           |         |                                              |
+| `ASSET_SCAN_PROCESSOR_POLLING_INTERVAL`  |           |         |                                              |
+| `ASSET_SCAN_PROCESSOR_RECONCILE_TIMEOUT` |           |         |                                              |
 | `DISCOVERY_INTERVAL`                      |           |         |                                              |
 | `CONTROLLER_STARTUP_DELAY`                |           |         |                                              |
-| `PROVIDER`                                | **yes**   | `aws`   | Provider used for Target discovery and scans |
+| `PROVIDER`                                | **yes**   | `aws`   | Provider used for Asset discovery and scans |
 
 ## Provider
 

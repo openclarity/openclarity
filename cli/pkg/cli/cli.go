@@ -113,7 +113,7 @@ func (c *CLI) WatchForAbort(ctx context.Context, cancel context.CancelFunc, inte
 			case <-timer.C:
 				aborted, err := c.IsAborted(ctx)
 				if err != nil {
-					logger.Errorf("Failed to retrieve scan result state: %v", err)
+					logger.Errorf("Failed to retrieve asset scan state: %v", err)
 				}
 				if aborted {
 					cancel()

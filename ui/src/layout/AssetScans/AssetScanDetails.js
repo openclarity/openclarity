@@ -15,9 +15,9 @@ const ASSET_SCAN_DETAILS_PATHS = {
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, scan, target, summary} = data;
+    const {id, scan, asset, summary} = data;
     const {id: scanId, scanConfigSnapshot, startTime} = scan;
-    const {id: targetId, targetInfo} = target;
+    const {id: assetId, assetInfo} = asset;
     
     return (
         <TabbedPage
@@ -36,8 +36,8 @@ const DetailsContent = ({data}) => {
                     component: () => (
                         <Findings
                             findingsSummary={summary}
-                            findingsFilter={`scan/id eq '${scanId}' and asset/id eq '${targetId}'`}
-                            findingsFilterTitle={`${targetInfo.instanceID} scanned by ${getScanName({name: scanConfigSnapshot.name, startTime})}`}
+                            findingsFilter={`scan/id eq '${scanId}' and asset/id eq '${assetId}'`}
+                            findingsFilterTitle={`${assetInfo.instanceID} scanned by ${getScanName({name: scanConfigSnapshot.name, startTime})}`}
                         />
                     )
                 }
@@ -51,13 +51,13 @@ const AssetScanDetails = () => (
     <DetailsPageWrapper
         backTitle="Asset scans"
         url={APIS.ASSET_SCANS}
-        select="id,scan,target,summary,status"
-        expand="scan($select=id,scanConfigSnapshot,startTime,endTime),target($select=id,targetInfo),status"
-        getTitleData={({scan, target}) => {
+        select="id,scan,asset,summary,status"
+        expand="scan($select=id,scanConfigSnapshot,startTime,endTime),asset($select=id,assetInfo),status"
+        getTitleData={({scan, asset}) => {
             const {startTime, scanConfigSnapshot} = scan || {};
 
             return ({
-                title: target?.targetInfo?.instanceID,
+                title: asset?.assetInfo?.instanceID,
                 subTitle: `scanned by '${scanConfigSnapshot?.name}' on ${formatDate(startTime)}`
             })
         }}

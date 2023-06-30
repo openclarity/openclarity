@@ -32,7 +32,7 @@ var (
 )
 
 func networkInterfaceNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("scanner-nic-%s", config.ScanResultID)
+	return fmt.Sprintf("scanner-nic-%s", config.AssetScanID)
 }
 
 func (c *Client) ensureNetworkInterface(ctx context.Context, config *provider.ScanJobConfig) (armnetwork.Interface, error) {

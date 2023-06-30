@@ -29,29 +29,29 @@ import (
 )
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
-	targets, err := s.BackendClient.GetTargets(ctx.Request().Context(), backendmodels.GetTargetsParams{
-		Filter: utils.PointerTo("targetInfo/objectType eq 'VMInfo'"),
+	assets, err := s.BackendClient.GetAssets(ctx.Request().Context(), backendmodels.GetAssetsParams{
+		Filter: utils.PointerTo("assetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
-		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get targets: %v", err))
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get assets: %v", err))
 	}
 
-	regionFindings := createRegionFindingsFromTargets(targets)
+	regionFindings := createRegionFindingsFromAssets(assets)
 	return sendResponse(ctx, http.StatusOK, &models.RiskiestRegions{
 		Regions: &regionFindings,
 	})
 }
 
-func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.RegionFindings {
+func createRegionFindingsFromAssets(assets *backendmodels.Assets) []models.RegionFindings {
 	// Map regions to findings count per finding type
 	findingsPerRegion := make(map[string]*models.FindingsCount)
 
 	// Sum all asset findings counts (the latest findings per asset) to the total region findings count.
-	// target/ScanFindingsSummary should contain the latest results per family.
-	for _, target := range *targets.Items {
-		region, err := getTargetRegion(target)
+	// asset/ScanFindingsSummary should contain the latest results per family.
+	for _, asset := range *assets.Items {
+		region, err := getAssetRegion(asset)
 		if err != nil {
-			log.Warnf("Couldn't get target location, skipping target: %v", err)
+			log.Warnf("Couldn't get asset location, skipping asset: %v", err)
 			continue
 		}
 		if _, ok := findingsPerRegion[region]; !ok {
@@ -65,7 +65,7 @@ func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.Re
 			}
 		}
 		regionFindings := findingsPerRegion[region]
-		findingsPerRegion[region] = addTargetSummaryToFindingsCount(regionFindings, target.Summary)
+		findingsPerRegion[region] = addAssetSummaryToFindingsCount(regionFindings, asset.Summary)
 	}
 
 	items := []models.RegionFindings{}
@@ -80,8 +80,8 @@ func createRegionFindingsFromTargets(targets *backendmodels.Targets) []models.Re
 	return items
 }
 
-func getTargetRegion(target backendmodels.Target) (string, error) {
-	discriminator, err := target.TargetInfo.ValueByDiscriminator()
+func getAssetRegion(asset backendmodels.Asset) (string, error) {
+	discriminator, err := asset.AssetInfo.ValueByDiscriminator()
 	if err != nil {
 		return "", fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
@@ -90,7 +90,7 @@ func getTargetRegion(target backendmodels.Target) (string, error) {
 	case backendmodels.VMInfo:
 		return getRegionByProvider(info), nil
 	default:
-		return "", fmt.Errorf("target type is not supported (%T)", discriminator)
+		return "", fmt.Errorf("asset type is not supported (%T)", discriminator)
 	}
 }
 
@@ -107,7 +107,7 @@ func getRegionByProvider(info backendmodels.VMInfo) string {
 	return info.Location
 }
 
-func addTargetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary *backendmodels.ScanFindingsSummary) *models.FindingsCount {
+func addAssetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary *backendmodels.ScanFindingsSummary) *models.FindingsCount {
 	if summary == nil {
 		return findingsCount
 	}

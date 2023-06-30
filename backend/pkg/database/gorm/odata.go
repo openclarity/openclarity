@@ -35,14 +35,14 @@ type ODataObject struct {
 }
 
 var schemaMetas = map[string]odatasql.SchemaMeta{
-	targetScanResultsSchemaName: {
-		Table: "scan_results",
+	assetScansSchemaName: {
+		Table: "asset_scans",
 		Fields: odatasql.Schema{
 			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"target": odatasql.FieldMeta{
+			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
-				RelationshipSchema:   targetSchemaName,
+				RelationshipSchema:   assetSchemaName,
 				RelationshipProperty: "id",
 			},
 			"scan": odatasql.FieldMeta{
@@ -52,7 +52,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 			"status": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanStatus"},
+				ComplexFieldSchemas: []string{"AssetScanStatus"},
 			},
 			"sboms": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -282,7 +282,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanConfigSnapshot"},
 			},
-			"targetIDs": odatasql.FieldMeta{
+			"assetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
 					FieldType: odatasql.PrimitiveFieldType,
@@ -319,13 +319,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
-	targetSchemaName: {
-		Table: "targets",
+	assetSchemaName: {
+		Table: "assets",
 		Fields: odatasql.Schema{
 			"id":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"revision":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"scansCount": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"targetInfo": odatasql.FieldMeta{
+			"assetInfo": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
 				ComplexFieldSchemas:   []string{"VMInfo"},
 				DiscriminatorProperty: "objectType",
@@ -627,7 +627,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
-				RelationshipSchema:   targetSchemaName,
+				RelationshipSchema:   assetSchemaName,
 				RelationshipProperty: "id",
 			},
 			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
@@ -783,43 +783,43 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
-	"TargetScanStatus": {
+	"AssetScanStatus": {
 		Fields: odatasql.Schema{
 			"general": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"sbom": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"vulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"malware": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"rootkits": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"secrets": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"misconfigurations": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"exploits": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"TargetScanState"},
+				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 		},
 	},
-	"TargetScanState": {
+	"AssetScanState": {
 		Fields: odatasql.Schema{
 			"state":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},

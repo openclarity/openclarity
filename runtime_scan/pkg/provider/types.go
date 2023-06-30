@@ -32,29 +32,29 @@ type Provider interface {
 type Discoverer interface {
 	// DiscoverScopes returns a list of discovered models.Scopes
 	DiscoverScopes(ctx context.Context) (*models.Scopes, error)
-	// DiscoverTargets returns list of TargetType in ScanScopeType
-	DiscoverTargets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.TargetType, error)
+	// DiscoverAssets returns list of AssetType in ScanScopeType
+	DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error)
 }
 
 type Scanner interface {
-	// RunTargetScan is a non-blocking call which takes a ScanJobConfig and creates resources for performing Scan.
+	// RunAssetScan is a non-blocking call which takes a ScanJobConfig and creates resources for performing Scan.
 	// It may return FatalError or RetryableError to indicate if the error is permanent or transient.
 	// It is expected to return RetryableError in case the resources are not ready or are still being created.
 	// It must return nil if all the resources are created and ready.
 	// It also must be idempotent.
-	RunTargetScan(context.Context, *ScanJobConfig) error
-	// RemoveTargetScan is a non-blocking call which takes a ScanJobConfig and remove resources created for Scan.
+	RunAssetScan(context.Context, *ScanJobConfig) error
+	// RemoveAssetScan is a non-blocking call which takes a ScanJobConfig and remove resources created for Scan.
 	// It may return FatalError or RetryableError to indicate if the error is permanent or transient.
 	// It is expected to return RetryableError in case the resources are still being deleted.
 	// It must return nil if all the resources are deleted.
 	// It also must be idempotent.
-	RemoveTargetScan(context.Context, *ScanJobConfig) error
+	RemoveAssetScan(context.Context, *ScanJobConfig) error
 }
 
 type ScanMetadata struct {
-	ScanID       string
-	ScanResultID string
-	TargetID     string
+	ScanID      string
+	AssetScanID string
+	AssetID     string
 }
 
 type ScanJobConfig struct {
@@ -64,5 +64,5 @@ type ScanJobConfig struct {
 
 	ScanMetadata
 	models.ScannerInstanceCreationConfig
-	models.Target
+	models.Asset
 }

@@ -8,22 +8,22 @@ import { FILTER_TYPES } from 'context/FiltersProvider';
 
 const TABLE_TITLE = "assets";
 
-const LOCATION_SORT_IDS = ["targetInfo.location"];
+const LOCATION_SORT_IDS = ["assetInfo.location"];
 
 const AssetsTable = () => {
     const columns = useMemo(() => [
         {
             Header: "Name",
             id: "instanceID",
-            sortIds: ["targetInfo.instanceID"],
-            accessor: "targetInfo.instanceID"
+            sortIds: ["assetInfo.instanceID"],
+            accessor: "assetInfo.instanceID"
         },
         {
             Header: "Labels",
             id: "tags",
-            sortIds: ["targetInfo.tags"],
+            sortIds: ["assetInfo.tags"],
             Cell: ({row}) => {
-                const {tags} = row.original.targetInfo;
+                const {tags} = row.original.assetInfo;
                 
                 return (
                     <ExpandableList items={formatTagsToStringsList(tags)} withTagWrap />
@@ -34,14 +34,14 @@ const AssetsTable = () => {
         {
             Header: "Type",
             id: "objectType",
-            sortIds: ["targetInfo.objectType"],
-            accessor: "targetInfo.objectType"
+            sortIds: ["assetInfo.objectType"],
+            accessor: "assetInfo.objectType"
         },
         {
             Header: "Location",
             id: "location",
             sortIds: LOCATION_SORT_IDS,
-            accessor: "targetInfo.location"
+            accessor: "assetInfo.location"
         },
         getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
         ...getFindingsColumnsConfigList(TABLE_TITLE)
@@ -51,7 +51,7 @@ const AssetsTable = () => {
         <TablePage
             columns={columns}
             url={APIS.ASSETS}
-            select="id,targetInfo,summary"
+            select="id,assetInfo,summary"
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSETS}
             filtersConfig={[

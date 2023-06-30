@@ -126,7 +126,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
    sudo journalctl -u vmclarity
    ```
 
-5. Monitor the scan results
+5. Monitor the asset scans
 
    * Get scans:
 
@@ -137,15 +137,15 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
      After the operationTime in the scan config created above there should be a new
      scan object created in Pending.
 
-     Once discovery has been performed, the scan's "targets" list should be
-     populated will all the targets to be scanned by this scan.
+     Once discovery has been performed, the scan's assetIDs list should be
+     populated will all the assets to be scanned by this scan.
 
-     The scan will then create all the "scanResults" for tracking the scan
-     process for each target. When that is completed the scan will move to
+     The scan will then create all the "assetScans" for tracking the scan
+     process for each asset. When that is completed the scan will move to
      "InProgress".
 
-   * Get Scan Results:
+   * Get asset scans:
 
      ```
-     curl -X GET http://localhost:8888/api/scanResults
+     curl -X GET http://localhost:8888/api/assetScans
      ```

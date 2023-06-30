@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -25,14 +25,14 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.RootkitKey]string, error) {
+func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.RootkitKey]string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.RootkitKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and asset/id eq '%s' and scan/id eq '%s'",
-		scanResult.Target.Id, scanResult.Scan.Id)
-	existingFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
 	})
@@ -60,26 +60,26 @@ func (srp *ScanResultProcessor) getExistingRootkitFindingsForScan(ctx context.Co
 }
 
 // nolint:cyclop
-func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
-	completedTime := scanResult.Status.General.LastTransitionTime
+func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan models.AssetScan) error {
+	completedTime := assetScan.Status.General.LastTransitionTime
 
-	newerFound, newerTime, err := srp.newerExistingFindingTime(ctx, scanResult.Target.Id, "Rootkit", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing rootkit findings: %v", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
 	// recreating existings ones as we might be re-reconciling the same
-	// scan result because of downtime or a previous failure.
-	existingMap, err := srp.getExistingRootkitFindingsForScan(ctx, scanResult)
+	// asset scan because of downtime or a previous failure.
+	existingMap, err := asp.getExistingRootkitFindingsForScan(ctx, assetScan)
 	if err != nil {
 		return fmt.Errorf("failed to check existing rootkit findings: %w", err)
 	}
 
-	if scanResult.Rootkits != nil && scanResult.Rootkits.Rootkits != nil {
+	if assetScan.Rootkits != nil && assetScan.Rootkits.Rootkits != nil {
 		// Create new or update existing findings all the rootkits found by the
 		// scan.
-		for _, item := range *scanResult.Rootkits.Rootkits {
+		for _, item := range *assetScan.Rootkits.Rootkits {
 			itemFindingInfo := models.RootkitFindingInfo{
 				Message:     item.Message,
 				RootkitName: item.RootkitName,
@@ -93,26 +93,26 @@ func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Co
 			}
 
 			finding := models.Finding{
-				Scan:        scanResult.Scan,
-				Asset:       scanResult.Target,
-				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				Scan:        assetScan.Scan,
+				Asset:       assetScan.Asset,
+				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
 			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this scan result.
+			// finding, found after this asset scan.
 			if newerFound {
 				finding.InvalidatedOn = &newerTime
 			}
 
 			key := findingkey.GenerateRootkitKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
-				err = srp.client.PatchFinding(ctx, id, finding)
+				err = asp.client.PatchFinding(ctx, id, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
 			} else {
-				_, err = srp.client.PostFinding(ctx, finding)
+				_, err = asp.client.PostFinding(ctx, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
@@ -121,31 +121,31 @@ func (srp *ScanResultProcessor) reconcileResultRootkitsToFindings(ctx context.Co
 	}
 
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	err = srp.invalidateOlderFindingsByType(ctx, "Rootkit", scanResult.Target.Id, *completedTime)
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	err = asp.invalidateOlderFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older rootkit finding: %v", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	target, err := srp.client.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
-	if target.Summary == nil {
-		target.Summary = &models.ScanFindingsSummary{}
+	if asset.Summary == nil {
+		asset.Summary = &models.ScanFindingsSummary{}
 	}
 
-	totalRootkits, err := srp.getActiveFindingsByType(ctx, "Rootkit", scanResult.Target.Id)
+	totalRootkits, err := asp.getActiveFindingsByType(ctx, "Rootkit", assetScan.Asset.Id)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	target.Summary.TotalRootkits = &totalRootkits
+	asset.Summary.TotalRootkits = &totalRootkits
 
-	err = srp.client.PatchTarget(ctx, target, scanResult.Target.Id)
+	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to patch target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	return nil

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -24,12 +24,12 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func (srp *ScanResultProcessor) newerExistingFindingTime(ctx context.Context, targetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {
+func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, assetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {
 	var found bool
 	var newerTime time.Time
-	// ScanResults can be processed out of chronological order:
+	// AssetScans can be processed out of chronological order:
 	//
-	// If multiple scans of the same target complete, A first then B, we'll
+	// If multiple scans of the same asset complete, A first then B, we'll
 	// pick up the event for A, and then B. If while reconciling A we hit a
 	// failure (timeout or weird glitch), the reconciler will continue on
 	// and try to reconcile B. It will then pick up A on the next poll and
@@ -37,14 +37,14 @@ func (srp *ScanResultProcessor) newerExistingFindingTime(ctx context.Context, ta
 	//
 	// So we need to check if any existing findings of this type exist with
 	// a foundOn time newer than this results completed time. If there are
-	// any newer results it means that this scan result's findings have
+	// any newer results it means that this asset scan's findings have
 	// already been invalidated by a newer scan. We'll find the oldest
 	// newer scan, and use its FoundOn time as the InvalidatedOn time for
 	// this scan.
-	newerFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+	newerFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn gt %s",
-			findingType, targetID, completedTime.Format(time.RFC3339))),
+			findingType, assetID, completedTime.Format(time.RFC3339))),
 		OrderBy: utils.PointerTo("foundOn asc"),
 		Top:     utils.PointerTo(1), // because of the ordering we only need to get one result here and it'll be the oldest finding which matches the filter
 	})
@@ -60,14 +60,14 @@ func (srp *ScanResultProcessor) newerExistingFindingTime(ctx context.Context, ta
 	return found, newerTime, nil
 }
 
-func (srp *ScanResultProcessor) invalidateOlderFindingsByType(ctx context.Context, findingType string, targetID string, completedTime time.Time) error {
+func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context, findingType string, assetID string, completedTime time.Time) error {
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	findingsToInvalidate, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	findingsToInvalidate, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn lt %s and (invalidatedOn gt %s or invalidatedOn eq null)",
-			findingType, targetID, completedTime.Format(time.RFC3339), completedTime.Format(time.RFC3339))),
+			findingType, assetID, completedTime.Format(time.RFC3339), completedTime.Format(time.RFC3339))),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to query findings to invalidate: %w", err)
@@ -76,7 +76,7 @@ func (srp *ScanResultProcessor) invalidateOlderFindingsByType(ctx context.Contex
 	for _, finding := range *findingsToInvalidate.Items {
 		finding.InvalidatedOn = &completedTime
 
-		err := srp.client.PatchFinding(ctx, *finding.Id, finding)
+		err := asp.client.PatchFinding(ctx, *finding.Id, finding)
 		if err != nil {
 			return fmt.Errorf("failed to update existing finding %s: %w", *finding.Id, err)
 		}
@@ -85,10 +85,10 @@ func (srp *ScanResultProcessor) invalidateOlderFindingsByType(ctx context.Contex
 	return nil
 }
 
-func (srp *ScanResultProcessor) getActiveFindingsByType(ctx context.Context, findingType string, targetID string) (int, error) {
+func (asp *AssetScanProcessor) getActiveFindingsByType(ctx context.Context, findingType string, assetID string) (int, error) {
 	filter := fmt.Sprintf("findingInfo/objectType eq '%s' and asset/id eq '%s' and invalidatedOn eq null",
-		findingType, targetID)
-	activeFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		findingType, assetID)
+	activeFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Count:  utils.PointerTo(true),
 		Filter: &filter,
 

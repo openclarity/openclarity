@@ -5,14 +5,14 @@ export const getAssetAndScanColumnsConfigList = () => ([
     {
         Header: "Asset name",
         id: "assetName",
-        sortIds: ["asset.targetInfo.instanceID"],
-        accessor: "asset.targetInfo.instanceID"
+        sortIds: ["asset.assetInfo.instanceID"],
+        accessor: "asset.assetInfo.instanceID"
     },
     {
         Header: "Asset location",
         id: "assetLocation",
-        sortIds: ["asset.targetInfo.location"],
-        accessor: "asset.targetInfo.location"
+        sortIds: ["asset.assetInfo.location"],
+        accessor: "asset.assetInfo.location"
     },
     {
         Header: "Scan name",

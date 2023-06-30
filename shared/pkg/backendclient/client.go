@@ -41,99 +41,99 @@ func Create(serverAddress string) (*BackendClient, error) {
 	}, nil
 }
 
-func (b *BackendClient) GetScanResult(ctx context.Context, scanResultID string, params models.GetScanResultsScanResultIDParams) (models.TargetScanResult, error) {
+func (b *BackendClient) GetAssetScan(ctx context.Context, assetScanID string, params models.GetAssetScansAssetScanIDParams) (models.AssetScan, error) {
 	newGetExistingError := func(err error) error {
-		return fmt.Errorf("failed to get existing scan result %v: %w", scanResultID, err)
+		return fmt.Errorf("failed to get existing asset scan %v: %w", assetScanID, err)
 	}
 
-	var scanResults models.TargetScanResult
-	resp, err := b.apiClient.GetScanResultsScanResultIDWithResponse(ctx, scanResultID, &params)
+	var assetScans models.AssetScan
+	resp, err := b.apiClient.GetAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params)
 	if err != nil {
-		return scanResults, newGetExistingError(err)
+		return assetScans, newGetExistingError(err)
 	}
 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return scanResults, newGetExistingError(fmt.Errorf("empty body"))
+			return assetScans, newGetExistingError(fmt.Errorf("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return scanResults, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return assetScans, newGetExistingError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+			return assetScans, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return scanResults, newGetExistingError(fmt.Errorf("not found"))
+		return assetScans, newGetExistingError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return scanResults, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+			return assetScans, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
-		return scanResults, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return assetScans, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
 }
 
-func (b *BackendClient) GetScanResults(ctx context.Context, params models.GetScanResultsParams) (models.TargetScanResults, error) {
-	newGetScanResultsError := func(err error) error {
-		return fmt.Errorf("failed to get scan results: %w", err)
+func (b *BackendClient) GetAssetScans(ctx context.Context, params models.GetAssetScansParams) (models.AssetScans, error) {
+	newGetAssetScansError := func(err error) error {
+		return fmt.Errorf("failed to get asset scans: %w", err)
 	}
 
-	var scanResults models.TargetScanResults
-	resp, err := b.apiClient.GetScanResultsWithResponse(ctx, &params)
+	var assetScans models.AssetScans
+	resp, err := b.apiClient.GetAssetScansWithResponse(ctx, &params)
 	if err != nil {
-		return scanResults, newGetScanResultsError(err)
+		return assetScans, newGetAssetScansError(err)
 	}
 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return scanResults, newGetScanResultsError(fmt.Errorf("empty body"))
+			return assetScans, newGetAssetScansError(fmt.Errorf("empty body"))
 		}
 		return *resp.JSON200, nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return scanResults, newGetScanResultsError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+			return assetScans, newGetAssetScansError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
-		return scanResults, newGetScanResultsError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return assetScans, newGetAssetScansError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
 }
 
-func (b *BackendClient) PatchScanResult(ctx context.Context, scanResult models.TargetScanResult, scanResultID string) error {
-	newUpdateScanResultError := func(err error) error {
-		return fmt.Errorf("failed to update scan result %v: %w", scanResultID, err)
+func (b *BackendClient) PatchAssetScan(ctx context.Context, assetScan models.AssetScan, assetScanID string) error {
+	newUpdateAssetScanError := func(err error) error {
+		return fmt.Errorf("failed to update asset scan %v: %w", assetScanID, err)
 	}
 
-	params := models.PatchScanResultsScanResultIDParams{}
-	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, &params, scanResult)
+	params := models.PatchAssetScansAssetScanIDParams{}
+	resp, err := b.apiClient.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
 	if err != nil {
-		return newUpdateScanResultError(err)
+		return newUpdateAssetScanError(err)
 	}
 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateScanResultError(fmt.Errorf("empty body"))
+			return newUpdateAssetScanError(fmt.Errorf("empty body"))
 		}
 		return nil
 	case http.StatusBadRequest:
 		if resp.JSON400 != nil && resp.JSON400.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message))
+			return newUpdateAssetScanError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message))
 		}
-		return newUpdateScanResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return newUpdateAssetScanError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateScanResultError(fmt.Errorf("empty body on not found"))
+			return newUpdateAssetScanError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+			return newUpdateAssetScanError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateScanResultError(fmt.Errorf("not found"))
+		return newUpdateAssetScanError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return newUpdateScanResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+			return newUpdateAssetScanError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
-		return newUpdateScanResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return newUpdateAssetScanError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
 }
 
@@ -172,38 +172,38 @@ func (b *BackendClient) PostScan(ctx context.Context, scan models.Scan) (*models
 	}
 }
 
-func (b *BackendClient) PostScanResult(ctx context.Context, scanResult models.TargetScanResult) (*models.TargetScanResult, error) {
-	resp, err := b.apiClient.PostScanResultsWithResponse(ctx, scanResult)
+func (b *BackendClient) PostAssetScan(ctx context.Context, assetScan models.AssetScan) (*models.AssetScan, error) {
+	resp, err := b.apiClient.PostAssetScansWithResponse(ctx, assetScan)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create a scan result: %v", err)
+		return nil, fmt.Errorf("failed to create an asset scan: %v", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
 		if resp.JSON201 == nil {
-			return nil, fmt.Errorf("failed to create a scan result: empty body. status code=%v", http.StatusCreated)
+			return nil, fmt.Errorf("failed to create an asset scan: empty body. status code=%v", http.StatusCreated)
 		}
 		return resp.JSON201, nil
 	case http.StatusBadRequest:
 		if resp.JSON400 != nil && resp.JSON400.Message != nil {
-			return nil, fmt.Errorf("failed to create a scan result. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+			return nil, fmt.Errorf("failed to create an asset scan. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
 		}
-		return nil, fmt.Errorf("failed to create a scan result. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create an asset scan. status code=%v", resp.StatusCode())
 	case http.StatusConflict:
 		if resp.JSON409 == nil {
-			return nil, fmt.Errorf("failed to create a scan result: empty body. status code=%v", http.StatusConflict)
+			return nil, fmt.Errorf("failed to create an asset scan: empty body. status code=%v", http.StatusConflict)
 		}
-		if resp.JSON409.TargetScanResult == nil {
-			return nil, fmt.Errorf("failed to create a scan result: no scan result data. status code=%v", http.StatusConflict)
+		if resp.JSON409.AssetScan == nil {
+			return nil, fmt.Errorf("failed to create an asset scan: no asset scan data. status code=%v", http.StatusConflict)
 		}
-		return nil, ScanResultConflictError{
-			ConflictingScanResult: resp.JSON409.TargetScanResult,
-			Message:               "conflict",
+		return nil, AssetScanConflictError{
+			ConflictingAssetScan: resp.JSON409.AssetScan,
+			Message:              "conflict",
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to create a scan result. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to create an asset scan. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
-		return nil, fmt.Errorf("failed to create a scan result. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create an asset scan. status code=%v", resp.StatusCode())
 	}
 }
 
@@ -240,61 +240,61 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, sca
 	}
 }
 
-func (b *BackendClient) GetScanResultSummary(ctx context.Context, scanResultID string) (*models.ScanFindingsSummary, error) {
-	params := models.GetScanResultsScanResultIDParams{
+func (b *BackendClient) GetAssetScanSummary(ctx context.Context, assetScanID string) (*models.ScanFindingsSummary, error) {
+	params := models.GetAssetScansAssetScanIDParams{
 		Select: utils.PointerTo("summary"),
 	}
-	scanResult, err := b.GetScanResult(ctx, scanResultID, params)
+	assetScan, err := b.GetAssetScan(ctx, assetScanID, params)
 	if err != nil {
 		return nil, err
 	}
-	return scanResult.Summary, nil
+	return assetScan.Summary, nil
 }
 
-func (b *BackendClient) GetScanResultStatus(ctx context.Context, scanResultID string) (*models.TargetScanStatus, error) {
-	params := models.GetScanResultsScanResultIDParams{
+func (b *BackendClient) GetAssetScanStatus(ctx context.Context, assetScanID string) (*models.AssetScanStatus, error) {
+	params := models.GetAssetScansAssetScanIDParams{
 		Select: utils.PointerTo("status"),
 	}
-	scanResult, err := b.GetScanResult(ctx, scanResultID, params)
+	assetScan, err := b.GetAssetScan(ctx, assetScanID, params)
 	if err != nil {
 		return nil, err
 	}
-	return scanResult.Status, nil
+	return assetScan.Status, nil
 }
 
-func (b *BackendClient) PatchTargetScanStatus(ctx context.Context, scanResultID string, status *models.TargetScanStatus) error {
-	scanResult := models.TargetScanResult{
+func (b *BackendClient) PatchAssetScanStatus(ctx context.Context, assetScanID string, status *models.AssetScanStatus) error {
+	assetScan := models.AssetScan{
 		Status: status,
 	}
-	params := models.PatchScanResultsScanResultIDParams{}
-	resp, err := b.apiClient.PatchScanResultsScanResultIDWithResponse(ctx, scanResultID, &params, scanResult)
+	params := models.PatchAssetScansAssetScanIDParams{}
+	resp, err := b.apiClient.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
 	if err != nil {
-		return fmt.Errorf("failed to update a scan result status: %v", err)
+		return fmt.Errorf("failed to update an asset scan status: %v", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update a scan result status: empty body")
+			return fmt.Errorf("failed to update an asset scan status: empty body")
 		}
 		return nil
 	case http.StatusBadRequest:
 		if resp.JSON400 != nil && resp.JSON400.Message != nil {
-			return fmt.Errorf("failed to update scan result status. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+			return fmt.Errorf("failed to update asset scan status. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
 		}
-		return fmt.Errorf("failed to update scan result status. status code=%v", resp.StatusCode())
+		return fmt.Errorf("failed to update asset scan status. status code=%v", resp.StatusCode())
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update a scan result status: empty body on not found")
+			return fmt.Errorf("failed to update an asset scan status: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return fmt.Errorf("failed to update scan result status, not found: %v", *resp.JSON404.Message)
+			return fmt.Errorf("failed to update asset scan status, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to update scan result status, not found")
+		return fmt.Errorf("failed to update asset scan status, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return fmt.Errorf("failed to update scan result status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+			return fmt.Errorf("failed to update asset scan status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
-		return fmt.Errorf("failed to update scan result status. status code=%v", resp.StatusCode())
+		return fmt.Errorf("failed to update asset scan status. status code=%v", resp.StatusCode())
 	}
 }
 
@@ -429,106 +429,106 @@ func (b *BackendClient) GetScans(ctx context.Context, params models.GetScansPara
 }
 
 //nolint:cyclop
-func (b *BackendClient) PostTarget(ctx context.Context, target models.Target) (*models.Target, error) {
-	resp, err := b.apiClient.PostTargetsWithResponse(ctx, target)
+func (b *BackendClient) PostAsset(ctx context.Context, asset models.Asset) (*models.Asset, error) {
+	resp, err := b.apiClient.PostAssetsWithResponse(ctx, asset)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create a target: %v", err)
+		return nil, fmt.Errorf("failed to create an asset: %v", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
 		if resp.JSON201 == nil {
-			return nil, fmt.Errorf("failed to create a target: empty body. status code=%v", http.StatusCreated)
+			return nil, fmt.Errorf("failed to create an asset: empty body. status code=%v", http.StatusCreated)
 		}
 		return resp.JSON201, nil
 	case http.StatusBadRequest:
 		if resp.JSON400 != nil && resp.JSON400.Message != nil {
-			return nil, fmt.Errorf("failed to create a target. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+			return nil, fmt.Errorf("failed to create an asset. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
 		}
-		return nil, fmt.Errorf("failed to create a target. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create an asset. status code=%v", resp.StatusCode())
 	case http.StatusConflict:
 		if resp.JSON409 == nil {
-			return nil, fmt.Errorf("failed to create a target: empty body. status code=%v", http.StatusConflict)
+			return nil, fmt.Errorf("failed to create an asset: empty body. status code=%v", http.StatusConflict)
 		}
-		if resp.JSON409.Target == nil {
-			return nil, fmt.Errorf("failed to create a target: no target data. status code=%v", http.StatusConflict)
+		if resp.JSON409.Asset == nil {
+			return nil, fmt.Errorf("failed to create an asset: no asset data. status code=%v", http.StatusConflict)
 		}
-		return nil, TargetConflictError{
-			ConflictingTarget: resp.JSON409.Target,
-			Message:           "conflict",
+		return nil, AssetConflictError{
+			ConflictingAsset: resp.JSON409.Asset,
+			Message:          "conflict",
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to create a target. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to create an asset. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
-		return nil, fmt.Errorf("failed to create a target. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create an asset. status code=%v", resp.StatusCode())
 	}
 }
 
 //nolint:cyclop
-func (b *BackendClient) PatchTarget(ctx context.Context, target models.Target, targetID string) error {
-	newUpdateTargetError := func(err error) error {
-		return fmt.Errorf("failed to update target %v: %w", targetID, err)
+func (b *BackendClient) PatchAsset(ctx context.Context, asset models.Asset, assetID string) error {
+	newUpdateAssetError := func(err error) error {
+		return fmt.Errorf("failed to update asset %v: %w", assetID, err)
 	}
 
-	params := models.PatchTargetsTargetIDParams{}
-	resp, err := b.apiClient.PatchTargetsTargetIDWithResponse(ctx, targetID, &params, target)
+	params := models.PatchAssetsAssetIDParams{}
+	resp, err := b.apiClient.PatchAssetsAssetIDWithResponse(ctx, assetID, &params, asset)
 	if err != nil {
-		return newUpdateTargetError(err)
+		return newUpdateAssetError(err)
 	}
 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateTargetError(fmt.Errorf("empty body"))
+			return newUpdateAssetError(fmt.Errorf("empty body"))
 		}
 		return nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateTargetError(fmt.Errorf("empty body on not found"))
+			return newUpdateAssetError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return newUpdateTargetError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+			return newUpdateAssetError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateTargetError(fmt.Errorf("not found"))
+		return newUpdateAssetError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return newUpdateTargetError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+			return newUpdateAssetError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
-		return newUpdateTargetError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return newUpdateAssetError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
 }
 
 // nolint:cyclop
-func (b *BackendClient) GetTarget(ctx context.Context, targetID string, params models.GetTargetsTargetIDParams) (models.Target, error) {
+func (b *BackendClient) GetAsset(ctx context.Context, assetID string, params models.GetAssetsAssetIDParams) (models.Asset, error) {
 	newGetExistingError := func(err error) error {
-		return fmt.Errorf("failed to get existing target %v: %w", targetID, err)
+		return fmt.Errorf("failed to get existing asset %v: %w", assetID, err)
 	}
 
-	var target models.Target
-	resp, err := b.apiClient.GetTargetsTargetIDWithResponse(ctx, targetID, &params)
+	var asset models.Asset
+	resp, err := b.apiClient.GetAssetsAssetIDWithResponse(ctx, assetID, &params)
 	if err != nil {
-		return target, newGetExistingError(err)
+		return asset, newGetExistingError(err)
 	}
 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return target, newGetExistingError(fmt.Errorf("empty body"))
+			return asset, newGetExistingError(fmt.Errorf("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return target, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return asset, newGetExistingError(fmt.Errorf("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
-			return target, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+			return asset, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return target, newGetExistingError(fmt.Errorf("not found"))
+		return asset, newGetExistingError(fmt.Errorf("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return target, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+			return asset, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
 		}
-		return target, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
+		return asset, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	}
 }
 
@@ -551,22 +551,22 @@ func (b *BackendClient) PutDiscoveryScopes(ctx context.Context, scope *models.Sc
 	}
 }
 
-func (b *BackendClient) GetTargets(ctx context.Context, params models.GetTargetsParams) (*models.Targets, error) {
-	resp, err := b.apiClient.GetTargetsWithResponse(ctx, &params)
+func (b *BackendClient) GetAssets(ctx context.Context, params models.GetAssetsParams) (*models.Assets, error) {
+	resp, err := b.apiClient.GetAssetsWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get targets: %v", err)
+		return nil, fmt.Errorf("failed to get assets: %v", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no targets: empty body")
+			return nil, fmt.Errorf("no assets: empty body")
 		}
 		return resp.JSON200, nil
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to get targets. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to get assets. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
-		return nil, fmt.Errorf("failed to get targets. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to get assets. status code=%v", resp.StatusCode())
 	}
 }
 

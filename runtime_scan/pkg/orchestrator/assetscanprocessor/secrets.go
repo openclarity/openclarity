@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -25,14 +25,14 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func (srp *ScanResultProcessor) getExistingSecretFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.SecretKey]string, error) {
+func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.SecretKey]string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.SecretKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Secret' and asset/id eq '%s' and scan/id eq '%s'",
-		scanResult.Target.Id, scanResult.Scan.Id)
-	existingFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/fingerprint,findingInfo/startColumn,findingInfo/endColumn"),
 	})
@@ -60,26 +60,26 @@ func (srp *ScanResultProcessor) getExistingSecretFindingsForScan(ctx context.Con
 }
 
 // nolint:cyclop
-func (srp *ScanResultProcessor) reconcileResultSecretsToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
-	completedTime := scanResult.Status.General.LastTransitionTime
+func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Context, assetScan models.AssetScan) error {
+	completedTime := assetScan.Status.General.LastTransitionTime
 
-	newerFound, newerTime, err := srp.newerExistingFindingTime(ctx, scanResult.Target.Id, "Secret", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Secret", *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing secret findings: %v", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
 	// recreating existings ones as we might be re-reconciling the same
-	// scan result because of downtime or a previous failure.
-	existingMap, err := srp.getExistingSecretFindingsForScan(ctx, scanResult)
+	// asset scan because of downtime or a previous failure.
+	existingMap, err := asp.getExistingSecretFindingsForScan(ctx, assetScan)
 	if err != nil {
 		return fmt.Errorf("failed to check existing secret findings: %w", err)
 	}
 
-	if scanResult.Secrets != nil && scanResult.Secrets.Secrets != nil {
+	if assetScan.Secrets != nil && assetScan.Secrets.Secrets != nil {
 		// Create new or update existing findings all the secrets found by the
 		// scan.
-		for _, item := range *scanResult.Secrets.Secrets {
+		for _, item := range *assetScan.Secrets.Secrets {
 			itemFindingInfo := models.SecretFindingInfo{
 				Description: item.Description,
 				EndLine:     item.EndLine,
@@ -97,26 +97,26 @@ func (srp *ScanResultProcessor) reconcileResultSecretsToFindings(ctx context.Con
 			}
 
 			finding := models.Finding{
-				Scan:        scanResult.Scan,
-				Asset:       scanResult.Target,
-				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				Scan:        assetScan.Scan,
+				Asset:       assetScan.Asset,
+				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
 			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this scan result.
+			// finding, found after this asset scan.
 			if newerFound {
 				finding.InvalidatedOn = &newerTime
 			}
 
 			key := findingkey.GenerateSecretKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
-				err = srp.client.PatchFinding(ctx, id, finding)
+				err = asp.client.PatchFinding(ctx, id, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
 			} else {
-				_, err = srp.client.PostFinding(ctx, finding)
+				_, err = asp.client.PostFinding(ctx, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
@@ -125,31 +125,31 @@ func (srp *ScanResultProcessor) reconcileResultSecretsToFindings(ctx context.Con
 	}
 
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	err = srp.invalidateOlderFindingsByType(ctx, "Secret", scanResult.Target.Id, *completedTime)
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	err = asp.invalidateOlderFindingsByType(ctx, "Secret", assetScan.Asset.Id, *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older secret finding: %v", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	target, err := srp.client.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
-	if target.Summary == nil {
-		target.Summary = &models.ScanFindingsSummary{}
+	if asset.Summary == nil {
+		asset.Summary = &models.ScanFindingsSummary{}
 	}
 
-	totalSecrets, err := srp.getActiveFindingsByType(ctx, "Secret", scanResult.Target.Id)
+	totalSecrets, err := asp.getActiveFindingsByType(ctx, "Secret", assetScan.Asset.Id)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	target.Summary.TotalSecrets = &totalSecrets
+	asset.Summary.TotalSecrets = &totalSecrets
 
-	err = srp.client.PatchTarget(ctx, target, scanResult.Target.Id)
+	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to patch target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	return nil

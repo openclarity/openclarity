@@ -33,7 +33,7 @@ func newVulnerabilityScanSummary() *models.VulnerabilityScanSummary {
 	}
 }
 
-func newScanResultSummary() *models.ScanFindingsSummary {
+func newAssetScanSummary() *models.ScanFindingsSummary {
 	return &models.ScanFindingsSummary{
 		TotalExploits:          utils.PointerTo[int](0),
 		TotalMalware:           utils.PointerTo[int](0),
@@ -45,54 +45,54 @@ func newScanResultSummary() *models.ScanFindingsSummary {
 	}
 }
 
-func newScanResultFromScan(scan *models.Scan, targetID string) (*models.TargetScanResult, error) {
+func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan, error) {
 	if scan == nil {
-		return nil, errors.New("failed to create ScanResult: Scan is nil")
+		return nil, errors.New("failed to create AssetScan: Scan is nil")
 	}
 
 	if scan.ScanConfigSnapshot == nil || scan.ScanConfigSnapshot.ScanFamiliesConfig == nil {
-		return nil, errors.New("failed to create ScanResult: ScanConfigSnapshot and/or ScanFamiliesConfig are nil")
+		return nil, errors.New("failed to create AssetScan: ScanConfigSnapshot and/or ScanFamiliesConfig are nil")
 	}
 	familiesConfig := scan.ScanConfigSnapshot.ScanFamiliesConfig
 
-	return &models.TargetScanResult{
-		Summary: newScanResultSummary(),
+	return &models.AssetScan{
+		Summary: newAssetScanSummary(),
 		Scan: &models.ScanRelationship{
 			Id: *scan.Id,
 		},
-		Target: &models.TargetRelationship{
-			Id: targetID,
+		Asset: &models.AssetRelationship{
+			Id: assetID,
 		},
-		Status: &models.TargetScanStatus{
-			Exploits: &models.TargetScanState{
+		Status: &models.AssetScanStatus{
+			Exploits: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Exploits),
 			},
-			General: &models.TargetScanState{
+			General: &models.AssetScanState{
 				Errors: nil,
-				State:  utils.PointerTo(models.TargetScanStateStatePending),
+				State:  utils.PointerTo(models.AssetScanStateStatePending),
 			},
-			Malware: &models.TargetScanState{
+			Malware: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Malware),
 			},
-			Misconfigurations: &models.TargetScanState{
+			Misconfigurations: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Misconfigurations),
 			},
-			Rootkits: &models.TargetScanState{
+			Rootkits: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Rootkits),
 			},
-			Sbom: &models.TargetScanState{
+			Sbom: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Sbom),
 			},
-			Secrets: &models.TargetScanState{
+			Secrets: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Secrets),
 			},
-			Vulnerabilities: &models.TargetScanState{
+			Vulnerabilities: &models.AssetScanState{
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Vulnerabilities),
 			},
@@ -101,12 +101,12 @@ func newScanResultFromScan(scan *models.Scan, targetID string) (*models.TargetSc
 	}, nil
 }
 
-func getInitStateFromFamilyConfig(config models.FamilyConfigEnabler) *models.TargetScanStateState {
+func getInitStateFromFamilyConfig(config models.FamilyConfigEnabler) *models.AssetScanStateState {
 	if config == nil || !config.IsEnabled() {
-		return utils.PointerTo(models.TargetScanStateStateNotScanned)
+		return utils.PointerTo(models.AssetScanStateStateNotScanned)
 	}
 
-	return utils.PointerTo(models.TargetScanStateStatePending)
+	return utils.PointerTo(models.AssetScanStateStatePending)
 }
 
 func newScanSummary() *models.ScanSummary {
@@ -129,9 +129,9 @@ func newScanSummary() *models.ScanSummary {
 	}
 }
 
-func updateScanSummaryFromScanResult(scan *models.Scan, result models.TargetScanResult) error {
+func updateScanSummaryFromAssetScan(scan *models.Scan, result models.AssetScan) error {
 	if result.Summary == nil {
-		return errors.New("invalid ScanResult: Summary field is nil")
+		return errors.New("invalid AssetScan: Summary field is nil")
 	}
 
 	if scan.Summary == nil {
@@ -140,18 +140,18 @@ func updateScanSummaryFromScanResult(scan *models.Scan, result models.TargetScan
 
 	state, ok := result.GetGeneralState()
 	if !ok {
-		return fmt.Errorf("general state must not be nil for ScanResult. ScanResultID=%s", *result.Id)
+		return fmt.Errorf("general state must not be nil for AssetScan. AssetScanID=%s", *result.Id)
 	}
 
 	s, r := scan.Summary, result.Summary
 
 	switch state {
-	case models.TargetScanStateStateNotScanned:
-	case models.TargetScanStateStatePending, models.TargetScanStateStateScheduled, models.TargetScanStateStateReadyToScan:
+	case models.AssetScanStateStateNotScanned:
+	case models.AssetScanStateStatePending, models.AssetScanStateStateScheduled, models.AssetScanStateStateReadyToScan:
 		fallthrough
-	case models.TargetScanStateStateInProgress, models.TargetScanStateStateAborted:
+	case models.AssetScanStateStateInProgress, models.AssetScanStateStateAborted:
 		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
-	case models.TargetScanStateStateDone:
+	case models.AssetScanStateStateDone:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
 		s.TotalMalware = utils.PointerTo(*s.TotalMalware + *r.TotalMalware)

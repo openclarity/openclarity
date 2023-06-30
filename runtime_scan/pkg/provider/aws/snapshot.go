@@ -39,13 +39,13 @@ type Snapshot struct {
 
 func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(logrus.Fields{
-		"SnapshotID":     s.ID,
-		"Operation":      "Copy",
-		"TargetVolumeID": s.VolumeID,
+		"SnapshotID":    s.ID,
+		"Operation":     "Copy",
+		"AssetVolumeID": s.VolumeID,
 	})
 
 	if s.Region == region {
-		logger.Debugf("Copying snapshot is skipped. SourceRegion=%s TargetRegion=%s", s.Region, region)
+		logger.Debugf("Copying snapshot is skipped. SourceRegion=%s AssetRegion=%s", s.Region, region)
 		return s, nil
 	}
 
@@ -55,7 +55,7 @@ func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 
 	ec2TagsForSnapshot := EC2TagsFromScanMetadata(s.Metadata)
 	ec2TagsForSnapshot = append(ec2TagsForSnapshot, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyTargetVolumeID),
+		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
 		Value: utils.PointerTo(s.VolumeID),
 	})
 	ec2Filters := EC2FiltersFromEC2Tags(ec2TagsForSnapshot)
@@ -65,12 +65,12 @@ func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 	}
 	describeOut, err := s.ec2Client.DescribeSnapshots(ctx, describeParams, options)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch target snapshots. TargetRegion=%s SourceSnapshot=%s SourceRegion=%s: %w",
+		return nil, fmt.Errorf("failed to fetch asset snapshots. AssetRegion=%s SourceSnapshot=%s SourceRegion=%s: %w",
 			region, s.ID, s.Region, err)
 	}
 
 	if len(describeOut.Snapshots) > 1 {
-		logger.Warnf("Multiple snapshots found for target volume: %d", len(describeOut.Snapshots))
+		logger.Warnf("Multiple snapshots found for asset volume: %d", len(describeOut.Snapshots))
 	}
 
 	for _, snap := range describeOut.Snapshots {
@@ -160,9 +160,9 @@ func (s *Snapshot) IsReady(ctx context.Context) (bool, error) {
 
 func (s *Snapshot) CreateVolume(ctx context.Context, az string) (*Volume, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(logrus.Fields{
-		"SnapshotID":     s.ID,
-		"Operation":      "CreateVolume",
-		"TargetVolumeID": s.VolumeID,
+		"SnapshotID":    s.ID,
+		"Operation":     "CreateVolume",
+		"AssetVolumeID": s.VolumeID,
 	})
 
 	options := func(options *ec2.Options) {
@@ -171,7 +171,7 @@ func (s *Snapshot) CreateVolume(ctx context.Context, az string) (*Volume, error)
 
 	ec2TagsForVolume := EC2TagsFromScanMetadata(s.Metadata)
 	ec2TagsForVolume = append(ec2TagsForVolume, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyTargetVolumeID),
+		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
 		Value: utils.PointerTo(s.VolumeID),
 	})
 

@@ -11,9 +11,9 @@ The VMClarity infrastructure includes:
       system. This is the only component in the system which talks to the DB.
 
     - **Orchestrator**: Orchestrates and manages the life cycle of VMClarity scan
-      configs, scans and scan results. Within the Orchestrator there is a
+      configs, scans and asset scans. Within the Orchestrator there is a
       pluggable "provider" which connects the orchstrator to the environment to be
-      scanned and abstracts target discovery, VM snapshotting as well as creation of
+      scanned and abstracts asset discovery, VM snapshotting as well as creation of
       the scanner VMs. (**Note** The only supported provider today is AWS, other
       hyperscalers are on the roadmap)
 
@@ -47,8 +47,8 @@ docker in an dedicated AWS Virtual Private Cloud (VPC).
 Once the VMClarity server instance has been deployed, and the scan
 configurations have been created, VMClarity will discover VM resources within
 the scan range defined by the scan configuration (e.g., by region, instance
-tag, and security group). Once the target list has been created, snapshots of
-the targets are taken, and a new scanner VM are launched using the snapshots as
+tag, and security group). Once the asset list has been created, snapshots of
+the assets are taken, and a new scanner VM are launched using the snapshots as
 attached volumes. The VMClarity CLI running within the scanner VM will perform
 the configured analysis on the mounted snapshot, and report the results to the
 VMClarity API. These results are then processed by the VMClarity backend into
