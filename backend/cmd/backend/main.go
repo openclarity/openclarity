@@ -21,8 +21,8 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/urfave/cli"
 
 	"github.com/openclarity/vmclarity/backend/pkg/backend"
 	"github.com/openclarity/vmclarity/backend/pkg/config"
@@ -34,10 +34,61 @@ import (
 const (
 	LogLevelFlag         = "log-level"
 	LogLevelDefaultValue = "warning"
+	ExecutableName       = "vmclarity-backend"
 )
 
-func run(cliCtx *cli.Context) {
-	log.InitLogger(cliCtx.String(LogLevelFlag), os.Stderr)
+var (
+	logLevel = LogLevelDefaultValue
+	rootCmd  = &cobra.Command{
+		Use:   ExecutableName,
+		Short: "VMClarity Backend",
+		Long:  "VMClarity Backend",
+		Version: fmt.Sprintf("Version: %s \nCommit: %s\nBuild Time: %s",
+			version.Version, version.CommitHash, version.BuildTimestamp),
+		SilenceUsage: true,
+	}
+)
+
+func init() {
+	viper.SetDefault(config.HealthCheckAddress, ":8081")
+	viper.SetDefault(config.BackendRestPort, "8888")
+	viper.SetDefault(config.DatabaseDriver, databaseTypes.DBDriverTypeLocal)
+	viper.SetDefault(config.DisableOrchestrator, "false")
+	viper.SetDefault(config.UISitePath, "/app/site")
+	viper.AutomaticEnv()
+
+	cmdRun := cobra.Command{
+		Use:     "run",
+		Run:     runCommand,
+		Short:   "Starts the server",
+		Long:    "Starts the VMClarity backend server",
+		Example: ExecutableName + " run",
+	}
+	cmdRun.PersistentFlags().StringVar(&logLevel,
+		LogLevelFlag,
+		LogLevelDefaultValue,
+		"Set log level [panic fatal error warning info debug trace]")
+
+	cmdVersion := cobra.Command{
+		Use:     "version",
+		Run:     versionCommand,
+		Short:   "Displays the version",
+		Long:    "Displays the version of the VMClarity backend server",
+		Example: ExecutableName + " version",
+	}
+
+	rootCmd.AddCommand(&cmdRun)
+	rootCmd.AddCommand(&cmdVersion)
+}
+
+func main() {
+	cobra.CheckErr(rootCmd.Execute())
+}
+
+// Main entry point for the backend, triggered by the
+// `run` command in the CLI.
+func runCommand(_ *cobra.Command, _ []string) {
+	log.InitLogger(logLevel, os.Stderr)
 
 	ctx := context.Background()
 	logger := logrus.WithContext(ctx)
@@ -45,50 +96,8 @@ func run(cliCtx *cli.Context) {
 	backend.Run(ctx)
 }
 
-func versionCommand(_ *cli.Context) {
+// Command to display the version.
+func versionCommand(_ *cobra.Command, _ []string) {
 	fmt.Printf("Version: %s \nCommit: %s\nBuild Time: %s",
 		version.Version, version.CommitHash, version.BuildTimestamp)
-}
-
-func main() {
-	viper.SetDefault(config.HealthCheckAddress, ":8081")
-	viper.SetDefault(config.BackendRestPort, "8888")
-	viper.SetDefault(config.DatabaseDriver, databaseTypes.DBDriverTypeLocal)
-	viper.SetDefault(config.DisableOrchestrator, "false")
-	viper.SetDefault(config.UISitePath, "/app/site")
-	viper.AutomaticEnv()
-	app := cli.NewApp()
-	app.Usage = ""
-	app.Name = "VMClarity"
-	app.Version = version.Version
-
-	runCommand := cli.Command{
-		Name:   "run",
-		Usage:  "Starts VMClarity",
-		Action: run,
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  LogLevelFlag,
-				Value: LogLevelDefaultValue,
-				Usage: fmt.Sprintf("Set log level %s", logrus.AllLevels),
-			},
-		},
-	}
-	runCommand.UsageText = runCommand.Name
-
-	versionCommand := cli.Command{
-		Name:   "version",
-		Usage:  "VMClarity Version Details",
-		Action: versionCommand,
-	}
-	versionCommand.UsageText = versionCommand.Name
-
-	app.Commands = []cli.Command{
-		runCommand,
-		versionCommand,
-	}
-
-	if err := app.Run(os.Args); err != nil {
-		logrus.Fatal(err)
-	}
 }
