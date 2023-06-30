@@ -93,15 +93,15 @@ Resources:
           Fn::Sub: |
             #!/bin/bash -xe
             apt-get update -y
+            
+            apt-get -y install python3-pip
+            
+            pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+            
+            ln -s /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
 
-            mkdir -p /opt/aws/bin
-
-            wget https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
-
-            python3 -m easy_install --script-dir /opt/aws/bin aws-cfn-bootstrap-py3-latest.tar.gz
-
-            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource VmClarityServer --region ${AWS::Region}
+            /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
+            /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource VmClarityServer --region ${AWS::Region}
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -135,7 +135,7 @@ Resources:
 
                 [Service]
                 Type=simple
-                ExecStart=/opt/aws/bin/cfn-hup
+                ExecStart=/usr/local/bin/cfn-hup
                 Restart=always
 
                 [Install]
@@ -1056,44 +1056,44 @@ Mappings:
       Arch: HVM64
     m6i.large:
       Arch: HVM64
-  # These are all Ubuntu 20.04 LTS AMIs in the different regions.
+  # These are all Ubuntu 22.04 LTS AMIs in the different regions.
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-01d08089481510ba2
+      HVM64: ami-003d3d03cfe1b0468
     us-west-2:
-      HVM64: ami-0e6dff8bde9a09539
+      HVM64: ami-032f8589b3e7f4e5b
     us-west-1:
-      HVM64: ami-064562725417500be
+      HVM64: ami-0ff832bdf91944651
     eu-west-1:
-      HVM64: ami-04e2e94de097d3986
+      HVM64: ami-0786f5bc3943ad52d
     eu-west-2:
-      HVM64: ami-08d3a4ad06c8a70fe
+      HVM64: ami-0ccdcf8ea5cace030
     eu-west-3:
-      HVM64: ami-018de3a6e45331551
+      HVM64: ami-0b108d96bcb0de81c
     eu-central-1:
-      HVM64: ami-0d0dd86aa7fe3c8a9
+      HVM64: ami-03f1cc6c8b9c0b899
     ap-northeast-1:
-      HVM64: ami-0d745f1ee4bb88b89
+      HVM64: ami-0c597cc9c10ca9088
     ap-northeast-2:
-      HVM64: ami-05a5333b72d3d1c93
+      HVM64: ami-0502b8f5f0ca3ed7d
     ap-northeast-3:
-      HVM64: ami-0eb4557358e2c9386
+      HVM64: ami-040b504c67641f0cc
     ap-southeast-1:
-      HVM64: ami-0fbb51b4aa5671449
+      HVM64: ami-0d21214905506a7f4
     ap-southeast-2:
-      HVM64: ami-030a8d0e06463671c
+      HVM64: ami-09fb5e610ae14ee00
     ap-south-1:
-      HVM64: ami-0340ea71c538887c3
+      HVM64: ami-0dc886bce1f85f67e
     us-east-2:
-      HVM64: ami-0066d036f9777ec38
+      HVM64: ami-05f4e4084abd205cf
     ca-central-1:
-      HVM64: ami-0ab6f6340b2a4fb77
+      HVM64: ami-02da4d5de61d161c5
     sa-east-1:
-      HVM64: ami-07e7afb5e1e58e8da
+      HVM64: ami-0cd79c08dc1353a91
     cn-north-1:
-      HVM64: ami-0741e7b8b4fb0001c
+      HVM64: ami-00194330730a60fd2
     cn-northwest-1:
-      HVM64: ami-0883e8062ff31f727
+      HVM64: ami-0502019189405b959
 Conditions:
   BackendContainerImageOverridden: !Not
     - !Equals
