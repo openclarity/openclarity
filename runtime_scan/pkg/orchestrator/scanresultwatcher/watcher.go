@@ -42,6 +42,7 @@ func New(c Config) *Watcher {
 		scannerConfig:    c.ScannerConfig,
 		pollPeriod:       c.PollPeriod,
 		reconcileTimeout: c.ReconcileTimeout,
+		abortTimeout:     c.AbortTimeout,
 		queue:            common.NewQueue[ScanResultReconcileEvent](),
 	}
 }
@@ -52,6 +53,7 @@ type Watcher struct {
 	scannerConfig    ScannerConfig
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
+	abortTimeout     time.Duration
 
 	queue *ScanResultQueue
 }
@@ -159,11 +161,13 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanResultReconcileEvent)
 			return err
 		}
 	case models.TargetScanStateStateReadyToScan, models.TargetScanStateStateInProgress:
+	case models.TargetScanStateStateAborted:
 		// TODO(chrisgacsal): make sure that TargetScanResult state is set to ABORTED state once the TargetScanResult
 		//                    schema is extended with timeout field and the deadline is missed.
-		break
-	case models.TargetScanStateStateAborted, models.TargetScanStateStateNotScanned:
-		break
+		if err = w.reconcileAborted(ctx, &scanResult); err != nil {
+			return err
+		}
+	case models.TargetScanStateStateNotScanned:
 	case models.TargetScanStateStateDone:
 		if err = w.reconcileDone(ctx, &scanResult); err != nil {
 			return err
@@ -392,6 +396,53 @@ func (w *Watcher) cleanupResources(ctx context.Context, scanResult *models.Targe
 	}
 	if err := w.backend.PatchScanResult(ctx, scanResultPatch, scanResultID); err != nil {
 		return fmt.Errorf("failed to patch for ScanResult. ScanResultID=%s: %w", scanResultID, err)
+	}
+
+	return nil
+}
+
+// nolint:cyclop
+func (w *Watcher) reconcileAborted(ctx context.Context, scanResult *models.TargetScanResult) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	scanResultID, ok := scanResult.GetID()
+	if !ok {
+		return errors.New("invalid ScanResult: ID is nil")
+	}
+
+	// Check if ScanResult is in aborted state for more time than the timeout allows
+	if scanResult.Status == nil || scanResult.Status.General == nil {
+		return errors.New("invalid ScanResult: Status or General is nil")
+	}
+
+	var transitionTimeToAbort time.Time
+	if scanResult.Status.General.LastTransitionTime != nil {
+		transitionTimeToAbort = *scanResult.Status.General.LastTransitionTime
+		logger.Debugf("ScanResult moved to aborted state: %s", transitionTimeToAbort)
+	}
+
+	now := time.Now()
+	abortTimedOut := now.After(transitionTimeToAbort.Add(w.abortTimeout))
+	if !abortTimedOut {
+		logger.Tracef("ScanResult in aborted state is not timed out yet. TransitionTime=%s Timeout=%s",
+			transitionTimeToAbort, w.abortTimeout)
+		return nil
+	}
+	logger.Tracef("ScanResult in aborted state is timed out. TransitionTime=%s Timeout=%s",
+		transitionTimeToAbort, w.abortTimeout)
+
+	scanResult.Status.General.State = utils.PointerTo(models.TargetScanStateStateDone)
+	scanResult.Status.General.LastTransitionTime = utils.PointerTo(now)
+	scanResult.Status.General.Errors = utils.PointerTo([]string{
+		fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout),
+	})
+
+	scanResultPatch := models.TargetScanResult{
+		Status: scanResult.Status,
+	}
+	err := w.backend.PatchScanResult(ctx, scanResultPatch, scanResultID)
+	if err != nil {
+		return fmt.Errorf("failed to update ScanResult. ScanResult=%s: %w", scanResultID, err)
 	}
 
 	return nil
