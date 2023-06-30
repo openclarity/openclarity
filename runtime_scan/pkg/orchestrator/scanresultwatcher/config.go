@@ -25,6 +25,7 @@ import (
 const (
 	DefaultPollInterval     = time.Minute
 	DefaultReconcileTimeout = 5 * time.Minute
+	DefaultAbortTimeout     = 10 * time.Minute
 )
 
 type Config struct {
@@ -33,6 +34,7 @@ type Config struct {
 	PollPeriod       time.Duration
 	ReconcileTimeout time.Duration
 	ScannerConfig    ScannerConfig
+	AbortTimeout     time.Duration
 }
 
 func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
