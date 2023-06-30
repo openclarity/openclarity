@@ -57,6 +57,7 @@ const (
 
 	ScanResultPollingInterval  = "SCAN_RESULT_POLLING_INTERVAL"
 	ScanResultReconcileTimeout = "SCAN_RESULT_RECONCILE_TIMEOUT"
+	ScanResultAbortTimeout     = "SCAN_RESULT_ABORT_TIMEOUT"
 
 	ScanResultProcessorPollingInterval  = "SCAN_RESULT_PROCESSOR_POLLING_INTERVAL"
 	ScanResultProcessorReconcileTimeout = "SCAN_RESULT_PROCESSOR_RECONCILE_TIMEOUT"
@@ -119,6 +120,7 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.SetDefault(DiscoveryInterval, discovery.DefaultInterval.String())
 	viper.SetDefault(ControllerStartupDelay, DefaultControllerStartupDelay.String())
 	viper.SetDefault(ProviderKind, DefaultProviderKind)
+	viper.SetDefault(ScanResultAbortTimeout, scanresultwatcher.DefaultAbortTimeout)
 
 	viper.AutomaticEnv()
 }
@@ -155,6 +157,7 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, e
 		ScanResultWatcherConfig: scanresultwatcher.Config{
 			PollPeriod:       viper.GetDuration(ScanResultPollingInterval),
 			ReconcileTimeout: viper.GetDuration(ScanResultReconcileTimeout),
+			AbortTimeout:     viper.GetDuration(ScanResultAbortTimeout),
 			ScannerConfig: scanresultwatcher.ScannerConfig{
 				DeleteJobPolicy:               scanresultwatcher.GetDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
 				ScannerImage:                  viper.GetString(ScannerContainerImage),
