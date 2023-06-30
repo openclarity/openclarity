@@ -11,6 +11,17 @@ import (
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
+// Defines values for AssetScanStateState.
+const (
+	AssetScanStateStateAborted     AssetScanStateState = "Aborted"
+	AssetScanStateStateDone        AssetScanStateState = "Done"
+	AssetScanStateStateInProgress  AssetScanStateState = "InProgress"
+	AssetScanStateStateNotScanned  AssetScanStateState = "NotScanned"
+	AssetScanStateStatePending     AssetScanStateState = "Pending"
+	AssetScanStateStateReadyToScan AssetScanStateState = "ReadyToScan"
+	AssetScanStateStateScheduled   AssetScanStateState = "Scheduled"
+)
+
 // Defines values for CloudProvider.
 const (
 	AWS   CloudProvider = "AWS"
@@ -53,13 +64,13 @@ const (
 
 // Defines values for ScanStateReason.
 const (
-	ScanStateReasonAborted                     ScanStateReason = "Aborted"
-	ScanStateReasonDiscoveryFailed             ScanStateReason = "DiscoveryFailed"
-	ScanStateReasonNothingToScan               ScanStateReason = "NothingToScan"
-	ScanStateReasonOneOrMoreTargetFailedToScan ScanStateReason = "OneOrMoreTargetFailedToScan"
-	ScanStateReasonSuccess                     ScanStateReason = "Success"
-	ScanStateReasonTimedOut                    ScanStateReason = "TimedOut"
-	ScanStateReasonUnexpected                  ScanStateReason = "Unexpected"
+	ScanStateReasonAborted                    ScanStateReason = "Aborted"
+	ScanStateReasonDiscoveryFailed            ScanStateReason = "DiscoveryFailed"
+	ScanStateReasonNothingToScan              ScanStateReason = "NothingToScan"
+	ScanStateReasonOneOrMoreAssetFailedToScan ScanStateReason = "OneOrMoreAssetFailedToScan"
+	ScanStateReasonSuccess                    ScanStateReason = "Success"
+	ScanStateReasonTimedOut                   ScanStateReason = "TimedOut"
+	ScanStateReasonUnexpected                 ScanStateReason = "Unexpected"
 )
 
 // Defines values for ScanRelationshipState.
@@ -74,13 +85,13 @@ const (
 
 // Defines values for ScanRelationshipStateReason.
 const (
-	ScanRelationshipStateReasonAborted                     ScanRelationshipStateReason = "Aborted"
-	ScanRelationshipStateReasonDiscoveryFailed             ScanRelationshipStateReason = "DiscoveryFailed"
-	ScanRelationshipStateReasonNothingToScan               ScanRelationshipStateReason = "NothingToScan"
-	ScanRelationshipStateReasonOneOrMoreTargetFailedToScan ScanRelationshipStateReason = "OneOrMoreTargetFailedToScan"
-	ScanRelationshipStateReasonSuccess                     ScanRelationshipStateReason = "Success"
-	ScanRelationshipStateReasonTimedOut                    ScanRelationshipStateReason = "TimedOut"
-	ScanRelationshipStateReasonUnexpected                  ScanRelationshipStateReason = "Unexpected"
+	ScanRelationshipStateReasonAborted                    ScanRelationshipStateReason = "Aborted"
+	ScanRelationshipStateReasonDiscoveryFailed            ScanRelationshipStateReason = "DiscoveryFailed"
+	ScanRelationshipStateReasonNothingToScan              ScanRelationshipStateReason = "NothingToScan"
+	ScanRelationshipStateReasonOneOrMoreAssetFailedToScan ScanRelationshipStateReason = "OneOrMoreAssetFailedToScan"
+	ScanRelationshipStateReasonSuccess                    ScanRelationshipStateReason = "Success"
+	ScanRelationshipStateReasonTimedOut                   ScanRelationshipStateReason = "TimedOut"
+	ScanRelationshipStateReasonUnexpected                 ScanRelationshipStateReason = "Unexpected"
 )
 
 // Defines values for ScanType.
@@ -92,17 +103,6 @@ const (
 	SBOM             ScanType = "SBOM"
 	SECRET           ScanType = "SECRET"
 	VULNERABILITY    ScanType = "VULNERABILITY"
-)
-
-// Defines values for TargetScanStateState.
-const (
-	TargetScanStateStateAborted     TargetScanStateState = "Aborted"
-	TargetScanStateStateDone        TargetScanStateState = "Done"
-	TargetScanStateStateInProgress  TargetScanStateState = "InProgress"
-	TargetScanStateStateNotScanned  TargetScanStateState = "NotScanned"
-	TargetScanStateStatePending     TargetScanStateState = "Pending"
-	TargetScanStateStateReadyToScan TargetScanStateState = "ReadyToScan"
-	TargetScanStateStateScheduled   TargetScanStateState = "Scheduled"
 )
 
 // Defines values for VulnerabilitySeverity.
@@ -117,6 +117,121 @@ const (
 // ApiResponse An object that is returned in all cases of failures.
 type ApiResponse struct {
 	Message *string `json:"message,omitempty"`
+}
+
+// Asset Describes an asset object.
+type Asset struct {
+	AssetInfo *AssetType `json:"assetInfo,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	Revision  *int       `json:"revision,omitempty"`
+
+	// ScansCount Total number of scans that have ever run for this asset
+	ScansCount *int `json:"scansCount,omitempty"`
+
+	// Summary A summary of the scan findings.
+	Summary *ScanFindingsSummary `json:"summary,omitempty"`
+}
+
+// AssetCommon defines model for AssetCommon.
+type AssetCommon = map[string]interface{}
+
+// AssetExists defines model for AssetExists.
+type AssetExists struct {
+	// Asset Describes an asset object.
+	Asset *Asset `json:"asset,omitempty"`
+
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+}
+
+// AssetRelationship Describes a relationship to an asset which can be expanded.
+type AssetRelationship struct {
+	AssetInfo *AssetType `json:"assetInfo,omitempty"`
+	Id        string     `json:"id"`
+	Revision  *int       `json:"revision,omitempty"`
+
+	// ScansCount Total number of scans that have ever run for this asset
+	ScansCount *int `json:"scansCount,omitempty"`
+
+	// Summary A summary of the scan findings.
+	Summary *ScanFindingsSummary `json:"summary,omitempty"`
+}
+
+// AssetScan defines model for AssetScan.
+type AssetScan struct {
+	// Asset Describes a relationship to an asset which can be expanded.
+	Asset             *AssetRelationship    `json:"asset,omitempty"`
+	Exploits          *ExploitScan          `json:"exploits,omitempty"`
+	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
+	Id                *string               `json:"id,omitempty"`
+	Malware           *MalwareScan          `json:"malware,omitempty"`
+	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
+	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
+	Revision          *int                  `json:"revision,omitempty"`
+	Rootkits          *RootkitScan          `json:"rootkits,omitempty"`
+	Sboms             *SbomScan             `json:"sboms,omitempty"`
+
+	// Scan Describes an expandable relationship to Scan object
+	Scan    *ScanRelationship `json:"scan,omitempty"`
+	Secrets *SecretScan       `json:"secrets,omitempty"`
+	Status  *AssetScanStatus  `json:"status,omitempty"`
+
+	// Summary A summary of the scan findings.
+	Summary         *ScanFindingsSummary `json:"summary,omitempty"`
+	Vulnerabilities *VulnerabilityScan   `json:"vulnerabilities,omitempty"`
+}
+
+// AssetScanExists defines model for AssetScanExists.
+type AssetScanExists struct {
+	AssetScan *AssetScan `json:"assetScan,omitempty"`
+
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+}
+
+// AssetScanState defines model for AssetScanState.
+type AssetScanState struct {
+	Errors             *[]string            `json:"errors"`
+	LastTransitionTime *time.Time           `json:"lastTransitionTime,omitempty"`
+	State              *AssetScanStateState `json:"state,omitempty"`
+}
+
+// AssetScanStateState defines model for AssetScanState.State.
+type AssetScanStateState string
+
+// AssetScanStatus defines model for AssetScanStatus.
+type AssetScanStatus struct {
+	Exploits          *AssetScanState `json:"exploits,omitempty"`
+	General           *AssetScanState `json:"general,omitempty"`
+	Malware           *AssetScanState `json:"malware,omitempty"`
+	Misconfigurations *AssetScanState `json:"misconfigurations,omitempty"`
+	Rootkits          *AssetScanState `json:"rootkits,omitempty"`
+	Sbom              *AssetScanState `json:"sbom,omitempty"`
+	Secrets           *AssetScanState `json:"secrets,omitempty"`
+	Vulnerabilities   *AssetScanState `json:"vulnerabilities,omitempty"`
+}
+
+// AssetScans defines model for AssetScans.
+type AssetScans struct {
+	// Count Total asset scans count according to the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of asset scans according to the given filters and page. List length must be lower or equal to pageSize.
+	Items *[]AssetScan `json:"items,omitempty"`
+}
+
+// AssetType defines model for AssetType.
+type AssetType struct {
+	union json.RawMessage
+}
+
+// Assets defines model for Assets.
+type Assets struct {
+	// Count Total assets count according the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of assets in the given filters and page. List length must be lower or equal to pageSize.
+	Items *[]Asset `json:"items,omitempty"`
 }
 
 // AwsAccountScope AWS cloud account scope
@@ -221,8 +336,8 @@ type ExploitsConfig struct {
 
 // Finding defines model for Finding.
 type Finding struct {
-	// Asset Describes a relationship to a target which can be expanded.
-	Asset       *TargetRelationship  `json:"asset,omitempty"`
+	// Asset Describes a relationship to an asset which can be expanded.
+	Asset       *AssetRelationship   `json:"asset,omitempty"`
 	FindingInfo *Finding_FindingInfo `json:"findingInfo,omitempty"`
 
 	// FoundOn When this finding was discovered by a scan
@@ -410,8 +525,10 @@ type SbomScan struct {
 	Packages *[]Package `json:"packages"`
 }
 
-// Scan Describes a multi-target scheduled scan.
+// Scan Describes a multi-asset scheduled scan.
 type Scan struct {
+	// AssetIDs List of asset IDs to be scanned
+	AssetIDs *[]string  `json:"assetIDs"`
 	EndTime  *time.Time `json:"endTime,omitempty"`
 	Id       *string    `json:"id,omitempty"`
 	Revision *int       `json:"revision,omitempty"`
@@ -436,9 +553,6 @@ type Scan struct {
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
-
-	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
-	TargetIDs *[]string `json:"targetIDs"`
 }
 
 // ScanState The lifecycle state of this scan.
@@ -447,7 +561,7 @@ type ScanState string
 // ScanStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
 type ScanStateReason string
 
-// ScanConfig Describes a multi-target scheduled scan config.
+// ScanConfig Describes a multi-asset scheduled scan config.
 type ScanConfig struct {
 	// Disabled if true, the scan config is disabled and no scan should run from it
 	Disabled *bool   `json:"disabled,omitempty"`
@@ -478,7 +592,7 @@ type ScanConfigExists struct {
 	// Message Describes which unique constraint combination causes the conflict.
 	Message *string `json:"message,omitempty"`
 
-	// ScanConfig Describes a multi-target scheduled scan config.
+	// ScanConfig Describes a multi-asset scheduled scan config.
 	ScanConfig *ScanConfig `json:"scanConfig,omitempty"`
 }
 
@@ -548,7 +662,7 @@ type ScanExists struct {
 	// Message Describes which unique constraint combination causes the conflict.
 	Message *string `json:"message,omitempty"`
 
-	// Scan Describes a multi-target scheduled scan.
+	// Scan Describes a multi-asset scheduled scan.
 	Scan *Scan `json:"scan,omitempty"`
 }
 
@@ -578,6 +692,8 @@ type ScanFindingsSummary struct {
 
 // ScanRelationship Describes an expandable relationship to Scan object
 type ScanRelationship struct {
+	// AssetIDs List of asset IDs to be scanned
+	AssetIDs *[]string  `json:"assetIDs"`
 	EndTime  *time.Time `json:"endTime,omitempty"`
 	Id       string     `json:"id"`
 	Revision *int       `json:"revision,omitempty"`
@@ -602,9 +718,6 @@ type ScanRelationship struct {
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
-
-	// TargetIDs List of target IDs that are targeted for scanning as part of this scan
-	TargetIDs *[]string `json:"targetIDs"`
 }
 
 // ScanRelationshipState The lifecycle state of this scan.
@@ -738,121 +851,6 @@ type Tag struct {
 	Value string `json:"value"`
 }
 
-// Target Describes a target object.
-type Target struct {
-	Id       *string `json:"id,omitempty"`
-	Revision *int    `json:"revision,omitempty"`
-
-	// ScansCount Total number of scans that have ever run for this target
-	ScansCount *int `json:"scansCount,omitempty"`
-
-	// Summary A summary of the scan findings.
-	Summary    *ScanFindingsSummary `json:"summary,omitempty"`
-	TargetInfo *TargetType          `json:"targetInfo,omitempty"`
-}
-
-// TargetCommon defines model for TargetCommon.
-type TargetCommon = map[string]interface{}
-
-// TargetExists defines model for TargetExists.
-type TargetExists struct {
-	// Message Describes which unique constraint combination causes the conflict.
-	Message *string `json:"message,omitempty"`
-
-	// Target Describes a target object.
-	Target *Target `json:"target,omitempty"`
-}
-
-// TargetRelationship Describes a relationship to a target which can be expanded.
-type TargetRelationship struct {
-	Id       string `json:"id"`
-	Revision *int   `json:"revision,omitempty"`
-
-	// ScansCount Total number of scans that have ever run for this target
-	ScansCount *int `json:"scansCount,omitempty"`
-
-	// Summary A summary of the scan findings.
-	Summary    *ScanFindingsSummary `json:"summary,omitempty"`
-	TargetInfo *TargetType          `json:"targetInfo,omitempty"`
-}
-
-// TargetScanResult defines model for TargetScanResult.
-type TargetScanResult struct {
-	Exploits          *ExploitScan          `json:"exploits,omitempty"`
-	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
-	Id                *string               `json:"id,omitempty"`
-	Malware           *MalwareScan          `json:"malware,omitempty"`
-	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
-	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
-	Revision          *int                  `json:"revision,omitempty"`
-	Rootkits          *RootkitScan          `json:"rootkits,omitempty"`
-	Sboms             *SbomScan             `json:"sboms,omitempty"`
-
-	// Scan Describes an expandable relationship to Scan object
-	Scan    *ScanRelationship `json:"scan,omitempty"`
-	Secrets *SecretScan       `json:"secrets,omitempty"`
-	Status  *TargetScanStatus `json:"status,omitempty"`
-
-	// Summary A summary of the scan findings.
-	Summary *ScanFindingsSummary `json:"summary,omitempty"`
-
-	// Target Describes a relationship to a target which can be expanded.
-	Target          *TargetRelationship `json:"target,omitempty"`
-	Vulnerabilities *VulnerabilityScan  `json:"vulnerabilities,omitempty"`
-}
-
-// TargetScanResultExists defines model for TargetScanResultExists.
-type TargetScanResultExists struct {
-	// Message Describes which unique constraint combination causes the conflict.
-	Message          *string           `json:"message,omitempty"`
-	TargetScanResult *TargetScanResult `json:"targetScanResult,omitempty"`
-}
-
-// TargetScanResults defines model for TargetScanResults.
-type TargetScanResults struct {
-	// Count Total scan results count according to the given filters
-	Count *int `json:"count,omitempty"`
-
-	// Items List of scan results according to the given filters and page. List length must be lower or equal to pageSize.
-	Items *[]TargetScanResult `json:"items,omitempty"`
-}
-
-// TargetScanState defines model for TargetScanState.
-type TargetScanState struct {
-	Errors             *[]string             `json:"errors"`
-	LastTransitionTime *time.Time            `json:"lastTransitionTime,omitempty"`
-	State              *TargetScanStateState `json:"state,omitempty"`
-}
-
-// TargetScanStateState defines model for TargetScanState.State.
-type TargetScanStateState string
-
-// TargetScanStatus defines model for TargetScanStatus.
-type TargetScanStatus struct {
-	Exploits          *TargetScanState `json:"exploits,omitempty"`
-	General           *TargetScanState `json:"general,omitempty"`
-	Malware           *TargetScanState `json:"malware,omitempty"`
-	Misconfigurations *TargetScanState `json:"misconfigurations,omitempty"`
-	Rootkits          *TargetScanState `json:"rootkits,omitempty"`
-	Sbom              *TargetScanState `json:"sbom,omitempty"`
-	Secrets           *TargetScanState `json:"secrets,omitempty"`
-	Vulnerabilities   *TargetScanState `json:"vulnerabilities,omitempty"`
-}
-
-// TargetType defines model for TargetType.
-type TargetType struct {
-	union json.RawMessage
-}
-
-// Targets defines model for Targets.
-type Targets struct {
-	// Count Total targets count according the given filters
-	Count *int `json:"count,omitempty"`
-
-	// Items List of targets in the given filters and page. List length must be lower or equal to pageSize.
-	Items *[]Target `json:"items,omitempty"`
-}
-
 // VMInfo defines model for VMInfo.
 type VMInfo struct {
 	Image            string           `json:"image"`
@@ -954,6 +952,12 @@ type VulnerabilityScanSummary struct {
 // VulnerabilitySeverity defines model for VulnerabilitySeverity.
 type VulnerabilitySeverity string
 
+// AssetID defines model for assetID.
+type AssetID = string
+
+// AssetScanID defines model for assetScanID.
+type AssetScanID = string
+
 // FindingID defines model for findingID.
 type FindingID = string
 
@@ -987,17 +991,65 @@ type ScanConfigID = string
 // ScanID defines model for scanID.
 type ScanID = string
 
-// ScanResultID defines model for scanResultID.
-type ScanResultID = string
-
-// TargetID defines model for targetID.
-type TargetID = string
-
 // Success An object that is returned in cases of success that returns nothing.
 type Success = SuccessResponse
 
 // UnknownError An object that is returned in all cases of failures.
 type UnknownError = ApiResponse
+
+// GetAssetScansParams defines parameters for GetAssetScans.
+type GetAssetScansParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetAssetScansAssetScanIDParams defines parameters for GetAssetScansAssetScanID.
+type GetAssetScansAssetScanIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchAssetScansAssetScanIDParams defines parameters for PatchAssetScansAssetScanID.
+type PatchAssetScansAssetScanIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutAssetScansAssetScanIDParams defines parameters for PutAssetScansAssetScanID.
+type PutAssetScansAssetScanIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// GetAssetsParams defines parameters for GetAssets.
+type GetAssetsParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetAssetsAssetIDParams defines parameters for GetAssetsAssetID.
+type GetAssetsAssetIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchAssetsAssetIDParams defines parameters for PatchAssetsAssetID.
+type PatchAssetsAssetIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutAssetsAssetIDParams defines parameters for PutAssetsAssetID.
+type PutAssetsAssetIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
 
 // GetDiscoveryScopesParams defines parameters for GetDiscoveryScopes.
 type GetDiscoveryScopesParams struct {
@@ -1050,33 +1102,6 @@ type PutScanConfigsScanConfigIDParams struct {
 	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
-// GetScanResultsParams defines parameters for GetScanResults.
-type GetScanResultsParams struct {
-	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
-	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
-}
-
-// GetScanResultsScanResultIDParams defines parameters for GetScanResultsScanResultID.
-type GetScanResultsScanResultIDParams struct {
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
-}
-
-// PatchScanResultsScanResultIDParams defines parameters for PatchScanResultsScanResultID.
-type PatchScanResultsScanResultIDParams struct {
-	IfMatch *Ifmatch `json:"If-Match,omitempty"`
-}
-
-// PutScanResultsScanResultIDParams defines parameters for PutScanResultsScanResultID.
-type PutScanResultsScanResultIDParams struct {
-	IfMatch *Ifmatch `json:"If-Match,omitempty"`
-}
-
 // GetScansParams defines parameters for GetScans.
 type GetScansParams struct {
 	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
@@ -1104,32 +1129,23 @@ type PutScansScanIDParams struct {
 	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
-// GetTargetsParams defines parameters for GetTargets.
-type GetTargetsParams struct {
-	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
-	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
-	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
-	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
-	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
-	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
-}
+// PostAssetScansJSONRequestBody defines body for PostAssetScans for application/json ContentType.
+type PostAssetScansJSONRequestBody = AssetScan
 
-// GetTargetsTargetIDParams defines parameters for GetTargetsTargetID.
-type GetTargetsTargetIDParams struct {
-	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
-	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
-}
+// PatchAssetScansAssetScanIDJSONRequestBody defines body for PatchAssetScansAssetScanID for application/json ContentType.
+type PatchAssetScansAssetScanIDJSONRequestBody = AssetScan
 
-// PatchTargetsTargetIDParams defines parameters for PatchTargetsTargetID.
-type PatchTargetsTargetIDParams struct {
-	IfMatch *Ifmatch `json:"If-Match,omitempty"`
-}
+// PutAssetScansAssetScanIDJSONRequestBody defines body for PutAssetScansAssetScanID for application/json ContentType.
+type PutAssetScansAssetScanIDJSONRequestBody = AssetScan
 
-// PutTargetsTargetIDParams defines parameters for PutTargetsTargetID.
-type PutTargetsTargetIDParams struct {
-	IfMatch *Ifmatch `json:"If-Match,omitempty"`
-}
+// PostAssetsJSONRequestBody defines body for PostAssets for application/json ContentType.
+type PostAssetsJSONRequestBody = Asset
+
+// PatchAssetsAssetIDJSONRequestBody defines body for PatchAssetsAssetID for application/json ContentType.
+type PatchAssetsAssetIDJSONRequestBody = Asset
+
+// PutAssetsAssetIDJSONRequestBody defines body for PutAssetsAssetID for application/json ContentType.
+type PutAssetsAssetIDJSONRequestBody = Asset
 
 // PutDiscoveryScopesJSONRequestBody defines body for PutDiscoveryScopes for application/json ContentType.
 type PutDiscoveryScopesJSONRequestBody = Scopes
@@ -1152,15 +1168,6 @@ type PatchScanConfigsScanConfigIDJSONRequestBody = ScanConfig
 // PutScanConfigsScanConfigIDJSONRequestBody defines body for PutScanConfigsScanConfigID for application/json ContentType.
 type PutScanConfigsScanConfigIDJSONRequestBody = ScanConfig
 
-// PostScanResultsJSONRequestBody defines body for PostScanResults for application/json ContentType.
-type PostScanResultsJSONRequestBody = TargetScanResult
-
-// PatchScanResultsScanResultIDJSONRequestBody defines body for PatchScanResultsScanResultID for application/json ContentType.
-type PatchScanResultsScanResultIDJSONRequestBody = TargetScanResult
-
-// PutScanResultsScanResultIDJSONRequestBody defines body for PutScanResultsScanResultID for application/json ContentType.
-type PutScanResultsScanResultIDJSONRequestBody = TargetScanResult
-
 // PostScansJSONRequestBody defines body for PostScans for application/json ContentType.
 type PostScansJSONRequestBody = Scan
 
@@ -1170,14 +1177,124 @@ type PatchScansScanIDJSONRequestBody = Scan
 // PutScansScanIDJSONRequestBody defines body for PutScansScanID for application/json ContentType.
 type PutScansScanIDJSONRequestBody = Scan
 
-// PostTargetsJSONRequestBody defines body for PostTargets for application/json ContentType.
-type PostTargetsJSONRequestBody = Target
+// AsVMInfo returns the union data inside the AssetType as a VMInfo
+func (t AssetType) AsVMInfo() (VMInfo, error) {
+	var body VMInfo
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
 
-// PatchTargetsTargetIDJSONRequestBody defines body for PatchTargetsTargetID for application/json ContentType.
-type PatchTargetsTargetIDJSONRequestBody = Target
+// FromVMInfo overwrites any union data inside the AssetType as the provided VMInfo
+func (t *AssetType) FromVMInfo(v VMInfo) error {
+	v.ObjectType = "VMInfo"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-// PutTargetsTargetIDJSONRequestBody defines body for PutTargetsTargetID for application/json ContentType.
-type PutTargetsTargetIDJSONRequestBody = Target
+// MergeVMInfo performs a merge with any union data inside the AssetType, using the provided VMInfo
+func (t *AssetType) MergeVMInfo(v VMInfo) error {
+	v.ObjectType = "VMInfo"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
+// AsPodInfo returns the union data inside the AssetType as a PodInfo
+func (t AssetType) AsPodInfo() (PodInfo, error) {
+	var body PodInfo
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPodInfo overwrites any union data inside the AssetType as the provided PodInfo
+func (t *AssetType) FromPodInfo(v PodInfo) error {
+	v.ObjectType = "PodInfo"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePodInfo performs a merge with any union data inside the AssetType, using the provided PodInfo
+func (t *AssetType) MergePodInfo(v PodInfo) error {
+	v.ObjectType = "PodInfo"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
+// AsDirInfo returns the union data inside the AssetType as a DirInfo
+func (t AssetType) AsDirInfo() (DirInfo, error) {
+	var body DirInfo
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDirInfo overwrites any union data inside the AssetType as the provided DirInfo
+func (t *AssetType) FromDirInfo(v DirInfo) error {
+	v.ObjectType = "DirInfo"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDirInfo performs a merge with any union data inside the AssetType, using the provided DirInfo
+func (t *AssetType) MergeDirInfo(v DirInfo) error {
+	v.ObjectType = "DirInfo"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
+func (t AssetType) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"objectType"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t AssetType) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "DirInfo":
+		return t.AsDirInfo()
+	case "PodInfo":
+		return t.AsPodInfo()
+	case "VMInfo":
+		return t.AsVMInfo()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t AssetType) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AssetType) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsPackageFindingInfo returns the union data inside the Finding_FindingInfo as a PackageFindingInfo
 func (t Finding_FindingInfo) AsPackageFindingInfo() (PackageFindingInfo, error) {
@@ -1592,125 +1709,6 @@ func (t ScopeType) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ScopeType) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsVMInfo returns the union data inside the TargetType as a VMInfo
-func (t TargetType) AsVMInfo() (VMInfo, error) {
-	var body VMInfo
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVMInfo overwrites any union data inside the TargetType as the provided VMInfo
-func (t *TargetType) FromVMInfo(v VMInfo) error {
-	v.ObjectType = "VMInfo"
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVMInfo performs a merge with any union data inside the TargetType, using the provided VMInfo
-func (t *TargetType) MergeVMInfo(v VMInfo) error {
-	v.ObjectType = "VMInfo"
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(b, t.union)
-	t.union = merged
-	return err
-}
-
-// AsPodInfo returns the union data inside the TargetType as a PodInfo
-func (t TargetType) AsPodInfo() (PodInfo, error) {
-	var body PodInfo
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPodInfo overwrites any union data inside the TargetType as the provided PodInfo
-func (t *TargetType) FromPodInfo(v PodInfo) error {
-	v.ObjectType = "PodInfo"
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePodInfo performs a merge with any union data inside the TargetType, using the provided PodInfo
-func (t *TargetType) MergePodInfo(v PodInfo) error {
-	v.ObjectType = "PodInfo"
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(b, t.union)
-	t.union = merged
-	return err
-}
-
-// AsDirInfo returns the union data inside the TargetType as a DirInfo
-func (t TargetType) AsDirInfo() (DirInfo, error) {
-	var body DirInfo
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromDirInfo overwrites any union data inside the TargetType as the provided DirInfo
-func (t *TargetType) FromDirInfo(v DirInfo) error {
-	v.ObjectType = "DirInfo"
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeDirInfo performs a merge with any union data inside the TargetType, using the provided DirInfo
-func (t *TargetType) MergeDirInfo(v DirInfo) error {
-	v.ObjectType = "DirInfo"
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(b, t.union)
-	t.union = merged
-	return err
-}
-
-func (t TargetType) Discriminator() (string, error) {
-	var discriminator struct {
-		Discriminator string `json:"objectType"`
-	}
-	err := json.Unmarshal(t.union, &discriminator)
-	return discriminator.Discriminator, err
-}
-
-func (t TargetType) ValueByDiscriminator() (interface{}, error) {
-	discriminator, err := t.Discriminator()
-	if err != nil {
-		return nil, err
-	}
-	switch discriminator {
-	case "DirInfo":
-		return t.AsDirInfo()
-	case "PodInfo":
-		return t.AsPodInfo()
-	case "VMInfo":
-		return t.AsVMInfo()
-	default:
-		return nil, errors.New("unknown discriminator value: " + discriminator)
-	}
-}
-
-func (t TargetType) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *TargetType) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

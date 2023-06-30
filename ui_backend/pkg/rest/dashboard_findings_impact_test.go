@@ -56,8 +56,8 @@ func Test_processFindings(t *testing.T) {
 			args: args{
 				findings: []backendmodels.Finding{
 					{
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
@@ -67,7 +67,7 @@ func Test_processFindings(t *testing.T) {
 			},
 			wantErr: false,
 			expectedFindingAssetMap: map[findingAssetKey]struct{}{
-				{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
 			},
 			expectedFindingToAssetCount: map[string]findingInfoCount{
 				rfKey1: {
@@ -81,14 +81,14 @@ func Test_processFindings(t *testing.T) {
 			args: args{
 				findings: []backendmodels.Finding{
 					{
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
 				},
 				findingAssetMap: map[findingAssetKey]struct{}{
-					{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
+					{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
 				},
 				findingToAssetCount: map[string]findingInfoCount{
 					rfKey1: {
@@ -99,7 +99,7 @@ func Test_processFindings(t *testing.T) {
 			},
 			wantErr: false,
 			expectedFindingAssetMap: map[findingAssetKey]struct{}{
-				{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
 			},
 			expectedFindingToAssetCount: map[string]findingInfoCount{
 				rfKey1: {
@@ -113,14 +113,14 @@ func Test_processFindings(t *testing.T) {
 			args: args{
 				findings: []backendmodels.Finding{
 					{
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
 				},
 				findingAssetMap: map[findingAssetKey]struct{}{
-					{FindingKey: rfKey1, AssetID: "target-2"}: {}, // nolint:gofmt,gofumpt
+					{FindingKey: rfKey1, AssetID: "asset-2"}: {}, // nolint:gofmt,gofumpt
 				},
 				findingToAssetCount: map[string]findingInfoCount{
 					rfKey1: {
@@ -131,8 +131,8 @@ func Test_processFindings(t *testing.T) {
 			},
 			wantErr: false,
 			expectedFindingAssetMap: map[findingAssetKey]struct{}{
-				{FindingKey: rfKey1, AssetID: "target-2"}: {}, // nolint:gofmt,gofumpt
-				{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey1, AssetID: "asset-2"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
 			},
 			expectedFindingToAssetCount: map[string]findingInfoCount{
 				rfKey1: {
@@ -150,29 +150,29 @@ func Test_processFindings(t *testing.T) {
 				findings: []backendmodels.Finding{
 					{
 						// findingAssetKey already in findingAssetMap
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
 					{
 						// findingAssetKey not in findingAssetMap - already saw the finding
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo2,
 					},
 					{
 						// findingAssetKey not in findingAssetMap - first time we see the finding
-						Asset: &backendmodels.TargetRelationship{
-							Id: "target-1",
+						Asset: &backendmodels.AssetRelationship{
+							Id: "asset-1",
 						},
 						FindingInfo: rootkitFindingInfo3,
 					},
 				},
 				findingAssetMap: map[findingAssetKey]struct{}{
-					{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
-					{FindingKey: rfKey2, AssetID: "target-2"}: {}, // nolint:gofmt,gofumpt
+					{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
+					{FindingKey: rfKey2, AssetID: "asset-2"}: {}, // nolint:gofmt,gofumpt
 				},
 				findingToAssetCount: map[string]findingInfoCount{
 					rfKey1: {
@@ -187,10 +187,10 @@ func Test_processFindings(t *testing.T) {
 			},
 			wantErr: false,
 			expectedFindingAssetMap: map[findingAssetKey]struct{}{
-				{FindingKey: rfKey1, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
-				{FindingKey: rfKey2, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
-				{FindingKey: rfKey2, AssetID: "target-2"}: {}, // nolint:gofmt,gofumpt
-				{FindingKey: rfKey3, AssetID: "target-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey1, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey2, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey2, AssetID: "asset-2"}: {}, // nolint:gofmt,gofumpt
+				{FindingKey: rfKey3, AssetID: "asset-1"}: {}, // nolint:gofmt,gofumpt
 			},
 			expectedFindingToAssetCount: map[string]findingInfoCount{
 				rfKey1: {

@@ -148,7 +148,7 @@ export const scanColumnsFiltersConfig = [
 ]
 
 export const getAssetColumnsFiltersConfig = (props) => {
-    const {prefix="targetInfo", withType=true, withLabels=true} = props || {};
+    const {prefix="assetInfo", withType=true, withLabels=true} = props || {};
     
     const ASSET_TYPE_ITEMS = [
         {value: "VMInfo", label: "VMInfo"},

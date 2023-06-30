@@ -31,19 +31,19 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func Test_getTargetLocation(t *testing.T) {
-	targetInfo := backendmodels.TargetType{}
-	err := targetInfo.FromVMInfo(backendmodels.VMInfo{
+func Test_getAssetLocation(t *testing.T) {
+	assetInfo := backendmodels.AssetType{}
+	err := assetInfo.FromVMInfo(backendmodels.VMInfo{
 		InstanceProvider: utils.PointerTo(backendmodels.AWS),
 		Location:         "us-east-1/vpcid-1/sg-1",
 	})
 	assert.NilError(t, err)
-	nonSupportedTargetInfo := backendmodels.TargetType{}
-	err = nonSupportedTargetInfo.FromDirInfo(backendmodels.DirInfo{})
+	nonSupportedAssetInfo := backendmodels.AssetType{}
+	err = nonSupportedAssetInfo.FromDirInfo(backendmodels.DirInfo{})
 	assert.NilError(t, err)
 
 	type args struct {
-		target backendmodels.Target
+		asset backendmodels.Asset
 	}
 	tests := []struct {
 		name    string
@@ -54,18 +54,18 @@ func Test_getTargetLocation(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				target: backendmodels.Target{
-					TargetInfo: &targetInfo,
+				asset: backendmodels.Asset{
+					AssetInfo: &assetInfo,
 				},
 			},
 			want:    "us-east-1",
 			wantErr: false,
 		},
 		{
-			name: "non supported target",
+			name: "non supported asset",
 			args: args{
-				target: backendmodels.Target{
-					TargetInfo: &nonSupportedTargetInfo,
+				asset: backendmodels.Asset{
+					AssetInfo: &nonSupportedAssetInfo,
 				},
 			},
 			want:    "",
@@ -74,19 +74,19 @@ func Test_getTargetLocation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getTargetRegion(tt.args.target)
+			got, err := getAssetRegion(tt.args.asset)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getTargetRegion() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("getAssetRegion() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("getTargetRegion() got = %v, want %v", got, tt.want)
+				t.Errorf("getAssetRegion() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_addTargetSummaryToFindingsCount(t *testing.T) {
+func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 	type args struct {
 		findingsCount *models.FindingsCount
 		summary       *backendmodels.ScanFindingsSummary
@@ -157,10 +157,10 @@ func Test_addTargetSummaryToFindingsCount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := addTargetSummaryToFindingsCount(tt.args.findingsCount, tt.args.summary); !reflect.DeepEqual(got, tt.want) {
+			if got := addAssetSummaryToFindingsCount(tt.args.findingsCount, tt.args.summary); !reflect.DeepEqual(got, tt.want) {
 				gotB, _ := json.Marshal(got)
 				wantB, _ := json.Marshal(tt.want)
-				t.Errorf("addTargetSummaryToFindingsCount() = %v, want %v", string(gotB), string(wantB))
+				t.Errorf("addAssetSummaryToFindingsCount() = %v, want %v", string(gotB), string(wantB))
 			}
 		})
 	}
@@ -206,23 +206,23 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 }
 
 // nolint:errcheck
-func Test_createRegionFindingsFromTargets(t *testing.T) {
-	dirTarget := backendmodels.TargetType{}
-	dirTarget.FromDirInfo(backendmodels.DirInfo{
+func Test_createRegionFindingsFromAssets(t *testing.T) {
+	dirAsset := backendmodels.AssetType{}
+	dirAsset.FromDirInfo(backendmodels.DirInfo{
 		DirName:  utils.PointerTo("test-name"),
 		Location: utils.PointerTo("location-test"),
 	})
 
-	vmFromRegion1 := backendmodels.TargetType{}
+	vmFromRegion1 := backendmodels.AssetType{}
 	vmFromRegion1.FromVMInfo(backendmodels.VMInfo{
 		Location: "region1",
 	})
-	vm1FromRegion2 := backendmodels.TargetType{}
+	vm1FromRegion2 := backendmodels.AssetType{}
 	vm1FromRegion2.FromVMInfo(backendmodels.VMInfo{
 		Location: "region2",
 	})
 	type args struct {
-		targets *backendmodels.Targets
+		assets *backendmodels.Assets
 	}
 	tests := []struct {
 		name string
@@ -230,11 +230,11 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 		want []models.RegionFindings
 	}{
 		{
-			name: "Unsupported target is skipped",
+			name: "Unsupported asset is skipped",
 			args: args{
-				targets: &backendmodels.Targets{
+				assets: &backendmodels.Assets{
 					Count: utils.PointerTo(1),
-					Items: utils.PointerTo([]backendmodels.Target{
+					Items: utils.PointerTo([]backendmodels.Asset{
 						{
 							Summary: &backendmodels.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(1),
@@ -251,7 +251,7 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 									TotalNegligibleVulnerabilities: utils.PointerTo(1),
 								},
 							},
-							TargetInfo: &dirTarget,
+							AssetInfo: &dirAsset,
 						},
 					}),
 				},
@@ -261,9 +261,9 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				targets: &backendmodels.Targets{
+				assets: &backendmodels.Assets{
 					Count: utils.PointerTo(3),
-					Items: &[]backendmodels.Target{
+					Items: &[]backendmodels.Asset{
 						{
 							Summary: &backendmodels.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(1),
@@ -280,7 +280,7 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 									TotalNegligibleVulnerabilities: utils.PointerTo(11),
 								},
 							},
-							TargetInfo: &vmFromRegion1,
+							AssetInfo: &vmFromRegion1,
 						},
 						{
 							Summary: &backendmodels.ScanFindingsSummary{
@@ -298,7 +298,7 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 									TotalNegligibleVulnerabilities: utils.PointerTo(12),
 								},
 							},
-							TargetInfo: &vmFromRegion1,
+							AssetInfo: &vmFromRegion1,
 						},
 						{
 							Summary: &backendmodels.ScanFindingsSummary{
@@ -316,7 +316,7 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 									TotalNegligibleVulnerabilities: utils.PointerTo(13),
 								},
 							},
-							TargetInfo: &vm1FromRegion2,
+							AssetInfo: &vm1FromRegion2,
 						},
 					},
 				},
@@ -349,9 +349,9 @@ func Test_createRegionFindingsFromTargets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := createRegionFindingsFromTargets(tt.args.targets)
+			got := createRegionFindingsFromAssets(tt.args.assets)
 			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.RegionFindings) bool { return *a.RegionName < *b.RegionName })); diff != "" {
-				t.Errorf("createRegionFindingsFromTargets() mismatch (-want +got):\n%s", diff)
+				t.Errorf("createRegionFindingsFromAssets() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

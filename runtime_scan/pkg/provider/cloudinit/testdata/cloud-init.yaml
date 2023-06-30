@@ -23,7 +23,7 @@ write_files:
       [Unit]
       Description=VMClarity scanner job
       Requires=docker.service
-      After=network.target docker.service
+      After=network.asset docker.service
       
       [Service]
       Type=oneshot
@@ -40,11 +40,11 @@ write_files:
           --config /opt/vmclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \
           --mount-attached-volume \
-          --scan-result-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \
+          --asset-scan-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \
           --output /var/opt/vmclarity
       
       [Install]
-      WantedBy=multi-user.target
+      WantedBy=multi-user.asset
 runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, docker.service ]

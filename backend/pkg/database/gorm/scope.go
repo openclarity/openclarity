@@ -82,7 +82,7 @@ func (s ScopesTableHandler) SetScopes(scopes models.Scopes) (models.Scopes, erro
 
 	// TODO(sambetts) Maybe this isn't required now because the DB isn't
 	// creating any of the data (like the ID) so we can just return the
-	// target pre-marshal above.
+	// asset pre-marshal above.
 	var apiScopes models.Scopes
 	if err = json.Unmarshal(dbScopes.Data, &apiScopes); err != nil {
 		return models.Scopes{}, fmt.Errorf("failed to convert DB model to API model: %w", err)

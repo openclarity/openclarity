@@ -24,14 +24,14 @@ const (
 )
 
 const (
-	EC2TagKeyOwner          = "Owner"
-	EC2TagKeyName           = "Name"
-	EC2TagValueNamePattern  = "vmclarity-scanner-%s"
-	EC2TagValueOwner        = "VMClarity"
-	EC2TagKeyScanID         = "VMClarity.ScanID"
-	EC2TagKeyScanResultID   = "VMClarity.ScanResultID"
-	EC2TagKeyTargetID       = "VMClarity.TargetID"
-	EC2TagKeyTargetVolumeID = "VMClarity.TargetVolumeID"
+	EC2TagKeyOwner         = "Owner"
+	EC2TagKeyName          = "Name"
+	EC2TagValueNamePattern = "vmclarity-scanner-%s"
+	EC2TagValueOwner       = "VMClarity"
+	EC2TagKeyScanID        = "VMClarity.ScanID"
+	EC2TagKeyAssetScanID   = "VMClarity.AssetScanID"
+	EC2TagKeyAssetID       = "VMClarity.AssetID"
+	EC2TagKeyAssetVolumeID = "VMClarity.AssetVolumeID"
 
 	EC2SnapshotDescription = "Volume snapshot created by VMClarity for scanning"
 )
@@ -47,10 +47,10 @@ type ScanScope struct {
 	AllRegions  bool
 	Regions     []Region
 	ScanStopped bool
-	// Only targets that have these tags will be selected for scanning within the selected scan scope.
+	// Only assets that have these tags will be selected for scanning within the selected scan scope.
 	// Multiple tags will be treated as an AND operator.
 	TagSelector []models.Tag
-	// Targets that have these tags will be excluded from the scan, even if they match the tag selector.
+	// Assets that have these tags will be excluded from the scan, even if they match the tag selector.
 	// Multiple tags will be treated as an AND operator.
 	ExcludeTags []models.Tag
 }

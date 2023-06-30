@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultwatcher
+package assetscanwatcher
 
 import (
 	"errors"
@@ -28,9 +28,9 @@ import (
 
 type jobConfigInput struct {
 	config     *ScannerConfig
-	scanResult *models.TargetScanResult
+	assetScan  *models.AssetScan
 	scanConfig *models.ScanConfigSnapshot
-	target     *models.Target
+	asset      *models.Asset
 }
 
 func (i *jobConfigInput) Validate() error {
@@ -38,16 +38,16 @@ func (i *jobConfigInput) Validate() error {
 		return errors.New("invalid JobConfigInput as ScannerConfig is nil")
 	}
 
-	if i.scanResult == nil {
-		return errors.New("invalid JobConfigInput as ScanResult is nil")
+	if i.assetScan == nil {
+		return errors.New("invalid JobConfigInput as AssetScan is nil")
 	}
 
 	if i.scanConfig == nil {
 		return errors.New("invalid JobConfigInput as ScanConfig is nil")
 	}
 
-	if i.target == nil {
-		return errors.New("invalid JobConfigInput as Target is nil")
+	if i.asset == nil {
+		return errors.New("invalid JobConfigInput as Asset is nil")
 	}
 
 	return nil
@@ -70,8 +70,8 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 	scannerConfig := NewFamiliesConfigFrom(i.config, i.scanConfig)
 	scannerConfigYAML, err := yaml.Marshal(scannerConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert ScannerConfig to YAML for ScanResult with %s id",
-			*i.scanResult.Id)
+		return nil, fmt.Errorf("failed to convert ScannerConfig to YAML for AssetScan with %s id",
+			*i.assetScan.Id)
 	}
 
 	return &provider.ScanJobConfig{
@@ -79,11 +79,11 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		ScannerCLIConfig: string(scannerConfigYAML),
 		VMClarityAddress: i.config.ScannerBackendAddress,
 		ScanMetadata: provider.ScanMetadata{
-			ScanID:       i.scanResult.Scan.Id,
-			ScanResultID: *i.scanResult.Id,
-			TargetID:     i.scanResult.Target.Id,
+			ScanID:      i.assetScan.Scan.Id,
+			AssetScanID: *i.assetScan.Id,
+			AssetID:     i.assetScan.Asset.Id,
 		},
 		ScannerInstanceCreationConfig: instanceCreationConfig,
-		Target:                        *i.target,
+		Asset:                         *i.asset,
 	}, nil
 }

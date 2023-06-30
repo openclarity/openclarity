@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scanresultprocessor
+package assetscanprocessor
 
 import (
 	"context"
@@ -25,14 +25,14 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Context, scanResult models.TargetScanResult) (map[findingkey.PackageKey]string, error) {
+func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.PackageKey]string, error) {
 	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.PackageKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and asset/id eq '%s' and scan/id eq '%s'",
-		scanResult.Target.Id, scanResult.Scan.Id)
-	existingFindings, err := srp.client.GetFindings(ctx, models.GetFindingsParams{
+		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/name,findingInfo/version"),
 	})
@@ -60,26 +60,26 @@ func (srp *ScanResultProcessor) getExistingPackageFindingsForScan(ctx context.Co
 }
 
 // nolint:cyclop
-func (srp *ScanResultProcessor) reconcileResultPackagesToFindings(ctx context.Context, scanResult models.TargetScanResult) error {
-	completedTime := scanResult.Status.General.LastTransitionTime
+func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Context, assetScan models.AssetScan) error {
+	completedTime := assetScan.Status.General.LastTransitionTime
 
-	newerFound, newerTime, err := srp.newerExistingFindingTime(ctx, scanResult.Target.Id, "Package", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Package", *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing package findings: %v", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
 	// recreating existings ones as we might be re-reconciling the same
-	// scan result because of downtime or a previous failure.
-	existingMap, err := srp.getExistingPackageFindingsForScan(ctx, scanResult)
+	// asset scan because of downtime or a previous failure.
+	existingMap, err := asp.getExistingPackageFindingsForScan(ctx, assetScan)
 	if err != nil {
 		return fmt.Errorf("failed to check existing package findings: %w", err)
 	}
 
-	if scanResult.Sboms != nil && scanResult.Sboms.Packages != nil {
+	if assetScan.Sboms != nil && assetScan.Sboms.Packages != nil {
 		// Create new or update existing findings all the packages found by the
 		// scan.
-		for _, item := range *scanResult.Sboms.Packages {
+		for _, item := range *assetScan.Sboms.Packages {
 			itemFindingInfo := models.PackageFindingInfo{
 				Cpes:     item.Cpes,
 				Language: item.Language,
@@ -97,26 +97,26 @@ func (srp *ScanResultProcessor) reconcileResultPackagesToFindings(ctx context.Co
 			}
 
 			finding := models.Finding{
-				Scan:        scanResult.Scan,
-				Asset:       scanResult.Target,
-				FoundOn:     scanResult.Status.General.LastTransitionTime,
+				Scan:        assetScan.Scan,
+				Asset:       assetScan.Asset,
+				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
 			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this scan result.
+			// finding, found after this asset scan.
 			if newerFound {
 				finding.InvalidatedOn = &newerTime
 			}
 
 			key := findingkey.GeneratePackageKey(itemFindingInfo)
 			if id, ok := existingMap[key]; ok {
-				err = srp.client.PatchFinding(ctx, id, finding)
+				err = asp.client.PatchFinding(ctx, id, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
 			} else {
-				_, err = srp.client.PostFinding(ctx, finding)
+				_, err = asp.client.PostFinding(ctx, finding)
 				if err != nil {
 					return fmt.Errorf("failed to create finding: %w", err)
 				}
@@ -125,31 +125,31 @@ func (srp *ScanResultProcessor) reconcileResultPackagesToFindings(ctx context.Co
 	}
 
 	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this scan result, and has not already been invalidated by
-	// a scan result older than this scan result.
-	err = srp.invalidateOlderFindingsByType(ctx, "Package", scanResult.Target.Id, *completedTime)
+	// older than this asset scan, and has not already been invalidated by
+	// an asset scan older than this asset scan.
+	err = asp.invalidateOlderFindingsByType(ctx, "Package", assetScan.Asset.Id, *completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older package finding: %v", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	target, err := srp.client.GetTarget(ctx, scanResult.Target.Id, models.GetTargetsTargetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
 	if err != nil {
-		return fmt.Errorf("failed to get target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
-	if target.Summary == nil {
-		target.Summary = &models.ScanFindingsSummary{}
+	if asset.Summary == nil {
+		asset.Summary = &models.ScanFindingsSummary{}
 	}
 
-	totalPackages, err := srp.getActiveFindingsByType(ctx, "Package", scanResult.Target.Id)
+	totalPackages, err := asp.getActiveFindingsByType(ctx, "Package", assetScan.Asset.Id)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	target.Summary.TotalPackages = &totalPackages
+	asset.Summary.TotalPackages = &totalPackages
 
-	err = srp.client.PatchTarget(ctx, target, scanResult.Target.Id)
+	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to patch target %s: %w", scanResult.Target.Id, err)
+		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	return nil

@@ -36,19 +36,19 @@ func EC2TagsFromScanMetadata(meta provider.ScanMetadata) []ec2types.Tag {
 		},
 		{
 			Key:   utils.PointerTo(EC2TagKeyName),
-			Value: utils.PointerTo(fmt.Sprintf(EC2TagValueNamePattern, meta.ScanResultID)),
+			Value: utils.PointerTo(fmt.Sprintf(EC2TagValueNamePattern, meta.AssetScanID)),
 		},
 		{
 			Key:   utils.PointerTo(EC2TagKeyScanID),
 			Value: utils.PointerTo(meta.ScanID),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyScanResultID),
-			Value: utils.PointerTo(meta.ScanResultID),
+			Key:   utils.PointerTo(EC2TagKeyAssetScanID),
+			Value: utils.PointerTo(meta.AssetScanID),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyTargetID),
-			Value: utils.PointerTo(meta.TargetID),
+			Key:   utils.PointerTo(EC2TagKeyAssetID),
+			Value: utils.PointerTo(meta.AssetID),
 		},
 	}
 }
@@ -414,9 +414,9 @@ func hasExcludeTags(excludeTags []models.Tag, instanceTags []ec2types.Tag) bool 
 	return true
 }
 
-func getVMInfoFromInstance(i Instance) (models.TargetType, error) {
-	targetType := models.TargetType{}
-	err := targetType.FromVMInfo(models.VMInfo{
+func getVMInfoFromInstance(i Instance) (models.AssetType, error) {
+	assetType := models.AssetType{}
+	err := assetType.FromVMInfo(models.VMInfo{
 		Image:            i.Image,
 		InstanceID:       i.ID,
 		InstanceProvider: utils.PointerTo(models.AWS),
@@ -429,8 +429,8 @@ func getVMInfoFromInstance(i Instance) (models.TargetType, error) {
 		Tags:             utils.PointerTo(i.Tags),
 	})
 	if err != nil {
-		err = fmt.Errorf("failed to create TargetType from VMInfo: %w", err)
+		err = fmt.Errorf("failed to create AssetType from VMInfo: %w", err)
 	}
 
-	return targetType, err
+	return assetType, err
 }

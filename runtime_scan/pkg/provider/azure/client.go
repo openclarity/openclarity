@@ -96,10 +96,10 @@ func (c Client) Kind() models.CloudProvider {
 }
 
 // nolint:cyclop
-func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	vmInfo, err := config.TargetInfo.AsVMInfo()
+func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
-		return provider.FatalErrorf("unable to get vminfo from target: %w", err)
+		return provider.FatalErrorf("unable to get vminfo from asset: %w", err)
 	}
 
 	resourceGroup, vmName, err := resourceGroupAndNameFromInstanceID(vmInfo.InstanceID)
@@ -107,19 +107,19 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 		return err
 	}
 
-	targetVM, err := c.vmClient.Get(ctx, resourceGroup, vmName, nil)
+	assetVM, err := c.vmClient.Get(ctx, resourceGroup, vmName, nil)
 	if err != nil {
-		_, err = handleAzureRequestError(err, "getting target virtual machine %s", vmName)
+		_, err = handleAzureRequestError(err, "getting asset virtual machine %s", vmName)
 		return err
 	}
 
-	snapshot, err := c.ensureSnapshotForVMRootVolume(ctx, config, targetVM.VirtualMachine)
+	snapshot, err := c.ensureSnapshotForVMRootVolume(ctx, config, assetVM.VirtualMachine)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot for vm root volume: %w", err)
 	}
 
 	var disk armcompute.Disk
-	if *targetVM.Location == c.azureConfig.ScannerLocation {
+	if *assetVM.Location == c.azureConfig.ScannerLocation {
 		disk, err = c.ensureManagedDiskFromSnapshot(ctx, config, snapshot)
 		if err != nil {
 			return fmt.Errorf("failed to ensure managed disk created from snapshot: %w", err)
@@ -143,13 +143,13 @@ func (c *Client) RunTargetScan(ctx context.Context, config *provider.ScanJobConf
 
 	err = c.ensureDiskAttachedToScannerVM(ctx, scannerVM, disk)
 	if err != nil {
-		return fmt.Errorf("failed to ensure target disk is attached to virtual machine: %w", err)
+		return fmt.Errorf("failed to ensure asset disk is attached to virtual machine: %w", err)
 	}
 
 	return nil
 }
 
-func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	err := c.ensureScannerVirtualMachineDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner virtual machine deleted: %w", err)
@@ -162,7 +162,7 @@ func (c *Client) RemoveTargetScan(ctx context.Context, config *provider.ScanJobC
 
 	err = c.ensureTargetDiskDeleted(ctx, config)
 	if err != nil {
-		return fmt.Errorf("failed to ensure target disk deleted: %w", err)
+		return fmt.Errorf("failed to ensure asset disk deleted: %w", err)
 	}
 
 	err = c.ensureBlobDeleted(ctx, config)
@@ -207,8 +207,8 @@ func (c *Client) DiscoverScopes(ctx context.Context) (*models.Scopes, error) {
 }
 
 // nolint: cyclop
-func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.TargetType, error) {
-	var ret []models.TargetType
+func (c *Client) DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error) {
+	var ret []models.AssetType
 
 	azureScanScope, err := scanScope.AsAzureScanScope()
 	if err != nil {
@@ -223,7 +223,7 @@ func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScop
 			if err != nil {
 				return nil, fmt.Errorf("failed to get next page: %w", err)
 			}
-			ts, err := processVirtualMachineListIntoTargetTypes(page.VirtualMachineListResult, azureScanScope)
+			ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult, azureScanScope)
 			if err != nil {
 				return nil, err
 			}
@@ -240,7 +240,7 @@ func (c *Client) DiscoverTargets(ctx context.Context, scanScope *models.ScanScop
 			if err != nil {
 				return nil, fmt.Errorf("failed to get next page: %w", err)
 			}
-			ts, err := processVirtualMachineListIntoTargetTypes(page.VirtualMachineListResult, azureScanScope)
+			ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult, azureScanScope)
 			if err != nil {
 				return nil, err
 			}
@@ -263,8 +263,8 @@ func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, erro
 	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
 
-func processVirtualMachineListIntoTargetTypes(vmList armcompute.VirtualMachineListResult, azureScanScope models.AzureScanScope) ([]models.TargetType, error) {
-	ret := make([]models.TargetType, 0, len(vmList.Value))
+func processVirtualMachineListIntoAssetTypes(vmList armcompute.VirtualMachineListResult, azureScanScope models.AzureScanScope) ([]models.AssetType, error) {
+	ret := make([]models.AssetType, 0, len(vmList.Value))
 	for _, vm := range vmList.Value {
 		// filter by tags:
 		if !hasIncludeTags(vm, azureScanScope.InstanceTagSelector) {
@@ -282,9 +282,9 @@ func processVirtualMachineListIntoTargetTypes(vmList armcompute.VirtualMachineLi
 	return ret, nil
 }
 
-func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.TargetType, error) {
-	targetType := models.TargetType{}
-	err := targetType.FromVMInfo(models.VMInfo{
+func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.AssetType, error) {
+	assetType := models.AssetType{}
+	err := assetType.FromVMInfo(models.VMInfo{
 		ObjectType:       "VMInfo",
 		InstanceProvider: utils.PointerTo(models.Azure),
 		InstanceID:       *vm.ID,
@@ -297,10 +297,10 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.TargetTy
 		Tags:             convertTags(vm.Tags),
 	})
 	if err != nil {
-		err = fmt.Errorf("failed to create TargetType from VMInfo: %w", err)
+		err = fmt.Errorf("failed to create AssetType from VMInfo: %w", err)
 	}
 
-	return targetType, err
+	return assetType, err
 }
 
 // AND logic - if tags = {tag1:val1, tag2:val2},

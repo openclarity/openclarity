@@ -51,7 +51,7 @@ func (v *Volume) CreateSnapshot(ctx context.Context) (*Snapshot, error) {
 
 	ec2TagsForSnapshot := EC2TagsFromScanMetadata(v.Metadata)
 	ec2TagsForSnapshot = append(ec2TagsForSnapshot, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyTargetVolumeID),
+		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
 		Value: utils.PointerTo(v.ID),
 	})
 

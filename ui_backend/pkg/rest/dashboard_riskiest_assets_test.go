@@ -215,7 +215,7 @@ func Test_getCount(t *testing.T) {
 
 func Test_getAssetInfo(t *testing.T) {
 	type args struct {
-		target *backendmodels.TargetType
+		asset *backendmodels.AssetType
 	}
 	tests := []struct {
 		name    string
@@ -224,9 +224,9 @@ func Test_getAssetInfo(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "unsupported target type",
+			name: "unsupported asset type",
 			args: args{
-				target: createPodInfo(t, "name", "location"),
+				asset: createPodInfo(t, "name", "location"),
 			},
 			want:    nil,
 			wantErr: true,
@@ -234,7 +234,7 @@ func Test_getAssetInfo(t *testing.T) {
 		{
 			name: "VMInfo",
 			args: args{
-				target: createVMInfo(t, "name", "location"),
+				asset: createVMInfo(t, "name", "location"),
 			},
 			want: &models.AssetInfo{
 				Location: utils.PointerTo("location"),
@@ -246,7 +246,7 @@ func Test_getAssetInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getAssetInfo(tt.args.target)
+			got, err := getAssetInfo(tt.args.asset)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getAssetInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -258,9 +258,9 @@ func Test_getAssetInfo(t *testing.T) {
 	}
 }
 
-func createVMInfo(t *testing.T, instanceID, location string) *backendmodels.TargetType {
+func createVMInfo(t *testing.T, instanceID, location string) *backendmodels.AssetType {
 	t.Helper()
-	info := backendmodels.TargetType{}
+	info := backendmodels.AssetType{}
 	err := info.FromVMInfo(backendmodels.VMInfo{
 		InstanceID:       instanceID,
 		InstanceProvider: utils.PointerTo(backendmodels.AWS),
@@ -270,9 +270,9 @@ func createVMInfo(t *testing.T, instanceID, location string) *backendmodels.Targ
 	return &info
 }
 
-func createPodInfo(t *testing.T, podName, location string) *backendmodels.TargetType {
+func createPodInfo(t *testing.T, podName, location string) *backendmodels.AssetType {
 	t.Helper()
-	info := backendmodels.TargetType{}
+	info := backendmodels.AssetType{}
 	err := info.FromPodInfo(backendmodels.PodInfo{
 		Location: &location,
 		PodName:  &podName,
@@ -283,7 +283,7 @@ func createPodInfo(t *testing.T, podName, location string) *backendmodels.Target
 
 func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 	type args struct {
-		targets []backendmodels.Target
+		assets []backendmodels.Asset
 	}
 	tests := []struct {
 		name string
@@ -291,16 +291,16 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 		want []models.VulnerabilityRiskyAsset
 	}{
 		{
-			name: "nil targets",
+			name: "nil assets",
 			args: args{
-				targets: nil,
+				assets: nil,
 			},
 			want: []models.VulnerabilityRiskyAsset{},
 		},
 		{
-			name: "supported and unsupported target",
+			name: "supported and unsupported asset",
 			args: args{
-				targets: []backendmodels.Target{
+				assets: []backendmodels.Asset{
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
 							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
@@ -311,7 +311,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 								TotalNegligibleVulnerabilities: utils.PointerTo(5),
 							},
 						},
-						TargetInfo: createVMInfo(t, "vm name", "vm location"),
+						AssetInfo: createVMInfo(t, "vm name", "vm location"),
 					},
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
@@ -319,7 +319,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
-						TargetInfo: createPodInfo(t, "pod name", "pod location"),
+						AssetInfo: createPodInfo(t, "pod name", "pod location"),
 					},
 				},
 			},
@@ -341,7 +341,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := toAPIVulnerabilityRiskyAssets(tt.args.targets); !reflect.DeepEqual(got, tt.want) {
+			if got := toAPIVulnerabilityRiskyAssets(tt.args.assets); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("toAPIVulnerabilityRiskyAssets() = %v, want %v", got, tt.want)
 			}
 		})
@@ -350,7 +350,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 
 func Test_toAPIRiskyAssets(t *testing.T) {
 	type args struct {
-		targets     []backendmodels.Target
+		assets      []backendmodels.Asset
 		findingType backendmodels.ScanType
 	}
 	tests := []struct {
@@ -359,28 +359,28 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 		want []models.RiskyAsset
 	}{
 		{
-			name: "nil targets",
+			name: "nil assets",
 			args: args{
-				targets:     nil,
+				assets:      nil,
 				findingType: "",
 			},
 			want: []models.RiskyAsset{},
 		},
 		{
-			name: "supported and unsupported target",
+			name: "supported and unsupported asset",
 			args: args{
-				targets: []backendmodels.Target{
+				assets: []backendmodels.Asset{
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
 							TotalMalware: utils.PointerTo(1),
 						},
-						TargetInfo: createVMInfo(t, "vm name", "vm location"),
+						AssetInfo: createVMInfo(t, "vm name", "vm location"),
 					},
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
 							TotalMalware: utils.PointerTo(2),
 						},
-						TargetInfo: createPodInfo(t, "pod name", "pod location"),
+						AssetInfo: createPodInfo(t, "pod name", "pod location"),
 					},
 				},
 				findingType: backendmodels.MALWARE,
@@ -397,16 +397,16 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 			},
 		},
 		{
-			name: "unsupported finding type target",
+			name: "unsupported finding type asset",
 			args: args{
-				targets: []backendmodels.Target{
+				assets: []backendmodels.Asset{
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
 							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
-						TargetInfo: createVMInfo(t, "name", "location"),
+						AssetInfo: createVMInfo(t, "name", "location"),
 					},
 					{
 						Summary: &backendmodels.ScanFindingsSummary{
@@ -414,7 +414,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
-						TargetInfo: createVMInfo(t, "name1", "location1"),
+						AssetInfo: createVMInfo(t, "name1", "location1"),
 					},
 				},
 				findingType: "unsupported",
@@ -424,7 +424,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIRiskyAssets(tt.args.targets, tt.args.findingType)
+			got := toAPIRiskyAssets(tt.args.assets, tt.args.findingType)
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("toAPIRiskyAssets() mismatch (-want +got):\n%s", diff)
 			}

@@ -196,27 +196,27 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 		return fmt.Errorf("invalid Scan: Scope is nil. ScanID=%s", scanID)
 	}
 
-	targets, err := w.provider.DiscoverTargets(ctx, &scope)
+	assets, err := w.provider.DiscoverAssets(ctx, &scope)
 	if err != nil {
-		return fmt.Errorf("failed to discover Targets for Scan. ScanID=%s: %w", scanID, err)
+		return fmt.Errorf("failed to discover Assets for Scan. ScanID=%s: %w", scanID, err)
 	}
-	numOfTargets := len(targets)
+	numOfAssets := len(assets)
 
-	if numOfTargets > 0 {
-		if err = w.createTargets(ctx, scan, targets); err != nil {
-			return fmt.Errorf("failed to create Targets for Scan. ScanID=%s: %w", scanID, err)
+	if numOfAssets > 0 {
+		if err = w.createAssets(ctx, scan, assets); err != nil {
+			return fmt.Errorf("failed to create Assets for Scan. ScanID=%s: %w", scanID, err)
 		}
 		scan.State = utils.PointerTo(models.ScanStateDiscovered)
-		scan.StateMessage = utils.PointerTo("Targets for Scan are successfully discovered")
+		scan.StateMessage = utils.PointerTo("Assets for Scan are successfully discovered")
 	} else {
 		scan.State = utils.PointerTo(models.ScanStateDone)
 		scan.StateReason = utils.PointerTo(models.ScanStateReasonNothingToScan)
 		scan.StateMessage = utils.PointerTo("No instances found in scope for Scan")
 	}
-	logger.Debugf("%d Target(s) have been created for Scan", numOfTargets)
+	logger.Debugf("%d Asset(s) have been created for Scan", numOfAssets)
 
 	scanPatch := &models.Scan{
-		TargetIDs:    scan.TargetIDs,
+		AssetIDs:     scan.AssetIDs,
 		State:        scan.State,
 		StateReason:  scan.StateReason,
 		StateMessage: scan.StateMessage,
@@ -229,66 +229,66 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 	return nil
 }
 
-func (w *Watcher) createTargets(ctx context.Context, scan *models.Scan, targetTypes []models.TargetType) error {
+func (w *Watcher) createAssets(ctx context.Context, scan *models.Scan, assetTypes []models.AssetType) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	var creatingTargetsFailed bool
+	var creatingAssetsFailed bool
 	var wg sync.WaitGroup
 
-	results := make(chan string, len(targetTypes))
-	for _, t := range targetTypes {
-		targetType := t
+	results := make(chan string, len(assetTypes))
+	for _, t := range assetTypes {
+		assetType := t
 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
-			targetID, err := w.createTarget(ctx, targetType)
+			assetID, err := w.createAsset(ctx, assetType)
 			if err != nil {
-				creatingTargetsFailed = true
+				creatingAssetsFailed = true
 				return
 			}
 
-			logger.WithField("TargetID", targetID).Trace("Pushing Target to channel")
-			results <- targetID
+			logger.WithField("AssetID", assetID).Trace("Pushing Asset to channel")
+			results <- assetID
 		}()
 	}
-	logger.Trace("Waiting until all Target(s) are created")
+	logger.Trace("Waiting until all Asset(s) are created")
 	wg.Wait()
 	close(results)
 
-	if creatingTargetsFailed {
-		return fmt.Errorf("failed to create Target(s) for Scan. ScanID=%s", *scan.Id)
+	if creatingAssetsFailed {
+		return fmt.Errorf("failed to create Asset(s) for Scan. ScanID=%s", *scan.Id)
 	}
 
-	targetIDs := make([]string, 0)
-	for targetID := range results {
-		targetIDs = append(targetIDs, targetID)
+	assetIDs := make([]string, 0)
+	for assetID := range results {
+		assetIDs = append(assetIDs, assetID)
 	}
-	scan.TargetIDs = &targetIDs
+	scan.AssetIDs = &assetIDs
 
-	logger.Tracef("Created Target(s): %v", targetIDs)
+	logger.Tracef("Created Asset(s): %v", assetIDs)
 
 	return nil
 }
 
-func (w *Watcher) createTarget(ctx context.Context, targetType models.TargetType) (string, error) {
+func (w *Watcher) createAsset(ctx context.Context, assetType models.AssetType) (string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	target, err := w.backend.PostTarget(ctx, models.Target{
-		TargetInfo: &targetType,
+	asset, err := w.backend.PostAsset(ctx, models.Asset{
+		AssetInfo: &assetType,
 	})
 	if err != nil {
-		var conErr backendclient.TargetConflictError
+		var conErr backendclient.AssetConflictError
 		if errors.As(err, &conErr) {
-			logger.WithField("TargetID", *conErr.ConflictingTarget.Id).Trace("Target already exist")
-			return *conErr.ConflictingTarget.Id, nil
+			logger.WithField("AssetID", *conErr.ConflictingAsset.Id).Trace("Asset already exist")
+			return *conErr.ConflictingAsset.Id, nil
 		}
-		return "", fmt.Errorf("failed to post Target: %w", err)
+		return "", fmt.Errorf("failed to post Asset: %w", err)
 	}
-	logger.WithField("TargetID", *target.Id).Debug("Target object created")
+	logger.WithField("AssetID", *asset.Id).Debug("Asset object created")
 
-	return *target.Id, nil
+	return *asset.Id, nil
 }
 
 func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *models.Scan) error {
@@ -303,45 +303,45 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *models.Scan) er
 		return errors.New("invalid Scan: Id is nil")
 	}
 
-	if err := w.createScanResultsForScan(ctx, scan); err != nil {
-		return fmt.Errorf("failed to creates ScanResult(s) for Scan. ScanID=%s: %w", scanID, err)
+	if err := w.createAssetScansForScan(ctx, scan); err != nil {
+		return fmt.Errorf("failed to creates AssetScan(s) for Scan. ScanID=%s: %w", scanID, err)
 	}
 	scan.State = utils.PointerTo(models.ScanStateInProgress)
 
 	scanPatch := &models.Scan{
-		State:     scan.State,
-		Summary:   scan.Summary,
-		TargetIDs: scan.TargetIDs,
+		State:    scan.State,
+		Summary:  scan.Summary,
+		AssetIDs: scan.AssetIDs,
 	}
 	err := w.backend.PatchScan(ctx, scanID, scanPatch)
 	if err != nil {
 		return fmt.Errorf("failed to update Scan. ScanID=%s: %w", scanID, err)
 	}
 
-	logger.Infof("Total %d unique targets for Scan", len(*scan.TargetIDs))
+	logger.Infof("Total %d unique assets for Scan", len(*scan.AssetIDs))
 
 	return nil
 }
 
-func (w *Watcher) createScanResultsForScan(ctx context.Context, scan *models.Scan) error {
+func (w *Watcher) createAssetScansForScan(ctx context.Context, scan *models.Scan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	if scan.TargetIDs == nil || *scan.TargetIDs == nil {
+	if scan.AssetIDs == nil || *scan.AssetIDs == nil {
 		return nil
 	}
-	numOfTargets := len(*scan.TargetIDs)
+	numOfAssets := len(*scan.AssetIDs)
 
-	errs := make(chan error, numOfTargets)
+	errs := make(chan error, numOfAssets)
 	var wg sync.WaitGroup
-	for _, id := range *scan.TargetIDs {
+	for _, id := range *scan.AssetIDs {
 		wg.Add(1)
-		targetID := id
+		assetID := id
 		go func() {
 			defer wg.Done()
 
-			err := w.createScanResultForTarget(ctx, scan, targetID)
+			err := w.createAssetScanForAsset(ctx, scan, assetID)
 			if err != nil {
-				logger.WithField("TargetID", targetID).Errorf("Failed to create TargetScanResult: %v", err)
+				logger.WithField("AssetID", assetID).Errorf("Failed to create AssetScan: %v", err)
 				errs <- err
 
 				return
@@ -351,38 +351,38 @@ func (w *Watcher) createScanResultsForScan(ctx context.Context, scan *models.Sca
 	wg.Wait()
 	close(errs)
 
-	targetErrs := make([]error, 0, numOfTargets)
+	assetErrs := make([]error, 0, numOfAssets)
 	for err := range errs {
-		targetErrs = append(targetErrs, err)
+		assetErrs = append(assetErrs, err)
 	}
-	numOfErrs := len(targetErrs)
+	numOfErrs := len(assetErrs)
 
 	if numOfErrs > 0 {
-		return fmt.Errorf("failed to create %d ScanResult(s) for Scan. ScanID=%s: %w", numOfErrs, *scan.Id, targetErrs[0])
+		return fmt.Errorf("failed to create %d AssetScan(s) for Scan. ScanID=%s: %w", numOfErrs, *scan.Id, assetErrs[0])
 	}
 
-	scan.Summary.JobsLeftToRun = utils.PointerTo(numOfTargets)
+	scan.Summary.JobsLeftToRun = utils.PointerTo(numOfAssets)
 
 	return nil
 }
 
-func (w *Watcher) createScanResultForTarget(ctx context.Context, scan *models.Scan, targetID string) error {
+func (w *Watcher) createAssetScanForAsset(ctx context.Context, scan *models.Scan, assetID string) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	scanResultData, err := newScanResultFromScan(scan, targetID)
+	assetScanData, err := newAssetScanFromScan(scan, assetID)
 	if err != nil {
-		return fmt.Errorf("failed to generate new ScanResult for Scan. ScanID=%s, TargetID=%s: %w", *scan.Id, targetID, err)
+		return fmt.Errorf("failed to generate new AssetScan for Scan. ScanID=%s, AssetID=%s: %w", *scan.Id, assetID, err)
 	}
 
-	_, err = w.backend.PostScanResult(ctx, *scanResultData)
+	_, err = w.backend.PostAssetScan(ctx, *assetScanData)
 	if err != nil {
-		var conErr backendclient.ScanResultConflictError
+		var conErr backendclient.AssetScanConflictError
 		if errors.As(err, &conErr) {
-			scanResultID := *conErr.ConflictingScanResult.Id
-			logger.WithField("ScanResultID", scanResultID).Debug("ScanResult already exist.")
+			assetScanID := *conErr.ConflictingAssetScan.Id
+			logger.WithField("AssetScanID", assetScanID).Debug("AssetScan already exist.")
 			return nil
 		}
-		return fmt.Errorf("failed to post ScanResult to backend API: %w", err)
+		return fmt.Errorf("failed to post AssetScan to backend API: %w", err)
 	}
 	return nil
 }
@@ -403,52 +403,52 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 	// FIXME(chrisgacsal):a add pagination to API queries in poller/reconciler logic by using Top/Skip
 	filter := fmt.Sprintf("scan/id eq '%s'", scanID)
 	selector := "id,status/general,summary"
-	targetScanResults, err := w.backend.GetScanResults(ctx, models.GetScanResultsParams{
+	assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
 		Count:  utils.PointerTo(true),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to retrieve TargetScans for Scan. ScanID=%s: %w", scanID, err)
+		return fmt.Errorf("failed to retrieve AssetScans for Scan. ScanID=%s: %w", scanID, err)
 	}
 
-	if targetScanResults.Count == nil || targetScanResults.Items == nil {
-		return fmt.Errorf("invalid response for getting TargetScans for Scan. ScanID=%s: Count and/or Items parameters are nil", scanID)
+	if assetScans.Count == nil || assetScans.Items == nil {
+		return fmt.Errorf("invalid response for getting AssetScans for Scan. ScanID=%s: Count and/or Items parameters are nil", scanID)
 	}
 
 	// Reset Scan Summary as it is going to be recalculated
 	scan.Summary = newScanSummary()
 
-	var targetScanResultsWithErr int
-	for _, targetScanResult := range *targetScanResults.Items {
-		scanResultID, ok := targetScanResult.GetID()
+	var assetScansWithErr int
+	for _, assetScan := range *assetScans.Items {
+		assetScanID, ok := assetScan.GetID()
 		if !ok {
-			return errors.New("invalid ScanResult: ID is nil")
+			return errors.New("invalid AssetScan: ID is nil")
 		}
 
-		if err := updateScanSummaryFromScanResult(scan, targetScanResult); err != nil {
-			return fmt.Errorf("failed to update Scan Summary from ScanResult. ScanID=%s ScanResultID=%s: %w",
-				scanID, scanResultID, err)
+		if err := updateScanSummaryFromAssetScan(scan, assetScan); err != nil {
+			return fmt.Errorf("failed to update Scan Summary from AssetScan. ScanID=%s AssetScanID=%s: %w",
+				scanID, assetScanID, err)
 		}
 
-		errs := targetScanResult.GetGeneralErrors()
+		errs := assetScan.GetGeneralErrors()
 		if len(errs) > 0 {
-			targetScanResultsWithErr++
+			assetScansWithErr++
 		}
 	}
 	logger.Tracef("Scan Summary updated. JobCompleted=%d JobLeftToRun=%d", *scan.Summary.JobsCompleted,
 		*scan.Summary.JobsLeftToRun)
 
 	if *scan.Summary.JobsLeftToRun <= 0 {
-		if targetScanResultsWithErr > 0 {
+		if assetScansWithErr > 0 {
 			scan.State = utils.PointerTo(models.ScanStateFailed)
-			scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreTargetFailedToScan)
+			scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreAssetFailedToScan)
 		} else {
 			scan.State = utils.PointerTo(models.ScanStateDone)
 			scan.StateReason = utils.PointerTo(models.ScanStateReasonSuccess)
 		}
-		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total target scans",
-			*targetScanResults.Count-targetScanResultsWithErr, targetScanResultsWithErr, *targetScanResults.Count))
+		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total asset scans",
+			*assetScans.Count-assetScansWithErr, assetScansWithErr, *assetScans.Count))
 
 		scan.EndTime = utils.PointerTo(time.Now())
 	}
@@ -458,7 +458,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 		Summary:      scan.Summary,
 		StateMessage: scan.StateMessage,
 		EndTime:      scan.EndTime,
-		TargetIDs:    scan.TargetIDs,
+		AssetIDs:     scan.AssetIDs,
 	}
 	err = w.backend.PatchScan(ctx, scanID, scanPatch)
 	if err != nil {
@@ -482,42 +482,42 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 	}
 
 	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s'",
-		scanID, models.TargetScanStateStateAborted, models.TargetScanStateStateDone)
+		scanID, models.AssetScanStateStateAborted, models.AssetScanStateStateDone)
 	selector := "id,status"
-	params := models.GetScanResultsParams{
+	params := models.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
 	}
 
-	scanResults, err := w.backend.GetScanResults(ctx, params)
+	assetScans, err := w.backend.GetAssetScans(ctx, params)
 	if err != nil {
-		return fmt.Errorf("failed to fetch ScanResult(s) for Scan. ScanID=%s: %w", scanID, err)
+		return fmt.Errorf("failed to fetch AssetScan(s) for Scan. ScanID=%s: %w", scanID, err)
 	}
 
-	if scanResults.Items != nil && len(*scanResults.Items) > 0 {
+	if assetScans.Items != nil && len(*assetScans.Items) > 0 {
 		var reconciliationFailed bool
 		var wg sync.WaitGroup
 
-		for _, scanResult := range *scanResults.Items {
-			if scanResult.Id == nil {
+		for _, assetScan := range *assetScans.Items {
+			if assetScan.Id == nil {
 				continue
 			}
-			scanResultID := *scanResult.Id
+			assetScanID := *assetScan.Id
 
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				sr := models.TargetScanResult{
-					Status: &models.TargetScanStatus{
-						General: &models.TargetScanState{
-							State: utils.PointerTo(models.TargetScanStateStateAborted),
+				as := models.AssetScan{
+					Status: &models.AssetScanStatus{
+						General: &models.AssetScanState{
+							State: utils.PointerTo(models.AssetScanStateStateAborted),
 						},
 					},
 				}
 
-				err = w.backend.PatchScanResult(ctx, sr, scanResultID)
+				err = w.backend.PatchAssetScan(ctx, as, assetScanID)
 				if err != nil {
-					logger.WithField("ScanResultID", scanResultID).Error("Failed to patch ScanResult")
+					logger.WithField("AssetScanID", assetScanID).Error("Failed to patch AssetScan")
 					reconciliationFailed = true
 					return
 				}
@@ -525,11 +525,11 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 		}
 		wg.Wait()
 
-		// NOTE: reconciliationFailed is used to track errors returned by patching ScanResults
+		// NOTE: reconciliationFailed is used to track errors returned by patching AssetScans
 		//       as setting the state of Scan to models.ScanStateFailed must be skipped in case
 		//       even a single error occurred to allow reconciling re-running for this Scan.
 		if reconciliationFailed {
-			return errors.New("updating one or more ScanResults failed")
+			return errors.New("updating one or more AssetScans failed")
 		}
 	}
 
@@ -543,7 +543,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 		EndTime:      scan.EndTime,
 		StateReason:  scan.StateReason,
 		StateMessage: scan.StateMessage,
-		TargetIDs:    scan.TargetIDs,
+		AssetIDs:     scan.AssetIDs,
 	}
 	err = w.backend.PatchScan(ctx, scanID, scanPatch)
 	if err != nil {

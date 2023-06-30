@@ -20,20 +20,20 @@ const AssetScansTable = () => {
         {
             Header: "Asset name",
             id: "name",
-            sortIds: ["target.targetInfo.instanceID"],
-            accessor: "target.targetInfo.instanceID"
+            sortIds: ["asset.assetInfo.instanceID"],
+            accessor: "asset.assetInfo.instanceID"
         },
         {
             Header: "Asset type",
             id: "type",
-            sortIds: ["target.targetInfo.objectType"],
-            accessor: "target.targetInfo.objectType"
+            sortIds: ["asset.assetInfo.objectType"],
+            accessor: "asset.assetInfo.objectType"
         },
         {
             Header: "Asset location",
             id: "location",
-            sortIds: ["target.targetInfo.location"],
-            accessor: "target.targetInfo.location"
+            sortIds: ["asset.assetInfo.location"],
+            accessor: "asset.assetInfo.location"
         },
         {
             Header: "Scan name",
@@ -68,13 +68,13 @@ const AssetScansTable = () => {
         <TablePage
             columns={columns}
             url={APIS.ASSET_SCANS}
-            expand="scan($select=scanConfigSnapshot,startTime),target($select=targetInfo)"
-            select="id,target,summary,scan,status"
+            expand="scan($select=scanConfigSnapshot,startTime),asset($select=assetInfo)"
+            select="id,asset,summary,scan,status"
             defaultSortBy={{sortIds: SCAN_START_TIME_SORT_IDS, desc: true}}
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.ASSET_SCANS}
             filtersConfig={[
-                ...getAssetColumnsFiltersConfig({prefix: "target.targetInfo", withLabels: false}),
+                ...getAssetColumnsFiltersConfig({prefix: "asset.assetInfo", withLabels: false}),
                 ...scanColumnsFiltersConfig,
                 {value: "status.general.state", label: "Scan status", operators: [
                     {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUSES},

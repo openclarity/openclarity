@@ -13,8 +13,8 @@ export const ROUTES = {
 export const APIS = {
     SCANS: "scans",
     SCAN_CONFIGS: "scanConfigs",
-    ASSETS: "targets",
-    ASSET_SCANS: "scanResults",
+    ASSETS: "assets",
+    ASSET_SCANS: "assetScans",
     SCOPES_DISCOVERY: "discovery/scopes",
     FINDINGS: "findings",
     DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",

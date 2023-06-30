@@ -21,13 +21,13 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 )
 
-type TargetConflictError struct {
-	ConflictingTarget *models.Target
-	Message           string
+type AssetConflictError struct {
+	ConflictingAsset *models.Asset
+	Message          string
 }
 
-func (t TargetConflictError) Error() string {
-	return fmt.Sprintf("Conflicting Target Found with ID %s: %s", *t.ConflictingTarget.Id, t.Message)
+func (t AssetConflictError) Error() string {
+	return fmt.Sprintf("Conflicting Asset Found with ID %s: %s", *t.ConflictingAsset.Id, t.Message)
 }
 
 type ScanConflictError struct {
@@ -39,13 +39,13 @@ func (t ScanConflictError) Error() string {
 	return fmt.Sprintf("Conflicting Scan Found with ID %s: %s", *t.ConflictingScan.Id, t.Message)
 }
 
-type ScanResultConflictError struct {
-	ConflictingScanResult *models.TargetScanResult
-	Message               string
+type AssetScanConflictError struct {
+	ConflictingAssetScan *models.AssetScan
+	Message              string
 }
 
-func (t ScanResultConflictError) Error() string {
-	return fmt.Sprintf("Conflicting Scan Result Found with ID %s: %s", *t.ConflictingScanResult.Id, t.Message)
+func (t AssetScanConflictError) Error() string {
+	return fmt.Sprintf("Conflicting AssetScan Found with ID %s: %s", *t.ConflictingAssetScan.Id, t.Message)
 }
 
 type FindingConflictError struct {

@@ -32,7 +32,7 @@ var (
 )
 
 func volumeNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("targetvolume-%s", config.ScanResultID)
+	return fmt.Sprintf("targetvolume-%s", config.AssetScanID)
 }
 
 func (c *Client) ensureManagedDiskFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (armcompute.Disk, error) {

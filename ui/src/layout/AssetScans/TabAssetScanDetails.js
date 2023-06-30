@@ -34,9 +34,9 @@ const StatusDisplay = ({state, errors}) => (
 const TabAssetScanDetails = ({data}) => {
     const navigate = useNavigate();
 
-    const {scan, target, status} = data || {};
-    const {id: targetId, targetInfo} = target || {};
-    const {instanceID, objectType, location} = targetInfo || {};
+    const {scan, asset, status} = data || {};
+    const {id: assetId, assetInfo} = asset || {};
+    const {instanceID, objectType, location} = assetInfo || {};
     const {id: scanId, startTime, endTime} = scan || {};
     const {state, errors} = status?.general || {};
 
@@ -45,7 +45,7 @@ const TabAssetScanDetails = ({data}) => {
             className="asset-scans-details-tab-general"
             leftPaneDisplay={() => (
                 <>
-                    <Title medium onClick={() => navigate(`${ROUTES.ASSETS}/${targetId}`)}>Asset</Title>
+                    <Title medium onClick={() => navigate(`${ROUTES.ASSETS}/${assetId}`)}>Asset</Title>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Name">{instanceID}</TitleValueDisplay>
                         <TitleValueDisplay title="Type">{objectType}</TitleValueDisplay>
