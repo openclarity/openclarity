@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	DefaultPollInterval     = time.Minute
+	DefaultPollInterval     = 15 * time.Second
 	DefaultReconcileTimeout = 5 * time.Minute
 )
 

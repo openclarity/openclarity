@@ -73,7 +73,11 @@ const (
 	DefaultTrivyServerTimeout = 5 * time.Minute
 	DefaultGrypeServerTimeout = 2 * time.Minute
 
-	DefaultControllerStartupDelay = 15 * time.Second
+	// Approximately half the polling delay to allow for more efficient
+	// reconcile cascading e.g. reconciling scan config creates a scan, the
+	// poller for scan is offset by 7 seconds so should pick up the new
+	// scan after 7 seconds instead of the full poller time.
+	DefaultControllerStartupDelay = 7 * time.Second
 	DefaultProviderKind           = models.AWS
 )
 
