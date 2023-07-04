@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "1975093144371206712"
+      "templateHash": "15222142115869372328"
     }
   },
   "parameters": {
@@ -118,6 +118,8 @@
       "type": "string",
       "defaultValue": "SQLite",
       "allowedValues": [
+        "Postgresql",
+        "External Postgresql",
         "SQLite"
       ],
       "metadata": {

@@ -37,7 +37,10 @@ func (postgres) CastToDateTime(strTime string) string {
 }
 
 func (postgres) JSONEach(source string) string {
-	return fmt.Sprintf("JSONB_ARRAY_ELEMENTS((%s))", source)
+	// The postgres function expect the data must be an array, so we need
+	// to detect any other types in the SQL statement and switch it to
+	// empty array.
+	return fmt.Sprintf("JSONB_ARRAY_ELEMENTS(CASE JSONB_TYPEOF(%s) WHEN 'array' THEN (%s) ELSE '[]' END)", source, source)
 }
 
 func (postgres) JSONArray(items []string) string {

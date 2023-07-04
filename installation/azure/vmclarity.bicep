@@ -54,8 +54,8 @@ param assetScanDeletePolicy string = 'Always'
 
 @description('Database to Use')
 @allowed([
-  //'Postgresql'
-  //'External Postgresql'
+  'Postgresql'
+  'External Postgresql'
   'SQLite'
 ])
 param databaseToUse string = 'SQLite'
