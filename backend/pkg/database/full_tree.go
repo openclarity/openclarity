@@ -129,8 +129,7 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 	log.Tracef("Updating package=%+v", pkg)
 	// lock the table so we don't get "ERROR: duplicate key value violates unique constraint "packages_pkey""
 	// this can happen due to concurrent update of the packages table.
-	if err := o.LockTable(tx, packageTableName).Omit("Vulnerabilities").
-		Save(pkg).Error; err != nil {
+	if err := o.LockTable(tx, packageTableName).Omit("Vulnerabilities").Save(pkg).Error; err != nil {
 		return fmt.Errorf("failed to update package: %v", err)
 	}
 
@@ -163,7 +162,7 @@ func (o *ObjectTreeHandler) LockTable(tx *gorm.DB, tableName string) *gorm.DB {
 	case DBDriverTypePostgres:
 		return tx.Exec(fmt.Sprintf("LOCK TABLE %v IN ACCESS EXCLUSIVE MODE", tableName))
 	default:
-		log.Warnf("DB driver not supported: %v", o.DriverType)
+		log.Warnf("Lock table for DB driver is not supported: %v", o.DriverType)
 		return tx
 	}
 }
