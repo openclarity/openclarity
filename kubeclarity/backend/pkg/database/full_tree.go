@@ -28,6 +28,7 @@ type ObjectTree interface {
 }
 
 type ObjectTreeHandler struct {
+	DriverType         string
 	db                 *gorm.DB
 	viewRefreshHandler *ViewRefreshHandler
 }
@@ -126,8 +127,9 @@ func (o *ObjectTreeHandler) updateResource(tx *gorm.DB, resource *Resource, shou
 func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdatePackageVulnerabilities bool) error {
 	// Update package
 	log.Tracef("Updating package=%+v", pkg)
-	if err := tx.Omit("Vulnerabilities").
-		Save(pkg).Error; err != nil {
+	// lock the table so we don't get "ERROR: duplicate key value violates unique constraint "packages_pkey""
+	// this can happen due to concurrent update of the packages table.
+	if err := o.LockTable(tx, packageTableName).Omit("Vulnerabilities").Save(pkg).Error; err != nil {
 		return fmt.Errorf("failed to update package: %v", err)
 	}
 
@@ -149,5 +151,18 @@ func (o *ObjectTreeHandler) updatePackage(tx *gorm.DB, pkg *Package, shouldUpdat
 func (o *ObjectTreeHandler) tableChanged(tables ...string) {
 	for _, table := range tables {
 		o.viewRefreshHandler.TableChanged(table)
+	}
+}
+
+func (o *ObjectTreeHandler) LockTable(tx *gorm.DB, tableName string) *gorm.DB {
+	switch o.DriverType {
+	case DBDriverTypeLocal:
+		// not supported currently in sqlite
+		return tx
+	case DBDriverTypePostgres:
+		return tx.Exec(fmt.Sprintf("LOCK TABLE %v IN ACCESS EXCLUSIVE MODE", tableName))
+	default:
+		log.Warnf("Lock table for DB driver is not supported: %v", o.DriverType)
+		return tx
 	}
 }
