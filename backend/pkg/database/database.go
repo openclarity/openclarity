@@ -374,6 +374,7 @@ type Database interface {
 }
 
 type Handler struct {
+	DriverType         string
 	DB                 *gorm.DB
 	ViewRefreshHandler *ViewRefreshHandler
 }
@@ -391,6 +392,7 @@ type DBConfig struct {
 
 func (db *Handler) ObjectTree() ObjectTree {
 	return &ObjectTreeHandler{
+		DriverType:         db.DriverType,
 		db:                 db.DB,
 		viewRefreshHandler: db.ViewRefreshHandler,
 	}
@@ -485,6 +487,7 @@ func Init(config *DBConfig) *Handler {
 	if err != nil {
 		log.Fatalf("Failed to set default quick scan config: %v", err)
 	}
+	databaseHandler.DriverType = config.DriverType
 
 	return &databaseHandler
 }
