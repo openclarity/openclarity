@@ -166,27 +166,27 @@ func (v *Volume) IsReady(ctx context.Context) (bool, error) {
 }
 
 func (v *Volume) IsAttached(ctx context.Context) (bool, error) {
-	var attached bool
-
 	out, err := v.ec2Client.DescribeVolumes(ctx, &ec2.DescribeVolumesInput{
 		VolumeIds: []string{v.ID},
 	}, func(options *ec2.Options) {
 		options.Region = v.Region
 	})
 	if err != nil {
-		return attached, fmt.Errorf("failed to describe volumes. VolumeID=%s: %w", v.ID, err)
+		return false, fmt.Errorf("failed to describe volumes. VolumeID=%s: %w", v.ID, err)
 	}
 
 	if len(out.Volumes) != 1 {
-		return attached, fmt.Errorf("got unexcpected number of volumes (%d). Excpecting 1. VolumeID=%s",
+		return false, fmt.Errorf("got unexcpected number of volumes (%d). Excpecting 1. VolumeID=%s",
 			len(out.Volumes), v.ID)
 	}
 
-	if out.Volumes[0].Attachments[0].State == ec2types.VolumeAttachmentStateAttached {
-		attached = true
+	for _, attachment := range out.Volumes[0].Attachments {
+		if attachment.State == ec2types.VolumeAttachmentStateAttached {
+			return true, nil
+		}
 	}
 
-	return attached, nil
+	return false, nil
 }
 
 func (v *Volume) Delete(ctx context.Context) error {
