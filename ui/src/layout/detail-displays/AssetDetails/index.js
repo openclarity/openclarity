@@ -52,7 +52,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
     const navigate = useNavigate();
 
     const {id, assetInfo, lastSeen, terminated} = assetData;
-    const {instanceID, objectType, location, tags, image, instanceType, platform, launchTime} = assetInfo || {};
+    const {instanceID, objectType, location, tags, image, instanceType, platform, launchTime, rootVolumeSizeGB, rootVolumeEncrypted} = assetInfo || {};
     
     return (
         <DoublePaneDisplay
@@ -78,6 +78,10 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Platform">{platform}</TitleValueDisplay>
                         <TitleValueDisplay title="Launch time">{formatDate(launchTime)}</TitleValueDisplay>
+                    </TitleValueDisplayRow>
+                    <TitleValueDisplayRow>
+                        <TitleValueDisplay title="Root Volume Size">{rootVolumeSizeGB} GB</TitleValueDisplay>
+                        <TitleValueDisplay title="Encrypted Root Volume">{rootVolumeEncrypted ? "Yes" : "No"}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                 </>
             )}

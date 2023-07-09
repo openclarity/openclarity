@@ -168,9 +168,23 @@ func getInstanceState(result *ec2.DescribeInstancesOutput, instanceID string) ec
 	return ec2types.InstanceStateNamePending
 }
 
-func getPointerValOrEmpty(val *string) string {
+func getStringPointerValOrEmpty(val *string) string {
 	if val == nil {
 		return ""
+	}
+	return *val
+}
+
+func getInt32PointerValOrEmpty(val *int32) int32 {
+	if val == nil {
+		return 0
+	}
+	return *val
+}
+
+func getBoolPointerValOrFalse(val *bool) bool {
+	if val == nil {
+		return false
 	}
 	return *val
 }
@@ -259,16 +273,18 @@ func hasExcludeTags(excludeTags []models.Tag, instanceTags []ec2types.Tag) bool 
 func getVMInfoFromInstance(i Instance) (models.AssetType, error) {
 	assetType := models.AssetType{}
 	err := assetType.FromVMInfo(models.VMInfo{
-		Image:            i.Image,
-		InstanceID:       i.ID,
-		InstanceProvider: utils.PointerTo(models.AWS),
-		InstanceType:     i.InstanceType,
-		LaunchTime:       i.LaunchTime,
-		Location:         i.Location(),
-		ObjectType:       "VMInfo",
-		Platform:         i.Platform,
-		SecurityGroups:   utils.PointerTo(i.SecurityGroups),
-		Tags:             utils.PointerTo(i.Tags),
+		Image:               i.Image,
+		InstanceID:          i.ID,
+		InstanceProvider:    utils.PointerTo(models.AWS),
+		InstanceType:        i.InstanceType,
+		LaunchTime:          i.LaunchTime,
+		Location:            i.Location(),
+		ObjectType:          "VMInfo",
+		Platform:            i.Platform,
+		RootVolumeEncrypted: i.RootVolumeEncrypted,
+		RootVolumeSizeGB:    int(i.RootVolumeSizeGB),
+		SecurityGroups:      utils.PointerTo(i.SecurityGroups),
+		Tags:                utils.PointerTo(i.Tags),
 	})
 	if err != nil {
 		err = fmt.Errorf("failed to create AssetType from VMInfo: %w", err)

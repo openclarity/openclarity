@@ -1499,6 +1499,10 @@ components:
         launchTime:
           type: string
           format: date-time
+        rootVolumeSizeGB:
+          type: integer
+        rootVolumeEncrypted:
+          type: boolean
       required:
         - objectType
         - instanceID
@@ -1507,6 +1511,8 @@ components:
         - image
         - platform
         - launchTime
+        - rootVolumeSizeGB
+        - rootVolumeEncrypted
 
     PodInfo:
       type: object

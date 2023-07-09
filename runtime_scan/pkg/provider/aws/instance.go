@@ -31,18 +31,20 @@ import (
 )
 
 type Instance struct {
-	ID               string
-	Region           string
-	VpcID            string
-	SecurityGroups   []models.SecurityGroup
-	AvailabilityZone string
-	Image            string
-	InstanceType     string
-	Platform         string
-	Tags             []models.Tag
-	LaunchTime       time.Time
-	RootDeviceName   string
-	Volumes          []Volume
+	ID                  string
+	Region              string
+	VpcID               string
+	SecurityGroups      []models.SecurityGroup
+	AvailabilityZone    string
+	Image               string
+	InstanceType        string
+	Platform            string
+	Tags                []models.Tag
+	LaunchTime          time.Time
+	RootDeviceName      string
+	RootVolumeSizeGB    int32
+	RootVolumeEncrypted bool
+	Volumes             []Volume
 
 	Metadata provider.ScanMetadata
 
