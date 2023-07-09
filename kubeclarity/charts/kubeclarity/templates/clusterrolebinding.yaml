@@ -3,7 +3,7 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ include "kubeclarity.name" . }}
   labels:
-    {{ include "kubeclarity.labels" . }}
+    {{- include "kubeclarity.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
