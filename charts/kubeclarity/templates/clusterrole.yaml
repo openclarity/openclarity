@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: {{ include "kubeclarity.name" . }}
   labels:
-    {{ include "kubeclarity.labels" . }}
+    {{- include "kubeclarity.labels" . | nindent 4 }}
 rules:
   # Runtime scan permissions. We need to be able to list namespaces, and pods
   # in those namespaces across the whole cluster to determine what to scan, as
