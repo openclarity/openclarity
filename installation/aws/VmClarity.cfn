@@ -273,7 +273,7 @@ Resources:
                       - !Ref "AWS::Region"
                       - !FindInMap
                         - AWSInstanceType2Arch
-                        - !Ref InstanceType
+                        - !Ref ScannerInstanceType
                         - Arch
                     ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
               mode: "000644"
@@ -338,7 +338,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.1.2"]
+                  - ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.2.0"]
               mode: "000644"
             "/etc/trivy-server/config.env":
               content: |
@@ -404,7 +404,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.2.0"]
+                  - GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.4.0"]
               mode: "000644"
             "/lib/systemd/system/vmclarity_freshclam_mirror.service":
               content:
@@ -429,7 +429,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.1.0"]
+                  - FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.2.0"]
               mode: "000644"
             "/lib/systemd/system/postgres.service":
               content:
@@ -874,6 +874,7 @@ Parameters:
       - m6i.large
       - t2.large
       - t3.large
+      - t4g.large
     ConstraintDescription: must be a valid EC2 instance type.
   ScannerInstanceType:
     Description: VmClarity Scanner Instance Type
@@ -1048,52 +1049,72 @@ Metadata:
       ExternalDBPassword:
         default: External DB Password
 Mappings:
-  # For every type we want AWS hardware virtualisation on amd64 (HVM64)
+  # For every type we want AWS hardware virtualisation on amd64 (HVMAMD64) or arm64 (HVMARM64)
   AWSInstanceType2Arch:
     t2.large:
-      Arch: HVM64
+      Arch: HVMAMD64
     t3.large:
-      Arch: HVM64
+      Arch: HVMAMD64
     m6i.large:
-      Arch: HVM64
+      Arch: HVMAMD64
+    t4g.large:
+      Arch: HVMARM64
   # These are all Ubuntu 22.04 LTS AMIs in the different regions.
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-003d3d03cfe1b0468
+      HVMAMD64: ami-003d3d03cfe1b0468
+      HVMARM64: ami-02ab023e2241aff10
     us-west-2:
-      HVM64: ami-032f8589b3e7f4e5b
+      HVMAMD64: ami-032f8589b3e7f4e5b
+      HVMARM64: ami-0bb09f28fa3de6298
     us-west-1:
-      HVM64: ami-0ff832bdf91944651
+      HVMAMD64: ami-0ff832bdf91944651
+      HVMARM64: ami-0b2f351d88c5c03dd
     eu-west-1:
-      HVM64: ami-0786f5bc3943ad52d
+      HVMAMD64: ami-0786f5bc3943ad52d
+      HVMARM64: ami-0747265b1c957b8cd
     eu-west-2:
-      HVM64: ami-0ccdcf8ea5cace030
+      HVMAMD64: ami-0ccdcf8ea5cace030
+      HVMARM64: ami-09481d16f06cadc93
     eu-west-3:
-      HVM64: ami-0b108d96bcb0de81c
+      HVMAMD64: ami-0b108d96bcb0de81c
+      HVMARM64: ami-094a403c3fb2189b4
     eu-central-1:
-      HVM64: ami-03f1cc6c8b9c0b899
+      HVMAMD64: ami-03f1cc6c8b9c0b899
+      HVMARM64: ami-0510240bfdd000cbd
     ap-northeast-1:
-      HVM64: ami-0c597cc9c10ca9088
+      HVMAMD64: ami-0c597cc9c10ca9088
+      HVMARM64: ami-0734302e3a97c15aa
     ap-northeast-2:
-      HVM64: ami-0502b8f5f0ca3ed7d
+      HVMAMD64: ami-0502b8f5f0ca3ed7d
+      HVMARM64: ami-0f5af9692dd8c9001
     ap-northeast-3:
-      HVM64: ami-040b504c67641f0cc
+      HVMAMD64: ami-040b504c67641f0cc
+      HVMARM64: ami-0dc09d2ec91f3cd2d
     ap-southeast-1:
-      HVM64: ami-0d21214905506a7f4
+      HVMAMD64: ami-0d21214905506a7f4
+      HVMARM64: ami-0fb06180bf4530b97
     ap-southeast-2:
-      HVM64: ami-09fb5e610ae14ee00
+      HVMAMD64: ami-09fb5e610ae14ee00
+      HVMARM64: ami-078461a42ad80548f
     ap-south-1:
-      HVM64: ami-0dc886bce1f85f67e
+      HVMAMD64: ami-0dc886bce1f85f67e
+      HVMARM64: ami-08f9f13acda603405
     us-east-2:
-      HVM64: ami-05f4e4084abd205cf
+      HVMAMD64: ami-05f4e4084abd205cf
+      HVMARM64: ami-0d4f35727a2f5871a
     ca-central-1:
-      HVM64: ami-02da4d5de61d161c5
+      HVMAMD64: ami-02da4d5de61d161c5
+      HVMARM64: ami-05e8e847352a9a24b
     sa-east-1:
-      HVM64: ami-0cd79c08dc1353a91
+      HVMAMD64: ami-0cd79c08dc1353a91
+      HVMARM64: ami-024a366117a13dd61
     cn-north-1:
-      HVM64: ami-00194330730a60fd2
+      HVMAMD64: ami-00194330730a60fd2
+      HVMARM64: ami-0b16f17a8c721c8e7
     cn-northwest-1:
-      HVM64: ami-0502019189405b959
+      HVMAMD64: ami-0502019189405b959
+      HVMARM64: ami-0c2e6de34735afcac
 Conditions:
   BackendContainerImageOverridden: !Not
     - !Equals
@@ -1127,4 +1148,3 @@ Outputs:
   URL:
     Value: !Sub "${VmClarityServer.PublicIp}"
     Description: VmClarity SSH Address
-
