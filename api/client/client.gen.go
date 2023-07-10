@@ -135,14 +135,6 @@ type ClientInterface interface {
 
 	PutAssetsAssetID(ctx context.Context, assetID AssetID, params *PutAssetsAssetIDParams, body PutAssetsAssetIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetDiscoveryScopes request
-	GetDiscoveryScopes(ctx context.Context, params *GetDiscoveryScopesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PutDiscoveryScopes request with any body
-	PutDiscoveryScopesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PutDiscoveryScopes(ctx context.Context, body PutDiscoveryScopesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetFindings request
 	GetFindings(ctx context.Context, params *GetFindingsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -410,42 +402,6 @@ func (c *Client) PutAssetsAssetIDWithBody(ctx context.Context, assetID AssetID, 
 
 func (c *Client) PutAssetsAssetID(ctx context.Context, assetID AssetID, params *PutAssetsAssetIDParams, body PutAssetsAssetIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPutAssetsAssetIDRequest(c.Server, assetID, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetDiscoveryScopes(ctx context.Context, params *GetDiscoveryScopesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDiscoveryScopesRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PutDiscoveryScopesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutDiscoveryScopesRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PutDiscoveryScopes(ctx context.Context, body PutDiscoveryScopesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutDiscoveryScopesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1548,125 +1504,6 @@ func NewPutAssetsAssetIDRequestWithBody(server string, assetID AssetID, params *
 
 		req.Header.Set("If-Match", headerParam0)
 	}
-
-	return req, nil
-}
-
-// NewGetDiscoveryScopesRequest generates requests for GetDiscoveryScopes
-func NewGetDiscoveryScopesRequest(server string, params *GetDiscoveryScopesParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/discovery/scopes")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	queryValues := queryURL.Query()
-
-	if params.Filter != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$filter", runtime.ParamLocationQuery, *params.Filter); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-	}
-
-	if params.Select != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-	}
-
-	if params.OrderBy != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$orderby", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-	}
-
-	queryURL.RawQuery = queryValues.Encode()
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewPutDiscoveryScopesRequest calls the generic PutDiscoveryScopes builder with application/json body
-func NewPutDiscoveryScopesRequest(server string, body PutDiscoveryScopesJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPutDiscoveryScopesRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewPutDiscoveryScopesRequestWithBody generates requests for PutDiscoveryScopes with any type of body
-func NewPutDiscoveryScopesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/discovery/scopes")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -2946,14 +2783,6 @@ type ClientWithResponsesInterface interface {
 
 	PutAssetsAssetIDWithResponse(ctx context.Context, assetID AssetID, params *PutAssetsAssetIDParams, body PutAssetsAssetIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutAssetsAssetIDResponse, error)
 
-	// GetDiscoveryScopes request
-	GetDiscoveryScopesWithResponse(ctx context.Context, params *GetDiscoveryScopesParams, reqEditors ...RequestEditorFn) (*GetDiscoveryScopesResponse, error)
-
-	// PutDiscoveryScopes request with any body
-	PutDiscoveryScopesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutDiscoveryScopesResponse, error)
-
-	PutDiscoveryScopesWithResponse(ctx context.Context, body PutDiscoveryScopesJSONRequestBody, reqEditors ...RequestEditorFn) (*PutDiscoveryScopesResponse, error)
-
 	// GetFindings request
 	GetFindingsWithResponse(ctx context.Context, params *GetFindingsParams, reqEditors ...RequestEditorFn) (*GetFindingsResponse, error)
 
@@ -3297,52 +3126,6 @@ func (r PutAssetsAssetIDResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PutAssetsAssetIDResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetDiscoveryScopesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Scopes
-	JSONDefault  *ApiResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r GetDiscoveryScopesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetDiscoveryScopesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PutDiscoveryScopesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Scopes
-	JSONDefault  *ApiResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r PutDiscoveryScopesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PutDiscoveryScopesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3940,32 +3723,6 @@ func (c *ClientWithResponses) PutAssetsAssetIDWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParsePutAssetsAssetIDResponse(rsp)
-}
-
-// GetDiscoveryScopesWithResponse request returning *GetDiscoveryScopesResponse
-func (c *ClientWithResponses) GetDiscoveryScopesWithResponse(ctx context.Context, params *GetDiscoveryScopesParams, reqEditors ...RequestEditorFn) (*GetDiscoveryScopesResponse, error) {
-	rsp, err := c.GetDiscoveryScopes(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetDiscoveryScopesResponse(rsp)
-}
-
-// PutDiscoveryScopesWithBodyWithResponse request with arbitrary body returning *PutDiscoveryScopesResponse
-func (c *ClientWithResponses) PutDiscoveryScopesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutDiscoveryScopesResponse, error) {
-	rsp, err := c.PutDiscoveryScopesWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePutDiscoveryScopesResponse(rsp)
-}
-
-func (c *ClientWithResponses) PutDiscoveryScopesWithResponse(ctx context.Context, body PutDiscoveryScopesJSONRequestBody, reqEditors ...RequestEditorFn) (*PutDiscoveryScopesResponse, error) {
-	rsp, err := c.PutDiscoveryScopes(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePutDiscoveryScopesResponse(rsp)
 }
 
 // GetFindingsWithResponse request returning *GetFindingsResponse
@@ -4713,72 +4470,6 @@ func ParsePutAssetsAssetIDResponse(rsp *http.Response) (*PutAssetsAssetIDRespons
 			return nil, err
 		}
 		response.JSON412 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest ApiResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetDiscoveryScopesResponse parses an HTTP response from a GetDiscoveryScopesWithResponse call
-func ParseGetDiscoveryScopesResponse(rsp *http.Response) (*GetDiscoveryScopesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetDiscoveryScopesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Scopes
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest ApiResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePutDiscoveryScopesResponse parses an HTTP response from a PutDiscoveryScopesWithResponse call
-func ParsePutDiscoveryScopesResponse(rsp *http.Response) (*PutDiscoveryScopesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PutDiscoveryScopesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Scopes
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ApiResponse

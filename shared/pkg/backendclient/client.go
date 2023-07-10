@@ -532,25 +532,6 @@ func (b *BackendClient) GetAsset(ctx context.Context, assetID string, params mod
 	}
 }
 
-func (b *BackendClient) PutDiscoveryScopes(ctx context.Context, scope *models.Scopes) (*models.Scopes, error) {
-	resp, err := b.apiClient.PutDiscoveryScopesWithResponse(ctx, *scope)
-	if err != nil {
-		return nil, fmt.Errorf("failed to put discovery scope: %v", err)
-	}
-	switch resp.StatusCode() {
-	case http.StatusOK:
-		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to put scopes: empty body. status code=%v", http.StatusOK)
-		}
-		return resp.JSON200, nil
-	default:
-		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to put scopes. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
-		}
-		return nil, fmt.Errorf("failed to put scopes. status code=%v", resp.StatusCode())
-	}
-}
-
 func (b *BackendClient) GetAssets(ctx context.Context, params models.GetAssetsParams) (*models.Assets, error) {
 	resp, err := b.apiClient.GetAssetsWithResponse(ctx, &params)
 	if err != nil {
