@@ -30,10 +30,8 @@ type Provider interface {
 }
 
 type Discoverer interface {
-	// DiscoverScopes returns a list of discovered models.Scopes
-	DiscoverScopes(ctx context.Context) (*models.Scopes, error)
-	// DiscoverAssets returns list of AssetType in ScanScopeType
-	DiscoverAssets(ctx context.Context, scanScope *models.ScanScopeType) ([]models.AssetType, error)
+	// DiscoverAssets returns list of discovered AssetType
+	DiscoverAssets(ctx context.Context) ([]models.AssetType, error)
 }
 
 type Scanner interface {

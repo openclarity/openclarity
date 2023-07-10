@@ -29,287 +29,6 @@ import (
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
-func Test_createVPCFilters(t *testing.T) {
-	var (
-		vpcID = "vpc-1"
-		sgID1 = "sg-1"
-		sgID2 = "sg-2"
-	)
-
-	type args struct {
-		vpc VPC
-	}
-	tests := []struct {
-		name string
-		args args
-		want []ec2types.Filter
-	}{
-		{
-			name: "vpc with no security group",
-			args: args{
-				vpc: VPC{
-					ID:             vpcID,
-					SecurityGroups: nil,
-				},
-			},
-			want: []ec2types.Filter{
-				{
-					Name:   utils.PointerTo(VpcIDFilterName),
-					Values: []string{vpcID},
-				},
-			},
-		},
-		{
-			name: "vpc with one security group",
-			args: args{
-				vpc: VPC{
-					ID: vpcID,
-					SecurityGroups: []models.SecurityGroup{
-						{
-							Id: sgID1,
-						},
-					},
-				},
-			},
-			want: []ec2types.Filter{
-				{
-					Name:   utils.PointerTo(VpcIDFilterName),
-					Values: []string{vpcID},
-				},
-				{
-					Name:   utils.PointerTo(SecurityGroupIDFilterName),
-					Values: []string{sgID1},
-				},
-			},
-		},
-		{
-			name: "vpc with two security groups",
-			args: args{
-				vpc: VPC{
-					ID: vpcID,
-					SecurityGroups: []models.SecurityGroup{
-						{
-							Id: sgID1,
-						},
-						{
-							Id: sgID2,
-						},
-					},
-				},
-			},
-			want: []ec2types.Filter{
-				{
-					Name:   utils.PointerTo(VpcIDFilterName),
-					Values: []string{vpcID},
-				},
-				{
-					Name:   utils.PointerTo(SecurityGroupIDFilterName),
-					Values: []string{sgID1, sgID2},
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := createVPCFilters(tt.args.vpc); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("createVPCFilters() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_createInclusionTagsFilters(t *testing.T) {
-	var (
-		tagName       = "foo"
-		filterTagName = "tag:" + tagName
-		tagVal        = "bar"
-	)
-
-	type args struct {
-		tags []models.Tag
-	}
-	tests := []struct {
-		name string
-		args args
-		want []ec2types.Filter
-	}{
-		{
-			name: "no tags",
-			args: args{
-				tags: nil,
-			},
-			want: []ec2types.Filter{},
-		},
-		{
-			name: "1 tag",
-			args: args{
-				tags: []models.Tag{
-					{
-						Key:   tagName,
-						Value: tagVal,
-					},
-				},
-			},
-			want: []ec2types.Filter{
-				{
-					Name:   &filterTagName,
-					Values: []string{tagVal},
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := createInclusionTagsFilters(tt.args.tags); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("createInclusionTagsFilters() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_hasExcludedTags(t *testing.T) {
-	var (
-		tagName1 = "foo1"
-		tagName2 = "foo2"
-		tagVal1  = "bar1"
-		tagVal2  = "bar2"
-	)
-
-	type args struct {
-		excludeTags  []models.Tag
-		instanceTags []ec2types.Tag
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{
-			name: "instance has no tags",
-			args: args{
-				excludeTags: []models.Tag{
-					{
-						Key:   tagName1,
-						Value: tagVal1,
-					},
-					{
-						Key:   "stam1",
-						Value: "stam2",
-					},
-				},
-				instanceTags: nil,
-			},
-			want: false,
-		},
-		{
-			name: "empty excluded tags",
-			args: args{
-				excludeTags: nil,
-				instanceTags: []ec2types.Tag{
-					{
-						Key:   &tagName1,
-						Value: &tagVal1,
-					},
-					{
-						Key:   &tagName2,
-						Value: &tagVal2,
-					},
-				},
-			},
-			want: false,
-		},
-		{
-			name: "instance does not have ALL the excluded tags (partial matching)",
-			args: args{
-				excludeTags: []models.Tag{
-					{
-						Key:   tagName1,
-						Value: tagVal1,
-					},
-					{
-						Key:   "stam1",
-						Value: "stam2",
-					},
-				},
-				instanceTags: []ec2types.Tag{
-					{
-						Key:   &tagName1,
-						Value: &tagVal1,
-					},
-					{
-						Key:   &tagName2,
-						Value: &tagVal2,
-					},
-				},
-			},
-			want: false,
-		},
-		{
-			name: "instance has ALL excluded tags",
-			args: args{
-				excludeTags: []models.Tag{
-					{
-						Key:   tagName1,
-						Value: tagVal1,
-					},
-					{
-						Key:   tagName2,
-						Value: tagVal2,
-					},
-				},
-				instanceTags: []ec2types.Tag{
-					{
-						Key:   &tagName1,
-						Value: &tagVal1,
-					},
-					{
-						Key:   &tagName2,
-						Value: &tagVal2,
-					},
-					{
-						Key:   utils.PointerTo("stam"),
-						Value: utils.PointerTo("stam"),
-					},
-				},
-			},
-			want: true,
-		},
-		{
-			name: "instance does not have excluded tags at all",
-			args: args{
-				excludeTags: []models.Tag{
-					{
-						Key:   "stam1",
-						Value: "stam2",
-					},
-					{
-						Key:   "stam3",
-						Value: "stam4",
-					},
-				},
-				instanceTags: []ec2types.Tag{
-					{
-						Key:   &tagName1,
-						Value: &tagVal1,
-					},
-					{
-						Key:   &tagName2,
-						Value: &tagVal2,
-					},
-				},
-			},
-			want: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := hasExcludeTags(tt.args.excludeTags, tt.args.instanceTags); got != tt.want {
-				t.Errorf("hasExcludeTags() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_getInstanceState(t *testing.T) {
 	type args struct {
 		result     *ec2.DescribeInstancesOutput
@@ -435,9 +154,8 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 
 	type fields struct{}
 	type args struct {
-		result      *ec2.DescribeInstancesOutput
-		excludeTags []models.Tag
-		regionID    string
+		result   *ec2.DescribeInstancesOutput
+		regionID string
 	}
 	tests := []struct {
 		name   string
@@ -451,8 +169,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 				result: &ec2.DescribeInstancesOutput{
 					Reservations: []ec2types.Reservation{},
 				},
-				excludeTags: nil,
-				regionID:    "region-1",
+				regionID: "region-1",
 			},
 			want: nil,
 		},
@@ -470,6 +187,9 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Key:   utils.PointerTo("key-1"),
 											Value: utils.PointerTo("val-1"),
 										},
+									},
+									State: &ec2types.InstanceState{
+										Name: ec2types.InstanceStateNameRunning,
 									},
 									VpcId:   utils.PointerTo("vpc1"),
 									ImageId: utils.PointerTo("image1"),
@@ -492,6 +212,9 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 											Key:   utils.PointerTo("key-2"),
 											Value: utils.PointerTo("val-2"),
 										},
+									},
+									State: &ec2types.InstanceState{
+										Name: ec2types.InstanceStateNameRunning,
 									},
 									VpcId:   utils.PointerTo("vpc2"),
 									ImageId: utils.PointerTo("image2"),
@@ -518,6 +241,9 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 									Placement: &ec2types.Placement{
 										AvailabilityZone: utils.PointerTo("az3"),
 									},
+									State: &ec2types.InstanceState{
+										Name: ec2types.InstanceStateNameRunning,
+									},
 									InstanceType:    "t2.large",
 									PlatformDetails: utils.PointerTo("linux"),
 									LaunchTime:      utils.PointerTo(launchTime),
@@ -531,8 +257,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						},
 					},
 				},
-				excludeTags: nil,
-				regionID:    "region-1",
+				regionID: "region-1",
 			},
 			want: []Instance{
 				{
@@ -589,125 +314,6 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "one excluded instance",
-			args: args{
-				result: &ec2.DescribeInstancesOutput{
-					Reservations: []ec2types.Reservation{
-						{
-							Instances: []ec2types.Instance{
-								{
-									InstanceId: utils.PointerTo("instance-1"),
-									Tags: []ec2types.Tag{
-										{
-											Key:   utils.PointerTo("key-1"),
-											Value: utils.PointerTo("val-1"),
-										},
-									},
-									VpcId:   utils.PointerTo("vpc1"),
-									ImageId: utils.PointerTo("image1"),
-									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az1"),
-									},
-									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
-									SecurityGroups: []ec2types.GroupIdentifier{
-										{
-											GroupId: utils.PointerTo("group1"),
-										},
-									},
-								},
-								{
-									InstanceId: utils.PointerTo("instance-2"),
-									Tags: []ec2types.Tag{
-										{
-											Key:   utils.PointerTo("key-2"),
-											Value: utils.PointerTo("val-2"),
-										},
-									},
-									VpcId:   utils.PointerTo("vpc2"),
-									ImageId: utils.PointerTo("image2"),
-									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az2"),
-									},
-									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
-									SecurityGroups: []ec2types.GroupIdentifier{
-										{
-											GroupId: utils.PointerTo("group2"),
-										},
-									},
-								},
-							},
-						},
-						{
-							Instances: []ec2types.Instance{
-								{
-									InstanceId: utils.PointerTo("instance-3"),
-									VpcId:      utils.PointerTo("vpc3"),
-									ImageId:    utils.PointerTo("image3"),
-									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az3"),
-									},
-									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
-									SecurityGroups: []ec2types.GroupIdentifier{
-										{
-											GroupId: utils.PointerTo("group3"),
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-				excludeTags: []models.Tag{
-					{
-						Key:   "key-1",
-						Value: "val-1",
-					},
-				},
-				regionID: "region-1",
-			},
-			want: []Instance{
-				{
-					ID:     "instance-2",
-					Region: "region-1",
-					VpcID:  "vpc2",
-					SecurityGroups: []models.SecurityGroup{
-						{Id: "group2"},
-					},
-					AvailabilityZone: "az2",
-					Image:            "image2",
-					InstanceType:     "t2.large",
-					Platform:         "linux",
-					Tags: []models.Tag{
-						{
-							Key:   "key-2",
-							Value: "val-2",
-						},
-					},
-					LaunchTime: launchTime,
-				},
-				{
-					ID:     "instance-3",
-					Region: "region-1",
-					VpcID:  "vpc3",
-					SecurityGroups: []models.SecurityGroup{
-						{Id: "group3"},
-					},
-					AvailabilityZone: "az3",
-					Image:            "image3",
-					InstanceType:     "t2.large",
-					Platform:         "linux",
-					Tags:             nil,
-					LaunchTime:       launchTime,
-				},
-			},
-		},
 	}
 
 	ctx := context.Background()
@@ -715,7 +321,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Client{}
-			got := c.getInstancesFromDescribeInstancesOutput(ctx, tt.args.result, tt.args.excludeTags, tt.args.regionID)
+			got := c.getInstancesFromDescribeInstancesOutput(ctx, tt.args.result, tt.args.regionID)
 
 			var gotInstances []Instance
 			for _, instance := range got {

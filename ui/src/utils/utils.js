@@ -181,28 +181,4 @@ export const getAssetColumnsFiltersConfig = (props) => {
     ]
 }
 
-export const getScanScopeColumnFiltersConfig = (scopePrefix="scope") => {
-    const SCOPE_ALL_REGIONS_FILTER_ITEMS = [
-        {value: `${scopePrefix}.allRegions`, label: "All"}
-    ]
-
-    const formatScanScopeToOdata = (valuesList, operator, scope) => (
-        valuesList.map(value => {
-            if (operator === OPERATORS.contains.value) {
-                return `${operator}(${scope},'${value}')`;
-            }
-    
-            return `(${value} eq ${operator === OPERATORS.eq.value ? "true" : "false"})`;
-        }).join(` or `)
-    )
-
-    return [
-        {value: `${scopePrefix}.regions`, label: "Scope", customOdataFormat: formatScanScopeToOdata, operators: [
-            {...OPERATORS.eq, valueItems: SCOPE_ALL_REGIONS_FILTER_ITEMS},
-            {...OPERATORS.ne, valueItems: SCOPE_ALL_REGIONS_FILTER_ITEMS},
-            {...OPERATORS.contains, valueItems: [], creatable: true}
-        ]}
-    ]
-}
-
 export const formatTagsToStringsList = tags => tags?.map(({key, value}) => `${key}=${value}`);

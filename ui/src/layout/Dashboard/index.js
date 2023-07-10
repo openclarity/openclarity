@@ -15,7 +15,7 @@ import './dashboard.scss';
 
 const COUNTERS_CONFIG = [
     {url: APIS.SCANS, title: "Completed scans", background: COLORS["color-gradient-green"]},
-    {url: APIS.ASSETS, title: "Scanned assets", background: COLORS["color-gradient-blue"]},
+    {url: APIS.ASSETS, title: "Assets", background: COLORS["color-gradient-blue"]},
     {url: APIS.FINDINGS, title: "Risky findings", background: COLORS["color-gradient-yellow"]}
 ];
 
