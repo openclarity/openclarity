@@ -39,8 +39,8 @@ func (s *Scan) GetID() (string, bool) {
 	return id, ok
 }
 
-func (s *Scan) GetScanConfigScope() (ScanScopeType, bool) {
-	var scope ScanScopeType
+func (s *Scan) GetScanConfigScope() (string, bool) {
+	var scope string
 	var ok bool
 
 	if s.ScanConfigSnapshot != nil {

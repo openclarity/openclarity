@@ -1,11 +1,8 @@
 import React from 'react';
-import { isEmpty } from 'lodash';
 import { FETCH_METHODS } from 'hooks';
 import WizardModal from 'components/WizardModal';
 import { APIS } from 'utils/systemConsts';
-import { formatTagsToStringsList } from 'utils/utils';
-import { formatStringInstancesToTags } from '../utils';
-import StepGeneralProperties, { REGIONS_EMPTY_VALUE, VPCS_EMPTY_VALUE, SCOPE_ITEMS } from './StepGeneralProperties';
+import StepGeneralProperties from './StepGeneralProperties';
 import StepScanTypes from './StepScanTypes';
 import StepTimeConfiguration, { SCHEDULE_TYPES_ITEMS, CRON_QUICK_OPTIONS } from './StepTimeConfiguration';
 import StepAdvancedSettings from './StepAdvancedSettings';
@@ -16,7 +13,6 @@ const padDateTime = time => String(time).padStart(2, "0");
 
 const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     const {id, name, scope, scanFamiliesConfig, scheduled, maxParallelScanners, scannerInstanceCreationConfig} = initialData || {};
-    const {allRegions, regions, shouldScanStoppedInstances, instanceTagSelector, instanceTagExclusion} = scope || {};
     const {operationTime, cronLine} = scheduled || {};
     const {useSpotInstances} = scannerInstanceCreationConfig || {};
     
@@ -25,13 +21,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     const initialValues = {
         id: id || null,
         name: name || "",
-        scope: {
-            scopeSelect: (!regions || allRegions) ? SCOPE_ITEMS.ALL.value : SCOPE_ITEMS.DEFINED.value,
-            regions: REGIONS_EMPTY_VALUE,
-            shouldScanStoppedInstances: shouldScanStoppedInstances || false,
-            instanceTagSelector: formatTagsToStringsList(instanceTagSelector || []),
-            instanceTagExclusion: formatTagsToStringsList(instanceTagExclusion || [])
-        },
+        scope: scope || "",
         scanFamiliesConfig: {
             sbom: {enabled: true},
             vulnerabilities: {enabled: true},
@@ -51,14 +41,6 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
         scannerInstanceCreationConfig: {
             useSpotInstances: useSpotInstances || false
         }
-    }
-    
-    if (!isEmpty(regions)) {
-        initialValues.scope.regions = regions.map(({name, vpcs}) => {
-            return {name, vpcs: isEmpty(vpcs) ? VPCS_EMPTY_VALUE : vpcs.map(({id, securityGroups}) => {
-                return {id: id || "", securityGroups: (securityGroups || []).map(({id}) => id)}
-            })}
-        })
     }
     
     if (!!operationTime && !cronLine) {
@@ -104,23 +86,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             initialValues={initialValues}
             submitUrl={APIS.SCAN_CONFIGS}
             getSubmitParams={formValues => {
-                const {id, scope, scheduled, ...submitData} = formValues;
-
-                const {scopeSelect, regions, shouldScanStoppedInstances, instanceTagSelector, instanceTagExclusion} = scope;
-                const isAllScope = scopeSelect === SCOPE_ITEMS.ALL.value;
-
-                submitData.scope = {
-                    objectType: "AwsScanScope",
-                    allRegions: isAllScope,
-                    regions: isAllScope ? [] : regions.map(({name, vpcs}) => {
-                        return {name, vpcs: vpcs.filter(({id}) => !!id).map(({id, securityGroups}) => {
-                            return {id, securityGroups: securityGroups.map(id => ({id}))}
-                        })}
-                    }),
-                    shouldScanStoppedInstances,
-                    instanceTagSelector: formatStringInstancesToTags(instanceTagSelector),
-                    instanceTagExclusion: formatStringInstancesToTags(instanceTagExclusion),
-                }
+                const {id, scheduled, ...submitData} = formValues;
 
                 const {scheduledSelect, laterDate, laterTime, cronLine} = scheduled;
                 const isNow = scheduledSelect === SCHEDULE_TYPES_ITEMS.NOW.value;

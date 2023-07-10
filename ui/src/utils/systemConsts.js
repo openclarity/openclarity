@@ -15,7 +15,6 @@ export const APIS = {
     SCAN_CONFIGS: "scanConfigs",
     ASSETS: "assets",
     ASSET_SCANS: "assetScans",
-    SCOPES_DISCOVERY: "discovery/scopes",
     FINDINGS: "findings",
     DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",
     DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets",

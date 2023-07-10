@@ -787,43 +787,6 @@ paths:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
 
-  /discovery/scopes:
-    get:
-      summary: Get all available scopes
-      operationId: GetDiscoveryScopes
-      parameters:
-        - $ref: '#/components/parameters/odataFilter'
-        - $ref: '#/components/parameters/odataSelect'
-        - $ref: '#/components/parameters/odataOrderBy'
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Scopes'
-        default:
-          $ref: '#/components/responses/UnknownError'
-    put:
-      summary: Set all available scopes
-      operationId: PutDiscoveryScopes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Scopes'
-        required: true
-      responses:
-        200:
-          description: All scopes were set successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Scopes'
-        default:
-          $ref: '#/components/responses/UnknownError'
-      x-codegen-request-body-name: body
-
   /findings/{findingID}:
     get:
       summary: Get the details for a finding.
@@ -1237,7 +1200,13 @@ components:
         scanFamiliesConfig:
           $ref: '#/components/schemas/ScanFamiliesConfig'
         scope:
-          $ref: '#/components/schemas/ScanScopeType'
+          description: |
+            The query used to limit the scope of this scan. It uses
+            the ODATA $filter query language to limit the collection of assets
+            that this scan will operate over. For example
+            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+            to just assets in the eu-west-2 AWS region.
+          type: string
         timeoutSeconds:
           type: integer
           minimum: 0
@@ -1286,7 +1255,7 @@ components:
           $ref: '#/components/schemas/ScanFamiliesConfig'
           readOnly: true
         scope:
-          $ref: '#/components/schemas/ScanScopeType'
+          type: string
           readOnly: true
         timeoutSeconds:
           type: integer
@@ -1328,7 +1297,7 @@ components:
         scanFamiliesConfig:
           $ref: '#/components/schemas/ScanFamiliesConfig'
         scope:
-          $ref: '#/components/schemas/ScanScopeType'
+          type: string
         timeoutSeconds:
           type: integer
           minimum: 0
@@ -1359,170 +1328,6 @@ components:
         scanConfig:
           $ref: '#/components/schemas/ScanConfig'
 
-    Scopes:
-      type: object
-      description: Scopes discovery
-      properties:
-        scopeInfo:
-          $ref: '#/components/schemas/ScopeType'
-
-    ScanScopeType:
-      type: object
-      anyOf:
-        - $ref: '#/components/schemas/AwsScanScope'
-        - $ref: '#/components/schemas/AzureScanScope'
-      discriminator:
-        propertyName: objectType
-        mapping:
-          AwsScanScope: '#/components/schemas/AwsScanScope'
-          AzureScanScope: '#/components/schemas/AzureScanScope'
-
-    AzureScanScope:
-      type: object
-      description: The scope of a configured scan within a subscription.
-      properties:
-        objectType:
-          type: string
-        allResourceGroups:
-          description: Scan all resource groups in the subscription, if set will override anything set in resourceGroups.
-          type: boolean
-        resourceGroups:
-          type: array
-          items:
-            $ref: '#/components/schemas/AzureResourceGroup'
-          nullable: true
-        instanceTagSelector:
-          type: array
-          description: VM instances will be scanned if they contain all of these tags. If empty, not taken into account.
-          items:
-            $ref: '#/components/schemas/Tag'
-          nullable: true
-        instanceTagExclusion:
-          type: array
-          description: VM instances will not be scanned if they contain all of these tags (even if they match instanceTagSelector). If empty, not taken into account.
-          items:
-            $ref: '#/components/schemas/Tag'
-          nullable: true
-      required:
-        - objectType
-      additionalProperties: false
-
-    AzureResourceGroup:
-      type: object
-      description: Azure Resource Group
-      properties:
-        name:
-          type: string
-          minLength: 1
-      required:
-        - name
-      additionalProperties: false
-
-    AwsScanScope:
-      type: object
-      description: The scope of a configured scan.
-      properties:
-        objectType:
-          type: string
-        allRegions:
-          description: Scan all regions, if set will override anything set in regions.
-          type: boolean
-        regions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AwsRegion'
-          nullable: true
-        shouldScanStoppedInstances:
-          type: boolean
-        instanceTagSelector:
-          type: array
-          description: VM instances will be scanned if they contain all of these tags. If empty, not taken into account.
-          items:
-            $ref: '#/components/schemas/Tag'
-          nullable: true
-        instanceTagExclusion:
-          type: array
-          description: VM instances will not be scanned if they contain all of these tags (even if they match instanceTagSelector). If empty, not taken into account.
-          items:
-            $ref: '#/components/schemas/Tag'
-          nullable: true
-      required:
-        - objectType
-      additionalProperties: false
-
-    ScopeType:
-      type: object
-      anyOf:
-        - $ref: '#/components/schemas/AwsAccountScope'
-        - $ref: '#/components/schemas/AzureSubscriptionScope'
-      discriminator:
-        propertyName: objectType
-        mapping:
-          AwsAccountScope: '#/components/schemas/AwsAccountScope'
-          AzureSubscriptionScope: '#/components/schemas/AzureSubscriptionScope'
-
-    AzureSubscriptionScope:
-      type: object
-      description: Azure subscription scope
-      properties:
-        objectType:
-          type: string
-        subscriptionID:
-          type: string
-        resourceGroups:
-          type: array
-          items:
-            $ref: '#/components/schemas/AzureResourceGroup'
-          nullable: true
-      required:
-        - objectType
-
-    AwsAccountScope:
-      type: object
-      description: AWS cloud account scope
-      properties:
-        objectType:
-          type: string
-        regions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AwsRegion'
-          nullable: true
-      required:
-        - objectType
-
-    AwsRegion:
-      type: object
-      description: AWS region
-      properties:
-        name:
-          type: string
-          minLength: 1
-        vpcs:
-          type: array
-          items:
-            $ref: '#/components/schemas/AwsVPC'
-          nullable: true
-      required:
-        - name
-      additionalProperties: false
-
-    AwsVPC:
-      type: object
-      description: AWS VPC
-      properties:
-        id:
-          type: string
-          minLength: 1
-        securityGroups:
-          type: array
-          items:
-            $ref: '#/components/schemas/SecurityGroup'
-          nullable: true
-      required:
-        - id
-      additionalProperties: false
-
     SecurityGroup:
       type: object
       description: general cloud security group
@@ -1536,7 +1341,7 @@ components:
 
     Tag:
       type: object
-      description: AWS tag
+      description: general cloud tag / label
       properties:
         key:
           type: string
@@ -1614,6 +1419,15 @@ components:
           # readOnly: true
         assetInfo:
           $ref: '#/components/schemas/AssetType'
+        firstSeen:
+          type: string
+          format: date-time
+        terminatedOn:
+          type: string
+          format: date-time
+        lastSeen:
+          type: string
+          format: date-time
         scansCount:
           description: Total number of scans that have ever run for this asset
           type: integer

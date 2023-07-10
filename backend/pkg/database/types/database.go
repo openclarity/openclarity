@@ -54,7 +54,6 @@ type Database interface {
 	ScanConfigsTable() ScanConfigsTable
 	ScansTable() ScansTable
 	AssetsTable() AssetsTable
-	ScopesTable() ScopesTable
 	FindingsTable() FindingsTable
 }
 
@@ -100,11 +99,6 @@ type AssetsTable interface {
 	SaveAsset(asset models.Asset, params models.PutAssetsAssetIDParams) (models.Asset, error)
 
 	DeleteAsset(assetID models.AssetID) error
-}
-
-type ScopesTable interface {
-	GetScopes(params models.GetDiscoveryScopesParams) (models.Scopes, error)
-	SetScopes(scopes models.Scopes) (models.Scopes, error)
 }
 
 type FindingsTable interface {
