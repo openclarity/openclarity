@@ -446,12 +446,12 @@ func createPackageFindingImpact(findingInfo *backendmodels.Finding_FindingInfo, 
 }
 
 func (s *ServerImpl) getVulnerabilityFindingToAssetCountMap(ctx context.Context, severity string) (map[string]findingInfoCount, error) {
-	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and findingInfo/severity eq '%s' and invalidatedOn eq null", severity)
+	filter := fmt.Sprintf("asset/terminatedOn eq null and findingInfo/objectType eq 'Vulnerability' and findingInfo/severity eq '%s' and invalidatedOn eq null", severity)
 	return s.getFindingToAssetCountMapWithFilter(ctx, filter)
 }
 
 func (s *ServerImpl) getFindingToAssetCountMap(ctx context.Context, findingType string) (map[string]findingInfoCount, error) {
-	filter := fmt.Sprintf("findingInfo/objectType eq '%s' and invalidatedOn eq null", findingType)
+	filter := fmt.Sprintf("asset/terminatedOn eq null and findingInfo/objectType eq '%s' and invalidatedOn eq null", findingType)
 	return s.getFindingToAssetCountMapWithFilter(ctx, filter)
 }
 
