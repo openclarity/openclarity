@@ -1450,6 +1450,14 @@ components:
           description: Total number of scans that have ever run for this asset
           type: integer
           readOnly: true
+        terminatedOn:
+          type: string
+          format: date-time
+          readOnly: true
+        lastSeen:
+          type: string
+          format: date-time
+          readOnly: true
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
           readOnly: true

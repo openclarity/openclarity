@@ -30,7 +30,7 @@ import (
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
 	assets, err := s.BackendClient.GetAssets(ctx.Request().Context(), backendmodels.GetAssetsParams{
-		Filter: utils.PointerTo("assetInfo/objectType eq 'VMInfo'"),
+		Filter: utils.PointerTo("terminatedOn eq null and assetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get assets: %v", err))

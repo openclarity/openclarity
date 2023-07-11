@@ -151,13 +151,15 @@ type AssetExists struct {
 type AssetRelationship struct {
 	AssetInfo *AssetType `json:"assetInfo,omitempty"`
 	Id        string     `json:"id"`
+	LastSeen  *time.Time `json:"lastSeen,omitempty"`
 	Revision  *int       `json:"revision,omitempty"`
 
 	// ScansCount Total number of scans that have ever run for this asset
 	ScansCount *int `json:"scansCount,omitempty"`
 
 	// Summary A summary of the scan findings.
-	Summary *ScanFindingsSummary `json:"summary,omitempty"`
+	Summary      *ScanFindingsSummary `json:"summary,omitempty"`
+	TerminatedOn *time.Time           `json:"terminatedOn,omitempty"`
 }
 
 // AssetScan defines model for AssetScan.
