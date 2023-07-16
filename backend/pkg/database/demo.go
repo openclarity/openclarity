@@ -383,7 +383,10 @@ func createVMInfo(instanceID, location, image, instanceType, platform string,
 func createAssets() []models.Asset {
 	return []models.Asset{
 		{
-			ScansCount: utils.PointerTo(1),
+			ScansCount:   utils.PointerTo(1),
+			FirstSeen:    utils.PointerTo(time.Now()),
+			LastSeen:     utils.PointerTo(time.Now()),
+			TerminatedOn: utils.PointerTo(time.Now()),
 			Summary: &models.ScanFindingsSummary{
 				TotalExploits:          utils.PointerTo(0),
 				TotalMalware:           utils.PointerTo(0),
@@ -404,6 +407,8 @@ func createAssets() []models.Asset {
 		},
 		{
 			ScansCount: utils.PointerTo(1),
+			FirstSeen:  utils.PointerTo(time.Now()),
+			LastSeen:   utils.PointerTo(time.Now()),
 			Summary: &models.ScanFindingsSummary{
 				TotalExploits:          utils.PointerTo(0),
 				TotalMalware:           utils.PointerTo(0),
@@ -424,6 +429,7 @@ func createAssets() []models.Asset {
 		},
 		{
 			ScansCount: utils.PointerTo(1),
+			FirstSeen:  utils.PointerTo(time.Now()),
 			Summary: &models.ScanFindingsSummary{
 				TotalExploits:          utils.PointerTo(2),
 				TotalMalware:           utils.PointerTo(3),
