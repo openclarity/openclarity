@@ -136,6 +136,8 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, e
 	switch strings.ToLower(viper.GetString(ProviderKind)) {
 	case strings.ToLower(string(models.Azure)):
 		providerKind = models.Azure
+	case strings.ToLower(string(models.GCP)):
+		providerKind = models.GCP
 	case strings.ToLower(string(models.AWS)):
 		fallthrough
 	default:

@@ -916,6 +916,7 @@ components:
       enum:
         - AWS
         - Azure
+        - GCP
 
     Scans:
       type: object

@@ -320,6 +320,8 @@ func (w *Watcher) reconcileDone(ctx context.Context, assetScan *models.AssetScan
 
 // nolint:cyclop
 func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetScan) error {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	assetScanID, ok := assetScan.GetID()
 	if !ok {
 		return errors.New("invalid AssetScan: ID is nil")
@@ -383,11 +385,13 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 		switch {
 		case errors.As(err, &fatalError):
 			assetScan.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFailed)
+			logger.Errorf("resource cleanup failed: %v", fatalError)
 		case errors.As(err, &retryableError):
 			// nolint:wrapcheck
 			return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 		case err != nil:
 			assetScan.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateFailed)
+			logger.Errorf("resource cleanup failed: %v", err)
 		default:
 			assetScan.ResourceCleanup = utils.PointerTo(models.ResourceCleanupStateDone)
 		}

@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/azure"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/gcp"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
@@ -102,6 +103,8 @@ func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provi
 		return azure.New(ctx)
 	case models.AWS:
 		return aws.New(ctx)
+	case models.GCP:
+		return gcp.New(ctx)
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", kind)
 	}
