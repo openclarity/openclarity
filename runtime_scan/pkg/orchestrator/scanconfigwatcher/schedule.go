@@ -67,7 +67,7 @@ func (w ScheduleWindow) Next() *ScheduleWindow {
 	}
 }
 
-// Next returns a new ScheduleWindow which represents the timeframe before w ScheduleWindow.
+// Prev returns a new ScheduleWindow which represents the timeframe before w ScheduleWindow.
 func (w ScheduleWindow) Prev() *ScheduleWindow {
 	return &ScheduleWindow{
 		start: w.start.Add(-1 * w.end.Sub(w.start)),
@@ -116,7 +116,7 @@ func (o OperationTime) Next() *OperationTime {
 	return &o
 }
 
-// Next returns a new OperationTime representing time which is after then the provided t time. It returns itself
+// NextAfter returns a new OperationTime representing time which is after then the provided t time. It returns itself
 // if t is zero or o has no cron set.
 func (o OperationTime) NextAfter(t time.Time) *OperationTime {
 	if t.IsZero() {

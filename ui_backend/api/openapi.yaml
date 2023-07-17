@@ -493,6 +493,7 @@ components:
       enum:
         - 'AWS EC2 Instance'
         - 'Azure Instance'
+        - 'GCP Instance'
 
   responses:
     UnknownError:
