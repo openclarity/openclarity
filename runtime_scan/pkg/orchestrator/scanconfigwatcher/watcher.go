@@ -127,7 +127,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 
 	scanConfigSchedule, err := NewScanConfigSchedule(scanConfig, scheduleWindow)
 	if err != nil {
-		return fmt.Errorf("failed to determine ScanConfig state: %w", err)
+		return fmt.Errorf("failed to create new ScanConfig schedule: %w", err)
 	}
 
 	switch scanConfigSchedule.State {
