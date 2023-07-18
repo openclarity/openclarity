@@ -15,8 +15,5 @@
            "cronLine": "0 */4 * * *",
            "operationTime": "2023-01-20T15:46:18+00:00"
         },
-        "scope": {
-           "objectType": "AwsScanScope",
-           "allRegions": true
-        }
+        "scope": ""
 }

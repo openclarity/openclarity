@@ -23,16 +23,7 @@ cat <<EOF > scanconfig.json
     "cronLine": "0 */4 * * *",
     "operationTime": "2023-01-20T15:46:18+00:00"
   },
-  "scope": {
-    "allRegions": true,
-    "objectType": "AwsScanScope",
-    "instanceTagSelector": [
-      {
-        "key": "ScanConfig",
-        "value": "test"
-      }
-    ]
-  }
+  "scope": "contains(assetInfo.tags, '{\"key\":\"ScanConfig\",\"value\":\"test\"}')"
 }
 EOF
 ```
