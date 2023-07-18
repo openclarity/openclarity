@@ -204,7 +204,13 @@ func (s *Scanner) initScan() error {
 		// inform the scanner where to check for credentials to pull
 		// the image to scan.
 		imagePullSecretNames := []string{}
+		var imagePullSecretNamesSet map[string]struct{}
 		for _, ips := range pod.Spec.ImagePullSecrets {
+			// avoid cases where a pod has the same imagePullSecret more than once.
+			if _, ok := imagePullSecretNamesSet[ips.Name]; ok {
+				continue
+			}
+			imagePullSecretNamesSet[ips.Name] = struct{}{}
 			imagePullSecretNames = append(imagePullSecretNames, ips.Name)
 		}
 
