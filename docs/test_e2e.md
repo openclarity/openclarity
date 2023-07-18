@@ -70,45 +70,19 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
       * By Region, VPC or Security group:
 
         ```
-        "scope" {
-          "objectType": "AwsScanScope",
-          "regions": [
-            {
-             "name": "eu-west-1",
-             "vpcs": [
-               {
-                 "name": "<name of vpc>",
-                 "securityGroups": [
-                   {
-                     "name": "<name of sec group>"
-                   }
-                 ]
-               }
-             ]
-            }
-          ]
-        }
+        "scope": "contains(assetInfo.location, '<name of region>/<name of vpc>') and contains(assetInfo.securityGroups, '{\"id\":\"<name of sec group>\"}')"
         ```
 
       * By tag:
 
         ```
-        "scope": {
-          "instanceTagSelector": [
-            {
-              "key": "<key>",
-              "value": "<value>"
-            }
-          ]
-        }
+        "scope": "contains(assetInfo.tags, '{\"key\":\"<key>\",\"value\":\"<value>\"}')"
         ```
 
       * All:
 
         ```
-        "scope": {
-          "all": true
-        }
+        "scope": ""
         ```
 
    d. Set operationTime to the time you want the scan to run. As long as the time
