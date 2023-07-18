@@ -3,7 +3,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "kubeclarity.name" . }}
-  {{- with (((.Values.kubeclarity).prometheus).serviceMonitor).annotations }}
+  {{- with .Values.kubeclarity.prometheus.serviceMonitor.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -12,7 +12,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "kubeclarity.labels" . | nindent 4 }}
+      {{- include "kubeclarity.labels" . | nindent 6 }}
   endpoints:
   - port: metrics
     path: "/metrics"
