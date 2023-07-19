@@ -5,7 +5,7 @@ import { OPERATORS } from 'components/Filter';
 import ToggleButton from 'components/ToggleButton';
 import InfoIcon from 'components/InfoIcon';
 import Loader from 'components/Loader';
-import { getAssetColumnsFiltersConfig, scanColumnsFiltersConfig } from 'utils/utils';
+import { getAssetColumnsFiltersConfig } from 'utils/utils';
 import { APIS } from 'utils/systemConsts';
 import { useFilterDispatch, useFilterState, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
@@ -47,8 +47,7 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
                 filterType={filterType}
                 filtersConfig={[
                     ...filtersConfig,
-                    ...getAssetColumnsFiltersConfig({prefix: "asset.assetInfo", withType: false, withLabels: false}),
-                    ...scanColumnsFiltersConfig,
+                    ...getAssetColumnsFiltersConfig({prefix: "assetScan.asset.assetInfo", withType: false, withLabels: false}),
                     {value: "foundOn", label: "Found on", isDate: true, operators: [
                         {...OPERATORS.ge},
                         {...OPERATORS.le},
@@ -59,8 +58,8 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
                     `(findingInfo.objectType eq '${findingsObjectType}')`,
                     ...(hideHistory ? ["(invalidatedOn eq null)"] : [])
                 ].join(` and `)}
-                expand="asset,scan"
-                defaultSortBy={{sortIds: ["scan.startTime"], desc: true}}
+                expand="asset"
+                defaultSortBy={{sortIds: ["foundOn"], desc: true}}
             />
         </div>
     )

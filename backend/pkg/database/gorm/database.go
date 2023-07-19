@@ -119,10 +119,10 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 
 	// The UI needs to find all the findings for a specific finding type
 	// and the asset scan processor needs to filter that list by a
-	// specific asset. So add a combined index for those cases.
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_asset_idx ON findings((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"), SQLVariant.JSONExtract("Data", "$.asset.id")))
+	// specific asset scan. So add a combined index for those cases.
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_assetscan_idx ON findings((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"), SQLVariant.JSONExtract("Data", "$.assetScan.id")))
 	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index findings_by_type_and_asset_idx: %w", idb.Error)
+		return nil, fmt.Errorf("failed to create index findings_by_type_and_assetscan_idx: %w", idb.Error)
 	}
 
 	// The finding trends widget in the backend UI needs to count all the findings for a specific finding type

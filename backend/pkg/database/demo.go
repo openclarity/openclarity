@@ -117,12 +117,12 @@ func createFindings(ctx context.Context, assetScans []models.AssetScan) []models
 			Asset: &models.AssetRelationship{
 				Id: assetScan.Asset.Id,
 			},
+			FoundBy: &models.AssetScanRelationship{
+				Id: *assetScan.Id,
+			},
 			FindingInfo: nil,
 			FoundOn:     foundOn,
 			// InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
-			Scan: &models.ScanRelationship{
-				Id: assetScan.Scan.Id,
-			},
 		}
 		if assetScan.Sboms != nil && assetScan.Sboms.Packages != nil {
 			ret = append(ret, createPackageFindings(ctx, findingBase, *assetScan.Sboms.Packages)...)
@@ -504,27 +504,35 @@ func createScanConfigs(_ context.Context) []models.ScanConfig {
 
 	return []models.ScanConfig{
 		{
-			Name:               utils.PointerTo("Scan Config 1"),
-			ScanFamiliesConfig: &scanFamiliesConfig1,
+			Name: utils.PointerTo("Scan Config 1"),
+			ScanTemplate: &models.ScanTemplate{
+				Scope:               utils.PointerTo("startswith(targetInfo.location, 'eu-central-1')"),
+				MaxParallelScanners: utils.PointerTo(2),
+				AssetScanTemplate: &models.AssetScanTemplate{
+					ScanFamiliesConfig: &scanFamiliesConfig1,
+				},
+			},
 			Scheduled: &models.RuntimeScheduleScanConfig{
 				OperationTime: utils.PointerTo(time.Now().Add(5 * time.Hour)),
 			},
-			Scope:               utils.PointerTo("startswith(targetInfo.location, 'eu-central-1')"),
-			MaxParallelScanners: utils.PointerTo(2),
 		},
 		{
-			MaxParallelScanners: utils.PointerTo(3),
-			Name:                utils.PointerTo("Scan Config 2"),
-			ScanFamiliesConfig:  &scanFamiliesConfig2,
-			ScannerInstanceCreationConfig: &models.ScannerInstanceCreationConfig{
-				MaxPrice:         utils.PointerTo("1000000"),
-				RetryMaxAttempts: utils.PointerTo(4),
-				UseSpotInstances: true,
+			Name: utils.PointerTo("Scan Config 2"),
+			ScanTemplate: &models.ScanTemplate{
+				Scope:               utils.PointerTo("startswith(targetInfo.location, 'us-east-1')"),
+				MaxParallelScanners: utils.PointerTo(3),
+				AssetScanTemplate: &models.AssetScanTemplate{
+					ScanFamiliesConfig: &scanFamiliesConfig2,
+					ScannerInstanceCreationConfig: &models.ScannerInstanceCreationConfig{
+						MaxPrice:         utils.PointerTo("1000000"),
+						RetryMaxAttempts: utils.PointerTo(4),
+						UseSpotInstances: true,
+					},
+				},
 			},
 			Scheduled: &models.RuntimeScheduleScanConfig{
 				CronLine: utils.PointerTo("0 */4 * * *"),
 			},
-			Scope: utils.PointerTo("startswith(targetInfo.location, 'us-east-1')"),
 		},
 	}
 }
@@ -553,14 +561,6 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 		},
 	}
 
-	scan1ConfigSnapshot := &models.ScanConfigSnapshot{
-		MaxParallelScanners: scanConfigs[0].MaxParallelScanners,
-		Name:                utils.PointerTo[string]("Scan Config 1"),
-		ScanFamiliesConfig:  scanConfigs[0].ScanFamiliesConfig,
-		Scheduled:           scanConfigs[0].Scheduled,
-		Scope:               scanConfigs[0].Scope,
-	}
-
 	// Create scan 2: Running
 	scan2Start := time.Now().Add(-5 * time.Minute)
 	scan2Assets := []string{*assets[2].Id}
@@ -583,39 +583,33 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 		},
 	}
 
-	scan2ConfigSnapshot := &models.ScanConfigSnapshot{
-		MaxParallelScanners: scanConfigs[1].MaxParallelScanners,
-		Name:                utils.PointerTo[string]("Scan Config 2"),
-		ScanFamiliesConfig:  scanConfigs[1].ScanFamiliesConfig,
-		Scheduled:           scanConfigs[1].Scheduled,
-		Scope:               scanConfigs[1].Scope,
-	}
-
 	return []models.Scan{
 		{
 			EndTime: &scan1End,
 			ScanConfig: &models.ScanConfigRelationship{
 				Id: *scanConfigs[0].Id,
 			},
-			ScanConfigSnapshot: scan1ConfigSnapshot,
-			StartTime:          &scan1Start,
-			State:              utils.PointerTo(models.ScanStateDone),
-			StateMessage:       utils.PointerTo("Scan was completed successfully"),
-			StateReason:        utils.PointerTo(models.ScanStateReasonSuccess),
-			Summary:            scan1Summary,
-			AssetIDs:           &scan1Assets,
+			Scope:             scanConfigs[0].ScanTemplate.Scope,
+			AssetScanTemplate: scanConfigs[0].ScanTemplate.AssetScanTemplate,
+			StartTime:         &scan1Start,
+			State:             utils.PointerTo(models.ScanStateDone),
+			StateMessage:      utils.PointerTo("Scan was completed successfully"),
+			StateReason:       utils.PointerTo(models.ScanStateReasonSuccess),
+			Summary:           scan1Summary,
+			AssetIDs:          &scan1Assets,
 		},
 		{
 			ScanConfig: &models.ScanConfigRelationship{
 				Id: *scanConfigs[1].Id,
 			},
-			ScanConfigSnapshot: scan2ConfigSnapshot,
-			StartTime:          &scan2Start,
-			State:              utils.PointerTo(models.ScanStateInProgress),
-			StateMessage:       utils.PointerTo("Scan is in progress"),
-			StateReason:        nil,
-			Summary:            scan2Summary,
-			AssetIDs:           &scan2Assets,
+			Scope:             scanConfigs[1].ScanTemplate.Scope,
+			AssetScanTemplate: scanConfigs[1].ScanTemplate.AssetScanTemplate,
+			StartTime:         &scan2Start,
+			State:             utils.PointerTo(models.ScanStateInProgress),
+			StateMessage:      utils.PointerTo("Scan is in progress"),
+			StateReason:       nil,
+			Summary:           scan2Summary,
+			AssetIDs:          &scan2Assets,
 		},
 	}
 }
@@ -636,9 +630,11 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 				Asset: &models.AssetRelationship{
 					Id: assetID,
 				},
+				ScanFamiliesConfig:            scan.AssetScanTemplate.ScanFamiliesConfig,
+				ScannerInstanceCreationConfig: scan.AssetScanTemplate.ScannerInstanceCreationConfig,
 			}
 			// Create Exploits if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Exploits.Enabled {
+			if *result.ScanFamiliesConfig.Exploits.Enabled {
 				result.Exploits = &models.ExploitScan{
 					Exploits: createExploitsResult(),
 				}
@@ -648,7 +644,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Malware if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Malware.Enabled {
+			if *result.ScanFamiliesConfig.Malware.Enabled {
 				result.Malware = &models.MalwareScan{
 					Malware: createMalwareResult(),
 				}
@@ -658,7 +654,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Misconfigurations if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Misconfigurations.Enabled {
+			if *result.ScanFamiliesConfig.Misconfigurations.Enabled {
 				result.Misconfigurations = &models.MisconfigurationScan{
 					Misconfigurations: createMisconfigurationsResult(),
 				}
@@ -668,7 +664,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Packages if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Sbom.Enabled {
+			if *result.ScanFamiliesConfig.Sbom.Enabled {
 				result.Sboms = &models.SbomScan{
 					Packages: createPackagesResult(),
 				}
@@ -678,7 +674,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Rootkits if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Rootkits.Enabled {
+			if *result.ScanFamiliesConfig.Rootkits.Enabled {
 				result.Rootkits = &models.RootkitScan{
 					Rootkits: createRootkitsResult(),
 				}
@@ -688,7 +684,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Secrets if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Secrets.Enabled {
+			if *result.ScanFamiliesConfig.Secrets.Enabled {
 				result.Secrets = &models.SecretScan{
 					Secrets: createSecretsResult(),
 				}
@@ -698,7 +694,7 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 
 			// Create Vulnerabilities if needed
-			if *scan.ScanConfigSnapshot.ScanFamiliesConfig.Vulnerabilities.Enabled {
+			if *result.ScanFamiliesConfig.Vulnerabilities.Enabled {
 				result.Vulnerabilities = &models.VulnerabilityScan{
 					Vulnerabilities: createVulnerabilitiesResult(),
 				}

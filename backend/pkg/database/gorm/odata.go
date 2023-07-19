@@ -35,6 +35,33 @@ type ODataObject struct {
 }
 
 var schemaMetas = map[string]odatasql.SchemaMeta{
+	"AssetScanTemplate": {
+		Fields: odatasql.Schema{
+			"scanFamiliesConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
+			},
+			"scannerInstanceCreationConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
+			},
+		},
+	},
+	"ScanTemplate": {
+		Fields: odatasql.Schema{
+			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"maxParallelScanners": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
+			},
+			"timeoutSeconds": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
+			},
+			"assetScanTemplate": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanTemplate"},
+			},
+		},
+	},
 	assetScansSchemaName: {
 		Table: "asset_scans",
 		Fields: odatasql.Schema{
@@ -49,6 +76,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   "Scan",
 				RelationshipProperty: "id",
+			},
+			"scanFamiliesConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
+			},
+			"scannerInstanceCreationConfig": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
 			},
 			"status": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -270,6 +305,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "scans",
 		Fields: odatasql.Schema{
 			"id":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"revision":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
@@ -278,9 +314,20 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				RelationshipSchema:   "ScanConfig",
 				RelationshipProperty: "id",
 			},
-			"scanConfigSnapshot": odatasql.FieldMeta{
+			"scope": odatasql.FieldMeta{
+				FieldType:             odatasql.ComplexFieldType,
+				ComplexFieldSchemas:   []string{"AwsScanScope"},
+				DiscriminatorProperty: "objectType",
+			},
+			"timeoutSeconds": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
+			},
+			"maxParallelScanners": odatasql.FieldMeta{
+				FieldType: odatasql.PrimitiveFieldType,
+			},
+			"assetScanTemplate": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScanConfigSnapshot"},
+				ComplexFieldSchemas: []string{"AssetScanTemplate"},
 			},
 			"assetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -400,49 +447,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scanFamiliesConfig": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
-			},
 			"scheduled": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
 			},
-			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"maxParallelScanners": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
-			},
-			"scannerInstanceCreationConfig": odatasql.FieldMeta{
+			"scanTemplate": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
-			},
-			"timeoutSeconds": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
-			},
-		},
-	},
-	"ScanConfigSnapshot": {
-		Fields: odatasql.Schema{
-			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scanFamiliesConfig": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScanFamiliesConfig"},
-			},
-			"scheduled": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
-			},
-			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"maxParallelScanners": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
-			},
-			"scannerInstanceCreationConfig": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"ScannerInstanceCreationConfig"},
-			},
-			"timeoutSeconds": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				ComplexFieldSchemas: []string{"ScanTemplate"},
 			},
 		},
 	},
@@ -536,14 +547,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Table: "findings",
 		Fields: odatasql.Schema{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scan": odatasql.FieldMeta{
-				FieldType:            odatasql.RelationshipFieldType,
-				RelationshipSchema:   "Scan",
-				RelationshipProperty: "id",
-			},
 			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   assetSchemaName,
+				RelationshipProperty: "id",
+			},
+			"foundBy": odatasql.FieldMeta{
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   assetScansSchemaName,
 				RelationshipProperty: "id",
 			},
 			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},

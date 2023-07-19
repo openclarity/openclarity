@@ -34,10 +34,10 @@ const ScansTable = () => {
 
     const columns = useMemo(() => [
         {
-            Header: "Config Name",
+            Header: "Name",
             id: "name",
-            sortIds: ["scanConfigSnapshot.name"],
-            accessor: "scanConfigSnapshot.name"
+            sortIds: ["name"],
+            accessor: "name"
         },
         {
             Header: "Started",
@@ -56,8 +56,8 @@ const ScansTable = () => {
         {
             Header: "Scope",
             id: "scope",
-            sortIds: ["scanConfigSnapshot.scope"],
-            accessor: "scanConfigSnapshot.scope"
+            sortIds: ["scope"],
+            accessor: "scope"
         },
         {
             Header: "Status",
@@ -103,12 +103,12 @@ const ScansTable = () => {
             tableTitle={TABLE_TITLE}
             filterType={FILTER_TYPES.SCANS}
             filtersConfig={[
-                {value: "scanConfigSnapshot.name", label: "Config name", operators: [
-                   {...OPERATORS.eq, valueItems: [], creatable: true},
-                   {...OPERATORS.ne, valueItems: [], creatable: true},
-                   {...OPERATORS.startswith},
-                   {...OPERATORS.endswith},
-                   {...OPERATORS.contains, valueItems: [], creatable: true}
+                {value: "name", label: "Name", operators: [
+                    {...OPERATORS.eq, valueItems: [], creatable: true},
+                    {...OPERATORS.ne, valueItems: [], creatable: true},
+                    {...OPERATORS.startswith},
+                    {...OPERATORS.endswith},
+                    {...OPERATORS.contains, valueitems: [], creatable: true}
                 ]},
                 {value: "scope", label: "Asset Query", operators: [
                     {...OPERATORS.eq, valueitems: [], creatable: true},

@@ -17,6 +17,8 @@ package models
 
 import "time"
 
+const DefaultMaxParallelScanners int = 2
+
 func (s *Scan) GetState() (ScanState, bool) {
 	var state ScanState
 	var ok bool
@@ -39,22 +41,11 @@ func (s *Scan) GetID() (string, bool) {
 	return id, ok
 }
 
-func (s *Scan) GetScanConfigScope() (string, bool) {
-	var scope string
-	var ok bool
-
-	if s.ScanConfigSnapshot != nil {
-		scope, ok = s.ScanConfigSnapshot.GetScope()
-	}
-
-	return scope, ok
-}
-
 func (s *Scan) GetTimeoutSeconds() int {
 	var timeoutSec int
 
-	if s.ScanConfigSnapshot != nil {
-		timeoutSec = s.ScanConfigSnapshot.GetTimeoutSeconds()
+	if s.TimeoutSeconds != nil {
+		timeoutSec = *s.TimeoutSeconds
 	}
 
 	return timeoutSec
@@ -66,11 +57,37 @@ func (s *Scan) IsTimedOut(defaultTimeout time.Duration) bool {
 	}
 	// Use the provided timeout to calculate the timeoutTime by default.
 	timeoutTime := s.StartTime.Add(defaultTimeout)
-	// Use Scan.ScanConfigSnapshot.TimeoutSeconds to calculate timeoutTime
-	// if it is set and its value is bigger than zero.
+	// Use TimeoutSeconds to calculate timeoutTime if it is set and its
+	// value is bigger than zero.
 	if timeoutSeconds := s.GetTimeoutSeconds(); timeoutSeconds > 0 {
 		timeoutTime = s.StartTime.Add(time.Duration(timeoutSeconds) * time.Second)
 	}
 
 	return time.Now().After(timeoutTime)
+}
+
+func (s *Scan) GetScope() (string, bool) {
+	var scope string
+	var ok bool
+
+	if s.Scope != nil {
+		scope, ok = *s.Scope, true
+	}
+	return scope, ok
+}
+
+func (s *Scan) GetMaxParallelScanners() int {
+	if s.MaxParallelScanners != nil {
+		return *s.MaxParallelScanners
+	}
+
+	return DefaultMaxParallelScanners
+}
+
+func (s *ScanRelationship) GetMaxParallelScanners() int {
+	if s.MaxParallelScanners != nil {
+		return *s.MaxParallelScanners
+	}
+
+	return DefaultMaxParallelScanners
 }

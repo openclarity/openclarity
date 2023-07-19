@@ -195,7 +195,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 	// and we'll just get a not found error during the asset scan.
 	assetFilter := "terminatedOn eq null"
 
-	scope, ok := scan.GetScanConfigScope()
+	scope, ok := scan.GetScope()
 	if !ok {
 		return fmt.Errorf("invalid Scan: Scope is nil. ScanID=%s", scanID)
 	}

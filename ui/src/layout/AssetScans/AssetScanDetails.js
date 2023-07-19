@@ -15,8 +15,7 @@ const ASSET_SCAN_DETAILS_PATHS = {
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, scan, asset, summary} = data;
-    const {id: scanId, scanConfigSnapshot, startTime} = scan;
+    const {id, asset, summary} = data;
     const {id: assetId, assetInfo} = asset;
     
     return (
@@ -36,8 +35,8 @@ const DetailsContent = ({data}) => {
                     component: () => (
                         <Findings
                             findingsSummary={summary}
-                            findingsFilter={`scan/id eq '${scanId}' and asset/id eq '${assetId}'`}
-                            findingsFilterTitle={`${assetInfo.instanceID} scanned by ${getScanName({name: scanConfigSnapshot.name, startTime})}`}
+                            findingsFilter={`foundBy/id eq '${id}'`}
+                            findingsFilterTitle={`AssetScan ${id}`} // TODO(sambetts) replace with name maybe
                         />
                     )
                 }
@@ -52,13 +51,13 @@ const AssetScanDetails = () => (
         backTitle="Asset scans"
         url={APIS.ASSET_SCANS}
         select="id,scan,asset,summary,status"
-        expand="scan($select=id,scanConfigSnapshot,startTime,endTime),asset($select=id,assetInfo),status"
+        expand="scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status"
         getTitleData={({scan, asset}) => {
-            const {startTime, scanConfigSnapshot} = scan || {};
+            const {startTime, name} = scan || {};
 
             return ({
                 title: asset?.assetInfo?.instanceID,
-                subTitle: `scanned by '${scanConfigSnapshot?.name}' on ${formatDate(startTime)}`
+                subTitle: `scanned by '${name}' on ${formatDate(startTime)}`
             })
         }}
         detailsContent={props => <DetailsContent {...props} />}

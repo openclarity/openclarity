@@ -134,7 +134,7 @@ export const vulnerabilitiesCountersColumnsFiltersConfig = Object.values(VULNERA
 });
 
 export const scanColumnsFiltersConfig = [
-    {value: "scan.scanConfigSnapshot.name", label: "Scan name", operators: [
+    {value: "scan.name", label: "Scan name", operators: [
         {...OPERATORS.eq, valueItems: [], creatable: true},
         {...OPERATORS.ne, valueItems: [], creatable: true},
         {...OPERATORS.startswith},

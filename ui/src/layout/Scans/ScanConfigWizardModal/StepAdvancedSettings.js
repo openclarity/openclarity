@@ -4,7 +4,7 @@ import { TextField, CheckboxField, validators } from 'components/Form';
 const StepAdvancedSettings = () => (
     <div className="scan-config-advanced-settings-step">
         <TextField
-            name="maxParallelScanners"
+            name="scanTemplate.maxParallelScanners"
             label="Maximal number of instances to be scanned in parallel"
             type="number"
             tooltipText={(
@@ -15,7 +15,7 @@ const StepAdvancedSettings = () => (
             validate={validators.validateRequired}
         />
         <CheckboxField
-            name="scannerInstanceCreationConfig.useSpotInstances"
+            name="scanTemplate.assetScanTemplate.scannerInstanceCreationConfig.useSpotInstances"
             title="Spot instances required"
             tooltipText={(
                 <div style={{width: "350px"}}>

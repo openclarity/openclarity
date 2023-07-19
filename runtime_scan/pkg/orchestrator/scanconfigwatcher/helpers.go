@@ -16,24 +16,23 @@
 package scanconfigwatcher
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func newScanFromScanConfig(scanConfig *models.ScanConfig) *models.Scan {
 	return &models.Scan{
+		Name: utils.PointerTo(fmt.Sprintf("%s-%s", *scanConfig.Name, scanConfig.Scheduled.OperationTime.Format(time.RFC3339))),
 		ScanConfig: &models.ScanConfigRelationship{
 			Id: *scanConfig.Id,
 		},
-		ScanConfigSnapshot: &models.ScanConfigSnapshot{
-			MaxParallelScanners: scanConfig.MaxParallelScanners,
-			Name:                scanConfig.Name,
-			ScanFamiliesConfig:  scanConfig.ScanFamiliesConfig,
-			Scheduled:           scanConfig.Scheduled,
-			Scope:               scanConfig.Scope,
-			TimeoutSeconds:      scanConfig.TimeoutSeconds,
-		},
-		State: utils.PointerTo(models.ScanStatePending),
+		AssetScanTemplate:   scanConfig.ScanTemplate.AssetScanTemplate,
+		Scope:               scanConfig.ScanTemplate.Scope,
+		MaxParallelScanners: scanConfig.ScanTemplate.MaxParallelScanners,
+		State:               utils.PointerTo(models.ScanStatePending),
 		Summary: &models.ScanSummary{
 			JobsCompleted:          utils.PointerTo(0),
 			JobsLeftToRun:          utils.PointerTo(0),

@@ -27,10 +27,9 @@ import (
 )
 
 type jobConfigInput struct {
-	config     *ScannerConfig
-	assetScan  *models.AssetScan
-	scanConfig *models.ScanConfigSnapshot
-	asset      *models.Asset
+	config    *ScannerConfig
+	assetScan *models.AssetScan
+	asset     *models.Asset
 }
 
 func (i *jobConfigInput) Validate() error {
@@ -40,10 +39,6 @@ func (i *jobConfigInput) Validate() error {
 
 	if i.assetScan == nil {
 		return errors.New("invalid JobConfigInput as AssetScan is nil")
-	}
-
-	if i.scanConfig == nil {
-		return errors.New("invalid JobConfigInput as ScanConfig is nil")
 	}
 
 	if i.asset == nil {
@@ -63,11 +58,11 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		RetryMaxAttempts: utils.PointerTo(1),
 		UseSpotInstances: false,
 	}
-	if i.scanConfig.ScannerInstanceCreationConfig != nil {
-		instanceCreationConfig = *i.scanConfig.ScannerInstanceCreationConfig
+	if i.assetScan.ScannerInstanceCreationConfig != nil {
+		instanceCreationConfig = *i.assetScan.ScannerInstanceCreationConfig
 	}
 
-	scannerConfig := NewFamiliesConfigFrom(i.config, i.scanConfig)
+	scannerConfig := NewFamiliesConfigFrom(i.config, i.assetScan.ScanFamiliesConfig)
 	scannerConfigYAML, err := yaml.Marshal(scannerConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert ScannerConfig to YAML for AssetScan with %s id",
@@ -79,7 +74,6 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		ScannerCLIConfig: string(scannerConfigYAML),
 		VMClarityAddress: i.config.ScannerBackendAddress,
 		ScanMetadata: provider.ScanMetadata{
-			ScanID:      i.assetScan.Scan.Id,
 			AssetScanID: *i.assetScan.Id,
 			AssetID:     i.assetScan.Asset.Id,
 		},

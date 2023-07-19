@@ -30,8 +30,7 @@ func (asp *AssetScanProcessor) getExistingMisconfigurationFindingsForScan(ctx co
 
 	existingMap := map[findingkey.MisconfigurationKey]string{}
 
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and asset/id eq '%s' and scan/id eq '%s'",
-		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/scannerName,findingInfo/testId,findingInfo/message"),
@@ -98,8 +97,12 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 			}
 
 			finding := models.Finding{
-				Scan:        assetScan.Scan,
-				Asset:       assetScan.Asset,
+				Asset: &models.AssetRelationship{
+					Id: assetScan.Asset.Id,
+				},
+				FoundBy: &models.AssetScanRelationship{
+					Id: *assetScan.Id,
+				},
 				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
