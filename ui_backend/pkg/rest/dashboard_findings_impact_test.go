@@ -59,6 +59,12 @@ func Test_processFindings(t *testing.T) {
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
 						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
+						},
 						FindingInfo: rootkitFindingInfo1,
 					},
 				},
@@ -83,6 +89,12 @@ func Test_processFindings(t *testing.T) {
 					{
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
+						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
@@ -115,6 +127,12 @@ func Test_processFindings(t *testing.T) {
 					{
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
+						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
 						},
 						FindingInfo: rootkitFindingInfo1,
 					},
@@ -153,6 +171,12 @@ func Test_processFindings(t *testing.T) {
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
 						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
+						},
 						FindingInfo: rootkitFindingInfo1,
 					},
 					{
@@ -160,12 +184,24 @@ func Test_processFindings(t *testing.T) {
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
 						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
+						},
 						FindingInfo: rootkitFindingInfo2,
 					},
 					{
 						// findingAssetKey not in findingAssetMap - first time we see the finding
 						Asset: &backendmodels.AssetRelationship{
 							Id: "asset-1",
+						},
+						FoundBy: &backendmodels.AssetScanRelationship{
+							Id: "assetscan-1",
+							Asset: &backendmodels.AssetRelationship{
+								Id: "asset-1",
+							},
 						},
 						FindingInfo: rootkitFindingInfo3,
 					},

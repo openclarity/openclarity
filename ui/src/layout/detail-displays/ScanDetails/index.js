@@ -6,7 +6,7 @@ import Title from 'components/Title';
 import ScanProgressBar from 'components/ScanProgressBar';
 import Button from 'components/Button';
 import { SCANS_PATHS } from 'layout/Scans';
-import ConfigurationReadOnlyDisplay from 'layout/Scans/ConfigurationReadOnlyDisplay';
+import { ScanReadOnlyDisplay } from 'layout/Scans/ConfigurationReadOnlyDisplay';
 import { formatDate, calculateDuration, formatNumber } from 'utils/utils';
 import { ROUTES } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
@@ -17,7 +17,7 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
     const navigate = useNavigate();
     const filtersDispatch = useFilterDispatch();
 
-    const {id, scanConfig, scanConfigSnapshot, startTime, endTime, summary, state, stateMessage, stateReason} = scanData || {};
+    const {id, name, scanConfig, scope, assetScanTemplate, startTime, endTime, summary, state, stateMessage, stateReason} = scanData || {};
     const {jobsCompleted, jobsLeftToRun} = summary || {};
 
     const formattedStartTime = formatDate(startTime);
@@ -27,7 +27,7 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
             type: FILTER_TYPES.ASSET_SCANS,
             filters: {
                 filter: `scan/id eq '${id}'`,
-                name: `${scanConfigSnapshot.name} - ${formattedStartTime}`,
+                name: name || id,
                 suffix: "scan",
                 backPath: pathname
             },
@@ -41,8 +41,7 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
         <DoublePaneDisplay
             leftPaneDisplay={() => (
                 <TitleValueDisplayColumn>
-                    <ConfigurationAlertLink updatedConfigData={scanConfig} scanConfigData={scanConfigSnapshot} />
-                    <ConfigurationReadOnlyDisplay configData={scanConfigSnapshot} />
+                    <ScanReadOnlyDisplay scanData={scanData} />
                 </TitleValueDisplayColumn>
             )}
             rightPlaneDisplay={() => (

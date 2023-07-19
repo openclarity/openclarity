@@ -12,8 +12,11 @@ import './scan-config-wizard-modal.scss';
 const padDateTime = time => String(time).padStart(2, "0");
 
 const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
-    const {id, name, scope, scanFamiliesConfig, scheduled, maxParallelScanners, scannerInstanceCreationConfig} = initialData || {};
+    const {id, name, scanTemplate, scheduled} = initialData || {};
+    const {scope, maxParallelScanners, assetScanTemplate} = scanTemplate || {};
     const {operationTime, cronLine} = scheduled || {};
+
+    const {scanFamiliesConfig, scannerInstanceCreationConfig} = assetScanTemplate || {}
     const {useSpotInstances} = scannerInstanceCreationConfig || {};
     
     const isEditForm = !!id;
@@ -21,7 +24,6 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     const initialValues = {
         id: id || null,
         name: name || "",
-        scope: scope || "",
         scanFamiliesConfig: {
             sbom: {enabled: true},
             vulnerabilities: {enabled: true},
@@ -31,16 +33,30 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             misconfigurations: {enabled: false},
             exploits: {enabled: false}
         },
+        scanTemplate: {
+            scope: scope || "",
+            maxParallelScanners: maxParallelScanners || 2,
+            assetScanTemplate: {
+                scanFamiliesConfig: {
+                    sbom: {enabled: true},
+                    vulnerabilities: {enabled: true},
+                    malware: {enabled: false},
+                    rootkits: {enabled: false},
+                    secrets: {enabled: false},
+                    misconfigurations: {enabled: false},
+                    exploits: {enabled: false}
+                },
+                scannerInstanceCreationConfig: {
+                    useSpotInstances: useSpotInstances || false
+                }
+            }
+        },
         scheduled: {
             scheduledSelect: !!cronLine ? SCHEDULE_TYPES_ITEMS.REPETITIVE.value : SCHEDULE_TYPES_ITEMS.NOW.value,
             laterDate: "",
             laterTime: "",
             cronLine: cronLine || CRON_QUICK_OPTIONS[0].value
         },
-        maxParallelScanners: maxParallelScanners || 2,
-        scannerInstanceCreationConfig: {
-            useSpotInstances: useSpotInstances || false
-        }
     }
     
     if (!!operationTime && !cronLine) {
@@ -52,7 +68,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
 
     Object.keys(scanFamiliesConfig || {}).forEach(type => {
         const {enabled} = scanFamiliesConfig[type];
-        initialValues.scanFamiliesConfig[type].enabled = enabled;
+        initialValues.scanTemplate.assetScanTemplate.scanFamiliesConfig[type].enabled = enabled;
     })
 
     const steps = [

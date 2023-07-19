@@ -936,127 +936,197 @@ components:
     ScanRelationship:
       type: object
       description: Describes an expandable relationship to Scan object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+              readOnly: true
+            revision:
+              type: integer
+              readOnly: true
+            startTime:
+              type: string
+              format: date-time
+              readOnly: true
+            endTime:
+              type: string
+              format: date-time
+              readOnly: true
+            scanConfig:
+              $ref: '#/components/schemas/ScanConfigRelationship'
+              readOnly: true
+            scope:
+              description: |
+                The query used to limit the scope of this scan. It uses
+                the ODATA $filter query language to limit the collection of assets
+                that this scan will operate over. For example
+                `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+                to just assets in the eu-west-2 AWS region.
+              type: string
+            assetScanTemplate:
+              $ref: '#/components/schemas/AssetScanTemplate'
+              readOnly: true
+            assetIDs:
+              description: List of asset IDs to be scanned
+              type: array
+              items:
+                type: string
+              nullable: true
+              readOnly: true
+            state:
+              description: The lifecycle state of this scan.
+              type: string
+              enum:
+                - Pending
+                - Discovered
+                - InProgress
+                - Aborted
+                - Failed
+                - Done
+              readOnly: true
+            stateMessage:
+              description: Human-readable message indicating details about the last state transition.
+              type: string
+              readOnly: true
+            stateReason:
+              description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+              type: string
+              enum:
+                - Aborted
+                - TimedOut
+                - OneOrMoreAssetFailedToScan
+                - DiscoveryFailed
+                - Unexpected
+                - NothingToScan
+                - Success
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanSummary'
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/ScanTemplateReadOnly'
+
+    ScanTemplate:
+      type: object
       properties:
-        id:
+        scope:
+          description: |
+            The query used to limit the scope of this scan. It uses
+            the ODATA $filter query language to limit the collection of assets
+            that this scan will operate over. For example
+            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+            to just assets in the eu-west-2 AWS region.
           type: string
-        revision:
+        timeoutSeconds:
           type: integer
-          readOnly: true
-        startTime:
-          type: string
-          format: date-time
-          readOnly: true
-        endTime:
-          type: string
-          format: date-time
-          readOnly: true
-        scanConfig:
-          $ref: '#/components/schemas/ScanConfigRelationship'
-          readOnly: true
-        scanConfigSnapshot:
-          $ref: '#/components/schemas/ScanConfigSnapshot'
-          readOnly: true
-        assetIDs:
-          description: List of asset IDs to be scanned
-          type: array
-          items:
-            type: string
-          nullable: true
-          readOnly: true
-        state:
-          description: The lifecycle state of this scan.
-          type: string
-          enum:
-            - Pending
-            - Discovered
-            - InProgress
-            - Aborted
-            - Failed
-            - Done
-          readOnly: true
-        stateMessage:
-          description: Human-readable message indicating details about the last state transition.
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          description: "The maximum number of asset scans that can be scheduled in parallel for this scan"
+        assetScanTemplate:
+          $ref: '#/components/schemas/AssetScanTemplate'
+
+    ScanTemplateReadOnly:
+      type: object
+      properties:
+        scope:
+          description: |
+            The query used to limit the scope of this scan. It uses
+            the ODATA $filter query language to limit the collection of assets
+            that this scan will operate over. For example
+            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+            to just assets in the eu-west-2 AWS region.
           type: string
           readOnly: true
-        stateReason:
-          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-          type: string
-          enum:
-            - Aborted
-            - TimedOut
-            - OneOrMoreAssetFailedToScan
-            - DiscoveryFailed
-            - Unexpected
-            - NothingToScan
-            - Success
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
           readOnly: true
-        summary:
-          $ref: '#/components/schemas/ScanSummary'
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          description: "The maximum number of asset scans that can be scheduled in parallel for this scan"
+        assetScanTemplate:
+          $ref: '#/components/schemas/AssetScanTemplate'
           readOnly: true
-      required:
-        - id
 
     # NOTE(sambetts) Any changes made to Scan must be reflected in
     # ScanRelationship to ensure correct operation of the API when $expanding
     Scan:
       type: object
       description: Describes a multi-asset scheduled scan.
-      properties:
-        id:
-          type: string
-          # TODO(sambetts) Decide if we want the validation here by having
-          # separate schemas for GET, POST and PATCH
-          #
-          # We can't make anything readOnly or required here if we want to
-          # use the same schema for PATCH otherwise it will require you
-          # always send the required fields and remove the readOnly fields
-          # on the client side.
-          #
-          # readOnly: true
-        revision:
-          type: integer
-        startTime:
-          type: string
-          format: date-time
-        endTime:
-          type: string
-          format: date-time
-        scanConfig:
-          $ref: '#/components/schemas/ScanConfigRelationship'
-        scanConfigSnapshot:
-          $ref: '#/components/schemas/ScanConfigSnapshot'
-        assetIDs:
-          description: List of asset IDs to be scanned
-          type: array
-          items:
-            type: string
-          nullable: true
-        state:
-          description: The lifecycle state of this scan.
-          type: string
-          enum:
-            - Pending
-            - Discovered
-            - InProgress
-            - Aborted
-            - Failed
-            - Done
-        stateMessage:
-          description: Human-readable message indicating details about the last state transition.
-          type: string
-        stateReason:
-          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-          type: string
-          enum:
-            - Aborted
-            - TimedOut
-            - OneOrMoreAssetFailedToScan
-            - DiscoveryFailed
-            - Unexpected
-            - NothingToScan
-            - Success
-        summary:
-          $ref: '#/components/schemas/ScanSummary'
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            name:
+              type: string
+            revision:
+              type: integer
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            scanConfig:
+              $ref: '#/components/schemas/ScanConfigRelationship'
+            assetIDs:
+              description: List of asset IDs to be scanned
+              type: array
+              items:
+                type: string
+              nullable: true
+            state:
+              description: The lifecycle state of this scan.
+              type: string
+              enum:
+                - Pending
+                - Discovered
+                - InProgress
+                - Aborted
+                - Failed
+                - Done
+            stateMessage:
+              description: Human-readable message indicating details about the last state transition.
+              type: string
+            stateReason:
+              description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+              type: string
+              enum:
+                - Aborted
+                - TimedOut
+                - OneOrMoreAssetFailedToScan
+                - DiscoveryFailed
+                - Unexpected
+                - NothingToScan
+                - Success
+            summary:
+              $ref: '#/components/schemas/ScanSummary'
+        - $ref: '#/components/schemas/ScanTemplate'
 
     ScanSummary:
       description: A summary of the progress of a scan for informational purposes.
@@ -1189,44 +1259,6 @@ components:
             $ref: '#/components/schemas/ScanConfig'
           readOnly: true
 
-    ScanConfigSnapshot:
-      type: object
-      description: |
-        Snapshot of the configuration from the ScanConfig which created the
-        scan, so that changes in the ScanConfig do not affect the existing
-        Scan.
-      properties:
-        name:
-          type: string
-        scanFamiliesConfig:
-          $ref: '#/components/schemas/ScanFamiliesConfig'
-        scope:
-          description: |
-            The query used to limit the scope of this scan. It uses
-            the ODATA $filter query language to limit the collection of assets
-            that this scan will operate over. For example
-            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
-            to just assets in the eu-west-2 AWS region.
-          type: string
-        timeoutSeconds:
-          type: integer
-          minimum: 0
-          description: |
-            The maximum time in seconds that a scan started from this config
-            should run for before being automatically aborted.
-        scheduled:
-          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
-        maxParallelScanners:
-          type: 'integer'
-          minimum: 1
-          maximum: 20
-          description: "The maximum number of scanners that can run in parallel for each scan"
-        disabled:
-          description: 'if true, the scan config is disabled and no scan should run from it'
-          type: boolean
-        scannerInstanceCreationConfig:
-          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
-
     ScannerInstanceCreationConfig:
       type: object
       description: Configuration of scanner instance
@@ -1252,34 +1284,15 @@ components:
         name:
           type: string
           readOnly: true
-        scanFamiliesConfig:
-          $ref: '#/components/schemas/ScanFamiliesConfig'
-          readOnly: true
-        scope:
-          type: string
-          readOnly: true
-        timeoutSeconds:
-          type: integer
-          minimum: 0
-          description: |
-            The maximum time in seconds that a scan started from this config
-            should run for before being automatically aborted.
+        scanTemplate:
+          $ref: '#/components/schemas/ScanTemplate'
           readOnly: true
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfig'
           readOnly: true
-        maxParallelScanners:
-          type: 'integer'
-          minimum: 1
-          maximum: 20
-          description: "The maximum number of scanners that can run in parallel for each scan"
-          readOnly: true
         disabled:
           description: 'if true, the scan config is disabled and no scan should run from it'
           type: boolean
-          readOnly: true
-        scannerInstanceCreationConfig:
-          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
           readOnly: true
       required: ['id']
 
@@ -1295,29 +1308,13 @@ components:
           type: integer
         name:
           type: string
-        scanFamiliesConfig:
-          $ref: '#/components/schemas/ScanFamiliesConfig'
-        scope:
-          type: string
-        timeoutSeconds:
-          type: integer
-          minimum: 0
-          description: |
-            The maximum time in seconds that a scan started from this config
-            should run for before being automatically aborted.
+        scanTemplate:
+          $ref: '#/components/schemas/ScanTemplate'
         scheduled:
           $ref: '#/components/schemas/RuntimeScheduleScanConfig'
-        maxParallelScanners:
-          description: "The maximum number of scanners that can run in parallel for each scan"
-          type: 'integer'
-          minimum: 1
-          maximum: 20
-          default: 2
         disabled:
           description: 'if true, the scan config is disabled and no scan should run from it'
           type: boolean
-        scannerInstanceCreationConfig:
-          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
 
     ScanConfigExists:
       type: object
@@ -1451,6 +1448,9 @@ components:
           description: Total number of scans that have ever run for this asset
           type: integer
           readOnly: true
+        firstSeen:
+          type: string
+          format: date-time
         terminatedOn:
           type: string
           format: date-time
@@ -1573,48 +1573,60 @@ components:
         - Failed
         - Done
 
+    AssetScanTemplate:
+      type: object
+      x-go-type-name: "AssetScanTemplate"
+      properties:
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+
     AssetScan:
       type: object
-      properties:
-        id:
-          type: string
-          # TODO(sambetts) Decide if we want the validation here by having
-          # separate schemas for GET, POST and PATCH.
-          #
-          # We can't make anything readOnly or required here if we want to
-          # use the same schema for PATCH otherwise it will require you
-          # always send the required fields and remove the readOnly fields
-          # on the client side.
-          #
-          # readOnly: true
-        revision:
-          type: integer
-        asset:
-          $ref: '#/components/schemas/AssetRelationship'
-        scan:
-          $ref: '#/components/schemas/ScanRelationship'
-        status:
-          $ref: '#/components/schemas/AssetScanStatus'
-        sboms:
-          $ref: '#/components/schemas/SbomScan'
-        vulnerabilities:
-          $ref: '#/components/schemas/VulnerabilityScan'
-        malware:
-          $ref: '#/components/schemas/MalwareScan'
-        rootkits:
-          $ref: '#/components/schemas/RootkitScan'
-        secrets:
-          $ref: '#/components/schemas/SecretScan'
-        misconfigurations:
-          $ref: '#/components/schemas/MisconfigurationScan'
-        exploits:
-          $ref: '#/components/schemas/ExploitScan'
-        findingsProcessed:
-          type: boolean
-        resourceCleanup:
-          $ref: '#/components/schemas/ResourceCleanupState'
-        summary:
-          $ref: '#/components/schemas/ScanFindingsSummary'
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            scan:
+              $ref: '#/components/schemas/ScanRelationship'
+            status:
+              $ref: '#/components/schemas/AssetScanStatus'
+            sboms:
+              $ref: '#/components/schemas/SbomScan'
+            vulnerabilities:
+              $ref: '#/components/schemas/VulnerabilityScan'
+            malware:
+              $ref: '#/components/schemas/MalwareScan'
+            rootkits:
+              $ref: '#/components/schemas/RootkitScan'
+            secrets:
+              $ref: '#/components/schemas/SecretScan'
+            misconfigurations:
+              $ref: '#/components/schemas/MisconfigurationScan'
+            exploits:
+              $ref: '#/components/schemas/ExploitScan'
+            findingsProcessed:
+              type: boolean
+            resourceCleanup:
+              $ref: '#/components/schemas/ResourceCleanupState'
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+        - $ref: '#/components/schemas/AssetScanTemplate'
       # TODO(sambetts) Decide if we want the validation here by having
       # separate schemas for GET, POST and PATCH.
       #
@@ -1626,6 +1638,75 @@ components:
       # required:
       #  - asset
       #  - scan
+
+    AssetScanTemplateReadOnly:
+      type: object
+      properties:
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+
+    AssetScanRelationship:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+              readOnly: true
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+              readOnly: true
+            scan:
+              $ref: '#/components/schemas/ScanRelationship'
+              readOnly: true
+            status:
+              $ref: '#/components/schemas/AssetScanStatus'
+              readOnly: true
+            sboms:
+              $ref: '#/components/schemas/SbomScan'
+              readOnly: true
+            vulnerabilities:
+              $ref: '#/components/schemas/VulnerabilityScan'
+              readOnly: true
+            malware:
+              $ref: '#/components/schemas/MalwareScan'
+              readOnly: true
+            rootkits:
+              $ref: '#/components/schemas/RootkitScan'
+              readOnly: true
+            secrets:
+              $ref: '#/components/schemas/SecretScan'
+              readOnly: true
+            misconfigurations:
+              $ref: '#/components/schemas/MisconfigurationScan'
+              readOnly: true
+            exploits:
+              $ref: '#/components/schemas/ExploitScan'
+              readOnly: true
+            findingsProcessed:
+              type: boolean
+              readOnly: true
+            resourceCleanup:
+              $ref: '#/components/schemas/ResourceCleanupState'
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+              readOnly: true
+          required: [id]
+        - $ref: '#/components/schemas/AssetScanTemplateReadOnly'
 
     AssetScanExists:
       type: object
@@ -2109,10 +2190,10 @@ components:
           # on the client side.
           #
           # readOnly: true
-        scan:
-          $ref: '#/components/schemas/ScanRelationship'
         asset:
           $ref: '#/components/schemas/AssetRelationship'
+        foundBy:
+          $ref: '#/components/schemas/AssetScanRelationship'
         foundOn:
           description: When this finding was discovered by a scan
           type: string

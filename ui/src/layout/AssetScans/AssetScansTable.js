@@ -38,8 +38,8 @@ const AssetScansTable = () => {
         {
             Header: "Scan name",
             id: "scanName",
-            sortIds: ["scan.scanConfigSnapshot.name"],
-            accessor: "scan.scanConfigSnapshot.name"
+            sortIds: ["scan.name"],
+            accessor: "scan.name"
         },
         {
             Header: "Scan start",
@@ -68,7 +68,7 @@ const AssetScansTable = () => {
         <TablePage
             columns={columns}
             url={APIS.ASSET_SCANS}
-            expand="scan($select=scanConfigSnapshot,startTime),asset($select=assetInfo)"
+            expand="scan($select=name,startTime),asset($select=assetInfo)"
             select="id,asset,summary,scan,status"
             defaultSortBy={{sortIds: SCAN_START_TIME_SORT_IDS, desc: true}}
             tableTitle={TABLE_TITLE}

@@ -212,17 +212,17 @@ func withRootkitsConfig(config *models.RootkitsConfig, opts *ScannerConfig) Fami
 	}
 }
 
-func NewFamiliesConfigFrom(config *ScannerConfig, scanConfig *models.ScanConfigSnapshot) *families.Config {
+func NewFamiliesConfigFrom(config *ScannerConfig, sfc *models.ScanFamiliesConfig) *families.Config {
 	c := families.NewConfig()
 
 	opts := []FamiliesConfigOption{
-		withSBOM(scanConfig.ScanFamiliesConfig.Sbom, config),
-		withVulnerabilities(scanConfig.ScanFamiliesConfig.Vulnerabilities, config),
-		withSecretsConfig(scanConfig.ScanFamiliesConfig.Secrets, config),
-		withExploitsConfig(scanConfig.ScanFamiliesConfig.Exploits, config),
-		withMalwareConfig(scanConfig.ScanFamiliesConfig.Malware, config),
-		withMisconfigurationConfig(scanConfig.ScanFamiliesConfig.Misconfigurations, config),
-		withRootkitsConfig(scanConfig.ScanFamiliesConfig.Rootkits, config),
+		withSBOM(sfc.Sbom, config),
+		withVulnerabilities(sfc.Vulnerabilities, config),
+		withSecretsConfig(sfc.Secrets, config),
+		withExploitsConfig(sfc.Exploits, config),
+		withMalwareConfig(sfc.Malware, config),
+		withMisconfigurationConfig(sfc.Misconfigurations, config),
+		withRootkitsConfig(sfc.Rootkits, config),
 	}
 
 	for _, o := range opts {

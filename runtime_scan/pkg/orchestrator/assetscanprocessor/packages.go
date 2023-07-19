@@ -30,8 +30,7 @@ func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Con
 
 	existingMap := map[findingkey.PackageKey]string{}
 
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and asset/id eq '%s' and scan/id eq '%s'",
-		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/name,findingInfo/version"),
@@ -97,8 +96,12 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 			}
 
 			finding := models.Finding{
-				Scan:        assetScan.Scan,
-				Asset:       assetScan.Asset,
+				Asset: &models.AssetRelationship{
+					Id: assetScan.Asset.Id,
+				},
+				FoundBy: &models.AssetScanRelationship{
+					Id: *assetScan.Id,
+				},
 				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}

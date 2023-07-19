@@ -50,10 +50,10 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 		return nil, errors.New("failed to create AssetScan: Scan is nil")
 	}
 
-	if scan.ScanConfigSnapshot == nil || scan.ScanConfigSnapshot.ScanFamiliesConfig == nil {
-		return nil, errors.New("failed to create AssetScan: ScanConfigSnapshot and/or ScanFamiliesConfig are nil")
+	if scan.AssetScanTemplate == nil || scan.AssetScanTemplate.ScanFamiliesConfig == nil {
+		return nil, errors.New("failed to create AssetScan: AssetScanTemplate and/or AssetScanTemplate.ScanFamiliesConfig is nil")
 	}
-	familiesConfig := scan.ScanConfigSnapshot.ScanFamiliesConfig
+	familiesConfig := scan.AssetScanTemplate.ScanFamiliesConfig
 
 	return &models.AssetScan{
 		Summary: newAssetScanSummary(),
@@ -63,6 +63,8 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 		Asset: &models.AssetRelationship{
 			Id: assetID,
 		},
+		ScanFamiliesConfig:            familiesConfig,
+		ScannerInstanceCreationConfig: scan.AssetScanTemplate.ScannerInstanceCreationConfig,
 		Status: &models.AssetScanStatus{
 			Exploits: &models.AssetScanState{
 				Errors: nil,

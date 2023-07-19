@@ -15,18 +15,6 @@ export const getAssetAndScanColumnsConfigList = () => ([
         accessor: "asset.assetInfo.location"
     },
     {
-        Header: "Scan name",
-        id: "scanName",
-        sortIds: ["scan.scanConfigSnapshot.name"],
-        accessor: "scan.scanConfigSnapshot.name"
-    },
-    {
-        Header: "Scan start",
-        id: "startTime",
-        sortIds: ["scan.startTime"],
-        accessor: original => formatDate(original.scan?.startTime)
-    },
-    {
         Header: "Found on",
         id: "foundOn",
         sortIds: ["foundOn"],
@@ -41,7 +29,7 @@ export const FindingsDetailsCommonFields = ({foundOn, invalidatedOn}) => (
         </TitleValueDisplayRow>
         {!!invalidatedOn &&
             <TitleValueDisplayRow>
-                <TitleValueDisplay title="Replaced by a newer scan on">{formatDate(invalidatedOn)}</TitleValueDisplay>
+                <TitleValueDisplay title="Invalidated on">{formatDate(invalidatedOn)}</TitleValueDisplay>
             </TitleValueDisplayRow>
         }
     </>

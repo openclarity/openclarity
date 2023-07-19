@@ -151,6 +151,7 @@ type AssetExists struct {
 // AssetRelationship Describes a relationship to an asset which can be expanded.
 type AssetRelationship struct {
 	AssetInfo *AssetType `json:"assetInfo,omitempty"`
+	FirstSeen *time.Time `json:"firstSeen,omitempty"`
 	Id        string     `json:"id"`
 	LastSeen  *time.Time `json:"lastSeen,omitempty"`
 	Revision  *int       `json:"revision,omitempty"`
@@ -178,9 +179,15 @@ type AssetScan struct {
 	Sboms             *SbomScan             `json:"sboms,omitempty"`
 
 	// Scan Describes an expandable relationship to Scan object
-	Scan    *ScanRelationship `json:"scan,omitempty"`
-	Secrets *SecretScan       `json:"secrets,omitempty"`
-	Status  *AssetScanStatus  `json:"status,omitempty"`
+	Scan *ScanRelationship `json:"scan,omitempty"`
+
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Secrets                       *SecretScan                    `json:"secrets,omitempty"`
+	Status                        *AssetScanStatus               `json:"status,omitempty"`
 
 	// Summary A summary of the scan findings.
 	Summary         *ScanFindingsSummary `json:"summary,omitempty"`
@@ -193,6 +200,36 @@ type AssetScanExists struct {
 
 	// Message Describes which unique constraint combination causes the conflict.
 	Message *string `json:"message,omitempty"`
+}
+
+// AssetScanRelationship defines model for AssetScanRelationship.
+type AssetScanRelationship struct {
+	// Asset Describes a relationship to an asset which can be expanded.
+	Asset             *AssetRelationship    `json:"asset,omitempty"`
+	Exploits          *ExploitScan          `json:"exploits,omitempty"`
+	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
+	Id                string                `json:"id"`
+	Malware           *MalwareScan          `json:"malware,omitempty"`
+	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
+	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
+	Revision          *int                  `json:"revision,omitempty"`
+	Rootkits          *RootkitScan          `json:"rootkits,omitempty"`
+	Sboms             *SbomScan             `json:"sboms,omitempty"`
+
+	// Scan Describes an expandable relationship to Scan object
+	Scan *ScanRelationship `json:"scan,omitempty"`
+
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Secrets                       *SecretScan                    `json:"secrets,omitempty"`
+	Status                        *AssetScanStatus               `json:"status,omitempty"`
+
+	// Summary A summary of the scan findings.
+	Summary         *ScanFindingsSummary `json:"summary,omitempty"`
+	Vulnerabilities *VulnerabilityScan   `json:"vulnerabilities,omitempty"`
 }
 
 // AssetScanState defines model for AssetScanState.
@@ -215,6 +252,24 @@ type AssetScanStatus struct {
 	Sbom              *AssetScanState `json:"sbom,omitempty"`
 	Secrets           *AssetScanState `json:"secrets,omitempty"`
 	Vulnerabilities   *AssetScanState `json:"vulnerabilities,omitempty"`
+}
+
+// AssetScanTemplate defines model for AssetScanTemplate.
+type AssetScanTemplate struct {
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+}
+
+// AssetScanTemplateReadOnly defines model for AssetScanTemplateReadOnly.
+type AssetScanTemplateReadOnly struct {
+	// ScanFamiliesConfig The configuration of the scanner families within a scan config
+	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
+
+	// ScannerInstanceCreationConfig Configuration of scanner instance
+	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
 }
 
 // AssetScans defines model for AssetScans.
@@ -284,8 +339,9 @@ type ExploitsConfig struct {
 // Finding defines model for Finding.
 type Finding struct {
 	// Asset Describes a relationship to an asset which can be expanded.
-	Asset       *AssetRelationship   `json:"asset,omitempty"`
-	FindingInfo *Finding_FindingInfo `json:"findingInfo,omitempty"`
+	Asset       *AssetRelationship     `json:"asset,omitempty"`
+	FindingInfo *Finding_FindingInfo   `json:"findingInfo,omitempty"`
+	FoundBy     *AssetScanRelationship `json:"foundBy,omitempty"`
 
 	// FoundOn When this finding was discovered by a scan
 	FoundOn *time.Time `json:"foundOn,omitempty"`
@@ -293,9 +349,6 @@ type Finding struct {
 
 	// InvalidatedOn When this finding was invalidated by a newer scan
 	InvalidatedOn *time.Time `json:"invalidatedOn,omitempty"`
-
-	// Scan Describes an expandable relationship to Scan object
-	Scan *ScanRelationship `json:"scan,omitempty"`
 }
 
 // Finding_FindingInfo defines model for Finding.FindingInfo.
@@ -472,22 +525,29 @@ type SbomScan struct {
 	Packages *[]Package `json:"packages"`
 }
 
-// Scan Describes a multi-asset scheduled scan.
+// Scan defines model for Scan.
 type Scan struct {
 	// AssetIDs List of asset IDs to be scanned
-	AssetIDs *[]string  `json:"assetIDs"`
-	EndTime  *time.Time `json:"endTime,omitempty"`
-	Id       *string    `json:"id,omitempty"`
-	Revision *int       `json:"revision,omitempty"`
+	AssetIDs          *[]string          `json:"assetIDs"`
+	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
+	EndTime           *time.Time         `json:"endTime,omitempty"`
+	Id                *string            `json:"id,omitempty"`
+
+	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
+	Revision            *int    `json:"revision,omitempty"`
 
 	// ScanConfig Describes a relationship to a scan config which can be expanded.
 	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
 
-	// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
-	// scan, so that changes in the ScanConfig do not affect the existing
-	// Scan.
-	ScanConfigSnapshot *ScanConfigSnapshot `json:"scanConfigSnapshot,omitempty"`
-	StartTime          *time.Time          `json:"startTime,omitempty"`
+	// Scope The query used to limit the scope of this scan. It uses
+	// the ODATA $filter query language to limit the collection of assets
+	// that this scan will operate over. For example
+	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+	// to just assets in the eu-west-2 AWS region.
+	Scope     *string    `json:"scope,omitempty"`
+	StartTime *time.Time `json:"startTime,omitempty"`
 
 	// State The lifecycle state of this scan.
 	State *ScanState `json:"state,omitempty"`
@@ -500,6 +560,10 @@ type Scan struct {
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
+
+	// TimeoutSeconds The maximum time in seconds that a scan started from this config
+	// should run for before being automatically aborted.
+	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
 // ScanState The lifecycle state of this scan.
@@ -511,27 +575,14 @@ type ScanStateReason string
 // ScanConfig Describes a multi-asset scheduled scan config.
 type ScanConfig struct {
 	// Disabled if true, the scan config is disabled and no scan should run from it
-	Disabled *bool   `json:"disabled,omitempty"`
-	Id       *string `json:"id,omitempty"`
-
-	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
-	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
-	Name                *string `json:"name,omitempty"`
-	Revision            *int    `json:"revision,omitempty"`
-
-	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
-
-	// ScannerInstanceCreationConfig Configuration of scanner instance
-	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Disabled     *bool         `json:"disabled,omitempty"`
+	Id           *string       `json:"id,omitempty"`
+	Name         *string       `json:"name,omitempty"`
+	Revision     *int          `json:"revision,omitempty"`
+	ScanTemplate *ScanTemplate `json:"scanTemplate,omitempty"`
 
 	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
 	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
-	Scope     *string                    `json:"scope,omitempty"`
-
-	// TimeoutSeconds The maximum time in seconds that a scan started from this config
-	// should run for before being automatically aborted.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
 // ScanConfigExists defines model for ScanConfigExists.
@@ -546,59 +597,14 @@ type ScanConfigExists struct {
 // ScanConfigRelationship Describes a relationship to a scan config which can be expanded.
 type ScanConfigRelationship struct {
 	// Disabled if true, the scan config is disabled and no scan should run from it
-	Disabled *bool  `json:"disabled,omitempty"`
-	Id       string `json:"id"`
-
-	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
-	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
-	Name                *string `json:"name,omitempty"`
-	Revision            *int    `json:"revision,omitempty"`
-
-	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
-
-	// ScannerInstanceCreationConfig Configuration of scanner instance
-	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
+	Disabled     *bool         `json:"disabled,omitempty"`
+	Id           string        `json:"id"`
+	Name         *string       `json:"name,omitempty"`
+	Revision     *int          `json:"revision,omitempty"`
+	ScanTemplate *ScanTemplate `json:"scanTemplate,omitempty"`
 
 	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
 	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
-	Scope     *string                    `json:"scope,omitempty"`
-
-	// TimeoutSeconds The maximum time in seconds that a scan started from this config
-	// should run for before being automatically aborted.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
-}
-
-// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
-// scan, so that changes in the ScanConfig do not affect the existing
-// Scan.
-type ScanConfigSnapshot struct {
-	// Disabled if true, the scan config is disabled and no scan should run from it
-	Disabled *bool `json:"disabled,omitempty"`
-
-	// MaxParallelScanners The maximum number of scanners that can run in parallel for each scan
-	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
-	Name                *string `json:"name,omitempty"`
-
-	// ScanFamiliesConfig The configuration of the scanner families within a scan config
-	ScanFamiliesConfig *ScanFamiliesConfig `json:"scanFamiliesConfig,omitempty"`
-
-	// ScannerInstanceCreationConfig Configuration of scanner instance
-	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
-
-	// Scheduled Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
-	Scheduled *RuntimeScheduleScanConfig `json:"scheduled,omitempty"`
-
-	// Scope The query used to limit the scope of this scan. It uses
-	// the ODATA $filter query language to limit the collection of assets
-	// that this scan will operate over. For example
-	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
-	// to just assets in the eu-west-2 AWS region.
-	Scope *string `json:"scope,omitempty"`
-
-	// TimeoutSeconds The maximum time in seconds that a scan started from this config
-	// should run for before being automatically aborted.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
 // ScanConfigs defines model for ScanConfigs.
@@ -643,22 +649,29 @@ type ScanFindingsSummary struct {
 	TotalVulnerabilities *VulnerabilityScanSummary `json:"totalVulnerabilities,omitempty"`
 }
 
-// ScanRelationship Describes an expandable relationship to Scan object
+// ScanRelationship defines model for ScanRelationship.
 type ScanRelationship struct {
 	// AssetIDs List of asset IDs to be scanned
-	AssetIDs *[]string  `json:"assetIDs"`
-	EndTime  *time.Time `json:"endTime,omitempty"`
-	Id       string     `json:"id"`
-	Revision *int       `json:"revision,omitempty"`
+	AssetIDs          *[]string          `json:"assetIDs"`
+	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
+	EndTime           *time.Time         `json:"endTime,omitempty"`
+	Id                string             `json:"id"`
+
+	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
+	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
+	Name                *string `json:"name,omitempty"`
+	Revision            *int    `json:"revision,omitempty"`
 
 	// ScanConfig Describes a relationship to a scan config which can be expanded.
 	ScanConfig *ScanConfigRelationship `json:"scanConfig,omitempty"`
 
-	// ScanConfigSnapshot Snapshot of the configuration from the ScanConfig which created the
-	// scan, so that changes in the ScanConfig do not affect the existing
-	// Scan.
-	ScanConfigSnapshot *ScanConfigSnapshot `json:"scanConfigSnapshot,omitempty"`
-	StartTime          *time.Time          `json:"startTime,omitempty"`
+	// Scope The query used to limit the scope of this scan. It uses
+	// the ODATA $filter query language to limit the collection of assets
+	// that this scan will operate over. For example
+	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+	// to just assets in the eu-west-2 AWS region.
+	Scope     *string    `json:"scope,omitempty"`
+	StartTime *time.Time `json:"startTime,omitempty"`
 
 	// State The lifecycle state of this scan.
 	State *ScanRelationshipState `json:"state,omitempty"`
@@ -671,6 +684,10 @@ type ScanRelationship struct {
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
+
+	// TimeoutSeconds The maximum time in seconds that a scan started from this config
+	// should run for before being automatically aborted.
+	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
 // ScanRelationshipState The lifecycle state of this scan.
@@ -692,6 +709,44 @@ type ScanSummary struct {
 
 	// TotalVulnerabilities A summary of number of vulnerabilities found per severity.
 	TotalVulnerabilities *VulnerabilityScanSummary `json:"totalVulnerabilities,omitempty"`
+}
+
+// ScanTemplate defines model for ScanTemplate.
+type ScanTemplate struct {
+	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
+
+	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
+	MaxParallelScanners *int `json:"maxParallelScanners,omitempty"`
+
+	// Scope The query used to limit the scope of this scan. It uses
+	// the ODATA $filter query language to limit the collection of assets
+	// that this scan will operate over. For example
+	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+	// to just assets in the eu-west-2 AWS region.
+	Scope *string `json:"scope,omitempty"`
+
+	// TimeoutSeconds The maximum time in seconds that a scan started from this config
+	// should run for before being automatically aborted.
+	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+}
+
+// ScanTemplateReadOnly defines model for ScanTemplateReadOnly.
+type ScanTemplateReadOnly struct {
+	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
+
+	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
+	MaxParallelScanners *int `json:"maxParallelScanners,omitempty"`
+
+	// Scope The query used to limit the scope of this scan. It uses
+	// the ODATA $filter query language to limit the collection of assets
+	// that this scan will operate over. For example
+	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+	// to just assets in the eu-west-2 AWS region.
+	Scope *string `json:"scope,omitempty"`
+
+	// TimeoutSeconds The maximum time in seconds that a scan started from this config
+	// should run for before being automatically aborted.
+	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
 // ScanType defines model for ScanType.
