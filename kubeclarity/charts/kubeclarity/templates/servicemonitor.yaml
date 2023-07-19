@@ -1,0 +1,20 @@
+{{- if .Values.kubeclarity.prometheus.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "kubeclarity.name" . }}
+  {{- with .Values.kubeclarity.prometheus.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kubeclarity.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "kubeclarity.labels" . | nindent 6 }}
+  endpoints:
+  - port: metrics
+    path: "/metrics"
+    interval: {{ .Values.kubeclarity.prometheus.serviceMonitor.interval }}
+{{- end }}
