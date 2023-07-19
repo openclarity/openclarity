@@ -505,36 +505,78 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"ExploitsConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"MalwareConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"MisconfigurationsConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"RootkitsConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"SBOMConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"analyzers": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"SecretsConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"VulnerabilitiesConfig": {
 		Fields: odatasql.Schema{
 			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
+			},
 		},
 	},
 	"Tag": {

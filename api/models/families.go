@@ -23,26 +23,82 @@ func (c *VulnerabilitiesConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
 }
 
+func (c *VulnerabilitiesConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"grype", "trivy"}
+}
+
 func (c *SecretsConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
+}
+
+func (c *SecretsConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"gitleaks"}
 }
 
 func (c *SBOMConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
 }
 
+func (c *SBOMConfig) GetAnalyzersList() []string {
+	if c != nil && c.Analyzers != nil && len(*c.Analyzers) != 0 {
+		return *c.Analyzers
+	}
+
+	return []string{"syft", "trivy"}
+}
+
 func (c *RootkitsConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
+}
+
+func (c *RootkitsConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"chkrootkit"}
 }
 
 func (c *MisconfigurationsConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
 }
 
+func (c *MisconfigurationsConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"lynis"}
+}
+
 func (c *MalwareConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
 }
 
+func (c *MalwareConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"clam"}
+}
+
 func (c *ExploitsConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
+}
+
+func (c *ExploitsConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"exploitdb"}
 }
