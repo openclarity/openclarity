@@ -52,6 +52,7 @@ kubeclarity:
     serviceMonitor:
       enabled: false
       interval: 30s
+      annotations: {}
     refreshIntervalSeconds: 300
 
   podAnnotations: {}
