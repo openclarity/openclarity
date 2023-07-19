@@ -47,9 +47,8 @@ func withSBOM(config *models.SBOMConfig, opts *ScannerConfig) FamiliesConfigOpti
 		}
 
 		c.SBOM = sbom.Config{
-			Enabled: true,
-			// TODO(sambetts) This choice should come from the user's configuration
-			AnalyzersList: []string{"syft", "trivy"},
+			Enabled:       true,
+			AnalyzersList: config.GetAnalyzersList(),
 			Inputs:        nil, // rootfs directory will be determined by the CLI after mount.
 			AnalyzersConfig: &kubeclarityConfig.Config{
 				// TODO(sambetts) The user needs to be able to provide this configuration
@@ -93,9 +92,8 @@ func withVulnerabilities(config *models.VulnerabilitiesConfig, opts *ScannerConf
 		}
 
 		c.Vulnerabilities = vulnerabilities.Config{
-			Enabled: true,
-			// TODO(sambetts) This choice should come from the user's configuration
-			ScannersList:  []string{"grype", "trivy"},
+			Enabled:       true,
+			ScannersList:  config.GetScannersList(),
 			InputFromSbom: false, // will be determined by the CLI.
 			ScannersConfig: &kubeclarityConfig.Config{
 				// TODO(sambetts) The user needs to be able to provide this configuration
@@ -119,9 +117,8 @@ func withSecretsConfig(config *models.SecretsConfig, opts *ScannerConfig) Famili
 		}
 
 		c.Secrets = secrets.Config{
-			Enabled: true,
-			// TODO(idanf) This choice should come from the user's configuration
-			ScannersList: []string{"gitleaks"},
+			Enabled:      true,
+			ScannersList: config.GetScannersList(),
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: &secretscommon.ScannersConfig{
 				Gitleaks: gitleaksconfig.Config{
@@ -140,7 +137,7 @@ func withExploitsConfig(config *models.ExploitsConfig, opts *ScannerConfig) Fami
 
 		c.Exploits = exploits.Config{
 			Enabled:       true,
-			ScannersList:  []string{"exploitdb"},
+			ScannersList:  config.GetScannersList(),
 			InputFromVuln: true,
 			ScannersConfig: &exploitsCommon.ScannersConfig{
 				ExploitDB: exploitdbConfig.Config{
@@ -159,7 +156,7 @@ func withMalwareConfig(config *models.MalwareConfig, opts *ScannerConfig) Famili
 
 		c.Malware = malware.Config{
 			Enabled:      true,
-			ScannersList: []string{"clam"},
+			ScannersList: config.GetScannersList(),
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: &malwarecommon.ScannersConfig{
 				Clam: clamconfig.Config{
@@ -179,9 +176,8 @@ func withMisconfigurationConfig(config *models.MisconfigurationsConfig, opts *Sc
 		}
 
 		c.Misconfiguration = misconfiguration.Config{
-			Enabled: true,
-			// TODO(sambetts) This choice should come from the user's configuration
-			ScannersList: []string{"lynis"},
+			Enabled:      true,
+			ScannersList: config.GetScannersList(),
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: misconfiguration.ScannersConfig{
 				// TODO(sambetts) Add scanner configurations here as we add them like Lynis
@@ -201,7 +197,7 @@ func withRootkitsConfig(config *models.RootkitsConfig, opts *ScannerConfig) Fami
 
 		c.Rootkits = rootkits.Config{
 			Enabled:      true,
-			ScannersList: []string{"chkrootkit"},
+			ScannersList: config.GetScannersList(),
 			Inputs:       nil,
 			ScannersConfig: &rootkitsCommon.ScannersConfig{
 				Chkrootkit: chkrootkitConfig.Config{

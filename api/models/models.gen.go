@@ -333,7 +333,8 @@ type ExploitScan struct {
 
 // ExploitsConfig defines model for ExploitsConfig.
 type ExploitsConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // Finding defines model for Finding.
@@ -384,7 +385,8 @@ type Malware struct {
 
 // MalwareConfig defines model for MalwareConfig.
 type MalwareConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // MalwareFindingInfo defines model for MalwareFindingInfo.
@@ -442,7 +444,8 @@ type MisconfigurationSeverity string
 
 // MisconfigurationsConfig defines model for MisconfigurationsConfig.
 type MisconfigurationsConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // Package defines model for Package.
@@ -503,7 +506,8 @@ type RootkitType string
 
 // RootkitsConfig defines model for RootkitsConfig.
 type RootkitsConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // RuntimeScheduleScanConfig Runtime schedule scan configuration. If only operationTime is set, it will be a single scan scheduled for the operationTime. If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine. If both operationTime and cronLine are set, the first scan will run at operationTime and the operationTime will be the first time that the cronLine will be effective from.
@@ -517,7 +521,8 @@ type RuntimeScheduleScanConfig struct {
 
 // SBOMConfig defines model for SBOMConfig.
 type SBOMConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Analyzers *[]string `json:"analyzers,omitempty"`
+	Enabled   *bool     `json:"enabled,omitempty"`
 }
 
 // SbomScan defines model for SbomScan.
@@ -825,7 +830,8 @@ type SecretScan struct {
 
 // SecretsConfig defines model for SecretsConfig.
 type SecretsConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // SecurityGroup general cloud security group
@@ -860,7 +866,8 @@ type VMInfo struct {
 
 // VulnerabilitiesConfig defines model for VulnerabilitiesConfig.
 type VulnerabilitiesConfig struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
 }
 
 // Vulnerability defines model for Vulnerability.
