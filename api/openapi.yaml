@@ -1207,42 +1207,70 @@ components:
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     SBOMConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        analyzers:
+          type: array
+          items:
+            type: string
 
     MalwareConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     RootkitsConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     SecretsConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     MisconfigurationsConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     ExploitsConfig:
       type: object
       properties:
         enabled:
           type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     ScanConfigs:
       type: object
