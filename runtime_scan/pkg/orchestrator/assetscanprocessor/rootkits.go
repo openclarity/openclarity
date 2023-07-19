@@ -30,8 +30,7 @@ func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Con
 
 	existingMap := map[findingkey.RootkitKey]string{}
 
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and asset/id eq '%s' and scan/id eq '%s'",
-		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
@@ -93,8 +92,12 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 			}
 
 			finding := models.Finding{
-				Scan:        assetScan.Scan,
-				Asset:       assetScan.Asset,
+				Asset: &models.AssetRelationship{
+					Id: assetScan.Asset.Id,
+				},
+				FoundBy: &models.AssetScanRelationship{
+					Id: *assetScan.Id,
+				},
 				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}

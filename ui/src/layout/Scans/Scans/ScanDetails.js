@@ -15,7 +15,7 @@ export const SCAN_DETAILS_PATHS = {
 const DetailsContent = ({data, fetchData}) => {
     const {pathname} = useLocation();
     
-    const {id, scanConfigSnapshot, startTime} = data;
+    const {id, name, startTime} = data;
 
     return (
         <TabbedPage
@@ -34,8 +34,8 @@ const DetailsContent = ({data, fetchData}) => {
                     component: () => (
                         <Findings
                             findingsSummary={data?.summary}
-                            findingsFilter={`scan/id eq '${id}'`}
-                            findingsFilterTitle={getScanName({name: scanConfigSnapshot.name, startTime})}
+                            findingsFilter={`foundBy/scan/id eq '${id}'`}
+                            findingsFilterTitle={name}
                         />
                     )
                 }
@@ -53,9 +53,8 @@ const ScanDetails = () => (
         className="scan-details-page-wrapper"
         backTitle="Scans"
         url={APIS.SCANS}
-        select="id,scanConfig,scanConfigSnapshot,startTime,endTime,summary,state,stateMessage,stateReason"
-        expand="scanConfig"
-        getTitleData={({scanConfigSnapshot, startTime}) => ({title: scanConfigSnapshot?.name, subTitle: formatDate(startTime)})}
+        select="id,name,scanConfig,scope,assetScanTemplate,maxParallelScanners,startTime,endTime,summary,state,stateMessage,stateReason"
+        getTitleData={({name, startTime}) => ({title: name, subTitle: formatDate(startTime)})}
         detailsContent={props => <DetailsContent {...props} />}
     />
 )

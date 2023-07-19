@@ -8,13 +8,12 @@ import TabSecretDetails from './TabSecretDetails';
 const SECRET_DETAILS_PATHS = {
     SECRET_DETAILS: "",
     ASSET_DETAILS: "asset",
-    SCAN_DETAILS: "scan"
 }
 
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, scan, asset} = data;
+    const {id, asset} = data;
     
     return (
         <TabbedPage
@@ -31,12 +30,6 @@ const DetailsContent = ({data}) => {
                     title: "Asset details",
                     path: SECRET_DETAILS_PATHS.ASSET_DETAILS,
                     component: () => <AssetDetails assetData={asset} withAssetLink />
-                },
-                {
-                    id: "scan",
-                    title: "Scan details",
-                    path: SECRET_DETAILS_PATHS.SCAN_DETAILS,
-                    component: () => <ScanDetails scanData={scan} withScanLink />
                 }
             ]}
             withInnerPadding={false}

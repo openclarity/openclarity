@@ -11,7 +11,7 @@ const StepGeneralProperties = () => {
                 validate={validators.validateRequired}
             />
             <TextField
-                name="scope"
+                name="scanTemplate.scope"
                 label="Scope"
                 placeholder="Type an ODATA $filter to reduce assets to scan..."
             />

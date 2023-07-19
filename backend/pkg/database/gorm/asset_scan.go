@@ -98,12 +98,7 @@ func (s *AssetScansTableHandler) GetAssetScan(assetScanID models.AssetScanID, pa
 
 // nolint:cyclop
 func (s *AssetScansTableHandler) CreateAssetScan(assetScan models.AssetScan) (models.AssetScan, error) {
-	// Check the user provided scan id and asset id fields
-	if assetScan.Scan != nil && assetScan.Scan.Id == "" {
-		return models.AssetScan{}, &common.BadRequestError{
-			Reason: "scan.id is a required field",
-		}
-	}
+	// Check the user provided asset id field
 	if assetScan.Asset != nil && assetScan.Asset.Id == "" {
 		return models.AssetScan{}, &common.BadRequestError{
 			Reason: "asset.id is a required field",
@@ -177,12 +172,7 @@ func (s *AssetScansTableHandler) SaveAssetScan(assetScan models.AssetScan, param
 		}
 	}
 
-	// Check the user provided scan id and asset id fields
-	if assetScan.Scan != nil && assetScan.Scan.Id == "" {
-		return models.AssetScan{}, &common.BadRequestError{
-			Reason: "scan.id is a required field",
-		}
-	}
+	// Check the user provided asset id field
 	if assetScan.Asset != nil && assetScan.Asset.Id == "" {
 		return models.AssetScan{}, &common.BadRequestError{
 			Reason: "asset.id is a required field",
@@ -294,8 +284,14 @@ func (s *AssetScansTableHandler) UpdateAssetScan(assetScan models.AssetScan, par
 }
 
 func (s *AssetScansTableHandler) checkUniqueness(assetScan models.AssetScan) (models.AssetScan, error) {
+	// We only check unique if scan is set, so return early if it's not set.
+	if assetScan.Scan == nil || assetScan.Scan.Id == "" {
+		return models.AssetScan{}, nil
+	}
+
+	// If Scan is set we need to check if there is another asset scan with
+	// the same scan id and asset id.
 	var assetScans []AssetScan
-	// In the case of creating or updating an asset scans, needs to be checked whether other asset scans exists with same scan id and asset id.
 	filter := fmt.Sprintf("id ne '%s' and asset/id eq '%s' and scan/id eq '%s'", *assetScan.Id, assetScan.Asset.Id, assetScan.Scan.Id)
 	err := ODataQuery(s.DB, assetScansSchemaName, &filter, nil, nil, nil, nil, nil, true, &assetScans)
 	if err != nil {

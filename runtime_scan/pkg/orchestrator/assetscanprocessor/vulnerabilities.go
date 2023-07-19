@@ -36,8 +36,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 		return fmt.Errorf("failed to check for newer existing vulnerability findings: %v", err)
 	}
 
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and scan/id eq '%s'",
-		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/vulnerabilityName,findingInfo/package/name,findingInfo/package/version"),
@@ -86,8 +85,12 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 			}
 
 			finding := models.Finding{
-				Scan:        assetScan.Scan,
-				Asset:       assetScan.Asset,
+				Asset: &models.AssetRelationship{
+					Id: assetScan.Asset.Id,
+				},
+				FoundBy: &models.AssetScanRelationship{
+					Id: *assetScan.Id,
+				},
 				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}

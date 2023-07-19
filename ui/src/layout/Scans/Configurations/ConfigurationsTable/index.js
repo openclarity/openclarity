@@ -24,7 +24,7 @@ const SCAN_TYPES_FILTER_ITEMS = [
     "rootkits",
     "secrets",
     "sbom"
-].map(type => ({value: `scanFamiliesConfig.${type}.enabled`, label: toCapitalized(type)}));
+].map(type => ({value: `scanTemplate.assetScanTemplate.scanFamiliesConfig.${type}.enabled`, label: toCapitalized(type)}));
 
 const formatScanTypesToOdata = (valuesList, operator) => (
     valuesList.map(value => `(${value} eq ${operator === OPERATORS.contains.value ? "true" : "false"})`).join(` or `)
@@ -43,9 +43,9 @@ const ConfigurationsTable = () => {
         },
         {
             Header: "Scope",
-            id: "scope",
-            sortIds: ["scope"],
-            accessor: "scope"
+            id: "scanTemplate.scope",
+            sortIds: ["scanTemplate.scope"],
+            accessor: "scanTemplate.scope"
         },
         {
             Header: "Scan time",
@@ -67,16 +67,16 @@ const ConfigurationsTable = () => {
             Header: "Scan types",
             id: "scanTypes",
             sortIds: [
-                "scanFamiliesConfig.exploits.enabled",
-                "scanFamiliesConfig.malware.enabled",
-                "scanFamiliesConfig.misconfigurations.enabled",
-                "scanFamiliesConfig.rootkits.enabled",
-                "scanFamiliesConfig.sbom.enabled",
-                "scanFamiliesConfig.secrets.enabled",
-                "scanFamiliesConfig.vulnerabilities.enabled"
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.exploits.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.malware.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.misconfigurations.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.rootkits.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.sbom.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.secrets.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.vulnerabilities.enabled"
             ],
             Cell: ({row}) => {
-                const {scanFamiliesConfig} = row.original;
+                const {scanFamiliesConfig} = row.original.scanTemplate.assetScanTemplate;
 
                 return (
                     <div>
@@ -101,7 +101,7 @@ const ConfigurationsTable = () => {
             <TablePage
                 columns={columns}
                 url={APIS.SCAN_CONFIGS}
-                select="id,name,scope,scheduled,scanFamiliesConfig"
+                select="id,name,scanTemplate/scope,scheduled,scanTemplate/assetScanTemplate/scanFamiliesConfig"
                 tableTitle={TABLE_TITLE}
                 filterType={FILTER_TYPES.SCAN_CONFIGURATIONS}
                 filtersConfig={[
@@ -112,7 +112,7 @@ const ConfigurationsTable = () => {
                         {...OPERATORS.endswith},
                         {...OPERATORS.contains, valueItems: [], creatable: true}
                     ]},
-                    {value: "scope", label: "Asset Query", operators: [
+                    {value: "scanTemplate.scope", label: "Asset Query", operators: [
                         {...OPERATORS.eq, valueItems: [], creatable: true},
                         {...OPERATORS.ne, valueItems: [], creatable: true},
                         {...OPERATORS.startswith},

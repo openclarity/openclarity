@@ -30,8 +30,7 @@ func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Cont
 
 	existingMap := map[findingkey.SecretKey]string{}
 
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Secret' and asset/id eq '%s' and scan/id eq '%s'",
-		assetScan.Asset.Id, assetScan.Scan.Id)
+	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Secret' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/fingerprint,findingInfo/startColumn,findingInfo/endColumn"),
@@ -97,8 +96,12 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 			}
 
 			finding := models.Finding{
-				Scan:        assetScan.Scan,
-				Asset:       assetScan.Asset,
+				Asset: &models.AssetRelationship{
+					Id: assetScan.Asset.Id,
+				},
+				FoundBy: &models.AssetScanRelationship{
+					Id: *assetScan.Id,
+				},
 				FoundOn:     assetScan.Status.General.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}

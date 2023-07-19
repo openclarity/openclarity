@@ -6,8 +6,8 @@ const FindingsDetailsPage = ({backTitle, getTitleData, detailsContent: DetailsCo
     <DetailsPageWrapper
         backTitle={backTitle}
         url={APIS.FINDINGS}
-        select="id,scan,asset,findingInfo,foundOn,invalidatedOn"
-        expand="asset($select=id,assetInfo),scan($select=id,scanConfig,scanConfigSnapshot,startTime,endTime,summary,state,stateMessage,stateReason)"
+        select="id,findingInfo,foundOn,invalidatedOn"
+        expand="asset($select=id,assetInfo,firstSeen,lastSeen,terminatedOn)"
         getTitleData={getTitleData}
         detailsContent={props => <DetailsContent {...props} />}
     />

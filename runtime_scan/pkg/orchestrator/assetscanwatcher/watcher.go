@@ -189,35 +189,36 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 		return errors.New("invalid AssetScan: ID is nil")
 	}
 
-	if assetScan.Scan == nil || assetScan.Scan.ScanConfigSnapshot == nil {
-		return errors.New("invalid AssetScan: Scan or ScanConfigSnapshot is nil")
-	}
+	// If this asset scan has a scan associated with it, and its configured
+	// to only allow max parallel scanners, then check that scenario.
+	// TODO(sambetts) Replace this with provider level scheduling.
+	if assetScan.Scan != nil && assetScan.Scan.Id != "" && assetScan.Scan.MaxParallelScanners != nil {
+		// Check whether we have reached the maximum number of running scans
+		// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
+		filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s' and resourceCleanup eq '%s'",
+			assetScan.Scan.Id, models.AssetScanStateStateDone, models.AssetScanStateStatePending, models.ResourceCleanupStatePending)
+		assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
+			Filter: utils.PointerTo(filter),
+			Count:  utils.PointerTo(true),
+			Top:    utils.PointerTo(0),
+		})
+		if err != nil {
+			return fmt.Errorf("failed to fetch in-progress AssetScans for Scan. ScanID=%s: %w",
+				assetScan.Scan.Id, err)
+		}
 
-	// Check whether we have reached the maximum number of running scans
-	// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
-	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s' and resourceCleanup eq '%s'",
-		assetScan.Scan.Id, models.AssetScanStateStateDone, models.AssetScanStateStatePending, models.ResourceCleanupStatePending)
-	assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
-		Filter: utils.PointerTo(filter),
-		Count:  utils.PointerTo(true),
-		Top:    utils.PointerTo(0),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to fetch in-progress AssetScans for Scan. ScanID=%s: %w",
-			assetScan.Scan.Id, err)
-	}
+		var assetScansInProgress int
+		if assetScans.Count != nil {
+			assetScansInProgress = *assetScans.Count
+		} else {
+			return errors.New("invalid API response: Count is nil")
+		}
 
-	var assetScansInProgress int
-	if assetScans.Count != nil {
-		assetScansInProgress = *assetScans.Count
-	} else {
-		return errors.New("invalid API response: Count is nil")
-	}
-
-	maxParallelScanners := assetScan.Scan.ScanConfigSnapshot.GetMaxParallelScanners()
-	if assetScansInProgress >= maxParallelScanners {
-		logger.Infof("Reconciliation is skipped as maximum number of running scans is reached: %d", maxParallelScanners)
-		return nil
+		maxParallelScanners := assetScan.Scan.GetMaxParallelScanners()
+		if assetScansInProgress >= maxParallelScanners {
+			logger.Infof("Reconciliation is skipped as maximum number of running scans is reached: %d", maxParallelScanners)
+			return nil
+		}
 	}
 
 	assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateScheduled)
@@ -226,7 +227,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 	assetScanPatch := models.AssetScan{
 		Status: assetScan.Status,
 	}
-	err = w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
+	err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to update AssetScan. AssetScan=%s: %w", assetScanID, err)
 	}
@@ -244,10 +245,6 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 		return errors.New("invalid AssetScan: ID is nil")
 	}
 
-	if assetScan.Scan == nil || assetScan.Scan.ScanConfigSnapshot == nil {
-		return errors.New("invalid AssetScan: Scan or ScanConfigSnapshot is nil")
-	}
-
 	if assetScan.Asset == nil || assetScan.Asset.AssetInfo == nil {
 		return errors.New("invalid AssetScan: Asset or AssetInfo is nil")
 	}
@@ -261,10 +258,9 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 
 	// Run scan for AssetScan
 	jobConfig, err := newJobConfig(&jobConfigInput{
-		config:     &w.scannerConfig,
-		assetScan:  assetScan,
-		scanConfig: assetScan.Scan.ScanConfigSnapshot,
-		asset:      asset,
+		config:    &w.scannerConfig,
+		assetScan: assetScan,
+		asset:     asset,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create ScanJobConfig for AssetScan. AssetScan=%s: %w", assetScanID, err)
@@ -344,18 +340,6 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 	case DeleteJobPolicyAlways:
 		fallthrough
 	default:
-		// Get Scan
-		scan, err := w.backend.GetScan(ctx, assetScan.Scan.Id, models.GetScansScanIDParams{
-			Select: utils.PointerTo("id,scanConfigSnapshot"),
-		})
-		if err != nil {
-			return fmt.Errorf("failed to fetch Scan. ScanID=%s: %w", assetScan.Scan.Id, err)
-		}
-		if scan == nil || scan.ScanConfigSnapshot == nil {
-			return errors.New("invalid API response: Scan and/or Scan.ScanConfigSnapshot are nil")
-		}
-		scanConfig := scan.ScanConfigSnapshot
-
 		// Get Asset
 		asset, err := w.backend.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{
 			Select: utils.PointerTo("id,assetInfo"),
@@ -369,10 +353,9 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 
 		// Create JobConfig
 		jobConfig, err := newJobConfig(&jobConfigInput{
-			config:     &w.scannerConfig,
-			assetScan:  assetScan,
-			scanConfig: scanConfig,
-			asset:      &asset,
+			config:    &w.scannerConfig,
+			assetScan: assetScan,
+			asset:     &asset,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to to create ScanJobConfigg for AssetScan. AssetScanID=%s: %w", assetScanID, err)

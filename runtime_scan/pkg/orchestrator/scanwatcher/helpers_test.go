@@ -41,11 +41,10 @@ func TestNewAssetScanFromScan(t *testing.T) {
 		{
 			Name: "AssetResult from valid Scan",
 			Scan: &models.Scan{
-				Id: utils.PointerTo(scanID),
-				ScanConfigSnapshot: &models.ScanConfigSnapshot{
-					Disabled:            utils.PointerTo(false),
-					MaxParallelScanners: utils.PointerTo(2),
-					Name:                utils.PointerTo("test"),
+				Name:                utils.PointerTo("test-1234"),
+				Id:                  utils.PointerTo(scanID),
+				MaxParallelScanners: utils.PointerTo(2),
+				AssetScanTemplate: &models.AssetScanTemplate{
 					ScanFamiliesConfig: &models.ScanFamiliesConfig{
 						Exploits: &models.ExploitsConfig{
 							Enabled: utils.PointerTo(true),
@@ -110,6 +109,23 @@ func TestNewAssetScanFromScan(t *testing.T) {
 				Asset: &models.AssetRelationship{
 					Id: assetID,
 				},
+				ScanFamiliesConfig: &models.ScanFamiliesConfig{
+					Exploits: &models.ExploitsConfig{
+						Enabled: utils.PointerTo(true),
+					},
+					Malware: &models.MalwareConfig{
+						Enabled: utils.PointerTo(true),
+					},
+					Misconfigurations: nil,
+					Rootkits:          nil,
+					Sbom: &models.SBOMConfig{
+						Enabled: utils.PointerTo(true),
+					},
+					Secrets: nil,
+					Vulnerabilities: &models.VulnerabilitiesConfig{
+						Enabled: utils.PointerTo(true),
+					},
+				},
 			},
 		},
 	}
@@ -121,7 +137,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			result, err := newAssetScanFromScan(test.Scan, test.AssetID)
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)
-			g.Expect(result).Should(Equal(test.ExpectedAssetScan))
+			g.Expect(result).Should(BeComparableTo(test.ExpectedAssetScan))
 		})
 	}
 }
