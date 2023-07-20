@@ -62,6 +62,16 @@ For a detailed installation guide, please see [AWS](installation/aws/README.md).
 2. Fill out the required fields in the wizard
 3. Once deployed, copy the VMClarity SSH address from the Outputs tab
 
+### GCP
+
+1. Change directory to `installation/gcp/dm`
+2. Copy `vmclarity-config.example.yaml` to `vmclarity-config.yaml`, update with required values.
+3. Deploy vmclarity using GCP deployment manager
+   ```
+   gcloud deployment-manager deployments create <vmclarity deployment name> --config vmclarity-config.yaml
+   ```
+4. Once deployed, copy the VMClarity SSH IP address from the CLI output.
+
 ## Access VMClarity UI
 1. Open an SSH tunnel to VMClarity server
     ```
