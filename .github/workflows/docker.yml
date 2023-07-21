@@ -4,6 +4,9 @@ on:
     branches:
       - main
 
+permissions:
+  packages: write
+
 jobs:
   build_and_push:
     uses: ./.github/workflows/reusable-build-and-push.yml
