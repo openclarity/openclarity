@@ -917,6 +917,7 @@ components:
         - AWS
         - Azure
         - GCP
+        - External
 
     Scans:
       type: object

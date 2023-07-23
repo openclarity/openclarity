@@ -58,7 +58,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             cronLine: cronLine || CRON_QUICK_OPTIONS[0].value
         },
     }
-    
+
     if (!!operationTime && !cronLine) {
         const dateTime = new Date(operationTime);
         initialValues.scheduled.scheduledSelect = SCHEDULE_TYPES_ITEMS.LATER.value;
