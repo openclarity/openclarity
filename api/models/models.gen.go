@@ -24,9 +24,10 @@ const (
 
 // Defines values for CloudProvider.
 const (
-	AWS   CloudProvider = "AWS"
-	Azure CloudProvider = "Azure"
-	GCP   CloudProvider = "GCP"
+	AWS      CloudProvider = "AWS"
+	Azure    CloudProvider = "Azure"
+	External CloudProvider = "External"
+	GCP      CloudProvider = "GCP"
 )
 
 // Defines values for MisconfigurationSeverity.
