@@ -389,8 +389,8 @@ github.com/apparentlymart/go-cidr v1.1.0/go.mod h1:EBcsNrHc3zQeuaeCeCtQruQm+n9/Y
 github.com/apparentlymart/go-textseg v1.0.0/go.mod h1:z96Txxhf3xSFMPmb5X/1W05FF/Nj9VFpLOpjS5yuumk=
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
-github.com/aptible/supercronic v0.2.25 h1:l3wJzLNicivvumVPWEM5/B75o1Pi9e5KMtrZR9m6rv4=
-github.com/aptible/supercronic v0.2.25/go.mod h1:mrrR6YgUiOvR8zPyLl8zPcHcHmuNN5kht7W7pD/gVrQ=
+github.com/aptible/supercronic v0.2.26 h1:dPid6awDpM1mINOqOdpDLeiSj8WwjbSn5idBt6gMlaw=
+github.com/aptible/supercronic v0.2.26/go.mod h1:xK+y2E7w0eTSgCoEoPvUSmzwGoboEe4G6ZX97l4VyqI=
 github.com/aquasecurity/bolt-fixtures v0.0.0-20200903104109-d34e7f983986 h1:2a30xLN2sUZcMXl50hg+PJCIDdJgIvIbVcKqLJ/ZrtM=
 github.com/aquasecurity/defsec v0.85.0 h1:2HZSWbmVK95iDaEok0EpZlXLjBTFTux1a3JGwAMyhLE=
 github.com/aquasecurity/defsec v0.85.0/go.mod h1:6bb5hLBkDyRlsObkKX4nybiDiCYX/AhrrSIklnPZzBg=
