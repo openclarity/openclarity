@@ -291,26 +291,38 @@ func (t *AssetsTableHandler) checkUniqueness(asset models.Asset) (*models.Asset,
 		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
 
+	var filter string
 	switch info := discriminator.(type) {
 	case models.VMInfo:
-		var assets []Asset
-		// In the case of creating or updating an asset, needs to be checked whether other asset exists with same InstanceID and Location.
-		filter := fmt.Sprintf("id ne '%s' and assetInfo/instanceID eq '%s' and assetInfo/location eq '%s'", *asset.Id, info.InstanceID, info.Location)
-		err = ODataQuery(t.DB, assetSchemaName, &filter, nil, nil, nil, nil, nil, true, &assets)
-		if err != nil {
-			return nil, err
-		}
-		if len(assets) > 0 {
-			var apiAsset models.Asset
-			if err := json.Unmarshal(assets[0].Data, &apiAsset); err != nil {
-				return nil, fmt.Errorf("failed to convert DB model to API model: %w", err)
-			}
-			return &apiAsset, &common.ConflictError{
-				Reason: fmt.Sprintf("Asset VM exists with same instanceID=%q and location=%q", info.InstanceID, info.Location),
-			}
-		}
-		return nil, nil // nolint:nilnil
+		filter = fmt.Sprintf(
+			"id ne '%s' and assetInfo/instanceID eq '%s' and assetInfo/location eq '%s'",
+			*asset.Id, info.InstanceID, info.Location,
+		)
+
+	case models.ContainerInfo:
+		filter = fmt.Sprintf("id ne '%s' and assetInfo/Id eq '%s'", *asset.Id, *info.Id)
+
+	case models.ContainerImageInfo:
+		filter = fmt.Sprintf("id ne '%s' and assetInfo/Id eq '%s'", *asset.Id, *info.Id)
+
 	default:
 		return nil, fmt.Errorf("asset type is not supported (%T): %w", discriminator, err)
 	}
+
+	// In the case of creating or updating an asset, needs to be checked whether other asset exists with same properties.
+	var assets []Asset
+	err = ODataQuery(t.DB, assetSchemaName, &filter, nil, nil, nil, nil, nil, true, &assets)
+	if err != nil {
+		return nil, err
+	}
+	if len(assets) > 0 {
+		var apiAsset models.Asset
+		if err := json.Unmarshal(assets[0].Data, &apiAsset); err != nil {
+			return nil, fmt.Errorf("failed to convert DB model to API model: %w", err)
+		}
+		return &apiAsset, &common.ConflictError{
+			Reason: fmt.Sprintf("Asset exists with same properties ($filter=%s)", filter),
+		}
+	}
+	return nil, nil // nolint:nilnil
 }
