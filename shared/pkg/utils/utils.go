@@ -57,6 +57,27 @@ func PointerTo[T any](value T) *T {
 	return &value
 }
 
+func StringPointerValOrEmpty(val *string) string {
+	if val == nil {
+		return ""
+	}
+	return *val
+}
+
+func Int32PointerValOrEmpty(val *int32) int32 {
+	if val == nil {
+		return 0
+	}
+	return *val
+}
+
+func BoolPointerValOrFalse(val *bool) bool {
+	if val == nil {
+		return false
+	}
+	return *val
+}
+
 func StringKeyMapToArray[T any](m map[string]T) []T {
 	ret := make([]T, 0, len(m))
 	for _, t := range m {

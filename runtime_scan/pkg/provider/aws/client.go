@@ -775,26 +775,92 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 			}
 
 			if err := validateInstanceFields(instance); err != nil {
-				logger.Errorf("Instance validation failed. instance id=%v: %v", getPointerValOrEmpty(instance.InstanceId), err)
+				logger.Errorf("Instance validation failed. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
 				continue
 			}
+			rootVol, err := getRootVolumeInfo(ctx, c.ec2Client, instance, regionID)
+			if err != nil {
+				logger.Warnf("Couldn't get root volume info. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
+				rootVol = &models.RootVolume{
+					SizeGB:    0,
+					Encrypted: models.Unknown,
+				}
+			}
+
 			ret = append(ret, Instance{
-				ID:               *instance.InstanceId,
-				Region:           regionID,
-				AvailabilityZone: *instance.Placement.AvailabilityZone,
-				Image:            *instance.ImageId,
-				InstanceType:     string(instance.InstanceType),
-				Platform:         *instance.PlatformDetails,
-				Tags:             getTagsFromECTags(instance.Tags),
-				LaunchTime:       *instance.LaunchTime,
-				VpcID:            *instance.VpcId,
-				SecurityGroups:   getSecurityGroupsIDs(instance.SecurityGroups),
+				ID:                  *instance.InstanceId,
+				Region:              regionID,
+				AvailabilityZone:    *instance.Placement.AvailabilityZone,
+				Image:               *instance.ImageId,
+				InstanceType:        string(instance.InstanceType),
+				Platform:            *instance.PlatformDetails,
+				Tags:                getTagsFromECTags(instance.Tags),
+				LaunchTime:          *instance.LaunchTime,
+				VpcID:               *instance.VpcId,
+				SecurityGroups:      getSecurityGroupsIDs(instance.SecurityGroups),
+				RootDeviceName:      utils.StringPointerValOrEmpty(instance.RootDeviceName),
+				RootVolumeSizeGB:    int32(rootVol.SizeGB),
+				RootVolumeEncrypted: rootVol.Encrypted,
 
 				ec2Client: c.ec2Client,
 			})
 		}
 	}
 	return ret
+}
+
+func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Instance, region string) (*models.RootVolume, error) {
+	if i.RootDeviceName == nil || *i.RootDeviceName == "" {
+		return nil, fmt.Errorf("RootDeviceName is not set")
+	}
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	for _, mapping := range i.BlockDeviceMappings {
+		if utils.StringPointerValOrEmpty(mapping.DeviceName) == utils.StringPointerValOrEmpty(i.RootDeviceName) {
+			if mapping.Ebs == nil {
+				return nil, fmt.Errorf("EBS of the root volume is nil")
+			}
+			if mapping.Ebs.VolumeId == nil {
+				return nil, fmt.Errorf("volume ID of the root volume is nil")
+			}
+			descParams := &ec2.DescribeVolumesInput{
+				VolumeIds: []string{*mapping.Ebs.VolumeId},
+			}
+
+			describeOut, err := client.DescribeVolumes(ctx, descParams, func(options *ec2.Options) {
+				options.Region = region
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to describe the root volume")
+			}
+
+			if len(describeOut.Volumes) == 0 {
+				return nil, fmt.Errorf("volume list is empty")
+			}
+			if len(describeOut.Volumes) > 1 {
+				logger.WithFields(logrus.Fields{
+					"VolumeId":    *mapping.Ebs.VolumeId,
+					"Volumes num": len(describeOut.Volumes),
+				}).Warnf("Found more than 1 root volume, using the first")
+			}
+
+			return &models.RootVolume{
+				SizeGB:    int(utils.Int32PointerValOrEmpty(describeOut.Volumes[0].Size)),
+				Encrypted: encryptedToAPI(describeOut.Volumes[0].Encrypted),
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("instance doesn't have a root volume block device mapping")
+}
+
+func encryptedToAPI(encrypted *bool) models.RootVolumeEncrypted {
+	if encrypted == nil {
+		return models.Unknown
+	}
+	if *encrypted {
+		return models.Yes
+	}
+	return models.No
 }
 
 func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {

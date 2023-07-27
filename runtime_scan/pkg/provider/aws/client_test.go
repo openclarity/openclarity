@@ -277,7 +277,8 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 							Value: "val-1",
 						},
 					},
-					LaunchTime: launchTime,
+					LaunchTime:          launchTime,
+					RootVolumeEncrypted: models.Unknown,
 				},
 				{
 					ID:     "instance-2",
@@ -296,7 +297,8 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 							Value: "val-2",
 						},
 					},
-					LaunchTime: launchTime,
+					LaunchTime:          launchTime,
+					RootVolumeEncrypted: models.Unknown,
 				},
 				{
 					ID:     "instance-3",
@@ -305,12 +307,13 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 					SecurityGroups: []models.SecurityGroup{
 						{Id: "group3"},
 					},
-					AvailabilityZone: "az3",
-					Image:            "image3",
-					InstanceType:     "t2.large",
-					Platform:         "linux",
-					Tags:             nil,
-					LaunchTime:       launchTime,
+					AvailabilityZone:    "az3",
+					Image:               "image3",
+					InstanceType:        "t2.large",
+					Platform:            "linux",
+					Tags:                nil,
+					LaunchTime:          launchTime,
+					RootVolumeEncrypted: models.Unknown,
 				},
 			},
 		},
@@ -337,6 +340,46 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 
 			if !reflect.DeepEqual(gotInstances, tt.want) {
 				t.Errorf("getInstancesFromDescribeInstancesOutput() = %v, want %v", gotInstances, tt.want)
+			}
+		})
+	}
+}
+
+func Test_encryptedToAPI(t *testing.T) {
+	type args struct {
+		encrypted *bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want models.RootVolumeEncrypted
+	}{
+		{
+			name: "unknown",
+			args: args{
+				encrypted: nil,
+			},
+			want: models.Unknown,
+		},
+		{
+			name: "no",
+			args: args{
+				encrypted: utils.PointerTo(false),
+			},
+			want: models.No,
+		},
+		{
+			name: "yes",
+			args: args{
+				encrypted: utils.PointerTo(true),
+			},
+			want: models.Yes,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := encryptedToAPI(tt.args.encrypted); got != tt.want {
+				t.Errorf("encryptedToAPI() = %v, want %v", got, tt.want)
 			}
 		})
 	}
