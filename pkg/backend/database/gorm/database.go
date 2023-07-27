@@ -25,8 +25,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
-	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/database/odatasql/jsonsql"
+	"github.com/openclarity/vmclarity/pkg/backend/database/types"
 )
 
 func NewDatabase(config types.DBConfig) (types.Database, error) {

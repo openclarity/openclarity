@@ -20,11 +20,9 @@ RUN apt-get update && xx-apt-get install -y --no-install-recommends gcc libc6-de
 
 RUN xx-go --wrap
 
-# Copy vmclarity code to /build
+# Copy vmclarity code to /build and move to that directory
 COPY . /build
-
-# Build backend code
-WORKDIR /build/backend
+WORKDIR /build
 
 ARG VERSION
 ARG BUILD_TIMESTAMP
@@ -35,17 +33,17 @@ ENV CGO_ENABLED=1
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     go build -ldflags="-s -w -extldflags -static \
-     -X 'github.com/openclarity/vmclarity/backend/pkg/version.Version=${VERSION}' \
-     -X 'github.com/openclarity/vmclarity/backend/pkg/version.CommitHash=${COMMIT_HASH}' \
-     -X 'github.com/openclarity/vmclarity/backend/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o backend ./cmd/backend/main.go
+     -X 'github.com/openclarity/vmclarity/pkg/backend/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/vmclarity/pkg/backend/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/vmclarity/pkg/backend/version.BuildTimestamp=${BUILD_TIMESTAMP}'" -o bin/vmclarity-backend ./cmd/vmclarity-backend/main.go
 
-RUN xx-verify backend
+RUN xx-verify bin/vmclarity-backend
 
 FROM alpine:3.18
 
 WORKDIR /app
 
-COPY --from=builder ["/build/backend/backend", "./backend"]
+COPY --from=builder ["/build/bin/vmclarity-backend", "./vmclarity-backend"]
 COPY --from=site-build ["/app/ui-build/build", "site"]
 
-ENTRYPOINT ["/app/backend"]
+ENTRYPOINT ["/app/vmclarity-backend"]
