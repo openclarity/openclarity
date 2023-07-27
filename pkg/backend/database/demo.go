@@ -23,7 +23,7 @@ import (
 	"golang.org/x/exp/rand"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
