@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package families
 
 import (
 	"reflect"
@@ -24,27 +24,26 @@ import (
 
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 
-	"github.com/openclarity/vmclarity/shared/pkg/families"
 	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 )
 
-func Test_setMountPointsForFamiliesInput(t *testing.T) {
+func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 	type args struct {
 		mountPoints    []string
-		familiesConfig *families.Config
+		familiesConfig *Config
 	}
 	tests := []struct {
 		name string
 		args args
-		want *families.Config
+		want *Config
 	}{
 		{
 			name: "sbom, vuls, secrets and malware are enabled",
 			args: args{
 				mountPoints: []string{"/mnt/snapshot1"},
-				familiesConfig: &families.Config{
+				familiesConfig: &Config{
 					SBOM: sbom.Config{
 						Enabled: true,
 						Inputs:  nil,
@@ -64,7 +63,7 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 					},
 				},
 			},
-			want: &families.Config{
+			want: &Config{
 				SBOM: sbom.Config{
 					Enabled: true,
 					Inputs: []sbom.Input{
@@ -104,7 +103,7 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 			name: "only vuls enabled",
 			args: args{
 				mountPoints: []string{"/mnt/snapshot1"},
-				familiesConfig: &families.Config{
+				familiesConfig: &Config{
 					Vulnerabilities: vulnerabilities.Config{
 						Enabled:       true,
 						Inputs:        nil,
@@ -112,7 +111,7 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 					},
 				},
 			},
-			want: &families.Config{
+			want: &Config{
 				Vulnerabilities: vulnerabilities.Config{
 					Enabled: true,
 					Inputs: []vulnerabilities.Input{
@@ -128,8 +127,8 @@ func Test_setMountPointsForFamiliesInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := setMountPointsForFamiliesInput(tt.args.mountPoints, tt.args.familiesConfig); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("setMountPointsForFamiliesInput() = %v, want %v", got, tt.want)
+			if got := SetMountPointsForFamiliesInput(tt.args.mountPoints, tt.args.familiesConfig); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SetMountPointsForFamiliesInput() = %v, want %v", got, tt.want)
 			}
 		})
 	}

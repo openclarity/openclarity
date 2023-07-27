@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,14 +33,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/state"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/families"
-	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
-	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
-	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
-	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 const (
@@ -107,7 +99,7 @@ var rootCmd = &cobra.Command{
 				}
 				return err
 			}
-			setMountPointsForFamiliesInput(mountPoints, config)
+			families.SetMountPointsForFamiliesInput(mountPoints, config)
 		}
 
 		err = cli.MarkInProgress(ctx)
@@ -249,63 +241,4 @@ func newCli() (*cli.CLI, error) {
 	}
 
 	return &cli.CLI{Manager: manager, Presenter: p, FamiliesConfig: config}, nil
-}
-
-func setMountPointsForFamiliesInput(mountPoints []string, familiesConfig *families.Config) *families.Config {
-	// update families inputs with the mount point as rootfs
-	for _, mountDir := range mountPoints {
-		if familiesConfig.SBOM.Enabled {
-			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, sbom.Input{
-				Input:     mountDir,
-				InputType: string(kubeclarityutils.ROOTFS),
-			})
-		}
-
-		if familiesConfig.Vulnerabilities.Enabled {
-			if familiesConfig.SBOM.Enabled {
-				familiesConfig.Vulnerabilities.InputFromSbom = true
-			} else {
-				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, vulnerabilities.Input{
-					Input:     mountDir,
-					InputType: string(kubeclarityutils.ROOTFS),
-				})
-			}
-		}
-
-		if familiesConfig.Secrets.Enabled {
-			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
-				StripPathFromResult: utils.PointerTo(true),
-				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
-			})
-		}
-
-		if familiesConfig.Malware.Enabled {
-			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, malware.Input{
-				StripPathFromResult: utils.PointerTo(true),
-				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
-			})
-		}
-
-		if familiesConfig.Rootkits.Enabled {
-			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, rootkits.Input{
-				StripPathFromResult: utils.PointerTo(true),
-				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
-			})
-		}
-
-		if familiesConfig.Misconfiguration.Enabled {
-			familiesConfig.Misconfiguration.Inputs = append(
-				familiesConfig.Misconfiguration.Inputs,
-				misconfigurationTypes.Input{
-					StripPathFromResult: utils.PointerTo(true),
-					Input:               mountDir,
-					InputType:           string(kubeclarityutils.ROOTFS),
-				},
-			)
-		}
-	}
-	return familiesConfig
 }
