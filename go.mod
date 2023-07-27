@@ -22,6 +22,7 @@ require (
 	github.com/aws/smithy-go v1.13.5
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/deepmap/oapi-codegen v1.13.0
+	github.com/docker/docker v24.0.2+incompatible
 	github.com/evanphx/json-patch v5.6.0+incompatible
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/ghodss/yaml v1.0.0
@@ -160,7 +161,6 @@ require (
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/docker/cli v23.0.1+incompatible // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker v23.0.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect

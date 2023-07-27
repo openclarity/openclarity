@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/aws"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/azure"
+	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/docker"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/external"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/gcp"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
@@ -102,6 +103,8 @@ func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provi
 	switch kind {
 	case models.Azure:
 		return azure.New(ctx)
+	case models.Docker:
+		return docker.New(ctx)
 	case models.AWS:
 		return aws.New(ctx)
 	case models.GCP:

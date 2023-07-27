@@ -917,6 +917,7 @@ components:
         - AWS
         - Azure
         - GCP
+        - Docker
         - External
 
     Scans:
@@ -1509,12 +1510,16 @@ components:
         - $ref: '#/components/schemas/VMInfo'
         - $ref: '#/components/schemas/PodInfo'
         - $ref: '#/components/schemas/DirInfo'
+        - $ref: '#/components/schemas/ContainerImageInfo'
+        - $ref: '#/components/schemas/ContainerInfo'
       discriminator:
         propertyName: objectType
         mapping:
           VMInfo: '#/components/schemas/VMInfo'
           PodInfo: '#/components/schemas/PodInfo'
           DirInfo: '#/components/schemas/DirInfo'
+          ContainerImageInfo: '#/components/schemas/ContainerImageInfo'
+          ContainerInfo: '#/components/schemas/ContainerInfo'
 
     VMInfo:
       type: object
@@ -1566,6 +1571,52 @@ components:
           type: string
       required:
         - objectType
+
+    ContainerInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        containerName:
+          type: string
+        # TODO(paralta) Check if image needs to be a required property
+        image:
+          $ref: '#/components/schemas/ContainerImageInfo' 
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+      required:
+        - objectType
+
+    ContainerImageInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+        architecture:
+          type: string
+        os:
+          type: string
+        size:
+          type: integer
+      required:
+        - objectType 
 
     DirInfo:
       type: object
