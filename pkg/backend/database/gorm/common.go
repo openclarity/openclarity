@@ -24,7 +24,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 
-	"github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 

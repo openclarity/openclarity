@@ -26,10 +26,10 @@ import (
 
 	"github.com/Portshift/go-utils/healthz"
 
-	_config "github.com/openclarity/vmclarity/backend/pkg/config"
-	"github.com/openclarity/vmclarity/backend/pkg/database"
-	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/backend/pkg/rest"
+	_config "github.com/openclarity/vmclarity/pkg/backend/config"
+	"github.com/openclarity/vmclarity/pkg/backend/database"
+	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/rest"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
 	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 	"github.com/openclarity/vmclarity/shared/pkg/log"

@@ -24,7 +24,7 @@ import (
 	"github.com/CiscoM31/godata"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/backend/pkg/database/odatasql/jsonsql"
+	"github.com/openclarity/vmclarity/pkg/backend/database/odatasql/jsonsql"
 )
 
 type jsonExtractFunctionType func(string, string) string

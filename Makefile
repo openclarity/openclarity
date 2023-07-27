@@ -36,7 +36,7 @@ ui: ## Build UI
 .PHONY: backend
 backend: ## Build Backend
 	@(echo "Building Backend ..." )
-	@(cd backend && go build -race -o bin/vmclarity-backend cmd/backend/main.go && ls -l bin/)
+	go build -race -o bin/vmclarity-backend cmd/vmclarity-backend/main.go
 
 .PHONY: cli
 cli: ## Build CLI

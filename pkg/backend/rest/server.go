@@ -25,8 +25,8 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 
 	"github.com/openclarity/vmclarity/api/server"
-	"github.com/openclarity/vmclarity/backend/pkg/common"
-	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/common"
+	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 	uiserver "github.com/openclarity/vmclarity/ui_backend/api/server"
 	uirest "github.com/openclarity/vmclarity/ui_backend/pkg/rest"

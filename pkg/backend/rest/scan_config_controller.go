@@ -23,8 +23,8 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/backend/pkg/common"
-	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/common"
+	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 

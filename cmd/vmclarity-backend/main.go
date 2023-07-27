@@ -24,10 +24,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/backend/pkg/backend"
-	"github.com/openclarity/vmclarity/backend/pkg/config"
-	databaseTypes "github.com/openclarity/vmclarity/backend/pkg/database/types"
-	"github.com/openclarity/vmclarity/backend/pkg/version"
+	"github.com/openclarity/vmclarity/pkg/backend"
+	"github.com/openclarity/vmclarity/pkg/backend/config"
+	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
+	"github.com/openclarity/vmclarity/pkg/backend/version"
 	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
