@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v3"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
+	"github.com/openclarity/vmclarity/shared/pkg/log"
 	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
@@ -188,7 +190,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get next page: %w", err)
 		}
-		ts, err := processVirtualMachineListIntoAssetTypes(page.VirtualMachineListResult)
+		ts, err := c.processVirtualMachineListIntoAssetTypes(ctx, page.VirtualMachineListResult)
 		if err != nil {
 			return nil, err
 		}
@@ -210,10 +212,10 @@ func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, erro
 	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
 
-func processVirtualMachineListIntoAssetTypes(vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
+func (c *Client) processVirtualMachineListIntoAssetTypes(ctx context.Context, vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
 	ret := make([]models.AssetType, 0, len(vmList.Value))
 	for _, vm := range vmList.Value {
-		info, err := getVMInfoFromVirtualMachine(vm)
+		info, err := getVMInfoFromVirtualMachine(vm, c.getRootVolumeInfo(ctx, vm))
 		if err != nil {
 			return nil, fmt.Errorf("unable to convert instance to vminfo: %w", err)
 		}
@@ -222,7 +224,31 @@ func processVirtualMachineListIntoAssetTypes(vmList armcompute.VirtualMachineLis
 	return ret, nil
 }
 
-func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.AssetType, error) {
+func (c *Client) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *models.RootVolume {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	ret := &models.RootVolume{
+		SizeGB:    int(utils.Int32PointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
+		Encrypted: models.Unknown,
+	}
+	osDiskID, err := arm.ParseResourceID(utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
+	if err != nil {
+		logger.Warnf("Failed to parse disk ID. DiskID=%v: %v",
+			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
+		return ret
+	}
+	osDisk, err := c.disksClient.Get(ctx, osDiskID.ResourceGroupName, osDiskID.Name, nil)
+	if err != nil {
+		logger.Warnf("Failed to get OS disk. DiskID=%v: %v",
+			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
+		return ret
+	}
+	ret.Encrypted = isEncrypted(osDisk)
+	ret.SizeGB = int(utils.Int32PointerValOrEmpty(osDisk.Disk.Properties.DiskSizeGB))
+
+	return ret
+}
+
+func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *models.RootVolume) (models.AssetType, error) {
 	assetType := models.AssetType{}
 	err := assetType.FromVMInfo(models.VMInfo{
 		ObjectType:       "VMInfo",
@@ -233,6 +259,7 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.AssetTyp
 		LaunchTime:       *vm.Properties.TimeCreated,
 		Location:         *vm.Location,
 		Platform:         string(*vm.Properties.StorageProfile.OSDisk.OSType),
+		RootVolume:       *rootVol,
 		SecurityGroups:   &[]models.SecurityGroup{},
 		Tags:             convertTags(vm.Tags),
 	})
@@ -241,6 +268,17 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine) (models.AssetTyp
 	}
 
 	return assetType, err
+}
+
+func isEncrypted(disk armcompute.DisksClientGetResponse) models.RootVolumeEncrypted {
+	if disk.Properties.EncryptionSettingsCollection == nil {
+		return models.No
+	}
+	if *disk.Properties.EncryptionSettingsCollection.Enabled {
+		return models.Yes
+	}
+
+	return models.No
 }
 
 func convertTags(tags map[string]*string) *[]models.Tag {

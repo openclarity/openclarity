@@ -32,14 +32,9 @@ const (
 	awsRegionEUCentral1    = "eu-central-1"
 	awsRegionUSEast1       = "us-east-1"
 	awsVPCEUCentral11      = "vpc-1-from-eu-central-1"
-	awsVPCEUCentral12      = "vpc-2-from-eu-central-1"
 	awsVPCUSEast11         = "vpc-1-from-us-east-1"
-	awsVPCUSEast12         = "vpc-2-from-us-east-1"
 	awsSGUSEast111         = "sg-1-from-vpc-1-from-us-east-1"
-	awsSGUSEast121         = "sg-1-from-vpc-2-from-us-east-1"
-	awsSGUSEast122         = "sg-2-from-vpc-2-from-us-east-1"
 	awsSGEUCentral111      = "sg-1-from-vpc-1-from-eu-central-1"
-	awsSGEUCentral121      = "sg-1-from-vpc-2-from-eu-central-1"
 	awsInstanceEUCentral11 = "i-instance-1-from-eu-central-1"
 	awsInstanceEUCentral12 = "i-instance-2-from-eu-central-1"
 	awsInstanceUSEast11    = "i-instance-1-from-us-east-1"
@@ -361,7 +356,7 @@ func createVulnerabilityFindings(ctx context.Context, base models.Finding, vulne
 }
 
 func createVMInfo(instanceID, location, image, instanceType, platform string,
-	tags []models.Tag, launchTime time.Time, instanceProvider models.CloudProvider,
+	tags []models.Tag, launchTime time.Time, instanceProvider models.CloudProvider, rootVolumeSizeGB int, rootVolumeEncrypted models.RootVolumeEncrypted,
 ) *models.AssetType {
 	info := models.AssetType{}
 	err := info.FromVMInfo(models.VMInfo{
@@ -373,6 +368,10 @@ func createVMInfo(instanceID, location, image, instanceType, platform string,
 		Location:         location,
 		Platform:         platform,
 		Tags:             &tags,
+		RootVolume: models.RootVolume{
+			Encrypted: rootVolumeEncrypted,
+			SizeGB:    rootVolumeSizeGB,
+		},
 	})
 	if err != nil {
 		panic(err)
@@ -403,7 +402,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset1"}}, time.Now(), models.AWS),
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset1"}}, time.Now(), models.AWS, 8, models.No),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -425,7 +424,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset2"}}, time.Now(), models.AWS),
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset2"}}, time.Now(), models.AWS, 25, models.Yes),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -446,7 +445,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1+"/"+awsVPCUSEast11+"/"+awsSGUSEast111,
-				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "asset3"}}, time.Now(), models.AWS),
+				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "asset3"}}, time.Now(), models.AWS, 512, models.Unknown),
 		},
 	}
 }

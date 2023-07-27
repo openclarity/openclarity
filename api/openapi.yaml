@@ -1380,6 +1380,23 @@ components:
         - value
       additionalProperties: false
 
+    RootVolume:
+      type: object
+      description: Information about VM root volume
+      properties:
+        sizeGB:
+          type: integer
+        encrypted:
+          type: string
+          enum:
+            - Yes
+            - No
+            - Unknown
+      required:
+        - sizeGB
+        - encrypted
+      additionalProperties: false
+
     RuntimeScheduleScanConfig:
       type: object
       minProperties: 1 # Require that at least 1 property will be set
@@ -1551,6 +1568,8 @@ components:
         launchTime:
           type: string
           format: date-time
+        rootVolume:
+          $ref: '#/components/schemas/RootVolume'
       required:
         - objectType
         - instanceID
@@ -1559,6 +1578,7 @@ components:
         - image
         - platform
         - launchTime
+        - rootVolume
 
     PodInfo:
       type: object
