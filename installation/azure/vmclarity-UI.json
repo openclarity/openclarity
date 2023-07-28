@@ -236,7 +236,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Exploit DB Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.1.2",
+                            "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.3",
                             "toolTip": "Exploit DB Container Image",
                             "constraints": {
                                 "required": false,
