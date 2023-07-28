@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, assetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {

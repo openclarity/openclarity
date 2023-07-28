@@ -18,8 +18,8 @@ package state
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/shared/pkg/families/types"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
 type LocalState struct{}

@@ -22,8 +22,8 @@ import (
 
 	"cloud.google.com/go/compute/apiv1/computepb"
 
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 var (

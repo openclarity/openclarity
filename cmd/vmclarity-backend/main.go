@@ -28,7 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/backend/config"
 	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/pkg/backend/version"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
 const (

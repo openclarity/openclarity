@@ -26,7 +26,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	backendmodels "github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/ui_backend/api/models"
 )
 

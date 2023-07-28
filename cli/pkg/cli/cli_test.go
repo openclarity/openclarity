@@ -18,7 +18,7 @@ package cli
 import (
 	"testing"
 
-	"github.com/openclarity/vmclarity/shared/pkg/fsutils/filesystem"
+	"github.com/openclarity/vmclarity/pkg/shared/fsutils/filesystem"
 )
 
 func Test_isSupportedFS(t *testing.T) {

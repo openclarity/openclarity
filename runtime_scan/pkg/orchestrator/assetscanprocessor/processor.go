@@ -23,10 +23,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/common"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 type AssetScanProcessor struct {

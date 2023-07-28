@@ -26,16 +26,16 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
-	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
-	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
-	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
-	rootkitsTypes "github.com/openclarity/vmclarity/shared/pkg/families/rootkits/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
-	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
+	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
+	misconfigurationTypes "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
+	rootkitsTypes "github.com/openclarity/vmclarity/pkg/shared/families/rootkits/types"
+	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
+	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
+	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func ConvertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {

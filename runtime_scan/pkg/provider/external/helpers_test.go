@@ -24,9 +24,9 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
 	provider_service "github.com/openclarity/vmclarity/runtime_scan/pkg/provider/external/proto"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func Test_convertAssetToModels(t *testing.T) {

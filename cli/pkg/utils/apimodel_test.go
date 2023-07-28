@@ -27,17 +27,17 @@ import (
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
-	common2 "github.com/openclarity/vmclarity/shared/pkg/families/exploits/common"
-	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
-	malwarecommon "github.com/openclarity/vmclarity/shared/pkg/families/malware/common"
-	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
-	misconfigurationTypes "github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets/common"
-	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	common2 "github.com/openclarity/vmclarity/pkg/shared/families/exploits/common"
+	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
+	malwarecommon "github.com/openclarity/vmclarity/pkg/shared/families/malware/common"
+	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
+	misconfigurationTypes "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
+	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
+	"github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
+	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func Test_ConvertSBOMResultToAPIModel(t *testing.T) {
