@@ -1154,6 +1154,85 @@ func TestBuildSQLQuery(t *testing.T) {
 				car4,
 			},
 		},
+		{
+			name: "filter if list contains an item",
+			args: args{
+				filterString: PointerTo("Engine/Options/SubOptions/any(o:o/Name eq 'bluePaint')"),
+			},
+			want: []Car{
+				car1,
+				car2,
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "filter if list contains an item, no match",
+			args: args{
+				filterString: PointerTo("Engine/Options/SubOptions/any(o:o/Name eq 'yellow')"),
+			},
+			want: []Car{},
+		},
+		{
+			name: "filter if list contains an item with expanded properties",
+			args: args{
+				filterString: PointerTo("Engine/Options/SubOptions/any(o:o/Manufacturer/Name eq 'manu1')"),
+			},
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name: "filter if list contains an item, multi-part query",
+			args: args{
+				filterString: PointerTo("Engine/Options/SubOptions/any(o:o/Manufacturer/Name eq 'manu1' and o/Name eq 'bluePaint')"),
+			},
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
+		{
+			name: "filter if list contains an item as part of a larger query",
+			args: args{
+				filterString: PointerTo("ModelName eq 'model1' and Engine/Options/SubOptions/any(o:o/Manufacturer/Name eq 'manu1')"),
+			},
+			want: []Car{
+				car1,
+			},
+		},
+		{
+			name: "negated filter if list contains an item with expanded properties",
+			args: args{
+				filterString: PointerTo("not Engine/Options/SubOptions/any(o:o/Manufacturer/Name eq 'manu1')"),
+			},
+			want: []Car{
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "negated eq filter by primitive type ModelName",
+			args: args{
+				filterString: PointerTo("not (ModelName eq 'model1')"),
+			},
+			want: []Car{
+				car2,
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "if every item in list matches",
+			args: args{
+				filterString: PointerTo(fmt.Sprintf("Engine/Options/SubOptions/all(o: o/Manufacturer/Id eq '%s' or o/Manufacturer/Id eq '%s')", manu1.ID, manu2.ID)),
+			},
+			want: []Car{
+				car1,
+				car2,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
