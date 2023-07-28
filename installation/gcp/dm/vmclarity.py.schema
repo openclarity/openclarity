@@ -53,7 +53,7 @@ properties:
     description: The container image to use for the scanner
   exploitDBServerContainerImage:
     type: string
-    default: ghcr.io/openclarity/exploit-db-server:v0.1.2
+    default: ghcr.io/openclarity/exploit-db-server:v0.2.3
     description: The container image to use for the exploit db server
   trivyServerContainerImage:
     type: string
