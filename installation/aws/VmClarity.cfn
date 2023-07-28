@@ -338,7 +338,7 @@ Resources:
 
                     [Install]
                     WantedBy=multi-user.target
-                  - ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.2.0"]
+                  - ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.2.3"]
               mode: "000644"
             "/etc/trivy-server/config.env":
               content: |
@@ -929,8 +929,8 @@ Parameters:
     Default: ''
   ExploitDBServerContainerImageOverride:
     Description: >
-      Name of the container image used for the grype server.
-      "ghcr.io/openclarity/exploit-db-server:v0.1.2" will be used if not overridden.
+      Name of the container image used for the exploit db server.
+      "ghcr.io/openclarity/exploit-db-server:v0.2.3" will be used if not overridden.
     Type: String
     Default: ''
   PostgresqlContainerImageOverride:
