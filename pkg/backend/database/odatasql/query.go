@@ -52,7 +52,7 @@ func BuildCountQuery(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMe
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree, "")
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
@@ -89,7 +89,7 @@ func BuildSQLQuery(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta
 		}
 
 		// Build the WHERE conditions based on the $filter tree
-		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree)
+		conditions, err := buildWhereFromFilter(sqlVariant, schemaMetas, rootObject, schema, fmt.Sprintf("%s.Data", table), filterQuery.Tree, "")
 		if err != nil {
 			return "", fmt.Errorf("failed to build DB query from $filter: %w", err)
 		}
@@ -216,7 +216,7 @@ func buildSelectFieldsForRelationshipCollectionFieldType(sqlVariant jsonsql.Vari
 	)
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, field, newSource, newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, field, newSource, newSource, st.filter.Tree, "")
 			where = fmt.Sprintf("%s and %s", where, conditions)
 		}
 	}
@@ -362,7 +362,7 @@ func buildSelectFieldsForCollectionFieldType(sqlVariant jsonsql.Variant, schemaM
 	var newSelectNode *selectNode
 	if st != nil {
 		if st.filter != nil {
-			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.filter.Tree)
+			conditions, _ := buildWhereFromFilter(sqlVariant, schemaMetas, *field.CollectionItemMeta, fmt.Sprintf("%sFilter", identifier), newSource, st.filter.Tree, "")
 			where = fmt.Sprintf("WHERE %s", conditions)
 		}
 
@@ -433,7 +433,7 @@ func buildJSONPathFromParseNode(node *godata.ParseNode) (string, error) {
 	case godata.ExpressionTokenLiteral:
 		return node.Token.Value, nil
 	default:
-		return "", fmt.Errorf("unsupported token type")
+		return "", fmt.Errorf("unsupported token type %s", node.Token.Type)
 	}
 }
 
@@ -495,11 +495,22 @@ func expandItemsToReachPath(schemaMetas map[string]SchemaMeta, field FieldMeta, 
 	}
 }
 
-// TODO: create a unit test
-// nolint:cyclop
-func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode) (string, error) {
-	operator := node.Token.Value
+func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode, chompPathPrefix string) (string, error) {
+	tokenType := node.Token.Type
 
+	switch tokenType {
+	case godata.ExpressionTokenLogical, godata.ExpressionTokenFunc:
+		return buildWhereFromLogicalOperator(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
+	case godata.ExpressionTokenLambdaNav:
+		return buildWhereFromLambda(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
+	default:
+		return "", fmt.Errorf("unexpected Token Type: %s", tokenType)
+	}
+}
+
+// nolint:cyclop
+func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode, chompPathPrefix string) (string, error) {
+	operator := node.Token.Value
 	var query string
 	switch operator {
 	case "eq", "ne", "gt", "ge", "lt", "le":
@@ -509,6 +520,7 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 		if err != nil {
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
+		queryPath = strings.TrimPrefix(queryPath, chompPathPrefix)
 
 		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
 		if err != nil {
@@ -553,25 +565,31 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 
 		query = fmt.Sprintf("%s %s %s", extractFunction(fieldSource, queryPath), sqlOperator, value)
 	case "and":
-		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0])
+		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0], chompPathPrefix)
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1])
+		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1], chompPathPrefix)
 		if err != nil {
 			return query, err
 		}
 		query = fmt.Sprintf("(%s AND %s)", left, right)
 	case "or":
-		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0])
+		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0], chompPathPrefix)
 		if err != nil {
 			return query, err
 		}
-		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1])
+		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1], chompPathPrefix)
 		if err != nil {
 			return query, err
 		}
 		query = fmt.Sprintf("(%s OR %s)", left, right)
+	case "not":
+		subquery, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0], chompPathPrefix)
+		if err != nil {
+			return query, err
+		}
+		query = fmt.Sprintf("NOT (%s)", subquery)
 	case "contains", "endswith", "startswith":
 		// Convert ODATA paths with slashes like "Thing/Name" into JSON
 		// path like "Thing.Name".
@@ -579,6 +597,7 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 		if err != nil {
 			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
 		}
+		queryPath = strings.TrimPrefix(queryPath, chompPathPrefix)
 
 		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
 		if err != nil {
@@ -592,19 +611,107 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 			r := strings.ReplaceAll(right, "'", "")
 			value = fmt.Sprintf(sqlOperators[operator], r)
 		default:
-			return query, fmt.Errorf("unsupported token type")
+			return query, fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
+
 		query = fmt.Sprintf(
 			"%s LIKE '%s'",
 			sqlVariant.JSONExtractText(fieldSource, fmt.Sprintf("$.%s", queryPath)),
 			value,
 		)
+	default:
+		return query, fmt.Errorf("unsupported operator: %s", operator)
 	}
 
 	return query, nil
 }
 
+// nolint:cyclop
+func fieldMetaFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, path string) ([]FieldMeta, error) {
+	switch field.FieldType {
+	case PrimitiveFieldType:
+		if path == "" {
+			return []FieldMeta{field}, nil
+		} else {
+			return nil, fmt.Errorf("can not subpath a primitive type")
+		}
+	case CollectionFieldType:
+		return fieldMetaFromQueryPath(schemaMetas, *field.CollectionItemMeta, path)
+	case RelationshipFieldType:
+		schema := schemaMetas[field.RelationshipSchema]
+		fieldName, pathRemainder, _ := strings.Cut(path, ".")
+		newfield := schema.Fields[fieldName]
+		return fieldMetaFromQueryPath(schemaMetas, newfield, pathRemainder)
+	case ComplexFieldType:
+		if path == "" {
+			return []FieldMeta{field}, nil
+		}
+
+		fieldMetas := []FieldMeta{}
+		fieldName, pathRemainder, _ := strings.Cut(path, ".")
+		for _, schemaName := range field.ComplexFieldSchemas {
+			schema := schemaMetas[schemaName]
+			newField, ok := schema.Fields[fieldName]
+			if !ok {
+				continue
+			}
+			otherMetas, err := fieldMetaFromQueryPath(schemaMetas, newField, pathRemainder)
+			if err != nil {
+				return nil, fmt.Errorf("can not get field meta from path for schema %s:%s %s", schemaName, fieldName, pathRemainder)
+			}
+			fieldMetas = append(fieldMetas, otherMetas...)
+		}
+		return fieldMetas, nil
+	default:
+		return nil, fmt.Errorf("unknown field type: %v", field.FieldType)
+	}
+}
+
+func buildWhereFromLambda(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode, chompPathPrefix string) (string, error) {
+	sourcePath, err := buildJSONPathFromParseNode(node.Children[0])
+	if err != nil {
+		return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
+	}
+	sourcePath = strings.TrimPrefix(sourcePath, chompPathPrefix)
+
+	fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, sourcePath)
+	if err != nil {
+		return "", fmt.Errorf("unable to build source for filter %w", err)
+	}
+
+	newFieldMetas, err := fieldMetaFromQueryPath(schemaMetas, field, sourcePath)
+	if err != nil {
+		return "", fmt.Errorf("error finding field meta in schema for query path %s: %w", sourcePath, err)
+	}
+	if len(newFieldMetas) < 1 {
+		return "", fmt.Errorf("unable to find field meta in schema for query path %s", sourcePath)
+	}
+
+	lambda := node.Children[1]
+	lambdaFunc := lambda.Token.Value
+	switch lambdaFunc {
+	case "any":
+		newIdentifier := fmt.Sprintf("%sFilterOptions", identifier)
+		subquery, err := buildWhereFromFilter(sqlVariant, schemaMetas, newFieldMetas[0], newIdentifier, fmt.Sprintf("%s.value", identifier), lambda.Children[1], fmt.Sprintf("%s.", lambda.Children[0].Token.Value))
+		if err != nil {
+			return "", fmt.Errorf("unable to build query inside lambda: %v", err)
+		}
+		return fmt.Sprintf("EXISTS (SELECT 1 FROM %s AS %s WHERE %s)", sqlVariant.JSONEach(sqlVariant.JSONExtract(fieldSource, sourcePath)), identifier, subquery), nil
+	case "all":
+		newIdentifier := fmt.Sprintf("%sFilterOptions", identifier)
+		subquery, err := buildWhereFromFilter(sqlVariant, schemaMetas, newFieldMetas[0], newIdentifier, fmt.Sprintf("%s.value", identifier), lambda.Children[1], fmt.Sprintf("%s.", lambda.Children[0].Token.Value))
+		if err != nil {
+			return "", fmt.Errorf("unable to build query inside lambda: %v", err)
+		}
+		return fmt.Sprintf("NOT EXISTS (SELECT 1 FROM %s AS %s WHERE NOT (%s))", sqlVariant.JSONEach(sqlVariant.JSONExtract(fieldSource, sourcePath)), identifier, subquery), nil
+	default:
+		return "", fmt.Errorf("unknown lambda function %v", lambdaFunc)
+	}
+}
+
 func sourceFromQueryPath(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, queryPath string) (string, error) {
+	log.Infof("QueryPath: %s", queryPath)
+
 	// ODATA path that would be present if we were to $select the
 	// field being filtered
 	selectPath := strings.ReplaceAll(queryPath, ".", "/")
