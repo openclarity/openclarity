@@ -18,8 +18,8 @@ package scanwatcher
 import (
 	"time"
 
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
 )
 
 const (

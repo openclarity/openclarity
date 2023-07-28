@@ -27,12 +27,12 @@ import (
 
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
-	"github.com/openclarity/vmclarity/shared/pkg/families"
-	"github.com/openclarity/vmclarity/shared/pkg/families/types"
-	"github.com/openclarity/vmclarity/shared/pkg/fsutils/blockdevice"
-	"github.com/openclarity/vmclarity/shared/pkg/fsutils/filesystem"
-	"github.com/openclarity/vmclarity/shared/pkg/fsutils/mount"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
+	"github.com/openclarity/vmclarity/pkg/shared/families"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/fsutils/blockdevice"
+	"github.com/openclarity/vmclarity/pkg/shared/fsutils/filesystem"
+	"github.com/openclarity/vmclarity/pkg/shared/fsutils/mount"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
 const (

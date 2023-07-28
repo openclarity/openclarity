@@ -22,13 +22,11 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"gotest.tools/v3/assert"
 
 	backendmodels "github.com/openclarity/vmclarity/api/models"
-
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/ui_backend/api/models"
-
-	"gotest.tools/v3/assert"
 )
 
 func Test_getAssetLocation(t *testing.T) {

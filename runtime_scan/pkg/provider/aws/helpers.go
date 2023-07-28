@@ -23,8 +23,8 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
 )
 
 func EC2TagsFromScanMetadata(meta provider.ScanMetadata) []ec2types.Tag {

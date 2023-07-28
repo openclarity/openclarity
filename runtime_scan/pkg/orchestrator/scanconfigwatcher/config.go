@@ -18,7 +18,7 @@ package scanconfigwatcher
 import (
 	"time"
 
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 )
 
 const (

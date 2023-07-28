@@ -15,7 +15,7 @@
 
 package presenter
 
-import "github.com/openclarity/vmclarity/shared/pkg/families"
+import "github.com/openclarity/vmclarity/pkg/shared/families"
 
 type FilePresenter struct {
 	*DefaultPresenter

@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/assetscanprocessor"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/assetscanwatcher"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator/discovery"
@@ -32,8 +34,6 @@ import (
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/docker"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/external"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/provider/gcp"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
 )
 
 type Orchestrator struct {

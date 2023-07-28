@@ -21,7 +21,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func Test_isEncrypted(t *testing.T) {

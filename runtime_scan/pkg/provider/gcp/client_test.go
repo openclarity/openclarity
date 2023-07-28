@@ -20,11 +20,10 @@ import (
 	"testing"
 
 	"cloud.google.com/go/compute/apiv1/computepb"
-
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func Test_convertTags(t *testing.T) {

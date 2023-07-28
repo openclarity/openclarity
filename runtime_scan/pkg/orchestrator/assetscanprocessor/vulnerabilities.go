@@ -20,9 +20,9 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/findingkey"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 // nolint:cyclop,gocognit

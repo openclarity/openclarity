@@ -30,9 +30,9 @@ import (
 	"github.com/openclarity/vmclarity/pkg/backend/database"
 	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/pkg/backend/rest"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/runtime_scan/pkg/orchestrator"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
 	uibackend "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
 )
 

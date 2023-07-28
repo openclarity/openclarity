@@ -24,7 +24,7 @@ import (
 
 	"github.com/openclarity/vmclarity/pkg/backend/database/odatasql"
 	"github.com/openclarity/vmclarity/pkg/backend/database/odatasql/jsonsql"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 var SQLVariant jsonsql.Variant

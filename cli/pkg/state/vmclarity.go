@@ -22,10 +22,10 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
-	"github.com/openclarity/vmclarity/shared/pkg/families/types"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const (
