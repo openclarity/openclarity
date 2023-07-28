@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.18.4.5664",
-      "templateHash": "15222142115869372328"
+      "version": "0.19.5.34762",
+      "templateHash": "3463229836138264794"
     }
   },
   "parameters": {
@@ -83,7 +83,7 @@
     },
     "exploitDBContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.1.2",
+      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.3",
       "metadata": {
         "description": "Exploit DB Container Image"
       }
@@ -207,8 +207,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.18.4.5664",
-              "templateHash": "240849925380037017"
+              "version": "0.19.5.34762",
+              "templateHash": "14703701488042676640"
             }
           },
           "parameters": {
@@ -268,8 +268,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.18.4.5664",
-              "templateHash": "7040041022808729062"
+              "version": "0.19.5.34762",
+              "templateHash": "6258338894575814661"
             }
           },
           "parameters": {
@@ -367,8 +367,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.18.4.5664",
-              "templateHash": "10497713072497503606"
+              "version": "0.19.5.34762",
+              "templateHash": "3047926639668443873"
             }
           },
           "parameters": {
@@ -525,8 +525,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.18.4.5664",
-              "templateHash": "17417527612845233996"
+              "version": "0.19.5.34762",
+              "templateHash": "10079985962589315836"
             }
           },
           "parameters": {
@@ -623,7 +623,7 @@
             },
             "exploitDBContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.1.2",
+              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.3",
               "metadata": {
                 "description": "Exploit DB Container Image"
               }
