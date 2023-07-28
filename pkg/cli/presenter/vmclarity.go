@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/models"
-	cliutils "github.com/openclarity/vmclarity/cli/pkg/utils"
+	cliutils "github.com/openclarity/vmclarity/pkg/cli/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
