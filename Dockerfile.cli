@@ -6,11 +6,9 @@ FROM --platform=$BUILDPLATFORM golang:1.20.6-alpine AS builder
 RUN apk add --update --no-cache ca-certificates git
 RUN apk add build-base
 
-# Copy vmclarity code to /build
+# Copy vmclarity code to /build and move to that directory
 COPY . /build
-
-# Build cli code
-WORKDIR /build/cli
+WORKDIR /build
 
 ARG COMMIT_HASH
 ARG TARGETOS
@@ -20,9 +18,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 \
     go build \
-    -ldflags="-s -w -X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" \
-    -o cli \
-    ./main.go
+    -ldflags="-s -w -X 'github.com/openclarity/vmclarity/pkg/cli.GitRevision=${COMMIT_HASH}'" \
+    -o bin/vmclarity-cli \
+    cmd/vmclarity-cli/main.go
 
 FROM ${VMCLARITY_TOOLS_BASE}
 
@@ -31,7 +29,7 @@ RUN apk add util-linux
 
 WORKDIR /app
 
-COPY --from=builder /build/cli/cli ./vmclarity-cli
+COPY --from=builder /build/bin/vmclarity-cli ./vmclarity-cli
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 ENTRYPOINT ["/app/vmclarity-cli"]
