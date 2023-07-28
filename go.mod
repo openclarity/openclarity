@@ -31,7 +31,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/sys/mountinfo v0.6.2
-	github.com/onsi/gomega v1.27.9
+	github.com/onsi/gomega v1.27.10
 	github.com/openclarity/kubeclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
