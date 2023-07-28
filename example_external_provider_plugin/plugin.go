@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	provider_service "github.com/openclarity/vmclarity/runtime_scan/pkg/provider/external/proto"
+	provider_service "github.com/openclarity/vmclarity/pkg/orchestrator/provider/external/proto"
 )
 
 type Provider struct {
