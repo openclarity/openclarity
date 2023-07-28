@@ -25,8 +25,8 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/log"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func (c *Client) getContainerAssets(ctx context.Context) ([]models.AssetType, error) {

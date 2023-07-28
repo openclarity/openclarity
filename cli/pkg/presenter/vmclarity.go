@@ -22,17 +22,17 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	cliutils "github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/shared/pkg/backendclient"
-	"github.com/openclarity/vmclarity/shared/pkg/families"
-	"github.com/openclarity/vmclarity/shared/pkg/families/exploits"
-	"github.com/openclarity/vmclarity/shared/pkg/families/malware"
-	"github.com/openclarity/vmclarity/shared/pkg/families/misconfiguration"
-	"github.com/openclarity/vmclarity/shared/pkg/families/rootkits"
-	"github.com/openclarity/vmclarity/shared/pkg/families/sbom"
-	"github.com/openclarity/vmclarity/shared/pkg/families/secrets"
-	"github.com/openclarity/vmclarity/shared/pkg/families/types"
-	"github.com/openclarity/vmclarity/shared/pkg/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/families"
+	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
+	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
+	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
+	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type AssetScanID = models.AssetScanID

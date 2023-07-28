@@ -23,7 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/uuid"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/shared/pkg/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func TestNewAssetScanFromScan(t *testing.T) {

@@ -18,7 +18,7 @@ package presenter
 import (
 	"io"
 
-	"github.com/openclarity/vmclarity/shared/pkg/families"
+	"github.com/openclarity/vmclarity/pkg/shared/families"
 )
 
 type ConsolePresenter struct {
