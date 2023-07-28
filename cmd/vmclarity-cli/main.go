@@ -13,6 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package main
 
-var GitRevision string
+import "github.com/openclarity/vmclarity/cmd/vmclarity-cli/root"
+
+func main() {
+	root.Execute()
+}

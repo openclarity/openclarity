@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package root
 
 import (
 	"context"
@@ -27,10 +27,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/cli/pkg"
-	"github.com/openclarity/vmclarity/cli/pkg/cli"
-	"github.com/openclarity/vmclarity/cli/pkg/presenter"
-	"github.com/openclarity/vmclarity/cli/pkg/state"
+	"github.com/openclarity/vmclarity/pkg/cli"
+	"github.com/openclarity/vmclarity/pkg/cli/presenter"
+	"github.com/openclarity/vmclarity/pkg/cli/state"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
@@ -57,7 +56,7 @@ var rootCmd = &cobra.Command{
 	Use:          "vmclarity",
 	Short:        "VMClarity",
 	Long:         `VMClarity`,
-	Version:      pkg.GitRevision,
+	Version:      cli.GitRevision,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Infof("Running...")
