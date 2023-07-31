@@ -15,8 +15,7 @@ const ASSET_SCAN_DETAILS_PATHS = {
 const DetailsContent = ({data}) => {
     const {pathname} = useLocation();
     
-    const {id, asset, summary} = data;
-    const {id: assetId, assetInfo} = asset;
+    const {id, summary} = data;
     
     return (
         <TabbedPage
@@ -50,8 +49,8 @@ const AssetScanDetails = () => (
     <DetailsPageWrapper
         backTitle="Asset scans"
         url={APIS.ASSET_SCANS}
-        select="id,scan,asset,summary,status"
-        expand="scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status"
+        select="id,scan,asset,summary,status,stats"
+        expand="scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status,stats"
         getTitleData={({scan, asset}) => {
             const {startTime, name} = scan || {};
 

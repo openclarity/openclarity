@@ -18,6 +18,7 @@ package secrets
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -42,10 +43,17 @@ func (s Secrets) Run(ctx context.Context, _ *familiesresults.Results) (interface
 	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, logger, job.Factory)
 	mergedResults := NewMergedResults()
 
+	var secretsResults Results
 	for _, input := range s.conf.Inputs {
+		startTime := time.Now()
 		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for secrets: %v", input.Input, err)
+		}
+		endTime := time.Now()
+		inputSize, err := familiesutils.GetInputSize(input)
+		if err != nil {
+			logger.Warnf("Failed to calculate input %v size: %v", input, err)
 		}
 
 		// Merge results.
@@ -57,12 +65,12 @@ func (s Secrets) Run(ctx context.Context, _ *familiesresults.Results) (interface
 			logger.Infof("Merging result from %q", name)
 			mergedResults = mergedResults.Merge(secretResult)
 		}
+		secretsResults.Metadata.InputScans = append(secretsResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 	}
 
 	logger.Info("Secrets Done...")
-	return &Results{
-		MergedResults: mergedResults,
-	}, nil
+	secretsResults.MergedResults = mergedResults
+	return &secretsResults, nil
 }
 
 // StripPathFromResult strip input path from results wherever it is found.

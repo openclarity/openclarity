@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -30,6 +31,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/results"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
@@ -67,7 +69,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 			return nil, fmt.Errorf("failed to write sbom to file: %v", err)
 		}
 
-		v.conf.Inputs = append(v.conf.Inputs, Input{
+		v.conf.Inputs = append(v.conf.Inputs, types.Input{
 			Input:     sbomTempFilePath,
 			InputType: "sbom",
 		})
@@ -77,10 +79,17 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 		return nil, fmt.Errorf("inputs list is empty")
 	}
 
+	var vulResults Results
 	for _, input := range v.conf.Inputs {
+		startTime := time.Now()
 		runResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to run for input %v of type %v: %w", input.Input, input.InputType, err)
+		}
+		endTime := time.Now()
+		inputSize, err := familiesutils.GetInputSize(input)
+		if err != nil {
+			logger.Warnf("Failed to calculate input %v size: %v", input, err)
 		}
 
 		// Merge results.
@@ -88,6 +97,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 			logger.Infof("Merging result from %q", name)
 			mergedResults = mergedResults.Merge(result.(*sharedscanner.Results)) // nolint:forcetypeassert
 		}
+		vulResults.Metadata.InputScans = append(vulResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 
 		// TODO:
 		// // Set source values.
@@ -100,9 +110,8 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 
 	logger.Info("Vulnerabilities Done...")
 
-	return &Results{
-		MergedResults: mergedResults,
-	}, nil
+	vulResults.MergedResults = mergedResults
+	return &vulResults, nil
 }
 
 func (v Vulnerabilities) GetType() types.FamilyType {

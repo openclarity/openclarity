@@ -196,6 +196,7 @@ type AssetScan struct {
 	// ScannerInstanceCreationConfig Configuration of scanner instance
 	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
 	Secrets                       *SecretScan                    `json:"secrets,omitempty"`
+	Stats                         *AssetScanStats                `json:"stats,omitempty"`
 	Status                        *AssetScanStatus               `json:"status,omitempty"`
 
 	// Summary A summary of the scan findings.
@@ -209,6 +210,24 @@ type AssetScanExists struct {
 
 	// Message Describes which unique constraint combination causes the conflict.
 	Message *string `json:"message,omitempty"`
+}
+
+// AssetScanGeneralStats Global statistics for asset scan of all families.
+type AssetScanGeneralStats struct {
+	ScanTime *AssetScanScanTime `json:"scanTime,omitempty"`
+}
+
+// AssetScanInputScanStats Statistics per asset scan input.
+type AssetScanInputScanStats struct {
+	// Path The input path (/mnt/snapshot for ex.)
+	Path     *string            `json:"path,omitempty"`
+	ScanTime *AssetScanScanTime `json:"scanTime,omitempty"`
+
+	// Size The input size in MB.
+	Size *int64 `json:"size,omitempty"`
+
+	// Type The input type (ROOTFS, DIR, IMAGE etc.)
+	Type *string `json:"type,omitempty"`
 }
 
 // AssetScanRelationship defines model for AssetScanRelationship.
@@ -234,11 +253,18 @@ type AssetScanRelationship struct {
 	// ScannerInstanceCreationConfig Configuration of scanner instance
 	ScannerInstanceCreationConfig *ScannerInstanceCreationConfig `json:"scannerInstanceCreationConfig,omitempty"`
 	Secrets                       *SecretScan                    `json:"secrets,omitempty"`
+	Stats                         *AssetScanStats                `json:"stats,omitempty"`
 	Status                        *AssetScanStatus               `json:"status,omitempty"`
 
 	// Summary A summary of the scan findings.
 	Summary         *ScanFindingsSummary `json:"summary,omitempty"`
 	Vulnerabilities *VulnerabilityScan   `json:"vulnerabilities,omitempty"`
+}
+
+// AssetScanScanTime defines model for AssetScanScanTime.
+type AssetScanScanTime struct {
+	EndTime   *time.Time `json:"endTime,omitempty"`
+	StartTime *time.Time `json:"startTime,omitempty"`
 }
 
 // AssetScanState defines model for AssetScanState.
@@ -250,6 +276,20 @@ type AssetScanState struct {
 
 // AssetScanStateState defines model for AssetScanState.State.
 type AssetScanStateState string
+
+// AssetScanStats defines model for AssetScanStats.
+type AssetScanStats struct {
+	Exploits *[]AssetScanInputScanStats `json:"exploits,omitempty"`
+
+	// General Global statistics for asset scan of all families.
+	General           *AssetScanGeneralStats     `json:"general,omitempty"`
+	Malware           *[]AssetScanInputScanStats `json:"malware,omitempty"`
+	Misconfigurations *[]AssetScanInputScanStats `json:"misconfigurations,omitempty"`
+	Rootkits          *[]AssetScanInputScanStats `json:"rootkits,omitempty"`
+	Sbom              *[]AssetScanInputScanStats `json:"sbom,omitempty"`
+	Secrets           *[]AssetScanInputScanStats `json:"secrets,omitempty"`
+	Vulnerabilities   *[]AssetScanInputScanStats `json:"vulnerabilities,omitempty"`
+}
 
 // AssetScanStatus defines model for AssetScanStatus.
 type AssetScanStatus struct {

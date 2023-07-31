@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -65,7 +66,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 			want: &Config{
 				SBOM: sbom.Config{
 					Enabled: true,
-					Inputs: []sbom.Input{
+					Inputs: []types.Input{
 						{
 							Input:     "/mnt/snapshot1",
 							InputType: string(kubeclarityutils.ROOTFS),
@@ -78,7 +79,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 				},
 				Secrets: secrets.Config{
 					Enabled: true,
-					Inputs: []secrets.Input{
+					Inputs: []types.Input{
 						{
 							StripPathFromResult: utils.PointerTo(true),
 							Input:               "/mnt/snapshot1",
@@ -88,7 +89,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 				},
 				Malware: malware.Config{
 					Enabled: true,
-					Inputs: []malware.Input{
+					Inputs: []types.Input{
 						{
 							StripPathFromResult: utils.PointerTo(true),
 							Input:               "/mnt/snapshot1",
@@ -113,7 +114,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 			want: &Config{
 				Vulnerabilities: vulnerabilities.Config{
 					Enabled: true,
-					Inputs: []vulnerabilities.Input{
+					Inputs: []types.Input{
 						{
 							Input:     "/mnt/snapshot1",
 							InputType: string(kubeclarityutils.ROOTFS),

@@ -15,9 +15,14 @@
 
 package vulnerabilities
 
-import "github.com/openclarity/kubeclarity/shared/pkg/scanner"
+import (
+	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
+
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+)
 
 type Results struct {
+	Metadata      types.Metadata
 	MergedResults *scanner.MergedResults
 }
 

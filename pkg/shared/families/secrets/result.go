@@ -15,7 +15,12 @@
 
 package secrets
 
+import (
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+)
+
 type Results struct {
+	Metadata      types.Metadata
 	MergedResults *MergedResults `yaml:"merged_results"`
 }
 

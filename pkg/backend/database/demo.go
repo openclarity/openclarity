@@ -613,8 +613,10 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 	}
 }
 
-// nolint:gocognit
+// nolint:gocognit,maintidx
 func createAssetScans(scans []models.Scan) []models.AssetScan {
+	timeNow := time.Now()
+
 	var assetScans []models.AssetScan
 	for _, scan := range scans {
 		for _, assetID := range *scan.AssetIDs {
@@ -624,8 +626,22 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 					Id: *scan.Id,
 				},
 				Secrets: nil,
-				Status:  nil,
+				Status: &models.AssetScanStatus{
+					General: &models.AssetScanState{
+						Errors:             &[]string{"general errors were found"},
+						LastTransitionTime: &timeNow,
+						State:              utils.PointerTo(models.AssetScanStateStateInProgress),
+					},
+				},
 				Summary: &models.ScanFindingsSummary{},
+				Stats: &models.AssetScanStats{
+					General: &models.AssetScanGeneralStats{
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-10 * time.Second)),
+						},
+					},
+				},
 				Asset: &models.AssetRelationship{
 					Id: assetID,
 				},
@@ -634,71 +650,231 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 			// Create Exploits if needed
 			if *result.ScanFamiliesConfig.Exploits.Enabled {
+				result.Status.Exploits = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				}
+				result.Stats.Exploits = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+					{
+						Path: utils.PointerTo("/data"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-10 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(30)),
+						Type: utils.PointerTo("dir"),
+					},
+				}
 				result.Exploits = &models.ExploitScan{
 					Exploits: createExploitsResult(),
 				}
 				result.Summary.TotalExploits = utils.PointerTo(len(*result.Exploits.Exploits))
 			} else {
+				result.Status.Exploits = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalExploits = utils.PointerTo(0)
 			}
 
 			// Create Malware if needed
 			if *result.ScanFamiliesConfig.Malware.Enabled {
+				result.Status.Malware = &models.AssetScanState{
+					Errors:             &[]string{"failed to scan malware"},
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				}
+				result.Stats.Malware = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+					{
+						Path: utils.PointerTo("/data"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-10 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(30)),
+						Type: utils.PointerTo("dir"),
+					},
+				}
 				result.Malware = &models.MalwareScan{
 					Malware: createMalwareResult(),
 				}
 				result.Summary.TotalMalware = utils.PointerTo(len(*result.Malware.Malware))
 			} else {
+				result.Status.Malware = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalMalware = utils.PointerTo(0)
 			}
 
 			// Create Misconfigurations if needed
 			if *result.ScanFamiliesConfig.Misconfigurations.Enabled {
+				result.Status.Misconfigurations = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateInProgress),
+				}
+				result.Stats.Misconfigurations = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+				}
 				result.Misconfigurations = &models.MisconfigurationScan{
 					Misconfigurations: createMisconfigurationsResult(),
 				}
 				result.Summary.TotalMisconfigurations = utils.PointerTo(len(*result.Misconfigurations.Misconfigurations))
 			} else {
+				result.Status.Misconfigurations = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalMisconfigurations = utils.PointerTo(0)
 			}
 
 			// Create Packages if needed
 			if *result.ScanFamiliesConfig.Sbom.Enabled {
+				result.Status.Sbom = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStatePending),
+				}
+				result.Stats.Sbom = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+				}
 				result.Sboms = &models.SbomScan{
 					Packages: createPackagesResult(),
 				}
 				result.Summary.TotalPackages = utils.PointerTo(len(*result.Sboms.Packages))
 			} else {
+				result.Status.Sbom = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalPackages = utils.PointerTo(0)
 			}
 
 			// Create Rootkits if needed
 			if *result.ScanFamiliesConfig.Rootkits.Enabled {
+				result.Status.Rootkits = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				}
+				result.Stats.Rootkits = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+				}
 				result.Rootkits = &models.RootkitScan{
 					Rootkits: createRootkitsResult(),
 				}
 				result.Summary.TotalRootkits = utils.PointerTo(len(*result.Rootkits.Rootkits))
 			} else {
+				result.Status.Rootkits = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalRootkits = utils.PointerTo(0)
 			}
 
 			// Create Secrets if needed
 			if *result.ScanFamiliesConfig.Secrets.Enabled {
+				result.Status.Secrets = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				}
+				result.Stats.Secrets = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+					{
+						Path: utils.PointerTo("/data"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-10 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(30)),
+						Type: utils.PointerTo("dir"),
+					},
+				}
 				result.Secrets = &models.SecretScan{
 					Secrets: createSecretsResult(),
 				}
 				result.Summary.TotalSecrets = utils.PointerTo(len(*result.Secrets.Secrets))
 			} else {
+				result.Status.Secrets = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalSecrets = utils.PointerTo(0)
 			}
 
 			// Create Vulnerabilities if needed
 			if *result.ScanFamiliesConfig.Vulnerabilities.Enabled {
+				result.Status.Vulnerabilities = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				}
+				result.Stats.Vulnerabilities = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+				}
 				result.Vulnerabilities = &models.VulnerabilityScan{
 					Vulnerabilities: createVulnerabilitiesResult(),
 				}
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(result.Vulnerabilities.Vulnerabilities)
 			} else {
+				result.Status.Vulnerabilities = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(nil)
 			}
 

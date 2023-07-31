@@ -29,6 +29,10 @@ $open-icon-size: 14px;
             color: $color-grey-black;
             text-transform: uppercase;
             margin-bottom: 10px;
+
+            &.large {
+                font-size: 12px;
+            }
         }
     }
     .title-value-display-content {
