@@ -87,6 +87,14 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context) error {
 	if assetScan.Status.General == nil {
 		assetScan.Status.General = &models.AssetScanState{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
+	assetScan.Stats.General = &models.AssetScanGeneralStats{
+		ScanTime: &models.AssetScanScanTime{
+			StartTime: utils.PointerTo(time.Now()),
+		},
+	}
 
 	state := models.AssetScanStateStateInProgress
 	assetScan.Status.General.State = &state
@@ -112,6 +120,8 @@ func (v *VMClarityState) MarkDone(ctx context.Context, errors []error) error {
 	if assetScan.Status.General == nil {
 		assetScan.Status.General = &models.AssetScanState{}
 	}
+
+	assetScan.Stats.General.ScanTime.EndTime = utils.PointerTo(time.Now())
 
 	state := models.AssetScanStateStateDone
 	assetScan.Status.General.State = &state

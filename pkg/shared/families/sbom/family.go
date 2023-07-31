@@ -18,6 +18,7 @@ package sbom
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/openclarity/kubeclarity/cli/pkg"
 	cliutils "github.com/openclarity/kubeclarity/cli/pkg/utils"
@@ -30,6 +31,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/pkg/shared/families/results"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
@@ -37,6 +39,7 @@ type SBOM struct {
 	conf Config
 }
 
+// nolint:cyclop
 func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.IsResults, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "sbom")
 	logger.Info("SBOM Run...")
@@ -56,10 +59,17 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 	manager := job_manager.New(s.conf.AnalyzersList, s.conf.AnalyzersConfig, logger, job.Factory)
 	mergedResults := sharedanalyzer.NewMergedResults(utils.SourceType(s.conf.Inputs[0].InputType), hash)
 
+	var sbomResults Results
 	for _, input := range s.conf.Inputs {
+		startTime := time.Now()
 		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to analyzer input %q: %v", s.conf.Inputs[0].Input, err)
+		}
+		endTime := time.Now()
+		inputSize, err := familiesutils.GetInputSize(input)
+		if err != nil {
+			logger.Warnf("Failed to calculate input %v size: %v", input, err)
 		}
 
 		// Merge results.
@@ -67,6 +77,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 			logger.Infof("Merging result from %q", name)
 			mergedResults = mergedResults.Merge(result.(*sharedanalyzer.Results)) // nolint:forcetypeassert
 		}
+		sbomResults.Metadata.InputScans = append(sbomResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 	}
 
 	for i, with := range s.conf.MergeWith {
@@ -94,9 +105,8 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 
 	logger.Info("SBOM Done...")
 
-	return &Results{
-		SBOM: cdxBom,
-	}, nil
+	sbomResults.SBOM = cdxBom
+	return &sbomResults, nil
 }
 
 func (s SBOM) GetType() types.FamilyType {

@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -59,7 +60,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 	// update families inputs with the mount point as rootfs
 	for _, mountDir := range mountPoints {
 		if familiesConfig.SBOM.Enabled {
-			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, sbom.Input{
+			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, types.Input{
 				Input:     mountDir,
 				InputType: string(kubeclarityutils.ROOTFS),
 			})
@@ -69,7 +70,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			if familiesConfig.SBOM.Enabled {
 				familiesConfig.Vulnerabilities.InputFromSbom = true
 			} else {
-				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, vulnerabilities.Input{
+				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, types.Input{
 					Input:     mountDir,
 					InputType: string(kubeclarityutils.ROOTFS),
 				})
@@ -77,7 +78,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		}
 
 		if familiesConfig.Secrets.Enabled {
-			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, secrets.Input{
+			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
 				InputType:           string(kubeclarityutils.ROOTFS),
@@ -85,7 +86,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		}
 
 		if familiesConfig.Malware.Enabled {
-			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, malware.Input{
+			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
 				InputType:           string(kubeclarityutils.ROOTFS),
@@ -93,7 +94,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		}
 
 		if familiesConfig.Rootkits.Enabled {
-			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, rootkits.Input{
+			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
 				InputType:           string(kubeclarityutils.ROOTFS),
@@ -103,7 +104,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		if familiesConfig.Misconfiguration.Enabled {
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,
-				misconfigurationTypes.Input{
+				types.Input{
 					StripPathFromResult: utils.PointerTo(true),
 					Input:               mountDir,
 					InputType:           string(kubeclarityutils.ROOTFS),

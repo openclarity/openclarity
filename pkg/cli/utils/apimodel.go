@@ -184,7 +184,7 @@ func ConvertMalwareResultToAPIModel(malwareResults *malware.MergedResults) *mode
 	}
 
 	metadata := []models.ScannerMetadata{}
-	for name, summary := range malwareResults.Metadata {
+	for name, summary := range malwareResults.ScansSummary {
 		nameVal := name // Prevent loop variable pointer export
 		metadata = append(metadata, models.ScannerMetadata{
 			ScannerName: &nameVal,

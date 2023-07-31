@@ -15,7 +15,19 @@
 
 package utils
 
-import "strings"
+import (
+	"fmt"
+	"io/fs"
+	"path/filepath"
+	"strings"
+
+	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
+
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+)
+
+// InputSizesCache global cache of already calculated input sizes. If input type is a DIR/ROOTFS/FILE than the key is the input path.
+var InputSizesCache = make(map[string]int64)
 
 func TrimMountPath(toTrim string, mountPath string) string {
 	// avoid representing root directory as empty string
@@ -41,4 +53,53 @@ func ShouldStripInputPath(inputShouldStrip *bool, familyShouldStrip bool) bool {
 		return familyShouldStrip
 	}
 	return *inputShouldStrip
+}
+
+func GetInputSize(input types.Input) (int64, error) {
+	switch input.InputType {
+	case string(kubeclarityutils.ROOTFS), string(kubeclarityutils.DIR), string(kubeclarityutils.FILE):
+		// check if already exists in cache
+		sizeFromCache, ok := InputSizesCache[input.Input]
+		if ok {
+			return sizeFromCache, nil
+		}
+
+		// calculate the size and add it to the cache
+		size, err := DirSizeMB(input.Input)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get dir size: %v", err)
+		}
+		InputSizesCache[input.InputType] = size
+		return size, nil
+	default:
+		// currently other input types are not supported for size benchmarking.
+		return 0, nil
+	}
+}
+
+const megaBytesToBytes = 1000 * 1000
+
+func DirSizeMB(path string) (int64, error) {
+	var dirSizeBytes int64 = 0
+
+	readSize := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("unable to evaluate path %s: %w", path, err)
+		}
+		if d.IsDir() {
+			return nil
+		}
+		info, err := d.Info()
+		if err != nil {
+			return fmt.Errorf("unable to stat path %s: %w", path, err)
+		}
+		dirSizeBytes += info.Size()
+		return nil
+	}
+
+	if err := filepath.WalkDir(path, readSize); err != nil {
+		return 0, fmt.Errorf("failed to walk dir: %v", err)
+	}
+
+	return dirSizeBytes / megaBytesToBytes, nil
 }

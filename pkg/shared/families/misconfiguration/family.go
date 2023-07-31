@@ -18,6 +18,7 @@ package misconfiguration
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -43,9 +44,15 @@ func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfac
 
 	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, logger, job.Factory)
 	for _, input := range m.conf.Inputs {
+		startTime := time.Now()
 		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for misconfigurations: %v", input.Input, err)
+		}
+		endTime := time.Now()
+		inputSize, err := familiesutils.GetInputSize(input)
+		if err != nil {
+			logger.Warnf("Failed to calculate input %v size: %v", input, err)
 		}
 
 		// Merge results.
@@ -60,6 +67,7 @@ func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfac
 				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
 			}
 		}
+		misConfigResults.Metadata.InputScans = append(misConfigResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 	}
 
 	logger.Info("Misconfiguration Done...")
