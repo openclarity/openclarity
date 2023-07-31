@@ -33,7 +33,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
-	uibackend "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
+	uibackend "github.com/openclarity/vmclarity/pkg/uibackend/rest"
 )
 
 func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {

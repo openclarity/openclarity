@@ -27,7 +27,7 @@ import (
 
 	backendmodels "github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
-	"github.com/openclarity/vmclarity/ui_backend/api/models"
+	"github.com/openclarity/vmclarity/pkg/uibackend/api/models"
 )
 
 const (
