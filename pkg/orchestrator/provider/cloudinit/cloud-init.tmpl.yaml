@@ -27,6 +27,7 @@ write_files:
           -v /run:/run \
           -v /var/opt/vmclarity:/var/opt/vmclarity \
           {{ .ScannerImage }} \
+          scan \
           --config /opt/vmclarity/scanconfig.yaml \
           --server {{ .VMClarityAddress }} \
           --mount-attached-volume \

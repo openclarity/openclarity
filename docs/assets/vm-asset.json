@@ -1,0 +1,20 @@
+{
+  "objectType": "VMInfo",
+  "instanceID": "test-instance-id",
+  "instanceProvider": "AWS",
+  "location": "eu-west-2",
+  "tags": [
+    {
+      "key": "test",
+      "value": "test"
+    }
+  ],
+  "securityGroups": [
+    {
+      "id": "test-sg"
+    }
+  ],
+  "image": "test-image",
+  "instanceType": "t2-large",
+  "launchTime": "2023-07-26T10:33:09.080Z"
+}
