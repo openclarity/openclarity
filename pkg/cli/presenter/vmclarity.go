@@ -81,6 +81,9 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 	if assetScan.Summary == nil {
 		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	errs := []string{}
 
@@ -95,6 +98,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 			if assetScan.Sboms.Packages != nil {
 				assetScan.Summary.TotalPackages = utils.PointerTo(len(*assetScan.Sboms.Packages))
 			}
+			assetScan.Stats.Sbom = getInputScanStats(sbomResults.Metadata.InputScans)
 		}
 	}
 
@@ -125,6 +129,9 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 	if assetScan.Summary == nil {
 		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	errs := []string{}
 
@@ -138,6 +145,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 			assetScan.Vulnerabilities = cliutils.ConvertVulnResultToAPIModel(vulnerabilitiesResults)
 		}
 		assetScan.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(assetScan.Vulnerabilities.Vulnerabilities)
+		assetScan.Stats.Vulnerabilities = getInputScanStats(vulnerabilitiesResults.Metadata.InputScans)
 	}
 
 	state := models.AssetScanStateStateDone
@@ -168,6 +176,9 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 	if assetScan.Summary == nil {
 		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	errs := []string{}
 
@@ -182,6 +193,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 			if assetScan.Secrets.Secrets != nil {
 				assetScan.Summary.TotalSecrets = utils.PointerTo(len(*assetScan.Secrets.Secrets))
 			}
+			assetScan.Stats.Secrets = getInputScanStats(secretsResults.Metadata.InputScans)
 		}
 	}
 
@@ -197,6 +209,28 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 	return nil
 }
 
+func getInputScanStats(inputScans []types.InputScanMetadata) *[]models.AssetScanInputScanStats {
+	if len(inputScans) == 0 {
+		return nil
+	}
+
+	ret := make([]models.AssetScanInputScanStats, 0, len(inputScans))
+	for i := range inputScans {
+		scan := inputScans[i]
+		ret = append(ret, models.AssetScanInputScanStats{
+			Path: &scan.InputPath,
+			ScanTime: &models.AssetScanScanTime{
+				EndTime:   &scan.ScanEndTime,
+				StartTime: &scan.ScanStartTime,
+			},
+			Size: &scan.InputSize,
+			Type: &scan.InputType,
+		})
+	}
+
+	return &ret
+}
+
 func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
 	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
@@ -208,6 +242,12 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 	}
 	if assetScan.Status.Malware == nil {
 		assetScan.Status.Malware = &models.AssetScanState{}
+	}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
+	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
 	}
 
 	errs := []string{}
@@ -223,6 +263,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 			if assetScan.Malware.Malware != nil {
 				assetScan.Summary.TotalMalware = utils.PointerTo[int](len(*assetScan.Malware.Malware))
 			}
+			assetScan.Stats.Malware = getInputScanStats(malwareResults.Metadata.InputScans)
 		}
 	}
 
@@ -252,6 +293,9 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 	if assetScan.Summary == nil {
 		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	errs := []string{}
 
@@ -266,6 +310,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 			if assetScan.Exploits.Exploits != nil {
 				assetScan.Summary.TotalExploits = utils.PointerTo(len(*assetScan.Exploits.Exploits))
 			}
+			assetScan.Stats.Exploits = getInputScanStats(exploitsResults.Metadata.InputScans)
 		}
 	}
 
@@ -296,6 +341,9 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 	if assetScan.Summary == nil {
 		assetScan.Summary = &models.ScanFindingsSummary{}
 	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	var errs []string
 
@@ -313,6 +361,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 				assetScan.Misconfigurations = apiMisconfigurations
 				assetScan.Summary.TotalMisconfigurations = utils.PointerTo(len(misconfigurationResults.Misconfigurations))
 			}
+			assetScan.Stats.Misconfigurations = getInputScanStats(misconfigurationResults.Metadata.InputScans)
 		}
 	}
 
@@ -340,6 +389,12 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 	if assetScan.Status.Rootkits == nil {
 		assetScan.Status.Rootkits = &models.AssetScanState{}
 	}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
+	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
 
 	var errs []string
 
@@ -354,6 +409,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 			if assetScan.Rootkits.Rootkits != nil {
 				assetScan.Summary.TotalRootkits = utils.PointerTo[int](len(*assetScan.Rootkits.Rootkits))
 			}
+			assetScan.Stats.Rootkits = getInputScanStats(rootkitsResults.Metadata.InputScans)
 		}
 	}
 

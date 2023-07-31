@@ -13,19 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rootkits
+package types
 
-import (
-	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/common"
-	"github.com/openclarity/vmclarity/pkg/shared/families/types"
-)
+import "time"
 
-type Config struct {
-	Enabled         bool                   `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList    []string               `yaml:"scanners_list" mapstructure:"scanners_list"`
-	StripInputPaths bool                   `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
-	Inputs          []types.Input          `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig  *common.ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
+type Metadata struct {
+	Timestamp  time.Time `json:"Timestamp"`
+	Scanners   []string  `json:"Scanners"`
+	InputScans []InputScanMetadata
 }
 
 type Input struct {
@@ -33,4 +28,22 @@ type Input struct {
 	StripPathFromResult *bool  `yaml:"strip_path_from_result" mapstructure:"strip_path_from_result"`
 	Input               string `yaml:"input" mapstructure:"input"`
 	InputType           string `yaml:"input_type" mapstructure:"input_type"`
+}
+
+type InputScanMetadata struct {
+	InputType     string
+	InputPath     string
+	InputSize     int64
+	ScanStartTime time.Time
+	ScanEndTime   time.Time
+}
+
+func CreateInputScanMetadata(startTime, endTime time.Time, inputSize int64, input Input) InputScanMetadata {
+	return InputScanMetadata{
+		InputType:     input.InputType,
+		InputPath:     input.Input,
+		InputSize:     inputSize,
+		ScanStartTime: startTime,
+		ScanEndTime:   endTime,
+	}
 }

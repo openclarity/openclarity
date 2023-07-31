@@ -18,6 +18,7 @@ package rootkits
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
@@ -42,10 +43,17 @@ func (r Rootkits) Run(ctx context.Context, _ *familiesresults.Results) (families
 	manager := job_manager.New(r.conf.ScannersList, r.conf.ScannersConfig, logger, job.Factory)
 	mergedResults := NewMergedResults()
 
+	var rootkitsResults Results
 	for _, input := range r.conf.Inputs {
+		startTime := time.Now()
 		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for rootkits: %v", input.Input, err)
+		}
+		endTime := time.Now()
+		inputSize, err := familiesutils.GetInputSize(input)
+		if err != nil {
+			logger.Warnf("Failed to calculate input %v size: %v", input, err)
 		}
 
 		// Merge results.
@@ -57,12 +65,12 @@ func (r Rootkits) Run(ctx context.Context, _ *familiesresults.Results) (families
 			}
 			mergedResults = mergedResults.Merge(scannerResult)
 		}
+		rootkitsResults.Metadata.InputScans = append(rootkitsResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 	}
 
 	logger.Info("Rootkits Done...")
-	return &Results{
-		MergedResults: mergedResults,
-	}, nil
+	rootkitsResults.MergedResults = mergedResults
+	return &rootkitsResults, nil
 }
 
 // StripPathFromResult strip input path from results wherever it is found.

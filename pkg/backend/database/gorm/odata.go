@@ -117,12 +117,83 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ExploitScan"},
 			},
+			"stats": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanStats"},
+			},
 			"summary": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanFindingsSummary"},
 			},
 			"findingsProcessed": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"resourceCleanup":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"AssetScanStats": {
+		Fields: odatasql.Schema{
+			"general": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanGeneralStats"},
+			},
+			"sbom": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"vulnerabilities": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"malware": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"rootkits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"secrets": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"misconfigurations": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"exploits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+		},
+	},
+	"AssetScanGeneralStats": {
+		Fields: odatasql.Schema{
+			"scanTime": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"AssetScanScanTime"},
+				},
+			},
+		},
+	},
+	"AssetScanInputScanStats": {
+		Fields: odatasql.Schema{
+			"type": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"size": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanTime": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"AssetScanScanTime"},
+				},
+			},
+		},
+	},
+	"AssetScanScanTime": {
+		Fields: odatasql.Schema{
+			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"SbomScan": {

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
+	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
 )
 
 type FlattenedMisconfiguration struct {
@@ -26,19 +27,14 @@ type FlattenedMisconfiguration struct {
 	types.Misconfiguration
 }
 
-type Metadata struct {
-	Timestamp time.Time `json:"Timestamp"`
-	Scanners  []string  `json:"Scanners"`
-}
-
 type Results struct {
-	Metadata          Metadata                    `json:"Metadata"`
+	Metadata          familiestypes.Metadata      `json:"Metadata"`
 	Misconfigurations []FlattenedMisconfiguration `json:"Misconfigurations"`
 }
 
 func NewResults() *Results {
 	return &Results{
-		Metadata: Metadata{
+		Metadata: familiestypes.Metadata{
 			Timestamp: time.Now(),
 			Scanners:  []string{},
 		},

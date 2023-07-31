@@ -36,6 +36,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -569,7 +570,7 @@ func Test_ConvertMalwareResultToAPIModel(t *testing.T) {
 							Path:        "/somepath/givememoney.exe",
 						},
 					},
-					Metadata: map[string]*malwarecommon.ScanSummary{
+					ScansSummary: map[string]*malwarecommon.ScanSummary{
 						"clam": {
 							KnownViruses:       100,
 							EngineVersion:      "1",
@@ -862,7 +863,7 @@ func Test_ConvertMisconfigurationResultToAPIModel(t *testing.T) {
 			name: "nil misconfigurationResults.Misconfigurations",
 			args: args{
 				misconfigurationResults: &misconfiguration.Results{
-					Metadata: misconfiguration.Metadata{
+					Metadata: types.Metadata{
 						Timestamp: timestamp,
 						Scanners:  []string{"foo", "bar"},
 					},
@@ -875,7 +876,7 @@ func Test_ConvertMisconfigurationResultToAPIModel(t *testing.T) {
 			name: "sanity",
 			args: args{
 				misconfigurationResults: &misconfiguration.Results{
-					Metadata: misconfiguration.Metadata{
+					Metadata: types.Metadata{
 						Timestamp: timestamp,
 						Scanners:  []string{"foo", "bar"},
 					},

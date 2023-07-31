@@ -1724,6 +1724,8 @@ components:
               type: boolean
             resourceCleanup:
               $ref: '#/components/schemas/ResourceCleanupState'
+            stats:
+              $ref: '#/components/schemas/AssetScanStats'
             summary:
               $ref: '#/components/schemas/ScanFindingsSummary'
         - $ref: '#/components/schemas/AssetScanTemplate'
@@ -1738,6 +1740,40 @@ components:
       # required:
       #  - asset
       #  - scan
+
+    AssetScanStats:
+      type: object
+      properties:
+        general:
+          $ref: '#/components/schemas/AssetScanGeneralStats'
+        sbom:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        malware:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        rootkits:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        misconfigurations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        exploits:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
 
     AssetScanTemplateReadOnly:
       type: object
@@ -1802,11 +1838,48 @@ components:
             resourceCleanup:
               $ref: '#/components/schemas/ResourceCleanupState'
               readOnly: true
+            stats:
+              $ref: '#/components/schemas/AssetScanStats'
+              readOnly: true
             summary:
               $ref: '#/components/schemas/ScanFindingsSummary'
               readOnly: true
           required: [id]
         - $ref: '#/components/schemas/AssetScanTemplateReadOnly'
+
+    AssetScanGeneralStats:
+      type: object
+      description: Global statistics for asset scan of all families.
+      properties:
+        scanTime:
+          $ref: '#/components/schemas/AssetScanScanTime'
+
+    AssetScanInputScanStats:
+      type: object
+      description: Statistics per asset scan input.
+      properties:
+        type:
+          description: The input type (ROOTFS, DIR, IMAGE etc.)
+          type: string
+        path:
+          description: The input path (/mnt/snapshot for ex.)
+          type: string
+        size:
+          description: The input size in MB.
+          type: integer
+          format: int64
+        scanTime:
+          $ref: '#/components/schemas/AssetScanScanTime'
+
+    AssetScanScanTime:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
 
     AssetScanExists:
       type: object

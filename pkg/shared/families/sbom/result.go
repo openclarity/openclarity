@@ -20,10 +20,13 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/openclarity/kubeclarity/shared/pkg/converter"
+
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 )
 
 type Results struct {
-	SBOM *cdx.BOM
+	Metadata types.Metadata
+	SBOM     *cdx.BOM
 }
 
 func (*Results) IsResults() {}
