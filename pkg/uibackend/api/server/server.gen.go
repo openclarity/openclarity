@@ -16,7 +16,7 @@ import (
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
-	. "github.com/openclarity/vmclarity/ui_backend/api/models"
+	. "github.com/openclarity/vmclarity/pkg/uibackend/api/models"
 )
 
 // ServerInterface represents all server handlers.

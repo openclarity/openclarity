@@ -28,8 +28,8 @@ import (
 	"github.com/openclarity/vmclarity/pkg/backend/common"
 	databaseTypes "github.com/openclarity/vmclarity/pkg/backend/database/types"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
-	uiserver "github.com/openclarity/vmclarity/ui_backend/api/server"
-	uirest "github.com/openclarity/vmclarity/ui_backend/pkg/rest"
+	uiserver "github.com/openclarity/vmclarity/pkg/uibackend/api/server"
+	uirest "github.com/openclarity/vmclarity/pkg/uibackend/rest"
 )
 
 const (
