@@ -37,6 +37,7 @@ write_files:
           -v /run:/run \
           -v /var/opt/vmclarity:/var/opt/vmclarity \
           ghcr.io/openclarity/vmclarity-cli:latest \
+          scan \
           --config /opt/vmclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \
           --mount-attached-volume \

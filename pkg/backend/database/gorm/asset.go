@@ -285,6 +285,7 @@ func (t *AssetsTableHandler) DeleteAsset(assetID models.AssetID) error {
 	return nil
 }
 
+// nolint: cyclop
 func (t *AssetsTableHandler) checkUniqueness(asset models.Asset) (*models.Asset, error) {
 	discriminator, err := asset.AssetInfo.ValueByDiscriminator()
 	if err != nil {
@@ -298,7 +299,11 @@ func (t *AssetsTableHandler) checkUniqueness(asset models.Asset) (*models.Asset,
 			"id ne '%s' and assetInfo/instanceID eq '%s' and assetInfo/location eq '%s'",
 			*asset.Id, info.InstanceID, info.Location,
 		)
-
+	case models.DirInfo:
+		filter = fmt.Sprintf(
+			"id ne '%s' and assetInfo/dirName eq '%s' and assetInfo/location eq '%s'",
+			*asset.Id, *info.DirName, *info.Location,
+		)
 	case models.ContainerInfo:
 		filter = fmt.Sprintf("id ne '%s' and assetInfo/Id eq '%s'", *asset.Id, *info.Id)
 
