@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/root"
+	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/logutil"
 	cliutils "github.com/openclarity/vmclarity/pkg/cli/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -30,47 +30,46 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-// assetScanCreateCmd represents the standalone command.
-var assetScanCreateCmd = &cobra.Command{
+// AssetScanCreateCmd represents the standalone command.
+var AssetScanCreateCmd = &cobra.Command{
 	Use:   "asset-scan-create",
 	Short: "Create asset scan",
 	Long:  `It creates asset scan. It's useful in the CI/CD mode without VMClarity orchestration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		root.Logger.Infof("asset-scan-create called")
+		logutil.Logger.Infof("asset-scan-create called")
 		assetID, err := cmd.Flags().GetString("asset-id")
 		if err != nil {
-			root.Logger.Fatalf("Unable to get asset id: %v", err)
+			logutil.Logger.Fatalf("Unable to get asset id: %v", err)
 		}
 		server, err := cmd.Flags().GetString("server")
 		if err != nil {
-			root.Logger.Fatalf("Unable to get VMClarity server address: %v", err)
+			logutil.Logger.Fatalf("Unable to get VMClarity server address: %v", err)
 		}
 		jsonPath, err := cmd.Flags().GetString("jsonpath")
 		if err != nil {
-			root.Logger.Fatalf("Unable to get jsonpath: %v", err)
+			logutil.Logger.Fatalf("Unable to get jsonpath: %v", err)
 		}
 
 		assetScan, err := createAssetScan(context.TODO(), server, assetID)
 		if err != nil {
-			root.Logger.Fatalf("Failed to create asset scan: %v", err)
+			logutil.Logger.Fatalf("Failed to create asset scan: %v", err)
 		}
 
 		if err := cliutils.PrintJSONData(assetScan, jsonPath); err != nil {
-			root.Logger.Fatalf("Failed to print jsonpath: %v", err)
+			logutil.Logger.Fatalf("Failed to print jsonpath: %v", err)
 		}
 	},
 }
 
 func init() {
-	root.RootCmd.AddCommand(assetScanCreateCmd)
-	assetScanCreateCmd.Flags().String("server", "", "VMClarity server to create asset to, for example: http://localhost:9999/api")
-	assetScanCreateCmd.Flags().String("asset-id", "", "Asset ID for asset scan")
-	assetScanCreateCmd.Flags().String("jsonpath", "", "print selected value of asset scan")
-	if err := assetScanCreateCmd.MarkFlagRequired("server"); err != nil {
-		root.Logger.Fatalf("Failed to mark server flag as required: %v", err)
+	AssetScanCreateCmd.Flags().String("server", "", "VMClarity server to create asset to, for example: http://localhost:9999/api")
+	AssetScanCreateCmd.Flags().String("asset-id", "", "Asset ID for asset scan")
+	AssetScanCreateCmd.Flags().String("jsonpath", "", "print selected value of asset scan")
+	if err := AssetScanCreateCmd.MarkFlagRequired("server"); err != nil {
+		logutil.Logger.Fatalf("Failed to mark server flag as required: %v", err)
 	}
-	if err := assetScanCreateCmd.MarkFlagRequired("asset-id"); err != nil {
-		root.Logger.Fatalf("Failed to mark asset-id flag as required: %v", err)
+	if err := AssetScanCreateCmd.MarkFlagRequired("asset-id"); err != nil {
+		logutil.Logger.Fatalf("Failed to mark asset-id flag as required: %v", err)
 	}
 }
 
@@ -91,7 +90,7 @@ func createAssetScan(ctx context.Context, server, assetID string) (*models.Asset
 		var conErr backendclient.AssetScanConflictError
 		if errors.As(err, &conErr) {
 			assetScanID := *conErr.ConflictingAssetScan.Id
-			root.Logger.WithField("AssetScanID", assetScanID).Debug("AssetScan already exist.")
+			logutil.Logger.WithField("AssetScanID", assetScanID).Debug("AssetScan already exist.")
 			return conErr.ConflictingAssetScan, nil
 		}
 		return nil, fmt.Errorf("failed to post AssetScan to backend API: %w", err)
