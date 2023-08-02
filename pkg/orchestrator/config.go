@@ -33,6 +33,10 @@ import (
 )
 
 const (
+	APIServerHost       = "APISERVER_HOST"
+	APIServerDisableTLS = "APISERVER_DISABLE_TLS"
+	APIServerPort       = "APISERVER_PORT"
+
 	DeleteJobPolicy               = "DELETE_JOB_POLICY"
 	ScannerContainerImage         = "SCANNER_CONTAINER_IMAGE"
 	GitleaksBinaryPath            = "GITLEAKS_BINARY_PATH"
@@ -40,7 +44,7 @@ const (
 	FreshclamBinaryPath           = "FRESHCLAM_BINARY_PATH"
 	AlternativeFreshclamMirrorURL = "ALTERNATIVE_FRESHCLAM_MIRROR_URL"
 	LynisInstallPath              = "LYNIS_INSTALL_PATH"
-	ScannerBackendAddress         = "SCANNER_VMCLARITY_BACKEND_ADDRESS"
+	ScannerAPIServerAddress       = "SCANNER_VMCLARITY_APISERVER_ADDRESS"
 	ExploitDBAddress              = "EXPLOIT_DB_ADDRESS"
 	TrivyServerAddress            = "TRIVY_SERVER_ADDRESS"
 	TrivyServerTimeout            = "TRIVY_SERVER_TIMEOUT"
@@ -84,7 +88,8 @@ const (
 type Config struct {
 	ProviderKind models.CloudProvider
 
-	ScannerBackendAddress string
+	APIServerHost string `json:"apiserver-host,omitempty"`
+	APIServerPort int    `json:"apiserver-port,omitempty"`
 
 	// The Orchestrator starts the Controller(s) in a sequence and the ControllerStartupDelay is used for waiting
 	// before starting each Controller to avoid them hitting the API at the same time and allow one Controller
@@ -98,16 +103,14 @@ type Config struct {
 	AssetScanProcessorConfig assetscanprocessor.Config
 }
 
-func setConfigDefaults(backendHost string, backendPort int, backendBaseURL string) {
+func setConfigDefaults() {
 	viper.SetDefault(DeleteJobPolicy, string(assetscanwatcher.DeleteJobPolicyAlways))
-	viper.SetDefault(ScannerBackendAddress, fmt.Sprintf("http://%s%s", net.JoinHostPort(backendHost, strconv.Itoa(backendPort)), backendBaseURL))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L35
 	viper.SetDefault(LynisInstallPath, "/artifacts/lynis")
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile
 	viper.SetDefault(ChkrootkitBinaryPath, "/artifacts/chkrootkit")
-	viper.SetDefault(ExploitDBAddress, fmt.Sprintf("http://%s", net.JoinHostPort(backendHost, "1326")))
 	viper.SetDefault(ClamBinaryPath, "clamscan")
 	viper.SetDefault(FreshclamBinaryPath, "freshclam")
 	viper.SetDefault(TrivyServerTimeout, DefaultTrivyServerTimeout)
@@ -129,8 +132,8 @@ func setConfigDefaults(backendHost string, backendPort int, backendBaseURL strin
 	viper.AutomaticEnv()
 }
 
-func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, error) {
-	setConfigDefaults(backendHost, backendPort, baseURL)
+func LoadConfig() (*Config, error) {
+	setConfigDefaults()
 
 	var providerKind models.CloudProvider
 	switch strings.ToLower(viper.GetString(ProviderKind)) {
@@ -148,13 +151,27 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, e
 		providerKind = models.AWS
 	}
 
+	apiServerHost := viper.GetString(APIServerHost)
+	apiServerPort := viper.GetInt(APIServerPort)
+
+	scannerAPIServerAddress := viper.GetString(ScannerAPIServerAddress)
+	if scannerAPIServerAddress == "" {
+		scannerAPIServerAddress = fmt.Sprintf("http://%s%s", net.JoinHostPort(apiServerHost, strconv.Itoa(apiServerPort)), "/api")
+	}
+
+	exploitDBAddress := viper.GetString(ExploitDBAddress)
+	if exploitDBAddress == "" {
+		exploitDBAddress = fmt.Sprintf("http://%s", net.JoinHostPort(apiServerHost, "1326"))
+	}
+
 	c := &Config{
+		APIServerHost:          apiServerHost,
+		APIServerPort:          apiServerPort,
 		ProviderKind:           providerKind,
 		ControllerStartupDelay: viper.GetDuration(ControllerStartupDelay),
 		DiscoveryConfig: discovery.Config{
 			DiscoveryInterval: viper.GetDuration(DiscoveryInterval),
 		},
-		ScannerBackendAddress: viper.GetString(ScannerBackendAddress),
 		ScanConfigWatcherConfig: scanconfigwatcher.Config{
 			PollPeriod:       viper.GetDuration(ScanConfigPollingInterval),
 			ReconcileTimeout: viper.GetDuration(ScanConfigReconcileTimeout),
@@ -171,10 +188,10 @@ func LoadConfig(backendHost string, backendPort int, baseURL string) (*Config, e
 			ScannerConfig: assetscanwatcher.ScannerConfig{
 				DeleteJobPolicy:               assetscanwatcher.GetDeleteJobPolicyType(viper.GetString(DeleteJobPolicy)),
 				ScannerImage:                  viper.GetString(ScannerContainerImage),
-				ScannerBackendAddress:         viper.GetString(ScannerBackendAddress),
+				ScannerBackendAddress:         scannerAPIServerAddress,
 				GitleaksBinaryPath:            viper.GetString(GitleaksBinaryPath),
 				LynisInstallPath:              viper.GetString(LynisInstallPath),
-				ExploitsDBAddress:             viper.GetString(ExploitDBAddress),
+				ExploitsDBAddress:             exploitDBAddress,
 				ClamBinaryPath:                viper.GetString(ClamBinaryPath),
 				FreshclamBinaryPath:           viper.GetString(FreshclamBinaryPath),
 				AlternativeFreshclamMirrorURL: viper.GetString(AlternativeFreshclamMirrorURL),

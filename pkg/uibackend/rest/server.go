@@ -32,7 +32,7 @@ type ServerImpl struct {
 	findingsImpactData
 }
 
-func CreateUIBackedServer(client *backendclient.BackendClient) *ServerImpl {
+func CreateServer(client *backendclient.BackendClient) *ServerImpl {
 	return &ServerImpl{
 		BackendClient: client,
 		findingsImpactData: findingsImpactData{

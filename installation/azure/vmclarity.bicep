@@ -23,8 +23,17 @@ param scannerVmSize string = 'Standard_D2s_v3'
 ])
 param securityType string = 'TrustedLaunch'
 
-@description ('VMClarity Backend Container Image')
-param backendContainerImage string = 'ghcr.io/openclarity/vmclarity-backend:latest'
+@description ('VMClarity APIServer Container Image')
+param apiserverContainerImage string = 'ghcr.io/openclarity/vmclarity-apiserver:latest'
+
+@description ('VMClarity Orchestrator Container Image')
+param orchestratorContainerImage string = 'ghcr.io/openclarity/vmclarity-orchestrator:latest'
+
+@description ('VMClarity UI Container Image')
+param uiContainerImage string = 'ghcr.io/openclarity/vmclarity-ui:latest'
+
+@description ('VMClarity UIBackend Container Image')
+param uibackendContainerImage string = 'ghcr.io/openclarity/vmclarity-uibackend:latest'
 
 @description ('VMClarity Scanner Container Image')
 param scannerContainerImage string = 'ghcr.io/openclarity/vmclarity-cli:latest'
@@ -128,7 +137,10 @@ module vmClarityDeploy 'vmclarityDeployModule.bicep' = {
     securityType: securityType
     vmClarityIdentityID: vmClarityManagedIdentity.outputs.vmClarityIdentityId
     principalID: vmClarityManagedIdentity.outputs.vmClarityIdentityPrincipalId
-    backendContainerImage: backendContainerImage
+    apiserverContainerImage: apiserverContainerImage
+    orchestratorContainerImage: orchestratorContainerImage
+    uiContainerImage: uiContainerImage
+    uibackendContainerImage: uibackendContainerImage
     scannerContainerImage: scannerContainerImage
     trivyServerContainerImage: trivyServerContainerImage
     grypeServerContainerImage: grypeServerContainerImage

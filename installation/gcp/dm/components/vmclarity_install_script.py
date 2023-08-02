@@ -23,7 +23,10 @@ def GenerateInstallScript(context):
         "DatabaseToUse": context.properties["databaseToUse"],
         "ScannerContainerImage": context.properties["scannerContainerImage"],
         "AssetScanDeletePolicy": context.properties["assetScanDeletePolicy"],
-        "BackendContainerImage": context.properties["backendContainerImage"],
+        "APIServerContainerImage": context.properties["apiserverContainerImage"],
+        "OrchestratorContainerImage": context.properties["orchestratorContainerImage"],
+        "UIContainerImage": context.properties["uiContainerImage"],
+        "UIBackendContainerImage": context.properties["uibackendContainerImage"],
         "ExploitDBServerContainerImage": context.properties[
             "exploitDBServerContainerImage"
         ],

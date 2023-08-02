@@ -76,6 +76,6 @@ issues:
     - path: _test\.go
       linters:
         - govet
-    - path: pkg/backend/database/demo.go
+    - path: pkg/apiserver/database/demo.go
       linters:
         - gomnd
