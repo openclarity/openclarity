@@ -75,11 +75,11 @@ For a detailed installation guide, please see [AWS](installation/aws/README.md).
 ## Access VMClarity UI
 1. Open an SSH tunnel to VMClarity server
     ```
-    ssh -N -L 8888:localhost:8888 -i  "<Path to the SSH key specified during install>" ubuntu@<VmClarity SSH Address copied during install>
+    ssh -N -L 8080:localhost:80 -i  "<Path to the SSH key specified during install>" ubuntu@<VmClarity SSH Address copied during install>
     ```
 
-2. Access VMClarity UI in the browser: http://localhost:8888/
-3. Access the [API](/api/openapi.yaml) via http://localhost:8888/api
+2. Access VMClarity UI in the browser: http://localhost:8080/
+3. Access the [API](/api/openapi.yaml) via http://localhost:8080/api
 
 For a detailed UI tour, please see [tour](TOUR.md).
 

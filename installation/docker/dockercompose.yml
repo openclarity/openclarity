@@ -1,0 +1,156 @@
+version: '3'
+
+services:
+  apiserver:
+    image: ${APIServerContainerImage:-ghcr.io/openclarity/vmclarity-apiserver:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    ports:
+      - "8888:8888"
+    env_file: ./apiserver.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - type: volume
+        source: apiserver-db-data
+        target: /data
+
+  orchestrator:
+    image: ${OrchestratorContainerImage:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    env_file: ./orchestrator.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  ui:
+    image: ${UIContainerImage:-ghcr.io/openclarity/vmclarity-ui:latest}
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  uibackend:
+    image: ${UIBackendContainerImage:-ghcr.io/openclarity/vmclarity-uibackend:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    env_file: ./uibackend.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  gateway:
+    image: nginx
+    ports:
+      - "80:80"
+    configs:
+      - source: gateway_config
+        target: /etc/nginx/nginx.conf
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  exploit-db-server:
+    image: ${ExploitDBServerContainerImage:-ghcr.io/openclarity/exploit-db-server:v0.2.3}
+    ports:
+      - "1326:1326"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  trivy-server:
+    image: ${TrivyServerContainerImage:-docker.io/aquasec/trivy:0.41.0}
+    command:
+      - server
+    ports:
+      - "9992:9992"
+    env_file: ./trivy-server.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  grype-server-init:
+    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.4.0}
+    user: root
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - chown -R 1000:1000 /data
+    volumes:
+      - type: volume
+        source: grype-server-db
+        target: /data
+
+  grype-server:
+    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.4.0}
+    depends_on:
+      grype-server-init:
+        condition: service_completed_successfully
+    command:
+      - run
+      - --log-level
+      - warning
+    ports:
+      - "9991:9991"
+    env_file: ./grype-server.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - type: volume
+        source: grype-server-db
+        target: /data
+
+  freshclam-mirror:
+    image: ${FreshclamMirrorContainerImage:-ghcr.io/openclarity/freshclam-mirror:v0.1.0}
+    ports:
+      - "1000:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  postgresql:
+    image: ${PostgresqlContainerImage:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28}
+    env_file: ./postgres.env
+    ports:
+      - "5432:5432"
+    profiles:
+      - postgres
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+configs:
+  gateway_config:
+    file: ./gateway.conf
+
+volumes:
+  apiserver-db-data:
+  grype-server-db:

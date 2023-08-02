@@ -4,9 +4,6 @@ info:
   title: VMClarity UI APIs
   version: 1.0.0
 
-servers:
-  - url: /ui/api
-
 paths:
   /dashboard/riskiestRegions:
     get:

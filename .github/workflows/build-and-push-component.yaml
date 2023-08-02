@@ -1,0 +1,80 @@
+name: 'Build and Push Component'
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+        description: 'Dockerfile to build and push'
+      image_name:
+        required: true
+        type: string
+        description: 'Name of the image to publish'
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      push:
+        required: false
+        type: string
+        description: 'If set to true, push the image.'
+        default: false
+      upload:
+        required: false
+        type: string
+        description: 'If set to true, upload the image.'
+        default: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set build output env var
+        if: ${{ inputs.upload == 'true' }}
+        run: |
+          echo "OUTPUTS=type=docker,dest=/tmp/${{ inputs.image_name }}.tar" >> $GITHUB_ENV
+
+      - name: Build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/openclarity/${{ inputs.image_name }}:${{ inputs.image_tag }}
+          file: ${{ inputs.dockerfile }}
+          push: ${{ inputs.push }}
+          outputs: "${{ env.OUTPUTS }}"
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ inputs.image_tag }}
+            BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Upload artifact
+        if: ${{ inputs.upload == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.image_name }}
+          path: /tmp/${{ inputs.image_name }}.tar

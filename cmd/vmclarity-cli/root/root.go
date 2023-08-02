@@ -24,8 +24,8 @@ import (
 	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/asset"
 	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/logutil"
 	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/scan"
-	"github.com/openclarity/vmclarity/pkg/cli"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/version"
 )
 
 // RootCmd represents the base command when called without any subcommands.
@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 	Use:          "vmclarity",
 	Short:        "VMClarity",
 	Long:         `VMClarity`,
-	Version:      cli.GitRevision,
+	Version:      version.String(),
 	SilenceUsage: true,
 }
 

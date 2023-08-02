@@ -18,6 +18,8 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"net"
+	"strconv"
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -66,13 +68,19 @@ func NewWithProvider(config *Config, p provider.Provider, b *backendclient.Backe
 }
 
 // New returns a new Orchestrator initialized using the provided configuration.
-func New(ctx context.Context, config *Config, b *backendclient.BackendClient) (*Orchestrator, error) {
+func New(ctx context.Context, config *Config) (*Orchestrator, error) {
+	backendAddress := fmt.Sprintf("http://%s", net.JoinHostPort(config.APIServerHost, strconv.Itoa(config.APIServerPort)))
+	backendClient, err := backendclient.Create(backendAddress)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create a backend client: %w", err)
+	}
+
 	p, err := NewProvider(ctx, config.ProviderKind)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize provider. Provider=%s: %w", config.ProviderKind, err)
 	}
 
-	return NewWithProvider(config, p, b)
+	return NewWithProvider(config, p, backendClient)
 }
 
 // Start makes the Orchestrator to start all Controller(s).
