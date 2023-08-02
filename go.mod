@@ -21,8 +21,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.108.1
 	github.com/aws/smithy-go v1.14.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/deepmap/oapi-codegen v1.13.0
 	github.com/docker/docker v24.0.5+incompatible
+	github.com/deepmap/oapi-codegen v1.13.2
 	github.com/evanphx/json-patch v5.6.0+incompatible
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/ghodss/yaml v1.0.0
@@ -408,14 +408,14 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/term v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.9.3 // indirect
+	golang.org/x/tools v0.11.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
