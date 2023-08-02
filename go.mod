@@ -53,7 +53,7 @@ require (
 	gorm.io/gorm v1.25.0
 	gotest.tools/v3 v3.5.0
 	k8s.io/apimachinery v0.27.4
-	k8s.io/client-go v0.26.3
+	k8s.io/client-go v0.27.4
 
 )
 
@@ -429,7 +429,7 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gorm.io/driver/mysql v1.5.0 // indirect
 	helm.sh/helm/v3 v3.11.1 // indirect
-	k8s.io/api v0.26.3 // indirect
+	k8s.io/api v0.27.4 // indirect
 	k8s.io/apiextensions-apiserver v0.26.0 // indirect
 	k8s.io/apiserver v0.26.2 // indirect
 	k8s.io/cli-runtime v0.26.3 // indirect
