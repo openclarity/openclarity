@@ -28,106 +28,52 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-  vmclarity-backend:
+  vmclarity-apiserver:
     needs: timestamp
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.apiserver
+      image_name: vmclarity-apiserver
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      upload: ${{ inputs.upload }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+  vmclarity-orchestrator:
+    needs: timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.orchestrator
+      image_name: vmclarity-orchestrator
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      upload: ${{ inputs.upload }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+  vmclarity-ui-backend:
+    needs: timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.uibackend
+      image_name: vmclarity-ui-backend
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      upload: ${{ inputs.upload }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set build output env var
-        if: ${{ inputs.upload == 'true' }}
-        run: |
-          echo "OUTPUTS=type=docker,dest=/tmp/vmclarity.tar" >> $GITHUB_ENV
-
-      - name: Build
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/openclarity/vmclarity-backend:${{ inputs.image_tag }}
-          file: Dockerfile.backend
-          push: ${{ inputs.push }}
-          outputs: "${{ env.OUTPUTS }}"
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=${{ inputs.image_tag }}
-            BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
-
-      - name: Upload artifact
-        if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: vmclarity
-          path: /tmp/vmclarity.tar
+  vmclarity-ui:
+    needs: timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.ui
+      image_name: vmclarity-ui
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      upload: ${{ inputs.upload }}
 
   vmclarity-cli:
     needs: timestamp
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set build output env var
-        if: ${{ inputs.upload == 'true' }}
-        run: |
-          echo "OUTPUTS=type=docker,dest=/tmp/vmclarity-cli.tar" >> $GITHUB_ENV
-
-      - name: Build
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/openclarity/vmclarity-cli:${{ inputs.image_tag }}
-          file: Dockerfile.cli
-          push: ${{ inputs.push }}
-          outputs: "${{ env.OUTPUTS }}"
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            COMMIT_HASH=${{ github.sha }}
-
-      - name: Upload artifact
-        if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: vmclarity
-          path: /tmp/vmclarity-cli.tar
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.cli
+      image_name: vmclarity-cli
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      upload: ${{ inputs.upload }}

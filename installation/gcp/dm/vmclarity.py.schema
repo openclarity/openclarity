@@ -43,10 +43,22 @@ properties:
     type: string
     default: SQLite
     description: The database that VMClarity should use.
-  backendContainerImage:
+  apiserverContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-backend:latest
-    description: The container image to use for the backend
+    default: ghcr.io/openclarity/vmclarity-apiserver:latest
+    description: The container image to use for the apiserver
+  orchestratorContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-orchestrator:latest
+    description: The container image to use for the orchestrator
+  uiContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-ui:latest
+    description: The container image to use for the ui
+  uibackendContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-uibackend:latest
+    description: The container image to use for the uibackend
   scannerContainerImage:
     type: string
     default: ghcr.io/openclarity/vmclarity-cli:latest

@@ -1,33 +1,30 @@
 # High Level Architecture
 
-Today, VMClarity has two halves, the VMClarity infrastructure, and the VMClarity CLI.
+Today, VMClarity has two halves, the VMClarity control plane, and the
+VMClarity CLI.
 
-The VMClarity infrastructure includes:
+The VMClarity control plane includes several microservices:
 
-- **Backend**: The core component of VMClarity. Within this service there are
-  sub-components (it is in the roadmap to break these into dedicated microservices):
+- **API Server**: The VMClarity API for managing all objects in the VMClarity
+  system. This is the only component in the system which talks to the DB.
 
-    - **API**: The VMClarity API for managing all objects in the VMClarity
-      system. This is the only component in the system which talks to the DB.
+- **Orchestrator**: Orchestrates and manages the life cycle of VMClarity
+  scan configs, scans and asset scans. Within the Orchestrator there is a
+  pluggable "provider" which connects the orchstrator to the environment to be
+  scanned and abstracts asset discovery, VM snapshotting as well as creation of
+  the scanner VMs. (**Note** The only supported provider today is AWS, other
+  hyperscalers are on the roadmap)
 
-    - **Orchestrator**: Orchestrates and manages the life cycle of VMClarity scan
-      configs, scans and asset scans. Within the Orchestrator there is a
-      pluggable "provider" which connects the orchstrator to the environment to be
-      scanned and abstracts asset discovery, VM snapshotting as well as creation of
-      the scanner VMs. (**Note** The only supported provider today is AWS, other
-      hyperscalers are on the roadmap)
+- **UI Backend**: A separate backend API which offloads some processing from
+  the browser to the infrastructure to process and filter data closer to the
+  source.
 
-    - **UI Backend**: A separate backend API which offloads some processing from
-      the browser to the infrastructure to process and filter data closer to the
-      source.
+- **UI Webserver**: A server serving the UI static files.
 
-    - **UI Server**: A server serving the UI static files.
+- **DB**: Stores the VMClarity objects from the API. Supported options are
+  SQLite and Postgres.
 
-- **DB**: Stores the VMClarity objects from the API. Today this is SQLite but
-  the database interface in VMClarity is pluggable and additional DB support
-  can be added. (Postgres is in the roadmap)
-
-- **Scanner services**: These services provide support to the VMClarity
+- **Scanner Helper services**: These services provide support to the VMClarity
   CLI to offload work that would need to be done in every scanner, for example
   downloading the latest vulnerability or malware signatures from the various DB
   sources. The components included today are:
@@ -54,4 +51,4 @@ the configured analysis on the mounted snapshot, and report the results to the
 VMClarity API. These results are then processed by the VMClarity backend into
 findings.
 
-![VMClarity Architecture Overview](img/vmclarity-arch-20230406.svg)
+![VMClarity Architecture Overview](img/vmclarity-arch-20230725.svg)

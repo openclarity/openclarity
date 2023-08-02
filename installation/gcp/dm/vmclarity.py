@@ -82,7 +82,10 @@ def GenerateConfig(context):
                 "scannerMachineType": context.properties["scannerMachineType"],
                 "scannerSourceImage": context.properties["scannerSourceImage"],
                 "databaseToUse": context.properties["databaseToUse"],
-                "backendContainerImage": context.properties["backendContainerImage"],
+                "apiserverContainerImage": context.properties["apiserverContainerImage"],
+                "orchestratorContainerImage": context.properties["orchestratorContainerImage"],
+                "uiContainerImage": context.properties["uiContainerImage"],
+                "uibackendContainerImage": context.properties["uibackendContainerImage"],
                 "scannerContainerImage": context.properties["scannerContainerImage"],
                 "exploitDBServerContainerImage": context.properties[
                     "exploitDBServerContainerImage"

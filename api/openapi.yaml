@@ -4,9 +4,6 @@ info:
   title: VMClarity APIs
   version: 1.0.0
 
-servers:
-  - url: /api
-
 paths:
   /assets:
     get:

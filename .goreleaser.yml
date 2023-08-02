@@ -5,7 +5,11 @@ builds:
     binary: vmclarity-cli
     env:
       - CGO_ENABLED=0
-    ldflags: "-s -w -X github.com/openclarity/vmclarity/pkg/cli.GitRevision={{ .Version }}"
+    ldflags:
+      - "-s -w"
+      - "-X github.com/openclarity/vmclarity/pkg/version.Version={{ .Version }}"
+      - "-X github.com/openclarity/vmclarity/pkg/version.CommitHash={{.Commit}}"
+      - "-X github.com/openclarity/vmclarity/pkg/version.BuildTimestamp={{.Timestamp}}"
     goos:
       - linux
       - darwin

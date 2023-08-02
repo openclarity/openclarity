@@ -30,8 +30,17 @@ param vmClarityIdentityID string
 @description('VMClarity Managed Identity Principal ID')
 param principalID string
 
-@description ('VMClarity Backend Container Image')
-param backendContainerImage string = 'ghcr.io/openclarity/vmclarity-backend:latest'
+@description ('VMClarity APIServer Container Image')
+param apiserverContainerImage string = 'ghcr.io/openclarity/vmclarity-apiserver:latest'
+
+@description ('VMClarity Orchestrator Container Image')
+param orchestratorContainerImage string = 'ghcr.io/openclarity/vmclarity-orchestrator:latest'
+
+@description ('VMClarity UI Container Image')
+param uiContainerImage string = 'ghcr.io/openclarity/vmclarity-ui:latest'
+
+@description ('VMClarity UIBackend Container Image')
+param uibackendContainerImage string = 'ghcr.io/openclarity/vmclarity-uibackend:latest'
 
 @description ('VMClarity Scanner Container Image')
 param scannerContainerImage string = 'ghcr.io/openclarity/vmclarity-cli:latest'
@@ -111,7 +120,10 @@ var publicIPAddressName = '${vmclarityServerVMName}-public-ip'
 var networkInterfaceName = '${vmclarityServerVMName}-net-int'
 
 var params = {
-  BackendContainerImage: backendContainerImage
+  APIServerContainerImage: apiserverContainerImage
+  OrchestratorContainerImage: orchestratorContainerImage
+  UIContainerImage: uiContainerImage
+  UIBackendContainerImage: uibackendContainerImage
   ScannerContainerImage: scannerContainerImage
   TrivyServerContainerImage: trivyServerContainerImage
   GrypeServerContainerImage: grypeServerContainerImage
