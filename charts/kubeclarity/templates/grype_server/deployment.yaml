@@ -24,6 +24,10 @@ spec:
       securityContext:
         fsGroup: 1000
       {{- end }}
+{{- if (index .Values "kubeclarity-grype-server" "affinity") }}
+      affinity:
+{{ toYaml (index .Values "kubeclarity-grype-server" "affinity") | indent 8 }}
+{{- end }}
       containers:
         - name: grype-server
           image: '{{ index .Values "kubeclarity-grype-server" "docker" "imageRepo" }}/grype-server:{{ index .Values "kubeclarity-grype-server" "docker" "imageTag" }}'

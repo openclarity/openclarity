@@ -23,6 +23,10 @@ spec:
       securityContext:
         fsGroup: 1000
       {{- end }}
+{{- if (index .Values "kubeclarity-grype-server" "affinity") }}
+      affinity:
+{{ toYaml (index .Values "kubeclarity-grype-server" "affinity") | indent 8 }}
+{{- end }}
       containers:
         - name: sbom-db
           {{- if index .Values "kubeclarity-sbom-db" "docker" "imageName" }}

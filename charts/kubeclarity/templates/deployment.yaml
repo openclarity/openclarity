@@ -37,6 +37,10 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
+{{- if .Values.kubeclarity.affinity }}
+      affinity:
+{{ toYaml .Values.kubeclarity.affinity | indent 8 }}
+{{- end }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
           image: {{ index .Values "kubeclarity-postgresql" "image" "registry" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" }}
