@@ -69,7 +69,7 @@ func GetInputSize(input types.Input) (int64, error) {
 		if err != nil {
 			return 0, fmt.Errorf("failed to get dir size: %v", err)
 		}
-		InputSizesCache[input.InputType] = size
+		InputSizesCache[input.Input] = size
 		return size, nil
 	default:
 		// currently other input types are not supported for size benchmarking.
