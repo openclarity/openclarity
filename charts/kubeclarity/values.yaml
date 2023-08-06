@@ -19,6 +19,14 @@ global:
   ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
   openShiftRestricted: false
 
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  #affinity: {}
+
+  nodeSelector: 
+    kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+
 ## End of Global Values
 #######################################################################################
 
@@ -106,9 +114,13 @@ kubeclarity:
         memory: "200Mi"
         cpu: "200m"
 
-  ## Affinity
+  ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  affinity: {}
+  #affinity: {}
+
+  ## Overrides global.nodeSelector
+  # nodeSelector:
+  #   key1: value1
 
 ## End of KubeClarity Values
 #######################################################################################
@@ -146,6 +158,10 @@ kubeclarity-runtime-scan:
   ## Scanner pods nodeSelector.
   # nodeSelector:
   #   key1: value1
+
+  ## Scanner pods Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  #affinity: {}
 
   registry:
     skipVerifyTlS: "false"
@@ -264,9 +280,13 @@ kubeclarity-grype-server:
       cpu: "1000m"
       memory: "1G"
 
-  ## Affinity
+  ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  affinity: {}
+  #affinity: {}
+
+  ## Overrides global.nodeSelector
+  # nodeSelector:
+  #   key1: value1
 
 ## End of KubeClarity Grype Server Values
 #######################################################################################
@@ -338,9 +358,13 @@ kubeclarity-sbom-db:
       memory: "1Gi"
       cpu: "200m"
 
-  ## Affinity
+  ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  affinity: {}
+  #affinity: {}
+
+  ## Overrides global.nodeSelector
+  # nodeSelector:
+  #   key1: value1
 
 ## End of KubeClarity SBOM DB Values
 #######################################################################################

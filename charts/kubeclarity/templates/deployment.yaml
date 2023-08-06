@@ -16,6 +16,8 @@
   {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "username" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
 {{ end }}
+{{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
+{{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,10 +39,12 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
-{{- if .Values.kubeclarity.affinity }}
-      affinity:
-{{ toYaml .Values.kubeclarity.affinity | indent 8 }}
-{{- end }}
+      {{- if $affinity }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- if $nodeSelector }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
           image: {{ index .Values "kubeclarity-postgresql" "image" "registry" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" }}

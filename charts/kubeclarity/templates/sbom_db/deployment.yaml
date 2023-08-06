@@ -1,3 +1,5 @@
+{{- $affinity := (coalesce (index .Values "kubeclarity-sbom-db" "affinity") .Values.global.affinity) -}}
+{{- $nodeSelector := (coalesce (index .Values "kubeclarity-sbom-db" "nodeSelector") .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,10 +25,12 @@ spec:
       securityContext:
         fsGroup: 1000
       {{- end }}
-{{- if (index .Values "kubeclarity-grype-server" "affinity") }}
-      affinity:
-{{ toYaml (index .Values "kubeclarity-grype-server" "affinity") | indent 8 }}
-{{- end }}
+      {{- if $affinity }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- if $nodeSelector }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: sbom-db
           {{- if index .Values "kubeclarity-sbom-db" "docker" "imageName" }}
