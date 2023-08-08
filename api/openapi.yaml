@@ -5,6 +5,21 @@ info:
   version: 1.0.0
 
 paths:
+  /openapi.json:
+    get:
+      summary: Get this OpenAPI spec
+      operationId: GetOpenAPISpec
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
+        default:
+          $ref: '#/components/responses/UnknownError'
+
   /assets:
     get:
       summary: Get assets

@@ -398,9 +398,19 @@ Resources:
                           restart_policy:
                             condition: on-failure
 
+                      swagger-ui:
+                        image: swaggerapi/swagger-ui:v5.3.1
+                        environment:
+                          CONFIG_URL: /apidocs/swagger-config.json
+                        configs:
+                          - source: swagger_config
+                            target: /usr/share/nginx/html/swagger-config.json
+
                     configs:
                       gateway_config:
                         file: ./gateway.conf
+                      swagger_config:
+                        file: ./swagger-config.json
 
                   - APIServerContainerImage: !If [ APIServerContainerImageOverridden, !Ref APIServerContainerImageOverride, "ghcr.io/openclarity/vmclarity-apiserver:latest" ]
                     OrchestratorContainerImage: !If [ OrchestratorContainerImageOverridden, !Ref OrchestratorContainerImageOverride, "ghcr.io/openclarity/vmclarity-orchestrator:latest" ]
@@ -421,6 +431,17 @@ Resources:
                 APISERVER_HOST=apiserver
                 # Port number for the VMClarity backend server
                 APISERVER_PORT=8888
+
+            "/etc/vmclarity/swagger-config.json":
+              content: |
+                {
+                    "urls": [
+                        {
+                            "name": "VMClarity API",
+                            "url": "/api/openapi.json"
+                        }
+                    ]
+                }
 
             "/etc/vmclarity/orchestrator.env":
               content:
@@ -522,6 +543,7 @@ Resources:
 
                     server {
                         listen 80;
+                        absolute_redirect off;
 
                         location / {
                             proxy_pass http://ui/;
@@ -532,7 +554,14 @@ Resources:
                         }
 
                         location /api/ {
+                            proxy_set_header X-Forwarded-Host $http_host;
+                            proxy_set_header X-Forwarded-Prefix /api;
+                            proxy_set_header X-Forwarded-Proto $scheme;
                             proxy_pass http://apiserver/;
+                        }
+
+                        location /apidocs/ {
+                            proxy_pass http://swagger-ui:8080/;
                         }
                     }
                 }

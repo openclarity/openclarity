@@ -121,6 +121,9 @@ const Layout = () => {
                             <Icon name={ICON_NAMES.REFRESH} onClick={() => setRefreshTimestamp(Date.now())} />
                         </div>
                     }
+                    <div className="topbar-menu-items">
+                        <a href="/apidocs" target="_blank" className="topbar-api-link">API Docs</a>
+                    </div>
                 </div>
                 <div className="sidebar-container">
                     {
