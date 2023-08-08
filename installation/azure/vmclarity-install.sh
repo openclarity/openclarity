@@ -277,10 +277,32 @@ services:
       restart_policy:
         condition: on-failure
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.3.1
+    environment:
+      CONFIG_URL: /apidocs/swagger-config.json
+    configs:
+      - source: swagger_config
+        target: /usr/share/nginx/html/swagger-config.json
+
 configs:
   gateway_config:
     file: ./gateway.conf
+  swagger_config:
+    file: ./swagger-config.json
 EOF
+
+cat << 'EOF' > /etc/vmclarity/swagger-config.json
+{
+    "urls": [
+        {
+            "name": "VMClarity API",
+            "url": "/api/openapi.json"
+        }
+    ]
+}
+EOF
+chmod 644 /etc/vmclarity/swagger-config.json
 
 cat << 'EOF' > /etc/vmclarity/uibackend.env
 ##
@@ -336,6 +358,7 @@ http {
 
     server {
         listen 80;
+        absolute_redirect off;
 
         location / {
             proxy_pass http://ui/;
@@ -346,7 +369,14 @@ http {
         }
 
         location /api/ {
+            proxy_set_header X-Forwarded-Host $http_host;
+            proxy_set_header X-Forwarded-Prefix /api;
+            proxy_set_header X-Forwarded-Proto $scheme;
             proxy_pass http://apiserver/;
+        }
+
+        location /apidocs/ {
+            proxy_pass http://swagger-ui:8080/;
         }
     }
 }

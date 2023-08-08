@@ -16,10 +16,16 @@
 package rest
 
 import (
+	"fmt"
+	"net/http"
+	"net/url"
+
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/server"
 )
 
 // nolint:wrapcheck
@@ -32,4 +38,44 @@ func sendError(ctx echo.Context, code int, message string) error {
 // nolint:wrapcheck,unparam
 func sendResponse(ctx echo.Context, code int, object interface{}) error {
 	return ctx.JSON(code, object)
+}
+
+func (s *ServerImpl) GetOpenAPISpec(ctx echo.Context) error {
+	swagger, err := server.GetSwagger()
+	if err != nil {
+		return fmt.Errorf("failed to load swagger spec: %v", err)
+	}
+
+	// Use the X-Forwarded-* headers to populate the OpenAPI spec with the
+	// location where the API is being served. Using this trick the
+	// swagger-ui service dynamically loads the OpenAPI spec from the
+	// APIServer and knows where to send the TryItNow requests.
+	// Wherever the API server is accessed from through a proxy or
+	// sub-domain this will correct the servers entry to match that clients
+	// access path.
+	headers := ctx.Request().Header
+
+	log.Debugf("Got headers %#v", headers)
+
+	serverurl := &url.URL{}
+	if forwardedHost, ok := headers["X-Forwarded-Host"]; ok {
+		proto := "http"
+		if forwardedProto, ok := headers["X-Forwarded-Proto"]; ok {
+			proto = forwardedProto[0]
+		}
+		serverurl.Scheme = proto
+		serverurl.Host = forwardedHost[0]
+	}
+
+	if forwardedPrefix, ok := headers["X-Forwarded-Prefix"]; ok {
+		serverurl = serverurl.JoinPath(forwardedPrefix[0])
+	}
+
+	if *serverurl != (url.URL{}) {
+		swagger.AddServer(&openapi3.Server{
+			URL: serverurl.String(),
+		})
+	}
+
+	return sendResponse(ctx, http.StatusOK, swagger)
 }

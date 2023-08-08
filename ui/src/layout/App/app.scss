@@ -44,6 +44,21 @@ html body {
                             margin-left: 10px;
                         }
                     }
+                    .topbar-menu-items {
+                        display: flex;
+                        flex-grow: 1;
+                        align-items: center;
+                        justify-content: flex-end;
+                        margin-left: 30px;
+
+                        .topbar-api-link {
+                            display: flex;
+                            align-items: center;
+                            margin-right: 20px;
+                            color: $color-grey;
+                            text-decoration: none;
+                        }
+                    }
                 }
                 .sidebar-container {
                     background-color: $color-main-dark;

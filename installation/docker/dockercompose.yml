@@ -147,9 +147,19 @@ services:
       restart_policy:
         condition: on-failure
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.3.1
+    environment:
+      CONFIG_URL: /apidocs/swagger-config.json
+    configs:
+      - source: swagger_config
+        target: /usr/share/nginx/html/swagger-config.json
+
 configs:
   gateway_config:
     file: ./gateway.conf
+  swagger_config:
+    file: ./swagger-config.json
 
 volumes:
   apiserver-db-data:
