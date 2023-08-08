@@ -42,7 +42,7 @@ services:
         condition: on-failure
 
   uibackend:
-    image: ${UIBackendContainerImage:-ghcr.io/openclarity/vmclarity-uibackend:latest}
+    image: ${UIBackendContainerImage:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
     command:
       - run
       - --log-level

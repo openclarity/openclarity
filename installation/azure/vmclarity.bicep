@@ -33,7 +33,7 @@ param orchestratorContainerImage string = 'ghcr.io/openclarity/vmclarity-orchest
 param uiContainerImage string = 'ghcr.io/openclarity/vmclarity-ui:latest'
 
 @description ('VMClarity UIBackend Container Image')
-param uibackendContainerImage string = 'ghcr.io/openclarity/vmclarity-uibackend:latest'
+param uibackendContainerImage string = 'ghcr.io/openclarity/vmclarity-ui-backend:latest'
 
 @description ('VMClarity Scanner Container Image')
 param scannerContainerImage string = 'ghcr.io/openclarity/vmclarity-cli:latest'

@@ -65,7 +65,7 @@ properties:
     description: The container image to use for the ui
   uibackendContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-uibackend:latest
+    default: ghcr.io/openclarity/vmclarity-ui-backend:latest
     description: The container image to use for the uibackend
   scannerContainerImage:
     type: string
