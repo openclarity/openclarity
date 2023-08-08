@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.19.5.34762",
-      "templateHash": "11101766410951708815"
+      "templateHash": "2645412564224659674"
     }
   },
   "parameters": {
@@ -76,7 +76,7 @@
     },
     "uibackendContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-uibackend:latest",
+      "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
       "metadata": {
         "description": "VMClarity UIBackend Container Image"
       }
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.19.5.34762",
-              "templateHash": "587257319525751437"
+              "templateHash": "14736449405121414571"
             }
           },
           "parameters": {
@@ -646,7 +646,7 @@
             },
             "uibackendContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-uibackend:latest",
+              "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
               "metadata": {
                 "description": "VMClarity UIBackend Container Image"
               }
