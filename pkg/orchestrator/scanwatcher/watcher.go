@@ -132,7 +132,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error
 	}
 
 	if scan.IsTimedOut(w.scanTimeout) {
-		scan.State = utils.PointerTo(models.ScanStateAborted)
+		scan.State = utils.PointerTo(models.ScanStateFailed)
 		scan.StateMessage = utils.PointerTo("Scan has been timed out")
 		scan.StateReason = utils.PointerTo(models.ScanStateReasonTimedOut)
 

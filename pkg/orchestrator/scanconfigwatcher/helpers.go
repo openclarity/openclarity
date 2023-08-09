@@ -32,6 +32,7 @@ func newScanFromScanConfig(scanConfig *models.ScanConfig) *models.Scan {
 		AssetScanTemplate:   scanConfig.ScanTemplate.AssetScanTemplate,
 		Scope:               scanConfig.ScanTemplate.Scope,
 		MaxParallelScanners: scanConfig.ScanTemplate.MaxParallelScanners,
+		TimeoutSeconds:      scanConfig.ScanTemplate.TimeoutSeconds,
 		State:               utils.PointerTo(models.ScanStatePending),
 		Summary: &models.ScanSummary{
 			JobsCompleted:          utils.PointerTo(0),
