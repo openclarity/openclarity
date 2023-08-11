@@ -91,7 +91,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
 3. While ssh'd into the VMClarity server run
 
    ```
-   curl -X POST http://localhost:8888/api/scanConfigs -H 'Content-Type: application/json' -d @scanConfig.json
+   curl -X POST http://localhost:8080/api/scanConfigs -H 'Content-Type: application/json' -d @scanConfig.json
    ```
 
 4. Check VMClarity logs to ensure that everything is performing as expected
@@ -105,7 +105,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
    * Get scans:
 
      ```
-     curl -X GET http://localhost:8888/api/scans
+     curl -X GET http://localhost:8080/api/scans
      ```
 
      After the operationTime in the scan config created above there should be a new
@@ -121,5 +121,5 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
    * Get asset scans:
 
      ```
-     curl -X GET http://localhost:8888/api/assetScans
+     curl -X GET http://localhost:8080/api/assetScans
      ```
