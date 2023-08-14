@@ -523,7 +523,7 @@ func processFindings(findings []backendmodels.Finding, findingAssetMap map[findi
 				}
 			}
 		} else {
-			log.Debugf("Already count asset %q for finding finding (%+v).", item.Asset.Id, fKey)
+			log.Debugf("Already count asset %q for finding (%+v).", item.Asset.Id, fKey)
 		}
 	}
 
