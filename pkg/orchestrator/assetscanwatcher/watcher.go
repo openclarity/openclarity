@@ -358,7 +358,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 			asset:     &asset,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to to create ScanJobConfigg for AssetScan. AssetScanID=%s: %w", assetScanID, err)
+			return fmt.Errorf("failed to create ScanJobConfig for AssetScan. AssetScanID=%s: %w", assetScanID, err)
 		}
 
 		err = w.provider.RemoveAssetScan(ctx, jobConfig)

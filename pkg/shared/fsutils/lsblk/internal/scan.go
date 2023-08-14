@@ -29,7 +29,8 @@ func isDoubleQuote(r rune) bool {
 func ScanPairs(data []byte, atEOF bool) (int, []byte, error) {
 	// Skip leading spaces.
 	start := 0
-	for width := 0; start < len(data); start += width {
+	var width int
+	for ; start < len(data); start += width {
 		var r rune
 		r, width = utf8.DecodeRune(data[start:])
 		if !unicode.IsSpace(r) {
@@ -38,7 +39,7 @@ func ScanPairs(data []byte, atEOF bool) (int, []byte, error) {
 	}
 	// Scan until space or closing double quote
 	var qouted bool
-	for width, i := 0, start; i < len(data); i += width {
+	for i := start; i < len(data); i += width {
 		var r rune
 		r, width = utf8.DecodeRune(data[i:])
 
