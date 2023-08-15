@@ -12,7 +12,7 @@ spec:
   type: {{ .Values.kubeclarity.service.type }}
   ports:
     - name: backend
-      port: 8080
+      port: {{ .Values.kubeclarity.service.port }}
       protocol: TCP
       targetPort: 8080
     - name: runtime-scan-results
