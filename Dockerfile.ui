@@ -7,6 +7,6 @@ COPY ui .
 RUN npm i
 RUN npm run build
 
-FROM nginx:1.25.1
+FROM nginx:1.25.2
 
 COPY --from=site-build ["/app/ui-build/build", "/usr/share/nginx/html"]
