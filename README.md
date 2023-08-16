@@ -79,7 +79,7 @@ For a detailed installation guide, please see [AWS](installation/aws/README.md).
     ```
 
 2. Access VMClarity UI in the browser: http://localhost:8080/
-3. Access the [API](/api/openapi.yaml) via http://localhost:8080/api
+3. Access the [API](api/openapi.yaml) via http://localhost:8080/api
 
 For a detailed UI tour, please see [tour](TOUR.md).
 
@@ -126,13 +126,13 @@ VMClarity project roadmap is available [here](https://github.com/orgs/openclarit
 # Contributing
 
 If you are ready to jump in and test, add code, or help with documentation,
-please follow the instructions on our [contributing guide](/CONTRIBUTING.md)
+please follow the instructions on our [contributing guide](CONTRIBUTING.md)
 for details on how to open issues, setup VMClarity for development and test.
 
 # Code of Conduct
 
-You can view our code of conduct [here](/CODE_OF_CONDUCT.md).
+You can view our code of conduct [here](CODE_OF_CONDUCT.md).
 
 # License
 
-[Apache License, Version 2.0](/LICENSE)
+[Apache License, Version 2.0](LICENSE)
