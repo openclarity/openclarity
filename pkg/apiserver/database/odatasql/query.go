@@ -710,7 +710,7 @@ func buildWhereFromLambda(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 }
 
 func sourceFromQueryPath(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, queryPath string) (string, error) {
-	log.Infof("QueryPath: %s", queryPath)
+	log.Debugf("QueryPath: %s", queryPath)
 
 	// ODATA path that would be present if we were to $select the
 	// field being filtered
