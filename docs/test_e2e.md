@@ -39,7 +39,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
 
 ## Performing an end to end test
 
-1. Copy the example [scanConfig.json](/docs/scanConfig.json) into the ubuntu user's home directory
+1. Copy the example [scanConfig.json](scanConfig.json) into the ubuntu user's home directory
 
    ```
    scp scanConfig.json ubuntu@<ip address>:~/scanConfig.json
