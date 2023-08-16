@@ -7,7 +7,7 @@ addressing your issue, assessing changes, and helping you finalize your pull req
 we endeavor to review incoming issues and pull requests within 10 days, and will close any lingering issues or pull
 requests after 60 days of inactivity.
 
-Please note that all of your interactions in the project are subject to our [Code of Conduct](/CODE_OF_CONDUCT.md). This
+Please note that all of your interactions in the project are subject to our [Code of Conduct](CODE_OF_CONDUCT.md). This
 includes creation of issues or pull requests, commenting on issues or pull requests, and extends to all interactions in
 any real-time space e.g., Slack, Discord, etc.
 
@@ -27,7 +27,7 @@ any real-time space e.g., Slack, Discord, etc.
 
 ## Troubleshooting and Debugging
 
-Please see the troubleshooting and debugging guide [here](/docs/troubleshooting.md).
+Please see the troubleshooting and debugging guide [here](docs/troubleshooting.md).
 
 ## Reporting Issues
 
@@ -38,7 +38,7 @@ When creating a new issue, please be sure to include a **title and clear descrip
 possible, and, if possible, a test case.
 
 **If you discover a security bug, please do not report it through GitHub. Instead, please see security procedures in
-[SECURITY.md](/SECURITY.md).**
+[SECURITY.md](SECURITY.md).**
 
 ## Development
 
@@ -98,7 +98,7 @@ api` to regenerate the model, client and server code.
 ### Testing End to End
 
 For details on how to test VMClarity end to end please see the End to End
-testing guide [here](/docs/test_e2e.md).
+testing guide [here](docs/test_e2e.md).
 
 ## Sending Pull Requests
 
