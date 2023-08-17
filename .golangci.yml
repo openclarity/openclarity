@@ -1,5 +1,5 @@
 run:
-  timeout: 15m
+  timeout: 20m
 
 linters-settings:
   golint:
