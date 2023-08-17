@@ -37,7 +37,7 @@ func loadRemoteGrypeConfig() RemoteGrypeConfig {
 	setRemoteGrypeScannerConfigDefaults()
 	return RemoteGrypeConfig{
 		GrypeServerAddress: viper.GetString(ScannerRemoteGrypeServerAddress),
-		GrypeServerSchemes: []string{viper.GetString(ScannerRemoteGrypeServerSchemes)},
+		GrypeServerSchemes: viper.GetStringSlice(ScannerRemoteGrypeServerSchemes),
 		GrypeServerTimeout: viper.GetDuration(ScannerRemoteGrypeServerTimeout),
 	}
 }
