@@ -517,7 +517,12 @@ docker run -p 9991:9991 --rm gcr.io/eticloud/k8sec/grype-server:v0.1.5
 
 To run a scan using the server:
 ```
-SCANNERS_LIST="grype" SCANNER_GRYPE_MODE="remote" SCANNER_REMOTE_GRYPE_SERVER_ADDRESS="<grype server address>:9991" ./kubeclarity_cli scan --input-type sbom nginx.sbom
+SCANNERS_LIST="grype" SCANNER_GRYPE_MODE="remote" SCANNER_REMOTE_GRYPE_SERVER_ADDRESS="<grype server address>:9991" SCANNER_REMOTE_GRYPE_SERVER_SCHEMES="https" ./kubeclarity_cli scan --input-type sbom nginx.sbom
+```
+
+If Grype server is deployed with TLS you can override the default URL scheme like:
+```
+SCANNERS_LIST="grype" SCANNER_GRYPE_MODE="remote" SCANNER_REMOTE_GRYPE_SERVER_ADDRESS="<grype server address>:9991" SCANNER_REMOTE_GRYPE_SERVER_SCHEMES="https" ./kubeclarity_cli scan --input-type sbom nginx.sbom
 ```
 
 ### Dependency Track
