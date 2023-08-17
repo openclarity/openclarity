@@ -44,7 +44,7 @@ type RemoteScanner struct {
 }
 
 func newRemoteScanner(conf *config.Config, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	cfg := grype_client.DefaultTransportConfig().WithHost(conf.Scanner.GrypeConfig.GrypeServerAddress)
+	cfg := grype_client.DefaultTransportConfig().WithSchemes(conf.Scanner.GrypeConfig.GrypeServerSchemes).WithHost(conf.Scanner.GrypeConfig.GrypeServerAddress)
 
 	return &RemoteScanner{
 		logger:     logger.Dup().WithField("scanner", ScannerName).WithField("scanner-mode", "remote"),

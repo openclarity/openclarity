@@ -23,11 +23,13 @@ import (
 
 const (
 	ScannerRemoteGrypeServerAddress = "SCANNER_REMOTE_GRYPE_SERVER_ADDRESS"
+	ScannerRemoteGrypeServerSchemes = "SCANNER_REMOTE_GRYPE_SERVER_SCHEMES"
 	ScannerRemoteGrypeServerTimeout = "SCANNER_REMOTE_GRYPE_SERVER_TIMEOUT"
 )
 
 type RemoteGrypeConfig struct {
 	GrypeServerAddress string        `yaml:"grype_server_address" mapstructure:"grype_server_address"`
+	GrypeServerSchemes []string      `yaml:"grype_server_schemes" mapstructure:"grype_server_schemes"`
 	GrypeServerTimeout time.Duration `yaml:"grype_server_timeout" mapstructure:"grype_server_timeout"`
 }
 
@@ -35,11 +37,13 @@ func loadRemoteGrypeConfig() RemoteGrypeConfig {
 	setRemoteGrypeScannerConfigDefaults()
 	return RemoteGrypeConfig{
 		GrypeServerAddress: viper.GetString(ScannerRemoteGrypeServerAddress),
+		GrypeServerSchemes: viper.GetStringSlice(ScannerRemoteGrypeServerSchemes),
 		GrypeServerTimeout: viper.GetDuration(ScannerRemoteGrypeServerTimeout),
 	}
 }
 
 func setRemoteGrypeScannerConfigDefaults() {
 	viper.SetDefault(ScannerRemoteGrypeServerAddress, "kubeclarity-grype-server.kubeclarity:9991")
+	viper.SetDefault(ScannerRemoteGrypeServerSchemes, []string{"http"})
 	viper.SetDefault(ScannerRemoteGrypeServerTimeout, 2*time.Minute) // nolint:gomnd
 }
