@@ -237,11 +237,10 @@ services:
       - warning
     ports:
       - "9991:9991"
-    env_file: ./grype-server.env
     volumes:
       - type: bind
         source: /opt/grype-server
-        target: /opt/grype-server
+        target: /data
     logging:
       driver: journald
     deploy:
@@ -325,11 +324,6 @@ TRIVY_LISTEN=0.0.0.0:9992
 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
 EOF
 chmod 644 /etc/vmclarity/trivy-server.env
-
-cat << 'EOF' > /etc/vmclarity/grype-server.env
-DB_ROOT_DIR=/opt/grype-server/db
-EOF
-chmod 644 /etc/vmclarity/grype-server.env
 
 cat << 'EOF' > /etc/vmclarity/postgres.env
 POSTGRESQL_USERNAME=vmclarity
