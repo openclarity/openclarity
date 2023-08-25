@@ -220,7 +220,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Grype Server Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/grype-server:v0.2.0",
+                            "defaultValue": "ghcr.io/openclarity/grype-server:v0.5.0",
                             "toolTip": "Grype Server Container Image",
                             "constraints": {
                                 "required": false,

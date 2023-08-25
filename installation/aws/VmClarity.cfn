@@ -358,11 +358,10 @@ Resources:
                           - warning
                         ports:
                           - "9991:9991"
-                        env_file: ./grype-server.env
                         volumes:
                           - type: bind
                             source: /opt/grype-server
-                            target: /opt/grype-server
+                            target: /data
                         logging:
                           driver: journald
                         deploy:
@@ -418,7 +417,7 @@ Resources:
                     UIBackendContainerImage: !If [ UIBackendContainerImageOverridden, !Ref UIBackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-ui-backend:latest" ]
                     ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.2.3"]
                     TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.41.0"]
-                    GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.4.0"]
+                    GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.5.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.2.0"]
                     PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
 
@@ -502,11 +501,6 @@ Resources:
               content: |
                 TRIVY_LISTEN=0.0.0.0:9992
                 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
-              mode: "000644"
-
-            "/etc/vmclarity/grype-server.env":
-              content: |
-                DB_ROOT_DIR=/opt/grype-server/db
               mode: "000644"
 
             "/etc/vmclarity/service.env":
@@ -1068,7 +1062,7 @@ Parameters:
   GrypeServerContainerImageOverride:
     Description: >
       Name of the container image used for the grype server.
-      "ghcr.io/openclarity/grype-server:v0.2.0" will be used if not overridden.
+      "ghcr.io/openclarity/grype-server:v0.5.0" will be used if not overridden.
     Type: String
     Default: ''
   ExploitDBServerContainerImageOverride:
