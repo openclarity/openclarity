@@ -36,6 +36,7 @@ const (
 	APIServerHost       = "APISERVER_HOST"
 	APIServerDisableTLS = "APISERVER_DISABLE_TLS"
 	APIServerPort       = "APISERVER_PORT"
+	HealthCheckAddress  = "HEALTH_CHECK_ADDRESS"
 
 	DeleteJobPolicy               = "DELETE_JOB_POLICY"
 	ScannerContainerImage         = "SCANNER_CONTAINER_IMAGE"
@@ -88,8 +89,9 @@ const (
 type Config struct {
 	ProviderKind models.CloudProvider
 
-	APIServerHost string `json:"apiserver-host,omitempty"`
-	APIServerPort int    `json:"apiserver-port,omitempty"`
+	APIServerHost      string `json:"apiserver-host,omitempty"`
+	APIServerPort      int    `json:"apiserver-port,omitempty"`
+	HealthCheckAddress string `json:"health-check-address,omitempty"`
 
 	// The Orchestrator starts the Controller(s) in a sequence and the ControllerStartupDelay is used for waiting
 	// before starting each Controller to avoid them hitting the API at the same time and allow one Controller
@@ -104,6 +106,7 @@ type Config struct {
 }
 
 func setConfigDefaults() {
+	viper.SetDefault(HealthCheckAddress, ":8082")
 	viper.SetDefault(DeleteJobPolicy, string(assetscanwatcher.DeleteJobPolicyAlways))
 	// https://github.com/openclarity/vmclarity-tools-base/blob/main/Dockerfile#L33
 	viper.SetDefault(GitleaksBinaryPath, "/artifacts/gitleaks")
@@ -167,6 +170,7 @@ func LoadConfig() (*Config, error) {
 	c := &Config{
 		APIServerHost:          apiServerHost,
 		APIServerPort:          apiServerPort,
+		HealthCheckAddress:     viper.GetString(HealthCheckAddress),
 		ProviderKind:           providerKind,
 		ControllerStartupDelay: viper.GetDuration(ControllerStartupDelay),
 		DiscoveryConfig: discovery.Config{

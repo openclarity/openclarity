@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package apiserver
 
 import (
 	"encoding/json"
 	"fmt"
+
+	databaseTypes "github.com/openclarity/vmclarity/pkg/apiserver/database/types"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -66,7 +68,18 @@ type Config struct {
 	LogLevel    log.Level `json:"log-level,omitempty"`
 }
 
+func setConfigDefaults() {
+	viper.SetDefault(HealthCheckAddress, ":8081")
+	viper.SetDefault(BackendRestPort, "8888")
+	viper.SetDefault(DatabaseDriver, databaseTypes.DBDriverTypeLocal)
+	viper.SetDefault(DisableOrchestrator, "false")
+
+	viper.AutomaticEnv()
+}
+
 func LoadConfig() (*Config, error) {
+	setConfigDefaults()
+
 	config := &Config{}
 
 	config.BackendRestHost = viper.GetString(BackendRestHost)

@@ -27,6 +27,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Portshift/go-utils/healthz"
+
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
@@ -102,6 +104,10 @@ func runCommand(cmd *cobra.Command, _ []string) {
 		logger.Fatalf("unable to load configuration")
 	}
 
+	healthServer := healthz.NewHealthServer(config.HealthCheckAddress)
+	healthServer.Start()
+	healthServer.SetIsReady(false)
+
 	backendAddress := fmt.Sprintf("http://%s", net.JoinHostPort(config.APIServerHost, strconv.Itoa(config.APIServerPort)))
 	backendClient, err := backendclient.Create(backendAddress)
 	if err != nil {
@@ -127,6 +133,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 			logger.Fatalf("HTTP server shutdown %v", err)
 		}
 	}()
+	healthServer.SetIsReady(true)
 
 	// Wait for deactivation
 	sig := make(chan os.Signal, 1)

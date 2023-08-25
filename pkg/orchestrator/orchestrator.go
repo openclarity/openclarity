@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Portshift/go-utils/healthz"
+
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanprocessor"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanwatcher"
@@ -43,6 +45,22 @@ type Orchestrator struct {
 	cancelFunc  context.CancelFunc
 
 	controllerStartupDelay time.Duration
+}
+
+func Run(ctx context.Context, config *Config) error {
+	healthServer := healthz.NewHealthServer(config.HealthCheckAddress)
+	healthServer.Start()
+	healthServer.SetIsReady(false)
+
+	orchestrator, err := New(ctx, config)
+	if err != nil {
+		return fmt.Errorf("failed to initialize Orchestrator: %w", err)
+	}
+
+	orchestrator.Start(ctx)
+	healthServer.SetIsReady(true)
+
+	return nil
 }
 
 // NewWithProvider returns an Orchestrator initialized using the p provider.Provider.
