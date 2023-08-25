@@ -22,11 +22,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/openclarity/vmclarity/pkg/apiserver"
-	"github.com/openclarity/vmclarity/pkg/apiserver/config"
-	databaseTypes "github.com/openclarity/vmclarity/pkg/apiserver/database/types"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/version"
 )
@@ -50,12 +47,6 @@ var (
 )
 
 func init() {
-	viper.SetDefault(config.HealthCheckAddress, ":8081")
-	viper.SetDefault(config.BackendRestPort, "8888")
-	viper.SetDefault(config.DatabaseDriver, databaseTypes.DBDriverTypeLocal)
-	viper.SetDefault(config.DisableOrchestrator, "false")
-	viper.AutomaticEnv()
-
 	cmdRun := cobra.Command{
 		Use:     "run",
 		Run:     runCommand,
@@ -91,7 +82,13 @@ func runCommand(_ *cobra.Command, _ []string) {
 	ctx := context.Background()
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
-	apiserver.Run(ctx)
+
+	config, err := apiserver.LoadConfig()
+	if err != nil {
+		logger.Fatalf("failed to load API server config: %v", err)
+	}
+
+	apiserver.Run(ctx, config)
 }
 
 // Command to display the version.

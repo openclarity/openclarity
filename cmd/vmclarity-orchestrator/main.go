@@ -86,17 +86,15 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	orchestratorConfig, err := orchestrator.LoadConfig()
+	config, err := orchestrator.LoadConfig()
 	if err != nil {
 		logger.Fatalf("failed to load Orchestrator config: %v", err)
 	}
 
-	o, err := orchestrator.New(ctx, orchestratorConfig)
+	err = orchestrator.Run(ctx, config)
 	if err != nil {
-		logger.Fatalf("failed to initialize Orchestrator: %v", err)
+		logger.Fatalf("failed to run Orchestrator: %v", err)
 	}
-
-	o.Start(ctx)
 
 	// Wait for deactivation
 	sig := make(chan os.Signal, 1)

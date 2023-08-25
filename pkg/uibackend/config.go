@@ -24,23 +24,27 @@ const (
 	APIServerHost       = "APISERVER_HOST"
 	APIServerDisableTLS = "APISERVER_DISABLE_TLS"
 	APIServerPort       = "APISERVER_PORT"
+	HealthCheckAddress  = "HEALTH_CHECK_ADDRESS"
 )
 
 type Config struct {
-	ListenAddress string `json:"listen-address,omitempty"`
-	APIServerHost string `json:"apiserver-host,omitempty"`
-	APIServerPort int    `json:"apiserver-port,omitempty"`
+	ListenAddress      string `json:"listen-address,omitempty"`
+	APIServerHost      string `json:"apiserver-host,omitempty"`
+	APIServerPort      int    `json:"apiserver-port,omitempty"`
+	HealthCheckAddress string `json:"health-check-address,omitempty"`
 }
 
 func LoadConfig() (*Config, error) {
 	viper.AutomaticEnv()
 
 	viper.SetDefault(ListenAddress, ":8890")
+	viper.SetDefault(HealthCheckAddress, ":8083")
 
 	c := &Config{
-		ListenAddress: viper.GetString(ListenAddress),
-		APIServerHost: viper.GetString(APIServerHost),
-		APIServerPort: viper.GetInt(APIServerPort),
+		ListenAddress:      viper.GetString(ListenAddress),
+		APIServerHost:      viper.GetString(APIServerHost),
+		APIServerPort:      viper.GetInt(APIServerPort),
+		HealthCheckAddress: viper.GetString(HealthCheckAddress),
 	}
 	return c, nil
 }
