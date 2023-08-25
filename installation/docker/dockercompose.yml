@@ -102,30 +102,14 @@ services:
       restart_policy:
         condition: on-failure
 
-  grype-server-init:
-    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.4.0}
-    user: root
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - chown -R 1000:1000 /data
-    volumes:
-      - type: volume
-        source: grype-server-db
-        target: /data
-
   grype-server:
-    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.4.0}
-    depends_on:
-      grype-server-init:
-        condition: service_completed_successfully
+    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.5.0}
     command:
       - run
       - --log-level
       - warning
     ports:
       - "9991:9991"
-    env_file: ./grype-server.env
     deploy:
       mode: replicated
       replicas: 1
@@ -137,7 +121,7 @@ services:
         target: /data
 
   freshclam-mirror:
-    image: ${FreshclamMirrorContainerImage:-ghcr.io/openclarity/freshclam-mirror:v0.1.0}
+    image: ${FreshclamMirrorContainerImage:-ghcr.io/openclarity/freshclam-mirror:v0.2.0}
     ports:
       - "1000:80"
     deploy:
