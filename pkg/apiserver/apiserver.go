@@ -23,14 +23,13 @@ import (
 
 	"github.com/Portshift/go-utils/healthz"
 
-	_config "github.com/openclarity/vmclarity/pkg/apiserver/config"
 	"github.com/openclarity/vmclarity/pkg/apiserver/database"
 	databaseTypes "github.com/openclarity/vmclarity/pkg/apiserver/database/types"
 	"github.com/openclarity/vmclarity/pkg/apiserver/rest"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
 
-func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
+func createDatabaseConfig(config *Config) databaseTypes.DBConfig {
 	return databaseTypes.DBConfig{
 		DriverType:     config.DatabaseDriver,
 		EnableInfoLogs: config.EnableDBInfoLogs,
@@ -45,19 +44,13 @@ func createDatabaseConfig(config *_config.Config) databaseTypes.DBConfig {
 
 const defaultChanSize = 100
 
-func Run(ctx context.Context) {
+func Run(ctx context.Context, config *Config) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	config, err := _config.LoadConfig()
-	if err != nil {
-		logger.Fatalf("Failed to load config: %v", err)
-	}
 
 	errChan := make(chan struct{}, defaultChanSize)
 
 	healthServer := healthz.NewHealthServer(config.HealthCheckAddress)
 	healthServer.Start()
-
 	healthServer.SetIsReady(false)
 
 	ctx, cancel := context.WithCancel(ctx)
