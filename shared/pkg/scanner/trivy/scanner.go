@@ -99,7 +99,7 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 	// Get the Trivy CVE DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
-	dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Value.(string)
+	dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Default.(string)
 	if !ok {
 		return trivyFlag.Options{}, fmt.Errorf("unable to get trivy DB repo config")
 	}
@@ -126,11 +126,11 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 			},
 		},
 		ReportOptions: trivyFlag.ReportOptions{
-			Format:       "json",     // Trivy's own json format is the most complete for vuls
-			ReportFormat: "all",      // Full report not just summary
-			Output:       output,     // Save the output to our local buffer instead of Stdout
-			ListAllPkgs:  false,      // Only include packages with vulnerabilities
-			Severities:   severities, // All the severities from the above
+			Format:       "json",          // Trivy's own json format is the most complete for vuls
+			ReportFormat: "all",           // Full report not just summary
+			Output:       output.String(), // Save the output to our local buffer instead of Stdout
+			ListAllPkgs:  false,           // Only include packages with vulnerabilities
+			Severities:   severities,      // All the severities from the above
 		},
 		DBOptions: trivyFlag.DBOptions{
 			DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB

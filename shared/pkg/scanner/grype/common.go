@@ -108,8 +108,8 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 
 	var srcName string
 	switch doc.Source.Target.(type) {
-	case syft_source.ImageMetadata:
-		imageMetadata := doc.Source.Target.(syft_source.ImageMetadata) // nolint:forcetypeassert
+	case syft_source.StereoscopeImageSourceMetadata:
+		imageMetadata := doc.Source.Target.(syft_source.StereoscopeImageSourceMetadata) // nolint:forcetypeassert
 		srcName = imageMetadata.UserInput
 		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
 		if srcName == "" {
@@ -155,6 +155,8 @@ func getCVSS(match grype_models.Match) []scanner.CVSS {
 	for i := range cvssFromMatch {
 		cvss := cvssFromMatch[i]
 		ret[i] = scanner.CVSS{
+			Source:  cvss.Source,
+			Type:    cvss.Type,
 			Version: cvss.Version,
 			Vector:  cvss.Vector,
 			Metrics: scanner.CvssMetrics{

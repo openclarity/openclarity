@@ -92,10 +92,10 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				Scanners: []trivyTypes.Scanner{}, // Disable all security checks for SBOM only scan
 			},
 			ReportOptions: trivyFlag.ReportOptions{
-				Format:       "cyclonedx", // Cyconedx format for SBOM so that we don't need to convert
-				ReportFormat: "all",       // Full report not just summary
-				Output:       &output,     // Save the output to our local buffer instead of Stdout
-				ListAllPkgs:  true,        // By default Trivy only includes packages with vulnerabilities, for full SBOM set true.
+				Format:       "cyclonedx",     // Cyconedx format for SBOM so that we don't need to convert
+				ReportFormat: "all",           // Full report not just summary
+				Output:       output.String(), // Save the output to our local buffer instead of Stdout
+				ListAllPkgs:  true,            // By default Trivy only includes packages with vulnerabilities, for full SBOM set true.
 			},
 			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
 				VulnType: trivyTypes.VulnTypes, // Trivy disables analyzers for language packages if VulnTypeLibrary not in VulnType list
