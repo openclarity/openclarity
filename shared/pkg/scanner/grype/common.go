@@ -16,6 +16,7 @@
 package grype
 
 import (
+	"github.com/anchore/syft/syft/file"
 	"strings"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
@@ -198,7 +199,7 @@ func getDescription(match grype_models.Match) string {
 }
 
 // nolint:nonamedreturns
-func getLayerIDAndPath(coordinates []syft_source.Coordinates) (layerID, path string) {
+func getLayerIDAndPath(coordinates []file.Coordinates) (layerID, path string) {
 	if len(coordinates) == 0 {
 		return "", ""
 	}
