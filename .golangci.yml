@@ -19,6 +19,7 @@ linters-settings:
     replace-allow-list:
       # replace containerd GHSA-5ffw-gxpp-mxpf
       - github.com/containerd/containerd
+      # replace docker for oras.land/oras-go
       - github.com/docker/docker
       # trivy using non released version, so we need to stick on the released one for other imports that conflicts with it
       - github.com/opencontainers/image-spec

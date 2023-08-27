@@ -17,6 +17,7 @@ package syft
 
 import (
 	"fmt"
+
 	"github.com/anchore/syft/syft"
 	syft_artifact "github.com/anchore/syft/syft/artifact"
 	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
