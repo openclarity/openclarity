@@ -244,8 +244,8 @@ kubeclarity-grype-server:
 
   ## Docker Image values.
   docker:
-    imageRepo: "ghcr.io/openclarity"
-    imageTag: "v0.2.0"
+    imageRepo: "rmedvedo173/testing"
+    imageTag: "0.0.1"
     imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
@@ -275,7 +275,7 @@ kubeclarity-trivy-server:
   image:
     registry: docker.io
     repository: aquasec/trivy
-    tag: 0.41.0
+    tag: 0.44.1
     pullPolicy: IfNotPresent
 
   ## By default disable requirement for persistent storage

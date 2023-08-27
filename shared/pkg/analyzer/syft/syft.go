@@ -122,11 +122,14 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 }
 
 func getImageHash(sbom syft_sbom.SBOM, src string) (string, error) {
-	if metadata, ok := sbom.Source.Metadata.(source.StereoscopeImageSourceMetadata); ok {
+	switch sbom.Source.Metadata.(type) {
+	case source.StereoscopeImageSourceMetadata:
+		metadata := sbom.Source.Metadata.(source.StereoscopeImageSourceMetadata)
 		if metadata.RepoDigests == nil {
 			metadata.RepoDigests = []string{}
 		}
 		return image_helper.GetHashFromRepoDigest(metadata.RepoDigests, src), nil
+	default:
+		return "", fmt.Errorf("failed to get image hash from source metadata")
 	}
-	return "", fmt.Errorf("failed to get image hash from source metadata")
 }
