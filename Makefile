@@ -19,7 +19,7 @@ LICENSEI_VERSION = 0.5.0
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
 help: ## This help.
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_0-9-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
 
@@ -125,6 +125,14 @@ push-docker-uibackend: docker-uibackend ## Build and Push UI Backend Docker imag
 .PHONY: test
 test: ## Run Unit Tests
 	@go test ./...
+
+.PHONY: e2e
+e2e: docker-apiserver docker-cli docker-orchestrator ## Run go e2e test against code
+	@cd e2e && \
+	export APIServerContainerImage=${DOCKER_REGISTRY}/vmclarity-apiserver:${DOCKER_TAG} && \
+	export OrchestratorContainerImage=${DOCKER_REGISTRY}/vmclarity-orchestrator:${DOCKER_TAG} && \
+	export ScannerContainerImage=${DOCKER_REGISTRY}/vmclarity-cli:${DOCKER_TAG} && \
+    go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 .PHONY: clean-ui
 clean-ui:

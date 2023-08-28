@@ -44,6 +44,15 @@ type AssetScanConflictError struct {
 	Message              string
 }
 
+type ScanConfigConflictError struct {
+	ConflictingScanConfig *models.ScanConfig
+	Message               string
+}
+
+func (t ScanConfigConflictError) Error() string {
+	return fmt.Sprintf("Conflicting Scan Config Found with ID %s: %s", *t.ConflictingScanConfig.Id, t.Message)
+}
+
 func (t AssetScanConflictError) Error() string {
 	return fmt.Sprintf("Conflicting AssetScan Found with ID %s: %s", *t.ConflictingAssetScan.Id, t.Message)
 }
