@@ -32,6 +32,7 @@ import (
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	flog "github.com/aquasecurity/trivy/pkg/fanal/log"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
@@ -126,11 +127,11 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 			},
 		},
 		ReportOptions: trivyFlag.ReportOptions{
-			Format:       "json",          // Trivy's own json format is the most complete for vuls
-			ReportFormat: "all",           // Full report not just summary
-			Output:       output.String(), // Save the output to our local buffer instead of Stdout
-			ListAllPkgs:  false,           // Only include packages with vulnerabilities
-			Severities:   severities,      // All the severities from the above
+			Format:       trivyTypes.FormatJSON, // Trivy's own json format is the most complete for vuls
+			ReportFormat: "all",                 // Full report not just summary
+			Output:       output.String(),       // Save the output to our local buffer instead of Stdout
+			ListAllPkgs:  false,                 // Only include packages with vulnerabilities
+			Severities:   severities,            // All the severities from the above
 		},
 		DBOptions: trivyFlag.DBOptions{
 			DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB
@@ -138,6 +139,9 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 		},
 		VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
 			VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
+		},
+		ImageOptions: trivyFlag.ImageOptions{
+			ImageSources: types.AllImageSources,
 		},
 	}
 
