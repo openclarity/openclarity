@@ -16,10 +16,10 @@
 package grype
 
 import (
-	"github.com/anchore/syft/syft/file"
 	"strings"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
+	"github.com/anchore/syft/syft/file"
 	syft_source "github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 

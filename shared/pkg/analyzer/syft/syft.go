@@ -122,9 +122,8 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 }
 
 func getImageHash(sbom syft_sbom.SBOM, src string) (string, error) {
-	switch sbom.Source.Metadata.(type) {
+	switch metadata := sbom.Source.Metadata.(type) {
 	case source.StereoscopeImageSourceMetadata:
-		metadata := sbom.Source.Metadata.(source.StereoscopeImageSourceMetadata) // nolint:forcetypeassert
 		if metadata.RepoDigests == nil {
 			metadata.RepoDigests = []string{}
 		}
