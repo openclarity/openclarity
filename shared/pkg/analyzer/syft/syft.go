@@ -65,7 +65,9 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
 	}
-	s, err := detection.NewSource(source.DefaultDetectionSourceConfig())
+	sourceConfig := source.DefaultDetectionSourceConfig()
+	sourceConfig.RegistryOptions = a.config.RegistryOptions
+	s, err := detection.NewSource(sourceConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
 	}

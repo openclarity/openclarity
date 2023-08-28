@@ -244,7 +244,7 @@ kubeclarity-grype-server:
 
   ## Docker Image values.
   docker:
-    imageRepo: "rmedvedo173/testing"
+    imageRepo: "rmedvedo173"
     imageTag: "0.0.1"
     imagePullPolicy: Always
 
