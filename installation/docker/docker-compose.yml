@@ -9,6 +9,7 @@ services:
       - info
     ports:
       - "8888:8888"
+      - "8081:8081"
     env_file: ./apiserver.env
     deploy:
       mode: replicated
@@ -19,6 +20,10 @@ services:
       - type: volume
         source: apiserver-db-data
         target: /data
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8081/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   orchestrator:
     image: ${OrchestratorContainerImage:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
@@ -88,6 +93,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "1326"]
+      interval: 10s
+      retries: 60
 
   trivy-server:
     image: ${TrivyServerContainerImage:-docker.io/aquasec/trivy:0.41.0}
@@ -101,6 +110,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9992"]
+      interval: 10s
+      retries: 60
 
   grype-server:
     image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.5.0}
@@ -119,6 +132,10 @@ services:
       - type: volume
         source: grype-server-db
         target: /data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9991"]
+      interval: 10s
+      retries: 60
 
   freshclam-mirror:
     image: ${FreshclamMirrorContainerImage:-ghcr.io/openclarity/freshclam-mirror:v0.2.0}
@@ -160,3 +177,7 @@ configs:
 volumes:
   apiserver-db-data:
   grype-server-db:
+
+networks:
+  default:
+    name: ${COMPOSE_PROJECT_NAME}

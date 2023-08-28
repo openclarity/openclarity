@@ -325,6 +325,41 @@ func (b *BackendClient) GetScan(ctx context.Context, scanID string, params model
 	}
 }
 
+func (b *BackendClient) PostScanConfig(ctx context.Context, scanConfig models.ScanConfig) (*models.ScanConfig, error) {
+	resp, err := b.apiClient.PostScanConfigsWithResponse(ctx, scanConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create scan config: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		if resp.JSON201 == nil {
+			return nil, fmt.Errorf("failed to create a scan config: empty body. status code=%v", http.StatusCreated)
+		}
+		return resp.JSON201, nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return nil, fmt.Errorf("failed to create a scan config. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+		}
+		return nil, fmt.Errorf("failed to create a scan config. status code=%v", resp.StatusCode())
+	case http.StatusConflict:
+		if resp.JSON409 == nil {
+			return nil, fmt.Errorf("failed to create a scan config: empty nody. status code=%v", http.StatusConflict)
+		}
+		if resp.JSON409.ScanConfig == nil {
+			return nil, fmt.Errorf("failed to create a scan config: no scan config data. status code=%v", http.StatusConflict)
+		}
+		return nil, ScanConfigConflictError{
+			ConflictingScanConfig: resp.JSON409.ScanConfig,
+			Message:               "conflict",
+		}
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to create a scan config. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to create a scan config. status code=%v", resp.StatusCode())
+	}
+}
+
 func (b *BackendClient) GetScanConfigs(ctx context.Context, params models.GetScanConfigsParams) (*models.ScanConfigs, error) {
 	resp, err := b.apiClient.GetScanConfigsWithResponse(ctx, &params)
 	if err != nil {

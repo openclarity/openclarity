@@ -448,7 +448,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"scansCount":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"assetInfo": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
-				ComplexFieldSchemas:   []string{"VMInfo"},
+				ComplexFieldSchemas:   []string{"VMInfo", "ContainerInfo", "ContainerImageInfo"},
 				DiscriminatorProperty: "objectType",
 			},
 			"summary": odatasql.FieldMeta{
@@ -496,6 +496,39 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"SecurityGroup": {
 		Fields: odatasql.Schema{
 			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"ContainerImageInfo": {
+		Fields: odatasql.Schema{
+			"architecture": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"labels": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Tag"},
+				},
+			},
+			"name":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"os":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"size":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
+	"ContainerInfo": {
+		Fields: odatasql.Schema{
+			"containerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"createdAt":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":            odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"image":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"labels": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Tag"},
+				},
+			},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
 	"ScanFindingsSummary": {
