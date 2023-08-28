@@ -8,8 +8,10 @@ DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 VMCLARITY_TOOLS_BASE ?=
 
+ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+BIN_DIR := $(ROOT_DIR)/bin
+
 # Dependency versions
-GOLANGCI_VERSION = 1.52.2
 LICENSEI_VERSION = 0.5.0
 
 # HELP
@@ -33,16 +35,16 @@ ui: ## Build UI
 	@(cd ui; npm i ; npm run build; )
 	@ls -l ui/build
 
-bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum ## Build vmclarity-orchestrator
+bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-orchestrator
 	go build -race -o bin/vmclarity-orchestrator cmd/vmclarity-orchestrator/main.go
 
-bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum ## Build vmclarity-apiserver
+bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-apiserver
 	go build -race -o bin/vmclarity-apiserver cmd/vmclarity-apiserver/main.go
 
-bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum ## Build CLI
+bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build CLI
 	go build -race -o bin/vmclarity-cli cmd/vmclarity-cli/main.go
 
-bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum ## Build vmclarity-ui-backend
+bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-ui-backend
 	go build -race -o bin/vmclarity-ui-backend cmd/vmclarity-ui-backend/main.go
 
 .PHONY: docker
@@ -131,16 +133,23 @@ clean-ui:
 .PHONY: clean
 clean: clean-ui clean-backend ## Clean all build artifacts
 
-bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
-	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
-bin/golangci-lint-${GOLANGCI_VERSION}:
-	@mkdir -p bin
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
+$(BIN_DIR):
+	@mkdir -p $(BIN_DIR)
+
+GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
+GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
+GOLANGCI_VERSION := 1.52.2
+
+bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
+	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
+
+bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b "$(BIN_DIR)" "v$(GOLANGCI_VERSION)"
 	@mv bin/golangci-lint $@
 
 .PHONY: lint-go
 lint-go: bin/golangci-lint
-	./bin/golangci-lint run
+	find . -name go.mod -execdir "$(GOLANGCI_BIN)" run --tests -c "$(GOLANGCI_CONFIG)" \;
 
 .PHONY: lint-cfn
 lint-cfn:
@@ -157,8 +166,7 @@ fix: bin/golangci-lint ## Fix lint violations
 
 bin/licensei: bin/licensei-${LICENSEI_VERSION}
 	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
-bin/licensei-${LICENSEI_VERSION}:
-	@mkdir -p bin
+bin/licensei-${LICENSEI_VERSION}: | $(BIN_DIR)
 	curl -sfL https://raw.githubusercontent.com/goph/licensei/master/install.sh | bash -s v${LICENSEI_VERSION}
 	@mv bin/licensei $@
 
