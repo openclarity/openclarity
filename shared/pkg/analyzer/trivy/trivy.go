@@ -16,16 +16,16 @@
 package trivy
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"os"
 
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	log "github.com/sirupsen/logrus"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
-	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
@@ -62,7 +62,15 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 // nolint:cyclop
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %v %v", a.name, sourceType, userInput)
+
+	tempFile, err := os.CreateTemp(a.config.TempDir, "trivy.sbom.*.json")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %v", err)
+	}
+
 	go func() {
+		defer os.Remove(tempFile.Name())
+
 		res := &analyzer.Results{}
 
 		// Skip this analyser for input types we don't support
@@ -82,7 +90,6 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			cacheDir = a.config.CacheDir
 		}
 
-		var output bytes.Buffer
 		trivyOptions := trivyFlag.Options{
 			GlobalOptions: trivyFlag.GlobalOptions{
 				Timeout:  a.config.Timeout,
@@ -93,10 +100,10 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				Scanners: []trivyTypes.Scanner{}, // Disable all security checks for SBOM only scan
 			},
 			ReportOptions: trivyFlag.ReportOptions{
-				Format:       trivyTypes.FormatCycloneDX, // Cyconedx format for SBOM so that we don't need to convert
+				Format:       trivyTypes.FormatCycloneDX, // Cyclonedx format for SBOM so that we don't need to convert
 				ReportFormat: "all",                      // Full report not just summary
-				Output:       output.String(),            // Save the output to our local buffer instead of Stdout
-				ListAllPkgs:  true,                       // By default Trivy only includes packages with vulnerabilities, for full SBOM set true.
+				Output:       tempFile.Name(),            // Save the output to our temp file instead of Stdout
+				ListAllPkgs:  true,                       // By default, Trivy only includes packages with vulnerabilities, for full SBOM set true.
 			},
 			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
 				VulnType: trivyTypes.VulnTypes, // Trivy disables analyzers for language packages if VulnTypeLibrary not in VulnType list
@@ -124,7 +131,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 
 		// Decode the BOM
 		bom := new(cdx.BOM)
-		decoder := cdx.NewBOMDecoder(&output, cdx.BOMFileFormatJSON)
+		decoder := cdx.NewBOMDecoder(tempFile, cdx.BOMFileFormatJSON)
 		if err = decoder.Decode(bom); err != nil {
 			a.setError(res, fmt.Errorf("unable to decode BOM data: %v", err))
 			return

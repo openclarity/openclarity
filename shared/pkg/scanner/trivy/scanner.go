@@ -16,17 +16,14 @@
 package trivy
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"sort"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 
 	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
@@ -37,6 +34,8 @@ import (
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
+	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -96,7 +95,7 @@ func getAllTrivySeverities() ([]trivyDBTypes.Severity, error) {
 	return severities, nil
 }
 
-func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (trivyFlag.Options, error) {
+func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag.Options, error) {
 	// Get the Trivy CVE DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
@@ -129,7 +128,7 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 		ReportOptions: trivyFlag.ReportOptions{
 			Format:       trivyTypes.FormatJSON, // Trivy's own json format is the most complete for vuls
 			ReportFormat: "all",                 // Full report not just summary
-			Output:       output.String(),       // Save the output to our local buffer instead of Stdout
+			Output:       output,                // Save the output to our temp file instead of Stdout
 			ListAllPkgs:  false,                 // Only include packages with vulnerabilities
 			Severities:   severities,            // All the severities from the above
 		},
@@ -168,7 +167,15 @@ func (a *Scanner) createTrivyOptions(output *bytes.Buffer, userInput string) (tr
 
 func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
+
+	tempFile, err := os.CreateTemp(a.config.CacheDir, "trivy.scan.*.json")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %v", err)
+	}
+
 	go func() {
+		defer os.Remove(tempFile.Name())
+
 		var hash string
 		switch sourceType {
 		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
@@ -185,8 +192,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		var output bytes.Buffer
-		trivyOptions, err := a.createTrivyOptions(&output, userInput)
+		trivyOptions, err := a.createTrivyOptions(tempFile.Name(), userInput)
 		if err != nil {
 			a.setError(fmt.Errorf("unable to create trivy options: %w", err))
 			return
@@ -208,8 +214,14 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
+		file, err := os.ReadFile(tempFile.Name())
+		if err != nil {
+			a.setError(fmt.Errorf("failed to read scan results: %w", err))
+			return
+		}
+
 		a.logger.Infof("Sending successful results")
-		a.resultChan <- a.CreateResult(output.Bytes(), hash)
+		a.resultChan <- a.CreateResult(file, hash)
 	}()
 
 	return nil
