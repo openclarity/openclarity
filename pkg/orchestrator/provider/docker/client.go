@@ -305,15 +305,22 @@ func (c *Client) createScanContainer(ctx context.Context, assetVolume, networkID
 		return "", fmt.Errorf("failed to create scan config file: %w", err)
 	}
 
-	// Pull scanner image
-	imagePullResp, err := c.dockerClient.ImagePull(ctx, config.ScannerImage, types.ImagePullOptions{})
+	// Pull scanner image if required
+	images, err := c.dockerClient.ImageList(ctx, types.ImageListOptions{
+		Filters: filters.NewArgs(filters.Arg("reference", config.ScannerImage)),
+	})
 	if err != nil {
-		return "", fmt.Errorf("failed to pull scanner image: %w", err)
+		return "", fmt.Errorf("failed to get images: %w", err)
 	}
-
-	// Drain response to avoid blocking
-	_, _ = io.Copy(io.Discard, imagePullResp)
-	_ = imagePullResp.Close()
+	if len(images) == 0 {
+		imagePullResp, err := c.dockerClient.ImagePull(ctx, config.ScannerImage, types.ImagePullOptions{})
+		if err != nil {
+			return "", fmt.Errorf("failed to pull scanner image: %w", err)
+		}
+		// Drain response to avoid blocking
+		_, _ = io.Copy(io.Discard, imagePullResp)
+		_ = imagePullResp.Close()
+	}
 
 	// Create scan container
 	containerResp, err := c.dockerClient.ContainerCreate(
@@ -322,6 +329,7 @@ func (c *Client) createScanContainer(ctx context.Context, assetVolume, networkID
 			Image: config.ScannerImage,
 			Entrypoint: []string{
 				"/app/vmclarity-cli",
+				"scan",
 				"--config",
 				"/tmp/" + filepath.Base(scanConfigFilePath),
 				"--server",
@@ -385,6 +393,11 @@ func (c *Client) getNetworkIDFromName(ctx context.Context, networkName string) (
 		return "", fmt.Errorf("scan network not found: %w", err)
 	}
 	if len(networks) > 1 {
+		for _, n := range networks {
+			if n.Name == networkName {
+				return n.ID, nil
+			}
+		}
 		return "", fmt.Errorf("found more than one scan network: %w", err)
 	}
 	return networks[0].ID, nil
