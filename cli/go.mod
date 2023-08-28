@@ -440,3 +440,6 @@ replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d3
 // /Users/idanf/go/pkg/mod/github.com/containers/image/v5@v5.19.0/sif/src.go:92:3: unknown field 'Architecture' in struct literal of type v1.Image
 // /Users/idanf/go/pkg/mod/github.com/containers/image/v5@v5.19.0/sif/src.go:93:3: unknown field 'OS' in struct literal of type v1.Image
 replace github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.1.0-rc2
+
+// Replace these for grype
+replace github.com/CycloneDX/cyclonedx-go => github.com/CycloneDX/cyclonedx-go v0.7.1

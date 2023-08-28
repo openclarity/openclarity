@@ -147,3 +147,6 @@ replace (
 
 // Replace containerd due to GHSA-5ffw-gxpp-mxpf
 replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.6
+
+// Replace these for grype
+replace github.com/CycloneDX/cyclonedx-go => github.com/CycloneDX/cyclonedx-go v0.7.1

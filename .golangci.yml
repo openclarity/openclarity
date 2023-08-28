@@ -21,6 +21,8 @@ linters-settings:
       - github.com/containerd/containerd
       # trivy requires these replacements
       - oras.land/oras-go
+      # Replace these for grype
+      - github.com/CycloneDX/cyclonedx-go
       # trivy using non released version, so we need to stick on the released one for other imports that conflicts with it
       - github.com/opencontainers/image-spec
 

@@ -222,5 +222,5 @@ replace github.com/containerd/containerd => github.com/containerd/containerd v1.
 //// spdx logic write on v0.3.0 and incompatible with v0.3.1-0.20230104082527-d6f58551be3f
 //replace github.com/spdx/tools-golang => github.com/spdx/tools-golang v0.3.0
 
-// Replace these for trivy
-replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d38af
+// Replace these for grype
+replace github.com/CycloneDX/cyclonedx-go => github.com/CycloneDX/cyclonedx-go v0.7.1

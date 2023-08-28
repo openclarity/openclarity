@@ -429,3 +429,6 @@ replace github.com/opencontainers/image-spec => github.com/opencontainers/image-
 
 // Replace these for trivy
 replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d38af
+
+// Replace these for grype
+replace github.com/CycloneDX/cyclonedx-go => github.com/CycloneDX/cyclonedx-go v0.7.1
