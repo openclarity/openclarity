@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	backgroundRecalculationInterval = 15 * time.Minute
+	backgroundRecalculationInterval = 2 * time.Minute
 )
 
 type ServerImpl struct {
