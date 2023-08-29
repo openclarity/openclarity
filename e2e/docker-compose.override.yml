@@ -9,17 +9,6 @@ services:
         source: /tmp
         target: /tmp
 
-  # Note(paralta): Override uibackend healthcheck is required because if server background recalculation fails the
-  # recalculation interval (backgroundRecalculationInterval) will be 15min. Plus, the uibackend is currently not
-  # covered by end-to-end tests.
-  uibackend:
-    ports:
-      - "8890:8890"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "8890"]
-      interval: 10s
-      retries: 60
-
   alpine:
     image: alpine:3.18.2
     command: ["sleep", "infinity"]
