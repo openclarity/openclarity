@@ -61,6 +61,8 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 		err = v.ExportRootkitResult(ctx, res)
 	case types.Malware:
 		err = v.ExportMalwareResult(ctx, res)
+	case types.InfoFinder:
+		err = fmt.Errorf("InfoFinder family is unsupported")
 	}
 
 	return err

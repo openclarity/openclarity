@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
 	"github.com/openclarity/vmclarity/pkg/shared/families/interfaces"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
@@ -64,6 +65,9 @@ func New(config *Config) *Manager {
 	}
 	if config.Misconfiguration.Enabled {
 		manager.families = append(manager.families, misconfiguration.New(config.Misconfiguration))
+	}
+	if config.InfoFinder.Enabled {
+		manager.families = append(manager.families, infofinder.New(config.InfoFinder))
 	}
 
 	// Enrichers.
@@ -128,6 +132,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 		case r := <-result:
 			logger.Debugf("received result from family %q: %v", family.GetType(), r)
 			if r.Err != nil {
+				logger.Errorf("received error result from family %q: %v", family.GetType(), r.Err)
 				oneOrMoreFamilyFailed = true
 			} else {
 				familyResults.SetResults(r.Result)

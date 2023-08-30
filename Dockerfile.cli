@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.2
-ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base:v0.2.0@sha256:0e0ed706dc297366af44d736c71aefa350b54a0214290aa81b3603462e39872b
+ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base:v0.3.0@sha256:c592419f5f3f184909363e080b01aea5deef63374b856aed74334afa3bdef793
 FROM --platform=$BUILDPLATFORM golang:1.20.7-alpine AS builder
 
 RUN apk add --update --no-cache ca-certificates git

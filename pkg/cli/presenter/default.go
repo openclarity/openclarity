@@ -22,6 +22,7 @@ import (
 
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
@@ -54,6 +55,8 @@ func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.
 		err = p.ExportRootkitResult(ctx, res)
 	case types.Malware:
 		err = p.ExportMalwareResult(ctx, res)
+	case types.InfoFinder:
+		err = p.ExportInfoFinderResult(ctx, res)
 	}
 
 	return err
@@ -165,5 +168,23 @@ func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res families.F
 	if err != nil {
 		return fmt.Errorf("failed to output rootkits results: %w", err)
 	}
+	return nil
+}
+
+func (p *DefaultPresenter) ExportInfoFinderResult(_ context.Context, res families.FamilyResult) error {
+	infoFinderResults, ok := res.Result.(*infofinder.Results)
+	if !ok {
+		return fmt.Errorf("failed to convert to infofinder results")
+	}
+
+	bytes, err := json.Marshal(infoFinderResults)
+	if err != nil {
+		return fmt.Errorf("failed to marshal infofinder results: %w", err)
+	}
+
+	if err = p.Write(bytes, "infofinder.json"); err != nil {
+		return fmt.Errorf("failed to output infofinder results: %w", err)
+	}
+
 	return nil
 }
