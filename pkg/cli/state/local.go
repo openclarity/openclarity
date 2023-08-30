@@ -52,6 +52,8 @@ func (l *LocalState) MarkFamilyScanInProgress(ctx context.Context, familyType ty
 		logger.Info("Rootkit scan is in progress")
 	case types.Malware:
 		logger.Info("Malware scan is in progress")
+	case types.InfoFinder:
+		logger.Info("InfoFinder scan is in progress")
 	}
 	return nil
 }

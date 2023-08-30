@@ -19,6 +19,7 @@ import (
 	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	infofinderTypes "github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	misconfigurationTypes "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
@@ -39,6 +40,7 @@ type Config struct {
 	Rootkits         rootkits.Config              `json:"rootkits" yaml:"rootkits" mapstructure:"rootkits"`
 	Malware          malware.Config               `json:"malware" yaml:"malware" mapstructure:"malware"`
 	Misconfiguration misconfigurationTypes.Config `json:"misconfiguration" yaml:"misconfiguration" mapstructure:"misconfiguration"`
+	InfoFinder       infofinderTypes.Config       `json:"infofinder" yaml:"infofinder" mapstructure:"infofinder"`
 
 	// Enrichers
 	Exploits exploits.Config `json:"exploits" yaml:"exploits" mapstructure:"exploits"`
@@ -104,6 +106,17 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		if familiesConfig.Misconfiguration.Enabled {
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,
+				types.Input{
+					StripPathFromResult: utils.PointerTo(true),
+					Input:               mountDir,
+					InputType:           string(kubeclarityutils.ROOTFS),
+				},
+			)
+		}
+
+		if familiesConfig.InfoFinder.Enabled {
+			familiesConfig.InfoFinder.Inputs = append(
+				familiesConfig.InfoFinder.Inputs,
 				types.Input{
 					StripPathFromResult: utils.PointerTo(true),
 					Input:               mountDir,
