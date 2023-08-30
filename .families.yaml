@@ -1,5 +1,5 @@
 sbom:
-  enabled: true
+  enabled: false
   analyzers_list:
     - "syft"
     - "gomod"
@@ -26,7 +26,7 @@ sbom:
         token: "token"
 
 vulnerabilities:
-  enabled: true
+  enabled: false
   scanners_list:
     - "grype"
   inputs:
@@ -68,7 +68,7 @@ secrets:
       binary_path: "/usr/local/bin/gitleaks"
 
 exploits:
-  enabled: true
+  enabled: false
   scanners_list:
     - "exploitdb"
   inputs: []
@@ -78,10 +78,20 @@ exploits:
       base_url: "http://localhost:1326"
 
 misconfiguration:
-  enabled: true
+  enabled: false
   scanners_list:
     - "fake"
   inputs:
     - input: "./"
+      input_type: "rootfs"
+  scanners_configs: {}
+
+
+infofinder:
+  enabled: true
+  scanners_list:
+    - "sshTopology"
+  inputs:
+    - input: "/"
       input_type: "rootfs"
   scanners_configs: {}

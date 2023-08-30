@@ -172,6 +172,8 @@ func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyTyp
 		err = v.markRootkitsScanInProgress(ctx)
 	case types.Malware:
 		err = v.markMalwareScanInProgress(ctx)
+	case types.InfoFinder:
+		err = fmt.Errorf("InfoFinder family is unsupported")
 	}
 	return err
 }

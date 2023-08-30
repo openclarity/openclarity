@@ -13,19 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package job
 
-type FamilyType string
+import (
+	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
 
-const (
-	SBOM FamilyType = "sbom"
-
-	Vulnerabilities  FamilyType = "vulnerabilities"
-	Secrets          FamilyType = "secrets"
-	Rootkits         FamilyType = "rootkits"
-	Malware          FamilyType = "malware"
-	Misconfiguration FamilyType = "misconfiguration"
-	InfoFinder       FamilyType = "infofinder"
-
-	Exploits FamilyType = "exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder/sshtopology"
 )
+
+var Factory = job_manager.NewJobFactory()
+
+func init() {
+	Factory.Register(sshtopology.ScannerName, sshtopology.New)
+}
