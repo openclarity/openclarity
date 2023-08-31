@@ -244,8 +244,8 @@ kubeclarity-grype-server:
 
   ## Docker Image values.
   docker:
-    imageRepo: "rmedvedo173"
-    imageTag: "0.0.1"
+    imageRepo: "ghcr.io/openclarity"
+    imageTag: "v0.6.0"
     imagePullPolicy: Always
 
   ## Logging level (debug, info, warning, error, fatal, panic).
