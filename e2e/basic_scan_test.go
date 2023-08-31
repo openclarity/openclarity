@@ -31,7 +31,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("waiting until test asset is found")
 			assetsParams := models.GetAssetsParams{
-				Filter: utils.PointerTo(fmt.Sprintf("terminatedOn eq null and %s", DefaultScope)),
+				Filter: utils.PointerTo(fmt.Sprintf("%s", DefaultScope)),
 			}
 			gomega.Eventually(func() bool {
 				assets, err := client.GetAssets(ctx, assetsParams)
