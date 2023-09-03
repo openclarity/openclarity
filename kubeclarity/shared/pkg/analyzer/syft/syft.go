@@ -61,11 +61,13 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
 	// TODO platform can be defined
 	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
-	input, err := source.ParseInput(src, "")
+	detection, err := source.Detect(src, source.DefaultDetectConfig())
 	if err != nil {
 		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
 	}
-	s, _, err := source.New(*input, a.config.RegistryOptions, []string{})
+	s, err := detection.NewSource(source.DetectionSourceConfig{
+		RegistryOptions: a.config.RegistryOptions,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
 	}
@@ -92,7 +94,10 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		// Get the RepoDigest from image metadata and use it as SourceHash in the Result
 		// that will be added to the component hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
-			res.AppInfo.SourceHash = getImageHash(sbom, userInput)
+			if res.AppInfo.SourceHash, err = getImageHash(sbom, userInput); err != nil {
+				a.setError(res, fmt.Errorf("failed to get image hash: %v", err))
+				return
+			}
 		}
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
@@ -101,13 +106,13 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	return nil
 }
 
-func generateSBOM(c *syft_pkg.Catalog, r []syft_artifact.Relationship, d *linux.Release, s *source.Source) syft_sbom.SBOM {
+func generateSBOM(c *syft_pkg.Collection, r []syft_artifact.Relationship, d *linux.Release, s source.Source) syft_sbom.SBOM {
 	return syft_sbom.SBOM{
 		Artifacts: syft_sbom.Artifacts{
-			PackageCatalog:    c,
+			Packages:          c,
 			LinuxDistribution: d,
 		},
-		Source:        s.Metadata,
+		Source:        s.Describe(),
 		Relationships: r,
 	}
 }
@@ -118,6 +123,14 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 	a.resultChan <- res
 }
 
-func getImageHash(sbom syft_sbom.SBOM, src string) string {
-	return image_helper.GetHashFromRepoDigest(sbom.Source.ImageMetadata.RepoDigests, src)
+func getImageHash(sbom syft_sbom.SBOM, src string) (string, error) {
+	switch metadata := sbom.Source.Metadata.(type) {
+	case source.StereoscopeImageSourceMetadata:
+		if metadata.RepoDigests == nil {
+			metadata.RepoDigests = []string{}
+		}
+		return image_helper.GetHashFromRepoDigest(metadata.RepoDigests, src), nil
+	default:
+		return "", fmt.Errorf("failed to get image hash from source metadata")
+	}
 }

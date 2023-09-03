@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
+	"github.com/anchore/syft/syft/file"
 	syft_source "github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
@@ -108,8 +109,8 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 
 	var srcName string
 	switch doc.Source.Target.(type) {
-	case syft_source.ImageMetadata:
-		imageMetadata := doc.Source.Target.(syft_source.ImageMetadata) // nolint:forcetypeassert
+	case syft_source.StereoscopeImageSourceMetadata:
+		imageMetadata := doc.Source.Target.(syft_source.StereoscopeImageSourceMetadata) // nolint:forcetypeassert
 		srcName = imageMetadata.UserInput
 		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
 		if srcName == "" {
@@ -155,6 +156,8 @@ func getCVSS(match grype_models.Match) []scanner.CVSS {
 	for i := range cvssFromMatch {
 		cvss := cvssFromMatch[i]
 		ret[i] = scanner.CVSS{
+			Source:  cvss.Source,
+			Type:    cvss.Type,
 			Version: cvss.Version,
 			Vector:  cvss.Vector,
 			Metrics: scanner.CvssMetrics{
@@ -196,7 +199,7 @@ func getDescription(match grype_models.Match) string {
 }
 
 // nolint:nonamedreturns
-func getLayerIDAndPath(coordinates []syft_source.Coordinates) (layerID, path string) {
+func getLayerIDAndPath(coordinates []file.Coordinates) (layerID, path string) {
 	if len(coordinates) == 0 {
 		return "", ""
 	}
