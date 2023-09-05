@@ -1,0 +1,753 @@
+global:
+  imageRegistry: ""
+
+apiserver:
+  # -- Number of replicas for the API Server
+  replicas: 1
+
+  image:
+    # -- API Server image registry
+    registry: ghcr.io
+    # -- API Server image repositiory
+    repository: openclarity/vmclarity-apiserver
+    # -- API Server image tag (immutable tags are recommended)
+    tag: latest
+    # -- API Server image digest. If set will override the tag.
+    digest: ""
+    # -- API Server image pull policy
+    pullPolicy: IfNotPresent
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+  # -- API Server log level
+  logLevel: info
+
+  resources:
+    # -- The resources limits for the apiserver containers
+    limits: {}
+    # -- The requested resources for the apiserver containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+orchestrator:
+  # -- Number of replicas for the Orchestrator service
+  # Currently 1 supported.
+  replicas: 1
+
+  image:
+    # -- Orchestrator image registry
+    registry: ghcr.io
+    # -- Orchestrator image repository
+    repository: openclarity/vmclarity-orchestrator
+    # -- Orchestrator image tag (immutable tags are recommended)
+    tag: latest
+    # -- Orchestrator image digest. If set will override the tag.
+    digest: ""
+    # -- Orchestrator image pull policy
+    pullPolicy: IfNotPresent
+
+  podSecurityContext:
+    # -- Whether Orchestrator pod security context is enabled
+    enabled: true
+    # -- Orchestrator pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+  # -- Orchestrator service log level
+  logLevel: info
+
+  resources:
+    # -- The resources limits for the orchestrator containers
+    limits: {}
+    # -- The requested resources for the orchestrator containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  # -- Global policy used to determine when to clean up an AssetScan.
+  # Possible options are:
+  # Always - All AssetScans are cleaned up
+  # OnSuccess - Only Successful AssetScans are cleaned up, Failed ones are left for debugging
+  # Never - No AssetScans are cleaned up
+  deleteJobPolicy: Always
+
+  scannerImage:
+    # -- Scanner Container image registry
+    registry: ghcr.io
+    # -- Scanner Container image repository
+    repository: openclarity/vmclarity-cli
+    # -- Scanner Container image tag (immutable tags are recommended)
+    tag: latest
+    # -- Scanner Container image digest. If set will override the tag.
+    digest: ""
+
+  # -- Address that scanners can use to reach back to the API server
+  scannerApiserverAddress: ""
+
+  # -- Address that scanners can use to reach trivy server
+  trivyServerAddress: ""
+
+  # -- Address that scanners can use to reach the grype server
+  grypeServerAddress: ""
+
+  # -- Address that scanenrs can use to reach the freshclam mirror
+  freshclamMirrorAddress: ""
+
+  # -- Which provider to enable
+  provider: "aws"
+
+  aws:
+    # -- Region where the control plane is running
+    region: ""
+    # -- Region where the scanners will be created
+    scannerRegion: ""
+    # -- Subnet where the scanners will be created
+    subnetId: ""
+    # -- Security Group to use for the scanner networking
+    securityGroupId: ""
+    # -- KeyPair to use for the scanner instance
+    keypairName: ""
+    # -- AMI to use for the scanner instance
+    scannerAmiId: ""
+    # -- InstanceType to use for the scanner instance
+    scannerInstanceType: ""
+
+  gcp:
+    # -- Project ID for discovery and scanning
+    projectId: ""
+    # -- Zone to where the scanner instances should run
+    scannerZone: ""
+    # -- Subnet where to run the scanner instances
+    scannerSubnet: ""
+    # -- Scanner Machine type
+    scannerMachineType: ""
+    # -- Scanner source image
+    scannerSourceImage: ""
+
+  azure:
+    # -- Subscription ID for discovery and scanning
+    subscriptionId: ""
+    # -- Location where the scanner instances will be run
+    scannerLocation: ""
+    # -- ResourceGroup where the scanner instances will be run
+    scannerResourceGroup: ""
+    # -- Subnet ID where the scanner instances will be run
+    scannerSubnetId: ""
+    # -- SSH RSA Public Key to configure the scanner instances with
+    scannerPublicKey: ""
+    # -- Scanner VM size
+    scannerVmSize: ""
+    # -- Scanner VM source image publisher
+    scannerImagePublisher: ""
+    # -- Scanner VM source image offer
+    scannerImageOffer: ""
+    # -- Scanner VM source image sku
+    scannerImageSku: ""
+    # -- Scanner VM source image version
+    scannerImageVersion: ""
+    # -- Scanner VM security group
+    scannerSecurityGroup: ""
+    # -- Storage account to use for transfering snapshots between regions
+    scannerStorageAccountName: ""
+    # -- Storage container to use for transfering snapshots between regions
+    scannerStorageContainerName: ""
+
+ui:
+  # -- Number of replicas for the UI service
+  replicas: 1
+
+  image:
+    # -- UI image registry
+    registry: ghcr.io
+    # -- UI image repository
+    repository: openclarity/vmclarity-ui
+    # -- UI image tag
+    tag: latest
+    # -- UI image digest. If set will override the tag
+    digest: ""
+    # -- UI Image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the UI containers
+    limits: {}
+    # -- The requested resources for the UI containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: false
+    # -- Pod security context fsGroup
+    fsGroup: 101
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: false
+    # -- User ID which the containers should run as
+    runAsUser: 101
+    # -- Group ID which the containers should run as
+    runAsGroup: 101
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+uibackend:
+  # -- Number of replicas for the UI Backend service
+  replicas: 1
+
+  image:
+    # -- UI Backend image registry
+    registry: ghcr.io
+    # -- UI Backend image repository
+    repository: openclarity/vmclarity-ui-backend
+    # -- UI Backend image tag
+    tag: latest
+    # -- UI Backend image digest. If set will override the tag.
+    digest: ""
+    # -- UI Backend image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the UI backend containers
+    limits: {}
+    # -- The requested resources for the UI backend containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+  # -- Log level for the UI backend service
+  logLevel: info
+
+gateway:
+  # -- Number of replicas for the gateway
+  replicas: 1
+
+  image:
+    # -- Gateway service container registry
+    registry: docker.io
+    # -- Gateway service container repository
+    repository: nginxinc/nginx-unprivileged
+    # -- Gateway service container tag
+    tag: 1.25.1
+    # -- Gateway image digest. If set will override the tag.
+    digest: ""
+    # -- Gateway service container pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the gateway containers
+    limits: {}
+    # -- The requested resources for the gateway containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 101
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 101
+    # -- Group ID which the containers should run as
+    runAsGroup: 101
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: false
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+postgresql:
+  image:
+    # -- Postgresql container registry
+    registry: docker.io
+    # -- Postgresql container repository
+    repository: bitnami/postgresql
+    # -- Postgresql container tag
+    tag: 14.6.0-debian-11-r31
+    # -- Postgresql image digest. If set will override the tag.
+    digest: ""
+    # -- Postgresql container image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the postgresql containers
+    limits: {}
+    # -- The requested resources for the postgresql containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  auth:
+    # -- Name of existing secret to use for PostgreSQL credentials
+    existingSecret: ""
+    # -- Name for a custom user to create
+    username: vmclarity
+    # -- Password for the custom user
+    password: password1
+    # -- Name for a custom database to create
+    database: vmclarity
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+  service:
+    ports:
+      # -- PostgreSQL service port
+      postgresql: 5432
+
+exploitDBServer:
+  # -- Number of replicas for the exploit-db-server service
+  replicas: 1
+
+  image:
+    # -- Exploit DB Server container registry
+    registry: ghcr.io
+    # -- Exploit DB Server container repository
+    repository: openclarity/exploit-db-server
+    # -- Exploit DB Server container tag
+    tag: v0.2.3
+    # -- Exploit DB Server image digest. If set will override the tag.
+    digest: ""
+    # -- Exploit DB Server image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the exploit-db-server containers
+    limits: {}
+    # -- The requested resources for the exploit-db-server containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+trivyServer:
+  # -- Number of replicas for the trivy server service
+  replicas: 1
+
+  image:
+    # -- Trivy Server container registry
+    registry: docker.io
+    # -- Trivy Server container repository
+    repository: aquasec/trivy
+    # -- Trivy Server container tag
+    tag: 0.41.0
+    # -- Trivy Server image digest. If set will override the tag.
+    digest: ""
+    # -- Trivy Server image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the trivy server containers
+    limits: {}
+    # -- The requested resources for the trivy server containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+grypeServer:
+  # -- Number of replicas for the grype server service
+  replicas: 1
+
+  image:
+    # -- Grype server container registry
+    registry: ghcr.io
+    # -- Grype server container repository
+    repository: openclarity/grype-server
+    # -- Grype server container tag
+    tag: v0.4.0
+    # -- Grype server image digest. If set will override the tag.
+    digest: ""
+    # -- Grype server image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the grype server containers
+    limits: {}
+    # -- The requested resources for the grype server containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: true
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: true
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+  # -- Log level for the grype-server service
+  logLevel: info
+
+freshclamMirror:
+  # -- Number of replicas for the freshclam mirror service
+  replicas: 1
+
+  image:
+    # -- Freshclam Mirror container registry
+    registry: ghcr.io
+    # -- Freshclam Mirror container repository
+    repository: openclarity/freshclam-mirror
+    # -- Freshclam Mirror container tag
+    tag: v0.1.0
+    # -- Freshclam Mirror image digest. If set will override the tag.
+    digest: ""
+    # -- Freshclam Mirror image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the freshclam mirror containers
+    limits: {}
+    # -- The requested resources for the freshclam mirror containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: false
+    # -- Pod security context fsGroup
+    fsGroup: 1001
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: false
+    # -- User ID which the containers should run as
+    runAsUser: 1001
+    # -- Group ID which the containers should run as
+    runAsGroup: 1001
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: true
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL
+
+swaggerUI:
+  # -- Number of replicas for the swagger-ui service
+  replicas: 1
+
+  image:
+    # -- Swagger UI container registry
+    registry: docker.io
+    # -- Swagger UI container repository
+    repository: swaggerapi/swagger-ui
+    # -- Swagger UI container tag
+    tag: v5.3.1
+    # -- Swagger UI image digest. If set will override the tag.
+    digest: ""
+    # -- Swagger UI image pull policy
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- The resources limits for the swagger ui containers
+    limits: {}
+    # -- The requested resources for the swagger ui containers
+    requests: {}
+
+  serviceAccount:
+    # -- Enable creation of ServiceAccount
+    create: true
+    # -- The name of the ServiceAccount to use.
+    # If not set and create is true, it will use the component's calculated name.
+    name: ""
+    # -- Allows auto mount of ServiceAccountToken on the serviceAccount created.
+    # Can be set to false if pods using this serviceAccount do not need to use K8s API.
+    automountServiceAccountToken: false
+
+  podSecurityContext:
+    # -- Pod security context enabled
+    enabled: false
+    # -- Pod security context fsGroup
+    fsGroup: 101
+
+  containerSecurityContext:
+    # -- Container security context enabled
+    enabled: false
+    # -- User ID which the containers should run as
+    runAsUser: 0
+    # -- Group ID which the containers should run as
+    runAsGroup: 0
+    # -- Whether the containers should run as a non-root user
+    runAsNonRoot: false
+    # -- Whether the container should run in privileged mode
+    privileged: false
+    # -- Force the child process to run as non-privileged
+    allowPrivilegeEscalation: false
+    # -- Mounts the container file system as ReadOnly
+    readOnlyRootFilesystem: true
+    capabilities:
+      # -- List of capabilities to be dropped
+      drop:
+        - ALL

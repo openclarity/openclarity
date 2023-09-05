@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vmclarity.swaggerUI.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector: {{- include "vmclarity.swaggerUI.labels.matchLabels" . | nindent 4 }}

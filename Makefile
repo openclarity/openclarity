@@ -197,7 +197,7 @@ license-cache: bin/licensei ## Generate license cache
 	./bin/licensei cache --config=../.licensei.toml
 
 .PHONY: check
-check: lint test ## Run tests and linters
+check: lint test helm-lint ## Run tests and linters
 
 .PHONY: gomod-tidy
 gomod-tidy:
@@ -215,3 +215,11 @@ gen-apiserver-api: ## Generating API for backend code
 gen-uibackend-api: ## Generating API for UI backend code
 	@(echo "Generating API for UI backend code ..." )
 	@(cd pkg/uibackend/api; go generate)
+
+.PHONY: helm-docs
+helm-docs:
+	docker run --rm --volume "$(shell pwd):/helm-docs" -u $(shell id -u) jnorwood/helm-docs:v1.11.0
+
+.PHONY: helm-lint
+helm-lint:
+	docker run --rm --workdir /workdir --volume "$(shell pwd):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all

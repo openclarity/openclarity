@@ -28,6 +28,22 @@ jobs:
         run: |
           [[ -z "$(git status --porcelain)" ]] || exit 1
 
+  helm-docs-verification:
+    name: Helm Docs Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Generate Helm Docs
+        run: make helm-docs
+
+      # This step will evaluate the repo status and exit if found changes
+      # This should detect if the most up-to-date generated helm docs were pushed
+      - name: Changes validation
+        run: |
+          [[ -z "$(git status --porcelain)" ]] || exit 1
+
   verification:
     needs: api-verification
     name: Verification

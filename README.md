@@ -75,11 +75,23 @@ For a detailed installation guide, please see [AWS](installation/aws/README.md).
    ```
 4. Once deployed, copy the VMClarity SSH IP address from the CLI output.
 
+### Kubernetes
+
+1. helm install -n vmclarity --create-namespace vmclarity ./vmclarity
+
 ## Access VMClarity UI
-1. Open an SSH tunnel to VMClarity server
-    ```
-    ssh -N -L 8080:localhost:80 -i  "<Path to the SSH key specified during install>" ubuntu@<VmClarity SSH Address copied during install>
-    ```
+
+1. Open connection to VMClarity API Gateway either:
+
+   * On AWS, Azure or GCP, open an SSH tunnel to VMClarity VM server
+     ```
+     ssh -N -L 8080:localhost:80 -i  "<Path to the SSH key specified during install>" ubuntu@<VmClarity SSH Address copied during install>
+     ```
+
+   * On Kubernetes port-forward vmclarity-gateway service:
+     ```
+     kubectl port-forward -n vmclarity service/vmclarity-gateway 8080:80
+     ```
 
 2. Access VMClarity UI in the browser: http://localhost:8080/
 3. Access the [API](api/openapi.yaml) via http://localhost:8080/api
