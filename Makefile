@@ -48,10 +48,10 @@ bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backen
 	go build -race -o bin/vmclarity-ui-backend cmd/vmclarity-ui-backend/main.go
 
 .PHONY: docker
-docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-uibackend ## Build All Docker images
+docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Build All Docker images
 
 .PHONY: push-docker
-push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-uibackend ## Build and Push All Docker images
+push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend ## Build and Push All Docker images
 
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
 VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
@@ -109,18 +109,18 @@ push-docker-ui: docker-ui ## Build and Push UI Docker image
 	@echo "Publishing ui docker image ..."
 	docker push ${DOCKER_IMAGE}-ui:${DOCKER_TAG}
 
-.PHONY: docker-uibackend
-docker-uibackend: ## Build UI Backend Docker image
-	@(echo "Building uibackend docker image ..." )
+.PHONY: docker-ui-backend
+docker-ui-backend: ## Build UI Backend Docker image
+	@(echo "Building ui-backend docker image ..." )
 	docker build --file ./Dockerfile.uibackend --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}-uibackend:${DOCKER_TAG} .
+		-t ${DOCKER_IMAGE}-ui-backend:${DOCKER_TAG} .
 
-.PHONY: push-docker-uibackend
-push-docker-uibackend: docker-uibackend ## Build and Push UI Backend Docker image
-	@echo "Publishing uibackend docker image ..."
-	docker push ${DOCKER_IMAGE}-uibackend:${DOCKER_TAG}
+.PHONY: push-docker-ui-backend
+push-docker-ui-backend: docker-ui-backend ## Build and Push UI Backend Docker image
+	@echo "Publishing ui-backend docker image ..."
+	docker push ${DOCKER_IMAGE}-ui-backend:${DOCKER_TAG}
 
 .PHONY: test
 test: ## Run Unit Tests
