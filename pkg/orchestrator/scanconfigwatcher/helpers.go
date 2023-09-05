@@ -43,6 +43,7 @@ func newScanFromScanConfig(scanConfig *models.ScanConfig) *models.Scan {
 			TotalPackages:          utils.PointerTo(0),
 			TotalRootkits:          utils.PointerTo(0),
 			TotalSecrets:           utils.PointerTo(0),
+			TotalInfoFinder:        utils.PointerTo(0),
 			TotalVulnerabilities: &models.VulnerabilityScanSummary{
 				TotalCriticalVulnerabilities:   utils.PointerTo(0),
 				TotalHighVulnerabilities:       utils.PointerTo(0),

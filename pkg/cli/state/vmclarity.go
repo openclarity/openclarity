@@ -173,7 +173,7 @@ func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyTyp
 	case types.Malware:
 		err = v.markMalwareScanInProgress(ctx)
 	case types.InfoFinder:
-		err = fmt.Errorf("InfoFinder family is unsupported")
+		err = v.markInfoFinderScanInProgress(ctx)
 	}
 	return err
 }
@@ -269,6 +269,31 @@ func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) 
 	state := models.AssetScanStateStateInProgress
 	assetScan.Status.Vulnerabilities.State = &state
 	assetScan.Status.Vulnerabilities.LastTransitionTime = utils.PointerTo(time.Now())
+
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	if err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error {
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get asset scan: %w", err)
+	}
+
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
+	}
+	if assetScan.Status.InfoFinder == nil {
+		assetScan.Status.InfoFinder = &models.AssetScanState{}
+	}
+
+	state := models.AssetScanStateStateInProgress
+	assetScan.Status.InfoFinder.State = &state
+	assetScan.Status.InfoFinder.LastTransitionTime = utils.PointerTo(time.Now())
 
 	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {

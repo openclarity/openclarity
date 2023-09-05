@@ -24,6 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
 	exploitsCommon "github.com/openclarity/vmclarity/pkg/shared/families/exploits/common"
 	exploitdbConfig "github.com/openclarity/vmclarity/pkg/shared/families/exploits/exploitdb/config"
+	infofinderTypes "github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	clamconfig "github.com/openclarity/vmclarity/pkg/shared/families/malware/clam/config"
 	malwarecommon "github.com/openclarity/vmclarity/pkg/shared/families/malware/common"
@@ -189,6 +190,23 @@ func withMisconfigurationConfig(config *models.MisconfigurationsConfig, opts *Sc
 	}
 }
 
+func withInfoFinderConfig(config *models.InfoFinderConfig, _ *ScannerConfig) FamiliesConfigOption {
+	return func(c *families.Config) {
+		if !config.IsEnabled() {
+			return
+		}
+
+		c.InfoFinder = infofinderTypes.Config{
+			Enabled:      true,
+			ScannersList: config.GetScannersList(),
+			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
+			ScannersConfig: infofinderTypes.ScannersConfig{
+				SSHTopology: infofinderTypes.SSHTopologyConfig{},
+			},
+		}
+	}
+}
+
 func withRootkitsConfig(config *models.RootkitsConfig, opts *ScannerConfig) FamiliesConfigOption {
 	return func(c *families.Config) {
 		if !config.IsEnabled() {
@@ -219,6 +237,7 @@ func NewFamiliesConfigFrom(config *ScannerConfig, sfc *models.ScanFamiliesConfig
 		withMalwareConfig(sfc.Malware, config),
 		withMisconfigurationConfig(sfc.Misconfigurations, config),
 		withRootkitsConfig(sfc.Rootkits, config),
+		withInfoFinderConfig(sfc.InfoFinder, config),
 	}
 
 	for _, o := range opts {

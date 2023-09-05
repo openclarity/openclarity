@@ -61,6 +61,10 @@ func TestNewAssetScanFromScan(t *testing.T) {
 						Vulnerabilities: &models.VulnerabilitiesConfig{
 							Enabled: utils.PointerTo(true),
 						},
+						InfoFinder: &models.InfoFinderConfig{
+							Enabled:  utils.PointerTo(true),
+							Scanners: utils.PointerTo([]string{"test"}),
+						},
 					},
 				},
 			},
@@ -104,6 +108,9 @@ func TestNewAssetScanFromScan(t *testing.T) {
 						Errors: nil,
 						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
+					InfoFinder: &models.AssetScanState{
+						State: utils.PointerTo(models.AssetScanStateStatePending),
+					},
 				},
 				Summary: newAssetScanSummary(),
 				Asset: &models.AssetRelationship{
@@ -124,6 +131,10 @@ func TestNewAssetScanFromScan(t *testing.T) {
 					Secrets: nil,
 					Vulnerabilities: &models.VulnerabilitiesConfig{
 						Enabled: utils.PointerTo(true),
+					},
+					InfoFinder: &models.InfoFinderConfig{
+						Enabled:  utils.PointerTo(true),
+						Scanners: utils.PointerTo([]string{"test"}),
 					},
 				},
 			},

@@ -146,7 +146,7 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 
 	totalPackages, err := asp.getActiveFindingsByType(ctx, "Package", assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
+		return fmt.Errorf("failed to get active package findings: %w", err)
 	}
 	asset.Summary.TotalPackages = &totalPackages
 

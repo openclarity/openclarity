@@ -12,6 +12,7 @@ const StepScanTypes = () => {
             <CheckboxField name="scanTemplate.assetScanTemplate.scanFamiliesConfig.secrets.enabled" title="Secrets" />
             <CheckboxField name="scanTemplate.assetScanTemplate.scanFamiliesConfig.misconfigurations.enabled" title="Misconfigurations" />
             <CheckboxField name="scanTemplate.assetScanTemplate.scanFamiliesConfig.exploits.enabled" title="Exploits" />
+            <CheckboxField name="scanTemplate.assetScanTemplate.scanFamiliesConfig.infoFinder.enabled" title="Info Finder" />
         </div>
     )
 }
