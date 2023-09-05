@@ -31,6 +31,15 @@ const (
 	GCP      CloudProvider = "GCP"
 )
 
+// Defines values for InfoType.
+const (
+	InfoTypeSSHAuthorizedKeyFingerprint InfoType = "SSHAuthorizedKeyFingerprint"
+	InfoTypeSSHDaemonKeyFingerprint     InfoType = "SSHDaemonKeyFingerprint"
+	InfoTypeSSHKnownHostFingerprint     InfoType = "SSHKnownHostFingerprint"
+	InfoTypeSSHPrivateKeyFingerprint    InfoType = "SSHPrivateKeyFingerprint"
+	InfoTypeUNKNOWN                     InfoType = "UNKNOWN"
+)
+
 // Defines values for MisconfigurationSeverity.
 const (
 	MisconfigurationHighSeverity   MisconfigurationSeverity = "MisconfigurationHighSeverity"
@@ -55,11 +64,11 @@ const (
 
 // Defines values for RootkitType.
 const (
-	APPLICATION RootkitType = "APPLICATION"
-	FIRMWARE    RootkitType = "FIRMWARE"
-	KERNEL      RootkitType = "KERNEL"
-	MEMORY      RootkitType = "MEMORY"
-	UNKNOWN     RootkitType = "UNKNOWN"
+	RootkitTypeAPPLICATION RootkitType = "APPLICATION"
+	RootkitTypeFIRMWARE    RootkitType = "FIRMWARE"
+	RootkitTypeKERNEL      RootkitType = "KERNEL"
+	RootkitTypeMEMORY      RootkitType = "MEMORY"
+	RootkitTypeUNKNOWN     RootkitType = "UNKNOWN"
 )
 
 // Defines values for ScanState.
@@ -107,6 +116,7 @@ const (
 // Defines values for ScanType.
 const (
 	EXPLOIT          ScanType = "EXPLOIT"
+	INFOFINDER       ScanType = "INFOFINDER"
 	MALWARE          ScanType = "MALWARE"
 	MISCONFIGURATION ScanType = "MISCONFIGURATION"
 	ROOTKIT          ScanType = "ROOTKIT"
@@ -180,6 +190,7 @@ type AssetScan struct {
 	Exploits          *ExploitScan          `json:"exploits,omitempty"`
 	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
 	Id                *string               `json:"id,omitempty"`
+	InfoFinder        *InfoFinderScan       `json:"infoFinder,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
 	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
@@ -237,6 +248,7 @@ type AssetScanRelationship struct {
 	Exploits          *ExploitScan          `json:"exploits,omitempty"`
 	FindingsProcessed *bool                 `json:"findingsProcessed,omitempty"`
 	Id                string                `json:"id"`
+	InfoFinder        *InfoFinderScan       `json:"infoFinder,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
 	ResourceCleanup   *ResourceCleanupState `json:"resourceCleanup,omitempty"`
@@ -283,6 +295,7 @@ type AssetScanStats struct {
 
 	// General Global statistics for asset scan of all families.
 	General           *AssetScanGeneralStats     `json:"general,omitempty"`
+	InfoFinder        *[]AssetScanInputScanStats `json:"infoFinder,omitempty"`
 	Malware           *[]AssetScanInputScanStats `json:"malware,omitempty"`
 	Misconfigurations *[]AssetScanInputScanStats `json:"misconfigurations,omitempty"`
 	Rootkits          *[]AssetScanInputScanStats `json:"rootkits,omitempty"`
@@ -295,6 +308,7 @@ type AssetScanStats struct {
 type AssetScanStatus struct {
 	Exploits          *AssetScanState `json:"exploits,omitempty"`
 	General           *AssetScanState `json:"general,omitempty"`
+	InfoFinder        *AssetScanState `json:"infoFinder,omitempty"`
 	Malware           *AssetScanState `json:"malware,omitempty"`
 	Misconfigurations *AssetScanState `json:"misconfigurations,omitempty"`
 	Rootkits          *AssetScanState `json:"rootkits,omitempty"`
@@ -443,6 +457,44 @@ type Findings struct {
 	// Items List of findings according to the given filters
 	Items *[]Finding `json:"items,omitempty"`
 }
+
+// InfoFinderConfig defines model for InfoFinderConfig.
+type InfoFinderConfig struct {
+	Enabled  *bool     `json:"enabled,omitempty"`
+	Scanners *[]string `json:"scanners,omitempty"`
+}
+
+// InfoFinderFindingInfo defines model for InfoFinderFindingInfo.
+type InfoFinderFindingInfo struct {
+	// Data The data found by the scanner in the specific path for a specific type. See example for SSHKnownHostFingerprint info type
+	Data       *string `json:"data,omitempty"`
+	ObjectType string  `json:"objectType"`
+
+	// Path File path containing the info
+	Path        *string   `json:"path,omitempty"`
+	ScannerName *string   `json:"scannerName,omitempty"`
+	Type        *InfoType `json:"type,omitempty"`
+}
+
+// InfoFinderInfo defines model for InfoFinderInfo.
+type InfoFinderInfo struct {
+	// Data The data found by the scanner in the specific path for a specific type. See example for SSHKnownHostFingerprint info type
+	Data *string `json:"data,omitempty"`
+
+	// Path File path containing the info
+	Path        *string   `json:"path,omitempty"`
+	ScannerName *string   `json:"scannerName,omitempty"`
+	Type        *InfoType `json:"type,omitempty"`
+}
+
+// InfoFinderScan defines model for InfoFinderScan.
+type InfoFinderScan struct {
+	Infos    *[]InfoFinderInfo `json:"infos"`
+	Scanners *[]string         `json:"scanners"`
+}
+
+// InfoType defines model for InfoType.
+type InfoType string
 
 // Malware defines model for Malware.
 type Malware struct {
@@ -712,6 +764,7 @@ type ScanExists struct {
 // ScanFamiliesConfig The configuration of the scanner families within a scan config
 type ScanFamiliesConfig struct {
 	Exploits          *ExploitsConfig          `json:"exploits,omitempty"`
+	InfoFinder        *InfoFinderConfig        `json:"infoFinder,omitempty"`
 	Malware           *MalwareConfig           `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationsConfig `json:"misconfigurations,omitempty"`
 	Rootkits          *RootkitsConfig          `json:"rootkits,omitempty"`
@@ -723,6 +776,7 @@ type ScanFamiliesConfig struct {
 // ScanFindingsSummary A summary of the scan findings.
 type ScanFindingsSummary struct {
 	TotalExploits          *int `json:"totalExploits,omitempty"`
+	TotalInfoFinder        *int `json:"totalInfoFinder,omitempty"`
 	TotalMalware           *int `json:"totalMalware,omitempty"`
 	TotalMisconfigurations *int `json:"totalMisconfigurations,omitempty"`
 	TotalPackages          *int `json:"totalPackages,omitempty"`
@@ -785,6 +839,7 @@ type ScanSummary struct {
 	JobsCompleted          *int `json:"jobsCompleted,omitempty"`
 	JobsLeftToRun          *int `json:"jobsLeftToRun,omitempty"`
 	TotalExploits          *int `json:"totalExploits,omitempty"`
+	TotalInfoFinder        *int `json:"totalInfoFinder,omitempty"`
 	TotalMalware           *int `json:"totalMalware,omitempty"`
 	TotalMisconfigurations *int `json:"totalMisconfigurations,omitempty"`
 	TotalPackages          *int `json:"totalPackages,omitempty"`
@@ -1624,6 +1679,34 @@ func (t *Finding_FindingInfo) MergeExploitFindingInfo(v ExploitFindingInfo) erro
 	return err
 }
 
+// AsInfoFinderFindingInfo returns the union data inside the Finding_FindingInfo as a InfoFinderFindingInfo
+func (t Finding_FindingInfo) AsInfoFinderFindingInfo() (InfoFinderFindingInfo, error) {
+	var body InfoFinderFindingInfo
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInfoFinderFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided InfoFinderFindingInfo
+func (t *Finding_FindingInfo) FromInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
+	v.ObjectType = "InfoFinder"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInfoFinderFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided InfoFinderFindingInfo
+func (t *Finding_FindingInfo) MergeInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
+	v.ObjectType = "InfoFinder"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(b, t.union)
+	t.union = merged
+	return err
+}
+
 func (t Finding_FindingInfo) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"objectType"`
@@ -1640,6 +1723,8 @@ func (t Finding_FindingInfo) ValueByDiscriminator() (interface{}, error) {
 	switch discriminator {
 	case "Exploit":
 		return t.AsExploitFindingInfo()
+	case "InfoFinder":
+		return t.AsInfoFinderFindingInfo()
 	case "Malware":
 		return t.AsMalwareFindingInfo()
 	case "Misconfiguration":

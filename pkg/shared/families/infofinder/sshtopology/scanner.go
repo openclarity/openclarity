@@ -79,13 +79,18 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		errorsChan := make(chan error)
 		fingerprintsChan := make(chan []types.Info)
 
+		var chanWg sync.WaitGroup
+		chanWg.Add(1)
 		go func() {
+			defer chanWg.Done()
 			for fingerprints := range fingerprintsChan {
 				retResults.Infos = append(retResults.Infos, fingerprints...)
 			}
 		}()
 
+		chanWg.Add(1)
 		go func() {
+			defer chanWg.Done()
 			for e := range errorsChan {
 				errs = append(errs, e)
 			}
@@ -139,6 +144,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		wg.Wait()
 		close(errorsChan)
 		close(fingerprintsChan)
+		chanWg.Wait()
 
 		retErr := errors.Join(errs...)
 		if retErr != nil {

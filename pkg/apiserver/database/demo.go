@@ -140,6 +140,9 @@ func createFindings(ctx context.Context, assetScans []models.AssetScan) []models
 		if assetScan.Rootkits != nil && assetScan.Rootkits.Rootkits != nil {
 			ret = append(ret, createRootkitFindings(ctx, findingBase, *assetScan.Rootkits.Rootkits)...)
 		}
+		if assetScan.InfoFinder != nil && assetScan.InfoFinder.Infos != nil {
+			ret = append(ret, createInfoFinderFindings(ctx, findingBase, *assetScan.InfoFinder.Infos)...)
+		}
 	}
 
 	return ret
@@ -287,6 +290,36 @@ func createMisconfigurationFindings(ctx context.Context, base models.Finding, mi
 		err = val.FindingInfo.FromMisconfigurationFindingInfo(conv)
 		if err != nil {
 			logger.Errorf("Failed to convert FromMisconfigurationFindingInfo: %v", err)
+			continue
+		}
+		ret = append(ret, val)
+	}
+
+	return ret
+}
+
+// nolint:gocognit,prealloc
+func createInfoFinderFindings(ctx context.Context, base models.Finding, infos []models.InfoFinderInfo) []models.Finding {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	var ret []models.Finding
+	for _, info := range infos {
+		val := base
+		convB, err := json.Marshal(info)
+		if err != nil {
+			logger.Errorf("Failed to marshal: %v", err)
+			continue
+		}
+		conv := models.InfoFinderFindingInfo{}
+		err = json.Unmarshal(convB, &conv)
+		if err != nil {
+			logger.Errorf("Failed to unmarshal: %v", err)
+			continue
+		}
+		val.FindingInfo = &models.Finding_FindingInfo{}
+		err = val.FindingInfo.FromInfoFinderFindingInfo(conv)
+		if err != nil {
+			logger.Errorf("Failed to convert FromInfoFinderFindingInfo: %v", err)
 			continue
 		}
 		ret = append(ret, val)
@@ -456,6 +489,9 @@ func createScanConfigs(_ context.Context) []models.ScanConfig {
 		Exploits: &models.ExploitsConfig{
 			Enabled: utils.PointerTo(false),
 		},
+		InfoFinder: &models.InfoFinderConfig{
+			Enabled: utils.PointerTo(false),
+		},
 		Malware: &models.MalwareConfig{
 			Enabled: utils.PointerTo(false),
 		},
@@ -479,6 +515,9 @@ func createScanConfigs(_ context.Context) []models.ScanConfig {
 	// Scan config 2
 	scanFamiliesConfig2 := models.ScanFamiliesConfig{
 		Exploits: &models.ExploitsConfig{
+			Enabled: utils.PointerTo(true),
+		},
+		InfoFinder: &models.InfoFinderConfig{
 			Enabled: utils.PointerTo(true),
 		},
 		Malware: &models.MalwareConfig{
@@ -546,6 +585,7 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 		JobsCompleted:          utils.PointerTo[int](2),
 		JobsLeftToRun:          utils.PointerTo[int](0),
 		TotalExploits:          utils.PointerTo[int](0),
+		TotalInfoFinder:        utils.PointerTo[int](0),
 		TotalMalware:           utils.PointerTo[int](0),
 		TotalMisconfigurations: utils.PointerTo[int](0),
 		TotalPackages:          utils.PointerTo[int](4),
@@ -568,6 +608,7 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 		JobsCompleted:          utils.PointerTo[int](1),
 		JobsLeftToRun:          utils.PointerTo[int](1),
 		TotalExploits:          utils.PointerTo[int](2),
+		TotalInfoFinder:        utils.PointerTo[int](2),
 		TotalMalware:           utils.PointerTo[int](3),
 		TotalMisconfigurations: utils.PointerTo[int](3),
 		TotalPackages:          utils.PointerTo[int](0),
@@ -613,7 +654,7 @@ func createScans(assets []models.Asset, scanConfigs []models.ScanConfig) []model
 	}
 }
 
-// nolint:gocognit,maintidx
+// nolint:gocognit,maintidx,cyclop
 func createAssetScans(scans []models.Scan) []models.AssetScan {
 	timeNow := time.Now()
 
@@ -878,10 +919,56 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(nil)
 			}
 
+			// Create InfoFinder if needed
+			if *result.ScanFamiliesConfig.InfoFinder.Enabled {
+				result.Status.InfoFinder = &models.AssetScanState{
+					Errors:             nil,
+					LastTransitionTime: &timeNow,
+					State:              utils.PointerTo(models.AssetScanStateStateInProgress),
+				}
+				result.Stats.InfoFinder = &[]models.AssetScanInputScanStats{
+					{
+						Path: utils.PointerTo("/mnt"),
+						ScanTime: &models.AssetScanScanTime{
+							EndTime:   &timeNow,
+							StartTime: utils.PointerTo(timeNow.Add(-5 * time.Second)),
+						},
+						Size: utils.PointerTo(int64(300)),
+						Type: utils.PointerTo("rootfs"),
+					},
+				}
+				result.InfoFinder = &models.InfoFinderScan{
+					Infos: creatInfoFinderInfos(),
+				}
+				result.Summary.TotalInfoFinder = utils.PointerTo(len(*result.InfoFinder.Infos))
+			} else {
+				result.Status.InfoFinder = &models.AssetScanState{
+					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				}
+				result.Summary.TotalInfoFinder = utils.PointerTo(0)
+			}
+
 			assetScans = append(assetScans, result)
 		}
 	}
 	return assetScans
+}
+
+func creatInfoFinderInfos() *[]models.InfoFinderInfo {
+	return &[]models.InfoFinderInfo{
+		{
+			Data:        utils.PointerTo("2048 SHA256:YQuPOM8ld6FOA9HbKCgkCJWHuGt4aTRD7hstjJpRhxc xxxx (RSA)"),
+			Path:        utils.PointerTo("/home/ec2-user/.ssh/authorized_keys"),
+			ScannerName: utils.PointerTo("sshTopology"),
+			Type:        utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint),
+		},
+		{
+			Data:        utils.PointerTo("256 SHA256:gv6snCwAl5+6fY2g5VkmETWb9Mv0zLRkMz8aQyQWAVc xxxx (ED25519)"),
+			Path:        utils.PointerTo("/etc/ssh/ssh_host_ed25519_key"),
+			ScannerName: utils.PointerTo("sshTopology"),
+			Type:        utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint),
+		},
+	}
 }
 
 func createSecretsResult() *[]models.Secret {

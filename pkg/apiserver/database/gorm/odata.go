@@ -117,6 +117,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ExploitScan"},
 			},
+			"infoFinder": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"InfoFinderScan"},
+			},
 			"stats": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanStats"},
@@ -160,6 +164,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
 			},
 			"exploits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
+			},
+			"infoFinder": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanInputScanStats"},
 			},
@@ -348,6 +356,29 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
+	"InfoFinderScan": {
+		Fields: odatasql.Schema{
+			"scanners": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			},
+			"infos": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"InfoFinderInfo"},
+				},
+			},
+		},
+	},
+	"InfoFinderInfo": {
+		Fields: odatasql.Schema{
+			"scannerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"type":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"data":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
 	"ExploitScan": {
 		Fields: odatasql.Schema{
 			"exploits": odatasql.FieldMeta{
@@ -431,6 +462,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalVulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
@@ -539,6 +571,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 			"totalVulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
@@ -613,6 +646,21 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"vulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilitiesConfig"},
+			},
+			"infoFinder": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"InfoFinderConfig"},
+			},
+		},
+	},
+	"InfoFinderConfig": {
+		Fields: odatasql.Schema{
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scanners": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.PrimitiveFieldType,
+				},
 			},
 		},
 	},
@@ -725,6 +773,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					"MisconfigurationFindingInfo",
 					"RootkitFindingInfo",
 					"ExploitFindingInfo",
+					"InfoFinderFindingInfo",
 				},
 				DiscriminatorProperty: "objectType",
 				DiscriminatorSchemaMapping: map[string]string{
@@ -735,6 +784,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					"MisconfigurationFindingInfo": "Misconfiguration",
 					"RootkitFindingInfo":          "Rootkit",
 					"ExploitFindingInfo":          "Exploit",
+					"InfoFinderFindingInfo":       "InfoFinder",
 				},
 			},
 		},
@@ -844,6 +894,15 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"remediation":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
 		},
 	},
+	"InfoFinderFindingInfo": {
+		Fields: odatasql.Schema{
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"type":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"data":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+		},
+	},
 	"RootkitFindingInfo": {
 		Fields: odatasql.Schema{
 			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
@@ -897,6 +956,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
 			"exploits": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"AssetScanState"},
+			},
+			"infoFinder": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanState"},
 			},

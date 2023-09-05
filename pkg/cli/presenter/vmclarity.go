@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
@@ -62,7 +63,7 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 	case types.Malware:
 		err = v.ExportMalwareResult(ctx, res)
 	case types.InfoFinder:
-		err = fmt.Errorf("InfoFinder family is unsupported")
+		err = v.ExportInfoFinderResult(ctx, res)
 	}
 
 	return err
@@ -370,6 +371,57 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 	state := models.AssetScanStateStateDone
 	assetScan.Status.Misconfigurations.State = &state
 	assetScan.Status.Misconfigurations.Errors = &errs
+
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	if err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get asset scan: %w", err)
+	}
+
+	if assetScan.Status == nil {
+		assetScan.Status = &models.AssetScanStatus{}
+	}
+	if assetScan.Status.InfoFinder == nil {
+		assetScan.Status.InfoFinder = &models.AssetScanState{}
+	}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &models.ScanFindingsSummary{}
+	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &models.AssetScanStats{}
+	}
+
+	var errs []string
+
+	if res.Err != nil {
+		errs = append(errs, res.Err.Error())
+	} else {
+		results, ok := res.Result.(*infofinder.Results)
+		if !ok {
+			errs = append(errs, fmt.Errorf("failed to convert to info finder results").Error())
+		} else {
+			apiInfoFinder, err := cliutils.ConvertInfoFinderResultToAPIModel(results)
+			if err != nil {
+				errs = append(errs, fmt.Sprintf("failed to convert info finder results from scan to API model: %v", err))
+			} else {
+				assetScan.InfoFinder = apiInfoFinder
+				assetScan.Summary.TotalInfoFinder = utils.PointerTo(len(results.Infos))
+			}
+			assetScan.Stats.InfoFinder = getInputScanStats(results.Metadata.InputScans)
+		}
+	}
+
+	state := models.AssetScanStateStateDone
+	assetScan.Status.InfoFinder.State = &state
+	assetScan.Status.InfoFinder.Errors = &errs
 
 	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {

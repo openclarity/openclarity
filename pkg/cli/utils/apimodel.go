@@ -27,6 +27,8 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
 	misconfigurationTypes "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
@@ -316,6 +318,46 @@ func ConvertMisconfigurationResultToAPIModel(misconfigurationResults *misconfigu
 	}, nil
 }
 
+func ConvertInfoFinderResultToAPIModel(results *infofinder.Results) (*models.InfoFinderScan, error) {
+	if results == nil || results.Infos == nil {
+		return &models.InfoFinderScan{}, nil
+	}
+
+	ret := make([]models.InfoFinderInfo, len(results.Infos))
+
+	for i := range results.Infos {
+		info := results.Infos[i]
+
+		ret[i] = models.InfoFinderInfo{
+			Data:        &info.Data,
+			Path:        &info.Path,
+			ScannerName: &info.ScannerName,
+			Type:        convertInfoTypeToAPIModel(info.Type),
+		}
+	}
+
+	return &models.InfoFinderScan{
+		Infos:    &ret,
+		Scanners: utils.PointerTo(results.Metadata.Scanners),
+	}, nil
+}
+
+func convertInfoTypeToAPIModel(infoType types.InfoType) *models.InfoType {
+	switch infoType {
+	case types.SSHKnownHostFingerprint:
+		return utils.PointerTo(models.InfoTypeSSHKnownHostFingerprint)
+	case types.SSHAuthorizedKeyFingerprint:
+		return utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint)
+	case types.SSHPrivateKeyFingerprint:
+		return utils.PointerTo(models.InfoTypeSSHPrivateKeyFingerprint)
+	case types.SSHDaemonKeyFingerprint:
+		return utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint)
+	default:
+		log.Errorf("Can't convert info type %q, treating as %v", infoType, models.InfoTypeUNKNOWN)
+		return utils.PointerTo(models.InfoTypeUNKNOWN)
+	}
+}
+
 func ConvertRootkitsResultToAPIModel(rootkitsResults *rootkits.Results) *models.RootkitScan {
 	if rootkitsResults == nil || rootkitsResults.MergedResults == nil {
 		return &models.RootkitScan{}
@@ -339,17 +381,17 @@ func ConvertRootkitsResultToAPIModel(rootkitsResults *rootkits.Results) *models.
 func ConvertRootkitTypeToAPIModel(rootkitType rootkitsTypes.RootkitType) *models.RootkitType {
 	switch rootkitType {
 	case rootkitsTypes.APPLICATION:
-		return utils.PointerTo(models.APPLICATION)
+		return utils.PointerTo(models.RootkitTypeAPPLICATION)
 	case rootkitsTypes.FIRMWARE:
-		return utils.PointerTo(models.FIRMWARE)
+		return utils.PointerTo(models.RootkitTypeFIRMWARE)
 	case rootkitsTypes.KERNEL:
-		return utils.PointerTo(models.KERNEL)
+		return utils.PointerTo(models.RootkitTypeKERNEL)
 	case rootkitsTypes.MEMORY:
-		return utils.PointerTo(models.MEMORY)
+		return utils.PointerTo(models.RootkitTypeMEMORY)
 	case rootkitsTypes.UNKNOWN:
-		return utils.PointerTo(models.UNKNOWN)
+		return utils.PointerTo(models.RootkitTypeUNKNOWN)
 	default:
-		log.Errorf("Can't convert rootkit type %q, treating as %v", rootkitType, models.UNKNOWN)
-		return utils.PointerTo(models.UNKNOWN)
+		log.Errorf("Can't convert rootkit type %q, treating as %v", rootkitType, models.RootkitTypeUNKNOWN)
+		return utils.PointerTo(models.RootkitTypeUNKNOWN)
 	}
 }

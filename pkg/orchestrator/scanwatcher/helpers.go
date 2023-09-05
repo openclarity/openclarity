@@ -41,6 +41,7 @@ func newAssetScanSummary() *models.ScanFindingsSummary {
 		TotalPackages:          utils.PointerTo[int](0),
 		TotalRootkits:          utils.PointerTo[int](0),
 		TotalSecrets:           utils.PointerTo[int](0),
+		TotalInfoFinder:        utils.PointerTo[int](0),
 		TotalVulnerabilities:   newVulnerabilityScanSummary(),
 	}
 }
@@ -98,6 +99,10 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 				Errors: nil,
 				State:  getInitStateFromFamilyConfig(familiesConfig.Vulnerabilities),
 			},
+			InfoFinder: &models.AssetScanState{
+				Errors: nil,
+				State:  getInitStateFromFamilyConfig(familiesConfig.InfoFinder),
+			},
 		},
 		ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
 	}, nil
@@ -121,6 +126,7 @@ func newScanSummary() *models.ScanSummary {
 		TotalPackages:          utils.PointerTo(0),
 		TotalRootkits:          utils.PointerTo(0),
 		TotalSecrets:           utils.PointerTo(0),
+		TotalInfoFinder:        utils.PointerTo(0),
 		TotalVulnerabilities: &models.VulnerabilityScanSummary{
 			TotalCriticalVulnerabilities:   utils.PointerTo(0),
 			TotalHighVulnerabilities:       utils.PointerTo(0),
@@ -156,6 +162,7 @@ func updateScanSummaryFromAssetScan(scan *models.Scan, result models.AssetScan) 
 	case models.AssetScanStateStateDone:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
+		s.TotalInfoFinder = utils.PointerTo(*s.TotalInfoFinder + *r.TotalInfoFinder)
 		s.TotalMalware = utils.PointerTo(*s.TotalMalware + *r.TotalMalware)
 		s.TotalMisconfigurations = utils.PointerTo(*s.TotalMisconfigurations + *r.TotalMisconfigurations)
 		s.TotalPackages = utils.PointerTo(*s.TotalPackages + *r.TotalPackages)

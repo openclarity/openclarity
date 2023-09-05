@@ -110,6 +110,12 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 		}
 	}
 
+	if statusCompletedWithNoErrors(assetScan.Status.InfoFinder) {
+		if err := asp.reconcileResultInfoFindersToFindings(ctx, assetScan); err != nil {
+			return newFailedToReconcileTypeError(err, "infoFinder")
+		}
+	}
+
 	// Mark post-processing completed for this asset scan
 	assetScan.FindingsProcessed = utils.PointerTo(true)
 	err = asp.client.PatchAssetScan(ctx, assetScan, *assetScan.Id)

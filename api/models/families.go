@@ -102,3 +102,15 @@ func (c *ExploitsConfig) GetScannersList() []string {
 
 	return []string{"exploitdb"}
 }
+
+func (c *InfoFinderConfig) IsEnabled() bool {
+	return c != nil && c.Enabled != nil && *c.Enabled
+}
+
+func (c *InfoFinderConfig) GetScannersList() []string {
+	if c != nil && c.Scanners != nil && len(*c.Scanners) != 0 {
+		return *c.Scanners
+	}
+
+	return []string{"sshTopology"}
+}
