@@ -29,6 +29,8 @@ import (
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
 	common2 "github.com/openclarity/vmclarity/pkg/shared/families/exploits/common"
+	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
+	infofinderTypes "github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	malwarecommon "github.com/openclarity/vmclarity/pkg/shared/families/malware/common"
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration"
@@ -1022,6 +1024,163 @@ func Test_ConvertVulnSeverityToAPIModel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ConvertVulnSeverityToAPIModel(tt.args.severity); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("convertVulnSeverityToAPIModel() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestConvertInfoFinderResultToAPIModel(t *testing.T) {
+	type args struct {
+		results *infofinder.Results
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *models.InfoFinderScan
+		wantErr bool
+	}{
+		{
+			name: "nil results",
+			args: args{
+				results: nil,
+			},
+			want:    &models.InfoFinderScan{},
+			wantErr: false,
+		},
+		{
+			name: "nil results.Info",
+			args: args{
+				results: &infofinder.Results{
+					Infos: nil,
+				},
+			},
+			want:    &models.InfoFinderScan{},
+			wantErr: false,
+		},
+		{
+			name: "sanity",
+			args: args{
+				results: &infofinder.Results{
+					Metadata: types.Metadata{
+						Scanners: []string{"scanner1", "scanner2"},
+					},
+					Infos: []infofinder.FlattenedInfos{
+						{
+							ScannerName: "scanner1",
+							Info: infofinderTypes.Info{
+								Type: infofinderTypes.SSHKnownHostFingerprint,
+								Path: "Path1",
+								Data: "Data1",
+							},
+						},
+						{
+							ScannerName: "scanner2",
+							Info: infofinderTypes.Info{
+								Type: infofinderTypes.SSHDaemonKeyFingerprint,
+								Path: "Path2",
+								Data: "Data2",
+							},
+						},
+						{
+							ScannerName: "scanner2",
+							Info: infofinderTypes.Info{
+								Type: infofinderTypes.SSHAuthorizedKeyFingerprint,
+								Path: "Path3",
+								Data: "Data3",
+							},
+						},
+					},
+				},
+			},
+			want: &models.InfoFinderScan{
+				Infos: utils.PointerTo([]models.InfoFinderInfo{
+					{
+						Type:        utils.PointerTo(models.InfoTypeSSHKnownHostFingerprint),
+						Path:        utils.PointerTo("Path1"),
+						Data:        utils.PointerTo("Data1"),
+						ScannerName: utils.PointerTo("scanner1"),
+					},
+					{
+						Type:        utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint),
+						Path:        utils.PointerTo("Path2"),
+						Data:        utils.PointerTo("Data2"),
+						ScannerName: utils.PointerTo("scanner2"),
+					},
+					{
+						Type:        utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint),
+						Path:        utils.PointerTo("Path3"),
+						Data:        utils.PointerTo("Data3"),
+						ScannerName: utils.PointerTo("scanner2"),
+					},
+				}),
+				Scanners: utils.PointerTo([]string{"scanner1", "scanner2"}),
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ConvertInfoFinderResultToAPIModel(tt.args.results)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ConvertInfoFinderResultToAPIModel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ConvertInfoFinderResultToAPIModel() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_convertInfoTypeToAPIModel(t *testing.T) {
+	type args struct {
+		infoType infofinderTypes.InfoType
+	}
+	tests := []struct {
+		name string
+		args args
+		want *models.InfoType
+	}{
+		{
+			name: "SSHKnownHostFingerprint",
+			args: args{
+				infoType: infofinderTypes.SSHKnownHostFingerprint,
+			},
+			want: utils.PointerTo(models.InfoTypeSSHKnownHostFingerprint),
+		},
+		{
+			name: "SSHAuthorizedKeyFingerprint",
+			args: args{
+				infoType: infofinderTypes.SSHAuthorizedKeyFingerprint,
+			},
+			want: utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint),
+		},
+		{
+			name: "SSHPrivateKeyFingerprint",
+			args: args{
+				infoType: infofinderTypes.SSHPrivateKeyFingerprint,
+			},
+			want: utils.PointerTo(models.InfoTypeSSHPrivateKeyFingerprint),
+		},
+		{
+			name: "SSHDaemonKeyFingerprint",
+			args: args{
+				infoType: infofinderTypes.SSHDaemonKeyFingerprint,
+			},
+			want: utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint),
+		},
+		{
+			name: "unknown",
+			args: args{
+				infoType: "unknown",
+			},
+			want: utils.PointerTo(models.InfoTypeUNKNOWN),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := convertInfoTypeToAPIModel(tt.args.infoType); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertInfoTypeToAPIModel() = %v, want %v", got, tt.want)
 			}
 		})
 	}

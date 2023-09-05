@@ -23,6 +23,7 @@ const SCAN_TYPES_FILTER_ITEMS = [
     "misconfigurations",
     "rootkits",
     "secrets",
+    "infoFinder",
     "sbom"
 ].map(type => ({value: `scanTemplate.assetScanTemplate.scanFamiliesConfig.${type}.enabled`, label: toCapitalized(type)}));
 
@@ -73,7 +74,8 @@ const ConfigurationsTable = () => {
                 "scanTemplate.assetScanTemplate.scanFamiliesConfig.rootkits.enabled",
                 "scanTemplate.assetScanTemplate.scanFamiliesConfig.sbom.enabled",
                 "scanTemplate.assetScanTemplate.scanFamiliesConfig.secrets.enabled",
-                "scanTemplate.assetScanTemplate.scanFamiliesConfig.vulnerabilities.enabled"
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.vulnerabilities.enabled",
+                "scanTemplate.assetScanTemplate.scanFamiliesConfig.infoFinder.enabled"
             ],
             Cell: ({row}) => {
                 const {scanFamiliesConfig} = row.original.scanTemplate.assetScanTemplate;

@@ -142,7 +142,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 
 	totalRootkits, err := asp.getActiveFindingsByType(ctx, "Rootkit", assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
+		return fmt.Errorf("failed to get active rootkit findings: %w", err)
 	}
 	asset.Summary.TotalRootkits = &totalRootkits
 

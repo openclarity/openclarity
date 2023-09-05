@@ -146,7 +146,7 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 
 	totalSecrets, err := asp.getActiveFindingsByType(ctx, "Secret", assetScan.Asset.Id)
 	if err != nil {
-		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
+		return fmt.Errorf("failed to get active secret findings: %w", err)
 	}
 	asset.Summary.TotalSecrets = &totalSecrets
 

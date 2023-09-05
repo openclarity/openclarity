@@ -31,6 +31,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             rootkits: {enabled: false},
             secrets: {enabled: false},
             misconfigurations: {enabled: false},
+            infoFinder: {enabled: false},
             exploits: {enabled: false}
         },
         scanTemplate: {
@@ -44,6 +45,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     rootkits: {enabled: false},
                     secrets: {enabled: false},
                     misconfigurations: {enabled: false},
+                    infoFinder: {enabled: false},
                     exploits: {enabled: false}
                 },
                 scannerInstanceCreationConfig: {

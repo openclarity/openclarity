@@ -172,6 +172,10 @@ func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res families.F
 }
 
 func (p *DefaultPresenter) ExportInfoFinderResult(_ context.Context, res families.FamilyResult) error {
+	if res.Result == nil {
+		return nil
+	}
+
 	infoFinderResults, ok := res.Result.(*infofinder.Results)
 	if !ok {
 		return fmt.Errorf("failed to convert to infofinder results")

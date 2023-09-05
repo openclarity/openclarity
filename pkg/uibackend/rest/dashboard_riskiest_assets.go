@@ -261,7 +261,7 @@ func getCountForFindingType(summary *backendmodels.ScanFindingsSummary, findingT
 		return summary.TotalRootkits, nil
 	case backendmodels.SECRET:
 		return summary.TotalSecrets, nil
-	case backendmodels.VULNERABILITY, backendmodels.SBOM:
+	case backendmodels.INFOFINDER, backendmodels.VULNERABILITY, backendmodels.SBOM:
 		fallthrough
 	default:
 		return nil, fmt.Errorf("unsupported finding type: %v", findingType)
@@ -282,7 +282,7 @@ func getTotalFindingFieldName(findingType backendmodels.ScanType) (string, error
 		return totalSecretsSummaryFieldName, nil
 	case backendmodels.VULNERABILITY:
 		return totalVulnerabilitiesSummaryFieldName, nil
-	case backendmodels.SBOM:
+	case backendmodels.INFOFINDER, backendmodels.SBOM:
 		fallthrough
 	default:
 		return "", fmt.Errorf("unsupported finding type: %v", findingType)

@@ -1169,6 +1169,8 @@ components:
           type: integer
         totalSecrets:
           type: integer
+        totalInfoFinder:
+          type: integer
         totalVulnerabilities:
           $ref: '#/components/schemas/VulnerabilityScanSummary'
 
@@ -1215,6 +1217,18 @@ components:
           $ref: '#/components/schemas/MisconfigurationsConfig'
         exploits:
           $ref: '#/components/schemas/ExploitsConfig'
+        infoFinder:
+          $ref: '#/components/schemas/InfoFinderConfig'
+
+    InfoFinderConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
 
     VulnerabilitiesConfig:
       type: object
@@ -1732,6 +1746,8 @@ components:
               $ref: '#/components/schemas/MisconfigurationScan'
             exploits:
               $ref: '#/components/schemas/ExploitScan'
+            infoFinder:
+              $ref: '#/components/schemas/InfoFinderScan'
             findingsProcessed:
               type: boolean
             resourceCleanup:
@@ -1783,6 +1799,10 @@ components:
           items:
             $ref: '#/components/schemas/AssetScanInputScanStats'
         exploits:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        infoFinder:
           type: array
           items:
             $ref: '#/components/schemas/AssetScanInputScanStats'
@@ -1843,6 +1863,9 @@ components:
               readOnly: true
             exploits:
               $ref: '#/components/schemas/ExploitScan'
+              readOnly: true
+            infoFinder:
+              $ref: '#/components/schemas/InfoFinderScan'
               readOnly: true
             findingsProcessed:
               type: boolean
@@ -1921,6 +1944,8 @@ components:
         misconfigurations:
           $ref: '#/components/schemas/AssetScanState'
         exploits:
+          $ref: '#/components/schemas/AssetScanState'
+        infoFinder:
           $ref: '#/components/schemas/AssetScanState'
 
     AssetScanState:
@@ -2237,6 +2262,44 @@ components:
             $ref: '#/components/schemas/Misconfiguration'
           nullable: true
 
+    InfoFinderScan:
+      type: object
+      properties:
+        scanners:
+          type: array
+          items:
+            type: string
+          nullable: true
+        infos:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfoFinderInfo'
+          nullable: true
+
+    InfoFinderInfo:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        type:
+          $ref: '#/components/schemas/InfoType'
+        path:
+          type: string
+          description: "File path containing the info"
+        data:
+          type: string
+          description: "The data found by the scanner in the specific path for a specific type. See example for SSHKnownHostFingerprint info type"
+          example: "2048 SHA256:YQuPOM8ld6FOA9HbKCgkCJWHuGt4aTRD7hstjJpRhxc xxxx (RSA)"
+
+    InfoType:
+      type: string
+      enum:
+        - SSHKnownHostFingerprint
+        - SSHAuthorizedKeyFingerprint
+        - SSHPrivateKeyFingerprint
+        - SSHDaemonKeyFingerprint
+        - UNKNOWN
+
     ExploitScan:
       type: object
       properties:
@@ -2268,6 +2331,7 @@ components:
         - MISCONFIGURATION
         - ROOTKIT
         - EXPLOIT
+        - INFOFINDER
 
     FindingExists:
       type: object
@@ -2361,6 +2425,16 @@ components:
               type: string
           required: [objectType]
 
+    InfoFinderFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/InfoFinderInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [ objectType ]
+
     Finding:
       type: object
       properties:
@@ -2396,6 +2470,7 @@ components:
             - $ref: '#/components/schemas/MisconfigurationFindingInfo'
             - $ref: '#/components/schemas/RootkitFindingInfo'
             - $ref: '#/components/schemas/ExploitFindingInfo'
+            - $ref: '#/components/schemas/InfoFinderFindingInfo'
           discriminator:
             propertyName: objectType
             mapping:
@@ -2406,6 +2481,7 @@ components:
               Misconfiguration: '#/components/schemas/MisconfigurationFindingInfo'
               Rootkit: '#/components/schemas/RootkitFindingInfo'
               Exploit: '#/components/schemas/ExploitFindingInfo'
+              InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
 
   responses:
     Success:
