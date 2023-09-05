@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.swaggerUI.name" . }}
+  labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.swaggerUI.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.swaggerUI.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 8 }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/swagger-ui/configmap.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.swaggerUI.affinity }}
+      affinity: {{- .Values.swaggerUI.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.swaggerUI.nodeSelector }}
+      nodeSelector: {{- .Values.swaggerUI.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.swaggerUI.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.swaggerUI.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.swaggerUI.tolerations }}
+      tolerations: {{- .Values.swaggerUI.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: swagger-ui
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.swaggerUI.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.swaggerUI.image.pullPolicy | quote }}
+          {{- if .Values.swaggerUI.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.swaggerUI.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.swaggerUI.resources }}
+          resources: {{- toYaml .Values.swaggerUI.resources | nindent 12 }}
+          {{- end }}
+          env:
+            - name: CONFIG_URL
+              value: /apidocs/swagger-config.json
+          volumeMounts:
+            - mountPath: /var/run
+              name: tmpfs-1
+            - mountPath: /var/cache/nginx
+              name: tmpfs-2
+            - mountPath: /usr/share/nginx/html/swagger-config.json
+              subPath: swagger-config.json
+              name: swagger-ui-config
+      volumes:
+        - name: tmpfs-1
+          emptyDir: {}
+        - name: tmpfs-2
+          emptyDir: {}
+        - name: swagger-ui-config
+          configMap:
+            name: {{ include "vmclarity.swaggerUI.name" . }}
+      serviceAccountName: {{ include "vmclarity.swaggerUI.serviceAccountName" . }}

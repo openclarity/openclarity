@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.trivyServer.name" . }}
+  labels: {{- include "vmclarity.trivyServer.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.trivyServer.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.trivyServer.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.trivyServer.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.trivyServer.affinity }}
+      affinity: {{- .Values.trivyServer.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.trivyServer.nodeSelector }}
+      nodeSelector: {{- .Values.trivyServer.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.trivyServer.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.trivyServer.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.trivyServer.tolerations }}
+      tolerations: {{- .Values.trivyServer.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: trivy-server
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.trivyServer.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.trivyServer.image.pullPolicy | quote }}
+          {{- if .Values.trivyServer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.trivyServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.trivyServer.resources }}
+          resources: {{- toYaml .Values.trivyServer.resources | nindent 12 }}
+          {{- end }}
+          args:
+            - server
+          env:
+            - name: TRIVY_LISTEN
+              value: 0.0.0.0:9992
+            - name: TRIVY_CACHE_DIR
+              value: /data
+          volumeMounts:
+            - mountPath: /data
+              name: cache
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+      serviceAccountName: {{ include "vmclarity.trivyServer.serviceAccountName" . }}
