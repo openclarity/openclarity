@@ -62,7 +62,7 @@ const (
 
 	AssetScanPollingInterval  = "ASSET_SCAN_POLLING_INTERVAL"
 	AssetScanReconcileTimeout = "ASSET_SCAN_RECONCILE_TIMEOUT"
-	AssetScanAbortTimeout     = "ASSET_SCAN_ABORT_TIMEOUT"
+	AssetScanAbortTimeout     = "ASSET_SCAN_ABORT_TIMEOUT" // nolint:gosec
 
 	AssetScanProcessorPollingInterval  = "ASSET_SCAN_PROCESSOR_POLLING_INTERVAL"
 	AssetScanProcessorReconcileTimeout = "ASSET_SCAN_PROCESSOR_RECONCILE_TIMEOUT"
