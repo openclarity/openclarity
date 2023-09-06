@@ -77,6 +77,8 @@ linters:
     - ireturn # Allow returning with interfaces
     - exhaustruct # Allow structures with uninitialized fields
     - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/vmclarity)"`
+    - depguard # NOTE(chrisgacsal): need discussion before enabling it
+    - tagalign # NOTE(chrisgacsal): does not seem to provide much value
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source

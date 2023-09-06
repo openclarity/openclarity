@@ -38,7 +38,7 @@ const (
 	totalSecretsSummaryFieldName                 = "totalSecrets"
 	totalVulnerabilitiesSummaryFieldName         = "totalVulnerabilities"
 	totalCriticalVulnerabilitiesSummaryFieldName = "totalCriticalVulnerabilities"
-	totalHighVulnerabilitiesSummaryFieldName     = "totalHighVulnerabilities"
+	totalHighVulnerabilitiesSummaryFieldName     = "totalHighVulnerabilities" // nolint:gosec
 	totalMediumVulnerabilitiesSummaryFieldName   = "totalMediumVulnerabilities"
 	totalLowVulnerabilitiesFieldName             = "totalLowVulnerabilities"
 	totalNegligibleVulnerabilitiesFieldName      = "totalNegligibleVulnerabilities"

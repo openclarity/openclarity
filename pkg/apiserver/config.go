@@ -27,7 +27,7 @@ import (
 
 const (
 	BackendRestHost       = "BACKEND_REST_HOST"
-	BackendRestDisableTLS = "BACKEND_REST_DISABLE_TLS"
+	BackendRestDisableTLS = "BACKEND_REST_DISABLE_TLS" // nolint:gosec
 	BackendRestPort       = "BACKEND_REST_PORT"
 	HealthCheckAddress    = "HEALTH_CHECK_ADDRESS"
 
