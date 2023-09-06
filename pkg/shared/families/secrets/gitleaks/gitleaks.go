@@ -75,9 +75,9 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}()
 		reportPath := file.Name()
 
-		// ./gitleaks detect --source=<source> --no-git -r <report-path> -f json --exit-code 0
+		// ./gitleaks detect --source=<source> --no-git -r <report-path> -f json --exit-code 0 --max-target-megabytes 50
 		// nolint:gosec
-		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", userInput), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0")
+		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", userInput), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0", "--max-target-megabytes", "50")
 		a.logger.Infof("Running gitleaks command: %v", cmd.String())
 		_, err = sharedutils.RunCommand(cmd)
 		if err != nil {
