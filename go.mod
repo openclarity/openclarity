@@ -22,7 +22,7 @@ require (
 	github.com/aws/smithy-go v1.14.2
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/deepmap/oapi-codegen v1.13.4
-	github.com/docker/docker v24.0.5+incompatible
+	github.com/docker/docker v24.0.6+incompatible
 	github.com/evanphx/json-patch v5.6.0+incompatible
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/ghodss/yaml v1.0.0
