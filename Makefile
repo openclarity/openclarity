@@ -146,7 +146,7 @@ $(BIN_DIR):
 
 GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
 GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
-GOLANGCI_VERSION := 1.52.2
+GOLANGCI_VERSION := 1.54.2
 
 bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
 	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
