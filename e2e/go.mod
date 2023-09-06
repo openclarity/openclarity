@@ -52,7 +52,7 @@ require (
 	github.com/distribution/distribution/v3 v3.0.0-20230327091844-0c958010ace2 // indirect
 	github.com/docker/buildx v0.10.4 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker v24.0.5+incompatible // indirect
+	github.com/docker/docker v24.0.6+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go v1.5.1-1.0.20160303222718-d30aec9fd63c // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
