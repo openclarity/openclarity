@@ -76,3 +76,13 @@ jobs:
       image_tag: ${{ github.sha }}
       push: false
       upload: false
+
+  success:
+    needs:
+      - build
+      - helm-docs-verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo Success
+        run: |
+          echo "::notice Success!"
