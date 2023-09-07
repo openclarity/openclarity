@@ -254,6 +254,30 @@ func Test_getAssetInfo(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "ContainerInfo",
+			args: args{
+				asset: createContainerInfo(t),
+			},
+			want: &models.AssetInfo{
+				Location: utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
+				Name:     utils.PointerTo("hungry_mcclintock"),
+				Type:     utils.PointerTo(models.Container),
+			},
+			wantErr: false,
+		},
+		{
+			name: "ContainerImageInfo",
+			args: args{
+				asset: createContainerImageInfo(t),
+			},
+			want: &models.AssetInfo{
+				Location: utils.PointerTo("ghcr.io/openclarity"),
+				Name:     utils.PointerTo("vmclarity-orchestrator"),
+				Type:     utils.PointerTo(models.ContainerImage),
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -262,8 +286,8 @@ func Test_getAssetInfo(t *testing.T) {
 				t.Errorf("getAssetInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getAssetInfo() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("getAssetInfo() %v", diff)
 			}
 		})
 	}
@@ -276,6 +300,28 @@ func createVMInfo(t *testing.T, instanceID, location string) *backendmodels.Asse
 		InstanceID:       instanceID,
 		InstanceProvider: utils.PointerTo(backendmodels.AWS),
 		Location:         location,
+	})
+	assert.NilError(t, err)
+	return &info
+}
+
+func createContainerInfo(t *testing.T) *backendmodels.AssetType {
+	t.Helper()
+	info := backendmodels.AssetType{}
+	err := info.FromContainerInfo(backendmodels.ContainerInfo{
+		Id:            utils.PointerTo("d66da925d976b8caf60ea59c5ec75b1950f87d506144942cdbf10061052a8088"),
+		ContainerName: utils.PointerTo("hungry_mcclintock"),
+		Location:      utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
+	})
+	assert.NilError(t, err)
+	return &info
+}
+
+func createContainerImageInfo(t *testing.T) *backendmodels.AssetType {
+	t.Helper()
+	info := backendmodels.AssetType{}
+	err := info.FromContainerImageInfo(backendmodels.ContainerImageInfo{
+		Name: utils.PointerTo("ghcr.io/openclarity/vmclarity-orchestrator"),
 	})
 	assert.NilError(t, err)
 	return &info
@@ -564,7 +610,7 @@ func Test_vmInfoToAssetInfo(t *testing.T) {
 	}
 }
 
-func Test_getAssetType(t *testing.T) {
+func Test_getVMAssetType(t *testing.T) {
 	type args struct {
 		provider *backendmodels.CloudProvider
 	}
@@ -601,13 +647,13 @@ func Test_getAssetType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getAssetType(tt.args.provider)
+			got, err := getVMAssetType(tt.args.provider)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getAssetType() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("getVMAssetType() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getAssetType() got = %v, want %v", got, tt.want)
+				t.Errorf("getVMAssetType() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

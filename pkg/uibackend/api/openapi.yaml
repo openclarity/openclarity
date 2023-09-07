@@ -493,6 +493,8 @@ components:
         - 'GCP Instance'
         - 'Docker Instance'
         - 'External Instance'
+        - 'Container'
+        - 'Container Image'
 
   responses:
     UnknownError:

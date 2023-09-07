@@ -11,6 +11,8 @@ import (
 const (
 	AWSEC2Instance   AssetType = "AWS EC2 Instance"
 	AzureInstance    AssetType = "Azure Instance"
+	Container        AssetType = "Container"
+	ContainerImage   AssetType = "Container Image"
 	DockerInstance   AssetType = "Docker Instance"
 	ExternalInstance AssetType = "External Instance"
 	GCPInstance      AssetType = "GCP Instance"
