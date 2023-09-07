@@ -68,14 +68,11 @@ func (d *Discoverer) Start(ctx context.Context) {
 func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	discoveryTime := time.Now()
 
-	assetTypes, err := d.providerClient.DiscoverAssets(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to discover assets from provider: %w", err)
-	}
+	discoverer := d.providerClient.DiscoverAssets(ctx)
 
 	errs := []error{}
 	failedPatchAssets := make(map[string]struct{})
-	for _, assetType := range assetTypes {
+	for assetType := range discoverer.Chan() {
 		assetData := models.Asset{
 			AssetInfo: utils.PointerTo(assetType),
 			LastSeen:  &discoveryTime,
@@ -108,6 +105,10 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 			failedPatchAssets[*conflictError.ConflictingAsset.Id] = struct{}{}
 			errs = append(errs, fmt.Errorf("failed to patch asset: %w", err))
 		}
+	}
+
+	if err := discoverer.Err(); err != nil {
+		return fmt.Errorf("failed to discover assets: %v", err)
 	}
 
 	// Find all assets which are not already terminatedOn and were not

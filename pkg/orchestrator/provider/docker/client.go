@@ -68,23 +68,40 @@ func (c *Client) Kind() models.CloudProvider {
 	return models.Docker
 }
 
-func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
-	// Get image assets
-	imageAssets, err := c.getImageAssets(ctx)
-	if err != nil {
-		return nil, provider.FatalErrorf("failed to get images. Provider=%s: %w", models.Docker, err)
-	}
+func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
-	// Get container assets
-	containerAssets, err := c.getContainerAssets(ctx)
-	if err != nil {
-		return nil, provider.FatalErrorf("failed to get containers. Provider=%s: %w", models.Docker, err)
-	}
+	go func() {
+		defer close(assetDiscoverer.OutputChan)
 
-	// Combine assets
-	assets := append(imageAssets, containerAssets...)
+		// Get image assets
+		imageAssets, err := c.getImageAssets(ctx)
+		if err != nil {
+			assetDiscoverer.Error = provider.FatalErrorf("failed to get images. Provider=%s: %w", models.Docker, err)
+			return
+		}
 
-	return assets, nil
+		// Get container assets
+		containerAssets, err := c.getContainerAssets(ctx)
+		if err != nil {
+			assetDiscoverer.Error = provider.FatalErrorf("failed to get containers. Provider=%s: %w", models.Docker, err)
+			return
+		}
+
+		// Combine assets
+		assets := append(imageAssets, containerAssets...)
+
+		for _, asset := range assets {
+			select {
+			case assetDiscoverer.OutputChan <- asset:
+			case <-ctx.Done():
+				assetDiscoverer.Error = ctx.Err()
+				return
+			}
+		}
+	}()
+
+	return assetDiscoverer
 }
 
 func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {

@@ -189,29 +189,42 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 }
 
 // nolint: cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
-	var ret []models.AssetType
+func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
-	regions, err := c.listAllRegions(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list all regions: %v", err)
-	}
+	go func() {
+		defer close(assetDiscoverer.OutputChan)
 
-	var zones []string
-	for _, region := range regions {
-		zones = append(zones, getZonesLastPart(region.Zones)...)
-	}
-
-	for _, zone := range zones {
-		assets, err := c.listInstances(ctx, nil, zone)
+		regions, err := c.listAllRegions(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("failed to list instances: %w", err)
+			assetDiscoverer.Error = fmt.Errorf("failed to list all regions: %v", err)
+			return
 		}
 
-		ret = append(ret, assets...)
-	}
+		var zones []string
+		for _, region := range regions {
+			zones = append(zones, getZonesLastPart(region.Zones)...)
+		}
 
-	return ret, nil
+		for _, zone := range zones {
+			assets, err := c.listInstances(ctx, nil, zone)
+			if err != nil {
+				assetDiscoverer.Error = fmt.Errorf("failed to list instances: %w", err)
+				return
+			}
+
+			for _, asset := range assets {
+				select {
+				case assetDiscoverer.OutputChan <- asset:
+				case <-ctx.Done():
+					assetDiscoverer.Error = ctx.Err()
+					return
+				}
+			}
+		}
+	}()
+
+	return assetDiscoverer
 }
 
 // getZonesLastPart converts a list of zone URLs into a list of zone IDs.

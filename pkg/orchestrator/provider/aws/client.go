@@ -70,34 +70,46 @@ func (c Client) Kind() models.CloudProvider {
 }
 
 // nolint:cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
-	regions, err := c.ListAllRegions(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get regions: %w", err)
-	}
+func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
+	go func() {
+		defer close(assetDiscoverer.OutputChan)
 
-	assets := make([]models.AssetType, 0)
-	for _, region := range regions {
-		instances, err := c.GetInstances(ctx, []ec2types.Filter{}, region.Name)
+		regions, err := c.ListAllRegions(ctx)
 		if err != nil {
-			logger.Warnf("Failed to get instances. region=%v: %v", region, err)
-			continue
+			assetDiscoverer.Error = fmt.Errorf("failed to get regions: %w", err)
+			return
 		}
 
-		for _, instance := range instances {
-			asset, err := getVMInfoFromInstance(instance)
+		logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+		for _, region := range regions {
+			instances, err := c.GetInstances(ctx, []ec2types.Filter{}, region.Name)
 			if err != nil {
-				return nil, FatalError{
-					Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
+				logger.Warnf("Failed to get instances. region=%v: %v", region, err)
+				continue
+			}
+
+			for _, instance := range instances {
+				asset, err := getVMInfoFromInstance(instance)
+				if err != nil {
+					assetDiscoverer.Error = FatalError{
+						Err: fmt.Errorf("failed convert EC2 Instance to AssetType: %w", err),
+					}
+					return
+				}
+				select {
+				case assetDiscoverer.OutputChan <- asset:
+				case <-ctx.Done():
+					assetDiscoverer.Error = ctx.Err()
+					return
 				}
 			}
-			assets = append(assets, asset)
 		}
-	}
+	}()
 
-	return assets, nil
+	return assetDiscoverer
 }
 
 // nolint:nilnil
