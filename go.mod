@@ -24,7 +24,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.13.4
 	github.com/docker/docker v24.0.6+incompatible
 	github.com/evanphx/json-patch v5.6.0+incompatible
-	github.com/getkin/kin-openapi v0.118.0
+	github.com/getkin/kin-openapi v0.119.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.1
