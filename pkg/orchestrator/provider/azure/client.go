@@ -181,22 +181,38 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 }
 
 // nolint: cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
-	var ret []models.AssetType
-	// list all vms in all resourceGroups in the subscription
-	res := c.vmClient.NewListAllPager(nil)
-	for res.More() {
-		page, err := res.NextPage(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get next page: %w", err)
+func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
+
+	go func() {
+		defer close(assetDiscoverer.OutputChan)
+
+		// list all vms in all resourceGroups in the subscription
+		res := c.vmClient.NewListAllPager(nil)
+		for res.More() {
+			page, err := res.NextPage(ctx)
+			if err != nil {
+				assetDiscoverer.Error = fmt.Errorf("failed to get next page: %w", err)
+				return
+			}
+			ts, err := c.processVirtualMachineListIntoAssetTypes(ctx, page.VirtualMachineListResult)
+			if err != nil {
+				assetDiscoverer.Error = err
+				return
+			}
+
+			for _, asset := range ts {
+				select {
+				case assetDiscoverer.OutputChan <- asset:
+				case <-ctx.Done():
+					assetDiscoverer.Error = ctx.Err()
+					return
+				}
+			}
 		}
-		ts, err := c.processVirtualMachineListIntoAssetTypes(ctx, page.VirtualMachineListResult)
-		if err != nil {
-			return nil, err
-		}
-		ret = append(ret, ts...)
-	}
-	return ret, nil
+	}()
+
+	return assetDiscoverer
 }
 
 // Example Instance ID:

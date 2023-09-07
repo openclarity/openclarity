@@ -30,8 +30,10 @@ type Provider interface {
 }
 
 type Discoverer interface {
-	// DiscoverAssets returns list of discovered AssetType
-	DiscoverAssets(ctx context.Context) ([]models.AssetType, error)
+	// DiscoverAssets returns AssetDiscoverer.
+	// It is the responsibility of DiscoverAssets to feed the AssetDiscoverer channel with assets, and to close the channel when done.
+	// In addition, any error should be reported on the AssetDiscoverer error part.
+	DiscoverAssets(ctx context.Context) AssetDiscoverer
 }
 
 type Scanner interface {
@@ -63,4 +65,31 @@ type ScanJobConfig struct {
 	ScanMetadata
 	models.ScannerInstanceCreationConfig
 	models.Asset
+}
+
+// AssetDiscoverer is used to discover assets in a buffered manner.
+type AssetDiscoverer interface {
+	Chan() chan models.AssetType
+	Err() error
+}
+
+type SimpleAssetDiscoverer struct {
+	OutputChan chan models.AssetType
+	Error      error
+}
+
+func (ad *SimpleAssetDiscoverer) Chan() chan models.AssetType {
+	return ad.OutputChan
+}
+
+func (ad *SimpleAssetDiscoverer) Err() error {
+	return ad.Error
+}
+
+func NewSimpleAssetDiscoverer() *SimpleAssetDiscoverer {
+	output := make(chan models.AssetType)
+	return &SimpleAssetDiscoverer{
+		OutputChan: output,
+		Error:      nil,
+	}
 }
