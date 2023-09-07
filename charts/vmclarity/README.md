@@ -178,10 +178,11 @@ secrets.
 | orchestrator.image.registry | string | `"ghcr.io"` | Orchestrator image registry |
 | orchestrator.image.repository | string | `"openclarity/vmclarity-orchestrator"` | Orchestrator image repository |
 | orchestrator.image.tag | string | `"latest"` | Orchestrator image tag (immutable tags are recommended) |
+| orchestrator.kubernetes | object | `{}` |  |
 | orchestrator.logLevel | string | `"info"` | Orchestrator service log level |
 | orchestrator.podSecurityContext.enabled | bool | `true` | Whether Orchestrator pod security context is enabled |
 | orchestrator.podSecurityContext.fsGroup | int | `1001` | Orchestrator pod security context fsGroup |
-| orchestrator.provider | string | `"aws"` | Which provider to enable |
+| orchestrator.provider | string | `"aws"` | Which provider driver to enable. If enabling the Kubernetes provider ensure that the orchestrator serviceAccount section is configured to allow access to the Kubernetes API. |
 | orchestrator.replicas | int | `1` | Number of replicas for the Orchestrator service Currently 1 supported. |
 | orchestrator.resources.limits | object | `{}` | The resources limits for the orchestrator containers |
 | orchestrator.resources.requests | object | `{}` | The requested resources for the orchestrator containers |

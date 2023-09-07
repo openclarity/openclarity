@@ -153,7 +153,9 @@ orchestrator:
   # -- Address that scanenrs can use to reach the freshclam mirror
   freshclamMirrorAddress: ""
 
-  # -- Which provider to enable
+  # -- Which provider driver to enable.
+  # If enabling the Kubernetes provider ensure that the orchestrator
+  # serviceAccount section is configured to allow access to the Kubernetes API.
   provider: "aws"
 
   aws:
@@ -211,6 +213,8 @@ orchestrator:
     scannerStorageAccountName: ""
     # -- Storage container to use for transfering snapshots between regions
     scannerStorageContainerName: ""
+
+  kubernetes: {}
 
 ui:
   # -- Number of replicas for the UI service
