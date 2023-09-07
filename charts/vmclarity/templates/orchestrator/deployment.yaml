@@ -148,3 +148,10 @@ spec:
               value: .scannerStorageContainerName
             {{- end -}}
             {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "kubernetes" }}
+            - name: PROVIDER
+              value: "kubernetes"
+            {{- with .Values.orchestrator.kubernetes }}
+            {{- end -}}
+            {{- end }}

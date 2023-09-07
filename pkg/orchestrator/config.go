@@ -148,6 +148,8 @@ func LoadConfig() (*Config, error) {
 		providerKind = models.Docker
 	case strings.ToLower(string(models.External)):
 		providerKind = models.External
+	case strings.ToLower(string(models.Kubernetes)):
+		providerKind = models.Kubernetes
 	case strings.ToLower(string(models.AWS)):
 		fallthrough
 	default:

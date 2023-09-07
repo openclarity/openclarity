@@ -24,11 +24,12 @@ const (
 
 // Defines values for CloudProvider.
 const (
-	AWS      CloudProvider = "AWS"
-	Azure    CloudProvider = "Azure"
-	Docker   CloudProvider = "Docker"
-	External CloudProvider = "External"
-	GCP      CloudProvider = "GCP"
+	AWS        CloudProvider = "AWS"
+	Azure      CloudProvider = "Azure"
+	Docker     CloudProvider = "Docker"
+	External   CloudProvider = "External"
+	GCP        CloudProvider = "GCP"
+	Kubernetes CloudProvider = "Kubernetes"
 )
 
 // Defines values for InfoType.
@@ -379,6 +380,7 @@ type ContainerInfo struct {
 	Id            *string             `json:"id,omitempty"`
 	Image         *ContainerImageInfo `json:"image,omitempty"`
 	Labels        *[]Tag              `json:"labels"`
+	Location      *string             `json:"location,omitempty"`
 	ObjectType    string              `json:"objectType"`
 }
 

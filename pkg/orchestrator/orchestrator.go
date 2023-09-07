@@ -34,6 +34,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/docker"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/external"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/gcp"
+	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/kubernetes"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanconfigwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
@@ -137,6 +138,8 @@ func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provi
 		return gcp.New(ctx)
 	case models.External:
 		return external.New(ctx)
+	case models.Kubernetes:
+		return kubernetes.New(ctx)
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", kind)
 	}

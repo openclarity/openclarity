@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -212,13 +213,35 @@ func getAssetInfo(asset *backendmodels.AssetType) (*models.AssetInfo, error) {
 	switch info := discriminator.(type) {
 	case backendmodels.VMInfo:
 		return vmInfoToAssetInfo(info)
+	case backendmodels.ContainerInfo:
+		return containerInfoToAssetInfo(info)
+	case backendmodels.ContainerImageInfo:
+		return containerImageInfoToAssetInfo(info)
 	default:
 		return nil, fmt.Errorf("asset type is not supported (%T)", discriminator)
 	}
 }
 
+func containerInfoToAssetInfo(info backendmodels.ContainerInfo) (*models.AssetInfo, error) {
+	return &models.AssetInfo{
+		Name:     info.ContainerName,
+		Location: info.Location,
+		Type:     utils.PointerTo(models.Container),
+	}, nil
+}
+
+func containerImageInfoToAssetInfo(info backendmodels.ContainerImageInfo) (*models.AssetInfo, error) {
+	repo, name := path.Split(*info.Name)
+	repo = strings.TrimSuffix(repo, "/")
+	return &models.AssetInfo{
+		Name:     &name,
+		Location: &repo,
+		Type:     utils.PointerTo(models.ContainerImage),
+	}, nil
+}
+
 func vmInfoToAssetInfo(info backendmodels.VMInfo) (*models.AssetInfo, error) {
-	assetType, err := getAssetType(info.InstanceProvider)
+	assetType, err := getVMAssetType(info.InstanceProvider)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get asset type: %v", err)
 	}
@@ -229,7 +252,7 @@ func vmInfoToAssetInfo(info backendmodels.VMInfo) (*models.AssetInfo, error) {
 	}, nil
 }
 
-func getAssetType(provider *backendmodels.CloudProvider) (*models.AssetType, error) {
+func getVMAssetType(provider *backendmodels.CloudProvider) (*models.AssetType, error) {
 	if provider == nil {
 		return nil, fmt.Errorf("provider is nil")
 	}
@@ -240,10 +263,10 @@ func getAssetType(provider *backendmodels.CloudProvider) (*models.AssetType, err
 		return utils.PointerTo(models.AzureInstance), nil
 	case backendmodels.GCP:
 		return utils.PointerTo(models.GCPInstance), nil
-	case backendmodels.Docker:
-		return utils.PointerTo(models.DockerInstance), nil
 	case backendmodels.External:
 		return utils.PointerTo(models.ExternalInstance), nil
+	case backendmodels.Docker, backendmodels.Kubernetes:
+		fallthrough
 	default:
 		return nil, fmt.Errorf("unsupported provider: %v", *provider)
 	}

@@ -931,6 +931,7 @@ components:
         - GCP
         - Docker
         - External
+        - Kubernetes
 
     Scans:
       type: object
@@ -1624,6 +1625,8 @@ components:
         objectType:
           type: string
         containerName:
+          type: string
+        location:
           type: string
         # TODO(paralta) Check if image needs to be a required property
         image:
