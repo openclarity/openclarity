@@ -67,25 +67,36 @@ func (c Client) Kind() models.CloudProvider {
 	return models.External
 }
 
-func (c *Client) DiscoverAssets(ctx context.Context) ([]models.AssetType, error) {
-	ret := make([]models.AssetType, 0)
+func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
-	res, err := c.providerClient.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to discover assets: %v", err)
-	}
+	go func() {
+		defer close(assetDiscoverer.OutputChan)
 
-	assets := res.GetAssets()
-	for _, asset := range assets {
-		modelsAsset, err := convertAssetToModels(asset)
+		res, err := c.providerClient.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert asset to models asset: %v", err)
+			assetDiscoverer.Error = fmt.Errorf("failed to discover assets: %v", err)
+			return
 		}
 
-		ret = append(ret, *modelsAsset.AssetInfo)
-	}
+		assets := res.GetAssets()
+		for _, asset := range assets {
+			modelsAsset, err := convertAssetToModels(asset)
+			if err != nil {
+				assetDiscoverer.Error = fmt.Errorf("failed to convert asset to models asset: %v", err)
+				return
+			}
 
-	return ret, nil
+			select {
+			case assetDiscoverer.OutputChan <- *modelsAsset.AssetInfo:
+			case <-ctx.Done():
+				assetDiscoverer.Error = ctx.Err()
+				return
+			}
+		}
+	}()
+
+	return assetDiscoverer
 }
 
 func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
