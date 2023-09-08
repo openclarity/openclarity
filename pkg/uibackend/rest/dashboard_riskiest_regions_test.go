@@ -355,46 +355,6 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 	}
 }
 
-func Test_getPointerValOrZero(t *testing.T) {
-	type args struct {
-		val *int
-	}
-	tests := []struct {
-		name string
-		args args
-		want int
-	}{
-		{
-			name: "nil should be 0",
-			args: args{
-				val: nil,
-			},
-			want: 0,
-		},
-		{
-			name: "not nil",
-			args: args{
-				val: utils.PointerTo(5),
-			},
-			want: 5,
-		},
-		{
-			name: "not nit 0",
-			args: args{
-				val: utils.PointerTo(0),
-			},
-			want: 0,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getPointerValOrZero(tt.args.val); got != tt.want {
-				t.Errorf("getPointerValOrZero() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_getRegionByProvider(t *testing.T) {
 	type args struct {
 		info backendmodels.VMInfo

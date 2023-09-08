@@ -75,6 +75,8 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		ScanConfig{},
 		Scan{},
 		Finding{},
+		AssetScanEstimation{},
+		ScanEstimation{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to run auto migration: %w", err)
 	}
@@ -94,6 +96,11 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to create index asset_scans_id_idx: %w", idb.Error)
 	}
 
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scan_estimations_id_idx ON asset_scan_estimations((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index asset_scan_estimations_id_idx: %w", idb.Error)
+	}
+
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_configs_id_idx ON scan_configs((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scan_configs_id_idx: %w", idb.Error)
@@ -102,6 +109,11 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scans_id_idx ON scans((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index scans_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS scan_estimations_id_idx ON scan_estimations((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index scan_estimations_id_idx: %w", idb.Error)
 	}
 
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_id_idx ON findings((%s))", SQLVariant.JSONExtract("Data", "$.id")))

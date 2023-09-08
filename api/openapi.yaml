@@ -905,6 +905,343 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /scanEstimations:
+    get:
+      summary: Get all scan estimations. Each scan estimation contains details about a multi-asset scan estimation.
+      operationId: GetScanEstimations
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimations'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a multi-asset scan estimation
+      operationId: PostScanEstimations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        201:
+          description: A new scan estimation was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /scanEstimations/{scanEstimationID}:
+    get:
+      summary: Get the details for a given multi-asset scan estimation.
+      operationId: GetScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a scan estimation.
+      operationId: PutScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a scan estimation.
+      operationId: PatchScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Patched scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a scan estimation.
+      operationId: DeleteScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /assetScanEstimations:
+    get:
+      summary: Get asset scan estimations according to the given filters
+      operationId: GetAssetScanEstimations
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimations'
+
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create an asset scan estimation for a specified asset
+      operationId: PostAssetScanEstimations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        201:
+          description: AssetScanEstimation was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /assetScanEstimations/{assetScanEstimationID}:
+    get:
+      summary: Get an asset scan estimation.
+      operationId: GetAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update an asset scan estimation.
+      operationId: PutAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch an asset scan estimation
+      operationId: PatchAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
 components:
   schemas:
     ApiResponse:
@@ -1973,6 +2310,31 @@ components:
             type: string
           nullable: true
 
+    AssetScanEstimationState:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+            - Pending
+            - Aborted
+            - Failed
+            - Done
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - Unexpected
+            - Success
+        lastTransitionTime:
+          type: string
+          format: date-time
+
     Package:
       type: object
       properties:
@@ -2486,6 +2848,183 @@ components:
               Exploit: '#/components/schemas/ExploitFindingInfo'
               InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
 
+    ScanEstimations:
+      type: object
+      properties:
+        count:
+          description: Total ScanEstimations count according to the given filters
+          type: integer
+        items:
+          description: List of ScanEstimations according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanEstimation'
+
+    ScanEstimation:
+      type: object
+      properties:
+        id:
+          type: string
+        assetIDs:
+          description: List of asset IDs to be estimated
+          type: array
+          items:
+            type: string
+        state:
+          $ref: '#/components/schemas/ScanEstimationState'
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        assetScanEstimations:
+          description: AssetScanEstimations which make up this ScanEstimation
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanEstimationRelationship'
+        scanTemplate:
+          $ref: '#/components/schemas/ScanTemplate'
+        summary:
+          $ref: '#/components/schemas/ScanEstimationSummary'
+        revision:
+          type: integer
+
+    ## TODO fill out the rest of the fields for the ScanEstimationRelationship.
+    ScanEstimationRelationship:
+      type: object
+      properties:
+        id:
+          type: string
+
+    ScanEstimationState:
+      type: object
+      properties:
+        state:
+          description: The lifecycle state of this scan estimation.
+          type: string
+          enum:
+            - Pending
+            - Discovered
+            - InProgress
+            - Aborted
+            - Failed
+            - Done
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - OneOrMoreAssetFailedToEstimate
+            - DiscoveryFailed
+            - Unexpected
+            - NothingToEstimate
+            - Success
+
+    Estimation:
+      type: object
+      properties:
+        duration:
+          description: The estimated scan duration (seconds)
+          type: integer
+        size:
+          description: The estimated scan size (GB)
+          type: integer
+        cost:
+          description: The estimated scan cost ($)
+          type: number
+          format: float
+        costBreakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/CostBreakdownComponent'
+
+    CostBreakdownComponent:
+      type: object
+      properties:
+        operation:
+          type: string
+        cost:
+          type: number
+          format: float
+      required: ['operation','cost']
+
+    AssetScanEstimations:
+      type: object
+      properties:
+        count:
+          description: Total AssetScanEstimations count according to the given filters
+          type: integer
+        items:
+          description: List of AssetScanEstimations according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanEstimation'
+
+    AssetScanEstimation:
+      type: object
+      properties:
+        id:
+          type: string
+        asset:
+          $ref: '#/components/schemas/AssetRelationship'
+        scanEstimation:
+          $ref: '#/components/schemas/ScanEstimationRelationship'
+        state:
+          $ref: '#/components/schemas/AssetScanEstimationState'
+        estimation:
+          $ref: '#/components/schemas/Estimation'
+        assetScanTemplate:
+          $ref: '#/components/schemas/AssetScanTemplate'
+        revision:
+          type: integer
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+
+    ## TODO fill out the rest of the fields for the AssetScanEstimationRelationship.
+    AssetScanEstimationRelationship:
+      type: object
+      properties:
+        id:
+          type: string
+
+    AssetScanEstimationExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        assetScanEstimation:
+          $ref: '#/components/schemas/AssetScanEstimation'
+
+    ScanEstimationSummary:
+      type: object
+      description: A summary of the AssetScanEstimations under this ScanEstimation
+      properties:
+        jobsLeftToRun:
+          type: integer
+        jobsCompleted:
+          type: integer
+        totalScanTime:
+          description: Total estimated time the scan will take (seconds)
+          type: integer
+        totalScanSize:
+          description: Total estimated size of the scan (GB)
+          type: integer
+        totalScanCost:
+          description: Total estimated cost of the scan ($)
+          type: number
+          format: float
+
   responses:
     Success:
       description: Success message
@@ -2579,7 +3118,21 @@ components:
       required: true
       schema:
         type: string
-        
+
+    scanEstimationID:
+      name: scanEstimationID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    assetScanEstimationID:
+      name: assetScanEstimationID
+      in: path
+      required: true
+      schema:
+        type: string
+
     ifmatch:
       name: If-Match
       in: header

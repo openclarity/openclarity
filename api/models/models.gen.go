@@ -11,6 +11,22 @@ import (
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
+// Defines values for AssetScanEstimationStateState.
+const (
+	AssetScanEstimationStateStateAborted AssetScanEstimationStateState = "Aborted"
+	AssetScanEstimationStateStateDone    AssetScanEstimationStateState = "Done"
+	AssetScanEstimationStateStateFailed  AssetScanEstimationStateState = "Failed"
+	AssetScanEstimationStateStatePending AssetScanEstimationStateState = "Pending"
+)
+
+// Defines values for AssetScanEstimationStateStateReason.
+const (
+	AssetScanEstimationStateStateReasonAborted    AssetScanEstimationStateStateReason = "Aborted"
+	AssetScanEstimationStateStateReasonSuccess    AssetScanEstimationStateStateReason = "Success"
+	AssetScanEstimationStateStateReasonTimedOut   AssetScanEstimationStateStateReason = "TimedOut"
+	AssetScanEstimationStateStateReasonUnexpected AssetScanEstimationStateStateReason = "Unexpected"
+)
+
 // Defines values for AssetScanStateState.
 const (
 	AssetScanStateStateAborted     AssetScanStateState = "Aborted"
@@ -91,6 +107,27 @@ const (
 	ScanStateReasonSuccess                    ScanStateReason = "Success"
 	ScanStateReasonTimedOut                   ScanStateReason = "TimedOut"
 	ScanStateReasonUnexpected                 ScanStateReason = "Unexpected"
+)
+
+// Defines values for ScanEstimationStateState.
+const (
+	ScanEstimationStateStateAborted    ScanEstimationStateState = "Aborted"
+	ScanEstimationStateStateDiscovered ScanEstimationStateState = "Discovered"
+	ScanEstimationStateStateDone       ScanEstimationStateState = "Done"
+	ScanEstimationStateStateFailed     ScanEstimationStateState = "Failed"
+	ScanEstimationStateStateInProgress ScanEstimationStateState = "InProgress"
+	ScanEstimationStateStatePending    ScanEstimationStateState = "Pending"
+)
+
+// Defines values for ScanEstimationStateStateReason.
+const (
+	ScanEstimationStateStateReasonAborted                        ScanEstimationStateStateReason = "Aborted"
+	ScanEstimationStateStateReasonDiscoveryFailed                ScanEstimationStateStateReason = "DiscoveryFailed"
+	ScanEstimationStateStateReasonNothingToEstimate              ScanEstimationStateStateReason = "NothingToEstimate"
+	ScanEstimationStateStateReasonOneOrMoreAssetFailedToEstimate ScanEstimationStateStateReason = "OneOrMoreAssetFailedToEstimate"
+	ScanEstimationStateStateReasonSuccess                        ScanEstimationStateStateReason = "Success"
+	ScanEstimationStateStateReasonTimedOut                       ScanEstimationStateStateReason = "TimedOut"
+	ScanEstimationStateStateReasonUnexpected                     ScanEstimationStateStateReason = "Unexpected"
 )
 
 // Defines values for ScanRelationshipState.
@@ -214,6 +251,60 @@ type AssetScan struct {
 	// Summary A summary of the scan findings.
 	Summary         *ScanFindingsSummary `json:"summary,omitempty"`
 	Vulnerabilities *VulnerabilityScan   `json:"vulnerabilities,omitempty"`
+}
+
+// AssetScanEstimation defines model for AssetScanEstimation.
+type AssetScanEstimation struct {
+	// Asset Describes a relationship to an asset which can be expanded.
+	Asset             *AssetRelationship          `json:"asset,omitempty"`
+	AssetScanTemplate *AssetScanTemplate          `json:"assetScanTemplate,omitempty"`
+	EndTime           *time.Time                  `json:"endTime,omitempty"`
+	Estimation        *Estimation                 `json:"estimation,omitempty"`
+	Id                *string                     `json:"id,omitempty"`
+	Revision          *int                        `json:"revision,omitempty"`
+	ScanEstimation    *ScanEstimationRelationship `json:"scanEstimation,omitempty"`
+	StartTime         *time.Time                  `json:"startTime,omitempty"`
+	State             *AssetScanEstimationState   `json:"state,omitempty"`
+}
+
+// AssetScanEstimationExists defines model for AssetScanEstimationExists.
+type AssetScanEstimationExists struct {
+	AssetScanEstimation *AssetScanEstimation `json:"assetScanEstimation,omitempty"`
+
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+}
+
+// AssetScanEstimationRelationship defines model for AssetScanEstimationRelationship.
+type AssetScanEstimationRelationship struct {
+	Id *string `json:"id,omitempty"`
+}
+
+// AssetScanEstimationState defines model for AssetScanEstimationState.
+type AssetScanEstimationState struct {
+	LastTransitionTime *time.Time                     `json:"lastTransitionTime,omitempty"`
+	State              *AssetScanEstimationStateState `json:"state,omitempty"`
+
+	// StateMessage Human-readable message indicating details about the last state transition.
+	StateMessage *string `json:"stateMessage,omitempty"`
+
+	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+	StateReason *AssetScanEstimationStateStateReason `json:"stateReason,omitempty"`
+}
+
+// AssetScanEstimationStateState defines model for AssetScanEstimationState.State.
+type AssetScanEstimationStateState string
+
+// AssetScanEstimationStateStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+type AssetScanEstimationStateStateReason string
+
+// AssetScanEstimations defines model for AssetScanEstimations.
+type AssetScanEstimations struct {
+	// Count Total AssetScanEstimations count according to the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of AssetScanEstimations according to the given filters
+	Items *[]AssetScanEstimation `json:"items,omitempty"`
 }
 
 // AssetScanExists defines model for AssetScanExists.
@@ -384,11 +475,30 @@ type ContainerInfo struct {
 	ObjectType    string              `json:"objectType"`
 }
 
+// CostBreakdownComponent defines model for CostBreakdownComponent.
+type CostBreakdownComponent struct {
+	Cost      float32 `json:"cost"`
+	Operation string  `json:"operation"`
+}
+
 // DirInfo defines model for DirInfo.
 type DirInfo struct {
 	DirName    *string `json:"dirName,omitempty"`
 	Location   *string `json:"location,omitempty"`
 	ObjectType string  `json:"objectType"`
+}
+
+// Estimation defines model for Estimation.
+type Estimation struct {
+	// Cost The estimated scan cost ($)
+	Cost          *float32                  `json:"cost,omitempty"`
+	CostBreakdown *[]CostBreakdownComponent `json:"costBreakdown,omitempty"`
+
+	// Duration The estimated scan duration (seconds)
+	Duration *int `json:"duration,omitempty"`
+
+	// Size The estimated scan size (GB)
+	Size *int `json:"size,omitempty"`
 }
 
 // Exploit defines model for Exploit.
@@ -754,6 +864,71 @@ type ScanConfigs struct {
 	Items *[]ScanConfig `json:"items,omitempty"`
 }
 
+// ScanEstimation defines model for ScanEstimation.
+type ScanEstimation struct {
+	// AssetIDs List of asset IDs to be estimated
+	AssetIDs *[]string `json:"assetIDs,omitempty"`
+
+	// AssetScanEstimations AssetScanEstimations which make up this ScanEstimation
+	AssetScanEstimations *[]AssetScanEstimationRelationship `json:"assetScanEstimations,omitempty"`
+	EndTime              *time.Time                         `json:"endTime,omitempty"`
+	Id                   *string                            `json:"id,omitempty"`
+	Revision             *int                               `json:"revision,omitempty"`
+	ScanTemplate         *ScanTemplate                      `json:"scanTemplate,omitempty"`
+	StartTime            *time.Time                         `json:"startTime,omitempty"`
+	State                *ScanEstimationState               `json:"state,omitempty"`
+
+	// Summary A summary of the AssetScanEstimations under this ScanEstimation
+	Summary *ScanEstimationSummary `json:"summary,omitempty"`
+}
+
+// ScanEstimationRelationship defines model for ScanEstimationRelationship.
+type ScanEstimationRelationship struct {
+	Id *string `json:"id,omitempty"`
+}
+
+// ScanEstimationState defines model for ScanEstimationState.
+type ScanEstimationState struct {
+	// State The lifecycle state of this scan estimation.
+	State *ScanEstimationStateState `json:"state,omitempty"`
+
+	// StateMessage Human-readable message indicating details about the last state transition.
+	StateMessage *string `json:"stateMessage,omitempty"`
+
+	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+	StateReason *ScanEstimationStateStateReason `json:"stateReason,omitempty"`
+}
+
+// ScanEstimationStateState The lifecycle state of this scan estimation.
+type ScanEstimationStateState string
+
+// ScanEstimationStateStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+type ScanEstimationStateStateReason string
+
+// ScanEstimationSummary A summary of the AssetScanEstimations under this ScanEstimation
+type ScanEstimationSummary struct {
+	JobsCompleted *int `json:"jobsCompleted,omitempty"`
+	JobsLeftToRun *int `json:"jobsLeftToRun,omitempty"`
+
+	// TotalScanCost Total estimated cost of the scan ($)
+	TotalScanCost *float32 `json:"totalScanCost,omitempty"`
+
+	// TotalScanSize Total estimated size of the scan (GB)
+	TotalScanSize *int `json:"totalScanSize,omitempty"`
+
+	// TotalScanTime Total estimated time the scan will take (seconds)
+	TotalScanTime *int `json:"totalScanTime,omitempty"`
+}
+
+// ScanEstimations defines model for ScanEstimations.
+type ScanEstimations struct {
+	// Count Total ScanEstimations count according to the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of ScanEstimations according to the given filters
+	Items *[]ScanEstimation `json:"items,omitempty"`
+}
+
 // ScanExists defines model for ScanExists.
 type ScanExists struct {
 	// Message Describes which unique constraint combination causes the conflict.
@@ -1094,6 +1269,9 @@ type VulnerabilitySeverity string
 // AssetID defines model for assetID.
 type AssetID = string
 
+// AssetScanEstimationID defines model for assetScanEstimationID.
+type AssetScanEstimationID = string
+
 // AssetScanID defines model for assetScanID.
 type AssetScanID = string
 
@@ -1127,6 +1305,9 @@ type OdataTop = int
 // ScanConfigID defines model for scanConfigID.
 type ScanConfigID = string
 
+// ScanEstimationID defines model for scanEstimationID.
+type ScanEstimationID = string
+
 // ScanID defines model for scanID.
 type ScanID = string
 
@@ -1135,6 +1316,33 @@ type Success = SuccessResponse
 
 // UnknownError An object that is returned in all cases of failures.
 type UnknownError = ApiResponse
+
+// GetAssetScanEstimationsParams defines parameters for GetAssetScanEstimations.
+type GetAssetScanEstimationsParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetAssetScanEstimationsAssetScanEstimationIDParams defines parameters for GetAssetScanEstimationsAssetScanEstimationID.
+type GetAssetScanEstimationsAssetScanEstimationIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchAssetScanEstimationsAssetScanEstimationIDParams defines parameters for PatchAssetScanEstimationsAssetScanEstimationID.
+type PatchAssetScanEstimationsAssetScanEstimationIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutAssetScanEstimationsAssetScanEstimationIDParams defines parameters for PutAssetScanEstimationsAssetScanEstimationID.
+type PutAssetScanEstimationsAssetScanEstimationIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
 
 // GetAssetScansParams defines parameters for GetAssetScans.
 type GetAssetScansParams struct {
@@ -1234,6 +1442,33 @@ type PutScanConfigsScanConfigIDParams struct {
 	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
+// GetScanEstimationsParams defines parameters for GetScanEstimations.
+type GetScanEstimationsParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetScanEstimationsScanEstimationIDParams defines parameters for GetScanEstimationsScanEstimationID.
+type GetScanEstimationsScanEstimationIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchScanEstimationsScanEstimationIDParams defines parameters for PatchScanEstimationsScanEstimationID.
+type PatchScanEstimationsScanEstimationIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutScanEstimationsScanEstimationIDParams defines parameters for PutScanEstimationsScanEstimationID.
+type PutScanEstimationsScanEstimationIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
 // GetScansParams defines parameters for GetScans.
 type GetScansParams struct {
 	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
@@ -1260,6 +1495,15 @@ type PatchScansScanIDParams struct {
 type PutScansScanIDParams struct {
 	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
+
+// PostAssetScanEstimationsJSONRequestBody defines body for PostAssetScanEstimations for application/json ContentType.
+type PostAssetScanEstimationsJSONRequestBody = AssetScanEstimation
+
+// PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody defines body for PatchAssetScanEstimationsAssetScanEstimationID for application/json ContentType.
+type PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody = AssetScanEstimation
+
+// PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody defines body for PutAssetScanEstimationsAssetScanEstimationID for application/json ContentType.
+type PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody = AssetScanEstimation
 
 // PostAssetScansJSONRequestBody defines body for PostAssetScans for application/json ContentType.
 type PostAssetScansJSONRequestBody = AssetScan
@@ -1296,6 +1540,15 @@ type PatchScanConfigsScanConfigIDJSONRequestBody = ScanConfig
 
 // PutScanConfigsScanConfigIDJSONRequestBody defines body for PutScanConfigsScanConfigID for application/json ContentType.
 type PutScanConfigsScanConfigIDJSONRequestBody = ScanConfig
+
+// PostScanEstimationsJSONRequestBody defines body for PostScanEstimations for application/json ContentType.
+type PostScanEstimationsJSONRequestBody = ScanEstimation
+
+// PatchScanEstimationsScanEstimationIDJSONRequestBody defines body for PatchScanEstimationsScanEstimationID for application/json ContentType.
+type PatchScanEstimationsScanEstimationIDJSONRequestBody = ScanEstimation
+
+// PutScanEstimationsScanEstimationIDJSONRequestBody defines body for PutScanEstimationsScanEstimationID for application/json ContentType.
+type PutScanEstimationsScanEstimationIDJSONRequestBody = ScanEstimation
 
 // PostScansJSONRequestBody defines body for PostScans for application/json ContentType.
 type PostScansJSONRequestBody = Scan

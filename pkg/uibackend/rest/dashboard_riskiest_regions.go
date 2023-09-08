@@ -112,12 +112,12 @@ func addAssetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary
 		return findingsCount
 	}
 
-	secrets := *findingsCount.Secrets + getPointerValOrZero(summary.TotalSecrets)
-	exploits := *findingsCount.Exploits + getPointerValOrZero(summary.TotalExploits)
+	secrets := *findingsCount.Secrets + utils.IntPointerValOrEmpty(summary.TotalSecrets)
+	exploits := *findingsCount.Exploits + utils.IntPointerValOrEmpty(summary.TotalExploits)
 	vulnerabilities := *findingsCount.Vulnerabilities + getTotalVulnerabilities(summary.TotalVulnerabilities)
-	rootkits := *findingsCount.Rootkits + getPointerValOrZero(summary.TotalRootkits)
-	malware := *findingsCount.Malware + getPointerValOrZero(summary.TotalMalware)
-	misconfigurations := *findingsCount.Misconfigurations + getPointerValOrZero(summary.TotalMisconfigurations)
+	rootkits := *findingsCount.Rootkits + utils.IntPointerValOrEmpty(summary.TotalRootkits)
+	malware := *findingsCount.Malware + utils.IntPointerValOrEmpty(summary.TotalMalware)
+	misconfigurations := *findingsCount.Misconfigurations + utils.IntPointerValOrEmpty(summary.TotalMisconfigurations)
 	return &models.FindingsCount{
 		Exploits:          &exploits,
 		Malware:           &malware,
@@ -128,23 +128,16 @@ func addAssetSummaryToFindingsCount(findingsCount *models.FindingsCount, summary
 	}
 }
 
-func getPointerValOrZero(val *int) int {
-	if val == nil {
-		return 0
-	}
-	return *val
-}
-
 func getTotalVulnerabilities(summary *backendmodels.VulnerabilityScanSummary) int {
 	total := 0
 	if summary == nil {
 		return total
 	}
-	total += getPointerValOrZero(summary.TotalCriticalVulnerabilities)
-	total += getPointerValOrZero(summary.TotalHighVulnerabilities)
-	total += getPointerValOrZero(summary.TotalMediumVulnerabilities)
-	total += getPointerValOrZero(summary.TotalLowVulnerabilities)
-	total += getPointerValOrZero(summary.TotalNegligibleVulnerabilities)
+	total += utils.IntPointerValOrEmpty(summary.TotalCriticalVulnerabilities)
+	total += utils.IntPointerValOrEmpty(summary.TotalHighVulnerabilities)
+	total += utils.IntPointerValOrEmpty(summary.TotalMediumVulnerabilities)
+	total += utils.IntPointerValOrEmpty(summary.TotalLowVulnerabilities)
+	total += utils.IntPointerValOrEmpty(summary.TotalNegligibleVulnerabilities)
 
 	return total
 }

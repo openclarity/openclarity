@@ -348,7 +348,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 		assetScan.Stats = &models.AssetScanStats{}
 	}
 
-	var errs []string
+	errs := []string{}
 
 	if res.Err != nil {
 		errs = append(errs, res.Err.Error())
@@ -399,7 +399,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 		assetScan.Stats = &models.AssetScanStats{}
 	}
 
-	var errs []string
+	errs := []string{}
 
 	if res.Err != nil {
 		errs = append(errs, res.Err.Error())
@@ -450,7 +450,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		assetScan.Stats = &models.AssetScanStats{}
 	}
 
-	var errs []string
+	errs := []string{}
 
 	if res.Err != nil {
 		errs = append(errs, res.Err.Error())

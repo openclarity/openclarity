@@ -55,6 +55,8 @@ type Database interface {
 	ScansTable() ScansTable
 	AssetsTable() AssetsTable
 	FindingsTable() FindingsTable
+	ScanEstimationsTable() ScanEstimationsTable
+	AssetScanEstimationsTable() AssetScanEstimationsTable
 }
 
 type ScansTable interface {
@@ -110,4 +112,24 @@ type FindingsTable interface {
 	SaveFinding(finding models.Finding) (models.Finding, error)
 
 	DeleteFinding(findingID models.FindingID) error
+}
+
+type ScanEstimationsTable interface {
+	GetScanEstimations(params models.GetScanEstimationsParams) (models.ScanEstimations, error)
+	GetScanEstimation(scanEstimationID models.ScanEstimationID, params models.GetScanEstimationsScanEstimationIDParams) (models.ScanEstimation, error)
+
+	CreateScanEstimation(scanEstimation models.ScanEstimation) (models.ScanEstimation, error)
+	UpdateScanEstimation(scanEstimation models.ScanEstimation, params models.PatchScanEstimationsScanEstimationIDParams) (models.ScanEstimation, error)
+	SaveScanEstimation(scanEstimation models.ScanEstimation, params models.PutScanEstimationsScanEstimationIDParams) (models.ScanEstimation, error)
+
+	DeleteScanEstimation(scanEstimationID models.ScanEstimationID) error
+}
+
+type AssetScanEstimationsTable interface {
+	GetAssetScanEstimations(params models.GetAssetScanEstimationsParams) (models.AssetScanEstimations, error)
+	GetAssetScanEstimation(assetScanEstimationID models.AssetScanEstimationID, params models.GetAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
+
+	CreateAssetScanEstimation(assetScanEstimations models.AssetScanEstimation) (models.AssetScanEstimation, error)
+	UpdateAssetScanEstimation(assetScanEstimations models.AssetScanEstimation, params models.PatchAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
+	SaveAssetScanEstimation(assetScanEstimations models.AssetScanEstimation, params models.PutAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
 }
