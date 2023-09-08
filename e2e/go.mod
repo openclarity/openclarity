@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/compose-spec/compose-go v1.13.4
-	github.com/docker/cli v23.0.4+incompatible
+	github.com/docker/cli v24.0.5+incompatible
 	github.com/docker/compose/v2 v2.17.3
 	github.com/google/uuid v1.3.1
 	github.com/onsi/ginkgo/v2 v2.11.0
@@ -19,7 +19,7 @@ require (
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1 // indirect
 	github.com/AlecAivazis/survey/v2 v2.3.6 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/Microsoft/go-winio v0.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.21.0 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.39 // indirect
@@ -41,11 +41,11 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
-	github.com/containerd/containerd v1.7.0 // indirect
-	github.com/containerd/continuity v0.3.0 // indirect
-	github.com/containerd/ttrpc v1.2.1 // indirect
+	github.com/containerd/containerd v1.7.3 // indirect
+	github.com/containerd/continuity v0.4.1 // indirect
+	github.com/containerd/ttrpc v1.2.2 // indirect
 	github.com/containerd/typeurl v1.0.2 // indirect
-	github.com/containerd/typeurl/v2 v2.1.0 // indirect
+	github.com/containerd/typeurl/v2 v2.1.1 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.13.4 // indirect
@@ -118,15 +118,15 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221020182949-4df8887994e8 // indirect
+	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
 	github.com/opencontainers/runc v1.1.5 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.15.1 // indirect
+	github.com/prometheus/client_golang v1.16.0 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
-	github.com/prometheus/common v0.42.0 // indirect
-	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/common v0.44.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/serialx/hashring v0.0.0-20190422032157-8b2912629002 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect
@@ -177,11 +177,11 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.27.4 // indirect
-	k8s.io/apimachinery v0.27.4 // indirect
-	k8s.io/client-go v0.27.4 // indirect
+	k8s.io/api v0.28.1 // indirect
+	k8s.io/apimachinery v0.28.1 // indirect
+	k8s.io/client-go v0.28.1 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
-	k8s.io/utils v0.0.0-20230308161112-d77c459e9343 // indirect
+	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

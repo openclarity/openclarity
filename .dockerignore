@@ -1,6 +1,11 @@
-installation
+.github
+.git
 bin
-LICENSE
-Makefile
-README.md
+charts
+docs
+e2e
+img
+installation
+scanner_boot_test
+.envrc
 Dockerfile*
