@@ -88,6 +88,10 @@ func (c Client) Kind() models.CloudProvider {
 	return models.GCP
 }
 
+func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+}
+
 // nolint:cyclop
 func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	// convert AssetInfo to vmInfo

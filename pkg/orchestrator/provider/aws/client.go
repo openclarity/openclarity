@@ -26,18 +26,21 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/aws/aws-sdk-go-v2/service/pricing"
 	"github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
+	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/aws/scanestimation"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/cloudinit"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type Client struct {
-	ec2Client *ec2.Client
-	config    *Config
+	ec2Client     *ec2.Client
+	scanEstimator *scanestimation.ScanEstimator
+	config        *Config
 }
 
 func New(ctx context.Context) (*Client, error) {
@@ -61,12 +64,56 @@ func New(ctx context.Context) (*Client, error) {
 
 	// nolint:contextcheck
 	awsClient.ec2Client = ec2.NewFromConfig(cfg)
+	awsClient.scanEstimator = scanestimation.New(pricing.NewFromConfig(cfg), awsClient.ec2Client)
 
 	return &awsClient, nil
 }
 
 func (c Client) Kind() models.CloudProvider {
 	return models.AWS
+}
+
+func (c *Client) Estimate(ctx context.Context, assetScanStats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+	var err error
+	const jobCreationTimeConst = 2
+
+	vminfo, err := asset.AssetInfo.AsVMInfo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to use asset info as vminfo: %w", err)
+	}
+
+	location, err := NewLocation(vminfo.Location)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse location %v: %w", vminfo.Location, err)
+	}
+
+	sourceRegion := location.Region
+	destRegion := c.config.ScannerRegion
+	scannerInstanceType := c.config.ScannerInstanceType
+
+	scannerRootVolumeSizeGB := vminfo.RootVolume.SizeGB
+	scannerVolumeType := ec2types.VolumeTypeGp2                          // TODO this should come from configuration once we support more than one volume type.
+	fromSnapshotVolumeType := ec2types.VolumeTypeGp2                     // TODO this should come from configuration once we support more than one volume type.
+	jobCreationTimeSec := jobCreationTimeConst * scannerRootVolumeSizeGB // TODO create a formula to calculate this per GB
+
+	params := scanestimation.EstimateAssetScanParams{
+		SourceRegion:            sourceRegion,
+		DestRegion:              destRegion,
+		ScannerVolumeType:       scannerVolumeType,
+		FromSnapshotVolumeType:  fromSnapshotVolumeType,
+		ScannerInstanceType:     ec2types.InstanceType(scannerInstanceType),
+		JobCreationTimeSec:      int64(jobCreationTimeSec),
+		ScannerRootVolumeSizeGB: int64(scannerRootVolumeSizeGB),
+		Stats:                   assetScanStats,
+		Asset:                   asset,
+		AssetScanTemplate:       assetScanTemplate,
+	}
+	ret, err := c.scanEstimator.EstimateAssetScan(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to estimate asset scan: %w", err)
+	}
+
+	return ret, nil
 }
 
 // nolint:cyclop

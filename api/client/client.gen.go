@@ -90,6 +90,27 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAssetScanEstimations request
+	GetAssetScanEstimations(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostAssetScanEstimations request with any body
+	PostAssetScanEstimationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostAssetScanEstimations(ctx context.Context, body PostAssetScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAssetScanEstimationsAssetScanEstimationID request
+	GetAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *GetAssetScanEstimationsAssetScanEstimationIDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchAssetScanEstimationsAssetScanEstimationID request with any body
+	PatchAssetScanEstimationsAssetScanEstimationIDWithBody(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, body PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutAssetScanEstimationsAssetScanEstimationID request with any body
+	PutAssetScanEstimationsAssetScanEstimationIDWithBody(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, body PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAssetScans request
 	GetAssetScans(ctx context.Context, params *GetAssetScansParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -186,6 +207,30 @@ type ClientInterface interface {
 
 	PutScanConfigsScanConfigID(ctx context.Context, scanConfigID ScanConfigID, params *PutScanConfigsScanConfigIDParams, body PutScanConfigsScanConfigIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetScanEstimations request
+	GetScanEstimations(ctx context.Context, params *GetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostScanEstimations request with any body
+	PostScanEstimationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostScanEstimations(ctx context.Context, body PostScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteScanEstimationsScanEstimationID request
+	DeleteScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetScanEstimationsScanEstimationID request
+	GetScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *GetScanEstimationsScanEstimationIDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchScanEstimationsScanEstimationID request with any body
+	PatchScanEstimationsScanEstimationIDWithBody(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, body PatchScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutScanEstimationsScanEstimationID request with any body
+	PutScanEstimationsScanEstimationIDWithBody(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, body PutScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetScans request
 	GetScans(ctx context.Context, params *GetScansParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -209,6 +254,102 @@ type ClientInterface interface {
 	PutScansScanIDWithBody(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PutScansScanID(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, body PutScansScanIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAssetScanEstimations(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAssetScanEstimationsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostAssetScanEstimationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostAssetScanEstimationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostAssetScanEstimations(ctx context.Context, body PostAssetScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostAssetScanEstimationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *GetAssetScanEstimationsAssetScanEstimationIDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAssetScanEstimationsAssetScanEstimationIDRequest(c.Server, assetScanEstimationID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAssetScanEstimationsAssetScanEstimationIDWithBody(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAssetScanEstimationsAssetScanEstimationIDRequestWithBody(c.Server, assetScanEstimationID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, body PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAssetScanEstimationsAssetScanEstimationIDRequest(c.Server, assetScanEstimationID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutAssetScanEstimationsAssetScanEstimationIDWithBody(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutAssetScanEstimationsAssetScanEstimationIDRequestWithBody(c.Server, assetScanEstimationID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutAssetScanEstimationsAssetScanEstimationID(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, body PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutAssetScanEstimationsAssetScanEstimationIDRequest(c.Server, assetScanEstimationID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetAssetScans(ctx context.Context, params *GetAssetScansParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -643,6 +784,114 @@ func (c *Client) PutScanConfigsScanConfigID(ctx context.Context, scanConfigID Sc
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetScanEstimations(ctx context.Context, params *GetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetScanEstimationsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostScanEstimationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostScanEstimationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostScanEstimations(ctx context.Context, body PostScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostScanEstimationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteScanEstimationsScanEstimationIDRequest(c.Server, scanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *GetScanEstimationsScanEstimationIDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetScanEstimationsScanEstimationIDRequest(c.Server, scanEstimationID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchScanEstimationsScanEstimationIDWithBody(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchScanEstimationsScanEstimationIDRequestWithBody(c.Server, scanEstimationID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, body PatchScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchScanEstimationsScanEstimationIDRequest(c.Server, scanEstimationID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutScanEstimationsScanEstimationIDWithBody(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutScanEstimationsScanEstimationIDRequestWithBody(c.Server, scanEstimationID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutScanEstimationsScanEstimationID(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, body PutScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutScanEstimationsScanEstimationIDRequest(c.Server, scanEstimationID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetScans(ctx context.Context, params *GetScansParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetScansRequest(c.Server, params)
 	if err != nil {
@@ -749,6 +998,375 @@ func (c *Client) PutScansScanID(ctx context.Context, scanID ScanID, params *PutS
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAssetScanEstimationsRequest generates requests for GetAssetScanEstimations
+func NewGetAssetScanEstimationsRequest(server string, params *GetAssetScanEstimationsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetScanEstimations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.Filter != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$filter", runtime.ParamLocationQuery, *params.Filter); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Select != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Count != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$count", runtime.ParamLocationQuery, *params.Count); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Top != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$top", runtime.ParamLocationQuery, *params.Top); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Skip != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$skip", runtime.ParamLocationQuery, *params.Skip); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Expand != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.OrderBy != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$orderby", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostAssetScanEstimationsRequest calls the generic PostAssetScanEstimations builder with application/json body
+func NewPostAssetScanEstimationsRequest(server string, body PostAssetScanEstimationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostAssetScanEstimationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostAssetScanEstimationsRequestWithBody generates requests for PostAssetScanEstimations with any type of body
+func NewPostAssetScanEstimationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetScanEstimations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAssetScanEstimationsAssetScanEstimationIDRequest generates requests for GetAssetScanEstimationsAssetScanEstimationID
+func NewGetAssetScanEstimationsAssetScanEstimationIDRequest(server string, assetScanEstimationID AssetScanEstimationID, params *GetAssetScanEstimationsAssetScanEstimationIDParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetScanEstimationID", runtime.ParamLocationPath, assetScanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetScanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.Select != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Expand != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchAssetScanEstimationsAssetScanEstimationIDRequest calls the generic PatchAssetScanEstimationsAssetScanEstimationID builder with application/json body
+func NewPatchAssetScanEstimationsAssetScanEstimationIDRequest(server string, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, body PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAssetScanEstimationsAssetScanEstimationIDRequestWithBody(server, assetScanEstimationID, params, "application/json", bodyReader)
+}
+
+// NewPatchAssetScanEstimationsAssetScanEstimationIDRequestWithBody generates requests for PatchAssetScanEstimationsAssetScanEstimationID with any type of body
+func NewPatchAssetScanEstimationsAssetScanEstimationIDRequestWithBody(server string, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetScanEstimationID", runtime.ParamLocationPath, assetScanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetScanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params.IfMatch != nil {
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("If-Match", headerParam0)
+	}
+
+	return req, nil
+}
+
+// NewPutAssetScanEstimationsAssetScanEstimationIDRequest calls the generic PutAssetScanEstimationsAssetScanEstimationID builder with application/json body
+func NewPutAssetScanEstimationsAssetScanEstimationIDRequest(server string, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, body PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutAssetScanEstimationsAssetScanEstimationIDRequestWithBody(server, assetScanEstimationID, params, "application/json", bodyReader)
+}
+
+// NewPutAssetScanEstimationsAssetScanEstimationIDRequestWithBody generates requests for PutAssetScanEstimationsAssetScanEstimationID with any type of body
+func NewPutAssetScanEstimationsAssetScanEstimationIDRequestWithBody(server string, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetScanEstimationID", runtime.ParamLocationPath, assetScanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetScanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params.IfMatch != nil {
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("If-Match", headerParam0)
+	}
+
+	return req, nil
 }
 
 // NewGetAssetScansRequest generates requests for GetAssetScans
@@ -2334,6 +2952,409 @@ func NewPutScanConfigsScanConfigIDRequestWithBody(server string, scanConfigID Sc
 	return req, nil
 }
 
+// NewGetScanEstimationsRequest generates requests for GetScanEstimations
+func NewGetScanEstimationsRequest(server string, params *GetScanEstimationsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.Filter != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$filter", runtime.ParamLocationQuery, *params.Filter); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Select != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Count != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$count", runtime.ParamLocationQuery, *params.Count); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Top != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$top", runtime.ParamLocationQuery, *params.Top); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Skip != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$skip", runtime.ParamLocationQuery, *params.Skip); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Expand != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.OrderBy != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$orderby", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostScanEstimationsRequest calls the generic PostScanEstimations builder with application/json body
+func NewPostScanEstimationsRequest(server string, body PostScanEstimationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostScanEstimationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostScanEstimationsRequestWithBody generates requests for PostScanEstimations with any type of body
+func NewPostScanEstimationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteScanEstimationsScanEstimationIDRequest generates requests for DeleteScanEstimationsScanEstimationID
+func NewDeleteScanEstimationsScanEstimationIDRequest(server string, scanEstimationID ScanEstimationID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "scanEstimationID", runtime.ParamLocationPath, scanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetScanEstimationsScanEstimationIDRequest generates requests for GetScanEstimationsScanEstimationID
+func NewGetScanEstimationsScanEstimationIDRequest(server string, scanEstimationID ScanEstimationID, params *GetScanEstimationsScanEstimationIDParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "scanEstimationID", runtime.ParamLocationPath, scanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.Select != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.Expand != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchScanEstimationsScanEstimationIDRequest calls the generic PatchScanEstimationsScanEstimationID builder with application/json body
+func NewPatchScanEstimationsScanEstimationIDRequest(server string, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, body PatchScanEstimationsScanEstimationIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchScanEstimationsScanEstimationIDRequestWithBody(server, scanEstimationID, params, "application/json", bodyReader)
+}
+
+// NewPatchScanEstimationsScanEstimationIDRequestWithBody generates requests for PatchScanEstimationsScanEstimationID with any type of body
+func NewPatchScanEstimationsScanEstimationIDRequestWithBody(server string, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "scanEstimationID", runtime.ParamLocationPath, scanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params.IfMatch != nil {
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("If-Match", headerParam0)
+	}
+
+	return req, nil
+}
+
+// NewPutScanEstimationsScanEstimationIDRequest calls the generic PutScanEstimationsScanEstimationID builder with application/json body
+func NewPutScanEstimationsScanEstimationIDRequest(server string, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, body PutScanEstimationsScanEstimationIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutScanEstimationsScanEstimationIDRequestWithBody(server, scanEstimationID, params, "application/json", bodyReader)
+}
+
+// NewPutScanEstimationsScanEstimationIDRequestWithBody generates requests for PutScanEstimationsScanEstimationID with any type of body
+func NewPutScanEstimationsScanEstimationIDRequestWithBody(server string, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "scanEstimationID", runtime.ParamLocationPath, scanEstimationID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/scanEstimations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params.IfMatch != nil {
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("If-Match", headerParam0)
+	}
+
+	return req, nil
+}
+
 // NewGetScansRequest generates requests for GetScans
 func NewGetScansRequest(server string, params *GetScansParams) (*http.Request, error) {
 	var err error
@@ -2780,6 +3801,27 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAssetScanEstimations request
+	GetAssetScanEstimationsWithResponse(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsResponse, error)
+
+	// PostAssetScanEstimations request with any body
+	PostAssetScanEstimationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAssetScanEstimationsResponse, error)
+
+	PostAssetScanEstimationsWithResponse(ctx context.Context, body PostAssetScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAssetScanEstimationsResponse, error)
+
+	// GetAssetScanEstimationsAssetScanEstimationID request
+	GetAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *GetAssetScanEstimationsAssetScanEstimationIDParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsAssetScanEstimationIDResponse, error)
+
+	// PatchAssetScanEstimationsAssetScanEstimationID request with any body
+	PatchAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAssetScanEstimationsAssetScanEstimationIDResponse, error)
+
+	PatchAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, body PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAssetScanEstimationsAssetScanEstimationIDResponse, error)
+
+	// PutAssetScanEstimationsAssetScanEstimationID request with any body
+	PutAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutAssetScanEstimationsAssetScanEstimationIDResponse, error)
+
+	PutAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, body PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutAssetScanEstimationsAssetScanEstimationIDResponse, error)
+
 	// GetAssetScans request
 	GetAssetScansWithResponse(ctx context.Context, params *GetAssetScansParams, reqEditors ...RequestEditorFn) (*GetAssetScansResponse, error)
 
@@ -2876,6 +3918,30 @@ type ClientWithResponsesInterface interface {
 
 	PutScanConfigsScanConfigIDWithResponse(ctx context.Context, scanConfigID ScanConfigID, params *PutScanConfigsScanConfigIDParams, body PutScanConfigsScanConfigIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutScanConfigsScanConfigIDResponse, error)
 
+	// GetScanEstimations request
+	GetScanEstimationsWithResponse(ctx context.Context, params *GetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetScanEstimationsResponse, error)
+
+	// PostScanEstimations request with any body
+	PostScanEstimationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostScanEstimationsResponse, error)
+
+	PostScanEstimationsWithResponse(ctx context.Context, body PostScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostScanEstimationsResponse, error)
+
+	// DeleteScanEstimationsScanEstimationID request
+	DeleteScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, reqEditors ...RequestEditorFn) (*DeleteScanEstimationsScanEstimationIDResponse, error)
+
+	// GetScanEstimationsScanEstimationID request
+	GetScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *GetScanEstimationsScanEstimationIDParams, reqEditors ...RequestEditorFn) (*GetScanEstimationsScanEstimationIDResponse, error)
+
+	// PatchScanEstimationsScanEstimationID request with any body
+	PatchScanEstimationsScanEstimationIDWithBodyWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchScanEstimationsScanEstimationIDResponse, error)
+
+	PatchScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, body PatchScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchScanEstimationsScanEstimationIDResponse, error)
+
+	// PutScanEstimationsScanEstimationID request with any body
+	PutScanEstimationsScanEstimationIDWithBodyWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutScanEstimationsScanEstimationIDResponse, error)
+
+	PutScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, body PutScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutScanEstimationsScanEstimationIDResponse, error)
+
 	// GetScans request
 	GetScansWithResponse(ctx context.Context, params *GetScansParams, reqEditors ...RequestEditorFn) (*GetScansResponse, error)
 
@@ -2899,6 +3965,132 @@ type ClientWithResponsesInterface interface {
 	PutScansScanIDWithBodyWithResponse(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutScansScanIDResponse, error)
 
 	PutScansScanIDWithResponse(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, body PutScansScanIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutScansScanIDResponse, error)
+}
+
+type GetAssetScanEstimationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetScanEstimations
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAssetScanEstimationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAssetScanEstimationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostAssetScanEstimationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *AssetScanEstimation
+	JSON400      *ApiResponse
+	JSON409      *AssetScanEstimationExists
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostAssetScanEstimationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostAssetScanEstimationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAssetScanEstimationsAssetScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetScanEstimation
+	JSON404      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAssetScanEstimationsAssetScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAssetScanEstimationsAssetScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchAssetScanEstimationsAssetScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetScanEstimation
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *AssetScanEstimationExists
+	JSON412      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAssetScanEstimationsAssetScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAssetScanEstimationsAssetScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutAssetScanEstimationsAssetScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetScanEstimation
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *AssetScanEstimationExists
+	JSON412      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutAssetScanEstimationsAssetScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutAssetScanEstimationsAssetScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetAssetScansResponse struct {
@@ -3496,6 +4688,153 @@ func (r PutScanConfigsScanConfigIDResponse) StatusCode() int {
 	return 0
 }
 
+type GetScanEstimationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ScanEstimations
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetScanEstimationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetScanEstimationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostScanEstimationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *ScanEstimation
+	JSON400      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostScanEstimationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostScanEstimationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteScanEstimationsScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON404      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteScanEstimationsScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteScanEstimationsScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetScanEstimationsScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ScanEstimation
+	JSON404      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetScanEstimationsScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetScanEstimationsScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchScanEstimationsScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ScanEstimation
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON412      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchScanEstimationsScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchScanEstimationsScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutScanEstimationsScanEstimationIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ScanEstimation
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON412      *ApiResponse
+	JSONDefault  *ApiResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutScanEstimationsScanEstimationIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutScanEstimationsScanEstimationIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetScansResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3644,6 +4983,75 @@ func (r PutScansScanIDResponse) StatusCode() int {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
+}
+
+// GetAssetScanEstimationsWithResponse request returning *GetAssetScanEstimationsResponse
+func (c *ClientWithResponses) GetAssetScanEstimationsWithResponse(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsResponse, error) {
+	rsp, err := c.GetAssetScanEstimations(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAssetScanEstimationsResponse(rsp)
+}
+
+// PostAssetScanEstimationsWithBodyWithResponse request with arbitrary body returning *PostAssetScanEstimationsResponse
+func (c *ClientWithResponses) PostAssetScanEstimationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAssetScanEstimationsResponse, error) {
+	rsp, err := c.PostAssetScanEstimationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostAssetScanEstimationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostAssetScanEstimationsWithResponse(ctx context.Context, body PostAssetScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAssetScanEstimationsResponse, error) {
+	rsp, err := c.PostAssetScanEstimations(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostAssetScanEstimationsResponse(rsp)
+}
+
+// GetAssetScanEstimationsAssetScanEstimationIDWithResponse request returning *GetAssetScanEstimationsAssetScanEstimationIDResponse
+func (c *ClientWithResponses) GetAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *GetAssetScanEstimationsAssetScanEstimationIDParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	rsp, err := c.GetAssetScanEstimationsAssetScanEstimationID(ctx, assetScanEstimationID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAssetScanEstimationsAssetScanEstimationIDResponse(rsp)
+}
+
+// PatchAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse request with arbitrary body returning *PatchAssetScanEstimationsAssetScanEstimationIDResponse
+func (c *ClientWithResponses) PatchAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	rsp, err := c.PatchAssetScanEstimationsAssetScanEstimationIDWithBody(ctx, assetScanEstimationID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAssetScanEstimationsAssetScanEstimationIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PatchAssetScanEstimationsAssetScanEstimationIDParams, body PatchAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	rsp, err := c.PatchAssetScanEstimationsAssetScanEstimationID(ctx, assetScanEstimationID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAssetScanEstimationsAssetScanEstimationIDResponse(rsp)
+}
+
+// PutAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse request with arbitrary body returning *PutAssetScanEstimationsAssetScanEstimationIDResponse
+func (c *ClientWithResponses) PutAssetScanEstimationsAssetScanEstimationIDWithBodyWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	rsp, err := c.PutAssetScanEstimationsAssetScanEstimationIDWithBody(ctx, assetScanEstimationID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutAssetScanEstimationsAssetScanEstimationIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx context.Context, assetScanEstimationID AssetScanEstimationID, params *PutAssetScanEstimationsAssetScanEstimationIDParams, body PutAssetScanEstimationsAssetScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	rsp, err := c.PutAssetScanEstimationsAssetScanEstimationID(ctx, assetScanEstimationID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutAssetScanEstimationsAssetScanEstimationIDResponse(rsp)
 }
 
 // GetAssetScansWithResponse request returning *GetAssetScansResponse
@@ -3958,6 +5366,84 @@ func (c *ClientWithResponses) PutScanConfigsScanConfigIDWithResponse(ctx context
 	return ParsePutScanConfigsScanConfigIDResponse(rsp)
 }
 
+// GetScanEstimationsWithResponse request returning *GetScanEstimationsResponse
+func (c *ClientWithResponses) GetScanEstimationsWithResponse(ctx context.Context, params *GetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetScanEstimationsResponse, error) {
+	rsp, err := c.GetScanEstimations(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetScanEstimationsResponse(rsp)
+}
+
+// PostScanEstimationsWithBodyWithResponse request with arbitrary body returning *PostScanEstimationsResponse
+func (c *ClientWithResponses) PostScanEstimationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostScanEstimationsResponse, error) {
+	rsp, err := c.PostScanEstimationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostScanEstimationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostScanEstimationsWithResponse(ctx context.Context, body PostScanEstimationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostScanEstimationsResponse, error) {
+	rsp, err := c.PostScanEstimations(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostScanEstimationsResponse(rsp)
+}
+
+// DeleteScanEstimationsScanEstimationIDWithResponse request returning *DeleteScanEstimationsScanEstimationIDResponse
+func (c *ClientWithResponses) DeleteScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, reqEditors ...RequestEditorFn) (*DeleteScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.DeleteScanEstimationsScanEstimationID(ctx, scanEstimationID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteScanEstimationsScanEstimationIDResponse(rsp)
+}
+
+// GetScanEstimationsScanEstimationIDWithResponse request returning *GetScanEstimationsScanEstimationIDResponse
+func (c *ClientWithResponses) GetScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *GetScanEstimationsScanEstimationIDParams, reqEditors ...RequestEditorFn) (*GetScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.GetScanEstimationsScanEstimationID(ctx, scanEstimationID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetScanEstimationsScanEstimationIDResponse(rsp)
+}
+
+// PatchScanEstimationsScanEstimationIDWithBodyWithResponse request with arbitrary body returning *PatchScanEstimationsScanEstimationIDResponse
+func (c *ClientWithResponses) PatchScanEstimationsScanEstimationIDWithBodyWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.PatchScanEstimationsScanEstimationIDWithBody(ctx, scanEstimationID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchScanEstimationsScanEstimationIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PatchScanEstimationsScanEstimationIDParams, body PatchScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.PatchScanEstimationsScanEstimationID(ctx, scanEstimationID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchScanEstimationsScanEstimationIDResponse(rsp)
+}
+
+// PutScanEstimationsScanEstimationIDWithBodyWithResponse request with arbitrary body returning *PutScanEstimationsScanEstimationIDResponse
+func (c *ClientWithResponses) PutScanEstimationsScanEstimationIDWithBodyWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.PutScanEstimationsScanEstimationIDWithBody(ctx, scanEstimationID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutScanEstimationsScanEstimationIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutScanEstimationsScanEstimationIDWithResponse(ctx context.Context, scanEstimationID ScanEstimationID, params *PutScanEstimationsScanEstimationIDParams, body PutScanEstimationsScanEstimationIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutScanEstimationsScanEstimationIDResponse, error) {
+	rsp, err := c.PutScanEstimationsScanEstimationID(ctx, scanEstimationID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutScanEstimationsScanEstimationIDResponse(rsp)
+}
+
 // GetScansWithResponse request returning *GetScansResponse
 func (c *ClientWithResponses) GetScansWithResponse(ctx context.Context, params *GetScansParams, reqEditors ...RequestEditorFn) (*GetScansResponse, error) {
 	rsp, err := c.GetScans(ctx, params, reqEditors...)
@@ -4034,6 +5520,248 @@ func (c *ClientWithResponses) PutScansScanIDWithResponse(ctx context.Context, sc
 		return nil, err
 	}
 	return ParsePutScansScanIDResponse(rsp)
+}
+
+// ParseGetAssetScanEstimationsResponse parses an HTTP response from a GetAssetScanEstimationsWithResponse call
+func ParseGetAssetScanEstimationsResponse(rsp *http.Response) (*GetAssetScanEstimationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAssetScanEstimationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetScanEstimations
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostAssetScanEstimationsResponse parses an HTTP response from a PostAssetScanEstimationsWithResponse call
+func ParsePostAssetScanEstimationsResponse(rsp *http.Response) (*PostAssetScanEstimationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostAssetScanEstimationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest AssetScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetScanEstimationExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAssetScanEstimationsAssetScanEstimationIDResponse parses an HTTP response from a GetAssetScanEstimationsAssetScanEstimationIDWithResponse call
+func ParseGetAssetScanEstimationsAssetScanEstimationIDResponse(rsp *http.Response) (*GetAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAssetScanEstimationsAssetScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchAssetScanEstimationsAssetScanEstimationIDResponse parses an HTTP response from a PatchAssetScanEstimationsAssetScanEstimationIDWithResponse call
+func ParsePatchAssetScanEstimationsAssetScanEstimationIDResponse(rsp *http.Response) (*PatchAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAssetScanEstimationsAssetScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetScanEstimationExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutAssetScanEstimationsAssetScanEstimationIDResponse parses an HTTP response from a PutAssetScanEstimationsAssetScanEstimationIDWithResponse call
+func ParsePutAssetScanEstimationsAssetScanEstimationIDResponse(rsp *http.Response) (*PutAssetScanEstimationsAssetScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutAssetScanEstimationsAssetScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetScanEstimationExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetAssetScansResponse parses an HTTP response from a GetAssetScansWithResponse call
@@ -5109,6 +6837,267 @@ func ParsePutScanConfigsScanConfigIDResponse(rsp *http.Response) (*PutScanConfig
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetScanEstimationsResponse parses an HTTP response from a GetScanEstimationsWithResponse call
+func ParseGetScanEstimationsResponse(rsp *http.Response) (*GetScanEstimationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetScanEstimationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ScanEstimations
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostScanEstimationsResponse parses an HTTP response from a PostScanEstimationsWithResponse call
+func ParsePostScanEstimationsResponse(rsp *http.Response) (*PostScanEstimationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostScanEstimationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest ScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteScanEstimationsScanEstimationIDResponse parses an HTTP response from a DeleteScanEstimationsScanEstimationIDWithResponse call
+func ParseDeleteScanEstimationsScanEstimationIDResponse(rsp *http.Response) (*DeleteScanEstimationsScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteScanEstimationsScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetScanEstimationsScanEstimationIDResponse parses an HTTP response from a GetScanEstimationsScanEstimationIDWithResponse call
+func ParseGetScanEstimationsScanEstimationIDResponse(rsp *http.Response) (*GetScanEstimationsScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetScanEstimationsScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchScanEstimationsScanEstimationIDResponse parses an HTTP response from a PatchScanEstimationsScanEstimationIDWithResponse call
+func ParsePatchScanEstimationsScanEstimationIDResponse(rsp *http.Response) (*PatchScanEstimationsScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchScanEstimationsScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutScanEstimationsScanEstimationIDResponse parses an HTTP response from a PutScanEstimationsScanEstimationIDWithResponse call
+func ParsePutScanEstimationsScanEstimationIDResponse(rsp *http.Response) (*PutScanEstimationsScanEstimationIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutScanEstimationsScanEstimationIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ScanEstimation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
 		var dest ApiResponse
