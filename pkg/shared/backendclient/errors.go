@@ -65,3 +65,12 @@ type FindingConflictError struct {
 func (t FindingConflictError) Error() string {
 	return fmt.Sprintf("Conflicting Finding Found with ID %s: %s", *t.ConflictingFinding.Id, t.Message)
 }
+
+type AssetScanEstimationConflictError struct {
+	ConflictingAssetScanEstimation *models.AssetScanEstimation
+	Message                        string
+}
+
+func (t AssetScanEstimationConflictError) Error() string {
+	return fmt.Sprintf("Conflicting AssetScanEstimation Found with ID %s: %s", *t.ConflictingAssetScanEstimation.Id, t.Message)
+}

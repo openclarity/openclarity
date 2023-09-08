@@ -777,6 +777,18 @@ Resources:
           # ##########################
 
           # ##########################
+
+          #
+          # ##########################
+          # Allow VMClarity server to call the pricing list API in order to get the latest prices for scan cost estimation.
+          - Effect: "Allow"
+            Action:
+            - "pricing:GetProducts"
+            - "ec2:DescribeSpotPriceHistory"
+            Resource: "*"
+          #
+          # ##########################
+          # ##########################
           # Allow copying snapshots to the VMClarity Server region for
           # scanning. Only allow copy if the copy will have the VMClarity Owner
           # tag.

@@ -67,6 +67,10 @@ func (c Client) Kind() models.CloudProvider {
 	return models.External
 }
 
+func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+}
+
 func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 

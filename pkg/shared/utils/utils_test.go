@@ -218,3 +218,43 @@ func TestStringKeyMapToArray(t *testing.T) {
 		})
 	}
 }
+
+func Test_IntPointerValOrEmpty(t *testing.T) {
+	type args struct {
+		val *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "nil should be 0",
+			args: args{
+				val: nil,
+			},
+			want: 0,
+		},
+		{
+			name: "not nil",
+			args: args{
+				val: PointerTo(5),
+			},
+			want: 5,
+		},
+		{
+			name: "not nil 0",
+			args: args{
+				val: PointerTo(0),
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IntPointerValOrEmpty(tt.args.val); got != tt.want {
+				t.Errorf("IntPointerValOrEmpty() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

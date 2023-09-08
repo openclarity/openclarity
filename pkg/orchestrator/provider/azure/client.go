@@ -97,6 +97,10 @@ func (c Client) Kind() models.CloudProvider {
 	return models.Azure
 }
 
+func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+}
+
 // nolint:cyclop
 func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	vmInfo, err := config.AssetInfo.AsVMInfo()

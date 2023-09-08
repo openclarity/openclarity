@@ -360,6 +360,216 @@ func (b *BackendClient) PostScanConfig(ctx context.Context, scanConfig models.Sc
 	}
 }
 
+func (b *BackendClient) GetScanEstimation(ctx context.Context, scanEstimationID string, params models.GetScanEstimationsScanEstimationIDParams) (*models.ScanEstimation, error) {
+	resp, err := b.apiClient.GetScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get a scan estimation: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("failed to get a scan estimation: empty body")
+		}
+		return resp.JSON200, nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return nil, fmt.Errorf("failed to get a scan estimation: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return nil, fmt.Errorf("failed to get a scan estimation, not found: %v", *resp.JSON404.Message)
+		}
+		return nil, fmt.Errorf("failed to get a scan estimation, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get a scan estimation status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get a scan estimation status. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) GetScanEstimations(ctx context.Context, params models.GetScanEstimationsParams) (*models.ScanEstimations, error) {
+	resp, err := b.apiClient.GetScanEstimationsWithResponse(ctx, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get scanEstimations: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("no scanEstimations: empty body")
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get scanEstimations. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get scanEstimations. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationID models.ScanEstimationID, scanEstimation *models.ScanEstimation) error {
+	params := models.PatchScanEstimationsScanEstimationIDParams{}
+	resp, err := b.apiClient.PatchScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params, *scanEstimation)
+	if err != nil {
+		return fmt.Errorf("failed to update a scan estimation: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return fmt.Errorf("failed to update a scan estimation: empty body")
+		}
+		return nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return fmt.Errorf("failed to update a scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+		}
+		return fmt.Errorf("failed to update a scan estimation. status code=%v", resp.StatusCode())
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return fmt.Errorf("failed to update a scan estimation: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return fmt.Errorf("failed to update a scan estimation, not found: %v", *resp.JSON404.Message)
+		}
+		return fmt.Errorf("failed to update a scan estimation, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return fmt.Errorf("failed to update scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return fmt.Errorf("failed to update scan estimation. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEstimation models.AssetScanEstimation) (*models.AssetScanEstimation, error) {
+	resp, err := b.apiClient.PostAssetScanEstimationsWithResponse(ctx, assetScanEstimation)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create an asset scan estimation: %v", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		if resp.JSON201 == nil {
+			return nil, fmt.Errorf("failed to create an asset scan estimation: empty body. status code=%v", http.StatusCreated)
+		}
+		return resp.JSON201, nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+		}
+		return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v", resp.StatusCode())
+	case http.StatusConflict:
+		if resp.JSON409 == nil {
+			return nil, fmt.Errorf("failed to create an asset scan estimation: empty body. status code=%v", http.StatusConflict)
+		}
+		if resp.JSON409.AssetScanEstimation == nil {
+			return nil, fmt.Errorf("failed to create an asset scan estimation: no asset scan data. status code=%v", http.StatusConflict)
+		}
+		return nil, AssetScanEstimationConflictError{
+			ConflictingAssetScanEstimation: resp.JSON409.AssetScanEstimation,
+			Message:                        "conflict",
+		}
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) GetAssetScanEstimations(ctx context.Context, params models.GetAssetScanEstimationsParams) (models.AssetScanEstimations, error) {
+	newGetAssetScanEstimationsError := func(err error) error {
+		return fmt.Errorf("failed to get asset scan estimations: %w", err)
+	}
+
+	var assetScanEstimations models.AssetScanEstimations
+	resp, err := b.apiClient.GetAssetScanEstimationsWithResponse(ctx, &params)
+	if err != nil {
+		return assetScanEstimations, newGetAssetScanEstimationsError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return assetScanEstimations, newGetAssetScanEstimationsError(fmt.Errorf("empty body"))
+		}
+		return *resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return assetScanEstimations, newGetAssetScanEstimationsError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return assetScanEstimations, newGetAssetScanEstimationsError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
+func (b *BackendClient) GetAssetScanEstimation(ctx context.Context, assetScanEstimationID string, params models.GetAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error) {
+	newGetExistingError := func(err error) error {
+		return fmt.Errorf("failed to get existing asset scan estimation %v: %w", assetScanEstimationID, err)
+	}
+
+	var assetScanEstimations models.AssetScanEstimation
+	resp, err := b.apiClient.GetAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params)
+	if err != nil {
+		return assetScanEstimations, newGetExistingError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return assetScanEstimations, newGetExistingError(fmt.Errorf("empty body"))
+		}
+		return *resp.JSON200, nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return assetScanEstimations, newGetExistingError(fmt.Errorf("empty body on not found"))
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return assetScanEstimations, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+		}
+		return assetScanEstimations, newGetExistingError(fmt.Errorf("not found"))
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return assetScanEstimations, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return assetScanEstimations, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
+func (b *BackendClient) PatchAssetScanEstimation(ctx context.Context, assetScanEstimation models.AssetScanEstimation, assetScanEstimationID string) error {
+	newUpdateAssetScanEstimationError := func(err error) error {
+		return fmt.Errorf("failed to update asset scan estimation %v: %w", assetScanEstimationID, err)
+	}
+
+	params := models.PatchAssetScanEstimationsAssetScanEstimationIDParams{}
+	resp, err := b.apiClient.PatchAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params, assetScanEstimation)
+	if err != nil {
+		return newUpdateAssetScanEstimationError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return newUpdateAssetScanEstimationError(fmt.Errorf("empty body"))
+		}
+		return nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message))
+		}
+		return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return newUpdateAssetScanEstimationError(fmt.Errorf("empty body on not found"))
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return newUpdateAssetScanEstimationError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+		}
+		return newUpdateAssetScanEstimationError(fmt.Errorf("not found"))
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
 func (b *BackendClient) GetScanConfigs(ctx context.Context, params models.GetScanConfigsParams) (*models.ScanConfigs, error) {
 	resp, err := b.apiClient.GetScanConfigsWithResponse(ctx, &params)
 	if err != nil {

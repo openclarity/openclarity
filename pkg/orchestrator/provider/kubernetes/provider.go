@@ -74,6 +74,10 @@ func (p *Provider) Kind() models.CloudProvider {
 	return models.Kubernetes
 }
 
+func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+}
+
 func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 	assetDiscoverer.Error = fmt.Errorf("not implemented")
