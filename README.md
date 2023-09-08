@@ -5,6 +5,9 @@
 </picture>
 
 [![Slack Invite](https://img.shields.io/badge/Slack-Join-blue?logo=slack)](https://outshift.slack.com/messages/vmclarity)
+[![Go Reference](https://pkg.go.dev/badge/github.com/openclarity/vmclarity.svg)](https://pkg.go.dev/github.com/openclarity/vmclarity)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/openclarity/vmclarity/main-merge.yml?style=flat-square&branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/openclarity/vmclarity)](https://goreportcard.com/report/github.com/openclarity/vmclarity)
 
 VMClarity is an open source tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and security threats such as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked secrets.
