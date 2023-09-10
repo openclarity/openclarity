@@ -90,7 +90,7 @@ func (w *Watcher) GetRunningScans(ctx context.Context) ([]ScanReconcileEvent, er
 	}
 	scans, err := w.backend.GetScans(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get running scans: %v", err)
+		return nil, fmt.Errorf("failed to get running scans: %w", err)
 	}
 
 	switch {

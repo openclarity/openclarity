@@ -53,7 +53,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 	//  we need to change the fact the MergedResults assumes it is only for 1 input?
 	hash, err := cliutils.GenerateHash(utils.SourceType(s.conf.Inputs[0].InputType), s.conf.Inputs[0].Input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate hash for source %s: %v", s.conf.Inputs[0].Input, err)
+		return nil, fmt.Errorf("failed to generate hash for source %s: %w", s.conf.Inputs[0].Input, err)
 	}
 
 	manager := job_manager.New(s.conf.AnalyzersList, s.conf.AnalyzersConfig, logger, job.Factory)
@@ -64,7 +64,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 		startTime := time.Now()
 		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
-			return nil, fmt.Errorf("failed to analyzer input %q: %v", s.conf.Inputs[0].Input, err)
+			return nil, fmt.Errorf("failed to analyzer input %q: %w", s.conf.Inputs[0].Input, err)
 		}
 		endTime := time.Now()
 		inputSize, err := familiesutils.GetInputSize(input)
@@ -84,7 +84,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 		name := fmt.Sprintf("merge_with_%d", i)
 		cdxBOMBytes, err := converter.GetCycloneDXSBOMFromFile(with.SbomPath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %v", with.SbomPath, err)
+			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %w", with.SbomPath, err)
 		}
 		results := sharedanalyzer.CreateResults(cdxBOMBytes, name, with.SbomPath, utils.SBOM)
 		logger.Infof("Merging result from %q", with.SbomPath)
@@ -95,7 +95,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 	// CreateMergedSBOMBytes so that we don't need to re-convert it
 	mergedSBOMBytes, err := mergedResults.CreateMergedSBOMBytes("cyclonedx-json", pkg.GitRevision)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create merged output: %v", err)
+		return nil, fmt.Errorf("failed to create merged output: %w", err)
 	}
 
 	cdxBom, err := converter.GetCycloneDXSBOMFromBytes(mergedSBOMBytes)

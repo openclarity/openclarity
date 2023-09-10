@@ -48,7 +48,7 @@ func (r Rootkits) Run(ctx context.Context, _ *familiesresults.Results) (families
 		startTime := time.Now()
 		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for rootkits: %v", input.Input, err)
+			return nil, fmt.Errorf("failed to scan input %q for rootkits: %w", input.Input, err)
 		}
 		endTime := time.Now()
 		inputSize, err := familiesutils.GetInputSize(input)

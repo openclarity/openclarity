@@ -33,7 +33,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Vulnerability", *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to check for newer existing vulnerability findings: %v", err)
+		return fmt.Errorf("failed to check for newer existing vulnerability findings: %w", err)
 	}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and foundBy/id eq '%s'", *assetScan.Id)
@@ -121,7 +121,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	// an asset scan older than this asset scan.
 	err = asp.invalidateOlderFindingsByType(ctx, "Vulnerability", assetScan.Asset.Id, *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to invalidate older vulnerability finding: %v", err)
+		return fmt.Errorf("failed to invalidate older vulnerability finding: %w", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary

@@ -24,7 +24,7 @@ import (
 func GenerateFindingKey(findingInfo *models.Finding_FindingInfo) (string, error) {
 	value, err := findingInfo.ValueByDiscriminator()
 	if err != nil {
-		return "", fmt.Errorf("failed to value by discriminator from finding info: %v", err)
+		return "", fmt.Errorf("failed to value by discriminator from finding info: %w", err)
 	}
 
 	switch info := value.(type) {

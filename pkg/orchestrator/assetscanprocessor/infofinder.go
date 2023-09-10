@@ -64,7 +64,7 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "InfoFinder", *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to check for newer existing InfoFinder findings: %v", err)
+		return fmt.Errorf("failed to check for newer existing InfoFinder findings: %w", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
@@ -129,7 +129,7 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 	// an asset scan older than this asset scan.
 	err = asp.invalidateOlderFindingsByType(ctx, "InfoFinder", assetScan.Asset.Id, *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to invalidate older InfoFinder finding: %v", err)
+		return fmt.Errorf("failed to invalidate older InfoFinder finding: %w", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary

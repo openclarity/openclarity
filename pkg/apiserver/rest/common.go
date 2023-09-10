@@ -43,7 +43,7 @@ func sendResponse(ctx echo.Context, code int, object interface{}) error {
 func (s *ServerImpl) GetOpenAPISpec(ctx echo.Context) error {
 	swagger, err := server.GetSwagger()
 	if err != nil {
-		return fmt.Errorf("failed to load swagger spec: %v", err)
+		return fmt.Errorf("failed to load swagger spec: %w", err)
 	}
 
 	// Use the X-Forwarded-* headers to populate the OpenAPI spec with the

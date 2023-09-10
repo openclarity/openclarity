@@ -54,7 +54,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		// validate that chkrootkit binary exists
 		if _, err := os.Stat(s.config.BinaryPath); err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %v", s.config.BinaryPath, err))
+			s.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %w", s.config.BinaryPath, err))
 			return
 		}
 
@@ -68,13 +68,13 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		s.logger.Infof("running chkrootkit command: %v", cmd.String())
 		out, err := sharedutils.RunCommand(cmd)
 		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to run chkrootkit command: %v", err))
+			s.sendResults(retResults, fmt.Errorf("failed to run chkrootkit command: %w", err))
 			return
 		}
 
 		rootkits, err := chkrootkitutils.ParseChkrootkitOutput(out)
 		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to parse chkrootkit output: %v", err))
+			s.sendResults(retResults, fmt.Errorf("failed to parse chkrootkit output: %w", err))
 			return
 		}
 		rootkits = filterResults(rootkits)

@@ -201,7 +201,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 
 		regions, err := c.listAllRegions(ctx)
 		if err != nil {
-			assetDiscoverer.Error = fmt.Errorf("failed to list all regions: %v", err)
+			assetDiscoverer.Error = fmt.Errorf("failed to list all regions: %w", err)
 			return
 		}
 

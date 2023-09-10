@@ -794,7 +794,7 @@ func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, re
 		options.Region = regionID
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to describe instances: %v", err)
+		return nil, fmt.Errorf("failed to describe instances: %w", err)
 	}
 	ret = append(ret, c.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
 
@@ -813,7 +813,7 @@ func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, re
 			options.Region = regionID
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to describe instances: %v", err)
+			return nil, fmt.Errorf("failed to describe instances: %w", err)
 		}
 		ret = append(ret, c.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
 	}

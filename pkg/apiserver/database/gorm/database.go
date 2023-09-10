@@ -187,7 +187,7 @@ func initPostgres(config types.DBConfig, dbLogger logger.Interface) (*gorm.DB, e
 		Logger: dbLogger,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to open %s db: %v", config.DBName, err)
+		return nil, fmt.Errorf("failed to open %s db: %w", config.DBName, err)
 	}
 
 	return db, nil

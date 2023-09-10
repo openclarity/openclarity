@@ -47,7 +47,7 @@ func (i InfoFinder) Run(ctx context.Context, _ *results.Results) (interfaces.IsR
 		startTime := time.Now()
 		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for info: %v", input.Input, err)
+			return nil, fmt.Errorf("failed to scan input %q for info: %w", input.Input, err)
 		}
 		endTime := time.Now()
 		inputSize, err := familiesutils.GetInputSize(input)

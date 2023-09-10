@@ -183,7 +183,7 @@ func validateRuntimeScheduleScanConfig(scheduled *models.RuntimeScheduleScanConf
 		// validate cron expression
 		expr, err := cronexpr.Parse(*scheduled.CronLine)
 		if err != nil {
-			return fmt.Errorf("malformed cron expression: %v", err)
+			return fmt.Errorf("malformed cron expression: %w", err)
 		}
 
 		// set operation time if missing

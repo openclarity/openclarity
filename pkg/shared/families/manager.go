@@ -101,7 +101,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 
 	for _, family := range m.families {
 		if err := notifier.FamilyStarted(ctx, family.GetType()); err != nil {
-			errors = append(errors, fmt.Errorf("family started notification failed: %v", err))
+			errors = append(errors, fmt.Errorf("family started notification failed: %w", err))
 			continue
 		}
 
@@ -127,7 +127,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 				FamilyType: family.GetType(),
 				Err:        fmt.Errorf("failed to run family %v: aborted", family.GetType()),
 			}); err != nil {
-				errors = append(errors, fmt.Errorf("family finished notification failed: %v", err))
+				errors = append(errors, fmt.Errorf("family finished notification failed: %w", err))
 			}
 		case r := <-result:
 			logger.Debugf("received result from family %q: %v", family.GetType(), r)
@@ -138,7 +138,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 				familyResults.SetResults(r.Result)
 			}
 			if err := notifier.FamilyFinished(ctx, r); err != nil {
-				errors = append(errors, fmt.Errorf("family finished notification failed: %v", err))
+				errors = append(errors, fmt.Errorf("family finished notification failed: %w", err))
 			}
 			close(result)
 		}
