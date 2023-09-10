@@ -89,7 +89,7 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	}
 	scanEstimations, err := w.backend.GetScanEstimations(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get running sScanEstimations: %v", err)
+		return nil, fmt.Errorf("failed to get running sScanEstimations: %w", err)
 	}
 
 	switch {

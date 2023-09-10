@@ -58,7 +58,7 @@ func (c *Client) ensureScannerVirtualMachine(ctx context.Context, config *provid
 
 	userData, err := cloudinit.New(config)
 	if err != nil {
-		return armcompute.VirtualMachine{}, fmt.Errorf("failed to generate cloud-init: %v", err)
+		return armcompute.VirtualMachine{}, fmt.Errorf("failed to generate cloud-init: %w", err)
 	}
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 

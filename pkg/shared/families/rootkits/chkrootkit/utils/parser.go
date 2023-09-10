@@ -112,7 +112,7 @@ func ParseChkrootkitOutput(chkrootkitOutput []byte) ([]Rootkit, error) {
 		} else if testName == "aliens" {
 			aliensToRootkits, err := processAliensToRootkits(result)
 			if err != nil {
-				return nil, fmt.Errorf("failed to process aliens to rootkits: %v", err)
+				return nil, fmt.Errorf("failed to process aliens to rootkits: %w", err)
 			}
 			rootkits = append(rootkits, aliensToRootkits...)
 		} else {
@@ -123,7 +123,7 @@ func ParseChkrootkitOutput(chkrootkitOutput []byte) ([]Rootkit, error) {
 	}
 
 	if err := outputScanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan the output: %v", err)
+		return nil, fmt.Errorf("failed to scan the output: %w", err)
 	}
 
 	return rootkits, nil
@@ -200,7 +200,7 @@ func processAliensToRootkits(aliensResult string) ([]Rootkit, error) {
 	}
 
 	if err := outputScanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to get output: %v", err)
+		return nil, fmt.Errorf("failed to get output: %w", err)
 	}
 
 	return utils.StringKeyMapToArray(rootkits), nil

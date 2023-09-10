@@ -67,7 +67,7 @@ func GetInputSize(input types.Input) (int64, error) {
 		// calculate the size and add it to the cache
 		size, err := DirSizeMB(input.Input)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get dir size: %v", err)
+			return 0, fmt.Errorf("failed to get dir size: %w", err)
 		}
 		InputSizesCache[input.Input] = size
 		return size, nil
@@ -98,7 +98,7 @@ func DirSizeMB(path string) (int64, error) {
 	}
 
 	if err := filepath.WalkDir(path, readSize); err != nil {
-		return 0, fmt.Errorf("failed to walk dir: %v", err)
+		return 0, fmt.Errorf("failed to walk dir: %w", err)
 	}
 
 	return dirSizeBytes / megaBytesToBytes, nil

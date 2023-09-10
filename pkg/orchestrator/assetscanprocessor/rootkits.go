@@ -64,7 +64,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to check for newer existing rootkit findings: %v", err)
+		return fmt.Errorf("failed to check for newer existing rootkit findings: %w", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
@@ -128,7 +128,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 	// an asset scan older than this asset scan.
 	err = asp.invalidateOlderFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to invalidate older rootkit finding: %v", err)
+		return fmt.Errorf("failed to invalidate older rootkit finding: %w", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary

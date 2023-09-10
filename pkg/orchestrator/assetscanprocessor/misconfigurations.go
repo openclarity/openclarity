@@ -64,7 +64,7 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Misconfiguration", *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to check for newer existing misconfiguration findings: %v", err)
+		return fmt.Errorf("failed to check for newer existing misconfiguration findings: %w", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
@@ -133,7 +133,7 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 	// an asset scan older than this asset scan.
 	err = asp.invalidateOlderFindingsByType(ctx, "Misconfiguration", assetScan.Asset.Id, *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to invalidate older misconfiguration finding: %v", err)
+		return fmt.Errorf("failed to invalidate older misconfiguration finding: %w", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary

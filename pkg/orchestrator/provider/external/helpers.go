@@ -47,7 +47,7 @@ func convertAssetToModels(asset *provider_service.Asset) (models.Asset, error) {
 			SecurityGroups:   &[]models.SecurityGroup{},
 			Tags:             convertTagsToModels(vminfo.Tags),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from VMInfo: %v", err)
+			return models.Asset{}, fmt.Errorf("failed to convert asset from VMInfo: %w", err)
 		}
 	case *provider_service.Asset_Dirinfo:
 		dirinfo := asset.GetDirinfo()
@@ -56,7 +56,7 @@ func convertAssetToModels(asset *provider_service.Asset) (models.Asset, error) {
 			DirName:  utils.PointerTo(dirinfo.DirName),
 			Location: utils.PointerTo(dirinfo.Location),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from Dirinfo: %v", err)
+			return models.Asset{}, fmt.Errorf("failed to convert asset from Dirinfo: %w", err)
 		}
 	case *provider_service.Asset_Podinfo:
 		podinfo := asset.GetPodinfo()
@@ -65,7 +65,7 @@ func convertAssetToModels(asset *provider_service.Asset) (models.Asset, error) {
 			PodName:  utils.PointerTo(podinfo.PodName),
 			Location: utils.PointerTo(podinfo.Location),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from Podinfo: %v", err)
+			return models.Asset{}, fmt.Errorf("failed to convert asset from Podinfo: %w", err)
 		}
 	default:
 		return models.Asset{}, fmt.Errorf("unsupported asset type: %t", asset.AssetType)
@@ -79,7 +79,7 @@ func convertAssetToModels(asset *provider_service.Asset) (models.Asset, error) {
 func convertAssetFromModels(asset models.Asset) (*provider_service.Asset, error) {
 	value, err := asset.AssetInfo.ValueByDiscriminator()
 	if err != nil {
-		return nil, fmt.Errorf("failed to value by discriminator from asset info: %v", err)
+		return nil, fmt.Errorf("failed to value by discriminator from asset info: %w", err)
 	}
 
 	switch info := value.(type) {
@@ -151,7 +151,7 @@ func convertTagsFromModels(tags *[]models.Tag) []*provider_service.Tag {
 func convertScanJobConfig(config *provider.ScanJobConfig) (*provider_service.ScanJobConfig, error) {
 	asset, err := convertAssetFromModels(config.Asset)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert asset from models asset: %v", err)
+		return nil, fmt.Errorf("failed to convert asset from models asset: %w", err)
 	}
 
 	ret := provider_service.ScanJobConfig{

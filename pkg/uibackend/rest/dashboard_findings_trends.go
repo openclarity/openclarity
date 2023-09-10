@@ -54,7 +54,7 @@ func (s *ServerImpl) GetDashboardFindingsTrends(ctx echo.Context, params models.
 			defer wg.Done()
 			trends, err := s.getFindingTrendsForFindingType(reqCtx, ft, times)
 			if err != nil {
-				errs <- fmt.Errorf("failed to get %s trends: %v", ft, err)
+				errs <- fmt.Errorf("failed to get %s trends: %w", ft, err)
 				return
 			}
 			findingsTrendsChan <- trends
@@ -108,7 +108,7 @@ func (s *ServerImpl) getFindingTrendsForFindingType(ctx context.Context, finding
 	for i, point := range times {
 		trend, err := s.getFindingTrendPerPoint(ctx, findingType, point)
 		if err != nil {
-			return models.FindingTrends{}, fmt.Errorf("failed to get finding trend: %v", err)
+			return models.FindingTrends{}, fmt.Errorf("failed to get finding trend: %w", err)
 		}
 		trends[i] = trend
 	}
@@ -131,7 +131,7 @@ func (s *ServerImpl) getFindingTrendPerPoint(ctx context.Context, findingType mo
 		Top:    utils.PointerTo(0),
 	})
 	if err != nil {
-		return models.FindingTrend{}, fmt.Errorf("failed to get findings for the given point: %v", err)
+		return models.FindingTrend{}, fmt.Errorf("failed to get findings for the given point: %w", err)
 	}
 
 	return models.FindingTrend{

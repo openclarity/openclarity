@@ -61,13 +61,13 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 		// validate that gitleaks binary exists
 		if _, err := os.Stat(a.config.BinaryPath); err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %v", a.config.BinaryPath, err))
+			a.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %w", a.config.BinaryPath, err))
 			return
 		}
 
 		file, err := os.CreateTemp("", "gitleaks")
 		if err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to create temp file. %v", err))
+			a.sendResults(retResults, fmt.Errorf("failed to create temp file. %w", err))
 			return
 		}
 		defer func() {
@@ -81,18 +81,18 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		a.logger.Infof("Running gitleaks command: %v", cmd.String())
 		_, err = sharedutils.RunCommand(cmd)
 		if err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to run gitleaks command: %v", err))
+			a.sendResults(retResults, fmt.Errorf("failed to run gitleaks command: %w", err))
 			return
 		}
 
 		out, err := os.ReadFile(reportPath)
 		if err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to read report file from path %v: %v", reportPath, err))
+			a.sendResults(retResults, fmt.Errorf("failed to read report file from path %v: %w", reportPath, err))
 			return
 		}
 
 		if err := json.Unmarshal(out, &retResults.Findings); err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to unmarshal results. out: %s. err: %v", out, err))
+			a.sendResults(retResults, fmt.Errorf("failed to unmarshal results. out: %s. err: %w", out, err))
 			return
 		}
 		a.sendResults(retResults, nil)

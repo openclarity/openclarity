@@ -56,7 +56,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 
 		sbomResults, err := results.GetResult[*sbom.Results](res)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get sbom results: %v", err)
+			return nil, fmt.Errorf("failed to get sbom results: %w", err)
 		}
 
 		sbomBytes, err := sbomResults.EncodeToBytes("cyclonedx-json")
@@ -66,7 +66,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 
 		// TODO: need to avoid writing sbom to file
 		if err := os.WriteFile(sbomTempFilePath, sbomBytes, 0o600 /* read & write */); err != nil { // nolint:gomnd,gofumpt
-			return nil, fmt.Errorf("failed to write sbom to file: %v", err)
+			return nil, fmt.Errorf("failed to write sbom to file: %w", err)
 		}
 
 		v.conf.Inputs = append(v.conf.Inputs, types.Input{

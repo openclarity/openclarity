@@ -128,7 +128,7 @@ func (s *Snapshot) Delete(ctx context.Context) error {
 		options.Region = s.Region
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete snapshot: %v", err)
+		return fmt.Errorf("failed to delete snapshot: %w", err)
 	}
 
 	return nil

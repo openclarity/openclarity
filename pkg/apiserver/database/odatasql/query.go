@@ -694,14 +694,14 @@ func buildWhereFromLambda(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 		newIdentifier := fmt.Sprintf("%sFilterOptions", identifier)
 		subquery, err := buildWhereFromFilter(sqlVariant, schemaMetas, newFieldMetas[0], newIdentifier, fmt.Sprintf("%s.value", identifier), lambda.Children[1], fmt.Sprintf("%s.", lambda.Children[0].Token.Value))
 		if err != nil {
-			return "", fmt.Errorf("unable to build query inside lambda: %v", err)
+			return "", fmt.Errorf("unable to build query inside lambda: %w", err)
 		}
 		return fmt.Sprintf("EXISTS (SELECT 1 FROM %s AS %s WHERE %s)", sqlVariant.JSONEach(sqlVariant.JSONExtract(fieldSource, sourcePath)), identifier, subquery), nil
 	case "all":
 		newIdentifier := fmt.Sprintf("%sFilterOptions", identifier)
 		subquery, err := buildWhereFromFilter(sqlVariant, schemaMetas, newFieldMetas[0], newIdentifier, fmt.Sprintf("%s.value", identifier), lambda.Children[1], fmt.Sprintf("%s.", lambda.Children[0].Token.Value))
 		if err != nil {
-			return "", fmt.Errorf("unable to build query inside lambda: %v", err)
+			return "", fmt.Errorf("unable to build query inside lambda: %w", err)
 		}
 		return fmt.Sprintf("NOT EXISTS (SELECT 1 FROM %s AS %s WHERE NOT (%s))", sqlVariant.JSONEach(sqlVariant.JSONExtract(fieldSource, sourcePath)), identifier, subquery), nil
 	default:

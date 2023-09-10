@@ -64,7 +64,7 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Secret", *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to check for newer existing secret findings: %v", err)
+		return fmt.Errorf("failed to check for newer existing secret findings: %w", err)
 	}
 
 	// Build a map of existing findings for this scan to prevent us
@@ -132,7 +132,7 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 	// an asset scan older than this asset scan.
 	err = asp.invalidateOlderFindingsByType(ctx, "Secret", assetScan.Asset.Id, *completedTime)
 	if err != nil {
-		return fmt.Errorf("failed to invalidate older secret finding: %v", err)
+		return fmt.Errorf("failed to invalidate older secret finding: %w", err)
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
