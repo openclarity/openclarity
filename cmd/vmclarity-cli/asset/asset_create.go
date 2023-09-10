@@ -91,26 +91,26 @@ func init() {
 func getAssetFromJSONFile(filename string) (*models.AssetType, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %v", err)
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 	defer file.Close()
 
 	// get the file size
 	stat, err := file.Stat()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get file stat: %v", err)
+		return nil, fmt.Errorf("failed to get file stat: %w", err)
 	}
 
 	// read the file
 	bs := make([]byte, stat.Size())
 	_, err = file.Read(bs)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %v", err)
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
 	assetType := &models.AssetType{}
 	if err := assetType.UnmarshalJSON(bs); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal asset into AssetType %v", err)
+		return nil, fmt.Errorf("failed to unmarshal asset into AssetType %w", err)
 	}
 
 	return assetType, nil
@@ -137,12 +137,12 @@ func createAsset(ctx context.Context, assetType *models.AssetType, server string
 	// which matches the unique properties of this asset, in this
 	// case if the update-if-exists flag is set we'll patch the just AssetInfo and FirstSeen instead.
 	if !errors.As(err, &conflictError) || !updateIfExists {
-		return nil, fmt.Errorf("failed to post asset: %v", err)
+		return nil, fmt.Errorf("failed to post asset: %w", err)
 	}
 	assetData.FirstSeen = nil
 	err = client.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to patch asset: %v", err)
+		return nil, fmt.Errorf("failed to patch asset: %w", err)
 	}
 
 	return conflictError.ConflictingAsset, nil

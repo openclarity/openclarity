@@ -46,7 +46,7 @@ type Server struct {
 func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, error) {
 	e, err := createEchoServer(dbHandler)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create rest server: %v", err)
+		return nil, fmt.Errorf("failed to create rest server: %w", err)
 	}
 	return &Server{
 		port:       port,
@@ -57,7 +57,7 @@ func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, erro
 func createEchoServer(dbHandler databaseTypes.Database) (*echo.Echo, error) {
 	swagger, err := server.GetSwagger()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load swagger spec: %v", err)
+		return nil, fmt.Errorf("failed to load swagger spec: %w", err)
 	}
 
 	e := echo.New()

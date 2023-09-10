@@ -108,7 +108,7 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	}
 
 	if err := discoverer.Err(); err != nil {
-		return fmt.Errorf("failed to discover assets: %v", err)
+		return fmt.Errorf("failed to discover assets: %w", err)
 	}
 
 	// Find all assets which are not already terminatedOn and were not

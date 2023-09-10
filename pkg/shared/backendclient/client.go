@@ -140,7 +140,7 @@ func (b *BackendClient) PatchAssetScan(ctx context.Context, assetScan models.Ass
 func (b *BackendClient) PostScan(ctx context.Context, scan models.Scan) (*models.Scan, error) {
 	resp, err := b.apiClient.PostScansWithResponse(ctx, scan)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create a scan: %v", err)
+		return nil, fmt.Errorf("failed to create a scan: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
@@ -175,7 +175,7 @@ func (b *BackendClient) PostScan(ctx context.Context, scan models.Scan) (*models
 func (b *BackendClient) PostAssetScan(ctx context.Context, assetScan models.AssetScan) (*models.AssetScan, error) {
 	resp, err := b.apiClient.PostAssetScansWithResponse(ctx, assetScan)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create an asset scan: %v", err)
+		return nil, fmt.Errorf("failed to create an asset scan: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
@@ -211,7 +211,7 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID models.ScanID, sca
 	params := models.PatchScansScanIDParams{}
 	resp, err := b.apiClient.PatchScansScanIDWithResponse(ctx, scanID, &params, *scan)
 	if err != nil {
-		return fmt.Errorf("failed to update a scan: %v", err)
+		return fmt.Errorf("failed to update a scan: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -269,7 +269,7 @@ func (b *BackendClient) PatchAssetScanStatus(ctx context.Context, assetScanID st
 	params := models.PatchAssetScansAssetScanIDParams{}
 	resp, err := b.apiClient.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
 	if err != nil {
-		return fmt.Errorf("failed to update an asset scan status: %v", err)
+		return fmt.Errorf("failed to update an asset scan status: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -301,7 +301,7 @@ func (b *BackendClient) PatchAssetScanStatus(ctx context.Context, assetScanID st
 func (b *BackendClient) GetScan(ctx context.Context, scanID string, params models.GetScansScanIDParams) (*models.Scan, error) {
 	resp, err := b.apiClient.GetScansScanIDWithResponse(ctx, scanID, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get a scan: %v", err)
+		return nil, fmt.Errorf("failed to get a scan: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -363,7 +363,7 @@ func (b *BackendClient) PostScanConfig(ctx context.Context, scanConfig models.Sc
 func (b *BackendClient) GetScanEstimation(ctx context.Context, scanEstimationID string, params models.GetScanEstimationsScanEstimationIDParams) (*models.ScanEstimation, error) {
 	resp, err := b.apiClient.GetScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get a scan estimation: %v", err)
+		return nil, fmt.Errorf("failed to get a scan estimation: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -390,7 +390,7 @@ func (b *BackendClient) GetScanEstimation(ctx context.Context, scanEstimationID 
 func (b *BackendClient) GetScanEstimations(ctx context.Context, params models.GetScanEstimationsParams) (*models.ScanEstimations, error) {
 	resp, err := b.apiClient.GetScanEstimationsWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get scanEstimations: %v", err)
+		return nil, fmt.Errorf("failed to get scanEstimations: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -410,7 +410,7 @@ func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationI
 	params := models.PatchScanEstimationsScanEstimationIDParams{}
 	resp, err := b.apiClient.PatchScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params, *scanEstimation)
 	if err != nil {
-		return fmt.Errorf("failed to update a scan estimation: %v", err)
+		return fmt.Errorf("failed to update a scan estimation: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -442,7 +442,7 @@ func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationI
 func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEstimation models.AssetScanEstimation) (*models.AssetScanEstimation, error) {
 	resp, err := b.apiClient.PostAssetScanEstimationsWithResponse(ctx, assetScanEstimation)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create an asset scan estimation: %v", err)
+		return nil, fmt.Errorf("failed to create an asset scan estimation: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
@@ -657,7 +657,7 @@ func (b *BackendClient) PatchScanConfig(ctx context.Context, scanConfigID string
 func (b *BackendClient) GetScans(ctx context.Context, params models.GetScansParams) (*models.Scans, error) {
 	resp, err := b.apiClient.GetScansWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get scans: %v", err)
+		return nil, fmt.Errorf("failed to get scans: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -677,7 +677,7 @@ func (b *BackendClient) GetScans(ctx context.Context, params models.GetScansPara
 func (b *BackendClient) PostAsset(ctx context.Context, asset models.Asset) (*models.Asset, error) {
 	resp, err := b.apiClient.PostAssetsWithResponse(ctx, asset)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create an asset: %v", err)
+		return nil, fmt.Errorf("failed to create an asset: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
@@ -780,7 +780,7 @@ func (b *BackendClient) GetAsset(ctx context.Context, assetID string, params mod
 func (b *BackendClient) GetAssets(ctx context.Context, params models.GetAssetsParams) (*models.Assets, error) {
 	resp, err := b.apiClient.GetAssetsWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get assets: %v", err)
+		return nil, fmt.Errorf("failed to get assets: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -799,7 +799,7 @@ func (b *BackendClient) GetAssets(ctx context.Context, params models.GetAssetsPa
 func (b *BackendClient) GetFindings(ctx context.Context, params models.GetFindingsParams) (*models.Findings, error) {
 	resp, err := b.apiClient.GetFindingsWithResponse(ctx, &params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get findings: %v", err)
+		return nil, fmt.Errorf("failed to get findings: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -818,7 +818,7 @@ func (b *BackendClient) GetFindings(ctx context.Context, params models.GetFindin
 func (b *BackendClient) PatchFinding(ctx context.Context, findingID models.FindingID, finding models.Finding) error {
 	resp, err := b.apiClient.PatchFindingsFindingIDWithResponse(ctx, findingID, finding)
 	if err != nil {
-		return fmt.Errorf("failed to update a finding: %v", err)
+		return fmt.Errorf("failed to update a finding: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusOK:
@@ -850,7 +850,7 @@ func (b *BackendClient) PatchFinding(ctx context.Context, findingID models.Findi
 func (b *BackendClient) PostFinding(ctx context.Context, finding models.Finding) (*models.Finding, error) {
 	resp, err := b.apiClient.PostFindingsWithResponse(ctx, finding)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create a finding: %v", err)
+		return nil, fmt.Errorf("failed to create a finding: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:

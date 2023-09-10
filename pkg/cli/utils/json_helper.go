@@ -28,18 +28,18 @@ func PrintJSONData(data interface{}, fields string) error {
 	if fields == "" {
 		dataB, err := json.Marshal(data)
 		if err != nil {
-			return fmt.Errorf("failed to marshal data: %v", err)
+			return fmt.Errorf("failed to marshal data: %w", err)
 		}
 		fmt.Println(string(dataB))
 		return nil
 	}
 	j := jsonpath.New("parser")
 	if err := j.Parse(fields); err != nil {
-		return fmt.Errorf("failed to parse jsonpath: %v", err)
+		return fmt.Errorf("failed to parse jsonpath: %w", err)
 	}
 	err := j.Execute(os.Stdout, data)
 	if err != nil {
-		return fmt.Errorf("failed to execute jsonpath: %v", err)
+		return fmt.Errorf("failed to execute jsonpath: %w", err)
 	}
 	return nil
 }

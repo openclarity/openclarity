@@ -99,7 +99,7 @@ func (i *Instance) Delete(ctx context.Context) error {
 		options.Region = i.Region
 	})
 	if err != nil {
-		return fmt.Errorf("failed to terminate instances: %v", err)
+		return fmt.Errorf("failed to terminate instances: %w", err)
 	}
 
 	return nil

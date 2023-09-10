@@ -104,7 +104,7 @@ func (s *ServerImpl) GetDashboardRiskiestAssets(ctx echo.Context) error {
 func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findingType backendmodels.ScanType) ([]models.RiskyAsset, error) {
 	riskiestAssets, err := s.getRiskiestAssetsPerFinding(ctx, findingType)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get riskiest assets: %v", err)
+		return nil, fmt.Errorf("failed to get riskiest assets: %w", err)
 	}
 
 	return toAPIRiskyAssets(*riskiestAssets.Items, findingType), nil
@@ -113,7 +113,7 @@ func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findin
 func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) ([]models.VulnerabilityRiskyAsset, error) {
 	assets, err := s.getRiskiestAssetsPerFinding(ctx, backendmodels.VULNERABILITY)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get riskiest assets: %v", err)
+		return nil, fmt.Errorf("failed to get riskiest assets: %w", err)
 	}
 
 	return toAPIVulnerabilityRiskyAssets(*assets.Items), nil
@@ -122,7 +122,7 @@ func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) 
 func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingType backendmodels.ScanType) (*backendmodels.Assets, error) {
 	totalFindingField, err := getTotalFindingFieldName(findingType)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get total findings field name: %v", err)
+		return nil, fmt.Errorf("failed to get total findings field name: %w", err)
 	}
 
 	riskiestAssets, err := s.BackendClient.GetAssets(ctx, backendmodels.GetAssetsParams{
@@ -132,7 +132,7 @@ func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingTyp
 		Filter:  utils.PointerTo(fmt.Sprintf("terminatedOn eq null and summary/%s ne null", totalFindingField)),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get assets: %v", err)
+		return nil, fmt.Errorf("failed to get assets: %w", err)
 	}
 
 	return riskiestAssets, nil
@@ -243,7 +243,7 @@ func containerImageInfoToAssetInfo(info backendmodels.ContainerImageInfo) (*mode
 func vmInfoToAssetInfo(info backendmodels.VMInfo) (*models.AssetInfo, error) {
 	assetType, err := getVMAssetType(info.InstanceProvider)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get asset type: %v", err)
+		return nil, fmt.Errorf("failed to get asset type: %w", err)
 	}
 	return &models.AssetInfo{
 		Location: &info.Location,

@@ -55,7 +55,7 @@ func New(_ context.Context) (*Client, error) {
 
 	conn, err := grpc.Dial(config.ProviderPluginAddress, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial grpc. address=%v: %v", config.ProviderPluginAddress, err)
+		return nil, fmt.Errorf("failed to dial grpc. address=%v: %w", config.ProviderPluginAddress, err)
 	}
 	client.conn = conn
 	client.providerClient = provider_service.NewProviderClient(conn)
@@ -79,7 +79,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 
 		res, err := c.providerClient.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
 		if err != nil {
-			assetDiscoverer.Error = fmt.Errorf("failed to discover assets: %v", err)
+			assetDiscoverer.Error = fmt.Errorf("failed to discover assets: %w", err)
 			return
 		}
 
@@ -87,7 +87,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 		for _, asset := range assets {
 			modelsAsset, err := convertAssetToModels(asset)
 			if err != nil {
-				assetDiscoverer.Error = fmt.Errorf("failed to convert asset to models asset: %v", err)
+				assetDiscoverer.Error = fmt.Errorf("failed to convert asset to models asset: %w", err)
 				return
 			}
 
@@ -106,7 +106,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	scanJobConfig, err := convertScanJobConfig(config)
 	if err != nil {
-		return fmt.Errorf("failed to convert scan job config: %v", err)
+		return fmt.Errorf("failed to convert scan job config: %w", err)
 	}
 
 	res, err := c.providerClient.RunAssetScan(ctx, &provider_service.RunAssetScanParams{
@@ -137,14 +137,14 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	scanJobConfig, err := convertScanJobConfig(config)
 	if err != nil {
-		return fmt.Errorf("failed to convert scan job config: %v", err)
+		return fmt.Errorf("failed to convert scan job config: %w", err)
 	}
 
 	_, err = c.providerClient.RemoveAssetScan(ctx, &provider_service.RemoveAssetScanParams{
 		ScanJobConfig: scanJobConfig,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to remove asset scan: %v", err)
+		return fmt.Errorf("failed to remove asset scan: %w", err)
 	}
 	return nil
 }

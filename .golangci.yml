@@ -8,7 +8,7 @@ linters-settings:
     local-prefixes: github.com/openclarity/vmclarity
   errorlint:
     # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
-    errorf: false
+    errorf: true
   gomoddirectives:
     # Allow local `replace` directives. Default is false.
     replace-local: true
