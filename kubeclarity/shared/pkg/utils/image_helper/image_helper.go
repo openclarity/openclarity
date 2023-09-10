@@ -218,3 +218,16 @@ func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([
 	}
 	return layerCommands, nil
 }
+
+func GetHashFromRepoOrManifestDigest(repoDigests []string, manifestDigest string, imageName string) string {
+	hash := GetHashFromRepoDigest(repoDigests, imageName)
+	if hash == "" {
+		// set hash using ManifestDigest if RepoDigest is missing
+		if idx := strings.Index(manifestDigest, ":"); idx != -1 {
+			hash = manifestDigest[idx+1:]
+		} else {
+			hash = manifestDigest
+		}
+	}
+	return hash
+}
