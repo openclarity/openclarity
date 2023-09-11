@@ -1,0 +1,18 @@
+name: stale
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  mark-stale:
+    uses: openclarity/.github/.github/workflows/_stale.yml@main
+    permissions:
+      issues: write
+      pull-requests: write
+    with:
+      days-until-stale: 60
+      days-until-close: 14
+      stale-label: "stale"
+      exempt-label: "no-stale"

@@ -71,9 +71,14 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 
 // fetchFsCommands retrieves information about image layers commands.
 func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) {
-	conf, err := img.ConfigFile()
+	configFile, err := img.RawConfigFile()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get config file: %v", err)
+		return nil, fmt.Errorf("failed to get raw config file: %v", err)
+	}
+
+	var conf containerregistry_v1.ConfigFile
+	if err = json.Unmarshal(configFile, &conf); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal config file: %v", err)
 	}
 
 	if log.IsLevelEnabled(log.DebugLevel) {
@@ -84,7 +89,7 @@ func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) 
 		log.Debugf("Image config: %s", confB)
 	}
 
-	commands := getCommands(conf)
+	commands := getCommands(&conf)
 
 	layers, err := img.Layers()
 	if err != nil {
@@ -92,7 +97,8 @@ func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) 
 	}
 
 	if len(layers) != len(commands) {
-		return nil, fmt.Errorf("number of fs layers (%v) doesn't match the number of fs history entries (%v)", len(layers), len(commands))
+		log.Infof("Number of fs layers (%v) doesn't match the number of fs history entries (%v) - setting empty commands", len(layers), len(commands))
+		commands = make([]string, len(layers))
 	}
 
 	fsLayerCommands, err := createFsLayerCommands(layers, commands)
@@ -217,4 +223,17 @@ func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([
 		return nil, fmt.Errorf("failed to get layer commands from image=%s: %v", imageName, err)
 	}
 	return layerCommands, nil
+}
+
+func GetHashFromRepoOrManifestDigest(repoDigests []string, manifestDigest string, imageName string) string {
+	hash := GetHashFromRepoDigest(repoDigests, imageName)
+	if hash == "" {
+		// set hash using ManifestDigest if RepoDigest is missing
+		if idx := strings.Index(manifestDigest, ":"); idx != -1 {
+			hash = manifestDigest[idx+1:]
+		} else {
+			hash = manifestDigest
+		}
+	}
+	return hash
 }

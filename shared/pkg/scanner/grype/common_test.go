@@ -36,7 +36,7 @@ func TestCreateResults(t *testing.T) {
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &doc))
 	// define Target properly for image input
-	doc.Source.Target = syft_source.ImageMetadata{
+	doc.Source.Target = syft_source.StereoscopeImageSourceMetadata{
 		UserInput:      "nginx",
 		ManifestDigest: "sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
 		RepoDigests:    []string{"sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"},
@@ -96,13 +96,13 @@ func Test_getSource(t *testing.T) {
 	}
 
 	// define Target properly for image input
-	doc.Source.Target = syft_source.ImageMetadata{
+	doc.Source.Target = syft_source.StereoscopeImageSourceMetadata{
 		UserInput:      "nginx",
 		ManifestDigest: "sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
 		RepoDigests:    []string{"sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"},
 	}
 	// empty imageMetadata for SBOM input
-	sbomDoc.Source.Target = syft_source.ImageMetadata{}
+	sbomDoc.Source.Target = syft_source.StereoscopeImageSourceMetadata{}
 	// string for other input
 	otherDoc.Source.Target = "test"
 
