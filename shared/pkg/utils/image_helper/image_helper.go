@@ -72,6 +72,10 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 // fetchFsCommands retrieves information about image layers commands.
 func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) {
 	configFile, err := img.RawConfigFile()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get raw config file: %v", err)
+	}
+
 	var conf containerregistry_v1.ConfigFile
 	if err = json.Unmarshal(configFile, &conf); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config file: %v", err)
