@@ -92,7 +92,8 @@ func fetchFsCommands(img containerregistry_v1.Image) ([]*FsLayerCommand, error) 
 	}
 
 	if len(layers) != len(commands) {
-		return nil, fmt.Errorf("number of fs layers (%v) doesn't match the number of fs history entries (%v)", len(layers), len(commands))
+		log.Infof("Number of fs layers (%v) doesn't match the number of fs history entries (%v) - setting empty commands", len(layers), len(commands))
+		commands = make([]string, len(layers))
 	}
 
 	fsLayerCommands, err := createFsLayerCommands(layers, commands)
