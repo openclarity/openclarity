@@ -21,9 +21,8 @@ global:
 
   ## Affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  #affinity: {}
-
-  nodeSelector: 
+  # affinity: {}
+  nodeSelector:
     kubernetes.io/os: linux
     kubernetes.io/arch: amd64
 
@@ -117,7 +116,7 @@ kubeclarity:
 
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  #affinity: {}
+  # affinity: {}
 
   ## Overrides global.nodeSelector
   # nodeSelector:
@@ -162,7 +161,7 @@ kubeclarity-runtime-scan:
 
   ## Scanner pods Affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  #affinity: {}
+  # affinity: {}
 
   registry:
     skipVerifyTlS: "false"
@@ -283,7 +282,7 @@ kubeclarity-grype-server:
 
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  #affinity: {}
+  # affinity: {}
 
   ## Overrides global.nodeSelector
   # nodeSelector:
@@ -361,7 +360,7 @@ kubeclarity-sbom-db:
 
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  #affinity: {}
+  # affinity: {}
 
   ## Overrides global.nodeSelector
   # nodeSelector:
