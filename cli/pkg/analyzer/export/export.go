@@ -81,7 +81,7 @@ func createPackagesContentAnalysis(m *analyzer.MergedResults) []*models.PackageC
 
 func getResourceType(m *analyzer.MergedResults) models.ResourceType {
 	switch m.Source {
-	case utils.IMAGE:
+	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE:
 		return models.ResourceTypeIMAGE
 	case utils.DIR:
 		return models.ResourceTypeDIRECTORY

@@ -165,6 +165,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 	return trivyOptions, nil
 }
 
+// nolint:cyclop
 func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 
@@ -178,7 +179,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		var hash string
 		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.DOCKERARCHIVE, utils.OCIARCHIVE:
 		case utils.SBOM:
 			var err error
 			_, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
@@ -196,6 +197,32 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		if err != nil {
 			a.setError(fmt.Errorf("unable to create trivy options: %w", err))
 			return
+		}
+
+		switch sourceType {
+		case utils.DOCKERARCHIVE:
+			trivyOptions.ImageOptions.Input = userInput
+		case utils.OCIARCHIVE:
+			tmpDir, err := os.MkdirTemp("", "")
+			if err != nil {
+				a.setError(fmt.Errorf("unable to create temp directory: %w", err))
+				return
+			}
+			defer func() {
+				err := os.RemoveAll(tmpDir)
+				if err != nil {
+					a.logger.WithError(err).Errorf("unable to remove temp directory %s", tmpDir)
+				}
+			}()
+			err = utilsTrivy.UntarToDirectory(userInput, tmpDir)
+			if err != nil {
+				a.setError(fmt.Errorf("unable to untar %s to temp directory: %w", userInput, err))
+				return
+			}
+
+			trivyOptions.ImageOptions.Input = tmpDir
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM:
+			// Nothing to do here
 		}
 
 		// Convert the kubeclarity source to the trivy source type

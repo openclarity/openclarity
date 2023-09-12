@@ -413,7 +413,7 @@ func toBomDescriptorComponent(sourceType utils.SourceType, srcMetadata *cdx.Meta
 	metaDataComponent := srcMetadata.Component
 
 	switch sourceType {
-	case utils.IMAGE:
+	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE:
 		metaDataComponent.Type = cdx.ComponentTypeContainer
 	case utils.DIR, utils.FILE, utils.ROOTFS:
 		metaDataComponent.Type = cdx.ComponentTypeFile

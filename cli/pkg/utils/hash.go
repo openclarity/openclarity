@@ -35,7 +35,7 @@ func GenerateHash(inputType utils.SourceType, source string) (string, error) {
 		return "", fmt.Errorf("failed to get absolute path of the source %s: %v", source, err)
 	}
 	switch inputType {
-	case utils.IMAGE:
+	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE:
 		log.Infof("Skip generating hash in the case of image")
 		return "", nil
 	case utils.DIR, utils.ROOTFS:
