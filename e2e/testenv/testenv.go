@@ -136,9 +136,7 @@ func (e *Environment) ServicesReady(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	// TODO(paralta) remove when grype-server-init service is removed.
-	initServices := e.InitServices()
-	if len(services)-len(initServices) != len(ps) {
+	if len(services) != len(ps) {
 		return false, nil
 	}
 
@@ -155,18 +153,6 @@ func (e *Environment) Services() []string {
 	services := make([]string, len(e.project.Services))
 	for i, srv := range e.project.Services {
 		services[i] = srv.Name
-	}
-	return services
-}
-
-// TODO(paralta) remove when grype-server-init service is removed.
-func (e *Environment) InitServices() []string {
-	services := make([]string, 0, len(e.project.Services))
-	for _, srv := range e.project.Services {
-		val, ok := srv.Labels["type"]
-		if ok && val == "init" {
-			services = append(services, srv.Name)
-		}
 	}
 	return services
 }
