@@ -25,4 +25,5 @@ type Variant interface {
 	JSONExtractText(source string, path string) string
 	JSONQuote(value string) string
 	JSONCast(value string) string
+	JSONArrayLength(value string) string
 }

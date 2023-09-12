@@ -190,7 +190,7 @@ func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *models.ScanConfi
 func (w *Watcher) createScan(ctx context.Context, scanConfig *models.ScanConfig) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	filter := fmt.Sprintf("scanConfig/id eq '%s' and status ne '%s' and status ne '%s'", *scanConfig.Id,
+	filter := fmt.Sprintf("scanConfig/id eq '%s' and state ne '%s' and state ne '%s'", *scanConfig.Id,
 		models.ScanStateDone, models.ScanStateFailed)
 	scans, err := w.backend.GetScans(ctx, models.GetScansParams{
 		Filter: utils.PointerTo(filter),

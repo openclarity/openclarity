@@ -18,7 +18,10 @@ package odatasql
 type FieldType string
 
 const (
-	PrimitiveFieldType    FieldType = "primitive"
+	BooleanFieldType      FieldType = "boolean"
+	NumberFieldType       FieldType = "number"
+	StringFieldType       FieldType = "string"
+	DateTimeFieldType     FieldType = "datetime"
 	CollectionFieldType   FieldType = "collection"
 	ComplexFieldType      FieldType = "complex"
 	RelationshipFieldType FieldType = "relationship"

@@ -27,8 +27,6 @@ import (
 	"github.com/openclarity/vmclarity/pkg/apiserver/database/odatasql/jsonsql"
 )
 
-type jsonExtractFunctionType func(string, string) string
-
 var fixSelectToken sync.Once
 
 // nolint:cyclop
@@ -172,7 +170,7 @@ func buildSelectFieldsFromSelectAndExpand(sqlVariant jsonsql.Variant, schemaMeta
 
 func buildSelectFields(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier, source, path string, st *selectNode) string {
 	switch field.FieldType {
-	case PrimitiveFieldType:
+	case StringFieldType, NumberFieldType, BooleanFieldType, DateTimeFieldType:
 		// If root of source (path is just $) is primitive just return the source
 		if path == "$" {
 			return source
@@ -391,11 +389,16 @@ func buildSelectFieldsForCollectionFieldType(sqlVariant jsonsql.Variant, schemaM
 	listQuery := fmt.Sprintf("SELECT %s AS value FROM %s AS %s %s %s", subQuery, sqlVariant.JSONEach(sqlVariant.JSONExtract(source, path)), newIdentifier, where, orderby)
 
 	// Now aggregate all the rows back into a JSON array
-	aggregateValue := fmt.Sprintf("%s.value", identifier)
-	if field.CollectionItemMeta.FieldType != PrimitiveFieldType {
+	var aggregateValue string
+	switch field.CollectionItemMeta.FieldType {
+	case StringFieldType, NumberFieldType, BooleanFieldType, DateTimeFieldType:
+		aggregateValue = fmt.Sprintf("%s.value", identifier)
+	case CollectionFieldType, RelationshipFieldType, ComplexFieldType:
+		fallthrough
+	default:
 		// For non-primitives use -> '$' to convert the value back to a
 		// json object in the aggregate.
-		aggregateValue = sqlVariant.JSONExtract(aggregateValue, "$")
+		aggregateValue = sqlVariant.JSONExtract(fmt.Sprintf("%s.value", identifier), "$")
 	}
 	return fmt.Sprintf("(SELECT %s FROM (%s) AS %s)", sqlVariant.JSONArrayAggregate(aggregateValue), listQuery, identifier)
 }
@@ -440,7 +443,7 @@ func buildJSONPathFromParseNode(node *godata.ParseNode) (string, error) {
 // nolint:cyclop
 func expandItemsToReachPath(schemaMetas map[string]SchemaMeta, field FieldMeta, currentPath, path string) string {
 	switch field.FieldType {
-	case PrimitiveFieldType:
+	case StringFieldType, NumberFieldType, BooleanFieldType, DateTimeFieldType:
 		return ""
 	case CollectionFieldType:
 		return expandItemsToReachPath(schemaMetas, *field.CollectionItemMeta, currentPath, path)
@@ -499,12 +502,73 @@ func buildWhereFromFilter(sqlVariant jsonsql.Variant, schemaMetas map[string]Sch
 	tokenType := node.Token.Type
 
 	switch tokenType {
-	case godata.ExpressionTokenLogical, godata.ExpressionTokenFunc:
+	case godata.ExpressionTokenLogical:
 		return buildWhereFromLogicalOperator(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
+	case godata.ExpressionTokenFunc:
+		return buildWhereFromFunction(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
 	case godata.ExpressionTokenLambdaNav:
 		return buildWhereFromLambda(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
+	case godata.ExpressionTokenString, godata.ExpressionTokenInteger, godata.ExpressionTokenFloat, godata.ExpressionTokenBoolean, godata.ExpressionTokenDateTime, godata.ExpressionTokenNull:
+		return buildWhereFromPrimative(sqlVariant, node)
+	case godata.ExpressionTokenNav, godata.ExpressionTokenLiteral:
+		return buildWhereFromNav(sqlVariant, schemaMetas, field, identifier, source, node, chompPathPrefix)
 	default:
 		return "", fmt.Errorf("unexpected Token Type: %s", tokenType)
+	}
+}
+
+func buildWhereFromPrimative(sqlVariant jsonsql.Variant, node *godata.ParseNode) (string, error) {
+	tokenType := node.Token.Type
+	switch tokenType {
+	case godata.ExpressionTokenString:
+		return sqlVariant.JSONQuote(node.Token.Value), nil
+	case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:
+		return node.Token.Value, nil
+	case godata.ExpressionTokenBoolean:
+		return singleQuote(node.Token.Value), nil
+	case godata.ExpressionTokenDateTime:
+		return sqlVariant.CastToDateTime(singleQuote(node.Token.Value)), nil
+	case godata.ExpressionTokenNull:
+		return "NULL", nil
+	default:
+		return "", fmt.Errorf("unexpected token type: %s", tokenType)
+	}
+}
+
+func buildWhereFromNav(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode, chompPathPrefix string) (string, error) {
+	// Convert ODATA paths with slashes like "Thing/Name" into JSON
+	// path like "Thing.Name".
+	queryPath, err := buildJSONPathFromParseNode(node)
+	if err != nil {
+		return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
+	}
+	queryPath = strings.TrimPrefix(queryPath, chompPathPrefix)
+
+	fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
+	if err != nil {
+		return "", fmt.Errorf("unable to build source for filter %w", err)
+	}
+
+	fieldMetas, err := fieldMetaFromQueryPath(schemaMetas, field, queryPath)
+	if err != nil {
+		return "", fmt.Errorf("error finding field meta in schema for query path %s: %w", queryPath, err)
+	}
+	if len(fieldMetas) < 1 {
+		return "", fmt.Errorf("unable to find field meta in schema for query path %s", queryPath)
+	}
+	fieldMeta := fieldMetas[0]
+
+	switch fieldMeta.FieldType {
+	case StringFieldType, BooleanFieldType:
+		return sqlVariant.JSONExtract(fieldSource, queryPath), nil
+	case NumberFieldType:
+		return sqlVariant.JSONExtractText(fieldSource, queryPath), nil
+	case DateTimeFieldType:
+		return sqlVariant.CastToDateTime(sqlVariant.JSONExtractText(fieldSource, queryPath)), nil
+	case CollectionFieldType, RelationshipFieldType, ComplexFieldType:
+		fallthrough
+	default:
+		return "", fmt.Errorf("unable to directly extract field type %s, you might need a function like length() or to specify a specific field", fieldMeta.FieldType)
 	}
 }
 
@@ -514,38 +578,19 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 	var query string
 	switch operator {
 	case "eq", "ne", "gt", "ge", "lt", "le":
-		// Convert ODATA paths with slashes like "Thing/Name" into JSON
-		// path like "Thing.Name".
-		queryPath, err := buildJSONPathFromParseNode(node.Children[0])
+		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0], chompPathPrefix)
 		if err != nil {
-			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
-		}
-		queryPath = strings.TrimPrefix(queryPath, chompPathPrefix)
-
-		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
-		if err != nil {
-			return "", fmt.Errorf("unable to build source for filter %w", err)
+			return query, err
 		}
 
-		queryPath = fmt.Sprintf("$.%s", queryPath)
+		right, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[1], chompPathPrefix)
+		if err != nil {
+			return query, err
+		}
 
-		rhs := node.Children[1]
-		var extractFunction jsonExtractFunctionType = sqlVariant.JSONExtract
 		sqlOperator := sqlOperators[operator]
-		var value string
-		switch rhs.Token.Type { // TODO: implement all the relevant cases as ExpressionTokenDate and ExpressionTokenDateTime
-		case godata.ExpressionTokenString:
-			// rhs.Token.Value is already enforced to be single
-			// quoted by the odata validation so we can pass it
-			// straight in to json quote.
-			value = sqlVariant.JSONQuote(rhs.Token.Value)
-		case godata.ExpressionTokenBoolean:
-			value = singleQuote(rhs.Token.Value)
-		case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:
-			value = rhs.Token.Value
-			extractFunction = sqlVariant.JSONExtractText
+		switch node.Children[1].Token.Type {
 		case godata.ExpressionTokenNull:
-			value = "NULL"
 			if operator == "eq" {
 				sqlOperator = "is"
 			} else if operator == "ne" {
@@ -553,17 +598,9 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 			} else {
 				return "", fmt.Errorf("unsupported ExpressionTokenNull operator %s", operator)
 			}
-		case godata.ExpressionTokenDateTime:
-			value = singleQuote(rhs.Token.Value)
-			extractFunction = sqlVariant.JSONExtractText
-			originalTime := sqlVariant.CastToDateTime(extractFunction(source, queryPath))
-			timeToCompare := sqlVariant.CastToDateTime(value)
-			return fmt.Sprintf("%s %s %s", originalTime, sqlOperator, timeToCompare), nil
-		default:
-			return "", fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
 
-		query = fmt.Sprintf("%s %s %s", extractFunction(fieldSource, queryPath), sqlOperator, value)
+		query = fmt.Sprintf("(%s %s %s)", left, sqlOperator, right)
 	case "and":
 		left, err := buildWhereFromFilter(sqlVariant, schemaMetas, field, identifier, source, node.Children[0], chompPathPrefix)
 		if err != nil {
@@ -590,6 +627,17 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 			return query, err
 		}
 		query = fmt.Sprintf("NOT (%s)", subquery)
+	default:
+		return query, fmt.Errorf("unsupported operator: %s", operator)
+	}
+
+	return query, nil
+}
+
+func buildWhereFromFunction(sqlVariant jsonsql.Variant, schemaMetas map[string]SchemaMeta, field FieldMeta, identifier string, source string, node *godata.ParseNode, chompPathPrefix string) (string, error) {
+	function := node.Token.Value
+	var query string
+	switch function {
 	case "contains", "endswith", "startswith":
 		// Convert ODATA paths with slashes like "Thing/Name" into JSON
 		// path like "Thing.Name".
@@ -609,7 +657,7 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 		switch node.Children[1].Token.Type {
 		case godata.ExpressionTokenString:
 			r := strings.ReplaceAll(right, "'", "")
-			value = fmt.Sprintf(sqlOperators[operator], r)
+			value = fmt.Sprintf(sqlOperators[function], r)
 		default:
 			return query, fmt.Errorf("unsupported token type %s", node.Children[1].Token.Type)
 		}
@@ -619,8 +667,23 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 			sqlVariant.JSONExtractText(fieldSource, fmt.Sprintf("$.%s", queryPath)),
 			value,
 		)
+	case "length":
+		// Convert ODATA paths with slashes like "Thing/Name" into JSON
+		// path like "Thing.Name".
+		queryPath, err := buildJSONPathFromParseNode(node.Children[0])
+		if err != nil {
+			return "", fmt.Errorf("unable to covert oData path to json path: %w", err)
+		}
+		queryPath = strings.TrimPrefix(queryPath, chompPathPrefix)
+
+		fieldSource, err := sourceFromQueryPath(sqlVariant, schemaMetas, field, identifier, source, queryPath)
+		if err != nil {
+			return "", fmt.Errorf("unable to build source for filter %w", err)
+		}
+
+		return sqlVariant.JSONArrayLength(sqlVariant.JSONExtract(fieldSource, queryPath)), nil
 	default:
-		return query, fmt.Errorf("unsupported operator: %s", operator)
+		return query, fmt.Errorf("unsupported function: %s", function)
 	}
 
 	return query, nil
@@ -629,7 +692,7 @@ func buildWhereFromLogicalOperator(sqlVariant jsonsql.Variant, schemaMetas map[s
 // nolint:cyclop
 func fieldMetaFromQueryPath(schemaMetas map[string]SchemaMeta, field FieldMeta, path string) ([]FieldMeta, error) {
 	switch field.FieldType {
-	case PrimitiveFieldType:
+	case StringFieldType, NumberFieldType, BooleanFieldType, DateTimeFieldType:
 		if path == "" {
 			return []FieldMeta{field}, nil
 		} else {
