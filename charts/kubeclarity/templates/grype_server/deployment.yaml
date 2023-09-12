@@ -1,4 +1,6 @@
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
+{{- $affinity := (coalesce (index .Values "kubeclarity-grype-server" "affinity") .Values.global.affinity) -}}
+{{- $nodeSelector := (coalesce (index .Values "kubeclarity-grype-server" "nodeSelector") .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,6 +25,12 @@ spec:
       {{- if not .Values.global.openShiftRestricted }}
       securityContext:
         fsGroup: 1000
+      {{- end }}
+      {{- if $affinity }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- if $nodeSelector }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
       {{- end }}
       containers:
         - name: grype-server
