@@ -31,12 +31,12 @@ import (
 func (w *Watcher) getLatestAssetScanStats(ctx context.Context, asset *models.Asset) models.AssetScanStats {
 	var stats models.AssetScanStats
 
-	filterTmpl := "asset/id eq '%s' and status/general/state eq 'Done' and status/%s/errors eq null and scanFamiliesConfig/%s/enabled eq true"
+	filterTmpl := "asset/id eq '%s' and status/general/state eq 'Done' and (status/%s/errors eq null or length(status/%s/errors) eq 0) and scanFamiliesConfig/%s/enabled eq true"
 
 	families := []string{"exploits", "sbom", "vulnerabilities", "malware", "misconfigurations", "rootkits", "secrets"}
 	for _, family := range families {
 		params := models.GetAssetScansParams{
-			Filter:  utils.PointerTo(fmt.Sprintf(filterTmpl, *asset.Id, family, family)),
+			Filter:  utils.PointerTo(fmt.Sprintf(filterTmpl, *asset.Id, family, family, family)),
 			Top:     utils.PointerTo(1), // get the latest asset scan for this family
 			OrderBy: utils.PointerTo("status/general/lastTransitionTime DESC"),
 		}

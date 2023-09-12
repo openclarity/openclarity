@@ -59,3 +59,7 @@ func (sqlite) JSONQuote(value string) string {
 func (sqlite) JSONCast(value string) string {
 	return fmt.Sprintf("JSON(%s)", value)
 }
+
+func (sqlite) JSONArrayLength(value string) string {
+	return fmt.Sprintf("JSON_ARRAY_LENGTH(%s)", value)
+}
