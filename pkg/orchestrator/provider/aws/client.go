@@ -457,12 +457,13 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	close(errs)
 
 	// NOTE: make sure to drain results channel
+	listOfErrors := make([]error, 0)
 	for e := range errs {
 		if e != nil {
-			// nolint:typecheck
-			err = errors.Join(err, e)
+			listOfErrors = append(listOfErrors, e)
 		}
 	}
+	err = errors.Join(listOfErrors...)
 	if err != nil {
 		return err
 	}
@@ -770,13 +771,13 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 	close(errs)
 
 	// NOTE: make sure to drain results channel
+	listOfErrors := make([]error, 0)
 	for e := range errs {
 		if e != nil {
-			// nolint:typecheck
-			err = errors.Join(err, e)
+			listOfErrors = append(listOfErrors, e)
 		}
 	}
-
+	err = errors.Join(listOfErrors...)
 	return err
 }
 
