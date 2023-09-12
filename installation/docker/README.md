@@ -15,10 +15,10 @@ copied for this.
 
 ## Starting VMClarity
 ```
-docker compose --project-name vmclarity --file dockercompose.yml up -d --wait --remove-orphans
+docker compose --project-name vmclarity --file docker-compose.yml up -d --wait --remove-orphans
 ```
 
 ## Stopping VMClarity
 ```
-docker compose --project-name vmclarity --file dockercompose.yml down --remove-orphans
+docker compose --project-name vmclarity --file docker-compose.yml down --remove-orphans
 ```
