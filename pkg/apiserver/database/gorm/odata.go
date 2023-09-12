@@ -49,12 +49,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"ScanTemplate": {
 		Fields: odatasql.Schema{
-			"scope": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scope": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"maxParallelScanners": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.NumberFieldType,
 			},
 			"timeoutSeconds": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.NumberFieldType,
 			},
 			"assetScanTemplate": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -65,8 +65,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	assetScansSchemaName: {
 		Table: "asset_scans",
 		Fields: odatasql.Schema{
-			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   assetSchemaName,
@@ -129,8 +129,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanFindingsSummary"},
 			},
-			"findingsProcessed": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"resourceCleanup":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"findingsProcessed": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"resourceCleanup":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"AssetScanStats": {
@@ -186,9 +186,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"AssetScanInputScanStats": {
 		Fields: odatasql.Schema{
-			"type": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"size": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"type": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"size": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"scanTime": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -200,8 +200,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"AssetScanScanTime": {
 		Fields: odatasql.Schema{
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 		},
 	},
 	"SbomScan": {
@@ -217,18 +217,18 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Package": {
 		Fields: odatasql.Schema{
-			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"version":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"language": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"purl":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"type":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"version":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"language": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"purl":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"cpes": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"licenses": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 		},
 	},
@@ -245,14 +245,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Vulnerability": {
 		Fields: odatasql.Schema{
-			"vulnerabilityName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"severity":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"layerId":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"vulnerabilityName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"description":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"severity":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"layerId":           odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"links": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"cvss": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -284,9 +284,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Malware": {
 		Fields: odatasql.Schema{
-			"malwareName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"malwareType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"malwareName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"malwareType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"SecretScan": {
@@ -302,20 +302,20 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Secret": {
 		Fields: odatasql.Schema{
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"filePath":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startLine":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endLine":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startColumn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endColumn":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"filePath":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startLine":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"endLine":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startColumn": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"endColumn":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"MisconfigurationScan": {
 		Fields: odatasql.Schema{
 			"scanners": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"misconfigurations": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -328,14 +328,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Misconfiguration": {
 		Fields: odatasql.Schema{
-			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testID":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testDescription": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"severity":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"message":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"remediation":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testID":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testDescription": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"severity":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"message":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"remediation":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"RootkitScan": {
@@ -351,16 +351,16 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Rootkit": {
 		Fields: odatasql.Schema{
-			"rootkitName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"rootkitType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"rootkitName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"rootkitType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"InfoFinderScan": {
 		Fields: odatasql.Schema{
 			"scanners": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"infos": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -373,10 +373,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"InfoFinderInfo": {
 		Fields: odatasql.Schema{
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"type":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"data":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"data":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ExploitScan": {
@@ -392,25 +392,25 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Exploit": {
 		Fields: odatasql.Schema{
-			"name":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"title":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"cveID":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"sourceDB":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"title":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"cveID":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"sourceDB":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"urls": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 		},
 	},
 	scanSchemaName: {
 		Table: "scans",
 		Fields: odatasql.Schema{
-			"id":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"name":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"revision":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"name":      odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision":  odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"scanConfig": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   "ScanConfig",
@@ -422,10 +422,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				DiscriminatorProperty: "objectType",
 			},
 			"timeoutSeconds": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.NumberFieldType,
 			},
 			"maxParallelScanners": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.NumberFieldType,
 			},
 			"assetScanTemplate": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -434,17 +434,17 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"assetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 			"state": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.StringFieldType,
 			},
 			"stateMessage": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.StringFieldType,
 			},
 			"stateReason": odatasql.FieldMeta{
-				FieldType: odatasql.PrimitiveFieldType,
+				FieldType: odatasql.StringFieldType,
 			},
 			"summary": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
@@ -454,15 +454,15 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"ScanSummary": {
 		Fields: odatasql.Schema{
-			"jobsLeftToRun":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"jobsCompleted":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalPackages":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalExploits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalMalware":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"jobsLeftToRun":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"jobsCompleted":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalPackages":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalExploits":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalMalware":           odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"totalVulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
@@ -472,12 +472,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	assetSchemaName: {
 		Table: "assets",
 		Fields: odatasql.Schema{
-			"id":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"revision":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"firstSeen":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"lastSeen":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"terminatedOn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scansCount":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":           odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision":     odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"firstSeen":    odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"lastSeen":     odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"terminatedOn": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"scansCount":   odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"assetInfo": odatasql.FieldMeta{
 				FieldType:             odatasql.ComplexFieldType,
 				ComplexFieldSchemas:   []string{"VMInfo", "ContainerInfo", "ContainerImageInfo"},
@@ -491,13 +491,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"VMInfo": {
 		Fields: odatasql.Schema{
-			"objectType":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"instanceID":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"location":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"launchTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"platform":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"instanceType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"image":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"instanceID":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"location":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"launchTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"platform":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"instanceType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"image":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"rootVolume": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"RootVolume"},
@@ -516,24 +516,24 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"SecurityGroup"},
 				},
 			},
-			"instanceProvider": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"instanceProvider": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"RootVolume": {
 		Fields: odatasql.Schema{
-			"sizeGB":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"encrypted": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"sizeGB":    odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"encrypted": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 		},
 	},
 	"SecurityGroup": {
 		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ContainerImageInfo": {
 		Fields: odatasql.Schema{
-			"architecture": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"id":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"architecture": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"id":           odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"labels": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -541,18 +541,18 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Tag"},
 				},
 			},
-			"name":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"os":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"size":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"os":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"size":       odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"ContainerInfo": {
 		Fields: odatasql.Schema{
-			"containerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"createdAt":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"id":            odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"image":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"containerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"createdAt":     odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"id":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"image":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"labels": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -560,18 +560,18 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Tag"},
 				},
 			},
-			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ScanFindingsSummary": {
 		Fields: odatasql.Schema{
-			"totalPackages":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalExploits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalMalware":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"totalPackages":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalExploits":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalMalware":           odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalMisconfigurations": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalRootkits":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalSecrets":           odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalInfoFinder":        odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"totalVulnerabilities": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
@@ -580,20 +580,20 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"VulnerabilityScanSummary": {
 		Fields: odatasql.Schema{
-			"totalCriticalVulnerabilities":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalHighVulnerabilities":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalMediumVulnerabilities":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalLowVulnerabilities":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalNegligibleVulnerabilities": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"totalCriticalVulnerabilities":   odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalHighVulnerabilities":       odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalMediumVulnerabilities":     odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalLowVulnerabilities":        odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalNegligibleVulnerabilities": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"ScanConfig": {
 		Table: "scan_configs",
 		Fields: odatasql.Schema{
-			"id":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"revision": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"name":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"disabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"name":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"disabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scheduled": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"RuntimeScheduleScanConfig"},
@@ -606,15 +606,15 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"ScannerInstanceCreationConfig": {
 		Fields: odatasql.Schema{
-			"useSpotInstances": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"maxPrice":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"retryMaxAttempts": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"useSpotInstances": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
+			"maxPrice":         odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"retryMaxAttempts": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"RuntimeScheduleScanConfig": {
 		Fields: odatasql.Schema{
-			"cronLine":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"operationTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"cronLine":      odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"operationTime": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ScanFamiliesConfig": {
@@ -655,102 +655,102 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"InfoFinderConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"ExploitsConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"MalwareConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"MisconfigurationsConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"RootkitsConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"SBOMConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"analyzers": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"SecretsConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"VulnerabilitiesConfig": {
 		Fields: odatasql.Schema{
-			"enabled": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"enabled": odatasql.FieldMeta{FieldType: odatasql.BooleanFieldType},
 			"scanners": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 		},
 	},
 	"Tag": {
 		Fields: odatasql.Schema{
-			"key":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"value": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"key":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"value": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"Finding": {
 		Table: "findings",
 		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   assetSchemaName,
@@ -761,8 +761,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				RelationshipSchema:   assetScansSchemaName,
 				RelationshipProperty: "id",
 			},
-			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"findingInfo": odatasql.FieldMeta{
 				FieldType: odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{
@@ -791,33 +791,33 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"PackageFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"name":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"version":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"language":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"purl":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"type":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"name":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"version":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"language":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"purl":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"cpes": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"licenses": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 		},
 	},
 	"VulnerabilityFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"vulnerabilityName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"severity":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"layerId":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"vulnerabilityName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"description":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"severity":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"layerId":           odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"links": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 			"cvss": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
@@ -842,86 +842,86 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityCvssMetrics"},
 			},
-			"vector":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"version": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"vector":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"version": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"VulnerabilityCvssMetrics": {
 		Fields: odatasql.Schema{
-			"baseScore":           odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"exploitabilityScore": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"impactScore":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"baseScore":           odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"exploitabilityScore": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"impactScore":         odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"VulnerabilityDistro": {
 		Fields: odatasql.Schema{
 			"iDLike": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
-			"name":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"version": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"name":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"version": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"MalwareFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"malwareName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"malwareType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"malwareName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"malwareType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"SecretFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"filePath":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startLine":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endLine":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"filePath":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startLine":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"endLine":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"MisconfigurationFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testID":          odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"testDescription": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"severity":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"message":         odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"remediation":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":      odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"scannerName":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"scannedPath":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testCategory":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testID":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"testDescription": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"severity":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"message":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"remediation":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"InfoFinderFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"type":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"data":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"data":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"RootkitFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"rootkitName": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"rootkitType": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"rootkitName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"rootkitType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ExploitFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"name":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"title":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"description": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"cveID":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"sourceDB":    odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"name":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"title":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"description": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"cveID":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"sourceDB":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"urls": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 		},
 	},
@@ -967,24 +967,24 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"AssetScanState": {
 		Fields: odatasql.Schema{
-			"state":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"errors": odatasql.FieldMeta{
 				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			},
 		},
 	},
 	scanEstimationSchemaName: {
 		Table: "scan_estimations",
 		Fields: odatasql.Schema{
-			"id":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"assetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
-					FieldType: odatasql.PrimitiveFieldType,
+					FieldType: odatasql.StringFieldType,
 				},
 			},
 			"state": odatasql.FieldMeta{
@@ -1015,9 +1015,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Estimation": {
 		Fields: odatasql.Schema{
-			"duration": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"size":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"cost":     odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"duration": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"size":     odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"cost":     odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"costBreakdown": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -1029,23 +1029,23 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"CostBreakdownComponent": {
 		Fields: odatasql.Schema{
-			"operation": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"cost":      odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"operation": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"cost":      odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"ScanEstimationSummary": {
 		Fields: odatasql.Schema{
-			"totalScanTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalScanSize": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"totalScanCost": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"jobsLeftToRun": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"jobsCompleted": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"totalScanTime": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalScanSize": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"totalScanCost": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"jobsLeftToRun": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"jobsCompleted": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	assetScanEstimationsSchemaName: {
 		Table: "asset_scan_estimations",
 		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"id": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"asset": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   assetSchemaName,
@@ -1068,25 +1068,25 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanEstimationState"},
 			},
-			"revision":  odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"revision":  odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 		},
 	},
 	"AssetScanEstimationState": {
 		Fields: odatasql.Schema{
-			"state":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"stateMessage":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"stateReason":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"stateMessage":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"stateReason":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ScanEstimationState": {
 		Fields: odatasql.Schema{
-			"state":              odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"stateMessage":       odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
-			"stateReason":        odatasql.FieldMeta{FieldType: odatasql.PrimitiveFieldType},
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"stateMessage":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"stateReason":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 }

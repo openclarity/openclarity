@@ -156,9 +156,9 @@ var carSchemaMetas = map[string]SchemaMeta{
 	"Car": {
 		Table: "car_rows",
 		Fields: map[string]FieldMeta{
-			"Id":        {FieldType: PrimitiveFieldType},
-			"ModelName": {FieldType: PrimitiveFieldType},
-			"Seats":     {FieldType: PrimitiveFieldType},
+			"Id":        {FieldType: StringFieldType},
+			"ModelName": {FieldType: StringFieldType},
+			"Seats":     {FieldType: NumberFieldType},
 			"Engine": {
 				FieldType:           ComplexFieldType,
 				ComplexFieldSchemas: []string{"Engine"},
@@ -189,19 +189,19 @@ var carSchemaMetas = map[string]SchemaMeta{
 					RelationshipProperty: "Id",
 				},
 			},
-			"BuiltOn": {FieldType: PrimitiveFieldType},
+			"BuiltOn": {FieldType: DateTimeFieldType},
 		},
 	},
 	"Manufacturer": {
 		Table: "manufacturer_rows",
 		Fields: map[string]FieldMeta{
-			"Id":   {FieldType: PrimitiveFieldType},
-			"Name": {FieldType: PrimitiveFieldType},
+			"Id":   {FieldType: StringFieldType},
+			"Name": {FieldType: StringFieldType},
 			"Address": {
 				FieldType:           ComplexFieldType,
 				ComplexFieldSchemas: []string{"Address"},
 			},
-			"Source": {FieldType: PrimitiveFieldType},
+			"Source": {FieldType: StringFieldType},
 		},
 	},
 	"Engine": {
@@ -219,7 +219,7 @@ var carSchemaMetas = map[string]SchemaMeta{
 	},
 	"Options": {
 		Fields: map[string]FieldMeta{
-			"Supercharger": {FieldType: PrimitiveFieldType},
+			"Supercharger": {FieldType: StringFieldType},
 			"SubOptions": {
 				FieldType: CollectionFieldType,
 				CollectionItemMeta: &FieldMeta{
@@ -229,13 +229,13 @@ var carSchemaMetas = map[string]SchemaMeta{
 			},
 			"OtherThings": {
 				FieldType:          CollectionFieldType,
-				CollectionItemMeta: &FieldMeta{FieldType: PrimitiveFieldType},
+				CollectionItemMeta: &FieldMeta{FieldType: StringFieldType},
 			},
 		},
 	},
 	"SubOption": {
 		Fields: map[string]FieldMeta{
-			"Name": {FieldType: PrimitiveFieldType},
+			"Name": {FieldType: StringFieldType},
 			"Manufacturer": {
 				FieldType:            RelationshipFieldType,
 				RelationshipSchema:   "Manufacturer",
@@ -245,22 +245,22 @@ var carSchemaMetas = map[string]SchemaMeta{
 	},
 	"CDPlayer": {
 		Fields: map[string]FieldMeta{
-			"ObjectType":    {FieldType: PrimitiveFieldType},
-			"Brand":         {FieldType: PrimitiveFieldType},
-			"NumberOfDisks": {FieldType: PrimitiveFieldType},
+			"ObjectType":    {FieldType: StringFieldType},
+			"Brand":         {FieldType: StringFieldType},
+			"NumberOfDisks": {FieldType: StringFieldType},
 		},
 	},
 	"Radio": {
 		Fields: map[string]FieldMeta{
-			"ObjectType": {FieldType: PrimitiveFieldType},
-			"Brand":      {FieldType: PrimitiveFieldType},
-			"Frequency":  {FieldType: PrimitiveFieldType},
+			"ObjectType": {FieldType: StringFieldType},
+			"Brand":      {FieldType: StringFieldType},
+			"Frequency":  {FieldType: StringFieldType},
 		},
 	},
 	"Address": {
 		Fields: map[string]FieldMeta{
-			"City":    {FieldType: PrimitiveFieldType},
-			"Country": {FieldType: PrimitiveFieldType},
+			"City":    {FieldType: StringFieldType},
+			"Country": {FieldType: StringFieldType},
 		},
 	},
 }
@@ -1231,6 +1231,44 @@ func TestBuildSQLQuery(t *testing.T) {
 			want: []Car{
 				car1,
 				car2,
+			},
+		},
+		{
+			name: "if list length matches",
+			args: args{
+				filterString: PointerTo("length(Engine/Options/SubOptions) eq 4"),
+			},
+			want: []Car{
+				car1,
+				car2,
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "if list length doesn't match",
+			args: args{
+				filterString: PointerTo("length(Engine/Options/SubOptions) eq 2"),
+			},
+			want: []Car{},
+		},
+		{
+			name: "eq filter by primitive type ModelName inputs reversed",
+			args: args{
+				filterString: PointerTo("'model1' eq ModelName"),
+			},
+			want: []Car{car1},
+		},
+		{
+			name: "eq filter comparing two fields",
+			args: args{
+				filterString: PointerTo("Manufacturer/Name eq Engine/Manufacturer/Name"),
+			},
+			want: []Car{
+				car1,
+				car2,
+				car3,
+				car4,
 			},
 		},
 	}

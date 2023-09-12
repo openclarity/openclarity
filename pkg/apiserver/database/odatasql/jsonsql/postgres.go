@@ -76,3 +76,7 @@ func (postgres) JSONQuote(value string) string {
 func (postgres) JSONCast(value string) string {
 	return fmt.Sprintf("TO_JSONB(%s)", value)
 }
+
+func (postgres) JSONArrayLength(value string) string {
+	return fmt.Sprintf("JSONB_ARRAY_LENGTH(%s)", value)
+}
