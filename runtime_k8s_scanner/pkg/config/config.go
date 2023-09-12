@@ -28,6 +28,7 @@ const (
 	SBOMDBAddress = "SBOM_DB_ADDR"
 )
 
+// nolint:musttag
 type Config struct {
 	ResultServiceAddress string
 	SBOMDBAddress        string

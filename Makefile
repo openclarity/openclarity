@@ -7,8 +7,10 @@ VERSION ?= $(shell git rev-parse HEAD)
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 
+ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+BIN_DIR := $(ROOT_DIR)/bin
+
 # Dependency versions
-GOLANGCI_VERSION = 1.49.0
 LICENSEI_VERSION = 0.5.0
 
 # HELP
@@ -183,11 +185,18 @@ clean-runtime-k8s-scanner:
 clean-cis-docker-benchmark-scanner:
 	@(rm -rf cis_docker_benchmark_scanner/bin ; echo "CIS docker benchmark Scanner cleanup done" )
 
-bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
-	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
-bin/golangci-lint-${GOLANGCI_VERSION}:
-	@mkdir -p bin
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
+$(BIN_DIR):
+	@mkdir -p $(BIN_DIR)
+
+GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
+GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
+GOLANGCI_VERSION := 1.54.2
+
+bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
+	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
+
+bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b "$(BIN_DIR)" "v$(GOLANGCI_VERSION)"
 	@mv bin/golangci-lint $@
 
 .PHONY: lint

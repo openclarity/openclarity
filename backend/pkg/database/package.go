@@ -243,6 +243,10 @@ func (p *PackageTableHandler) GetPackagesCountPerLicense() ([]*models.PackagesCo
 			License: license,
 		})
 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan rows: %w", err)
+	}
 	return pkgCount, nil
 }
 
@@ -270,6 +274,10 @@ func (p *PackageTableHandler) GetPackagesCountPerLanguage() ([]*models.PackagesC
 			Count:    count,
 			Language: language,
 		})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan rows: %w", err)
 	}
 	return pkgCount, nil
 }
