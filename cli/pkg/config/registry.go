@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	RegistrySkipVerifyTlS = "REGISTRY_SKIP_VERIFY_TLS"
+	RegistrySkipVerifyTlS = "REGISTRY_SKIP_VERIFY_TLS" // nolint:gosec
 	RegistryUseHTTP       = "REGISTRY_USE_HTTP"
 )
 
