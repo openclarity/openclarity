@@ -31,6 +31,7 @@ const (
 	FakeDataEnvVar = "FAKE_DATA"
 )
 
+// nolint:musttag
 type Config struct {
 	BackendRestPort    int
 	HealthCheckAddress string

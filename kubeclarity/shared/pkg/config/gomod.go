@@ -17,6 +17,6 @@ package config
 
 type GomodConfig struct{}
 
-func ConvertToGomodConfig(analyzer *Analyzer) GomodConfig {
+func ConvertToGomodConfig(_ *Analyzer) GomodConfig {
 	return GomodConfig{}
 }

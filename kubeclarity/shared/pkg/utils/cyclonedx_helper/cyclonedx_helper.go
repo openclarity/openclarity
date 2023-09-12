@@ -125,7 +125,7 @@ func GetComponentLicenses(component cdx.Component) []string {
 
 // nolint:cyclop
 func GetComponentLanguage(component cdx.Component) string {
-	// Get language from PackageURL
+	// Get language from the PackageURL.
 	// PackageURL is a mandatory field for Component, so it should exist.
 	purl, err := purl.FromString(component.PackageURL)
 	if err != nil {

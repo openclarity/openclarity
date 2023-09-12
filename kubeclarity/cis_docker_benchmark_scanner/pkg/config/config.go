@@ -29,6 +29,7 @@ const (
 	Timeout = "TIMEOUT"
 )
 
+// nolint:musttag
 type Config struct {
 	ResultServiceAddress string
 	ScanUUID             string

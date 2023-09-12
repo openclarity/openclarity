@@ -36,12 +36,13 @@ const (
 	DBPortEnvVar              = "DB_PORT_NUMBER"
 	DatabaseDriver            = "DATABASE_DRIVER"
 	EnableDBInfoLogs          = "ENABLE_DB_INFO_LOGS"
-	ViewRefreshIntervalEnvVar = "DB_VIEW_REFRESH_INTERVAL"
+	ViewRefreshIntervalEnvVar = "DB_VIEW_REFRESH_INTERVAL" // nolint:gosec
 
 	FakeDataEnvVar           = "FAKE_DATA"
 	FakeRuntimeScannerEnvVar = "FAKE_RUNTIME_SCANNER"
 )
 
+// nolint:musttag
 type Config struct {
 	BackendRestPort    int
 	HealthCheckAddress string

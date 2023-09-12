@@ -28,7 +28,7 @@ const (
 	ImageHashToScan       = "IMAGE_HASH_TO_SCAN"
 	ImageNameToScan       = "IMAGE_NAME_TO_SCAN"
 	ScanUUID              = "SCAN_UUID"
-	RegistrySkipVerifyTlS = "REGISTRY_SKIP_VERIFY_TLS"
+	RegistrySkipVerifyTlS = "REGISTRY_SKIP_VERIFY_TLS" // nolint:gosec
 	RegistryUseHTTP       = "REGISTRY_USE_HTTP"
 	ImagePullSecretPath   = "IMAGE_PULL_SECRET_PATH" // nolint:gosec
 )
