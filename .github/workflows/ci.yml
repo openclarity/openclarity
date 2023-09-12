@@ -77,9 +77,9 @@ jobs:
       push: false
       upload: true
 
-  test:
+  e2e:
     needs: build
-    name: Test
+    name: E2E Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
