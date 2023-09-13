@@ -19,8 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -28,6 +26,7 @@ import (
 	kubeclarityUtils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/common"
 	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -78,17 +77,22 @@ const (
 	DataTransfer       recipeResource = "DataTransfer"
 )
 
-// Static times from lab tests of family scan duration in seconds per GB.
+// scanSizesGB represents the memory sizes on the machines that the tests were taken on.
+var scanSizesGB = []float64{0.01, 2.5, 8.1}
+
+// FamilyScanDurationsMap Calculate the logarithmic fit of each family base on static measurements of family scan duration in seconds per scanSizesGB value.
 // The tests were made on a t2.large instance with a gp2 volume.
+// The times correspond to the scan size values in scanSizesGB.
+// TODO add infoFinder family stats.
 // nolint:gomnd
-var familyScanDurationPerGBMap = map[familiestypes.FamilyType]time.Duration{
-	familiestypes.SBOM:             time.Duration(4.5 * float64(time.Second)),
-	familiestypes.Vulnerabilities:  1 * time.Second, // TODO check time with no sbom scan
-	familiestypes.Secrets:          300 * time.Second,
-	familiestypes.Exploits:         0,
-	familiestypes.Rootkits:         0,
-	familiestypes.Misconfiguration: 1 * time.Second,
-	familiestypes.Malware:          360 * time.Second,
+var FamilyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFormula{
+	familiestypes.SBOM:             common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 11, 37}),
+	familiestypes.Vulnerabilities:  common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 1, 11}), // TODO check time with no sbom scan
+	familiestypes.Secrets:          common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 720, 1320}),
+	familiestypes.Exploits:         common.MustLogarithmicFit(scanSizesGB, []float64{0, 0, 0}),
+	familiestypes.Rootkits:         common.MustLogarithmicFit(scanSizesGB, []float64{0, 0, 0}),
+	familiestypes.Misconfiguration: common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 4, 5}),
+	familiestypes.Malware:          common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 840, 2460}),
 }
 
 // Reserved Instances are not physical instances, but rather a billing discount that is applied to the running On-Demand Instances in your account.
@@ -304,17 +308,6 @@ func findMatchingStatsForInputTypeRootFS(stats *[]models.AssetScanInputScanStats
 	return models.AssetScanInputScanStats{}, false
 }
 
-const constantOfProportionality = 2.5
-
-func calculateStaticScanDuration(familyType familiestypes.FamilyType, scanSizeGB float64) int64 {
-	if scanSizeGB < 1 {
-		// The log of a value less than 1 is negative.
-		return int64(familyScanDurationPerGBMap[familyType].Seconds() * scanSizeGB)
-	}
-
-	return int64(familyScanDurationPerGBMap[familiestypes.SBOM].Seconds() * constantOfProportionality * math.Log(scanSizeGB))
-}
-
 // nolint:cyclop
 func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFamiliesConfig, scanSizeMB int64) int64 {
 	var totalScanDuration int64
@@ -327,7 +320,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 			totalScanDuration += scanDuration
 		} else {
 			// if we didn't find the duration from the stats, take it from our static scan duration map.
-			totalScanDuration += calculateStaticScanDuration(familiestypes.SBOM, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.SBOM].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -336,7 +329,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Vulnerabilities, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Vulnerabilities].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -345,7 +338,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Secrets, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Secrets].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -354,7 +347,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Exploits, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Exploits].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -363,7 +356,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Rootkits, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Rootkits].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -372,7 +365,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Misconfiguration, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Misconfiguration].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -381,7 +374,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += calculateStaticScanDuration(familiestypes.Malware, scanSizeGB)
+			totalScanDuration += int64(FamilyScanDurationsMap[familiestypes.Malware].Evaluate(scanSizeGB))
 		}
 	}
 

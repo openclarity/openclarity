@@ -203,10 +203,8 @@ func Test_getScanDuration(t *testing.T) {
 			},
 			// 360 seconds Secrets scan from stats
 			// 50 seconds Sbom scan from stats
-			// 1 * const * log(2.5) (static time * scan size) for  Misconfigurations
-			// 360 * const * log(2.5) for Malware from static table
-			// 1 * const * log(2.5) (static time * scan size) for  Vulnerabilities
-			wantDuration: 440,
+			// extrapolated value for  Misconfigurations, Malware and Vulnerabilities from static lab tests.
+			wantDuration: 1953,
 		},
 	}
 	for _, tt := range tests {
@@ -306,27 +304,27 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 				},
 			},
 			want: &models.Estimation{
-				Cost: utils.PointerTo(float32(0.2819062)),
+				Cost: utils.PointerTo(float32(0.5883259)),
 				CostBreakdown: &[]models.CostBreakdownComponent{
 					{
-						Cost:      float32(0.0010364198),
+						Cost:      float32(0.002162963),
 						Operation: string(Snapshot + "-us-east-1"),
 					},
 					{
-						Cost:      float32(0.27983335),
+						Cost:      float32(0.584),
 						Operation: string(ScannerInstance),
 					},
 					{
-						Cost:      float32(0.0005182099),
+						Cost:      float32(0.0010814815),
 						Operation: string(VolumeFromSnapshot),
 					},
 					{
-						Cost:      float32(0.0005182099),
+						Cost:      float32(0.0010814815),
 						Operation: string(ScannerRootVolume),
 					},
 				},
 				Size:     utils.PointerTo(8),
-				Duration: utils.PointerTo(479),
+				Duration: utils.PointerTo(2304),
 			},
 			wantErr: false,
 		},
