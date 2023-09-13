@@ -70,8 +70,8 @@ func init() {
 		"file to write the report output to (default is STDOUT)",
 	)
 	scanCmd.Flags().StringP("input-type", "i", "",
-		fmt.Sprintf("set input type (input type can be %s,%s,%s,%s default:%s)",
-			sharedutils.SBOM, sharedutils.DIR, sharedutils.FILE, sharedutils.IMAGE, sharedutils.IMAGE))
+		fmt.Sprintf("set input type (input type can be %s,%s,%s,%s,%s,%s,%s default:%s)",
+			sharedutils.SBOM, sharedutils.DIR, sharedutils.FILE, sharedutils.IMAGE, sharedutils.DOCKERARCHIVE, sharedutils.OCIARCHIVE, sharedutils.OCIDIR, sharedutils.IMAGE))
 	scanCmd.Flags().String("application-id", "",
 		"ID of a defined application to associate the exported vulnerability scan")
 	scanCmd.Flags().BoolP("export", "e", false,

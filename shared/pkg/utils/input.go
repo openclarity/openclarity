@@ -22,8 +22,9 @@ type SourceType string
 const (
 	SBOM          SourceType = "sbom"
 	IMAGE         SourceType = "image"
-	DOCKERARCHIVE SourceType = "dockerarchive"
-	OCIARCHIVE    SourceType = "ociarchive"
+	DOCKERARCHIVE SourceType = "docker-archive"
+	OCIARCHIVE    SourceType = "oci-archive"
+	OCIDIR        SourceType = "oci-dir"
 	DIR           SourceType = "dir"
 	ROOTFS        SourceType = "rootfs"
 	FILE          SourceType = "file"
@@ -39,6 +40,8 @@ func ValidateInputType(inputType string) (SourceType, error) {
 		return DOCKERARCHIVE, nil
 	case "oci-archive":
 		return OCIARCHIVE, nil
+	case "oci-dir":
+		return OCIDIR, nil
 	case "dir", "DIR", "directory":
 		return DIR, nil
 	case "file", "FILE":
@@ -58,6 +61,8 @@ func CreateSource(sourceType SourceType, src string, localImage bool) string {
 		return fmt.Sprintf("docker-archive:%s", src)
 	case OCIARCHIVE:
 		return fmt.Sprintf("oci-archive:%s", src)
+	case OCIDIR:
+		return fmt.Sprintf("oci-dir:%s", src)
 	case ROOTFS, DIR:
 		return fmt.Sprintf("%s:%s", DIR, src)
 	case FILE, SBOM:

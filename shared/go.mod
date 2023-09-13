@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.7.2-0.20230625092137-07e2f29defc3
 	github.com/CycloneDX/cyclonedx-gomod v1.4.0
 	github.com/anchore/grype v0.65.2
-	github.com/anchore/stereoscope v0.0.0-20230727211946-d1f3d766295e
+	github.com/anchore/stereoscope v0.0.0-20230911191510-2fc2d6c2503b
 	github.com/anchore/syft v0.87.1
 	github.com/aquasecurity/go-dep-parser v0.0.0-20230803125501-bd9cf68d8636
 	github.com/aquasecurity/trivy v0.44.1
@@ -69,6 +69,7 @@ require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
+	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
@@ -329,7 +330,7 @@ require (
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	github.com/vifraa/gopom v1.0.0 // indirect
 	github.com/wagoodman/go-partybus v0.0.0-20230516145632-8ccac152c651 // indirect
-	github.com/wagoodman/go-progress v0.0.0-20230301185719-21920a456ad5 // indirect
+	github.com/wagoodman/go-progress v0.0.0-20230911172108-cf810b7e365c // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

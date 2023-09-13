@@ -16,13 +16,14 @@
 package trivy
 
 import (
-	"archive/tar"
 	"fmt"
-	"io"
 	"os"
-	"path/filepath"
 
+	stereoscopeFile "github.com/anchore/stereoscope/pkg/file"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 )
@@ -31,7 +32,7 @@ func KubeclaritySourceToTrivySource(sourceType utils.SourceType) (artifact.Targe
 	switch sourceType {
 	case utils.IMAGE:
 		return artifact.TargetContainerImage, nil
-	case utils.DOCKERARCHIVE, utils.OCIARCHIVE:
+	case utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		return artifact.TargetImageArchive, nil
 	case utils.ROOTFS:
 		return artifact.TargetRootfs, nil
@@ -43,59 +44,58 @@ func KubeclaritySourceToTrivySource(sourceType utils.SourceType) (artifact.Targe
 	return artifact.TargetKind("Unknown"), fmt.Errorf("unable to convert source type %v to trivy type", sourceType)
 }
 
-// nolint:cyclop
-func UntarToDirectory(tarPath, destDirectory string) error {
-	tarFile, err := os.Open(tarPath)
+type CleanupFunc func(log *log.Entry)
+
+func UntarToTempDirectory(tar string) (string, CleanupFunc, error) {
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
-		return fmt.Errorf("unable to open archive file: %w", err)
+		return "", func(_ *log.Entry) {}, fmt.Errorf("unable to create temp directory: %w", err)
 	}
-
-	tr := tar.NewReader(tarFile)
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
+	cleanup := func(log *log.Entry) {
+		err := os.RemoveAll(tmpDir)
 		if err != nil {
-			return fmt.Errorf("error reading tar header: %w", err)
-		}
-
-		rel := filepath.FromSlash(hdr.Name)
-		abs := filepath.Join(destDirectory, rel)
-		mode := hdr.FileInfo().Mode()
-
-		switch hdr.Typeflag {
-		case tar.TypeReg:
-			wf, err := os.OpenFile(abs, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode.Perm())
-			if err != nil {
-				return fmt.Errorf("unable to open file %s for writing: %w", abs, err)
-			}
-
-			n, err := io.CopyN(wf, tr, hdr.Size)
-			if err != nil {
-				return fmt.Errorf("error writing data to file %s: %w", abs, err)
-			}
-
-			err = wf.Close()
-			if err != nil {
-				return fmt.Errorf("error closing file %s: %w", abs, err)
-			}
-
-			if n != hdr.Size {
-				return fmt.Errorf("only wrote %d bytes to %s; expected %d", n, abs, hdr.Size)
-			}
-		case tar.TypeDir:
-			// nolint:gomnd
-			err := os.MkdirAll(abs, 0o755)
-			if err != nil {
-				return fmt.Errorf("unable to create directory %s: %w", abs, err)
-			}
-		case tar.TypeXGlobalHeader:
-			// ignore
-		default:
-			return fmt.Errorf("file entry %s contained unsupported file type", abs)
+			log.WithError(err).Errorf("unable to remove temp directory %s", tmpDir)
 		}
 	}
 
-	return nil
+	f, err := os.Open(tar)
+	if err != nil {
+		return "", cleanup, fmt.Errorf("unable to untar %s to temp directory: %w", tar, err)
+	}
+	err = stereoscopeFile.UntarToDirectory(f, tmpDir)
+	if err != nil {
+		return "", cleanup, fmt.Errorf("unable to untar %s to temp directory: %w", tar, err)
+	}
+	return tmpDir, cleanup, nil
+}
+
+func SetTrivyImageOptions(sourceType utils.SourceType, userInput string, trivyOptions trivyFlag.Options) (trivyFlag.Options, CleanupFunc, error) {
+	trivyOptions.ImageOptions = trivyFlag.ImageOptions{
+		ImageSources: types.AllImageSources,
+	}
+
+	cleanup := func(_ *log.Entry) {}
+	switch sourceType {
+	// Docker Archive and OCI directories are natively supported by Trivy
+	// just needs to set the ImageOptions Input to the tar/directory.
+	case utils.DOCKERARCHIVE, utils.OCIDIR:
+		trivyOptions.ImageOptions.Input = userInput
+
+	// OCI Archive isn't natively supported so we'll convert it to a OCI
+	// directory first and then configure trivy as above.
+	case utils.OCIARCHIVE:
+		var err error
+		var tmpDir string
+		tmpDir, cleanup, err = UntarToTempDirectory(userInput)
+		if err != nil {
+			return trivyOptions, cleanup, fmt.Errorf("unable to untar %s to temp directory: %w", userInput, err)
+		}
+		trivyOptions.ImageOptions.Input = tmpDir
+
+	case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM:
+		// Nothing to do here, setting the target in ScanOptions is
+		// enough.
+	}
+
+	return trivyOptions, cleanup, nil
 }

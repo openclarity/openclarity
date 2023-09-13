@@ -75,7 +75,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 
 		// Skip this analyser for input types we don't support
 		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.DOCKERARCHIVE, utils.OCIARCHIVE:
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 			// These are all supported for SBOM analysing so continue
 		case utils.SBOM:
 			fallthrough
@@ -120,30 +120,12 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		switch sourceType {
-		case utils.DOCKERARCHIVE:
-			trivyOptions.ImageOptions.Input = userInput
-		case utils.OCIARCHIVE:
-			tmpDir, err := os.MkdirTemp("", "")
-			if err != nil {
-				a.setError(res, fmt.Errorf("unable to create temp directory: %w", err))
-				return
-			}
-			defer func() {
-				err := os.RemoveAll(tmpDir)
-				if err != nil {
-					a.logger.WithError(err).Errorf("unable to remove temp directory %s", tmpDir)
-				}
-			}()
-			err = utilsTrivy.UntarToDirectory(userInput, tmpDir)
-			if err != nil {
-				a.setError(res, fmt.Errorf("unable to untar %s to temp directory: %w", userInput, err))
-				return
-			}
-
-			trivyOptions.ImageOptions.Input = tmpDir
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM:
-			// Nothing to do here
+		// Configure Trivy image options according to the source type and user input.
+		trivyOptions, cleanup, err := utilsTrivy.SetTrivyImageOptions(sourceType, userInput, trivyOptions)
+		defer cleanup(a.logger)
+		if err != nil {
+			a.setError(res, fmt.Errorf("failed to configure trivy image options: %w", err))
+			return
 		}
 
 		// Ensure we're configured for private registry if required
