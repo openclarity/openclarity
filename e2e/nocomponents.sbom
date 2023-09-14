@@ -1,0 +1,30 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.4.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:a695ba86-57f0-4752-bf25-19e46578b215",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2023-09-14T14:43:22+01:00",
+    "tools": [
+      {
+        "vendor": "kubeclarity",
+        "name": "kubeclarity",
+        "version": "a238fe41ba942422f2f6a8bb59b7274ec85e33c5"
+      }
+    ],
+    "component": {
+      "bom-ref": "0ac8346f37ef2bf4",
+      "type": "container",
+      "name": "gcr.io/google_containers/pause",
+      "version": "sha256:927d98197ec1141a368550822d18fa1c60bdae27b78b0c004f705f548c07814f",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "927d98197ec1141a368550822d18fa1c60bdae27b78b0c004f705f548c07814f"
+        }
+      ]
+    }
+  },
+  "components": []
+}

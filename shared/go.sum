@@ -306,8 +306,6 @@ github.com/acobaugh/osrelease v0.1.0/go.mod h1:4bFEs0MtgHNHBrmHCt67gNisnabCRAlzd
 github.com/acomagu/bufpipe v1.0.3/go.mod h1:mxdxdup/WdsKVreO5GpW4+M/1CE2sMG4jeGJ2sYmHc4=
 github.com/acomagu/bufpipe v1.0.4 h1:e3H4WUzM3npvo5uv95QuJM3cQspFNtFBzvJ2oNjKIDQ=
 github.com/acomagu/bufpipe v1.0.4/go.mod h1:mxdxdup/WdsKVreO5GpW4+M/1CE2sMG4jeGJ2sYmHc4=
-github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
-github.com/adrg/xdg v0.4.0/go.mod h1:N6ag73EX4wyxeaoeHctc1mas01KZgsj5tYiAIwqJE/E=
 github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
 github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=
@@ -339,8 +337,8 @@ github.com/anchore/packageurl-go v0.1.1-0.20230104203445-02e0a6721501 h1:AV7qjwM
 github.com/anchore/packageurl-go v0.1.1-0.20230104203445-02e0a6721501/go.mod h1:Blo6OgJNiYF41ufcgHKkbCKF2MDOMlrqhXv/ij6ocR4=
 github.com/anchore/sqlite v1.4.6-0.20220607210448-bcc6ee5c4963 h1:vrf2PYH77vqVJoNR15ZuFJ63qwBMqrmGIt/7VsBhLF8=
 github.com/anchore/sqlite v1.4.6-0.20220607210448-bcc6ee5c4963/go.mod h1:AVRyXOUP0hTz9Cb8OlD1XnwA8t4lBPfTuwPHmEUuiLc=
-github.com/anchore/stereoscope v0.0.0-20230911191510-2fc2d6c2503b h1:TFqPfhf7Q+59gW1RuZixnEhh8lYY/FdqTRpSHYKcOsw=
-github.com/anchore/stereoscope v0.0.0-20230911191510-2fc2d6c2503b/go.mod h1:CpgmJLpFsMBSq4WnWpBIfk2etTvv/jx00q15MWnzKDY=
+github.com/anchore/stereoscope v0.0.0-20230727211946-d1f3d766295e h1:S6IhYpsBCpvphlHA1tN0glSG/kjVvFzC6OJuU2qW5Pc=
+github.com/anchore/stereoscope v0.0.0-20230727211946-d1f3d766295e/go.mod h1:0LsgHgXO4QFnk2hsYwtqd3fR18PIZXlFLIl2qb9tu3g=
 github.com/anchore/syft v0.87.1 h1:S9xAQzvSRjGTqnkHXxGNX7TQAU0vzr2HAbuD2Sklc1s=
 github.com/anchore/syft v0.87.1/go.mod h1:FweiDRmNb6zq/+vD8rernOfCdkV6KBfppIKFX207eCY=
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883/go.mod h1:rCTlJbsFo29Kk6CurOXKm700vrz8f0KW0JNfpkRJY/8=
@@ -1728,8 +1726,8 @@ github.com/vmihailenco/msgpack/v4 v4.3.12/go.mod h1:gborTTJjAo/GWTqqRjrLCn9pgNN+
 github.com/vmihailenco/tagparser v0.1.1/go.mod h1:OeAg3pn3UbLjkWt+rN9oFYB6u/cQgqMEUPoW2WPyhdI=
 github.com/wagoodman/go-partybus v0.0.0-20230516145632-8ccac152c651 h1:jIVmlAFIqV3d+DOxazTR9v+zgj8+VYuQBzPgBZvWBHA=
 github.com/wagoodman/go-partybus v0.0.0-20230516145632-8ccac152c651/go.mod h1:b26F2tHLqaoRQf8DywqzVaV1MQ9yvjb0OMcNl7Nxu20=
-github.com/wagoodman/go-progress v0.0.0-20230911172108-cf810b7e365c h1:mM8T8YhiD19d2wYv3vqZn8xpe1ZFJrUJCGlK4IV05xM=
-github.com/wagoodman/go-progress v0.0.0-20230911172108-cf810b7e365c/go.mod h1:jLXFoL31zFaHKAAyZUh+sxiTDFe1L1ZHrcK2T1itVKA=
+github.com/wagoodman/go-progress v0.0.0-20230301185719-21920a456ad5 h1:lwgTsTy18nYqASnH58qyfRW/ldj7Gt2zzBvgYPzdA4s=
+github.com/wagoodman/go-progress v0.0.0-20230301185719-21920a456ad5/go.mod h1:jLXFoL31zFaHKAAyZUh+sxiTDFe1L1ZHrcK2T1itVKA=
 github.com/xanzy/ssh-agent v0.2.1/go.mod h1:mLlQY/MoOhWBj+gOGMQkOeiEvkx+8pJSI+0Bx9h2kr4=
 github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6eAcqrDh0=
 github.com/xanzy/ssh-agent v0.3.1/go.mod h1:QIE4lCeL7nkC25x+yA3LBIYfwCc1TFziCtG7cBAac6w=

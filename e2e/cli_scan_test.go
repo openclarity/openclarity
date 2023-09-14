@@ -40,6 +40,9 @@ const (
 	TestImageName                  = "nginx:1.10"
 	ApplicationName                = "test-app"
 
+	DockerArchiveApplicationName   = "test-app-docker-archive"
+	DockerArchiveOutputSBOMFile    = "docker-archive.sbom"
+
 	TestImageWithMissingSyftMetadata      = "docker.io/weaveworksdemos/front-end:sha-14254f9"
 	MissingMetaImageAnalyzeOutputSBOMFile = "missingmeta.sbom"
 	MissingMetaApplicationName            = "test-app-missingm"
@@ -78,7 +81,7 @@ func TestCLIScan(t *testing.T) {
 
 			// analyze image with --merge-sbom directory sbom, and export to backend
 			t.Logf("analyze image...")
-			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, ImageAnalyzeOutputSBOMFile)
+			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, "image", ImageAnalyzeOutputSBOMFile)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateAnalyzeImage(t, ImageAnalyzeOutputSBOMFile, appID)
 
@@ -90,9 +93,9 @@ func TestCLIScan(t *testing.T) {
 
 			// scan image
 			t.Logf("scan image...")
-			scanImage(t, TestImageName, appID)
+			scanImage(t, TestImageName, "image", appID)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateScanImage(t, appID)
+			validateScanImage(t, appID, true)
 
 			return ctx
 		}).
@@ -103,7 +106,7 @@ func TestCLIScan(t *testing.T) {
 
 			// analyze "bad" image
 			t.Logf("analyze image...")
-			analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, MissingMetaImageAnalyzeOutputSBOMFile)
+			analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, "image", MissingMetaImageAnalyzeOutputSBOMFile)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 			validateAnalyzeImage(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
 
@@ -122,7 +125,7 @@ func TestCLIScan(t *testing.T) {
 
 			// analyze "bad" image
 			t.Logf("analyze image...")
-			analyzeImage(t, "", appID, TestImageWithNoComponents, NoComponentsImageAnalyzeOutputSBOMFile)
+			analyzeImage(t, "", appID, TestImageWithNoComponents, "image", NoComponentsImageAnalyzeOutputSBOMFile)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
 
 			// check generated sbom is a valid cyclonedx even
@@ -141,6 +144,45 @@ func TestCLIScan(t *testing.T) {
 			// no vuls were found because its got no components
 			vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
 			assert.Assert(t, *vuls.Total == 0)
+
+			return ctx
+		}).
+		Assess("cli scan flow - docker archive image", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+			// create application
+			t.Logf("create application...")
+			appID := createApplication(t, DockerArchiveApplicationName)
+
+			tmpDir, err := os.MkdirTemp("", "")
+			if err != nil {
+				t.Fatalf("unable to make temporary directory")
+			}
+			defer func() {
+				err := os.RemoveAll(tmpDir)
+				if err != nil {
+					t.Logf("unable to remove temp directory: %v", err)
+				}
+			}()
+
+			outputFile := filepath.Join(tmpDir, "image.tar")
+
+			command := fmt.Sprintf("docker pull %s && docker image save %s -o %s", TestImageName, TestImageName, outputFile)
+			cmd := exec.Command("/bin/sh", "-c", command)
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				t.Fatalf("docker save failed: %v, %s", err, out)
+			}
+
+			// analyze image with --merge-sbom directory sbom, and export to backend
+			t.Logf("analyze image...")
+			analyzeImage(t, "", appID, outputFile, "docker-archive", DockerArchiveOutputSBOMFile)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+			validateAnalyzeImage(t, DockerArchiveOutputSBOMFile, appID)
+
+			// scan image
+			t.Logf("scan image...")
+			scanImage(t, outputFile, "docker-archive", appID)
+			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+			validateScanImage(t, appID, false)
 
 			return ctx
 		}).Feature()
@@ -180,7 +222,7 @@ func validateAnalyzeImage(t *testing.T, sbomFile, appID string) {
 	assert.Assert(t, *appResources.Total > 0)
 }
 
-func validateScanImage(t *testing.T, appID string) {
+func validateScanImage(t *testing.T, appID string, cis bool) {
 	t.Helper()
 	vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
 	assert.Assert(t, *vuls.Total > 0)
@@ -188,8 +230,10 @@ func validateScanImage(t *testing.T, appID string) {
 	appResources := common.GetApplicationResources(t, kubeclarityAPI, appID)
 	assert.Assert(t, appResources.Items[0].ResourceType == models.ResourceTypeIMAGE)
 
-	cisDockerBenchmarkResults := common.GetCISDockerBenchmarkResults(t, kubeclarityAPI, appResources.Items[0].ID)
-	assert.Assert(t, *cisDockerBenchmarkResults.Total > 0)
+	if cis {
+		cisDockerBenchmarkResults := common.GetCISDockerBenchmarkResults(t, kubeclarityAPI, appResources.Items[0].ID)
+		assert.Assert(t, *cisDockerBenchmarkResults.Total > 0)
+	}
 }
 
 func validateScanSBOM(t *testing.T, appID string) {
@@ -229,12 +273,12 @@ func analyzeDir(t *testing.T) {
 var cliPath = filepath.Join(common.GetCurrentDir(), "kubeclarity-cli")
 
 // analyze test image, merge inputSbom and export to backend
-func analyzeImage(t *testing.T, inputSbom string, appID string, image string, outputfile string) {
+func analyzeImage(t *testing.T, inputSbom string, appID string, image string, inputType string, outputfile string) {
 	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
-	command := fmt.Sprintf("%v analyze %v --application-id %v --input-type image", cliPath, image, appID)
+	command := fmt.Sprintf("%v analyze %v --application-id %v --input-type %s", cliPath, image, appID, inputType)
 
 	if inputSbom != "" {
 		command = fmt.Sprintf("%s --merge-sbom %v", command, inputSbom)
@@ -265,12 +309,12 @@ func scanSBOM(t *testing.T, inputSbom string, appID string) {
 	}
 }
 
-func scanImage(t *testing.T, image string, appID string) {
+func scanImage(t *testing.T, image string, inputType string, appID string) {
 	t.Helper()
 	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
 	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
-	command := fmt.Sprintf("%v scan %v --application-id %v --input-type image --cis-docker-benchmark-scan -e", cliPath, image, appID)
+	command := fmt.Sprintf("%v scan %v --application-id %v --input-type %s --cis-docker-benchmark-scan -e", cliPath, image, appID, inputType)
 
 	cmd := exec.Command("/bin/sh", "-c", command)
 
