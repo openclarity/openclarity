@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -496,6 +497,10 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 			*assetScanEstimations.Count-failedAssetScanEstimations, failedAssetScanEstimations, *assetScanEstimations.Count))
 
 		scanEstimation.EndTime = utils.PointerTo(time.Now())
+
+		if err := updateTotalScanTimeWithParallelScans(scanEstimation); err != nil {
+			return fmt.Errorf("failed to update scan time from paraller scans: %w", err)
+		}
 	}
 
 	scanEstimationPatch := &models.ScanEstimation{
@@ -507,6 +512,41 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 	err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
 	if err != nil {
 		return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
+	}
+
+	return nil
+}
+
+func updateTotalScanTimeWithParallelScans(scanEstimation *models.ScanEstimation) error {
+	if scanEstimation == nil {
+		return fmt.Errorf("empty scan estimation")
+	}
+
+	if scanEstimation.ScanTemplate == nil {
+		return fmt.Errorf("empty scan template")
+	}
+
+	if scanEstimation.Summary == nil {
+		return fmt.Errorf("empty summary")
+	}
+
+	if scanEstimation.Summary.JobsCompleted == nil {
+		return fmt.Errorf("jobsCompleted is not set")
+	}
+
+	if *scanEstimation.Summary.JobsCompleted == 0 {
+		return fmt.Errorf("0 completed jobs in summary")
+	}
+
+	maxParallelScanners := utils.ValueOrZero(scanEstimation.ScanTemplate.MaxParallelScanners)
+
+	if maxParallelScanners > 1 {
+		numberOfJobs := *scanEstimation.Summary.JobsCompleted
+
+		actualParallelScanners := int(math.Min(float64(maxParallelScanners), float64(numberOfJobs)))
+
+		// Note: This is a rough estimation, as we don't know which jobs will be running in parallel.
+		*scanEstimation.Summary.TotalScanTime = *scanEstimation.Summary.TotalScanTime / actualParallelScanners
 	}
 
 	return nil
