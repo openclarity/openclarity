@@ -62,3 +62,104 @@ func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 		})
 	}
 }
+
+func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
+	type args struct {
+		scanEstimation *models.ScanEstimation
+	}
+	tests := []struct {
+		name              string
+		args              args
+		wantErr           bool
+		wantTotalScanTime int
+	}{
+		{
+			name: "max parallel scanners == nil",
+			args: args{
+				scanEstimation: &models.ScanEstimation{
+					Summary: &models.ScanEstimationSummary{
+						JobsCompleted: utils.PointerTo(5),
+						TotalScanTime: utils.PointerTo(30),
+					},
+					ScanTemplate: &models.ScanTemplate{},
+				},
+			},
+			wantTotalScanTime: 30,
+			wantErr:           false,
+		},
+		{
+			name: "max parallel scanners == 1",
+			args: args{
+				scanEstimation: &models.ScanEstimation{
+					Summary: &models.ScanEstimationSummary{
+						JobsCompleted: utils.PointerTo(5),
+						TotalScanTime: utils.PointerTo(30),
+					},
+					ScanTemplate: &models.ScanTemplate{
+						MaxParallelScanners: utils.PointerTo(1),
+					},
+				},
+			},
+			wantTotalScanTime: 30,
+			wantErr:           false,
+		},
+		{
+			name: "max parallel scanners == number of jobs",
+			args: args{
+				scanEstimation: &models.ScanEstimation{
+					Summary: &models.ScanEstimationSummary{
+						JobsCompleted: utils.PointerTo(5),
+						TotalScanTime: utils.PointerTo(30),
+					},
+					ScanTemplate: &models.ScanTemplate{
+						MaxParallelScanners: utils.PointerTo(5),
+					},
+				},
+			},
+			wantTotalScanTime: 6,
+			wantErr:           false,
+		},
+		{
+			name: "max parallel scanners < number of jobs",
+			args: args{
+				scanEstimation: &models.ScanEstimation{
+					Summary: &models.ScanEstimationSummary{
+						JobsCompleted: utils.PointerTo(3),
+						TotalScanTime: utils.PointerTo(30),
+					},
+					ScanTemplate: &models.ScanTemplate{
+						MaxParallelScanners: utils.PointerTo(2),
+					},
+				},
+			},
+			wantTotalScanTime: 15,
+			wantErr:           false,
+		},
+		{
+			name: "max parallel scanners > number of jobs",
+			args: args{
+				scanEstimation: &models.ScanEstimation{
+					Summary: &models.ScanEstimationSummary{
+						JobsCompleted: utils.PointerTo(2),
+						TotalScanTime: utils.PointerTo(30),
+					},
+					ScanTemplate: &models.ScanTemplate{
+						MaxParallelScanners: utils.PointerTo(3),
+					},
+				},
+			},
+			wantTotalScanTime: 15,
+			wantErr:           false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := updateTotalScanTimeWithParallelScans(tt.args.scanEstimation); (err != nil) != tt.wantErr {
+				t.Errorf("updateTotalScanTimeWithParallelScans() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if *tt.args.scanEstimation.Summary.TotalScanTime != tt.wantTotalScanTime {
+				t.Errorf("updateTotalScanTimeWithParallelScans() failed. wantTotalScanTime = %v, gotTotalScanTime = %v", tt.wantTotalScanTime, *tt.args.scanEstimation.Summary.TotalScanTime)
+			}
+		})
+	}
+}
