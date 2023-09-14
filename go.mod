@@ -54,8 +54,8 @@ require (
 	gorm.io/driver/sqlite v1.5.1
 	gorm.io/gorm v1.25.2
 	gotest.tools/v3 v3.5.0
-	k8s.io/apimachinery v0.28.1
-	k8s.io/client-go v0.28.1
+	k8s.io/apimachinery v0.28.2
+	k8s.io/client-go v0.28.2
 
 )
 
@@ -457,7 +457,7 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gorm.io/driver/mysql v1.5.1 // indirect
 	helm.sh/helm/v3 v3.12.3 // indirect
-	k8s.io/api v0.28.1 // indirect
+	k8s.io/api v0.28.2 // indirect
 	k8s.io/apiextensions-apiserver v0.27.3 // indirect
 	k8s.io/apiserver v0.27.3 // indirect
 	k8s.io/cli-runtime v0.28.1 // indirect
