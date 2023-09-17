@@ -94,7 +94,7 @@ spec:
             - -c
             - >
               set -x;
-              while [ $(curl -sw '%{http_code}' "http://{{ include "kubeclarity.grype-server.name" . }}:8080/healthz/ready" -o /dev/null) -ne 200 ]; do
+              while [ $(curl -sw '%{http_code}' "http://kubeclarity.{{ include "kubeclarity.grype-server.name" . }}:8080/healthz/ready" -o /dev/null) -ne 200 ]; do
                 echo waiting for grype-server to be ready; sleep 2;
               done;
           securityContext:
