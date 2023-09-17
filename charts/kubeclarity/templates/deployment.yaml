@@ -70,7 +70,7 @@ spec:
             - -c
             - >
               set -x;
-              while [ $(curl -sw '%{http_code}' "http://{{ include "kubeclarity.sbom-db.name" . }}:8081/healthz/ready" -o /dev/null) -ne 200 ]; do
+              while [ $(curl -sw '%{http_code}' "http://kubeclarity.{{ include "kubeclarity.sbom-db.name" . }}:8081/healthz/ready" -o /dev/null) -ne 200 ]; do
                 echo waiting for sbom database; sleep 2;
               done;
           securityContext:
