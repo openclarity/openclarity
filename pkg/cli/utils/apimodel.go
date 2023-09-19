@@ -179,9 +179,10 @@ func ConvertMalwareResultToAPIModel(malwareResults *malware.MergedResults) *mode
 	for _, m := range malwareResults.DetectedMalware {
 		mal := m // Prevent loop variable pointer export
 		malwareList = append(malwareList, models.Malware{
-			MalwareName: &mal.MalwareName,
-			MalwareType: &mal.MalwareType,
-			Path:        &mal.Path,
+			MalwareName: utils.OmitEmpty(mal.MalwareName),
+			MalwareType: utils.OmitEmpty(mal.MalwareType),
+			Path:        utils.OmitEmpty(mal.Path),
+			RuleName:    utils.OmitEmpty(mal.RuleName),
 		})
 	}
 

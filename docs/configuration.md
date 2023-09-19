@@ -8,6 +8,7 @@
 | `SCANNER_CONTAINER_IMAGE`                 |           |         |                                              |
 | `GITLEAKS_BINARY_PATH`                    |           |         |                                              |
 | `CLAM_BINARY_PATHCLAM_BINARY_PATH`        |           |         |                                              |
+| `YARA_BINARY_PATH`                        |           |         |                                              |
 | `FRESHCLAM_BINARY_PATH`                   |           |         |                                              |
 | `ALTERNATIVE_FRESHCLAM_MIRROR_URL`        |           |         |                                              |
 | `LYNIS_INSTALL_PATH`                      |           |         |                                              |
@@ -15,6 +16,7 @@
 | `EXPLOIT_DB_ADDRESS`                      |           |         |                                              |
 | `TRIVY_SERVER_ADDRESS`                    |           |         |                                              |
 | `TRIVY_SERVER_TIMEOUT`                    |           |         |                                              |
+| `YARA_RULE_SERVER_ADDRESS`                |           |         |                                              |
 | `GRYPE_SERVER_ADDRESS`                    |           |         |                                              |
 | `GRYPE_SERVER_TIMEOUT`                    |           |         |                                              |
 | `CHKROOTKIT_BINARY_PATH`                  |           |         |                                              |
@@ -23,10 +25,10 @@
 | `SCAN_POLLING_INTERVAL`                   |           |         |                                              |
 | `SCAN_RECONCILE_TIMEOUT`                  |           |         |                                              |
 | `SCAN_TIMEOUT`                            |           |         |                                              |
-| `ASSET_SCAN_POLLING_INTERVAL`            |           |         |                                              |
-| `ASSET_SCAN_RECONCILE_TIMEOUT`           |           |         |                                              |
-| `ASSET_SCAN_PROCESSOR_POLLING_INTERVAL`  |           |         |                                              |
-| `ASSET_SCAN_PROCESSOR_RECONCILE_TIMEOUT` |           |         |                                              |
+| `ASSET_SCAN_POLLING_INTERVAL`             |           |         |                                              |
+| `ASSET_SCAN_RECONCILE_TIMEOUT`            |           |         |                                              |
+| `ASSET_SCAN_PROCESSOR_POLLING_INTERVAL`   |           |         |                                              |
+| `ASSET_SCAN_PROCESSOR_RECONCILE_TIMEOUT`  |           |         |                                              |
 | `DISCOVERY_INTERVAL`                      |           |         |                                              |
 | `CONTROLLER_STARTUP_DELAY`                |           |         |                                              |
 | `PROVIDER`                                | **yes**   | `aws`   | Provider used for Asset discovery and scans |

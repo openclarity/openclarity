@@ -2482,6 +2482,8 @@ components:
           type: string
         malwareType:
           $ref: '#/components/schemas/MalwareType'
+        ruleName:
+          type: string
         path:
           type: string
           description: Path of the file that contains malware

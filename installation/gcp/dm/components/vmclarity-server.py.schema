@@ -87,6 +87,10 @@ properties:
     type: string
     default: ghcr.io/openclarity/freshclam-mirror:v0.1.0
     description: The container image to use for the fresh clam mirror server
+  yaraRuleServerContainerImage:
+    type: string
+    default: ghcr.io/openclarity/yara-rule-server:v0.1.0
+    description: The container image to use for the yara rule server
   postgresqlContainerImage:
     type: string
     default: docker.io/bitnami/postgresql:12.14.0-debian-11-r28

@@ -88,7 +88,7 @@ func (c *MalwareConfig) GetScannersList() []string {
 		return *c.Scanners
 	}
 
-	return []string{"clam"}
+	return []string{"clam", "yara"}
 }
 
 func (c *ExploitsConfig) IsEnabled() bool {

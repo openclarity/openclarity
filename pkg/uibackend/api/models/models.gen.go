@@ -142,7 +142,8 @@ type Malware struct {
 	MalwareType *MalwareType `json:"malwareType,omitempty"`
 
 	// Path Path of the file that contains malware
-	Path *string `json:"path,omitempty"`
+	Path     *string `json:"path,omitempty"`
+	RuleName *string `json:"ruleName,omitempty"`
 }
 
 // MalwareFindingImpact defines model for MalwareFindingImpact.
