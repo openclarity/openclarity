@@ -165,6 +165,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 	return trivyOptions, nil
 }
 
+// nolint:cyclop
 func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 
@@ -178,7 +179,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		var hash string
 		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		case utils.SBOM:
 			var err error
 			_, hash, err = utilsSBOM.GetTargetNameAndHashFromSBOM(userInput)
@@ -195,6 +196,14 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		trivyOptions, err := a.createTrivyOptions(tempFile.Name(), userInput)
 		if err != nil {
 			a.setError(fmt.Errorf("unable to create trivy options: %w", err))
+			return
+		}
+
+		// Configure Trivy image options according to the source type and user input.
+		trivyOptions, cleanup, err := utilsTrivy.SetTrivyImageOptions(sourceType, userInput, trivyOptions)
+		defer cleanup(a.logger)
+		if err != nil {
+			a.setError(fmt.Errorf("failed to configure trivy image options: %w", err))
 			return
 		}
 

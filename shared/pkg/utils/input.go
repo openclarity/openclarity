@@ -20,11 +20,14 @@ import "fmt"
 type SourceType string
 
 const (
-	SBOM   SourceType = "sbom"
-	IMAGE  SourceType = "image"
-	DIR    SourceType = "dir"
-	ROOTFS SourceType = "rootfs"
-	FILE   SourceType = "file"
+	SBOM          SourceType = "sbom"
+	IMAGE         SourceType = "image"
+	DOCKERARCHIVE SourceType = "docker-archive"
+	OCIARCHIVE    SourceType = "oci-archive"
+	OCIDIR        SourceType = "oci-dir"
+	DIR           SourceType = "dir"
+	ROOTFS        SourceType = "rootfs"
+	FILE          SourceType = "file"
 )
 
 func ValidateInputType(inputType string) (SourceType, error) {
@@ -33,6 +36,12 @@ func ValidateInputType(inputType string) (SourceType, error) {
 		return SBOM, nil
 	case "image", "IMAGE", "":
 		return IMAGE, nil
+	case "docker-archive":
+		return DOCKERARCHIVE, nil
+	case "oci-archive":
+		return OCIARCHIVE, nil
+	case "oci-dir":
+		return OCIDIR, nil
 	case "dir", "DIR", "directory":
 		return DIR, nil
 	case "file", "FILE":
@@ -48,6 +57,12 @@ func CreateSource(sourceType SourceType, src string, localImage bool) string {
 	switch sourceType {
 	case IMAGE:
 		return setImageSource(localImage, src)
+	case DOCKERARCHIVE:
+		return fmt.Sprintf("docker-archive:%s", src)
+	case OCIARCHIVE:
+		return fmt.Sprintf("oci-archive:%s", src)
+	case OCIDIR:
+		return fmt.Sprintf("oci-dir:%s", src)
 	case ROOTFS, DIR:
 		return fmt.Sprintf("%s:%s", DIR, src)
 	case FILE, SBOM:

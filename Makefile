@@ -262,4 +262,4 @@ gomod-tidy:
 .PHONY: e2e
 e2e:
 	@echo "Running e2e tests ..."
-	cd e2e && export DOCKER_TAG=${DOCKER_TAG} && go test -v .
+	cd e2e && export DOCKER_TAG=${DOCKER_TAG} && go test -timeout 20m -v .

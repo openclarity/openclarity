@@ -113,7 +113,7 @@ func PortForwardToKubeClarity(stopCh chan struct{}) {
 	go func() {
 		err := portForward("service", KubeClarityNamespace, KubeClarityServiceName, KubeClarityPortForwardHostPort, KubeClarityPortForwardTargetPort, stopCh)
 		if err != nil {
-			println("port forward failed. %v", err)
+			fmt.Printf("port forward failed: %v\n", err)
 			return
 		}
 	}()
