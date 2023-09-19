@@ -35,6 +35,7 @@ def GenerateInstallScript(context):
         "FreshclamMirrorContainerImage": context.properties[
             "freshclamMirrorContainerImage"
         ],
+        "YaraRuleServerContainerImage": context.properties["yaraRuleServerContainerImage"],
         "PostgresqlContainerImage": context.properties["postgresqlContainerImage"],
         "ProjectID": context.env["project"],
         "ScannerZone": context.properties["zone"],

@@ -78,6 +78,8 @@ type ScannerConfig struct {
 	GrypeServerAddress string
 	GrypeServerTimeout time.Duration
 
+	YaraRuleServerAddress string
+
 	DeleteJobPolicy DeleteJobPolicyType
 
 	// The container image to use once we've booted the scanner virtual
@@ -102,4 +104,7 @@ type ScannerConfig struct {
 
 	// The chkrootkit binary path in the scanner image container.
 	ChkrootkitBinaryPath string
+
+	// The yara binary path in the scanner image container
+	YaraBinaryPath string
 }

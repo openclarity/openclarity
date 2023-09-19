@@ -227,6 +227,10 @@ Resources:
                   # Create directory for trivy server
                   /usr/bin/mkdir -p /opt/trivy-server
 
+                  # Create directory required for yara-rule-server
+                  /usr/bin/mkdir -p /opt/yara-rule-server
+                  /usr/bin/chown -R 1000:1000 /opt/yara-rule-server
+
                   # Enable and start/restart VMClarity backend
                   systemctl enable vmclarity.service
                   systemctl restart vmclarity.service
@@ -382,6 +386,27 @@ Resources:
                           restart_policy:
                             condition: on-failure
 
+                      yara-rule-server:
+                        image: ${YaraRuleServerContainerImage}
+                        command:
+                          - run
+                        ports:
+                          - "9993:8080"
+                        configs:
+                          - source: yara_rule_server_config
+                            target: /etc/yara-rule-server/config.yaml
+                        volumes:
+                          - type: bind
+                            source: /opt/yara-rule-server
+                            target: /var/lib/yara-rule-server
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+
                       postgresql:
                         image: ${PostgresqlContainerImage}
                         env_file: ./postgres.env
@@ -410,6 +435,8 @@ Resources:
                         file: ./gateway.conf
                       swagger_config:
                         file: ./swagger-config.json
+                      yara_rule_server_config:
+                        file: ./yara-rule-server.yaml
 
                   - APIServerContainerImage: !If [ APIServerContainerImageOverridden, !Ref APIServerContainerImageOverride, "ghcr.io/openclarity/vmclarity-apiserver:latest" ]
                     OrchestratorContainerImage: !If [ OrchestratorContainerImageOverridden, !Ref OrchestratorContainerImageOverride, "ghcr.io/openclarity/vmclarity-orchestrator:latest" ]
@@ -418,6 +445,7 @@ Resources:
                     ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.2.3"]
                     TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.41.0"]
                     GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.5.0"]
+                    YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.1.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.2.0"]
                     PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
 
@@ -463,6 +491,8 @@ Resources:
                     GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
                     # FreshClam mirror URL
                     ALTERNATIVE_FRESHCLAM_MIRROR_URL=http://__CONTROLPLANE_HOST__:1000/clamav
+                    # Yara rule server address
+                    YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
                     # Resource cleanup policy
                     DELETE_JOB_POLICY=${AssetScanDeletePolicy}
                     # Provider to use
@@ -506,6 +536,19 @@ Resources:
             "/etc/vmclarity/service.env":
               content: |
                 # COMPOSE_PROFILES=
+              mode: "000644"
+
+            "/etc/vmclarity/yara-rule-server.yaml":
+              content: |
+                enable_json_log: true
+                rule_update_schedule: "0 0 * * *"
+                rule_sources:
+                  - name: "base"
+                    url: "https://github.com/Yara-Rules/rules/archive/refs/heads/master.zip"
+                    exclude_regex: ".*index.*.yar|.*/utils/.*|.*/deprecated/.*|.*index_.*|.*MALW_AZORULT.yar"
+                  - name: "magic"
+                    url: "https://github.com/securitymagic/yara/archive/refs/heads/main.zip"
+                    exclude_regex: ".*index.*.yar"
               mode: "000644"
 
             "/etc/vmclarity/postgres.env":
@@ -673,6 +716,17 @@ Resources:
       IpProtocol: tcp
       FromPort: 1000
       ToPort: 1000
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Yara Rule Server on port 9993 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToYaraRuleServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9993
+      ToPort: 9993
       SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
 
   # Create an Internet Gateway to allow VMClarityServer to talk to the internet
@@ -1077,6 +1131,12 @@ Parameters:
       "ghcr.io/openclarity/grype-server:v0.5.0" will be used if not overridden.
     Type: String
     Default: ''
+  YaraRuleServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the yara rule server.
+      "ghcr.io/openclarity/yara-rule-server:v0.1.0" will be used if not overridden.
+    Type: String
+    Default: ''
   ExploitDBServerContainerImageOverride:
     Description: >
       Name of the container image used for the exploit db server.
@@ -1162,6 +1222,7 @@ Metadata:
           - ScannerContainerImageOverride
           - TrivyServerContainerImageOverride
           - GrypeServerContainerImageOverride
+          - YaraRuleServerContainerImageOverride
           - ExploitDBServerContainerImageOverride
           - PostgresqlContainerImageOverride
           - FreshclamMirrorContainerImageOverride
@@ -1185,6 +1246,8 @@ Metadata:
         default: Trivy Server Container Image Override
       GrypeServerContainerImageOverride:
         default: Grype Server Container Image Override
+      YaraRuleServerContainerImageOverride:
+        default: Yara Rule Server Container Image Override
       ExploitDBServerContainerImageOverride:
         default: Exploit DB Server Container Image Override
       FreshclamMirrorContainerImageOverride:
@@ -1306,6 +1369,10 @@ Conditions:
   GrypeServerContainerImageOverridden: !Not
     - !Equals
       - !Ref GrypeServerContainerImageOverride
+      - ''
+  YaraRuleServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref YaraRuleServerContainerImageOverride
       - ''
   ExploitDBServerContainerImageOverridden: !Not
     - !Equals

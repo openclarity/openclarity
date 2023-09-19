@@ -57,6 +57,14 @@ func PointerTo[T any](value T) *T {
 	return &value
 }
 
+func OmitEmpty[T comparable](t T) *T {
+	var empty T
+	if t == empty {
+		return nil
+	}
+	return &t
+}
+
 // ValueOrZero returns the value that the pointer ptr pointers to. It returns
 // the zero value if ptr is nil.
 func ValueOrZero[T any](ptr *T) T {

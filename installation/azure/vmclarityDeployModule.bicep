@@ -57,6 +57,9 @@ param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0
 @description ('Freshclam Mirror Container Image')
 param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.1.0'
 
+@description ('Yara Rule Server Container Image')
+param yaraRuleServerContainerImage string = 'ghcr.io/openclarity/yara-rule-server:v0.1.0'
+
 @description('Postgres Container Image')
 param postgresContainerImage string = 'docker.io/bitnami/postgresql:12.14.0-debian-11-r28'
 
@@ -127,6 +130,7 @@ var params = {
   ScannerContainerImage: scannerContainerImage
   TrivyServerContainerImage: trivyServerContainerImage
   GrypeServerContainerImage: grypeServerContainerImage
+  YaraRuleServerContainerImage: yaraRuleServerContainerImage
   ExploitDBServerContainerImage: exploitDBContainerImage
   FreshclamMirrorContainerImage: freshclamMirrorContainerImage
   PostgresqlContainerImage: postgresContainerImage

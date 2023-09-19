@@ -287,6 +287,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"malwareName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"malwareType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"ruleName":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"SecretScan": {
@@ -869,6 +870,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"malwareName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"malwareType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"ruleName":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"SecretFindingInfo": {
