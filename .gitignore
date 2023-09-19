@@ -11,4 +11,7 @@ site/
 e2e/dir.sbom
 e2e/kubeclarity-cli
 e2e/merged.sbom
+e2e/docker-archive.sbom
+e2e/missingmeta.sbom
+e2e/nocomponents.sbom
 fanal/
