@@ -81,11 +81,27 @@ systemctl daemon-reload
 # Create directory for trivy server
 /usr/bin/mkdir -p /opt/trivy-server
 
+# Create directory for yara rule server
+/usr/bin/mkdir -p /opt/yara-rule-server
+
 # Enable and start/restart VMClarity backend
 systemctl enable vmclarity.service
 systemctl restart vmclarity.service
 EOF
 chmod 744 /etc/vmclarity/deploy.sh
+
+cat << 'EOF' > /etc/vmclarity/yara-rule-server.yaml
+enable_json_log: true
+rule_update_schedule: "0 0 * * *"
+rule_sources:
+  - name: "base"
+    url: "https://github.com/Yara-Rules/rules/archive/refs/heads/master.zip"
+    exclude_regex: ".*index.*.yar|.*/utils/.*|.*/deprecated/.*|.*index_.*|.*MALW_AZORULT.yar"
+  - name: "magic"
+    url: "https://github.com/securitymagic/yara/archive/refs/heads/main.zip"
+    exclude_regex: ".*index.*.yar"
+EOF
+chmod 644 /etc/vmclarity/yara-rule-server.yaml
 
 cat << 'EOF' > /etc/vmclarity/orchestrator.env
 PROVIDER=Azure
@@ -261,6 +277,27 @@ services:
       restart_policy:
         condition: on-failure
 
+  yara-rule-server:
+    image: __YaraRuleServerContainerImage__
+    command:
+      - run
+    ports:
+      - "9993:8080"
+    configs:
+      - source: yara_rule_server_config
+        target: /etc/yara-rule-server/config.yaml
+    volumes:
+      - type: bind
+        source: /opt/yara-rule-server
+        target: /var/lib/yara-rule-server
+    logging:
+      driver: journald
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
   postgresql:
     image: __PostgresqlContainerImage__
     env_file: ./postgres.env
@@ -289,6 +326,8 @@ configs:
     file: ./gateway.conf
   swagger_config:
     file: ./swagger-config.json
+  yara_rule_server_config:
+    file: ./yara-rule-server.yaml
 EOF
 
 cat << 'EOF' > /etc/vmclarity/swagger-config.json

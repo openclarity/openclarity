@@ -50,6 +50,7 @@ func TestGenerateFindingKey(t *testing.T) {
 		MalwareName: utils.PointerTo("MalwareName"),
 		MalwareType: utils.PointerTo("MalwareType"),
 		Path:        utils.PointerTo("Path"),
+		RuleName:    utils.PointerTo("RuleName"),
 	}
 	miscFindingInfo := models.MisconfigurationFindingInfo{
 		Message:     utils.PointerTo("Message"),

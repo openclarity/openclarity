@@ -198,6 +198,7 @@ func createMalwareFindingImpact(findingInfo *backendmodels.Finding_FindingInfo, 
 			MalwareName: info.MalwareName,
 			MalwareType: info.MalwareType,
 			Path:        info.Path,
+			RuleName:    info.RuleName,
 		},
 	}, nil
 }

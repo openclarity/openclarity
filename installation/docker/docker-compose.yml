@@ -147,6 +147,25 @@ services:
       restart_policy:
         condition: on-failure
 
+  yara-rule-server:
+    image: ${YaraRuleServerContainerImage:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
+    command:
+      - run
+    ports:
+      - "9993:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    configs:
+      - source: yara_rule_server_config
+        target: /etc/yara-rule-server/config.yaml
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
   postgresql:
     image: ${PostgresqlContainerImage:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28}
     env_file: ./postgres.env
@@ -173,6 +192,8 @@ configs:
     file: ./gateway.conf
   swagger_config:
     file: ./swagger-config.json
+  yara_rule_server_config:
+    file: ./yara-rule-server.yaml
 
 volumes:
   apiserver-db-data:

@@ -54,6 +54,8 @@ const (
 	GrypeServerAddress            = "GRYPE_SERVER_ADDRESS"
 	GrypeServerTimeout            = "GRYPE_SERVER_TIMEOUT"
 	ChkrootkitBinaryPath          = "CHKROOTKIT_BINARY_PATH"
+	YaraRuleServerAddress         = "YARA_RULE_SERVER_ADDRESS" // nolint:gosec
+	YaraBinaryPath                = "YARA_BINARY_PATH"
 
 	ScanConfigPollingInterval  = "SCAN_CONFIG_POLLING_INTERVAL"
 	ScanConfigReconcileTimeout = "SCAN_CONFIG_RECONCILE_TIMEOUT"
@@ -128,6 +130,7 @@ func setConfigDefaults() {
 	viper.SetDefault(ChkrootkitBinaryPath, "/artifacts/chkrootkit")
 	viper.SetDefault(ClamBinaryPath, "clamscan")
 	viper.SetDefault(FreshclamBinaryPath, "freshclam")
+	viper.SetDefault(YaraBinaryPath, "yara")
 	viper.SetDefault(TrivyServerTimeout, DefaultTrivyServerTimeout)
 	viper.SetDefault(GrypeServerTimeout, DefaultGrypeServerTimeout)
 	viper.SetDefault(ScanConfigPollingInterval, scanconfigwatcher.DefaultPollInterval.String())
@@ -226,6 +229,8 @@ func LoadConfig() (*Config, error) {
 				GrypeServerAddress:            viper.GetString(GrypeServerAddress),
 				GrypeServerTimeout:            viper.GetDuration(GrypeServerTimeout),
 				ChkrootkitBinaryPath:          viper.GetString(ChkrootkitBinaryPath),
+				YaraRuleServerAddress:         viper.GetString(YaraRuleServerAddress),
+				YaraBinaryPath:                viper.GetString(YaraBinaryPath),
 			},
 		},
 		AssetScanProcessorConfig: assetscanprocessor.Config{
