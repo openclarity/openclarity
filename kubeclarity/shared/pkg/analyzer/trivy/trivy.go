@@ -75,7 +75,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 
 		// Skip this analyser for input types we don't support
 		switch sourceType {
-		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE:
+		case utils.IMAGE, utils.ROOTFS, utils.DIR, utils.FILE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 			// These are all supported for SBOM analysing so continue
 		case utils.SBOM:
 			fallthrough
@@ -117,6 +117,14 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		trivySourceType, err := utilsTrivy.KubeclaritySourceToTrivySource(sourceType)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to configure trivy: %w", err))
+			return
+		}
+
+		// Configure Trivy image options according to the source type and user input.
+		trivyOptions, cleanup, err := utilsTrivy.SetTrivyImageOptions(sourceType, userInput, trivyOptions)
+		defer cleanup(a.logger)
+		if err != nil {
+			a.setError(res, fmt.Errorf("failed to configure trivy image options: %w", err))
 			return
 		}
 
