@@ -172,7 +172,7 @@ func TestCLIScan(t *testing.T) {
 				t.Fatalf("docker save failed: %v, %s", err, out)
 			}
 
-			// analyze image with --merge-sbom directory sbom, and export to backend
+			// analyze image and export to backend
 			t.Logf("analyze image...")
 			analyzeImage(t, "", appID, outputFile, "docker-archive", DockerArchiveOutputSBOMFile)
 			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
