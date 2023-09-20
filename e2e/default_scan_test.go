@@ -27,6 +27,8 @@ import (
 )
 
 var _ = ginkgo.Describe("Running a default scan (SBOM, vulnerabilities and exploits)", func() {
+	reportFailedConfig := ReportFailedConfig{}
+
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("applying a scan configuration")
@@ -51,7 +53,14 @@ var _ = ginkgo.Describe("Running a default scan (SBOM, vulnerabilities and explo
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				return len(*scans.Items) == 1
+				if len(*scans.Items) == 1 {
+					reportFailedConfig.objects = append(
+						reportFailedConfig.objects,
+						APIObject{"scan", fmt.Sprintf("id eq '%s'", *(*scans.Items)[0].Id)},
+					)
+					return true
+				}
+				return false
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to done")
@@ -68,5 +77,12 @@ var _ = ginkgo.Describe("Running a default scan (SBOM, vulnerabilities and explo
 				return len(*scans.Items) == 1
 			}, time.Second*120, time.Second).Should(gomega.BeTrue())
 		})
+	})
+
+	ginkgo.AfterEach(func(ctx ginkgo.SpecContext) {
+		if ginkgo.CurrentSpecReport().Failed() {
+			reportFailedConfig.startTime = ginkgo.CurrentSpecReport().StartTime
+			ReportFailed(ctx, testEnv, client, &reportFailedConfig)
+		}
 	})
 })

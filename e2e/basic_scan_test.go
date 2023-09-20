@@ -27,9 +27,15 @@ import (
 )
 
 var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
+	reportFailedConfig := ReportFailedConfig{}
+
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("waiting until test asset is found")
+			reportFailedConfig.objects = append(
+				reportFailedConfig.objects,
+				APIObject{"asset", DefaultScope},
+			)
 			assetsParams := models.GetAssetsParams{
 				Filter: utils.PointerTo(DefaultScope),
 			}
@@ -53,6 +59,11 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
+			reportFailedConfig.objects = append(
+				reportFailedConfig.objects,
+				APIObject{"scanConfig", fmt.Sprintf("id eq '%s'", *apiScanConfig.Id)},
+			)
+
 			ginkgo.By("updating scan configuration to run now")
 			updateScanConfig := UpdateScanConfigToStartNow(apiScanConfig)
 			err = client.PatchScanConfig(ctx, *apiScanConfig.Id, updateScanConfig)
@@ -71,7 +82,14 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				return len(*scans.Items) == 1
+				if len(*scans.Items) == 1 {
+					reportFailedConfig.objects = append(
+						reportFailedConfig.objects,
+						APIObject{"scan", fmt.Sprintf("id eq '%s'", *(*scans.Items)[0].Id)},
+					)
+					return true
+				}
+				return false
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to done")
@@ -88,5 +106,12 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				return len(*scans.Items) == 1
 			}, time.Second*120, time.Second).Should(gomega.BeTrue())
 		})
+	})
+
+	ginkgo.AfterEach(func(ctx ginkgo.SpecContext) {
+		if ginkgo.CurrentSpecReport().Failed() {
+			reportFailedConfig.startTime = ginkgo.CurrentSpecReport().StartTime
+			ReportFailed(ctx, testEnv, client, &reportFailedConfig)
+		}
 	})
 })
