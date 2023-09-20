@@ -18,9 +18,12 @@ package testenv
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/docker/compose/v2/cmd/formatter"
 
 	"github.com/compose-spec/compose-go/cli"
 	"github.com/compose-spec/compose-go/types"
@@ -147,6 +150,16 @@ func (e *Environment) ServicesReady(ctx context.Context) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// nolint:wrapcheck
+func (e *Environment) ServiceLogs(ctx context.Context, services []string, startTime time.Time, stdout, stderr io.Writer) error {
+	consumer := formatter.NewLogConsumer(ctx, stdout, stderr, true, true, false)
+	return e.composer.Logs(ctx, e.project.Name, consumer, api.LogOptions{
+		Project:  e.project,
+		Services: services,
+		Since:    startTime.Format(time.RFC3339Nano),
+	})
 }
 
 func (e *Environment) Services() []string {

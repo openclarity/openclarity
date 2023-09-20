@@ -30,11 +30,18 @@ To add a new test, create a new `<test_name>_test.go` file in the current direct
 
 ```go
 var _ = ginkgo.Describe("<add a brief test case description>", func() {
-    ginkgo.Context("<describe conditions or inputs>", func() {
+    reportFailedConfig := ReportFailedConfig{}
+	ginkgo.Context("<describe conditions or inputs>", func() {
         ginkgo.It("<describe the behaviour or feature being tested>", func(ctx ginkgo.SpecContext) {
 			<implement test code>
 		})
 	})
+    ginkgo.AfterEach(func(ctx ginkgo.SpecContext) {
+        if ginkgo.CurrentSpecReport().Failed() {
+            reportFailedConfig.startTime = ginkgo.CurrentSpecReport().StartTime
+            ReportFailed(ctx, testEnv, client, &reportFailedConfig)
+        }
+    })
 })
 ```
 
