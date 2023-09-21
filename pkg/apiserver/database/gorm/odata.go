@@ -980,9 +980,11 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	scanEstimationSchemaName: {
 		Table: "scan_estimations",
 		Fields: odatasql.Schema{
-			"id":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"id":                      odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startTime":               odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":                 odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"deleteAfter":             odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"ttlSecondsAfterFinished": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 			"assetIDs": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -1070,9 +1072,11 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanEstimationState"},
 			},
-			"revision":  odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
-			"startTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
-			"endTime":   odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"revision":                odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"startTime":               odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"endTime":                 odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"deleteAfter":             odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"ttlSecondsAfterFinished": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"AssetScanEstimationState": {

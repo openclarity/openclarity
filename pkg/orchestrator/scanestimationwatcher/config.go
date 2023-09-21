@@ -23,9 +23,10 @@ import (
 )
 
 const (
-	DefaultPollInterval          = 5 * time.Second
-	DefaultReconcileTimeout      = 2 * time.Minute
-	DefaultScanEstimationTimeout = 48 * time.Hour
+	DefaultPollInterval             = 5 * time.Second
+	DefaultReconcileTimeout         = 2 * time.Minute
+	DefaultScanEstimationTimeout    = 48 * time.Hour
+	DefaultScanEstimationTTLSeconds = 7200 // // 2 hours
 )
 
 type Config struct {

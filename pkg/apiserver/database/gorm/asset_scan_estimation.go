@@ -291,3 +291,11 @@ func (s *AssetScanEstimationsTableHandler) checkUniqueness(assetScanEstimation m
 	}
 	return models.AssetScanEstimation{}, nil
 }
+
+func (s *AssetScanEstimationsTableHandler) DeleteAssetScanEstimation(assetScanEstimationID models.AssetScanEstimationID) error {
+	if err := deleteObjByID(s.DB, assetScanEstimationID, &AssetScanEstimation{}); err != nil {
+		return fmt.Errorf("failed to delete asset scan estimation: %w", err)
+	}
+
+	return nil
+}

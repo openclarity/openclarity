@@ -132,4 +132,6 @@ type AssetScanEstimationsTable interface {
 	CreateAssetScanEstimation(assetScanEstimations models.AssetScanEstimation) (models.AssetScanEstimation, error)
 	UpdateAssetScanEstimation(assetScanEstimations models.AssetScanEstimation, params models.PatchAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
 	SaveAssetScanEstimation(assetScanEstimations models.AssetScanEstimation, params models.PutAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
+
+	DeleteAssetScanEstimation(assetScanEstimationID models.AssetScanEstimationID) error
 }

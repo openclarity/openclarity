@@ -81,7 +81,8 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching running ScanEstimations")
 
-	filter := fmt.Sprintf("state/state ne '%s' and state/state ne '%s'", models.ScanEstimationStateStateDone, models.ScanEstimationStateStateFailed)
+	filter := fmt.Sprintf("(state/state ne '%s' and state/state ne '%s') or (deleteAfter eq null or deleteAfter lt %s)",
+		models.ScanEstimationStateStateDone, models.ScanEstimationStateStateFailed, time.Now().Format(time.RFC3339))
 	selector := "id"
 	params := models.GetScanEstimationsParams{
 		Filter: &filter,
@@ -90,7 +91,7 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	}
 	scanEstimations, err := w.backend.GetScanEstimations(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get running sScanEstimations: %w", err)
+		return nil, fmt.Errorf("failed to get running ScanEstimations: %w", err)
 	}
 
 	switch {
@@ -170,10 +171,56 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 			return err
 		}
 	case models.ScanEstimationStateStateDone, models.ScanEstimationStateStateFailed:
-		logger.Debug("Reconciling ScanEstimation is skipped as it is already finished.")
-		fallthrough
+		if err = w.reconcileDone(ctx, scanEstimation); err != nil {
+			return err
+		}
 	default:
 		return nil
+	}
+
+	return nil
+}
+
+func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *models.ScanEstimation) error {
+	if scanEstimation.EndTime == nil {
+		scanEstimation.EndTime = utils.PointerTo(time.Now())
+	}
+	if scanEstimation.TTLSecondsAfterFinished == nil {
+		scanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultScanEstimationTTLSeconds)
+	}
+
+	endTime := *scanEstimation.EndTime
+	ttl := *scanEstimation.TTLSecondsAfterFinished
+
+	scanEstimationID, ok := scanEstimation.GetID()
+	if !ok {
+		return errors.New("invalid ScanEstimation: ID is nil")
+	}
+
+	timeNow := time.Now()
+
+	if scanEstimation.DeleteAfter == nil {
+		scanEstimation.DeleteAfter = utils.PointerTo(endTime.Add(time.Duration(ttl) * time.Second))
+		// if delete time has already pass, no need to patch the object, just delete it.
+		if !timeNow.After(*scanEstimation.DeleteAfter) {
+			scanEstimationPatch := models.ScanEstimation{
+				DeleteAfter:             scanEstimation.DeleteAfter,
+				EndTime:                 scanEstimation.EndTime,
+				TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
+			}
+			err := w.backend.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
+			if err != nil {
+				return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%v: %w", scanEstimationID, err)
+			}
+			return nil
+		}
+	}
+
+	if timeNow.After(*scanEstimation.DeleteAfter) {
+		err := w.backend.DeleteScanEstimation(ctx, scanEstimationID)
+		if err != nil {
+			return fmt.Errorf("failed to delete ScanEstimation. ScanEstimationID=%v: %w", scanEstimationID, err)
+		}
 	}
 
 	return nil
@@ -249,10 +296,16 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *models.S
 	}
 	logger.Debugf("%d Asset(s) have been created for Scan estimation", numOfAssets)
 
+	// Set default ttl if not set.
+	if scanEstimation.TTLSecondsAfterFinished == nil {
+		scanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultScanEstimationTTLSeconds)
+	}
+
 	scanEstimationPatch := &models.ScanEstimation{
-		StartTime: utils.PointerTo(time.Now()),
-		AssetIDs:  scanEstimation.AssetIDs,
-		State:     scanEstimation.State,
+		StartTime:               utils.PointerTo(time.Now()),
+		TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
+		AssetIDs:                scanEstimation.AssetIDs,
+		State:                   scanEstimation.State,
 		Summary: &models.ScanEstimationSummary{
 			JobsCompleted: utils.PointerTo(0),
 			JobsLeftToRun: utils.PointerTo(numOfAssets),
@@ -356,6 +409,7 @@ func (w *Watcher) newAssetScanEstimationFromScanEstimation(scanEstimation *model
 	}
 
 	return models.AssetScanEstimation{
+		TTLSecondsAfterFinished: utils.PointerTo(DefaultScanEstimationTTLSeconds),
 		Asset: &models.AssetRelationship{
 			Id: assetID,
 		},
@@ -501,13 +555,15 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 		if err := updateTotalScanTimeWithParallelScans(scanEstimation); err != nil {
 			return fmt.Errorf("failed to update scan time from paraller scans: %w", err)
 		}
+		scanEstimation.DeleteAfter = utils.PointerTo(scanEstimation.EndTime.Add(time.Duration(*scanEstimation.TTLSecondsAfterFinished) * time.Second))
 	}
 
 	scanEstimationPatch := &models.ScanEstimation{
-		State:    scanEstimation.State,
-		Summary:  scanEstimation.Summary,
-		EndTime:  scanEstimation.EndTime,
-		AssetIDs: scanEstimation.AssetIDs,
+		DeleteAfter: scanEstimation.DeleteAfter,
+		State:       scanEstimation.State,
+		Summary:     scanEstimation.Summary,
+		EndTime:     scanEstimation.EndTime,
+		AssetIDs:    scanEstimation.AssetIDs,
 	}
 	err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
 	if err != nil {
