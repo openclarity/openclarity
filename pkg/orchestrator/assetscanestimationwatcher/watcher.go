@@ -78,8 +78,8 @@ func (w *Watcher) GetAssetScanEstimations(ctx context.Context) ([]AssetScanEstim
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching AssetScanEstimations which need to be reconciled")
 
-	filter := fmt.Sprintf("state/state ne '%s' and state/state ne '%s'",
-		models.AssetScanEstimationStateStateDone, models.AssetScanEstimationStateStateFailed)
+	filter := fmt.Sprintf("(state/state ne '%s' and state/state ne '%s') or (deleteAfter eq null or deleteAfter lt %s)",
+		models.AssetScanEstimationStateStateDone, models.AssetScanEstimationStateStateFailed, time.Now().Format(time.RFC3339))
 	selector := "id,scanEstimation/id,asset/id"
 	params := models.GetAssetScanEstimationsParams{
 		Filter: &filter,
@@ -160,8 +160,55 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanEstimationReconc
 			return err
 		}
 	case models.AssetScanEstimationStateStateFailed, models.AssetScanEstimationStateStateDone:
-		fallthrough
+		if err = w.reconcileDone(ctx, &assetScanEstimation); err != nil {
+			return err
+		}
 	default:
+	}
+
+	return nil
+}
+
+func (w *Watcher) reconcileDone(ctx context.Context, assetScanEstimation *models.AssetScanEstimation) error {
+	if assetScanEstimation.EndTime == nil {
+		assetScanEstimation.EndTime = utils.PointerTo(time.Now())
+	}
+	if assetScanEstimation.TTLSecondsAfterFinished == nil {
+		assetScanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultAssetScanEstimationTTLSeconds)
+	}
+
+	endTime := *assetScanEstimation.EndTime
+	ttl := *assetScanEstimation.TTLSecondsAfterFinished
+
+	assetScanEstimationID, ok := assetScanEstimation.GetID()
+	if !ok {
+		return errors.New("invalid AssetScanEstimation: ID is nil")
+	}
+
+	timeNow := time.Now()
+
+	if assetScanEstimation.DeleteAfter == nil {
+		assetScanEstimation.DeleteAfter = utils.PointerTo(endTime.Add(time.Duration(ttl) * time.Second))
+		// if delete time has already pass, no need to patch the object, just delete it.
+		if !timeNow.After(*assetScanEstimation.DeleteAfter) {
+			assetScanEstimationPatch := models.AssetScanEstimation{
+				DeleteAfter:             assetScanEstimation.DeleteAfter,
+				EndTime:                 assetScanEstimation.EndTime,
+				TTLSecondsAfterFinished: assetScanEstimation.TTLSecondsAfterFinished,
+			}
+			err := w.backend.PatchAssetScanEstimation(ctx, assetScanEstimationPatch, assetScanEstimationID)
+			if err != nil {
+				return fmt.Errorf("failed to patch AssetScanEstimation. AssetScanEstimationID=%v: %w", assetScanEstimationID, err)
+			}
+			return nil
+		}
+	}
+
+	if timeNow.After(*assetScanEstimation.DeleteAfter) {
+		err := w.backend.DeleteAssetScanEstimation(ctx, assetScanEstimationID)
+		if err != nil {
+			return fmt.Errorf("failed to delete AssetScanEstimation. AssetScanEstimationID=%v: %w", assetScanEstimationID, err)
+		}
 	}
 
 	return nil
@@ -207,8 +254,11 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScanEstimation *mod
 	}
 
 	stats := w.getLatestAssetScanStats(ctx, asset)
+	startTime := time.Now()
 
 	estimation, err := w.provider.Estimate(ctx, stats, asset, assetScanEstimation.AssetScanTemplate)
+
+	endTime := time.Now()
 
 	var fatalError provider.FatalError
 	var retryableError provider.RetryableError
@@ -237,9 +287,18 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScanEstimation *mod
 
 	assetScanEstimation.State.LastTransitionTime = utils.PointerTo(time.Now())
 
+	// Set default ttl if not set.
+	if assetScanEstimation.TTLSecondsAfterFinished == nil {
+		assetScanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultAssetScanEstimationTTLSeconds)
+	}
+
 	assetScanEstimationPatch := models.AssetScanEstimation{
-		State:      assetScanEstimation.State,
-		Estimation: assetScanEstimation.Estimation,
+		StartTime:               utils.PointerTo(startTime),
+		EndTime:                 utils.PointerTo(endTime),
+		DeleteAfter:             utils.PointerTo(endTime.Add(time.Duration(*assetScanEstimation.TTLSecondsAfterFinished) * time.Second)),
+		State:                   assetScanEstimation.State,
+		Estimation:              assetScanEstimation.Estimation,
+		TTLSecondsAfterFinished: assetScanEstimation.TTLSecondsAfterFinished,
 	}
 	err = w.backend.PatchAssetScanEstimation(ctx, assetScanEstimationPatch, assetScanEstimationID)
 	if err != nil {

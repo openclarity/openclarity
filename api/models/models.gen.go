@@ -256,15 +256,21 @@ type AssetScan struct {
 // AssetScanEstimation defines model for AssetScanEstimation.
 type AssetScanEstimation struct {
 	// Asset Describes a relationship to an asset which can be expanded.
-	Asset             *AssetRelationship          `json:"asset,omitempty"`
-	AssetScanTemplate *AssetScanTemplate          `json:"assetScanTemplate,omitempty"`
-	EndTime           *time.Time                  `json:"endTime,omitempty"`
-	Estimation        *Estimation                 `json:"estimation,omitempty"`
-	Id                *string                     `json:"id,omitempty"`
-	Revision          *int                        `json:"revision,omitempty"`
-	ScanEstimation    *ScanEstimationRelationship `json:"scanEstimation,omitempty"`
-	StartTime         *time.Time                  `json:"startTime,omitempty"`
-	State             *AssetScanEstimationState   `json:"state,omitempty"`
+	Asset             *AssetRelationship `json:"asset,omitempty"`
+	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
+
+	// DeleteAfter The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished. This should not be set by the user, but use ttlSecondsAfterFinished instead.
+	DeleteAfter    *time.Time                  `json:"deleteAfter,omitempty"`
+	EndTime        *time.Time                  `json:"endTime,omitempty"`
+	Estimation     *Estimation                 `json:"estimation,omitempty"`
+	Id             *string                     `json:"id,omitempty"`
+	Revision       *int                        `json:"revision,omitempty"`
+	ScanEstimation *ScanEstimationRelationship `json:"scanEstimation,omitempty"`
+	StartTime      *time.Time                  `json:"startTime,omitempty"`
+	State          *AssetScanEstimationState   `json:"state,omitempty"`
+
+	// TtlSecondsAfterFinished The duration in seconds this resource should last until it is deleted.
+	TTLSecondsAfterFinished *int `json:"ttlSecondsAfterFinished,omitempty"`
 }
 
 // AssetScanEstimationExists defines model for AssetScanEstimationExists.
@@ -873,15 +879,21 @@ type ScanEstimation struct {
 
 	// AssetScanEstimations AssetScanEstimations which make up this ScanEstimation
 	AssetScanEstimations *[]AssetScanEstimationRelationship `json:"assetScanEstimations,omitempty"`
-	EndTime              *time.Time                         `json:"endTime,omitempty"`
-	Id                   *string                            `json:"id,omitempty"`
-	Revision             *int                               `json:"revision,omitempty"`
-	ScanTemplate         *ScanTemplate                      `json:"scanTemplate,omitempty"`
-	StartTime            *time.Time                         `json:"startTime,omitempty"`
-	State                *ScanEstimationState               `json:"state,omitempty"`
+
+	// DeleteAfter The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished. This should not be set by the user, but use ttlSecondsAfterFinished instead.
+	DeleteAfter  *time.Time           `json:"deleteAfter,omitempty"`
+	EndTime      *time.Time           `json:"endTime,omitempty"`
+	Id           *string              `json:"id,omitempty"`
+	Revision     *int                 `json:"revision,omitempty"`
+	ScanTemplate *ScanTemplate        `json:"scanTemplate,omitempty"`
+	StartTime    *time.Time           `json:"startTime,omitempty"`
+	State        *ScanEstimationState `json:"state,omitempty"`
 
 	// Summary A summary of the AssetScanEstimations under this ScanEstimation
 	Summary *ScanEstimationSummary `json:"summary,omitempty"`
+
+	// TtlSecondsAfterFinished The duration in seconds this resource should last until it is deleted.
+	TTLSecondsAfterFinished *int `json:"ttlSecondsAfterFinished,omitempty"`
 }
 
 // ScanEstimationRelationship defines model for ScanEstimationRelationship.

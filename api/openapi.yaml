@@ -1241,6 +1241,23 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
       x-codegen-request-body-name: body
+    delete:
+      summary: Delete an asset scan estimation.
+      operationId: DeleteAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Asset scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
 
 components:
   schemas:
@@ -2890,6 +2907,15 @@ components:
           $ref: '#/components/schemas/ScanEstimationSummary'
         revision:
           type: integer
+        ttlSecondsAfterFinished:
+          description: The duration in seconds this resource should last until it is deleted.
+          x-go-name: TTLSecondsAfterFinished
+          type: integer
+        deleteAfter:
+          description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+            This should not be set by the user, but use ttlSecondsAfterFinished instead.
+          type: string
+          format: date-time
 
     ## TODO fill out the rest of the fields for the ScanEstimationRelationship.
     ScanEstimationRelationship:
@@ -2987,6 +3013,15 @@ components:
           type: string
           format: date-time
         endTime:
+          type: string
+          format: date-time
+        ttlSecondsAfterFinished:
+          x-go-name: TTLSecondsAfterFinished
+          description: The duration in seconds this resource should last until it is deleted.
+          type: integer
+        deleteAfter:
+          description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+            This should not be set by the user, but use ttlSecondsAfterFinished instead.
           type: string
           format: date-time
 
