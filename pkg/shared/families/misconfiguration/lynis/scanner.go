@@ -16,6 +16,7 @@
 package lynis
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -27,6 +28,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	sharedUtils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -83,6 +85,13 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		reportPath := path.Join(reportDir, "lynis.dat")
 
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		if err != nil {
+			a.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
+			return
+		}
+		defer cleanup()
+
 		// Build command:
 		// <installPath>/lynis audit system \
 		//     --report-file <reportDir>/report.dat \
@@ -100,7 +109,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			"--tests",
 			strings.Join(testsToRun, ","),
 			"--rootdir",
-			userInput,
+			fsPath,
 		}
 		cmd := exec.Command(lynisPath, args...) // nolint:gosec
 
@@ -137,9 +146,9 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 func (a *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
-	case utils.ROOTFS:
+	case utils.ROOTFS, utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		return true
-	case utils.DIR, utils.FILE, utils.IMAGE, utils.SBOM:
+	case utils.DIR, utils.FILE, utils.SBOM:
 		a.logger.Infof("source type %v is not supported for lynis, skipping.", sourceType)
 	default:
 		a.logger.Infof("unknown source type %v, skipping.", sourceType)
