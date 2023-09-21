@@ -29,8 +29,10 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils/containerrootfs"
 )
 
 type Manager struct {
@@ -98,6 +100,14 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 	familyResults := results.New()
 
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	utils.ContainerRootfsCache = containerrootfs.NewCache()
+	defer func() {
+		err := utils.ContainerRootfsCache.CleanupAll()
+		if err != nil {
+			logger.WithError(err).Errorf("failed to cleanup all cached container rootfs files")
+		}
+	}()
 
 	for _, family := range m.families {
 		if err := notifier.FamilyStarted(ctx, family.GetType()); err != nil {

@@ -16,6 +16,7 @@
 package gitleaks
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -27,6 +28,7 @@ import (
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
 	gitleaksconfig "github.com/openclarity/vmclarity/pkg/shared/families/secrets/gitleaks/config"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -75,9 +77,16 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}()
 		reportPath := file.Name()
 
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		if err != nil {
+			a.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
+			return
+		}
+		defer cleanup()
+
 		// ./gitleaks detect --source=<source> --no-git -r <report-path> -f json --exit-code 0 --max-target-megabytes 50
 		// nolint:gosec
-		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", userInput), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0", "--max-target-megabytes", "50")
+		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", fsPath), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0", "--max-target-megabytes", "50")
 		a.logger.Infof("Running gitleaks command: %v", cmd.String())
 		_, err = sharedutils.RunCommand(cmd)
 		if err != nil {
@@ -103,9 +112,9 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 func (a *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
-	case utils.DIR, utils.ROOTFS:
+	case utils.DIR, utils.ROOTFS, utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		return true
-	case utils.FILE, utils.IMAGE, utils.SBOM:
+	case utils.FILE, utils.SBOM:
 		fallthrough
 	default:
 		a.logger.Infof("source type %v is not supported for gitleaks, skipping.", sourceType)

@@ -16,6 +16,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"path/filepath"
@@ -24,6 +25,8 @@ import (
 	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils/containerrootfs"
 )
 
 // InputSizesCache global cache of already calculated input sizes. If input type is a DIR/ROOTFS/FILE than the key is the input path.
@@ -102,4 +105,39 @@ func DirSizeMB(path string) (int64, error) {
 	}
 
 	return dirSizeBytes / megaBytesToBytes, nil
+}
+
+// ContainerRootfsCache is the container root fs conversion cache that will be
+// used by all the scanners which call ConvertInputToFilesystem.
+//
+// TODO(sambetts) Stop using a global cache object when once we have support
+// for context.Context in the scanner infrastructure. Once that happens we can
+// pass it down from the family manager to the scanners.
+var ContainerRootfsCache *containerrootfs.Cache
+
+func ConvertInputToFilesystem(ctx context.Context, sourceType kubeclarityutils.SourceType, userInput string) (string, func(), error) {
+	switch sourceType {
+	case kubeclarityutils.DIR, kubeclarityutils.ROOTFS:
+		return userInput, func() {}, nil
+	case kubeclarityutils.IMAGE, kubeclarityutils.DOCKERARCHIVE, kubeclarityutils.OCIARCHIVE, kubeclarityutils.OCIDIR:
+		source := kubeclarityutils.CreateSource(sourceType, userInput, false)
+		// TODO(sambetts) Remove this when we're able to pass the
+		// context all the way from the family manager.
+		ctx := containerrootfs.SetCacheForContext(ctx, ContainerRootfsCache)
+		rootfs, err := containerrootfs.ToTempDirectory(ctx, source)
+		if err != nil {
+			return "", func() {}, fmt.Errorf("failed to expand container to rootfs directory: %w", err)
+		}
+		cleanup := func() {
+			err = rootfs.Cleanup()
+			if err != nil {
+				log.GetLoggerFromContextOrDefault(ctx).WithError(err).Error("unable to clean up container rootfs")
+			}
+		}
+		return rootfs.Dir(), cleanup, nil
+	case kubeclarityutils.SBOM, kubeclarityutils.FILE:
+		fallthrough
+	default:
+		return "", func() {}, fmt.Errorf("unable to convert %s to filesystem", sourceType)
+	}
 }

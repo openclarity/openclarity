@@ -17,6 +17,7 @@ package sshtopology
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -31,6 +32,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	sharedUtils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -68,8 +70,15 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		if err != nil {
+			s.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
+			return
+		}
+		defer cleanup()
+
 		var errs []error
-		homeUserDirs, err := getHomeUserDirs(userInput)
+		homeUserDirs, err := getHomeUserDirs(fsPath)
 		if err != nil {
 			// Collect the error and continue.
 			errs = append(errs, fmt.Errorf("failed to get home user dirs: %w", err))
@@ -100,7 +109,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if sshDaemonKeysFingerprints, err := s.getSSHDaemonKeysFingerprints(userInput); err != nil {
+			if sshDaemonKeysFingerprints, err := s.getSSHDaemonKeysFingerprints(fsPath); err != nil {
 				errorsChan <- fmt.Errorf("failed to get ssh daemon keys: %w", err)
 			} else {
 				fingerprintsChan <- sshDaemonKeysFingerprints
@@ -189,7 +198,18 @@ func getHomeUserDirs(rootDir string) ([]string, error) {
 }
 
 func (s *Scanner) getSSHDaemonKeysFingerprints(rootPath string) ([]types.Info, error) {
-	paths, err := s.getPrivateKeysPaths(path.Join(rootPath, "/etc/ssh"), false)
+	sshDaemonConfigDir := path.Join(rootPath, "/etc/ssh")
+
+	// Check daemon config directory exists, some setups might not have ssh
+	// installed.
+	_, err := os.Stat(sshDaemonConfigDir)
+	if errors.Is(err, os.ErrNotExist) {
+		return []types.Info{}, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("unexpected error checking %s exists: %w", sshDaemonConfigDir, err)
+	}
+
+	paths, err := s.getPrivateKeysPaths(sshDaemonConfigDir, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get private keys paths: %w", err)
 	}
@@ -354,9 +374,9 @@ func (s *Scanner) executeSSHKeyGenFingerprintCommand(hashAlgo string, filePath s
 
 func (s *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
-	case utils.ROOTFS:
+	case utils.ROOTFS, utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		return true
-	case utils.DIR, utils.FILE, utils.IMAGE, utils.SBOM:
+	case utils.DIR, utils.FILE, utils.SBOM:
 		s.logger.Infof("Source type %v is not supported for %s, skipping.", ScannerName, sourceType)
 	default:
 		s.logger.Infof("Unknown source type %v, skipping.", sourceType)

@@ -16,6 +16,7 @@
 package chkrootkit
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -27,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/chkrootkit/config"
 	chkrootkitutils "github.com/openclarity/vmclarity/pkg/shared/families/rootkits/chkrootkit/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/common"
+	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -58,9 +60,16 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		if err != nil {
+			s.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
+			return
+		}
+		defer cleanup()
+
 		args := []string{
 			"-r", // Set userInput as the path to the root volume
-			userInput,
+			fsPath,
 		}
 
 		// nolint:gosec
@@ -132,9 +141,9 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 
 func (s *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
-	case utils.DIR, utils.ROOTFS:
+	case utils.DIR, utils.ROOTFS, utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
 		return true
-	case utils.FILE, utils.IMAGE, utils.SBOM:
+	case utils.FILE, utils.SBOM:
 		fallthrough
 	default:
 		s.logger.Infof("source type %v is not supported for chkrootkit, skipping.", sourceType)

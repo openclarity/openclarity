@@ -84,7 +84,7 @@ misconfiguration:
   inputs:
     - input: "./"
       input_type: "rootfs"
-  scanners_configs: {}
+  scanners_config: {}
 
 
 infofinder:
@@ -94,4 +94,27 @@ infofinder:
   inputs:
     - input: "/"
       input_type: "rootfs"
-  scanners_configs: {}
+  scanners_config: {}
+
+malware:
+  enabled: true
+  scanners_list:
+    - "clam"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    clam:
+      freshclam_binary_path: freshclam
+      clamscan_binary_path: clamscan
+
+rootkits:
+  enabled: true
+  scanners_list:
+    - "chkrootkit"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    chkrootkit:
+      binary_path: chkrootkit
