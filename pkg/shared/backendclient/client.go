@@ -439,6 +439,33 @@ func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationI
 	}
 }
 
+func (b *BackendClient) DeleteScanEstimation(ctx context.Context, scanEstimationID models.ScanEstimationID) error {
+	resp, err := b.apiClient.DeleteScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID)
+	if err != nil {
+		return fmt.Errorf("failed to delete a scan estimation: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return fmt.Errorf("failed to delete a scan estimation: empty body")
+		}
+		return nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return fmt.Errorf("failed to delete a scan estimation: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return fmt.Errorf("failed to delete a scan estimation, not found: %v", *resp.JSON404.Message)
+		}
+		return fmt.Errorf("failed to delete a scan estimation, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return fmt.Errorf("failed to delete scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return fmt.Errorf("failed to delete scan estimation. status code=%v", resp.StatusCode())
+	}
+}
+
 func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEstimation models.AssetScanEstimation) (*models.AssetScanEstimation, error) {
 	resp, err := b.apiClient.PostAssetScanEstimationsWithResponse(ctx, assetScanEstimation)
 	if err != nil {
@@ -471,6 +498,33 @@ func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEs
 			return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
 		return nil, fmt.Errorf("failed to create an asset scan estimation. status code=%v", resp.StatusCode())
+	}
+}
+
+func (b *BackendClient) DeleteAssetScanEstimation(ctx context.Context, assetScanEstimationID models.AssetScanEstimationID) error {
+	resp, err := b.apiClient.DeleteAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID)
+	if err != nil {
+		return fmt.Errorf("failed to delete a asset scan estimation: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return fmt.Errorf("failed to delete asset scan estimation: empty body")
+		}
+		return nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return fmt.Errorf("failed to delete asset scan estimation: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return fmt.Errorf("failed to delete asset scan estimation, not found: %v", *resp.JSON404.Message)
+		}
+		return fmt.Errorf("failed to delete asset scan estimation, not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return fmt.Errorf("failed to delete asset scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return fmt.Errorf("failed to delete asset scan estimation. status code=%v", resp.StatusCode())
 	}
 }
 

@@ -168,3 +168,18 @@ func (s *ServerImpl) PutAssetScanEstimationsAssetScanEstimationID(ctx echo.Conte
 
 	return sendResponse(ctx, http.StatusOK, updatedAssetScanEstimation)
 }
+
+func (s *ServerImpl) DeleteAssetScanEstimationsAssetScanEstimationID(ctx echo.Context, assetScanEstimationID models.AssetScanEstimationID) error {
+	success := models.Success{
+		Message: utils.PointerTo(fmt.Sprintf("asset scan estimation %v deleted", assetScanEstimationID)),
+	}
+
+	if err := s.dbHandler.AssetScanEstimationsTable().DeleteAssetScanEstimation(assetScanEstimationID); err != nil {
+		if errors.Is(err, databaseTypes.ErrNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("AssetScanEstimation with ID %v not found", assetScanEstimationID))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to delete asset scan estimation from db. scanEstimationID=%v: %v", assetScanEstimationID, err))
+	}
+
+	return sendResponse(ctx, http.StatusOK, &success)
+}
