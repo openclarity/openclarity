@@ -7,12 +7,13 @@ DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 VMCLARITY_TOOLS_BASE ?=
+GO_VERSION = 1.20
 
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_DIR := $(ROOT_DIR)/bin
 
 # Dependency versions
-LICENSEI_VERSION = 0.5.0
+LICENSEI_VERSION = 0.9.0
 
 # HELP
 # This will output the help for each task
@@ -140,8 +141,20 @@ e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend
 clean-ui:
 	@(rm -rf ui/build ; echo "UI cleanup done" )
 
+.PHONY: clean-golangci-lint
+clean-golangci-lint:
+	@(rm -rf bin/golangci-lint* ; echo "Golangci lint cleanup done" )
+
+.PHONY: clean-licensei
+clean-licensei:
+	@(rm -rf bin/licensei* ; echo "Licensei cleanup done" )
+
+.PHONY: clean-go
+clean-go:
+	@(rm -rf bin/vmclarity* ; echo "GO executables cleanup done" )
+
 .PHONY: clean
-clean: clean-ui clean-backend ## Clean all build artifacts
+clean: clean-ui clean-golangci-lint clean-licensei clean-go ## Clean all build artifacts
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
@@ -201,9 +214,14 @@ license-cache: bin/licensei ## Generate license cache
 .PHONY: check
 check: lint test helm-lint ## Run tests and linters
 
+TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
+
+.PHONY: $(TIDYGOMODULES)
+$(TIDYGOMODULES):
+	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$(GO_VERSION)
+
 .PHONY: gomod-tidy
-gomod-tidy:
-	go mod tidy
+gomod-tidy: $(TIDYGOMODULES)
 
 .PHONY: gen-api
 gen-api: gen-apiserver-api gen-uibackend-api ## Generating API code
