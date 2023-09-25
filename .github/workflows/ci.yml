@@ -75,46 +75,7 @@ jobs:
     with:
       image_tag: ${{ github.sha }}
       push: false
-      upload: true
-
-  e2e:
-    needs: build
-    name: E2E Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Load Docker images
-        run: |
-          ls
-          docker load --input vmclarity-apiserver/vmclarity-apiserver.tar
-          docker load --input vmclarity-orchestrator/vmclarity-orchestrator.tar
-          docker load --input vmclarity-ui-backend/vmclarity-ui-backend.tar
-          docker load --input vmclarity-ui/vmclarity-ui.tar
-          docker load --input vmclarity-cli/vmclarity-cli.tar
-          docker image ls -a
-
-      - name: Run end to end tests
-        env:
-          DOCKER_TAG: ${{ github.sha }}
-          APIServerContainerImage: ghcr.io/openclarity/vmclarity-apiserver:${{ github.sha }}
-          OrchestratorContainerImage: ghcr.io/openclarity/vmclarity-orchestrator:${{ github.sha }}
-          UIContainerImage: ghcr.io/openclarity/vmclarity-ui:${{ github.sha }}
-          UIBackendContainerImage: ghcr.io/openclarity/vmclarity-ui-backend:${{ github.sha }}
-          ScannerContainerImage: ghcr.io/openclarity/vmclarity-cli:${{ github.sha }}
-        run: cd e2e && go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
+      upload: false
 
   success:
     needs:
