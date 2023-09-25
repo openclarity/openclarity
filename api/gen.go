@@ -15,6 +15,6 @@
 
 package api
 
-//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 --config=models/models.cfg.yaml openapi.yaml
-//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 --config=server/server.cfg.yaml openapi.yaml
-//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 --config=client/client.cfg.yaml openapi.yaml
+//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=models/models.cfg.yaml openapi.yaml
+//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=server/server.cfg.yaml openapi.yaml
+//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=client/client.cfg.yaml openapi.yaml
