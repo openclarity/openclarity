@@ -29,11 +29,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,7 +60,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/openclarity/${{ inputs.image_name }}:${{ inputs.image_tag }}
           file: ${{ inputs.dockerfile }}
           push: ${{ inputs.push }}
@@ -78,7 +73,7 @@ jobs:
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
-        if: ${{ inputs.upload == 'true' && matrix.platform == 'linux/amd64'}}
+        if: ${{ inputs.upload == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.image_name }}
