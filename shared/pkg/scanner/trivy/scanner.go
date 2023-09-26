@@ -96,14 +96,6 @@ func getAllTrivySeverities() ([]trivyDBTypes.Severity, error) {
 }
 
 func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag.Options, error) {
-	// Get the Trivy CVE DB URL default value from the trivy
-	// configuration, we may want to make this configurable in the
-	// future.
-	dbRepoDefaultValue, ok := trivyFlag.DBRepositoryFlag.Default.(string)
-	if !ok {
-		return trivyFlag.Options{}, fmt.Errorf("unable to get trivy DB repo config")
-	}
-
 	severities, err := getAllTrivySeverities()
 	if err != nil {
 		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
@@ -112,6 +104,11 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 	cacheDir := trivyFsutils.CacheDir()
 	if a.config.CacheDir != "" {
 		cacheDir = a.config.CacheDir
+	}
+
+	dbOptions, err := utilsTrivy.GetTrivyDBOptions()
+	if err != nil {
+		return trivyFlag.Options{}, fmt.Errorf("unable to get db options: %w", err)
 	}
 
 	trivyOptions := trivyFlag.Options{
@@ -132,10 +129,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 			ListAllPkgs:  false,                 // Only include packages with vulnerabilities
 			Severities:   severities,            // All the severities from the above
 		},
-		DBOptions: trivyFlag.DBOptions{
-			DBRepository: dbRepoDefaultValue, // Use the default trivy source for the vuln DB
-			NoProgress:   true,               // Disable the interactive progress bar
-		},
+		DBOptions: dbOptions,
 		VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
 			VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
 		},
