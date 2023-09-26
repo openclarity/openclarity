@@ -8,6 +8,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.7
 	github.com/openclarity/kubeclarity/api v0.0.0
 	github.com/openclarity/kubeclarity/shared v0.0.0
+	github.com/satori/go.uuid v1.2.0
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.27.4
 	k8s.io/apimachinery v0.27.4

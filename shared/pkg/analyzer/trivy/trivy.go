@@ -68,6 +68,11 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		return fmt.Errorf("failed to create temp file: %v", err)
 	}
 
+	dbOptions, err := utilsTrivy.GetTrivyDBOptions()
+	if err != nil {
+		return fmt.Errorf("unable to get db options: %w", err)
+	}
+
 	go func() {
 		defer os.Remove(tempFile.Name())
 
@@ -105,6 +110,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				Output:       tempFile.Name(),            // Save the output to our temp file instead of Stdout
 				ListAllPkgs:  true,                       // By default, Trivy only includes packages with vulnerabilities, for full SBOM set true.
 			},
+			DBOptions: dbOptions,
 			VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
 				VulnType: trivyTypes.VulnTypes, // Trivy disables analyzers for language packages if VulnTypeLibrary not in VulnType list
 			},

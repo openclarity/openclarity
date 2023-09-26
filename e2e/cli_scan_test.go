@@ -25,6 +25,7 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	uuid "github.com/satori/go.uuid"
 	"gotest.tools/assert"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
@@ -40,8 +41,8 @@ const (
 	TestImageName                  = "nginx:1.10"
 	ApplicationName                = "test-app"
 
-	DockerArchiveApplicationName   = "test-app-docker-archive"
-	DockerArchiveOutputSBOMFile    = "docker-archive.sbom"
+	DockerArchiveApplicationName = "test-app-docker-archive"
+	DockerArchiveOutputSBOMFile  = "docker-archive.sbom"
 
 	TestImageWithMissingSyftMetadata      = "docker.io/weaveworksdemos/front-end:sha-14254f9"
 	MissingMetaImageAnalyzeOutputSBOMFile = "missingmeta.sbom"
@@ -60,135 +61,156 @@ func TestCLIScan(t *testing.T) {
 		stopCh <- struct{}{}
 		time.Sleep(2 * time.Second)
 	}()
-	f1 := features.New("cli scan flow - analyze and scan").
+	cliScanFlowFunc := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+		// create application
+		t.Logf("create application...")
+		appID := createApplication(t, ApplicationName+uuid.NewV4().String())
+
+		// analyze dir
+		t.Logf("analyze dir...")
+		analyzeDir(t)
+		validateAnalyzeDir(t)
+
+		// analyze image with --merge-sbom directory sbom, and export to backend
+		t.Logf("analyze image...")
+		analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, "image", ImageAnalyzeOutputSBOMFile)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateAnalyzeImage(t, ImageAnalyzeOutputSBOMFile, appID)
+
+		// scan merged sbom
+		t.Logf("scan merged sbom...")
+		scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateScanSBOM(t, appID)
+
+		// scan image
+		t.Logf("scan image...")
+		scanImage(t, TestImageName, "image", appID)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateScanImage(t, appID, true)
+
+		return ctx
+	}
+	cliScanFlowImageWithKnownBadMetadata := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+		// create application
+		t.Logf("create application...")
+		appID := createApplication(t, MissingMetaApplicationName+uuid.NewV4().String())
+
+		// analyze "bad" image
+		t.Logf("analyze image...")
+		analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, "image", MissingMetaImageAnalyzeOutputSBOMFile)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateAnalyzeImage(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
+
+		// scan merged sbom
+		t.Logf("scan merged sbom...")
+		scanSBOM(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateScanSBOM(t, appID)
+
+		return ctx
+	}
+	cliScanFlowImageWithNoComponents := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+		// create application
+		t.Logf("create application...")
+		appID := createApplication(t, NoComponentsApplicationName+uuid.NewV4().String())
+
+		// analyze "bad" image
+		t.Logf("analyze image...")
+		analyzeImage(t, "", appID, TestImageWithNoComponents, "image", NoComponentsImageAnalyzeOutputSBOMFile)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+
+		// check generated sbom is a valid cyclonedx even
+		// though there is no components
+		sbom := getCdxSbom(t, NoComponentsImageAnalyzeOutputSBOMFile)
+		assert.Assert(t, sbom != nil)
+		assert.Assert(t, sbom.Components != nil)
+		assert.Assert(t, len(*sbom.Components) == 0)
+
+		// scan sbom with no componenents
+		t.Logf("scan merged sbom...")
+		scanSBOM(t, NoComponentsImageAnalyzeOutputSBOMFile, appID)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+
+		// validate scan results were sent to the backend but
+		// no vuls were found because its got no components
+		vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
+		assert.Assert(t, *vuls.Total == 0)
+
+		return ctx
+	}
+	cliScanFlowDockerArchiveImage := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+		// create application
+		t.Logf("create application...")
+		appID := createApplication(t, DockerArchiveApplicationName+uuid.NewV4().String())
+
+		tmpDir, err := os.MkdirTemp("", "")
+		if err != nil {
+			t.Fatalf("unable to make temporary directory")
+		}
+		defer func() {
+			err := os.RemoveAll(tmpDir)
+			if err != nil {
+				t.Logf("unable to remove temp directory: %v", err)
+			}
+		}()
+
+		outputFile := filepath.Join(tmpDir, "image.tar")
+
+		command := fmt.Sprintf("docker pull %s && docker image save %s -o %s", TestImageName, TestImageName, outputFile)
+		cmd := exec.Command("/bin/sh", "-c", command)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("docker save failed: %v, %s", err, out)
+		}
+
+		// analyze image and export to backend
+		t.Logf("analyze image...")
+		analyzeImage(t, "", appID, outputFile, "docker-archive", DockerArchiveOutputSBOMFile)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateAnalyzeImage(t, DockerArchiveOutputSBOMFile, appID)
+
+		// scan image
+		t.Logf("scan image...")
+		scanImage(t, outputFile, "docker-archive", appID)
+		time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
+		validateScanImage(t, appID, false)
+
+		return ctx
+	}
+	f1 := features.New("cli scan flow - analyze and scan - default configuration").
 		WithLabel("type", "cli").
 		WithSetup("setup env", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 			// setup env
 			t.Logf("setup env...")
-			setupCLIScanTestEnv(stopCh)
+			setupCLIScanTestEnv(t, stopCh, "", "")
 
 			return ctx
 		}).
-		Assess("cli scan flow", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
-			// create application
-			t.Logf("create application...")
-			appID := createApplication(t, ApplicationName)
+		Assess("cli scan flow", cliScanFlowFunc).
+		Assess("cli scan flow - image with known bad metadata in cyclonedx", cliScanFlowImageWithKnownBadMetadata).
+		Assess("cli scan flow - image with no components", cliScanFlowImageWithNoComponents).
+		Assess("cli scan flow - docker archive image", cliScanFlowDockerArchiveImage).
+		Feature()
 
-			// analyze dir
-			t.Logf("analyze dir...")
-			analyzeDir(t)
-			validateAnalyzeDir(t)
-
-			// analyze image with --merge-sbom directory sbom, and export to backend
-			t.Logf("analyze image...")
-			analyzeImage(t, DirectoryAnalyzeOutputSBOMFile, appID, TestImageName, "image", ImageAnalyzeOutputSBOMFile)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateAnalyzeImage(t, ImageAnalyzeOutputSBOMFile, appID)
-
-			// scan merged sbom
-			t.Logf("scan merged sbom...")
-			scanSBOM(t, ImageAnalyzeOutputSBOMFile, appID)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateScanSBOM(t, appID)
-
-			// scan image
-			t.Logf("scan image...")
-			scanImage(t, TestImageName, "image", appID)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateScanImage(t, appID, true)
+	f2 := features.New("cli scan flow - analyze and scan - trivy").
+		WithLabel("type", "cli").
+		WithSetup("setup env", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+			// setup env
+			t.Logf("setup env...")
+			setupCLIScanTestEnv(t, stopCh, "trivy", "trivy")
 
 			return ctx
 		}).
-		Assess("cli scan flow - image with known bad metadata in cyclonedx", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
-			// create application
-			t.Logf("create application...")
-			appID := createApplication(t, MissingMetaApplicationName)
-
-			// analyze "bad" image
-			t.Logf("analyze image...")
-			analyzeImage(t, "", appID, TestImageWithMissingSyftMetadata, "image", MissingMetaImageAnalyzeOutputSBOMFile)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateAnalyzeImage(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
-
-			// scan merged sbom
-			t.Logf("scan merged sbom...")
-			scanSBOM(t, MissingMetaImageAnalyzeOutputSBOMFile, appID)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateScanSBOM(t, appID)
-
-			return ctx
-		}).
-		Assess("cli scan flow - image with no components", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
-			// create application
-			t.Logf("create application...")
-			appID := createApplication(t, NoComponentsApplicationName)
-
-			// analyze "bad" image
-			t.Logf("analyze image...")
-			analyzeImage(t, "", appID, TestImageWithNoComponents, "image", NoComponentsImageAnalyzeOutputSBOMFile)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-
-			// check generated sbom is a valid cyclonedx even
-			// though there is no components
-			sbom := getCdxSbom(t, NoComponentsImageAnalyzeOutputSBOMFile)
-			assert.Assert(t, sbom != nil)
-			assert.Assert(t, sbom.Components != nil)
-			assert.Assert(t, len(*sbom.Components) == 0)
-
-			// scan sbom with no componenents
-			t.Logf("scan merged sbom...")
-			scanSBOM(t, NoComponentsImageAnalyzeOutputSBOMFile, appID)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-
-			// validate scan results were sent to the backend but
-			// no vuls were found because its got no components
-			vuls := common.GetVulnerabilities(t, kubeclarityAPI, appID)
-			assert.Assert(t, *vuls.Total == 0)
-
-			return ctx
-		}).
-		Assess("cli scan flow - docker archive image", func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
-			// create application
-			t.Logf("create application...")
-			appID := createApplication(t, DockerArchiveApplicationName)
-
-			tmpDir, err := os.MkdirTemp("", "")
-			if err != nil {
-				t.Fatalf("unable to make temporary directory")
-			}
-			defer func() {
-				err := os.RemoveAll(tmpDir)
-				if err != nil {
-					t.Logf("unable to remove temp directory: %v", err)
-				}
-			}()
-
-			outputFile := filepath.Join(tmpDir, "image.tar")
-
-			command := fmt.Sprintf("docker pull %s && docker image save %s -o %s", TestImageName, TestImageName, outputFile)
-			cmd := exec.Command("/bin/sh", "-c", command)
-			out, err := cmd.CombinedOutput()
-			if err != nil {
-				t.Fatalf("docker save failed: %v, %s", err, out)
-			}
-
-			// analyze image and export to backend
-			t.Logf("analyze image...")
-			analyzeImage(t, "", appID, outputFile, "docker-archive", DockerArchiveOutputSBOMFile)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateAnalyzeImage(t, DockerArchiveOutputSBOMFile, appID)
-
-			// scan image
-			t.Logf("scan image...")
-			scanImage(t, outputFile, "docker-archive", appID)
-			time.Sleep(common.WaitForMaterializedViewRefreshSecond * time.Second)
-			validateScanImage(t, appID, false)
-
-			return ctx
-		}).Feature()
+		Assess("cli scan flow", cliScanFlowFunc).
+		Assess("cli scan flow - image with known bad metadata in cyclonedx", cliScanFlowImageWithKnownBadMetadata).
+		Assess("cli scan flow - image with no components", cliScanFlowImageWithNoComponents).
+		// TODO(idanf): uncomment the following once https://github.com/openclarity/kubeclarity/issues/498 will be resolved
+		//Assess("cli scan flow - docker archive image", cliScanFlowDockerArchiveImage).
+		Feature()
 
 	// test features
-	testenv.Test(t, f1)
+	testenv.Test(t, f1, f2)
 }
 
 func getCdxSbom(t *testing.T, fileName string) *cdx.BOM {
@@ -274,10 +296,6 @@ var cliPath = filepath.Join(common.GetCurrentDir(), "kubeclarity-cli")
 
 // analyze test image, merge inputSbom and export to backend
 func analyzeImage(t *testing.T, inputSbom string, appID string, image string, inputType string, outputfile string) {
-	t.Helper()
-	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
-	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
-
 	command := fmt.Sprintf("%v analyze %v --application-id %v --input-type %s", cliPath, image, appID, inputType)
 
 	if inputSbom != "" {
@@ -295,10 +313,6 @@ func analyzeImage(t *testing.T, inputSbom string, appID string, image string, in
 }
 
 func scanSBOM(t *testing.T, inputSbom string, appID string) {
-	t.Helper()
-	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
-	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
-
 	command := fmt.Sprintf("%v scan %v --application-id %v --input-type sbom -e", cliPath, inputSbom, appID)
 
 	cmd := exec.Command("/bin/sh", "-c", command)
@@ -310,9 +324,6 @@ func scanSBOM(t *testing.T, inputSbom string, appID string) {
 }
 
 func scanImage(t *testing.T, image string, inputType string, appID string) {
-	t.Helper()
-	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
-	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
 
 	command := fmt.Sprintf("%v scan %v --application-id %v --input-type %s --cis-docker-benchmark-scan -e", cliPath, image, appID, inputType)
 
@@ -324,8 +335,17 @@ func scanImage(t *testing.T, image string, inputType string, appID string) {
 	}
 }
 
-func setupCLIScanTestEnv(stopCh chan struct{}) {
+func setupCLIScanTestEnv(t *testing.T, stopCh chan struct{}, analyzersList string, scannersList string) {
 	println("Set up cli scan test env...")
+	t.Helper()
+	assert.NilError(t, os.Setenv("BACKEND_HOST", "localhost:"+common.KubeClarityPortForwardHostPort))
+	assert.NilError(t, os.Setenv("BACKEND_DISABLE_TLS", "true"))
+	if analyzersList != "" {
+		assert.NilError(t, os.Setenv("ANALYZER_LIST", analyzersList))
+	}
+	if scannersList != "" {
+		assert.NilError(t, os.Setenv("SCANNERS_LIST", scannersList))
+	}
 
 	println("port-forward to kubeclarity...")
 	common.PortForwardToKubeClarity(stopCh)
