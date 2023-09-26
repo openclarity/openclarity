@@ -25,6 +25,7 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	uuid "github.com/satori/go.uuid"
 	"gotest.tools/assert"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
@@ -63,7 +64,7 @@ func TestCLIScan(t *testing.T) {
 	cliScanFlowFunc := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 		// create application
 		t.Logf("create application...")
-		appID := createApplication(t, ApplicationName)
+		appID := createApplication(t, ApplicationName+uuid.NewV4().String())
 
 		// analyze dir
 		t.Logf("analyze dir...")
@@ -93,7 +94,7 @@ func TestCLIScan(t *testing.T) {
 	cliScanFlowImageWithKnownBadMetadata := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 		// create application
 		t.Logf("create application...")
-		appID := createApplication(t, MissingMetaApplicationName)
+		appID := createApplication(t, MissingMetaApplicationName+uuid.NewV4().String())
 
 		// analyze "bad" image
 		t.Logf("analyze image...")
@@ -112,7 +113,7 @@ func TestCLIScan(t *testing.T) {
 	cliScanFlowImageWithNoComponents := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 		// create application
 		t.Logf("create application...")
-		appID := createApplication(t, NoComponentsApplicationName)
+		appID := createApplication(t, NoComponentsApplicationName+uuid.NewV4().String())
 
 		// analyze "bad" image
 		t.Logf("analyze image...")
@@ -141,7 +142,7 @@ func TestCLIScan(t *testing.T) {
 	cliScanFlowDockerArchiveImage := func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
 		// create application
 		t.Logf("create application...")
-		appID := createApplication(t, DockerArchiveApplicationName)
+		appID := createApplication(t, DockerArchiveApplicationName+uuid.NewV4().String())
 
 		tmpDir, err := os.MkdirTemp("", "")
 		if err != nil {
