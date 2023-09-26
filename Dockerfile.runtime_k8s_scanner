@@ -28,7 +28,7 @@ ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go build -ldflags="-s -w \
+    CGO_ENABLED=0 go build -ldflags="-s -w \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.Version=${VERSION}' \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/kubeclarity/runtime_k8s_scanner/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
