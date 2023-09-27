@@ -160,13 +160,16 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		// Get the RepoDigest/ImageID from image metadata and use it as
 		// SourceHash in the Result that will be added to the component
 		// hash of metadata during the merge.
-		if sourceType == utils.IMAGE {
+		switch sourceType {
+		case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIDIR, utils.OCIARCHIVE:
 			hash, err := getImageHash(bom.Metadata.Component.Properties, userInput)
 			if err != nil {
 				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
 				return
 			}
 			res.AppInfo.SourceHash = hash
+		default:
+			// ignore
 		}
 
 		a.logger.Infof("Sending successful results")

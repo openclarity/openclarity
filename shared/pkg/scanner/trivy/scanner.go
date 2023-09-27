@@ -363,7 +363,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	a.logger.Infof("Found %d vulnerabilities", len(matches))
 
 	if string(report.ArtifactType) == "container_image" {
-		hash = image_helper.GetHashFromRepoDigest(report.Metadata.RepoDigests, report.ArtifactName)
+		hash = image_helper.GetHashFromRepoDigestsOrImageID(report.Metadata.RepoDigests, report.Metadata.ImageID, report.ArtifactName)
 	}
 
 	source := scanner.Source{
