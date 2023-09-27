@@ -225,14 +225,14 @@ func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([
 	return layerCommands, nil
 }
 
-func GetHashFromRepoOrManifestDigest(repoDigests []string, manifestDigest string, imageName string) string {
+func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, imageName string) string {
 	hash := GetHashFromRepoDigest(repoDigests, imageName)
 	if hash == "" {
-		// set hash using ManifestDigest if RepoDigest is missing
-		if idx := strings.Index(manifestDigest, ":"); idx != -1 {
-			hash = manifestDigest[idx+1:]
+		// set hash using ImageID (https://github.com/opencontainers/image-spec/blob/main/config.md#imageid) if repo digests are missing
+		if idx := strings.Index(imageID, ":"); idx != -1 {
+			hash = imageID[idx+1:]
 		} else {
-			hash = manifestDigest
+			hash = imageID
 		}
 	}
 	return hash

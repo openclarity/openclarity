@@ -154,10 +154,10 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
 
 		// Trivy doesn't include the version information in the
-		// component of CycloneDX but it does include the RepoDigest as
+		// component of CycloneDX, but it does include the RepoDigest and the ImageID as
 		// a property of the component.
 		//
-		// Get the RepoDigest from image metadata and use it as
+		// Get the RepoDigest/ImageID from image metadata and use it as
 		// SourceHash in the Result that will be added to the component
 		// hash of metadata during the merge.
 		if sourceType == utils.IMAGE {
@@ -187,11 +187,23 @@ func getImageHash(properties *[]cdx.Property, src string) (string, error) {
 		return "", fmt.Errorf("properties was nil")
 	}
 
+	var repoDigests []string
+	var imageID string
+
 	for _, property := range *properties {
-		if property.Name == "aquasecurity:trivy:RepoDigest" {
-			return image_helper.GetHashFromRepoDigest([]string{property.Value}, src), nil
+		switch property.Name {
+		case "aquasecurity:trivy:RepoDigest":
+			repoDigests = append(repoDigests, property.Value)
+		case "aquasecurity:trivy:ImageID":
+			imageID = property.Value
+		default:
+			// Ignore property
 		}
 	}
 
-	return "", fmt.Errorf("repo digest property missing from Metadata.Component")
+	if imageID == "" && len(repoDigests) == 0 {
+		return "", fmt.Errorf("RepoDigest and ImageID properties are missing")
+	}
+
+	return image_helper.GetHashFromRepoDigestsOrImageID(repoDigests, imageID, src), nil
 }

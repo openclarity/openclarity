@@ -119,7 +119,7 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 		if hash != "" {
 			break
 		}
-		hash = image_helper.GetHashFromRepoOrManifestDigest(imageMetadata.RepoDigests, imageMetadata.ManifestDigest, userInput)
+		hash = image_helper.GetHashFromRepoDigestsOrImageID(imageMetadata.RepoDigests, imageMetadata.ID, userInput)
 	case string:
 		srcName = doc.Source.Target.(string) // nolint:forcetypeassert
 	}

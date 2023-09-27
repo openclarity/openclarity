@@ -446,6 +446,16 @@ func (m *MergedResults) addSourceHash(sourceHash string) *MergedResults {
 	if sourceHash == "" {
 		return m
 	}
+
+	// We should have a single hash, need to make sure the current one (if exists) is the same and alert otherwise.
+	if m.SrcMetaData.Component.Hashes != nil && len(*m.SrcMetaData.Component.Hashes) != 0 {
+		currentSourceHash := (*m.SrcMetaData.Component.Hashes)[0].Value
+		if currentSourceHash != sourceHash {
+			log.Errorf("Conflicting hashes: new hash %q is different from existing hash %q", sourceHash, currentSourceHash)
+		}
+		return m
+	}
+
 	repoDigestHash := cdx.Hash{
 		Algorithm: cdx.HashAlgoSHA256,
 		Value:     sourceHash,
