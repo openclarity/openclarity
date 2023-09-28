@@ -92,9 +92,10 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 		imageName   string
 	}
 	tests := []struct {
-		name string
-		args args
-		want string
+		name    string
+		args    args
+		want    string
+		wantErr bool
 	}{
 		{
 			name: "RepoDigests is not missing",
@@ -127,13 +128,14 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 			want: "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 		},
 		{
-			name: "Both RepoDigests and ImageID is missing",
+			name: "Both RepoDigests and ImageID are missing",
 			args: args{
 				imageID:     "",
 				repoDigests: nil,
 				imageName:   "poke/debian:latest",
 			},
-			want: "",
+			want:    "",
+			wantErr: true,
 		},
 		{
 			name: "Both RepoDigests and ImageID not missing - prefer RepoDigests",
@@ -150,8 +152,13 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName); got != tt.want {
-				t.Errorf("GetHashFromRepoDigestsOrImageID() = %v, want %v", got, tt.want)
+			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -206,6 +213,34 @@ func Test_stripDockerMetaFromCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := stripDockerMetaFromCommand(tt.args.command); got != tt.want {
 				t.Errorf("stripDockerMetaFromCommand() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetHashFromRepoDigestsOrImageID1(t *testing.T) {
+	type args struct {
+		repoDigests []string
+		imageID     string
+		imageName   string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

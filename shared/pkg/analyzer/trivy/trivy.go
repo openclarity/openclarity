@@ -206,9 +206,10 @@ func getImageHash(properties *[]cdx.Property, src string) (string, error) {
 		}
 	}
 
-	if imageID == "" && len(repoDigests) == 0 {
-		return "", fmt.Errorf("RepoDigest and ImageID properties are missing")
+	hash, err := image_helper.GetHashFromRepoDigestsOrImageID(repoDigests, imageID, src)
+	if err != nil {
+		return "", fmt.Errorf("failed to get image hash from repo digests or image id: %w", err)
 	}
 
-	return image_helper.GetHashFromRepoDigestsOrImageID(repoDigests, imageID, src), nil
+	return hash, nil
 }

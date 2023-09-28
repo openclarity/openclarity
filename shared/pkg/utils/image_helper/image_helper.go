@@ -41,6 +41,10 @@ type FsLayerCommand struct {
 }
 
 func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
+	if len(repoDigests) == 0 {
+		return ""
+	}
+
 	normalizedName, err := reference.ParseNormalizedNamed(imageName)
 	if err != nil {
 		log.Errorf("Failed to parse image name %s to normalized named: %v", imageName, err)
@@ -225,7 +229,11 @@ func GetImageLayerCommands(imageName string, sharedConf *sharedconfig.Config) ([
 	return layerCommands, nil
 }
 
-func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, imageName string) string {
+func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, imageName string) (string, error) {
+	if imageID == "" && len(repoDigests) == 0 {
+		return "", fmt.Errorf("RepoDigest and ImageID are missing")
+	}
+
 	hash := GetHashFromRepoDigest(repoDigests, imageName)
 	if hash == "" {
 		// set hash using ImageID (https://github.com/opencontainers/image-spec/blob/main/config.md#imageid) if repo digests are missing
@@ -238,5 +246,5 @@ func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, image
 			hash = imageID
 		}
 	}
-	return hash
+	return hash, nil
 }
