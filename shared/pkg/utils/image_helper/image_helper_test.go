@@ -109,7 +109,7 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 			want: "a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
 		},
 		{
-			name: "RepoDigests is missing",
+			name: "RepoDigests is missing, ImageID is not missing",
 			args: args{
 				imageID:     "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 				repoDigests: nil,
@@ -118,7 +118,7 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 			want: "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 		},
 		{
-			name: "RepoDigests is missing, ImageID is not missing",
+			name: "RepoDigests is missing, ImageID is not missing but with the wrong format",
 			args: args{
 				imageID:     "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 				repoDigests: nil,
@@ -134,6 +134,18 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 				imageName:   "poke/debian:latest",
 			},
 			want: "",
+		},
+		{
+			name: "Both RepoDigests and ImageID not missing - prefer RepoDigests",
+			args: args{
+				imageID: "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
+				repoDigests: []string{
+					"debian@sha256:2906804d2a64e8a13a434a1a127fe3f6a28bf7cf3696be4223b06276f32f1f2d",
+					"poke/debian@sha256:a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
+				},
+				imageName: "poke/debian:latest",
+			},
+			want: "a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
 		},
 	}
 	for _, tt := range tests {

@@ -229,8 +229,11 @@ func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, image
 	hash := GetHashFromRepoDigest(repoDigests, imageName)
 	if hash == "" {
 		// set hash using ImageID (https://github.com/opencontainers/image-spec/blob/main/config.md#imageid) if repo digests are missing
-		if idx := strings.Index(imageID, ":"); idx != -1 {
-			hash = imageID[idx+1:]
+		// image ID is represented as a hexadecimal encoding of 256 bits, e.g., sha256:a9561eb1b190625c9adb5a9513e72c4dedafc1cb2d4c5236c9a6957ec7dfd5a9
+		// we need only the hash
+		_, h, found := strings.Cut(imageID, ":")
+		if found {
+			hash = h
 		} else {
 			hash = imageID
 		}
