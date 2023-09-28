@@ -281,6 +281,7 @@ func getCVSSesFromVul(vCvss trivyDBTypes.VendorCVSS) []scanner.CVSS {
 	return cvsses
 }
 
+// nolint:cyclop
 func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	result := &scanner.Results{
 		Matches: nil, // empty results,
@@ -362,8 +363,12 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 
 	a.logger.Infof("Found %d vulnerabilities", len(matches))
 
-	if string(report.ArtifactType) == "container_image" {
-		hash = image_helper.GetHashFromRepoDigest(report.Metadata.RepoDigests, report.ArtifactName)
+	if hash == "" && string(report.ArtifactType) == "container_image" {
+		// If hash is missing, we will TRY to get it from RepoDigests or ImageID
+		hash, err = image_helper.GetHashFromRepoDigestsOrImageID(report.Metadata.RepoDigests, report.Metadata.ImageID, report.ArtifactName)
+		if err != nil {
+			log.Warningf("Failed to get image hash from repo digests or image id: %v", err)
+		}
 	}
 
 	source := scanner.Source{

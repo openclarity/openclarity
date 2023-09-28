@@ -154,19 +154,24 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
 
 		// Trivy doesn't include the version information in the
-		// component of CycloneDX but it does include the RepoDigest as
+		// component of CycloneDX, but it does include the RepoDigest and the ImageID as
 		// a property of the component.
 		//
-		// Get the RepoDigest from image metadata and use it as
+		// Get the RepoDigest/ImageID from image metadata and use it as
 		// SourceHash in the Result that will be added to the component
 		// hash of metadata during the merge.
-		if sourceType == utils.IMAGE {
+		switch sourceType {
+		case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIDIR, utils.OCIARCHIVE:
 			hash, err := getImageHash(bom.Metadata.Component.Properties, userInput)
 			if err != nil {
 				a.setError(res, fmt.Errorf("failed to get image hash from sbom: %w", err))
 				return
 			}
 			res.AppInfo.SourceHash = hash
+		case utils.SBOM, utils.DIR, utils.ROOTFS, utils.FILE:
+			// ignore
+		default:
+			// ignore
 		}
 
 		a.logger.Infof("Sending successful results")
@@ -187,11 +192,24 @@ func getImageHash(properties *[]cdx.Property, src string) (string, error) {
 		return "", fmt.Errorf("properties was nil")
 	}
 
+	var repoDigests []string
+	var imageID string
+
 	for _, property := range *properties {
-		if property.Name == "aquasecurity:trivy:RepoDigest" {
-			return image_helper.GetHashFromRepoDigest([]string{property.Value}, src), nil
+		switch property.Name {
+		case "aquasecurity:trivy:RepoDigest":
+			repoDigests = append(repoDigests, property.Value)
+		case "aquasecurity:trivy:ImageID":
+			imageID = property.Value
+		default:
+			// Ignore property
 		}
 	}
 
-	return "", fmt.Errorf("repo digest property missing from Metadata.Component")
+	hash, err := image_helper.GetHashFromRepoDigestsOrImageID(repoDigests, imageID, src)
+	if err != nil {
+		return "", fmt.Errorf("failed to get image hash from repo digests or image id: %w", err)
+	}
+
+	return hash, nil
 }
