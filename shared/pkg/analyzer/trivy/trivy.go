@@ -168,6 +168,8 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 				return
 			}
 			res.AppInfo.SourceHash = hash
+		case utils.SBOM, utils.DIR, utils.ROOTFS, utils.FILE:
+			// ignore
 		default:
 			// ignore
 		}
