@@ -385,7 +385,7 @@ func TestMergedResults_addSourceHash(t *testing.T) {
 		want   *MergedResults
 	}{
 		{
-			name: "sorceHash and hashes are empty",
+			name: "sourceHash and hashes are empty",
 			fields: fields{
 				SrcMetaData: &cdx.Metadata{
 					Component: &cdx.Component{},
@@ -431,10 +431,12 @@ func TestMergedResults_addSourceHash(t *testing.T) {
 			},
 		},
 		{
-			name: "sourceHash not empty, hashes is empty",
+			name: "sourceHash not empty, hashes is nil",
 			fields: fields{
 				SrcMetaData: &cdx.Metadata{
-					Component: &cdx.Component{},
+					Component: &cdx.Component{
+						Hashes: nil,
+					},
 				},
 			},
 			args: args{
@@ -454,13 +456,38 @@ func TestMergedResults_addSourceHash(t *testing.T) {
 			},
 		},
 		{
-			name: "sourceHash not empty, hashes has value",
+			name: "sourceHash not empty, hashes is empty",
+			fields: fields{
+				SrcMetaData: &cdx.Metadata{
+					Component: &cdx.Component{
+						Hashes: &[]cdx.Hash{},
+					},
+				},
+			},
+			args: args{
+				sourceHash: "2222",
+			},
+			want: &MergedResults{
+				SrcMetaData: &cdx.Metadata{
+					Component: &cdx.Component{
+						Hashes: &[]cdx.Hash{
+							{
+								Algorithm: cdx.HashAlgoSHA256,
+								Value:     "2222",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "sourceHash not empty, hashes are conflicting - ignoring the new one",
 			fields: fields{
 				SrcMetaData: &cdx.Metadata{
 					Component: &cdx.Component{
 						Hashes: &[]cdx.Hash{
 							{
-								Algorithm: cdx.HashAlgoSHA1,
+								Algorithm: cdx.HashAlgoSHA256,
 								Value:     "1111",
 							},
 						},
@@ -476,7 +503,7 @@ func TestMergedResults_addSourceHash(t *testing.T) {
 						Hashes: &[]cdx.Hash{
 							{
 								Algorithm: cdx.HashAlgoSHA256,
-								Value:     "2222",
+								Value:     "1111",
 							},
 						},
 					},

@@ -205,8 +205,7 @@ func TestCLIScan(t *testing.T) {
 		Assess("cli scan flow", cliScanFlowFunc).
 		Assess("cli scan flow - image with known bad metadata in cyclonedx", cliScanFlowImageWithKnownBadMetadata).
 		Assess("cli scan flow - image with no components", cliScanFlowImageWithNoComponents).
-		// TODO(idanf): uncomment the following once https://github.com/openclarity/kubeclarity/issues/498 will be resolved
-		//Assess("cli scan flow - docker archive image", cliScanFlowDockerArchiveImage).
+		Assess("cli scan flow - docker archive image", cliScanFlowDockerArchiveImage).
 		Feature()
 
 	// test features

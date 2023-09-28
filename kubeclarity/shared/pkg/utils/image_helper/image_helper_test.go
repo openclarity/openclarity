@@ -85,21 +85,22 @@ func TestGetRepoDigest(t *testing.T) {
 	}
 }
 
-func TestGetHashFromRepoOrManifestDigest(t *testing.T) {
+func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 	type args struct {
-		repoDigests    []string
-		manifestDigest string
-		imageName      string
+		repoDigests []string
+		imageID     string
+		imageName   string
 	}
 	tests := []struct {
-		name string
-		args args
-		want string
+		name    string
+		args    args
+		want    string
+		wantErr bool
 	}{
 		{
 			name: "RepoDigests is not missing",
 			args: args{
-				manifestDigest: "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
+				imageID: "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 				repoDigests: []string{
 					"debian@sha256:2906804d2a64e8a13a434a1a127fe3f6a28bf7cf3696be4223b06276f32f1f2d",
 					"poke/debian@sha256:a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
@@ -109,37 +110,55 @@ func TestGetHashFromRepoOrManifestDigest(t *testing.T) {
 			want: "a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
 		},
 		{
-			name: "RepoDigests is missing",
+			name: "RepoDigests is missing, ImageID is not missing",
 			args: args{
-				manifestDigest: "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
-				repoDigests:    nil,
-				imageName:      "poke/debian:latest",
+				imageID:     "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
+				repoDigests: nil,
+				imageName:   "poke/debian:latest",
 			},
 			want: "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 		},
 		{
-			name: "RepoDigests is missing, manifestDigest is missing :",
+			name: "RepoDigests is missing, ImageID is not missing but with the wrong format",
 			args: args{
-				manifestDigest: "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
-				repoDigests:    nil,
-				imageName:      "poke/debian:latest",
+				imageID:     "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
+				repoDigests: nil,
+				imageName:   "poke/debian:latest",
 			},
 			want: "38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
 		},
 		{
-			name: "Both RepoDigests and ManifestDigest is missing",
+			name: "Both RepoDigests and ImageID are missing",
 			args: args{
-				manifestDigest: "",
-				repoDigests:    nil,
-				imageName:      "poke/debian:latest",
+				imageID:     "",
+				repoDigests: nil,
+				imageName:   "poke/debian:latest",
 			},
-			want: "",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name: "Both RepoDigests and ImageID not missing - prefer RepoDigests",
+			args: args{
+				imageID: "sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d",
+				repoDigests: []string{
+					"debian@sha256:2906804d2a64e8a13a434a1a127fe3f6a28bf7cf3696be4223b06276f32f1f2d",
+					"poke/debian@sha256:a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
+				},
+				imageName: "poke/debian:latest",
+			},
+			want: "a4c378901a2ba14fd331e96a49101556e91ed592d5fd68ba7405fdbf9b969e61",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetHashFromRepoOrManifestDigest(tt.args.repoDigests, tt.args.manifestDigest, tt.args.imageName); got != tt.want {
-				t.Errorf("GetHashFromRepoOrManifestDigest() = %v, want %v", got, tt.want)
+			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -194,6 +213,34 @@ func Test_stripDockerMetaFromCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := stripDockerMetaFromCommand(tt.args.command); got != tt.want {
 				t.Errorf("stripDockerMetaFromCommand() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetHashFromRepoDigestsOrImageID1(t *testing.T) {
+	type args struct {
+		repoDigests []string
+		imageID     string
+		imageName   string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetHashFromRepoDigestsOrImageID() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

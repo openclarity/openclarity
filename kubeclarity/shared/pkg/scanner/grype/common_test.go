@@ -35,12 +35,14 @@ func TestCreateResults(t *testing.T) {
 	file, err := os.ReadFile("./test_data/nginx.json")
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &doc))
-	// define Target properly for image input
-	doc.Source.Target = syft_source.StereoscopeImageSourceMetadata{
-		UserInput:      "nginx",
-		ManifestDigest: "sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
-		RepoDigests:    []string{"sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"},
-	}
+
+	// set StereoscopeImageSourceMetadata type as Target
+	marshalTarget, err := json.Marshal(doc.Source.Target)
+	assert.NilError(t, err)
+	var imageSourceMetadata syft_source.StereoscopeImageSourceMetadata
+	assert.NilError(t, json.Unmarshal(marshalTarget, &imageSourceMetadata))
+	doc.Source.Target = imageSourceMetadata
+
 	// read expected results
 	var results scanner.Results
 	file, err = os.ReadFile("./test_data/nginx.results.json")
@@ -85,6 +87,13 @@ func Test_getSource(t *testing.T) {
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &doc))
 
+	// set StereoscopeImageSourceMetadata type as Target
+	marshalTarget, err := json.Marshal(doc.Source.Target)
+	assert.NilError(t, err)
+	var imageSourceMetadata syft_source.StereoscopeImageSourceMetadata
+	assert.NilError(t, json.Unmarshal(marshalTarget, &imageSourceMetadata))
+	doc.Source.Target = imageSourceMetadata
+
 	// make a copies of document
 	var sbomDoc models.Document
 	if err := copier.Copy(&sbomDoc, &doc); err != nil {
@@ -95,12 +104,6 @@ func Test_getSource(t *testing.T) {
 		t.Errorf("failed to copy document struct: %v", err)
 	}
 
-	// define Target properly for image input
-	doc.Source.Target = syft_source.StereoscopeImageSourceMetadata{
-		UserInput:      "nginx",
-		ManifestDigest: "sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
-		RepoDigests:    []string{"sha256:43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94"},
-	}
 	// empty imageMetadata for SBOM input
 	sbomDoc.Source.Target = syft_source.StereoscopeImageSourceMetadata{}
 	// string for other input
@@ -126,7 +129,7 @@ func Test_getSource(t *testing.T) {
 			want: scanner.Source{
 				Type: "image",
 				Name: "nginx",
-				Hash: "43ef2d67f4f458c2ac373ce0abf34ff6ad61616dd7cfd2880c6381d7904b6a94",
+				Hash: "644a70516a26004c97d0d85c7fe1d0c3a67ea8ab7ddf4aff193d9f301670cf36",
 			},
 		},
 		{
