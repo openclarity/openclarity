@@ -90,15 +90,21 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		res = analyzer.CreateResults(cdxBom, a.name, src, sourceType)
 
 		// Syft uses ManifestDigest to fill version information in the case of an image.
-		// We need RepoDigest as well which is not set by Syft if we using cycloneDX output.
-		// Get the RepoDigest from image metadata and use it as SourceHash in the Result
+		// We need RepoDigest/ImageID as well which is not set by Syft if we're using cycloneDX output.
+		// Get the RepoDigest/ImageID from image metadata and use it as SourceHash in the Result
 		// that will be added to the component hash of metadata during the merge.
-		if sourceType == utils.IMAGE {
+		switch sourceType {
+		case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIDIR, utils.OCIARCHIVE:
 			if res.AppInfo.SourceHash, err = getImageHash(sbom, userInput); err != nil {
 				a.setError(res, fmt.Errorf("failed to get image hash: %v", err))
 				return
 			}
+		case utils.SBOM, utils.DIR, utils.ROOTFS, utils.FILE:
+			// ignore
+		default:
+			// ignore
 		}
+
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
 	}()
