@@ -20,7 +20,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.21.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.41
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.121.0
-	github.com/aws/aws-sdk-go-v2/service/pricing v1.21.6
+	github.com/aws/aws-sdk-go-v2/service/pricing v1.21.7
 	github.com/aws/smithy-go v1.14.2
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/deepmap/oapi-codegen v1.15.0
