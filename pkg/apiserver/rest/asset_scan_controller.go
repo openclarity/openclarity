@@ -45,6 +45,18 @@ func (s *ServerImpl) PostAssetScans(ctx echo.Context) error {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	status, ok := assetScan.GetResourceCleanupStatus()
+	switch {
+	case !ok:
+		return sendError(ctx, http.StatusBadRequest, "invalid request: resource cleanup status is missing")
+	case status.State == models.ResourceCleanupStatusStatePending:
+		fallthrough
+	case status.State == models.ResourceCleanupStatusStateSkipped:
+		break
+	default:
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("invalid request: initial state for resource cleanup status is invalid: %s", status.State))
+	}
+
 	createdAssetScan, err := s.dbHandler.AssetScansTable().CreateAssetScan(assetScan)
 	if err != nil {
 		var conflictErr *common.ConflictError
@@ -83,12 +95,24 @@ func (s *ServerImpl) PatchAssetScansAssetScanID(ctx echo.Context, assetScanID mo
 	}
 
 	// check that an asset scan with that id exists.
-	_, err = s.dbHandler.AssetScansTable().GetAssetScan(assetScanID, models.GetAssetScansAssetScanIDParams{})
+	existingAssetScan, err := s.dbHandler.AssetScansTable().GetAssetScan(assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("asset scan was not found. assetScanID=%v: %v", assetScanID, err))
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get asset scan. assetScanID=%v: %v", assetScanID, err))
+	}
+
+	// check for valid resource cleanup state transition
+	if resourceCleanupStatus, ok := assetScan.GetResourceCleanupStatus(); ok {
+		existingResourceCleanupStatus, ok := existingAssetScan.GetResourceCleanupStatus()
+		if !ok {
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve ResourceCleanupStatus for existing asset scan. assetScanID=%v", existingAssetScan.Id))
+		}
+		err = existingResourceCleanupStatus.IsValidTransition(resourceCleanupStatus)
+		if err != nil {
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		}
 	}
 
 	// PATCH request might not contain the ID in the body, so set it from
@@ -132,12 +156,28 @@ func (s *ServerImpl) PutAssetScansAssetScanID(ctx echo.Context, assetScanID mode
 	}
 
 	// check that an asset scan with that id exists.
-	_, err = s.dbHandler.AssetScansTable().GetAssetScan(assetScanID, models.GetAssetScansAssetScanIDParams{})
+	existingAssetScan, err := s.dbHandler.AssetScansTable().GetAssetScan(assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("asset scan was not found. assetScanID=%v: %v", assetScanID, err))
 		}
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get asset scan. assetScanID=%v: %v", assetScanID, err))
+	}
+
+	// check for valid resource cleanup state transition
+	resourceCleanupStatus, ok := assetScan.GetResourceCleanupStatus()
+	if !ok {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
+	if ok {
+		existingResourceCleanupStatus, ok := existingAssetScan.GetResourceCleanupStatus()
+		if !ok {
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve ResourceCleanupStatus for existing asset scan. assetScanID=%v", existingAssetScan.Id))
+		}
+		err = existingResourceCleanupStatus.IsValidTransition(resourceCleanupStatus)
+		if err != nil {
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		}
 	}
 
 	// PUT request might not contain the ID in the body, so set it from

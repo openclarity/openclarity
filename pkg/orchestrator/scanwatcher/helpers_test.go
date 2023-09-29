@@ -17,6 +17,7 @@ package scanwatcher
 
 import (
 	"testing"
+	"time"
 
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
@@ -29,6 +30,13 @@ import (
 func TestNewAssetScanFromScan(t *testing.T) {
 	scanID := string(uuid.NewUUID())
 	assetID := string(uuid.NewUUID())
+	transitionTime := time.Now()
+	resourceCleanupStatus := models.NewResourceCleanupStatus(
+		models.ResourceCleanupStatusStatePending,
+		models.ResourceCleanupStatusReasonAssetScanCreated,
+		nil,
+	)
+	resourceCleanupStatus.LastTransitionTime = transitionTime
 
 	tests := []struct {
 		Name    string
@@ -71,7 +79,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			AssetID:              assetID,
 			ExpectedErrorMatcher: Not(HaveOccurred()),
 			ExpectedAssetScan: &models.AssetScan{
-				ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
+				ResourceCleanupStatus: resourceCleanupStatus,
 				Scan: &models.ScanRelationship{
 					Id: scanID,
 				},
@@ -146,6 +154,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			result, err := newAssetScanFromScan(test.Scan, test.AssetID)
+			result.ResourceCleanupStatus.LastTransitionTime = transitionTime
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)
 			g.Expect(result).Should(BeComparableTo(test.ExpectedAssetScan))

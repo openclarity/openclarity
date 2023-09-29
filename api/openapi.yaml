@@ -2064,13 +2064,56 @@ components:
             $ref: '#/components/schemas/AssetScan'
           readOnly: true
 
-    ResourceCleanupState:
-      type: string
-      enum:
-        - Pending
-        - Skipped
-        - Failed
-        - Done
+    ResourceCleanupStatus:
+      type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
+      properties:
+        state:
+          description: |
+            Describes the state of resource cleanup.
+            
+            | State   | Description                                                |
+            | ------- | ---------------------------------------------------------- |
+            | Pending | Initial state for cleaning up resources                    |
+            | Skipped | Resource cleanup has been skipped due to Delete Job Policy |
+            | Failed  | Cleaning up resources has been failed                      |
+            | Done    | Resources have been successfully cleaned up                |
+          type: string
+          enum:
+            - Pending
+            - Skipped
+            - Failed
+            - Done
+        reason:
+          description: |
+            Machine readable reason for state transition.
+
+            | State   | Reason          | Description                                                            |
+            | ------- | --------------- | ---------------------------------------------------------------------- |
+            | Pending | AssetScanCreate | AssetScan created                                                      |
+            | Skipped | NotApplicable   | Resource cleanup is not required as it is managed outside of VMClarity |
+            | Skipped | DeletePolicy    | Resource cleanup has been skipped due to Delete Job Policy             |
+            | Failed  | ProviderError   | Failed due to Provider error                                           |
+            | Failed  | InternalError   | Failed due to internal error                                           |
+            | Done    | Success         | Successfully completed                                                 |
+          type: string
+          enum:
+            - AssetScanCreated
+            - NotApplicable
+            - DeletePolicy
+            - ProviderError
+            - InternalError
+            - Success
+        message:
+          description: Human readable message.
+          type: string
+        lastTransitionTime:
+          description: Last date time when the status has changed.
+          type: string
+          format: date-time
 
     AssetScanTemplate:
       type: object
@@ -2122,8 +2165,8 @@ components:
               $ref: '#/components/schemas/InfoFinderScan'
             findingsProcessed:
               type: boolean
-            resourceCleanup:
-              $ref: '#/components/schemas/ResourceCleanupState'
+            resourceCleanupStatus:
+              $ref: '#/components/schemas/ResourceCleanupStatus'
             stats:
               $ref: '#/components/schemas/AssetScanStats'
             summary:
@@ -2242,8 +2285,8 @@ components:
             findingsProcessed:
               type: boolean
               readOnly: true
-            resourceCleanup:
-              $ref: '#/components/schemas/ResourceCleanupState'
+            resourceCleanupStatus:
+              $ref: '#/components/schemas/ResourceCleanupStatus'
               readOnly: true
             stats:
               $ref: '#/components/schemas/AssetScanStats'
