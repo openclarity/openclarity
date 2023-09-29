@@ -60,6 +60,7 @@ kubeclarity:
       enabled: false
       interval: 30s
       annotations: {}
+      labels: {}
     refreshIntervalSeconds: 300
 
   podAnnotations: {}
