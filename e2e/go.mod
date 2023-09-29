@@ -7,8 +7,8 @@ require (
 	github.com/docker/cli v24.0.5+incompatible
 	github.com/docker/compose/v2 v2.17.3
 	github.com/google/uuid v1.3.1
-	github.com/onsi/ginkgo/v2 v2.11.0
-	github.com/onsi/gomega v1.27.10
+	github.com/onsi/ginkgo/v2 v2.12.0
+	github.com/onsi/gomega v1.28.0
 	github.com/openclarity/vmclarity v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
 	github.com/pkg/errors v0.9.1
