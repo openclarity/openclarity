@@ -172,6 +172,12 @@ const (
 	NEGLIGIBLE VulnerabilitySeverity = "NEGLIGIBLE"
 )
 
+// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+type Annotations = []struct {
+	Key   *string `json:"key,omitempty"`
+	Value *string `json:"value,omitempty"`
+}
+
 // ApiResponse An object that is returned in all cases of failures.
 type ApiResponse struct {
 	Message *string `json:"message,omitempty"`
@@ -649,6 +655,12 @@ type MalwareScan struct {
 
 // MalwareType defines model for MalwareType.
 type MalwareType = string
+
+// Metadata defines model for Metadata.
+type Metadata struct {
+	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+	Annotations *Annotations `json:"annotations,omitempty"`
+}
 
 // Misconfiguration defines model for Misconfiguration.
 type Misconfiguration struct {
