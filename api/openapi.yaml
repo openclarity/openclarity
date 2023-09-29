@@ -1277,6 +1277,23 @@ components:
           readOnly: true
       description: An object that is returned in cases of success that returns nothing.
 
+    Metadata:
+      type: object
+      properties:
+        annotations:
+              $ref: '#/components/schemas/Annotations'
+
+    Annotations:
+      type: array
+      description: Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+
     CloudProvider:
       type: string
       enum:
