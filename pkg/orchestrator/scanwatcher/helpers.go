@@ -104,7 +104,11 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 				State:  getInitStateFromFamilyConfig(familiesConfig.InfoFinder),
 			},
 		},
-		ResourceCleanup: utils.PointerTo(models.ResourceCleanupStatePending),
+		ResourceCleanupStatus: models.NewResourceCleanupStatus(
+			models.ResourceCleanupStatusStatePending,
+			models.ResourceCleanupStatusReasonAssetScanCreated,
+			nil,
+		),
 	}, nil
 }
 

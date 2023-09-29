@@ -109,5 +109,10 @@ func createEmptyAssetScanForAsset(asset models.Asset) models.AssetScan {
 				State: utils.PointerTo(models.AssetScanStateStateReadyToScan),
 			},
 		},
+		ResourceCleanupStatus: models.NewResourceCleanupStatus(
+			models.ResourceCleanupStatusStateSkipped,
+			models.ResourceCleanupStatusReasonNotApplicable,
+			nil,
+		),
 	}
 }
