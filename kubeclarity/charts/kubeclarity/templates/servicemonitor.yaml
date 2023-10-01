@@ -8,7 +8,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{- include "kubeclarity.labels" . | nindent 4 }}
+  {{- include "kubeclarity.labels" . | nindent 4 }}
+  {{- template "kubeclarity.prometheus.serviceMonitor.labels" . }}
 spec:
   selector:
     matchLabels:

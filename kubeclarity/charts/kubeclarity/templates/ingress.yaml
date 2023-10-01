@@ -15,6 +15,7 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
   labels:
     {{- include "kubeclarity.labels" . | nindent 4 }}
+  {{- template "kubeclarity.ingress.labels" . }}
   {{- template "kubeclarity.ingress.annotations" . }}
 spec:
 {{- if .Values.kubeclarity.ingress.tls }}
