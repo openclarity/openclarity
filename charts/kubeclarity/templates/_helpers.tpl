@@ -78,3 +78,31 @@ Sets extra Kubeclarity server Service annotations
     {{- end }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Sets extra labels for service monitor
+*/}}
+{{- define "kubeclarity.prometheus.serviceMonitor.labels" -}}
+  {{- if .Values.kubeclarity.prometheus.serviceMonitor.labels }}
+    {{- $tp := typeOf .Values.kubeclarity.prometheus.serviceMonitor.labels }}
+    {{- if eq $tp "string" }}
+      {{- tpl .Values.kubeclarity.prometheus.serviceMonitor.labels . | nindent 4 }}
+    {{- else }}
+      {{- toYaml .Values.kubeclarity.prometheus.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
+
+{{/*
+Sets extra ingress labels
+*/}}
+{{- define "kubeclarity.ingress.labels" -}}
+  {{- if .Values.kubeclarity.ingress.labels }}
+    {{- $tp := typeOf .Values.kubeclarity.ingress.labels }}
+    {{- if eq $tp "string" }}
+      {{- tpl .Values.kubeclarity.ingress.labels . | nindent 4 }}
+    {{- else }}
+      {{- toYaml .Values.kubeclarity.ingress.labels | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
