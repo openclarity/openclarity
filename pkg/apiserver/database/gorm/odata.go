@@ -134,6 +134,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ResourceCleanupStatus"},
 			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
+			},
 		},
 	},
 	"AssetScanStats": {
@@ -1104,6 +1111,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+		},
+	},
+	"Annotation": {
+		Fields: odatasql.Schema{
+			"key":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"value": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 }
