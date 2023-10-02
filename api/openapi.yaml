@@ -2126,6 +2126,7 @@ components:
     AssetScan:
       type: object
       allOf:
+        - $ref: '#/components/schemas/Metadata'
         - type: object
           properties:
             id:
