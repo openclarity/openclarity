@@ -16,9 +16,12 @@
 package utils
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"os/exec"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/openclarity/vmclarity/api/models"
 )
@@ -29,6 +32,8 @@ type CmdRunError struct {
 	Stdout []byte
 	Stderr string
 }
+
+type processFn func(string)
 
 func (r CmdRunError) Error() string {
 	return fmt.Sprintf(
@@ -51,6 +56,62 @@ func RunCommand(cmd *exec.Cmd) ([]byte, error) {
 	}
 
 	return outb.Bytes(), nil
+}
+
+func RunCommandAndParseOutputLineByLine(cmd *exec.Cmd, pfn, ecFn processFn) error {
+	// Get a pipe to read from standard out
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stdout pipe: %w", err)
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stderr pipe: %w", err)
+	}
+
+	// Start the command and check for errors
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start command: %w", err)
+	}
+
+	eg := errgroup.Group{}
+
+	stdoutScanner := bufio.NewScanner(stdout)
+	stderrScanner := bufio.NewScanner(stderr)
+
+	eg.Go(func() error {
+		for stderrScanner.Scan() {
+			line := stderrScanner.Text()
+			ecFn(line)
+		}
+		if err := stderrScanner.Err(); err != nil {
+			return fmt.Errorf("stderr scanner error: %w", err)
+		}
+		return nil
+	})
+
+	// Use the scanner to scan the output line by line and parse it
+	eg.Go(func() error {
+		for stdoutScanner.Scan() {
+			line := stdoutScanner.Text()
+			pfn(line)
+		}
+		if err := stdoutScanner.Err(); err != nil {
+			return fmt.Errorf("stdout scanner error: %w", err)
+		}
+		return nil
+	})
+
+	if err := eg.Wait(); err != nil {
+		return fmt.Errorf("scanner error: %w", err)
+	}
+
+	// Wait for the command to finish
+	if err := cmd.Wait(); err != nil {
+		return fmt.Errorf("command returns error: %w", err)
+	}
+
+	return nil
 }
 
 func PointerTo[T any](value T) *T {
