@@ -44,6 +44,7 @@ func main() {
 	viper.SetDefault(config.HealthCheckAddress, ":8081")
 	viper.SetDefault(config.BackendRestPort, "8080")
 	viper.SetDefault(config.DatabaseDriver, database.DBDriverTypePostgres)
+	viper.SetDefault(config.DBSSLMode, "disable")
 	viper.SetDefault(config.ViewRefreshIntervalEnvVar, database.DefaultViewRefreshIntervalSecond)
 	viper.AutomaticEnv()
 	app := cli.NewApp()
