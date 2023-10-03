@@ -186,6 +186,30 @@ type ClientInterface interface {
 	// GetOpenAPISpec request
 	GetOpenAPISpec(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetProviders request
+	GetProviders(ctx context.Context, params *GetProvidersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostProvidersWithBody request with any body
+	PostProvidersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostProviders(ctx context.Context, body PostProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteProvidersProviderID request
+	DeleteProvidersProviderID(ctx context.Context, providerID ProviderID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProvidersProviderID request
+	GetProvidersProviderID(ctx context.Context, providerID ProviderID, params *GetProvidersProviderIDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchProvidersProviderIDWithBody request with any body
+	PatchProvidersProviderIDWithBody(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchProvidersProviderID(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, body PatchProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutProvidersProviderIDWithBody request with any body
+	PutProvidersProviderIDWithBody(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutProvidersProviderID(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, body PutProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetScanConfigs request
 	GetScanConfigs(ctx context.Context, params *GetScanConfigsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -681,6 +705,114 @@ func (c *Client) PutFindingsFindingID(ctx context.Context, findingID FindingID, 
 
 func (c *Client) GetOpenAPISpec(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOpenAPISpecRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProviders(ctx context.Context, params *GetProvidersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProvidersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostProvidersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostProvidersRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostProviders(ctx context.Context, body PostProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostProvidersRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteProvidersProviderID(ctx context.Context, providerID ProviderID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteProvidersProviderIDRequest(c.Server, providerID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProvidersProviderID(ctx context.Context, providerID ProviderID, params *GetProvidersProviderIDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProvidersProviderIDRequest(c.Server, providerID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchProvidersProviderIDWithBody(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchProvidersProviderIDRequestWithBody(c.Server, providerID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchProvidersProviderID(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, body PatchProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchProvidersProviderIDRequest(c.Server, providerID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutProvidersProviderIDWithBody(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutProvidersProviderIDRequestWithBody(c.Server, providerID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutProvidersProviderID(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, body PutProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutProvidersProviderIDRequest(c.Server, providerID, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2638,6 +2770,421 @@ func NewGetOpenAPISpecRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetProvidersRequest generates requests for GetProviders
+func NewGetProvidersRequest(server string, params *GetProvidersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$filter", runtime.ParamLocationQuery, *params.Filter); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Select != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Count != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$count", runtime.ParamLocationQuery, *params.Count); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Top != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$top", runtime.ParamLocationQuery, *params.Top); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Skip != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$skip", runtime.ParamLocationQuery, *params.Skip); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Expand != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OrderBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$orderby", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostProvidersRequest calls the generic PostProviders builder with application/json body
+func NewPostProvidersRequest(server string, body PostProvidersJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostProvidersRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostProvidersRequestWithBody generates requests for PostProviders with any type of body
+func NewPostProvidersRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteProvidersProviderIDRequest generates requests for DeleteProvidersProviderID
+func NewDeleteProvidersProviderIDRequest(server string, providerID ProviderID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "providerID", runtime.ParamLocationPath, providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetProvidersProviderIDRequest generates requests for GetProvidersProviderID
+func NewGetProvidersProviderIDRequest(server string, providerID ProviderID, params *GetProvidersProviderIDParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "providerID", runtime.ParamLocationPath, providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Select != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Expand != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchProvidersProviderIDRequest calls the generic PatchProvidersProviderID builder with application/json body
+func NewPatchProvidersProviderIDRequest(server string, providerID ProviderID, params *PatchProvidersProviderIDParams, body PatchProvidersProviderIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchProvidersProviderIDRequestWithBody(server, providerID, params, "application/json", bodyReader)
+}
+
+// NewPatchProvidersProviderIDRequestWithBody generates requests for PatchProvidersProviderID with any type of body
+func NewPatchProvidersProviderIDRequestWithBody(server string, providerID ProviderID, params *PatchProvidersProviderIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "providerID", runtime.ParamLocationPath, providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.IfMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPutProvidersProviderIDRequest calls the generic PutProvidersProviderID builder with application/json body
+func NewPutProvidersProviderIDRequest(server string, providerID ProviderID, params *PutProvidersProviderIDParams, body PutProvidersProviderIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutProvidersProviderIDRequestWithBody(server, providerID, params, "application/json", bodyReader)
+}
+
+// NewPutProvidersProviderIDRequestWithBody generates requests for PutProvidersProviderID with any type of body
+func NewPutProvidersProviderIDRequestWithBody(server string, providerID ProviderID, params *PutProvidersProviderIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "providerID", runtime.ParamLocationPath, providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.IfMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewGetScanConfigsRequest generates requests for GetScanConfigs
 func NewGetScanConfigsRequest(server string, params *GetScanConfigsParams) (*http.Request, error) {
 	var err error
@@ -4022,6 +4569,30 @@ type ClientWithResponsesInterface interface {
 	// GetOpenAPISpecWithResponse request
 	GetOpenAPISpecWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOpenAPISpecResponse, error)
 
+	// GetProvidersWithResponse request
+	GetProvidersWithResponse(ctx context.Context, params *GetProvidersParams, reqEditors ...RequestEditorFn) (*GetProvidersResponse, error)
+
+	// PostProvidersWithBodyWithResponse request with any body
+	PostProvidersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostProvidersResponse, error)
+
+	PostProvidersWithResponse(ctx context.Context, body PostProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostProvidersResponse, error)
+
+	// DeleteProvidersProviderIDWithResponse request
+	DeleteProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, reqEditors ...RequestEditorFn) (*DeleteProvidersProviderIDResponse, error)
+
+	// GetProvidersProviderIDWithResponse request
+	GetProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *GetProvidersProviderIDParams, reqEditors ...RequestEditorFn) (*GetProvidersProviderIDResponse, error)
+
+	// PatchProvidersProviderIDWithBodyWithResponse request with any body
+	PatchProvidersProviderIDWithBodyWithResponse(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchProvidersProviderIDResponse, error)
+
+	PatchProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, body PatchProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchProvidersProviderIDResponse, error)
+
+	// PutProvidersProviderIDWithBodyWithResponse request with any body
+	PutProvidersProviderIDWithBodyWithResponse(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutProvidersProviderIDResponse, error)
+
+	PutProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, body PutProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutProvidersProviderIDResponse, error)
+
 	// GetScanConfigsWithResponse request
 	GetScanConfigsWithResponse(ctx context.Context, params *GetScanConfigsParams, reqEditors ...RequestEditorFn) (*GetScanConfigsResponse, error)
 
@@ -4684,6 +5255,157 @@ func (r GetOpenAPISpecResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetOpenAPISpecResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetProvidersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Providers
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostProvidersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Provider
+	JSON400      *ApiResponse
+	JSON409      *ProviderExists
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PostProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteProvidersProviderIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Success
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteProvidersProviderIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteProvidersProviderIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetProvidersProviderIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Provider
+	JSON404      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProvidersProviderIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProvidersProviderIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchProvidersProviderIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Provider
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *ProviderExists
+	JSON412      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchProvidersProviderIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchProvidersProviderIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutProvidersProviderIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Provider
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *ProviderExists
+	JSON412      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PutProvidersProviderIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutProvidersProviderIDResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5447,6 +6169,84 @@ func (c *ClientWithResponses) GetOpenAPISpecWithResponse(ctx context.Context, re
 		return nil, err
 	}
 	return ParseGetOpenAPISpecResponse(rsp)
+}
+
+// GetProvidersWithResponse request returning *GetProvidersResponse
+func (c *ClientWithResponses) GetProvidersWithResponse(ctx context.Context, params *GetProvidersParams, reqEditors ...RequestEditorFn) (*GetProvidersResponse, error) {
+	rsp, err := c.GetProviders(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProvidersResponse(rsp)
+}
+
+// PostProvidersWithBodyWithResponse request with arbitrary body returning *PostProvidersResponse
+func (c *ClientWithResponses) PostProvidersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostProvidersResponse, error) {
+	rsp, err := c.PostProvidersWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostProvidersResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostProvidersWithResponse(ctx context.Context, body PostProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostProvidersResponse, error) {
+	rsp, err := c.PostProviders(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostProvidersResponse(rsp)
+}
+
+// DeleteProvidersProviderIDWithResponse request returning *DeleteProvidersProviderIDResponse
+func (c *ClientWithResponses) DeleteProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, reqEditors ...RequestEditorFn) (*DeleteProvidersProviderIDResponse, error) {
+	rsp, err := c.DeleteProvidersProviderID(ctx, providerID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteProvidersProviderIDResponse(rsp)
+}
+
+// GetProvidersProviderIDWithResponse request returning *GetProvidersProviderIDResponse
+func (c *ClientWithResponses) GetProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *GetProvidersProviderIDParams, reqEditors ...RequestEditorFn) (*GetProvidersProviderIDResponse, error) {
+	rsp, err := c.GetProvidersProviderID(ctx, providerID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProvidersProviderIDResponse(rsp)
+}
+
+// PatchProvidersProviderIDWithBodyWithResponse request with arbitrary body returning *PatchProvidersProviderIDResponse
+func (c *ClientWithResponses) PatchProvidersProviderIDWithBodyWithResponse(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchProvidersProviderIDResponse, error) {
+	rsp, err := c.PatchProvidersProviderIDWithBody(ctx, providerID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchProvidersProviderIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *PatchProvidersProviderIDParams, body PatchProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchProvidersProviderIDResponse, error) {
+	rsp, err := c.PatchProvidersProviderID(ctx, providerID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchProvidersProviderIDResponse(rsp)
+}
+
+// PutProvidersProviderIDWithBodyWithResponse request with arbitrary body returning *PutProvidersProviderIDResponse
+func (c *ClientWithResponses) PutProvidersProviderIDWithBodyWithResponse(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutProvidersProviderIDResponse, error) {
+	rsp, err := c.PutProvidersProviderIDWithBody(ctx, providerID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutProvidersProviderIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutProvidersProviderIDWithResponse(ctx context.Context, providerID ProviderID, params *PutProvidersProviderIDParams, body PutProvidersProviderIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutProvidersProviderIDResponse, error) {
+	rsp, err := c.PutProvidersProviderID(ctx, providerID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutProvidersProviderIDResponse(rsp)
 }
 
 // GetScanConfigsWithResponse request returning *GetScanConfigsResponse
@@ -6763,6 +7563,295 @@ func ParseGetOpenAPISpecResponse(rsp *http.Response) (*GetOpenAPISpecResponse, e
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProvidersResponse parses an HTTP response from a GetProvidersWithResponse call
+func ParseGetProvidersResponse(rsp *http.Response) (*GetProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Providers
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostProvidersResponse parses an HTTP response from a PostProvidersWithResponse call
+func ParsePostProvidersResponse(rsp *http.Response) (*PostProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Provider
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ProviderExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteProvidersProviderIDResponse parses an HTTP response from a DeleteProvidersProviderIDWithResponse call
+func ParseDeleteProvidersProviderIDResponse(rsp *http.Response) (*DeleteProvidersProviderIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteProvidersProviderIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Success
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProvidersProviderIDResponse parses an HTTP response from a GetProvidersProviderIDWithResponse call
+func ParseGetProvidersProviderIDResponse(rsp *http.Response) (*GetProvidersProviderIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProvidersProviderIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Provider
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchProvidersProviderIDResponse parses an HTTP response from a PatchProvidersProviderIDWithResponse call
+func ParsePatchProvidersProviderIDResponse(rsp *http.Response) (*PatchProvidersProviderIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchProvidersProviderIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Provider
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ProviderExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutProvidersProviderIDResponse parses an HTTP response from a PutProvidersProviderIDWithResponse call
+func ParsePutProvidersProviderIDResponse(rsp *http.Response) (*PutProvidersProviderIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutProvidersProviderIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Provider
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ProviderExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest UnknownError

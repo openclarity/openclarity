@@ -1119,6 +1119,35 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"value": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
+	providerSchemaName: {
+		Table: "providers",
+		Fields: odatasql.Schema{
+			"id":                odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision":          odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"displayName":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastHeartbeatTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"providerStatus": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ProviderStatus"},
+			},
+			"providerRuntimeVersion": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
+			},
+		},
+	},
+	"ProviderStatus": {
+		Fields: odatasql.Schema{
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+		},
+	},
 }
 
 func ODataQuery(db *gorm.DB, schema string, filterString, selectString, expandString, orderby *string, top, skip *int, collection bool, result interface{}) error {

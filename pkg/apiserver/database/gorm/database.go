@@ -77,6 +77,7 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		Finding{},
 		AssetScanEstimation{},
 		ScanEstimation{},
+		Provider{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to run auto migration: %w", err)
 	}
@@ -119,6 +120,11 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_id_idx ON findings((%s))", SQLVariant.JSONExtract("Data", "$.id")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index findings_id_idx: %w", idb.Error)
+	}
+
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS providers_id_idx ON providers((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index providers_id_idx: %w", idb.Error)
 	}
 
 	// For processing asset scans to findings we need to find all the scan

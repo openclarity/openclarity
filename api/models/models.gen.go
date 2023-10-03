@@ -64,6 +64,19 @@ const (
 	MisconfigurationMediumSeverity MisconfigurationSeverity = "MisconfigurationMediumSeverity"
 )
 
+// Defines values for ProviderStatusReason.
+const (
+	HeartbeatReceived   ProviderStatusReason = "HeartbeatReceived"
+	NoHeartbeatReceived ProviderStatusReason = "NoHeartbeatReceived"
+)
+
+// Defines values for ProviderStatusState.
+const (
+	ProviderStatusStateHealthy   ProviderStatusState = "Healthy"
+	ProviderStatusStateUnhealthy ProviderStatusState = "Unhealthy"
+	ProviderStatusStateUnknown   ProviderStatusState = "Unknown"
+)
+
 // Defines values for ResourceCleanupStatusReason.
 const (
 	ResourceCleanupStatusReasonAssetScanCreated ResourceCleanupStatusReason = "AssetScanCreated"
@@ -84,9 +97,9 @@ const (
 
 // Defines values for RootVolumeEncrypted.
 const (
-	No      RootVolumeEncrypted = "No"
-	Unknown RootVolumeEncrypted = "Unknown"
-	Yes     RootVolumeEncrypted = "Yes"
+	RootVolumeEncryptedNo      RootVolumeEncrypted = "No"
+	RootVolumeEncryptedUnknown RootVolumeEncrypted = "Unknown"
+	RootVolumeEncryptedYes     RootVolumeEncrypted = "Yes"
 )
 
 // Defines values for RootkitType.
@@ -745,6 +758,93 @@ type PodInfo struct {
 	PodName    *string `json:"podName,omitempty"`
 }
 
+// Provider defines model for Provider.
+type Provider struct {
+	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+	Annotations *Annotations `json:"annotations,omitempty"`
+
+	// DisplayName Human-readable name for the provider.
+	DisplayName *string `json:"displayName,omitempty"`
+	Id          *string `json:"id,omitempty"`
+
+	// LastHeartbeatTime Timestamp of the last heartbeat from the provider.
+	LastHeartbeatTime *time.Time `json:"lastHeartbeatTime,omitempty"`
+
+	// ProviderRuntimeVersion Version of the provider runtime that the provider was compiled with.
+	ProviderRuntimeVersion *string         `json:"providerRuntimeVersion,omitempty"`
+	Revision               *int            `json:"revision,omitempty"`
+	Status                 *ProviderStatus `json:"status,omitempty"`
+}
+
+// ProviderExists defines model for ProviderExists.
+type ProviderExists struct {
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+
+	// Provider Describes a provider object.
+	Provider *Provider `json:"provider,omitempty"`
+}
+
+// ProviderRelationship defines model for ProviderRelationship.
+type ProviderRelationship struct {
+	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+	Annotations *Annotations `json:"annotations,omitempty"`
+
+	// DisplayName Human-readable name for the provider.
+	DisplayName *string `json:"displayName,omitempty"`
+	Id          *string `json:"id,omitempty"`
+
+	// LastHeartbeatTime Timestamp of the last heartbeat from the provider.
+	LastHeartbeatTime *time.Time `json:"lastHeartbeatTime,omitempty"`
+
+	// ProviderRuntimeVersion Version of the provider runtime that the provider was compiled with.
+	ProviderRuntimeVersion *string         `json:"providerRuntimeVersion,omitempty"`
+	Revision               *int            `json:"revision,omitempty"`
+	Status                 *ProviderStatus `json:"status,omitempty"`
+}
+
+// ProviderStatus defines model for ProviderStatus.
+type ProviderStatus struct {
+	// LastTransitionTime Last date-time when the status has changed.
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
+
+	// Message Human-readable message indicating details about the last state transition.
+	Message *string `json:"message,omitempty"`
+
+	// Reason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+	Reason ProviderStatusReason `json:"reason"`
+
+	// State Describes the health state of the provider.
+	//
+	// | State     | Description                                    |
+	// | --------- | ---------------------------------------------- |
+	// | Healthy   | Provider is healthy.                           |
+	// | Unhealthy | Heartbeat received, but Provider is unhealthy. |
+	// | Unknown   | No heartbeat received from Provider.           |
+	State ProviderStatusState `json:"state"`
+}
+
+// ProviderStatusReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+type ProviderStatusReason string
+
+// ProviderStatusState Describes the health state of the provider.
+//
+// | State     | Description                                    |
+// | --------- | ---------------------------------------------- |
+// | Healthy   | Provider is healthy.                           |
+// | Unhealthy | Heartbeat received, but Provider is unhealthy. |
+// | Unknown   | No heartbeat received from Provider.           |
+type ProviderStatusState string
+
+// Providers defines model for Providers.
+type Providers struct {
+	// Count Total providers count according the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of providers in the given filters and page. List length must be lower or equal to pageSize.
+	Items *[]Provider `json:"items,omitempty"`
+}
+
 // ResourceCleanupStatus defines model for ResourceCleanupStatus.
 type ResourceCleanupStatus struct {
 	// LastTransitionTime Last date time when the status has changed.
@@ -1391,6 +1491,9 @@ type OdataSkip = int
 // OdataTop defines model for odataTop.
 type OdataTop = int
 
+// ProviderID defines model for providerID.
+type ProviderID = string
+
 // ScanConfigID defines model for scanConfigID.
 type ScanConfigID = string
 
@@ -1502,6 +1605,33 @@ type GetFindingsParams struct {
 type GetFindingsFindingIDParams struct {
 	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
 	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// GetProvidersParams defines parameters for GetProviders.
+type GetProvidersParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetProvidersProviderIDParams defines parameters for GetProvidersProviderID.
+type GetProvidersProviderIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchProvidersProviderIDParams defines parameters for PatchProvidersProviderID.
+type PatchProvidersProviderIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutProvidersProviderIDParams defines parameters for PutProvidersProviderID.
+type PutProvidersProviderIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
 
 // GetScanConfigsParams defines parameters for GetScanConfigs.
@@ -1620,6 +1750,15 @@ type PatchFindingsFindingIDJSONRequestBody = Finding
 
 // PutFindingsFindingIDJSONRequestBody defines body for PutFindingsFindingID for application/json ContentType.
 type PutFindingsFindingIDJSONRequestBody = Finding
+
+// PostProvidersJSONRequestBody defines body for PostProviders for application/json ContentType.
+type PostProvidersJSONRequestBody = Provider
+
+// PatchProvidersProviderIDJSONRequestBody defines body for PatchProvidersProviderID for application/json ContentType.
+type PatchProvidersProviderIDJSONRequestBody = Provider
+
+// PutProvidersProviderIDJSONRequestBody defines body for PutProvidersProviderID for application/json ContentType.
+type PutProvidersProviderIDJSONRequestBody = Provider
 
 // PostScanConfigsJSONRequestBody defines body for PostScanConfigs for application/json ContentType.
 type PostScanConfigsJSONRequestBody = ScanConfig

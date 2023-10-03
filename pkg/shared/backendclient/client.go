@@ -930,3 +930,126 @@ func (b *BackendClient) PostFinding(ctx context.Context, finding models.Finding)
 		return nil, fmt.Errorf("failed to create a finding. status code=%v", resp.StatusCode())
 	}
 }
+
+//nolint:cyclop
+func (b *BackendClient) PostProvider(ctx context.Context, provider models.Provider) (*models.Provider, error) {
+	resp, err := b.apiClient.PostProvidersWithResponse(ctx, provider)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create an provider: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		if resp.JSON201 == nil {
+			return nil, fmt.Errorf("failed to create an provider: empty body. status code=%v", http.StatusCreated)
+		}
+		return resp.JSON201, nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return nil, fmt.Errorf("failed to create an provider. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+		}
+		return nil, fmt.Errorf("failed to create an provider. status code=%v", resp.StatusCode())
+	case http.StatusConflict:
+		if resp.JSON409 == nil {
+			return nil, fmt.Errorf("failed to create an provider: empty body. status code=%v", http.StatusConflict)
+		}
+		if resp.JSON409.Provider == nil {
+			return nil, fmt.Errorf("failed to create an provider: no provider data. status code=%v", http.StatusConflict)
+		}
+		return nil, ProviderConflictError{
+			ConflictingProvider: resp.JSON409.Provider,
+			Message:             "conflict",
+		}
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to create an provider. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to create an provider. status code=%v", resp.StatusCode())
+	}
+}
+
+//nolint:cyclop
+func (b *BackendClient) PatchProvider(ctx context.Context, provider models.Provider, providerID string) error {
+	newUpdateProviderError := func(err error) error {
+		return fmt.Errorf("failed to update provider %v: %w", providerID, err)
+	}
+
+	params := models.PatchProvidersProviderIDParams{}
+	resp, err := b.apiClient.PatchProvidersProviderIDWithResponse(ctx, providerID, &params, provider)
+	if err != nil {
+		return newUpdateProviderError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return newUpdateProviderError(fmt.Errorf("empty body"))
+		}
+		return nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return newUpdateProviderError(fmt.Errorf("empty body on not found"))
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return newUpdateProviderError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+		}
+		return newUpdateProviderError(fmt.Errorf("not found"))
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return newUpdateProviderError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return newUpdateProviderError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
+// nolint:cyclop
+func (b *BackendClient) GetProvider(ctx context.Context, providerID string, params models.GetProvidersProviderIDParams) (models.Provider, error) {
+	newGetExistingError := func(err error) error {
+		return fmt.Errorf("failed to get existing provider %v: %w", providerID, err)
+	}
+
+	var provider models.Provider
+	resp, err := b.apiClient.GetProvidersProviderIDWithResponse(ctx, providerID, &params)
+	if err != nil {
+		return provider, newGetExistingError(err)
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return provider, newGetExistingError(fmt.Errorf("empty body"))
+		}
+		return *resp.JSON200, nil
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return provider, newGetExistingError(fmt.Errorf("empty body on not found"))
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return provider, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
+		}
+		return provider, newGetExistingError(fmt.Errorf("not found"))
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return provider, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
+		}
+		return provider, newGetExistingError(fmt.Errorf("status code=%v", resp.StatusCode()))
+	}
+}
+
+func (b *BackendClient) GetProviders(ctx context.Context, params models.GetProvidersParams) (*models.Providers, error) {
+	resp, err := b.apiClient.GetProvidersWithResponse(ctx, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get providers: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, fmt.Errorf("no providers: empty body")
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get providers. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get providers. status code=%v", resp.StatusCode())
+	}
+}
