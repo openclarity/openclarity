@@ -46,7 +46,7 @@ func Test_isEncrypted(t *testing.T) {
 					},
 				},
 			},
-			want: models.Yes,
+			want: models.RootVolumeEncryptedYes,
 		},
 		{
 			name: "not encrypted",
@@ -59,7 +59,7 @@ func Test_isEncrypted(t *testing.T) {
 					},
 				},
 			},
-			want: models.No,
+			want: models.RootVolumeEncryptedNo,
 		},
 	}
 	for _, tt := range tests {

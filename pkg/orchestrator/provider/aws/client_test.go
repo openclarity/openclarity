@@ -278,7 +278,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						},
 					},
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.Unknown,
+					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
 				},
 				{
 					ID:     "instance-2",
@@ -298,7 +298,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						},
 					},
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.Unknown,
+					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
 				},
 				{
 					ID:     "instance-3",
@@ -313,7 +313,7 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 					Platform:            "linux",
 					Tags:                nil,
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.Unknown,
+					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
 				},
 			},
 		},
@@ -359,21 +359,21 @@ func Test_encryptedToAPI(t *testing.T) {
 			args: args{
 				encrypted: nil,
 			},
-			want: models.Unknown,
+			want: models.RootVolumeEncryptedUnknown,
 		},
 		{
 			name: "no",
 			args: args{
 				encrypted: utils.PointerTo(false),
 			},
-			want: models.No,
+			want: models.RootVolumeEncryptedNo,
 		},
 		{
 			name: "yes",
 			args: args{
 				encrypted: utils.PointerTo(true),
 			},
-			want: models.Yes,
+			want: models.RootVolumeEncryptedYes,
 		},
 	}
 	for _, tt := range tests {

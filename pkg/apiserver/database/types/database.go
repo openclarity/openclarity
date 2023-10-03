@@ -57,6 +57,7 @@ type Database interface {
 	FindingsTable() FindingsTable
 	ScanEstimationsTable() ScanEstimationsTable
 	AssetScanEstimationsTable() AssetScanEstimationsTable
+	ProvidersTable() ProvidersTable
 }
 
 type ScansTable interface {
@@ -134,4 +135,15 @@ type AssetScanEstimationsTable interface {
 	SaveAssetScanEstimation(assetScanEstimations models.AssetScanEstimation, params models.PutAssetScanEstimationsAssetScanEstimationIDParams) (models.AssetScanEstimation, error)
 
 	DeleteAssetScanEstimation(assetScanEstimationID models.AssetScanEstimationID) error
+}
+
+type ProvidersTable interface {
+	GetProviders(params models.GetProvidersParams) (models.Providers, error)
+	GetProvider(providerID models.ProviderID, params models.GetProvidersProviderIDParams) (models.Provider, error)
+
+	CreateProvider(provider models.Provider) (models.Provider, error)
+	UpdateProvider(provider models.Provider, params models.PatchProvidersProviderIDParams) (models.Provider, error)
+	SaveProvider(provider models.Provider, params models.PutProvidersProviderIDParams) (models.Provider, error)
+
+	DeleteProvider(providerID models.ProviderID) error
 }

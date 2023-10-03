@@ -248,7 +248,7 @@ func (c *Client) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMa
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	ret := &models.RootVolume{
 		SizeGB:    int(utils.Int32PointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
-		Encrypted: models.Unknown,
+		Encrypted: models.RootVolumeEncryptedUnknown,
 	}
 	osDiskID, err := arm.ParseResourceID(utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
 	if err != nil {
@@ -292,13 +292,13 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *models.
 
 func isEncrypted(disk armcompute.DisksClientGetResponse) models.RootVolumeEncrypted {
 	if disk.Properties.EncryptionSettingsCollection == nil {
-		return models.No
+		return models.RootVolumeEncryptedNo
 	}
 	if *disk.Properties.EncryptionSettingsCollection.Enabled {
-		return models.Yes
+		return models.RootVolumeEncryptedYes
 	}
 
-	return models.No
+	return models.RootVolumeEncryptedNo
 }
 
 func convertTags(tags map[string]*string) *[]models.Tag {

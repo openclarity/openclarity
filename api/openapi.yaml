@@ -1258,6 +1258,196 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /providers:
+    get:
+      summary: Get providers
+      operationId: GetProviders
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Providers'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create provider
+      operationId: PostProviders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        201:
+          description: A new provider was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /providers/{providerID}:
+    get:
+      summary: Get provider.
+      operationId: GetProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update provider.
+      operationId: PutProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        200:
+          description: Updated provider successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Update provider.
+      operationId: PatchProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        200:
+          description: Updated provider successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete provider.
+      operationId: DeleteProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
 components:
   schemas:
@@ -2411,6 +2601,122 @@ components:
           type: string
           format: date-time
 
+    Providers:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total providers count according the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of providers in the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/Provider'
+          readOnly: true
+
+    # NOTE Any changes made to Provider must be reflected in
+    # ProviderRelationship to ensure correct operation of the API when $expanding
+    Provider:
+      type: object
+      description: Describes a provider object.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+            displayName:
+              description: Human-readable name for the provider.
+              type: string
+            lastHeartbeatTime:
+              description: Timestamp of the last heartbeat from the provider.
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/ProviderStatus'
+            providerRuntimeVersion:
+              description: Version of the provider runtime that the provider was compiled with.
+              type: string
+
+    ProviderRelationship:
+      type: object
+      description: Describes a relationship to a provider which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+          readOnly: true
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            displayName:
+              description: Human-readable name for the provider.
+              type: string
+              readOnly: true
+            lastHeartbeatTime:
+              description: Timestamp of the last heartbeat from the provider.
+              type: string
+              format: date-time
+              readOnly: true
+            status:
+              $ref: '#/components/schemas/ProviderStatus'
+              readOnly: true
+            providerRuntimeVersion:
+              description: Version of the provider runtime that the provider was compiled with.
+              type: string
+              readOnly: true
+
+    ProviderExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        provider:
+          $ref: '#/components/schemas/Provider'
+
+    ProviderStatus:
+      type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
+      properties:
+        state:
+          description: |
+            Describes the health state of the provider.
+
+            | State     | Description                                    |
+            | --------- | ---------------------------------------------- |
+            | Healthy   | Provider is healthy.                           |
+            | Unhealthy | Heartbeat received, but Provider is unhealthy. |
+            | Unknown   | No heartbeat received from Provider.           |
+          type: string
+          enum:
+            - Healthy
+            - Unhealthy
+            - Unknown
+        reason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - HeartbeatReceived
+            - NoHeartbeatReceived
+        message:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        lastTransitionTime:
+          description: Last date-time when the status has changed.
+          type: string
+          format: date-time
+
     Package:
       type: object
       properties:
@@ -3234,3 +3540,10 @@ components:
       in: header
       schema:
         type: integer
+
+    providerID:
+      name: providerID
+      in: path
+      required: true
+      schema:
+        type: string

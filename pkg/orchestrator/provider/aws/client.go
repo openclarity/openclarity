@@ -843,7 +843,7 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 				logger.Warnf("Couldn't get root volume info. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
 				rootVol = &models.RootVolume{
 					SizeGB:    0,
-					Encrypted: models.Unknown,
+					Encrypted: models.RootVolumeEncryptedUnknown,
 				}
 			}
 
@@ -915,12 +915,12 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 
 func encryptedToAPI(encrypted *bool) models.RootVolumeEncrypted {
 	if encrypted == nil {
-		return models.Unknown
+		return models.RootVolumeEncryptedUnknown
 	}
 	if *encrypted {
-		return models.Yes
+		return models.RootVolumeEncryptedYes
 	}
-	return models.No
+	return models.RootVolumeEncryptedNo
 }
 
 func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {
