@@ -62,9 +62,8 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          tags: ghcr.io/openclarity/${{ inputs.image_name }}:${{ inputs.image_tag }}
           file: ${{ inputs.dockerfile }}
-          outputs: type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+          outputs: type=image,name=ghcr.io/openclarity/${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
@@ -115,8 +114,8 @@ jobs:
         run: |
           # shellcheck disable=SC2046
           docker buildx imagetools create --tag "${{ inputs.image_tag }}" \
-            $(printf '${{ inputs.image_name }}@sha256:%s ' *)
+            $(printf 'ghcr.io/openclarity/${{ inputs.image_name }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ inputs.image_name }}:${{ inputs.image_tag }} 
+          docker buildx imagetools inspect ghcr.io/openclarity/${{ inputs.image_name }}:${{ inputs.image_tag }} 
