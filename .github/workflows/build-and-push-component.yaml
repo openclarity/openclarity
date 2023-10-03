@@ -17,14 +17,18 @@ on:
         description: 'Image tag to build and push.'
       push:
         required: false
-        type: string
+        type: boolean
         description: 'If set to true, push the image.'
         default: false
       upload:
         required: false
-        type: string
+        type: boolean
         description: 'If set to true, upload the image.'
         default: false
+      timestamp:
+        required: true
+        type: string
+        description: 'The build timestamp to be used for binaries.'
 
 jobs:
   build-and-push:
@@ -52,9 +56,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set build output env var
-        if: ${{ inputs.upload == 'true' }}
+        if: inputs.upload
         run: |
-          echo "OUTPUTS=type=docker,dest=/tmp/${{ inputs.image_name }}.tar" >> $GITHUB_ENV
+          echo "OUTPUTS=type=docker,dest=/tmp/${{ inputs.image_name }}.tar" >> "$GITHUB_ENV"
 
       - name: Build
         uses: docker/build-push-action@v5
@@ -69,11 +73,11 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             VERSION=${{ inputs.image_tag }}
-            BUILD_TIMESTAMP=${{ needs.timestamp.outputs.timestamp }}
+            BUILD_TIMESTAMP=${{ inputs.timestamp }}
             COMMIT_HASH=${{ github.sha }}
 
       - name: Upload artifact
-        if: ${{ inputs.upload == 'true' }}
+        if: inputs.upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.image_name }}
