@@ -58,6 +58,7 @@ func createDatabaseConfig(config *_config.Config) *_database.DBConfig {
 		DBHost:                    config.DBHost,
 		DBPort:                    config.DBPort,
 		DBName:                    config.DBName,
+		DBSSLMode:                 config.DBSSLMode,
 		ViewRefreshIntervalSecond: config.ViewRefreshIntervalSecond,
 	}
 }

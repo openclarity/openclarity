@@ -34,6 +34,7 @@ const (
 	DBPasswordEnvVar          = "DB_PASS"
 	DBHostEnvVar              = "DB_HOST"
 	DBPortEnvVar              = "DB_PORT_NUMBER"
+	DBSSLModeEnvVar           = "DB_SSL_MODE"
 	DatabaseDriver            = "DATABASE_DRIVER"
 	EnableDBInfoLogs          = "ENABLE_DB_INFO_LOGS"
 	ViewRefreshIntervalEnvVar = "DB_VIEW_REFRESH_INTERVAL" // nolint:gosec
@@ -57,6 +58,7 @@ type Config struct {
 	DBPassword                string
 	DBHost                    string
 	DBPort                    string
+	DBSSLMode                 string
 	EnableDBInfoLogs          bool
 	EnableFakeData            bool
 	EnableFakeRuntimeScanner  bool
@@ -77,6 +79,7 @@ func LoadConfig() (*Config, error) {
 	config.DBHost = viper.GetString(DBHostEnvVar)
 	config.DBPort = viper.GetString(DBPortEnvVar)
 	config.DBName = viper.GetString(DBNameEnvVar)
+	config.DBSSLMode = viper.GetString(DBSSLModeEnvVar)
 	config.ViewRefreshIntervalSecond = viper.GetInt(ViewRefreshIntervalEnvVar)
 	config.EnableDBInfoLogs = viper.GetBool(EnableDBInfoLogs)
 

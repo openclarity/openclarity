@@ -387,6 +387,7 @@ type DBConfig struct {
 	DBHost                    string
 	DBPort                    string
 	DBName                    string
+	DBSSLMode                 string
 	ViewRefreshIntervalSecond int
 }
 
@@ -661,8 +662,8 @@ func dropViewIfExists(db *gorm.DB, viewName, dbDriver string) {
 }
 
 func initPostgres(config *DBConfig, dbLogger logger.Interface) *gorm.DB {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
-		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC",
+		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort, config.DBSSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: dbLogger,
