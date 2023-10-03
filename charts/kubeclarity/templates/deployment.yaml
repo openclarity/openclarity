@@ -16,7 +16,7 @@
   {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" -}}
   {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "username" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
-  {{- $dbSSLMode = index .Values "kubeclarity-postgresql" "auth" "sslMode" -}}
+  {{- $dbSSLMode = index .Values "kubeclarity-postgresql-external" "auth" "sslMode" -}}
 {{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
