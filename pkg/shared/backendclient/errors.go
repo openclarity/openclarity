@@ -74,3 +74,12 @@ type AssetScanEstimationConflictError struct {
 func (t AssetScanEstimationConflictError) Error() string {
 	return fmt.Sprintf("Conflicting AssetScanEstimation Found with ID %s: %s", *t.ConflictingAssetScanEstimation.Id, t.Message)
 }
+
+type ProviderConflictError struct {
+	ConflictingProvider *models.Provider
+	Message             string
+}
+
+func (t ProviderConflictError) Error() string {
+	return fmt.Sprintf("Conflicting Provider Found with ID %s: %s", *t.ConflictingProvider.Id, t.Message)
+}

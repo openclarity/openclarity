@@ -435,7 +435,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceEUCentral11, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset1"}}, time.Now(), models.AWS, 8, models.No),
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset1"}}, time.Now(), models.AWS, 8, models.RootVolumeEncryptedNo),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -457,7 +457,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceEUCentral12, awsRegionEUCentral1+"/"+awsVPCEUCentral11+"/"+awsSGEUCentral111,
-				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset2"}}, time.Now(), models.AWS, 25, models.Yes),
+				"ami-111", "t2.large", "Linux", []models.Tag{{Key: "Name", Value: "asset2"}}, time.Now(), models.AWS, 25, models.RootVolumeEncryptedYes),
 		},
 		{
 			ScansCount: utils.PointerTo(1),
@@ -478,7 +478,7 @@ func createAssets() []models.Asset {
 				},
 			},
 			AssetInfo: createVMInfo(awsInstanceUSEast11, awsRegionUSEast1+"/"+awsVPCUSEast11+"/"+awsSGUSEast111,
-				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "asset3"}}, time.Now(), models.AWS, 512, models.Unknown),
+				"ami-112", "t2.micro", "Linux", []models.Tag{{Key: "Name", Value: "asset3"}}, time.Now(), models.AWS, 512, models.RootVolumeEncryptedUnknown),
 		},
 	}
 }
