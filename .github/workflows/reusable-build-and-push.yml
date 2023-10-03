@@ -12,11 +12,6 @@ on:
         type: boolean
         description: 'If set to true, push the image.'
         default: false
-      upload:
-        required: false
-        type: boolean
-        description: 'If set to true, upload the image.'
-        default: false
 
 jobs:
   timestamp:
@@ -36,7 +31,6 @@ jobs:
       image_name: vmclarity-apiserver
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      upload: ${{ inputs.upload }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-orchestrator:
@@ -47,7 +41,6 @@ jobs:
       image_name: vmclarity-orchestrator
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      upload: ${{ inputs.upload }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-ui-backend:
@@ -58,7 +51,6 @@ jobs:
       image_name: vmclarity-ui-backend
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      upload: ${{ inputs.upload }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-ui:
@@ -69,7 +61,6 @@ jobs:
       image_name: vmclarity-ui
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      upload: ${{ inputs.upload }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-cli:
@@ -80,5 +71,4 @@ jobs:
       image_name: vmclarity-cli
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      upload: ${{ inputs.upload }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
