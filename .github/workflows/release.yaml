@@ -63,8 +63,8 @@ jobs:
       - name: Render cloudformation
         id: render_cloudformation
         run: |
-          sed -i 's/ghcr.io\/openclarity\/vmclarity-backend:latest/ghcr.io\/openclarity\/vmclarity-backend:${{ github.ref_name }}/g' installation/aws/VmClarity.cfn
-          sed -i 's/ghcr.io\/openclarity\/vmclarity-cli:latest/ghcr.io\/openclarity\/vmclarity-cli:${{ github.ref_name }}/g' installation/aws/VmClarity.cfn
+          sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:${{ github.ref_name }}@' \
+            installation/aws/VmClarity.cfn
 
       - name: Set up Go
         uses: actions/setup-go@v4
