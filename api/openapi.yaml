@@ -2066,6 +2066,11 @@ components:
           type: integer
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
+        providers:
+          type: array
+          description: List of providers which discover the asset.
+          items:
+            $ref: '#/components/schemas/ProviderRelationship'
 
     AssetRelationship:
       type: object
@@ -2096,6 +2101,12 @@ components:
           readOnly: true
         summary:
           $ref: '#/components/schemas/ScanFindingsSummary'
+          readOnly: true
+        providers:
+          type: array
+          description: List of providers which discover the asset.
+          items:
+            $ref: '#/components/schemas/ProviderRelationship'
           readOnly: true
       required: ['id']
 
@@ -2362,6 +2373,9 @@ components:
               $ref: '#/components/schemas/AssetScanStats'
             summary:
               $ref: '#/components/schemas/ScanFindingsSummary'
+            provider:
+              $ref: "#/components/schemas/ProviderRelationship"
+              description: Provider responsible for picking up and running the asset scan.
         - $ref: '#/components/schemas/AssetScanTemplate'
       # TODO(sambetts) Decide if we want the validation here by having
       # separate schemas for GET, POST and PATCH.
