@@ -12,63 +12,132 @@ on:
         type: boolean
         description: 'If set to true, push the image.'
         default: false
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image is pushed to the release repository otherwise it is pushed to the development.'
+        default: false
+      post_image_tags:
+        required: false
+        type: boolean
+        description: |
+          If set to true the image tags pushed to the repository are posted as comment for the Pull Request.
+          Only works if the event type is `pull_request`.
 
 jobs:
-  timestamp:
+  build-vars:
     runs-on: ubuntu-latest
     outputs:
-      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+      timestamp: ${{ steps.build-vars.outputs.timestamp }}
+      apiserver-image: ${{ steps.build-vars.outputs.apiserver-image }}
+      orchestrator-image: ${{ steps.build-vars.outputs.orchestrator-image }}
+      ui-backend-image: ${{ steps.build-vars.outputs.ui-backend-image }}
+      ui-image: ${{ steps.build-vars.outputs.ui-image }}
+      cli-image: ${{ steps.build-vars.outputs.cli-image }}
     steps:
-      - name: Get current timestamp
-        id: timestamp
-        run: echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+      - name: Set build variables
+        id: build-vars
+        run: |
+          ##
+          ## Set timestamp variable
+          ##
+          
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+          
+          ##
+          ## Determine the image name suffix based on the release type
+          ##
+          
+          registry=ghcr.io/openclarity/
+          suffix=-dev
+          
+          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
+            suffix=
+          fi
+          
+          {
+            echo "apiserver-image=${registry}vmclarity-apiserver${suffix}"
+            echo "orchestrator-image=${registry}vmclarity-orchestrator${suffix}"
+            echo "ui-backend-image=${registry}vmclarity-ui-backend${suffix}"
+            echo "ui-image=${registry}vmclarity-ui${suffix}"
+            echo "cli-image=${registry}vmclarity-cli${suffix}"
+          } >> "$GITHUB_OUTPUT"
 
   vmclarity-apiserver:
-    needs: timestamp
+    needs: build-vars
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.apiserver
-      image_name: vmclarity-apiserver
+      image_name: ${{ needs.build-vars.outputs.apiserver-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.build-vars.outputs.timestamp }}
 
   vmclarity-orchestrator:
-    needs: timestamp
+    needs: build-vars
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.orchestrator
-      image_name: vmclarity-orchestrator
+      image_name: ${{ needs.build-vars.outputs.orchestrator-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.build-vars.outputs.timestamp }}
 
   vmclarity-ui-backend:
-    needs: timestamp
+    needs: build-vars
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.uibackend
-      image_name: vmclarity-ui-backend
+      image_name: ${{ needs.build-vars.outputs.ui-backend-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.build-vars.outputs.timestamp }}
 
   vmclarity-ui:
-    needs: timestamp
+    needs: build-vars
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.ui
-      image_name: vmclarity-ui
+      image_name: ${{ needs.build-vars.outputs.ui-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.build-vars.outputs.timestamp }}
 
   vmclarity-cli:
-    needs: timestamp
+    needs: build-vars
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.cli
-      image_name: vmclarity-cli
+      image_name: ${{ needs.build-vars.outputs.cli-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+
+  post-images:
+    if: github.event_name == 'pull_request' && inputs.post_image_tags
+    runs-on: ubuntu-latest
+    needs:
+      - build-vars
+      - vmclarity-apiserver
+      - vmclarity-orchestrator
+      - vmclarity-ui-backend
+      - vmclarity-ui
+      - vmclarity-cli
+    steps:
+      - name: Post comment with image tags
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          hide_and_recreate: true
+          hide_classify: "OUTDATED"
+          skip_unchanged: true
+          header: image-tags
+          message: |
+            Hey!
+            
+            Your images are ready:
+            * `${{ format('{0}:{1}', needs.build-vars.outputs.apiserver-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.build-vars.outputs.orchestrator-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.build-vars.outputs.ui-backend-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.build-vars.outputs.ui-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.build-vars.outputs.cli-image, inputs.image_tag) }}`
+

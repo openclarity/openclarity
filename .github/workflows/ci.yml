@@ -4,6 +4,10 @@ on:
   pull_request:
   merge_group:
 
+permissions:
+  packages: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -85,8 +89,10 @@ jobs:
     name: Build
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
-      image_tag: ${{ github.sha }}
-      push: false
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      push: true
+      use_release_repository: false
+      post_image_tags: true
 
   success:
     needs:

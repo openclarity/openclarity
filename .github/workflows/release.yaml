@@ -49,6 +49,7 @@ jobs:
     with:
       image_tag: ${{ github.ref_name }}
       push: true
+      use_release_repository: true
 
   main_release:
     needs: build_and_push
