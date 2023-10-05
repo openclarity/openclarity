@@ -1618,8 +1618,6 @@ github.com/openclarity/kubeclarity/cli v0.0.0-20230919093336-30e3c0ea31f4 h1:MpX
 github.com/openclarity/kubeclarity/cli v0.0.0-20230919093336-30e3c0ea31f4/go.mod h1:XG2waTwEuBMrTIVCLbp1NT4QJjHRE8D+M3qHi9q4U3o=
 github.com/openclarity/kubeclarity/shared v0.0.0-20230919093336-30e3c0ea31f4 h1:HUu4UBS8TooA7D5E/gA/o3iKoU58ym/c/mPRQMqG5M0=
 github.com/openclarity/kubeclarity/shared v0.0.0-20230919093336-30e3c0ea31f4/go.mod h1:JYu6NKnOy7zsc0zMGIVJ3SMRr1jBAvrEdQ28/pjJYww=
-github.com/openclarity/yara-rule-server v0.1.1-0.20231002161836-1c3f65a235e4 h1:YlU9IyEjiDJkfOZB7TX/P6ZSJ3iG8e09p5fX3oQJq7g=
-github.com/openclarity/yara-rule-server v0.1.1-0.20231002161836-1c3f65a235e4/go.mod h1:Alaeavi6F8+FiozkbbyhkZzMwF4Y3zXV8Z7eJ5Ae8SY=
 github.com/openclarity/yara-rule-server v0.1.1-0.20231003081737-acb3afa89a18 h1:6QLamnu2eActO71OydRQu+MEp9SEeHzgrZBa7EXYMnY=
 github.com/openclarity/yara-rule-server v0.1.1-0.20231003081737-acb3afa89a18/go.mod h1:Alaeavi6F8+FiozkbbyhkZzMwF4Y3zXV8Z7eJ5Ae8SY=
 github.com/opencontainers/go-digest v0.0.0-20170106003457-a6d0ee40d420/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
@@ -2635,8 +2633,8 @@ google.golang.org/api v0.96.0/go.mod h1:w7wJQLTM+wvQpNf5JyEcBoxK0RH7EDrh/L4qfsuJ
 google.golang.org/api v0.97.0/go.mod h1:w7wJQLTM+wvQpNf5JyEcBoxK0RH7EDrh/L4qfsuJ13s=
 google.golang.org/api v0.98.0/go.mod h1:w7wJQLTM+wvQpNf5JyEcBoxK0RH7EDrh/L4qfsuJ13s=
 google.golang.org/api v0.100.0/go.mod h1:ZE3Z2+ZOr87Rx7dqFsdRQkRBk36kDtp/h+QpHbB7a70=
-google.golang.org/api v0.143.0 h1:o8cekTkqhywkbZT6p1UHJPZ9+9uuCAJs/KYomxZB8fA=
-google.golang.org/api v0.143.0/go.mod h1:FoX9DO9hT7DLNn97OuoZAGSDuNAXdJRuGK98rSUgurk=
+google.golang.org/api v0.144.0 h1:01xgplvIwdMpnrlenPHMgRAAgAH9N5Zv21Qu6XwJxSU=
+google.golang.org/api v0.144.0/go.mod h1:OARJqIfoYjXJj4C1AiBSXYZt03qsoz8FQYU6fBEfrHM=
 google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9YwlJXL52JkM=
 google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 google.golang.org/appengine v1.5.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
