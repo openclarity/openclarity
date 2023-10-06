@@ -1,0 +1,44 @@
+name: End-to-End testing
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image published to the release repository is used otherwise the development.'
+        default: false
+
+jobs:
+  images:
+    uses: ./.github/workflows/reusable-image-names.yml
+    with:
+      use_release_repository: ${{ inputs.use_release_repository }}
+
+  run:
+    runs-on: ubuntu-latest
+    needs: images
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          cache-dependency-path: "**/*.sum"
+          go-version-file: 'e2e/go.mod'
+
+      - name: Run end to end tests
+        env:
+          APIServerContainerImage:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
+          OrchestratorContainerImage: ${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}
+          UIContainerImage: ${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}
+          UIBackendContainerImage: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
+          ScannerContainerImage: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
+        run: |
+          cd e2e \
+          && go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .

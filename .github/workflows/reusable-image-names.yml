@@ -1,0 +1,66 @@
+name: Container Image Names
+
+on:
+  workflow_call:
+    inputs:
+      registry_name:
+        required: false
+        type: string
+        description: 'Registry name used for container image names. Default is `ghcr.io/openclarity`.'
+        default: ghcr.io/openclarity
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image published to the release repository is used otherwise the development.'
+        default: false
+    outputs:
+      apiserver-image:
+        value: ${{ jobs.images.outputs.apiserver-image }}
+        description: 'Name of the container image for VMClarity API Server'
+      orchestrator-image:
+        value: ${{ jobs.images.outputs.orchestrator-image }}
+        description: 'Name of the contaienr image for VMClarity Orchestrator'
+      ui-backend-image:
+        value: ${{ jobs.images.outputs.ui-backend-image }}
+        description: 'Name of the container image for VMClarity UI Backend Server'
+      ui-image:
+        value: ${{ jobs.images.outputs.ui-image }}
+        description: 'Name of the container image for VMClarity UI Server'
+      cli-image:
+        value: ${{ jobs.images.outputs.cli-image }}
+        description: 'Name of the container image for VMClarity CLI'
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    outputs:
+      apiserver-image: ${{ steps.images.outputs.apiserver-image }}
+      orchestrator-image: ${{ steps.images.outputs.orchestrator-image }}
+      ui-backend-image: ${{ steps.images.outputs.ui-backend-image }}
+      ui-image: ${{ steps.images.outputs.ui-image }}
+      cli-image: ${{ steps.images.outputs.cli-image }}
+    steps:
+      - name: Set container image names
+        id: images
+        run: |
+          ##
+          ## Determine the image name suffix based on the release type
+          ##
+
+          # Remove trailing slash characters(s)
+          # shellcheck disable=SC2001
+          registry="$(sed -e 's@/*$@@' <<< ${{ inputs.registry_name }})"
+          
+          # Set image nam suffix
+          suffix=-dev
+          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
+            suffix=
+          fi
+
+          {
+            echo "apiserver-image=${registry}/vmclarity-apiserver${suffix}"
+            echo "orchestrator-image=${registry}/vmclarity-orchestrator${suffix}"
+            echo "ui-backend-image=${registry}/vmclarity-ui-backend${suffix}"
+            echo "ui-image=${registry}/vmclarity-ui${suffix}"
+            echo "cli-image=${registry}/vmclarity-cli${suffix}"
+          } >> "$GITHUB_OUTPUT"
