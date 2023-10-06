@@ -566,7 +566,7 @@ func buildWhereFromNav(sqlVariant jsonsql.Variant, schemaMetas map[string]Schema
 	case DateTimeFieldType:
 		return sqlVariant.CastToDateTime(sqlVariant.JSONExtractText(fieldSource, queryPath)), nil
 	case CollectionFieldType, RelationshipFieldType, ComplexFieldType:
-		fallthrough
+		return sqlVariant.JSONExtractText(fieldSource, queryPath), nil
 	default:
 		return "", fmt.Errorf("unable to directly extract field type %s, you might need a function like length() or to specify a specific field", fieldMeta.FieldType)
 	}
