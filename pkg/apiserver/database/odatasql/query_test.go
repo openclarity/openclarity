@@ -139,6 +139,9 @@ type Car struct {
 
 	// Example time field
 	BuiltOn *time.Time `json:"BuiltOn"`
+
+	// Always null field
+	NullComplexField *Engine `json:"NullComplexField"`
 }
 
 // Gorm Table Definitions.
@@ -190,6 +193,11 @@ var carSchemaMetas = map[string]SchemaMeta{
 				},
 			},
 			"BuiltOn": {FieldType: DateTimeFieldType},
+			"NullComplexField": {
+				FieldType:             ComplexFieldType,
+				ComplexFieldSchemas:   []string{"Engine"},
+				DiscriminatorProperty: "ObjectType",
+			},
 		},
 	},
 	"Manufacturer": {
@@ -1263,6 +1271,30 @@ func TestBuildSQLQuery(t *testing.T) {
 			name: "eq filter comparing two fields",
 			args: args{
 				filterString: PointerTo("Manufacturer/Name eq Engine/Manufacturer/Name"),
+			},
+			want: []Car{
+				car1,
+				car2,
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "if list ne null",
+			args: args{
+				filterString: PointerTo("Engine/Options/SubOptions ne null"),
+			},
+			want: []Car{
+				car1,
+				car2,
+				car3,
+				car4,
+			},
+		},
+		{
+			name: "if complex type eq null",
+			args: args{
+				filterString: PointerTo("NullComplexField eq null"),
 			},
 			want: []Car{
 				car1,
