@@ -1,0 +1,56 @@
+# https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#force-deleting-cache-entries
+
+name: Cache cleanup
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        required: true
+        type: string
+        description: 'Number of the Pull Request'
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup
+        run: |
+          ## Setting this to not fail the workflow while deleting cache keys. 
+          set +e
+          
+          echo "Deleting caches..."
+          
+          gh cache list -R "${REPO}" --json id,key,ref \
+          | jq --arg ref "${REF}" '.[] | select(.ref == $ref) | .key' \
+          | xargs -L1 gh cache delete
+        
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: refs/pull/${{ github.event.pull_request.number }}/merge
+
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup
+        run: |
+          ## Setting this to not fail the workflow while deleting cache keys. 
+          set +e
+
+          echo "Deleting caches..."
+
+          gh cache list -R "${REPO}" --json id,key,ref \
+          | jq --arg ref "${REF}" '.[] | select(.ref == $ref) | .key' \
+          | xargs -L1 gh cache delete
+
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: refs/pull/${{ inputs.pr_number }}/merge
