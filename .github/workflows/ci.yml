@@ -66,6 +66,14 @@ jobs:
       use_release_repository: false
       post_image_tags: true
 
+  e2e:
+    needs: build
+    name: End-to-End
+    uses: ./.github/workflows/reusable-end-to-end-testing.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      use_release_repository: false
+
   success:
     needs:
       - build
