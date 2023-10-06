@@ -17,19 +17,22 @@ package state
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const (
-	DefaultWaitForVolRetryInterval = 15 * time.Second
+	DefaultWaitForVolRetryInterval   = 15 * time.Second
+	effectiveScanConfigAnnotationKey = "openclarity.io/vmclarity-scanner/config"
 )
 
 type AssetScanID = models.AssetScanID
@@ -75,7 +78,7 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 	}
 }
 
-func (v *VMClarityState) MarkInProgress(ctx context.Context) error {
+func (v *VMClarityState) MarkInProgress(ctx context.Context, config *families.Config) error {
 	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
@@ -99,6 +102,11 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context) error {
 	state := models.AssetScanStateStateInProgress
 	assetScan.Status.General.State = &state
 	assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+
+	assetScan.Annotations, err = appendEffectiveScanConfigAnnotation(assetScan.Annotations, config)
+	if err != nil {
+		return fmt.Errorf("failed to add effective scan config annotation: %w", err)
+	}
 
 	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
 	if err != nil {
@@ -406,4 +414,30 @@ func NewVMClarityState(client *backendclient.BackendClient, id AssetScanID) (*VM
 		client:      client,
 		assetScanID: id,
 	}, nil
+}
+
+func appendEffectiveScanConfigAnnotation(annotations *models.Annotations, config *families.Config) (*models.Annotations, error) {
+	var newAnnotations models.Annotations
+	if annotations != nil {
+		// Add all annotations except the effective scan config one.
+		for _, annotation := range *annotations {
+			if *annotation.Key == effectiveScanConfigAnnotationKey {
+				continue
+			}
+			newAnnotations = append(newAnnotations, annotation)
+		}
+	}
+	// Add the new effective scan config annotation
+	configJSON, err := json.Marshal(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal effective families config: %w", err)
+	}
+	newAnnotations = append(newAnnotations, models.Annotations{
+		{
+			Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
+			Value: utils.PointerTo(string(configJSON)),
+		},
+	}...)
+
+	return &newAnnotations, nil
 }
