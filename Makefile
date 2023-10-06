@@ -205,11 +205,15 @@ bin/licensei-${LICENSEI_VERSION}: | $(BIN_DIR)
 
 .PHONY: license-check
 license-check: bin/licensei ## Run license check
+	./bin/licensei check
+
+.PHONY: license-header
+license-header: bin/licensei ## Run license header check
 	./bin/licensei header
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
-	./bin/licensei cache --config=../.licensei.toml
+	./bin/licensei cache
 
 .PHONY: check
 check: lint test helm-lint ## Run tests and linters
@@ -255,6 +259,6 @@ bin/actionlint-$(ACTIONLINT_VERSION): | $(BIN_DIR)
 	| bash -s -- "$(ACTIONLINT_VERSION)" "$(BIN_DIR)"
 	@mv bin/actionlint $@
 
-.PHONY: actionlint-lint
-actionlint-lint: bin/actionlint
+.PHONY: lint-actions
+lint-actions: bin/actionlint
 	@$(ACTIONLINT_BIN) -color
