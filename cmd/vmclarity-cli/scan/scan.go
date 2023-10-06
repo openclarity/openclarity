@@ -114,7 +114,7 @@ var ScanCmd = &cobra.Command{
 			families.SetMountPointsForFamiliesInput(mountPoints, config)
 		}
 
-		err = cli.MarkInProgress(ctx)
+		err = cli.MarkInProgress(ctx, config)
 		if err != nil {
 			return fmt.Errorf("failed to inform server %v scan has started: %w", server, err)
 		}
