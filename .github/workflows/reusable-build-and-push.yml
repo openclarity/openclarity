@@ -25,99 +25,93 @@ on:
           Only works if the event type is `pull_request`.
 
 jobs:
-  build-vars:
+  timestamp:
     runs-on: ubuntu-latest
     outputs:
-      timestamp: ${{ steps.build-vars.outputs.timestamp }}
-      apiserver-image: ${{ steps.build-vars.outputs.apiserver-image }}
-      orchestrator-image: ${{ steps.build-vars.outputs.orchestrator-image }}
-      ui-backend-image: ${{ steps.build-vars.outputs.ui-backend-image }}
-      ui-image: ${{ steps.build-vars.outputs.ui-image }}
-      cli-image: ${{ steps.build-vars.outputs.cli-image }}
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
     steps:
-      - name: Set build variables
-        id: build-vars
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set timestamp
+        id: timestamp
         run: |
           ##
           ## Set timestamp variable
           ##
           
           echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
-          
-          ##
-          ## Determine the image name suffix based on the release type
-          ##
-          
-          registry=ghcr.io/openclarity/
-          suffix=-dev
-          
-          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
-            suffix=
-          fi
-          
-          {
-            echo "apiserver-image=${registry}vmclarity-apiserver${suffix}"
-            echo "orchestrator-image=${registry}vmclarity-orchestrator${suffix}"
-            echo "ui-backend-image=${registry}vmclarity-ui-backend${suffix}"
-            echo "ui-image=${registry}vmclarity-ui${suffix}"
-            echo "cli-image=${registry}vmclarity-cli${suffix}"
-          } >> "$GITHUB_OUTPUT"
+
+  images:
+    uses: ./.github/workflows/reusable-image-names.yml
+    with:
+      use_release_repository: ${{ inputs.use_release_repository }}
 
   vmclarity-apiserver:
-    needs: build-vars
+    needs:
+      - images
+      - timestamp
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.apiserver
-      image_name: ${{ needs.build-vars.outputs.apiserver-image }}
+      image_name: ${{ needs.images.outputs.apiserver-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-orchestrator:
-    needs: build-vars
+    needs:
+      - images
+      - timestamp
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.orchestrator
-      image_name: ${{ needs.build-vars.outputs.orchestrator-image }}
+      image_name: ${{ needs.images.outputs.orchestrator-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-ui-backend:
-    needs: build-vars
+    needs:
+      - images
+      - timestamp
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.uibackend
-      image_name: ${{ needs.build-vars.outputs.ui-backend-image }}
+      image_name: ${{ needs.images.outputs.ui-backend-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-ui:
-    needs: build-vars
+    needs:
+      - images
+      - timestamp
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.ui
-      image_name: ${{ needs.build-vars.outputs.ui-image }}
+      image_name: ${{ needs.images.outputs.ui-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   vmclarity-cli:
-    needs: build-vars
+    needs:
+      - images
+      - timestamp
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
       dockerfile: Dockerfile.cli
-      image_name: ${{ needs.build-vars.outputs.cli-image }}
+      image_name: ${{ needs.images.outputs.cli-image }}
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.build-vars.outputs.timestamp }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
   post-images:
     if: github.event_name == 'pull_request' && inputs.post_image_tags
     runs-on: ubuntu-latest
     needs:
-      - build-vars
+      - images
       - vmclarity-apiserver
       - vmclarity-orchestrator
       - vmclarity-ui-backend
@@ -135,9 +129,9 @@ jobs:
             Hey!
             
             Your images are ready:
-            * `${{ format('{0}:{1}', needs.build-vars.outputs.apiserver-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.build-vars.outputs.orchestrator-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.build-vars.outputs.ui-backend-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.build-vars.outputs.ui-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.build-vars.outputs.cli-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}`
 
