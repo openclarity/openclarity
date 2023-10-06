@@ -18,6 +18,7 @@ package state
 import (
 	"context"
 
+	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 )
@@ -28,7 +29,7 @@ func (l *LocalState) WaitForReadyState(context.Context) error {
 	return nil
 }
 
-func (l *LocalState) MarkInProgress(ctx context.Context) error {
+func (l *LocalState) MarkInProgress(ctx context.Context, _ *families.Config) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Info("Scanning is in progress")
 	return nil
