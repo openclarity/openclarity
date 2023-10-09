@@ -17,7 +17,7 @@ require (
 	github.com/anchore/stereoscope v0.0.0-20230727211946-d1f3d766295e
 	github.com/anchore/syft v0.87.1
 	github.com/aptible/supercronic v0.2.26
-	github.com/aws/aws-sdk-go-v2 v1.21.0
+	github.com/aws/aws-sdk-go-v2 v1.21.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.43
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.123.0
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.21.7
