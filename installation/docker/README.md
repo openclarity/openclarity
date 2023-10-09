@@ -6,9 +6,9 @@ Each configurable service has a <service-name>.env file, in this file set the
 attributes required for that service and it will be loaded by the compose file
 when started.
 
-## Overriding Parameters in the dockercompose.yml
+## Overriding Parameters in the docker-compose.yml
 
-You can override parameters in the dockercompose.yml by passing a custom env
+You can override parameters in the docker-compose.yml by passing a custom env
 file into the `docker compose up` command via the `--env-file` flag. An example
 overriding all the container images `image_override.env` can be modified or
 copied for this.
