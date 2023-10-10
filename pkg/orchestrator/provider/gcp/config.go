@@ -43,7 +43,7 @@ type Config struct {
 	ScannerSSHPublicKey string `mapstructure:"scanner_ssh_public_key"`
 }
 
-func NewConfig() (Config, error) {
+func NewConfig() (*Config, error) {
 	// Avoid modifying the global instance
 	v := viper.New()
 
@@ -58,9 +58,9 @@ func NewConfig() (Config, error) {
 	_ = v.BindEnv(scannerSourceImage)
 	_ = v.BindEnv(scannerSSHPublicKey)
 
-	config := Config{}
+	config := &Config{}
 	if err := v.Unmarshal(&config, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {
-		return Config{}, fmt.Errorf("failed to parse provider configuration. Provider=GCP: %w", err)
+		return nil, fmt.Errorf("failed to parse provider configuration. Provider=GCP: %w", err)
 	}
 	return config, nil
 }

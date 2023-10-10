@@ -47,7 +47,7 @@ type Client struct {
 	disksClient      *armcompute.DisksClient
 	interfacesClient *armnetwork.InterfacesClient
 
-	azureConfig Config
+	azureConfig *Config
 }
 
 func New(_ context.Context) (*Client, error) {
