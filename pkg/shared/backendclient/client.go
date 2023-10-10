@@ -935,25 +935,25 @@ func (b *BackendClient) PostFinding(ctx context.Context, finding models.Finding)
 func (b *BackendClient) PostProvider(ctx context.Context, provider models.Provider) (*models.Provider, error) {
 	resp, err := b.apiClient.PostProvidersWithResponse(ctx, provider)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create an provider: %w", err)
+		return nil, fmt.Errorf("failed to create a provider: %w", err)
 	}
 	switch resp.StatusCode() {
 	case http.StatusCreated:
 		if resp.JSON201 == nil {
-			return nil, fmt.Errorf("failed to create an provider: empty body. status code=%v", http.StatusCreated)
+			return nil, fmt.Errorf("failed to create a provider: empty body. status code=%v", http.StatusCreated)
 		}
 		return resp.JSON201, nil
 	case http.StatusBadRequest:
 		if resp.JSON400 != nil && resp.JSON400.Message != nil {
-			return nil, fmt.Errorf("failed to create an provider. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+			return nil, fmt.Errorf("failed to create a provider. status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
 		}
-		return nil, fmt.Errorf("failed to create an provider. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create a provider. status code=%v", resp.StatusCode())
 	case http.StatusConflict:
 		if resp.JSON409 == nil {
-			return nil, fmt.Errorf("failed to create an provider: empty body. status code=%v", http.StatusConflict)
+			return nil, fmt.Errorf("failed to create a provider: empty body. status code=%v", http.StatusConflict)
 		}
 		if resp.JSON409.Provider == nil {
-			return nil, fmt.Errorf("failed to create an provider: no provider data. status code=%v", http.StatusConflict)
+			return nil, fmt.Errorf("failed to create a provider: no provider data. status code=%v", http.StatusConflict)
 		}
 		return nil, ProviderConflictError{
 			ConflictingProvider: resp.JSON409.Provider,
@@ -961,9 +961,9 @@ func (b *BackendClient) PostProvider(ctx context.Context, provider models.Provid
 		}
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
-			return nil, fmt.Errorf("failed to create an provider. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
+			return nil, fmt.Errorf("failed to create a provider. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
 		}
-		return nil, fmt.Errorf("failed to create an provider. status code=%v", resp.StatusCode())
+		return nil, fmt.Errorf("failed to create a provider. status code=%v", resp.StatusCode())
 	}
 }
 

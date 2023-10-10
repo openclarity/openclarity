@@ -56,7 +56,7 @@ type Config struct {
 	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
 }
 
-func NewConfig() (Config, error) {
+func NewConfig() (*Config, error) {
 	// Avoid modifying the global instance
 	v := viper.New()
 
@@ -78,9 +78,9 @@ func NewConfig() (Config, error) {
 	_ = v.BindEnv("scanner_storage_account_name")
 	_ = v.BindEnv("scanner_storage_container_name")
 
-	config := Config{}
+	config := &Config{}
 	if err := v.Unmarshal(&config, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {
-		return Config{}, fmt.Errorf("failed to parse provider configuration. Provider=Azure: %w", err)
+		return nil, fmt.Errorf("failed to parse provider configuration. Provider=Azure: %w", err)
 	}
 	return config, nil
 }

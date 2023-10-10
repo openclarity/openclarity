@@ -39,7 +39,7 @@ type Client struct {
 	instancesClient *compute.InstancesClient
 	regionsClient   *compute.RegionsClient
 
-	gcpConfig Config
+	gcpConfig *Config
 }
 
 func New(ctx context.Context) (*Client, error) {
