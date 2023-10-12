@@ -1471,7 +1471,14 @@ components:
       type: object
       properties:
         annotations:
-              $ref: '#/components/schemas/Annotations'
+          $ref: '#/components/schemas/Annotations'
+
+    MetadataReadOnly:
+      type: object
+      properties:
+        annotations:
+          $ref: '#/components/schemas/Annotations'
+          readOnly: true
 
     Annotations:
       type: array
@@ -1513,6 +1520,7 @@ components:
       type: object
       description: Describes an expandable relationship to Scan object
       allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
         - type: object
           properties:
             id:
@@ -1645,6 +1653,7 @@ components:
       type: object
       description: Describes a multi-asset scheduled scan.
       allOf:
+        - $ref: '#/components/schemas/Metadata'
         - type: object
           properties:
             id:
@@ -1893,46 +1902,52 @@ components:
     ScanConfigRelationship:
       type: object
       description: Describes a relationship to a scan config which can be expanded.
-      properties:
-        id:
-          type: string
-        revision:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        scanTemplate:
-          $ref: '#/components/schemas/ScanTemplate'
-          readOnly: true
-        scheduled:
-          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
-          readOnly: true
-        disabled:
-          description: 'if true, the scan config is disabled and no scan should run from it'
-          type: boolean
-          readOnly: true
-      required: ['id']
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            name:
+              type: string
+              readOnly: true
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+              readOnly: true
+            scheduled:
+              $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+              readOnly: true
+            disabled:
+              description: 'if true, the scan config is disabled and no scan should run from it'
+              type: boolean
+              readOnly: true
+          required: ['id']
 
     # NOTE(sambetts) Any changes made to ScanConfig must be reflected in
     # ScanConfigRelationship to ensure correct operation of the API when $expanding
     ScanConfig:
       type: object
       description: Describes a multi-asset scheduled scan config.
-      properties:
-        id:
-          type: string
-        revision:
-          type: integer
-        name:
-          type: string
-        scanTemplate:
-          $ref: '#/components/schemas/ScanTemplate'
-        scheduled:
-          $ref: '#/components/schemas/RuntimeScheduleScanConfig'
-        disabled:
-          description: 'if true, the scan config is disabled and no scan should run from it'
-          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+            name:
+              type: string
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+            scheduled:
+              $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+            disabled:
+              description: 'if true, the scan config is disabled and no scan should run from it'
+              type: boolean
 
     ScanConfigExists:
       type: object
@@ -2027,88 +2042,94 @@ components:
     Asset:
       type: object
       description: Describes an asset object.
-      properties:
-        id:
-          type: string
-          # TODO(sambetts) Decide if we want the validation here by having
-          # separate schemas for GET, POST and PATCH.
-          #
-          # We can't make anything readOnly or required here if we want to
-          # use the same schema for PATCH otherwise it will require you
-          # always send the required fields and remove the readOnly fields
-          # on the client side.
-          #
-          # readOnly: true
-        revision:
-          type: integer
-          # TODO(sambetts) Decide if we want the validation here by having
-          # separate schemas for GET, POST and PATCH.
-          #
-          # We can't make anything readOnly or required here if we want to
-          # use the same schema for PATCH otherwise it will require you
-          # always send the required fields and remove the readOnly fields
-          # on the client side.
-          #
-          # readOnly: true
-        assetInfo:
-          $ref: '#/components/schemas/AssetType'
-        firstSeen:
-          type: string
-          format: date-time
-        terminatedOn:
-          type: string
-          format: date-time
-        lastSeen:
-          type: string
-          format: date-time
-        scansCount:
-          description: Total number of scans that have ever run for this asset
-          type: integer
-        summary:
-          $ref: '#/components/schemas/ScanFindingsSummary'
-        providers:
-          type: array
-          description: List of providers which discover the asset.
-          items:
-            $ref: '#/components/schemas/ProviderRelationship'
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            assetInfo:
+              $ref: '#/components/schemas/AssetType'
+            firstSeen:
+              type: string
+              format: date-time
+            terminatedOn:
+              type: string
+              format: date-time
+            lastSeen:
+              type: string
+              format: date-time
+            scansCount:
+              description: Total number of scans that have ever run for this asset
+              type: integer
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+            providers:
+              type: array
+              description: List of providers which discover the asset.
+              items:
+                $ref: '#/components/schemas/ProviderRelationship'
 
     AssetRelationship:
       type: object
       description: Describes a relationship to an asset which can be expanded.
-      properties:
-        id:
-          type: string
-        revision:
-          type: integer
-          readOnly: true
-        assetInfo:
-          $ref: '#/components/schemas/AssetType'
-          readOnly: true
-        scansCount:
-          description: Total number of scans that have ever run for this asset
-          type: integer
-          readOnly: true
-        firstSeen:
-          type: string
-          format: date-time
-        terminatedOn:
-          type: string
-          format: date-time
-          readOnly: true
-        lastSeen:
-          type: string
-          format: date-time
-          readOnly: true
-        summary:
-          $ref: '#/components/schemas/ScanFindingsSummary'
-          readOnly: true
-        providers:
-          type: array
-          description: List of providers which discover the asset.
-          items:
-            $ref: '#/components/schemas/ProviderRelationship'
-          readOnly: true
-      required: ['id']
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            assetInfo:
+              $ref: '#/components/schemas/AssetType'
+              readOnly: true
+            scansCount:
+              description: Total number of scans that have ever run for this asset
+              type: integer
+              readOnly: true
+            firstSeen:
+              type: string
+              format: date-time
+            terminatedOn:
+              type: string
+              format: date-time
+              readOnly: true
+            lastSeen:
+              type: string
+              format: date-time
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+              readOnly: true
+            providers:
+              type: array
+              description: List of providers which discover the asset.
+              items:
+                $ref: '#/components/schemas/ProviderRelationship'
+              readOnly: true
+          required: ['id']
 
     AssetExists:
       type: object
@@ -2438,6 +2459,7 @@ components:
     AssetScanRelationship:
       type: object
       allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
         - type: object
           properties:
             id:
@@ -2660,8 +2682,7 @@ components:
       type: object
       description: Describes a relationship to a provider which can be expanded.
       allOf:
-        - $ref: '#/components/schemas/Metadata'
-          readOnly: true
+        - $ref: '#/components/schemas/MetadataReadOnly'
         - type: object
           properties:
             id:
@@ -3200,51 +3221,54 @@ components:
 
     Finding:
       type: object
-      properties:
-        id:
-          type: string
-          # TODO(sambetts) Decide if we want the validation here by having
-          # separate schemas for GET, POST and PATCH
-          #
-          # We can't make anything readOnly or required here if we want to
-          # use the same schema for PATCH otherwise it will require you
-          # always send the required fields and remove the readOnly fields
-          # on the client side.
-          #
-          # readOnly: true
-        asset:
-          $ref: '#/components/schemas/AssetRelationship'
-        foundBy:
-          $ref: '#/components/schemas/AssetScanRelationship'
-        foundOn:
-          description: When this finding was discovered by a scan
-          type: string
-          format: date-time
-        invalidatedOn:
-          description: When this finding was invalidated by a newer scan
-          type: string
-          format: date-time
-        findingInfo:
-          anyOf:
-            - $ref: '#/components/schemas/PackageFindingInfo'
-            - $ref: '#/components/schemas/VulnerabilityFindingInfo'
-            - $ref: '#/components/schemas/MalwareFindingInfo'
-            - $ref: '#/components/schemas/SecretFindingInfo'
-            - $ref: '#/components/schemas/MisconfigurationFindingInfo'
-            - $ref: '#/components/schemas/RootkitFindingInfo'
-            - $ref: '#/components/schemas/ExploitFindingInfo'
-            - $ref: '#/components/schemas/InfoFinderFindingInfo'
-          discriminator:
-            propertyName: objectType
-            mapping:
-              Package: '#/components/schemas/PackageFindingInfo'
-              Vulnerability: '#/components/schemas/VulnerabilityFindingInfo'
-              Malware: '#/components/schemas/MalwareFindingInfo'
-              Secret: '#/components/schemas/SecretFindingInfo'
-              Misconfiguration: '#/components/schemas/MisconfigurationFindingInfo'
-              Rootkit: '#/components/schemas/RootkitFindingInfo'
-              Exploit: '#/components/schemas/ExploitFindingInfo'
-              InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            foundBy:
+              $ref: '#/components/schemas/AssetScanRelationship'
+            foundOn:
+              description: When this finding was discovered by a scan
+              type: string
+              format: date-time
+            invalidatedOn:
+              description: When this finding was invalidated by a newer scan
+              type: string
+              format: date-time
+            findingInfo:
+              anyOf:
+                - $ref: '#/components/schemas/PackageFindingInfo'
+                - $ref: '#/components/schemas/VulnerabilityFindingInfo'
+                - $ref: '#/components/schemas/MalwareFindingInfo'
+                - $ref: '#/components/schemas/SecretFindingInfo'
+                - $ref: '#/components/schemas/MisconfigurationFindingInfo'
+                - $ref: '#/components/schemas/RootkitFindingInfo'
+                - $ref: '#/components/schemas/ExploitFindingInfo'
+                - $ref: '#/components/schemas/InfoFinderFindingInfo'
+              discriminator:
+                propertyName: objectType
+                mapping:
+                  Package: '#/components/schemas/PackageFindingInfo'
+                  Vulnerability: '#/components/schemas/VulnerabilityFindingInfo'
+                  Malware: '#/components/schemas/MalwareFindingInfo'
+                  Secret: '#/components/schemas/SecretFindingInfo'
+                  Misconfiguration: '#/components/schemas/MisconfigurationFindingInfo'
+                  Rootkit: '#/components/schemas/RootkitFindingInfo'
+                  Exploit: '#/components/schemas/ExploitFindingInfo'
+                  InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
 
     ScanEstimations:
       type: object
@@ -3260,42 +3284,45 @@ components:
 
     ScanEstimation:
       type: object
-      properties:
-        id:
-          type: string
-        assetIDs:
-          description: List of asset IDs to be estimated
-          type: array
-          items:
-            type: string
-        state:
-          $ref: '#/components/schemas/ScanEstimationState'
-        startTime:
-          type: string
-          format: date-time
-        endTime:
-          type: string
-          format: date-time
-        assetScanEstimations:
-          description: AssetScanEstimations which make up this ScanEstimation
-          type: array
-          items:
-            $ref: '#/components/schemas/AssetScanEstimationRelationship'
-        scanTemplate:
-          $ref: '#/components/schemas/ScanTemplate'
-        summary:
-          $ref: '#/components/schemas/ScanEstimationSummary'
-        revision:
-          type: integer
-        ttlSecondsAfterFinished:
-          description: The duration in seconds this resource should last until it is deleted.
-          x-go-name: TTLSecondsAfterFinished
-          type: integer
-        deleteAfter:
-          description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
-            This should not be set by the user, but use ttlSecondsAfterFinished instead.
-          type: string
-          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            assetIDs:
+              description: List of asset IDs to be estimated
+              type: array
+              items:
+                type: string
+            state:
+              $ref: '#/components/schemas/ScanEstimationState'
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            assetScanEstimations:
+              description: AssetScanEstimations which make up this ScanEstimation
+              type: array
+              items:
+                $ref: '#/components/schemas/AssetScanEstimationRelationship'
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+            summary:
+              $ref: '#/components/schemas/ScanEstimationSummary'
+            revision:
+              type: integer
+            ttlSecondsAfterFinished:
+              description: The duration in seconds this resource should last until it is deleted.
+              x-go-name: TTLSecondsAfterFinished
+              type: integer
+            deleteAfter:
+              description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+                This should not be set by the user, but use ttlSecondsAfterFinished instead.
+              type: string
+              format: date-time
 
     ## TODO fill out the rest of the fields for the ScanEstimationRelationship.
     ScanEstimationRelationship:
@@ -3374,36 +3401,39 @@ components:
 
     AssetScanEstimation:
       type: object
-      properties:
-        id:
-          type: string
-        asset:
-          $ref: '#/components/schemas/AssetRelationship'
-        scanEstimation:
-          $ref: '#/components/schemas/ScanEstimationRelationship'
-        state:
-          $ref: '#/components/schemas/AssetScanEstimationState'
-        estimation:
-          $ref: '#/components/schemas/Estimation'
-        assetScanTemplate:
-          $ref: '#/components/schemas/AssetScanTemplate'
-        revision:
-          type: integer
-        startTime:
-          type: string
-          format: date-time
-        endTime:
-          type: string
-          format: date-time
-        ttlSecondsAfterFinished:
-          x-go-name: TTLSecondsAfterFinished
-          description: The duration in seconds this resource should last until it is deleted.
-          type: integer
-        deleteAfter:
-          description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
-            This should not be set by the user, but use ttlSecondsAfterFinished instead.
-          type: string
-          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            scanEstimation:
+              $ref: '#/components/schemas/ScanEstimationRelationship'
+            state:
+              $ref: '#/components/schemas/AssetScanEstimationState'
+            estimation:
+              $ref: '#/components/schemas/Estimation'
+            assetScanTemplate:
+              $ref: '#/components/schemas/AssetScanTemplate'
+            revision:
+              type: integer
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            ttlSecondsAfterFinished:
+              x-go-name: TTLSecondsAfterFinished
+              description: The duration in seconds this resource should last until it is deleted.
+              type: integer
+            deleteAfter:
+              description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+                This should not be set by the user, but use ttlSecondsAfterFinished instead.
+              type: string
+              format: date-time
 
     ## TODO fill out the rest of the fields for the AssetScanEstimationRelationship.
     AssetScanEstimationRelationship:
