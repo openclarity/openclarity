@@ -67,12 +67,12 @@ func New(_ *envtypes.Config) (*DockerEnv, error) {
 		return nil, err
 	}
 
-	project, err := cli.ProjectFromOptions(projOpts)
+	err = cli.WithOsEnv(projOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = cli.WithOsEnv(projOpts)
+	project, err := cli.ProjectFromOptions(projOpts)
 	if err != nil {
 		return nil, err
 	}
