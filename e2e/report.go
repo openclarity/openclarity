@@ -24,7 +24,7 @@ import (
 	"github.com/onsi/gomega"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/e2e/testenv"
+	"github.com/openclarity/vmclarity/e2e/testenv/types"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -45,7 +45,7 @@ type ReportFailedConfig struct {
 }
 
 // ReportFailed gathers relevant API data and docker service logs for debugging purposes.
-func ReportFailed(ctx ginkgo.SpecContext, testEnv *testenv.Environment, client *backendclient.BackendClient, config *ReportFailedConfig) {
+func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *backendclient.BackendClient, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println("------------------------------")
 
 	DumpAPIData(ctx, client, config)
@@ -112,7 +112,7 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *backendclient.BackendClient, co
 }
 
 // DumpServiceLogs prints service logs since the test started until it failed.
-func DumpServiceLogs(ctx ginkgo.SpecContext, testEnv *testenv.Environment, config *ReportFailedConfig) {
+func DumpServiceLogs(ctx ginkgo.SpecContext, testEnv types.Environment, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println(formatter.F("{{red}}[FAILED] Report Service Logs:{{/}}"))
 
 	if len(config.services) == 0 {
