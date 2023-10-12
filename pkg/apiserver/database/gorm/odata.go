@@ -466,6 +466,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanSummary"},
 			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
+			},
 		},
 	},
 	"ScanSummary": {
@@ -509,6 +516,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					FieldType:            odatasql.RelationshipFieldType,
 					RelationshipSchema:   providerSchemaName,
 					RelationshipProperty: "id",
+				},
+			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
 				},
 			},
 		},
@@ -639,6 +653,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"scanTemplate": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanTemplate"},
+			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
 			},
 		},
 	},
@@ -823,6 +844,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					"RootkitFindingInfo":          "Rootkit",
 					"ExploitFindingInfo":          "Exploit",
 					"InfoFinderFindingInfo":       "InfoFinder",
+				},
+			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
 				},
 			},
 		},
@@ -1052,6 +1080,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"ScanEstimationSummary"},
 			},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
+			},
 		},
 	},
 	"Estimation": {
@@ -1114,6 +1149,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"endTime":                 odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"deleteAfter":             odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"ttlSecondsAfterFinished": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"annotations": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType:           odatasql.ComplexFieldType,
+					ComplexFieldSchemas: []string{"Annotation"},
+				},
+			},
 		},
 	},
 	"AssetScanEstimationState": {
