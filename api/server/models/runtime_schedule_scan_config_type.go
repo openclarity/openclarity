@@ -10,7 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -68,7 +67,7 @@ func UnmarshalRuntimeScheduleScanConfigTypeSlice(reader io.Reader, consumer runt
 // UnmarshalRuntimeScheduleScanConfigType unmarshals polymorphic RuntimeScheduleScanConfigType
 func UnmarshalRuntimeScheduleScanConfigType(reader io.Reader, consumer runtime.Consumer) (RuntimeScheduleScanConfigType, error) {
 	// we need to read this twice, so first into a buffer
-	data, err := ioutil.ReadAll(reader)
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
