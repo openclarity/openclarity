@@ -22,16 +22,10 @@ linters-settings:
       - github.com/docker/docker
       - oras.land/oras-go
       # End-to-end testing
-      - github.com/spdx/tools-golang
       - go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc
       - go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
       - go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
-      - cloud.google.com/go
       - github.com/cucumber/godog
-      - k8s.io/api
-      - k8s.io/apimachinery
-      - k8s.io/client-go
-      - github.com/docker/cli
 
   gosec:
     # To specify a set of rules to explicitly exclude.
