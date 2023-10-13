@@ -7,7 +7,6 @@ DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 VMCLARITY_TOOLS_BASE ?=
-GO_VERSION = 1.20
 
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_DIR := $(ROOT_DIR)/bin
@@ -222,7 +221,7 @@ TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
 
 .PHONY: $(TIDYGOMODULES)
 $(TIDYGOMODULES):
-	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$(GO_VERSION)
+	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$$(cat .go-version)
 
 .PHONY: gomod-tidy
 gomod-tidy: $(TIDYGOMODULES)
