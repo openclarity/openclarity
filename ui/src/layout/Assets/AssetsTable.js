@@ -8,9 +8,12 @@ import { APIS } from 'utils/systemConsts';
 import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, getAssetColumnsFiltersConfig,
     findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, formatTagsToStringsList, formatDate} from 'utils/utils';
 import { useFilterDispatch, useFilterState, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
+import { getAssetName } from './utils';
 
 const TABLE_TITLE = "assets";
 
+const NAME_SORT_IDS = ["assetInfo.instanceID", "assetInfo.podName", "assetInfo.dirName", "assetInfo.name", "assetInfo.containerName"];
+const LABEL_SORT_IDS = ["assetInfo.tags", "assetInfo.labels"];
 const LOCATION_SORT_IDS = ["assetInfo.location"];
 
 const ASSETS_FILTER_TYPE = FILTER_TYPES.ASSETS;
@@ -38,18 +41,18 @@ const AssetsTable = () => {
         {
             Header: "Name",
             id: "instanceID",
-            sortIds: ["assetInfo.instanceID"],
-            accessor: "assetInfo.instanceID"
+            sortIds: NAME_SORT_IDS,
+            accessor: (original) => getAssetName(original.assetInfo),
         },
         {
             Header: "Labels",
             id: "tags",
-            sortIds: ["assetInfo.tags"],
+            sortIds: LABEL_SORT_IDS,
             Cell: ({row}) => {
-                const {tags} = row.original.assetInfo;
+                const {tags, labels} = row.original.assetInfo;
                 
                 return (
-                    <ExpandableList items={formatTagsToStringsList(tags)} withTagWrap />
+                    <ExpandableList items={formatTagsToStringsList(tags ?? labels)} withTagWrap />
                 )
             },
             alignToTop: true
