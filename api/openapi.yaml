@@ -2223,7 +2223,7 @@ components:
           type: string
         image:
           $ref: '#/components/schemas/ContainerImageInfo' 
-        id:
+        containerID:
           type: string
         createdAt:
           type: string
@@ -2235,16 +2235,23 @@ components:
           nullable: true
       required:
         - objectType
+        - containerID
 
     ContainerImageInfo:
       type: object
       properties:
         objectType:
           type: string
-        id:
+        imageID:
           type: string
-        name:
-          type: string
+        repoTags:
+          type: array
+          items:
+            type: string
+        repoDigests:
+          type: array
+          items:
+            type: string
         labels:
           type: array
           items:
@@ -2257,7 +2264,8 @@ components:
         size:
           type: integer
       required:
-        - objectType 
+        - objectType
+        - imageID
 
     DirInfo:
       type: object

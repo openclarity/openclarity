@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"path"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -231,11 +230,11 @@ func containerInfoToAssetInfo(info backendmodels.ContainerInfo) (*models.AssetIn
 }
 
 func containerImageInfoToAssetInfo(info backendmodels.ContainerImageInfo) (*models.AssetInfo, error) {
-	repo, name := path.Split(*info.Name)
-	repo = strings.TrimSuffix(repo, "/")
+	location, _ := info.GetFirstRepoDigest()
+
 	return &models.AssetInfo{
-		Name:     &name,
-		Location: &repo,
+		Name:     &info.ImageID,
+		Location: &location,
 		Type:     utils.PointerTo(models.ContainerImage),
 	}, nil
 }

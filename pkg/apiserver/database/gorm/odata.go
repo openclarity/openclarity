@@ -571,7 +571,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"ContainerImageInfo": {
 		Fields: odatasql.Schema{
 			"architecture": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"id":           odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"imageID":      odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"labels": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
 				CollectionItemMeta: &odatasql.FieldMeta{
@@ -579,7 +579,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Tag"},
 				},
 			},
-			"name":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"repoTags": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			},
+			"repoDigests": odatasql.FieldMeta{
+				FieldType:          odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			},
 			"objectType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"os":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"size":       odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
@@ -589,7 +596,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		Fields: odatasql.Schema{
 			"containerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"createdAt":     odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
-			"id":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"containerID":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"image":         odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"labels": odatasql.FieldMeta{
 				FieldType: odatasql.CollectionFieldType,
