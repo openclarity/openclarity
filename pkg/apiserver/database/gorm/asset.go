@@ -305,10 +305,10 @@ func (t *AssetsTableHandler) checkUniqueness(asset models.Asset) (*models.Asset,
 			*asset.Id, *info.DirName, *info.Location,
 		)
 	case models.ContainerInfo:
-		filter = fmt.Sprintf("id ne '%s' and assetInfo/id eq '%s'", *asset.Id, *info.Id)
+		filter = fmt.Sprintf("id ne '%s' and assetInfo/containerID eq '%s'", *asset.Id, info.ContainerID)
 
 	case models.ContainerImageInfo:
-		filter = fmt.Sprintf("id ne '%s' and assetInfo/id eq '%s'", *asset.Id, *info.Id)
+		filter = fmt.Sprintf("id ne '%s' and assetInfo/imageID eq '%s'", *asset.Id, info.ImageID)
 
 	default:
 		return nil, fmt.Errorf("asset type is not supported (%T): %w", discriminator, err)

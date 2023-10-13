@@ -272,8 +272,8 @@ func Test_getAssetInfo(t *testing.T) {
 				asset: createContainerImageInfo(t),
 			},
 			want: &models.AssetInfo{
-				Location: utils.PointerTo("ghcr.io/openclarity"),
-				Name:     utils.PointerTo("vmclarity-orchestrator"),
+				Location: utils.PointerTo("ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"),
+				Name:     utils.PointerTo("sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab"),
 				Type:     utils.PointerTo(models.ContainerImage),
 			},
 			wantErr: false,
@@ -309,7 +309,7 @@ func createContainerInfo(t *testing.T) *backendmodels.AssetType {
 	t.Helper()
 	info := backendmodels.AssetType{}
 	err := info.FromContainerInfo(backendmodels.ContainerInfo{
-		Id:            utils.PointerTo("d66da925d976b8caf60ea59c5ec75b1950f87d506144942cdbf10061052a8088"),
+		ContainerID:   "d66da925d976b8caf60ea59c5ec75b1950f87d506144942cdbf10061052a8088",
 		ContainerName: utils.PointerTo("hungry_mcclintock"),
 		Location:      utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
 	})
@@ -321,7 +321,9 @@ func createContainerImageInfo(t *testing.T) *backendmodels.AssetType {
 	t.Helper()
 	info := backendmodels.AssetType{}
 	err := info.FromContainerImageInfo(backendmodels.ContainerImageInfo{
-		Name: utils.PointerTo("ghcr.io/openclarity/vmclarity-orchestrator"),
+		ImageID:     "sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab",
+		RepoTags:    utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator:latest"}),
+		RepoDigests: utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
 	})
 	assert.NilError(t, err)
 	return &info
