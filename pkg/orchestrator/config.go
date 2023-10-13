@@ -179,6 +179,9 @@ func LoadConfig() (*Config, error) {
 		providerKind = models.AWS
 	}
 
+	// TODO this is a bug since it is being resolved to "apiserver" on all of our providers installations.
+	// It will not work since the dns resolution will fail in Providers that are not docker where the cli and the server are on different machines.
+	// Currently it is working only since the provider and the api server are on the same host, so docker is taking care of the dns resolution.
 	apiServerHost := viper.GetString(APIServerHost)
 	apiServerPort := viper.GetInt(APIServerPort)
 
