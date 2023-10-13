@@ -512,20 +512,21 @@ type CloudProvider string
 
 // ContainerImageInfo defines model for ContainerImageInfo.
 type ContainerImageInfo struct {
-	Architecture *string `json:"architecture,omitempty"`
-	Id           *string `json:"id,omitempty"`
-	Labels       *[]Tag  `json:"labels"`
-	Name         *string `json:"name,omitempty"`
-	ObjectType   string  `json:"objectType"`
-	Os           *string `json:"os,omitempty"`
-	Size         *int    `json:"size,omitempty"`
+	Architecture *string   `json:"architecture,omitempty"`
+	ImageID      string    `json:"imageID"`
+	Labels       *[]Tag    `json:"labels"`
+	ObjectType   string    `json:"objectType"`
+	Os           *string   `json:"os,omitempty"`
+	RepoDigests  *[]string `json:"repoDigests,omitempty"`
+	RepoTags     *[]string `json:"repoTags,omitempty"`
+	Size         *int      `json:"size,omitempty"`
 }
 
 // ContainerInfo defines model for ContainerInfo.
 type ContainerInfo struct {
+	ContainerID   string              `json:"containerID"`
 	ContainerName *string             `json:"containerName,omitempty"`
 	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
-	Id            *string             `json:"id,omitempty"`
 	Image         *ContainerImageInfo `json:"image,omitempty"`
 	Labels        *[]Tag              `json:"labels"`
 	Location      *string             `json:"location,omitempty"`

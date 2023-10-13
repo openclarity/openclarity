@@ -152,6 +152,8 @@ export const getAssetColumnsFiltersConfig = (props) => {
     
     const ASSET_TYPE_ITEMS = [
         {value: "VMInfo", label: "VMInfo"},
+        {value: "ContainerInfo", label: "ContainerInfo"},
+        {value: "ContainerImageInfo", label: "ContainerImageInfo"},
         {value: "PodInfo", label: "PodInfo"},
         {value: "DirInfo", label: "DirInfo"}
     ]
