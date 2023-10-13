@@ -166,6 +166,7 @@ secrets.
 | orchestrator.containerSecurityContext.runAsNonRoot | bool | `true` | Whether the containers should run as a non-root user |
 | orchestrator.containerSecurityContext.runAsUser | int | `1001` | User ID which the containers should run as |
 | orchestrator.deleteJobPolicy | string | `"Always"` | Global policy used to determine when to clean up an AssetScan. Possible options are: Always - All AssetScans are cleaned up OnSuccess - Only Successful AssetScans are cleaned up, Failed ones are left for debugging Never - No AssetScans are cleaned up |
+| orchestrator.exploitsDBAddress | string | `""` | Address that scanners can use to reach back to the Exploits server |
 | orchestrator.freshclamMirrorAddress | string | `""` | Address that scanenrs can use to reach the freshclam mirror |
 | orchestrator.gcp.projectId | string | `""` | Project ID for discovery and scanning |
 | orchestrator.gcp.scannerMachineType | string | `""` | Scanner Machine type |

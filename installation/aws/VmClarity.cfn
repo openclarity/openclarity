@@ -485,6 +485,8 @@ Resources:
                     SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                     # API Server Address for the Scanner to connect to
                     SCANNER_VMCLARITY_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
+                    # Exploits DB server address
+                    EXPLOIT_DB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
                     # Trivy server address
                     TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
                     # Grype server address

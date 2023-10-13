@@ -71,6 +71,8 @@ spec:
               value: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
             - name: SCANNER_VMCLARITY_APISERVER_ADDRESS
               value: {{ .Values.orchestrator.scannerApiServerAddress }}
+            - name: EXPLOIT_DB_ADDRESS
+              value: {{ .Values.orchestrator.exploitsDBAddress }}
             - name: TRIVY_SERVER_ADDRESS
               value: {{ .Values.orchestrator.trivyServerAddress }}
             - name: GRYPE_SERVER_ADDRESS

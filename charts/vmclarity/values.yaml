@@ -144,6 +144,9 @@ orchestrator:
   # -- Address that scanners can use to reach back to the API server
   scannerApiserverAddress: ""
 
+  # -- Address that scanners can use to reach back to the Exploits server
+  exploitsDBAddress: ""
+
   # -- Address that scanners can use to reach trivy server
   trivyServerAddress: ""
 
