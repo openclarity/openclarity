@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.22.6.54827",
-      "templateHash": "17694030931778971546"
+      "templateHash": "2110931051111156252"
     }
   },
   "parameters": {
@@ -104,7 +104,7 @@
     },
     "exploitDBContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.3",
+      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.4",
       "metadata": {
         "description": "Exploit DB Container Image"
       }
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.22.6.54827",
-              "templateHash": "6352993321275244425"
+              "templateHash": "10691550025999765701"
             }
           },
           "parameters": {
@@ -674,7 +674,7 @@
             },
             "exploitDBContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.3",
+              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.4",
               "metadata": {
                 "description": "Exploit DB Container Image"
               }
