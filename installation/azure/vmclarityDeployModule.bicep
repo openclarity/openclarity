@@ -52,7 +52,7 @@ param trivyServerContainerImage string = 'docker.io/aquasec/trivy:0.41.0'
 param grypeServerContainerImage string = 'ghcr.io/openclarity/grype-server:v0.5.0'
 
 @description ('Exploit DB Container Image')
-param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0.2.3'
+param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0.2.4'
 
 @description ('Freshclam Mirror Container Image')
 param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.1.0'
