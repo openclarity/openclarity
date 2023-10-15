@@ -89,7 +89,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${ExploitDBServerContainerImage:-ghcr.io/openclarity/exploit-db-server:v0.2.3}
+    image: ${ExploitDBServerContainerImage:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
     ports:
       - "1326:1326"
     deploy:
