@@ -7,7 +7,7 @@ export function getAssetName(assetInfo) {
         case "DirInfo":
             return assetInfo.dirName;
         case "ContainerImageInfo":
-            return assetInfo.name;
+            return assetInfo.imageID;
         case "ContainerInfo":
             return assetInfo.containerName;
         default:

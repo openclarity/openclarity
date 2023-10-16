@@ -67,7 +67,7 @@ const AssetsTable = () => {
             Header: "Location",
             id: "location",
             sortIds: LOCATION_SORT_IDS,
-            accessor: "assetInfo.location"
+            accessor: (original) => original.assetInfo.location || original.assetInfo.repoDigests?.[0],
         },
         {
             Header: "Last Seen",
