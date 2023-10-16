@@ -29,10 +29,10 @@ func NewGetNamespaces(ctx *middleware.Context, handler GetNamespacesHandler) *Ge
 	return &GetNamespaces{Context: ctx, Handler: handler}
 }
 
-/* GetNamespaces swagger:route GET /namespaces getNamespaces
+/*
+	GetNamespaces swagger:route GET /namespaces getNamespaces
 
 Get list of namespaces in kubernetes cluster
-
 */
 type GetNamespaces struct {
 	Context *middleware.Context

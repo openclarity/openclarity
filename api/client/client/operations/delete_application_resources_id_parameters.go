@@ -52,10 +52,12 @@ func NewDeleteApplicationResourcesIDParamsWithHTTPClient(client *http.Client) *D
 	}
 }
 
-/* DeleteApplicationResourcesIDParams contains all the parameters to send to the API endpoint
-   for the delete application resources ID operation.
+/*
+DeleteApplicationResourcesIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the delete application resources ID operation.
+
+	Typically these are written to a http.Request.
 */
 type DeleteApplicationResourcesIDParams struct {
 

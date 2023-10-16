@@ -52,10 +52,12 @@ func NewGetPackagesIDParamsWithHTTPClient(client *http.Client) *GetPackagesIDPar
 	}
 }
 
-/* GetPackagesIDParams contains all the parameters to send to the API endpoint
-   for the get packages ID operation.
+/*
+GetPackagesIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get packages ID operation.
+
+	Typically these are written to a http.Request.
 */
 type GetPackagesIDParams struct {
 

@@ -52,10 +52,12 @@ func NewGetRuntimeScanProgressParamsWithHTTPClient(client *http.Client) *GetRunt
 	}
 }
 
-/* GetRuntimeScanProgressParams contains all the parameters to send to the API endpoint
-   for the get runtime scan progress operation.
+/*
+GetRuntimeScanProgressParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get runtime scan progress operation.
+
+	Typically these are written to a http.Request.
 */
 type GetRuntimeScanProgressParams struct {
 	timeout    time.Duration

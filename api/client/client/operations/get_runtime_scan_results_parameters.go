@@ -52,10 +52,12 @@ func NewGetRuntimeScanResultsParamsWithHTTPClient(client *http.Client) *GetRunti
 	}
 }
 
-/* GetRuntimeScanResultsParams contains all the parameters to send to the API endpoint
-   for the get runtime scan results operation.
+/*
+GetRuntimeScanResultsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get runtime scan results operation.
+
+	Typically these are written to a http.Request.
 */
 type GetRuntimeScanResultsParams struct {
 

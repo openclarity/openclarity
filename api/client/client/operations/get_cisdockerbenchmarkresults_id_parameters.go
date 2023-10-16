@@ -52,10 +52,12 @@ func NewGetCisdockerbenchmarkresultsIDParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/* GetCisdockerbenchmarkresultsIDParams contains all the parameters to send to the API endpoint
-   for the get cisdockerbenchmarkresults ID operation.
+/*
+GetCisdockerbenchmarkresultsIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get cisdockerbenchmarkresults ID operation.
+
+	Typically these are written to a http.Request.
 */
 type GetCisdockerbenchmarkresultsIDParams struct {
 

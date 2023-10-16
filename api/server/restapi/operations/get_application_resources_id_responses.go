@@ -16,7 +16,8 @@ import (
 // GetApplicationResourcesIDOKCode is the HTTP code returned for type GetApplicationResourcesIDOK
 const GetApplicationResourcesIDOKCode int = 200
 
-/*GetApplicationResourcesIDOK Success
+/*
+GetApplicationResourcesIDOK Success
 
 swagger:response getApplicationResourcesIdOK
 */
@@ -57,7 +58,8 @@ func (o *GetApplicationResourcesIDOK) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
-/*GetApplicationResourcesIDDefault unknown error
+/*
+GetApplicationResourcesIDDefault unknown error
 
 swagger:response getApplicationResourcesIdDefault
 */

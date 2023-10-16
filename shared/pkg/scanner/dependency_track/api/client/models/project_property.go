@@ -124,6 +124,8 @@ func (m *ProjectProperty) validateProject(formats strfmt.Registry) error {
 		if err := m.Project.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -242,9 +244,16 @@ func (m *ProjectProperty) ContextValidate(ctx context.Context, formats strfmt.Re
 func (m *ProjectProperty) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Project != nil {
+
+		if swag.IsZero(m.Project) { // not required
+			return nil
+		}
+
 		if err := m.Project.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}

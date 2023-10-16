@@ -16,7 +16,8 @@ import (
 // GetPackagesIDOKCode is the HTTP code returned for type GetPackagesIDOK
 const GetPackagesIDOKCode int = 200
 
-/*GetPackagesIDOK Success
+/*
+GetPackagesIDOK Success
 
 swagger:response getPackagesIdOK
 */
@@ -60,7 +61,8 @@ func (o *GetPackagesIDOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetPackagesIDNotFoundCode is the HTTP code returned for type GetPackagesIDNotFound
 const GetPackagesIDNotFoundCode int = 404
 
-/*GetPackagesIDNotFound Package ID not found.
+/*
+GetPackagesIDNotFound Package ID not found.
 
 swagger:response getPackagesIdNotFound
 */
@@ -81,7 +83,8 @@ func (o *GetPackagesIDNotFound) WriteResponse(rw http.ResponseWriter, producer r
 	rw.WriteHeader(404)
 }
 
-/*GetPackagesIDDefault unknown error
+/*
+GetPackagesIDDefault unknown error
 
 swagger:response getPackagesIdDefault
 */

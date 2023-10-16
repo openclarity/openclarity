@@ -46,7 +46,8 @@ func NewPutSbomDBResourceHashCreated() *PutSbomDBResourceHashCreated {
 	return &PutSbomDBResourceHashCreated{}
 }
 
-/* PutSbomDBResourceHashCreated describes a response with status code 201, with default header values.
+/*
+PutSbomDBResourceHashCreated describes a response with status code 201, with default header values.
 
 SBOM created in DB.
 */
@@ -54,9 +55,44 @@ type PutSbomDBResourceHashCreated struct {
 	Payload *models.SuccessResponse
 }
 
+// IsSuccess returns true when this put sbom d b resource hash created response has a 2xx status code
+func (o *PutSbomDBResourceHashCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this put sbom d b resource hash created response has a 3xx status code
+func (o *PutSbomDBResourceHashCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put sbom d b resource hash created response has a 4xx status code
+func (o *PutSbomDBResourceHashCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this put sbom d b resource hash created response has a 5xx status code
+func (o *PutSbomDBResourceHashCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put sbom d b resource hash created response a status code equal to that given
+func (o *PutSbomDBResourceHashCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the put sbom d b resource hash created response
+func (o *PutSbomDBResourceHashCreated) Code() int {
+	return 201
+}
+
 func (o *PutSbomDBResourceHashCreated) Error() string {
 	return fmt.Sprintf("[PUT /sbomDB/{resourceHash}][%d] putSbomDBResourceHashCreated  %+v", 201, o.Payload)
 }
+
+func (o *PutSbomDBResourceHashCreated) String() string {
+	return fmt.Sprintf("[PUT /sbomDB/{resourceHash}][%d] putSbomDBResourceHashCreated  %+v", 201, o.Payload)
+}
+
 func (o *PutSbomDBResourceHashCreated) GetPayload() *models.SuccessResponse {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewPutSbomDBResourceHashDefault(code int) *PutSbomDBResourceHashDefault {
 	}
 }
 
-/* PutSbomDBResourceHashDefault describes a response with status code -1, with default header values.
+/*
+PutSbomDBResourceHashDefault describes a response with status code -1, with default header values.
 
 Unknown error
 */
@@ -88,6 +125,31 @@ type PutSbomDBResourceHashDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this put sbom d b resource hash default response has a 2xx status code
+func (o *PutSbomDBResourceHashDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this put sbom d b resource hash default response has a 3xx status code
+func (o *PutSbomDBResourceHashDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this put sbom d b resource hash default response has a 4xx status code
+func (o *PutSbomDBResourceHashDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this put sbom d b resource hash default response has a 5xx status code
+func (o *PutSbomDBResourceHashDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this put sbom d b resource hash default response a status code equal to that given
+func (o *PutSbomDBResourceHashDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the put sbom d b resource hash default response
@@ -98,6 +160,11 @@ func (o *PutSbomDBResourceHashDefault) Code() int {
 func (o *PutSbomDBResourceHashDefault) Error() string {
 	return fmt.Sprintf("[PUT /sbomDB/{resourceHash}][%d] PutSbomDBResourceHash default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PutSbomDBResourceHashDefault) String() string {
+	return fmt.Sprintf("[PUT /sbomDB/{resourceHash}][%d] PutSbomDBResourceHash default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PutSbomDBResourceHashDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

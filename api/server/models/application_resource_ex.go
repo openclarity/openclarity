@@ -48,6 +48,8 @@ func (m *ApplicationResourceEx) validateApplicationResource(formats strfmt.Regis
 		if err := m.ApplicationResource.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("applicationResource")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("applicationResource")
 			}
 			return err
 		}
@@ -73,9 +75,16 @@ func (m *ApplicationResourceEx) ContextValidate(ctx context.Context, formats str
 func (m *ApplicationResourceEx) contextValidateApplicationResource(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ApplicationResource != nil {
+
+		if swag.IsZero(m.ApplicationResource) { // not required
+			return nil
+		}
+
 		if err := m.ApplicationResource.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("applicationResource")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("applicationResource")
 			}
 			return err
 		}

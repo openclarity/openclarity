@@ -52,10 +52,12 @@ func NewGetDashboardVulnerabilitiesWithFixParamsWithHTTPClient(client *http.Clie
 	}
 }
 
-/* GetDashboardVulnerabilitiesWithFixParams contains all the parameters to send to the API endpoint
-   for the get dashboard vulnerabilities with fix operation.
+/*
+GetDashboardVulnerabilitiesWithFixParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get dashboard vulnerabilities with fix operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDashboardVulnerabilitiesWithFixParams struct {
 	timeout    time.Duration

@@ -29,10 +29,10 @@ func NewPutRuntimeScanStart(ctx *middleware.Context, handler PutRuntimeScanStart
 	return &PutRuntimeScanStart{Context: ctx, Handler: handler}
 }
 
-/* PutRuntimeScanStart swagger:route PUT /runtime/scan/start putRuntimeScanStart
+/*
+	PutRuntimeScanStart swagger:route PUT /runtime/scan/start putRuntimeScanStart
 
 Schedule a runtime scan
-
 */
 type PutRuntimeScanStart struct {
 	Context *middleware.Context

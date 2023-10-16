@@ -52,10 +52,12 @@ func NewGetApplicationResourcesIDParamsWithHTTPClient(client *http.Client) *GetA
 	}
 }
 
-/* GetApplicationResourcesIDParams contains all the parameters to send to the API endpoint
-   for the get application resources ID operation.
+/*
+GetApplicationResourcesIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get application resources ID operation.
+
+	Typically these are written to a http.Request.
 */
 type GetApplicationResourcesIDParams struct {
 

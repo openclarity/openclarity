@@ -52,10 +52,12 @@ func NewGetSbomDBResourceHashParamsWithHTTPClient(client *http.Client) *GetSbomD
 	}
 }
 
-/* GetSbomDBResourceHashParams contains all the parameters to send to the API endpoint
-   for the get sbom d b resource hash operation.
+/*
+GetSbomDBResourceHashParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get sbom d b resource hash operation.
+
+	Typically these are written to a http.Request.
 */
 type GetSbomDBResourceHashParams struct {
 

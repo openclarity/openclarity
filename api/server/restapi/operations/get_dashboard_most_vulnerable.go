@@ -29,10 +29,10 @@ func NewGetDashboardMostVulnerable(ctx *middleware.Context, handler GetDashboard
 	return &GetDashboardMostVulnerable{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardMostVulnerable swagger:route GET /dashboard/mostVulnerable getDashboardMostVulnerable
+/*
+	GetDashboardMostVulnerable swagger:route GET /dashboard/mostVulnerable getDashboardMostVulnerable
 
 Get top 5 most vulnerable applications, resources and packages
-
 */
 type GetDashboardMostVulnerable struct {
 	Context *middleware.Context

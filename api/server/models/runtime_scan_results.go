@@ -91,6 +91,8 @@ func (m *RuntimeScanResults) validateCisDockerBenchmarkCountPerLevel(formats str
 			if err := m.CisDockerBenchmarkCountPerLevel[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -110,6 +112,8 @@ func (m *RuntimeScanResults) validateCisDockerBenchmarkCounters(formats strfmt.R
 		if err := m.CisDockerBenchmarkCounters.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cisDockerBenchmarkCounters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cisDockerBenchmarkCounters")
 			}
 			return err
 		}
@@ -127,6 +131,8 @@ func (m *RuntimeScanResults) validateCounters(formats strfmt.Registry) error {
 		if err := m.Counters.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("counters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counters")
 			}
 			return err
 		}
@@ -161,6 +167,8 @@ func (m *RuntimeScanResults) validateFailures(formats strfmt.Registry) error {
 			if err := m.Failures[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("failures" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("failures" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -185,6 +193,8 @@ func (m *RuntimeScanResults) validateVulnerabilityPerSeverity(formats strfmt.Reg
 			if err := m.VulnerabilityPerSeverity[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilityPerSeverity" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilityPerSeverity" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -230,9 +240,16 @@ func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCountPerLevel(ctx 
 	for i := 0; i < len(m.CisDockerBenchmarkCountPerLevel); i++ {
 
 		if m.CisDockerBenchmarkCountPerLevel[i] != nil {
+
+			if swag.IsZero(m.CisDockerBenchmarkCountPerLevel[i]) { // not required
+				return nil
+			}
+
 			if err := m.CisDockerBenchmarkCountPerLevel[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkCountPerLevel" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -246,9 +263,16 @@ func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCountPerLevel(ctx 
 func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCounters(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CisDockerBenchmarkCounters != nil {
+
+		if swag.IsZero(m.CisDockerBenchmarkCounters) { // not required
+			return nil
+		}
+
 		if err := m.CisDockerBenchmarkCounters.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cisDockerBenchmarkCounters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cisDockerBenchmarkCounters")
 			}
 			return err
 		}
@@ -260,9 +284,16 @@ func (m *RuntimeScanResults) contextValidateCisDockerBenchmarkCounters(ctx conte
 func (m *RuntimeScanResults) contextValidateCounters(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Counters != nil {
+
+		if swag.IsZero(m.Counters) { // not required
+			return nil
+		}
+
 		if err := m.Counters.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("counters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counters")
 			}
 			return err
 		}
@@ -276,9 +307,16 @@ func (m *RuntimeScanResults) contextValidateFailures(ctx context.Context, format
 	for i := 0; i < len(m.Failures); i++ {
 
 		if m.Failures[i] != nil {
+
+			if swag.IsZero(m.Failures[i]) { // not required
+				return nil
+			}
+
 			if err := m.Failures[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("failures" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("failures" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -294,9 +332,16 @@ func (m *RuntimeScanResults) contextValidateVulnerabilityPerSeverity(ctx context
 	for i := 0; i < len(m.VulnerabilityPerSeverity); i++ {
 
 		if m.VulnerabilityPerSeverity[i] != nil {
+
+			if swag.IsZero(m.VulnerabilityPerSeverity[i]) { // not required
+				return nil
+			}
+
 			if err := m.VulnerabilityPerSeverity[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilityPerSeverity" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilityPerSeverity" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

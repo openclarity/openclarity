@@ -37,10 +37,10 @@ func NewGetApplicationResources(ctx *middleware.Context, handler GetApplicationR
 	return &GetApplicationResources{Context: ctx, Handler: handler}
 }
 
-/* GetApplicationResources swagger:route GET /applicationResources getApplicationResources
+/*
+	GetApplicationResources swagger:route GET /applicationResources getApplicationResources
 
 Get application resources
-
 */
 type GetApplicationResources struct {
 	Context *middleware.Context
@@ -108,6 +108,8 @@ func (o *GetApplicationResourcesOKBody) validateItems(formats strfmt.Registry) e
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -146,9 +148,16 @@ func (o *GetApplicationResourcesOKBody) contextValidateItems(ctx context.Context
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

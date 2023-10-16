@@ -51,7 +51,8 @@ func NewGetApplicationResourcesOK() *GetApplicationResourcesOK {
 	return &GetApplicationResourcesOK{}
 }
 
-/* GetApplicationResourcesOK describes a response with status code 200, with default header values.
+/*
+GetApplicationResourcesOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -59,9 +60,44 @@ type GetApplicationResourcesOK struct {
 	Payload *GetApplicationResourcesOKBody
 }
 
+// IsSuccess returns true when this get application resources o k response has a 2xx status code
+func (o *GetApplicationResourcesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get application resources o k response has a 3xx status code
+func (o *GetApplicationResourcesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get application resources o k response has a 4xx status code
+func (o *GetApplicationResourcesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get application resources o k response has a 5xx status code
+func (o *GetApplicationResourcesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get application resources o k response a status code equal to that given
+func (o *GetApplicationResourcesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get application resources o k response
+func (o *GetApplicationResourcesOK) Code() int {
+	return 200
+}
+
 func (o *GetApplicationResourcesOK) Error() string {
 	return fmt.Sprintf("[GET /applicationResources][%d] getApplicationResourcesOK  %+v", 200, o.Payload)
 }
+
+func (o *GetApplicationResourcesOK) String() string {
+	return fmt.Sprintf("[GET /applicationResources][%d] getApplicationResourcesOK  %+v", 200, o.Payload)
+}
+
 func (o *GetApplicationResourcesOK) GetPayload() *GetApplicationResourcesOKBody {
 	return o.Payload
 }
@@ -85,7 +121,8 @@ func NewGetApplicationResourcesDefault(code int) *GetApplicationResourcesDefault
 	}
 }
 
-/* GetApplicationResourcesDefault describes a response with status code -1, with default header values.
+/*
+GetApplicationResourcesDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -93,6 +130,31 @@ type GetApplicationResourcesDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get application resources default response has a 2xx status code
+func (o *GetApplicationResourcesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get application resources default response has a 3xx status code
+func (o *GetApplicationResourcesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get application resources default response has a 4xx status code
+func (o *GetApplicationResourcesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get application resources default response has a 5xx status code
+func (o *GetApplicationResourcesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get application resources default response a status code equal to that given
+func (o *GetApplicationResourcesDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get application resources default response
@@ -103,6 +165,11 @@ func (o *GetApplicationResourcesDefault) Code() int {
 func (o *GetApplicationResourcesDefault) Error() string {
 	return fmt.Sprintf("[GET /applicationResources][%d] GetApplicationResources default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetApplicationResourcesDefault) String() string {
+	return fmt.Sprintf("[GET /applicationResources][%d] GetApplicationResources default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetApplicationResourcesDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }
@@ -119,7 +186,8 @@ func (o *GetApplicationResourcesDefault) readResponse(response runtime.ClientRes
 	return nil
 }
 
-/*GetApplicationResourcesOKBody get application resources o k body
+/*
+GetApplicationResourcesOKBody get application resources o k body
 swagger:model GetApplicationResourcesOKBody
 */
 type GetApplicationResourcesOKBody struct {
@@ -164,6 +232,8 @@ func (o *GetApplicationResourcesOKBody) validateItems(formats strfmt.Registry) e
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -202,9 +272,16 @@ func (o *GetApplicationResourcesOKBody) contextValidateItems(ctx context.Context
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

@@ -16,7 +16,8 @@ import (
 // GetDashboardMostVulnerableOKCode is the HTTP code returned for type GetDashboardMostVulnerableOK
 const GetDashboardMostVulnerableOKCode int = 200
 
-/*GetDashboardMostVulnerableOK Success
+/*
+GetDashboardMostVulnerableOK Success
 
 swagger:response getDashboardMostVulnerableOK
 */
@@ -57,7 +58,8 @@ func (o *GetDashboardMostVulnerableOK) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-/*GetDashboardMostVulnerableDefault unknown error
+/*
+GetDashboardMostVulnerableDefault unknown error
 
 swagger:response getDashboardMostVulnerableDefault
 */

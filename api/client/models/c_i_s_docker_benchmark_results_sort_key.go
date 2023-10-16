@@ -20,8 +20,12 @@ import (
 type CISDockerBenchmarkResultsSortKey string
 
 func NewCISDockerBenchmarkResultsSortKey(value CISDockerBenchmarkResultsSortKey) *CISDockerBenchmarkResultsSortKey {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated CISDockerBenchmarkResultsSortKey.
+func (m CISDockerBenchmarkResultsSortKey) Pointer() *CISDockerBenchmarkResultsSortKey {
+	return &m
 }
 
 const (

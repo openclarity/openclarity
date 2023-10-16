@@ -20,8 +20,12 @@ import (
 type UserInteraction string
 
 func NewUserInteraction(value UserInteraction) *UserInteraction {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated UserInteraction.
+func (m UserInteraction) Pointer() *UserInteraction {
+	return &m
 }
 
 const (

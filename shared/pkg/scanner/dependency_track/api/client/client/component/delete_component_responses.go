@@ -39,7 +39,7 @@ func (o *DeleteComponentReader) ReadResponse(response runtime.ClientResponse, co
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[DELETE /v1/component/{uuid}] deleteComponent", response, response.Code())
 	}
 }
 
@@ -48,14 +48,49 @@ func NewDeleteComponentUnauthorized() *DeleteComponentUnauthorized {
 	return &DeleteComponentUnauthorized{}
 }
 
-/* DeleteComponentUnauthorized describes a response with status code 401, with default header values.
+/*
+DeleteComponentUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type DeleteComponentUnauthorized struct {
 }
 
+// IsSuccess returns true when this delete component unauthorized response has a 2xx status code
+func (o *DeleteComponentUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete component unauthorized response has a 3xx status code
+func (o *DeleteComponentUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete component unauthorized response has a 4xx status code
+func (o *DeleteComponentUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete component unauthorized response has a 5xx status code
+func (o *DeleteComponentUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete component unauthorized response a status code equal to that given
+func (o *DeleteComponentUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the delete component unauthorized response
+func (o *DeleteComponentUnauthorized) Code() int {
+	return 401
+}
+
 func (o *DeleteComponentUnauthorized) Error() string {
+	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentUnauthorized ", 401)
+}
+
+func (o *DeleteComponentUnauthorized) String() string {
 	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentUnauthorized ", 401)
 }
 
@@ -69,14 +104,49 @@ func NewDeleteComponentForbidden() *DeleteComponentForbidden {
 	return &DeleteComponentForbidden{}
 }
 
-/* DeleteComponentForbidden describes a response with status code 403, with default header values.
+/*
+DeleteComponentForbidden describes a response with status code 403, with default header values.
 
 Access to the specified component is forbidden
 */
 type DeleteComponentForbidden struct {
 }
 
+// IsSuccess returns true when this delete component forbidden response has a 2xx status code
+func (o *DeleteComponentForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete component forbidden response has a 3xx status code
+func (o *DeleteComponentForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete component forbidden response has a 4xx status code
+func (o *DeleteComponentForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete component forbidden response has a 5xx status code
+func (o *DeleteComponentForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete component forbidden response a status code equal to that given
+func (o *DeleteComponentForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the delete component forbidden response
+func (o *DeleteComponentForbidden) Code() int {
+	return 403
+}
+
 func (o *DeleteComponentForbidden) Error() string {
+	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentForbidden ", 403)
+}
+
+func (o *DeleteComponentForbidden) String() string {
 	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentForbidden ", 403)
 }
 
@@ -90,14 +160,49 @@ func NewDeleteComponentNotFound() *DeleteComponentNotFound {
 	return &DeleteComponentNotFound{}
 }
 
-/* DeleteComponentNotFound describes a response with status code 404, with default header values.
+/*
+DeleteComponentNotFound describes a response with status code 404, with default header values.
 
 The UUID of the component could not be found
 */
 type DeleteComponentNotFound struct {
 }
 
+// IsSuccess returns true when this delete component not found response has a 2xx status code
+func (o *DeleteComponentNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete component not found response has a 3xx status code
+func (o *DeleteComponentNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete component not found response has a 4xx status code
+func (o *DeleteComponentNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete component not found response has a 5xx status code
+func (o *DeleteComponentNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete component not found response a status code equal to that given
+func (o *DeleteComponentNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the delete component not found response
+func (o *DeleteComponentNotFound) Code() int {
+	return 404
+}
+
 func (o *DeleteComponentNotFound) Error() string {
+	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentNotFound ", 404)
+}
+
+func (o *DeleteComponentNotFound) String() string {
 	return fmt.Sprintf("[DELETE /v1/component/{uuid}][%d] deleteComponentNotFound ", 404)
 }
 

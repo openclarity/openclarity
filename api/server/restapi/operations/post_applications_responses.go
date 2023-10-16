@@ -16,7 +16,8 @@ import (
 // PostApplicationsCreatedCode is the HTTP code returned for type PostApplicationsCreated
 const PostApplicationsCreatedCode int = 201
 
-/*PostApplicationsCreated New application was created.
+/*
+PostApplicationsCreated New application was created.
 
 swagger:response postApplicationsCreated
 */
@@ -60,7 +61,8 @@ func (o *PostApplicationsCreated) WriteResponse(rw http.ResponseWriter, producer
 // PostApplicationsConflictCode is the HTTP code returned for type PostApplicationsConflict
 const PostApplicationsConflictCode int = 409
 
-/*PostApplicationsConflict Application already exist.
+/*
+PostApplicationsConflict Application already exist.
 
 swagger:response postApplicationsConflict
 */
@@ -101,7 +103,8 @@ func (o *PostApplicationsConflict) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
-/*PostApplicationsDefault unknown error
+/*
+PostApplicationsDefault unknown error
 
 swagger:response postApplicationsDefault
 */

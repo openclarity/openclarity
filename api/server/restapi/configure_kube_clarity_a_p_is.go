@@ -5,10 +5,10 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
-	"strings"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 )
@@ -36,6 +36,162 @@ func configureAPI(api *operations.KubeClarityAPIsAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
+
+	if api.DeleteApplicationResourcesIDHandler == nil {
+		api.DeleteApplicationResourcesIDHandler = operations.DeleteApplicationResourcesIDHandlerFunc(func(params operations.DeleteApplicationResourcesIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.DeleteApplicationResourcesID has not yet been implemented")
+		})
+	}
+	if api.DeleteApplicationsIDHandler == nil {
+		api.DeleteApplicationsIDHandler = operations.DeleteApplicationsIDHandlerFunc(func(params operations.DeleteApplicationsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.DeleteApplicationsID has not yet been implemented")
+		})
+	}
+	if api.GetApplicationResourcesHandler == nil {
+		api.GetApplicationResourcesHandler = operations.GetApplicationResourcesHandlerFunc(func(params operations.GetApplicationResourcesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetApplicationResources has not yet been implemented")
+		})
+	}
+	if api.GetApplicationResourcesIDHandler == nil {
+		api.GetApplicationResourcesIDHandler = operations.GetApplicationResourcesIDHandlerFunc(func(params operations.GetApplicationResourcesIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetApplicationResourcesID has not yet been implemented")
+		})
+	}
+	if api.GetApplicationsHandler == nil {
+		api.GetApplicationsHandler = operations.GetApplicationsHandlerFunc(func(params operations.GetApplicationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetApplications has not yet been implemented")
+		})
+	}
+	if api.GetApplicationsIDHandler == nil {
+		api.GetApplicationsIDHandler = operations.GetApplicationsIDHandlerFunc(func(params operations.GetApplicationsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetApplicationsID has not yet been implemented")
+		})
+	}
+	if api.GetCisdockerbenchmarkresultsIDHandler == nil {
+		api.GetCisdockerbenchmarkresultsIDHandler = operations.GetCisdockerbenchmarkresultsIDHandlerFunc(func(params operations.GetCisdockerbenchmarkresultsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetCisdockerbenchmarkresultsID has not yet been implemented")
+		})
+	}
+	if api.GetDashboardCountersHandler == nil {
+		api.GetDashboardCountersHandler = operations.GetDashboardCountersHandlerFunc(func(params operations.GetDashboardCountersParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardCounters has not yet been implemented")
+		})
+	}
+	if api.GetDashboardMostVulnerableHandler == nil {
+		api.GetDashboardMostVulnerableHandler = operations.GetDashboardMostVulnerableHandlerFunc(func(params operations.GetDashboardMostVulnerableParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardMostVulnerable has not yet been implemented")
+		})
+	}
+	if api.GetDashboardPackagesPerLanguageHandler == nil {
+		api.GetDashboardPackagesPerLanguageHandler = operations.GetDashboardPackagesPerLanguageHandlerFunc(func(params operations.GetDashboardPackagesPerLanguageParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardPackagesPerLanguage has not yet been implemented")
+		})
+	}
+	if api.GetDashboardPackagesPerLicenseHandler == nil {
+		api.GetDashboardPackagesPerLicenseHandler = operations.GetDashboardPackagesPerLicenseHandlerFunc(func(params operations.GetDashboardPackagesPerLicenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardPackagesPerLicense has not yet been implemented")
+		})
+	}
+	if api.GetDashboardTrendsVulnerabilitiesHandler == nil {
+		api.GetDashboardTrendsVulnerabilitiesHandler = operations.GetDashboardTrendsVulnerabilitiesHandlerFunc(func(params operations.GetDashboardTrendsVulnerabilitiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardTrendsVulnerabilities has not yet been implemented")
+		})
+	}
+	if api.GetDashboardVulnerabilitiesWithFixHandler == nil {
+		api.GetDashboardVulnerabilitiesWithFixHandler = operations.GetDashboardVulnerabilitiesWithFixHandlerFunc(func(params operations.GetDashboardVulnerabilitiesWithFixParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetDashboardVulnerabilitiesWithFix has not yet been implemented")
+		})
+	}
+	if api.GetNamespacesHandler == nil {
+		api.GetNamespacesHandler = operations.GetNamespacesHandlerFunc(func(params operations.GetNamespacesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetNamespaces has not yet been implemented")
+		})
+	}
+	if api.GetPackagesHandler == nil {
+		api.GetPackagesHandler = operations.GetPackagesHandlerFunc(func(params operations.GetPackagesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetPackages has not yet been implemented")
+		})
+	}
+	if api.GetPackagesIDHandler == nil {
+		api.GetPackagesIDHandler = operations.GetPackagesIDHandlerFunc(func(params operations.GetPackagesIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetPackagesID has not yet been implemented")
+		})
+	}
+	if api.GetPackagesIDApplicationResourcesHandler == nil {
+		api.GetPackagesIDApplicationResourcesHandler = operations.GetPackagesIDApplicationResourcesHandlerFunc(func(params operations.GetPackagesIDApplicationResourcesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetPackagesIDApplicationResources has not yet been implemented")
+		})
+	}
+	if api.GetRuntimeQuickscanConfigHandler == nil {
+		api.GetRuntimeQuickscanConfigHandler = operations.GetRuntimeQuickscanConfigHandlerFunc(func(params operations.GetRuntimeQuickscanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRuntimeQuickscanConfig has not yet been implemented")
+		})
+	}
+	if api.GetRuntimeScanProgressHandler == nil {
+		api.GetRuntimeScanProgressHandler = operations.GetRuntimeScanProgressHandlerFunc(func(params operations.GetRuntimeScanProgressParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRuntimeScanProgress has not yet been implemented")
+		})
+	}
+	if api.GetRuntimeScanResultsHandler == nil {
+		api.GetRuntimeScanResultsHandler = operations.GetRuntimeScanResultsHandlerFunc(func(params operations.GetRuntimeScanResultsParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRuntimeScanResults has not yet been implemented")
+		})
+	}
+	if api.GetRuntimeScheduleScanConfigHandler == nil {
+		api.GetRuntimeScheduleScanConfigHandler = operations.GetRuntimeScheduleScanConfigHandlerFunc(func(params operations.GetRuntimeScheduleScanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRuntimeScheduleScanConfig has not yet been implemented")
+		})
+	}
+	if api.GetVulnerabilitiesHandler == nil {
+		api.GetVulnerabilitiesHandler = operations.GetVulnerabilitiesHandlerFunc(func(params operations.GetVulnerabilitiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetVulnerabilities has not yet been implemented")
+		})
+	}
+	if api.GetVulnerabilitiesVulIDPkgIDHandler == nil {
+		api.GetVulnerabilitiesVulIDPkgIDHandler = operations.GetVulnerabilitiesVulIDPkgIDHandlerFunc(func(params operations.GetVulnerabilitiesVulIDPkgIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetVulnerabilitiesVulIDPkgID has not yet been implemented")
+		})
+	}
+	if api.PostApplicationsHandler == nil {
+		api.PostApplicationsHandler = operations.PostApplicationsHandlerFunc(func(params operations.PostApplicationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostApplications has not yet been implemented")
+		})
+	}
+	if api.PostApplicationsContentAnalysisIDHandler == nil {
+		api.PostApplicationsContentAnalysisIDHandler = operations.PostApplicationsContentAnalysisIDHandlerFunc(func(params operations.PostApplicationsContentAnalysisIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostApplicationsContentAnalysisID has not yet been implemented")
+		})
+	}
+	if api.PostApplicationsVulnerabilityScanIDHandler == nil {
+		api.PostApplicationsVulnerabilityScanIDHandler = operations.PostApplicationsVulnerabilityScanIDHandlerFunc(func(params operations.PostApplicationsVulnerabilityScanIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostApplicationsVulnerabilityScanID has not yet been implemented")
+		})
+	}
+	if api.PutApplicationsIDHandler == nil {
+		api.PutApplicationsIDHandler = operations.PutApplicationsIDHandlerFunc(func(params operations.PutApplicationsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PutApplicationsID has not yet been implemented")
+		})
+	}
+	if api.PutRuntimeQuickscanConfigHandler == nil {
+		api.PutRuntimeQuickscanConfigHandler = operations.PutRuntimeQuickscanConfigHandlerFunc(func(params operations.PutRuntimeQuickscanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PutRuntimeQuickscanConfig has not yet been implemented")
+		})
+	}
+	if api.PutRuntimeScanStartHandler == nil {
+		api.PutRuntimeScanStartHandler = operations.PutRuntimeScanStartHandlerFunc(func(params operations.PutRuntimeScanStartParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PutRuntimeScanStart has not yet been implemented")
+		})
+	}
+	if api.PutRuntimeScanStopHandler == nil {
+		api.PutRuntimeScanStopHandler = operations.PutRuntimeScanStopHandlerFunc(func(params operations.PutRuntimeScanStopParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PutRuntimeScanStop has not yet been implemented")
+		})
+	}
+	if api.PutRuntimeScheduleScanConfigHandler == nil {
+		api.PutRuntimeScheduleScanConfigHandler = operations.PutRuntimeScheduleScanConfigHandlerFunc(func(params operations.PutRuntimeScheduleScanConfigParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PutRuntimeScheduleScanConfig has not yet been implemented")
+		})
+	}
 
 	api.PreServerShutdown = func() {}
 
@@ -65,25 +221,5 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return FileServerMiddleware(handler)
-}
-
-func FileServerMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			next.ServeHTTP(w, r)
-		} else if isKnownUIRoute(r.URL.Path) {
-			http.ServeFile(w, r, "./site/index.html")
-		} else {
-			http.FileServer(http.Dir("./site")).ServeHTTP(w, r)
-		}
-	})
-}
-
-func isKnownUIRoute(path string) bool {
-	return strings.HasPrefix(path, "/applications") ||
-		strings.HasPrefix(path, "/applicationResources") ||
-		strings.HasPrefix(path, "/packages") ||
-		strings.HasPrefix(path, "/vulnerabilities") ||
-		strings.HasPrefix(path, "/runtimeScan")
+	return handler
 }

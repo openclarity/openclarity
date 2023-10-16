@@ -16,7 +16,8 @@ import (
 // GetPackagesIDApplicationResourcesOKCode is the HTTP code returned for type GetPackagesIDApplicationResourcesOK
 const GetPackagesIDApplicationResourcesOKCode int = 200
 
-/*GetPackagesIDApplicationResourcesOK Success
+/*
+GetPackagesIDApplicationResourcesOK Success
 
 swagger:response getPackagesIdApplicationResourcesOK
 */
@@ -60,7 +61,8 @@ func (o *GetPackagesIDApplicationResourcesOK) WriteResponse(rw http.ResponseWrit
 // GetPackagesIDApplicationResourcesNotFoundCode is the HTTP code returned for type GetPackagesIDApplicationResourcesNotFound
 const GetPackagesIDApplicationResourcesNotFoundCode int = 404
 
-/*GetPackagesIDApplicationResourcesNotFound Package ID not found.
+/*
+GetPackagesIDApplicationResourcesNotFound Package ID not found.
 
 swagger:response getPackagesIdApplicationResourcesNotFound
 */
@@ -81,7 +83,8 @@ func (o *GetPackagesIDApplicationResourcesNotFound) WriteResponse(rw http.Respon
 	rw.WriteHeader(404)
 }
 
-/*GetPackagesIDApplicationResourcesDefault unknown error
+/*
+GetPackagesIDApplicationResourcesDefault unknown error
 
 swagger:response getPackagesIdApplicationResourcesDefault
 */

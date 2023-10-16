@@ -53,10 +53,12 @@ func NewUploadBomParamsWithHTTPClient(client *http.Client) *UploadBomParams {
 	}
 }
 
-/* UploadBomParams contains all the parameters to send to the API endpoint
-   for the upload bom operation.
+/*
+UploadBomParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the upload bom operation.
+
+	Typically these are written to a http.Request.
 */
 type UploadBomParams struct {
 

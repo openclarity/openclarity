@@ -29,10 +29,10 @@ func NewPostScanScanUUIDCisDockerBenchmarkResults(ctx *middleware.Context, handl
 	return &PostScanScanUUIDCisDockerBenchmarkResults{Context: ctx, Handler: handler}
 }
 
-/* PostScanScanUUIDCisDockerBenchmarkResults swagger:route POST /scan/{scan-uuid}/cisDockerBenchmark/results postScanScanUuidCisDockerBenchmarkResults
+/*
+	PostScanScanUUIDCisDockerBenchmarkResults swagger:route POST /scan/{scan-uuid}/cisDockerBenchmark/results postScanScanUuidCisDockerBenchmarkResults
 
 Report an image CIS docker benchmark scan for a specific scan UUID.
-
 */
 type PostScanScanUUIDCisDockerBenchmarkResults struct {
 	Context *middleware.Context

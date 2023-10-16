@@ -16,7 +16,8 @@ import (
 // GetCisdockerbenchmarkresultsIDOKCode is the HTTP code returned for type GetCisdockerbenchmarkresultsIDOK
 const GetCisdockerbenchmarkresultsIDOKCode int = 200
 
-/*GetCisdockerbenchmarkresultsIDOK Success
+/*
+GetCisdockerbenchmarkresultsIDOK Success
 
 swagger:response getCisdockerbenchmarkresultsIdOK
 */
@@ -57,7 +58,8 @@ func (o *GetCisdockerbenchmarkresultsIDOK) WriteResponse(rw http.ResponseWriter,
 	}
 }
 
-/*GetCisdockerbenchmarkresultsIDDefault unknown error
+/*
+GetCisdockerbenchmarkresultsIDDefault unknown error
 
 swagger:response getCisdockerbenchmarkresultsIdDefault
 */

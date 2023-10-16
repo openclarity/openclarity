@@ -16,7 +16,8 @@ import (
 // GetDashboardTrendsVulnerabilitiesOKCode is the HTTP code returned for type GetDashboardTrendsVulnerabilitiesOK
 const GetDashboardTrendsVulnerabilitiesOKCode int = 200
 
-/*GetDashboardTrendsVulnerabilitiesOK Success
+/*
+GetDashboardTrendsVulnerabilitiesOK Success
 
 swagger:response getDashboardTrendsVulnerabilitiesOK
 */
@@ -60,7 +61,8 @@ func (o *GetDashboardTrendsVulnerabilitiesOK) WriteResponse(rw http.ResponseWrit
 	}
 }
 
-/*GetDashboardTrendsVulnerabilitiesDefault unknown error
+/*
+GetDashboardTrendsVulnerabilitiesDefault unknown error
 
 swagger:response getDashboardTrendsVulnerabilitiesDefault
 */

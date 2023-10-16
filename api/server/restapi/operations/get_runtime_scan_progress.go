@@ -29,10 +29,10 @@ func NewGetRuntimeScanProgress(ctx *middleware.Context, handler GetRuntimeScanPr
 	return &GetRuntimeScanProgress{Context: ctx, Handler: handler}
 }
 
-/* GetRuntimeScanProgress swagger:route GET /runtime/scan/progress getRuntimeScanProgress
+/*
+	GetRuntimeScanProgress swagger:route GET /runtime/scan/progress getRuntimeScanProgress
 
 Get scan progress
-
 */
 type GetRuntimeScanProgress struct {
 	Context *middleware.Context

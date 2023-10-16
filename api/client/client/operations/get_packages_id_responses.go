@@ -52,7 +52,8 @@ func NewGetPackagesIDOK() *GetPackagesIDOK {
 	return &GetPackagesIDOK{}
 }
 
-/* GetPackagesIDOK describes a response with status code 200, with default header values.
+/*
+GetPackagesIDOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -60,9 +61,44 @@ type GetPackagesIDOK struct {
 	Payload *models.Package
 }
 
+// IsSuccess returns true when this get packages Id o k response has a 2xx status code
+func (o *GetPackagesIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get packages Id o k response has a 3xx status code
+func (o *GetPackagesIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get packages Id o k response has a 4xx status code
+func (o *GetPackagesIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get packages Id o k response has a 5xx status code
+func (o *GetPackagesIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get packages Id o k response a status code equal to that given
+func (o *GetPackagesIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get packages Id o k response
+func (o *GetPackagesIDOK) Code() int {
+	return 200
+}
+
 func (o *GetPackagesIDOK) Error() string {
 	return fmt.Sprintf("[GET /packages/{id}][%d] getPackagesIdOK  %+v", 200, o.Payload)
 }
+
+func (o *GetPackagesIDOK) String() string {
+	return fmt.Sprintf("[GET /packages/{id}][%d] getPackagesIdOK  %+v", 200, o.Payload)
+}
+
 func (o *GetPackagesIDOK) GetPayload() *models.Package {
 	return o.Payload
 }
@@ -84,14 +120,49 @@ func NewGetPackagesIDNotFound() *GetPackagesIDNotFound {
 	return &GetPackagesIDNotFound{}
 }
 
-/* GetPackagesIDNotFound describes a response with status code 404, with default header values.
+/*
+GetPackagesIDNotFound describes a response with status code 404, with default header values.
 
 Package ID not found.
 */
 type GetPackagesIDNotFound struct {
 }
 
+// IsSuccess returns true when this get packages Id not found response has a 2xx status code
+func (o *GetPackagesIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get packages Id not found response has a 3xx status code
+func (o *GetPackagesIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get packages Id not found response has a 4xx status code
+func (o *GetPackagesIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get packages Id not found response has a 5xx status code
+func (o *GetPackagesIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get packages Id not found response a status code equal to that given
+func (o *GetPackagesIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get packages Id not found response
+func (o *GetPackagesIDNotFound) Code() int {
+	return 404
+}
+
 func (o *GetPackagesIDNotFound) Error() string {
+	return fmt.Sprintf("[GET /packages/{id}][%d] getPackagesIdNotFound ", 404)
+}
+
+func (o *GetPackagesIDNotFound) String() string {
 	return fmt.Sprintf("[GET /packages/{id}][%d] getPackagesIdNotFound ", 404)
 }
 
@@ -107,7 +178,8 @@ func NewGetPackagesIDDefault(code int) *GetPackagesIDDefault {
 	}
 }
 
-/* GetPackagesIDDefault describes a response with status code -1, with default header values.
+/*
+GetPackagesIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -115,6 +187,31 @@ type GetPackagesIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get packages ID default response has a 2xx status code
+func (o *GetPackagesIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get packages ID default response has a 3xx status code
+func (o *GetPackagesIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get packages ID default response has a 4xx status code
+func (o *GetPackagesIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get packages ID default response has a 5xx status code
+func (o *GetPackagesIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get packages ID default response a status code equal to that given
+func (o *GetPackagesIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get packages ID default response
@@ -125,6 +222,11 @@ func (o *GetPackagesIDDefault) Code() int {
 func (o *GetPackagesIDDefault) Error() string {
 	return fmt.Sprintf("[GET /packages/{id}][%d] GetPackagesID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetPackagesIDDefault) String() string {
+	return fmt.Sprintf("[GET /packages/{id}][%d] GetPackagesID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetPackagesIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

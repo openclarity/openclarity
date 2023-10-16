@@ -54,10 +54,12 @@ func NewPutRuntimeScanStartParamsWithHTTPClient(client *http.Client) *PutRuntime
 	}
 }
 
-/* PutRuntimeScanStartParams contains all the parameters to send to the API endpoint
-   for the put runtime scan start operation.
+/*
+PutRuntimeScanStartParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the put runtime scan start operation.
+
+	Typically these are written to a http.Request.
 */
 type PutRuntimeScanStartParams struct {
 

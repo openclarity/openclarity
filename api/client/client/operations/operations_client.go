@@ -94,7 +94,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteApplicationResourcesID deletes application resource
+DeleteApplicationResourcesID deletes application resource
 */
 func (a *Client) DeleteApplicationResourcesID(params *DeleteApplicationResourcesIDParams, opts ...ClientOption) (*DeleteApplicationResourcesIDNoContent, error) {
 	// TODO: Validate the params before sending
@@ -131,7 +131,7 @@ func (a *Client) DeleteApplicationResourcesID(params *DeleteApplicationResources
 }
 
 /*
-  DeleteApplicationsID deletes application
+DeleteApplicationsID deletes application
 */
 func (a *Client) DeleteApplicationsID(params *DeleteApplicationsIDParams, opts ...ClientOption) (*DeleteApplicationsIDNoContent, error) {
 	// TODO: Validate the params before sending
@@ -168,7 +168,7 @@ func (a *Client) DeleteApplicationsID(params *DeleteApplicationsIDParams, opts .
 }
 
 /*
-  GetApplicationResources gets application resources
+GetApplicationResources gets application resources
 */
 func (a *Client) GetApplicationResources(params *GetApplicationResourcesParams, opts ...ClientOption) (*GetApplicationResourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -205,7 +205,7 @@ func (a *Client) GetApplicationResources(params *GetApplicationResourcesParams, 
 }
 
 /*
-  GetApplicationResourcesID gets application resource
+GetApplicationResourcesID gets application resource
 */
 func (a *Client) GetApplicationResourcesID(params *GetApplicationResourcesIDParams, opts ...ClientOption) (*GetApplicationResourcesIDOK, error) {
 	// TODO: Validate the params before sending
@@ -242,7 +242,7 @@ func (a *Client) GetApplicationResourcesID(params *GetApplicationResourcesIDPara
 }
 
 /*
-  GetApplications gets applications
+GetApplications gets applications
 */
 func (a *Client) GetApplications(params *GetApplicationsParams, opts ...ClientOption) (*GetApplicationsOK, error) {
 	// TODO: Validate the params before sending
@@ -279,7 +279,7 @@ func (a *Client) GetApplications(params *GetApplicationsParams, opts ...ClientOp
 }
 
 /*
-  GetApplicationsID gets application
+GetApplicationsID gets application
 */
 func (a *Client) GetApplicationsID(params *GetApplicationsIDParams, opts ...ClientOption) (*GetApplicationsIDOK, error) {
 	// TODO: Validate the params before sending
@@ -316,7 +316,7 @@ func (a *Client) GetApplicationsID(params *GetApplicationsIDParams, opts ...Clie
 }
 
 /*
-  GetCisdockerbenchmarkresultsID gets c i s docker benchmark results by application resource ID
+GetCisdockerbenchmarkresultsID gets c i s docker benchmark results by application resource ID
 */
 func (a *Client) GetCisdockerbenchmarkresultsID(params *GetCisdockerbenchmarkresultsIDParams, opts ...ClientOption) (*GetCisdockerbenchmarkresultsIDOK, error) {
 	// TODO: Validate the params before sending
@@ -353,7 +353,7 @@ func (a *Client) GetCisdockerbenchmarkresultsID(params *GetCisdockerbenchmarkres
 }
 
 /*
-  GetDashboardCounters gets number of applications resources packages and vulnerabilities
+GetDashboardCounters gets number of applications resources packages and vulnerabilities
 */
 func (a *Client) GetDashboardCounters(params *GetDashboardCountersParams, opts ...ClientOption) (*GetDashboardCountersOK, error) {
 	// TODO: Validate the params before sending
@@ -390,7 +390,7 @@ func (a *Client) GetDashboardCounters(params *GetDashboardCountersParams, opts .
 }
 
 /*
-  GetDashboardMostVulnerable gets top 5 most vulnerable applications resources and packages
+GetDashboardMostVulnerable gets top 5 most vulnerable applications resources and packages
 */
 func (a *Client) GetDashboardMostVulnerable(params *GetDashboardMostVulnerableParams, opts ...ClientOption) (*GetDashboardMostVulnerableOK, error) {
 	// TODO: Validate the params before sending
@@ -427,7 +427,7 @@ func (a *Client) GetDashboardMostVulnerable(params *GetDashboardMostVulnerablePa
 }
 
 /*
-  GetDashboardPackagesPerLanguage gets packages count per language
+GetDashboardPackagesPerLanguage gets packages count per language
 */
 func (a *Client) GetDashboardPackagesPerLanguage(params *GetDashboardPackagesPerLanguageParams, opts ...ClientOption) (*GetDashboardPackagesPerLanguageOK, error) {
 	// TODO: Validate the params before sending
@@ -464,7 +464,7 @@ func (a *Client) GetDashboardPackagesPerLanguage(params *GetDashboardPackagesPer
 }
 
 /*
-  GetDashboardPackagesPerLicense gets packages count per license type
+GetDashboardPackagesPerLicense gets packages count per license type
 */
 func (a *Client) GetDashboardPackagesPerLicense(params *GetDashboardPackagesPerLicenseParams, opts ...ClientOption) (*GetDashboardPackagesPerLicenseOK, error) {
 	// TODO: Validate the params before sending
@@ -501,7 +501,7 @@ func (a *Client) GetDashboardPackagesPerLicense(params *GetDashboardPackagesPerL
 }
 
 /*
-  GetDashboardTrendsVulnerabilities gets new vulnerabilities trend
+GetDashboardTrendsVulnerabilities gets new vulnerabilities trend
 */
 func (a *Client) GetDashboardTrendsVulnerabilities(params *GetDashboardTrendsVulnerabilitiesParams, opts ...ClientOption) (*GetDashboardTrendsVulnerabilitiesOK, error) {
 	// TODO: Validate the params before sending
@@ -538,7 +538,7 @@ func (a *Client) GetDashboardTrendsVulnerabilities(params *GetDashboardTrendsVul
 }
 
 /*
-  GetDashboardVulnerabilitiesWithFix gets vulnerabilities with fix available per severity
+GetDashboardVulnerabilitiesWithFix gets vulnerabilities with fix available per severity
 */
 func (a *Client) GetDashboardVulnerabilitiesWithFix(params *GetDashboardVulnerabilitiesWithFixParams, opts ...ClientOption) (*GetDashboardVulnerabilitiesWithFixOK, error) {
 	// TODO: Validate the params before sending
@@ -575,7 +575,7 @@ func (a *Client) GetDashboardVulnerabilitiesWithFix(params *GetDashboardVulnerab
 }
 
 /*
-  GetNamespaces gets list of namespaces in kubernetes cluster
+GetNamespaces gets list of namespaces in kubernetes cluster
 */
 func (a *Client) GetNamespaces(params *GetNamespacesParams, opts ...ClientOption) (*GetNamespacesOK, error) {
 	// TODO: Validate the params before sending
@@ -612,7 +612,7 @@ func (a *Client) GetNamespaces(params *GetNamespacesParams, opts ...ClientOption
 }
 
 /*
-  GetPackages gets packages
+GetPackages gets packages
 */
 func (a *Client) GetPackages(params *GetPackagesParams, opts ...ClientOption) (*GetPackagesOK, error) {
 	// TODO: Validate the params before sending
@@ -649,7 +649,7 @@ func (a *Client) GetPackages(params *GetPackagesParams, opts ...ClientOption) (*
 }
 
 /*
-  GetPackagesID gets package
+GetPackagesID gets package
 */
 func (a *Client) GetPackagesID(params *GetPackagesIDParams, opts ...ClientOption) (*GetPackagesIDOK, error) {
 	// TODO: Validate the params before sending
@@ -686,7 +686,7 @@ func (a *Client) GetPackagesID(params *GetPackagesIDParams, opts ...ClientOption
 }
 
 /*
-  GetPackagesIDApplicationResources gets package application resources
+GetPackagesIDApplicationResources gets package application resources
 */
 func (a *Client) GetPackagesIDApplicationResources(params *GetPackagesIDApplicationResourcesParams, opts ...ClientOption) (*GetPackagesIDApplicationResourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -723,7 +723,7 @@ func (a *Client) GetPackagesIDApplicationResources(params *GetPackagesIDApplicat
 }
 
 /*
-  GetRuntimeQuickscanConfig gets runtime quick scan configuration
+GetRuntimeQuickscanConfig gets runtime quick scan configuration
 */
 func (a *Client) GetRuntimeQuickscanConfig(params *GetRuntimeQuickscanConfigParams, opts ...ClientOption) (*GetRuntimeQuickscanConfigOK, error) {
 	// TODO: Validate the params before sending
@@ -760,7 +760,7 @@ func (a *Client) GetRuntimeQuickscanConfig(params *GetRuntimeQuickscanConfigPara
 }
 
 /*
-  GetRuntimeScanProgress gets scan progress
+GetRuntimeScanProgress gets scan progress
 */
 func (a *Client) GetRuntimeScanProgress(params *GetRuntimeScanProgressParams, opts ...ClientOption) (*GetRuntimeScanProgressOK, error) {
 	// TODO: Validate the params before sending
@@ -797,7 +797,7 @@ func (a *Client) GetRuntimeScanProgress(params *GetRuntimeScanProgressParams, op
 }
 
 /*
-  GetRuntimeScanResults gets scan results
+GetRuntimeScanResults gets scan results
 */
 func (a *Client) GetRuntimeScanResults(params *GetRuntimeScanResultsParams, opts ...ClientOption) (*GetRuntimeScanResultsOK, error) {
 	// TODO: Validate the params before sending
@@ -834,7 +834,7 @@ func (a *Client) GetRuntimeScanResults(params *GetRuntimeScanResultsParams, opts
 }
 
 /*
-  GetRuntimeScheduleScanConfig gets runtime scheduled scan configuration
+GetRuntimeScheduleScanConfig gets runtime scheduled scan configuration
 */
 func (a *Client) GetRuntimeScheduleScanConfig(params *GetRuntimeScheduleScanConfigParams, opts ...ClientOption) (*GetRuntimeScheduleScanConfigOK, error) {
 	// TODO: Validate the params before sending
@@ -871,7 +871,7 @@ func (a *Client) GetRuntimeScheduleScanConfig(params *GetRuntimeScheduleScanConf
 }
 
 /*
-  GetVulnerabilities gets vulnerabilities
+GetVulnerabilities gets vulnerabilities
 */
 func (a *Client) GetVulnerabilities(params *GetVulnerabilitiesParams, opts ...ClientOption) (*GetVulnerabilitiesOK, error) {
 	// TODO: Validate the params before sending
@@ -908,7 +908,7 @@ func (a *Client) GetVulnerabilities(params *GetVulnerabilitiesParams, opts ...Cl
 }
 
 /*
-  GetVulnerabilitiesVulIDPkgID gets a vulnerability of a specific package
+GetVulnerabilitiesVulIDPkgID gets a vulnerability of a specific package
 */
 func (a *Client) GetVulnerabilitiesVulIDPkgID(params *GetVulnerabilitiesVulIDPkgIDParams, opts ...ClientOption) (*GetVulnerabilitiesVulIDPkgIDOK, error) {
 	// TODO: Validate the params before sending
@@ -945,7 +945,7 @@ func (a *Client) GetVulnerabilitiesVulIDPkgID(params *GetVulnerabilitiesVulIDPkg
 }
 
 /*
-  PostApplications creates application
+PostApplications creates application
 */
 func (a *Client) PostApplications(params *PostApplicationsParams, opts ...ClientOption) (*PostApplicationsCreated, error) {
 	// TODO: Validate the params before sending
@@ -982,7 +982,7 @@ func (a *Client) PostApplications(params *PostApplicationsParams, opts ...Client
 }
 
 /*
-  PostApplicationsContentAnalysisID reports a content analysis for a specific application
+PostApplicationsContentAnalysisID reports a content analysis for a specific application
 */
 func (a *Client) PostApplicationsContentAnalysisID(params *PostApplicationsContentAnalysisIDParams, opts ...ClientOption) (*PostApplicationsContentAnalysisIDCreated, error) {
 	// TODO: Validate the params before sending
@@ -1019,7 +1019,7 @@ func (a *Client) PostApplicationsContentAnalysisID(params *PostApplicationsConte
 }
 
 /*
-  PostApplicationsVulnerabilityScanID reports a vulnerability scan for a specific application
+PostApplicationsVulnerabilityScanID reports a vulnerability scan for a specific application
 */
 func (a *Client) PostApplicationsVulnerabilityScanID(params *PostApplicationsVulnerabilityScanIDParams, opts ...ClientOption) (*PostApplicationsVulnerabilityScanIDCreated, error) {
 	// TODO: Validate the params before sending
@@ -1056,7 +1056,7 @@ func (a *Client) PostApplicationsVulnerabilityScanID(params *PostApplicationsVul
 }
 
 /*
-  PutApplicationsID updates application
+PutApplicationsID updates application
 */
 func (a *Client) PutApplicationsID(params *PutApplicationsIDParams, opts ...ClientOption) (*PutApplicationsIDOK, error) {
 	// TODO: Validate the params before sending
@@ -1093,7 +1093,7 @@ func (a *Client) PutApplicationsID(params *PutApplicationsIDParams, opts ...Clie
 }
 
 /*
-  PutRuntimeQuickscanConfig sets runtime quick scan configuration
+PutRuntimeQuickscanConfig sets runtime quick scan configuration
 */
 func (a *Client) PutRuntimeQuickscanConfig(params *PutRuntimeQuickscanConfigParams, opts ...ClientOption) (*PutRuntimeQuickscanConfigCreated, error) {
 	// TODO: Validate the params before sending
@@ -1130,7 +1130,7 @@ func (a *Client) PutRuntimeQuickscanConfig(params *PutRuntimeQuickscanConfigPara
 }
 
 /*
-  PutRuntimeScanStart schedules a runtime scan
+PutRuntimeScanStart schedules a runtime scan
 */
 func (a *Client) PutRuntimeScanStart(params *PutRuntimeScanStartParams, opts ...ClientOption) (*PutRuntimeScanStartCreated, error) {
 	// TODO: Validate the params before sending
@@ -1167,7 +1167,7 @@ func (a *Client) PutRuntimeScanStart(params *PutRuntimeScanStartParams, opts ...
 }
 
 /*
-  PutRuntimeScanStop stops a runtime scan
+PutRuntimeScanStop stops a runtime scan
 */
 func (a *Client) PutRuntimeScanStop(params *PutRuntimeScanStopParams, opts ...ClientOption) (*PutRuntimeScanStopCreated, error) {
 	// TODO: Validate the params before sending
@@ -1204,7 +1204,7 @@ func (a *Client) PutRuntimeScanStop(params *PutRuntimeScanStopParams, opts ...Cl
 }
 
 /*
-  PutRuntimeScheduleScanConfig sets runtime scheduled scan configuration
+PutRuntimeScheduleScanConfig sets runtime scheduled scan configuration
 */
 func (a *Client) PutRuntimeScheduleScanConfig(params *PutRuntimeScheduleScanConfigParams, opts ...ClientOption) (*PutRuntimeScheduleScanConfigCreated, error) {
 	// TODO: Validate the params before sending

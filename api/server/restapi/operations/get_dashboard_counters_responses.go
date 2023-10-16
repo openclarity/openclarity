@@ -16,7 +16,8 @@ import (
 // GetDashboardCountersOKCode is the HTTP code returned for type GetDashboardCountersOK
 const GetDashboardCountersOKCode int = 200
 
-/*GetDashboardCountersOK Success
+/*
+GetDashboardCountersOK Success
 
 swagger:response getDashboardCountersOK
 */
@@ -57,7 +58,8 @@ func (o *GetDashboardCountersOK) WriteResponse(rw http.ResponseWriter, producer 
 	}
 }
 
-/*GetDashboardCountersDefault unknown error
+/*
+GetDashboardCountersDefault unknown error
 
 swagger:response getDashboardCountersDefault
 */

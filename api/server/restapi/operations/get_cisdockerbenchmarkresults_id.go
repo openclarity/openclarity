@@ -37,10 +37,10 @@ func NewGetCisdockerbenchmarkresultsID(ctx *middleware.Context, handler GetCisdo
 	return &GetCisdockerbenchmarkresultsID{Context: ctx, Handler: handler}
 }
 
-/* GetCisdockerbenchmarkresultsID swagger:route GET /cisdockerbenchmarkresults/{id} getCisdockerbenchmarkresultsId
+/*
+	GetCisdockerbenchmarkresultsID swagger:route GET /cisdockerbenchmarkresults/{id} getCisdockerbenchmarkresultsId
 
 Get CIS Docker Benchmark results by Application Resource ID
-
 */
 type GetCisdockerbenchmarkresultsID struct {
 	Context *middleware.Context
@@ -108,6 +108,8 @@ func (o *GetCisdockerbenchmarkresultsIDOKBody) validateItems(formats strfmt.Regi
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -146,9 +148,16 @@ func (o *GetCisdockerbenchmarkresultsIDOKBody) contextValidateItems(ctx context.
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

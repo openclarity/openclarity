@@ -54,10 +54,12 @@ func NewPutRuntimeScheduleScanConfigParamsWithHTTPClient(client *http.Client) *P
 	}
 }
 
-/* PutRuntimeScheduleScanConfigParams contains all the parameters to send to the API endpoint
-   for the put runtime schedule scan config operation.
+/*
+PutRuntimeScheduleScanConfigParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the put runtime schedule scan config operation.
+
+	Typically these are written to a http.Request.
 */
 type PutRuntimeScheduleScanConfigParams struct {
 

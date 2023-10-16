@@ -57,6 +57,8 @@ func (m *CISDockerBenchmarkCodeInfo) validateAssessments(formats strfmt.Registry
 			if err := m.Assessments[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("assessments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("assessments" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -86,9 +88,16 @@ func (m *CISDockerBenchmarkCodeInfo) contextValidateAssessments(ctx context.Cont
 	for i := 0; i < len(m.Assessments); i++ {
 
 		if m.Assessments[i] != nil {
+
+			if swag.IsZero(m.Assessments[i]) { // not required
+				return nil
+			}
+
 			if err := m.Assessments[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("assessments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("assessments" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

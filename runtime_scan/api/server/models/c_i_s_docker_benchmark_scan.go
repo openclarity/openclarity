@@ -48,6 +48,8 @@ func (m *CISDockerBenchmarkScan) validateCisDockerBenchmarkScanResult(formats st
 		if err := m.CisDockerBenchmarkScanResult.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cisDockerBenchmarkScanResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cisDockerBenchmarkScanResult")
 			}
 			return err
 		}
@@ -73,9 +75,16 @@ func (m *CISDockerBenchmarkScan) ContextValidate(ctx context.Context, formats st
 func (m *CISDockerBenchmarkScan) contextValidateCisDockerBenchmarkScanResult(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CisDockerBenchmarkScanResult != nil {
+
+		if swag.IsZero(m.CisDockerBenchmarkScanResult) { // not required
+			return nil
+		}
+
 		if err := m.CisDockerBenchmarkScanResult.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cisDockerBenchmarkScanResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cisDockerBenchmarkScanResult")
 			}
 			return err
 		}

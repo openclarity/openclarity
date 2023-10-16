@@ -60,6 +60,8 @@ func (m *NewVulnerabilitiesTrend) validateNumOfVuls(formats strfmt.Registry) err
 			if err := m.NumOfVuls[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("numOfVuls" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("numOfVuls" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -101,9 +103,16 @@ func (m *NewVulnerabilitiesTrend) contextValidateNumOfVuls(ctx context.Context, 
 	for i := 0; i < len(m.NumOfVuls); i++ {
 
 		if m.NumOfVuls[i] != nil {
+
+			if swag.IsZero(m.NumOfVuls[i]) { // not required
+				return nil
+			}
+
 			if err := m.NumOfVuls[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("numOfVuls" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("numOfVuls" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

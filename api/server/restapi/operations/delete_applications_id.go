@@ -29,10 +29,10 @@ func NewDeleteApplicationsID(ctx *middleware.Context, handler DeleteApplications
 	return &DeleteApplicationsID{Context: ctx, Handler: handler}
 }
 
-/* DeleteApplicationsID swagger:route DELETE /applications/{id} deleteApplicationsId
+/*
+	DeleteApplicationsID swagger:route DELETE /applications/{id} deleteApplicationsId
 
 Delete Application.
-
 */
 type DeleteApplicationsID struct {
 	Context *middleware.Context

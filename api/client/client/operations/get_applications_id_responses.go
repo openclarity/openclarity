@@ -46,7 +46,8 @@ func NewGetApplicationsIDOK() *GetApplicationsIDOK {
 	return &GetApplicationsIDOK{}
 }
 
-/* GetApplicationsIDOK describes a response with status code 200, with default header values.
+/*
+GetApplicationsIDOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetApplicationsIDOK struct {
 	Payload *models.ApplicationEx
 }
 
+// IsSuccess returns true when this get applications Id o k response has a 2xx status code
+func (o *GetApplicationsIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get applications Id o k response has a 3xx status code
+func (o *GetApplicationsIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get applications Id o k response has a 4xx status code
+func (o *GetApplicationsIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get applications Id o k response has a 5xx status code
+func (o *GetApplicationsIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get applications Id o k response a status code equal to that given
+func (o *GetApplicationsIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get applications Id o k response
+func (o *GetApplicationsIDOK) Code() int {
+	return 200
+}
+
 func (o *GetApplicationsIDOK) Error() string {
 	return fmt.Sprintf("[GET /applications/{id}][%d] getApplicationsIdOK  %+v", 200, o.Payload)
 }
+
+func (o *GetApplicationsIDOK) String() string {
+	return fmt.Sprintf("[GET /applications/{id}][%d] getApplicationsIdOK  %+v", 200, o.Payload)
+}
+
 func (o *GetApplicationsIDOK) GetPayload() *models.ApplicationEx {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetApplicationsIDDefault(code int) *GetApplicationsIDDefault {
 	}
 }
 
-/* GetApplicationsIDDefault describes a response with status code -1, with default header values.
+/*
+GetApplicationsIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetApplicationsIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get applications ID default response has a 2xx status code
+func (o *GetApplicationsIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get applications ID default response has a 3xx status code
+func (o *GetApplicationsIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get applications ID default response has a 4xx status code
+func (o *GetApplicationsIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get applications ID default response has a 5xx status code
+func (o *GetApplicationsIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get applications ID default response a status code equal to that given
+func (o *GetApplicationsIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get applications ID default response
@@ -98,6 +160,11 @@ func (o *GetApplicationsIDDefault) Code() int {
 func (o *GetApplicationsIDDefault) Error() string {
 	return fmt.Sprintf("[GET /applications/{id}][%d] GetApplicationsID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetApplicationsIDDefault) String() string {
+	return fmt.Sprintf("[GET /applications/{id}][%d] GetApplicationsID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetApplicationsIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

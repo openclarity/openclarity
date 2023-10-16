@@ -71,6 +71,8 @@ func (m *Progress) validateScanType(formats strfmt.Registry) error {
 	if err := m.ScanType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scanType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scanType")
 		}
 		return err
 	}
@@ -110,6 +112,8 @@ func (m *Progress) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -137,9 +141,15 @@ func (m *Progress) ContextValidate(ctx context.Context, formats strfmt.Registry)
 
 func (m *Progress) contextValidateScanType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ScanType) { // not required
+		return nil
+	}
+
 	if err := m.ScanType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scanType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scanType")
 		}
 		return err
 	}
@@ -149,9 +159,15 @@ func (m *Progress) contextValidateScanType(ctx context.Context, formats strfmt.R
 
 func (m *Progress) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

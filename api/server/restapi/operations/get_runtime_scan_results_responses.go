@@ -16,7 +16,8 @@ import (
 // GetRuntimeScanResultsOKCode is the HTTP code returned for type GetRuntimeScanResultsOK
 const GetRuntimeScanResultsOKCode int = 200
 
-/*GetRuntimeScanResultsOK Success
+/*
+GetRuntimeScanResultsOK Success
 
 swagger:response getRuntimeScanResultsOK
 */
@@ -57,7 +58,8 @@ func (o *GetRuntimeScanResultsOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
-/*GetRuntimeScanResultsDefault unknown error
+/*
+GetRuntimeScanResultsDefault unknown error
 
 swagger:response getRuntimeScanResultsDefault
 */

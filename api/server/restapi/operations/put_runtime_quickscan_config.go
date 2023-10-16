@@ -29,10 +29,10 @@ func NewPutRuntimeQuickscanConfig(ctx *middleware.Context, handler PutRuntimeQui
 	return &PutRuntimeQuickscanConfig{Context: ctx, Handler: handler}
 }
 
-/* PutRuntimeQuickscanConfig swagger:route PUT /runtime/quickscan/config putRuntimeQuickscanConfig
+/*
+	PutRuntimeQuickscanConfig swagger:route PUT /runtime/quickscan/config putRuntimeQuickscanConfig
 
 Set runtime quick scan configuration
-
 */
 type PutRuntimeQuickscanConfig struct {
 	Context *middleware.Context

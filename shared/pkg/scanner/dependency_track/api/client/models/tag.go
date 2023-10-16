@@ -77,6 +77,8 @@ func (m *Tag) validateProjects(formats strfmt.Registry) error {
 			if err := m.Projects[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("projects" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("projects" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -106,9 +108,16 @@ func (m *Tag) contextValidateProjects(ctx context.Context, formats strfmt.Regist
 	for i := 0; i < len(m.Projects); i++ {
 
 		if m.Projects[i] != nil {
+
+			if swag.IsZero(m.Projects[i]) { // not required
+				return nil
+			}
+
 			if err := m.Projects[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("projects" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("projects" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

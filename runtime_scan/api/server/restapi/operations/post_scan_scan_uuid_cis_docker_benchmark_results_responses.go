@@ -16,7 +16,8 @@ import (
 // PostScanScanUUIDCisDockerBenchmarkResultsCreatedCode is the HTTP code returned for type PostScanScanUUIDCisDockerBenchmarkResultsCreated
 const PostScanScanUUIDCisDockerBenchmarkResultsCreatedCode int = 201
 
-/*PostScanScanUUIDCisDockerBenchmarkResultsCreated CIS docker benchmark scan successfully reported.
+/*
+PostScanScanUUIDCisDockerBenchmarkResultsCreated CIS docker benchmark scan successfully reported.
 
 swagger:response postScanScanUuidCisDockerBenchmarkResultsCreated
 */
@@ -37,7 +38,8 @@ func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) WriteResponse(rw http
 	rw.WriteHeader(201)
 }
 
-/*PostScanScanUUIDCisDockerBenchmarkResultsDefault unknown error
+/*
+PostScanScanUUIDCisDockerBenchmarkResultsDefault unknown error
 
 swagger:response postScanScanUuidCisDockerBenchmarkResultsDefault
 */

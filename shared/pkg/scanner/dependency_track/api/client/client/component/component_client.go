@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteComponent deletes a component
+DeleteComponent deletes a component
 */
 func (a *Client) DeleteComponent(params *DeleteComponentParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) error {
 	// TODO: Validate the params before sending
@@ -70,7 +70,7 @@ func (a *Client) DeleteComponent(params *DeleteComponentParams, authInfo runtime
 }
 
 /*
-  GetComponentByUUID returns a specific component
+GetComponentByUUID returns a specific component
 */
 func (a *Client) GetComponentByUUID(params *GetComponentByUUIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetComponentByUUIDOK, error) {
 	// TODO: Validate the params before sending

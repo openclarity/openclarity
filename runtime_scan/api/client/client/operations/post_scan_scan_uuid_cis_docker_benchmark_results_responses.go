@@ -46,14 +46,49 @@ func NewPostScanScanUUIDCisDockerBenchmarkResultsCreated() *PostScanScanUUIDCisD
 	return &PostScanScanUUIDCisDockerBenchmarkResultsCreated{}
 }
 
-/* PostScanScanUUIDCisDockerBenchmarkResultsCreated describes a response with status code 201, with default header values.
+/*
+PostScanScanUUIDCisDockerBenchmarkResultsCreated describes a response with status code 201, with default header values.
 
 CIS docker benchmark scan successfully reported.
 */
 type PostScanScanUUIDCisDockerBenchmarkResultsCreated struct {
 }
 
+// IsSuccess returns true when this post scan scan Uuid cis docker benchmark results created response has a 2xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post scan scan Uuid cis docker benchmark results created response has a 3xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post scan scan Uuid cis docker benchmark results created response has a 4xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post scan scan Uuid cis docker benchmark results created response has a 5xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post scan scan Uuid cis docker benchmark results created response a status code equal to that given
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post scan scan Uuid cis docker benchmark results created response
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) Code() int {
+	return 201
+}
+
 func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) Error() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/cisDockerBenchmark/results][%d] postScanScanUuidCisDockerBenchmarkResultsCreated ", 201)
+}
+
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsCreated) String() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/cisDockerBenchmark/results][%d] postScanScanUuidCisDockerBenchmarkResultsCreated ", 201)
 }
 
@@ -69,7 +104,8 @@ func NewPostScanScanUUIDCisDockerBenchmarkResultsDefault(code int) *PostScanScan
 	}
 }
 
-/* PostScanScanUUIDCisDockerBenchmarkResultsDefault describes a response with status code -1, with default header values.
+/*
+PostScanScanUUIDCisDockerBenchmarkResultsDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -77,6 +113,31 @@ type PostScanScanUUIDCisDockerBenchmarkResultsDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this post scan scan UUID cis docker benchmark results default response has a 2xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this post scan scan UUID cis docker benchmark results default response has a 3xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this post scan scan UUID cis docker benchmark results default response has a 4xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this post scan scan UUID cis docker benchmark results default response has a 5xx status code
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this post scan scan UUID cis docker benchmark results default response a status code equal to that given
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the post scan scan UUID cis docker benchmark results default response
@@ -87,6 +148,11 @@ func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) Code() int {
 func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) Error() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/cisDockerBenchmark/results][%d] PostScanScanUUIDCisDockerBenchmarkResults default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) String() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/cisDockerBenchmark/results][%d] PostScanScanUUIDCisDockerBenchmarkResults default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PostScanScanUUIDCisDockerBenchmarkResultsDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

@@ -16,7 +16,8 @@ import (
 // GetVulnerabilitiesOKCode is the HTTP code returned for type GetVulnerabilitiesOK
 const GetVulnerabilitiesOKCode int = 200
 
-/*GetVulnerabilitiesOK Success
+/*
+GetVulnerabilitiesOK Success
 
 swagger:response getVulnerabilitiesOK
 */
@@ -57,7 +58,8 @@ func (o *GetVulnerabilitiesOK) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-/*GetVulnerabilitiesDefault unknown error
+/*
+GetVulnerabilitiesDefault unknown error
 
 swagger:response getVulnerabilitiesDefault
 */

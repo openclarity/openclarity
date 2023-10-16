@@ -16,7 +16,8 @@ import (
 // GetNamespacesOKCode is the HTTP code returned for type GetNamespacesOK
 const GetNamespacesOKCode int = 200
 
-/*GetNamespacesOK Success
+/*
+GetNamespacesOK Success
 
 swagger:response getNamespacesOK
 */
@@ -60,7 +61,8 @@ func (o *GetNamespacesOK) WriteResponse(rw http.ResponseWriter, producer runtime
 	}
 }
 
-/*GetNamespacesDefault unknown error
+/*
+GetNamespacesDefault unknown error
 
 swagger:response getNamespacesDefault
 */

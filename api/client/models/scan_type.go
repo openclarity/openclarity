@@ -20,8 +20,12 @@ import (
 type ScanType string
 
 func NewScanType(value ScanType) *ScanType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ScanType.
+func (m ScanType) Pointer() *ScanType {
+	return &m
 }
 
 const (

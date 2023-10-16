@@ -29,10 +29,10 @@ func NewPostApplicationsContentAnalysisID(ctx *middleware.Context, handler PostA
 	return &PostApplicationsContentAnalysisID{Context: ctx, Handler: handler}
 }
 
-/* PostApplicationsContentAnalysisID swagger:route POST /applications/contentAnalysis/{id} postApplicationsContentAnalysisId
+/*
+	PostApplicationsContentAnalysisID swagger:route POST /applications/contentAnalysis/{id} postApplicationsContentAnalysisId
 
 Report a content analysis for a specific application
-
 */
 type PostApplicationsContentAnalysisID struct {
 	Context *middleware.Context

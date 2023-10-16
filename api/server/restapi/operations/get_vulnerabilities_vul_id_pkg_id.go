@@ -29,10 +29,10 @@ func NewGetVulnerabilitiesVulIDPkgID(ctx *middleware.Context, handler GetVulnera
 	return &GetVulnerabilitiesVulIDPkgID{Context: ctx, Handler: handler}
 }
 
-/* GetVulnerabilitiesVulIDPkgID swagger:route GET /vulnerabilities/{vul_id}/{pkg_id} getVulnerabilitiesVulIdPkgId
+/*
+	GetVulnerabilitiesVulIDPkgID swagger:route GET /vulnerabilities/{vul_id}/{pkg_id} getVulnerabilitiesVulIdPkgId
 
 Get a vulnerability of a specific package
-
 */
 type GetVulnerabilitiesVulIDPkgID struct {
 	Context *middleware.Context

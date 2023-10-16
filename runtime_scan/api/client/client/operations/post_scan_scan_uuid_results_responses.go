@@ -46,14 +46,49 @@ func NewPostScanScanUUIDResultsCreated() *PostScanScanUUIDResultsCreated {
 	return &PostScanScanUUIDResultsCreated{}
 }
 
-/* PostScanScanUUIDResultsCreated describes a response with status code 201, with default header values.
+/*
+PostScanScanUUIDResultsCreated describes a response with status code 201, with default header values.
 
 Image vulnerability scan successfully reported.
 */
 type PostScanScanUUIDResultsCreated struct {
 }
 
+// IsSuccess returns true when this post scan scan Uuid results created response has a 2xx status code
+func (o *PostScanScanUUIDResultsCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post scan scan Uuid results created response has a 3xx status code
+func (o *PostScanScanUUIDResultsCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post scan scan Uuid results created response has a 4xx status code
+func (o *PostScanScanUUIDResultsCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post scan scan Uuid results created response has a 5xx status code
+func (o *PostScanScanUUIDResultsCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post scan scan Uuid results created response a status code equal to that given
+func (o *PostScanScanUUIDResultsCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post scan scan Uuid results created response
+func (o *PostScanScanUUIDResultsCreated) Code() int {
+	return 201
+}
+
 func (o *PostScanScanUUIDResultsCreated) Error() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/results][%d] postScanScanUuidResultsCreated ", 201)
+}
+
+func (o *PostScanScanUUIDResultsCreated) String() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/results][%d] postScanScanUuidResultsCreated ", 201)
 }
 
@@ -69,7 +104,8 @@ func NewPostScanScanUUIDResultsDefault(code int) *PostScanScanUUIDResultsDefault
 	}
 }
 
-/* PostScanScanUUIDResultsDefault describes a response with status code -1, with default header values.
+/*
+PostScanScanUUIDResultsDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -77,6 +113,31 @@ type PostScanScanUUIDResultsDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this post scan scan UUID results default response has a 2xx status code
+func (o *PostScanScanUUIDResultsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this post scan scan UUID results default response has a 3xx status code
+func (o *PostScanScanUUIDResultsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this post scan scan UUID results default response has a 4xx status code
+func (o *PostScanScanUUIDResultsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this post scan scan UUID results default response has a 5xx status code
+func (o *PostScanScanUUIDResultsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this post scan scan UUID results default response a status code equal to that given
+func (o *PostScanScanUUIDResultsDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the post scan scan UUID results default response
@@ -87,6 +148,11 @@ func (o *PostScanScanUUIDResultsDefault) Code() int {
 func (o *PostScanScanUUIDResultsDefault) Error() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/results][%d] PostScanScanUUIDResults default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PostScanScanUUIDResultsDefault) String() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/results][%d] PostScanScanUUIDResults default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PostScanScanUUIDResultsDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

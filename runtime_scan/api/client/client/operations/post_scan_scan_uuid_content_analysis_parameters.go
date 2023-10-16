@@ -54,10 +54,12 @@ func NewPostScanScanUUIDContentAnalysisParamsWithHTTPClient(client *http.Client)
 	}
 }
 
-/* PostScanScanUUIDContentAnalysisParams contains all the parameters to send to the API endpoint
-   for the post scan scan UUID content analysis operation.
+/*
+PostScanScanUUIDContentAnalysisParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the post scan scan UUID content analysis operation.
+
+	Typically these are written to a http.Request.
 */
 type PostScanScanUUIDContentAnalysisParams struct {
 

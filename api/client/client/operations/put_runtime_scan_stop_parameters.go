@@ -52,10 +52,12 @@ func NewPutRuntimeScanStopParamsWithHTTPClient(client *http.Client) *PutRuntimeS
 	}
 }
 
-/* PutRuntimeScanStopParams contains all the parameters to send to the API endpoint
-   for the put runtime scan stop operation.
+/*
+PutRuntimeScanStopParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the put runtime scan stop operation.
+
+	Typically these are written to a http.Request.
 */
 type PutRuntimeScanStopParams struct {
 	timeout    time.Duration

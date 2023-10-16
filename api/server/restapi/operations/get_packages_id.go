@@ -29,10 +29,10 @@ func NewGetPackagesID(ctx *middleware.Context, handler GetPackagesIDHandler) *Ge
 	return &GetPackagesID{Context: ctx, Handler: handler}
 }
 
-/* GetPackagesID swagger:route GET /packages/{id} getPackagesId
+/*
+	GetPackagesID swagger:route GET /packages/{id} getPackagesId
 
 Get Package.
-
 */
 type GetPackagesID struct {
 	Context *middleware.Context

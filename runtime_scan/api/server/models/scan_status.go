@@ -20,8 +20,12 @@ import (
 type ScanStatus string
 
 func NewScanStatus(value ScanStatus) *ScanStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ScanStatus.
+func (m ScanStatus) Pointer() *ScanStatus {
+	return &m
 }
 
 const (

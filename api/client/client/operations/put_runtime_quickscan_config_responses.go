@@ -52,7 +52,8 @@ func NewPutRuntimeQuickscanConfigCreated() *PutRuntimeQuickscanConfigCreated {
 	return &PutRuntimeQuickscanConfigCreated{}
 }
 
-/* PutRuntimeQuickscanConfigCreated describes a response with status code 201, with default header values.
+/*
+PutRuntimeQuickscanConfigCreated describes a response with status code 201, with default header values.
 
 Success
 */
@@ -60,9 +61,44 @@ type PutRuntimeQuickscanConfigCreated struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this put runtime quickscan config created response has a 2xx status code
+func (o *PutRuntimeQuickscanConfigCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this put runtime quickscan config created response has a 3xx status code
+func (o *PutRuntimeQuickscanConfigCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime quickscan config created response has a 4xx status code
+func (o *PutRuntimeQuickscanConfigCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this put runtime quickscan config created response has a 5xx status code
+func (o *PutRuntimeQuickscanConfigCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime quickscan config created response a status code equal to that given
+func (o *PutRuntimeQuickscanConfigCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the put runtime quickscan config created response
+func (o *PutRuntimeQuickscanConfigCreated) Code() int {
+	return 201
+}
+
 func (o *PutRuntimeQuickscanConfigCreated) Error() string {
 	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] putRuntimeQuickscanConfigCreated  %+v", 201, o.Payload)
 }
+
+func (o *PutRuntimeQuickscanConfigCreated) String() string {
+	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] putRuntimeQuickscanConfigCreated  %+v", 201, o.Payload)
+}
+
 func (o *PutRuntimeQuickscanConfigCreated) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewPutRuntimeQuickscanConfigBadRequest() *PutRuntimeQuickscanConfigBadReque
 	return &PutRuntimeQuickscanConfigBadRequest{}
 }
 
-/* PutRuntimeQuickscanConfigBadRequest describes a response with status code 400, with default header values.
+/*
+PutRuntimeQuickscanConfigBadRequest describes a response with status code 400, with default header values.
 
 Failed to set quick scan config
 */
@@ -90,9 +127,44 @@ type PutRuntimeQuickscanConfigBadRequest struct {
 	Payload string
 }
 
+// IsSuccess returns true when this put runtime quickscan config bad request response has a 2xx status code
+func (o *PutRuntimeQuickscanConfigBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this put runtime quickscan config bad request response has a 3xx status code
+func (o *PutRuntimeQuickscanConfigBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime quickscan config bad request response has a 4xx status code
+func (o *PutRuntimeQuickscanConfigBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this put runtime quickscan config bad request response has a 5xx status code
+func (o *PutRuntimeQuickscanConfigBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime quickscan config bad request response a status code equal to that given
+func (o *PutRuntimeQuickscanConfigBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the put runtime quickscan config bad request response
+func (o *PutRuntimeQuickscanConfigBadRequest) Code() int {
+	return 400
+}
+
 func (o *PutRuntimeQuickscanConfigBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] putRuntimeQuickscanConfigBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *PutRuntimeQuickscanConfigBadRequest) String() string {
+	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] putRuntimeQuickscanConfigBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *PutRuntimeQuickscanConfigBadRequest) GetPayload() string {
 	return o.Payload
 }
@@ -114,7 +186,8 @@ func NewPutRuntimeQuickscanConfigDefault(code int) *PutRuntimeQuickscanConfigDef
 	}
 }
 
-/* PutRuntimeQuickscanConfigDefault describes a response with status code -1, with default header values.
+/*
+PutRuntimeQuickscanConfigDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -122,6 +195,31 @@ type PutRuntimeQuickscanConfigDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this put runtime quickscan config default response has a 2xx status code
+func (o *PutRuntimeQuickscanConfigDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this put runtime quickscan config default response has a 3xx status code
+func (o *PutRuntimeQuickscanConfigDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this put runtime quickscan config default response has a 4xx status code
+func (o *PutRuntimeQuickscanConfigDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this put runtime quickscan config default response has a 5xx status code
+func (o *PutRuntimeQuickscanConfigDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this put runtime quickscan config default response a status code equal to that given
+func (o *PutRuntimeQuickscanConfigDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the put runtime quickscan config default response
@@ -132,6 +230,11 @@ func (o *PutRuntimeQuickscanConfigDefault) Code() int {
 func (o *PutRuntimeQuickscanConfigDefault) Error() string {
 	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] PutRuntimeQuickscanConfig default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PutRuntimeQuickscanConfigDefault) String() string {
+	return fmt.Sprintf("[PUT /runtime/quickscan/config][%d] PutRuntimeQuickscanConfig default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PutRuntimeQuickscanConfigDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

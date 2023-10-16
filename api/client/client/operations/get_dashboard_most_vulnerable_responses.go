@@ -46,7 +46,8 @@ func NewGetDashboardMostVulnerableOK() *GetDashboardMostVulnerableOK {
 	return &GetDashboardMostVulnerableOK{}
 }
 
-/* GetDashboardMostVulnerableOK describes a response with status code 200, with default header values.
+/*
+GetDashboardMostVulnerableOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetDashboardMostVulnerableOK struct {
 	Payload *models.MostVulnerable
 }
 
+// IsSuccess returns true when this get dashboard most vulnerable o k response has a 2xx status code
+func (o *GetDashboardMostVulnerableOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get dashboard most vulnerable o k response has a 3xx status code
+func (o *GetDashboardMostVulnerableOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get dashboard most vulnerable o k response has a 4xx status code
+func (o *GetDashboardMostVulnerableOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get dashboard most vulnerable o k response has a 5xx status code
+func (o *GetDashboardMostVulnerableOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get dashboard most vulnerable o k response a status code equal to that given
+func (o *GetDashboardMostVulnerableOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get dashboard most vulnerable o k response
+func (o *GetDashboardMostVulnerableOK) Code() int {
+	return 200
+}
+
 func (o *GetDashboardMostVulnerableOK) Error() string {
 	return fmt.Sprintf("[GET /dashboard/mostVulnerable][%d] getDashboardMostVulnerableOK  %+v", 200, o.Payload)
 }
+
+func (o *GetDashboardMostVulnerableOK) String() string {
+	return fmt.Sprintf("[GET /dashboard/mostVulnerable][%d] getDashboardMostVulnerableOK  %+v", 200, o.Payload)
+}
+
 func (o *GetDashboardMostVulnerableOK) GetPayload() *models.MostVulnerable {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetDashboardMostVulnerableDefault(code int) *GetDashboardMostVulnerableD
 	}
 }
 
-/* GetDashboardMostVulnerableDefault describes a response with status code -1, with default header values.
+/*
+GetDashboardMostVulnerableDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetDashboardMostVulnerableDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get dashboard most vulnerable default response has a 2xx status code
+func (o *GetDashboardMostVulnerableDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get dashboard most vulnerable default response has a 3xx status code
+func (o *GetDashboardMostVulnerableDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get dashboard most vulnerable default response has a 4xx status code
+func (o *GetDashboardMostVulnerableDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get dashboard most vulnerable default response has a 5xx status code
+func (o *GetDashboardMostVulnerableDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get dashboard most vulnerable default response a status code equal to that given
+func (o *GetDashboardMostVulnerableDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get dashboard most vulnerable default response
@@ -98,6 +160,11 @@ func (o *GetDashboardMostVulnerableDefault) Code() int {
 func (o *GetDashboardMostVulnerableDefault) Error() string {
 	return fmt.Sprintf("[GET /dashboard/mostVulnerable][%d] GetDashboardMostVulnerable default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetDashboardMostVulnerableDefault) String() string {
+	return fmt.Sprintf("[GET /dashboard/mostVulnerable][%d] GetDashboardMostVulnerable default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetDashboardMostVulnerableDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

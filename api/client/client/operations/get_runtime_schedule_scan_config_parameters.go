@@ -52,10 +52,12 @@ func NewGetRuntimeScheduleScanConfigParamsWithHTTPClient(client *http.Client) *G
 	}
 }
 
-/* GetRuntimeScheduleScanConfigParams contains all the parameters to send to the API endpoint
-   for the get runtime schedule scan config operation.
+/*
+GetRuntimeScheduleScanConfigParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get runtime schedule scan config operation.
+
+	Typically these are written to a http.Request.
 */
 type GetRuntimeScheduleScanConfigParams struct {
 	timeout    time.Duration

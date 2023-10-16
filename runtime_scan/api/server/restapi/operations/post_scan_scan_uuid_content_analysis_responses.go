@@ -16,7 +16,8 @@ import (
 // PostScanScanUUIDContentAnalysisCreatedCode is the HTTP code returned for type PostScanScanUUIDContentAnalysisCreated
 const PostScanScanUUIDContentAnalysisCreatedCode int = 201
 
-/*PostScanScanUUIDContentAnalysisCreated Image content analysis successfully reported.
+/*
+PostScanScanUUIDContentAnalysisCreated Image content analysis successfully reported.
 
 swagger:response postScanScanUuidContentAnalysisCreated
 */
@@ -37,7 +38,8 @@ func (o *PostScanScanUUIDContentAnalysisCreated) WriteResponse(rw http.ResponseW
 	rw.WriteHeader(201)
 }
 
-/*PostScanScanUUIDContentAnalysisDefault unknown error
+/*
+PostScanScanUUIDContentAnalysisDefault unknown error
 
 swagger:response postScanScanUuidContentAnalysisDefault
 */

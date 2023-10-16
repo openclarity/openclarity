@@ -29,10 +29,10 @@ func NewGetDashboardPackagesPerLanguage(ctx *middleware.Context, handler GetDash
 	return &GetDashboardPackagesPerLanguage{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardPackagesPerLanguage swagger:route GET /dashboard/packagesPerLanguage getDashboardPackagesPerLanguage
+/*
+	GetDashboardPackagesPerLanguage swagger:route GET /dashboard/packagesPerLanguage getDashboardPackagesPerLanguage
 
 Get packages count per language
-
 */
 type GetDashboardPackagesPerLanguage struct {
 	Context *middleware.Context

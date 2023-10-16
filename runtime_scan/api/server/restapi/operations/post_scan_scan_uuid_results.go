@@ -29,10 +29,10 @@ func NewPostScanScanUUIDResults(ctx *middleware.Context, handler PostScanScanUUI
 	return &PostScanScanUUIDResults{Context: ctx, Handler: handler}
 }
 
-/* PostScanScanUUIDResults swagger:route POST /scan/{scan-uuid}/results postScanScanUuidResults
+/*
+	PostScanScanUUIDResults swagger:route POST /scan/{scan-uuid}/results postScanScanUuidResults
 
 Report an image vulnerability scan for a specific scan UUID.
-
 */
 type PostScanScanUUIDResults struct {
 	Context *middleware.Context

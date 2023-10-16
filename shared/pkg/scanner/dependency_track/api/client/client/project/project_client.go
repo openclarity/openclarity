@@ -46,9 +46,9 @@ type ClientService interface {
 }
 
 /*
-  CreateProject creates a new project
+CreateProject creates a new project
 
-  If a parent project exists, the UUID of the parent project is required
+If a parent project exists, the UUID of the parent project is required
 */
 func (a *Client) CreateProject(params *CreateProjectParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateProjectCreated, error) {
 	// TODO: Validate the params before sending
@@ -87,7 +87,7 @@ func (a *Client) CreateProject(params *CreateProjectParams, authInfo runtime.Cli
 }
 
 /*
-  DeleteProject deletes a project
+DeleteProject deletes a project
 */
 func (a *Client) DeleteProject(params *DeleteProjectParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) error {
 	// TODO: Validate the params before sending
@@ -119,7 +119,7 @@ func (a *Client) DeleteProject(params *DeleteProjectParams, authInfo runtime.Cli
 }
 
 /*
-  GetProject returns a specific project
+GetProject returns a specific project
 */
 func (a *Client) GetProject(params *GetProjectParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetProjectOK, error) {
 	// TODO: Validate the params before sending
@@ -158,7 +158,7 @@ func (a *Client) GetProject(params *GetProjectParams, authInfo runtime.ClientAut
 }
 
 /*
-  GetProject1 returns a specific project by its name and version
+GetProject1 returns a specific project by its name and version
 */
 func (a *Client) GetProject1(params *GetProject1Params, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetProject1OK, error) {
 	// TODO: Validate the params before sending
@@ -197,7 +197,7 @@ func (a *Client) GetProject1(params *GetProject1Params, authInfo runtime.ClientA
 }
 
 /*
-  GetProjects returns a list of all projects
+GetProjects returns a list of all projects
 */
 func (a *Client) GetProjects(params *GetProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetProjectsOK, error) {
 	// TODO: Validate the params before sending
@@ -236,7 +236,7 @@ func (a *Client) GetProjects(params *GetProjectsParams, authInfo runtime.ClientA
 }
 
 /*
-  UpdateProject updates a project
+UpdateProject updates a project
 */
 func (a *Client) UpdateProject(params *UpdateProjectParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UpdateProjectOK, error) {
 	// TODO: Validate the params before sending

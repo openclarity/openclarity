@@ -158,6 +158,8 @@ func (m *ServiceComponent) validateChildren(formats strfmt.Registry) error {
 			if err := m.Children[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -182,6 +184,8 @@ func (m *ServiceComponent) validateData(formats strfmt.Registry) error {
 			if err := m.Data[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("data" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("data" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -222,6 +226,8 @@ func (m *ServiceComponent) validateExternalReferences(formats strfmt.Registry) e
 			if err := m.ExternalReferences[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("externalReferences" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("externalReferences" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -273,6 +279,8 @@ func (m *ServiceComponent) validateParent(formats strfmt.Registry) error {
 		if err := m.Parent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -291,6 +299,8 @@ func (m *ServiceComponent) validateProject(formats strfmt.Registry) error {
 		if err := m.Project.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -308,6 +318,8 @@ func (m *ServiceComponent) validateProvider(formats strfmt.Registry) error {
 		if err := m.Provider.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("provider")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("provider")
 			}
 			return err
 		}
@@ -359,6 +371,8 @@ func (m *ServiceComponent) validateVulnerabilities(formats strfmt.Registry) erro
 			if err := m.Vulnerabilities[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -412,9 +426,16 @@ func (m *ServiceComponent) contextValidateChildren(ctx context.Context, formats 
 	for i := 0; i < len(m.Children); i++ {
 
 		if m.Children[i] != nil {
+
+			if swag.IsZero(m.Children[i]) { // not required
+				return nil
+			}
+
 			if err := m.Children[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -430,9 +451,16 @@ func (m *ServiceComponent) contextValidateData(ctx context.Context, formats strf
 	for i := 0; i < len(m.Data); i++ {
 
 		if m.Data[i] != nil {
+
+			if swag.IsZero(m.Data[i]) { // not required
+				return nil
+			}
+
 			if err := m.Data[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("data" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("data" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -448,9 +476,16 @@ func (m *ServiceComponent) contextValidateExternalReferences(ctx context.Context
 	for i := 0; i < len(m.ExternalReferences); i++ {
 
 		if m.ExternalReferences[i] != nil {
+
+			if swag.IsZero(m.ExternalReferences[i]) { // not required
+				return nil
+			}
+
 			if err := m.ExternalReferences[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("externalReferences" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("externalReferences" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -464,9 +499,16 @@ func (m *ServiceComponent) contextValidateExternalReferences(ctx context.Context
 func (m *ServiceComponent) contextValidateParent(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Parent != nil {
+
+		if swag.IsZero(m.Parent) { // not required
+			return nil
+		}
+
 		if err := m.Parent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -478,9 +520,12 @@ func (m *ServiceComponent) contextValidateParent(ctx context.Context, formats st
 func (m *ServiceComponent) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Project != nil {
+
 		if err := m.Project.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -492,9 +537,16 @@ func (m *ServiceComponent) contextValidateProject(ctx context.Context, formats s
 func (m *ServiceComponent) contextValidateProvider(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Provider != nil {
+
+		if swag.IsZero(m.Provider) { // not required
+			return nil
+		}
+
 		if err := m.Provider.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("provider")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("provider")
 			}
 			return err
 		}
@@ -508,9 +560,16 @@ func (m *ServiceComponent) contextValidateVulnerabilities(ctx context.Context, f
 	for i := 0; i < len(m.Vulnerabilities); i++ {
 
 		if m.Vulnerabilities[i] != nil {
+
+			if swag.IsZero(m.Vulnerabilities[i]) { // not required
+				return nil
+			}
+
 			if err := m.Vulnerabilities[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

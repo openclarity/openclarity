@@ -20,8 +20,12 @@ import (
 type AttackVector string
 
 func NewAttackVector(value AttackVector) *AttackVector {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated AttackVector.
+func (m AttackVector) Pointer() *AttackVector {
+	return &m
 }
 
 const (

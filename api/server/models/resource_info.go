@@ -50,6 +50,8 @@ func (m *ResourceInfo) validateResourceType(formats strfmt.Registry) error {
 	if err := m.ResourceType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("resourceType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("resourceType")
 		}
 		return err
 	}
@@ -73,9 +75,15 @@ func (m *ResourceInfo) ContextValidate(ctx context.Context, formats strfmt.Regis
 
 func (m *ResourceInfo) contextValidateResourceType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ResourceType) { // not required
+		return nil
+	}
+
 	if err := m.ResourceType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("resourceType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("resourceType")
 		}
 		return err
 	}

@@ -20,8 +20,12 @@ import (
 type ResourceType string
 
 func NewResourceType(value ResourceType) *ResourceType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ResourceType.
+func (m ResourceType) Pointer() *ResourceType {
+	return &m
 }
 
 const (

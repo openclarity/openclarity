@@ -16,7 +16,8 @@ import (
 // PutRuntimeQuickscanConfigCreatedCode is the HTTP code returned for type PutRuntimeQuickscanConfigCreated
 const PutRuntimeQuickscanConfigCreatedCode int = 201
 
-/*PutRuntimeQuickscanConfigCreated Success
+/*
+PutRuntimeQuickscanConfigCreated Success
 
 swagger:response putRuntimeQuickscanConfigCreated
 */
@@ -58,7 +59,8 @@ func (o *PutRuntimeQuickscanConfigCreated) WriteResponse(rw http.ResponseWriter,
 // PutRuntimeQuickscanConfigBadRequestCode is the HTTP code returned for type PutRuntimeQuickscanConfigBadRequest
 const PutRuntimeQuickscanConfigBadRequestCode int = 400
 
-/*PutRuntimeQuickscanConfigBadRequest Failed to set quick scan config
+/*
+PutRuntimeQuickscanConfigBadRequest Failed to set quick scan config
 
 swagger:response putRuntimeQuickscanConfigBadRequest
 */
@@ -97,7 +99,8 @@ func (o *PutRuntimeQuickscanConfigBadRequest) WriteResponse(rw http.ResponseWrit
 	}
 }
 
-/*PutRuntimeQuickscanConfigDefault unknown error
+/*
+PutRuntimeQuickscanConfigDefault unknown error
 
 swagger:response putRuntimeQuickscanConfigDefault
 */

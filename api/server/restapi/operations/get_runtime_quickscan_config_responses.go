@@ -16,7 +16,8 @@ import (
 // GetRuntimeQuickscanConfigOKCode is the HTTP code returned for type GetRuntimeQuickscanConfigOK
 const GetRuntimeQuickscanConfigOKCode int = 200
 
-/*GetRuntimeQuickscanConfigOK Success
+/*
+GetRuntimeQuickscanConfigOK Success
 
 swagger:response getRuntimeQuickscanConfigOK
 */
@@ -57,7 +58,8 @@ func (o *GetRuntimeQuickscanConfigOK) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
-/*GetRuntimeQuickscanConfigDefault unknown error
+/*
+GetRuntimeQuickscanConfigDefault unknown error
 
 swagger:response getRuntimeQuickscanConfigDefault
 */

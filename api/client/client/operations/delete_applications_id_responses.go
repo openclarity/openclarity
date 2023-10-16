@@ -52,14 +52,49 @@ func NewDeleteApplicationsIDNoContent() *DeleteApplicationsIDNoContent {
 	return &DeleteApplicationsIDNoContent{}
 }
 
-/* DeleteApplicationsIDNoContent describes a response with status code 204, with default header values.
+/*
+DeleteApplicationsIDNoContent describes a response with status code 204, with default header values.
 
 Success
 */
 type DeleteApplicationsIDNoContent struct {
 }
 
+// IsSuccess returns true when this delete applications Id no content response has a 2xx status code
+func (o *DeleteApplicationsIDNoContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete applications Id no content response has a 3xx status code
+func (o *DeleteApplicationsIDNoContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete applications Id no content response has a 4xx status code
+func (o *DeleteApplicationsIDNoContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete applications Id no content response has a 5xx status code
+func (o *DeleteApplicationsIDNoContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete applications Id no content response a status code equal to that given
+func (o *DeleteApplicationsIDNoContent) IsCode(code int) bool {
+	return code == 204
+}
+
+// Code gets the status code for the delete applications Id no content response
+func (o *DeleteApplicationsIDNoContent) Code() int {
+	return 204
+}
+
 func (o *DeleteApplicationsIDNoContent) Error() string {
+	return fmt.Sprintf("[DELETE /applications/{id}][%d] deleteApplicationsIdNoContent ", 204)
+}
+
+func (o *DeleteApplicationsIDNoContent) String() string {
 	return fmt.Sprintf("[DELETE /applications/{id}][%d] deleteApplicationsIdNoContent ", 204)
 }
 
@@ -73,14 +108,49 @@ func NewDeleteApplicationsIDNotFound() *DeleteApplicationsIDNotFound {
 	return &DeleteApplicationsIDNotFound{}
 }
 
-/* DeleteApplicationsIDNotFound describes a response with status code 404, with default header values.
+/*
+DeleteApplicationsIDNotFound describes a response with status code 404, with default header values.
 
 Application not found.
 */
 type DeleteApplicationsIDNotFound struct {
 }
 
+// IsSuccess returns true when this delete applications Id not found response has a 2xx status code
+func (o *DeleteApplicationsIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete applications Id not found response has a 3xx status code
+func (o *DeleteApplicationsIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete applications Id not found response has a 4xx status code
+func (o *DeleteApplicationsIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete applications Id not found response has a 5xx status code
+func (o *DeleteApplicationsIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete applications Id not found response a status code equal to that given
+func (o *DeleteApplicationsIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the delete applications Id not found response
+func (o *DeleteApplicationsIDNotFound) Code() int {
+	return 404
+}
+
 func (o *DeleteApplicationsIDNotFound) Error() string {
+	return fmt.Sprintf("[DELETE /applications/{id}][%d] deleteApplicationsIdNotFound ", 404)
+}
+
+func (o *DeleteApplicationsIDNotFound) String() string {
 	return fmt.Sprintf("[DELETE /applications/{id}][%d] deleteApplicationsIdNotFound ", 404)
 }
 
@@ -96,7 +166,8 @@ func NewDeleteApplicationsIDDefault(code int) *DeleteApplicationsIDDefault {
 	}
 }
 
-/* DeleteApplicationsIDDefault describes a response with status code -1, with default header values.
+/*
+DeleteApplicationsIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -104,6 +175,31 @@ type DeleteApplicationsIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this delete applications ID default response has a 2xx status code
+func (o *DeleteApplicationsIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this delete applications ID default response has a 3xx status code
+func (o *DeleteApplicationsIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this delete applications ID default response has a 4xx status code
+func (o *DeleteApplicationsIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this delete applications ID default response has a 5xx status code
+func (o *DeleteApplicationsIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this delete applications ID default response a status code equal to that given
+func (o *DeleteApplicationsIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the delete applications ID default response
@@ -114,6 +210,11 @@ func (o *DeleteApplicationsIDDefault) Code() int {
 func (o *DeleteApplicationsIDDefault) Error() string {
 	return fmt.Sprintf("[DELETE /applications/{id}][%d] DeleteApplicationsID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *DeleteApplicationsIDDefault) String() string {
+	return fmt.Sprintf("[DELETE /applications/{id}][%d] DeleteApplicationsID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *DeleteApplicationsIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

@@ -50,7 +50,7 @@ func (o *GetFindingsByProjectReader) ReadResponse(response runtime.ClientRespons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /v1/finding/project/{uuid}] getFindingsByProject", response, response.Code())
 	}
 }
 
@@ -59,7 +59,8 @@ func NewGetFindingsByProjectOK() *GetFindingsByProjectOK {
 	return &GetFindingsByProjectOK{}
 }
 
-/* GetFindingsByProjectOK describes a response with status code 200, with default header values.
+/*
+GetFindingsByProjectOK describes a response with status code 200, with default header values.
 
 successful operation
 */
@@ -74,9 +75,44 @@ type GetFindingsByProjectOK struct {
 	Payload []*models.Finding
 }
 
+// IsSuccess returns true when this get findings by project o k response has a 2xx status code
+func (o *GetFindingsByProjectOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get findings by project o k response has a 3xx status code
+func (o *GetFindingsByProjectOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get findings by project o k response has a 4xx status code
+func (o *GetFindingsByProjectOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get findings by project o k response has a 5xx status code
+func (o *GetFindingsByProjectOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get findings by project o k response a status code equal to that given
+func (o *GetFindingsByProjectOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get findings by project o k response
+func (o *GetFindingsByProjectOK) Code() int {
+	return 200
+}
+
 func (o *GetFindingsByProjectOK) Error() string {
 	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectOK  %+v", 200, o.Payload)
 }
+
+func (o *GetFindingsByProjectOK) String() string {
+	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectOK  %+v", 200, o.Payload)
+}
+
 func (o *GetFindingsByProjectOK) GetPayload() []*models.Finding {
 	return o.Payload
 }
@@ -107,14 +143,49 @@ func NewGetFindingsByProjectUnauthorized() *GetFindingsByProjectUnauthorized {
 	return &GetFindingsByProjectUnauthorized{}
 }
 
-/* GetFindingsByProjectUnauthorized describes a response with status code 401, with default header values.
+/*
+GetFindingsByProjectUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type GetFindingsByProjectUnauthorized struct {
 }
 
+// IsSuccess returns true when this get findings by project unauthorized response has a 2xx status code
+func (o *GetFindingsByProjectUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get findings by project unauthorized response has a 3xx status code
+func (o *GetFindingsByProjectUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get findings by project unauthorized response has a 4xx status code
+func (o *GetFindingsByProjectUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get findings by project unauthorized response has a 5xx status code
+func (o *GetFindingsByProjectUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get findings by project unauthorized response a status code equal to that given
+func (o *GetFindingsByProjectUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the get findings by project unauthorized response
+func (o *GetFindingsByProjectUnauthorized) Code() int {
+	return 401
+}
+
 func (o *GetFindingsByProjectUnauthorized) Error() string {
+	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectUnauthorized ", 401)
+}
+
+func (o *GetFindingsByProjectUnauthorized) String() string {
 	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectUnauthorized ", 401)
 }
 
@@ -128,14 +199,49 @@ func NewGetFindingsByProjectForbidden() *GetFindingsByProjectForbidden {
 	return &GetFindingsByProjectForbidden{}
 }
 
-/* GetFindingsByProjectForbidden describes a response with status code 403, with default header values.
+/*
+GetFindingsByProjectForbidden describes a response with status code 403, with default header values.
 
 Access to the specified project is forbidden
 */
 type GetFindingsByProjectForbidden struct {
 }
 
+// IsSuccess returns true when this get findings by project forbidden response has a 2xx status code
+func (o *GetFindingsByProjectForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get findings by project forbidden response has a 3xx status code
+func (o *GetFindingsByProjectForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get findings by project forbidden response has a 4xx status code
+func (o *GetFindingsByProjectForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get findings by project forbidden response has a 5xx status code
+func (o *GetFindingsByProjectForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get findings by project forbidden response a status code equal to that given
+func (o *GetFindingsByProjectForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get findings by project forbidden response
+func (o *GetFindingsByProjectForbidden) Code() int {
+	return 403
+}
+
 func (o *GetFindingsByProjectForbidden) Error() string {
+	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectForbidden ", 403)
+}
+
+func (o *GetFindingsByProjectForbidden) String() string {
 	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectForbidden ", 403)
 }
 
@@ -149,14 +255,49 @@ func NewGetFindingsByProjectNotFound() *GetFindingsByProjectNotFound {
 	return &GetFindingsByProjectNotFound{}
 }
 
-/* GetFindingsByProjectNotFound describes a response with status code 404, with default header values.
+/*
+GetFindingsByProjectNotFound describes a response with status code 404, with default header values.
 
 The project could not be found
 */
 type GetFindingsByProjectNotFound struct {
 }
 
+// IsSuccess returns true when this get findings by project not found response has a 2xx status code
+func (o *GetFindingsByProjectNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get findings by project not found response has a 3xx status code
+func (o *GetFindingsByProjectNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get findings by project not found response has a 4xx status code
+func (o *GetFindingsByProjectNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get findings by project not found response has a 5xx status code
+func (o *GetFindingsByProjectNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get findings by project not found response a status code equal to that given
+func (o *GetFindingsByProjectNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get findings by project not found response
+func (o *GetFindingsByProjectNotFound) Code() int {
+	return 404
+}
+
 func (o *GetFindingsByProjectNotFound) Error() string {
+	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectNotFound ", 404)
+}
+
+func (o *GetFindingsByProjectNotFound) String() string {
 	return fmt.Sprintf("[GET /v1/finding/project/{uuid}][%d] getFindingsByProjectNotFound ", 404)
 }
 

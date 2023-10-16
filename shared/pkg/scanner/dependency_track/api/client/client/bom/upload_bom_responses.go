@@ -45,7 +45,7 @@ func (o *UploadBomReader) ReadResponse(response runtime.ClientResponse, consumer
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /v1/bom] uploadBom", response, response.Code())
 	}
 }
 
@@ -54,14 +54,49 @@ func NewUploadBomOK() *UploadBomOK {
 	return &UploadBomOK{}
 }
 
-/* UploadBomOK describes a response with status code 200, with default header values.
+/*
+UploadBomOK describes a response with status code 200, with default header values.
 
 Successful
 */
 type UploadBomOK struct {
 }
 
+// IsSuccess returns true when this upload bom o k response has a 2xx status code
+func (o *UploadBomOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this upload bom o k response has a 3xx status code
+func (o *UploadBomOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this upload bom o k response has a 4xx status code
+func (o *UploadBomOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this upload bom o k response has a 5xx status code
+func (o *UploadBomOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this upload bom o k response a status code equal to that given
+func (o *UploadBomOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the upload bom o k response
+func (o *UploadBomOK) Code() int {
+	return 200
+}
+
 func (o *UploadBomOK) Error() string {
+	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomOK ", 200)
+}
+
+func (o *UploadBomOK) String() string {
 	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomOK ", 200)
 }
 
@@ -75,14 +110,49 @@ func NewUploadBomUnauthorized() *UploadBomUnauthorized {
 	return &UploadBomUnauthorized{}
 }
 
-/* UploadBomUnauthorized describes a response with status code 401, with default header values.
+/*
+UploadBomUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type UploadBomUnauthorized struct {
 }
 
+// IsSuccess returns true when this upload bom unauthorized response has a 2xx status code
+func (o *UploadBomUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this upload bom unauthorized response has a 3xx status code
+func (o *UploadBomUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this upload bom unauthorized response has a 4xx status code
+func (o *UploadBomUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this upload bom unauthorized response has a 5xx status code
+func (o *UploadBomUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this upload bom unauthorized response a status code equal to that given
+func (o *UploadBomUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the upload bom unauthorized response
+func (o *UploadBomUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UploadBomUnauthorized) Error() string {
+	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomUnauthorized ", 401)
+}
+
+func (o *UploadBomUnauthorized) String() string {
 	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomUnauthorized ", 401)
 }
 
@@ -96,14 +166,49 @@ func NewUploadBomForbidden() *UploadBomForbidden {
 	return &UploadBomForbidden{}
 }
 
-/* UploadBomForbidden describes a response with status code 403, with default header values.
+/*
+UploadBomForbidden describes a response with status code 403, with default header values.
 
 Access to the specified project is forbidden
 */
 type UploadBomForbidden struct {
 }
 
+// IsSuccess returns true when this upload bom forbidden response has a 2xx status code
+func (o *UploadBomForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this upload bom forbidden response has a 3xx status code
+func (o *UploadBomForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this upload bom forbidden response has a 4xx status code
+func (o *UploadBomForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this upload bom forbidden response has a 5xx status code
+func (o *UploadBomForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this upload bom forbidden response a status code equal to that given
+func (o *UploadBomForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the upload bom forbidden response
+func (o *UploadBomForbidden) Code() int {
+	return 403
+}
+
 func (o *UploadBomForbidden) Error() string {
+	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomForbidden ", 403)
+}
+
+func (o *UploadBomForbidden) String() string {
 	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomForbidden ", 403)
 }
 
@@ -117,14 +222,49 @@ func NewUploadBomNotFound() *UploadBomNotFound {
 	return &UploadBomNotFound{}
 }
 
-/* UploadBomNotFound describes a response with status code 404, with default header values.
+/*
+UploadBomNotFound describes a response with status code 404, with default header values.
 
 The project could not be found
 */
 type UploadBomNotFound struct {
 }
 
+// IsSuccess returns true when this upload bom not found response has a 2xx status code
+func (o *UploadBomNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this upload bom not found response has a 3xx status code
+func (o *UploadBomNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this upload bom not found response has a 4xx status code
+func (o *UploadBomNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this upload bom not found response has a 5xx status code
+func (o *UploadBomNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this upload bom not found response a status code equal to that given
+func (o *UploadBomNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the upload bom not found response
+func (o *UploadBomNotFound) Code() int {
+	return 404
+}
+
 func (o *UploadBomNotFound) Error() string {
+	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomNotFound ", 404)
+}
+
+func (o *UploadBomNotFound) String() string {
 	return fmt.Sprintf("[POST /v1/bom][%d] uploadBomNotFound ", 404)
 }
 

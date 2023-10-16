@@ -65,6 +65,8 @@ func (m *MostVulnerable) validateApplications(formats strfmt.Registry) error {
 			if err := m.Applications[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("applications" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("applications" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -89,6 +91,8 @@ func (m *MostVulnerable) validatePackages(formats strfmt.Registry) error {
 			if err := m.Packages[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("packages" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("packages" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -113,6 +117,8 @@ func (m *MostVulnerable) validateResources(formats strfmt.Registry) error {
 			if err := m.Resources[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("resources" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("resources" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -150,9 +156,16 @@ func (m *MostVulnerable) contextValidateApplications(ctx context.Context, format
 	for i := 0; i < len(m.Applications); i++ {
 
 		if m.Applications[i] != nil {
+
+			if swag.IsZero(m.Applications[i]) { // not required
+				return nil
+			}
+
 			if err := m.Applications[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("applications" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("applications" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -168,9 +181,16 @@ func (m *MostVulnerable) contextValidatePackages(ctx context.Context, formats st
 	for i := 0; i < len(m.Packages); i++ {
 
 		if m.Packages[i] != nil {
+
+			if swag.IsZero(m.Packages[i]) { // not required
+				return nil
+			}
+
 			if err := m.Packages[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("packages" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("packages" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -186,9 +206,16 @@ func (m *MostVulnerable) contextValidateResources(ctx context.Context, formats s
 	for i := 0; i < len(m.Resources); i++ {
 
 		if m.Resources[i] != nil {
+
+			if swag.IsZero(m.Resources[i]) { // not required
+				return nil
+			}
+
 			if err := m.Resources[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("resources" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("resources" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

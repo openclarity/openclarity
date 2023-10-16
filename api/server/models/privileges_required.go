@@ -20,8 +20,12 @@ import (
 type PrivilegesRequired string
 
 func NewPrivilegesRequired(value PrivilegesRequired) *PrivilegesRequired {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated PrivilegesRequired.
+func (m PrivilegesRequired) Pointer() *PrivilegesRequired {
+	return &m
 }
 
 const (

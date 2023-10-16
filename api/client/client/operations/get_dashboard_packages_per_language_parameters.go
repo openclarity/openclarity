@@ -52,10 +52,12 @@ func NewGetDashboardPackagesPerLanguageParamsWithHTTPClient(client *http.Client)
 	}
 }
 
-/* GetDashboardPackagesPerLanguageParams contains all the parameters to send to the API endpoint
-   for the get dashboard packages per language operation.
+/*
+GetDashboardPackagesPerLanguageParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get dashboard packages per language operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDashboardPackagesPerLanguageParams struct {
 	timeout    time.Duration

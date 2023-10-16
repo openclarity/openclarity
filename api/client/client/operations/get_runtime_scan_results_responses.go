@@ -46,7 +46,8 @@ func NewGetRuntimeScanResultsOK() *GetRuntimeScanResultsOK {
 	return &GetRuntimeScanResultsOK{}
 }
 
-/* GetRuntimeScanResultsOK describes a response with status code 200, with default header values.
+/*
+GetRuntimeScanResultsOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetRuntimeScanResultsOK struct {
 	Payload *models.RuntimeScanResults
 }
 
+// IsSuccess returns true when this get runtime scan results o k response has a 2xx status code
+func (o *GetRuntimeScanResultsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get runtime scan results o k response has a 3xx status code
+func (o *GetRuntimeScanResultsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get runtime scan results o k response has a 4xx status code
+func (o *GetRuntimeScanResultsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get runtime scan results o k response has a 5xx status code
+func (o *GetRuntimeScanResultsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get runtime scan results o k response a status code equal to that given
+func (o *GetRuntimeScanResultsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get runtime scan results o k response
+func (o *GetRuntimeScanResultsOK) Code() int {
+	return 200
+}
+
 func (o *GetRuntimeScanResultsOK) Error() string {
 	return fmt.Sprintf("[GET /runtime/scan/results][%d] getRuntimeScanResultsOK  %+v", 200, o.Payload)
 }
+
+func (o *GetRuntimeScanResultsOK) String() string {
+	return fmt.Sprintf("[GET /runtime/scan/results][%d] getRuntimeScanResultsOK  %+v", 200, o.Payload)
+}
+
 func (o *GetRuntimeScanResultsOK) GetPayload() *models.RuntimeScanResults {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetRuntimeScanResultsDefault(code int) *GetRuntimeScanResultsDefault {
 	}
 }
 
-/* GetRuntimeScanResultsDefault describes a response with status code -1, with default header values.
+/*
+GetRuntimeScanResultsDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetRuntimeScanResultsDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get runtime scan results default response has a 2xx status code
+func (o *GetRuntimeScanResultsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get runtime scan results default response has a 3xx status code
+func (o *GetRuntimeScanResultsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get runtime scan results default response has a 4xx status code
+func (o *GetRuntimeScanResultsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get runtime scan results default response has a 5xx status code
+func (o *GetRuntimeScanResultsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get runtime scan results default response a status code equal to that given
+func (o *GetRuntimeScanResultsDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get runtime scan results default response
@@ -98,6 +160,11 @@ func (o *GetRuntimeScanResultsDefault) Code() int {
 func (o *GetRuntimeScanResultsDefault) Error() string {
 	return fmt.Sprintf("[GET /runtime/scan/results][%d] GetRuntimeScanResults default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetRuntimeScanResultsDefault) String() string {
+	return fmt.Sprintf("[GET /runtime/scan/results][%d] GetRuntimeScanResults default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetRuntimeScanResultsDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

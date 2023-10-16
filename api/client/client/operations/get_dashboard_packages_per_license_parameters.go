@@ -52,10 +52,12 @@ func NewGetDashboardPackagesPerLicenseParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/* GetDashboardPackagesPerLicenseParams contains all the parameters to send to the API endpoint
-   for the get dashboard packages per license operation.
+/*
+GetDashboardPackagesPerLicenseParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get dashboard packages per license operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDashboardPackagesPerLicenseParams struct {
 	timeout    time.Duration

@@ -52,10 +52,12 @@ func NewGetRuntimeQuickscanConfigParamsWithHTTPClient(client *http.Client) *GetR
 	}
 }
 
-/* GetRuntimeQuickscanConfigParams contains all the parameters to send to the API endpoint
-   for the get runtime quickscan config operation.
+/*
+GetRuntimeQuickscanConfigParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get runtime quickscan config operation.
+
+	Typically these are written to a http.Request.
 */
 type GetRuntimeQuickscanConfigParams struct {
 	timeout    time.Duration

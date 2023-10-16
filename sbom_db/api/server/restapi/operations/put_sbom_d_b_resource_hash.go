@@ -29,10 +29,10 @@ func NewPutSbomDBResourceHash(ctx *middleware.Context, handler PutSbomDBResource
 	return &PutSbomDBResourceHash{Context: ctx, Handler: handler}
 }
 
-/* PutSbomDBResourceHash swagger:route PUT /sbomDB/{resourceHash} putSbomDBResourceHash
+/*
+	PutSbomDBResourceHash swagger:route PUT /sbomDB/{resourceHash} putSbomDBResourceHash
 
 Store an SBOM in DB for the given resource hash.
-
 */
 type PutSbomDBResourceHash struct {
 	Context *middleware.Context

@@ -29,10 +29,10 @@ func NewGetDashboardTrendsVulnerabilities(ctx *middleware.Context, handler GetDa
 	return &GetDashboardTrendsVulnerabilities{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardTrendsVulnerabilities swagger:route GET /dashboard/trends/vulnerabilities getDashboardTrendsVulnerabilities
+/*
+	GetDashboardTrendsVulnerabilities swagger:route GET /dashboard/trends/vulnerabilities getDashboardTrendsVulnerabilities
 
 Get new vulnerabilities trend
-
 */
 type GetDashboardTrendsVulnerabilities struct {
 	Context *middleware.Context

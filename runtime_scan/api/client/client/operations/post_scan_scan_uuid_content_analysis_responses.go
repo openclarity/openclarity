@@ -46,14 +46,49 @@ func NewPostScanScanUUIDContentAnalysisCreated() *PostScanScanUUIDContentAnalysi
 	return &PostScanScanUUIDContentAnalysisCreated{}
 }
 
-/* PostScanScanUUIDContentAnalysisCreated describes a response with status code 201, with default header values.
+/*
+PostScanScanUUIDContentAnalysisCreated describes a response with status code 201, with default header values.
 
 Image content analysis successfully reported.
 */
 type PostScanScanUUIDContentAnalysisCreated struct {
 }
 
+// IsSuccess returns true when this post scan scan Uuid content analysis created response has a 2xx status code
+func (o *PostScanScanUUIDContentAnalysisCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post scan scan Uuid content analysis created response has a 3xx status code
+func (o *PostScanScanUUIDContentAnalysisCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post scan scan Uuid content analysis created response has a 4xx status code
+func (o *PostScanScanUUIDContentAnalysisCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post scan scan Uuid content analysis created response has a 5xx status code
+func (o *PostScanScanUUIDContentAnalysisCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post scan scan Uuid content analysis created response a status code equal to that given
+func (o *PostScanScanUUIDContentAnalysisCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post scan scan Uuid content analysis created response
+func (o *PostScanScanUUIDContentAnalysisCreated) Code() int {
+	return 201
+}
+
 func (o *PostScanScanUUIDContentAnalysisCreated) Error() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/contentAnalysis][%d] postScanScanUuidContentAnalysisCreated ", 201)
+}
+
+func (o *PostScanScanUUIDContentAnalysisCreated) String() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/contentAnalysis][%d] postScanScanUuidContentAnalysisCreated ", 201)
 }
 
@@ -69,7 +104,8 @@ func NewPostScanScanUUIDContentAnalysisDefault(code int) *PostScanScanUUIDConten
 	}
 }
 
-/* PostScanScanUUIDContentAnalysisDefault describes a response with status code -1, with default header values.
+/*
+PostScanScanUUIDContentAnalysisDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -77,6 +113,31 @@ type PostScanScanUUIDContentAnalysisDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this post scan scan UUID content analysis default response has a 2xx status code
+func (o *PostScanScanUUIDContentAnalysisDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this post scan scan UUID content analysis default response has a 3xx status code
+func (o *PostScanScanUUIDContentAnalysisDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this post scan scan UUID content analysis default response has a 4xx status code
+func (o *PostScanScanUUIDContentAnalysisDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this post scan scan UUID content analysis default response has a 5xx status code
+func (o *PostScanScanUUIDContentAnalysisDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this post scan scan UUID content analysis default response a status code equal to that given
+func (o *PostScanScanUUIDContentAnalysisDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the post scan scan UUID content analysis default response
@@ -87,6 +148,11 @@ func (o *PostScanScanUUIDContentAnalysisDefault) Code() int {
 func (o *PostScanScanUUIDContentAnalysisDefault) Error() string {
 	return fmt.Sprintf("[POST /scan/{scan-uuid}/contentAnalysis][%d] PostScanScanUUIDContentAnalysis default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PostScanScanUUIDContentAnalysisDefault) String() string {
+	return fmt.Sprintf("[POST /scan/{scan-uuid}/contentAnalysis][%d] PostScanScanUUIDContentAnalysis default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PostScanScanUUIDContentAnalysisDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

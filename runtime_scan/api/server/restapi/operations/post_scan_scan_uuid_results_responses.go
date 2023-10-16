@@ -16,7 +16,8 @@ import (
 // PostScanScanUUIDResultsCreatedCode is the HTTP code returned for type PostScanScanUUIDResultsCreated
 const PostScanScanUUIDResultsCreatedCode int = 201
 
-/*PostScanScanUUIDResultsCreated Image vulnerability scan successfully reported.
+/*
+PostScanScanUUIDResultsCreated Image vulnerability scan successfully reported.
 
 swagger:response postScanScanUuidResultsCreated
 */
@@ -37,7 +38,8 @@ func (o *PostScanScanUUIDResultsCreated) WriteResponse(rw http.ResponseWriter, p
 	rw.WriteHeader(201)
 }
 
-/*PostScanScanUUIDResultsDefault unknown error
+/*
+PostScanScanUUIDResultsDefault unknown error
 
 swagger:response postScanScanUuidResultsDefault
 */

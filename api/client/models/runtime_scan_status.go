@@ -20,8 +20,12 @@ import (
 type RuntimeScanStatus string
 
 func NewRuntimeScanStatus(value RuntimeScanStatus) *RuntimeScanStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated RuntimeScanStatus.
+func (m RuntimeScanStatus) Pointer() *RuntimeScanStatus {
+	return &m
 }
 
 const (

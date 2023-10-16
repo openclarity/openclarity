@@ -29,10 +29,10 @@ func NewPostScanScanUUIDContentAnalysis(ctx *middleware.Context, handler PostSca
 	return &PostScanScanUUIDContentAnalysis{Context: ctx, Handler: handler}
 }
 
-/* PostScanScanUUIDContentAnalysis swagger:route POST /scan/{scan-uuid}/contentAnalysis postScanScanUuidContentAnalysis
+/*
+	PostScanScanUUIDContentAnalysis swagger:route POST /scan/{scan-uuid}/contentAnalysis postScanScanUuidContentAnalysis
 
 Report a content analysis for a specific resource
-
 */
 type PostScanScanUUIDContentAnalysis struct {
 	Context *middleware.Context

@@ -153,6 +153,8 @@ func (m *FindingAttribution) validateComponent(formats strfmt.Registry) error {
 		if err := m.Component.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("component")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("component")
 			}
 			return err
 		}
@@ -184,6 +186,8 @@ func (m *FindingAttribution) validateVulnerability(formats strfmt.Registry) erro
 		if err := m.Vulnerability.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("vulnerability")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("vulnerability")
 			}
 			return err
 		}
@@ -213,9 +217,12 @@ func (m *FindingAttribution) ContextValidate(ctx context.Context, formats strfmt
 func (m *FindingAttribution) contextValidateComponent(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Component != nil {
+
 		if err := m.Component.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("component")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("component")
 			}
 			return err
 		}
@@ -227,9 +234,12 @@ func (m *FindingAttribution) contextValidateComponent(ctx context.Context, forma
 func (m *FindingAttribution) contextValidateVulnerability(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Vulnerability != nil {
+
 		if err := m.Vulnerability.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("vulnerability")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("vulnerability")
 			}
 			return err
 		}

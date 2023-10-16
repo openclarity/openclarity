@@ -147,6 +147,8 @@ func (m *VulnerableSoftware) validateVulnerabilities(formats strfmt.Registry) er
 			if err := m.Vulnerabilities[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -176,9 +178,16 @@ func (m *VulnerableSoftware) contextValidateVulnerabilities(ctx context.Context,
 	for i := 0; i < len(m.Vulnerabilities); i++ {
 
 		if m.Vulnerabilities[i] != nil {
+
+			if swag.IsZero(m.Vulnerabilities[i]) { // not required
+				return nil
+			}
+
 			if err := m.Vulnerabilities[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

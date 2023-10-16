@@ -57,6 +57,8 @@ func (m *OrganizationalEntity) validateContacts(formats strfmt.Registry) error {
 			if err := m.Contacts[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("contacts" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("contacts" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -86,9 +88,16 @@ func (m *OrganizationalEntity) contextValidateContacts(ctx context.Context, form
 	for i := 0; i < len(m.Contacts); i++ {
 
 		if m.Contacts[i] != nil {
+
+			if swag.IsZero(m.Contacts[i]) { // not required
+				return nil
+			}
+
 			if err := m.Contacts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("contacts" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("contacts" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

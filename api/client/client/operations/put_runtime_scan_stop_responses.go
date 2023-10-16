@@ -52,7 +52,8 @@ func NewPutRuntimeScanStopCreated() *PutRuntimeScanStopCreated {
 	return &PutRuntimeScanStopCreated{}
 }
 
-/* PutRuntimeScanStopCreated describes a response with status code 201, with default header values.
+/*
+PutRuntimeScanStopCreated describes a response with status code 201, with default header values.
 
 Success
 */
@@ -60,9 +61,44 @@ type PutRuntimeScanStopCreated struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this put runtime scan stop created response has a 2xx status code
+func (o *PutRuntimeScanStopCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this put runtime scan stop created response has a 3xx status code
+func (o *PutRuntimeScanStopCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime scan stop created response has a 4xx status code
+func (o *PutRuntimeScanStopCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this put runtime scan stop created response has a 5xx status code
+func (o *PutRuntimeScanStopCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime scan stop created response a status code equal to that given
+func (o *PutRuntimeScanStopCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the put runtime scan stop created response
+func (o *PutRuntimeScanStopCreated) Code() int {
+	return 201
+}
+
 func (o *PutRuntimeScanStopCreated) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] putRuntimeScanStopCreated  %+v", 201, o.Payload)
 }
+
+func (o *PutRuntimeScanStopCreated) String() string {
+	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] putRuntimeScanStopCreated  %+v", 201, o.Payload)
+}
+
 func (o *PutRuntimeScanStopCreated) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewPutRuntimeScanStopBadRequest() *PutRuntimeScanStopBadRequest {
 	return &PutRuntimeScanStopBadRequest{}
 }
 
-/* PutRuntimeScanStopBadRequest describes a response with status code 400, with default header values.
+/*
+PutRuntimeScanStopBadRequest describes a response with status code 400, with default header values.
 
 Scan failed to stop
 */
@@ -90,9 +127,44 @@ type PutRuntimeScanStopBadRequest struct {
 	Payload string
 }
 
+// IsSuccess returns true when this put runtime scan stop bad request response has a 2xx status code
+func (o *PutRuntimeScanStopBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this put runtime scan stop bad request response has a 3xx status code
+func (o *PutRuntimeScanStopBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime scan stop bad request response has a 4xx status code
+func (o *PutRuntimeScanStopBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this put runtime scan stop bad request response has a 5xx status code
+func (o *PutRuntimeScanStopBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime scan stop bad request response a status code equal to that given
+func (o *PutRuntimeScanStopBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the put runtime scan stop bad request response
+func (o *PutRuntimeScanStopBadRequest) Code() int {
+	return 400
+}
+
 func (o *PutRuntimeScanStopBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] putRuntimeScanStopBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *PutRuntimeScanStopBadRequest) String() string {
+	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] putRuntimeScanStopBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *PutRuntimeScanStopBadRequest) GetPayload() string {
 	return o.Payload
 }
@@ -114,7 +186,8 @@ func NewPutRuntimeScanStopDefault(code int) *PutRuntimeScanStopDefault {
 	}
 }
 
-/* PutRuntimeScanStopDefault describes a response with status code -1, with default header values.
+/*
+PutRuntimeScanStopDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -122,6 +195,31 @@ type PutRuntimeScanStopDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this put runtime scan stop default response has a 2xx status code
+func (o *PutRuntimeScanStopDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this put runtime scan stop default response has a 3xx status code
+func (o *PutRuntimeScanStopDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this put runtime scan stop default response has a 4xx status code
+func (o *PutRuntimeScanStopDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this put runtime scan stop default response has a 5xx status code
+func (o *PutRuntimeScanStopDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this put runtime scan stop default response a status code equal to that given
+func (o *PutRuntimeScanStopDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the put runtime scan stop default response
@@ -132,6 +230,11 @@ func (o *PutRuntimeScanStopDefault) Code() int {
 func (o *PutRuntimeScanStopDefault) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] PutRuntimeScanStop default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PutRuntimeScanStopDefault) String() string {
+	return fmt.Sprintf("[PUT /runtime/scan/stop][%d] PutRuntimeScanStop default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PutRuntimeScanStopDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

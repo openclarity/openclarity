@@ -29,10 +29,10 @@ func NewGetDashboardVulnerabilitiesWithFix(ctx *middleware.Context, handler GetD
 	return &GetDashboardVulnerabilitiesWithFix{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardVulnerabilitiesWithFix swagger:route GET /dashboard/vulnerabilitiesWithFix getDashboardVulnerabilitiesWithFix
+/*
+	GetDashboardVulnerabilitiesWithFix swagger:route GET /dashboard/vulnerabilitiesWithFix getDashboardVulnerabilitiesWithFix
 
 Get vulnerabilities with fix available per severity
-
 */
 type GetDashboardVulnerabilitiesWithFix struct {
 	Context *middleware.Context

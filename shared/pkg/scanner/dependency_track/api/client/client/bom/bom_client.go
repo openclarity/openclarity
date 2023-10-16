@@ -36,9 +36,9 @@ type ClientService interface {
 }
 
 /*
-  UploadBom uploads a supported bill of material format document
+UploadBom uploads a supported bill of material format document
 
-  Expects CycloneDX along and a valid project UUID. If a UUID is not specified, than the projectName and projectVersion must be specified. Optionally, if autoCreate is specified and 'true' and the project does not exist, the project will be created. In this scenario, the principal making the request will additionally need the PORTFOLIO_MANAGEMENT or PROJECT_CREATION_UPLOAD permission.
+Expects CycloneDX along and a valid project UUID. If a UUID is not specified, than the projectName and projectVersion must be specified. Optionally, if autoCreate is specified and 'true' and the project does not exist, the project will be created. In this scenario, the principal making the request will additionally need the PORTFOLIO_MANAGEMENT or PROJECT_CREATION_UPLOAD permission.
 */
 func (a *Client) UploadBom(params *UploadBomParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UploadBomOK, error) {
 	// TODO: Validate the params before sending

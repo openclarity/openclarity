@@ -83,6 +83,8 @@ func (m *ApplicationResource) validateCisDockerBenchmarkResults(formats strfmt.R
 			if err := m.CisDockerBenchmarkResults[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -101,6 +103,8 @@ func (m *ApplicationResource) validateResourceType(formats strfmt.Registry) erro
 	if err := m.ResourceType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("resourceType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("resourceType")
 		}
 		return err
 	}
@@ -122,6 +126,8 @@ func (m *ApplicationResource) validateVulnerabilities(formats strfmt.Registry) e
 			if err := m.Vulnerabilities[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -159,9 +165,16 @@ func (m *ApplicationResource) contextValidateCisDockerBenchmarkResults(ctx conte
 	for i := 0; i < len(m.CisDockerBenchmarkResults); i++ {
 
 		if m.CisDockerBenchmarkResults[i] != nil {
+
+			if swag.IsZero(m.CisDockerBenchmarkResults[i]) { // not required
+				return nil
+			}
+
 			if err := m.CisDockerBenchmarkResults[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -174,9 +187,15 @@ func (m *ApplicationResource) contextValidateCisDockerBenchmarkResults(ctx conte
 
 func (m *ApplicationResource) contextValidateResourceType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ResourceType) { // not required
+		return nil
+	}
+
 	if err := m.ResourceType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("resourceType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("resourceType")
 		}
 		return err
 	}
@@ -189,9 +208,16 @@ func (m *ApplicationResource) contextValidateVulnerabilities(ctx context.Context
 	for i := 0; i < len(m.Vulnerabilities); i++ {
 
 		if m.Vulnerabilities[i] != nil {
+
+			if swag.IsZero(m.Vulnerabilities[i]) { // not required
+				return nil
+			}
+
 			if err := m.Vulnerabilities[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

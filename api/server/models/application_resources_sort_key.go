@@ -20,8 +20,12 @@ import (
 type ApplicationResourcesSortKey string
 
 func NewApplicationResourcesSortKey(value ApplicationResourcesSortKey) *ApplicationResourcesSortKey {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ApplicationResourcesSortKey.
+func (m ApplicationResourcesSortKey) Pointer() *ApplicationResourcesSortKey {
+	return &m
 }
 
 const (

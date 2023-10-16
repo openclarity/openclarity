@@ -29,10 +29,10 @@ func NewGetRuntimeScanResults(ctx *middleware.Context, handler GetRuntimeScanRes
 	return &GetRuntimeScanResults{Context: ctx, Handler: handler}
 }
 
-/* GetRuntimeScanResults swagger:route GET /runtime/scan/results getRuntimeScanResults
+/*
+	GetRuntimeScanResults swagger:route GET /runtime/scan/results getRuntimeScanResults
 
 Get scan results
-
 */
 type GetRuntimeScanResults struct {
 	Context *middleware.Context

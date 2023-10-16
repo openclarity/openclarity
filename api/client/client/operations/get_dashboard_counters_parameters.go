@@ -52,10 +52,12 @@ func NewGetDashboardCountersParamsWithHTTPClient(client *http.Client) *GetDashbo
 	}
 }
 
-/* GetDashboardCountersParams contains all the parameters to send to the API endpoint
-   for the get dashboard counters operation.
+/*
+GetDashboardCountersParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get dashboard counters operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDashboardCountersParams struct {
 	timeout    time.Duration

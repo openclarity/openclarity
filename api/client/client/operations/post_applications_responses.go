@@ -52,7 +52,8 @@ func NewPostApplicationsCreated() *PostApplicationsCreated {
 	return &PostApplicationsCreated{}
 }
 
-/* PostApplicationsCreated describes a response with status code 201, with default header values.
+/*
+PostApplicationsCreated describes a response with status code 201, with default header values.
 
 New application was created.
 */
@@ -60,9 +61,44 @@ type PostApplicationsCreated struct {
 	Payload *models.ApplicationInfo
 }
 
+// IsSuccess returns true when this post applications created response has a 2xx status code
+func (o *PostApplicationsCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post applications created response has a 3xx status code
+func (o *PostApplicationsCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post applications created response has a 4xx status code
+func (o *PostApplicationsCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post applications created response has a 5xx status code
+func (o *PostApplicationsCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post applications created response a status code equal to that given
+func (o *PostApplicationsCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post applications created response
+func (o *PostApplicationsCreated) Code() int {
+	return 201
+}
+
 func (o *PostApplicationsCreated) Error() string {
 	return fmt.Sprintf("[POST /applications][%d] postApplicationsCreated  %+v", 201, o.Payload)
 }
+
+func (o *PostApplicationsCreated) String() string {
+	return fmt.Sprintf("[POST /applications][%d] postApplicationsCreated  %+v", 201, o.Payload)
+}
+
 func (o *PostApplicationsCreated) GetPayload() *models.ApplicationInfo {
 	return o.Payload
 }
@@ -84,7 +120,8 @@ func NewPostApplicationsConflict() *PostApplicationsConflict {
 	return &PostApplicationsConflict{}
 }
 
-/* PostApplicationsConflict describes a response with status code 409, with default header values.
+/*
+PostApplicationsConflict describes a response with status code 409, with default header values.
 
 Application already exist.
 */
@@ -92,9 +129,44 @@ type PostApplicationsConflict struct {
 	Payload *models.ApplicationInfo
 }
 
+// IsSuccess returns true when this post applications conflict response has a 2xx status code
+func (o *PostApplicationsConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post applications conflict response has a 3xx status code
+func (o *PostApplicationsConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post applications conflict response has a 4xx status code
+func (o *PostApplicationsConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post applications conflict response has a 5xx status code
+func (o *PostApplicationsConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post applications conflict response a status code equal to that given
+func (o *PostApplicationsConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the post applications conflict response
+func (o *PostApplicationsConflict) Code() int {
+	return 409
+}
+
 func (o *PostApplicationsConflict) Error() string {
 	return fmt.Sprintf("[POST /applications][%d] postApplicationsConflict  %+v", 409, o.Payload)
 }
+
+func (o *PostApplicationsConflict) String() string {
+	return fmt.Sprintf("[POST /applications][%d] postApplicationsConflict  %+v", 409, o.Payload)
+}
+
 func (o *PostApplicationsConflict) GetPayload() *models.ApplicationInfo {
 	return o.Payload
 }
@@ -118,7 +190,8 @@ func NewPostApplicationsDefault(code int) *PostApplicationsDefault {
 	}
 }
 
-/* PostApplicationsDefault describes a response with status code -1, with default header values.
+/*
+PostApplicationsDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -126,6 +199,31 @@ type PostApplicationsDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this post applications default response has a 2xx status code
+func (o *PostApplicationsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this post applications default response has a 3xx status code
+func (o *PostApplicationsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this post applications default response has a 4xx status code
+func (o *PostApplicationsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this post applications default response has a 5xx status code
+func (o *PostApplicationsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this post applications default response a status code equal to that given
+func (o *PostApplicationsDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the post applications default response
@@ -136,6 +234,11 @@ func (o *PostApplicationsDefault) Code() int {
 func (o *PostApplicationsDefault) Error() string {
 	return fmt.Sprintf("[POST /applications][%d] PostApplications default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PostApplicationsDefault) String() string {
+	return fmt.Sprintf("[POST /applications][%d] PostApplications default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PostApplicationsDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

@@ -48,6 +48,8 @@ func (m *ImageContentAnalysis) validateResourceContentAnalysis(formats strfmt.Re
 		if err := m.ResourceContentAnalysis.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resourceContentAnalysis")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resourceContentAnalysis")
 			}
 			return err
 		}
@@ -73,9 +75,16 @@ func (m *ImageContentAnalysis) ContextValidate(ctx context.Context, formats strf
 func (m *ImageContentAnalysis) contextValidateResourceContentAnalysis(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ResourceContentAnalysis != nil {
+
+		if swag.IsZero(m.ResourceContentAnalysis) { // not required
+			return nil
+		}
+
 		if err := m.ResourceContentAnalysis.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resourceContentAnalysis")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resourceContentAnalysis")
 			}
 			return err
 		}

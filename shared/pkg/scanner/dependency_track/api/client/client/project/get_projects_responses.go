@@ -38,7 +38,7 @@ func (o *GetProjectsReader) ReadResponse(response runtime.ClientResponse, consum
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /v1/project] getProjects", response, response.Code())
 	}
 }
 
@@ -47,7 +47,8 @@ func NewGetProjectsOK() *GetProjectsOK {
 	return &GetProjectsOK{}
 }
 
-/* GetProjectsOK describes a response with status code 200, with default header values.
+/*
+GetProjectsOK describes a response with status code 200, with default header values.
 
 successful operation
 */
@@ -62,9 +63,44 @@ type GetProjectsOK struct {
 	Payload []*models.Project
 }
 
+// IsSuccess returns true when this get projects o k response has a 2xx status code
+func (o *GetProjectsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get projects o k response has a 3xx status code
+func (o *GetProjectsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get projects o k response has a 4xx status code
+func (o *GetProjectsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get projects o k response has a 5xx status code
+func (o *GetProjectsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get projects o k response a status code equal to that given
+func (o *GetProjectsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get projects o k response
+func (o *GetProjectsOK) Code() int {
+	return 200
+}
+
 func (o *GetProjectsOK) Error() string {
 	return fmt.Sprintf("[GET /v1/project][%d] getProjectsOK  %+v", 200, o.Payload)
 }
+
+func (o *GetProjectsOK) String() string {
+	return fmt.Sprintf("[GET /v1/project][%d] getProjectsOK  %+v", 200, o.Payload)
+}
+
 func (o *GetProjectsOK) GetPayload() []*models.Project {
 	return o.Payload
 }
@@ -95,14 +131,49 @@ func NewGetProjectsUnauthorized() *GetProjectsUnauthorized {
 	return &GetProjectsUnauthorized{}
 }
 
-/* GetProjectsUnauthorized describes a response with status code 401, with default header values.
+/*
+GetProjectsUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type GetProjectsUnauthorized struct {
 }
 
+// IsSuccess returns true when this get projects unauthorized response has a 2xx status code
+func (o *GetProjectsUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get projects unauthorized response has a 3xx status code
+func (o *GetProjectsUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get projects unauthorized response has a 4xx status code
+func (o *GetProjectsUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get projects unauthorized response has a 5xx status code
+func (o *GetProjectsUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get projects unauthorized response a status code equal to that given
+func (o *GetProjectsUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the get projects unauthorized response
+func (o *GetProjectsUnauthorized) Code() int {
+	return 401
+}
+
 func (o *GetProjectsUnauthorized) Error() string {
+	return fmt.Sprintf("[GET /v1/project][%d] getProjectsUnauthorized ", 401)
+}
+
+func (o *GetProjectsUnauthorized) String() string {
 	return fmt.Sprintf("[GET /v1/project][%d] getProjectsUnauthorized ", 401)
 }
 

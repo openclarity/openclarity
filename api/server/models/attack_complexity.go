@@ -20,8 +20,12 @@ import (
 type AttackComplexity string
 
 func NewAttackComplexity(value AttackComplexity) *AttackComplexity {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated AttackComplexity.
+func (m AttackComplexity) Pointer() *AttackComplexity {
+	return &m
 }
 
 const (

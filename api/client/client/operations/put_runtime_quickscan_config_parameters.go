@@ -54,10 +54,12 @@ func NewPutRuntimeQuickscanConfigParamsWithHTTPClient(client *http.Client) *PutR
 	}
 }
 
-/* PutRuntimeQuickscanConfigParams contains all the parameters to send to the API endpoint
-   for the put runtime quickscan config operation.
+/*
+PutRuntimeQuickscanConfigParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the put runtime quickscan config operation.
+
+	Typically these are written to a http.Request.
 */
 type PutRuntimeQuickscanConfigParams struct {
 

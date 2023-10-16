@@ -48,7 +48,7 @@ func (o *GetComponentByUUIDReader) ReadResponse(response runtime.ClientResponse,
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /v1/component/{uuid}] getComponentByUuid", response, response.Code())
 	}
 }
 
@@ -57,7 +57,8 @@ func NewGetComponentByUUIDOK() *GetComponentByUUIDOK {
 	return &GetComponentByUUIDOK{}
 }
 
-/* GetComponentByUUIDOK describes a response with status code 200, with default header values.
+/*
+GetComponentByUUIDOK describes a response with status code 200, with default header values.
 
 successful operation
 */
@@ -65,9 +66,44 @@ type GetComponentByUUIDOK struct {
 	Payload *models.Component
 }
 
+// IsSuccess returns true when this get component by Uuid o k response has a 2xx status code
+func (o *GetComponentByUUIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get component by Uuid o k response has a 3xx status code
+func (o *GetComponentByUUIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get component by Uuid o k response has a 4xx status code
+func (o *GetComponentByUUIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get component by Uuid o k response has a 5xx status code
+func (o *GetComponentByUUIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get component by Uuid o k response a status code equal to that given
+func (o *GetComponentByUUIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get component by Uuid o k response
+func (o *GetComponentByUUIDOK) Code() int {
+	return 200
+}
+
 func (o *GetComponentByUUIDOK) Error() string {
 	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidOK  %+v", 200, o.Payload)
 }
+
+func (o *GetComponentByUUIDOK) String() string {
+	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidOK  %+v", 200, o.Payload)
+}
+
 func (o *GetComponentByUUIDOK) GetPayload() *models.Component {
 	return o.Payload
 }
@@ -89,14 +125,49 @@ func NewGetComponentByUUIDUnauthorized() *GetComponentByUUIDUnauthorized {
 	return &GetComponentByUUIDUnauthorized{}
 }
 
-/* GetComponentByUUIDUnauthorized describes a response with status code 401, with default header values.
+/*
+GetComponentByUUIDUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type GetComponentByUUIDUnauthorized struct {
 }
 
+// IsSuccess returns true when this get component by Uuid unauthorized response has a 2xx status code
+func (o *GetComponentByUUIDUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get component by Uuid unauthorized response has a 3xx status code
+func (o *GetComponentByUUIDUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get component by Uuid unauthorized response has a 4xx status code
+func (o *GetComponentByUUIDUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get component by Uuid unauthorized response has a 5xx status code
+func (o *GetComponentByUUIDUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get component by Uuid unauthorized response a status code equal to that given
+func (o *GetComponentByUUIDUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the get component by Uuid unauthorized response
+func (o *GetComponentByUUIDUnauthorized) Code() int {
+	return 401
+}
+
 func (o *GetComponentByUUIDUnauthorized) Error() string {
+	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidUnauthorized ", 401)
+}
+
+func (o *GetComponentByUUIDUnauthorized) String() string {
 	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidUnauthorized ", 401)
 }
 
@@ -110,14 +181,49 @@ func NewGetComponentByUUIDForbidden() *GetComponentByUUIDForbidden {
 	return &GetComponentByUUIDForbidden{}
 }
 
-/* GetComponentByUUIDForbidden describes a response with status code 403, with default header values.
+/*
+GetComponentByUUIDForbidden describes a response with status code 403, with default header values.
 
 Access to the specified component is forbidden
 */
 type GetComponentByUUIDForbidden struct {
 }
 
+// IsSuccess returns true when this get component by Uuid forbidden response has a 2xx status code
+func (o *GetComponentByUUIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get component by Uuid forbidden response has a 3xx status code
+func (o *GetComponentByUUIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get component by Uuid forbidden response has a 4xx status code
+func (o *GetComponentByUUIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get component by Uuid forbidden response has a 5xx status code
+func (o *GetComponentByUUIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get component by Uuid forbidden response a status code equal to that given
+func (o *GetComponentByUUIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get component by Uuid forbidden response
+func (o *GetComponentByUUIDForbidden) Code() int {
+	return 403
+}
+
 func (o *GetComponentByUUIDForbidden) Error() string {
+	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidForbidden ", 403)
+}
+
+func (o *GetComponentByUUIDForbidden) String() string {
 	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidForbidden ", 403)
 }
 
@@ -131,14 +237,49 @@ func NewGetComponentByUUIDNotFound() *GetComponentByUUIDNotFound {
 	return &GetComponentByUUIDNotFound{}
 }
 
-/* GetComponentByUUIDNotFound describes a response with status code 404, with default header values.
+/*
+GetComponentByUUIDNotFound describes a response with status code 404, with default header values.
 
 The component could not be found
 */
 type GetComponentByUUIDNotFound struct {
 }
 
+// IsSuccess returns true when this get component by Uuid not found response has a 2xx status code
+func (o *GetComponentByUUIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get component by Uuid not found response has a 3xx status code
+func (o *GetComponentByUUIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get component by Uuid not found response has a 4xx status code
+func (o *GetComponentByUUIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get component by Uuid not found response has a 5xx status code
+func (o *GetComponentByUUIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get component by Uuid not found response a status code equal to that given
+func (o *GetComponentByUUIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get component by Uuid not found response
+func (o *GetComponentByUUIDNotFound) Code() int {
+	return 404
+}
+
 func (o *GetComponentByUUIDNotFound) Error() string {
+	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidNotFound ", 404)
+}
+
+func (o *GetComponentByUUIDNotFound) String() string {
 	return fmt.Sprintf("[GET /v1/component/{uuid}][%d] getComponentByUuidNotFound ", 404)
 }
 

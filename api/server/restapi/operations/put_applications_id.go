@@ -29,10 +29,10 @@ func NewPutApplicationsID(ctx *middleware.Context, handler PutApplicationsIDHand
 	return &PutApplicationsID{Context: ctx, Handler: handler}
 }
 
-/* PutApplicationsID swagger:route PUT /applications/{id} putApplicationsId
+/*
+	PutApplicationsID swagger:route PUT /applications/{id} putApplicationsId
 
 Update Application.
-
 */
 type PutApplicationsID struct {
 	Context *middleware.Context

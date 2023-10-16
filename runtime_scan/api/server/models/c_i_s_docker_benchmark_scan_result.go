@@ -60,6 +60,8 @@ func (m *CISDockerBenchmarkScanResult) validateError(formats strfmt.Registry) er
 		if err := m.Error.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("error")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("error")
 			}
 			return err
 		}
@@ -82,6 +84,8 @@ func (m *CISDockerBenchmarkScanResult) validateResult(formats strfmt.Registry) e
 			if err := m.Result[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("result" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("result" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -100,6 +104,8 @@ func (m *CISDockerBenchmarkScanResult) validateStatus(formats strfmt.Registry) e
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -132,9 +138,16 @@ func (m *CISDockerBenchmarkScanResult) ContextValidate(ctx context.Context, form
 func (m *CISDockerBenchmarkScanResult) contextValidateError(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Error != nil {
+
+		if swag.IsZero(m.Error) { // not required
+			return nil
+		}
+
 		if err := m.Error.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("error")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("error")
 			}
 			return err
 		}
@@ -148,9 +161,16 @@ func (m *CISDockerBenchmarkScanResult) contextValidateResult(ctx context.Context
 	for i := 0; i < len(m.Result); i++ {
 
 		if m.Result[i] != nil {
+
+			if swag.IsZero(m.Result[i]) { // not required
+				return nil
+			}
+
 			if err := m.Result[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("result" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("result" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -163,9 +183,15 @@ func (m *CISDockerBenchmarkScanResult) contextValidateResult(ctx context.Context
 
 func (m *CISDockerBenchmarkScanResult) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

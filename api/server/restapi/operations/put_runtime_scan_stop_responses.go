@@ -16,7 +16,8 @@ import (
 // PutRuntimeScanStopCreatedCode is the HTTP code returned for type PutRuntimeScanStopCreated
 const PutRuntimeScanStopCreatedCode int = 201
 
-/*PutRuntimeScanStopCreated Success
+/*
+PutRuntimeScanStopCreated Success
 
 swagger:response putRuntimeScanStopCreated
 */
@@ -58,7 +59,8 @@ func (o *PutRuntimeScanStopCreated) WriteResponse(rw http.ResponseWriter, produc
 // PutRuntimeScanStopBadRequestCode is the HTTP code returned for type PutRuntimeScanStopBadRequest
 const PutRuntimeScanStopBadRequestCode int = 400
 
-/*PutRuntimeScanStopBadRequest Scan failed to stop
+/*
+PutRuntimeScanStopBadRequest Scan failed to stop
 
 swagger:response putRuntimeScanStopBadRequest
 */
@@ -97,7 +99,8 @@ func (o *PutRuntimeScanStopBadRequest) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-/*PutRuntimeScanStopDefault unknown error
+/*
+PutRuntimeScanStopDefault unknown error
 
 swagger:response putRuntimeScanStopDefault
 */

@@ -52,10 +52,12 @@ func NewGetProject1ParamsWithHTTPClient(client *http.Client) *GetProject1Params 
 	}
 }
 
-/* GetProject1Params contains all the parameters to send to the API endpoint
-   for the get project 1 operation.
+/*
+GetProject1Params contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get project 1 operation.
+
+	Typically these are written to a http.Request.
 */
 type GetProject1Params struct {
 

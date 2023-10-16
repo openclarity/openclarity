@@ -16,7 +16,8 @@ import (
 // GetSbomDBResourceHashOKCode is the HTTP code returned for type GetSbomDBResourceHashOK
 const GetSbomDBResourceHashOKCode int = 200
 
-/*GetSbomDBResourceHashOK Success
+/*
+GetSbomDBResourceHashOK Success
 
 swagger:response getSbomDBResourceHashOK
 */
@@ -60,7 +61,8 @@ func (o *GetSbomDBResourceHashOK) WriteResponse(rw http.ResponseWriter, producer
 // GetSbomDBResourceHashNotFoundCode is the HTTP code returned for type GetSbomDBResourceHashNotFound
 const GetSbomDBResourceHashNotFoundCode int = 404
 
-/*GetSbomDBResourceHashNotFound SBOM not found.
+/*
+GetSbomDBResourceHashNotFound SBOM not found.
 
 swagger:response getSbomDBResourceHashNotFound
 */
@@ -81,7 +83,8 @@ func (o *GetSbomDBResourceHashNotFound) WriteResponse(rw http.ResponseWriter, pr
 	rw.WriteHeader(404)
 }
 
-/*GetSbomDBResourceHashDefault Unknown error
+/*
+GetSbomDBResourceHashDefault Unknown error
 
 swagger:response getSbomDBResourceHashDefault
 */

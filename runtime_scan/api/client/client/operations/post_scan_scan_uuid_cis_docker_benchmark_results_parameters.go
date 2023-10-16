@@ -54,10 +54,12 @@ func NewPostScanScanUUIDCisDockerBenchmarkResultsParamsWithHTTPClient(client *ht
 	}
 }
 
-/* PostScanScanUUIDCisDockerBenchmarkResultsParams contains all the parameters to send to the API endpoint
-   for the post scan scan UUID cis docker benchmark results operation.
+/*
+PostScanScanUUIDCisDockerBenchmarkResultsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the post scan scan UUID cis docker benchmark results operation.
+
+	Typically these are written to a http.Request.
 */
 type PostScanScanUUIDCisDockerBenchmarkResultsParams struct {
 

@@ -16,7 +16,8 @@ import (
 // GetDashboardPackagesPerLanguageOKCode is the HTTP code returned for type GetDashboardPackagesPerLanguageOK
 const GetDashboardPackagesPerLanguageOKCode int = 200
 
-/*GetDashboardPackagesPerLanguageOK Success
+/*
+GetDashboardPackagesPerLanguageOK Success
 
 swagger:response getDashboardPackagesPerLanguageOK
 */
@@ -60,7 +61,8 @@ func (o *GetDashboardPackagesPerLanguageOK) WriteResponse(rw http.ResponseWriter
 	}
 }
 
-/*GetDashboardPackagesPerLanguageDefault unknown error
+/*
+GetDashboardPackagesPerLanguageDefault unknown error
 
 swagger:response getDashboardPackagesPerLanguageDefault
 */

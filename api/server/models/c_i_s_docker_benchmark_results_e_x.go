@@ -53,6 +53,8 @@ func (m *CISDockerBenchmarkResultsEX) validateLevel(formats strfmt.Registry) err
 	if err := m.Level.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("level")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("level")
 		}
 		return err
 	}
@@ -76,9 +78,15 @@ func (m *CISDockerBenchmarkResultsEX) ContextValidate(ctx context.Context, forma
 
 func (m *CISDockerBenchmarkResultsEX) contextValidateLevel(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Level) { // not required
+		return nil
+	}
+
 	if err := m.Level.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("level")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("level")
 		}
 		return err
 	}

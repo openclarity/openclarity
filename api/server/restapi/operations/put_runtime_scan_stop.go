@@ -29,10 +29,10 @@ func NewPutRuntimeScanStop(ctx *middleware.Context, handler PutRuntimeScanStopHa
 	return &PutRuntimeScanStop{Context: ctx, Handler: handler}
 }
 
-/* PutRuntimeScanStop swagger:route PUT /runtime/scan/stop putRuntimeScanStop
+/*
+	PutRuntimeScanStop swagger:route PUT /runtime/scan/stop putRuntimeScanStop
 
 Stop a runtime scan
-
 */
 type PutRuntimeScanStop struct {
 	Context *middleware.Context

@@ -51,7 +51,8 @@ func NewGetVulnerabilitiesOK() *GetVulnerabilitiesOK {
 	return &GetVulnerabilitiesOK{}
 }
 
-/* GetVulnerabilitiesOK describes a response with status code 200, with default header values.
+/*
+GetVulnerabilitiesOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -59,9 +60,44 @@ type GetVulnerabilitiesOK struct {
 	Payload *GetVulnerabilitiesOKBody
 }
 
+// IsSuccess returns true when this get vulnerabilities o k response has a 2xx status code
+func (o *GetVulnerabilitiesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get vulnerabilities o k response has a 3xx status code
+func (o *GetVulnerabilitiesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get vulnerabilities o k response has a 4xx status code
+func (o *GetVulnerabilitiesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get vulnerabilities o k response has a 5xx status code
+func (o *GetVulnerabilitiesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get vulnerabilities o k response a status code equal to that given
+func (o *GetVulnerabilitiesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get vulnerabilities o k response
+func (o *GetVulnerabilitiesOK) Code() int {
+	return 200
+}
+
 func (o *GetVulnerabilitiesOK) Error() string {
 	return fmt.Sprintf("[GET /vulnerabilities][%d] getVulnerabilitiesOK  %+v", 200, o.Payload)
 }
+
+func (o *GetVulnerabilitiesOK) String() string {
+	return fmt.Sprintf("[GET /vulnerabilities][%d] getVulnerabilitiesOK  %+v", 200, o.Payload)
+}
+
 func (o *GetVulnerabilitiesOK) GetPayload() *GetVulnerabilitiesOKBody {
 	return o.Payload
 }
@@ -85,7 +121,8 @@ func NewGetVulnerabilitiesDefault(code int) *GetVulnerabilitiesDefault {
 	}
 }
 
-/* GetVulnerabilitiesDefault describes a response with status code -1, with default header values.
+/*
+GetVulnerabilitiesDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -93,6 +130,31 @@ type GetVulnerabilitiesDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get vulnerabilities default response has a 2xx status code
+func (o *GetVulnerabilitiesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get vulnerabilities default response has a 3xx status code
+func (o *GetVulnerabilitiesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get vulnerabilities default response has a 4xx status code
+func (o *GetVulnerabilitiesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get vulnerabilities default response has a 5xx status code
+func (o *GetVulnerabilitiesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get vulnerabilities default response a status code equal to that given
+func (o *GetVulnerabilitiesDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get vulnerabilities default response
@@ -103,6 +165,11 @@ func (o *GetVulnerabilitiesDefault) Code() int {
 func (o *GetVulnerabilitiesDefault) Error() string {
 	return fmt.Sprintf("[GET /vulnerabilities][%d] GetVulnerabilities default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetVulnerabilitiesDefault) String() string {
+	return fmt.Sprintf("[GET /vulnerabilities][%d] GetVulnerabilities default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetVulnerabilitiesDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }
@@ -119,7 +186,8 @@ func (o *GetVulnerabilitiesDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*GetVulnerabilitiesOKBody get vulnerabilities o k body
+/*
+GetVulnerabilitiesOKBody get vulnerabilities o k body
 swagger:model GetVulnerabilitiesOKBody
 */
 type GetVulnerabilitiesOKBody struct {
@@ -164,6 +232,8 @@ func (o *GetVulnerabilitiesOKBody) validateItems(formats strfmt.Registry) error 
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -202,9 +272,16 @@ func (o *GetVulnerabilitiesOKBody) contextValidateItems(ctx context.Context, for
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

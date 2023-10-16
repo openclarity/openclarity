@@ -16,7 +16,8 @@ import (
 // GetPackagesOKCode is the HTTP code returned for type GetPackagesOK
 const GetPackagesOKCode int = 200
 
-/*GetPackagesOK Success
+/*
+GetPackagesOK Success
 
 swagger:response getPackagesOK
 */
@@ -57,7 +58,8 @@ func (o *GetPackagesOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
-/*GetPackagesDefault unknown error
+/*
+GetPackagesDefault unknown error
 
 swagger:response getPackagesDefault
 */

@@ -54,10 +54,12 @@ func NewPutSbomDBResourceHashParamsWithHTTPClient(client *http.Client) *PutSbomD
 	}
 }
 
-/* PutSbomDBResourceHashParams contains all the parameters to send to the API endpoint
-   for the put sbom d b resource hash operation.
+/*
+PutSbomDBResourceHashParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the put sbom d b resource hash operation.
+
+	Typically these are written to a http.Request.
 */
 type PutSbomDBResourceHashParams struct {
 

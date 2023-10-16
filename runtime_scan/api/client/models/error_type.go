@@ -20,8 +20,12 @@ import (
 type ErrorType string
 
 func NewErrorType(value ErrorType) *ErrorType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ErrorType.
+func (m ErrorType) Pointer() *ErrorType {
+	return &m
 }
 
 const (

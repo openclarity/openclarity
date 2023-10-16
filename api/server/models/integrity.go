@@ -20,8 +20,12 @@ import (
 type Integrity string
 
 func NewIntegrity(value Integrity) *Integrity {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Integrity.
+func (m Integrity) Pointer() *Integrity {
+	return &m
 }
 
 const (

@@ -54,10 +54,12 @@ func NewPostApplicationsParamsWithHTTPClient(client *http.Client) *PostApplicati
 	}
 }
 
-/* PostApplicationsParams contains all the parameters to send to the API endpoint
-   for the post applications operation.
+/*
+PostApplicationsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the post applications operation.
+
+	Typically these are written to a http.Request.
 */
 type PostApplicationsParams struct {
 

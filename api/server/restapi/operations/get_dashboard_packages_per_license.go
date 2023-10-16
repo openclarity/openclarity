@@ -29,10 +29,10 @@ func NewGetDashboardPackagesPerLicense(ctx *middleware.Context, handler GetDashb
 	return &GetDashboardPackagesPerLicense{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardPackagesPerLicense swagger:route GET /dashboard/packagesPerLicense getDashboardPackagesPerLicense
+/*
+	GetDashboardPackagesPerLicense swagger:route GET /dashboard/packagesPerLicense getDashboardPackagesPerLicense
 
 Get packages count per license type
-
 */
 type GetDashboardPackagesPerLicense struct {
 	Context *middleware.Context

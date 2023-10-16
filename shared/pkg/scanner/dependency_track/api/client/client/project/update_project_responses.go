@@ -48,7 +48,7 @@ func (o *UpdateProjectReader) ReadResponse(response runtime.ClientResponse, cons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /v1/project] updateProject", response, response.Code())
 	}
 }
 
@@ -57,7 +57,8 @@ func NewUpdateProjectOK() *UpdateProjectOK {
 	return &UpdateProjectOK{}
 }
 
-/* UpdateProjectOK describes a response with status code 200, with default header values.
+/*
+UpdateProjectOK describes a response with status code 200, with default header values.
 
 successful operation
 */
@@ -65,9 +66,44 @@ type UpdateProjectOK struct {
 	Payload *models.Project
 }
 
+// IsSuccess returns true when this update project o k response has a 2xx status code
+func (o *UpdateProjectOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update project o k response has a 3xx status code
+func (o *UpdateProjectOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update project o k response has a 4xx status code
+func (o *UpdateProjectOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update project o k response has a 5xx status code
+func (o *UpdateProjectOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update project o k response a status code equal to that given
+func (o *UpdateProjectOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the update project o k response
+func (o *UpdateProjectOK) Code() int {
+	return 200
+}
+
 func (o *UpdateProjectOK) Error() string {
 	return fmt.Sprintf("[POST /v1/project][%d] updateProjectOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateProjectOK) String() string {
+	return fmt.Sprintf("[POST /v1/project][%d] updateProjectOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateProjectOK) GetPayload() *models.Project {
 	return o.Payload
 }
@@ -89,14 +125,49 @@ func NewUpdateProjectUnauthorized() *UpdateProjectUnauthorized {
 	return &UpdateProjectUnauthorized{}
 }
 
-/* UpdateProjectUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateProjectUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type UpdateProjectUnauthorized struct {
 }
 
+// IsSuccess returns true when this update project unauthorized response has a 2xx status code
+func (o *UpdateProjectUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update project unauthorized response has a 3xx status code
+func (o *UpdateProjectUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update project unauthorized response has a 4xx status code
+func (o *UpdateProjectUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update project unauthorized response has a 5xx status code
+func (o *UpdateProjectUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update project unauthorized response a status code equal to that given
+func (o *UpdateProjectUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the update project unauthorized response
+func (o *UpdateProjectUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdateProjectUnauthorized) Error() string {
+	return fmt.Sprintf("[POST /v1/project][%d] updateProjectUnauthorized ", 401)
+}
+
+func (o *UpdateProjectUnauthorized) String() string {
 	return fmt.Sprintf("[POST /v1/project][%d] updateProjectUnauthorized ", 401)
 }
 
@@ -110,14 +181,49 @@ func NewUpdateProjectNotFound() *UpdateProjectNotFound {
 	return &UpdateProjectNotFound{}
 }
 
-/* UpdateProjectNotFound describes a response with status code 404, with default header values.
+/*
+UpdateProjectNotFound describes a response with status code 404, with default header values.
 
 The UUID of the project could not be found
 */
 type UpdateProjectNotFound struct {
 }
 
+// IsSuccess returns true when this update project not found response has a 2xx status code
+func (o *UpdateProjectNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update project not found response has a 3xx status code
+func (o *UpdateProjectNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update project not found response has a 4xx status code
+func (o *UpdateProjectNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update project not found response has a 5xx status code
+func (o *UpdateProjectNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update project not found response a status code equal to that given
+func (o *UpdateProjectNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the update project not found response
+func (o *UpdateProjectNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateProjectNotFound) Error() string {
+	return fmt.Sprintf("[POST /v1/project][%d] updateProjectNotFound ", 404)
+}
+
+func (o *UpdateProjectNotFound) String() string {
 	return fmt.Sprintf("[POST /v1/project][%d] updateProjectNotFound ", 404)
 }
 
@@ -131,14 +237,49 @@ func NewUpdateProjectConflict() *UpdateProjectConflict {
 	return &UpdateProjectConflict{}
 }
 
-/* UpdateProjectConflict describes a response with status code 409, with default header values.
+/*
+UpdateProjectConflict describes a response with status code 409, with default header values.
 
 A project with the specified name already exists
 */
 type UpdateProjectConflict struct {
 }
 
+// IsSuccess returns true when this update project conflict response has a 2xx status code
+func (o *UpdateProjectConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update project conflict response has a 3xx status code
+func (o *UpdateProjectConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update project conflict response has a 4xx status code
+func (o *UpdateProjectConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update project conflict response has a 5xx status code
+func (o *UpdateProjectConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update project conflict response a status code equal to that given
+func (o *UpdateProjectConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the update project conflict response
+func (o *UpdateProjectConflict) Code() int {
+	return 409
+}
+
 func (o *UpdateProjectConflict) Error() string {
+	return fmt.Sprintf("[POST /v1/project][%d] updateProjectConflict ", 409)
+}
+
+func (o *UpdateProjectConflict) String() string {
 	return fmt.Sprintf("[POST /v1/project][%d] updateProjectConflict ", 409)
 }
 

@@ -152,6 +152,8 @@ func (m *DependencyMetrics) validateComponent(formats strfmt.Registry) error {
 		if err := m.Component.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("component")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("component")
 			}
 			return err
 		}
@@ -196,6 +198,8 @@ func (m *DependencyMetrics) validateProject(formats strfmt.Registry) error {
 		if err := m.Project.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -225,9 +229,12 @@ func (m *DependencyMetrics) ContextValidate(ctx context.Context, formats strfmt.
 func (m *DependencyMetrics) contextValidateComponent(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Component != nil {
+
 		if err := m.Component.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("component")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("component")
 			}
 			return err
 		}
@@ -239,9 +246,12 @@ func (m *DependencyMetrics) contextValidateComponent(ctx context.Context, format
 func (m *DependencyMetrics) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Project != nil {
+
 		if err := m.Project.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}

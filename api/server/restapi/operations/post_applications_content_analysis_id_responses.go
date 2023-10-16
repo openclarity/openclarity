@@ -16,7 +16,8 @@ import (
 // PostApplicationsContentAnalysisIDCreatedCode is the HTTP code returned for type PostApplicationsContentAnalysisIDCreated
 const PostApplicationsContentAnalysisIDCreatedCode int = 201
 
-/*PostApplicationsContentAnalysisIDCreated Application content analysis successfully reported.
+/*
+PostApplicationsContentAnalysisIDCreated Application content analysis successfully reported.
 
 swagger:response postApplicationsContentAnalysisIdCreated
 */
@@ -40,7 +41,8 @@ func (o *PostApplicationsContentAnalysisIDCreated) WriteResponse(rw http.Respons
 // PostApplicationsContentAnalysisIDNotFoundCode is the HTTP code returned for type PostApplicationsContentAnalysisIDNotFound
 const PostApplicationsContentAnalysisIDNotFoundCode int = 404
 
-/*PostApplicationsContentAnalysisIDNotFound Application not found.
+/*
+PostApplicationsContentAnalysisIDNotFound Application not found.
 
 swagger:response postApplicationsContentAnalysisIdNotFound
 */
@@ -61,7 +63,8 @@ func (o *PostApplicationsContentAnalysisIDNotFound) WriteResponse(rw http.Respon
 	rw.WriteHeader(404)
 }
 
-/*PostApplicationsContentAnalysisIDDefault unknown error
+/*
+PostApplicationsContentAnalysisIDDefault unknown error
 
 swagger:response postApplicationsContentAnalysisIdDefault
 */

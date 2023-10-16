@@ -39,7 +39,7 @@ func (o *DeleteProjectReader) ReadResponse(response runtime.ClientResponse, cons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[DELETE /v1/project/{uuid}] deleteProject", response, response.Code())
 	}
 }
 
@@ -48,14 +48,49 @@ func NewDeleteProjectUnauthorized() *DeleteProjectUnauthorized {
 	return &DeleteProjectUnauthorized{}
 }
 
-/* DeleteProjectUnauthorized describes a response with status code 401, with default header values.
+/*
+DeleteProjectUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type DeleteProjectUnauthorized struct {
 }
 
+// IsSuccess returns true when this delete project unauthorized response has a 2xx status code
+func (o *DeleteProjectUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete project unauthorized response has a 3xx status code
+func (o *DeleteProjectUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete project unauthorized response has a 4xx status code
+func (o *DeleteProjectUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete project unauthorized response has a 5xx status code
+func (o *DeleteProjectUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete project unauthorized response a status code equal to that given
+func (o *DeleteProjectUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the delete project unauthorized response
+func (o *DeleteProjectUnauthorized) Code() int {
+	return 401
+}
+
 func (o *DeleteProjectUnauthorized) Error() string {
+	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectUnauthorized ", 401)
+}
+
+func (o *DeleteProjectUnauthorized) String() string {
 	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectUnauthorized ", 401)
 }
 
@@ -69,14 +104,49 @@ func NewDeleteProjectForbidden() *DeleteProjectForbidden {
 	return &DeleteProjectForbidden{}
 }
 
-/* DeleteProjectForbidden describes a response with status code 403, with default header values.
+/*
+DeleteProjectForbidden describes a response with status code 403, with default header values.
 
 Access to the specified project is forbidden
 */
 type DeleteProjectForbidden struct {
 }
 
+// IsSuccess returns true when this delete project forbidden response has a 2xx status code
+func (o *DeleteProjectForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete project forbidden response has a 3xx status code
+func (o *DeleteProjectForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete project forbidden response has a 4xx status code
+func (o *DeleteProjectForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete project forbidden response has a 5xx status code
+func (o *DeleteProjectForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete project forbidden response a status code equal to that given
+func (o *DeleteProjectForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the delete project forbidden response
+func (o *DeleteProjectForbidden) Code() int {
+	return 403
+}
+
 func (o *DeleteProjectForbidden) Error() string {
+	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectForbidden ", 403)
+}
+
+func (o *DeleteProjectForbidden) String() string {
 	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectForbidden ", 403)
 }
 
@@ -90,14 +160,49 @@ func NewDeleteProjectNotFound() *DeleteProjectNotFound {
 	return &DeleteProjectNotFound{}
 }
 
-/* DeleteProjectNotFound describes a response with status code 404, with default header values.
+/*
+DeleteProjectNotFound describes a response with status code 404, with default header values.
 
 The UUID of the project could not be found
 */
 type DeleteProjectNotFound struct {
 }
 
+// IsSuccess returns true when this delete project not found response has a 2xx status code
+func (o *DeleteProjectNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete project not found response has a 3xx status code
+func (o *DeleteProjectNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete project not found response has a 4xx status code
+func (o *DeleteProjectNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete project not found response has a 5xx status code
+func (o *DeleteProjectNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete project not found response a status code equal to that given
+func (o *DeleteProjectNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the delete project not found response
+func (o *DeleteProjectNotFound) Code() int {
+	return 404
+}
+
 func (o *DeleteProjectNotFound) Error() string {
+	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectNotFound ", 404)
+}
+
+func (o *DeleteProjectNotFound) String() string {
 	return fmt.Sprintf("[DELETE /v1/project/{uuid}][%d] deleteProjectNotFound ", 404)
 }
 

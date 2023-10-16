@@ -52,10 +52,12 @@ func NewGetNamespacesParamsWithHTTPClient(client *http.Client) *GetNamespacesPar
 	}
 }
 
-/* GetNamespacesParams contains all the parameters to send to the API endpoint
-   for the get namespaces operation.
+/*
+GetNamespacesParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get namespaces operation.
+
+	Typically these are written to a http.Request.
 */
 type GetNamespacesParams struct {
 	timeout    time.Duration

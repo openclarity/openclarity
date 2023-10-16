@@ -20,8 +20,12 @@ import (
 type Availability string
 
 func NewAvailability(value Availability) *Availability {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Availability.
+func (m Availability) Pointer() *Availability {
+	return &m
 }
 
 const (

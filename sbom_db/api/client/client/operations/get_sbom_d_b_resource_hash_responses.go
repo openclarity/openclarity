@@ -52,7 +52,8 @@ func NewGetSbomDBResourceHashOK() *GetSbomDBResourceHashOK {
 	return &GetSbomDBResourceHashOK{}
 }
 
-/* GetSbomDBResourceHashOK describes a response with status code 200, with default header values.
+/*
+GetSbomDBResourceHashOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -60,9 +61,44 @@ type GetSbomDBResourceHashOK struct {
 	Payload *models.SBOM
 }
 
+// IsSuccess returns true when this get sbom d b resource hash o k response has a 2xx status code
+func (o *GetSbomDBResourceHashOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get sbom d b resource hash o k response has a 3xx status code
+func (o *GetSbomDBResourceHashOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get sbom d b resource hash o k response has a 4xx status code
+func (o *GetSbomDBResourceHashOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get sbom d b resource hash o k response has a 5xx status code
+func (o *GetSbomDBResourceHashOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get sbom d b resource hash o k response a status code equal to that given
+func (o *GetSbomDBResourceHashOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get sbom d b resource hash o k response
+func (o *GetSbomDBResourceHashOK) Code() int {
+	return 200
+}
+
 func (o *GetSbomDBResourceHashOK) Error() string {
 	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] getSbomDBResourceHashOK  %+v", 200, o.Payload)
 }
+
+func (o *GetSbomDBResourceHashOK) String() string {
+	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] getSbomDBResourceHashOK  %+v", 200, o.Payload)
+}
+
 func (o *GetSbomDBResourceHashOK) GetPayload() *models.SBOM {
 	return o.Payload
 }
@@ -84,14 +120,49 @@ func NewGetSbomDBResourceHashNotFound() *GetSbomDBResourceHashNotFound {
 	return &GetSbomDBResourceHashNotFound{}
 }
 
-/* GetSbomDBResourceHashNotFound describes a response with status code 404, with default header values.
+/*
+GetSbomDBResourceHashNotFound describes a response with status code 404, with default header values.
 
 SBOM not found.
 */
 type GetSbomDBResourceHashNotFound struct {
 }
 
+// IsSuccess returns true when this get sbom d b resource hash not found response has a 2xx status code
+func (o *GetSbomDBResourceHashNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get sbom d b resource hash not found response has a 3xx status code
+func (o *GetSbomDBResourceHashNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get sbom d b resource hash not found response has a 4xx status code
+func (o *GetSbomDBResourceHashNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get sbom d b resource hash not found response has a 5xx status code
+func (o *GetSbomDBResourceHashNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get sbom d b resource hash not found response a status code equal to that given
+func (o *GetSbomDBResourceHashNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get sbom d b resource hash not found response
+func (o *GetSbomDBResourceHashNotFound) Code() int {
+	return 404
+}
+
 func (o *GetSbomDBResourceHashNotFound) Error() string {
+	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] getSbomDBResourceHashNotFound ", 404)
+}
+
+func (o *GetSbomDBResourceHashNotFound) String() string {
 	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] getSbomDBResourceHashNotFound ", 404)
 }
 
@@ -107,7 +178,8 @@ func NewGetSbomDBResourceHashDefault(code int) *GetSbomDBResourceHashDefault {
 	}
 }
 
-/* GetSbomDBResourceHashDefault describes a response with status code -1, with default header values.
+/*
+GetSbomDBResourceHashDefault describes a response with status code -1, with default header values.
 
 Unknown error
 */
@@ -115,6 +187,31 @@ type GetSbomDBResourceHashDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get sbom d b resource hash default response has a 2xx status code
+func (o *GetSbomDBResourceHashDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get sbom d b resource hash default response has a 3xx status code
+func (o *GetSbomDBResourceHashDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get sbom d b resource hash default response has a 4xx status code
+func (o *GetSbomDBResourceHashDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get sbom d b resource hash default response has a 5xx status code
+func (o *GetSbomDBResourceHashDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get sbom d b resource hash default response a status code equal to that given
+func (o *GetSbomDBResourceHashDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get sbom d b resource hash default response
@@ -125,6 +222,11 @@ func (o *GetSbomDBResourceHashDefault) Code() int {
 func (o *GetSbomDBResourceHashDefault) Error() string {
 	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] GetSbomDBResourceHash default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetSbomDBResourceHashDefault) String() string {
+	return fmt.Sprintf("[GET /sbomDB/{resourceHash}][%d] GetSbomDBResourceHash default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetSbomDBResourceHashDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

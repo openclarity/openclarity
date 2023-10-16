@@ -197,6 +197,8 @@ func (m *Project) validateChildren(formats strfmt.Registry) error {
 			if err := m.Children[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -312,6 +314,8 @@ func (m *Project) validateMetrics(formats strfmt.Registry) error {
 		if err := m.Metrics.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics")
 			}
 			return err
 		}
@@ -345,6 +349,8 @@ func (m *Project) validateParent(formats strfmt.Registry) error {
 		if err := m.Parent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -367,6 +373,8 @@ func (m *Project) validateProperties(formats strfmt.Registry) error {
 			if err := m.Properties[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("properties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("properties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -402,6 +410,8 @@ func (m *Project) validatePurl(formats strfmt.Registry) error {
 		if err := m.Purl.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("purl")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("purl")
 			}
 			return err
 		}
@@ -440,6 +450,8 @@ func (m *Project) validateTags(formats strfmt.Registry) error {
 			if err := m.Tags[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("tags" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("tags" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -502,9 +514,16 @@ func (m *Project) contextValidateChildren(ctx context.Context, formats strfmt.Re
 	for i := 0; i < len(m.Children); i++ {
 
 		if m.Children[i] != nil {
+
+			if swag.IsZero(m.Children[i]) { // not required
+				return nil
+			}
+
 			if err := m.Children[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -518,9 +537,16 @@ func (m *Project) contextValidateChildren(ctx context.Context, formats strfmt.Re
 func (m *Project) contextValidateMetrics(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Metrics != nil {
+
+		if swag.IsZero(m.Metrics) { // not required
+			return nil
+		}
+
 		if err := m.Metrics.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics")
 			}
 			return err
 		}
@@ -532,9 +558,16 @@ func (m *Project) contextValidateMetrics(ctx context.Context, formats strfmt.Reg
 func (m *Project) contextValidateParent(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Parent != nil {
+
+		if swag.IsZero(m.Parent) { // not required
+			return nil
+		}
+
 		if err := m.Parent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -548,9 +581,16 @@ func (m *Project) contextValidateProperties(ctx context.Context, formats strfmt.
 	for i := 0; i < len(m.Properties); i++ {
 
 		if m.Properties[i] != nil {
+
+			if swag.IsZero(m.Properties[i]) { // not required
+				return nil
+			}
+
 			if err := m.Properties[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("properties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("properties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -564,9 +604,16 @@ func (m *Project) contextValidateProperties(ctx context.Context, formats strfmt.
 func (m *Project) contextValidatePurl(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Purl != nil {
+
+		if swag.IsZero(m.Purl) { // not required
+			return nil
+		}
+
 		if err := m.Purl.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("purl")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("purl")
 			}
 			return err
 		}
@@ -580,9 +627,16 @@ func (m *Project) contextValidateTags(ctx context.Context, formats strfmt.Regist
 	for i := 0; i < len(m.Tags); i++ {
 
 		if m.Tags[i] != nil {
+
+			if swag.IsZero(m.Tags[i]) { // not required
+				return nil
+			}
+
 			if err := m.Tags[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("tags" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("tags" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

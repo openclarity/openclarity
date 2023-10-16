@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-  PostScanScanUUIDCisDockerBenchmarkResults reports an image c i s docker benchmark scan for a specific scan UUID
+PostScanScanUUIDCisDockerBenchmarkResults reports an image c i s docker benchmark scan for a specific scan UUID
 */
 func (a *Client) PostScanScanUUIDCisDockerBenchmarkResults(params *PostScanScanUUIDCisDockerBenchmarkResultsParams, opts ...ClientOption) (*PostScanScanUUIDCisDockerBenchmarkResultsCreated, error) {
 	// TODO: Validate the params before sending
@@ -75,7 +75,7 @@ func (a *Client) PostScanScanUUIDCisDockerBenchmarkResults(params *PostScanScanU
 }
 
 /*
-  PostScanScanUUIDContentAnalysis reports a content analysis for a specific resource
+PostScanScanUUIDContentAnalysis reports a content analysis for a specific resource
 */
 func (a *Client) PostScanScanUUIDContentAnalysis(params *PostScanScanUUIDContentAnalysisParams, opts ...ClientOption) (*PostScanScanUUIDContentAnalysisCreated, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +112,7 @@ func (a *Client) PostScanScanUUIDContentAnalysis(params *PostScanScanUUIDContent
 }
 
 /*
-  PostScanScanUUIDResults reports an image vulnerability scan for a specific scan UUID
+PostScanScanUUIDResults reports an image vulnerability scan for a specific scan UUID
 */
 func (a *Client) PostScanScanUUIDResults(params *PostScanScanUUIDResultsParams, opts ...ClientOption) (*PostScanScanUUIDResultsCreated, error) {
 	// TODO: Validate the params before sending

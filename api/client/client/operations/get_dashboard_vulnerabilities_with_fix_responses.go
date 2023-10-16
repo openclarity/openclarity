@@ -46,7 +46,8 @@ func NewGetDashboardVulnerabilitiesWithFixOK() *GetDashboardVulnerabilitiesWithF
 	return &GetDashboardVulnerabilitiesWithFixOK{}
 }
 
-/* GetDashboardVulnerabilitiesWithFixOK describes a response with status code 200, with default header values.
+/*
+GetDashboardVulnerabilitiesWithFixOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetDashboardVulnerabilitiesWithFixOK struct {
 	Payload []*models.VulnerabilitiesWithFix
 }
 
+// IsSuccess returns true when this get dashboard vulnerabilities with fix o k response has a 2xx status code
+func (o *GetDashboardVulnerabilitiesWithFixOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get dashboard vulnerabilities with fix o k response has a 3xx status code
+func (o *GetDashboardVulnerabilitiesWithFixOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get dashboard vulnerabilities with fix o k response has a 4xx status code
+func (o *GetDashboardVulnerabilitiesWithFixOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get dashboard vulnerabilities with fix o k response has a 5xx status code
+func (o *GetDashboardVulnerabilitiesWithFixOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get dashboard vulnerabilities with fix o k response a status code equal to that given
+func (o *GetDashboardVulnerabilitiesWithFixOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get dashboard vulnerabilities with fix o k response
+func (o *GetDashboardVulnerabilitiesWithFixOK) Code() int {
+	return 200
+}
+
 func (o *GetDashboardVulnerabilitiesWithFixOK) Error() string {
 	return fmt.Sprintf("[GET /dashboard/vulnerabilitiesWithFix][%d] getDashboardVulnerabilitiesWithFixOK  %+v", 200, o.Payload)
 }
+
+func (o *GetDashboardVulnerabilitiesWithFixOK) String() string {
+	return fmt.Sprintf("[GET /dashboard/vulnerabilitiesWithFix][%d] getDashboardVulnerabilitiesWithFixOK  %+v", 200, o.Payload)
+}
+
 func (o *GetDashboardVulnerabilitiesWithFixOK) GetPayload() []*models.VulnerabilitiesWithFix {
 	return o.Payload
 }
@@ -78,7 +114,8 @@ func NewGetDashboardVulnerabilitiesWithFixDefault(code int) *GetDashboardVulnera
 	}
 }
 
-/* GetDashboardVulnerabilitiesWithFixDefault describes a response with status code -1, with default header values.
+/*
+GetDashboardVulnerabilitiesWithFixDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -86,6 +123,31 @@ type GetDashboardVulnerabilitiesWithFixDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get dashboard vulnerabilities with fix default response has a 2xx status code
+func (o *GetDashboardVulnerabilitiesWithFixDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get dashboard vulnerabilities with fix default response has a 3xx status code
+func (o *GetDashboardVulnerabilitiesWithFixDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get dashboard vulnerabilities with fix default response has a 4xx status code
+func (o *GetDashboardVulnerabilitiesWithFixDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get dashboard vulnerabilities with fix default response has a 5xx status code
+func (o *GetDashboardVulnerabilitiesWithFixDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get dashboard vulnerabilities with fix default response a status code equal to that given
+func (o *GetDashboardVulnerabilitiesWithFixDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get dashboard vulnerabilities with fix default response
@@ -96,6 +158,11 @@ func (o *GetDashboardVulnerabilitiesWithFixDefault) Code() int {
 func (o *GetDashboardVulnerabilitiesWithFixDefault) Error() string {
 	return fmt.Sprintf("[GET /dashboard/vulnerabilitiesWithFix][%d] GetDashboardVulnerabilitiesWithFix default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetDashboardVulnerabilitiesWithFixDefault) String() string {
+	return fmt.Sprintf("[GET /dashboard/vulnerabilitiesWithFix][%d] GetDashboardVulnerabilitiesWithFix default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetDashboardVulnerabilitiesWithFixDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

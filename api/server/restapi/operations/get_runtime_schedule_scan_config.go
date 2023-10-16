@@ -29,10 +29,10 @@ func NewGetRuntimeScheduleScanConfig(ctx *middleware.Context, handler GetRuntime
 	return &GetRuntimeScheduleScanConfig{Context: ctx, Handler: handler}
 }
 
-/* GetRuntimeScheduleScanConfig swagger:route GET /runtime/scheduleScan/config getRuntimeScheduleScanConfig
+/*
+	GetRuntimeScheduleScanConfig swagger:route GET /runtime/scheduleScan/config getRuntimeScheduleScanConfig
 
 Get runtime scheduled scan configuration
-
 */
 type GetRuntimeScheduleScanConfig struct {
 	Context *middleware.Context

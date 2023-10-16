@@ -16,7 +16,8 @@ import (
 // PutApplicationsIDOKCode is the HTTP code returned for type PutApplicationsIDOK
 const PutApplicationsIDOKCode int = 200
 
-/*PutApplicationsIDOK Update Application successful.
+/*
+PutApplicationsIDOK Update Application successful.
 
 swagger:response putApplicationsIdOK
 */
@@ -60,7 +61,8 @@ func (o *PutApplicationsIDOK) WriteResponse(rw http.ResponseWriter, producer run
 // PutApplicationsIDNotFoundCode is the HTTP code returned for type PutApplicationsIDNotFound
 const PutApplicationsIDNotFoundCode int = 404
 
-/*PutApplicationsIDNotFound Application not found.
+/*
+PutApplicationsIDNotFound Application not found.
 
 swagger:response putApplicationsIdNotFound
 */
@@ -81,7 +83,8 @@ func (o *PutApplicationsIDNotFound) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(404)
 }
 
-/*PutApplicationsIDDefault unknown error
+/*
+PutApplicationsIDDefault unknown error
 
 swagger:response putApplicationsIdDefault
 */

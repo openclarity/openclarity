@@ -20,8 +20,12 @@ import (
 type CISDockerBenchmarkLevel string
 
 func NewCISDockerBenchmarkLevel(value CISDockerBenchmarkLevel) *CISDockerBenchmarkLevel {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated CISDockerBenchmarkLevel.
+func (m CISDockerBenchmarkLevel) Pointer() *CISDockerBenchmarkLevel {
+	return &m
 }
 
 const (

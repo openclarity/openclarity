@@ -165,6 +165,8 @@ func (m *RuntimeScheduleScanConfig) validateScanConfigType(formats strfmt.Regist
 	if err := m.ScanConfigType().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scanConfigType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scanConfigType")
 		}
 		return err
 	}
@@ -188,9 +190,15 @@ func (m *RuntimeScheduleScanConfig) ContextValidate(ctx context.Context, formats
 
 func (m *RuntimeScheduleScanConfig) contextValidateScanConfigType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ScanConfigType()) { // not required
+		return nil
+	}
+
 	if err := m.ScanConfigType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scanConfigType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scanConfigType")
 		}
 		return err
 	}

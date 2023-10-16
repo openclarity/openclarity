@@ -96,6 +96,8 @@ func (m *CVSSV3Vector) validateAttackComplexity(formats strfmt.Registry) error {
 	if err := m.AttackComplexity.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("attackComplexity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("attackComplexity")
 		}
 		return err
 	}
@@ -111,6 +113,8 @@ func (m *CVSSV3Vector) validateAttackVector(formats strfmt.Registry) error {
 	if err := m.AttackVector.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("attackVector")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("attackVector")
 		}
 		return err
 	}
@@ -126,6 +130,8 @@ func (m *CVSSV3Vector) validateAvailability(formats strfmt.Registry) error {
 	if err := m.Availability.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("availability")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availability")
 		}
 		return err
 	}
@@ -141,6 +147,8 @@ func (m *CVSSV3Vector) validateConfidentiality(formats strfmt.Registry) error {
 	if err := m.Confidentiality.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("confidentiality")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("confidentiality")
 		}
 		return err
 	}
@@ -156,6 +164,8 @@ func (m *CVSSV3Vector) validateIntegrity(formats strfmt.Registry) error {
 	if err := m.Integrity.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("integrity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("integrity")
 		}
 		return err
 	}
@@ -171,6 +181,8 @@ func (m *CVSSV3Vector) validatePrivilegesRequired(formats strfmt.Registry) error
 	if err := m.PrivilegesRequired.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("privilegesRequired")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("privilegesRequired")
 		}
 		return err
 	}
@@ -186,6 +198,8 @@ func (m *CVSSV3Vector) validateScope(formats strfmt.Registry) error {
 	if err := m.Scope.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scope")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scope")
 		}
 		return err
 	}
@@ -201,6 +215,8 @@ func (m *CVSSV3Vector) validateUserInteraction(formats strfmt.Registry) error {
 	if err := m.UserInteraction.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("userInteraction")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("userInteraction")
 		}
 		return err
 	}
@@ -252,9 +268,15 @@ func (m *CVSSV3Vector) ContextValidate(ctx context.Context, formats strfmt.Regis
 
 func (m *CVSSV3Vector) contextValidateAttackComplexity(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.AttackComplexity) { // not required
+		return nil
+	}
+
 	if err := m.AttackComplexity.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("attackComplexity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("attackComplexity")
 		}
 		return err
 	}
@@ -264,9 +286,15 @@ func (m *CVSSV3Vector) contextValidateAttackComplexity(ctx context.Context, form
 
 func (m *CVSSV3Vector) contextValidateAttackVector(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.AttackVector) { // not required
+		return nil
+	}
+
 	if err := m.AttackVector.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("attackVector")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("attackVector")
 		}
 		return err
 	}
@@ -276,9 +304,15 @@ func (m *CVSSV3Vector) contextValidateAttackVector(ctx context.Context, formats 
 
 func (m *CVSSV3Vector) contextValidateAvailability(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Availability) { // not required
+		return nil
+	}
+
 	if err := m.Availability.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("availability")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availability")
 		}
 		return err
 	}
@@ -288,9 +322,15 @@ func (m *CVSSV3Vector) contextValidateAvailability(ctx context.Context, formats 
 
 func (m *CVSSV3Vector) contextValidateConfidentiality(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Confidentiality) { // not required
+		return nil
+	}
+
 	if err := m.Confidentiality.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("confidentiality")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("confidentiality")
 		}
 		return err
 	}
@@ -300,9 +340,15 @@ func (m *CVSSV3Vector) contextValidateConfidentiality(ctx context.Context, forma
 
 func (m *CVSSV3Vector) contextValidateIntegrity(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Integrity) { // not required
+		return nil
+	}
+
 	if err := m.Integrity.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("integrity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("integrity")
 		}
 		return err
 	}
@@ -312,9 +358,15 @@ func (m *CVSSV3Vector) contextValidateIntegrity(ctx context.Context, formats str
 
 func (m *CVSSV3Vector) contextValidatePrivilegesRequired(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.PrivilegesRequired) { // not required
+		return nil
+	}
+
 	if err := m.PrivilegesRequired.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("privilegesRequired")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("privilegesRequired")
 		}
 		return err
 	}
@@ -324,9 +376,15 @@ func (m *CVSSV3Vector) contextValidatePrivilegesRequired(ctx context.Context, fo
 
 func (m *CVSSV3Vector) contextValidateScope(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Scope) { // not required
+		return nil
+	}
+
 	if err := m.Scope.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("scope")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("scope")
 		}
 		return err
 	}
@@ -336,9 +394,15 @@ func (m *CVSSV3Vector) contextValidateScope(ctx context.Context, formats strfmt.
 
 func (m *CVSSV3Vector) contextValidateUserInteraction(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.UserInteraction) { // not required
+		return nil
+	}
+
 	if err := m.UserInteraction.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("userInteraction")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("userInteraction")
 		}
 		return err
 	}

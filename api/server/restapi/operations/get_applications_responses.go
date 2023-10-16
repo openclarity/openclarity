@@ -16,7 +16,8 @@ import (
 // GetApplicationsOKCode is the HTTP code returned for type GetApplicationsOK
 const GetApplicationsOKCode int = 200
 
-/*GetApplicationsOK Success
+/*
+GetApplicationsOK Success
 
 swagger:response getApplicationsOK
 */
@@ -57,7 +58,8 @@ func (o *GetApplicationsOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-/*GetApplicationsDefault unknown error
+/*
+GetApplicationsDefault unknown error
 
 swagger:response getApplicationsDefault
 */

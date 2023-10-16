@@ -37,10 +37,10 @@ func NewGetPackagesIDApplicationResources(ctx *middleware.Context, handler GetPa
 	return &GetPackagesIDApplicationResources{Context: ctx, Handler: handler}
 }
 
-/* GetPackagesIDApplicationResources swagger:route GET /packages/{id}/applicationResources getPackagesIdApplicationResources
+/*
+	GetPackagesIDApplicationResources swagger:route GET /packages/{id}/applicationResources getPackagesIdApplicationResources
 
 Get Package application resources
-
 */
 type GetPackagesIDApplicationResources struct {
 	Context *middleware.Context
@@ -108,6 +108,8 @@ func (o *GetPackagesIDApplicationResourcesOKBody) validateItems(formats strfmt.R
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -146,9 +148,16 @@ func (o *GetPackagesIDApplicationResourcesOKBody) contextValidateItems(ctx conte
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

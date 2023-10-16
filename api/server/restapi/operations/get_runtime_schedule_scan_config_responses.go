@@ -16,7 +16,8 @@ import (
 // GetRuntimeScheduleScanConfigOKCode is the HTTP code returned for type GetRuntimeScheduleScanConfigOK
 const GetRuntimeScheduleScanConfigOKCode int = 200
 
-/*GetRuntimeScheduleScanConfigOK Success
+/*
+GetRuntimeScheduleScanConfigOK Success
 
 swagger:response getRuntimeScheduleScanConfigOK
 */
@@ -57,7 +58,8 @@ func (o *GetRuntimeScheduleScanConfigOK) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
-/*GetRuntimeScheduleScanConfigDefault unknown error
+/*
+GetRuntimeScheduleScanConfigDefault unknown error
 
 swagger:response getRuntimeScheduleScanConfigDefault
 */

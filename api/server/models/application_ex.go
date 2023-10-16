@@ -48,6 +48,8 @@ func (m *ApplicationEx) validateApplication(formats strfmt.Registry) error {
 		if err := m.Application.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("application")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("application")
 			}
 			return err
 		}
@@ -73,9 +75,16 @@ func (m *ApplicationEx) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (m *ApplicationEx) contextValidateApplication(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Application != nil {
+
+		if swag.IsZero(m.Application) { // not required
+			return nil
+		}
+
 		if err := m.Application.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("application")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("application")
 			}
 			return err
 		}

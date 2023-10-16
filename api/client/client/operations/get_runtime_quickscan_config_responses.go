@@ -46,7 +46,8 @@ func NewGetRuntimeQuickscanConfigOK() *GetRuntimeQuickscanConfigOK {
 	return &GetRuntimeQuickscanConfigOK{}
 }
 
-/* GetRuntimeQuickscanConfigOK describes a response with status code 200, with default header values.
+/*
+GetRuntimeQuickscanConfigOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetRuntimeQuickscanConfigOK struct {
 	Payload *models.RuntimeQuickScanConfig
 }
 
+// IsSuccess returns true when this get runtime quickscan config o k response has a 2xx status code
+func (o *GetRuntimeQuickscanConfigOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get runtime quickscan config o k response has a 3xx status code
+func (o *GetRuntimeQuickscanConfigOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get runtime quickscan config o k response has a 4xx status code
+func (o *GetRuntimeQuickscanConfigOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get runtime quickscan config o k response has a 5xx status code
+func (o *GetRuntimeQuickscanConfigOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get runtime quickscan config o k response a status code equal to that given
+func (o *GetRuntimeQuickscanConfigOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get runtime quickscan config o k response
+func (o *GetRuntimeQuickscanConfigOK) Code() int {
+	return 200
+}
+
 func (o *GetRuntimeQuickscanConfigOK) Error() string {
 	return fmt.Sprintf("[GET /runtime/quickscan/config][%d] getRuntimeQuickscanConfigOK  %+v", 200, o.Payload)
 }
+
+func (o *GetRuntimeQuickscanConfigOK) String() string {
+	return fmt.Sprintf("[GET /runtime/quickscan/config][%d] getRuntimeQuickscanConfigOK  %+v", 200, o.Payload)
+}
+
 func (o *GetRuntimeQuickscanConfigOK) GetPayload() *models.RuntimeQuickScanConfig {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetRuntimeQuickscanConfigDefault(code int) *GetRuntimeQuickscanConfigDef
 	}
 }
 
-/* GetRuntimeQuickscanConfigDefault describes a response with status code -1, with default header values.
+/*
+GetRuntimeQuickscanConfigDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetRuntimeQuickscanConfigDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get runtime quickscan config default response has a 2xx status code
+func (o *GetRuntimeQuickscanConfigDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get runtime quickscan config default response has a 3xx status code
+func (o *GetRuntimeQuickscanConfigDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get runtime quickscan config default response has a 4xx status code
+func (o *GetRuntimeQuickscanConfigDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get runtime quickscan config default response has a 5xx status code
+func (o *GetRuntimeQuickscanConfigDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get runtime quickscan config default response a status code equal to that given
+func (o *GetRuntimeQuickscanConfigDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get runtime quickscan config default response
@@ -98,6 +160,11 @@ func (o *GetRuntimeQuickscanConfigDefault) Code() int {
 func (o *GetRuntimeQuickscanConfigDefault) Error() string {
 	return fmt.Sprintf("[GET /runtime/quickscan/config][%d] GetRuntimeQuickscanConfig default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetRuntimeQuickscanConfigDefault) String() string {
+	return fmt.Sprintf("[GET /runtime/quickscan/config][%d] GetRuntimeQuickscanConfig default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetRuntimeQuickscanConfigDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

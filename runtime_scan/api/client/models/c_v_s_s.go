@@ -52,6 +52,8 @@ func (m *CVSS) validateCvssV3Metrics(formats strfmt.Registry) error {
 		if err := m.CvssV3Metrics.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cvssV3Metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cvssV3Metrics")
 			}
 			return err
 		}
@@ -69,6 +71,8 @@ func (m *CVSS) validateCvssV3Vector(formats strfmt.Registry) error {
 		if err := m.CvssV3Vector.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cvssV3Vector")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cvssV3Vector")
 			}
 			return err
 		}
@@ -98,9 +102,16 @@ func (m *CVSS) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 func (m *CVSS) contextValidateCvssV3Metrics(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CvssV3Metrics != nil {
+
+		if swag.IsZero(m.CvssV3Metrics) { // not required
+			return nil
+		}
+
 		if err := m.CvssV3Metrics.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cvssV3Metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cvssV3Metrics")
 			}
 			return err
 		}
@@ -112,9 +123,16 @@ func (m *CVSS) contextValidateCvssV3Metrics(ctx context.Context, formats strfmt.
 func (m *CVSS) contextValidateCvssV3Vector(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CvssV3Vector != nil {
+
+		if swag.IsZero(m.CvssV3Vector) { // not required
+			return nil
+		}
+
 		if err := m.CvssV3Vector.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("cvssV3Vector")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cvssV3Vector")
 			}
 			return err
 		}

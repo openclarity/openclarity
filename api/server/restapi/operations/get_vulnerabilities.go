@@ -37,10 +37,10 @@ func NewGetVulnerabilities(ctx *middleware.Context, handler GetVulnerabilitiesHa
 	return &GetVulnerabilities{Context: ctx, Handler: handler}
 }
 
-/* GetVulnerabilities swagger:route GET /vulnerabilities getVulnerabilities
+/*
+	GetVulnerabilities swagger:route GET /vulnerabilities getVulnerabilities
 
 Get vulnerabilities
-
 */
 type GetVulnerabilities struct {
 	Context *middleware.Context
@@ -108,6 +108,8 @@ func (o *GetVulnerabilitiesOKBody) validateItems(formats strfmt.Registry) error 
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -146,9 +148,16 @@ func (o *GetVulnerabilitiesOKBody) contextValidateItems(ctx context.Context, for
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getVulnerabilitiesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

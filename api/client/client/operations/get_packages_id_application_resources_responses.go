@@ -57,7 +57,8 @@ func NewGetPackagesIDApplicationResourcesOK() *GetPackagesIDApplicationResources
 	return &GetPackagesIDApplicationResourcesOK{}
 }
 
-/* GetPackagesIDApplicationResourcesOK describes a response with status code 200, with default header values.
+/*
+GetPackagesIDApplicationResourcesOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -65,9 +66,44 @@ type GetPackagesIDApplicationResourcesOK struct {
 	Payload *GetPackagesIDApplicationResourcesOKBody
 }
 
+// IsSuccess returns true when this get packages Id application resources o k response has a 2xx status code
+func (o *GetPackagesIDApplicationResourcesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get packages Id application resources o k response has a 3xx status code
+func (o *GetPackagesIDApplicationResourcesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get packages Id application resources o k response has a 4xx status code
+func (o *GetPackagesIDApplicationResourcesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get packages Id application resources o k response has a 5xx status code
+func (o *GetPackagesIDApplicationResourcesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get packages Id application resources o k response a status code equal to that given
+func (o *GetPackagesIDApplicationResourcesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get packages Id application resources o k response
+func (o *GetPackagesIDApplicationResourcesOK) Code() int {
+	return 200
+}
+
 func (o *GetPackagesIDApplicationResourcesOK) Error() string {
 	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] getPackagesIdApplicationResourcesOK  %+v", 200, o.Payload)
 }
+
+func (o *GetPackagesIDApplicationResourcesOK) String() string {
+	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] getPackagesIdApplicationResourcesOK  %+v", 200, o.Payload)
+}
+
 func (o *GetPackagesIDApplicationResourcesOK) GetPayload() *GetPackagesIDApplicationResourcesOKBody {
 	return o.Payload
 }
@@ -89,14 +125,49 @@ func NewGetPackagesIDApplicationResourcesNotFound() *GetPackagesIDApplicationRes
 	return &GetPackagesIDApplicationResourcesNotFound{}
 }
 
-/* GetPackagesIDApplicationResourcesNotFound describes a response with status code 404, with default header values.
+/*
+GetPackagesIDApplicationResourcesNotFound describes a response with status code 404, with default header values.
 
 Package ID not found.
 */
 type GetPackagesIDApplicationResourcesNotFound struct {
 }
 
+// IsSuccess returns true when this get packages Id application resources not found response has a 2xx status code
+func (o *GetPackagesIDApplicationResourcesNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get packages Id application resources not found response has a 3xx status code
+func (o *GetPackagesIDApplicationResourcesNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get packages Id application resources not found response has a 4xx status code
+func (o *GetPackagesIDApplicationResourcesNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get packages Id application resources not found response has a 5xx status code
+func (o *GetPackagesIDApplicationResourcesNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get packages Id application resources not found response a status code equal to that given
+func (o *GetPackagesIDApplicationResourcesNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get packages Id application resources not found response
+func (o *GetPackagesIDApplicationResourcesNotFound) Code() int {
+	return 404
+}
+
 func (o *GetPackagesIDApplicationResourcesNotFound) Error() string {
+	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] getPackagesIdApplicationResourcesNotFound ", 404)
+}
+
+func (o *GetPackagesIDApplicationResourcesNotFound) String() string {
 	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] getPackagesIdApplicationResourcesNotFound ", 404)
 }
 
@@ -112,7 +183,8 @@ func NewGetPackagesIDApplicationResourcesDefault(code int) *GetPackagesIDApplica
 	}
 }
 
-/* GetPackagesIDApplicationResourcesDefault describes a response with status code -1, with default header values.
+/*
+GetPackagesIDApplicationResourcesDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -120,6 +192,31 @@ type GetPackagesIDApplicationResourcesDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get packages ID application resources default response has a 2xx status code
+func (o *GetPackagesIDApplicationResourcesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get packages ID application resources default response has a 3xx status code
+func (o *GetPackagesIDApplicationResourcesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get packages ID application resources default response has a 4xx status code
+func (o *GetPackagesIDApplicationResourcesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get packages ID application resources default response has a 5xx status code
+func (o *GetPackagesIDApplicationResourcesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get packages ID application resources default response a status code equal to that given
+func (o *GetPackagesIDApplicationResourcesDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get packages ID application resources default response
@@ -130,6 +227,11 @@ func (o *GetPackagesIDApplicationResourcesDefault) Code() int {
 func (o *GetPackagesIDApplicationResourcesDefault) Error() string {
 	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] GetPackagesIDApplicationResources default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetPackagesIDApplicationResourcesDefault) String() string {
+	return fmt.Sprintf("[GET /packages/{id}/applicationResources][%d] GetPackagesIDApplicationResources default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetPackagesIDApplicationResourcesDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }
@@ -146,7 +248,8 @@ func (o *GetPackagesIDApplicationResourcesDefault) readResponse(response runtime
 	return nil
 }
 
-/*GetPackagesIDApplicationResourcesOKBody get packages ID application resources o k body
+/*
+GetPackagesIDApplicationResourcesOKBody get packages ID application resources o k body
 swagger:model GetPackagesIDApplicationResourcesOKBody
 */
 type GetPackagesIDApplicationResourcesOKBody struct {
@@ -191,6 +294,8 @@ func (o *GetPackagesIDApplicationResourcesOKBody) validateItems(formats strfmt.R
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -229,9 +334,16 @@ func (o *GetPackagesIDApplicationResourcesOKBody) contextValidateItems(ctx conte
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPackagesIdApplicationResourcesOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

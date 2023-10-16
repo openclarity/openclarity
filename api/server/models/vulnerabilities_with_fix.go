@@ -50,6 +50,8 @@ func (m *VulnerabilitiesWithFix) validateSeverity(formats strfmt.Registry) error
 	if err := m.Severity.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("severity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("severity")
 		}
 		return err
 	}
@@ -73,9 +75,15 @@ func (m *VulnerabilitiesWithFix) ContextValidate(ctx context.Context, formats st
 
 func (m *VulnerabilitiesWithFix) contextValidateSeverity(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Severity) { // not required
+		return nil
+	}
+
 	if err := m.Severity.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("severity")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("severity")
 		}
 		return err
 	}

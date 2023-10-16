@@ -16,7 +16,8 @@ import (
 // PutRuntimeScheduleScanConfigCreatedCode is the HTTP code returned for type PutRuntimeScheduleScanConfigCreated
 const PutRuntimeScheduleScanConfigCreatedCode int = 201
 
-/*PutRuntimeScheduleScanConfigCreated Success
+/*
+PutRuntimeScheduleScanConfigCreated Success
 
 swagger:response putRuntimeScheduleScanConfigCreated
 */
@@ -58,7 +59,8 @@ func (o *PutRuntimeScheduleScanConfigCreated) WriteResponse(rw http.ResponseWrit
 // PutRuntimeScheduleScanConfigBadRequestCode is the HTTP code returned for type PutRuntimeScheduleScanConfigBadRequest
 const PutRuntimeScheduleScanConfigBadRequestCode int = 400
 
-/*PutRuntimeScheduleScanConfigBadRequest Failed to set scheduled scan config
+/*
+PutRuntimeScheduleScanConfigBadRequest Failed to set scheduled scan config
 
 swagger:response putRuntimeScheduleScanConfigBadRequest
 */
@@ -97,7 +99,8 @@ func (o *PutRuntimeScheduleScanConfigBadRequest) WriteResponse(rw http.ResponseW
 	}
 }
 
-/*PutRuntimeScheduleScanConfigDefault unknown error
+/*
+PutRuntimeScheduleScanConfigDefault unknown error
 
 swagger:response putRuntimeScheduleScanConfigDefault
 */

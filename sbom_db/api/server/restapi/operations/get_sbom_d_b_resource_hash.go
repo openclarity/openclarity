@@ -29,10 +29,10 @@ func NewGetSbomDBResourceHash(ctx *middleware.Context, handler GetSbomDBResource
 	return &GetSbomDBResourceHash{Context: ctx, Handler: handler}
 }
 
-/* GetSbomDBResourceHash swagger:route GET /sbomDB/{resourceHash} getSbomDBResourceHash
+/*
+	GetSbomDBResourceHash swagger:route GET /sbomDB/{resourceHash} getSbomDBResourceHash
 
 Get an SBOM from DB by resource hash.
-
 */
 type GetSbomDBResourceHash struct {
 	Context *middleware.Context

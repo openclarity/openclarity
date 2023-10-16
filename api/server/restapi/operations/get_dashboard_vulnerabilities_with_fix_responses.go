@@ -16,7 +16,8 @@ import (
 // GetDashboardVulnerabilitiesWithFixOKCode is the HTTP code returned for type GetDashboardVulnerabilitiesWithFixOK
 const GetDashboardVulnerabilitiesWithFixOKCode int = 200
 
-/*GetDashboardVulnerabilitiesWithFixOK Success
+/*
+GetDashboardVulnerabilitiesWithFixOK Success
 
 swagger:response getDashboardVulnerabilitiesWithFixOK
 */
@@ -60,7 +61,8 @@ func (o *GetDashboardVulnerabilitiesWithFixOK) WriteResponse(rw http.ResponseWri
 	}
 }
 
-/*GetDashboardVulnerabilitiesWithFixDefault unknown error
+/*
+GetDashboardVulnerabilitiesWithFixDefault unknown error
 
 swagger:response getDashboardVulnerabilitiesWithFixDefault
 */

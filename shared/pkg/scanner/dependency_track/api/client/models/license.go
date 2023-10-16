@@ -104,6 +104,8 @@ func (m *License) validateLicenseGroups(formats strfmt.Registry) error {
 			if err := m.LicenseGroups[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("licenseGroups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("licenseGroups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -182,9 +184,16 @@ func (m *License) contextValidateLicenseGroups(ctx context.Context, formats strf
 	for i := 0; i < len(m.LicenseGroups); i++ {
 
 		if m.LicenseGroups[i] != nil {
+
+			if swag.IsZero(m.LicenseGroups[i]) { // not required
+				return nil
+			}
+
 			if err := m.LicenseGroups[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("licenseGroups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("licenseGroups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

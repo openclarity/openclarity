@@ -16,7 +16,8 @@ import (
 // PutSbomDBResourceHashCreatedCode is the HTTP code returned for type PutSbomDBResourceHashCreated
 const PutSbomDBResourceHashCreatedCode int = 201
 
-/*PutSbomDBResourceHashCreated SBOM created in DB.
+/*
+PutSbomDBResourceHashCreated SBOM created in DB.
 
 swagger:response putSbomDBResourceHashCreated
 */
@@ -57,7 +58,8 @@ func (o *PutSbomDBResourceHashCreated) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-/*PutSbomDBResourceHashDefault Unknown error
+/*
+PutSbomDBResourceHashDefault Unknown error
 
 swagger:response putSbomDBResourceHashDefault
 */

@@ -58,6 +58,8 @@ func (m *ResourceContentAnalysis) validatePackages(formats strfmt.Registry) erro
 			if err := m.Packages[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("packages" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("packages" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -77,6 +79,8 @@ func (m *ResourceContentAnalysis) validateResource(formats strfmt.Registry) erro
 		if err := m.Resource.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resource")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resource")
 			}
 			return err
 		}
@@ -108,9 +112,16 @@ func (m *ResourceContentAnalysis) contextValidatePackages(ctx context.Context, f
 	for i := 0; i < len(m.Packages); i++ {
 
 		if m.Packages[i] != nil {
+
+			if swag.IsZero(m.Packages[i]) { // not required
+				return nil
+			}
+
 			if err := m.Packages[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("packages" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("packages" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -124,9 +135,16 @@ func (m *ResourceContentAnalysis) contextValidatePackages(ctx context.Context, f
 func (m *ResourceContentAnalysis) contextValidateResource(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Resource != nil {
+
+		if swag.IsZero(m.Resource) { // not required
+			return nil
+		}
+
 		if err := m.Resource.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resource")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resource")
 			}
 			return err
 		}

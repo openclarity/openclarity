@@ -52,14 +52,49 @@ func NewPostApplicationsContentAnalysisIDCreated() *PostApplicationsContentAnaly
 	return &PostApplicationsContentAnalysisIDCreated{}
 }
 
-/* PostApplicationsContentAnalysisIDCreated describes a response with status code 201, with default header values.
+/*
+PostApplicationsContentAnalysisIDCreated describes a response with status code 201, with default header values.
 
 Application content analysis successfully reported.
 */
 type PostApplicationsContentAnalysisIDCreated struct {
 }
 
+// IsSuccess returns true when this post applications content analysis Id created response has a 2xx status code
+func (o *PostApplicationsContentAnalysisIDCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post applications content analysis Id created response has a 3xx status code
+func (o *PostApplicationsContentAnalysisIDCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post applications content analysis Id created response has a 4xx status code
+func (o *PostApplicationsContentAnalysisIDCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post applications content analysis Id created response has a 5xx status code
+func (o *PostApplicationsContentAnalysisIDCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post applications content analysis Id created response a status code equal to that given
+func (o *PostApplicationsContentAnalysisIDCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post applications content analysis Id created response
+func (o *PostApplicationsContentAnalysisIDCreated) Code() int {
+	return 201
+}
+
 func (o *PostApplicationsContentAnalysisIDCreated) Error() string {
+	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] postApplicationsContentAnalysisIdCreated ", 201)
+}
+
+func (o *PostApplicationsContentAnalysisIDCreated) String() string {
 	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] postApplicationsContentAnalysisIdCreated ", 201)
 }
 
@@ -73,14 +108,49 @@ func NewPostApplicationsContentAnalysisIDNotFound() *PostApplicationsContentAnal
 	return &PostApplicationsContentAnalysisIDNotFound{}
 }
 
-/* PostApplicationsContentAnalysisIDNotFound describes a response with status code 404, with default header values.
+/*
+PostApplicationsContentAnalysisIDNotFound describes a response with status code 404, with default header values.
 
 Application not found.
 */
 type PostApplicationsContentAnalysisIDNotFound struct {
 }
 
+// IsSuccess returns true when this post applications content analysis Id not found response has a 2xx status code
+func (o *PostApplicationsContentAnalysisIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post applications content analysis Id not found response has a 3xx status code
+func (o *PostApplicationsContentAnalysisIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post applications content analysis Id not found response has a 4xx status code
+func (o *PostApplicationsContentAnalysisIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post applications content analysis Id not found response has a 5xx status code
+func (o *PostApplicationsContentAnalysisIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post applications content analysis Id not found response a status code equal to that given
+func (o *PostApplicationsContentAnalysisIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the post applications content analysis Id not found response
+func (o *PostApplicationsContentAnalysisIDNotFound) Code() int {
+	return 404
+}
+
 func (o *PostApplicationsContentAnalysisIDNotFound) Error() string {
+	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] postApplicationsContentAnalysisIdNotFound ", 404)
+}
+
+func (o *PostApplicationsContentAnalysisIDNotFound) String() string {
 	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] postApplicationsContentAnalysisIdNotFound ", 404)
 }
 
@@ -96,7 +166,8 @@ func NewPostApplicationsContentAnalysisIDDefault(code int) *PostApplicationsCont
 	}
 }
 
-/* PostApplicationsContentAnalysisIDDefault describes a response with status code -1, with default header values.
+/*
+PostApplicationsContentAnalysisIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -104,6 +175,31 @@ type PostApplicationsContentAnalysisIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this post applications content analysis ID default response has a 2xx status code
+func (o *PostApplicationsContentAnalysisIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this post applications content analysis ID default response has a 3xx status code
+func (o *PostApplicationsContentAnalysisIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this post applications content analysis ID default response has a 4xx status code
+func (o *PostApplicationsContentAnalysisIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this post applications content analysis ID default response has a 5xx status code
+func (o *PostApplicationsContentAnalysisIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this post applications content analysis ID default response a status code equal to that given
+func (o *PostApplicationsContentAnalysisIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the post applications content analysis ID default response
@@ -114,6 +210,11 @@ func (o *PostApplicationsContentAnalysisIDDefault) Code() int {
 func (o *PostApplicationsContentAnalysisIDDefault) Error() string {
 	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] PostApplicationsContentAnalysisID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PostApplicationsContentAnalysisIDDefault) String() string {
+	return fmt.Sprintf("[POST /applications/contentAnalysis/{id}][%d] PostApplicationsContentAnalysisID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PostApplicationsContentAnalysisIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

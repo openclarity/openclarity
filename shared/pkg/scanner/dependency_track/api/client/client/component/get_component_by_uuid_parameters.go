@@ -52,10 +52,12 @@ func NewGetComponentByUUIDParamsWithHTTPClient(client *http.Client) *GetComponen
 	}
 }
 
-/* GetComponentByUUIDParams contains all the parameters to send to the API endpoint
-   for the get component by Uuid operation.
+/*
+GetComponentByUUIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get component by Uuid operation.
+
+	Typically these are written to a http.Request.
 */
 type GetComponentByUUIDParams struct {
 

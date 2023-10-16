@@ -29,10 +29,10 @@ func NewGetDashboardCounters(ctx *middleware.Context, handler GetDashboardCounte
 	return &GetDashboardCounters{Context: ctx, Handler: handler}
 }
 
-/* GetDashboardCounters swagger:route GET /dashboard/counters getDashboardCounters
+/*
+	GetDashboardCounters swagger:route GET /dashboard/counters getDashboardCounters
 
 Get number of applications, resources, packages and vulnerabilities
-
 */
 type GetDashboardCounters struct {
 	Context *middleware.Context

@@ -20,8 +20,12 @@ import (
 type PackagesSortKey string
 
 func NewPackagesSortKey(value PackagesSortKey) *PackagesSortKey {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated PackagesSortKey.
+func (m PackagesSortKey) Pointer() *PackagesSortKey {
+	return &m
 }
 
 const (

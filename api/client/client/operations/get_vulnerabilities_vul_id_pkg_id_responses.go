@@ -46,7 +46,8 @@ func NewGetVulnerabilitiesVulIDPkgIDOK() *GetVulnerabilitiesVulIDPkgIDOK {
 	return &GetVulnerabilitiesVulIDPkgIDOK{}
 }
 
-/* GetVulnerabilitiesVulIDPkgIDOK describes a response with status code 200, with default header values.
+/*
+GetVulnerabilitiesVulIDPkgIDOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetVulnerabilitiesVulIDPkgIDOK struct {
 	Payload *models.VulnerabilityEx
 }
 
+// IsSuccess returns true when this get vulnerabilities vul Id pkg Id o k response has a 2xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get vulnerabilities vul Id pkg Id o k response has a 3xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get vulnerabilities vul Id pkg Id o k response has a 4xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get vulnerabilities vul Id pkg Id o k response has a 5xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get vulnerabilities vul Id pkg Id o k response a status code equal to that given
+func (o *GetVulnerabilitiesVulIDPkgIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get vulnerabilities vul Id pkg Id o k response
+func (o *GetVulnerabilitiesVulIDPkgIDOK) Code() int {
+	return 200
+}
+
 func (o *GetVulnerabilitiesVulIDPkgIDOK) Error() string {
 	return fmt.Sprintf("[GET /vulnerabilities/{vul_id}/{pkg_id}][%d] getVulnerabilitiesVulIdPkgIdOK  %+v", 200, o.Payload)
 }
+
+func (o *GetVulnerabilitiesVulIDPkgIDOK) String() string {
+	return fmt.Sprintf("[GET /vulnerabilities/{vul_id}/{pkg_id}][%d] getVulnerabilitiesVulIdPkgIdOK  %+v", 200, o.Payload)
+}
+
 func (o *GetVulnerabilitiesVulIDPkgIDOK) GetPayload() *models.VulnerabilityEx {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetVulnerabilitiesVulIDPkgIDDefault(code int) *GetVulnerabilitiesVulIDPk
 	}
 }
 
-/* GetVulnerabilitiesVulIDPkgIDDefault describes a response with status code -1, with default header values.
+/*
+GetVulnerabilitiesVulIDPkgIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetVulnerabilitiesVulIDPkgIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get vulnerabilities vul ID pkg ID default response has a 2xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get vulnerabilities vul ID pkg ID default response has a 3xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get vulnerabilities vul ID pkg ID default response has a 4xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get vulnerabilities vul ID pkg ID default response has a 5xx status code
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get vulnerabilities vul ID pkg ID default response a status code equal to that given
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get vulnerabilities vul ID pkg ID default response
@@ -98,6 +160,11 @@ func (o *GetVulnerabilitiesVulIDPkgIDDefault) Code() int {
 func (o *GetVulnerabilitiesVulIDPkgIDDefault) Error() string {
 	return fmt.Sprintf("[GET /vulnerabilities/{vul_id}/{pkg_id}][%d] GetVulnerabilitiesVulIDPkgID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetVulnerabilitiesVulIDPkgIDDefault) String() string {
+	return fmt.Sprintf("[GET /vulnerabilities/{vul_id}/{pkg_id}][%d] GetVulnerabilitiesVulIDPkgID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetVulnerabilitiesVulIDPkgIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

@@ -36,7 +36,7 @@ type ClientService interface {
 }
 
 /*
-  GetSbomDBResourceHash gets an s b o m from d b by resource hash
+GetSbomDBResourceHash gets an s b o m from d b by resource hash
 */
 func (a *Client) GetSbomDBResourceHash(params *GetSbomDBResourceHashParams, opts ...ClientOption) (*GetSbomDBResourceHashOK, error) {
 	// TODO: Validate the params before sending
@@ -73,7 +73,7 @@ func (a *Client) GetSbomDBResourceHash(params *GetSbomDBResourceHashParams, opts
 }
 
 /*
-  PutSbomDBResourceHash stores an s b o m in d b for the given resource hash
+PutSbomDBResourceHash stores an s b o m in d b for the given resource hash
 */
 func (a *Client) PutSbomDBResourceHash(params *PutSbomDBResourceHashParams, opts ...ClientOption) (*PutSbomDBResourceHashCreated, error) {
 	// TODO: Validate the params before sending

@@ -52,7 +52,8 @@ func NewPutRuntimeScheduleScanConfigCreated() *PutRuntimeScheduleScanConfigCreat
 	return &PutRuntimeScheduleScanConfigCreated{}
 }
 
-/* PutRuntimeScheduleScanConfigCreated describes a response with status code 201, with default header values.
+/*
+PutRuntimeScheduleScanConfigCreated describes a response with status code 201, with default header values.
 
 Success
 */
@@ -60,9 +61,44 @@ type PutRuntimeScheduleScanConfigCreated struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this put runtime schedule scan config created response has a 2xx status code
+func (o *PutRuntimeScheduleScanConfigCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this put runtime schedule scan config created response has a 3xx status code
+func (o *PutRuntimeScheduleScanConfigCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime schedule scan config created response has a 4xx status code
+func (o *PutRuntimeScheduleScanConfigCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this put runtime schedule scan config created response has a 5xx status code
+func (o *PutRuntimeScheduleScanConfigCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime schedule scan config created response a status code equal to that given
+func (o *PutRuntimeScheduleScanConfigCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the put runtime schedule scan config created response
+func (o *PutRuntimeScheduleScanConfigCreated) Code() int {
+	return 201
+}
+
 func (o *PutRuntimeScheduleScanConfigCreated) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] putRuntimeScheduleScanConfigCreated  %+v", 201, o.Payload)
 }
+
+func (o *PutRuntimeScheduleScanConfigCreated) String() string {
+	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] putRuntimeScheduleScanConfigCreated  %+v", 201, o.Payload)
+}
+
 func (o *PutRuntimeScheduleScanConfigCreated) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewPutRuntimeScheduleScanConfigBadRequest() *PutRuntimeScheduleScanConfigBa
 	return &PutRuntimeScheduleScanConfigBadRequest{}
 }
 
-/* PutRuntimeScheduleScanConfigBadRequest describes a response with status code 400, with default header values.
+/*
+PutRuntimeScheduleScanConfigBadRequest describes a response with status code 400, with default header values.
 
 Failed to set scheduled scan config
 */
@@ -90,9 +127,44 @@ type PutRuntimeScheduleScanConfigBadRequest struct {
 	Payload string
 }
 
+// IsSuccess returns true when this put runtime schedule scan config bad request response has a 2xx status code
+func (o *PutRuntimeScheduleScanConfigBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this put runtime schedule scan config bad request response has a 3xx status code
+func (o *PutRuntimeScheduleScanConfigBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put runtime schedule scan config bad request response has a 4xx status code
+func (o *PutRuntimeScheduleScanConfigBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this put runtime schedule scan config bad request response has a 5xx status code
+func (o *PutRuntimeScheduleScanConfigBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put runtime schedule scan config bad request response a status code equal to that given
+func (o *PutRuntimeScheduleScanConfigBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the put runtime schedule scan config bad request response
+func (o *PutRuntimeScheduleScanConfigBadRequest) Code() int {
+	return 400
+}
+
 func (o *PutRuntimeScheduleScanConfigBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] putRuntimeScheduleScanConfigBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *PutRuntimeScheduleScanConfigBadRequest) String() string {
+	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] putRuntimeScheduleScanConfigBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *PutRuntimeScheduleScanConfigBadRequest) GetPayload() string {
 	return o.Payload
 }
@@ -114,7 +186,8 @@ func NewPutRuntimeScheduleScanConfigDefault(code int) *PutRuntimeScheduleScanCon
 	}
 }
 
-/* PutRuntimeScheduleScanConfigDefault describes a response with status code -1, with default header values.
+/*
+PutRuntimeScheduleScanConfigDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -122,6 +195,31 @@ type PutRuntimeScheduleScanConfigDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this put runtime schedule scan config default response has a 2xx status code
+func (o *PutRuntimeScheduleScanConfigDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this put runtime schedule scan config default response has a 3xx status code
+func (o *PutRuntimeScheduleScanConfigDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this put runtime schedule scan config default response has a 4xx status code
+func (o *PutRuntimeScheduleScanConfigDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this put runtime schedule scan config default response has a 5xx status code
+func (o *PutRuntimeScheduleScanConfigDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this put runtime schedule scan config default response a status code equal to that given
+func (o *PutRuntimeScheduleScanConfigDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the put runtime schedule scan config default response
@@ -132,6 +230,11 @@ func (o *PutRuntimeScheduleScanConfigDefault) Code() int {
 func (o *PutRuntimeScheduleScanConfigDefault) Error() string {
 	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] PutRuntimeScheduleScanConfig default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *PutRuntimeScheduleScanConfigDefault) String() string {
+	return fmt.Sprintf("[PUT /runtime/scheduleScan/config][%d] PutRuntimeScheduleScanConfig default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *PutRuntimeScheduleScanConfigDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

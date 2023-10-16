@@ -37,10 +37,10 @@ func NewGetApplications(ctx *middleware.Context, handler GetApplicationsHandler)
 	return &GetApplications{Context: ctx, Handler: handler}
 }
 
-/* GetApplications swagger:route GET /applications getApplications
+/*
+	GetApplications swagger:route GET /applications getApplications
 
 Get applications
-
 */
 type GetApplications struct {
 	Context *middleware.Context
@@ -108,6 +108,8 @@ func (o *GetApplicationsOKBody) validateItems(formats strfmt.Registry) error {
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -146,9 +148,16 @@ func (o *GetApplicationsOKBody) contextValidateItems(ctx context.Context, format
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

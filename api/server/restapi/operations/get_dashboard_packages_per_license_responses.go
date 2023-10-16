@@ -16,7 +16,8 @@ import (
 // GetDashboardPackagesPerLicenseOKCode is the HTTP code returned for type GetDashboardPackagesPerLicenseOK
 const GetDashboardPackagesPerLicenseOKCode int = 200
 
-/*GetDashboardPackagesPerLicenseOK Success
+/*
+GetDashboardPackagesPerLicenseOK Success
 
 swagger:response getDashboardPackagesPerLicenseOK
 */
@@ -60,7 +61,8 @@ func (o *GetDashboardPackagesPerLicenseOK) WriteResponse(rw http.ResponseWriter,
 	}
 }
 
-/*GetDashboardPackagesPerLicenseDefault unknown error
+/*
+GetDashboardPackagesPerLicenseDefault unknown error
 
 swagger:response getDashboardPackagesPerLicenseDefault
 */

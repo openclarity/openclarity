@@ -36,7 +36,7 @@ type ClientService interface {
 }
 
 /*
-  GetFindingsByProject returns a list of all findings for a specific project
+GetFindingsByProject returns a list of all findings for a specific project
 */
 func (a *Client) GetFindingsByProject(params *GetFindingsByProjectParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFindingsByProjectOK, error) {
 	// TODO: Validate the params before sending

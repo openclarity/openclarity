@@ -51,7 +51,8 @@ func NewGetApplicationsOK() *GetApplicationsOK {
 	return &GetApplicationsOK{}
 }
 
-/* GetApplicationsOK describes a response with status code 200, with default header values.
+/*
+GetApplicationsOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -59,9 +60,44 @@ type GetApplicationsOK struct {
 	Payload *GetApplicationsOKBody
 }
 
+// IsSuccess returns true when this get applications o k response has a 2xx status code
+func (o *GetApplicationsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get applications o k response has a 3xx status code
+func (o *GetApplicationsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get applications o k response has a 4xx status code
+func (o *GetApplicationsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get applications o k response has a 5xx status code
+func (o *GetApplicationsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get applications o k response a status code equal to that given
+func (o *GetApplicationsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get applications o k response
+func (o *GetApplicationsOK) Code() int {
+	return 200
+}
+
 func (o *GetApplicationsOK) Error() string {
 	return fmt.Sprintf("[GET /applications][%d] getApplicationsOK  %+v", 200, o.Payload)
 }
+
+func (o *GetApplicationsOK) String() string {
+	return fmt.Sprintf("[GET /applications][%d] getApplicationsOK  %+v", 200, o.Payload)
+}
+
 func (o *GetApplicationsOK) GetPayload() *GetApplicationsOKBody {
 	return o.Payload
 }
@@ -85,7 +121,8 @@ func NewGetApplicationsDefault(code int) *GetApplicationsDefault {
 	}
 }
 
-/* GetApplicationsDefault describes a response with status code -1, with default header values.
+/*
+GetApplicationsDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -93,6 +130,31 @@ type GetApplicationsDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get applications default response has a 2xx status code
+func (o *GetApplicationsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get applications default response has a 3xx status code
+func (o *GetApplicationsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get applications default response has a 4xx status code
+func (o *GetApplicationsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get applications default response has a 5xx status code
+func (o *GetApplicationsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get applications default response a status code equal to that given
+func (o *GetApplicationsDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get applications default response
@@ -103,6 +165,11 @@ func (o *GetApplicationsDefault) Code() int {
 func (o *GetApplicationsDefault) Error() string {
 	return fmt.Sprintf("[GET /applications][%d] GetApplications default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetApplicationsDefault) String() string {
+	return fmt.Sprintf("[GET /applications][%d] GetApplications default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetApplicationsDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }
@@ -119,7 +186,8 @@ func (o *GetApplicationsDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetApplicationsOKBody get applications o k body
+/*
+GetApplicationsOKBody get applications o k body
 swagger:model GetApplicationsOKBody
 */
 type GetApplicationsOKBody struct {
@@ -164,6 +232,8 @@ func (o *GetApplicationsOKBody) validateItems(formats strfmt.Registry) error {
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -202,9 +272,16 @@ func (o *GetApplicationsOKBody) contextValidateItems(ctx context.Context, format
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getApplicationsOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

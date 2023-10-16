@@ -406,6 +406,8 @@ func (m *Component) validateChildren(formats strfmt.Registry) error {
 			if err := m.Children[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -613,6 +615,8 @@ func (m *Component) validateMetrics(formats strfmt.Registry) error {
 		if err := m.Metrics.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics")
 			}
 			return err
 		}
@@ -646,6 +650,8 @@ func (m *Component) validateParent(formats strfmt.Registry) error {
 		if err := m.Parent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -664,6 +670,8 @@ func (m *Component) validateProject(formats strfmt.Registry) error {
 		if err := m.Project.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -697,6 +705,8 @@ func (m *Component) validateRepositoryMeta(formats strfmt.Registry) error {
 		if err := m.RepositoryMeta.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("repositoryMeta")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("repositoryMeta")
 			}
 			return err
 		}
@@ -714,6 +724,8 @@ func (m *Component) validateResolvedLicense(formats strfmt.Registry) error {
 		if err := m.ResolvedLicense.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resolvedLicense")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resolvedLicense")
 			}
 			return err
 		}
@@ -865,6 +877,8 @@ func (m *Component) validateVulnerabilities(formats strfmt.Registry) error {
 			if err := m.Vulnerabilities[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -918,9 +932,16 @@ func (m *Component) contextValidateChildren(ctx context.Context, formats strfmt.
 	for i := 0; i < len(m.Children); i++ {
 
 		if m.Children[i] != nil {
+
+			if swag.IsZero(m.Children[i]) { // not required
+				return nil
+			}
+
 			if err := m.Children[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("children" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("children" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -934,9 +955,16 @@ func (m *Component) contextValidateChildren(ctx context.Context, formats strfmt.
 func (m *Component) contextValidateMetrics(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Metrics != nil {
+
+		if swag.IsZero(m.Metrics) { // not required
+			return nil
+		}
+
 		if err := m.Metrics.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics")
 			}
 			return err
 		}
@@ -948,9 +976,16 @@ func (m *Component) contextValidateMetrics(ctx context.Context, formats strfmt.R
 func (m *Component) contextValidateParent(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Parent != nil {
+
+		if swag.IsZero(m.Parent) { // not required
+			return nil
+		}
+
 		if err := m.Parent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parent")
 			}
 			return err
 		}
@@ -962,9 +997,12 @@ func (m *Component) contextValidateParent(ctx context.Context, formats strfmt.Re
 func (m *Component) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Project != nil {
+
 		if err := m.Project.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("project")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("project")
 			}
 			return err
 		}
@@ -976,9 +1014,16 @@ func (m *Component) contextValidateProject(ctx context.Context, formats strfmt.R
 func (m *Component) contextValidateRepositoryMeta(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.RepositoryMeta != nil {
+
+		if swag.IsZero(m.RepositoryMeta) { // not required
+			return nil
+		}
+
 		if err := m.RepositoryMeta.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("repositoryMeta")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("repositoryMeta")
 			}
 			return err
 		}
@@ -990,9 +1035,16 @@ func (m *Component) contextValidateRepositoryMeta(ctx context.Context, formats s
 func (m *Component) contextValidateResolvedLicense(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ResolvedLicense != nil {
+
+		if swag.IsZero(m.ResolvedLicense) { // not required
+			return nil
+		}
+
 		if err := m.ResolvedLicense.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("resolvedLicense")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("resolvedLicense")
 			}
 			return err
 		}
@@ -1006,9 +1058,16 @@ func (m *Component) contextValidateVulnerabilities(ctx context.Context, formats 
 	for i := 0; i < len(m.Vulnerabilities); i++ {
 
 		if m.Vulnerabilities[i] != nil {
+
+			if swag.IsZero(m.Vulnerabilities[i]) { // not required
+				return nil
+			}
+
 			if err := m.Vulnerabilities[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

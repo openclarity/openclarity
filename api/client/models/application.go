@@ -77,6 +77,8 @@ func (m *Application) validateApplicationType(formats strfmt.Registry) error {
 	if err := m.ApplicationType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("applicationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("applicationType")
 		}
 		return err
 	}
@@ -98,6 +100,8 @@ func (m *Application) validateCisDockerBenchmarkResults(formats strfmt.Registry)
 			if err := m.CisDockerBenchmarkResults[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -122,6 +126,8 @@ func (m *Application) validateVulnerabilities(formats strfmt.Registry) error {
 			if err := m.Vulnerabilities[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -156,9 +162,15 @@ func (m *Application) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (m *Application) contextValidateApplicationType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ApplicationType) { // not required
+		return nil
+	}
+
 	if err := m.ApplicationType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("applicationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("applicationType")
 		}
 		return err
 	}
@@ -171,9 +183,16 @@ func (m *Application) contextValidateCisDockerBenchmarkResults(ctx context.Conte
 	for i := 0; i < len(m.CisDockerBenchmarkResults); i++ {
 
 		if m.CisDockerBenchmarkResults[i] != nil {
+
+			if swag.IsZero(m.CisDockerBenchmarkResults[i]) { // not required
+				return nil
+			}
+
 			if err := m.CisDockerBenchmarkResults[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cisDockerBenchmarkResults" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -189,9 +208,16 @@ func (m *Application) contextValidateVulnerabilities(ctx context.Context, format
 	for i := 0; i < len(m.Vulnerabilities); i++ {
 
 		if m.Vulnerabilities[i] != nil {
+
+			if swag.IsZero(m.Vulnerabilities[i]) { // not required
+				return nil
+			}
+
 			if err := m.Vulnerabilities[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("vulnerabilities" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

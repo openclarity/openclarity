@@ -16,7 +16,8 @@ import (
 // GetApplicationResourcesOKCode is the HTTP code returned for type GetApplicationResourcesOK
 const GetApplicationResourcesOKCode int = 200
 
-/*GetApplicationResourcesOK Success
+/*
+GetApplicationResourcesOK Success
 
 swagger:response getApplicationResourcesOK
 */
@@ -57,7 +58,8 @@ func (o *GetApplicationResourcesOK) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-/*GetApplicationResourcesDefault unknown error
+/*
+GetApplicationResourcesDefault unknown error
 
 swagger:response getApplicationResourcesDefault
 */

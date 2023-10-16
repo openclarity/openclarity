@@ -29,10 +29,10 @@ func NewPostApplications(ctx *middleware.Context, handler PostApplicationsHandle
 	return &PostApplications{Context: ctx, Handler: handler}
 }
 
-/* PostApplications swagger:route POST /applications postApplications
+/*
+	PostApplications swagger:route POST /applications postApplications
 
 Create application
-
 */
 type PostApplications struct {
 	Context *middleware.Context

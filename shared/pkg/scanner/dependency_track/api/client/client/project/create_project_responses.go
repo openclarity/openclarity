@@ -42,7 +42,7 @@ func (o *CreateProjectReader) ReadResponse(response runtime.ClientResponse, cons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[PUT /v1/project] createProject", response, response.Code())
 	}
 }
 
@@ -51,7 +51,8 @@ func NewCreateProjectCreated() *CreateProjectCreated {
 	return &CreateProjectCreated{}
 }
 
-/* CreateProjectCreated describes a response with status code 201, with default header values.
+/*
+CreateProjectCreated describes a response with status code 201, with default header values.
 
 successful operation
 */
@@ -59,9 +60,44 @@ type CreateProjectCreated struct {
 	Payload *models.Project
 }
 
+// IsSuccess returns true when this create project created response has a 2xx status code
+func (o *CreateProjectCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create project created response has a 3xx status code
+func (o *CreateProjectCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create project created response has a 4xx status code
+func (o *CreateProjectCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create project created response has a 5xx status code
+func (o *CreateProjectCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create project created response a status code equal to that given
+func (o *CreateProjectCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the create project created response
+func (o *CreateProjectCreated) Code() int {
+	return 201
+}
+
 func (o *CreateProjectCreated) Error() string {
 	return fmt.Sprintf("[PUT /v1/project][%d] createProjectCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreateProjectCreated) String() string {
+	return fmt.Sprintf("[PUT /v1/project][%d] createProjectCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreateProjectCreated) GetPayload() *models.Project {
 	return o.Payload
 }
@@ -83,14 +119,49 @@ func NewCreateProjectUnauthorized() *CreateProjectUnauthorized {
 	return &CreateProjectUnauthorized{}
 }
 
-/* CreateProjectUnauthorized describes a response with status code 401, with default header values.
+/*
+CreateProjectUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type CreateProjectUnauthorized struct {
 }
 
+// IsSuccess returns true when this create project unauthorized response has a 2xx status code
+func (o *CreateProjectUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create project unauthorized response has a 3xx status code
+func (o *CreateProjectUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create project unauthorized response has a 4xx status code
+func (o *CreateProjectUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create project unauthorized response has a 5xx status code
+func (o *CreateProjectUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create project unauthorized response a status code equal to that given
+func (o *CreateProjectUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the create project unauthorized response
+func (o *CreateProjectUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateProjectUnauthorized) Error() string {
+	return fmt.Sprintf("[PUT /v1/project][%d] createProjectUnauthorized ", 401)
+}
+
+func (o *CreateProjectUnauthorized) String() string {
 	return fmt.Sprintf("[PUT /v1/project][%d] createProjectUnauthorized ", 401)
 }
 
@@ -104,14 +175,49 @@ func NewCreateProjectConflict() *CreateProjectConflict {
 	return &CreateProjectConflict{}
 }
 
-/* CreateProjectConflict describes a response with status code 409, with default header values.
+/*
+CreateProjectConflict describes a response with status code 409, with default header values.
 
 A project with the specified name already exists
 */
 type CreateProjectConflict struct {
 }
 
+// IsSuccess returns true when this create project conflict response has a 2xx status code
+func (o *CreateProjectConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create project conflict response has a 3xx status code
+func (o *CreateProjectConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create project conflict response has a 4xx status code
+func (o *CreateProjectConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create project conflict response has a 5xx status code
+func (o *CreateProjectConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create project conflict response a status code equal to that given
+func (o *CreateProjectConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the create project conflict response
+func (o *CreateProjectConflict) Code() int {
+	return 409
+}
+
 func (o *CreateProjectConflict) Error() string {
+	return fmt.Sprintf("[PUT /v1/project][%d] createProjectConflict ", 409)
+}
+
+func (o *CreateProjectConflict) String() string {
 	return fmt.Sprintf("[PUT /v1/project][%d] createProjectConflict ", 409)
 }
 

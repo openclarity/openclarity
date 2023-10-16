@@ -16,7 +16,8 @@ import (
 // DeleteApplicationsIDNoContentCode is the HTTP code returned for type DeleteApplicationsIDNoContent
 const DeleteApplicationsIDNoContentCode int = 204
 
-/*DeleteApplicationsIDNoContent Success
+/*
+DeleteApplicationsIDNoContent Success
 
 swagger:response deleteApplicationsIdNoContent
 */
@@ -40,7 +41,8 @@ func (o *DeleteApplicationsIDNoContent) WriteResponse(rw http.ResponseWriter, pr
 // DeleteApplicationsIDNotFoundCode is the HTTP code returned for type DeleteApplicationsIDNotFound
 const DeleteApplicationsIDNotFoundCode int = 404
 
-/*DeleteApplicationsIDNotFound Application not found.
+/*
+DeleteApplicationsIDNotFound Application not found.
 
 swagger:response deleteApplicationsIdNotFound
 */
@@ -61,7 +63,8 @@ func (o *DeleteApplicationsIDNotFound) WriteResponse(rw http.ResponseWriter, pro
 	rw.WriteHeader(404)
 }
 
-/*DeleteApplicationsIDDefault unknown error
+/*
+DeleteApplicationsIDDefault unknown error
 
 swagger:response deleteApplicationsIdDefault
 */

@@ -46,7 +46,8 @@ func NewGetRuntimeScheduleScanConfigOK() *GetRuntimeScheduleScanConfigOK {
 	return &GetRuntimeScheduleScanConfigOK{}
 }
 
-/* GetRuntimeScheduleScanConfigOK describes a response with status code 200, with default header values.
+/*
+GetRuntimeScheduleScanConfigOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetRuntimeScheduleScanConfigOK struct {
 	Payload *models.RuntimeScheduleScanConfig
 }
 
+// IsSuccess returns true when this get runtime schedule scan config o k response has a 2xx status code
+func (o *GetRuntimeScheduleScanConfigOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get runtime schedule scan config o k response has a 3xx status code
+func (o *GetRuntimeScheduleScanConfigOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get runtime schedule scan config o k response has a 4xx status code
+func (o *GetRuntimeScheduleScanConfigOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get runtime schedule scan config o k response has a 5xx status code
+func (o *GetRuntimeScheduleScanConfigOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get runtime schedule scan config o k response a status code equal to that given
+func (o *GetRuntimeScheduleScanConfigOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get runtime schedule scan config o k response
+func (o *GetRuntimeScheduleScanConfigOK) Code() int {
+	return 200
+}
+
 func (o *GetRuntimeScheduleScanConfigOK) Error() string {
 	return fmt.Sprintf("[GET /runtime/scheduleScan/config][%d] getRuntimeScheduleScanConfigOK  %+v", 200, o.Payload)
 }
+
+func (o *GetRuntimeScheduleScanConfigOK) String() string {
+	return fmt.Sprintf("[GET /runtime/scheduleScan/config][%d] getRuntimeScheduleScanConfigOK  %+v", 200, o.Payload)
+}
+
 func (o *GetRuntimeScheduleScanConfigOK) GetPayload() *models.RuntimeScheduleScanConfig {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetRuntimeScheduleScanConfigDefault(code int) *GetRuntimeScheduleScanCon
 	}
 }
 
-/* GetRuntimeScheduleScanConfigDefault describes a response with status code -1, with default header values.
+/*
+GetRuntimeScheduleScanConfigDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetRuntimeScheduleScanConfigDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get runtime schedule scan config default response has a 2xx status code
+func (o *GetRuntimeScheduleScanConfigDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get runtime schedule scan config default response has a 3xx status code
+func (o *GetRuntimeScheduleScanConfigDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get runtime schedule scan config default response has a 4xx status code
+func (o *GetRuntimeScheduleScanConfigDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get runtime schedule scan config default response has a 5xx status code
+func (o *GetRuntimeScheduleScanConfigDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get runtime schedule scan config default response a status code equal to that given
+func (o *GetRuntimeScheduleScanConfigDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get runtime schedule scan config default response
@@ -98,6 +160,11 @@ func (o *GetRuntimeScheduleScanConfigDefault) Code() int {
 func (o *GetRuntimeScheduleScanConfigDefault) Error() string {
 	return fmt.Sprintf("[GET /runtime/scheduleScan/config][%d] GetRuntimeScheduleScanConfig default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetRuntimeScheduleScanConfigDefault) String() string {
+	return fmt.Sprintf("[GET /runtime/scheduleScan/config][%d] GetRuntimeScheduleScanConfig default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetRuntimeScheduleScanConfigDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

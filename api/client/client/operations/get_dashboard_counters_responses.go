@@ -46,7 +46,8 @@ func NewGetDashboardCountersOK() *GetDashboardCountersOK {
 	return &GetDashboardCountersOK{}
 }
 
-/* GetDashboardCountersOK describes a response with status code 200, with default header values.
+/*
+GetDashboardCountersOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +55,44 @@ type GetDashboardCountersOK struct {
 	Payload *models.DashboardCounters
 }
 
+// IsSuccess returns true when this get dashboard counters o k response has a 2xx status code
+func (o *GetDashboardCountersOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get dashboard counters o k response has a 3xx status code
+func (o *GetDashboardCountersOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get dashboard counters o k response has a 4xx status code
+func (o *GetDashboardCountersOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get dashboard counters o k response has a 5xx status code
+func (o *GetDashboardCountersOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get dashboard counters o k response a status code equal to that given
+func (o *GetDashboardCountersOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get dashboard counters o k response
+func (o *GetDashboardCountersOK) Code() int {
+	return 200
+}
+
 func (o *GetDashboardCountersOK) Error() string {
 	return fmt.Sprintf("[GET /dashboard/counters][%d] getDashboardCountersOK  %+v", 200, o.Payload)
 }
+
+func (o *GetDashboardCountersOK) String() string {
+	return fmt.Sprintf("[GET /dashboard/counters][%d] getDashboardCountersOK  %+v", 200, o.Payload)
+}
+
 func (o *GetDashboardCountersOK) GetPayload() *models.DashboardCounters {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetDashboardCountersDefault(code int) *GetDashboardCountersDefault {
 	}
 }
 
-/* GetDashboardCountersDefault describes a response with status code -1, with default header values.
+/*
+GetDashboardCountersDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -88,6 +125,31 @@ type GetDashboardCountersDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get dashboard counters default response has a 2xx status code
+func (o *GetDashboardCountersDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get dashboard counters default response has a 3xx status code
+func (o *GetDashboardCountersDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get dashboard counters default response has a 4xx status code
+func (o *GetDashboardCountersDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get dashboard counters default response has a 5xx status code
+func (o *GetDashboardCountersDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get dashboard counters default response a status code equal to that given
+func (o *GetDashboardCountersDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get dashboard counters default response
@@ -98,6 +160,11 @@ func (o *GetDashboardCountersDefault) Code() int {
 func (o *GetDashboardCountersDefault) Error() string {
 	return fmt.Sprintf("[GET /dashboard/counters][%d] GetDashboardCounters default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetDashboardCountersDefault) String() string {
+	return fmt.Sprintf("[GET /dashboard/counters][%d] GetDashboardCounters default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetDashboardCountersDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

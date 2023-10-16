@@ -16,7 +16,8 @@ import (
 // GetApplicationsIDOKCode is the HTTP code returned for type GetApplicationsIDOK
 const GetApplicationsIDOKCode int = 200
 
-/*GetApplicationsIDOK Success
+/*
+GetApplicationsIDOK Success
 
 swagger:response getApplicationsIdOK
 */
@@ -57,7 +58,8 @@ func (o *GetApplicationsIDOK) WriteResponse(rw http.ResponseWriter, producer run
 	}
 }
 
-/*GetApplicationsIDDefault unknown error
+/*
+GetApplicationsIDDefault unknown error
 
 swagger:response getApplicationsIdDefault
 */

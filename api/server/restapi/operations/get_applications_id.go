@@ -29,10 +29,10 @@ func NewGetApplicationsID(ctx *middleware.Context, handler GetApplicationsIDHand
 	return &GetApplicationsID{Context: ctx, Handler: handler}
 }
 
-/* GetApplicationsID swagger:route GET /applications/{id} getApplicationsId
+/*
+	GetApplicationsID swagger:route GET /applications/{id} getApplicationsId
 
 Get Application.
-
 */
 type GetApplicationsID struct {
 	Context *middleware.Context

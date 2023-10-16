@@ -20,8 +20,12 @@ import (
 type Scope string
 
 func NewScope(value Scope) *Scope {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Scope.
+func (m Scope) Pointer() *Scope {
+	return &m
 }
 
 const (

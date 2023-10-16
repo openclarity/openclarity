@@ -20,8 +20,12 @@ import (
 type VulnerabilitiesSortKey string
 
 func NewVulnerabilitiesSortKey(value VulnerabilitiesSortKey) *VulnerabilitiesSortKey {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated VulnerabilitiesSortKey.
+func (m VulnerabilitiesSortKey) Pointer() *VulnerabilitiesSortKey {
+	return &m
 }
 
 const (

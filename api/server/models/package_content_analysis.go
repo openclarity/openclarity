@@ -48,6 +48,8 @@ func (m *PackageContentAnalysis) validatePackage(formats strfmt.Registry) error 
 		if err := m.Package.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("package")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("package")
 			}
 			return err
 		}
@@ -73,9 +75,16 @@ func (m *PackageContentAnalysis) ContextValidate(ctx context.Context, formats st
 func (m *PackageContentAnalysis) contextValidatePackage(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Package != nil {
+
+		if swag.IsZero(m.Package) { // not required
+			return nil
+		}
+
 		if err := m.Package.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("package")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("package")
 			}
 			return err
 		}

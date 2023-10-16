@@ -52,10 +52,12 @@ func NewGetVulnerabilitiesVulIDPkgIDParamsWithHTTPClient(client *http.Client) *G
 	}
 }
 
-/* GetVulnerabilitiesVulIDPkgIDParams contains all the parameters to send to the API endpoint
-   for the get vulnerabilities vul ID pkg ID operation.
+/*
+GetVulnerabilitiesVulIDPkgIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get vulnerabilities vul ID pkg ID operation.
+
+	Typically these are written to a http.Request.
 */
 type GetVulnerabilitiesVulIDPkgIDParams struct {
 

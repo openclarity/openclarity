@@ -16,7 +16,8 @@ import (
 // GetRuntimeScanProgressOKCode is the HTTP code returned for type GetRuntimeScanProgressOK
 const GetRuntimeScanProgressOKCode int = 200
 
-/*GetRuntimeScanProgressOK Success
+/*
+GetRuntimeScanProgressOK Success
 
 swagger:response getRuntimeScanProgressOK
 */
@@ -57,7 +58,8 @@ func (o *GetRuntimeScanProgressOK) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
-/*GetRuntimeScanProgressDefault unknown error
+/*
+GetRuntimeScanProgressDefault unknown error
 
 swagger:response getRuntimeScanProgressDefault
 */

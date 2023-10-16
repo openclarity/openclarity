@@ -52,14 +52,49 @@ func NewDeleteApplicationResourcesIDNoContent() *DeleteApplicationResourcesIDNoC
 	return &DeleteApplicationResourcesIDNoContent{}
 }
 
-/* DeleteApplicationResourcesIDNoContent describes a response with status code 204, with default header values.
+/*
+DeleteApplicationResourcesIDNoContent describes a response with status code 204, with default header values.
 
 Success
 */
 type DeleteApplicationResourcesIDNoContent struct {
 }
 
+// IsSuccess returns true when this delete application resources Id no content response has a 2xx status code
+func (o *DeleteApplicationResourcesIDNoContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete application resources Id no content response has a 3xx status code
+func (o *DeleteApplicationResourcesIDNoContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete application resources Id no content response has a 4xx status code
+func (o *DeleteApplicationResourcesIDNoContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete application resources Id no content response has a 5xx status code
+func (o *DeleteApplicationResourcesIDNoContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete application resources Id no content response a status code equal to that given
+func (o *DeleteApplicationResourcesIDNoContent) IsCode(code int) bool {
+	return code == 204
+}
+
+// Code gets the status code for the delete application resources Id no content response
+func (o *DeleteApplicationResourcesIDNoContent) Code() int {
+	return 204
+}
+
 func (o *DeleteApplicationResourcesIDNoContent) Error() string {
+	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] deleteApplicationResourcesIdNoContent ", 204)
+}
+
+func (o *DeleteApplicationResourcesIDNoContent) String() string {
 	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] deleteApplicationResourcesIdNoContent ", 204)
 }
 
@@ -73,14 +108,49 @@ func NewDeleteApplicationResourcesIDNotFound() *DeleteApplicationResourcesIDNotF
 	return &DeleteApplicationResourcesIDNotFound{}
 }
 
-/* DeleteApplicationResourcesIDNotFound describes a response with status code 404, with default header values.
+/*
+DeleteApplicationResourcesIDNotFound describes a response with status code 404, with default header values.
 
 Application resource not found.
 */
 type DeleteApplicationResourcesIDNotFound struct {
 }
 
+// IsSuccess returns true when this delete application resources Id not found response has a 2xx status code
+func (o *DeleteApplicationResourcesIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete application resources Id not found response has a 3xx status code
+func (o *DeleteApplicationResourcesIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete application resources Id not found response has a 4xx status code
+func (o *DeleteApplicationResourcesIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete application resources Id not found response has a 5xx status code
+func (o *DeleteApplicationResourcesIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete application resources Id not found response a status code equal to that given
+func (o *DeleteApplicationResourcesIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the delete application resources Id not found response
+func (o *DeleteApplicationResourcesIDNotFound) Code() int {
+	return 404
+}
+
 func (o *DeleteApplicationResourcesIDNotFound) Error() string {
+	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] deleteApplicationResourcesIdNotFound ", 404)
+}
+
+func (o *DeleteApplicationResourcesIDNotFound) String() string {
 	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] deleteApplicationResourcesIdNotFound ", 404)
 }
 
@@ -96,7 +166,8 @@ func NewDeleteApplicationResourcesIDDefault(code int) *DeleteApplicationResource
 	}
 }
 
-/* DeleteApplicationResourcesIDDefault describes a response with status code -1, with default header values.
+/*
+DeleteApplicationResourcesIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -104,6 +175,31 @@ type DeleteApplicationResourcesIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this delete application resources ID default response has a 2xx status code
+func (o *DeleteApplicationResourcesIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this delete application resources ID default response has a 3xx status code
+func (o *DeleteApplicationResourcesIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this delete application resources ID default response has a 4xx status code
+func (o *DeleteApplicationResourcesIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this delete application resources ID default response has a 5xx status code
+func (o *DeleteApplicationResourcesIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this delete application resources ID default response a status code equal to that given
+func (o *DeleteApplicationResourcesIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the delete application resources ID default response
@@ -114,6 +210,11 @@ func (o *DeleteApplicationResourcesIDDefault) Code() int {
 func (o *DeleteApplicationResourcesIDDefault) Error() string {
 	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] DeleteApplicationResourcesID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *DeleteApplicationResourcesIDDefault) String() string {
+	return fmt.Sprintf("[DELETE /applicationResources/{id}][%d] DeleteApplicationResourcesID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *DeleteApplicationResourcesIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }

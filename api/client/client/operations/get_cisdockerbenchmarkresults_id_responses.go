@@ -51,7 +51,8 @@ func NewGetCisdockerbenchmarkresultsIDOK() *GetCisdockerbenchmarkresultsIDOK {
 	return &GetCisdockerbenchmarkresultsIDOK{}
 }
 
-/* GetCisdockerbenchmarkresultsIDOK describes a response with status code 200, with default header values.
+/*
+GetCisdockerbenchmarkresultsIDOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -59,9 +60,44 @@ type GetCisdockerbenchmarkresultsIDOK struct {
 	Payload *GetCisdockerbenchmarkresultsIDOKBody
 }
 
+// IsSuccess returns true when this get cisdockerbenchmarkresults Id o k response has a 2xx status code
+func (o *GetCisdockerbenchmarkresultsIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get cisdockerbenchmarkresults Id o k response has a 3xx status code
+func (o *GetCisdockerbenchmarkresultsIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get cisdockerbenchmarkresults Id o k response has a 4xx status code
+func (o *GetCisdockerbenchmarkresultsIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get cisdockerbenchmarkresults Id o k response has a 5xx status code
+func (o *GetCisdockerbenchmarkresultsIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get cisdockerbenchmarkresults Id o k response a status code equal to that given
+func (o *GetCisdockerbenchmarkresultsIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get cisdockerbenchmarkresults Id o k response
+func (o *GetCisdockerbenchmarkresultsIDOK) Code() int {
+	return 200
+}
+
 func (o *GetCisdockerbenchmarkresultsIDOK) Error() string {
 	return fmt.Sprintf("[GET /cisdockerbenchmarkresults/{id}][%d] getCisdockerbenchmarkresultsIdOK  %+v", 200, o.Payload)
 }
+
+func (o *GetCisdockerbenchmarkresultsIDOK) String() string {
+	return fmt.Sprintf("[GET /cisdockerbenchmarkresults/{id}][%d] getCisdockerbenchmarkresultsIdOK  %+v", 200, o.Payload)
+}
+
 func (o *GetCisdockerbenchmarkresultsIDOK) GetPayload() *GetCisdockerbenchmarkresultsIDOKBody {
 	return o.Payload
 }
@@ -85,7 +121,8 @@ func NewGetCisdockerbenchmarkresultsIDDefault(code int) *GetCisdockerbenchmarkre
 	}
 }
 
-/* GetCisdockerbenchmarkresultsIDDefault describes a response with status code -1, with default header values.
+/*
+GetCisdockerbenchmarkresultsIDDefault describes a response with status code -1, with default header values.
 
 unknown error
 */
@@ -93,6 +130,31 @@ type GetCisdockerbenchmarkresultsIDDefault struct {
 	_statusCode int
 
 	Payload *models.APIResponse
+}
+
+// IsSuccess returns true when this get cisdockerbenchmarkresults ID default response has a 2xx status code
+func (o *GetCisdockerbenchmarkresultsIDDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get cisdockerbenchmarkresults ID default response has a 3xx status code
+func (o *GetCisdockerbenchmarkresultsIDDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get cisdockerbenchmarkresults ID default response has a 4xx status code
+func (o *GetCisdockerbenchmarkresultsIDDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get cisdockerbenchmarkresults ID default response has a 5xx status code
+func (o *GetCisdockerbenchmarkresultsIDDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get cisdockerbenchmarkresults ID default response a status code equal to that given
+func (o *GetCisdockerbenchmarkresultsIDDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get cisdockerbenchmarkresults ID default response
@@ -103,6 +165,11 @@ func (o *GetCisdockerbenchmarkresultsIDDefault) Code() int {
 func (o *GetCisdockerbenchmarkresultsIDDefault) Error() string {
 	return fmt.Sprintf("[GET /cisdockerbenchmarkresults/{id}][%d] GetCisdockerbenchmarkresultsID default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetCisdockerbenchmarkresultsIDDefault) String() string {
+	return fmt.Sprintf("[GET /cisdockerbenchmarkresults/{id}][%d] GetCisdockerbenchmarkresultsID default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetCisdockerbenchmarkresultsIDDefault) GetPayload() *models.APIResponse {
 	return o.Payload
 }
@@ -119,7 +186,8 @@ func (o *GetCisdockerbenchmarkresultsIDDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*GetCisdockerbenchmarkresultsIDOKBody get cisdockerbenchmarkresults ID o k body
+/*
+GetCisdockerbenchmarkresultsIDOKBody get cisdockerbenchmarkresults ID o k body
 swagger:model GetCisdockerbenchmarkresultsIDOKBody
 */
 type GetCisdockerbenchmarkresultsIDOKBody struct {
@@ -164,6 +232,8 @@ func (o *GetCisdockerbenchmarkresultsIDOKBody) validateItems(formats strfmt.Regi
 			if err := o.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -202,9 +272,16 @@ func (o *GetCisdockerbenchmarkresultsIDOKBody) contextValidateItems(ctx context.
 	for i := 0; i < len(o.Items); i++ {
 
 		if o.Items[i] != nil {
+
+			if swag.IsZero(o.Items[i]) { // not required
+				return nil
+			}
+
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getCisdockerbenchmarkresultsIdOK" + "." + "items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

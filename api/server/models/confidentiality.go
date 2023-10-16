@@ -20,8 +20,12 @@ import (
 type Confidentiality string
 
 func NewConfidentiality(value Confidentiality) *Confidentiality {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Confidentiality.
+func (m Confidentiality) Pointer() *Confidentiality {
+	return &m
 }
 
 const (
