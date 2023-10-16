@@ -29,6 +29,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
+	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/azure/scanestimation"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -46,6 +47,7 @@ type Client struct {
 	snapshotsClient  *armcompute.SnapshotsClient
 	disksClient      *armcompute.DisksClient
 	interfacesClient *armnetwork.InterfacesClient
+	scanEstimator    *scanestimation.ScanEstimator
 
 	azureConfig *Config
 }
@@ -62,7 +64,8 @@ func New(_ context.Context) (*Client, error) {
 	}
 
 	client := Client{
-		azureConfig: config,
+		azureConfig:   config,
+		scanEstimator: scanestimation.New(),
 	}
 
 	cred, err := azidentity.NewManagedIdentityCredential(nil)
@@ -98,7 +101,37 @@ func (c Client) Kind() models.CloudProvider {
 }
 
 func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
-	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+	var err error
+
+	vminfo, err := asset.AssetInfo.AsVMInfo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to use asset info as vminfo: %w", err)
+	}
+
+	sourceRegion := vminfo.Location
+	destRegion := c.azureConfig.ScannerLocation
+	scannerVMSize := c.azureConfig.ScannerVMSize
+
+	scannerOSDiskSizeGB := vminfo.RootVolume.SizeGB
+	diskStorageAccount := armcompute.DiskStorageAccountTypesStandardSSDLRS // TODO this should come from configuration once we support more than one volume type.
+
+	params := scanestimation.EstimateAssetScanParams{
+		SourceRegion:           sourceRegion,
+		DestRegion:             destRegion,
+		DiskStorageAccountType: diskStorageAccount,
+		StorageAccountType:     armcompute.StorageAccountTypes(c.azureConfig.ScannerStorageAccountName),
+		ScannerVMSize:          armcompute.VirtualMachineSizeTypes(scannerVMSize),
+		ScannerOSDiskSizeGB:    int64(scannerOSDiskSizeGB),
+		Stats:                  stats,
+		Asset:                  asset,
+		AssetScanTemplate:      assetScanTemplate,
+	}
+	ret, err := c.scanEstimator.EstimateAssetScan(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to estimate asset scan: %w", err)
+	}
+
+	return ret, nil
 }
 
 // nolint:cyclop

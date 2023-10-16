@@ -19,7 +19,16 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
+)
+
+const (
+	MBInGB = 1000
 )
 
 // LogarithmicFormula represents the formula y = a * ln(x) + b.
@@ -86,4 +95,175 @@ func logarithmicFit(xData, yData []float64) (float64, float64, error) {
 	b := (sumY - a*sumLnX) / float64(n)
 
 	return a, b, nil
+}
+
+// GetScanSize Search in all the families stats and look for the first family (by random order) that has scan size stats for ROOTFS scan.
+// nolint:cyclop
+func GetScanSize(stats models.AssetScanStats, asset *models.Asset) (int64, error) {
+	var scanSizeMB int64
+	const half = 2
+
+	sbomStats, ok := findMatchingStatsForInputTypeRootFS(stats.Sbom)
+	if ok {
+		if sbomStats.Size != nil && *sbomStats.Size > 0 {
+			return *sbomStats.Size, nil
+		}
+	}
+
+	vulStats, ok := findMatchingStatsForInputTypeRootFS(stats.Vulnerabilities)
+	if ok {
+		if vulStats.Size != nil && *vulStats.Size > 0 {
+			return *vulStats.Size, nil
+		}
+	}
+
+	secretsStats, ok := findMatchingStatsForInputTypeRootFS(stats.Secrets)
+	if ok {
+		if secretsStats.Size != nil && *secretsStats.Size > 0 {
+			return *secretsStats.Size, nil
+		}
+	}
+
+	exploitsStats, ok := findMatchingStatsForInputTypeRootFS(stats.Exploits)
+	if ok {
+		if exploitsStats.Size != nil && *exploitsStats.Size > 0 {
+			return *exploitsStats.Size, nil
+		}
+	}
+
+	rootkitsStats, ok := findMatchingStatsForInputTypeRootFS(stats.Rootkits)
+	if ok {
+		if rootkitsStats.Size != nil && *rootkitsStats.Size > 0 {
+			return *rootkitsStats.Size, nil
+		}
+	}
+
+	misconfigurationsStats, ok := findMatchingStatsForInputTypeRootFS(stats.Misconfigurations)
+	if ok {
+		if misconfigurationsStats.Size != nil && *misconfigurationsStats.Size > 0 {
+			return *misconfigurationsStats.Size, nil
+		}
+	}
+
+	malwareStats, ok := findMatchingStatsForInputTypeRootFS(stats.Malware)
+	if ok {
+		if malwareStats.Size != nil && *malwareStats.Size > 0 {
+			return *malwareStats.Size, nil
+		}
+	}
+
+	// if scan size was not found from the previous scan stats, estimate the scan size from the asset root volume size
+	vminfo, err := asset.AssetInfo.AsVMInfo()
+	if err != nil {
+		return 0, fmt.Errorf("failed to use asset info as vminfo: %w", err)
+	}
+	sourceVolumeSizeMB := int64(vminfo.RootVolume.SizeGB * MBInGB)
+	scanSizeMB = sourceVolumeSizeMB / half // Volumes are normally only about 50% full
+
+	return scanSizeMB, nil
+}
+
+// findMatchingStatsForInputTypeRootFS will find the first stats for rootfs scan.
+func findMatchingStatsForInputTypeRootFS(stats *[]models.AssetScanInputScanStats) (models.AssetScanInputScanStats, bool) {
+	if stats == nil {
+		return models.AssetScanInputScanStats{}, false
+	}
+	for i, scanStats := range *stats {
+		if *scanStats.Type == string(utils.ROOTFS) {
+			ret := *stats
+			return ret[i], true
+		}
+	}
+	return models.AssetScanInputScanStats{}, false
+}
+
+// nolint:cyclop
+func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFamiliesConfig, scanSizeMB int64, familyScanDurationsMap map[familiestypes.FamilyType]*LogarithmicFormula) int64 {
+	var totalScanDuration int64
+
+	scanSizeGB := float64(scanSizeMB) / MBInGB
+
+	if familiesConfig.Sbom.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Sbom)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			// if we didn't find the duration from the stats, take it from our static scan duration map.
+			totalScanDuration += int64(familyScanDurationsMap[types.SBOM].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Vulnerabilities.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Vulnerabilities)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Vulnerabilities].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Secrets.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Secrets)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Secrets].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Exploits.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Exploits)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Exploits].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Rootkits.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Rootkits)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Rootkits].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Misconfigurations.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Misconfigurations)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Misconfiguration].Evaluate(scanSizeGB))
+		}
+	}
+
+	if familiesConfig.Malware.IsEnabled() {
+		scanDuration := getScanDurationFromStats(stats.Malware)
+		if scanDuration != 0 {
+			totalScanDuration += scanDuration
+		} else {
+			totalScanDuration += int64(familyScanDurationsMap[types.Malware].Evaluate(scanSizeGB))
+		}
+	}
+
+	return totalScanDuration
+}
+
+func getScanDurationFromStats(stats *[]models.AssetScanInputScanStats) int64 {
+	stat, ok := findMatchingStatsForInputTypeRootFS(stats)
+	if !ok {
+		return 0
+	}
+
+	if stat.ScanTime == nil {
+		return 0
+	}
+	if stat.ScanTime.EndTime == nil || stat.ScanTime.StartTime == nil {
+		return 0
+	}
+
+	dur := stat.ScanTime.EndTime.Sub(*stat.ScanTime.StartTime)
+
+	return int64(dur.Seconds())
 }
