@@ -53,19 +53,20 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
     const navigate = useNavigate();
 
     const {id, assetInfo, firstSeen, lastSeen, terminatedOn} = assetData;
-    const {objectType, location, tags, image, instanceType, platform, architecture, os, launchTime, rootVolume} = assetInfo || {};
+    const {objectType, location, tags, labels, image, instanceType, platform, launchTime, rootVolume, repoDigests, createdAt} = assetInfo || {};
     const {sizeGB, encrypted} = rootVolume || {};
 
     const platformFormatted = useMemo(() => {
-        return objectType === "ContainerImageInfo" ? `${architecture}/${os}` : platform;
-    }, [architecture, objectType, os, platform]);
+        const getImagePlatform = (image) => image.os && image.architecture ? `${image.os}/${image.architecture}` : null;
+        return platform ?? getImagePlatform(assetInfo) ?? getImagePlatform(image);
+    }, [assetInfo, image, platform]);
     
     const imageFormatted = useMemo(() => {
         if (typeof image === "string") {
             return image;
         }
 
-        const getImageName = (image) => image.name || image.id;
+        const getImageName = (image) => image.repoTags?.[0] || image.imageID;
 
         return typeof image === "object" ? getImageName(image) : getImageName(assetInfo);
     }, [assetInfo, image]);
@@ -78,7 +79,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Name">{getAssetName(assetInfo)}</TitleValueDisplay>
                         <TitleValueDisplay title="Type">{objectType}</TitleValueDisplay>
-                        <TitleValueDisplay title="Location">{location}</TitleValueDisplay>
+                        <TitleValueDisplay title="Location">{location || repoDigests?.[0]}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="First Seen">{formatDate(firstSeen)}</TitleValueDisplay>
@@ -86,7 +87,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                         <TitleValueDisplay title="Terminated On">{formatDate(terminatedOn)}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
-                        <TitleValueDisplay title="Labels"><TagsList items={formatTagsToStringsList(tags)} /></TitleValueDisplay>
+                        <TitleValueDisplay title="Labels"><TagsList items={formatTagsToStringsList(tags ?? labels)} /></TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Image">{imageFormatted}</TitleValueDisplay>
@@ -94,7 +95,7 @@ const AssetDetails = ({assetData, withAssetLink=false, withAssetScansLink=false}
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Platform">{platformFormatted}</TitleValueDisplay>
-                        <TitleValueDisplay title="Launch time">{formatDate(launchTime)}</TitleValueDisplay>
+                        <TitleValueDisplay title="Launch time">{formatDate(launchTime || createdAt)}</TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Root Volume Size">{sizeGB} GB</TitleValueDisplay>
