@@ -23,7 +23,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
 )
 
@@ -189,7 +188,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 			totalScanDuration += scanDuration
 		} else {
 			// if we didn't find the duration from the stats, take it from our static scan duration map.
-			totalScanDuration += int64(familyScanDurationsMap[types.SBOM].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.SBOM].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -198,7 +197,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Vulnerabilities].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Vulnerabilities].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -207,7 +206,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Secrets].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Secrets].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -216,7 +215,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Exploits].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Exploits].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -225,7 +224,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Rootkits].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Rootkits].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -234,7 +233,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Misconfiguration].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Misconfiguration].Evaluate(scanSizeGB))
 		}
 	}
 
@@ -243,7 +242,7 @@ func GetScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 		if scanDuration != 0 {
 			totalScanDuration += scanDuration
 		} else {
-			totalScanDuration += int64(familyScanDurationsMap[types.Malware].Evaluate(scanSizeGB))
+			totalScanDuration += int64(familyScanDurationsMap[familiestypes.Malware].Evaluate(scanSizeGB))
 		}
 	}
 

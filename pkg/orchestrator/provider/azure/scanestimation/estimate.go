@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 
@@ -51,9 +52,15 @@ type EstimateAssetScanParams struct {
 	AssetScanTemplate      *models.AssetScanTemplate
 }
 
+const halfAMinute = 30
+
 func New() *ScanEstimator {
+	netClient := &http.Client{
+		Timeout: time.Second * halfAMinute,
+	}
+
 	return &ScanEstimator{
-		priceFetcher: PriceFetcherImpl{client: http.Client{}},
+		priceFetcher: PriceFetcherImpl{client: netClient},
 	}
 }
 
@@ -76,7 +83,7 @@ const (
 // scanSizesGB represents the memory sizes on the machines that the tests were taken on.
 var scanSizesGB = []float64{0.01, 1.652, 4.559}
 
-// FamilyScanDurationsMap Calculate the logarithmic fit of each family base on static measurements of family scan duration in seconds per scanSizesGB value.
+// familyScanDurationsMap Calculate the logarithmic fit of each family base on static measurements of family scan duration in seconds per scanSizesGB value.
 // The tests were made on a Standard_D2s_v3 virtual machine with Standard SSD LRS os disk (30 GB)
 // The times correspond to the scan size values in scanSizesGB.
 // TODO add infoFinder family stats.
@@ -84,7 +91,7 @@ var scanSizesGB = []float64{0.01, 1.652, 4.559}
 
 var jobCreationTime = common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 1860, 2460})
 
-var FamilyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFormula{
+var familyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFormula{
 	familiestypes.SBOM:             common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 16, 17}),
 	familiestypes.Vulnerabilities:  common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 4, 10}), // TODO check time with no sbom scan
 	familiestypes.Secrets:          common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 420, 780}),
@@ -93,6 +100,8 @@ var FamilyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFor
 	familiestypes.Misconfiguration: common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 6, 7}),
 	familiestypes.Malware:          common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 900, 1140}),
 }
+
+const two = 2
 
 // nolint:cyclop
 func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAssetScanParams) (*models.Estimation, error) {
@@ -110,7 +119,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		return nil, fmt.Errorf("failed to get scan size: %w", err)
 	}
 	scanSizeGB := float64(scanSizeMB) / common.MBInGB
-	scanDurationSec := common.GetScanDuration(params.Stats, familiesConfig, scanSizeMB, FamilyScanDurationsMap)
+	scanDurationSec := common.GetScanDuration(params.Stats, familiesConfig, scanSizeMB, familyScanDurationsMap)
 
 	marketOption := MarketOptionOnDemand
 	if params.AssetScanTemplate.UseSpotInstances() {
@@ -124,7 +133,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	scannerOSDiskType := params.DiskStorageAccountType
 	jobCreationTimeSec := jobCreationTime.Evaluate(scanSizeGB)
 	// The approximate amount of time that a resource is up before the scan starts (during job creation)
-	idleRunTime := jobCreationTimeSec / 2
+	idleRunTime := jobCreationTimeSec / two
 	scannerVMSize := params.ScannerVMSize
 	scannerOSDiskSizeGB := params.ScannerOSDiskSizeGB
 
@@ -135,26 +144,26 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 
 	// Get relevant current prices from Azure price list API
 	// Fetch the dest snapshot monthly cost.
-	destSnapshotMonthlyCost, err := s.priceFetcher.GetSnapshotGBPerMonthCost(destRegion, snapshotStorageAccountType)
+	destSnapshotMonthlyCost, err := s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, destRegion, snapshotStorageAccountType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get monthly cost for destination snapshot: %w", err)
 	}
 
 	// Fetch the scanner vm hourly cost.
-	scannerPerHourCost, err := s.priceFetcher.GetInstancePerHourCost(destRegion, scannerVMSize, marketOption)
+	scannerPerHourCost, err := s.priceFetcher.GetInstancePerHourCost(ctx, destRegion, scannerVMSize, marketOption)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scanner per hour cost: %w", err)
 	}
 
 	// Fetch the scanner os disk monthly cost.
-	scannerOSDiskMonthlyCost, err := s.priceFetcher.GetManagedDiskMonthlyCost(destRegion, scannerOSDiskType, scannerOSDiskSizeGB)
+	scannerOSDiskMonthlyCost, err := s.priceFetcher.GetManagedDiskMonthlyCost(ctx, destRegion, scannerOSDiskType, scannerOSDiskSizeGB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get os disk monthly cost per GB: %w", err)
 	}
 
 	// Fetch the monthly cost of the disk that was created from the snapshot.
 	// We assume that the data disk size will be the same as the os disk size.
-	diskFromSnapshotMonthlyCost, err := s.priceFetcher.GetManagedDiskMonthlyCost(destRegion, dataDiskType, scannerOSDiskSizeGB)
+	diskFromSnapshotMonthlyCost, err := s.priceFetcher.GetManagedDiskMonthlyCost(ctx, destRegion, dataDiskType, scannerOSDiskSizeGB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get data disk monthly cost per GB: %w", err)
 	}
@@ -165,7 +174,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	if sourceRegion != destRegion {
 		// if the scanner is in a different region than the scanned asset, we have another snapshot created in the
 		// source region.
-		sourceSnapshotMonthlyCost, err = s.priceFetcher.GetSnapshotGBPerMonthCost(sourceRegion, snapshotStorageAccountType)
+		sourceSnapshotMonthlyCost, err = s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, sourceRegion, snapshotStorageAccountType)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get source snapshot monthly cost: %w", err)
 		}
@@ -173,7 +182,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		sourceSnapshotCost = sourceSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
 
 		// Fetch the data transfer cost per GB (if source and dest regions are the same, this will be 0).
-		dataTransferCostPerGB, err := s.priceFetcher.GetDataTransferPerGBCost(destRegion)
+		dataTransferCostPerGB, err := s.priceFetcher.GetDataTransferPerGBCost(ctx, destRegion)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get data transfer cost per GB: %w", err)
 		}
@@ -181,7 +190,10 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		dataTransferCost = dataTransferCostPerGB * scanSizeGB
 
 		// when moving a snapshot into another region, the snapshot is copied into a blob storage.
-		blobStoragePerGB, err := s.priceFetcher.GetBlobStoragePerGBCost(destRegion, params.StorageAccountType)
+		blobStoragePerGB, err := s.priceFetcher.GetBlobStoragePerGBCost(ctx, destRegion, params.StorageAccountType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get blob storage cost per GB: %w", err)
+		}
 
 		blobStorageCost = blobStoragePerGB * scanSizeGB
 	}
@@ -239,6 +251,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	return &estimation, nil
 }
 
+// nolint:exhaustive
 func getSnapshotTypeFromDiskType(diskType armcompute.DiskStorageAccountTypes) (armcompute.SnapshotStorageAccountTypes, error) {
 	switch diskType {
 	case armcompute.DiskStorageAccountTypesStandardSSDLRS:

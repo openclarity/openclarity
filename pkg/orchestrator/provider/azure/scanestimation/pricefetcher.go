@@ -16,6 +16,7 @@
 package scanestimation
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,14 +34,14 @@ type Item struct {
 	ArmRegionName        string  `json:"armRegionName"`
 	Location             string  `json:"location"`
 	EffectiveStartDate   string  `json:"effectiveStartDate"`
-	MeterId              string  `json:"meterId"`
+	MeterID              string  `json:"meterId"`
 	MeterName            string  `json:"meterName"`
-	ProductId            string  `json:"productId"`
-	SkuId                string  `json:"skuId"`
+	ProductID            string  `json:"productId"`
+	SkuID                string  `json:"skuId"`
 	ProductName          string  `json:"productName"`
 	SkuName              string  `json:"skuName"`
 	ServiceName          string  `json:"serviceName"`
-	ServiceId            string  `json:"serviceId"`
+	ServiceID            string  `json:"serviceId"`
 	ServiceFamily        string  `json:"serviceFamily"`
 	UnitOfMeasure        string  `json:"unitOfMeasure"`
 	Type                 string  `json:"type"`
@@ -50,7 +51,7 @@ type Item struct {
 
 type Data struct {
 	BillingCurrency    string  `json:"BillingCurrency"`
-	CustomerEntityId   string  `json:"CustomerEntityId"`
+	CustomerEntityID   string  `json:"CustomerEntityID"`
 	CustomerEntityType string  `json:"CustomerEntityType"`
 	Items              []Item  `json:"Items"`
 	NextPageLink       *string `json:"NextPageLink"`
@@ -62,7 +63,7 @@ const (
 )
 
 type PriceFetcherImpl struct {
-	client http.Client
+	client *http.Client
 }
 
 var StandardSSDSizes = []StandardSSDSize{
@@ -117,28 +118,28 @@ var blobStorageAccountToFilter = map[armcompute.StorageAccountTypes]string{
 	armcompute.StorageAccountTypesStandardLRS: "armRegionName eq '%s' and serviceFamily eq 'Storage' and meterName eq 'LRS Data Stored' and skuName eq 'Standard LRS' and productName eq 'Standard Page Blob v2'",
 }
 
-func (o *PriceFetcherImpl) GetSnapshotGBPerMonthCost(region string, storageAccountType armcompute.SnapshotStorageAccountTypes) (float64, error) {
+func (o *PriceFetcherImpl) GetSnapshotGBPerMonthCost(ctx context.Context, region string, storageAccountType armcompute.SnapshotStorageAccountTypes) (float64, error) {
 	odataFilter := snapshotStorageAccountToFilters[storageAccountType]
 	odataFilter = fmt.Sprintf(odataFilter, region)
 
-	return o.getRetailPrice(odataFilter)
+	return o.getRetailPrice(ctx, odataFilter)
 }
 
-func (o *PriceFetcherImpl) GetManagedDiskMonthlyCost(region string, storageAccountType armcompute.DiskStorageAccountTypes, diskSize int64) (float64, error) {
+func (o *PriceFetcherImpl) GetManagedDiskMonthlyCost(ctx context.Context, region string, storageAccountType armcompute.DiskStorageAccountTypes, diskSize int64) (float64, error) {
 	odataFilter := diskStorageAccountToFilter[storageAccountType]
 	symbol := findClosestSSDSizeSymbol(diskSize)
 	odataFilter = fmt.Sprintf(odataFilter, region, symbol, symbol)
 
-	return o.getRetailPrice(odataFilter)
+	return o.getRetailPrice(ctx, odataFilter)
 }
 
-func (o *PriceFetcherImpl) GetDataTransferPerGBCost(destRegion string) (float64, error) {
+func (o *PriceFetcherImpl) GetDataTransferPerGBCost(ctx context.Context, destRegion string) (float64, error) {
 	odataFilter := fmt.Sprintf("armRegionName eq '%s' and contains(meterName,'Region Data Transfer')", destRegion)
 
-	return o.getRetailPrice(odataFilter)
+	return o.getRetailPrice(ctx, odataFilter)
 }
 
-func (o *PriceFetcherImpl) GetInstancePerHourCost(region string, vmSize armcompute.VirtualMachineSizeTypes, marketOption MarketOption) (float64, error) {
+func (o *PriceFetcherImpl) GetInstancePerHourCost(ctx context.Context, region string, vmSize armcompute.VirtualMachineSizeTypes, marketOption MarketOption) (float64, error) {
 	var odataFilter string
 
 	if marketOption == MarketOptionSpot {
@@ -149,39 +150,47 @@ func (o *PriceFetcherImpl) GetInstancePerHourCost(region string, vmSize armcompu
 		odataFilter = fmt.Sprintf(odataFilter, region)
 	}
 
-	return o.getRetailPrice(odataFilter)
+	return o.getRetailPrice(ctx, odataFilter)
 }
 
-func (o *PriceFetcherImpl) GetBlobStoragePerGBCost(region string, storageAccountType armcompute.StorageAccountTypes) (float64, error) {
+func (o *PriceFetcherImpl) GetBlobStoragePerGBCost(ctx context.Context, region string, storageAccountType armcompute.StorageAccountTypes) (float64, error) {
 	odataFilter := blobStorageAccountToFilter[storageAccountType]
 	odataFilter = fmt.Sprintf(odataFilter, region)
 
-	return o.getRetailPrice(odataFilter)
+	return o.getRetailPrice(ctx, odataFilter)
 }
 
-func (o *PriceFetcherImpl) getRetailPrice(odataFilter string) (float64, error) {
+func (o *PriceFetcherImpl) getRetailPrice(ctx context.Context, odataFilter string) (float64, error) {
 	urlWithFilter, err := addQueryParamToURL(priceListBaseURL, "$filter", odataFilter)
 	if err != nil {
 		return 0, fmt.Errorf("failed to add query params to url: %w", err)
 	}
 
-	res, err := o.client.Get(urlWithFilter)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, urlWithFilter, nil)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to create request: %w", err)
 	}
-	if res.StatusCode != http.StatusOK {
-		return 0, fmt.Errorf("failed to call url: %v. status code: %v", urlWithFilter, res.StatusCode)
-	}
-	body, err := io.ReadAll(res.Body)
+
+	resp, err := o.client.Do(request)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("status code is not 200 when calling url: %v. status code: %v", urlWithFilter, resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read body: %w", err)
 	}
 
 	var data Data
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		return 0, fmt.Errorf("failed to unmarshal JSON: %v", err)
+		return 0, fmt.Errorf("failed to unmarshal JSON: %w", err)
 	}
 
 	if data.Count != 1 {

@@ -23,6 +23,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/openclarity/vmclarity/api/models"
+	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -120,6 +121,18 @@ func Test_getScanSize(t *testing.T) {
 	}
 }
 
+var scanSizesGB = []float64{0.01, 5, 10}
+
+var fakeFamilyScanDurationsMap = map[familiestypes.FamilyType]*LogarithmicFormula{
+	familiestypes.SBOM:             MustLogarithmicFit(scanSizesGB, []float64{0.01, 5, 10}),
+	familiestypes.Vulnerabilities:  MustLogarithmicFit(scanSizesGB, []float64{0.01, 10, 20}),
+	familiestypes.Secrets:          MustLogarithmicFit(scanSizesGB, []float64{0.01, 3, 6}),
+	familiestypes.Exploits:         MustLogarithmicFit(scanSizesGB, []float64{0, 0, 0}),
+	familiestypes.Rootkits:         MustLogarithmicFit(scanSizesGB, []float64{0, 0, 0}),
+	familiestypes.Misconfiguration: MustLogarithmicFit(scanSizesGB, []float64{0.01, 20, 40}),
+	familiestypes.Malware:          MustLogarithmicFit(scanSizesGB, []float64{0.01, 500, 1000}),
+}
+
 func Test_getScanDuration(t *testing.T) {
 	timeNow := time.Now()
 
@@ -177,15 +190,12 @@ func Test_getScanDuration(t *testing.T) {
 				},
 				scanSizeMB: 2500,
 			},
-			// 360 seconds Secrets scan from stats
-			// 50 seconds Sbom scan from stats
-			// extrapolated value for  Misconfigurations, Malware and Vulnerabilities from static lab tests.
-			wantDuration: 1953,
+			wantDuration: 1083,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotDuration := GetScanDuration(tt.args.stats, tt.args.familiesConfig, tt.args.scanSizeMB)
+			gotDuration := GetScanDuration(tt.args.stats, tt.args.familiesConfig, tt.args.scanSizeMB, fakeFamilyScanDurationsMap)
 			if gotDuration != tt.wantDuration {
 				t.Errorf("getScanDuration() gotDuration = %v, want %v", gotDuration, tt.wantDuration)
 			}
