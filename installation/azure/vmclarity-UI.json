@@ -168,12 +168,60 @@
                     "label": "Advanced",
                     "elements": [
                         {
-                            "name": "backendContainerImage",
+                            "name": "orchestratorContainerImage",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Backend Container Image",
+                            "label": "Orchestrator Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-backend:latest",
-                            "toolTip": "VMClarity Backend Container Image",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-orchestrator:latest",
+                            "toolTip": "VMClarity Orchestrator Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "apiserverContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "APIServer Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-apiserver:latest",
+                            "toolTip": "VMClarity APIServer Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "uiContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "UI Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui:latest",
+                            "toolTip": "VMClarity UI Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "uibackendContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "UI Backend Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
+                            "toolTip": "VMClarity UI Backend Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",
@@ -252,7 +300,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Freshclam Mirror Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.1.0",
+                            "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.2.0",
                             "toolTip": "Freshclam Mirror Container Image",
                             "constraints": {
                                 "required": false,
@@ -480,7 +528,10 @@
                 "scannerVmSize": "[steps('basics').scannerVmSize]",
                 "securityType": "[steps('basics').securityType]",
                 "deploypostfix": "[steps('basics').deploypostfix]",
-                "backendContainerImage": "[steps('advanced').backendContainerImage]",
+                "orchestratorContainerImage": "[steps('advanced').orchestratorContainerImage]",
+                "apiserverContainerImage": "[steps('advanced').apiserverContainerImage]",
+                "uiContainerImage": "[steps('advanced').uiContainerImage]",
+                "uibackendContainerImage": "[steps('advanced').uibackendContainerImage]",
                 "scannerContainerImage": "[steps('advanced').scannerContainerImage]",
                 "trivyServerContainerImage": "[steps('advanced').trivyServerContainerImage]",
                 "grypeServerContainerImage": "[steps('advanced').grypeServerContainerImage]",
