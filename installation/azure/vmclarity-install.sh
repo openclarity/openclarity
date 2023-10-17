@@ -40,7 +40,7 @@ if [ "__DatabaseToUse__" == "Postgresql" ]; then
   echo "DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
   echo "DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
   echo "DB_PASS=__PostgresDBPassword__" >> /etc/vmclarity/apiserver.env
-  echo "DB_HOST=postgres.service" >> /etc/vmclarity/apiserver.env
+  echo "DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
   echo "DB_PORT_NUMBER=5432" >> /etc/vmclarity/apiserver.env
 elif [ "__DatabaseToUse__" == "External Postgresql" ]; then
   # Configure the VMClarity backend to use the postgres
