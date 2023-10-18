@@ -41,8 +41,11 @@ func getExistingObjByID(db *gorm.DB, schema, objID string, obj interface{}) erro
 }
 
 func deleteObjByID(db *gorm.DB, objID string, obj interface{}) error {
-	jsonQuotedID := fmt.Sprintf("\"%s\"", objID)
-	if err := db.Where("`Data` -> '$.id' = ?", jsonQuotedID).Delete(obj).Error; err != nil {
+	query := fmt.Sprintf("%s = %s",
+		SQLVariant.JSONExtract("Data", "$.id"),
+		SQLVariant.JSONQuote(fmt.Sprintf("'%s'", objID)),
+	)
+	if err := db.Where(query).Delete(obj).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return types.ErrNotFound
 		}
