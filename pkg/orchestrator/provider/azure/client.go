@@ -113,13 +113,13 @@ func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asse
 	scannerVMSize := c.azureConfig.ScannerVMSize
 
 	scannerOSDiskSizeGB := vminfo.RootVolume.SizeGB
-	diskStorageAccount := armcompute.DiskStorageAccountTypesStandardSSDLRS // TODO this should come from configuration once we support more than one volume type.
+	diskStorageAccount := armcompute.DiskStorageAccountTypesStandardSSDLRS // TODO this should come from configuration, currently it is hard coded in the creation of the volume.
 
 	params := scanestimation.EstimateAssetScanParams{
 		SourceRegion:           sourceRegion,
 		DestRegion:             destRegion,
 		DiskStorageAccountType: diskStorageAccount,
-		StorageAccountType:     armcompute.StorageAccountTypes(c.azureConfig.ScannerStorageAccountName),
+		StorageAccountType:     armcompute.StorageAccountTypes(c.azureConfig.ScannerStorageAccountType),
 		ScannerVMSize:          armcompute.VirtualMachineSizeTypes(scannerVMSize),
 		ScannerOSDiskSizeGB:    int64(scannerOSDiskSizeGB),
 		Stats:                  stats,

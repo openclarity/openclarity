@@ -155,6 +155,7 @@ var params = {
   AZURE_SCANNER_IMAGE_VERSION: imageReference.version
   AZURE_SCANNER_SECURITY_GROUP: vmClarityScannerSecurityGroup.id
   AZURE_SCANNER_STORAGE_ACCOUNT_NAME: storageAccountName
+  AZURE_SCANNER_STORAGE_ACCOUNT_TYPE: storageAccountType
   AZURE_SCANNER_STORAGE_CONTAINER_NAME: snapshotContainerName
 }
 

@@ -53,6 +53,7 @@ type Config struct {
 	ScannerImageVersion         string         `mapstructure:"scanner_image_version"`
 	ScannerSecurityGroup        string         `mapstructure:"scanner_security_group"`
 	ScannerStorageAccountName   string         `mapstructure:"scanner_storage_account_name"`
+	ScannerStorageAccountType   string         `mapstructure:"scanner_storage_account_type"`
 	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
 }
 
@@ -76,6 +77,7 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("scanner_image_version")
 	_ = v.BindEnv("scanner_security_group")
 	_ = v.BindEnv("scanner_storage_account_name")
+	_ = v.BindEnv("scanner_storage_account_type")
 	_ = v.BindEnv("scanner_storage_container_name")
 
 	config := &Config{}

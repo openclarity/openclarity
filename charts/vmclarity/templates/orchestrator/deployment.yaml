@@ -146,6 +146,8 @@ spec:
               value: .scannerSecurityGroup
             - name: VMCLARITY_AZURE_SCANNER_STORAGE_ACCOUNT_NAME
               value: .scannerStorageAccountName
+            - name: VMCLARITY_AZURE_SCANNER_STORAGE_ACCOUNT_TYPE
+              value: .scannerStorageAccountType
             - name: VMCLARITY_AZURE_SCANNER_STORAGE_CONTAINER_NAME
               value: .scannerStorageContainerName
             {{- end -}}

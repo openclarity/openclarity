@@ -162,7 +162,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	}
 
 	// Fetch the monthly cost of the disk that was created from the snapshot.
-	// We assume that the data disk size will be the same as the os disk size.
+	// We assume that the data disk type will be the same as the os disk size.
 	diskFromSnapshotMonthlyCost, err := s.priceFetcher.GetManagedDiskMonthlyCost(ctx, destRegion, dataDiskType, scannerOSDiskSizeGB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get data disk monthly cost per GB: %w", err)
