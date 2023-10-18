@@ -182,7 +182,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		sourceSnapshotCost = sourceSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
 
 		// Fetch the data transfer cost per GB (if source and dest regions are the same, this will be 0).
-		dataTransferCostPerGB, err := s.priceFetcher.GetDataTransferPerGBCost(ctx, destRegion)
+		dataTransferCostPerGB, err := s.priceFetcher.GetDataTransferPerGBCost(ctx, sourceRegion)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get data transfer cost per GB: %w", err)
 		}
