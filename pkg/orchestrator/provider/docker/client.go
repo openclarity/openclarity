@@ -348,8 +348,7 @@ func (c *Client) createScanContainer(ctx context.Context, assetVolume, networkID
 		ctx,
 		&container.Config{
 			Image: config.ScannerImage,
-			Entrypoint: []string{
-				"/app/vmclarity-cli",
+			Cmd: []string{
 				"scan",
 				"--config",
 				"/tmp/" + filepath.Base(scanConfigFilePath),
