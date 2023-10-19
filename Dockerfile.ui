@@ -1,14 +1,19 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1
+
 FROM --platform=$BUILDPLATFORM node:20-slim AS site-build
 
-WORKDIR /app/ui-build
+WORKDIR /src
 
-COPY ui .
-RUN npm i
-RUN npm run build
+COPY --link ./ui /src
+
+RUN --mount=type=cache,target=/src/node_modules \
+    npm install
+
+RUN --mount=type=cache,target=/src/node_modules \
+    npm run build
 
 FROM nginx:1.25.2
 
-COPY --from=site-build ["/app/ui-build/nginx.conf", "/etc/nginx/conf.d/default.conf"]
+COPY --from=site-build ["/src/build", "/usr/share/nginx/html"]
 
-COPY --from=site-build ["/app/ui-build/build", "/usr/share/nginx/html"]
+COPY --link ["ui/nginx.conf", "/etc/nginx/conf.d/default.conf"]
