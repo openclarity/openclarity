@@ -136,6 +136,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	// jobCreationTimeSec is the time between scan state moves from Scheduled to inProgress.
 	jobCreationTimeSec := jobCreationTime.Evaluate(scanSizeGB)
 	// The approximate amount of time that a resource is up before the scan starts (during job creation time).
+	// TODO (erezf) adjust this variable to be aligned with actual cost. can make it more granular per resource in the future.
 	idleRunTime := jobCreationTimeSec / two
 	scannerVMSize := params.ScannerVMSize
 	scannerOSDiskSizeGB := params.ScannerOSDiskSizeGB
