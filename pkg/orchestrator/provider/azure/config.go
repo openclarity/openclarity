@@ -41,20 +41,21 @@ func (a *AzurePublicKey) UnmarshalText(text []byte) error {
 }
 
 type Config struct {
-	SubscriptionID              string         `mapstructure:"subscription_id"`
-	ScannerLocation             string         `mapstructure:"scanner_location"`
-	ScannerResourceGroup        string         `mapstructure:"scanner_resource_group"`
-	ScannerSubnet               string         `mapstructure:"scanner_subnet_id"`
-	ScannerPublicKey            AzurePublicKey `mapstructure:"scanner_public_key"`
-	ScannerVMSize               string         `mapstructure:"scanner_vm_size"`
-	ScannerImagePublisher       string         `mapstructure:"scanner_image_publisher"`
-	ScannerImageOffer           string         `mapstructure:"scanner_image_offer"`
-	ScannerImageSKU             string         `mapstructure:"scanner_image_sku"`
-	ScannerImageVersion         string         `mapstructure:"scanner_image_version"`
-	ScannerSecurityGroup        string         `mapstructure:"scanner_security_group"`
-	ScannerStorageAccountName   string         `mapstructure:"scanner_storage_account_name"`
-	ScannerStorageAccountType   string         `mapstructure:"scanner_storage_account_type"`
-	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
+	SubscriptionID                  string         `mapstructure:"subscription_id"`
+	ScannerLocation                 string         `mapstructure:"scanner_location"`
+	ScannerResourceGroup            string         `mapstructure:"scanner_resource_group"`
+	ScannerSubnet                   string         `mapstructure:"scanner_subnet_id"`
+	ScannerPublicKey                AzurePublicKey `mapstructure:"scanner_public_key"`
+	ScannerVMSize                   string         `mapstructure:"scanner_vm_size"`
+	ScannerImagePublisher           string         `mapstructure:"scanner_image_publisher"`
+	ScannerImageOffer               string         `mapstructure:"scanner_image_offer"`
+	ScannerImageSKU                 string         `mapstructure:"scanner_image_sku"`
+	ScannerImageVersion             string         `mapstructure:"scanner_image_version"`
+	ScannerSecurityGroup            string         `mapstructure:"scanner_security_group"`
+	ScannerStorageAccountName       string         `mapstructure:"scanner_storage_account_name"`
+	ScannerStorageAccountType       string         `mapstructure:"scanner_storage_account_type"`
+	ScannerOSDiskStorageAccountType string         `mapstructure:"scanner_os_disk_storage_account_type"`
+	ScannerStorageContainerName     string         `mapstructure:"scanner_storage_container_name"`
 }
 
 func NewConfig() (*Config, error) {
@@ -78,6 +79,7 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("scanner_security_group")
 	_ = v.BindEnv("scanner_storage_account_name")
 	_ = v.BindEnv("scanner_storage_account_type")
+	_ = v.BindEnv("scanner_os_disk_storage_account_type")
 	_ = v.BindEnv("scanner_storage_container_name")
 
 	config := &Config{}

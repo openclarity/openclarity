@@ -134,6 +134,13 @@ func (o *PriceFetcherImpl) GetManagedDiskMonthlyCost(ctx context.Context, region
 }
 
 func (o *PriceFetcherImpl) GetDataTransferPerGBCost(ctx context.Context, destRegion string) (float64, error) {
+	// TODO (erezf) We use "Standard Inter-Region Data Transfer" which means this is the pricing for transfers within the same continent.
+	// There are also differences In prices between each continent, so data transfer within Europe cost less than data transfer within South America.
+	// https://azure.microsoft.com/en-us/pricing/details/bandwidth/
+	//
+	// So basically we took the lowest estimation.
+	//
+	// If we want to know on which continent each region is, we need some mapping of region to continents.
 	odataFilter := fmt.Sprintf("armRegionName eq '%s' and contains(meterName,'Region Data Transfer')", destRegion)
 
 	return o.getRetailPrice(ctx, odataFilter)
@@ -206,6 +213,7 @@ func addQueryParamToURL(baseURL, key, value string) (string, error) {
 		return "", fmt.Errorf("failed to parse url %v: %w", baseURL, err)
 	}
 
+	// Refrain from using u.Query() since it returns a map which makes it harder to keep the params order when reassembling.
 	encodedParam := fmt.Sprintf("%s=%s", key, url.QueryEscape(value))
 
 	// If there are already parameters, append the new one with '&', otherwise just add the new one

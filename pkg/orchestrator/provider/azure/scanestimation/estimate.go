@@ -41,22 +41,23 @@ type ScanEstimator struct {
 }
 
 type EstimateAssetScanParams struct {
-	SourceRegion           string
-	DestRegion             string
-	DiskStorageAccountType armcompute.DiskStorageAccountTypes
-	StorageAccountType     armcompute.StorageAccountTypes
-	ScannerVMSize          armcompute.VirtualMachineSizeTypes
-	ScannerOSDiskSizeGB    int64
-	Stats                  models.AssetScanStats
-	Asset                  *models.Asset
-	AssetScanTemplate      *models.AssetScanTemplate
+	SourceRegion               string
+	DestRegion                 string
+	OSDiskStorageAccountType   armcompute.DiskStorageAccountTypes
+	DataDiskStorageAccountType armcompute.DiskStorageAccountTypes
+	StorageAccountType         armcompute.StorageAccountTypes
+	ScannerVMSize              armcompute.VirtualMachineSizeTypes
+	ScannerOSDiskSizeGB        int64
+	Stats                      models.AssetScanStats
+	Asset                      *models.Asset
+	AssetScanTemplate          *models.AssetScanTemplate
 }
 
-const halfAMinute = 30
+const scanEstimatorTimeout = time.Second * 30
 
 func New() *ScanEstimator {
 	netClient := &http.Client{
-		Timeout: time.Second * halfAMinute,
+		Timeout: scanEstimatorTimeout,
 	}
 
 	return &ScanEstimator{
@@ -80,17 +81,18 @@ const (
 	BlobStorage   recipeResource = "BlobStorage"
 )
 
-// scanSizesGB represents the memory sizes on the machines that the tests were taken on.
+// scanSizesGB represents the disk used memory size on the machines that the tests were taken on.
+// 1652MB and 4559MB are the sizes that were tests.
 var scanSizesGB = []float64{0.01, 1.652, 4.559}
+
+// jobCreationTime the time that took the job move from Scheduled state to InProgress.
+var jobCreationTime = common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 1860, 2460})
 
 // familyScanDurationsMap Calculate the logarithmic fit of each family base on static measurements of family scan duration in seconds per scanSizesGB value.
 // The tests were made on a Standard_D2s_v3 virtual machine with Standard SSD LRS os disk (30 GB)
 // The times correspond to the scan size values in scanSizesGB.
 // TODO add infoFinder family stats.
 // nolint:gomnd
-
-var jobCreationTime = common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 1860, 2460})
-
 var familyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFormula{
 	familiestypes.SBOM:             common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 16, 17}),
 	familiestypes.Vulnerabilities:  common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 4, 10}), // TODO check time with no sbom scan
@@ -129,15 +131,18 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	sourceRegion := params.SourceRegion
 	destRegion := params.DestRegion
 	// The data disk that is created from the snapshot.
-	dataDiskType := params.DiskStorageAccountType
-	scannerOSDiskType := params.DiskStorageAccountType
+	dataDiskType := params.DataDiskStorageAccountType
+	scannerOSDiskType := params.OSDiskStorageAccountType
+	// jobCreationTimeSec is the time between scan state moves from Scheduled to inProgress.
 	jobCreationTimeSec := jobCreationTime.Evaluate(scanSizeGB)
-	// The approximate amount of time that a resource is up before the scan starts (during job creation)
+	// The approximate amount of time that a resource is up before the scan starts (during job creation time).
 	idleRunTime := jobCreationTimeSec / two
 	scannerVMSize := params.ScannerVMSize
 	scannerOSDiskSizeGB := params.ScannerOSDiskSizeGB
 
-	snapshotStorageAccountType, err := getSnapshotTypeFromDiskType(params.DiskStorageAccountType)
+	// The SKU for the snapshot is automatically chosen by Azure based on the source disk SKU.
+	// We need to convert from the Disk SKU to the snapshot SKU to get the correct pricing.
+	snapshotStorageAccountType, err := getSnapshotTypeFromDiskType(params.OSDiskStorageAccountType)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +200,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 			return nil, fmt.Errorf("failed to get blob storage cost per GB: %w", err)
 		}
 
-		blobStorageCost = blobStoragePerGB * scanSizeGB
+		blobStorageCost = blobStoragePerGB * scanSizeGB / SecondsInAMonth
 	}
 
 	destSnapshotCost := destSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
