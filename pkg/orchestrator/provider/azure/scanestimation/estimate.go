@@ -201,7 +201,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 			return nil, fmt.Errorf("failed to get blob storage cost per GB: %w", err)
 		}
 
-		blobStorageCost = blobStoragePerGB * scanSizeGB / SecondsInAMonth
+		blobStorageCost = blobStoragePerGB * scanSizeGB * float64(scanDurationSec) / SecondsInAMonth
 	}
 
 	destSnapshotCost := destSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
