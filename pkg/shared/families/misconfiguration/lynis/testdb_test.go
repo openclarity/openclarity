@@ -29,8 +29,8 @@ func TestNewTestDB(t *testing.T) {
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
 
 	type args struct {
-		logger           *log.Entry
-		lynisInstallPath string
+		logger     *log.Entry
+		lynisDBDir string
 	}
 	tests := []struct {
 		name    string
@@ -41,8 +41,8 @@ func TestNewTestDB(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/simpledb",
+				logger:     logEntry,
+				lynisDBDir: "./testdata/simpledb/db",
 			},
 			want: &TestDB{
 				tests: testdb{
@@ -72,16 +72,16 @@ func TestNewTestDB(t *testing.T) {
 		{
 			name: "missing db file",
 			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/does-not-exist",
+				logger:     logEntry,
+				lynisDBDir: "./testdata/does-not-exist",
 			},
 			wantErr: true,
 		},
 		{
 			name: "malformed db file",
 			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/baddb",
+				logger:     logEntry,
+				lynisDBDir: "./testdata/baddb/db",
 			},
 			want: &TestDB{
 				tests: testdb{
@@ -107,7 +107,7 @@ func TestNewTestDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewTestDB(tt.args.logger, tt.args.lynisInstallPath)
+			got, err := NewTestDB(tt.args.logger, tt.args.lynisDBDir)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewTestDB() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -224,97 +224,6 @@ func TestTestDB_GetDescriptionForTestID(t *testing.T) {
 			got := a.GetDescriptionForTestID(tt.args.testid)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("TestDB.GetDescriptionForTestID() mismatch (-want +got):\n%s", diff)
-			}
-		})
-	}
-}
-
-func Test_parseTestsFromInstallPath(t *testing.T) {
-	logger, _ := logrusTest.NewNullLogger()
-	logEntry := logger.WithField("test", "valueToMisconfiguration")
-
-	type args struct {
-		logger           *log.Entry
-		lynisInstallPath string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    testdb
-		wantErr bool
-	}{
-		{
-			name: "sanity",
-			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/simpledb",
-			},
-			want: testdb{
-				"ACCT-2754": {
-					Category:    "security",
-					Description: "Check for available FreeBSD accounting information",
-				},
-				"ACCT-2760": {
-					Category:    "security",
-					Description: "Check for available OpenBSD accounting information",
-				},
-				"ACCT-9622": {
-					Category:    "security",
-					Description: "Check for available Linux accounting information",
-				},
-				"ACCT-9626": {
-					Category:    "security",
-					Description: "Check for sysstat accounting data",
-				},
-				"ACCT-9628": {
-					Category:    "security",
-					Description: "Check for auditd",
-				},
-			},
-		},
-		{
-			name: "missing db file",
-			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/does-not-exist",
-			},
-			wantErr: true,
-		},
-		{
-			name: "malformed db file",
-			args: args{
-				logger:           logEntry,
-				lynisInstallPath: "./testdata/baddb",
-			},
-			want: testdb{
-				"ACCT-2754": {
-					Category:    "security",
-					Description: "Check for available FreeBSD accounting information",
-				},
-				"ACCT-2760": {
-					Category:    "security",
-					Description: "Check for available OpenBSD accounting information",
-				},
-				"ACCT-9622": {
-					Category:    "security",
-					Description: "Check for available Linux accounting information",
-				},
-				"ACCT-9626": {
-					Category:    "security",
-					Description: "Check for sysstat accounting data",
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseTestsFromInstallPath(tt.args.logger, tt.args.lynisInstallPath)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parseTestsFromInstallPath() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("parseTestsFromInstallPath() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

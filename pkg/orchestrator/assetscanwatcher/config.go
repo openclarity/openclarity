@@ -99,8 +99,8 @@ type ScannerConfig struct {
 	// The freshclam mirror url to use if it's enabled
 	AlternativeFreshclamMirrorURL string
 
-	// The location where Lynis is installed in the scanner image
-	LynisInstallPath string
+	// The Lynis binary path in the scanner image container
+	LynisBinaryPath string
 
 	// The chkrootkit binary path in the scanner image container.
 	ChkrootkitBinaryPath string

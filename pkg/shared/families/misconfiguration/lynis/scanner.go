@@ -32,7 +32,10 @@ import (
 	sharedUtils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-const ScannerName = "lynis"
+const (
+	ScannerName = "lynis"
+	LynisBinary = "lynis"
+)
 
 type Scanner struct {
 	name       string
@@ -51,6 +54,7 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 	}
 }
 
+// nolint: cyclop
 func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	go func() {
 		retResults := types.ScannerResult{
@@ -64,12 +68,17 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		// Validate that lynis exists
-		lynisPath := path.Join(a.config.InstallPath, "lynis")
-		if _, err := os.Stat(lynisPath); err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to find lynis @ %v: %w", lynisPath, err))
+		// Locate lynis binary
+		if a.config.BinaryPath == "" {
+			a.config.BinaryPath = LynisBinary
+		}
+
+		lynisBinaryPath, err := exec.LookPath(a.config.BinaryPath)
+		if err != nil {
+			a.sendResults(retResults, fmt.Errorf("failed to lookup executable %s: %w", a.config.BinaryPath, err))
 			return
 		}
+		a.logger.Debugf("found lynis binary at: %s", lynisBinaryPath)
 
 		reportDir, err := os.MkdirTemp("", "")
 		if err != nil {
@@ -93,9 +102,9 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		defer cleanup()
 
 		// Build command:
-		// <installPath>/lynis audit system \
+		// lynis audit system \
 		//     --report-file <reportDir>/report.dat \
-		//     --log-file /dev/null \
+		//     --no-log \
 		//     --forensics \
 		//     --rootdir <source>
 		args := []string{
@@ -103,20 +112,14 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			"system",
 			"--report-file",
 			reportPath,
-			"--log-file",
-			"/dev/null",
+			"--no-log",
 			"--forensics",
 			"--tests",
 			strings.Join(testsToRun, ","),
 			"--rootdir",
 			fsPath,
 		}
-		cmd := exec.Command(lynisPath, args...) // nolint:gosec
-
-		// Lynis requires that it is executed from inside of the lynis
-		// install directory. So change the working dir to the lynis
-		// install path.
-		cmd.Dir = a.config.InstallPath
+		cmd := exec.Command(lynisBinaryPath, args...) // nolint:gosec
 
 		a.logger.Infof("Running command: %v", cmd.String())
 		_, err = sharedUtils.RunCommand(cmd)
@@ -125,7 +128,16 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		testdb, err := NewTestDB(a.logger, a.config.InstallPath)
+		// Get Lynis DB directory
+		cmd = exec.Command(lynisBinaryPath, []string{"show", "dbdir"}...) // nolint:gosec
+		out, err := sharedUtils.RunCommand(cmd)
+		if err != nil {
+			a.sendResults(retResults, fmt.Errorf("failed to run command: %w", err))
+			return
+		}
+		lynisDBDir := string(out)
+
+		testdb, err := NewTestDB(a.logger, lynisDBDir)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to load lynis test DB: %w", err))
 			return

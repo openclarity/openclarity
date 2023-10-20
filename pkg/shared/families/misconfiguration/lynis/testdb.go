@@ -45,8 +45,15 @@ type TestDB struct {
 	tests testdb
 }
 
-func NewTestDB(logger *log.Entry, lynisInstallPath string) (*TestDB, error) {
-	tests, err := parseTestsFromInstallPath(logger, lynisInstallPath)
+func NewTestDB(logger *log.Entry, lynisDBDir string) (*TestDB, error) {
+	// Comes from the Lynis install:
+	// https://github.com/CISOfy/lynis/blob/master/db/tests.db
+	lynisTestDBPath := path.Join(lynisDBDir, "tests.db")
+	if _, err := os.Stat(lynisTestDBPath); err != nil {
+		return nil, fmt.Errorf("failed to find DB @ %v: %w", lynisTestDBPath, err)
+	}
+
+	tests, err := parseTestsFromDBPath(logger, lynisTestDBPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialise lynis test DB: %w", err)
 	}
@@ -66,17 +73,6 @@ func (a *TestDB) GetDescriptionForTestID(testid string) string {
 		return entry.Description
 	}
 	return unknown
-}
-
-func parseTestsFromInstallPath(logger *log.Entry, lynisInstallPath string) (testdb, error) {
-	// Comes from the Lynis install:
-	// https://github.com/CISOfy/lynis/blob/master/db/tests.db
-	lynisDBPath := path.Join(lynisInstallPath, "db", "tests.db")
-	if _, err := os.Stat(lynisDBPath); err != nil {
-		return nil, fmt.Errorf("failed to find DB @ %v: %w", lynisDBPath, err)
-	}
-
-	return parseTestsFromDBPath(logger, lynisDBPath)
 }
 
 func parseTestsFromDBPath(logger *log.Entry, lynisDBPath string) (testdb, error) {

@@ -40,5 +40,5 @@ type ScannersConfig struct {
 func (ScannersConfig) IsConfig() {}
 
 type LynisConfig struct {
-	InstallPath string `yaml:"install_path" mapstructure:"install_path"`
+	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
 }
