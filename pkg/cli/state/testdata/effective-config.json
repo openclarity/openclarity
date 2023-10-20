@@ -65,7 +65,7 @@
     "Inputs": null,
     "ScannersConfig": {
       "Lynis": {
-        "InstallPath": ""
+        "BinaryPath": ""
       }
     }
   },

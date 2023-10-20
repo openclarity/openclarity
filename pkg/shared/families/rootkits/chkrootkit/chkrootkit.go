@@ -32,7 +32,10 @@ import (
 	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-const ScannerName = "chkrootkit"
+const (
+	ScannerName      = "chkrootkit"
+	ChkrootkitBinary = "chkrootkit"
+)
 
 type Scanner struct {
 	name       string
@@ -59,6 +62,18 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			s.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %w", s.config.BinaryPath, err))
 			return
 		}
+
+		// Locate chkrootkit binary
+		if s.config.BinaryPath == "" {
+			s.config.BinaryPath = ChkrootkitBinary
+		}
+
+		yaraBinaryPath, err := exec.LookPath(s.config.BinaryPath)
+		if err != nil {
+			s.sendResults(retResults, fmt.Errorf("failed to lookup executable %s: %w", s.config.BinaryPath, err))
+			return
+		}
+		s.logger.Debugf("found chkrootkit binary at: %s", yaraBinaryPath)
 
 		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
 		if err != nil {

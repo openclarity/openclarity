@@ -32,7 +32,10 @@ import (
 	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-const ScannerName = "gitleaks"
+const (
+	ScannerName    = "gitleaks"
+	GitleaksBinary = "gitleaks"
+)
 
 type Scanner struct {
 	name       string
@@ -61,11 +64,18 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			a.sendResults(retResults, nil)
 			return
 		}
-		// validate that gitleaks binary exists
-		if _, err := os.Stat(a.config.BinaryPath); err != nil {
-			a.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %w", a.config.BinaryPath, err))
+
+		// Locate gitleaks binary
+		if a.config.BinaryPath == "" {
+			a.config.BinaryPath = GitleaksBinary
+		}
+
+		gitleaksBinaryPath, err := exec.LookPath(a.config.BinaryPath)
+		if err != nil {
+			a.sendResults(retResults, fmt.Errorf("failed to lookup executable %s: %w", a.config.BinaryPath, err))
 			return
 		}
+		a.logger.Debugf("found gitleaks binary at: %s", gitleaksBinaryPath)
 
 		file, err := os.CreateTemp("", "gitleaks")
 		if err != nil {
@@ -84,9 +94,23 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 		defer cleanup()
 
-		// ./gitleaks detect --source=<source> --no-git -r <report-path> -f json --exit-code 0 --max-target-megabytes 50
+		// gitleaks detect --source <source> --no-git -r <report-path> -f json --exit-code 0 --max-target-megabytes 50
 		// nolint:gosec
-		cmd := exec.Command(a.config.BinaryPath, "detect", fmt.Sprintf("--source=%v", fsPath), "--no-git", "-r", reportPath, "-f", "json", "--exit-code", "0", "--max-target-megabytes", "50")
+		args := []string{
+			"detect",
+			"--source",
+			fsPath,
+			"--no-git",
+			"-r",
+			reportPath,
+			"-f",
+			"json",
+			"--exit-code",
+			"0",
+			"--max-target-megabytes",
+			"50",
+		}
+		cmd := exec.Command(gitleaksBinaryPath, args...)
 		a.logger.Infof("Running gitleaks command: %v", cmd.String())
 		_, err = sharedutils.RunCommand(cmd)
 		if err != nil {
