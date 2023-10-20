@@ -28,7 +28,7 @@ import (
 func TestNewReportParser(t *testing.T) {
 	logger, _ := logrusTest.NewNullLogger()
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
-	testdb, err := NewTestDB(logEntry, "./testdata")
+	testdb, err := NewTestDB(logEntry, "./testdata/db")
 	if err != nil {
 		t.Fatalf("Unable to load test db: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestNewReportParser(t *testing.T) {
 func TestReportParser_ParseLynisReport(t *testing.T) {
 	logger, _ := logrusTest.NewNullLogger()
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
-	testdb, err := NewTestDB(logEntry, "./testdata")
+	testdb, err := NewTestDB(logEntry, "./testdata/db")
 	if err != nil {
 		t.Fatalf("Unable to load test db: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestReportParser_ParseLynisReport(t *testing.T) {
 func TestReportParser_parseLynisReportLine(t *testing.T) {
 	logger, _ := logrusTest.NewNullLogger()
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
-	testdb, err := NewTestDB(logEntry, "./testdata")
+	testdb, err := NewTestDB(logEntry, "./testdata/db")
 	if err != nil {
 		t.Fatalf("Unable to load test db: %v", err)
 	}
@@ -302,7 +302,7 @@ func TestReportParser_parseLynisReportLine(t *testing.T) {
 func TestReportParser_valueToMisconfiguration(t *testing.T) {
 	logger, _ := logrusTest.NewNullLogger()
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
-	testdb, err := NewTestDB(logEntry, "./testdata")
+	testdb, err := NewTestDB(logEntry, "./testdata/db")
 	if err != nil {
 		t.Fatalf("Unable to load test db: %v", err)
 	}
@@ -438,7 +438,7 @@ func (t *TestScanner) Err() error {
 func TestReportParser_scanLynisReportFile(t *testing.T) {
 	logger, _ := logrusTest.NewNullLogger()
 	logEntry := logger.WithField("test", "valueToMisconfiguration")
-	testdb, err := NewTestDB(logEntry, "./testdata")
+	testdb, err := NewTestDB(logEntry, "./testdata/db")
 	if err != nil {
 		t.Fatalf("Unable to load test db: %v", err)
 	}
