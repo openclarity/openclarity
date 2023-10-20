@@ -14,6 +14,40 @@ BIN_DIR := $(ROOT_DIR)/bin
 # Dependency versions
 LICENSEI_VERSION = 0.9.0
 
+# Detecting Operating system and CPU architecture
+
+OSTYPE :=
+ARCHTYPE :=
+
+ifeq ($(OS),Windows_NT)
+	OSTYPE = windows
+	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+		ARCHTYPE = amd64
+	endif
+	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+		ARCHTYPE = x86
+	endif
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		OSTYPE = linux
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		OSTYPE = darwin
+	endif
+
+	UNAME_P := $(shell uname -m)
+	ifeq ($(UNAME_P),x86_64)
+		ARCHTYPE = amd64
+	endif
+	ifneq ($(filter %86,$(UNAME_P)),)
+		ARCHTYPE = x86
+	endif
+	ifneq ($(filter arm%,$(UNAME_P)),)
+		ARCHTYPE = arm64
+	endif
+endif
+
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
@@ -180,14 +214,28 @@ $(LINTGOMODULES):
 .PHONY: lint-go
 lint-go: bin/golangci-lint $(LINTGOMODULES)
 
+####
+##  CloudFormation Linter CLI
+####
+
+CFNLINT_BIN := $(BIN_DIR)/cfn-lint
+CFNLINT_VERSION := 0.82.2
+CFNLINT_VENV := $(CFNLINT_BIN)-$(CFNLINT_VERSION)
+
+bin/cfn-lint: $(CFNLINT_VENV)/bin/cfn-lint
+	@ln -sf $(CFNLINT_VENV)/bin/cfn-lint bin/cfn-lint
+
+$(CFNLINT_VENV)/bin/cfn-lint: | $(BIN_DIR)
+	@python3 -m venv $(CFNLINT_VENV)
+	@$(CFNLINT_VENV)/bin/python3 -m pip install --upgrade pip
+	@$(CFNLINT_VENV)/bin/pip install cfn-lint==$(CFNLINT_VERSION)
+
 .PHONY: lint-cfn
-lint-cfn:
-	# Requires cfn-lint to be installed
-	# https://github.com/aws-cloudformation/cfn-lint#install
-	cfn-lint installation/aws/VmClarity.cfn
+lint-cfn: bin/cfn-lint
+	$(CFNLINT_BIN) installation/aws/VmClarity.cfn
 
 .PHONY: lint
-lint: lint-go lint-cfn ## Run linters
+lint: lint-go lint-cfn lint-bicep ## Run linters
 
 .PHONY: $(FIXGOMODULES)
 $(FIXGOMODULES):
@@ -261,3 +309,54 @@ bin/actionlint-$(ACTIONLINT_VERSION): | $(BIN_DIR)
 .PHONY: lint-actions
 lint-actions: bin/actionlint
 	@$(ACTIONLINT_BIN) -color
+
+####
+##  Azure CLI
+####
+
+AZURECLI_BIN := $(BIN_DIR)/az
+AZURECLI_VERSION := 2.53.0
+AZURECLI_VENV := $(AZURECLI_BIN)-$(AZURECLI_VERSION)
+
+bin/az: $(AZURECLI_VENV)/bin/az
+	@ln -sf $(AZURECLI_VENV)/bin/az bin/az
+
+$(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
+	@python3 -m venv $(AZURECLI_VENV)
+	@$(AZURECLI_VENV)/bin/python3 -m pip install --upgrade pip
+	@$(AZURECLI_VENV)/bin/pip install azure-cli==$(AZURECLI_VERSION)
+
+####
+##  Azure Bicep CLI
+####
+
+BICEP_BIN := $(BIN_DIR)/bicep
+BICEP_VERSION := 0.22.6
+BICEP_OSTYPE := $(OSTYPE)
+BICEP_ARCH := $(ARCHTYPE)
+
+# Set OSTYPE for macos to "osx"
+ifeq ($(BICEP_OSTYPE),darwin)
+	BICEP_OSTYPE = osx
+endif
+# Reset ARCHTYPE for amd64 to "x64"
+ifeq ($(BICEP_ARCH),amd64)
+	BICEP_ARCH = x64
+endif
+
+bin/bicep: bin/bicep-$(BICEP_VERSION)
+	@ln -sf bicep-$(BICEP_VERSION) bin/bicep
+
+bin/bicep-$(BICEP_VERSION): | $(BIN_DIR)
+	@if [ -z "${BICEP_OSTYPE}" -o -z "${BICEP_ARCH}" ]; then printf 'ERROR: following variables must no be empty: %s %s\n' '$$BICEP_OSTYPE' '$$BICEP_ARCH'; exit 1; fi
+	@curl -sSfL 'https://github.com/Azure/bicep/releases/download/v$(BICEP_VERSION)/bicep-$(BICEP_OSTYPE)-$(BICEP_ARCH)' \
+	--output '$(BICEP_BIN)-$(BICEP_VERSION)'
+	@chmod +x '$(BICEP_BIN)-$(BICEP_VERSION)'
+
+.PHONY: gen-bicep
+gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
+	@$(BICEP_BIN) build installation/azure/vmclarity.bicep
+
+.PHONY: lint-bicep
+lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
+	@$(BICEP_BIN) lint installation/azure/vmclarity.bicep
