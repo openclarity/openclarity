@@ -107,7 +107,7 @@ const two = 2
 
 // nolint:cyclop
 func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAssetScanParams) (*models.Estimation, error) {
-	var sourceSnapshotMonthlyCost float64
+	var snapshotFromBlobMonthlyCost float64
 	var err error
 
 	if params.AssetScanTemplate == nil || params.AssetScanTemplate.ScanFamiliesConfig == nil {
@@ -130,16 +130,26 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 
 	sourceRegion := params.SourceRegion
 	destRegion := params.DestRegion
-	// The data disk that is created from the snapshot.
-	dataDiskType := params.DataDiskStorageAccountType
-	scannerOSDiskType := params.OSDiskStorageAccountType
-	// jobCreationTimeSec is the time between scan state moves from Scheduled to inProgress.
-	jobCreationTimeSec := jobCreationTime.Evaluate(scanSizeGB)
-	// The approximate amount of time that a resource is up before the scan starts (during job creation time).
-	// TODO (erezf) adjust this variable to be aligned with actual cost. can make it more granular per resource in the future.
-	idleRunTime := jobCreationTimeSec / two
 	scannerVMSize := params.ScannerVMSize
 	scannerOSDiskSizeGB := params.ScannerOSDiskSizeGB
+	scannerOSDiskType := params.OSDiskStorageAccountType
+	// The data disk that is created from the snapshot.
+	dataDiskType := params.DataDiskStorageAccountType
+	// jobCreationTimeSec is the time between scan state moves from Scheduled to inProgress.
+	jobCreationTimeSec := jobCreationTime.Evaluate(scanSizeGB)
+	// snapshotFromOSDiskIdleRunTime is the approximate amount of time that a resource is up before the scan starts (during job creation time).
+	// The order in which resources are created in Azure:
+	// 1. snapshot from target OS disk
+	// 2. Blob storage (for different regions)
+	// 3. Snapshot from blob (for different regions)
+	// 4. data disk from snapshot
+	// 5. Scanner VM
+	// The idle run time will be given to each resource accordingly:
+	snapshotFromOSDiskIdleRunTime := jobCreationTimeSec
+	blobStorageIdleRunTime := jobCreationTimeSec * 0.8
+	snapshotFromBlobIdleRunTime := jobCreationTimeSec * 0.6
+	diskFromSnapshotIdleRunTime := jobCreationTimeSec * 0.4
+	scannerVMIdleRunTime := jobCreationTimeSec * 0.2
 
 	// The SKU for the snapshot is automatically chosen by Azure based on the source disk SKU.
 	// We need to convert from the Disk SKU to the snapshot SKU to get the correct pricing.
@@ -149,8 +159,8 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	}
 
 	// Get relevant current prices from Azure price list API
-	// Fetch the dest snapshot monthly cost.
-	destSnapshotMonthlyCost, err := s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, destRegion, snapshotStorageAccountType)
+	// Fetch the snapshot from os disk monthly cost.
+	snapshotFromOSDiskMonthlyCost, err := s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, sourceRegion, snapshotStorageAccountType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get monthly cost for destination snapshot: %w", err)
 	}
@@ -175,17 +185,17 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	}
 
 	dataTransferCost := 0.0
-	sourceSnapshotCost := 0.0
+	snapshotFromBlobCost := 0.0
 	blobStorageCost := 0.0
 	if sourceRegion != destRegion {
 		// if the scanner is in a different region than the scanned asset, we have another snapshot created in the
-		// source region.
-		sourceSnapshotMonthlyCost, err = s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, sourceRegion, snapshotStorageAccountType)
+		// dest region.
+		snapshotFromBlobMonthlyCost, err = s.priceFetcher.GetSnapshotGBPerMonthCost(ctx, destRegion, snapshotStorageAccountType)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get source snapshot monthly cost: %w", err)
+			return nil, fmt.Errorf("failed to get dest snapshot monthly cost: %w", err)
 		}
 
-		sourceSnapshotCost = sourceSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
+		snapshotFromBlobCost = snapshotFromBlobMonthlyCost * ((snapshotFromBlobIdleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
 
 		// Fetch the data transfer cost per GB (if source and dest regions are the same, this will be 0).
 		dataTransferCostPerGB, err := s.priceFetcher.GetDataTransferPerGBCost(ctx, sourceRegion)
@@ -201,20 +211,20 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 			return nil, fmt.Errorf("failed to get blob storage cost per GB: %w", err)
 		}
 
-		blobStorageCost = blobStoragePerGB * scanSizeGB * float64(scanDurationSec) / SecondsInAMonth
+		blobStorageCost = blobStoragePerGB * ((blobStorageIdleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
 	}
 
-	destSnapshotCost := destSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
-	volumeFromSnapshotCost := diskFromSnapshotMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
-	scannerCost := scannerPerHourCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAnHour)
-	scannerRootVolumeCost := scannerOSDiskMonthlyCost * ((idleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * float64(scannerOSDiskSizeGB)
+	snapshotFromOSDiskCost := snapshotFromOSDiskMonthlyCost * ((snapshotFromOSDiskIdleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
+	diskFromSnapshotCost := diskFromSnapshotMonthlyCost * ((diskFromSnapshotIdleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * scanSizeGB
+	scannerCost := scannerPerHourCost * ((scannerVMIdleRunTime + float64(scanDurationSec)) / SecondsInAnHour)
+	scannerOSDiskCost := scannerOSDiskMonthlyCost * ((scannerVMIdleRunTime + float64(scanDurationSec)) / SecondsInAMonth) * float64(scannerOSDiskSizeGB)
 
-	jobTotalCost := sourceSnapshotCost + volumeFromSnapshotCost + scannerCost + scannerRootVolumeCost + dataTransferCost + destSnapshotCost + blobStorageCost
+	jobTotalCost := snapshotFromBlobCost + diskFromSnapshotCost + scannerCost + scannerOSDiskCost + dataTransferCost + snapshotFromOSDiskCost + blobStorageCost
 
 	// Create the Estimation object base on the calculated data.
 	costBreakdown := []models.CostBreakdownComponent{
 		{
-			Cost:      float32(destSnapshotCost),
+			Cost:      float32(snapshotFromOSDiskCost),
 			Operation: fmt.Sprintf("%v-%v", Snapshot, destRegion),
 		},
 		{
@@ -222,18 +232,18 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 			Operation: string(ScannerVM),
 		},
 		{
-			Cost:      float32(volumeFromSnapshotCost),
+			Cost:      float32(diskFromSnapshotCost),
 			Operation: string(DataDisk),
 		},
 		{
-			Cost:      float32(scannerRootVolumeCost),
+			Cost:      float32(scannerOSDiskCost),
 			Operation: string(ScannerOSDisk),
 		},
 	}
 	if sourceRegion != destRegion {
 		costBreakdown = append(costBreakdown, []models.CostBreakdownComponent{
 			{
-				Cost:      float32(sourceSnapshotCost),
+				Cost:      float32(snapshotFromBlobCost),
 				Operation: fmt.Sprintf("%v-%v", Snapshot, sourceRegion),
 			},
 			{

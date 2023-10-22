@@ -135,12 +135,7 @@ func (o *PriceFetcherImpl) GetManagedDiskMonthlyCost(ctx context.Context, region
 
 func (o *PriceFetcherImpl) GetDataTransferPerGBCost(ctx context.Context, destRegion string) (float64, error) {
 	// TODO (erezf) We use "Standard Inter-Region Data Transfer" which means this is the pricing for transfers within the same continent.
-	// There are also differences In prices between each continent, so data transfer within Europe cost less than data transfer within South America.
-	// https://azure.microsoft.com/en-us/pricing/details/bandwidth/
-	//
-	// So basically we took the lowest estimation.
-	//
-	// If we want to know on which continent each region is, we need some mapping of region to continents.
+	// The cost of Data transfer between regions may increase the cost, and is not taken into account currently.
 	odataFilter := fmt.Sprintf("armRegionName eq '%s' and contains(meterName,'Region Data Transfer')", destRegion)
 
 	return o.getRetailPrice(ctx, odataFilter)
