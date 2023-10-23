@@ -1,16 +1,21 @@
 approved = [
-  "mit",
-  "apache-2.0",
-  "bsd-3-clause",
-  "bsd-2-clause",
-  "mpl-2.0",
-  "isc"
+    "mit",
+    "apache-2.0",
+    "bsd-3-clause",
+    "bsd-2-clause",
+    "mpl-2.0",
+    "isc",
+    "cc0-1.0",
+    "unlicense",
 ]
 
 ignored = [
     "github.com/ghodss/yaml", # MIT - https://github.com/ghodss/yaml/blob/master/LICENSE
     "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
     "github.com/invopop/yaml", # MIT - https://github.com/invopop/yaml/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/api", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/xi2/xz", # Unlicense - Public Domain -  https://github.com/xi2/xz/blob/master/LICENSE"
+    "github.com/rcrowley/go-metrics", # Custom License - https://github.com/rcrowley/go-metrics/blob/master/LICENSE"
 ]
 
 [header]
