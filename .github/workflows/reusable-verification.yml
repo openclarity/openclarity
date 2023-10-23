@@ -33,8 +33,6 @@ jobs:
         run: go mod vendor
 
       - name: Check licenses
-        # FIXME(chrisgacsal): ignore errors generated and fix license issues in separate PR
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make license-check
