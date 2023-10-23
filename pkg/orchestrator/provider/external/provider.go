@@ -28,13 +28,13 @@ import (
 	provider_service "github.com/openclarity/vmclarity/pkg/orchestrator/provider/external/proto"
 )
 
-type Client struct {
-	providerClient provider_service.ProviderClient
-	config         *Config
-	conn           *grpc.ClientConn
+type Provider struct {
+	client provider_service.ProviderClient
+	config *Config
+	conn   *grpc.ClientConn
 }
 
-func New(_ context.Context) (*Client, error) {
+func New(_ context.Context) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
@@ -45,10 +45,6 @@ func New(_ context.Context) (*Client, error) {
 		return nil, fmt.Errorf("failed to validate configuration: %w", err)
 	}
 
-	client := Client{
-		config: config,
-	}
-
 	var opts []grpc.DialOption
 	// TODO secure connections
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -57,27 +53,29 @@ func New(_ context.Context) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial grpc. address=%v: %w", config.ProviderPluginAddress, err)
 	}
-	client.conn = conn
-	client.providerClient = provider_service.NewProviderClient(conn)
 
-	return &client, nil
+	return &Provider{
+		client: provider_service.NewProviderClient(conn),
+		config: config,
+		conn:   conn,
+	}, nil
 }
 
-func (c Client) Kind() models.CloudProvider {
+func (p *Provider) Kind() models.CloudProvider {
 	return models.External
 }
 
-func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
 	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
-func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
 	go func() {
 		defer close(assetDiscoverer.OutputChan)
 
-		res, err := c.providerClient.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
+		res, err := p.client.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
 		if err != nil {
 			assetDiscoverer.Error = fmt.Errorf("failed to discover assets: %w", err)
 			return
@@ -103,13 +101,13 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	return assetDiscoverer
 }
 
-func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	scanJobConfig, err := convertScanJobConfig(config)
 	if err != nil {
 		return fmt.Errorf("failed to convert scan job config: %w", err)
 	}
 
-	res, err := c.providerClient.RunAssetScan(ctx, &provider_service.RunAssetScanParams{
+	res, err := p.client.RunAssetScan(ctx, &provider_service.RunAssetScanParams{
 		ScanJobConfig: scanJobConfig,
 	})
 	if err != nil {
@@ -134,13 +132,13 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	}
 }
 
-func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	scanJobConfig, err := convertScanJobConfig(config)
 	if err != nil {
 		return fmt.Errorf("failed to convert scan job config: %w", err)
 	}
 
-	_, err = c.providerClient.RemoveAssetScan(ctx, &provider_service.RemoveAssetScanParams{
+	_, err = p.client.RemoveAssetScan(ctx, &provider_service.RemoveAssetScanParams{
 		ScanJobConfig: scanJobConfig,
 	})
 	if err != nil {

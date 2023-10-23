@@ -39,7 +39,7 @@ const (
 	vmNamePartIdx         = 8
 )
 
-type Client struct {
+type Provider struct {
 	cred             azcore.TokenCredential
 	rgClient         *armresources.ResourceGroupsClient
 	vmClient         *armcompute.VirtualMachinesClient
@@ -47,10 +47,10 @@ type Client struct {
 	disksClient      *armcompute.DisksClient
 	interfacesClient *armnetwork.InterfacesClient
 
-	azureConfig *Config
+	config *Config
 }
 
-func New(_ context.Context) (*Client, error) {
+func New(_ context.Context) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
@@ -61,17 +61,12 @@ func New(_ context.Context) (*Client, error) {
 		return nil, fmt.Errorf("failed to validate configuration: %w", err)
 	}
 
-	client := Client{
-		azureConfig: config,
-	}
-
 	cred, err := azidentity.NewManagedIdentityCredential(nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed create managed identity credential: %w", err)
 	}
-	client.cred = cred
 
-	client.rgClient, err = armresources.NewResourceGroupsClient(config.SubscriptionID, cred, nil)
+	rgClient, err := armresources.NewResourceGroupsClient(config.SubscriptionID, cred, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create resource group client: %w", err)
 	}
@@ -80,29 +75,33 @@ func New(_ context.Context) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create network client factory: %w", err)
 	}
-	client.interfacesClient = networkClientFactory.NewInterfacesClient()
 
 	computeClientFactory, err := armcompute.NewClientFactory(config.SubscriptionID, cred, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create compute client factory: %w", err)
 	}
-	client.vmClient = computeClientFactory.NewVirtualMachinesClient()
-	client.disksClient = computeClientFactory.NewDisksClient()
-	client.snapshotsClient = computeClientFactory.NewSnapshotsClient()
 
-	return &client, nil
+	return &Provider{
+		cred:             cred,
+		rgClient:         rgClient,
+		vmClient:         computeClientFactory.NewVirtualMachinesClient(),
+		snapshotsClient:  computeClientFactory.NewSnapshotsClient(),
+		disksClient:      computeClientFactory.NewDisksClient(),
+		interfacesClient: networkClientFactory.NewInterfacesClient(),
+		config:           config,
+	}, nil
 }
 
-func (c Client) Kind() models.CloudProvider {
+func (p *Provider) Kind() models.CloudProvider {
 	return models.Azure
 }
 
-func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
 	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 // nolint:cyclop
-func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
 		return provider.FatalErrorf("unable to get vminfo from asset: %w", err)
@@ -113,41 +112,41 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 		return err
 	}
 
-	assetVM, err := c.vmClient.Get(ctx, resourceGroup, vmName, nil)
+	assetVM, err := p.vmClient.Get(ctx, resourceGroup, vmName, nil)
 	if err != nil {
 		_, err = handleAzureRequestError(err, "getting asset virtual machine %s", vmName)
 		return err
 	}
 
-	snapshot, err := c.ensureSnapshotForVMRootVolume(ctx, config, assetVM.VirtualMachine)
+	snapshot, err := p.ensureSnapshotForVMRootVolume(ctx, config, assetVM.VirtualMachine)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot for vm root volume: %w", err)
 	}
 
 	var disk armcompute.Disk
-	if *assetVM.Location == c.azureConfig.ScannerLocation {
-		disk, err = c.ensureManagedDiskFromSnapshot(ctx, config, snapshot)
+	if *assetVM.Location == p.config.ScannerLocation {
+		disk, err = p.ensureManagedDiskFromSnapshot(ctx, config, snapshot)
 		if err != nil {
 			return fmt.Errorf("failed to ensure managed disk created from snapshot: %w", err)
 		}
 	} else {
-		disk, err = c.ensureManagedDiskFromSnapshotInDifferentRegion(ctx, config, snapshot)
+		disk, err = p.ensureManagedDiskFromSnapshotInDifferentRegion(ctx, config, snapshot)
 		if err != nil {
 			return fmt.Errorf("failed to ensure managed disk from snapshot in different region: %w", err)
 		}
 	}
 
-	networkInterface, err := c.ensureNetworkInterface(ctx, config)
+	networkInterface, err := p.ensureNetworkInterface(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner network interface: %w", err)
 	}
 
-	scannerVM, err := c.ensureScannerVirtualMachine(ctx, config, networkInterface)
+	scannerVM, err := p.ensureScannerVirtualMachine(ctx, config, networkInterface)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner virtual machine: %w", err)
 	}
 
-	err = c.ensureDiskAttachedToScannerVM(ctx, scannerVM, disk)
+	err = p.ensureDiskAttachedToScannerVM(ctx, scannerVM, disk)
 	if err != nil {
 		return fmt.Errorf("failed to ensure asset disk is attached to virtual machine: %w", err)
 	}
@@ -155,28 +154,28 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	return nil
 }
 
-func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	err := c.ensureScannerVirtualMachineDeleted(ctx, config)
+func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+	err := p.ensureScannerVirtualMachineDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner virtual machine deleted: %w", err)
 	}
 
-	err = c.ensureNetworkInterfaceDeleted(ctx, config)
+	err = p.ensureNetworkInterfaceDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure network interface deleted: %w", err)
 	}
 
-	err = c.ensureTargetDiskDeleted(ctx, config)
+	err = p.ensureTargetDiskDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure asset disk deleted: %w", err)
 	}
 
-	err = c.ensureBlobDeleted(ctx, config)
+	err = p.ensureBlobDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot copy blob deleted: %w", err)
 	}
 
-	err = c.ensureSnapshotDeleted(ctx, config)
+	err = p.ensureSnapshotDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot deleted: %w", err)
 	}
@@ -185,21 +184,21 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 }
 
 // nolint: cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
 	go func() {
 		defer close(assetDiscoverer.OutputChan)
 
 		// list all vms in all resourceGroups in the subscription
-		res := c.vmClient.NewListAllPager(nil)
+		res := p.vmClient.NewListAllPager(nil)
 		for res.More() {
 			page, err := res.NextPage(ctx)
 			if err != nil {
 				assetDiscoverer.Error = fmt.Errorf("failed to get next page: %w", err)
 				return
 			}
-			ts, err := c.processVirtualMachineListIntoAssetTypes(ctx, page.VirtualMachineListResult)
+			ts, err := p.processVirtualMachineListIntoAssetTypes(ctx, page.VirtualMachineListResult)
 			if err != nil {
 				assetDiscoverer.Error = err
 				return
@@ -232,10 +231,10 @@ func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, erro
 	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
 
-func (c *Client) processVirtualMachineListIntoAssetTypes(ctx context.Context, vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
+func (p *Provider) processVirtualMachineListIntoAssetTypes(ctx context.Context, vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
 	ret := make([]models.AssetType, 0, len(vmList.Value))
 	for _, vm := range vmList.Value {
-		info, err := getVMInfoFromVirtualMachine(vm, c.getRootVolumeInfo(ctx, vm))
+		info, err := getVMInfoFromVirtualMachine(vm, p.getRootVolumeInfo(ctx, vm))
 		if err != nil {
 			return nil, fmt.Errorf("unable to convert instance to vminfo: %w", err)
 		}
@@ -244,7 +243,7 @@ func (c *Client) processVirtualMachineListIntoAssetTypes(ctx context.Context, vm
 	return ret, nil
 }
 
-func (c *Client) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *models.RootVolume {
+func (p *Provider) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *models.RootVolume {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	ret := &models.RootVolume{
 		SizeGB:    int(utils.Int32PointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
@@ -256,7 +255,7 @@ func (c *Client) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMa
 			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
 		return ret
 	}
-	osDisk, err := c.disksClient.Get(ctx, osDiskID.ResourceGroupName, osDiskID.Name, nil)
+	osDisk, err := p.disksClient.Get(ctx, osDiskID.ResourceGroupName, osDiskID.Name, nil)
 	if err != nil {
 		logger.Warnf("Failed to get OS disk. DiskID=%v: %v",
 			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)

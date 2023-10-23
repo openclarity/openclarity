@@ -35,10 +35,10 @@ func snapshotNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("snapshot-%s", config.AssetScanID)
 }
 
-func (c *Client) ensureSnapshotForVMRootVolume(ctx context.Context, config *provider.ScanJobConfig, vm armcompute.VirtualMachine) (armcompute.Snapshot, error) {
+func (p *Provider) ensureSnapshotForVMRootVolume(ctx context.Context, config *provider.ScanJobConfig, vm armcompute.VirtualMachine) (armcompute.Snapshot, error) {
 	snapshotName := snapshotNameFromJobConfig(config)
 
-	snapshotRes, err := c.snapshotsClient.Get(ctx, c.azureConfig.ScannerResourceGroup, snapshotName, nil)
+	snapshotRes, err := p.snapshotsClient.Get(ctx, p.config.ScannerResourceGroup, snapshotName, nil)
 	if err == nil {
 		if *snapshotRes.Properties.ProvisioningState != ProvisioningStateSucceeded {
 			return snapshotRes.Snapshot, provider.RetryableErrorf(SnapshotCreateEstimateProvisionTime, "snapshot is not ready yet")
@@ -53,7 +53,7 @@ func (c *Client) ensureSnapshotForVMRootVolume(ctx context.Context, config *prov
 		return armcompute.Snapshot{}, err
 	}
 
-	_, err = c.snapshotsClient.BeginCreateOrUpdate(ctx, c.azureConfig.ScannerResourceGroup, snapshotName, armcompute.Snapshot{
+	_, err = p.snapshotsClient.BeginCreateOrUpdate(ctx, p.config.ScannerResourceGroup, snapshotName, armcompute.Snapshot{
 		Location: vm.Location,
 		Properties: &armcompute.SnapshotProperties{
 			CreationData: &armcompute.CreationData{
@@ -70,17 +70,17 @@ func (c *Client) ensureSnapshotForVMRootVolume(ctx context.Context, config *prov
 	return armcompute.Snapshot{}, provider.RetryableErrorf(SnapshotCreateEstimateProvisionTime, "snapshot creating")
 }
 
-func (c *Client) ensureSnapshotDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureSnapshotDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	snapshotName := snapshotNameFromJobConfig(config)
 
 	return ensureDeleted(
 		"snapshot",
 		func() error {
-			_, err := c.snapshotsClient.Get(ctx, c.azureConfig.ScannerResourceGroup, snapshotName, nil)
+			_, err := p.snapshotsClient.Get(ctx, p.config.ScannerResourceGroup, snapshotName, nil)
 			return err // nolint: wrapcheck
 		},
 		func() error {
-			_, err := c.snapshotsClient.BeginDelete(ctx, c.azureConfig.ScannerResourceGroup, snapshotName, nil)
+			_, err := p.snapshotsClient.BeginDelete(ctx, p.config.ScannerResourceGroup, snapshotName, nil)
 			return err // nolint: wrapcheck
 		},
 		SnapshotDeleteEstimateTime,
