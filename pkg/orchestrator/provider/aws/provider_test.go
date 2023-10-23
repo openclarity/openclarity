@@ -149,7 +149,7 @@ func Test_getInstanceState(t *testing.T) {
 }
 
 // nolint: maintidx
-func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
+func TestProvider_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 	launchTime := time.Now()
 
 	type fields struct{}
@@ -323,8 +323,8 @@ func TestClient_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Client{}
-			got := c.getInstancesFromDescribeInstancesOutput(ctx, tt.args.result, tt.args.regionID)
+			p := &Provider{}
+			got := p.getInstancesFromDescribeInstancesOutput(ctx, tt.args.result, tt.args.regionID)
 
 			var gotInstances []Instance
 			for _, instance := range got {

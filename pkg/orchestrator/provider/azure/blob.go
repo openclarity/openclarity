@@ -39,14 +39,14 @@ func blobNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("%s.vhd", config.AssetScanID)
 }
 
-func (c *Client) blobURLFromBlobName(blobName string) string {
-	return fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", c.azureConfig.ScannerStorageAccountName, c.azureConfig.ScannerStorageContainerName, blobName)
+func (p *Provider) blobURLFromBlobName(blobName string) string {
+	return fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", p.config.ScannerStorageAccountName, p.config.ScannerStorageContainerName, blobName)
 }
 
-func (c *Client) ensureBlobFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (string, error) {
+func (p *Provider) ensureBlobFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (string, error) {
 	blobName := blobNameFromJobConfig(config)
-	blobURL := c.blobURLFromBlobName(blobName)
-	blobClient, err := blob.NewClient(blobURL, c.cred, nil)
+	blobURL := p.blobURLFromBlobName(blobName)
+	blobClient, err := blob.NewClient(blobURL, p.cred, nil)
 	if err != nil {
 		return blobURL, provider.FatalErrorf("failed to init blob client: %w", err)
 	}
@@ -59,7 +59,7 @@ func (c *Client) ensureBlobFromSnapshot(ctx context.Context, config *provider.Sc
 			return blobURL, provider.RetryableErrorf(estimatedBlobCopyTime, "blob is still copying")
 		}
 
-		revokepoller, err := c.snapshotsClient.BeginRevokeAccess(ctx, c.azureConfig.ScannerResourceGroup, *snapshot.Name, nil)
+		revokepoller, err := p.snapshotsClient.BeginRevokeAccess(ctx, p.config.ScannerResourceGroup, *snapshot.Name, nil)
 		if err != nil {
 			_, err := handleAzureRequestError(err, "revoking SAS access for snapshot %s", *snapshot.Name)
 			return blobURL, err
@@ -82,7 +82,7 @@ func (c *Client) ensureBlobFromSnapshot(ctx context.Context, config *provider.Sc
 	// atomically with starting the CopyFromUrl Operation because
 	// GrantAccess only provides the URL once, and we don't want to store
 	// it.
-	poller, err := c.snapshotsClient.BeginGrantAccess(ctx, c.azureConfig.ScannerResourceGroup, *snapshot.Name, armcompute.GrantAccessData{
+	poller, err := p.snapshotsClient.BeginGrantAccess(ctx, p.config.ScannerResourceGroup, *snapshot.Name, armcompute.GrantAccessData{
 		Access:            to.Ptr(armcompute.AccessLevelRead),
 		DurationInSeconds: to.Ptr[int32](int32(snapshotSASAccessSeconds)),
 	}, nil)
@@ -108,10 +108,10 @@ func (c *Client) ensureBlobFromSnapshot(ctx context.Context, config *provider.Sc
 	return blobURL, provider.RetryableErrorf(estimatedBlobCopyTime, "blob copy from url started")
 }
 
-func (c *Client) ensureBlobDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureBlobDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	blobName := blobNameFromJobConfig(config)
-	blobURL := c.blobURLFromBlobName(blobName)
-	blobClient, err := blob.NewClient(blobURL, c.cred, nil)
+	blobURL := p.blobURLFromBlobName(blobName)
+	blobClient, err := blob.NewClient(blobURL, p.cred, nil)
 	if err != nil {
 		return provider.FatalErrorf("failed to init blob client: %w", err)
 	}

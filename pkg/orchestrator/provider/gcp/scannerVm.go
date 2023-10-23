@@ -41,13 +41,13 @@ func scannerVMNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("vmclarity-scanner-%s", config.AssetScanID)
 }
 
-func (c *Client) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig) (*computepb.Instance, error) {
+func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig) (*computepb.Instance, error) {
 	vmName := scannerVMNameFromJobConfig(config)
 
-	instanceRes, err := c.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
+	instanceRes, err := p.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
 		Instance: vmName,
-		Project:  c.gcpConfig.ProjectID,
-		Zone:     c.gcpConfig.ScannerZone,
+		Project:  p.config.ProjectID,
+		Zone:     p.config.ScannerZone,
 	})
 	if err == nil {
 		if *instanceRes.Status != InstanceStateRunning {
@@ -70,11 +70,11 @@ func (c *Client) ensureScannerVirtualMachine(ctx context.Context, config *provid
 		return nil, provider.FatalErrorf("failed to generate cloud-init: %v", err)
 	}
 
-	zone := c.gcpConfig.ScannerZone
+	zone := p.config.ScannerZone
 	instanceName := vmName
 
 	req := &computepb.InsertInstanceRequest{
-		Project: c.gcpConfig.ProjectID,
+		Project: p.config.ProjectID,
 		Zone:    zone,
 		InstanceResource: &computepb.Instance{
 			Metadata: &computepb.Metadata{
@@ -92,33 +92,33 @@ func (c *Client) ensureScannerVirtualMachine(ctx context.Context, config *provid
 					InitializeParams: &computepb.AttachedDiskInitializeParams{
 						DiskType:    utils.PointerTo(fmt.Sprintf("zones/%s/diskTypes/pd-balanced", zone)),
 						DiskSizeGb:  utils.PointerTo[int64](DiskSizeGB),
-						SourceImage: &c.gcpConfig.ScannerSourceImage,
+						SourceImage: &p.config.ScannerSourceImage,
 					},
 					AutoDelete: utils.PointerTo(true),
 					Boot:       utils.PointerTo(true),
 					Type:       utils.PointerTo(computepb.AttachedDisk_PERSISTENT.String()),
 				},
 			},
-			MachineType: utils.PointerTo(fmt.Sprintf("zones/%s/machineTypes/%s", zone, c.gcpConfig.ScannerMachineType)),
+			MachineType: utils.PointerTo(fmt.Sprintf("zones/%s/machineTypes/%s", zone, p.config.ScannerMachineType)),
 			NetworkInterfaces: []*computepb.NetworkInterface{
 				{
-					Subnetwork: &c.gcpConfig.ScannerSubnetwork,
+					Subnetwork: &p.config.ScannerSubnetwork,
 				},
 			},
 		},
 	}
 
-	if c.gcpConfig.ScannerSSHPublicKey != "" {
+	if p.config.ScannerSSHPublicKey != "" {
 		req.InstanceResource.Metadata.Items = append(
 			req.InstanceResource.Metadata.Items,
 			&computepb.Items{
 				Key:   utils.PointerTo("ssh-keys"),
-				Value: utils.PointerTo(fmt.Sprintf("vmclarity:%s", c.gcpConfig.ScannerSSHPublicKey)),
+				Value: utils.PointerTo(fmt.Sprintf("vmclarity:%s", p.config.ScannerSSHPublicKey)),
 			},
 		)
 	}
 
-	_, err = c.instancesClient.Insert(ctx, req)
+	_, err = p.instancesClient.Insert(ctx, req)
 	if err != nil {
 		_, err := handleGcpRequestError(err, "unable to create instance %v", vmName)
 		return nil, err
@@ -127,24 +127,24 @@ func (c *Client) ensureScannerVirtualMachine(ctx context.Context, config *provid
 	return nil, provider.RetryableErrorf(VMCreateEstimateProvisionTime, "vm creating")
 }
 
-func (c *Client) ensureScannerVirtualMachineDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureScannerVirtualMachineDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	vmName := scannerVMNameFromJobConfig(config)
 
 	return ensureDeleted(
 		"VirtualMachine",
 		func() error {
-			_, err := c.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
+			_, err := p.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
 				Instance: vmName,
-				Project:  c.gcpConfig.ProjectID,
-				Zone:     c.gcpConfig.ScannerZone,
+				Project:  p.config.ProjectID,
+				Zone:     p.config.ScannerZone,
 			})
 			return err // nolint: wrapcheck
 		},
 		func() error {
-			_, err := c.instancesClient.Delete(ctx, &computepb.DeleteInstanceRequest{
+			_, err := p.instancesClient.Delete(ctx, &computepb.DeleteInstanceRequest{
 				Instance: vmName,
-				Project:  c.gcpConfig.ProjectID,
-				Zone:     c.gcpConfig.ScannerZone,
+				Project:  p.config.ProjectID,
+				Zone:     p.config.ScannerZone,
 			})
 			return err // nolint: wrapcheck
 		},
@@ -152,7 +152,7 @@ func (c *Client) ensureScannerVirtualMachineDeleted(ctx context.Context, config 
 	)
 }
 
-func (c *Client) ensureDiskAttachedToScannerVM(ctx context.Context, vm *computepb.Instance, disk *computepb.Disk) error {
+func (p *Provider) ensureDiskAttachedToScannerVM(ctx context.Context, vm *computepb.Instance, disk *computepb.Disk) error {
 	var diskAttached bool
 	for _, attachedDisk := range vm.Disks {
 		diskName := getLastURLPart(attachedDisk.Source)
@@ -166,21 +166,21 @@ func (c *Client) ensureDiskAttachedToScannerVM(ctx context.Context, vm *computep
 		req := &computepb.AttachDiskInstanceRequest{
 			AttachedDiskResource: &computepb.AttachedDisk{Source: utils.PointerTo(disk.GetSelfLink())},
 			Instance:             *vm.Name,
-			Project:              c.gcpConfig.ProjectID,
-			Zone:                 c.gcpConfig.ScannerZone,
+			Project:              p.config.ProjectID,
+			Zone:                 p.config.ScannerZone,
 		}
 
-		_, err := c.instancesClient.AttachDisk(ctx, req)
+		_, err := p.instancesClient.AttachDisk(ctx, req)
 		if err != nil {
 			_, err = handleGcpRequestError(err, "attach disk %v to VM %v", *disk.Name, *vm.Name)
 			return err
 		}
 	}
 
-	diskResp, err := c.disksClient.Get(ctx, &computepb.GetDiskRequest{
+	diskResp, err := p.disksClient.Get(ctx, &computepb.GetDiskRequest{
 		Disk:    *disk.Name,
-		Project: c.gcpConfig.ProjectID,
-		Zone:    c.gcpConfig.ScannerZone,
+		Project: p.config.ProjectID,
+		Zone:    p.config.ScannerZone,
 	})
 	if err != nil {
 		_, err = handleGcpRequestError(err, "get disk %v", *disk.Name)

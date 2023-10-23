@@ -35,10 +35,10 @@ func volumeNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("targetvolume-%s", config.AssetScanID)
 }
 
-func (c *Client) ensureManagedDiskFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (armcompute.Disk, error) {
+func (p *Provider) ensureManagedDiskFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (armcompute.Disk, error) {
 	volumeName := volumeNameFromJobConfig(config)
 
-	volumeRes, err := c.disksClient.Get(ctx, c.azureConfig.ScannerResourceGroup, volumeName, nil)
+	volumeRes, err := p.disksClient.Get(ctx, p.config.ScannerResourceGroup, volumeName, nil)
 	if err == nil {
 		if *volumeRes.Disk.Properties.ProvisioningState != ProvisioningStateSucceeded {
 			return volumeRes.Disk, provider.RetryableErrorf(DiskEstimateProvisionTime, "volume is not ready yet, provisioning state: %s", *volumeRes.Disk.Properties.ProvisioningState)
@@ -52,8 +52,8 @@ func (c *Client) ensureManagedDiskFromSnapshot(ctx context.Context, config *prov
 		return armcompute.Disk{}, err
 	}
 
-	_, err = c.disksClient.BeginCreateOrUpdate(ctx, c.azureConfig.ScannerResourceGroup, volumeName, armcompute.Disk{
-		Location: to.Ptr(c.azureConfig.ScannerLocation),
+	_, err = p.disksClient.BeginCreateOrUpdate(ctx, p.config.ScannerResourceGroup, volumeName, armcompute.Disk{
+		Location: to.Ptr(p.config.ScannerLocation),
 		SKU: &armcompute.DiskSKU{
 			Name: to.Ptr(armcompute.DiskStorageAccountTypesStandardSSDLRS),
 		},
@@ -72,15 +72,15 @@ func (c *Client) ensureManagedDiskFromSnapshot(ctx context.Context, config *prov
 	return armcompute.Disk{}, provider.RetryableErrorf(DiskEstimateProvisionTime, "disk creating")
 }
 
-func (c *Client) ensureManagedDiskFromSnapshotInDifferentRegion(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (armcompute.Disk, error) {
-	blobURL, err := c.ensureBlobFromSnapshot(ctx, config, snapshot)
+func (p *Provider) ensureManagedDiskFromSnapshotInDifferentRegion(ctx context.Context, config *provider.ScanJobConfig, snapshot armcompute.Snapshot) (armcompute.Disk, error) {
+	blobURL, err := p.ensureBlobFromSnapshot(ctx, config, snapshot)
 	if err != nil {
 		return armcompute.Disk{}, fmt.Errorf("failed to ensure blob from snapshot: %w", err)
 	}
 
 	volumeName := volumeNameFromJobConfig(config)
 
-	volumeRes, err := c.disksClient.Get(ctx, c.azureConfig.ScannerResourceGroup, volumeName, nil)
+	volumeRes, err := p.disksClient.Get(ctx, p.config.ScannerResourceGroup, volumeName, nil)
 	if err == nil {
 		if *volumeRes.Disk.Properties.ProvisioningState != ProvisioningStateSucceeded {
 			return volumeRes.Disk, provider.RetryableErrorf(DiskEstimateProvisionTime, "volume is not ready yet, provisioning state: %s", *volumeRes.Disk.Properties.ProvisioningState)
@@ -94,8 +94,8 @@ func (c *Client) ensureManagedDiskFromSnapshotInDifferentRegion(ctx context.Cont
 		return armcompute.Disk{}, err
 	}
 
-	_, err = c.disksClient.BeginCreateOrUpdate(ctx, c.azureConfig.ScannerResourceGroup, volumeName, armcompute.Disk{
-		Location: to.Ptr(c.azureConfig.ScannerLocation),
+	_, err = p.disksClient.BeginCreateOrUpdate(ctx, p.config.ScannerResourceGroup, volumeName, armcompute.Disk{
+		Location: to.Ptr(p.config.ScannerLocation),
 		SKU: &armcompute.DiskSKU{
 			Name: to.Ptr(armcompute.DiskStorageAccountTypesStandardSSDLRS),
 		},
@@ -103,7 +103,7 @@ func (c *Client) ensureManagedDiskFromSnapshotInDifferentRegion(ctx context.Cont
 			CreationData: &armcompute.CreationData{
 				CreateOption:     to.Ptr(armcompute.DiskCreateOptionImport),
 				SourceURI:        to.Ptr(blobURL),
-				StorageAccountID: to.Ptr(fmt.Sprintf("subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s", c.azureConfig.SubscriptionID, c.azureConfig.ScannerResourceGroup, c.azureConfig.ScannerStorageAccountName)),
+				StorageAccountID: to.Ptr(fmt.Sprintf("subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s", p.config.SubscriptionID, p.config.ScannerResourceGroup, p.config.ScannerStorageAccountName)),
 			},
 		},
 	}, nil)
@@ -114,17 +114,17 @@ func (c *Client) ensureManagedDiskFromSnapshotInDifferentRegion(ctx context.Cont
 	return armcompute.Disk{}, provider.RetryableErrorf(DiskEstimateProvisionTime, "disk creating")
 }
 
-func (c *Client) ensureTargetDiskDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureTargetDiskDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	volumeName := volumeNameFromJobConfig(config)
 
 	return ensureDeleted(
 		"target disk",
 		func() error {
-			_, err := c.disksClient.Get(ctx, c.azureConfig.ScannerResourceGroup, volumeName, nil)
+			_, err := p.disksClient.Get(ctx, p.config.ScannerResourceGroup, volumeName, nil)
 			return err // nolint: wrapcheck
 		},
 		func() error {
-			_, err := c.disksClient.BeginDelete(ctx, c.azureConfig.ScannerResourceGroup, volumeName, nil)
+			_, err := p.disksClient.BeginDelete(ctx, p.config.ScannerResourceGroup, volumeName, nil)
 			return err // nolint: wrapcheck
 		},
 		DiskDeleteEstimateTime,
