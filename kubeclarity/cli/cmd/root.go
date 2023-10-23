@@ -35,7 +35,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:     "kubeclarity",
+	Use:     "kubeclarity-cli",
 	Short:   "KubeClarity analyzer and scanner",
 	Long:    `KubeClarity content analyzer and vulnerability scanner`,
 	Version: pkg.GitRevision,
