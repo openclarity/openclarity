@@ -1,209 +1,96 @@
-SHELL=/bin/bash
+####
+## Make settings
+####
 
-# Project variables
+SHELL = /usr/bin/env bash -o pipefail
+.SHELLFLAGS = -ec
+.DEFAULT_GOAL := help
+
+####
+## Project variables
+####
+
 BINARY_NAME ?= vmclarity
-VERSION ?= $(shell git rev-parse HEAD)
+VERSION ?= $(COMMIT_HASH)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
-DOCKER_TAG ?= ${VERSION}
+DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
+
+####
+## Runtime variables
+####
 
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_DIR := $(ROOT_DIR)/bin
+GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod')
+BUILD_TIMESTAMP := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+COMMIT_HASH := $(shell git rev-parse HEAD)
 
-# Dependency versions
-LICENSEI_VERSION = 0.9.0
-
-# Detecting Operating system and CPU architecture
-
-OSTYPE :=
-ARCHTYPE :=
-
-ifeq ($(OS),Windows_NT)
-	OSTYPE = windows
-	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-		ARCHTYPE = amd64
-	endif
-	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-		ARCHTYPE = x86
-	endif
-else
-	UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S),Linux)
-		OSTYPE = linux
-	endif
-	ifeq ($(UNAME_S),Darwin)
-		OSTYPE = darwin
-	endif
-
-	UNAME_P := $(shell uname -m)
-	ifeq ($(UNAME_P),x86_64)
-		ARCHTYPE = amd64
-	endif
-	ifneq ($(filter %86,$(UNAME_P)),)
-		ARCHTYPE = x86
-	endif
-	ifneq ($(filter arm%,$(UNAME_P)),)
-		ARCHTYPE = arm64
-	endif
-endif
-
-# HELP
-# This will output the help for each task
-# thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help
-help: ## This help.
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_0-9-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-.DEFAULT_GOAL := help
-
-.PHONY: build
-build: ui build-all-go ## Build All
-
-.PHONY: build-all-go
-build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend ## Build All GO executables
-
-.PHONY: ui
-ui: ## Build UI
-	@(echo "Building UI ..." )
-	@(cd ui; npm i ; npm run build; )
-	@ls -l ui/build
-
-bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-orchestrator
-	go build -race -o bin/vmclarity-orchestrator cmd/vmclarity-orchestrator/main.go
-
-bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-apiserver
-	go build -race -o bin/vmclarity-apiserver cmd/vmclarity-apiserver/main.go
-
-bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build CLI
-	go build -race -o bin/vmclarity-cli cmd/vmclarity-cli/main.go
-
-bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum | $(BIN_DIR) ## Build vmclarity-ui-backend
-	go build -race -o bin/vmclarity-ui-backend cmd/vmclarity-ui-backend/main.go
-
-.PHONY: docker
-docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Build All Docker images
-
-.PHONY: push-docker
-push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend ## Build and Push All Docker images
-
-ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
-VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
-endif
-
-.PHONY: docker-cli
-docker-cli: ## Build CLI Docker image
-	@(echo "Building cli docker image ..." )
-	docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
-		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} \
-		.
-
-.PHONY: push-docker-cli
-push-docker-cli: docker-cli ## Build and Push CLI Docker image
-	@echo "Publishing cli docker image ..."
-	docker push $(DOCKER_IMAGE)-cli:$(DOCKER_TAG)
-
-.PHONY: docker-orchestrator
-docker-orchestrator: ## Build Backend Orchestrator image
-	@(echo "Building orchestrator docker image ..." )
-	docker build --file ./Dockerfile.orchestrator --build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}-orchestrator:${DOCKER_TAG} .
-
-.PHONY: push-docker-orchestrator
-push-docker-orchestrator: docker-orchestrator ## Build and Push Orchestrator Docker image
-	@echo "Publishing orchestrator docker image ..."
-	docker push ${DOCKER_IMAGE}-orchestrator:${DOCKER_TAG}
-
-.PHONY: docker-apiserver
-docker-apiserver: ## Build Backend API Server image
-	@(echo "Building apiserver docker image ..." )
-	docker build --file ./Dockerfile.apiserver --build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}-apiserver:${DOCKER_TAG} .
-
-.PHONY: push-docker-apiserver
-push-docker-apiserver: docker-apiserver ## Build and Push API Server Docker image
-	@echo "Publishing apiserver docker image ..."
-	docker push ${DOCKER_IMAGE}-apiserver:${DOCKER_TAG}
-
-.PHONY: docker-ui
-docker-ui: ## Build UI image
-	@(echo "Building ui docker image ..." )
-	docker build --file ./Dockerfile.ui \
-		-t ${DOCKER_IMAGE}-ui:${DOCKER_TAG} .
-
-.PHONY: push-docker-ui
-push-docker-ui: docker-ui ## Build and Push UI Docker image
-	@echo "Publishing ui docker image ..."
-	docker push ${DOCKER_IMAGE}-ui:${DOCKER_TAG}
-
-.PHONY: docker-ui-backend
-docker-ui-backend: ## Build UI Backend Docker image
-	@(echo "Building ui-backend docker image ..." )
-	docker build --file ./Dockerfile.uibackend --build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}-ui-backend:${DOCKER_TAG} .
-
-.PHONY: push-docker-ui-backend
-push-docker-ui-backend: docker-ui-backend ## Build and Push UI Backend Docker image
-	@echo "Publishing ui-backend docker image ..."
-	docker push ${DOCKER_IMAGE}-ui-backend:${DOCKER_TAG}
-
-.PHONY: test
-test: ## Run Unit Tests
-	@go test ./...
-
-.PHONY: e2e
-e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Run go e2e test against code
-	@cd e2e && \
-	export APIServerContainerImage=${DOCKER_REGISTRY}/vmclarity-apiserver:${DOCKER_TAG} && \
-	export OrchestratorContainerImage=${DOCKER_REGISTRY}/vmclarity-orchestrator:${DOCKER_TAG} && \
-	export ScannerContainerImage=${DOCKER_REGISTRY}/vmclarity-cli:${DOCKER_TAG} && \
-	export UIContainerImage=${DOCKER_REGISTRY}/vmclarity-ui:${DOCKER_TAG} && \
-	export UIBackendContainerImage=${DOCKER_REGISTRY}/vmclarity-ui-backend:${DOCKER_TAG} && \
-	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
-
-.PHONY: clean-ui
-clean-ui:
-	@(rm -rf ui/build ; echo "UI cleanup done" )
-
-.PHONY: clean-golangci-lint
-clean-golangci-lint:
-	@(rm -rf bin/golangci-lint* ; echo "Golangci lint cleanup done" )
-
-.PHONY: clean-licensei
-clean-licensei:
-	@(rm -rf bin/licensei* ; echo "Licensei cleanup done" )
-
-.PHONY: clean-go
-clean-go:
-	@(rm -rf bin/vmclarity* ; echo "GO executables cleanup done" )
-
-.PHONY: clean
-clean: clean-ui clean-golangci-lint clean-licensei clean-go ## Clean all build artifacts
+include makefile.d/*.mk
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
-GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
-GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
-GOLANGCI_VERSION := 1.54.2
+##@ General
 
-bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
-	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
+.PHONY: help
+help: ## Display this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b "$(BIN_DIR)" "v$(GOLANGCI_VERSION)"
-	@mv bin/golangci-lint $@
+##@ Development
 
-GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod')
+.PHONY: build
+build: ui build-all-go ## Build all components
+
+.PHONY: build-all-go
+build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend ## Build all go components
+
+bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
+	go build -race -o bin/vmclarity-orchestrator cmd/vmclarity-orchestrator/main.go
+
+bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
+	go build -race -o bin/vmclarity-apiserver cmd/vmclarity-apiserver/main.go
+
+bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
+	go build -race -o bin/vmclarity-cli cmd/vmclarity-cli/main.go
+
+bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
+	go build -race -o bin/vmclarity-ui-backend cmd/vmclarity-ui-backend/main.go
+
+.PHONY: clean
+clean: clean-ui clean-go ## Clean all build artifacts
+
+.PHONY: clean-go
+clean-go: ## Clean all Go build artifacts
+	@rm -rf bin/vmclarity*
+	$(info GO executables cleanup done)
+
+.PHONY: clean-ui
+clean-ui: ## Clean UI build
+	@rm -rf ui/build
+	$(info UI cleanup done)
+
+.PHONY: $(LINTGOMODULES)
+TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
+
+$(TIDYGOMODULES):
+	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$$(cat .go-version)
+
+.PHONY: gomod-tidy
+gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
+
+.PHONY: ui
+ui: ## Build UI component
+	$(info Building UI ...)
+	@(cd ui && npm i && npm run build)
+	@ls -l ui/build
+
+##@ Testing
+
+.PHONY: check
+check: lint test ## Run tests and linters
+
 LINTGOMODULES = $(addprefix lint-, $(GOMODULES))
 FIXGOMODULES = $(addprefix fix-, $(GOMODULES))
 
@@ -211,152 +98,162 @@ FIXGOMODULES = $(addprefix fix-, $(GOMODULES))
 $(LINTGOMODULES):
 	cd $(dir $(@:lint-%=%)) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)"
 
-.PHONY: lint-go
-lint-go: bin/golangci-lint $(LINTGOMODULES)
-
-####
-##  CloudFormation Linter CLI
-####
-
-CFNLINT_BIN := $(BIN_DIR)/cfn-lint
-CFNLINT_VERSION := 0.82.2
-CFNLINT_VENV := $(CFNLINT_BIN)-$(CFNLINT_VERSION)
-
-bin/cfn-lint: $(CFNLINT_VENV)/bin/cfn-lint
-	@ln -sf $(CFNLINT_VENV)/bin/cfn-lint bin/cfn-lint
-
-$(CFNLINT_VENV)/bin/cfn-lint: | $(BIN_DIR)
-	@python3 -m venv $(CFNLINT_VENV)
-	@$(CFNLINT_VENV)/bin/python3 -m pip install --upgrade pip
-	@$(CFNLINT_VENV)/bin/pip install cfn-lint==$(CFNLINT_VERSION)
-
-.PHONY: lint-cfn
-lint-cfn: bin/cfn-lint
-	$(CFNLINT_BIN) installation/aws/VmClarity.cfn
-
-.PHONY: lint
-lint: lint-go lint-cfn lint-bicep ## Run linters
-
 .PHONY: $(FIXGOMODULES)
 $(FIXGOMODULES):
 	cd $(dir $(@:fix-%=%)) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)" --fix
 
 .PHONY: fix
-fix: bin/golangci-lint $(FIXGOMODULES) ## Fix lint violations
+fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
-bin/licensei: bin/licensei-${LICENSEI_VERSION}
-	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
-bin/licensei-${LICENSEI_VERSION}: | $(BIN_DIR)
-	curl -sfL https://raw.githubusercontent.com/goph/licensei/master/install.sh | bash -s v${LICENSEI_VERSION}
-	@mv bin/licensei $@
+.PHONY: e2e
+e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Run end-to-end test suite
+	@cd e2e && \
+	export APIServerContainerImage=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) && \
+	export OrchestratorContainerImage=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) && \
+	export ScannerContainerImage=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) && \
+	export UIContainerImage=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) && \
+	export UIBackendContainerImage=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) && \
+	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 .PHONY: license-check
-license-check: bin/licensei ## Run license check
-	./bin/licensei check
+license-check: bin/licensei license-cache ## Check licenses for software components
+	$(LICENSEI_BIN) check
 
 .PHONY: license-header
-license-header: bin/licensei ## Run license header check
-	./bin/licensei header
+license-header: bin/licensei ## Check license headers in source code files
+	$(LICENSEI_BIN) header
 
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
-	./bin/licensei cache
+	$(LICENSEI_BIN) cache
 
-.PHONY: check
-check: lint test helm-lint ## Run tests and linters
+.PHONY: lint
+lint: license-check license-header lint-actions lint-bicep lint-cfn lint-go lint-helm ## Run all the linters
 
-TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
+.PHONY: lint-actions
+lint-actions: bin/actionlint ## Lint Github Actions
+	@$(ACTIONLINT_BIN) -color
 
-.PHONY: $(TIDYGOMODULES)
-$(TIDYGOMODULES):
-	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$$(cat .go-version)
+.PHONY: lint-bicep
+lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
+	@$(BICEP_BIN) lint installation/azure/vmclarity.bicep
 
-.PHONY: gomod-tidy
-gomod-tidy: $(TIDYGOMODULES)
+.PHONY: lint-cfn
+lint-cfn: bin/cfn-lint ## Lint AWS CloudFormation template
+	$(CFNLINT_BIN) installation/aws/VmClarity.cfn
+
+.PHONY: lint-go
+lint-go: bin/golangci-lint $(LINTGOMODULES) ## Lint Go source code
+
+.PHONY: lint-helm
+lint-helm: ## Lint Helm charts
+	docker run --rm --workdir /workdir --volume "$(shell pwd):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
+
+.PHONY: test
+test: ## Run Go unit tests
+	@go test ./...
+
+##@ Docker
+
+.PHONY: docker
+docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Build All Docker images
+
+.PHONY: docker-apiserver
+docker-apiserver: ## Build API Server container image
+	$(info Building apiserver docker image ...)
+	docker build --file ./Dockerfile.apiserver --build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
+		-t $(DOCKER_IMAGE)-apiserver:$(DOCKER_TAG) .
+
+ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
+VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
+endif
+
+.PHONY: docker-cli
+docker-cli: ## Build CLI container image
+	$(info Building cli docker image ...)
+	docker build --file ./Dockerfile.cli --build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
+		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
+		-t $(DOCKER_IMAGE)-cli:$(DOCKER_TAG) .
+
+.PHONY: docker-orchestrator
+docker-orchestrator: ## Build Orchestrator container image
+	$(info Building orchestrator docker image ...)
+	docker build --file ./Dockerfile.orchestrator --build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
+		-t $(DOCKER_IMAGE)-orchestrator:$(DOCKER_TAG) .
+
+.PHONY: docker-ui
+docker-ui: ## Build UI container image
+	$(info Building ui docker image ...)
+	docker build --file ./Dockerfile.ui \
+		-t $(DOCKER_IMAGE)-ui:$(DOCKER_TAG) .
+
+.PHONY: docker-ui-backend
+docker-ui-backend: ## Build UI Backend container image
+	$(info Building ui-backend docker image ...)
+	docker build --file ./Dockerfile.uibackend --build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
+		-t $(DOCKER_IMAGE)-ui-backend:$(DOCKER_TAG) .
+
+.PHONY: push-docker
+push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend ## Build and push all container images
+
+.PHONY: push-docker-apiserver
+push-docker-apiserver: docker-apiserver ## Build and push API Server container image
+	$(info Publishing apiserver docker image ...)
+	docker push $(DOCKER_IMAGE)-apiserver:$(DOCKER_TAG)
+
+.PHONY: push-docker-cli
+push-docker-cli: docker-cli ## Build and push CLI Docker image
+	$(info Publishing cli docker image ...)
+	docker push $(DOCKER_IMAGE)-cli:$(DOCKER_TAG)
+
+.PHONY: push-docker-orchestrator
+push-docker-orchestrator: docker-orchestrator ## Build and push Orchestrator container image
+	$(info Publishing orchestrator docker image ...)
+	docker push $(DOCKER_IMAGE)-orchestrator:$(DOCKER_TAG)
+
+.PHONY: push-docker-ui
+push-docker-ui: docker-ui ## Build and Push UI container image
+	$(info Publishing ui docker image ...)
+	docker push $(DOCKER_IMAGE)-ui:$(DOCKER_TAG)
+
+.PHONY: push-docker-ui-backend
+push-docker-ui-backend: docker-ui-backend ## Build and push UI Backend container image
+	$(info Publishing ui-backend docker image ...)
+	docker push $(DOCKER_IMAGE)-ui-backend:$(DOCKER_TAG)
+
+##@ Code generation
+
+.PHONY: gen
+gen: gen-api gen-bicep gen-helm-docs ## Generating all code, manifests, docs
 
 .PHONY: gen-api
 gen-api: gen-apiserver-api gen-uibackend-api ## Generating API code
 
 .PHONY: gen-apiserver-api
-gen-apiserver-api: ## Generating API for backend code
-	@(echo "Generating API for backend code ..." )
-	@(cd api; go generate)
+gen-apiserver-api: ## Generating Go library for API specification
+	$(info Generating API for backend code ...)
+	@(cd api && go generate)
 
 .PHONY: gen-uibackend-api
-gen-uibackend-api: ## Generating API for UI backend code
-	@(echo "Generating API for UI backend code ..." )
-	@(cd pkg/uibackend/api; go generate)
-
-.PHONY: helm-docs
-helm-docs:
-	docker run --rm --volume "$(shell pwd):/helm-docs" -u $(shell id -u) jnorwood/helm-docs:v1.11.0
-
-.PHONY: helm-lint
-helm-lint:
-	docker run --rm --workdir /workdir --volume "$(shell pwd):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
-
-ACTIONLINT_BIN := $(BIN_DIR)/actionlint
-ACTIONLINT_VERSION := 1.6.26
-
-bin/actionlint: bin/actionlint-$(ACTIONLINT_VERSION)
-	@ln -sf actionlint-$(ACTIONLINT_VERSION) bin/actionlint
-
-bin/actionlint-$(ACTIONLINT_VERSION): | $(BIN_DIR)
-	curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash \
-	| bash -s -- "$(ACTIONLINT_VERSION)" "$(BIN_DIR)"
-	@mv bin/actionlint $@
-
-.PHONY: lint-actions
-lint-actions: bin/actionlint
-	@$(ACTIONLINT_BIN) -color
-
-####
-##  Azure CLI
-####
-
-AZURECLI_BIN := $(BIN_DIR)/az
-AZURECLI_VERSION := 2.53.0
-AZURECLI_VENV := $(AZURECLI_BIN)-$(AZURECLI_VERSION)
-
-bin/az: $(AZURECLI_VENV)/bin/az
-	@ln -sf $(AZURECLI_VENV)/bin/az bin/az
-
-$(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
-	@python3 -m venv $(AZURECLI_VENV)
-	@$(AZURECLI_VENV)/bin/python3 -m pip install --upgrade pip
-	@$(AZURECLI_VENV)/bin/pip install azure-cli==$(AZURECLI_VERSION)
-
-####
-##  Azure Bicep CLI
-####
-
-BICEP_BIN := $(BIN_DIR)/bicep
-BICEP_VERSION := 0.22.6
-BICEP_OSTYPE := $(OSTYPE)
-BICEP_ARCH := $(ARCHTYPE)
-
-# Set OSTYPE for macos to "osx"
-ifeq ($(BICEP_OSTYPE),darwin)
-	BICEP_OSTYPE = osx
-endif
-# Reset ARCHTYPE for amd64 to "x64"
-ifeq ($(BICEP_ARCH),amd64)
-	BICEP_ARCH = x64
-endif
-
-bin/bicep: bin/bicep-$(BICEP_VERSION)
-	@ln -sf bicep-$(BICEP_VERSION) bin/bicep
-
-bin/bicep-$(BICEP_VERSION): | $(BIN_DIR)
-	@if [ -z "${BICEP_OSTYPE}" -o -z "${BICEP_ARCH}" ]; then printf 'ERROR: following variables must no be empty: %s %s\n' '$$BICEP_OSTYPE' '$$BICEP_ARCH'; exit 1; fi
-	@curl -sSfL 'https://github.com/Azure/bicep/releases/download/v$(BICEP_VERSION)/bicep-$(BICEP_OSTYPE)-$(BICEP_ARCH)' \
-	--output '$(BICEP_BIN)-$(BICEP_VERSION)'
-	@chmod +x '$(BICEP_BIN)-$(BICEP_VERSION)'
+gen-uibackend-api: ## Generating Go library for UI Backend API specification
+	$(info Generating API for UI backend code ...)
+	@(cd pkg/uibackend/api && go generate)
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
+	$(info Generating Azure Bicep template(s) ...)
 	@$(BICEP_BIN) build installation/azure/vmclarity.bicep
 
-.PHONY: lint-bicep
-lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
-	@$(BICEP_BIN) lint installation/azure/vmclarity.bicep
+.PHONY: gen-helm-docs
+gen-helm-docs: ## Generating documentation for Helm chart
+	$(info Generating Helm chart(s) documentation ...)
+	docker run --rm --volume "$(shell pwd):/helm-docs" -u $(shell id -u) jnorwood/helm-docs:v1.11.0
+

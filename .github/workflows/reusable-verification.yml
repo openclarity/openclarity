@@ -52,7 +52,7 @@ jobs:
 
       - name: Run linters for Helm
         run: |
-          make helm-lint
+          make lint-helm
 
   actions:
     runs-on: ubuntu-latest
