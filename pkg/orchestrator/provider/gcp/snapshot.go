@@ -34,11 +34,11 @@ func snapshotNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("snapshot-%s", config.AssetScanID)
 }
 
-func (c *Client) ensureSnapshotFromAttachedDisk(ctx context.Context, config *provider.ScanJobConfig, disk *computepb.AttachedDisk) (*computepb.Snapshot, error) {
+func (p *Provider) ensureSnapshotFromAttachedDisk(ctx context.Context, config *provider.ScanJobConfig, disk *computepb.AttachedDisk) (*computepb.Snapshot, error) {
 	snapshotName := snapshotNameFromJobConfig(config)
 
-	snapshotRes, err := c.snapshotsClient.Get(ctx, &computepb.GetSnapshotRequest{
-		Project:  c.gcpConfig.ProjectID,
+	snapshotRes, err := p.snapshotsClient.Get(ctx, &computepb.GetSnapshotRequest{
+		Project:  p.config.ProjectID,
 		Snapshot: snapshotName,
 	})
 	if err == nil {
@@ -57,14 +57,14 @@ func (c *Client) ensureSnapshotFromAttachedDisk(ctx context.Context, config *pro
 
 	// Snapshot not found, Create the snapshot
 	req := &computepb.InsertSnapshotRequest{
-		Project: c.gcpConfig.ProjectID,
+		Project: p.config.ProjectID,
 		SnapshotResource: &computepb.Snapshot{
 			Name:       &snapshotName,
 			SourceDisk: disk.Source,
 		},
 	}
 
-	_, err = c.snapshotsClient.Insert(ctx, req)
+	_, err = p.snapshotsClient.Insert(ctx, req)
 	if err != nil {
 		_, err := handleGcpRequestError(err, "create snapshot %s", snapshotName)
 		return nil, err
@@ -73,21 +73,21 @@ func (c *Client) ensureSnapshotFromAttachedDisk(ctx context.Context, config *pro
 	return &computepb.Snapshot{}, provider.RetryableErrorf(SnapshotCreateEstimateProvisionTime, "snapshot creating")
 }
 
-func (c *Client) ensureSnapshotDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureSnapshotDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	snapshotName := snapshotNameFromJobConfig(config)
 
 	return ensureDeleted(
 		"snapshot",
 		func() error {
-			_, err := c.snapshotsClient.Get(ctx, &computepb.GetSnapshotRequest{
-				Project:  c.gcpConfig.ProjectID,
+			_, err := p.snapshotsClient.Get(ctx, &computepb.GetSnapshotRequest{
+				Project:  p.config.ProjectID,
 				Snapshot: snapshotName,
 			})
 			return err // nolint: wrapcheck
 		},
 		func() error {
-			_, err := c.snapshotsClient.Delete(ctx, &computepb.DeleteSnapshotRequest{
-				Project:  c.gcpConfig.ProjectID,
+			_, err := p.snapshotsClient.Delete(ctx, &computepb.DeleteSnapshotRequest{
+				Project:  p.config.ProjectID,
 				Snapshot: snapshotName,
 			})
 			return err // nolint: wrapcheck

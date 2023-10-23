@@ -35,13 +35,13 @@ func diskNameFromJobConfig(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("targetvolume-%s", config.AssetScanID)
 }
 
-func (c *Client) ensureDiskFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot *computepb.Snapshot) (*computepb.Disk, error) {
+func (p *Provider) ensureDiskFromSnapshot(ctx context.Context, config *provider.ScanJobConfig, snapshot *computepb.Snapshot) (*computepb.Disk, error) {
 	diskName := diskNameFromJobConfig(config)
 
-	diskRes, err := c.disksClient.Get(ctx, &computepb.GetDiskRequest{
+	diskRes, err := p.disksClient.Get(ctx, &computepb.GetDiskRequest{
 		Disk:    diskName,
-		Project: c.gcpConfig.ProjectID,
-		Zone:    c.gcpConfig.ScannerZone,
+		Project: p.config.ProjectID,
+		Zone:    p.config.ScannerZone,
 	})
 	if err == nil {
 		if *diskRes.Status != ProvisioningStateReady {
@@ -59,18 +59,18 @@ func (c *Client) ensureDiskFromSnapshot(ctx context.Context, config *provider.Sc
 
 	// create the disk if not exists
 	req := &computepb.InsertDiskRequest{
-		Project: c.gcpConfig.ProjectID,
-		Zone:    c.gcpConfig.ScannerZone,
+		Project: p.config.ProjectID,
+		Zone:    p.config.ScannerZone,
 		DiskResource: &computepb.Disk{
 			Name: &diskName,
 			// Use pd-balanced so that we have SSD not spinning HDD
-			Type:           utils.PointerTo(fmt.Sprintf("zones/%v/diskTypes/pd-balanced", c.gcpConfig.ScannerZone)),
+			Type:           utils.PointerTo(fmt.Sprintf("zones/%v/diskTypes/pd-balanced", p.config.ScannerZone)),
 			SourceSnapshot: utils.PointerTo(snapshot.GetSelfLink()),
 			SizeGb:         snapshot.DiskSizeGb, // specify the size of the source disk (target scan)
 		},
 	}
 
-	_, err = c.disksClient.Insert(ctx, req)
+	_, err = p.disksClient.Insert(ctx, req)
 	if err != nil {
 		_, err := handleGcpRequestError(err, "create disk")
 		return nil, err
@@ -79,24 +79,24 @@ func (c *Client) ensureDiskFromSnapshot(ctx context.Context, config *provider.Sc
 	return nil, provider.RetryableErrorf(DiskEstimateProvisionTime, "disk creating")
 }
 
-func (c *Client) ensureTargetDiskDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) ensureTargetDiskDeleted(ctx context.Context, config *provider.ScanJobConfig) error {
 	diskName := diskNameFromJobConfig(config)
 
 	return ensureDeleted(
 		"disk",
 		func() error {
-			_, err := c.disksClient.Get(ctx, &computepb.GetDiskRequest{
+			_, err := p.disksClient.Get(ctx, &computepb.GetDiskRequest{
 				Disk:    diskName,
-				Project: c.gcpConfig.ProjectID,
-				Zone:    c.gcpConfig.ScannerZone,
+				Project: p.config.ProjectID,
+				Zone:    p.config.ScannerZone,
 			})
 			return err // nolint: wrapcheck
 		},
 		func() error {
-			_, err := c.disksClient.Delete(ctx, &computepb.DeleteDiskRequest{
+			_, err := p.disksClient.Delete(ctx, &computepb.DeleteDiskRequest{
 				Disk:    diskName,
-				Project: c.gcpConfig.ProjectID,
-				Zone:    c.gcpConfig.ScannerZone,
+				Project: p.config.ProjectID,
+				Zone:    p.config.ScannerZone,
 			})
 			return err // nolint: wrapcheck
 		},

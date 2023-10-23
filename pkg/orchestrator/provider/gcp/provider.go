@@ -33,16 +33,16 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-type Client struct {
+type Provider struct {
 	snapshotsClient *compute.SnapshotsClient
 	disksClient     *compute.DisksClient
 	instancesClient *compute.InstancesClient
 	regionsClient   *compute.RegionsClient
 
-	gcpConfig *Config
+	config *Config
 }
 
-func New(ctx context.Context) (*Client, error) {
+func New(ctx context.Context) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
@@ -53,47 +53,45 @@ func New(ctx context.Context) (*Client, error) {
 		return nil, fmt.Errorf("failed to validate configuration: %w", err)
 	}
 
-	client := Client{
-		gcpConfig: config,
-	}
-
 	regionsClient, err := compute.NewRegionsRESTClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create regions client: %w", err)
 	}
-	client.regionsClient = regionsClient
 
 	instancesClient, err := compute.NewInstancesRESTClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create instance client: %w", err)
 	}
-	client.instancesClient = instancesClient
 
 	snapshotsClient, err := compute.NewSnapshotsRESTClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create snapshot client: %w", err)
 	}
-	client.snapshotsClient = snapshotsClient
 
 	disksClient, err := compute.NewDisksRESTClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create disks client: %w", err)
 	}
-	client.disksClient = disksClient
 
-	return &client, nil
+	return &Provider{
+		snapshotsClient: snapshotsClient,
+		disksClient:     disksClient,
+		instancesClient: instancesClient,
+		regionsClient:   regionsClient,
+		config:          config,
+	}, nil
 }
 
-func (c Client) Kind() models.CloudProvider {
+func (p *Provider) Kind() models.CloudProvider {
 	return models.GCP
 }
 
-func (c *Client) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
 	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 // nolint:cyclop
-func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	// convert AssetInfo to vmInfo
 	vminfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
@@ -104,8 +102,8 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 		"AssetScanID":   config.AssetScanID,
 		"AssetLocation": vminfo.Location,
 		"InstanceID":    vminfo.InstanceID,
-		"ScannerZone":   c.gcpConfig.ScannerZone,
-		"Provider":      string(c.Kind()),
+		"ScannerZone":   p.config.ScannerZone,
+		"Provider":      string(p.Kind()),
 	})
 	logger.Debugf("Running asset scan")
 
@@ -113,9 +111,9 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	targetZone := vminfo.Location
 
 	// get the target instance to scan from gcp.
-	targetVM, err := c.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
+	targetVM, err := p.instancesClient.Get(ctx, &computepb.GetInstanceRequest{
 		Instance: targetName,
-		Project:  c.gcpConfig.ProjectID,
+		Project:  p.config.ProjectID,
 		Zone:     targetZone,
 	})
 	if err != nil {
@@ -132,7 +130,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	logger.Debugf("Got target boot disk: %v", bootDisk.GetSource())
 
 	// ensure that a snapshot was created from the target instance root disk. (create if not)
-	snapshot, err := c.ensureSnapshotFromAttachedDisk(ctx, config, bootDisk)
+	snapshot, err := p.ensureSnapshotFromAttachedDisk(ctx, config, bootDisk)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot for vm root volume: %w", err)
 	}
@@ -141,21 +139,21 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	// create a disk from the snapshot.
 	// Snapshots are global resources, so any snapshot is accessible by any resource within the same project.
 	var diskFromSnapshot *computepb.Disk
-	diskFromSnapshot, err = c.ensureDiskFromSnapshot(ctx, config, snapshot)
+	diskFromSnapshot, err = p.ensureDiskFromSnapshot(ctx, config, snapshot)
 	if err != nil {
 		return fmt.Errorf("failed to ensure disk created from snapshot: %w", err)
 	}
 	logger.Debugf("Created disk from snapshot: %v", diskFromSnapshot.Name)
 
 	// create the scanner instance
-	scannerVM, err := c.ensureScannerVirtualMachine(ctx, config)
+	scannerVM, err := p.ensureScannerVirtualMachine(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner virtual machine: %w", err)
 	}
 	logger.Debugf("Created scanner virtual machine: %v", scannerVM.Name)
 
 	// attach the disk from snapshot to the scanner instance
-	err = c.ensureDiskAttachedToScannerVM(ctx, scannerVM, diskFromSnapshot)
+	err = p.ensureDiskAttachedToScannerVM(ctx, scannerVM, diskFromSnapshot)
 	if err != nil {
 		return fmt.Errorf("failed to ensure target disk is attached to virtual machine: %w", err)
 	}
@@ -164,26 +162,26 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	return nil
 }
 
-func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
 		"AssetScanID": config.AssetScanID,
-		"ScannerZone": c.gcpConfig.ScannerZone,
-		"Provider":    string(c.Kind()),
+		"ScannerZone": p.config.ScannerZone,
+		"Provider":    string(p.Kind()),
 	})
 
-	err := c.ensureScannerVirtualMachineDeleted(ctx, config)
+	err := p.ensureScannerVirtualMachineDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure scanner virtual machine deleted: %w", err)
 	}
 	logger.Debugf("Deleted scanner virtual machine")
 
-	err = c.ensureTargetDiskDeleted(ctx, config)
+	err = p.ensureTargetDiskDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure target disk deleted: %w", err)
 	}
 	logger.Debugf("Deleted disk")
 
-	err = c.ensureSnapshotDeleted(ctx, config)
+	err = p.ensureSnapshotDeleted(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to ensure snapshot deleted: %w", err)
 	}
@@ -193,13 +191,13 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 }
 
 // nolint: cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
 	go func() {
 		defer close(assetDiscoverer.OutputChan)
 
-		regions, err := c.listAllRegions(ctx)
+		regions, err := p.listAllRegions(ctx)
 		if err != nil {
 			assetDiscoverer.Error = fmt.Errorf("failed to list all regions: %w", err)
 			return
@@ -211,7 +209,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 		}
 
 		for _, zone := range zones {
-			assets, err := c.listInstances(ctx, nil, zone)
+			assets, err := p.listInstances(ctx, nil, zone)
 			if err != nil {
 				assetDiscoverer.Error = fmt.Errorf("failed to list instances: %w", err)
 				return
@@ -260,13 +258,13 @@ func getInstanceBootDisk(vm *computepb.Instance) (*computepb.AttachedDisk, error
 	return nil, fmt.Errorf("failed to find instance boot disk")
 }
 
-func (c *Client) listInstances(ctx context.Context, filter *string, zone string) ([]models.AssetType, error) {
+func (p *Provider) listInstances(ctx context.Context, filter *string, zone string) ([]models.AssetType, error) {
 	var ret []models.AssetType
 
-	it := c.instancesClient.List(ctx, &computepb.ListInstancesRequest{
+	it := p.instancesClient.List(ctx, &computepb.ListInstancesRequest{
 		Filter:     filter,
 		MaxResults: utils.PointerTo[uint32](maxResults),
-		Project:    c.gcpConfig.ProjectID,
+		Project:    p.config.ProjectID,
 		Zone:       zone,
 	})
 	for {
@@ -275,11 +273,11 @@ func (c *Client) listInstances(ctx context.Context, filter *string, zone string)
 			break
 		}
 		if err != nil {
-			_, err = handleGcpRequestError(err, "listing instances for project %s zone %s", c.gcpConfig.ProjectID, zone)
+			_, err = handleGcpRequestError(err, "listing instances for project %s zone %s", p.config.ProjectID, zone)
 			return nil, err
 		}
 
-		info, err := c.getVMInfoFromVirtualMachine(ctx, resp)
+		info, err := p.getVMInfoFromVirtualMachine(ctx, resp)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get vminfo from virtual machine: %w", err)
 		}
@@ -289,12 +287,12 @@ func (c *Client) listInstances(ctx context.Context, filter *string, zone string)
 	return ret, nil
 }
 
-func (c *Client) listAllRegions(ctx context.Context) ([]*computepb.Region, error) {
+func (p *Provider) listAllRegions(ctx context.Context) ([]*computepb.Region, error) {
 	var ret []*computepb.Region
 
-	it := c.regionsClient.List(ctx, &computepb.ListRegionsRequest{
+	it := p.regionsClient.List(ctx, &computepb.ListRegionsRequest{
 		MaxResults: utils.PointerTo[uint32](maxResults),
-		Project:    c.gcpConfig.ProjectID,
+		Project:    p.config.ProjectID,
 	})
 	for {
 		resp, err := it.Next()
@@ -311,7 +309,7 @@ func (c *Client) listAllRegions(ctx context.Context) ([]*computepb.Region, error
 	return ret, nil
 }
 
-func (c *Client) getVMInfoFromVirtualMachine(ctx context.Context, vm *computepb.Instance) (models.AssetType, error) {
+func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computepb.Instance) (models.AssetType, error) {
 	assetType := models.AssetType{}
 	launchTime, err := time.Parse(time.RFC3339, *vm.CreationTimestamp)
 	if err != nil {
@@ -324,9 +322,9 @@ func (c *Client) getVMInfoFromVirtualMachine(ctx context.Context, vm *computepb.
 	var image string
 
 	// get disk from gcp
-	disk, err := c.disksClient.Get(ctx, &computepb.GetDiskRequest{
+	disk, err := p.disksClient.Get(ctx, &computepb.GetDiskRequest{
 		Disk:    diskName,
-		Project: c.gcpConfig.ProjectID,
+		Project: p.config.ProjectID,
 		Zone:    getLastURLPart(vm.Zone),
 	})
 	if err != nil {

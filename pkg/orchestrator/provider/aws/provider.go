@@ -37,13 +37,13 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-type Client struct {
+type Provider struct {
 	ec2Client     *ec2.Client
 	scanEstimator *scanestimation.ScanEstimator
 	config        *Config
 }
 
-func New(ctx context.Context) (*Client, error) {
+func New(ctx context.Context) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
 		return nil, fmt.Errorf("invalid configuration. Provider=AWS: %w", err)
@@ -53,27 +53,25 @@ func New(ctx context.Context) (*Client, error) {
 		return nil, fmt.Errorf("failed to validate provider configuration. Provider=AWS: %w", err)
 	}
 
-	awsClient := Client{
-		config: config,
-	}
-
 	cfg, err := awsconfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load aws config: %w", err)
 	}
 
-	// nolint:contextcheck
-	awsClient.ec2Client = ec2.NewFromConfig(cfg)
-	awsClient.scanEstimator = scanestimation.New(pricing.NewFromConfig(cfg), awsClient.ec2Client)
+	ec2Client := ec2.NewFromConfig(cfg)
 
-	return &awsClient, nil
+	return &Provider{
+		ec2Client:     ec2Client,
+		scanEstimator: scanestimation.New(pricing.NewFromConfig(cfg), ec2Client),
+		config:        config,
+	}, nil
 }
 
-func (c Client) Kind() models.CloudProvider {
+func (p *Provider) Kind() models.CloudProvider {
 	return models.AWS
 }
 
-func (c *Client) Estimate(ctx context.Context, assetScanStats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+func (p *Provider) Estimate(ctx context.Context, assetScanStats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
 	var err error
 	const jobCreationTimeConst = 2
 
@@ -88,8 +86,8 @@ func (c *Client) Estimate(ctx context.Context, assetScanStats models.AssetScanSt
 	}
 
 	sourceRegion := location.Region
-	destRegion := c.config.ScannerRegion
-	scannerInstanceType := c.config.ScannerInstanceType
+	destRegion := p.config.ScannerRegion
+	scannerInstanceType := p.config.ScannerInstanceType
 
 	scannerRootVolumeSizeGB := vminfo.RootVolume.SizeGB
 	scannerVolumeType := ec2types.VolumeTypeGp2                          // TODO this should come from configuration once we support more than one volume type.
@@ -108,7 +106,7 @@ func (c *Client) Estimate(ctx context.Context, assetScanStats models.AssetScanSt
 		Asset:                   asset,
 		AssetScanTemplate:       assetScanTemplate,
 	}
-	ret, err := c.scanEstimator.EstimateAssetScan(ctx, params)
+	ret, err := p.scanEstimator.EstimateAssetScan(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to estimate asset scan: %w", err)
 	}
@@ -117,13 +115,13 @@ func (c *Client) Estimate(ctx context.Context, assetScanStats models.AssetScanSt
 }
 
 // nolint:cyclop
-func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
+func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
 
 	go func() {
 		defer close(assetDiscoverer.OutputChan)
 
-		regions, err := c.ListAllRegions(ctx)
+		regions, err := p.ListAllRegions(ctx)
 		if err != nil {
 			assetDiscoverer.Error = fmt.Errorf("failed to get regions: %w", err)
 			return
@@ -132,7 +130,7 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 		logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 		for _, region := range regions {
-			instances, err := c.GetInstances(ctx, []ec2types.Filter{}, region.Name)
+			instances, err := p.GetInstances(ctx, []ec2types.Filter{}, region.Name)
 			if err != nil {
 				logger.Warnf("Failed to get instances. region=%v: %v", region, err)
 				continue
@@ -160,8 +158,8 @@ func (c *Client) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
 }
 
 // nolint:nilnil
-func (c *Client) getInstanceWithID(ctx context.Context, id string, region string) (*ec2types.Instance, error) {
-	out, err := c.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
+func (p *Provider) getInstanceWithID(ctx context.Context, id string, region string) (*ec2types.Instance, error) {
+	out, err := p.ec2Client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
 		InstanceIds: []string{id},
 	}, func(options *ec2.Options) {
 		options.Region = region
@@ -186,7 +184,7 @@ func (c *Client) getInstanceWithID(ctx context.Context, id string, region string
 }
 
 // nolint:cyclop
-func (c *Client) createInstance(ctx context.Context, region string, config *provider.ScanJobConfig) (*Instance, error) {
+func (p *Provider) createInstance(ctx context.Context, region string, config *provider.ScanJobConfig) (*Instance, error) {
 	options := func(options *ec2.Options) {
 		options.Region = region
 	}
@@ -197,7 +195,7 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 	describeParams := &ec2.DescribeInstancesInput{
 		Filters: ec2Filters,
 	}
-	describeOut, err := c.ec2Client.DescribeInstances(ctx, describeParams, options)
+	describeOut, err := p.ec2Client.DescribeInstances(ctx, describeParams, options)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch scanner VM instances: %w", err)
 	}
@@ -212,7 +210,7 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 
 			ec2State := ec2Instance.State.Name
 			if ec2State == ec2types.InstanceStateNameRunning || ec2State == ec2types.InstanceStateNamePending {
-				return instanceFromEC2Instance(&ec2Instance, c.ec2Client, region, config), nil
+				return instanceFromEC2Instance(&ec2Instance, p.ec2Client, region, config), nil
 			}
 		}
 	}
@@ -228,8 +226,8 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 	runParams := &ec2.RunInstancesInput{
 		MaxCount:     utils.PointerTo[int32](1),
 		MinCount:     utils.PointerTo[int32](1),
-		ImageId:      utils.PointerTo(c.config.ScannerImage),
-		InstanceType: ec2types.InstanceType(c.config.ScannerInstanceType),
+		ImageId:      utils.PointerTo(p.config.ScannerImage),
+		InstanceType: ec2types.InstanceType(p.config.ScannerInstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
@@ -253,8 +251,8 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 			AssociatePublicIpAddress: utils.PointerTo(false),
 			DeleteOnTermination:      utils.PointerTo(true),
 			DeviceIndex:              utils.PointerTo[int32](0),
-			Groups:                   []string{c.config.SecurityGroupID},
-			SubnetId:                 &c.config.SubnetID,
+			Groups:                   []string{p.config.SecurityGroupID},
+			SubnetId:                 &p.config.SubnetID,
 		},
 	}
 
@@ -276,13 +274,13 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 		retryMaxAttempts = *config.ScannerInstanceCreationConfig.RetryMaxAttempts
 	}
 
-	if c.config.KeyPairName != "" {
+	if p.config.KeyPairName != "" {
 		// Set a key-pair to the instance.
-		runParams.KeyName = &c.config.KeyPairName
+		runParams.KeyName = &p.config.KeyPairName
 	}
 
 	// if retryMaxAttempts value is 0 it will be ignored
-	out, err := c.ec2Client.RunInstances(ctx, runParams, options, func(options *ec2.Options) {
+	out, err := p.ec2Client.RunInstances(ctx, runParams, options, func(options *ec2.Options) {
 		options.RetryMaxAttempts = retryMaxAttempts
 		options.RetryMode = awstype.RetryModeStandard
 	})
@@ -293,11 +291,11 @@ func (c *Client) createInstance(ctx context.Context, region string, config *prov
 		return nil, errors.New("failed to create instance: 0 instance in response")
 	}
 
-	return instanceFromEC2Instance(&out.Instances[0], c.ec2Client, region, config), nil
+	return instanceFromEC2Instance(&out.Instances[0], p.ec2Client, region, config), nil
 }
 
 // nolint:cyclop,gocognit,maintidx
-func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
 		return FatalError{Err: err}
@@ -306,8 +304,8 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
 		"AssetInstanceID": vmInfo.InstanceID,
 		"AssetLocation":   vmInfo.Location,
-		"ScannerLocation": c.config.ScannerRegion,
-		"Provider":        string(c.Kind()),
+		"ScannerLocation": p.config.ScannerRegion,
+		"Provider":        string(p.Kind()),
 	})
 
 	// Note(chrisgacsal): In order to speed up the initialization process the scanner instance and the volume are created
@@ -325,7 +323,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 		logger.Trace("Creating scanner VM instance")
 
 		var err error
-		scannnerInstance, err = c.createInstance(ctx, c.config.ScannerRegion, config)
+		scannnerInstance, err = p.createInstance(ctx, p.config.ScannerRegion, config)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to create scanner VM instance: %w", err))
 			return
@@ -367,7 +365,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 		}
 
 		var SrcEC2Instance *ec2types.Instance
-		SrcEC2Instance, err = c.getInstanceWithID(ctx, vmInfo.InstanceID, assetVMLocation.Region)
+		SrcEC2Instance, err = p.getInstanceWithID(ctx, vmInfo.InstanceID, assetVMLocation.Region)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to fetch asset VM instance: %w", err))
 			return
@@ -379,7 +377,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 			return
 		}
 
-		srcInstance := instanceFromEC2Instance(SrcEC2Instance, c.ec2Client, assetVMLocation.Region, config)
+		srcInstance := instanceFromEC2Instance(SrcEC2Instance, p.ec2Client, assetVMLocation.Region, config)
 
 		logger.WithField("AssetInstanceID", srcInstance.ID).Trace("Found asset VM instance")
 
@@ -423,10 +421,10 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 			"AssetVolumeID":         srcVol.ID,
 			"AssetVolumeSnapshotID": srcVolSnapshot.ID,
 		}).Debug("Copying asset volume snapshot to scanner location")
-		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, c.config.ScannerRegion)
+		destVolSnapshot, err = srcVolSnapshot.Copy(ctx, p.config.ScannerRegion)
 		if err != nil {
 			err = fmt.Errorf("failed to copy asset volume snapshot to location. AssetVolumeSnapshotID=%s Location=%s: %w",
-				srcVolSnapshot.ID, c.config.ScannerRegion, err)
+				srcVolSnapshot.ID, p.config.ScannerRegion, err)
 			errs <- WrapError(err)
 			return
 		}
@@ -504,7 +502,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 		"ScannerVolumeID":         scannerVol.ID,
 		"ScannerIntanceID":        scannnerInstance.ID,
 	}).Debug("Attaching scanner volume to scanner VM instance")
-	err = scannnerInstance.AttachVolume(ctx, scannerVol, c.config.BlockDeviceName)
+	err = scannnerInstance.AttachVolume(ctx, scannerVol, p.config.BlockDeviceName)
 	if err != nil {
 		err = fmt.Errorf("failed to attach volume to scanner instance. ScannerVolumeID=%s ScannerInstanceID=%s: %w",
 			scannerVol.ID, scannnerInstance.ID, err)
@@ -539,7 +537,7 @@ func (c *Client) RunAssetScan(ctx context.Context, config *provider.ScanJobConfi
 //   - nil, error: if error happened during the operation
 //   - false, nil: if operation is in-progress
 //   - true, nil:  if the operation is done and safe to assume that related resources are released (netif, vol, etc)
-func (c *Client) deleteInstances(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
+func (p *Provider) deleteInstances(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
 	options := func(options *ec2.Options) {
 		options.Region = region
 	}
@@ -547,7 +545,7 @@ func (c *Client) deleteInstances(ctx context.Context, filters []ec2types.Filter,
 	describeParams := &ec2.DescribeInstancesInput{
 		Filters: filters,
 	}
-	describeOut, err := c.ec2Client.DescribeInstances(ctx, describeParams, options)
+	describeOut, err := p.ec2Client.DescribeInstances(ctx, describeParams, options)
 	if err != nil {
 		return false, fmt.Errorf("failed to fetch instances: %w", err)
 	}
@@ -568,7 +566,7 @@ func (c *Client) deleteInstances(ctx context.Context, filters []ec2types.Filter,
 		terminateParams := &ec2.TerminateInstancesInput{
 			InstanceIds: instances,
 		}
-		_, err = c.ec2Client.TerminateInstances(ctx, terminateParams, options)
+		_, err = p.ec2Client.TerminateInstances(ctx, terminateParams, options)
 		if err != nil {
 			return false, fmt.Errorf("failed to terminate instances %v: %w", instances, err)
 		}
@@ -583,7 +581,7 @@ func (c *Client) deleteInstances(ctx context.Context, filters []ec2types.Filter,
 //   - nil, error: if error happened during the operation
 //   - false, nil: if operation is in-progress
 //   - true, nil:  if the operation is done
-func (c *Client) deleteVolumes(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
+func (p *Provider) deleteVolumes(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
 	options := func(options *ec2.Options) {
 		options.Region = region
 	}
@@ -591,7 +589,7 @@ func (c *Client) deleteVolumes(ctx context.Context, filters []ec2types.Filter, r
 	describeParams := &ec2.DescribeVolumesInput{
 		Filters: filters,
 	}
-	describeOut, err := c.ec2Client.DescribeVolumes(ctx, describeParams, options)
+	describeOut, err := p.ec2Client.DescribeVolumes(ctx, describeParams, options)
 	if err != nil {
 		return false, fmt.Errorf("failed to fetch volumes: %w", err)
 	}
@@ -609,7 +607,7 @@ func (c *Client) deleteVolumes(ctx context.Context, filters []ec2types.Filter, r
 			terminateParams := &ec2.DeleteVolumeInput{
 				VolumeId: utils.PointerTo(vol),
 			}
-			_, err = c.ec2Client.DeleteVolume(ctx, terminateParams, options)
+			_, err = p.ec2Client.DeleteVolume(ctx, terminateParams, options)
 			if err != nil {
 				return false, fmt.Errorf("failed to delete volume with %s id: %w", vol, err)
 			}
@@ -625,7 +623,7 @@ func (c *Client) deleteVolumes(ctx context.Context, filters []ec2types.Filter, r
 //   - nil, error: if error happened during the operation
 //   - false, nil: if operation is in-progress
 //   - true, nil:  if the operation is done
-func (c *Client) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
+func (p *Provider) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.Filter, region string) (bool, error) {
 	options := func(options *ec2.Options) {
 		options.Region = region
 	}
@@ -633,7 +631,7 @@ func (c *Client) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.F
 	describeParams := &ec2.DescribeSnapshotsInput{
 		Filters: filters,
 	}
-	describeOut, err := c.ec2Client.DescribeSnapshots(ctx, describeParams, options)
+	describeOut, err := p.ec2Client.DescribeSnapshots(ctx, describeParams, options)
 	if err != nil {
 		return false, fmt.Errorf("failed to fetch volume snapshots: %w", err)
 	}
@@ -647,7 +645,7 @@ func (c *Client) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.F
 		deleteParams := &ec2.DeleteSnapshotInput{
 			SnapshotId: utils.PointerTo(snap),
 		}
-		_, err = c.ec2Client.DeleteSnapshot(ctx, deleteParams, options)
+		_, err = p.ec2Client.DeleteSnapshot(ctx, deleteParams, options)
 		if err != nil {
 			return false, fmt.Errorf("failed to delete volume snapshot with %s id: %w", snap, err)
 		}
@@ -659,15 +657,15 @@ func (c *Client) deleteVolumeSnapshots(ctx context.Context, filters []ec2types.F
 // RemoveAssetScan removes all the cloud resources associated with a Scan defined by config parameter.
 // The operation is idempotent, therefore it is safe to call it multiple times.
 // nolint:cyclop,gocognit
-func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
+func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	vmInfo, err := config.AssetInfo.AsVMInfo()
 	if err != nil {
 		return FatalError{Err: err}
 	}
 
 	logger := log.GetLoggerFromContextOrDefault(ctx).WithFields(logrus.Fields{
-		"ScannerLocation": c.config.ScannerRegion,
-		"Provider":        string(c.Kind()),
+		"ScannerLocation": p.config.ScannerRegion,
+		"Provider":        string(p.Kind()),
 	})
 
 	ec2Tags := EC2TagsFromScanMetadata(config.ScanMetadata)
@@ -683,7 +681,7 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 
 		// Delete scanner instance
 		logger.Debug("Deleting scanner VM Instance.")
-		done, err := c.deleteInstances(ctx, ec2Filters, c.config.ScannerRegion)
+		done, err := p.deleteInstances(ctx, ec2Filters, p.config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner VM instance: %w", err))
 			return
@@ -699,7 +697,7 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 
 		// Delete scanner volume
 		logger.Debug("Deleting scanner volume.")
-		done, err = c.deleteVolumes(ctx, ec2Filters, c.config.ScannerRegion)
+		done, err = p.deleteVolumes(ctx, ec2Filters, p.config.ScannerRegion)
 
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume: %w", err))
@@ -721,7 +719,7 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 		defer wg.Done()
 
 		logger.Debug("Deleting scanner volume snapshot.")
-		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, c.config.ScannerRegion)
+		done, err := p.deleteVolumeSnapshots(ctx, ec2Filters, p.config.ScannerRegion)
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume snapshot: %w", err))
 			return
@@ -748,12 +746,12 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 			return
 		}
 
-		if location.Region == c.config.ScannerRegion {
+		if location.Region == p.config.ScannerRegion {
 			return
 		}
 
 		logger.WithField("AssetLocation", vmInfo.Location).Debug("Deleting asset volume snapshot.")
-		done, err := c.deleteVolumeSnapshots(ctx, ec2Filters, location.Region)
+		done, err := p.deleteVolumeSnapshots(ctx, ec2Filters, location.Region)
 		if err != nil {
 			errs <- fmt.Errorf("failed to delete asset volume snapshot: %w", err)
 			return
@@ -781,7 +779,7 @@ func (c *Client) RemoveAssetScan(ctx context.Context, config *provider.ScanJobCo
 	return err
 }
 
-func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, regionID string) ([]Instance, error) {
+func (p *Provider) GetInstances(ctx context.Context, filters []ec2types.Filter, regionID string) ([]Instance, error) {
 	ret := make([]Instance, 0)
 
 	input := &ec2.DescribeInstancesInput{
@@ -791,13 +789,13 @@ func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, re
 		input.Filters = filters
 	}
 
-	out, err := c.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
+	out, err := p.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
 		options.Region = regionID
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to describe instances: %w", err)
 	}
-	ret = append(ret, c.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
+	ret = append(ret, p.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
 
 	// use pagination
 	// TODO we can make it better by not saving all results in memory. See https://github.com/openclarity/vmclarity/pull/3#discussion_r1021656861
@@ -810,19 +808,19 @@ func (c *Client) GetInstances(ctx context.Context, filters []ec2types.Filter, re
 			input.Filters = filters
 		}
 
-		out, err = c.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
+		out, err = p.ec2Client.DescribeInstances(ctx, input, func(options *ec2.Options) {
 			options.Region = regionID
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to describe instances: %w", err)
 		}
-		ret = append(ret, c.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
+		ret = append(ret, p.getInstancesFromDescribeInstancesOutput(ctx, out, regionID)...)
 	}
 
 	return ret, nil
 }
 
-func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, result *ec2.DescribeInstancesOutput, regionID string) []Instance {
+func (p *Provider) getInstancesFromDescribeInstancesOutput(ctx context.Context, result *ec2.DescribeInstancesOutput, regionID string) []Instance {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	var ret []Instance
@@ -838,7 +836,7 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 				logger.Errorf("Instance validation failed. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
 				continue
 			}
-			rootVol, err := getRootVolumeInfo(ctx, c.ec2Client, instance, regionID)
+			rootVol, err := getRootVolumeInfo(ctx, p.ec2Client, instance, regionID)
 			if err != nil {
 				logger.Warnf("Couldn't get root volume info. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
 				rootVol = &models.RootVolume{
@@ -862,7 +860,7 @@ func (c *Client) getInstancesFromDescribeInstancesOutput(ctx context.Context, re
 				RootVolumeSizeGB:    int32(rootVol.SizeGB),
 				RootVolumeEncrypted: rootVol.Encrypted,
 
-				ec2Client: c.ec2Client,
+				ec2Client: p.ec2Client,
 			})
 		}
 	}
@@ -923,9 +921,9 @@ func encryptedToAPI(encrypted *bool) models.RootVolumeEncrypted {
 	return models.RootVolumeEncryptedNo
 }
 
-func (c *Client) ListAllRegions(ctx context.Context) ([]Region, error) {
+func (p *Provider) ListAllRegions(ctx context.Context) ([]Region, error) {
 	ret := make([]Region, 0)
-	out, err := c.ec2Client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{
+	out, err := p.ec2Client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{
 		AllRegions: nil, // display also disabled regions?
 	})
 	if err != nil {

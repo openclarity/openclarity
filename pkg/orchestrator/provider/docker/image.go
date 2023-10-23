@@ -28,11 +28,11 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-func (c *Client) getImageAssets(ctx context.Context) ([]models.AssetType, error) {
+func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// List all docker images
-	images, err := c.dockerClient.ImageList(ctx, types.ImageListOptions{})
+	images, err := p.dockerClient.ImageList(ctx, types.ImageListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list images: %w", err)
 	}
@@ -54,7 +54,7 @@ func (c *Client) getImageAssets(ctx context.Context) ([]models.AssetType, error)
 			func(image types.ImageSummary) func() error {
 				return func() error {
 					// Get container image info
-					info, err := c.getContainerImageInfo(processCtx, image.ID)
+					info, err := p.getContainerImageInfo(processCtx, image.ID)
 					if err != nil {
 						logger.Warnf("Failed to get image. id=%v: %v", image.ID, err)
 						return nil // skip fail
@@ -89,8 +89,8 @@ func (c *Client) getImageAssets(ctx context.Context) ([]models.AssetType, error)
 	return assets, nil
 }
 
-func (c *Client) getContainerImageInfo(ctx context.Context, imageID string) (models.ContainerImageInfo, error) {
-	image, _, err := c.dockerClient.ImageInspectWithRaw(ctx, imageID)
+func (p *Provider) getContainerImageInfo(ctx context.Context, imageID string) (models.ContainerImageInfo, error) {
+	image, _, err := p.dockerClient.ImageInspectWithRaw(ctx, imageID)
 	if err != nil {
 		return models.ContainerImageInfo{}, fmt.Errorf("failed to inspect image: %w", err)
 	}
