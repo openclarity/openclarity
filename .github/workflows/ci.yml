@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate Helm Docs
-        run: make helm-docs
+        run: make gen-helm-docs
 
       # This step will evaluate the repo status and exit if found changes
       # This should detect if the most up-to-date generated helm docs were pushed
