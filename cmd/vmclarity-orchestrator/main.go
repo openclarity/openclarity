@@ -86,7 +86,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	config, err := orchestrator.LoadConfig()
+	config, err := orchestrator.NewConfig()
 	if err != nil {
 		logger.Fatalf("failed to load Orchestrator config: %v", err)
 	}

@@ -26,6 +26,8 @@ linters-settings:
       - go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
       - go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
       - github.com/cucumber/godog
+      # Viper
+      - github.com/mitchellh/mapstructure
 
   gosec:
     # To specify a set of rules to explicitly exclude.
