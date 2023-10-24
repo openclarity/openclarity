@@ -23,7 +23,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.21.9
 	github.com/aws/smithy-go v1.15.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/deepmap/oapi-codegen v1.15.0
+	github.com/deepmap/oapi-codegen v1.16.1
 	github.com/docker/docker v24.0.6+incompatible
 	github.com/evanphx/json-patch v5.7.0+incompatible
 	github.com/getkin/kin-openapi v0.120.0
@@ -33,6 +33,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/sys/mountinfo v0.6.2
+	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.0.0
 	github.com/onsi/gomega v1.28.1
 	github.com/openclarity/kubeclarity/cli v0.0.0-00010101000000-000000000000
