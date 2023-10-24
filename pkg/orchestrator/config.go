@@ -128,8 +128,8 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("assetscan_watcher.scanner.trivy_server_address")
 
-	_ = v.BindEnv("assetscan_watcher.scanner.trivy_server_timeout")
-	v.SetDefault("assetscan_watcher.scanner.trivy_server_timeout", assetscanwatcher.DefaultTrivyServerTimeout)
+	_ = v.BindEnv("assetscan_watcher.scanner.trivy_scan_timeout")
+	v.SetDefault("assetscan_watcher.scanner.trivy_scan_timeout", assetscanwatcher.DefaultTrivyScanTimeout)
 
 	_ = v.BindEnv("assetscan_watcher.scanner.grype_server_address")
 
