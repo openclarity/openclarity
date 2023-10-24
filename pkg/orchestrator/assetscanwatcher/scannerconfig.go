@@ -18,7 +18,7 @@ package assetscanwatcher
 import "time"
 
 const (
-	DefaultTrivyServerTimeout   = 5 * time.Minute
+	DefaultTrivyScanTimeout     = 5 * time.Minute
 	DefaultGrypeServerTimeout   = 2 * time.Minute
 	DefaultGitleaksBinaryPath   = "gitleaks"
 	DefaultClamBinaryPath       = "clamscan"
@@ -39,7 +39,7 @@ type ScannerConfig struct {
 	ExploitsDBAddress string `mapstructure:"exploitsdb_address"`
 
 	TrivyServerAddress string        `mapstructure:"trivy_server_address"`
-	TrivyServerTimeout time.Duration `mapstructure:"trivy_server_timeout"`
+	TrivyScanTimeout   time.Duration `mapstructure:"trivy_scan_timeout"`
 
 	GrypeServerAddress string        `mapstructure:"grype_server_address"`
 	GrypeServerTimeout time.Duration `mapstructure:"grype_server_timeout"`
