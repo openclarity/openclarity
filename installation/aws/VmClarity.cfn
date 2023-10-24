@@ -477,28 +477,26 @@ Resources:
                     ##
                     ## Orchestrator configuration
                     ##
-                    # Host for the VMClarity backend server
-                    APISERVER_HOST=apiserver
-                    # Port number for the VMClarity backend server
-                    APISERVER_PORT=8888
+                    # VMClarity API server address
+                    VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
                     # Container image for Scanner instance
-                    SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                     # API Server Address for the Scanner to connect to
-                    SCANNER_VMCLARITY_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
                     # Exploits DB server address
-                    EXPLOIT_DB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
                     # Trivy server address
-                    TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
                     # Grype server address
-                    GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
                     # FreshClam mirror URL
-                    ALTERNATIVE_FRESHCLAM_MIRROR_URL=http://__CONTROLPLANE_HOST__:1000/clamav
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
                     # Yara rule server address
-                    YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
                     # Resource cleanup policy
-                    DELETE_JOB_POLICY=${AssetScanDeletePolicy}
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY=${AssetScanDeletePolicy}
                     # Provider to use
-                    PROVIDER=aws
+                    VMCLARITY_ORCHESTRATOR_PROVIDER=aws
 
                     ##
                     ## Provider configuration

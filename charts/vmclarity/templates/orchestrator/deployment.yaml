@@ -59,30 +59,26 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           env:
-            # Host for the VMClarity backend server
-            - name: APISERVER_HOST
-              value: {{ include "vmclarity.apiserver.name" . }}
-            # Port number for the VMClarity backend server
-            - name: APISERVER_PORT
-              value: "8888"
-            - name: DELETE_JOB_POLICY
+            - name: VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS
+              value: 'http://{{ include "vmclarity.apiserver.name" . }}:8888'
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY
               value: {{ .Values.orchestrator.deleteJobPolicy }}
-            - name: SCANNER_CONTAINER_IMAGE
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE
               value: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
-            - name: SCANNER_VMCLARITY_APISERVER_ADDRESS
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS
               value: {{ .Values.orchestrator.scannerApiServerAddress }}
-            - name: EXPLOIT_DB_ADDRESS
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS
               value: {{ .Values.orchestrator.exploitsDBAddress }}
-            - name: TRIVY_SERVER_ADDRESS
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS
               value: {{ .Values.orchestrator.trivyServerAddress }}
-            - name: GRYPE_SERVER_ADDRESS
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS
               value: {{ .Values.orchestrator.grypeServerAddress }}
-            - name: ALTERNATIVE_FRESHCLAM_MIRROR_URL
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
               value: {{ .Values.orchestrator.freshclamMirrorAddress }}
 
             {{- if eq .Values.orchestrator.provider "aws" -}}
             {{- with .Values.orchestrator.aws }}
-            - name: PROVIDER
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
               value: "aws"
             - name: AWS_REGION
               value: {{ .region }}
@@ -103,7 +99,7 @@ spec:
 
             {{- if eq .Values.orchestrator.provider "gcp" -}}
             {{- with .Values.orchestrator.gcp }}
-            - name: PROVIDER
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
               value: "gcp"
             - name: VMCLARITY_GCP_PROJECT_ID
               value: {{ .projectId }}
@@ -120,7 +116,7 @@ spec:
 
             {{- if eq .Values.orchestrator.provider "azure" -}}
             {{- with .Values.orchestrator.azure }}
-            - name: PROVIDER
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
               value: "azure"
             - name: VMCLARITY_AZURE_SUBSCRIPTION_ID
               value: .subscriptionId
@@ -152,7 +148,7 @@ spec:
             {{- end }}
 
             {{- if eq .Values.orchestrator.provider "kubernetes" }}
-            - name: PROVIDER
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
               value: "kubernetes"
             {{- with .Values.orchestrator.kubernetes }}
             {{- end -}}

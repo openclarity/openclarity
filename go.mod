@@ -470,3 +470,7 @@ replace (
 replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d38af
 
 replace github.com/openclarity/vmclarity/api => ./api
+
+// NOTE(chrisgacsal): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327
+// Remove replace if the bugfix is released.
+replace github.com/mitchellh/mapstructure => github.com/prochac/mapstructure v0.0.0-20230418172516-63cde0dfe248

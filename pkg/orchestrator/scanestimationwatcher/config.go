@@ -32,9 +32,9 @@ const (
 type Config struct {
 	Backend               *backendclient.BackendClient
 	Provider              provider.Provider
-	PollPeriod            time.Duration
-	ReconcileTimeout      time.Duration
-	ScanEstimationTimeout time.Duration
+	PollPeriod            time.Duration `mapstructure:"poll_period"`
+	ReconcileTimeout      time.Duration `mapstructure:"reconcile_timeout"`
+	ScanEstimationTimeout time.Duration `mapstructure:"estimation_timeout"`
 }
 
 func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
