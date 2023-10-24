@@ -42,6 +42,7 @@ func New(c Config) *Watcher {
 		scannerConfig:    c.ScannerConfig,
 		pollPeriod:       c.PollPeriod,
 		reconcileTimeout: c.ReconcileTimeout,
+		deleteJobPolicy:  c.DeleteJobPolicy,
 		abortTimeout:     c.AbortTimeout,
 		queue:            common.NewQueue[AssetScanReconcileEvent](),
 	}
@@ -53,6 +54,7 @@ type Watcher struct {
 	scannerConfig    ScannerConfig
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
+	deleteJobPolicy  DeleteJobPolicyType
 	abortTimeout     time.Duration
 
 	queue *AssetScanQueue
@@ -328,7 +330,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 		return fmt.Errorf("invalid AssetScan: failed to determine General State. AssetScanID=%s", *assetScan.Id)
 	}
 
-	switch w.scannerConfig.DeleteJobPolicy {
+	switch w.deleteJobPolicy {
 	case DeleteJobPolicyNever:
 		assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
 			models.ResourceCleanupStatusStateSkipped,

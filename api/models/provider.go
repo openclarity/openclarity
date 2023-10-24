@@ -13,36 +13,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package assetscanwatcher
+package models
 
 import (
 	"fmt"
 	"strings"
 )
 
-type DeleteJobPolicyType string
-
-const (
-	DeleteJobPolicyAlways    DeleteJobPolicyType = "Always"
-	DeleteJobPolicyNever     DeleteJobPolicyType = "Never"
-	DeleteJobPolicyOnSuccess DeleteJobPolicyType = "OnSuccess"
-)
-
-func (p *DeleteJobPolicyType) UnmarshalText(text []byte) error {
-	var policy DeleteJobPolicyType
+func (p *CloudProvider) UnmarshalText(text []byte) error {
+	var provider CloudProvider
 
 	switch strings.ToLower(string(text)) {
-	case strings.ToLower(string(DeleteJobPolicyAlways)):
-		policy = DeleteJobPolicyAlways
-	case strings.ToLower(string(DeleteJobPolicyNever)):
-		policy = DeleteJobPolicyNever
-	case strings.ToLower(string(DeleteJobPolicyOnSuccess)):
-		policy = DeleteJobPolicyOnSuccess
+	case strings.ToLower(string(AWS)):
+		provider = AWS
+	case strings.ToLower(string(Azure)):
+		provider = Azure
+	case strings.ToLower(string(Docker)):
+		provider = Docker
+	case strings.ToLower(string(External)):
+		provider = External
+	case strings.ToLower(string(GCP)):
+		provider = GCP
+	case strings.ToLower(string(Kubernetes)):
+		provider = Kubernetes
 	default:
-		return fmt.Errorf("failed to unmarshal text into Delete Policy: %s", text)
+		return fmt.Errorf("failed to unmarshal text into Provider: %s", text)
 	}
 
-	*p = policy
+	*p = provider
 
 	return nil
 }

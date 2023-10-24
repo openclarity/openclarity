@@ -29,7 +29,7 @@ const (
 type Config struct {
 	Backend           *backendclient.BackendClient
 	Provider          provider.Provider
-	DiscoveryInterval time.Duration
+	DiscoveryInterval time.Duration `mapstructure:"interval"`
 }
 
 func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {

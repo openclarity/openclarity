@@ -31,10 +31,11 @@ const (
 type Config struct {
 	Backend          *backendclient.BackendClient
 	Provider         provider.Provider
-	PollPeriod       time.Duration
-	ReconcileTimeout time.Duration
-	ScannerConfig    ScannerConfig
-	AbortTimeout     time.Duration
+	PollPeriod       time.Duration       `mapstructure:"poll_period"`
+	ReconcileTimeout time.Duration       `mapstructure:"reconcile_timeout"`
+	DeleteJobPolicy  DeleteJobPolicyType `mapstructure:"delete_policy"`
+	AbortTimeout     time.Duration       `mapstructure:"abort_timeout"`
+	ScannerConfig    ScannerConfig       `mapstructure:"scanner"`
 }
 
 func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
@@ -60,51 +61,4 @@ func (c Config) WithPollPeriod(t time.Duration) Config {
 func (c Config) WithScannerConfig(s ScannerConfig) Config {
 	c.ScannerConfig = s
 	return c
-}
-
-type ScannerConfig struct {
-	// Address that the Scanner should use to talk to the VMClarity backend
-	// We use a configuration variable for this instead of discovering it
-	// automatically in case VMClarity backend has multiple IPs (internal
-	// traffic and external traffic for example) so we need the specific
-	// address to use.
-	ScannerBackendAddress string
-
-	ExploitsDBAddress string
-
-	TrivyServerAddress string
-	TrivyServerTimeout time.Duration
-
-	GrypeServerAddress string
-	GrypeServerTimeout time.Duration
-
-	YaraRuleServerAddress string
-
-	DeleteJobPolicy DeleteJobPolicyType
-
-	// The container image to use once we've booted the scanner virtual
-	// machine, that contains the VMClarity CLI plus all the required
-	// tools.
-	ScannerImage string
-
-	// The gitleaks binary path in the scanner image container.
-	GitleaksBinaryPath string
-
-	// The clam binary path in the scanner image container.
-	ClamBinaryPath string
-
-	// The freshclam binary path in the scanner image container
-	FreshclamBinaryPath string
-
-	// The freshclam mirror url to use if it's enabled
-	AlternativeFreshclamMirrorURL string
-
-	// The Lynis binary path in the scanner image container
-	LynisBinaryPath string
-
-	// The chkrootkit binary path in the scanner image container.
-	ChkrootkitBinaryPath string
-
-	// The yara binary path in the scanner image container
-	YaraBinaryPath string
 }
