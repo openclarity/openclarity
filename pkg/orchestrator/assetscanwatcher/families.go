@@ -16,6 +16,8 @@
 package assetscanwatcher
 
 import (
+	"time"
+
 	"github.com/anchore/syft/syft/source"
 	kubeclarityConfig "github.com/openclarity/kubeclarity/shared/pkg/config"
 
@@ -58,7 +60,7 @@ func withSBOM(config *models.SBOMConfig, opts *ScannerConfig) FamiliesConfigOpti
 				Analyzer: &kubeclarityConfig.Analyzer{
 					OutputFormat: "cyclonedx",
 					TrivyConfig: kubeclarityConfig.AnalyzerTrivyConfig{
-						Timeout: int(opts.TrivyServerTimeout),
+						Timeout: int(opts.TrivyScanTimeout / time.Second), // NOTE(chrisgacsal): Timeout is expected to be in seconds.
 					},
 				},
 			},
@@ -103,7 +105,7 @@ func withVulnerabilities(config *models.VulnerabilitiesConfig, opts *ScannerConf
 				Scanner: &kubeclarityConfig.Scanner{
 					GrypeConfig: grypeConfig,
 					TrivyConfig: kubeclarityConfig.ScannerTrivyConfig{
-						Timeout:    int(opts.TrivyServerTimeout),
+						Timeout:    int(opts.TrivyScanTimeout / time.Second), // NOTE(chrisgacsal): Timeout is expected to be in seconds.
 						ServerAddr: opts.TrivyServerAddress,
 					},
 				},
