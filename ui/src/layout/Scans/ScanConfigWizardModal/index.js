@@ -11,42 +11,43 @@ import './scan-config-wizard-modal.scss';
 
 const padDateTime = time => String(time).padStart(2, "0");
 
-const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
-    const {id, name, scanTemplate, scheduled} = initialData || {};
-    const {scope, maxParallelScanners, assetScanTemplate} = scanTemplate || {};
-    const {operationTime, cronLine} = scheduled || {};
+const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
+    const { id, name, scanTemplate, scheduled } = initialData || {};
+    const { scope, maxParallelScanners, assetScanTemplate } = scanTemplate || {};
+    const { operationTime, cronLine } = scheduled || {};
 
-    const {scanFamiliesConfig, scannerInstanceCreationConfig} = assetScanTemplate || {}
-    const {useSpotInstances} = scannerInstanceCreationConfig || {};
-    
+    const { scanFamiliesConfig, scannerInstanceCreationConfig } = assetScanTemplate || {}
+    const { useSpotInstances } = scannerInstanceCreationConfig || {};
+
     const isEditForm = !!id;
-    
+
     const initialValues = {
         id: id || null,
         name: name || "",
         scanFamiliesConfig: {
-            sbom: {enabled: true},
-            vulnerabilities: {enabled: true},
-            malware: {enabled: false},
-            rootkits: {enabled: false},
-            secrets: {enabled: false},
-            misconfigurations: {enabled: false},
-            infoFinder: {enabled: false},
-            exploits: {enabled: false}
+            sbom: { enabled: true },
+            vulnerabilities: { enabled: true },
+            malware: { enabled: false },
+            rootkits: { enabled: false },
+            secrets: { enabled: false },
+            misconfigurations: { enabled: false },
+            infoFinder: { enabled: false },
+            exploits: { enabled: false }
         },
         scanTemplate: {
             scope: scope || "",
+            scopeSelector: "all",
             maxParallelScanners: maxParallelScanners || 2,
             assetScanTemplate: {
                 scanFamiliesConfig: {
-                    sbom: {enabled: true},
-                    vulnerabilities: {enabled: true},
-                    malware: {enabled: false},
-                    rootkits: {enabled: false},
-                    secrets: {enabled: false},
-                    misconfigurations: {enabled: false},
-                    infoFinder: {enabled: false},
-                    exploits: {enabled: false}
+                    sbom: { enabled: true },
+                    vulnerabilities: { enabled: true },
+                    malware: { enabled: false },
+                    rootkits: { enabled: false },
+                    secrets: { enabled: false },
+                    misconfigurations: { enabled: false },
+                    infoFinder: { enabled: false },
+                    exploits: { enabled: false }
                 },
                 scannerInstanceCreationConfig: {
                     useSpotInstances: useSpotInstances || false
@@ -69,7 +70,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
     }
 
     Object.keys(scanFamiliesConfig || {}).forEach(type => {
-        const {enabled} = scanFamiliesConfig[type];
+        const { enabled } = scanFamiliesConfig[type];
         initialValues.scanTemplate.assetScanTemplate.scanFamiliesConfig[type].enabled = enabled;
     })
 
@@ -104,11 +105,11 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
             initialValues={initialValues}
             submitUrl={APIS.SCAN_CONFIGS}
             getSubmitParams={formValues => {
-                const {id, scheduled, ...submitData} = formValues;
+                const { id, scheduled, ...submitData } = formValues;
 
-                const {scheduledSelect, laterDate, laterTime, cronLine} = scheduled;
+                const { scheduledSelect, laterDate, laterTime, cronLine } = scheduled;
                 const isNow = scheduledSelect === SCHEDULE_TYPES_ITEMS.NOW.value;
-                
+
                 let formattedDate = new Date();
 
                 if (!isNow) {
@@ -125,7 +126,7 @@ const ScanConfigWizardModal = ({initialData, onClose, onSubmitSuccess}) => {
                     submitData.scheduled.operationTime = formattedDate.toISOString();
                 }
 
-                return !isEditForm ? {submitData} : {
+                return !isEditForm ? { submitData } : {
                     method: FETCH_METHODS.PUT,
                     formatUrl: url => `${url}/${id}`,
                     submitData
