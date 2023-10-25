@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Route, Routes, BrowserRouter, Outlet, useNavigate, useMatch, useLocation} from 'react-router-dom';
+import { Route, Routes, BrowserRouter, Outlet, useNavigate, useMatch, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from 'react-error-boundary';
 import classnames from 'classnames';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import IconTemplates from 'components/Icon/IconTemplates';
@@ -21,30 +22,30 @@ import './app.scss';
 
 const ROUTES_CONFIG = [
     {
-		path: ROUTES.DEFAULT,
-		component: Dashboard,
+        path: ROUTES.DEFAULT,
+        component: Dashboard,
         icon: ICON_NAMES.DASHBOARD,
         isIndex: true,
         title: "Dashboard",
         resetFilterAll: true
-	},
-	{
-		path: ROUTES.ASSETS,
-		component: Assets,
+    },
+    {
+        path: ROUTES.ASSETS,
+        component: Assets,
         icon: ICON_NAMES.ASSETS,
         title: "Assets",
         resetFilters: [FILTER_TYPES.ASSETS]
-	},
+    },
     {
-		path: ROUTES.ASSET_SCANS,
-		component: AssetScans,
+        path: ROUTES.ASSET_SCANS,
+        component: AssetScans,
         icon: ICON_NAMES.ASSET_SCANS,
         title: "Asset scans",
         resetFilters: [FILTER_TYPES.ASSET_SCANS]
-	},
-	{
-		path: ROUTES.FINDINGS,
-		component: Findings,
+    },
+    {
+        path: ROUTES.FINDINGS,
+        component: Findings,
         icon: ICON_NAMES.FINDINGS,
         title: "Findings",
         resetFilters: [
@@ -57,18 +58,18 @@ const ROUTES_CONFIG = [
             FILTER_TYPES.FINDINGS_ROOTKITS,
             FILTER_TYPES.FINDINGS_PACKAGES
         ]
-	},
+    },
     {
-		path: ROUTES.SCANS,
-		component: Scans,
+        path: ROUTES.SCANS,
+        component: Scans,
         icon: ICON_NAMES.SCANS,
         title: "Scans",
         resetFilters: [FILTER_TYPES.SCANS, FILTER_TYPES.SCAN_CONFIGURATIONS]
-	}
+    }
 ];
 
 const ConnectedNotification = () => {
-    const {message, type} = useNotificationState();
+    const { message, type } = useNotificationState();
     const dispatch = useNotificationDispatch()
 
     if (!message) {
@@ -78,7 +79,7 @@ const ConnectedNotification = () => {
     return <Notification message={message} type={type} onClose={() => removeNotification(dispatch)} />
 }
 
-const NavLinkItem = ({pathname, icon, resetFilterNames, resetFilterAll=false}) => {
+const NavLinkItem = ({ pathname, icon, resetFilterNames, resetFilterAll = false }) => {
     const location = useLocation();
     const match = useMatch(`${pathname}/*`);
     const isActive = pathname === location.pathname ? true : !!match;
@@ -95,21 +96,21 @@ const NavLinkItem = ({pathname, icon, resetFilterNames, resetFilterAll=false}) =
 
         navigate(pathname);
     }
-    
+
     return (
-        <div className={classnames("nav-item", {active: isActive})} onClick={onClick}>
+        <div className={classnames("nav-item", { active: isActive })} onClick={onClick}>
             <Icon name={icon} />
         </div>
     )
 }
 
 const Layout = () => {
-    const {pathname} = useLocation();
+    const { pathname } = useLocation();
     const mainPath = pathname.split("/").find(item => !!item);
-    const pageTitle = ROUTES_CONFIG.find(({path, isIndex}) => (isIndex && !mainPath) || path === `/${mainPath}`)?.title;
+    const pageTitle = ROUTES_CONFIG.find(({ path, isIndex }) => (isIndex && !mainPath) || path === `/${mainPath}`)?.title;
 
     const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
-    
+
     return (
         <div id="main-wrapper">
             <FiltersProvider>
@@ -127,7 +128,7 @@ const Layout = () => {
                 </div>
                 <div className="sidebar-container">
                     {
-                        ROUTES_CONFIG.map(({path, icon, title, resetFilters, resetFilterAll}) => (
+                        ROUTES_CONFIG.map(({ path, icon, title, resetFilters, resetFilterAll }) => (
                             <TooltipWrapper key={path} tooltipId={`sidebar-item-tooltip-${path}`} tooltipText={title}>
                                 <NavLinkItem pathname={path} icon={icon} resetFilterNames={resetFilters} resetFilterAll={resetFilterAll} />
                             </TooltipWrapper>
@@ -147,18 +148,20 @@ const Layout = () => {
 
 const App = () => (
     <div className="app-wrapper">
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    {
-                        ROUTES_CONFIG.map(({path, component: Component, isIndex}) => (
-                            <Route key={path} path={isIndex ? undefined : `${path}/*`} index={isIndex} element={(<Component />)} />
-                        ))
-                    }
-                </Route>
-            </Routes>
-        </BrowserRouter>
-        <IconTemplates />
+        <ErrorBoundary fallback={<div>Something went wrong</div>}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        {
+                            ROUTES_CONFIG.map(({ path, component: Component, isIndex }) => (
+                                <Route key={path} path={isIndex ? undefined : `${path}/*`} index={isIndex} element={(<Component />)} />
+                            ))
+                        }
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+            <IconTemplates />
+        </ErrorBoundary>
     </div>
 )
 
