@@ -133,7 +133,7 @@ data:
             securityContext:
               capabilities:
                 drop:
-                - all
+                - ALL
               runAsNonRoot: true
               {{- if not .Values.global.openShiftRestricted }}
               runAsGroup: 1001
@@ -182,7 +182,7 @@ data:
             securityContext:
               capabilities:
                 drop:
-                  - all
+                  - ALL
               runAsNonRoot: true
               {{- if not .Values.global.openShiftRestricted }}
               runAsGroup: 1001

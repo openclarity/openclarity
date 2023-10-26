@@ -50,7 +50,7 @@ spec:
       securityContext:
         capabilities:
           drop:
-          - all
+          - ALL
         runAsNonRoot: true
         runAsGroup: 1001
         runAsUser: 1001
