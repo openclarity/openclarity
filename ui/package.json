@@ -3,21 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mui/icons-material": "^5.14.15",
+    "@mui/material": "^5.14.15",
+    "@react-querybuilder/material": "^6.5.3",
     "@turingpointde/cvss.js": "^1.4.7",
+    "assert": "^2.1.0",
+    "buffer": "^6.0.3",
     "classnames": "^2.3.2",
+    "constants-browserify": "^1.0.0",
     "copy-to-clipboard": "^3.3.3",
     "cronstrue": "^2.23.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "pretty-bytes": "^6.1.1",
+    "path-browserify": "^1.0.1",
     "react": "^18.2.0",
-    "react-datetime-picker": "^4.2.0",
+    "react-datetime-picker": "^5.5.3",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.9",
     "react-js-cron": "^3.1.0",
+    "react-querybuilder": "^6.5.3",
     "react-router-dom": "^6.8.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-select": "^5.7.0",
     "react-table": "^7.8.0",
     "react-time-picker": "^5.2.0",
@@ -25,15 +33,18 @@
     "react-tooltip": "^4.2.15",
     "recharts": "^2.5.0",
     "sass": "^1.58.0",
-    "spinners-react": "^1.0.7"
+    "spinners-react": "^1.0.7",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
+    "yaml-loader": "^0.8.0"
   },
   "overrides": {
     "nth-check": "^2.0.1",
     "webpack": "^5.76.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -54,5 +65,10 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:8080",
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-property-in-object": "^7.22.11",
+    "react-app-rewired": "^2.2.1"
+  }
 }

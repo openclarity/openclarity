@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import { QueryBuilderMaterial } from '@react-querybuilder/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { teal } from '@mui/material/colors';
 import { useField } from 'formik';
-
-const fs = require('fs-extra');
+import openApiYaml from '../../../../../../api/openapi.yaml';
+import { COMBINATORS, OPERATORS } from './CustomQueryBuilder.constants';
 
 const muiTheme = createTheme({
     palette: {
@@ -27,19 +27,20 @@ const CustomQueryBuilder = ({
     const { value } = field;
     const { setValue } = helpers;
 
+    const readYamlFile = useCallback(
+        () => {
+            const assets = openApiYaml?.components?.schemas?.Asset
+            console.log(assets);
+        },
+        [],
+    );
+
     useEffect(() => {
         // convert query and setValue to scope
     }, [query])
 
     useEffect(() => {
-        // readYamlFile('../api/openapi.yml').then(data => {
-        //     console.log(data)
-        //     //=> {foo: true}
-        // })
-        const file = fs?.readFileSync('../api/openapi.yml', 'utf8');
-        //console.log(YAML.parse(file));
-        //console.log(data);
-
+        readYamlFile();
     }, [])
 
     return (
@@ -47,6 +48,7 @@ const CustomQueryBuilder = ({
             <ThemeProvider theme={muiTheme}>
                 <QueryBuilderMaterial>
                     <QueryBuilder
+                        operators={OPERATORS}
                         fields={fields}
                         query={query}
                         onQueryChange={q => setQuery(q)}

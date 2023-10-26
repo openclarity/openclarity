@@ -6,26 +6,26 @@ import FieldLabel from 'components/Form/FieldLabel';
 
 import './radio-field.scss';
 
-const RadioField = ({items, className, label, disabled, tooltipText, ...props}) => {
+const RadioButtonGroup = ({ items, className, label, disabled, tooltipText, ...props }) => {
     const [field, meta, helpers] = useField(props);
-    const {name} = field; 
-    const {setValue} = helpers;
-    
+    const { name } = field;
+    const { setValue } = helpers;
+
     return (
         <div className={classnames("form-field-wrapper", "radio-field-wrapper", className)}>
             {!!label && <FieldLabel tooltipId={`form-tooltip-${field.name}`} tooltipText={tooltipText}>{label}</FieldLabel>}
             {
-                items.map(({value, label}) => (
+                items.map(({ value, label }) => (
                     <label key={value} className="radio-field-item">
                         <span className="radio-text">{label}</span>
-                            <input
-                                type="radio"
-                                name={name}
-                                checked={value === meta.value}
-                                value={value}
-                                onChange={() => setValue(value)}
-                            />
-                            <span className="checkmark"></span>
+                        <input
+                            type="radio"
+                            name={name}
+                            checked={value === meta.value}
+                            value={value}
+                            onChange={() => setValue(value)}
+                        />
+                        <span className="checkmark"></span>
                     </label>
                 ))
             }
@@ -34,4 +34,4 @@ const RadioField = ({items, className, label, disabled, tooltipText, ...props}) 
     )
 }
 
-export default RadioField;
+export default RadioButtonGroup;
