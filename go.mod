@@ -35,7 +35,7 @@ require (
 	github.com/moby/sys/mountinfo v0.6.2
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.0.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/gomega v1.29.0
 	github.com/openclarity/kubeclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/kubeclarity/shared v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
