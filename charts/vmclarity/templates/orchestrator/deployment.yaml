@@ -75,6 +75,8 @@ spec:
               value: {{ .Values.orchestrator.grypeServerAddress }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
               value: {{ .Values.orchestrator.freshclamMirrorAddress }}
+            - name: YARA_RULE_SERVER_ADDRESS
+              value: {{ .Values.orchestrator.yaraRuleServerAddress }}
 
             {{- if eq .Values.orchestrator.provider "aws" -}}
             {{- with .Values.orchestrator.aws }}
