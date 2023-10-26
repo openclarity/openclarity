@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.yaraRuleServer.name" . }}
+  labels: {{- include "vmclarity.yaraRuleServer.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.yaraRuleServer.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.yaraRuleServer.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.yaraRuleServer.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.yaraRuleServer.affinity }}
+      affinity: {{- .Values.yaraRuleServer.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.yaraRuleServer.nodeSelector }}
+      nodeSelector: {{- .Values.yaraRuleServer.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.yaraRuleServer.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.yaraRuleServer.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.yaraRuleServer.tolerations }}
+      tolerations: {{- .Values.yaraRuleServer.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: yara-rule-server
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.yaraRuleServer.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.yaraRuleServer.image.pullPolicy | quote }}
+          {{- if .Values.yaraRuleServer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.yaraRuleServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          args:
+            - run
+          {{- if .Values.yaraRuleServer.resources }}
+          resources: {{- toYaml .Values.yaraRuleServer.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /var/lib/yara-rule-server
+              name: data
+            - mountPath: /etc/yara-rule-server/config.yaml
+              subPath: yara-rule-server.yaml
+              name: yara-rule-server-config
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: yara-rule-server-config
+          configMap:
+            name: {{ include "vmclarity.yaraRuleServer.name" . }}
+      serviceAccountName: {{ include "vmclarity.yaraRuleServer.serviceAccountName" . }}
