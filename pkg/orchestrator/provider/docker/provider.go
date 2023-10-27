@@ -17,11 +17,9 @@ package docker
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/docker/docker/api/types"
@@ -31,6 +29,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/archive"
 	"gopkg.in/yaml.v2"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -140,12 +139,6 @@ func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJob
 	err = p.dockerClient.ContainerRemove(ctx, containerID, types.ContainerRemoveOptions{Force: true})
 	if err != nil {
 		return provider.FatalErrorf("failed to remove scan container. Provider=%s: %w", models.Docker, err)
-	}
-
-	scanConfigFileName := getScanConfigFilePath(config)
-	err = os.Remove(scanConfigFileName)
-	if err != nil {
-		return provider.FatalErrorf("failed to remove scan config file. Provider=%s: %w", models.Docker, err)
 	}
 
 	err = p.dockerClient.VolumeRemove(ctx, config.AssetScanID, true)
@@ -281,33 +274,53 @@ func (p *Provider) createScanNetwork(ctx context.Context) (string, error) {
 	return networkResp.ID, nil
 }
 
-// createScanConfigFile returns scan config file path identical to getScanConfigFilePath or error.
-func (p *Provider) createScanConfigFile(config *provider.ScanJobConfig) (string, error) {
-	scanConfigFilePath := getScanConfigFilePath(config)
-
+// copyScanConfigToContainer copies scan configuration as a file to the scan container.
+func (p *Provider) copyScanConfigToContainer(ctx context.Context, containerID string, config *provider.ScanJobConfig) error {
 	// Add volume mount point to family configuration
 	familiesConfig := families.Config{}
 	err := yaml.Unmarshal([]byte(config.ScannerCLIConfig), &familiesConfig)
 	if err != nil {
-		return "", fmt.Errorf("failed to unmarshal family scan configuration: %w", err)
+		return fmt.Errorf("failed to unmarshal family scan configuration: %w", err)
 	}
-
 	families.SetMountPointsForFamiliesInput([]string{mountPointPath}, &familiesConfig)
 	familiesConfigByte, err := yaml.Marshal(familiesConfig)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal family scan configuration: %w", err)
+		return fmt.Errorf("failed to marshal family scan configuration: %w", err)
 	}
 
-	// Create scan config file
-	_, err = os.Stat(scanConfigFilePath)
-	if errors.Is(err, os.ErrNotExist) {
-		err = os.WriteFile(scanConfigFilePath, familiesConfigByte, 0o600) // nolint:gomnd,gofumpt
-	}
+	// Write scan config file to temp dir
+	src := filepath.Join(os.TempDir(), getScanConfigFileName(config))
+	err = os.WriteFile(src, familiesConfigByte, 0o400) // nolint:gomnd
 	if err != nil {
-		return "", fmt.Errorf("failed to create scan configuration file: %w", err)
+		return fmt.Errorf("failed write scan config file: %w", err)
 	}
 
-	return scanConfigFilePath, nil
+	// Create tar archive from scan config file
+	srcInfo, err := archive.CopyInfoSourcePath(src, false)
+	if err != nil {
+		return fmt.Errorf("failed to get copy info: %w", err)
+	}
+	srcArchive, err := archive.TarResource(srcInfo)
+	if err != nil {
+		return fmt.Errorf("failed to create tar archive: %w", err)
+	}
+	defer srcArchive.Close()
+
+	// Prepare archive for copy
+	dstInfo := archive.CopyInfo{Path: filepath.Join("/", getScanConfigFileName(config))}
+	dst, preparedArchive, err := archive.PrepareArchiveCopy(srcArchive, srcInfo, dstInfo)
+	if err != nil {
+		return fmt.Errorf("failed to prepare archive: %w", err)
+	}
+	defer preparedArchive.Close()
+
+	// Copy scan config file to container
+	err = p.dockerClient.CopyToContainer(ctx, containerID, dst, preparedArchive, types.CopyToContainerOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to copy config file to container: %w", err)
+	}
+
+	return nil
 }
 
 // createScanContainer returns container id or error.
@@ -318,12 +331,6 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 	containerID, _ := p.getContainerIDFromName(ctx, containerName)
 	if containerID != "" {
 		return containerID, nil
-	}
-
-	// Create scan config file
-	scanConfigFilePath, err := p.createScanConfigFile(config)
-	if err != nil {
-		return "", fmt.Errorf("failed to create scan config file: %w", err)
 	}
 
 	// Pull scanner image if required
@@ -351,7 +358,7 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 			Cmd: []string{
 				"scan",
 				"--config",
-				"/tmp/" + filepath.Base(scanConfigFilePath),
+				filepath.Join("/", getScanConfigFileName(config)),
 				"--server",
 				config.VMClarityAddress,
 				"--asset-scan-id",
@@ -359,7 +366,6 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 			},
 		},
 		&container.HostConfig{
-			Binds: []string{fmt.Sprintf("%s:/tmp", path.Dir(scanConfigFilePath))},
 			Mounts: []mount.Mount{
 				{
 					Type:   mount.TypeVolume,
@@ -380,6 +386,11 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 	)
 	if err != nil {
 		return "", fmt.Errorf("failed to create scan container: %w", err)
+	}
+
+	err = p.copyScanConfigToContainer(ctx, containerResp.ID, config)
+	if err != nil {
+		return "", fmt.Errorf("failed to copy scan config to container: %w", err)
 	}
 
 	return containerResp.ID, nil
@@ -472,8 +483,8 @@ func (p *Provider) exportAsset(ctx context.Context, config *provider.ScanJobConf
 	}
 }
 
-func getScanConfigFilePath(config *provider.ScanJobConfig) string {
-	return path.Join(os.TempDir(), config.AssetScanID+"_scanconfig.yaml")
+func getScanConfigFileName(config *provider.ScanJobConfig) string {
+	return fmt.Sprintf("scanconfig_%s.yaml", config.AssetScanID)
 }
 
 func convertTags(tags map[string]string) *[]models.Tag {
