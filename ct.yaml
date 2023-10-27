@@ -4,7 +4,7 @@ kubectl-timeout: 60s
 remote: origin
 target-branch: main
 chart-dirs:
-  - charts
+  - installation/kubernetes/helm
 validate-maintainers: false
 chart-repos:
   - bitnami=https://charts.bitnami.com/bitnami
