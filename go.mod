@@ -3,7 +3,7 @@ module github.com/openclarity/vmclarity
 go 1.21
 
 require (
-	cloud.google.com/go/compute v1.23.1
+	cloud.google.com/go/compute v1.23.2
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.8.0
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.4.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4 v4.2.1
