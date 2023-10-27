@@ -6,7 +6,7 @@ require (
 	github.com/compose-spec/compose-go v1.20.0
 	github.com/docker/cli v24.0.6+incompatible
 	github.com/docker/compose/v2 v2.23.0
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.29.0
 	github.com/openclarity/vmclarity v0.0.0
