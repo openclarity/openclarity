@@ -1,11 +1,4 @@
 services:
-  orchestrator:
-    # ...
-    volumes:
-      - type: bind
-        source: /tmp
-        target: /tmp
-
   alpine:
     image: alpine:3.18.2
     command: ["sleep", "infinity"]
