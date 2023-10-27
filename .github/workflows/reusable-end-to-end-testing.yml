@@ -34,11 +34,11 @@ jobs:
 
       - name: Run end to end tests
         env:
-          APIServerContainerImage:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
-          OrchestratorContainerImage: ${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}
-          UIContainerImage: ${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}
-          UIBackendContainerImage: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
-          ScannerContainerImage: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
+          VMCLARITY_APISERVER_CONTAINER_IMAGE:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
+          VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}
+          VMCLARITY_UI_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}
+          VMCLARITY_UIBACKEND_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
+          VMCLARITY_SCANNER_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
         run: |
           cd e2e \
           && go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .

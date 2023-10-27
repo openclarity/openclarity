@@ -110,11 +110,11 @@ fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 .PHONY: e2e
 e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Run end-to-end test suite
 	@cd e2e && \
-	export APIServerContainerImage=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) && \
-	export OrchestratorContainerImage=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) && \
-	export ScannerContainerImage=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) && \
-	export UIContainerImage=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) && \
-	export UIBackendContainerImage=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) && \
+	export VMCLARITY_APISERVER_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) && \
+	export VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) && \
+	export VMCLARITY_SCANNER_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) && \
+	export VMCLARITY_UI_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) && \
+	export VMCLARITY_UIBACKEND_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) && \
 	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 .PHONY: license-check
