@@ -2,7 +2,7 @@ version: '3'
 
 services:
   apiserver:
-    image: ${APIServerContainerImage:-ghcr.io/openclarity/vmclarity-apiserver:latest}
+    image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest}
     command:
       - run
       - --log-level
@@ -26,7 +26,7 @@ services:
       retries: 60
 
   orchestrator:
-    image: ${OrchestratorContainerImage:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
+    image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
     command:
       - run
       - --log-level
@@ -49,7 +49,7 @@ services:
       retries: 60
 
   ui:
-    image: ${UIContainerImage:-ghcr.io/openclarity/vmclarity-ui:latest}
+    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest}
     deploy:
       mode: replicated
       replicas: 1
@@ -57,7 +57,7 @@ services:
         condition: on-failure
 
   uibackend:
-    image: ${UIBackendContainerImage:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
+    image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
     command:
       - run
       - --log-level
@@ -89,7 +89,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${ExploitDBServerContainerImage:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
+    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
     ports:
       - "1326:1326"
     deploy:
@@ -103,7 +103,7 @@ services:
       retries: 60
 
   trivy-server:
-    image: ${TrivyServerContainerImage:-docker.io/aquasec/trivy:0.41.0}
+    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.41.0}
     command:
       - server
     ports:
@@ -120,7 +120,7 @@ services:
       retries: 60
 
   grype-server:
-    image: ${GrypeServerContainerImage:-ghcr.io/openclarity/grype-server:v0.5.0}
+    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.5.0}
     command:
       - run
       - --log-level
@@ -142,7 +142,7 @@ services:
       retries: 60
 
   freshclam-mirror:
-    image: ${FreshclamMirrorContainerImage:-ghcr.io/openclarity/freshclam-mirror:v0.2.0}
+    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.2.0}
     ports:
       - "1000:80"
     deploy:
@@ -152,7 +152,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${YaraRuleServerContainerImage:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
+    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
     command:
       - run
     ports:
@@ -171,7 +171,7 @@ services:
       retries: 60
 
   postgresql:
-    image: ${PostgresqlContainerImage:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28}
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
