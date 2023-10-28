@@ -55,7 +55,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -78,7 +78,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -102,7 +102,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -189,7 +189,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
             {{- if not .Values.global.openShiftRestricted }}
             runAsGroup: 1000
