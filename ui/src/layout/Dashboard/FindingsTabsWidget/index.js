@@ -25,17 +25,19 @@ const WidgetContent = ({data=[], getHeaderItems, getBodyItems, selectedId}) => {
             </thead>
             <tbody>
                 {
-                    displayData.map((item, index) => {
-                        return (
-                            <tr key={index}>
-                                {getBodyItems(selectedId).map(({dataKey, customDisplay: CustomDisplay}, index, items) => (
-                                    <td key={index} style={items.length - 1 === index ? {textAlign: "right"} : {}}>
-                                        {!!CustomDisplay ? <CustomDisplay {...item} /> : get(item, dataKey)}
-                                    </td>
-                                ))}
-                            </tr>
-                        )
-                    })
+                    displayData.length > 0 ?
+                        displayData.map((item, index) => {
+                            return (
+                                <tr key={index}>
+                                    {getBodyItems(selectedId).map(({dataKey, customDisplay: CustomDisplay}, index, items) => (
+                                        <td key={index} style={items.length - 1 === index ? {textAlign: "right"} : {}}>
+                                            {!!CustomDisplay ? <CustomDisplay {...item} /> : get(item, dataKey)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            )
+                        })
+                        : <div className="empty-results-display-wrapper">No results available</div>
                 }
             </tbody>
         </table>
