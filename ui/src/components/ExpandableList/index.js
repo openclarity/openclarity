@@ -4,6 +4,7 @@ import Arrow, { ARROW_NAMES } from 'components/Arrow';
 import Tag from 'components/Tag';
 
 import './expandable-list.scss';
+import { ValueWithFallback } from 'components/ValueWithFallback';
 
 const MINIMIZED_LEN = 1;
 
@@ -19,13 +20,15 @@ const ExpandableList = ({items, withTagWrap=false}) => {
             <div className="expandable-list-display-wrapper">
                 <div className="expandable-list-items">
                     {
-                        itemsToDisplay.map((item, index) => (
-                            <div key={index} className="expandable-list-item-wrapper">
-                                <div className={classnames("expandable-list-item")}>
-                                    {withTagWrap ? <Tag>{item}</Tag> : item}
+                        <ValueWithFallback>
+                            {itemsToDisplay.map((item, index) => (
+                                <div key={index} className="expandable-list-item-wrapper">
+                                    <div className={classnames("expandable-list-item")}>
+                                        {withTagWrap ? <Tag>{item}</Tag> : item}
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            ))}
+                        </ValueWithFallback>
                     }
                 </div>
                 {minmizedItems.length !== allItems.length &&
