@@ -48,14 +48,14 @@ const TablePage = (props) => {
             } catch(error) {
                 console.log("invalid filters");
 
-                setSearchParams({});
+                setSearchParams({}, { replace: true });
             }
         }
     }, [initialized, searchParams, filtersDispatch, setSearchParams]);
 
     useEffect(() => {
         const {customDisplay, ...cleanSystemFilters} = systemFilters;
-        setSearchParams({filters: JSON.stringify({filterType, systemFilterType, tableFilters, systemFilters: cleanSystemFilters, customFilters})});
+        setSearchParams({filters: JSON.stringify({filterType, systemFilterType, tableFilters, systemFilters: cleanSystemFilters, customFilters})}, { replace: true });
     }, [filterType, systemFilterType, tableFilters, systemFilters, customFilters, setSearchParams]);
 
     if (!initialized) {
