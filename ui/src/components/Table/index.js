@@ -9,6 +9,7 @@ import Pagination from './Pagination';
 import * as utils from './utils';
 
 import './table.scss';
+import { ValueWithFallback } from 'components/ValueWithFallback';
 
 export {
     utils
@@ -294,7 +295,11 @@ const Table = props => {
                                                 const isTextValue = !!cell.column.accessor;
                                                 
                                                 return (
-                                                    <div className={cellClassName} {...cell.getCellProps()}>{isTextValue ? cell.value : cell.render('Cell')}</div>
+                                                    <div className={cellClassName} {...cell.getCellProps()}>
+                                                        <ValueWithFallback>
+                                                            {isTextValue ? cell.value : cell.render('Cell')}
+                                                        </ValueWithFallback>
+                                                    </div>
                                                 )
                                             })
                                         }
