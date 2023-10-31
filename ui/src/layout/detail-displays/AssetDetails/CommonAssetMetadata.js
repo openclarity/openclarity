@@ -2,7 +2,6 @@ import React from 'react';
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import { formatDate } from 'utils/utils';
 
-
 export const CommonAssetMetadata = ({assetData: {firstSeen, lastSeen, terminatedOn, assetInfo}}) =>
     <>
         <TitleValueDisplayRow>
