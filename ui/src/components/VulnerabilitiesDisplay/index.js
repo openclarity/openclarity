@@ -30,7 +30,7 @@ export const VULNERABILITY_SEVERITY_ITEMS = {
         color: SEVERITY_ITEMS.HIGH.color,
         innerTextColor: "white"
     },
-    meditotalMediumVulnerabilitiesum: {
+    totalMediumVulnerabilities: {
         totalKey: "totalMediumVulnerabilities",
         countKey: "mediumVulnerabilitiesCount",
         title: "Medium",
