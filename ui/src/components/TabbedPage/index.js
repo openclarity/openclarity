@@ -36,7 +36,7 @@ const TabbedPage= ({items, redirectTo, basePath, headerCustomDisplay, withInnerP
                             <Route key={id} path={isIndex ? undefined : `${path}/*`} index={isIndex} element={<Component />} />
                         ))
                     }
-                    {!!redirectTo && <Route path="" element={<Navigate to={redirectTo} />} />}
+                    {!!redirectTo && <Route path="" element={<Navigate to={redirectTo} replace />} />}
                 </Route>
             </Routes>
         </div>
