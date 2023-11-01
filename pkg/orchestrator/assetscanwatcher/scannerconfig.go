@@ -18,14 +18,8 @@ package assetscanwatcher
 import "time"
 
 const (
-	DefaultTrivyScanTimeout     = 5 * time.Minute
-	DefaultGrypeServerTimeout   = 2 * time.Minute
-	DefaultGitleaksBinaryPath   = "gitleaks"
-	DefaultClamBinaryPath       = "clamscan"
-	DefaultFreshclamBinaryPath  = "freshclam"
-	DefaultLynisInstallPath     = "lynis"
-	DefaultChkrootkitBinaryPath = "chkrootkit"
-	DefaultYaraBinaryPath       = "yara"
+	DefaultTrivyScanTimeout   = 5 * time.Minute
+	DefaultGrypeServerTimeout = 2 * time.Minute
 )
 
 type ScannerConfig struct {
@@ -51,24 +45,6 @@ type ScannerConfig struct {
 	// tools.
 	ScannerImage string `mapstructure:"container_image"`
 
-	// The gitleaks binary path in the scanner image container.
-	GitleaksBinaryPath string `mapstructure:"gitleaks_path"`
-
-	// The clam binary path in the scanner image container.
-	ClamBinaryPath string `mapstructure:"clamscan_path"`
-
-	// The freshclam binary path in the scanner image container
-	FreshclamBinaryPath string `mapstructure:"freshclam_path"`
-
 	// The freshclam mirror url to use if it's enabled
 	AlternativeFreshclamMirrorURL string `mapstructure:"freshclam_mirror"`
-
-	// The location where Lynis is installed in the scanner image
-	LynisBinaryPath string `mapstructure:"lynis_path"`
-
-	// The chkrootkit binary path in the scanner image container.
-	ChkrootkitBinaryPath string `mapstructure:"chkrootkit_path"`
-
-	// The yara binary path in the scanner image container
-	YaraBinaryPath string `mapstructure:"yara_path"`
 }
