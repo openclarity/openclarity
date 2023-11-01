@@ -140,25 +140,7 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("assetscan_watcher.scanner.container_image")
 
-	_ = v.BindEnv("assetscan_watcher.scanner.gitleaks_path")
-	v.SetDefault("assetscan_watcher.scanner.gitleaks_path", assetscanwatcher.DefaultGitleaksBinaryPath)
-
-	_ = v.BindEnv("assetscan_watcher.scanner.clamscan_path")
-	v.SetDefault("assetscan_watcher.scanner.clamscan_path", assetscanwatcher.DefaultClamBinaryPath)
-
-	_ = v.BindEnv("assetscan_watcher.scanner.freshclam_path")
-	v.SetDefault("assetscan_watcher.scanner.freshclam_path", assetscanwatcher.DefaultFreshclamBinaryPath)
-
 	_ = v.BindEnv("assetscan_watcher.scanner.freshclam_mirror")
-
-	_ = v.BindEnv("assetscan_watcher.scanner.lynis_path")
-	v.SetDefault("assetscan_watcher.scanner.lynis_path", assetscanwatcher.DefaultLynisInstallPath)
-
-	_ = v.BindEnv("assetscan_watcher.scanner.chkrootkit_path")
-	v.SetDefault("assetscan_watcher.scanner.chkrootkit_path", assetscanwatcher.DefaultChkrootkitBinaryPath)
-
-	_ = v.BindEnv("assetscan_watcher.scanner.yara_path")
-	v.SetDefault("assetscan_watcher.scanner.yara_path", assetscanwatcher.DefaultYaraBinaryPath)
 
 	// AssetScan Estimation Watcher Controller configuration
 	_ = v.BindEnv("assetscan_estimation_watcher.poll_period")
