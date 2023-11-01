@@ -114,7 +114,7 @@ func withVulnerabilities(config *models.VulnerabilitiesConfig, opts *ScannerConf
 	}
 }
 
-func withSecretsConfig(config *models.SecretsConfig, opts *ScannerConfig) FamiliesConfigOption {
+func withSecretsConfig(config *models.SecretsConfig, _ *ScannerConfig) FamiliesConfigOption {
 	return func(c *families.Config) {
 		if !config.IsEnabled() {
 			return
@@ -126,7 +126,7 @@ func withSecretsConfig(config *models.SecretsConfig, opts *ScannerConfig) Famili
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: &secretscommon.ScannersConfig{
 				Gitleaks: gitleaksconfig.Config{
-					BinaryPath: opts.GitleaksBinaryPath,
+					BinaryPath: "",
 				},
 			},
 		}
@@ -164,12 +164,12 @@ func withMalwareConfig(config *models.MalwareConfig, opts *ScannerConfig) Famili
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: &malwarecommon.ScannersConfig{
 				Clam: clamconfig.Config{
-					ClamScanBinaryPath:            opts.ClamBinaryPath,
-					FreshclamBinaryPath:           opts.FreshclamBinaryPath,
+					ClamScanBinaryPath:            "",
+					FreshclamBinaryPath:           "",
 					AlternativeFreshclamMirrorURL: opts.AlternativeFreshclamMirrorURL,
 				},
 				Yara: yaraconfig.Config{
-					YaraBinaryPath:  opts.YaraBinaryPath,
+					YaraBinaryPath:  "",
 					CompiledRuleURL: opts.YaraRuleServerAddress,
 				},
 			},
@@ -177,7 +177,7 @@ func withMalwareConfig(config *models.MalwareConfig, opts *ScannerConfig) Famili
 	}
 }
 
-func withMisconfigurationConfig(config *models.MisconfigurationsConfig, opts *ScannerConfig) FamiliesConfigOption {
+func withMisconfigurationConfig(config *models.MisconfigurationsConfig, _ *ScannerConfig) FamiliesConfigOption {
 	return func(c *families.Config) {
 		if !config.IsEnabled() {
 			return
@@ -190,7 +190,7 @@ func withMisconfigurationConfig(config *models.MisconfigurationsConfig, opts *Sc
 			ScannersConfig: misconfiguration.ScannersConfig{
 				// TODO(sambetts) Add scanner configurations here as we add them like Lynis
 				Lynis: misconfiguration.LynisConfig{
-					BinaryPath: opts.LynisBinaryPath,
+					BinaryPath: "",
 				},
 			},
 		}
@@ -214,7 +214,7 @@ func withInfoFinderConfig(config *models.InfoFinderConfig, _ *ScannerConfig) Fam
 	}
 }
 
-func withRootkitsConfig(config *models.RootkitsConfig, opts *ScannerConfig) FamiliesConfigOption {
+func withRootkitsConfig(config *models.RootkitsConfig, _ *ScannerConfig) FamiliesConfigOption {
 	return func(c *families.Config) {
 		if !config.IsEnabled() {
 			return
@@ -226,7 +226,7 @@ func withRootkitsConfig(config *models.RootkitsConfig, opts *ScannerConfig) Fami
 			Inputs:       nil,
 			ScannersConfig: &rootkitsCommon.ScannersConfig{
 				Chkrootkit: chkrootkitConfig.Config{
-					BinaryPath: opts.ChkrootkitBinaryPath,
+					BinaryPath: "",
 				},
 			},
 		}
