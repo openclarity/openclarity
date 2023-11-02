@@ -21,7 +21,7 @@ export const calculateDuration = (startTime, endTime) => {
     const range = ["days", "hours", "minutes", "seconds"].map(item => ({diff: endMoment.diff(startMoment, item), label: item}))
         .find(({diff}) => diff > 1);
 
-    return !!range ? `${range.diff} ${range.label}` : null;
+    return !!range ? `${range.diff} ${range.label}` : 'less than 1 second';
 }
 
 export const toCapitalized = string => string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
