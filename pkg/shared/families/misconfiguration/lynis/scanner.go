@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -135,15 +136,15 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			a.sendResults(retResults, fmt.Errorf("failed to run command: %w", err))
 			return
 		}
-		lynisDBDir := string(out)
+		lynisDBDir := filepath.Clean(strings.TrimSpace(string(out)))
 
-		testdb, err := NewTestDB(a.logger, lynisDBDir)
+		testDB, err := NewTestDB(a.logger, lynisDBDir)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to load lynis test DB: %w", err))
 			return
 		}
 
-		reportParser := NewReportParser(testdb)
+		reportParser := NewReportParser(testDB)
 		retResults.Misconfigurations, err = reportParser.ParseLynisReport(userInput, reportPath)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to parse report file %v: %w", reportPath, err))
