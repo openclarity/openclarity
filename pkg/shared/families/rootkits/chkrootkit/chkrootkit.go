@@ -18,7 +18,6 @@ package chkrootkit
 import (
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -57,23 +56,17 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		// validate that chkrootkit binary exists
-		if _, err := os.Stat(s.config.BinaryPath); err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to find binary in %v: %w", s.config.BinaryPath, err))
-			return
-		}
-
 		// Locate chkrootkit binary
 		if s.config.BinaryPath == "" {
 			s.config.BinaryPath = ChkrootkitBinary
 		}
 
-		yaraBinaryPath, err := exec.LookPath(s.config.BinaryPath)
+		chkrootkitBinaryPath, err := exec.LookPath(s.config.BinaryPath)
 		if err != nil {
 			s.sendResults(retResults, fmt.Errorf("failed to lookup executable %s: %w", s.config.BinaryPath, err))
 			return
 		}
-		s.logger.Debugf("found chkrootkit binary at: %s", yaraBinaryPath)
+		s.logger.Debugf("found chkrootkit binary at: %s", chkrootkitBinaryPath)
 
 		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
 		if err != nil {
@@ -88,7 +81,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 
 		// nolint:gosec
-		cmd := exec.Command(s.config.BinaryPath, args...)
+		cmd := exec.Command(chkrootkitBinaryPath, args...)
 		s.logger.Infof("running chkrootkit command: %v", cmd.String())
 		out, err := sharedutils.RunCommand(cmd)
 		if err != nil {
