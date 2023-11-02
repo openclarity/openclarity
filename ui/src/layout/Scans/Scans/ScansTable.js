@@ -110,7 +110,7 @@ const ScansTable = () => {
                     {...OPERATORS.endswith},
                     {...OPERATORS.contains, valueitems: [], creatable: true}
                 ]},
-                {value: "scope", label: "Asset Query", operators: [
+                {value: "scope", label: "Scope", operators: [
                     {...OPERATORS.eq, valueitems: [], creatable: true},
                     {...OPERATORS.ne, valueitems: [], creatable: true},
                     {...OPERATORS.startswith},
