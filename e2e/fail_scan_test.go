@@ -35,7 +35,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
 				GetCustomScanConfig(
-					&DefaultScanFamiliesConfig,
+					&FullScanFamiliesConfig,
 					"assetInfo/labels/any(t: t/key eq 'notexisting' and t/value eq 'label')",
 					600,
 				))
@@ -90,7 +90,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
 				GetCustomScanConfig(
-					&DefaultScanFamiliesConfig,
+					&FullScanFamiliesConfig,
 					DefaultScope,
 					2,
 				))
