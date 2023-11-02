@@ -19,7 +19,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -48,7 +48,7 @@ type TestDB struct {
 func NewTestDB(logger *log.Entry, lynisDBDir string) (*TestDB, error) {
 	// Comes from the Lynis install:
 	// https://github.com/CISOfy/lynis/blob/master/db/tests.db
-	lynisTestDBPath := path.Join(lynisDBDir, "tests.db")
+	lynisTestDBPath := filepath.Join(lynisDBDir, "tests.db")
 	if _, err := os.Stat(lynisTestDBPath); err != nil {
 		return nil, fmt.Errorf("failed to find DB @ %v: %w", lynisTestDBPath, err)
 	}
