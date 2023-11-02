@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isEmpty } from 'lodash';
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import ErrorMessageDisplay from 'components/ErrorMessageDisplay';
+import { WrappingTextBoxWithEllipsis } from 'components/WrappingTextBoxWithEllipsis';
 import { ROUTES, FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
 import { formatDate, calculateDuration } from 'utils/utils';
 import { SCANS_PATHS } from 'layout/Scans';
@@ -41,16 +42,41 @@ const TimeDataDisplayRow = ({startTime, endTime}) => (
     </TitleValueDisplayRow>
 )
 
-const StatsDisplay = ({path, size, type, scanTime}) => {
+const RootFsDisplay = ({ path, size, type }) =>
+    <TitleValueDisplayRow>
+        <TitleValueDisplay title="Path">{path}</TitleValueDisplay>
+        <TitleValueDisplay title="Size">{size}</TitleValueDisplay>
+        <TitleValueDisplay title="Type">{type}</TitleValueDisplay>
+    </TitleValueDisplayRow>
+
+const CsvDisplay = ({path: input, type}) =>
+    <TitleValueDisplayRow>
+        <TitleValueDisplay title="Input">
+            <WrappingTextBoxWithEllipsis numberOfLines={5}>
+                {input}
+            </WrappingTextBoxWithEllipsis>
+        </TitleValueDisplay>
+        <TitleValueDisplay title="Count">{(input || '').split(',').length.toString()}</TitleValueDisplay>
+        <TitleValueDisplay title="Type">{type}</TitleValueDisplay>
+    </TitleValueDisplayRow>
+
+const StatsDisplay = ({scanTime, ...props}) => {
     const {startTime, endTime} = scanTime || {};
+
+    const statsByType = useMemo(() => {
+        switch (props.type) {
+            case 'rootfs':
+                return <RootFsDisplay {...props} />
+            case 'csv':
+                return <CsvDisplay {...props} />
+            default:
+                return <RootFsDisplay {...props} />
+        }
+    }, [props]);
 
     return (
         <div style={{border: `1px solid ${BORDER_COLOR}`, borderBottom: "none", padding: "15px"}}>
-            <TitleValueDisplayRow>
-                <TitleValueDisplay title="Path">{path}</TitleValueDisplay>
-                <TitleValueDisplay title="Size">{size}</TitleValueDisplay>
-                <TitleValueDisplay title="Type">{type}</TitleValueDisplay>
-            </TitleValueDisplayRow>
+            {statsByType}
             <TimeDataDisplayRow startTime={startTime} endTime={endTime} />
         </div>
     )
