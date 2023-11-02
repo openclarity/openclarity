@@ -114,7 +114,7 @@ const ConfigurationsTable = () => {
                         {...OPERATORS.endswith},
                         {...OPERATORS.contains, valueItems: [], creatable: true}
                     ]},
-                    {value: "scanTemplate.scope", label: "Asset Query", operators: [
+                    {value: "scanTemplate.scope", label: "Scope", operators: [
                         {...OPERATORS.eq, valueItems: [], creatable: true},
                         {...OPERATORS.ne, valueItems: [], creatable: true},
                         {...OPERATORS.startswith},
