@@ -139,7 +139,7 @@ These tools include:
 A high-level architecture overview is available [here](ARCHITECTURE.md)
 
 # Roadmap
-VMClarity project roadmap is available [here](https://github.com/orgs/openclarity/projects/2/views/7).
+VMClarity project roadmap is available [here](https://github.com/orgs/openclarity/projects/5/views/5).
 
 # Contributing
 
