@@ -26,13 +26,13 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-var _ = ginkgo.Describe("Running a default scan (SBOM, vulnerabilities and exploits)", func() {
+var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, misconfigurations, rootkits, SBOM, secrets and vulnerabilities)", func() {
 	reportFailedConfig := ReportFailedConfig{}
 
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("applying a scan configuration")
-			apiScanConfig, err := client.PostScanConfig(ctx, GetDefaultScanConfig())
+			apiScanConfig, err := client.PostScanConfig(ctx, GetFullScanConfig())
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("updating scan configuration to run now")
@@ -75,7 +75,7 @@ var _ = ginkgo.Describe("Running a default scan (SBOM, vulnerabilities and explo
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, time.Second*120, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout*10, time.Second).Should(gomega.BeTrue())
 		})
 	})
 

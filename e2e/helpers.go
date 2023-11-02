@@ -29,11 +29,26 @@ const (
 	DefaultTimeout time.Duration = 60 * time.Second
 )
 
-var DefaultScanFamiliesConfig = models.ScanFamiliesConfig{
+var FullScanFamiliesConfig = models.ScanFamiliesConfig{
 	Exploits: &models.ExploitsConfig{
 		Enabled: utils.PointerTo(true),
 	},
+	InfoFinder: &models.InfoFinderConfig{
+		Enabled: utils.PointerTo(true),
+	},
+	Malware: &models.MalwareConfig{
+		Enabled: utils.PointerTo(true),
+	},
+	Misconfigurations: &models.MisconfigurationsConfig{
+		Enabled: utils.PointerTo(true),
+	},
+	Rootkits: &models.RootkitsConfig{
+		Enabled: utils.PointerTo(true),
+	},
 	Sbom: &models.SBOMConfig{
+		Enabled: utils.PointerTo(true),
+	},
+	Secrets: &models.SecretsConfig{
 		Enabled: utils.PointerTo(true),
 	},
 	Vulnerabilities: &models.VulnerabilitiesConfig{
@@ -41,9 +56,9 @@ var DefaultScanFamiliesConfig = models.ScanFamiliesConfig{
 	},
 }
 
-func GetDefaultScanConfig() models.ScanConfig {
+func GetFullScanConfig() models.ScanConfig {
 	return GetCustomScanConfig(
-		&DefaultScanFamiliesConfig,
+		&FullScanFamiliesConfig,
 		DefaultScope,
 		600, // nolint:gomnd
 	)
