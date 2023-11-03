@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import { ROUTES } from 'utils/systemConsts';
-import { getAssetName } from 'layout/Assets/utils';
+import { getAssetName } from 'utils/utils';
 import { VMInfoDetails } from './VMInfoDetails';
 import { ContainerImageInfoDetails } from './ContainerImageInfoDetails';
 import { ContainerInfoDetails } from './ContainerInfoDetails';

@@ -1,18 +1,26 @@
 import TitleValueDisplay, { TitleValueDisplayRow } from 'components/TitleValueDisplay';
-import { formatDate } from 'utils/utils';
+import { formatDate, getAssetName } from 'utils/utils';
+
+const NAME_SORT_IDS = [
+    "asset.assetInfo.instanceID",
+    "asset.assetInfo.podName",
+    "asset.assetInfo.dirName",
+    "asset.assetInfo.imageID",
+    "asset.assetInfo.containerName"
+];
 
 export const getAssetAndScanColumnsConfigList = () => ([
     {
         Header: "Asset name",
         id: "assetName",
-        sortIds: ["asset.assetInfo.instanceID"],
-        accessor: "asset.assetInfo.instanceID"
+        sortIds: NAME_SORT_IDS,
+        accessor: (data) => getAssetName(data.asset.assetInfo),
     },
     {
         Header: "Asset location",
         id: "assetLocation",
         sortIds: ["asset.assetInfo.location"],
-        accessor: "asset.assetInfo.location"
+        accessor: (data) => data.asset.assetInfo.location || data.asset.assetInfo.repoDigests?.[0],
     },
     {
         Header: "Found on",
