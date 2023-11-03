@@ -3,12 +3,19 @@ import TablePage from 'components/TablePage';
 import { OPERATORS } from 'components/Filter';
 import { APIS } from 'utils/systemConsts';
 import { getFindingsColumnsConfigList, getVulnerabilitiesColumnConfigItem, formatDate, getAssetColumnsFiltersConfig,
-    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, scanColumnsFiltersConfig } from 'utils/utils';
+    findingsColumnsFiltersConfig, vulnerabilitiesCountersColumnsFiltersConfig, scanColumnsFiltersConfig, getAssetName } from 'utils/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import StatusIndicator, { STATUS_MAPPING } from './StatusIndicator';
 
 const TABLE_TITLE = "asset scans";
 
+const NAME_SORT_IDS = [
+    "asset.assetInfo.instanceID",
+    "asset.assetInfo.podName",
+    "asset.assetInfo.dirName",
+    "asset.assetInfo.imageID",
+    "asset.assetInfo.containerName"
+];
 const SCAN_START_TIME_SORT_IDS = ["scan.startTime"];
 
 const FILTER_SCAN_STATUSES = Object.keys(STATUS_MAPPING).map(statusKey => (
@@ -20,8 +27,8 @@ const AssetScansTable = () => {
         {
             Header: "Asset name",
             id: "name",
-            sortIds: ["asset.assetInfo.instanceID"],
-            accessor: "asset.assetInfo.instanceID"
+            sortIds: NAME_SORT_IDS,
+            accessor: (assetScan) => getAssetName(assetScan.asset.assetInfo),
         },
         {
             Header: "Asset type",
@@ -33,7 +40,7 @@ const AssetScansTable = () => {
             Header: "Asset location",
             id: "location",
             sortIds: ["asset.assetInfo.location"],
-            accessor: "asset.assetInfo.location"
+            accessor: (assetScan) => assetScan.asset.assetInfo.location || assetScan.asset.assetInfo.repoDigests?.[0],
         },
         {
             Header: "Scan name",
