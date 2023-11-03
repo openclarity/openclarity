@@ -77,11 +77,11 @@ spec:
               value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "vmclarity.freshclamMirror.name" .) "1000") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_YARA_RULE_SERVER_ADDRESS
               value: {{ .Values.orchestrator.yaraRuleServerAddress | default (printf "http://%s:%s" (include "vmclarity.yaraRuleServer.name" .) "9993") }}
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
+              value: {{ .Values.orchestrator.provider }}
 
             {{- if eq .Values.orchestrator.provider "aws" -}}
             {{- with .Values.orchestrator.aws }}
-            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
-              value: "aws"
             - name: AWS_REGION
               value: {{ .region }}
             - name: VMCLARITY_AWS_SCANNER_REGION
@@ -101,8 +101,6 @@ spec:
 
             {{- if eq .Values.orchestrator.provider "gcp" -}}
             {{- with .Values.orchestrator.gcp }}
-            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
-              value: "gcp"
             - name: VMCLARITY_GCP_PROJECT_ID
               value: {{ .projectId }}
             - name: VMCLARITY_GCP_SCANNER_ZONE
@@ -118,8 +116,6 @@ spec:
 
             {{- if eq .Values.orchestrator.provider "azure" -}}
             {{- with .Values.orchestrator.azure }}
-            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
-              value: "azure"
             - name: VMCLARITY_AZURE_SUBSCRIPTION_ID
               value: .subscriptionId
             - name: VMCLARITY_AZURE_SCANNER_LOCATION
@@ -150,8 +146,11 @@ spec:
             {{- end }}
 
             {{- if eq .Values.orchestrator.provider "kubernetes" }}
-            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
-              value: "kubernetes"
             {{- with .Values.orchestrator.kubernetes }}
+            {{- end -}}
+            {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "docker" }}
+            {{- with .Values.orchestrator.docker }}
             {{- end -}}
             {{- end }}
