@@ -60,23 +60,23 @@ spec:
             timeoutSeconds: 10
           env:
             - name: VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS
-              value: 'http://{{ include "vmclarity.apiserver.name" . }}:8888'
+              value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY
               value: {{ .Values.orchestrator.deleteJobPolicy }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE
               value: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS
-              value: {{ .Values.orchestrator.scannerApiServerAddress }}
+              value: {{ .Values.orchestrator.scannerApiServerAddress | default (printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS
-              value: {{ .Values.orchestrator.exploitsDBAddress }}
+              value: {{ .Values.orchestrator.exploitsDBAddress | default (printf "http://%s:%s" (include "vmclarity.exploitDBServer.name" .) "1326") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.trivyServerAddress }}
+              value: {{ .Values.orchestrator.trivyServerAddress | default (printf "http://%s:%s" (include "vmclarity.trivyServer.name" .) "9992") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.grypeServerAddress }}
+              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "http://%s:%s" (include "vmclarity.grypeServer.name" .) "9991") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
-              value: {{ .Values.orchestrator.freshclamMirrorAddress }}
-            - name: YARA_RULE_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.yaraRuleServerAddress }}
+              value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "vmclarity.freshclamMirror.name" .) "1000") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_YARA_RULE_SERVER_ADDRESS
+              value: {{ .Values.orchestrator.yaraRuleServerAddress | default (printf "http://%s:%s" (include "vmclarity.yaraRuleServer.name" .) "9993") }}
 
             {{- if eq .Values.orchestrator.provider "aws" -}}
             {{- with .Values.orchestrator.aws }}
