@@ -222,6 +222,9 @@ orchestrator:
 
   kubernetes: {}
 
+  # Only for testing purposes
+  docker: {}
+
 ui:
   # -- Number of replicas for the UI service
   replicas: 1
