@@ -127,10 +127,10 @@ const CustomQueryBuilder = ({
         config,
         tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
     });
-    //const [query, setQuery] = useState(initialQuery);
-    const [field, helpers] = useField(name);
-    const { value } = field;
+
+    const [field, , helpers] = useField(name);
     const { setValue } = helpers;
+    const { value } = field;
 
     const readYamlFile = useCallback(
         async () => {
@@ -184,10 +184,13 @@ const CustomQueryBuilder = ({
         //setQueryState(prevState => ({ ...prevState, tree: immutableTree, config: config }));
         updateResult(immutableTree, config)
         const jsonTree = QbUtils.getTree(immutableTree);
-        console.log(jsonTree);
+        const query = postConvertQuery(QbUtils.queryString(queryState.tree, queryState.config));
+        console.log('query:', query);
+        //console.log(jsonTree);
+        setValue(query);
         // `jsonTree` can be saved to backend, and later loaded to `queryValue`
         // TODO: SAVE TO BACKEND
-    }, [updateResult]);
+    }, [setValue, queryState.config, queryState.tree, updateResult]);
 
     useEffect(() => {
         setQueryState({ config, tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config) });
@@ -198,6 +201,7 @@ const CustomQueryBuilder = ({
         // eslint-disable-next-line
     }, [])
 
+    console.log('v: ', value)
     return (
         <div>
             <Query
@@ -210,15 +214,15 @@ const CustomQueryBuilder = ({
                 <div>
                     Query string:{" "}
                     <pre>
-                        {JSON.stringify(postConvertQuery(QbUtils.queryString(queryState.tree, queryState.config)))}
+                        {value}
                     </pre>
                 </div>
-                <div>
+                {/* <div>
                     JsonLogic:{" "}
                     <pre>
                         {JSON.stringify(QbUtils.jsonLogicFormat(queryState.tree, queryState.config))}
                     </pre>
-                </div>
+                </div> */}
             </div>
 
             <Button onClick={resetValue}>Reset</Button>
