@@ -9,12 +9,14 @@
 {{- $dbPort := index .Values "kubeclarity-postgresql" "service" "ports" "postgresql" -}}
 {{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "username" -}}
 {{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
+{{- $dbSSLMode := index .Values "kubeclarity-postgresql" "auth" "sslMode" -}}
 {{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
   {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
   {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" -}}
   {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "username" -}}
   {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
+  {{- $dbSSLMode = index .Values "kubeclarity-postgresql-external" "auth" "sslMode" -}}
 {{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
@@ -53,7 +55,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -76,7 +78,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -100,7 +102,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
           {{- if not .Values.global.openShiftRestricted }}
             runAsUser: 1001
@@ -143,6 +145,8 @@ spec:
               value: {{ $dbPort | quote }}
             - name: DB_USER
               value: {{ $dbUser | quote }}
+            - name: DB_SSL_MODE
+              value: {{ $dbSSLMode | quote }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
@@ -185,7 +189,7 @@ spec:
           securityContext:
             capabilities:
               drop:
-                - all
+                - ALL
             runAsNonRoot: true
             {{- if not .Values.global.openShiftRestricted }}
             runAsGroup: 1000
