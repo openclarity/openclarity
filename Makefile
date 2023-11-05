@@ -246,18 +246,18 @@ check: lint test ## Run tests and linters
 
 .PHONY: gomod-tidy
 gomod-tidy:
-	cd backend && go mod tidy
-	cd api && go mod tidy
-	cd shared && go mod tidy
-	cd cli && go mod tidy
-	cd runtime_scan && go mod tidy
-	cd runtime_scan/api && go mod tidy
-	cd runtime_k8s_scanner && go mod tidy
-	cd cis_docker_benchmark_scanner && go mod tidy
-	cd sbom_db/backend && go mod tidy
-	cd sbom_db/api && go mod tidy
-	cd e2e && go mod tidy
-	cd e2e/vulnerable && go mod tidy
+	cd backend && go mod tidy -compat=1.17
+	cd api && go mod tidy -compat=1.17
+	cd shared && go mod tidy -compat=1.17
+	cd cli && go mod tidy -compat=1.17
+	cd runtime_scan && go mod tidy -compat=1.17
+	cd runtime_scan/api && go mod tidy -compat=1.17
+	cd runtime_k8s_scanner && go mod tidy -compat=1.17
+	cd cis_docker_benchmark_scanner && go mod tidy -compat=1.17
+	cd sbom_db/backend && go mod tidy -compat=1.17
+	cd sbom_db/api && go mod tidy -compat=1.17
+	cd e2e && go mod tidy -compat=1.17
+	cd e2e/vulnerable && go mod tidy -compat=1.17
 
 .PHONY: e2e
 e2e:
