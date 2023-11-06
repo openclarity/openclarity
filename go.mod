@@ -32,7 +32,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/moby/sys/mountinfo v0.6.2
+	github.com/moby/sys/mountinfo v0.7.0
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.0.0
 	github.com/onsi/gomega v1.29.0
