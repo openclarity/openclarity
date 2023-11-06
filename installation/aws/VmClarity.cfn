@@ -1116,7 +1116,7 @@ Parameters:
   FreshclamMirrorContainerImageOverride:
     Description: >
       Name of the container image used for the freshclam mirror server.
-      "ghcr.io/openclarity/freshclam-mirror:v0.1.0" will be used if not overridden.
+      "ghcr.io/openclarity/freshclam-mirror:v0.2.0" will be used if not overridden.
     Type: String
     Default: ''
   TrivyServerContainerImageOverride:
