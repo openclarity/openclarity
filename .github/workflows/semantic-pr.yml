@@ -26,26 +26,29 @@ jobs:
             docs
             feat
             fix
+            perf
             refactor
             revert
+            style
             test
 
           scopes: |
             api
-            aws
-            azure
-            ci
             cli
-            deps
-            docker
-            e2e
-            gcp
-            helm
-            k8s
             orchestrator
             provider
             ui
             uibackend
+
+            aws
+            azure
+            docker
+            gcp
+            helm
+            k8s
+
+            deps
+            e2e
 
       # Leave a comment if linter reports an error
       - uses: marocchino/sticky-pull-request-comment@v2
