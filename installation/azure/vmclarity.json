@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.22.6.54827",
-      "templateHash": "14936465456236726619"
+      "templateHash": "6666359786389022611"
     }
   },
   "parameters": {
@@ -111,7 +111,7 @@
     },
     "freshclamMirrorContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.1.0",
+      "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.2.0",
       "metadata": {
         "description": "Freshclam Mirror Container Image"
       }
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.22.6.54827",
-              "templateHash": "10329606438156253093"
+              "templateHash": "3943393218176584848"
             }
           },
           "parameters": {
@@ -681,7 +681,7 @@
             },
             "freshclamMirrorContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.1.0",
+              "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.2.0",
               "metadata": {
                 "description": "Freshclam Mirror Container Image"
               }
