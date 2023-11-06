@@ -7,7 +7,7 @@ const convertDataType = (originalType) => {
         case "object":
             return "!struct";
         case "array":
-            return "!group"
+            return "!struct"
         default:
             return originalType;
     }
