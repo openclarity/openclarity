@@ -42,7 +42,7 @@ require (
 	github.com/openclarity/yara-rule-server v0.1.1-0.20231003081737-acb3afa89a18
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vulsio/go-exploitdb v0.4.6
