@@ -47,7 +47,7 @@ jobs:
           org-name: openclarity
           token: ${{ secrets.PAT }}
           filter-tags: ${{ format( 'pr{0}-*', github.event.pull_request.number) }}
-          dry-run: true
+          dry-run: false
 
   schedule:
     if: github.event_name == 'schedule'
@@ -58,13 +58,13 @@ jobs:
         uses: snok/container-retention-policy@v2
         with:
           image-names: ${{ env.images }}
-          cut-off: 14 days ago UTC
+          cut-off: 7 days ago UTC
           timestamp-to-use: created_at
           account-type: org
           org-name: openclarity
           token: ${{ secrets.PAT }}
           filter-include-untagged: true
-          dry-run: true
+          dry-run: false
 
   dispatch:
     if: github.event_name == 'workflow_dispatch'
