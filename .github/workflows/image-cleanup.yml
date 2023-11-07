@@ -1,14 +1,13 @@
 name: Container image cleanup
 
 on:
-# FIXME(chrisgacsal): re-enable PR and scheduled trigger after successful testing
-#  pull_request:
-#    types:
-#      - closed
-#  schedule:
-#    # At 06:00 on every day-of-week from Monday through Friday.
-#    # https://crontab.guru/#0_6_*_*_1-5
-#    - cron: '0 6 * * 1-5'
+  pull_request:
+    types:
+      - closed
+  schedule:
+    # At minute 0 on every day-of-week from Monday through Friday.
+    # https://crontab.guru/#0_*_*_*_1-5
+    - cron: '0 * * * 1-5'
   workflow_dispatch:
     inputs:
       cut-off:
@@ -46,7 +45,7 @@ jobs:
           timestamp-to-use: created_at
           account-type: org
           org-name: openclarity
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           filter-tags: ${{ format( 'pr{0}-*', github.event.pull_request.number) }}
           dry-run: true
 
@@ -63,7 +62,7 @@ jobs:
           timestamp-to-use: created_at
           account-type: org
           org-name: openclarity
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           filter-include-untagged: true
           dry-run: true
 
@@ -80,6 +79,6 @@ jobs:
           timestamp-to-use: created_at
           account-type: org
           org-name: openclarity
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           filter-include-untagged: true
           dry-run: ${{ inputs.dry-run }}
