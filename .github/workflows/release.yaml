@@ -70,10 +70,10 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-api-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-api-${{ github.ref_name }}-
-            ${{ runner.os }}-go-api-${{ github.event.repository.default_branch }}-
+            ${{ runner.os }}-go-${{ github.ref_name }}-
+            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
       - name: Create vmclarity-cli manifest(s)
         env:
