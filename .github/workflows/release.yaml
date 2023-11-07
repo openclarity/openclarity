@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
 
 permissions:
   packages: write
@@ -23,21 +24,37 @@ jobs:
       push: true
       use_release_repository: true
 
-  main_release:
-    needs: build_and_push
-    name: Release
+  publish_helm:
+    needs: verification
+    name: Publish Helm Chart
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Render cloudformation
-        id: render_cloudformation
-        run: |
-          sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:${{ github.ref_name }}@' \
-            installation/aws/VmClarity.cfn
+      - name: Create Helm Chart package
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-helm-chart
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and Publish Helm Chart
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make publish-helm-chart
+
+  artifacts:
+    name: Create artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -53,18 +70,80 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-api-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ github.ref_name }}-
-            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+            ${{ runner.os }}-go-api-${{ github.ref_name }}-
+            ${{ runner.os }}-go-api-${{ github.event.repository.default_branch }}-
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
-        with:
-          version: v1.16.0
-          args: release --clean --skip-validate
+      - name: Create vmclarity-cli manifest(s)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: make dist-vmclarity-cli
+
+      - name: Create Cloudformation manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-cloudformation
+
+      - name: Create Azure Bicep manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-bicep
+
+      - name: Create Docker Compose manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-docker-compose
+
+      - name: Create Google Cloud Deployment manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-gcp-deployment
+
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: |
+            dist/*.tar.gz
+            dist/*.tgz
+            dist/*.sha256sum
+            dist/bicep/vmclarity.json
+            dist/bicep/vmclarity-UI.json
+          if-no-files-found: error
+
+  main_release:
+    needs:
+      - verification
+      - build_and_push
+      - publish_helm
+      - artifacts
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: dist
+
+      - name: Generate changelog
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make generate-release-notes
+
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "dist/*.tar.gz,dist/*.sha256sum,dist/bicep/vmclarity.json,dist/bicep/vmclarity-UI.json"
+          bodyFile: "dist/CHANGELOG.md"
+          draft: true
+          name: "Release ${{ github.ref_name }}"
+          updateOnlyUnreleased: true
 
   # TODO(sambetts) We need to publish a tag in the format "api/<version>" tag
   # so that go mod is able to import the api module without overriding. We need

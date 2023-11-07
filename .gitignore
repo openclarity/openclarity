@@ -6,3 +6,4 @@ bin/
 db.db
 ui/build/
 site/
+dist

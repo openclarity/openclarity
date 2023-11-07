@@ -11,7 +11,7 @@ SHELL = /usr/bin/env bash -o pipefail
 ####
 
 BINARY_NAME ?= vmclarity
-VERSION ?= $(COMMIT_HASH)
+VERSION ?= $(shell git rev-parse --short HEAD)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= $(VERSION)
@@ -28,11 +28,16 @@ BUILD_TIMESTAMP := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 COMMIT_HASH := $(shell git rev-parse HEAD)
 INSTALLATION_DIR := $(ROOT_DIR)/installation
 HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm
+HELM_OCI_REPOSITORY := ghcr.io/openclarity/charts
+DIST_DIR ?= $(ROOT_DIR)/dist
 
 include makefile.d/*.mk
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
+
+$(DIST_DIR):
+	@mkdir -p $(DIST_DIR)
 
 ##@ General
 
@@ -49,16 +54,32 @@ build: ui build-all-go ## Build all components
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend ## Build all go components
 
 bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -o bin/vmclarity-orchestrator cmd/vmclarity-orchestrator/main.go
+	go build -race -ldflags="-s -w \
+		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-o $@ cmd/vmclarity-orchestrator/main.go
 
 bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -o bin/vmclarity-apiserver cmd/vmclarity-apiserver/main.go
+	go build -race -ldflags="-s -w \
+		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-o $@ cmd/vmclarity-apiserver/main.go
 
 bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -o bin/vmclarity-cli cmd/vmclarity-cli/main.go
+	go build -race -ldflags="-s -w  \
+		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-o $@ cmd/vmclarity-cli/main.go
 
 bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -o bin/vmclarity-ui-backend cmd/vmclarity-ui-backend/main.go
+	go build -race -ldflags="-s -w \
+		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-o $@ cmd/vmclarity-ui-backend/main.go
 
 .PHONY: clean
 clean: clean-ui clean-go ## Clean all build artifacts
@@ -255,7 +276,195 @@ gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
 	@$(BICEP_BIN) build installation/azure/vmclarity.bicep
 
 .PHONY: gen-helm-docs
-gen-helm-docs: ## Generating documentation for Helm chart
+gen-helm-docs: bin/helm-docs ## Generating documentation for Helm chart
 	$(info Generating Helm chart(s) documentation ...)
-	docker run --rm --volume "$(HELM_CHART_DIR):/helm-docs" -u $(shell id -u) jnorwood/helm-docs:v1.11.0
+	$(HELMDOCS_BIN) --chart-search-root $(HELM_CHART_DIR)
 
+##@ Release
+
+.DELETE_ON_ERROR:
+
+.PHONY: clean-dist
+clean-dist:
+	rm -rf $(DIST_DIR)/*
+
+.PHONY: dist-all
+dist-all: dist-bicep dist-cloudformation dist-docker-compose dist-gcp-deployment dist-helm-chart dist-vmclarity-cli
+
+CLI_OSARCH := $(shell echo {linux-,darwin-}{amd64,arm64})
+CLI_BINARIES := $(CLI_OSARCH:%=$(DIST_DIR)/%/vmclarity-cli)
+CLI_TARS := $(CLI_OSARCH:%=$(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz)
+CLI_TAR_SHA256SUMS := $(CLI_TARS:%=%.sha256sum)
+
+.PHONY: dist-vmclarity-cli
+dist-vmclarity-cli: $(CLI_BINARIES) $(CLI_TARS) $(CLI_TAR_SHA256SUMS) | $(DIST_DIR) ## Create vmclarity-cli release artifacts
+
+$(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/vmclarity-cli $(DIST_DIR)/%/LICENSE $(DIST_DIR)/%/README.md
+	$(info --- Bundling $(dir $<) into $(notdir $@))
+	tar cv -f $@ -C $(dir $<) --use-compress-program='gzip -9' $(notdir $^)
+
+$(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum
+	$(info --- Building $(notdir $@) for $*)
+	GOOS=$(firstword $(subst -, ,$*)) \
+	GOARCH=$(lastword $(subst -, ,$*)) \
+	CGO_ENABLED=0 \
+	go build -ldflags="-s -w \
+		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-o $@ cmd/$(notdir $@)/main.go
+
+$(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE
+	$(info --- Copy $(notdir $<) to $@)
+	@cp $< $@
+
+$(DIST_DIR)/%/README.md: $(ROOT_DIR)/README.md
+	$(info --- Copy $(notdir $<) to $@)
+	@cp $< $@
+
+CFN_DIR := $(INSTALLATION_DIR)/aws
+CFN_FILES := $(shell find $(CFN_DIR))
+CFN_DIST_DIR := $(DIST_DIR)/cloudformation
+
+.PHONY: dist-cloudformation
+dist-cloudformation: $(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz $(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz.sha256sum ## Create AWS CloudFormation release artifacts
+
+$(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz: $(DIST_DIR)/aws-cloudformation-$(VERSION).bundle $(CFN_DIST_DIR)/LICENSE | $(CFN_DIST_DIR)
+	$(info --- Bundle $(CFN_DIST_DIR) into $(notdir $@))
+	tar cv -f $@ -C $(CFN_DIST_DIR) --use-compress-program='gzip -9' $(shell ls $(CFN_DIST_DIR))
+
+$(DIST_DIR)/aws-cloudformation-$(VERSION).bundle: $(CFN_FILES) | $(CFN_DIST_DIR)
+	$(info --- Generate Cloudformation bundle)
+	cp -R $(CFN_DIR)/ $(CFN_DIST_DIR)/
+	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/VmClarity.cfn
+	@touch $@
+
+$(CFN_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(CFN_DIST_DIR)
+	$(info --- Copy $(notdir $@) to $@)
+	@cp $< $@
+
+$(CFN_DIST_DIR):
+	@mkdir -p $@
+
+BICEP_DIR := $(INSTALLATION_DIR)/azure
+BICEP_FILES := $(shell find $(BICEP_DIR))
+BICEP_DIST_DIR := $(DIST_DIR)/bicep
+
+.PHONY: dist-bicep
+dist-bicep: $(DIST_DIR)/azure-bicep-$(VERSION).tar.gz $(DIST_DIR)/azure-bicep-$(VERSION).tar.gz.sha256sum ## Create Azure Bicep release artifacts
+
+$(DIST_DIR)/azure-bicep-$(VERSION).tar.gz: $(DIST_DIR)/azure-bicep-$(VERSION).bundle $(BICEP_DIST_DIR)/LICENSE | $(BICEP_DIST_DIR)
+	$(info --- Bundle $(BICEP_DIST_DIR) into $(notdir $@))
+	tar cv -f $@ -C $(BICEP_DIST_DIR) --use-compress-program='gzip -9' $(shell ls $(BICEP_DIST_DIR))
+
+$(DIST_DIR)/azure-bicep-$(VERSION).bundle: $(BICEP_FILES) $(BICEP_BIN) | $(BICEP_DIST_DIR)
+	$(info --- Generate Bicep bundle)
+	cp -R $(BICEP_DIR)/ $(BICEP_DIST_DIR)/
+	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
+		$(BICEP_DIST_DIR)/*.bicep $(BICEP_DIST_DIR)/vmclarity-UI.json
+	$(BICEP_BIN) build $(BICEP_DIST_DIR)/vmclarity.bicep
+	@touch $@
+
+$(BICEP_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(BICEP_DIST_DIR)
+	$(info --- Copy $(notdir $@) to $@)
+	@cp $< $@
+
+$(BICEP_DIST_DIR):
+	@mkdir -p $@
+
+DOCKER_COMPOSE_DIR := $(INSTALLATION_DIR)/docker
+DOCKER_COMPOSE_FILES := $(shell find $(DOCKER_COMPOSE_DIR))
+DOCKER_COMPOSE_DIST_DIR := $(DIST_DIR)/docker-compose
+
+.PHONY: dist-docker-compose
+dist-docker-compose: $(DIST_DIR)/docker-compose-$(VERSION).tar.gz $(DIST_DIR)/docker-compose-$(VERSION).tar.gz.sha256sum ## Create Docker Compose release artifacts
+
+$(DIST_DIR)/docker-compose-$(VERSION).tar.gz: $(DIST_DIR)/docker-compose-$(VERSION).bundle $(DOCKER_COMPOSE_DIST_DIR)/LICENSE | $(DOCKER_COMPOSE_DIST_DIR)
+	$(info --- Bundle $(DOCKER_COMPOSE_DIST_DIR) into $(notdir $@))
+	tar cv -f $@ -C $(DOCKER_COMPOSE_DIST_DIR) --use-compress-program='gzip -9' $(shell ls $(DOCKER_COMPOSE_DIST_DIR))
+
+$(DIST_DIR)/docker-compose-$(VERSION).bundle: $(DOCKER_COMPOSE_FILES) | $(DOCKER_COMPOSE_DIST_DIR)
+	$(info --- Generate Docker Compose bundle)
+	cp -R $(DOCKER_COMPOSE_DIR)/ $(DOCKER_COMPOSE_DIST_DIR)/
+	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
+		$(DOCKER_COMPOSE_DIST_DIR)/docker-compose.yml $(DOCKER_COMPOSE_DIST_DIR)/image_override.env
+	@touch $@
+
+$(DOCKER_COMPOSE_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(DOCKER_COMPOSE_DIST_DIR)
+	$(info --- Copy $(notdir $@) to $@)
+	@cp $< $@
+
+$(DOCKER_COMPOSE_DIST_DIR):
+	@mkdir -p $@
+
+GCP_DM_DIR := $(INSTALLATION_DIR)/gcp/dm
+GCP_DM_FILES := $(shell find $(GCP_DM_DIR))
+GCP_DM_DIST_DIR := $(DIST_DIR)/gcp-deployment
+
+.PHONY: dist-gcp-deployment
+dist-gcp-deployment: $(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz $(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz.sha256sum ## Create Google Cloud Deployment bundle
+
+$(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz: $(DIST_DIR)/gcp-deployment-$(VERSION).bundle $(GCP_DM_DIST_DIR)/LICENSE | $(GCP_DM_DIST_DIR)
+	$(info --- Bundle $(GCP_DM_DIST_DIR) into $(notdir $@))
+	tar cv -f $@ -C $(GCP_DM_DIST_DIR) --use-compress-program='gzip -9' $(shell ls $(GCP_DM_DIST_DIR))
+
+$(DIST_DIR)/gcp-deployment-$(VERSION).bundle: $(GCP_DM_FILES) | $(GCP_DM_DIST_DIR)
+	$(info --- Generate Google Cloud Deployment bundle)
+	cp -R $(GCP_DM_DIR)/ $(GCP_DM_DIST_DIR)/
+	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
+		$(GCP_DM_DIST_DIR)/vmclarity.py.schema $(GCP_DM_DIST_DIR)/components/vmclarity-server.py.schema
+	@touch $@
+
+$(GCP_DM_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(GCP_DM_DIST_DIR)
+	$(info --- Copy $(notdir $@) to $@)
+	@cp $< $@
+
+$(GCP_DM_DIST_DIR):
+	@mkdir -p $@
+
+HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm/vmclarity
+HELM_CHART_FILES := $(shell find $(HELM_CHART_DIR))
+HELM_CHART_DIST_DIR := $(DIST_DIR)/helm-vmclarity-chart
+
+.PHONY: dist-helm-chart
+dist-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION).tgz $(DIST_DIR)/vmclarity-$(VERSION).tgz.sha256sum ## Create Helm Chart bundle
+
+$(DIST_DIR)/vmclarity-$(VERSION).tgz: $(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle | $(HELM_CHART_DIST_DIR)
+	$(info --- Bundle $(HELM_CHART_DIST_DIR) into $(notdir $@))
+	$(HELM_BIN) package $(HELM_CHART_DIST_DIR) --version "$(VERSION)" --app-version "$(VERSION)" --destination $(DIST_DIR)
+
+$(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle: $(HELM_CHART_FILES) $(YQ_BIN) | $(HELM_CHART_DIST_DIR)
+	$(info --- Generate Helm Chart bundle)
+	cp -R $(HELM_CHART_DIR)/ $(HELM_CHART_DIST_DIR)/
+	$(YQ_BIN) -i ' \
+	.apiserver.image.tag = "$(VERSION)" | \
+	.orchestrator.image.tag = "$(VERSION)" | \
+	.orchestrator.scannerImage.tag = "$(VERSION)" | \
+	.ui.image.tag = "$(VERSION)" | \
+	.uibackend.image.tag = "$(VERSION)" \
+	' $(HELM_CHART_DIST_DIR)/values.yaml
+	$(YQ_BIN) -i ' \
+	.version = "$(VERSION)" | \
+	.appVersion = "$(VERSION)" \
+	' $(HELM_CHART_DIST_DIR)/Chart.yaml
+	$(HELMDOCS_BIN) --chart-search-root $(HELM_CHART_DIST_DIR)
+	@touch $@
+
+$(HELM_CHART_DIST_DIR):
+	@mkdir -p $@
+
+.PHONY: publish-helm-chart
+publish-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION).tgz ## Publish Helm Chart bundle to OCI registry
+	$(HELM_BIN) push $< oci://$(HELM_OCI_REPOSITORY)
+
+$(DIST_DIR)/%.sha256sum: | $(DIST_DIR)
+	$(info --- Generate SHA256 for $(notdir $@))
+	shasum -a 256 $(basename $@) | sed "s@$(dir $@)@@" > $@
+
+.PHONY: generate-release-notes
+generate-release-notes: $(DIST_DIR)/RELEASE.md ## Generate Release Notes
+
+$(DIST_DIR)/RELEASE.md: $(DIST_DIR)/CHANGELOG.md
+
+$(DIST_DIR)/CHANGELOG.md: $(ROOT_DIR)/.git/refs/heads/$(shell git rev-parse --abbrev-ref HEAD) $(ROOT_DIR)/cliff.toml $(ROOT_DIR)/release.tmpl
+	$(GITCLIFF_BIN) -vv --strip all --unreleased --tag $(VERSION) --output $@

@@ -5,7 +5,7 @@ description: |
   Virtual Machine Software Bill Of Materials (SBOM) and security threats such
   as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked
   secrets.
-version: v0.0.0-latest
+version: 0.0.0
 appVersion: "latest"
 type: application
 home: https://openclarity.io
