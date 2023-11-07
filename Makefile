@@ -431,7 +431,7 @@ dist-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION).tgz $(DIST_DIR)/vmclarity-$(VE
 
 $(DIST_DIR)/vmclarity-$(VERSION).tgz: $(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle | $(HELM_CHART_DIST_DIR)
 	$(info --- Bundle $(HELM_CHART_DIST_DIR) into $(notdir $@))
-	$(HELM_BIN) package $(HELM_CHART_DIST_DIR) --version "$(VERSION)" --app-version "$(VERSION)" --destination $(DIST_DIR)
+	$(HELM_BIN) package $(HELM_CHART_DIST_DIR) --version "$(VERSION:v%=%)" --app-version "$(VERSION)" --destination $(DIST_DIR)
 
 $(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle: $(HELM_CHART_FILES) $(YQ_BIN) | $(HELM_CHART_DIST_DIR)
 	$(info --- Generate Helm Chart bundle)
@@ -444,7 +444,7 @@ $(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle: $(HELM_CHART_FILES) $(YQ_BIN
 	.uibackend.image.tag = "$(VERSION)" \
 	' $(HELM_CHART_DIST_DIR)/values.yaml
 	$(YQ_BIN) -i ' \
-	.version = "$(VERSION)" | \
+	.version = "$(VERSION:v%=%)" | \
 	.appVersion = "$(VERSION)" \
 	' $(HELM_CHART_DIST_DIR)/Chart.yaml
 	$(HELMDOCS_BIN) --chart-search-root $(HELM_CHART_DIST_DIR)
