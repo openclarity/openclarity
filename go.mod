@@ -18,7 +18,7 @@ require (
 	github.com/anchore/syft v0.87.1
 	github.com/aptible/supercronic v0.2.27
 	github.com/aws/aws-sdk-go-v2 v1.22.1
-	github.com/aws/aws-sdk-go-v2/config v1.22.0
+	github.com/aws/aws-sdk-go-v2/config v1.22.1
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.130.0
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.23.0
 	github.com/aws/smithy-go v1.16.0
