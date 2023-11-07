@@ -1,12 +1,14 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/logos/KubeClarity-logo-dark-bg-horizontal@4x.png">
-  <source media="(prefers-color-scheme: light)" srcset="./images/logos/KubeClarity-logo-light-bg-horizontal@4x.png">
-  <img alt="KubeClarity Logo" src="./images/logos/KubeClarity-logo-light-bg-horizontal@4x.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://docs.openclarity.io/img/footer-logos/OC_logo_H_1C_white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://docs.openclarity.io/img/color-logo/logo.svg">
+  <img alt="Openclarity logo" src="https://docs.openclarity.io/img/color-logo/logo.svg" width="50%">
 </picture>
 
 KubeClarity is a tool for detection and management of Software Bill Of Materials (SBOM) and vulnerabilities of container images and filesystems. It scans both runtime K8s clusters and CI/CD pipelines for enhanced software supply chain security.
 
-![](images/dashboard-screen.png)
+![KubeClarity Dashboard screenshot](https://openclarity.io/docs/kubeclarity/dashboard.png)
+
+KubeClarity is the tool responsible for Kubernetes Security in the [Openclarity platform](https://openclarity.io).
 
 # Table of Contents
 
