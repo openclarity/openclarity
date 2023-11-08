@@ -1,0 +1,14 @@
+.query-buttons {
+  padding: 20px 0;
+  border-top: 1px solid black;
+
+  &__clear-button {
+    margin-left: 20px;
+  }
+}
+
+.query-builder-result {
+  &__odata {
+    text-wrap: wrap;
+  }
+}

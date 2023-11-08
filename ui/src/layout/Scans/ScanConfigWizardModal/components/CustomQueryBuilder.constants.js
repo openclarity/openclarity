@@ -5,32 +5,39 @@ const { FieldCascader } = AntdWidgets;
 
 const BASIC_OPERATORS = {
     equal: {
-        ...BasicConfig.operators.equal,
+        //...BasicConfig.operators.equal,
         label: 'equals',
         labelForFormat: 'eq',
+        // formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
+        //     const opStr = isForDisplay ? "=" : opDef.label;
+        //     if (valueTypes == "boolean" && isForDisplay)
+        //         return value == "No" ? `NOT ${field}` : `${field}`;
+        //     else
+        //         return `${field} ${opStr} ${value}`;
+        // },
     },
     not_equal: {
-        ...BasicConfig.operators.not_equal,
+        // ...BasicConfig.operators.not_equal,
         label: 'does not equal',
         labelForFormat: 'ne',
     },
     greater: {
-        ...BasicConfig.operators.greater,
+        //...BasicConfig.operators.greater,
         label: 'greater than',
         labelForFormat: 'gt',
     },
     greater_or_equal: {
-        ...BasicConfig.operators.greater_or_equal,
+        //...BasicConfig.operators.greater_or_equal,
         label: 'greater than or equal',
         labelForFormat: 'ge',
     },
     less: {
-        ...BasicConfig.operators.less,
+        //...BasicConfig.operators.less,
         label: 'less than',
         labelForFormat: 'lt',
     },
     less_or_equal: {
-        ...BasicConfig.operators.less_or_equal,
+        //...BasicConfig.operators.less_or_equal,
         label: 'less than or equal',
         labelForFormat: 'le',
     },
@@ -40,16 +47,36 @@ const BETWEEN_OPERATORS = {
     between: {
         ...BasicConfig.operators.between,
         label: "in between",
+        labelForFormat: 'in betweeen',
+        formatOp: (field, op, values, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay) => {
+            let valFrom = values.first();
+            let valTo = values.get(1);
+            if (isForDisplay)
+                return `${field} BETWEEN ${valFrom} AND ${valTo}`;
+            else
+                return `${field} ge ${valFrom} and ${field} le ${valTo}`;
+        },
+
     },
     not_between: {
         ...BasicConfig.operators.not_between,
-        label: "not in between"
+        label: "not in between",
+        labelForFormat: 'not in between',
+        formatOp: (field, op, values, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay) => {
+            let valFrom = values.first();
+            let valTo = values.get(1);
+            if (isForDisplay)
+                return `${field} NOT BETWEEN ${valFrom} AND ${valTo}`;
+            else
+                return `(${field} lt ${valFrom} or ${field} gt ${valTo})`;
+        },
     }
 }
 
 const FUNCTION_OPERATORS = {
     ends_with: {
         ...BasicConfig.operators.ends_with,
+
     },
     starts_with: {
         ...BasicConfig.operators.starts_with,
@@ -60,17 +87,33 @@ const FUNCTION_OPERATORS = {
     //    ...BasicConfig.operators
 }
 
+const IS_NULL_NOT_NULL = {
+    is_null: {
+        ...BasicConfig.operators.is_null,
+        label: "is null",
+        formatOp: (field, op, value, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
+            return isForDisplay ? `${field} IS NULL` : `${field} is null`;
+        },
+    },
+    is_not_null: {
+        ...BasicConfig.operators.is_not_null,
+        label: "is not null",
+        formatOp: (field, op, value, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
+            return isForDisplay ? `${field} IS NOT NULL` : `${field} is not null`;
+        },
+    }
+}
+
 const OPERATORS = {
-    ...BasicConfig.operators,
+    //...BasicConfig.operators,
     ...BASIC_OPERATORS,
-    ...BETWEEN_OPERATORS
+    ...BETWEEN_OPERATORS,
+    ...IS_NULL_NOT_NULL
 }
 
 const BASIC_OPERATORS_LIST = Object.keys(BASIC_OPERATORS);
 const FUNCTION_OPERATORS_LIST = Object.keys(FUNCTION_OPERATORS);
 const BETWEEN_OPERATORS_LIST = Object.keys(BETWEEN_OPERATORS);
-console.log('BETWEEN_OPERATORS:', BETWEEN_OPERATORS);
-console.log('BETWEEN_OPERATORS_LIST:', BETWEEN_OPERATORS_LIST);
 
 const BASIC_CONFIG = {
     ...BasicConfig,
@@ -84,12 +127,20 @@ const BASIC_CONFIG = {
         AND: {
             ...BasicConfig.conjunctions.AND,
             label: 'and',
-            formatConj: (children, _conj, not) => ((not ? 'not ' : '') + '(' + children.join(' || ') + ')'),
+            formatConj: (children, conj, not, isForDisplay) => {
+                return children.size > 1
+                    ? (not ? "not " : "") + "(" + children.join(" " + (isForDisplay ? "AND" : "and") + " ") + ")"
+                    : (not ? "not (" : "") + children.first() + (not ? ")" : "");
+            },
         },
         OR: {
             ...BasicConfig.conjunctions.OR,
             label: 'or',
-            formatConj: (children, _conj, not) => ((not ? 'not ' : '') + '(' + children.join(' || ') + ')'),
+            formatConj: (children, conj, not, isForDisplay) => {
+                return children.size > 1
+                    ? (not ? "not " : "") + "(" + children.join(" " + (isForDisplay ? "OR" : "or") + " ") + ")"
+                    : (not ? "not (" : "") + children.first() + (not ? ")" : "");
+            },
         },
     },
     operators: {
@@ -103,7 +154,7 @@ const BASIC_CONFIG = {
             defaultOperator: 'equal',
             widgets: {
                 'group-select': {
-                    operators: ['equal', 'not_equal'],
+                    operators: ['is_null', 'is_not_null'],
                 },
             },
         },
@@ -145,5 +196,4 @@ const BASIC_CONFIG = {
     fields: {}
 };
 
-console.log('BASIC_CONFIG1:', BASIC_CONFIG);
 export { BASIC_CONFIG }; 

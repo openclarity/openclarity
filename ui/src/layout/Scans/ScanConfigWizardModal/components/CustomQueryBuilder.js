@@ -7,11 +7,13 @@ import { Utils as QbUtils, Query, Builder } from "@react-awesome-query-builder/u
 import { useField } from 'formik';
 
 import Button from 'components/Button';
-import openApiYaml from '../../../../../../api/openapi.yaml';
+import openApiYaml from '/../api/openapi.yaml';
 import { BASIC_CONFIG } from './CustomQueryBuilder.constants';
-import { convertDataType, postConvertQuery } from './CustomQueryBuilder.functions';
+import { convertDataType } from './CustomQueryBuilder.functions';
 
 import "@react-awesome-query-builder/ui/css/styles.scss";
+
+import "./CustomQueryBuilder.scss";
 
 const collectProperties = (assetObject) => {
     console.log('assetObject:', cloneDeep(assetObject));
@@ -141,8 +143,6 @@ const CustomQueryBuilder = ({
                 //const api = OpenAPIParser.dereference(openApiYaml)
 
                 console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-                console.log(api.components.schemas.Asset);
-                console.log('bc: ', BASIC_CONFIG)
                 const properties = collectProperties(api.components.schemas.Asset);
                 setConfig(previousConfig => ({ ...previousConfig, fields: properties }))
             } catch (err) {
@@ -180,17 +180,18 @@ const CustomQueryBuilder = ({
     }, 100);
 
     const onChange = useCallback((immutableTree, config) => {
-        // Tip: for better performance you can apply `throttle` - see `examples/demo`
-        //setQueryState(prevState => ({ ...prevState, tree: immutableTree, config: config }));
-        updateResult(immutableTree, config)
-        const jsonTree = QbUtils.getTree(immutableTree);
-        const query = postConvertQuery(QbUtils.queryString(queryState.tree, queryState.config));
-        console.log('query:', query);
+        //const jsonTree = QbUtils.getTree(immutableTree);
         //console.log(jsonTree);
-        setValue(query);
         // `jsonTree` can be saved to backend, and later loaded to `queryValue`
-        // TODO: SAVE TO BACKEND
-    }, [setValue, queryState.config, queryState.tree, updateResult]);
+        updateResult(immutableTree, config)
+    }, [updateResult]);
+
+    useEffect(() => {
+        const query = QbUtils.queryString(queryState.tree, queryState.config, true);
+        setValue(query);
+        // eslint-disable-next-line
+    }, [queryState])
+
 
     useEffect(() => {
         setQueryState({ config, tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config) });
@@ -201,7 +202,6 @@ const CustomQueryBuilder = ({
         // eslint-disable-next-line
     }, [])
 
-    console.log('v: ', value)
     return (
         <div>
             <Query
@@ -213,8 +213,8 @@ const CustomQueryBuilder = ({
             <div className="query-builder-result">
                 <div>
                     Query string:{" "}
-                    <pre>
-                        {value}
+                    <pre className='query-builder-result__odata'>
+                        {value ?? "-"}
                     </pre>
                 </div>
                 {/* <div>
@@ -224,9 +224,10 @@ const CustomQueryBuilder = ({
                     </pre>
                 </div> */}
             </div>
-
-            <Button onClick={resetValue}>Reset</Button>
-            <Button onClick={clearValue}>Clear</Button>
+            <div className="query-buttons">
+                <Button onClick={resetValue}>Reset</Button>
+                <Button className="query-buttons__clear-button" onClick={clearValue}>Clear</Button>
+            </div>
 
         </div>
     )
