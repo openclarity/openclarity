@@ -315,12 +315,10 @@ $(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $
 		-o $@ cmd/$(notdir $@)/main.go
 
 $(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE
-	$(info --- Copy $(notdir $<) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 $(DIST_DIR)/%/README.md: $(ROOT_DIR)/README.md
-	$(info --- Copy $(notdir $<) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 CFN_DIR := $(INSTALLATION_DIR)/aws
 CFN_FILES := $(shell find $(CFN_DIR))
@@ -335,13 +333,13 @@ $(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz: $(DIST_DIR)/aws-cloudformation
 
 $(DIST_DIR)/aws-cloudformation-$(VERSION).bundle: $(CFN_FILES) | $(CFN_DIST_DIR)
 	$(info --- Generate Cloudformation bundle)
-	cp -R $(CFN_DIR)/ $(CFN_DIST_DIR)/
+	cp -vR $(CFN_DIR)/* $(CFN_DIST_DIR)/
 	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/VmClarity.cfn
 	@touch $@
 
 $(CFN_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(CFN_DIST_DIR)
 	$(info --- Copy $(notdir $@) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 $(CFN_DIST_DIR):
 	@mkdir -p $@
@@ -357,17 +355,16 @@ $(DIST_DIR)/azure-bicep-$(VERSION).tar.gz: $(DIST_DIR)/azure-bicep-$(VERSION).bu
 	$(info --- Bundle $(BICEP_DIST_DIR) into $(notdir $@))
 	tar cv -f $@ -C $(BICEP_DIST_DIR) --use-compress-program='gzip -9' $(shell ls $(BICEP_DIST_DIR))
 
-$(DIST_DIR)/azure-bicep-$(VERSION).bundle: $(BICEP_FILES) $(BICEP_BIN) | $(BICEP_DIST_DIR)
+$(DIST_DIR)/azure-bicep-$(VERSION).bundle: $(BICEP_FILES) bin/bicep | $(BICEP_DIST_DIR)
 	$(info --- Generate Bicep bundle)
-	cp -R $(BICEP_DIR)/ $(BICEP_DIST_DIR)/
+	cp -vR $(BICEP_DIR)/* $(BICEP_DIST_DIR)/
 	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(BICEP_DIST_DIR)/*.bicep $(BICEP_DIST_DIR)/vmclarity-UI.json
 	$(BICEP_BIN) build $(BICEP_DIST_DIR)/vmclarity.bicep
 	@touch $@
 
 $(BICEP_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(BICEP_DIST_DIR)
-	$(info --- Copy $(notdir $@) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 $(BICEP_DIST_DIR):
 	@mkdir -p $@
@@ -385,14 +382,14 @@ $(DIST_DIR)/docker-compose-$(VERSION).tar.gz: $(DIST_DIR)/docker-compose-$(VERSI
 
 $(DIST_DIR)/docker-compose-$(VERSION).bundle: $(DOCKER_COMPOSE_FILES) | $(DOCKER_COMPOSE_DIST_DIR)
 	$(info --- Generate Docker Compose bundle)
-	cp -R $(DOCKER_COMPOSE_DIR)/ $(DOCKER_COMPOSE_DIST_DIR)/
+	cp -vR $(DOCKER_COMPOSE_DIR)/* $(DOCKER_COMPOSE_DIST_DIR)/
 	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(DOCKER_COMPOSE_DIST_DIR)/docker-compose.yml $(DOCKER_COMPOSE_DIST_DIR)/image_override.env
 	@touch $@
 
 $(DOCKER_COMPOSE_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(DOCKER_COMPOSE_DIST_DIR)
 	$(info --- Copy $(notdir $@) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 $(DOCKER_COMPOSE_DIST_DIR):
 	@mkdir -p $@
@@ -410,14 +407,13 @@ $(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz: $(DIST_DIR)/gcp-deployment-$(VERSI
 
 $(DIST_DIR)/gcp-deployment-$(VERSION).bundle: $(GCP_DM_FILES) | $(GCP_DM_DIST_DIR)
 	$(info --- Generate Google Cloud Deployment bundle)
-	cp -R $(GCP_DM_DIR)/ $(GCP_DM_DIST_DIR)/
+	cp -vR $(GCP_DM_DIR)/* $(GCP_DM_DIST_DIR)/
 	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(GCP_DM_DIST_DIR)/vmclarity.py.schema $(GCP_DM_DIST_DIR)/components/vmclarity-server.py.schema
 	@touch $@
 
 $(GCP_DM_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(GCP_DM_DIST_DIR)
-	$(info --- Copy $(notdir $@) to $@)
-	@cp $< $@
+	cp -v $< $@
 
 $(GCP_DM_DIST_DIR):
 	@mkdir -p $@
@@ -427,26 +423,20 @@ HELM_CHART_FILES := $(shell find $(HELM_CHART_DIR))
 HELM_CHART_DIST_DIR := $(DIST_DIR)/helm-vmclarity-chart
 
 .PHONY: dist-helm-chart
-dist-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION).tgz $(DIST_DIR)/vmclarity-$(VERSION).tgz.sha256sum ## Create Helm Chart bundle
+dist-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz.sha256sum ## Create Helm Chart bundle
 
-$(DIST_DIR)/vmclarity-$(VERSION).tgz: $(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle | $(HELM_CHART_DIST_DIR)
+$(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz: $(DIST_DIR)/helm-vmclarity-chart-$(VERSION:v%=%).bundle bin/helm | $(HELM_CHART_DIST_DIR)
 	$(info --- Bundle $(HELM_CHART_DIST_DIR) into $(notdir $@))
 	$(HELM_BIN) package $(HELM_CHART_DIST_DIR) --version "$(VERSION:v%=%)" --app-version "$(VERSION)" --destination $(DIST_DIR)
 
-$(DIST_DIR)/helm-vmclarity-chart-$(VERSION).bundle: $(HELM_CHART_FILES) $(YQ_BIN) | $(HELM_CHART_DIST_DIR)
+
+
+$(DIST_DIR)/helm-vmclarity-chart-$(VERSION:v%=%).bundle: $(HELM_CHART_FILES) bin/yq bin/helm-docs | $(HELM_CHART_DIST_DIR)
 	$(info --- Generate Helm Chart bundle)
-	cp -R $(HELM_CHART_DIR)/ $(HELM_CHART_DIST_DIR)/
-	$(YQ_BIN) -i ' \
-	.apiserver.image.tag = "$(VERSION)" | \
-	.orchestrator.image.tag = "$(VERSION)" | \
-	.orchestrator.scannerImage.tag = "$(VERSION)" | \
-	.ui.image.tag = "$(VERSION)" | \
-	.uibackend.image.tag = "$(VERSION)" \
-	' $(HELM_CHART_DIST_DIR)/values.yaml
-	$(YQ_BIN) -i ' \
-	.version = "$(VERSION:v%=%)" | \
-	.appVersion = "$(VERSION)" \
-	' $(HELM_CHART_DIST_DIR)/Chart.yaml
+	cp -vR $(HELM_CHART_DIR)/* $(HELM_CHART_DIST_DIR)/
+	$(YQ_BIN) -i '.apiserver.image.tag = "$(VERSION)" | .orchestrator.image.tag = "$(VERSION)" | .orchestrator.scannerImage.tag = "$(VERSION)" | .ui.image.tag = "$(VERSION)" | .uibackend.image.tag = "$(VERSION)"' \
+	$(HELM_CHART_DIST_DIR)/values.yaml
+	$(YQ_BIN) -i '.version = "$(VERSION:v%=%)" | .appVersion = "$(VERSION)"' $(HELM_CHART_DIST_DIR)/Chart.yaml
 	$(HELMDOCS_BIN) --chart-search-root $(HELM_CHART_DIST_DIR)
 	@touch $@
 
@@ -454,7 +444,7 @@ $(HELM_CHART_DIST_DIR):
 	@mkdir -p $@
 
 .PHONY: publish-helm-chart
-publish-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION).tgz ## Publish Helm Chart bundle to OCI registry
+publish-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz bin/helm ## Publish Helm Chart bundle to OCI registry
 	$(HELM_BIN) push $< oci://$(HELM_OCI_REPOSITORY)
 
 $(DIST_DIR)/%.sha256sum: | $(DIST_DIR)
@@ -466,5 +456,5 @@ generate-release-notes: $(DIST_DIR)/RELEASE.md ## Generate Release Notes
 
 $(DIST_DIR)/RELEASE.md: $(DIST_DIR)/CHANGELOG.md
 
-$(DIST_DIR)/CHANGELOG.md: $(ROOT_DIR)/.git/refs/heads/$(shell git rev-parse --abbrev-ref HEAD) $(ROOT_DIR)/cliff.toml $(ROOT_DIR)/release.tmpl
+$(DIST_DIR)/CHANGELOG.md: $(ROOT_DIR)/.git/refs/heads/$(shell git rev-parse --abbrev-ref HEAD) $(ROOT_DIR)/cliff.toml $(ROOT_DIR)/release.tmpl bin/git-cliff
 	$(GITCLIFF_BIN) -vv --strip all --unreleased --tag $(VERSION) --output $@

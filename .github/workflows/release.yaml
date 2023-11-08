@@ -16,7 +16,10 @@ jobs:
     secrets: inherit
 
   build_and_push:
-    needs: verification
+    needs:
+      - verification
+      - artifacts
+      - publish_helm
     name: Build & Push
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
@@ -88,7 +91,9 @@ jobs:
       - name: Create Azure Bicep manifest(s)
         env:
           VERSION: ${{ github.ref_name }}
-        run: make dist-bicep
+        run: |
+          apt update && apt install -y --no-install-recommends libicu-dev
+          make dist-bicep
 
       - name: Create Docker Compose manifest(s)
         env:
