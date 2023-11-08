@@ -454,5 +454,12 @@ $(DIST_DIR)/%.sha256sum: | $(DIST_DIR)
 .PHONY: generate-release-notes
 generate-release-notes: $(DIST_DIR)/CHANGELOG.md ## Generate Release Notes
 
+GITCLIFF_OPTS := --strip all
+ifeq ($(CI),true)
+	GITCLIFF_OPTS += -vv --latest --tag $(VERSION)
+else
+	GITCLIFF_OPTS += --unreleased --bump
+endif
+
 $(DIST_DIR)/CHANGELOG.md: $(ROOT_DIR)/cliff.toml bin/git-cliff | $(DIST_DIR)
-	$(GITCLIFF_BIN) --config $(ROOT_DIR)/cliff.toml -vv --strip all --unreleased --tag $(VERSION) --output $@
+	$(GITCLIFF_BIN) --config $(ROOT_DIR)/cliff.toml --output $@ $(GITCLIFF_OPTS)
