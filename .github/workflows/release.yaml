@@ -91,9 +91,7 @@ jobs:
       - name: Create Azure Bicep manifest(s)
         env:
           VERSION: ${{ github.ref_name }}
-        run: |
-          apt update && apt install -y --no-install-recommends libicu-dev
-          make dist-bicep
+        run: make dist-bicep
 
       - name: Create Docker Compose manifest(s)
         env:
