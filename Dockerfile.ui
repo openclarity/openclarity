@@ -4,7 +4,7 @@ FROM --platform=$BUILDPLATFORM node:20-slim AS site-build
 
 WORKDIR /src
 
-COPY ./api/openapi.yaml /api
+COPY ./api/openapi.yaml /src/api
 
 COPY --link ./ui /src
 

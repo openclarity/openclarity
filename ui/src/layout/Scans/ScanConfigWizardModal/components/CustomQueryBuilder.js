@@ -7,7 +7,8 @@ import { Utils as QbUtils, Query, Builder } from "@react-awesome-query-builder/u
 import { useField } from 'formik';
 
 import Button from 'components/Button';
-import openApiYaml from '/../api/openapi.yaml';
+//import openApiYaml from '/../api/openapi.yaml';
+import openApiYaml from '../../../../../../api/openapi.yaml';
 import { BASIC_CONFIG } from './CustomQueryBuilder.constants';
 import { convertDataType } from './CustomQueryBuilder.functions';
 
