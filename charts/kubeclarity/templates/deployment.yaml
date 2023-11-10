@@ -4,20 +4,12 @@
 {{- end }}
 {{- end }}
 {{- $secretKey := index .Values "kubeclarity-postgresql-secret" "secretKey" -}}
+{{- $usernameKey := index .Values "kubeclarity-postgresql-secret" "usernameKey" -}}
+{{- $hostKey := index .Values "kubeclarity-postgresql-secret" "hostKey" -}}
+{{- $portKey := index .Values "kubeclarity-postgresql-secret" "portKey" -}}
+{{- $databaseKey := index .Values "kubeclarity-postgresql-secret" "databaseKey" -}}
+{{- $sslmodeKey := index .Values "kubeclarity-postgresql-secret" "sslmodeKey" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
-{{- $dbHost := print (include "kubeclarity.name" .) "-postgresql" -}}
-{{- $dbPort := index .Values "kubeclarity-postgresql" "service" "ports" "postgresql" -}}
-{{- $dbUser := index .Values "kubeclarity-postgresql" "auth" "username" -}}
-{{- $dbName := index .Values "kubeclarity-postgresql" "auth" "database" -}}
-{{- $dbSSLMode := index .Values "kubeclarity-postgresql" "auth" "sslMode" -}}
-{{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
-  {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
-  {{- $dbHost = index .Values "kubeclarity-postgresql-external" "auth" "host" -}}
-  {{- $dbPort = index .Values "kubeclarity-postgresql-external" "auth" "port" -}}
-  {{- $dbUser = index .Values "kubeclarity-postgresql-external" "auth" "username" -}}
-  {{- $dbName = index .Values "kubeclarity-postgresql-external" "auth" "database" -}}
-  {{- $dbSSLMode = index .Values "kubeclarity-postgresql-external" "auth" "sslMode" -}}
-{{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
@@ -50,8 +42,29 @@ spec:
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
           image: {{ index .Values "kubeclarity-postgresql" "image" "registry" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" }}
-          command: ['sh', '-c', 'until pg_isready -h {{ $dbHost }} -p {{ $dbPort }} -U {{ $dbUser | quote }} -d "dbname={{ $dbName }}";
+          command: ['sh', '-c', 'until pg_isready -h $DB_HOST -p $DB_PORT_NUMBER -U $DB_USER -d "dbname=$DB_NAME";
             do echo waiting for database; sleep 2; done;']
+          env:
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $databaseKey | default "postgres-database" }}
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $hostKey | default "postgres-host" }}
+            - name: DB_PORT_NUMBER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $portKey | default "postgres-port" }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $usernameKey | default "postgres-username" }}
           securityContext:
             capabilities:
               drop:
@@ -138,15 +151,30 @@ spec:
               value: "{{ .Values.kubeclarity.dbViewRefreshInterval }}"
             {{- end }}
             - name: DB_NAME
-              value: {{ $dbName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $databaseKey | default "postgres-database" }}
             - name: DB_HOST
-              value: {{ $dbHost | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $hostKey | default "postgres-host" }}
             - name: DB_PORT_NUMBER
-              value: {{ $dbPort | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $portKey | default "postgres-port" }}
             - name: DB_USER
-              value: {{ $dbUser | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $usernameKey | default "postgres-username" }}
             - name: DB_SSL_MODE
-              value: {{ $dbSSLMode | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ $sslmodeKey | default "postgres-sslmode" }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
