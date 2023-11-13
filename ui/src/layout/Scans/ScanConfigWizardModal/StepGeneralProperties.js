@@ -1,6 +1,6 @@
 import React from 'react';
 import { RadioButtonGroup, TextField, useFormikContext, validators } from 'components/Form';
-import { CustomQueryBuilder } from './components';
+import { CustomQueryBuilder } from './CustomQueryBuilder';
 
 const RADIO_BUTTONS = [
     { label: "All", value: "all" },

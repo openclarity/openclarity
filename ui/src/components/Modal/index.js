@@ -7,11 +7,33 @@ import Title from 'components/Title';
 
 import './modal.scss';
 
+const WIDE_MODAL_STYLE = {
+    minWidth: "720px",
+    width: "75%",
+    maxWidth: "1200px"
+}
+
 const Modal = (props) => {
-    const {title, isMediumTitle=false, children, onClose, className, height=380, width=720, stickLeft=false, onDone, doneTitle="Done", disableDone=false, hideCancel=false,
-        hideSubmit=false} = props;
+    const {
+        children,
+        className,
+        disableDone = false,
+        doneTitle = "Done",
+        height = 380,
+        hideCancel = false,
+        hideSubmit = false,
+        isMediumTitle = false,
+        onClose,
+        onDone,
+        stickLeft = false,
+        title,
+        wideModal = false,
+        width = 720,
+    } = props;
 
     const [portalContainer, setPortalContainer] = useState(null);
+
+
 
     useEffect(() => {
         const container = document.querySelector("#main-wrapper");
@@ -19,7 +41,7 @@ const Modal = (props) => {
         if (!container) {
             return;
         }
-        
+
         setPortalContainer(container);
     }, []);
 
@@ -35,8 +57,11 @@ const Modal = (props) => {
             onClose();
         }}>
             <div
-                className={classnames("modal-inner-wrapper", {"stick-left": stickLeft}, className)}
-                style={stickLeft ? {width: `${width}px`} : {height: `${height}px`, width: `${width}px`}}
+                className={classnames("modal-inner-wrapper", { "stick-left": stickLeft }, className)}
+                style={{
+                    ...stickLeft ? { width: `${width}px` } : { height: `${height}px`, width: `${width}px` },
+                    ...wideModal ? WIDE_MODAL_STYLE : null
+                }}
                 onClick={(event) => event.stopPropagation()}
             >
                 <Title className="modal-title" medium={isMediumTitle}>{title}</Title>
@@ -45,7 +70,7 @@ const Modal = (props) => {
                 <div className="modal-actions">
                     {!hideCancel && <Button tertiary onClick={onClose}>Cancel</Button>}
                     {!hideSubmit && <Button className="modal-submit-button" onClick={onDone} disabled={disableDone}>{doneTitle}</Button>}
-            </div>
+                </div>
             </div>
         </div>,
         portalContainer

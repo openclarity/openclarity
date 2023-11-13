@@ -43,6 +43,8 @@ $navigation-width: 180px;
                 width: calc(100% - #{$navigation-width});
                 height: calc(100vh - #{$top-bar-height} - #{$actions-panel-height} - #{$top-padding} - 85px);
                 overflow-y: auto;
+                display: flex;
+                flex-direction: column;
 
                 .main-error-message {
                     background-color: $color-error-light;
@@ -62,7 +64,7 @@ $navigation-width: 180px;
                     margin: 40px 0;
                     color: $color-main;
                     cursor: pointer;
-                    
+
                     &.disabled {
                         cursor: not-allowed;
                     }

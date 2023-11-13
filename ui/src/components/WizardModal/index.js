@@ -11,19 +11,19 @@ import Arrow, { ARROW_NAMES } from 'components/Arrow';
 
 import './wizard-modal.scss';
 
-const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) => {
-    const {values, isSubmitting, isValidating, setSubmitting, status, setStatus, isValid, setErrors, validateForm} = useFormikContext();
+const Wizard = ({ steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams, wideModal = false }) => {
+    const { values, isSubmitting, isValidating, setSubmitting, status, setStatus, isValid, setErrors, validateForm } = useFormikContext();
 
     const [activeStepId, setActiveStepId] = useState(steps[0].id);
-    
-    const activeStepIndex = steps.findIndex(({id}) => id === activeStepId);
-    const {component: ActiveStepComponent, title: activeTitle} = steps[activeStepIndex];
-    const {title: nextStepTitle, id: nextStepId} = steps[activeStepIndex + 1] || {};
+
+    const activeStepIndex = steps.findIndex(({ id }) => id === activeStepId);
+    const { component: ActiveStepComponent, title: activeTitle } = steps[activeStepIndex];
+    const { title: nextStepTitle, id: nextStepId } = steps[activeStepIndex + 1] || {};
 
     const disableStepDone = isSubmitting || isValidating || !isValid;
 
-    const [{loading, data, error}, submitFormData] = useFetch(submitUrl, {loadOnMount: false});
-	const prevLoading = usePrevious(loading);
+    const [{ loading, data, error }, submitFormData] = useFetch(submitUrl, { loadOnMount: false });
+    const prevLoading = usePrevious(loading);
 
     const onStepClick = (stepId) => {
         if (disableStepDone || stepId === activeStepId) {
@@ -35,7 +35,7 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
 
     const handleSubmit = () => {
         const submitQueryParams = !!getSubmitParams ? getSubmitParams(cloneDeep(values)) : {};
-        submitFormData({method: FETCH_METHODS.POST, submitData: values, ...submitQueryParams});
+        submitFormData({ method: FETCH_METHODS.POST, submitData: values, ...submitQueryParams });
     }
 
     useEffect(() => {
@@ -43,41 +43,41 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
     }, [activeStepId, validateForm]);
 
     useEffect(() => {
-		if (prevLoading && !loading) {
-			setSubmitting(false);
-			setStatus(null);
-			
-			if (isNull(error)) {
-				if (!!onSubmitSuccess) {
-					onSubmitSuccess(data);
-				}
-			} else {
-				const {message, errors} = error;
+        if (prevLoading && !loading) {
+            setSubmitting(false);
+            setStatus(null);
 
-				if (!!message) {
-					setStatus(message); 
-				}
-				
-				if (!isEmpty(errors)) {
-					setErrors(errors);
-				}
-			}
-		}
-	}, [prevLoading, loading, error, data, setSubmitting, setStatus, onSubmitSuccess, setErrors]);
+            if (isNull(error)) {
+                if (!!onSubmitSuccess) {
+                    onSubmitSuccess(data);
+                }
+            } else {
+                const { message, errors } = error;
+
+                if (!!message) {
+                    setStatus(message);
+                }
+
+                if (!isEmpty(errors)) {
+                    setErrors(errors);
+                }
+            }
+        }
+    }, [prevLoading, loading, error, data, setSubmitting, setStatus, onSubmitSuccess, setErrors]);
 
     if (isSubmitting) {
-		return <Loader />;
-	}
+        return <Loader />;
+    }
 
     return (
         <Form className="wizard-wrapper">
             <div className="wizard-content">
                 <ul className="wizard-navigation">
                     {
-                        steps.map(({id, title}) => (
+                        steps.map(({ id, title }) => (
                             <li
                                 key={id}
-                                className={classnames("wizard-navigation-item", {"is-active": id === activeStepId}, {disabled: disableStepDone})}
+                                className={classnames("wizard-navigation-item", { "is-active": id === activeStepId }, { disabled: disableStepDone })}
                                 onClick={() => onStepClick(id)}
                             >{title}</li>
                         ))
@@ -88,7 +88,7 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
                     <Title medium>{activeTitle}</Title>
                     <ActiveStepComponent />
                     {!!nextStepTitle &&
-                        <div className={classnames("wizard-next-step-wrapper", {disabled: disableStepDone})} onClick={disableStepDone ? undefined : () => onStepClick(nextStepId)}>
+                        <div className={classnames("wizard-next-step-wrapper", { disabled: disableStepDone })} onClick={disableStepDone ? undefined : () => onStepClick(nextStepId)}>
                             <div className="wizard-next-step-title">{`Go to ${nextStepTitle}`}</div>
                             <Arrow name={ARROW_NAMES.RIGHT} />
                         </div>
@@ -103,15 +103,16 @@ const Wizard = ({steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams}) =
     )
 }
 
-const WizardModal = ({title, initialValues, onClose, validate, ...props}) => (
+const WizardModal = ({ title, initialValues, onClose, validate, wideModal, ...props }) => (
     <Modal
         className="wizard-modal"
-        title={title}
-        onClose={onClose}
         disableDone
         hideCancel
         hideSubmit
+        onClose={onClose}
         stickLeft
+        title={title}
+        wideModal={wideModal}
     >
         <Formik initialValues={initialValues} validate={validate}>
             <Wizard {...props} onClose={onClose} />

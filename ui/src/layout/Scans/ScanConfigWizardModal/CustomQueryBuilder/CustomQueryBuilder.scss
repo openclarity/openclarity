@@ -1,0 +1,27 @@
+.query-buttons {
+  padding: 20px 0;
+  border-top: 1px solid black;
+
+  &__clear-button {
+    margin-left: 20px;
+  }
+}
+
+.query-builder-result {
+
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  
+  &__odata {
+    text-wrap: wrap;
+    font-weight: bold;
+  }
+}
+
+.query-builder-container {
+  min-height: 1px;
+  max-height: 300px;
+  height: 100%;
+  overflow-y: auto;
+}

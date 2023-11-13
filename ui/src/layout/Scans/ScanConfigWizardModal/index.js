@@ -133,6 +133,7 @@ const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
                 }
             }}
             onSubmitSuccess={onSubmitSuccess}
+            wideModal={true}
         />
     )
 }
