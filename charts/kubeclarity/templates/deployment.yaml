@@ -10,6 +10,9 @@
 {{- $databaseKey := index .Values "kubeclarity-postgresql-secret" "databaseKey" -}}
 {{- $sslmodeKey := index .Values "kubeclarity-postgresql-secret" "sslmodeKey" -}}
 {{- $secretName := index .Values "kubeclarity-postgresql" "auth" "existingSecret" -}}
+{{ if index .Values "kubeclarity-postgresql-external" "enabled" }}
+  {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
+{{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
