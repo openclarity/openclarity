@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Formik, Form, useFormikContext } from 'formik';
 import { isNull, isEmpty, cloneDeep } from 'lodash';
 import classnames from 'classnames';
+
 import Loader from 'components/Loader';
 import Button from 'components/Button';
 import Icon, { ICON_NAMES } from 'components/Icon';
@@ -10,6 +11,7 @@ import * as validators from './validators';
 import SelectField from './form-fields/SelectField';
 import MultiselectField from './form-fields/MultiselectField';
 import TextField from './form-fields/TextField';
+import TextAreaField from './form-fields/TextAreaField';
 import RadioButtonGroup from './form-fields/RadioButtonGroup';
 import FieldsPair from './form-fields/FieldsPair';
 import CheckboxField from './form-fields/CheckboxField';
@@ -21,18 +23,19 @@ import FieldLabel from './FieldLabel';
 import './form.scss';
 
 export {
-	validators,
-	useFormikContext,
-	SelectField,
-	MultiselectField,
-	TextField,
-	RadioButtonGroup,
 	CheckboxField,
-	FieldsPair,
-	DateField,
-	TimeField,
 	CronField,
-	FieldLabel
+	DateField,
+	FieldLabel,
+	FieldsPair,
+	MultiselectField,
+	RadioButtonGroup,
+	SelectField,
+	TextAreaField,
+	TextField,
+	TimeField,
+	useFormikContext,
+	validators,
 }
 
 const FormComponent = ({ children, className, submitUrl, getSubmitParams, onSubmitSuccess, onSubmitError, saveButtonTitle = "Finish", hideSaveButton = false }) => {
