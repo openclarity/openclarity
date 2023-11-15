@@ -25,6 +25,7 @@ const Modal = (props) => {
         isMediumTitle = false,
         onClose,
         onDone,
+        removeTitleMargin = false,
         stickLeft = false,
         title,
         wideModal = false,
@@ -32,8 +33,6 @@ const Modal = (props) => {
     } = props;
 
     const [portalContainer, setPortalContainer] = useState(null);
-
-
 
     useEffect(() => {
         const container = document.querySelector("#main-wrapper");
@@ -64,7 +63,7 @@ const Modal = (props) => {
                 }}
                 onClick={(event) => event.stopPropagation()}
             >
-                <Title className="modal-title" medium={isMediumTitle}>{title}</Title>
+                <Title className="modal-title" medium={isMediumTitle} removeMargin={removeTitleMargin}>{title}</Title>
                 <div className="modal-content">{children}</div>
                 <CloseButton onClose={onClose} />
                 <div className="modal-actions">

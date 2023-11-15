@@ -11,7 +11,15 @@ import Arrow, { ARROW_NAMES } from 'components/Arrow';
 
 import './wizard-modal.scss';
 
-const Wizard = ({ steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams, wideModal = false }) => {
+const Wizard = ({
+    getSubmitParams,
+    onClose,
+    onSubmitSuccess,
+    removeTitleMargin = false,
+    steps,
+    submitUrl,
+    wideModal = false
+}) => {
     const { values, isSubmitting, isValidating, setSubmitting, status, setStatus, isValid, setErrors, validateForm } = useFormikContext();
 
     const [activeStepId, setActiveStepId] = useState(steps[0].id);
@@ -85,7 +93,7 @@ const Wizard = ({ steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams, w
                 </ul>
                 <div className="wizard-step-display">
                     {!!status && <div className="main-error-message">{status}</div>}
-                    <Title medium>{activeTitle}</Title>
+                    <Title medium removeMargin={removeTitleMargin}>{activeTitle}</Title>
                     <ActiveStepComponent />
                     {!!nextStepTitle &&
                         <div className={classnames("wizard-next-step-wrapper", { disabled: disableStepDone })} onClick={disableStepDone ? undefined : () => onStepClick(nextStepId)}>
@@ -103,19 +111,28 @@ const Wizard = ({ steps, onClose, submitUrl, onSubmitSuccess, getSubmitParams, w
     )
 }
 
-const WizardModal = ({ title, initialValues, onClose, validate, wideModal, ...props }) => (
+const WizardModal = ({
+    initialValues,
+    onClose,
+    removeTitleMargin,
+    title,
+    validate,
+    wideModal,
+    ...props
+}) => (
     <Modal
         className="wizard-modal"
         disableDone
         hideCancel
         hideSubmit
         onClose={onClose}
+        removeTitleMargin={removeTitleMargin}
         stickLeft
         title={title}
         wideModal={wideModal}
     >
         <Formik initialValues={initialValues} validate={validate}>
-            <Wizard {...props} onClose={onClose} />
+            <Wizard {...props} onClose={onClose} removeTitleMargin={removeTitleMargin} />
         </Formik>
     </Modal>
 )
