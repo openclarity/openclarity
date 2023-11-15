@@ -1,12 +1,10 @@
-import { BasicConfig } from "@react-awesome-query-builder/ui";
-import { AntdWidgets } from '@react-awesome-query-builder/antd';
-
+import { AntdConfig, AntdWidgets } from '@react-awesome-query-builder/antd';
 const { FieldCascader } = AntdWidgets;
 
 const CONJUNCTIONS = {
-    ...BasicConfig.conjunctions,
+    ...AntdConfig.conjunctions,
     AND: {
-        ...BasicConfig.conjunctions.AND,
+        ...AntdConfig.conjunctions.AND,
         label: 'and',
         formatConj: (children, conj, not, isForDisplay) => {
             return children.size > 1
@@ -15,7 +13,7 @@ const CONJUNCTIONS = {
         },
     },
     OR: {
-        ...BasicConfig.conjunctions.OR,
+        ...AntdConfig.conjunctions.OR,
         label: 'or',
         formatConj: (children, conj, not, isForDisplay) => {
             return children.size > 1
@@ -28,96 +26,70 @@ const CONJUNCTIONS = {
 
 const BASIC_OPERATORS = {
     equal: {
-        ...BasicConfig.operators.equal,
+        ...AntdConfig.operators.equal,
         label: 'equal',
         labelForFormat: 'eq',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
             const opStr = isForDisplay ? "=" : opDef.labelForFormat;
-            if (valueTypes == "boolean" && isForDisplay) {
-                return value == "No" ? `NOT ${field}` : `${field}`;
+            if (typeof valueTypes === "boolean" && isForDisplay) {
+                return value === "No" ? `NOT ${field}` : `${field}`;
             } else {
                 return `${field} ${opStr} ${value}`;
             }
         },
     },
     not_equal: {
-        ...BasicConfig.operators.not_equal,
+        ...AntdConfig.operators.not_equal,
         label: 'not equal to',
         labelForFormat: 'ne',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-            if (valueTypes == "boolean" && isForDisplay)
-                return value == "No" ? `${field}` : `NOT ${field}`;
+            if (typeof valueTypes === "boolean" && isForDisplay)
+                return value === "No" ? `${field}` : `NOT ${field}`;
             else
                 return `${field} ${isForDisplay ? "!=" : opDef.labelForFormat} ${value}`;
         },
     },
     greater: {
-        ...BasicConfig.operators.greater,
+        ...AntdConfig.operators.greater,
         label: 'greater than',
         labelForFormat: 'gt',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
             const opStr = isForDisplay ? ">" : opDef.labelForFormat;
             return `${field} ${opStr} ${value}`;
-            //const opStr = isForDisplay ? ">" : opDef.labelForFormat;
-            // if (valueTypes == "boolean" && isForDisplay)
-            //     return value == "No" ? `NOT ${field}` : `${field}`;
-            // else
-            //     return `${field} ${opStr} ${value}`;
         },
     },
     greater_or_equal: {
-        ...BasicConfig.operators.greater_or_equal,
+        ...AntdConfig.operators.greater_or_equal,
         label: 'greater than or equal',
         labelForFormat: 'ge',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
             const opStr = isForDisplay ? ">=" : opDef.labelForFormat;
             return `${field} ${opStr} ${value}`;
         }
-        //formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-        // const opStr = isForDisplay ? "=" : opDef.labelForFormat;
-        // if (valueTypes == "boolean" && isForDisplay)
-        //     return value == "No" ? `NOT ${field}` : `${field}`;
-        // else
-        //     return `${field} ${opStr} ${value}`;
-        //},
     },
     less: {
-        ...BasicConfig.operators.less,
+        ...AntdConfig.operators.less,
         label: 'less than',
         labelForFormat: 'lt',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
             const opStr = isForDisplay ? "<" : opDef.labelForFormat;
             return `${field} ${opStr} ${value}`;
         }
-        //formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-        // const opStr = isForDisplay ? "=" : opDef.labelForFormat;
-        // if (valueTypes == "boolean" && isForDisplay)
-        //     return value == "No" ? `NOT ${field}` : `${field}`;
-        // else
-        //     return `${field} ${opStr} ${value}`;
-        //},    
     },
     less_or_equal: {
-        ...BasicConfig.operators.less_or_equal,
+        ...AntdConfig.operators.less_or_equal,
         label: 'less than or equal',
         labelForFormat: 'le',
         formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
             const opStr = isForDisplay ? "<=" : opDef.labelForFormat;
             return `${field} ${opStr} ${value}`;
         }
-        //formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-        // const opStr = isForDisplay ? "=" : opDef.labelForFormat;
-        // if (valueTypes == "boolean" && isForDisplay)
-        //     return value == "No" ? `NOT ${field}` : `${field}`;
-        // else
-        //     return `${field} ${opStr} ${value}`;
-        //},    
     },
 }
 
 const BETWEEN_OPERATORS = {
     between: {
-        ...BasicConfig.operators.between,
+        ...AntdConfig.operators.between,
         label: "in between",
         labelForFormat: 'in betweeen',
         formatOp: (field, op, values, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay) => {
@@ -130,7 +102,7 @@ const BETWEEN_OPERATORS = {
         },
     },
     not_between: {
-        ...BasicConfig.operators.not_between,
+        ...AntdConfig.operators.not_between,
         label: "not in between",
         labelForFormat: 'not in between',
         formatOp: (field, op, values, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay) => {
@@ -146,30 +118,30 @@ const BETWEEN_OPERATORS = {
 
 const FUNCTION_OPERATORS = {
     multiselect_contains: {
-        ...BasicConfig.operators.multiselect_contains,
+        ...AntdConfig.operators.multiselect_contains,
     },
     multiselect_not_contains: {
-        ...BasicConfig.operators.multiselect_not_contains
+        ...AntdConfig.operators.multiselect_not_contains
     },
     ends_with: {
-        ...BasicConfig.operators.ends_with,
+        ...AntdConfig.operators.ends_with,
     },
     starts_with: {
-        ...BasicConfig.operators.starts_with,
+        ...AntdConfig.operators.starts_with,
     },
-    //    ...BasicConfig.operators
+    //    ...AntdConfig.operators
 }
 
 const IS_NULL_NOT_NULL = {
     is_null: {
-        ...BasicConfig.operators.is_null,
+        ...AntdConfig.operators.is_null,
         label: "is null",
         formatOp: (field, op, value, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
             return isForDisplay ? `${field} IS NULL` : `${field} eq null`;
         },
     },
     is_not_null: {
-        ...BasicConfig.operators.is_not_null,
+        ...AntdConfig.operators.is_not_null,
         label: "is not null",
         formatOp: (field, op, value, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
             return isForDisplay ? `${field} IS NOT NULL` : `${field} ne null`;
@@ -178,7 +150,7 @@ const IS_NULL_NOT_NULL = {
 }
 
 const OPERATORS = {
-    //...BasicConfig.operators,
+    //...AntdConfig.operators,
     ...BASIC_OPERATORS,
     ...BETWEEN_OPERATORS,
     ...IS_NULL_NOT_NULL
@@ -190,11 +162,12 @@ const BETWEEN_OPERATORS_LIST = Object.keys(BETWEEN_OPERATORS);
 const IS_NULL_NOT_NULL_LIST = Object.keys(IS_NULL_NOT_NULL);
 
 const BASIC_CONFIG = {
-    ...BasicConfig,
+    ...AntdConfig,
     settings: {
-        ...BasicConfig.settings,
+        ...AntdConfig.settings,
         renderField: (props) => <FieldCascader {...props} />,
-        fieldSeparator: "/"
+        fieldSeparator: "/",
+        notLabel: "not"
     },
     conjunctions: {
         ...CONJUNCTIONS
@@ -203,9 +176,9 @@ const BASIC_CONFIG = {
         ...OPERATORS
     },
     types: {
-        ...BasicConfig.types,
+        ...AntdConfig.types,
         'group-select': {
-            ...BasicConfig.types.select,
+            ...AntdConfig.types.select,
             valueSources: ['value', 'field'], //['value', 'field', 'func'],
             defaultOperator: 'equal',
             widgets: {
@@ -215,9 +188,9 @@ const BASIC_CONFIG = {
             },
         },
         text: {
-            ...BasicConfig.types.text,
+            ...AntdConfig.types.text,
             widgets: {
-                ...BasicConfig.types.text.widgets,
+                ...AntdConfig.types.text.widgets,
                 // text: {
                 //     operators: [
                 //         "equal",
@@ -241,7 +214,7 @@ const BASIC_CONFIG = {
             },
         },
         number: {
-            ...BasicConfig.types.number,
+            ...AntdConfig.types.number,
             //valueSources: [], //['value', 'field', 'func'],
             widgets: {
                 number: {
@@ -250,7 +223,7 @@ const BASIC_CONFIG = {
             },
         },
         datetime: {
-            ...BasicConfig.types.datetime,
+            ...AntdConfig.types.datetime,
             widgets: {
                 datetime: {
                     operators: [...BASIC_OPERATORS_LIST, ...BETWEEN_OPERATORS_LIST, ...IS_NULL_NOT_NULL_LIST],
@@ -271,7 +244,7 @@ const BASIC_CONFIG = {
             }
         },
         // array: {
-        //     ...BasicConfig.types['!struct'],
+        //     ...AntdConfig.types['!struct'],
         //valueSources: [], //['value', 'field', 'func'],
         //defaultOperator: 'equal',
         // widgets: {
@@ -282,9 +255,9 @@ const BASIC_CONFIG = {
         //},
     },
     widgets: {
-        ...BasicConfig.widgets,
+        ...AntdConfig.widgets,
         'group-select': {
-            ...BasicConfig.widgets.select,
+            ...AntdConfig.widgets.select,
         },
     },
     fieldSources: ["field", "func"],

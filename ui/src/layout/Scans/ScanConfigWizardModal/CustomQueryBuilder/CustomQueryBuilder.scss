@@ -1,6 +1,9 @@
+@import 'utils/scss_variables.module.scss';
+
 .query-buttons {
   padding: 20px 0;
-  border-top: 1px solid black;
+  border-top: 1px solid $color-grey-black;
+  background-color: white;
 
   &__clear-button {
     margin-left: 20px;
@@ -9,13 +12,26 @@
 
 .query-builder-result {
 
-  position: -webkit-sticky; /* Safari */
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
-  
+
+  &__section {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
   &__odata {
     text-wrap: wrap;
-    font-weight: bold;
+
+    &--details {
+      font-size: smaller;
+    }
+  }
+
+  &__title {
+    display: inline-block;
+    margin-bottom: 1rem;
   }
 }
 
@@ -24,4 +40,190 @@
   max-height: 300px;
   height: 100%;
   overflow-y: auto;
+
+  .query-builder {
+    margin: 0;
+  }
+}
+
+// OVERRIDES
+
+.ant-btn-primary {
+  color: $color-main-dark;
+  background-color: $color-main-light;
+  box-shadow: none;
+
+  &:disabled {
+    background-color: $color-blue-light !important;
+  }
+
+  &:not(:disabled):not(.ant-btn-disabled) {
+    color: $color-main-dark;
+    background-color: $color-main-light;
+
+    &:hover {
+      color: $color-main-dark;
+      background-color: $color-main-lighter !important;
+    }
+  }
+}
+
+// DELETE BUTTON
+.ant-btn-text.ant-btn-dangerous {
+  color: $color-main-light;
+
+  &:not(:disabled):not(.ant-btn-disabled):hover {
+    color: $color-main-lighter;
+    background: $color-blue-light;
+  }
+}
+
+// FIELD/VALUE/FUNCTION selector tooltip
+.ant-radio-button-wrapper:hover {
+  color: $color-main-light;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  color: $color-main-light;
+  border-color: $color-main-light;
+
+  &:first-child {
+    color: $color-main-light;
+    border-color: $color-main-light;
+  }
+}
+
+// ACTIVE DROPDOWN / SELECTOR
+
+.ant-select-focused:where(.css-dev-only-do-not-override-1adbn6x).ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+  border-color: $color-main-light;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  outline: 0;
+}
+
+.ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+  border-color: $color-main-lighter;
+}
+
+// INPUT FIELD FOR VALUE
+
+.ant-input:focus,
+.ant-input:focus-within {
+  border-color: $color-main-light;
+}
+
+.ant-input:hover {
+  border-color: $color-main-lighter;
+}
+
+.ant-picker:hover {
+  border-color: $color-main-lighter;
+}
+
+.ant-picker-focused.ant-picker {
+  border-color: $color-main-lighter;
+}
+
+// NUMBER TYPE INPUT FIELD
+
+.ant-input-number {
+  border-color: $color-main-light;
+}
+
+.ant-input-number:focus,
+.ant-input-number:focus-within {
+  border-color: $color-main-lighter;
+}
+
+// DATE-TIME PICKER
+
+.ant-picker-dropdown {
+  & a {
+    color: $color-main-light;
+  }
+
+  & .ant-btn-primary.ant-btn-disabled,
+  & .ant-btn-primary:disabled {
+    border: none;
+  }
+
+  & .ant-picker-cell-inner:hover {
+    background-color: $color-blue-light;
+  }
+
+  & .ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: $color-main-light !important;
+  }
+
+  & .ant-picker-cell.ant-picker-cell-in-view.ant-picker-cell-selected {
+    & .ant-picker-cell-inner {
+      color: $color-main-dark;
+      background: $color-main-lighter;
+    }
+  }
+
+  & .ant-picker-time-panel-cell.ant-picker-time-panel-cell-selected {
+    & .ant-picker-time-panel-cell-inner {
+      background-color: $color-main-lighter !important;
+    }
+  }
+}
+
+.group {
+  background: $color-blue-light;
+  border: 1px solid $color-main-light;
+
+  &--conjunctions {
+    transform: translateX(1px);
+
+    & .ant-btn-group.ant-btn-group-sm {
+      background-color: $color-blue-lilac;
+      border-radius: 4px;
+    }
+
+    & .ant-btn.ant-btn-sm {
+      &:hover {
+        background-color: rgba(128, 128, 128, 0.1);
+      }
+    }
+
+    & .ant-btn-primary {
+      background-color: $color-main-light;
+
+      &:not(:disabled):not(.ant-btn-disabled):hover {
+        background-color: $color-main-lighter;
+      }
+    }
+
+    & .ant-btn-group>span:not(:first-child):not(:disabled),
+    & .ant-btn-group>.ant-btn-primary:not(:first-child):not(:disabled),
+    & .ant-btn-group>span:not(:first-child)>.ant-btn-primary:not(:disabled),
+    & .ant-btn-group>.ant-btn-primary:not(:first-child)>.ant-btn-primary:not(:disabled) {
+      border-inline-start-color: rgba(128, 128, 128, 0.1);
+    }
+
+    & .ant-btn-group>span:not(:last-child):not(:disabled),
+    & .ant-btn-group>.ant-btn-primary:not(:last-child):not(:disabled),
+    & .ant-btn-group>span:not(:last-child)>.ant-btn-primary:not(:disabled),
+    & .ant-btn-group>.ant-btn-primary:not(:last-child)>.ant-btn-primary:not(:disabled) {
+      border-inline-end-color: rgba(128, 128, 128, 0.1);
+    }
+  }
+}
+
+.group--actions.group--actions--tr {
+
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: end;
+
+  .ant-btn-default {
+    border-color: $color-main-light;
+    color: $color-grey-black;
+
+    &:hover:not(:disabled) {
+      border-color: $color-main-lighter;
+      color: $color-grey-black;
+    }
+  }
 }

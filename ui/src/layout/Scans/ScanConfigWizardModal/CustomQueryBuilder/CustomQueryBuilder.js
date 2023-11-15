@@ -1,29 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
 import OpenAPIParser from '@readme/openapi-parser';
+import React, { useCallback, useEffect, useState } from 'react';
 import throttle from "lodash/throttle";
-import { Utils as QbUtils, Query, Builder } from "@react-awesome-query-builder/ui";
+import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/mui';
 import { useField } from 'formik';
+import { useFetch } from 'hooks';
 
 import Button from 'components/Button';
-//import openApiYaml from '/../api/openapi.yaml';
+import FieldError from 'components/Form/FieldError';
+import Loader from 'components/Loader';
 import { BASIC_CONFIG } from './CustomQueryBuilder.constants';
+import { TextAreaField } from 'components/Form';
 import { collectProperties } from './CustomQueryBuilder.functions';
 
-//import openApiYaml from '../../../../../../api/openapi.yaml';
-
 import "@react-awesome-query-builder/ui/css/styles.scss";
-
 import "./CustomQueryBuilder.scss";
-
-const openApiYaml = React.lazy(() => {
-    console.log('process.env:', process.env);
-    if (process.env.NODE_ENV !== "development") {
-        return import('/src/src/openapi.yaml')
-    }
-
-    return import('/../api/openapi.yaml')
-});
 
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
 const queryValue = { id: QbUtils.uuid(), type: "group" };
@@ -32,26 +22,28 @@ const CustomQueryBuilder = ({
     initialQuery,
     name
 }) => {
+    const isDev = process.env.NODE_ENV === "development";
+    const [{ loading, data, error }] = useFetch(`${isDev ? "http://localhost:3000" : ""}/api/openapi.json`, { isAbsoluteUrl: true });
     const [config, setConfig] = useState(BASIC_CONFIG);
     const [queryState, setQueryState] = useState({
         config,
         tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
     });
-    //process.env.NODE_ENV
-    console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
+
     const [field, , helpers] = useField(name);
     const { setValue } = helpers;
     const { value } = field;
 
     const readYamlFile = useCallback(
-        async () => {
-            try {
-                const api = await OpenAPIParser.dereference(openApiYaml);
-                //console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-                const properties = collectProperties(api.components.schemas.Asset);
-                setConfig(previousConfig => ({ ...previousConfig, fields: properties }))
-            } catch (err) {
-                console.error(err);
+        async (rawApiData) => {
+            if (rawApiData) {
+                try {
+                    const apiData = await OpenAPIParser.dereference(rawApiData);
+                    const properties = collectProperties(apiData.components.schemas.Asset);
+                    setConfig(previousConfig => ({ ...previousConfig, fields: properties }))
+                } catch (err) {
+                    console.error(err);
+                }
             }
         },
         [],
@@ -103,44 +95,63 @@ const CustomQueryBuilder = ({
     }, [config])
 
     useEffect(() => {
-        readYamlFile();
+        readYamlFile(data);
         // eslint-disable-next-line
-    }, [])
+    }, [data])
 
     return (
         <div>
             <div className="query-builder-result">
-                <div>
-                    Human friendly query:{" "}
-                    <pre className='query-builder-result__odata'>
-                        {QbUtils.queryString(queryState.tree, queryState.config, true) ?? "-"}
-                    </pre>
-                </div>
-                <div>
+
+                {/* <div>
                     Query string:{" "}
                     <pre className='query-builder-result__odata'>
                         {value ?? "-"}
                     </pre>
-                </div>
+                </div> */}
+
                 {/* <div>
                     JsonLogic:{" "}
                     <pre>
                         {JSON.stringify(QbUtils.jsonLogicFormat(queryState.tree, queryState.config))}
                     </pre>
                 </div> */}
+                <div className='query-builder-result__section'>
+                    <span className='query-builder-result__title'>Manual scope editor (odata query)*</span>
+                    <div className='query-builder-result__odata'>
+                        <span className='query-builder-result__odata--details'>(This query is going to be used by the scanner)</span>
+                        <TextAreaField
+                            name="scanTemplate.scope"
+                            //label="(This is going to be used by the scanner)"
+                            placeholder="You can type a scope manually..."
+                        //validate={validators.validateRequired}
+                        />
+                    </div>
+                </div>
+                <div className='query-builder-result__section'>
+                    <span className='query-builder-result__title'>Human friendly scope:{" "}</span>
+                    <div className='query-builder-result__odata'>
+                        {QbUtils.queryString(queryState.tree, queryState.config, true) ?? "-"}
+                    </div>
+                </div>
+                <div className="query-buttons">
+                    <Button onClick={resetValue}>Reset</Button>
+                    <Button className="query-buttons__clear-button" onClick={clearValue}>Clear</Button>
+                </div>
             </div>
-            <div className="query-buttons">
-                <Button onClick={resetValue}>Reset</Button>
-                <Button className="query-buttons__clear-button" onClick={clearValue}>Clear</Button>
-            </div>
-            <Query
-                {...queryState.config}
-                value={queryState.tree}
-                onChange={onChange}
-                renderBuilder={renderBuilder}
-            />
 
-
+            {loading && <Loader absolute={false} />}
+            {error && <FieldError>{error?.message}</FieldError>}
+            {Object.keys(config.fields).length > 0 &&
+                <>
+                    <Query
+                        {...queryState.config}
+                        value={queryState.tree}
+                        onChange={onChange}
+                        renderBuilder={renderBuilder}
+                    />
+                </>
+            }
         </div>
     )
 }

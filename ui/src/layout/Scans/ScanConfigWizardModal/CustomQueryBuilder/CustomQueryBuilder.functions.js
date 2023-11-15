@@ -9,7 +9,7 @@ const convertDataType = (originalType) => {
         case "object":
             return "!struct";
         case "array":
-            return "!struct"
+            return "!group"
         default:
             return originalType;
     }
@@ -109,12 +109,10 @@ const collectProperties = (assetObject) => {
 
     // Main properties collected
     prepareProperties(cloneDeep(assetObject), propertyList);
-    // child objects are collected under subfields key 
+    // child objects and arrays are collected under subfields key - subfields is necessary for !struct (object) and !group (array) types
     Object.values(propertyList).forEach(value => createSubfields(value, value))
     // Data conversion (js --> odata)
     convertDataForQuery(propertyList);
-
-    console.log('propertyList:', propertyList);
 
     return propertyList;
 }
