@@ -4,8 +4,6 @@ FROM --platform=$BUILDPLATFORM node:20-slim AS site-build
 
 WORKDIR /src
 
-COPY ./api/openapi.yaml /src/api
-
 COPY --link ./ui /src
 
 RUN --mount=type=cache,target=/src/node_modules \
