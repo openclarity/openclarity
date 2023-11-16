@@ -272,7 +272,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${YaraRuleServerContainerImage}
+    image: {YaraRuleServerContainerImage}
     command:
       - run
     ports:
