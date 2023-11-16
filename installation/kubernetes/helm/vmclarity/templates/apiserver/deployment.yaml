@@ -40,7 +40,7 @@ spec:
             - name: DATABASE_DRIVER
               value: POSTGRES
             - name: DB_HOST
-              value: {{ printf "%s-postgresql" (include "vmclarity.names.fullname" .) }}
+              value: {{ include "postgresql.primary.fullname" .Subcharts.postgresql }}
             - name: DB_PORT_NUMBER
               value: "5432"
             - name: DB_NAME
