@@ -330,7 +330,9 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 	if err != nil {
 		logrus.Warnf("failed to get disk %v: %v", diskName, err)
 	} else {
-		platform = *disk.Architecture
+		if disk.Architecture != nil {
+			platform = *disk.Architecture
+		}
 		image = getLastURLPart(disk.SourceImage)
 	}
 
