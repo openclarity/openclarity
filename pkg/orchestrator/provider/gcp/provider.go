@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	compute "cloud.google.com/go/compute/apiv1"
@@ -345,7 +344,7 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 		Location:         getLastURLPart(vm.Zone),
 		Platform:         platform,
 		SecurityGroups:   &[]models.SecurityGroup{},
-		Tags:             convertTags(vm.Tags),
+		Tags:             utils.PointerTo(convertLabelsToTags(vm.Labels)),
 	})
 	if err != nil {
 		return models.AssetType{}, provider.FatalErrorf("failed to create AssetType from VMInfo: %w", err)
@@ -354,35 +353,18 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 	return assetType, nil
 }
 
-// convertTags converts gcp instance tags in the form []string{key1=val1} into
-// models.Tag{Key: key1, Value: val1}. If the tag does not contain the equals
-// sign, the Key will be the tag and the Value will be empty.
-func convertTags(tags *computepb.Tags) *[]models.Tag {
-	ret := make([]models.Tag, 0, len(tags.Items))
-	for _, item := range tags.Items {
-		key, val := getKeyValue(item)
-		ret = append(ret, models.Tag{
-			Key:   key,
-			Value: val,
-		})
-	}
-	return &ret
-}
+func convertLabelsToTags(labels map[string]string) []models.Tag {
+	tags := make([]models.Tag, 0, len(labels))
 
-// TODO(sambetts) Remove this unused function.
-func convertTagsToMap(tags *computepb.Tags) map[string]string {
-	ret := make(map[string]string, len(tags.Items))
-	for _, item := range tags.Items {
-		key, val := getKeyValue(item)
-		ret[key] = val
+	for k, v := range labels {
+		tags = append(
+			tags,
+			models.Tag{
+				Key:   k,
+				Value: v,
+			},
+		)
 	}
-	return ret
-}
 
-func getKeyValue(str string) (string, string) {
-	key, value, found := strings.Cut(str, "=")
-	if found {
-		return key, value
-	}
-	return str, ""
+	return tags
 }
