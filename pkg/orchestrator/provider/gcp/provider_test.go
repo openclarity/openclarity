@@ -19,96 +19,35 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/openclarity/vmclarity/api/models"
+
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-func Test_convertTags(t *testing.T) {
-	type args struct {
-		tags *computepb.Tags
-	}
+func Test_convertLabelsToTags(t *testing.T) {
 	tests := []struct {
 		name string
-		args args
-		want *[]models.Tag
+		args map[string]string
+		want []models.Tag
 	}{
 		{
 			name: "sanity",
-			args: args{
-				tags: &computepb.Tags{
-					Items: []string{"tag1", "tag2=val2", "tag3="},
-				},
+			args: map[string]string{
+				"valid-tag": "valid-value",
 			},
-			want: &[]models.Tag{
-				{
-					Key:   "tag1",
-					Value: "",
-				},
-				{
-					Key:   "tag2",
-					Value: "val2",
-				},
-				{
-					Key:   "tag3",
-					Value: "",
-				},
-			},
+			want: []models.Tag{{
+				Key: "valid-tag", Value: "valid-value",
+			}},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := convertTags(tt.args.tags); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("convertTags() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
-func Test_convertTagsToMap(t *testing.T) {
-	type args struct {
-		tags *computepb.Tags
-	}
-	tests := []struct {
-		name string
-		args args
-		want map[string]string
-	}{
-		{
-			name: "Items=nil",
-			args: args{
-				tags: &computepb.Tags{},
-			},
-			want: map[string]string{},
-		},
-		{
-			name: "no tags",
-			args: args{
-				tags: &computepb.Tags{
-					Items: []string{},
-				},
-			},
-			want: map[string]string{},
-		},
-		{
-			name: "sanity",
-			args: args{
-				tags: &computepb.Tags{
-					Items: []string{"key1=val1", "key2"},
-				},
-			},
-			want: map[string]string{
-				"key1": "val1",
-				"key2": "",
-			},
-		},
-	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := convertTagsToMap(tt.args.tags); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("convertTagsToMap() = %v, want %v", got, tt.want)
+			if got := convertLabelsToTags(tt.args); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertLabelsToTags() = %v, want %v", got, tt.want)
 			}
 		})
 	}
