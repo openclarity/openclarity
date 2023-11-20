@@ -23,7 +23,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.23.2
 	github.com/aws/smithy-go v1.17.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/deepmap/oapi-codegen v1.16.2
+	github.com/deepmap/oapi-codegen/v2 v2.0.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/evanphx/json-patch v5.7.0+incompatible
 	github.com/getkin/kin-openapi v0.120.0
