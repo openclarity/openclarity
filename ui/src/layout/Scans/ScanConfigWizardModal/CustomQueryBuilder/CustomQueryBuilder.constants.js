@@ -1,4 +1,5 @@
 import { AntdConfig, AntdWidgets } from '@react-awesome-query-builder/antd';
+//import LengthWidget from './widgets/LengthWidget';
 const { FieldCascader } = AntdWidgets;
 
 const CONJUNCTIONS = {
@@ -116,23 +117,84 @@ const BETWEEN_OPERATORS = {
     }
 }
 
-const FUNCTION_OPERATORS = {
-    multiselect_contains: {
-        ...AntdConfig.operators.multiselect_contains,
-    },
-    multiselect_not_contains: {
-        ...AntdConfig.operators.multiselect_not_contains
-    },
+const FUNCTION_TEXT_OPERATORS = {
     ends_with: {
         ...AntdConfig.operators.ends_with,
+        label: "ends with",
+        labelForFormat: "Ends with",
+        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
+            if (isForDisplay)
+                return `(${field} ENDS WITH ${value})`;
+            else
+                return `endswith(${field}, ${value})`;
+        },
     },
     starts_with: {
         ...AntdConfig.operators.starts_with,
+        label: "starts with",
+        labelForFormat: "Starts with",
+        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
+            if (isForDisplay)
+                return `(${field} STARTS WITH ${value})`;
+            else
+                return `startswith(${field}, ${value})`;
+        },
     },
-    //    ...AntdConfig.operators
 }
 
-const IS_NULL_NOT_NULL = {
+/*
+const COMPLEX_OPERATORS = {
+    length: {
+        cardinality: 1,
+        label: "length",
+        labelForFormat: "LENGTH",
+        formatOp: (field, op, values, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
+            console.log('values:', values);
+            //const opStr = isForDisplay ? op : opDef.labelForFormat; 
+            if (values) {
+                let innerOperator = values.first();
+                let numberValue = values.get(1);
+
+                //const innerOperator = isForDisplay ? values[0].labelForFormat : values[0].label;
+                if (isForDisplay)
+                    return `(LENGTH OF ${field} ${innerOperator} ${numberValue})`;
+                else
+                    return `length(${field}) ${innerOperator} ${numberValue}`;
+            }
+
+            return ""
+
+        },
+    }
+}
+*/
+/*
+const LAMBDA_FUNCTION_OPERATORS = {
+    any: {
+        label: "any",
+        labelForFormat: "Any",
+        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
+            if (isForDisplay)
+                return `(${field} HAS ANY ${value})`;
+            else
+                return `(${field}/any(o:o/${value} eq ${"sg"})`;
+        },
+    },
+    all: {
+        label: "all",
+        labelForFormat: "All",
+        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
+            if (isForDisplay)
+                return `(${field} ALL MATCH ${value})`;
+            else
+                return `(${field}/all(o:o/${value} eq ${"sg"})`;
+        },
+        //valueTypes: ['number']
+    }
+}
+*/
+
+const IS_NULL_NOT_NULL_OPERATORS = {
     is_null: {
         ...AntdConfig.operators.is_null,
         label: "is null",
@@ -153,19 +215,180 @@ const OPERATORS = {
     //...AntdConfig.operators,
     ...BASIC_OPERATORS,
     ...BETWEEN_OPERATORS,
-    ...IS_NULL_NOT_NULL
+    ...IS_NULL_NOT_NULL_OPERATORS,
+    ...FUNCTION_TEXT_OPERATORS,
+    //...COMPLEX_OPERATORS,
+    //...LAMBDA_FUNCTION_OPERATORS
 }
 
 const BASIC_OPERATORS_LIST = Object.keys(BASIC_OPERATORS);
-const FUNCTION_OPERATORS_LIST = Object.keys(FUNCTION_OPERATORS);
+const FUNCTION_TEXT_OPERATORS_LIST = Object.keys(FUNCTION_TEXT_OPERATORS);
+//const COMPLEX_OPERATORS_LIST = Object.keys(COMPLEX_OPERATORS);
 const BETWEEN_OPERATORS_LIST = Object.keys(BETWEEN_OPERATORS);
-const IS_NULL_NOT_NULL_LIST = Object.keys(IS_NULL_NOT_NULL);
+const IS_NULL_NOT_NULL_LIST = Object.keys(IS_NULL_NOT_NULL_OPERATORS);
+//const LAMBDA_FUNCTION_OPERATORS_LIST = Object.keys(LAMBDA_FUNCTION_OPERATORS)
+
+const TYPES = {
+    ...AntdConfig.types,
+    'group-select': {
+        ...AntdConfig.types.select,
+        valueSources: ['value', 'field'], //['value', 'field', 'func'],
+        defaultOperator: 'is_null',
+        widgets: {
+            'group-select': {
+                operators: [
+                    ...IS_NULL_NOT_NULL_LIST,
+                ]
+
+            },
+        },
+    },
+    'array-select': {
+        ...AntdConfig.types.select,
+        valueSources: ['value', 'field', 'func'], //['value', 'field', 'func'],
+        defaultOperator: 'is_null',
+        widgets: {
+            'group-select': {
+                operators: [
+                    ...IS_NULL_NOT_NULL_LIST,
+                    //...LAMBDA_FUNCTION_OPERATORS_LIST
+                ]
+            },
+        },
+    },
+    text: {
+        ...AntdConfig.types.text,
+        //valueSources: ['value', 'func', 'field'],
+        widgets: {
+            ...AntdConfig.types.text.widgets,
+            text: {
+                ...AntdConfig.types.text.widgets.text,
+                operators: [
+                    ...BASIC_OPERATORS_LIST,
+                    ...FUNCTION_TEXT_OPERATORS_LIST,
+                    ...IS_NULL_NOT_NULL_LIST,
+                ],
+            },
+            number: {
+                ...AntdConfig.types.text.widgets.number,
+                operators: [
+                    //...COMPLEX_OPERATORS_LIST,
+                    ...IS_NULL_NOT_NULL_LIST
+                ]
+            },
+            /*
+            length: {
+                //...AntdConfig.types.text.widgets.datetime,
+                operators: [
+                    ...COMPLEX_OPERATORS_LIST,
+                ]
+            }
+            */
+        },
+    },
+    number: {
+        ...AntdConfig.types.number,
+        //valueSources: [], //['value', 'field', 'func'],
+        widgets: {
+            number: {
+                operators: [
+                    ...BASIC_OPERATORS_LIST,
+                    ...BETWEEN_OPERATORS_LIST,
+                    ...IS_NULL_NOT_NULL_LIST
+                ]
+            },
+        },
+    },
+    datetime: {
+        ...AntdConfig.types.datetime,
+        widgets: {
+            datetime: {
+                operators: [
+                    ...BASIC_OPERATORS_LIST,
+                    ...BETWEEN_OPERATORS_LIST,
+                    ...IS_NULL_NOT_NULL_LIST
+                ],
+            },
+        },
+    },
+    select: {
+        mainWidget: "select",
+        defaultOperator: "select_equals",
+        widgets: {
+            select: {
+                operators: [
+                    "equal",
+                    "not_equal",
+                    ...IS_NULL_NOT_NULL_LIST
+                ],
+            },
+        }
+    },
+}
+
+const WIDGETS = {
+    ...AntdConfig.widgets,
+    'group-select': {
+        ...AntdConfig.widgets.select,
+    },
+    datetime: {
+        ...AntdConfig.widgets.datetime,
+        timeFormat: "HH:mm:ss",
+        valueFormat: `YYYY-MM-DDTHH:mm:ss`, // This is the locale datetime
+        formatValue: function (val, fieldDef, wgtDef, isForDisplay) {
+            const dateVal = this.utils.moment(val, wgtDef.valueFormat);
+            return isForDisplay ? this.utils.moment(dateVal).format('LLLL') : JSON.stringify(this.utils.moment.utc(dateVal).format());
+        },
+
+    },
+    /*
+    length: {
+        //...AntdConfig.widgets.datetime,
+        //type: 'func', //
+        type: 'text',
+        valueSrc: 'value',
+        factory: (props) => {
+            console.log('props:', props);
+            return <LengthWidget {...props} />
+        },
+        formatValue: (vals, _fieldDef, _wgtDef, isForDisplay) => (isForDisplay ? vals.map(toString) : vals.map(JSON.stringify)),
+        //mongoFormatValue: (val, _fieldDef, _wgtDef) => (val),
+        // Options:
+        //valueLabel: "Length",
+        //valuePlaceholder: "Enter le",
+        // Custom props (https://ant.design/components/input/):
+        // customProps: {
+        //     maxLength: 3
+        // },
+    }
+    */
+}
 
 const BASIC_CONFIG = {
     ...AntdConfig,
+
     settings: {
         ...AntdConfig.settings,
-        renderField: (props) => <FieldCascader {...props} />,
+        renderField: (props) => {
+            props.items = props.items.sort((a, b) => {
+                if (a.key < b.key) {
+                    return -1;
+                } else if (a.key > b.key) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            })
+
+            return (<FieldCascader {...props} customProps={{ ...props.customProps, changeOnSelect: true }} />)
+        }
+        ,
+        canRegroup: false,
+        locale: {
+            moment: navigator?.languages?.length
+                ? navigator.languages[0]
+                : navigator?.language
+        },
         fieldSeparator: "/",
         notLabel: "not"
     },
@@ -176,89 +399,10 @@ const BASIC_CONFIG = {
         ...OPERATORS
     },
     types: {
-        ...AntdConfig.types,
-        'group-select': {
-            ...AntdConfig.types.select,
-            valueSources: ['value', 'field'], //['value', 'field', 'func'],
-            defaultOperator: 'equal',
-            widgets: {
-                'group-select': {
-                    operators: IS_NULL_NOT_NULL_LIST,
-                },
-            },
-        },
-        text: {
-            ...AntdConfig.types.text,
-            widgets: {
-                ...AntdConfig.types.text.widgets,
-                // text: {
-                //     operators: [
-                //         "equal",
-                //         "not_equal",
-                //         // "starts_with",
-                //         // "ends_with",
-                //         ...FUNCTION_OPERATORS_LIST,
-                //         ...IS_NULL_NOT_NULL_LIST
-                //     ],
-                //     widgetProps: {},
-                //     opProps: {},
-                // },
-                // field: {
-                //     operators: [
-                //         //unary ops (like `is_empty`) will be excluded anyway, see getWidgetsForFieldOp()
-                //         "equal",
-                //         "not_equal",
-                //         //"proximity", //can exclude if you want
-                //     ],
-                // }
-            },
-        },
-        number: {
-            ...AntdConfig.types.number,
-            //valueSources: [], //['value', 'field', 'func'],
-            widgets: {
-                number: {
-                    operators: [...BASIC_OPERATORS_LIST, ...BETWEEN_OPERATORS_LIST, ...IS_NULL_NOT_NULL_LIST]
-                },
-            },
-        },
-        datetime: {
-            ...AntdConfig.types.datetime,
-            widgets: {
-                datetime: {
-                    operators: [...BASIC_OPERATORS_LIST, ...BETWEEN_OPERATORS_LIST, ...IS_NULL_NOT_NULL_LIST],
-                },
-            },
-        },
-        select: {
-            mainWidget: "select",
-            defaultOperator: "select_equals",
-            widgets: {
-                select: {
-                    operators: [
-                        "equal",
-                        "not_equal",
-                        ...IS_NULL_NOT_NULL_LIST
-                    ],
-                },
-            }
-        },
-        // array: {
-        //     ...AntdConfig.types['!struct'],
-        //valueSources: [], //['value', 'field', 'func'],
-        //defaultOperator: 'equal',
-        // widgets: {
-        //     'group-select': {
-        //         operators: ['equal', 'not_equal'],
-        //     },
-        // },
-        //},
+        ...TYPES
     },
     widgets: {
-        ...AntdConfig.widgets,
-        'group-select': {
-            ...AntdConfig.widgets.select,
-        },
+        ...WIDGETS
     },
     fieldSources: ["field", "func"],
     fields: {}

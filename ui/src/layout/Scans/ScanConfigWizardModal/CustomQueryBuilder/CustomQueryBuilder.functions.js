@@ -9,14 +9,13 @@ const convertDataType = (originalType) => {
         case "object":
             return "!struct";
         case "array":
-            return "!group"
+            return "!struct";
         default:
             return originalType;
     }
 }
 
 const collectProperties = (assetObject) => {
-    console.log('assetObject:', cloneDeep(assetObject));
 
     const KEY_TO_FIND = "properties";
     const propertyList = {};
@@ -69,8 +68,13 @@ const collectProperties = (assetObject) => {
         } else if (typeof propertyList === 'object') {
             for (const [key, value] of Object.entries(propertyList)) {
                 if (Object.keys(value).includes("type")) {
+                    value.originalType = value.type;
                     value.type = convertDataType(value.type);
                     value.label = key;
+
+                    if (value.description) {
+                        value.tooltip = value.description
+                    }
 
                     if (value.enum) {
                         value.type = 'select';
@@ -88,20 +92,50 @@ const collectProperties = (assetObject) => {
                 }
 
                 if (Object.keys(value).includes("subfields")) {
-                    propertyList[`${key}-object`] = {
-                        type: 'group-select',
-                        label: `${key} (object)`,
-                        fieldSettings: {
-                            listValues: [{
-                                title: 'null',
-                                value: 'null'
-                            }]
-                        },
-                        fieldName: key,
-                        defaultValue: "null",
-                    }
-                }
 
+                    if (value.originalType === 'object') {
+                        const keyObject = {
+                            type: 'group-select',
+                            label: `${key} (object)`,
+                            fieldSettings: {
+                                listValues: [{
+                                    title: 'null',
+                                    value: 'null'
+                                }]
+                            },
+                            fieldName: key,
+                            defaultValue: "null",
+                        }
+
+                        if (value.description) {
+                            keyObject.tooltip = value.description
+                        }
+
+                        propertyList[`${key}-object`] = keyObject
+                    }
+
+                    if (value.originalType === 'array') {
+                        const keyObject = {
+                            type: 'array-select',
+                            label: `${key} (array)`,
+                            fieldSettings: {
+                                listValues: [{
+                                    title: 'null',
+                                    value: 'null'
+                                }]
+                            },
+                            fieldName: key,
+                            defaultValue: "null",
+                        }
+
+                        if (value.description) {
+                            keyObject.tooltip = value.description
+                        }
+
+                        propertyList[`${key}-array`] = keyObject
+                    }
+
+                }
                 convertDataForQuery(value);
             }
         }
@@ -109,7 +143,7 @@ const collectProperties = (assetObject) => {
 
     // Main properties collected
     prepareProperties(cloneDeep(assetObject), propertyList);
-    // child objects and arrays are collected under subfields key - subfields is necessary for !struct (object) and !group (array) types
+    // child objects and arrays are collected under subfields key - subfields is necessary for !struct (object) and !group types
     Object.values(propertyList).forEach(value => createSubfields(value, value))
     // Data conversion (js --> odata)
     convertDataForQuery(propertyList);
@@ -117,4 +151,6 @@ const collectProperties = (assetObject) => {
     return propertyList;
 }
 
-export { collectProperties };
+const postFixQuery = (text) => text ? text.replace(/"/g, "'") : '';
+
+export { collectProperties, postFixQuery };
