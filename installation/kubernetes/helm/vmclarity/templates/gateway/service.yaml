@@ -4,11 +4,23 @@ metadata:
   name: {{ include "vmclarity.gateway.name" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 4 }}
+  {{- if (not (empty .Values.gateway.service.annotations)) }}
+  annotations: {{ .Values.gateway.service.annotations }}
+  {{- end }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.gateway.service.type }}
+  {{- if and .Values.gateway.service.clusterIP (eq .Values.gateway.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.gateway.service.clusterIP }}
+  {{- end }}
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 8080
+      port: {{ .Values.gateway.service.ports.http }}
+      targetPort: gateway-http
+      {{- if and (or (eq .Values.gateway.service.type "NodePort") (eq .Values.gateway.service.type "LoadBalancer")) (not (empty .Values.gateway.service.nodePorts.http)) }}
+      nodePort: {{ .Values.gateway.service.nodePorts.http }}
+      {{- end }}
+  {{- if and (or (eq .Values.gateway.service.type "NodePort") (eq .Values.gateway.service.type "LoadBalancer")) (not (empty .Values.gateway.service.externalTrafficPolicy)) }}
+  externalTrafficPolicy: {{ .Values.gateway.service.externalTrafficPolicy }}
+  {{- end }}
   selector: {{- include "vmclarity.gateway.labels.matchLabels" . | nindent 4 }}

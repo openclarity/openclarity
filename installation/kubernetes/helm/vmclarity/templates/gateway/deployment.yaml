@@ -44,6 +44,9 @@ spec:
           {{- if .Values.gateway.resources }}
           resources: {{- toYaml .Values.gateway.resources | nindent 12 }}
           {{- end }}
+          ports:
+            - containerPort: 8080
+              name: gateway-http
       volumes:
         - name: gateway-config
           configMap:
