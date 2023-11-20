@@ -111,6 +111,12 @@ secrets.
 | gateway.replicas | int | `1` | Number of replicas for the gateway |
 | gateway.resources.limits | object | `{}` | The resources limits for the gateway containers |
 | gateway.resources.requests | object | `{}` | The requested resources for the gateway containers |
+| gateway.service.annotations | object | `{}` | Annotations set for service |
+| gateway.service.clusterIP | string | `""` | Dedicated IP address used for service |
+| gateway.service.externalTrafficPolicy | string | `"Cluster"` | External Traffic Policy configuration Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node-local endpoints. |
+| gateway.service.nodePorts | object | `{"http":""}` | NodePort configurations |
+| gateway.service.ports | object | `{"http":80}` | Port configurations |
+| gateway.service.type | string | `"ClusterIP"` | Service type: ClusterIP, NodePort, LoadBalancer |
 | gateway.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | gateway.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | gateway.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |

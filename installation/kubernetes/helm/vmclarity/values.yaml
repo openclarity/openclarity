@@ -402,6 +402,23 @@ gateway:
       drop:
         - ALL
 
+  service:
+    # -- Service type: ClusterIP, NodePort, LoadBalancer
+    type: ClusterIP
+    # -- Port configurations
+    ports:
+      http: 80
+    # -- NodePort configurations
+    nodePorts:
+      http: ""
+    # -- Dedicated IP address used for service
+    clusterIP: ""
+    # -- Annotations set for service
+    annotations: {}
+    # -- External Traffic Policy configuration
+    # Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node-local endpoints.
+    externalTrafficPolicy: Cluster
+
 postgresql:
   image:
     # -- Postgresql container registry
