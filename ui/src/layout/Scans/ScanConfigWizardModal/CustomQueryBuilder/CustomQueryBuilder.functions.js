@@ -96,7 +96,7 @@ const collectProperties = (assetObject) => {
                     if (value.originalType === 'object') {
                         const keyObject = {
                             type: 'group-select',
-                            label: `${key} (object)`,
+                            label: `${key} <object>`,
                             fieldSettings: {
                                 listValues: [{
                                     title: 'null',
@@ -117,7 +117,7 @@ const collectProperties = (assetObject) => {
                     if (value.originalType === 'array') {
                         const keyObject = {
                             type: 'array-select',
-                            label: `${key} (array)`,
+                            label: `${key} <array>`,
                             fieldSettings: {
                                 listValues: [{
                                     title: 'null',

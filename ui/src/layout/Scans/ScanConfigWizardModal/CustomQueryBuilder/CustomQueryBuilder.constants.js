@@ -1,5 +1,4 @@
 import { AntdConfig, AntdWidgets } from '@react-awesome-query-builder/antd';
-//import LengthWidget from './widgets/LengthWidget';
 const { FieldCascader } = AntdWidgets;
 
 const CONJUNCTIONS = {
@@ -143,32 +142,6 @@ const FUNCTION_TEXT_OPERATORS = {
 }
 
 /*
-const COMPLEX_OPERATORS = {
-    length: {
-        cardinality: 1,
-        label: "length",
-        labelForFormat: "LENGTH",
-        formatOp: (field, op, values, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
-            console.log('values:', values);
-            //const opStr = isForDisplay ? op : opDef.labelForFormat; 
-            if (values) {
-                let innerOperator = values.first();
-                let numberValue = values.get(1);
-
-                //const innerOperator = isForDisplay ? values[0].labelForFormat : values[0].label;
-                if (isForDisplay)
-                    return `(LENGTH OF ${field} ${innerOperator} ${numberValue})`;
-                else
-                    return `length(${field}) ${innerOperator} ${numberValue}`;
-            }
-
-            return ""
-
-        },
-    }
-}
-*/
-/*
 const LAMBDA_FUNCTION_OPERATORS = {
     any: {
         label: "any",
@@ -212,18 +185,15 @@ const IS_NULL_NOT_NULL_OPERATORS = {
 }
 
 const OPERATORS = {
-    //...AntdConfig.operators,
     ...BASIC_OPERATORS,
     ...BETWEEN_OPERATORS,
     ...IS_NULL_NOT_NULL_OPERATORS,
     ...FUNCTION_TEXT_OPERATORS,
-    //...COMPLEX_OPERATORS,
     //...LAMBDA_FUNCTION_OPERATORS
 }
 
 const BASIC_OPERATORS_LIST = Object.keys(BASIC_OPERATORS);
 const FUNCTION_TEXT_OPERATORS_LIST = Object.keys(FUNCTION_TEXT_OPERATORS);
-//const COMPLEX_OPERATORS_LIST = Object.keys(COMPLEX_OPERATORS);
 const BETWEEN_OPERATORS_LIST = Object.keys(BETWEEN_OPERATORS);
 const IS_NULL_NOT_NULL_LIST = Object.keys(IS_NULL_NOT_NULL_OPERATORS);
 //const LAMBDA_FUNCTION_OPERATORS_LIST = Object.keys(LAMBDA_FUNCTION_OPERATORS)
@@ -232,7 +202,7 @@ const TYPES = {
     ...AntdConfig.types,
     'group-select': {
         ...AntdConfig.types.select,
-        valueSources: ['value', 'field'], //['value', 'field', 'func'],
+        valueSources: ['value', 'field'],
         defaultOperator: 'is_null',
         widgets: {
             'group-select': {
@@ -245,7 +215,7 @@ const TYPES = {
     },
     'array-select': {
         ...AntdConfig.types.select,
-        valueSources: ['value', 'field', 'func'], //['value', 'field', 'func'],
+        valueSources: ['value', 'field', 'func'],
         defaultOperator: 'is_null',
         widgets: {
             'group-select': {
@@ -258,7 +228,7 @@ const TYPES = {
     },
     text: {
         ...AntdConfig.types.text,
-        //valueSources: ['value', 'func', 'field'],
+        valueSources: ['value', 'func', 'field'],
         widgets: {
             ...AntdConfig.types.text.widgets,
             text: {
@@ -272,23 +242,13 @@ const TYPES = {
             number: {
                 ...AntdConfig.types.text.widgets.number,
                 operators: [
-                    //...COMPLEX_OPERATORS_LIST,
                     ...IS_NULL_NOT_NULL_LIST
                 ]
             },
-            /*
-            length: {
-                //...AntdConfig.types.text.widgets.datetime,
-                operators: [
-                    ...COMPLEX_OPERATORS_LIST,
-                ]
-            }
-            */
         },
     },
     number: {
         ...AntdConfig.types.number,
-        //valueSources: [], //['value', 'field', 'func'],
         widgets: {
             number: {
                 operators: [
@@ -341,27 +301,6 @@ const WIDGETS = {
         },
 
     },
-    /*
-    length: {
-        //...AntdConfig.widgets.datetime,
-        //type: 'func', //
-        type: 'text',
-        valueSrc: 'value',
-        factory: (props) => {
-            console.log('props:', props);
-            return <LengthWidget {...props} />
-        },
-        formatValue: (vals, _fieldDef, _wgtDef, isForDisplay) => (isForDisplay ? vals.map(toString) : vals.map(JSON.stringify)),
-        //mongoFormatValue: (val, _fieldDef, _wgtDef) => (val),
-        // Options:
-        //valueLabel: "Length",
-        //valuePlaceholder: "Enter le",
-        // Custom props (https://ant.design/components/input/):
-        // customProps: {
-        //     maxLength: 3
-        // },
-    }
-    */
 }
 
 const BASIC_CONFIG = {
@@ -390,6 +329,20 @@ const BASIC_CONFIG = {
                 : navigator?.language
         },
         fieldSeparator: "/",
+        fieldSources: ["field", "func"],
+        valueSourcesInfo: {
+            value: {
+                label: "Value"
+            },
+            field: {
+                label: "Field",
+                widget: "field",
+            },
+            func: {
+                label: "Function",
+                widget: "func",
+            }
+        },
         notLabel: "not"
     },
     conjunctions: {
@@ -404,7 +357,25 @@ const BASIC_CONFIG = {
     widgets: {
         ...WIDGETS
     },
-    fieldSources: ["field", "func"],
+    funcs: {
+        length: {
+            label: 'length',
+            /*
+            formatFunc: (args, isForDisplay) => {
+                console.log('isForDisplay:', isForDisplay);
+                console.log('args:', args);
+
+            },
+            */
+            returnType: 'text',
+            args: {
+                text: {
+                    type: 'text',
+                    valueSources: ['value', 'field'],
+                },
+            }
+        }
+    },
     fields: {}
 };
 
