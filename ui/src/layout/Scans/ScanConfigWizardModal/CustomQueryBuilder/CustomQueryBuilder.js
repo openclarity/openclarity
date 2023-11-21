@@ -17,8 +17,7 @@ import "@react-awesome-query-builder/ui/css/styles.scss";
 import "./CustomQueryBuilder.scss";
 
 const CustomQueryBuilder = () => {
-    const isDev = process.env.NODE_ENV === "development";
-    const [{ loading, data, error }] = useFetch(`${isDev ? "http://localhost:3000" : ""}/api/openapi.json`, { isAbsoluteUrl: true });
+    const [{ loading, data, error }] = useFetch(`${window.location.origin}/api/openapi.json`, { isAbsoluteUrl: true });
     /* BASIC_CONFIG is the configuration object for the query builder, 'scopeConfig' contains all the tree and query data -- this one is saved to the backend */
 
     const [config, setConfig] = useState(BASIC_CONFIG);
