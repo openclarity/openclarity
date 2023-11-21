@@ -141,31 +141,6 @@ const FUNCTION_TEXT_OPERATORS = {
     },
 }
 
-/*
-const LAMBDA_FUNCTION_OPERATORS = {
-    any: {
-        label: "any",
-        labelForFormat: "Any",
-        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-            if (isForDisplay)
-                return `(${field} HAS ANY ${value})`;
-            else
-                return `(${field}/any(o:o/${value} eq ${"sg"})`;
-        },
-    },
-    all: {
-        label: "all",
-        labelForFormat: "All",
-        formatOp: (field, op, value, valueSrcs, valueTypes, opDef, operatorOptions, isForDisplay, fieldDef) => {
-            if (isForDisplay)
-                return `(${field} ALL MATCH ${value})`;
-            else
-                return `(${field}/all(o:o/${value} eq ${"sg"})`;
-        },
-        //valueTypes: ['number']
-    }
-}
-*/
 
 const IS_NULL_NOT_NULL_OPERATORS = {
     is_null: {
@@ -189,14 +164,12 @@ const OPERATORS = {
     ...BETWEEN_OPERATORS,
     ...IS_NULL_NOT_NULL_OPERATORS,
     ...FUNCTION_TEXT_OPERATORS,
-    //...LAMBDA_FUNCTION_OPERATORS
 }
 
 const BASIC_OPERATORS_LIST = Object.keys(BASIC_OPERATORS);
 const FUNCTION_TEXT_OPERATORS_LIST = Object.keys(FUNCTION_TEXT_OPERATORS);
 const BETWEEN_OPERATORS_LIST = Object.keys(BETWEEN_OPERATORS);
 const IS_NULL_NOT_NULL_LIST = Object.keys(IS_NULL_NOT_NULL_OPERATORS);
-//const LAMBDA_FUNCTION_OPERATORS_LIST = Object.keys(LAMBDA_FUNCTION_OPERATORS)
 
 const TYPES = {
     ...AntdConfig.types,
@@ -221,7 +194,6 @@ const TYPES = {
             'group-select': {
                 operators: [
                     ...IS_NULL_NOT_NULL_LIST,
-                    //...LAMBDA_FUNCTION_OPERATORS_LIST
                 ]
             },
         },
@@ -254,7 +226,6 @@ const TYPES = {
                 operators: [
                     ...BASIC_OPERATORS_LIST,
                     ...BETWEEN_OPERATORS_LIST,
-                    ...IS_NULL_NOT_NULL_LIST
                 ]
             },
         },
@@ -360,14 +331,7 @@ const BASIC_CONFIG = {
     funcs: {
         length: {
             label: 'length',
-            /*
-            formatFunc: (args, isForDisplay) => {
-                console.log('isForDisplay:', isForDisplay);
-                console.log('args:', args);
-
-            },
-            */
-            returnType: 'text',
+            returnType: 'number',
             args: {
                 text: {
                     type: 'text',

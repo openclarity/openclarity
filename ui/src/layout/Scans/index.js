@@ -7,8 +7,10 @@ import Loader from 'components/Loader';
 import EmptyDisplay from 'components/EmptyDisplay';
 import { APIS } from 'utils/systemConsts';
 import ScanConfigWizardModal from './ScanConfigWizardModal';
-import { ModalDisplayProvider, useModalDisplayState, useModalDisplayDispatch,
-    MODAL_DISPLAY_ACTIONS } from './ScanConfigWizardModal/ModalDisplayProvider';
+import {
+    ModalDisplayProvider, useModalDisplayState, useModalDisplayDispatch,
+    MODAL_DISPLAY_ACTIONS
+} from './ScanConfigWizardModal/ModalDisplayProvider';
 import Scans from './Scans';
 import Configurations from './Configurations';
 import { SCANS_PATHS } from './utils';
@@ -20,15 +22,15 @@ export {
 export const OPEN_CONFIG_FORM_PARAM = "openConfigForm";
 
 const ScansTabbedPage = () => {
-    const {pathname} = useLocation();
+    const { pathname } = useLocation();
     const [searchParams] = useSearchParams();
     const openConfigForm = searchParams.get(OPEN_CONFIG_FORM_PARAM);
     const prevOpenConfigForm = usePrevious(openConfigForm);
-    
-    const {modalDisplayData} = useModalDisplayState();
+
+    const { modalDisplayData } = useModalDisplayState();
     const modalDisplayDispatch = useModalDisplayDispatch();
-    const closeDisplayModal = () => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.CLOSE_DISPLAY_MODAL});
-    const openDisplayModal = useCallback(() => modalDisplayDispatch({type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {}}), [modalDisplayDispatch]);
+    const closeDisplayModal = () => modalDisplayDispatch({ type: MODAL_DISPLAY_ACTIONS.CLOSE_DISPLAY_MODAL });
+    const openDisplayModal = useCallback(() => modalDisplayDispatch({ type: MODAL_DISPLAY_ACTIONS.SET_MODAL_DISPLAY_DATA, payload: {} }), [modalDisplayDispatch]);
 
     useEffect(() => {
         if (!prevOpenConfigForm && openConfigForm) {
@@ -36,9 +38,9 @@ const ScansTabbedPage = () => {
         }
     }, [prevOpenConfigForm, openConfigForm, openDisplayModal]);
 
-    const [{data, error, loading}, fetchData] = useMountMultiFetch([
-        {key: "scans", url: APIS.SCANS},
-        {key: "scanConfigs", url: APIS.SCAN_CONFIGS}
+    const [{ data, error, loading }, fetchData] = useMountMultiFetch([
+        { key: "scans", url: APIS.SCANS },
+        { key: "scanConfigs", url: APIS.SCAN_CONFIGS }
     ]);
 
     if (loading) {
@@ -48,8 +50,8 @@ const ScansTabbedPage = () => {
     if (error) {
         return null;
     }
-    
-    const {scans, scanConfigs} = data;
+
+    const { scans, scanConfigs } = data;
 
     return (
         <>
@@ -83,7 +85,7 @@ const ScansTabbedPage = () => {
                     withStickyTabs
                 />
             }
-            {!isNull(modalDisplayData) && 
+            {!isNull(modalDisplayData) &&
                 <ScanConfigWizardModal
                     initialData={modalDisplayData}
                     onClose={closeDisplayModal}

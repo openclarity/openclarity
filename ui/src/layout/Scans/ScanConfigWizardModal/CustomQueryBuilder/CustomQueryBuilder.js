@@ -16,24 +16,24 @@ import { collectProperties, postFixQuery } from './CustomQueryBuilder.functions'
 import "@react-awesome-query-builder/ui/css/styles.scss";
 import "./CustomQueryBuilder.scss";
 
-// You can load query value from your backend storage (for saving see `Query.onChange()`)
-const queryValue = { id: QbUtils.uuid(), type: "group" };
-
-const CustomQueryBuilder = ({
-    initialQuery,
-    name
-}) => {
+const CustomQueryBuilder = () => {
     const isDev = process.env.NODE_ENV === "development";
     const [{ loading, data, error }] = useFetch(`${isDev ? "http://localhost:3000" : ""}/api/openapi.json`, { isAbsoluteUrl: true });
+    /* BASIC_CONFIG is the configuration object for the query builder, 'scopeConfig' contains all the tree and query data -- this one is saved to the backend */
+
     const [config, setConfig] = useState(BASIC_CONFIG);
+
+    const [scopeConfigField, , scopeConfigHelpers] = useField("scanTemplate.scopeConfig");
+    const { setValue: setScopeConfigValue } = scopeConfigHelpers;
+    const { value: scopeConfigValue } = scopeConfigField;
+
+    const [, , scopeHelpers] = useField("scanTemplate.scope");
+    const { setValue: setScopeValue } = scopeHelpers;
+
     const [queryState, setQueryState] = useState({
         config,
-        tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
+        tree: QbUtils.checkTree(QbUtils.loadTree(scopeConfigValue), config),
     });
-
-    const [, , helpers] = useField(name); //const [field, , helpers] 
-    const { setValue } = helpers;
-    //const { value } = field;
 
     const readYamlFile = useCallback(
         async (rawApiData) => {
@@ -53,16 +53,16 @@ const CustomQueryBuilder = ({
     const resetValue = useCallback(() => {
         setQueryState(state => ({
             ...state,
-            tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
+            tree: QbUtils.checkTree(QbUtils.loadTree(scopeConfigValue), config),
         }));
-    }, [config]);
+    }, [config, scopeConfigValue]);
 
     const clearValue = useCallback(() => {
         setQueryState(state => ({
             ...state,
-            tree: QbUtils.loadTree(queryValue),
+            tree: QbUtils.loadTree(scopeConfigValue),
         }));
-    }, []);
+    }, [scopeConfigValue]);
 
     const renderBuilder = useCallback((props) => (
         <div className="query-builder-container">
@@ -78,21 +78,23 @@ const CustomQueryBuilder = ({
     }, 100);
 
     const onChange = useCallback((immutableTree, config) => {
-        //const jsonTree = QbUtils.getTree(immutableTree);
-        //console.log(jsonTree);
-        // `jsonTree` can be saved to backend, and later loaded to `queryValue`
         updateResult(immutableTree, config)
-    }, [updateResult]);
+        const jsonTree = QbUtils.getTree(immutableTree);
+        setScopeConfigValue(jsonTree);
+    }, [setScopeConfigValue, updateResult]);
 
     useEffect(() => {
         const query = QbUtils.queryString(queryState.tree, queryState.config);
-        setValue(postFixQuery(query));
+        setScopeValue(postFixQuery(query));
         // eslint-disable-next-line
-    }, [queryState])
-
+    }, [queryState.tree])
 
     useEffect(() => {
-        setQueryState({ config, tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config) });
+        setQueryState({
+            config,
+            tree: QbUtils.checkTree(QbUtils.loadTree(scopeConfigValue), config)
+        });
+        // eslint-disable-next-line
     }, [config])
 
     useEffect(() => {
@@ -101,7 +103,7 @@ const CustomQueryBuilder = ({
     }, [data])
 
     return (
-        <div>
+        <>
             <div className="query-builder-result">
                 <div className='query-builder-result__section'>
                     <span className='query-builder-result__title'>Manual scope editor (odata query)*</span>
@@ -137,7 +139,7 @@ const CustomQueryBuilder = ({
                     />
                 </>
             }
-        </div>
+        </>
     )
 }
 

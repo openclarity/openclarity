@@ -1,18 +1,20 @@
 import React from 'react';
 import { FETCH_METHODS } from 'hooks';
-import WizardModal from 'components/WizardModal';
-import { APIS } from 'utils/systemConsts';
+
+import StepAdvancedSettings from './StepAdvancedSettings';
 import StepGeneralProperties from './StepGeneralProperties';
 import StepScanTypes from './StepScanTypes';
 import StepTimeConfiguration, { SCHEDULE_TYPES_ITEMS, CRON_QUICK_OPTIONS } from './StepTimeConfiguration';
-import StepAdvancedSettings from './StepAdvancedSettings';
+import WizardModal from 'components/WizardModal';
+import { APIS } from 'utils/systemConsts';
+import { SCOPE_CONFIG_INITIAL_VALUE } from "./ScanConfigWizardModal.constants";
 
 import './scan-config-wizard-modal.scss';
 
 const padDateTime = time => String(time).padStart(2, "0");
 
 const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
-    const { id, name, scanTemplate, scheduled } = initialData || {};
+    const { id, name, scanTemplate, scheduled, scopeConfig, fullScope } = initialData || {};
     const { scope, maxParallelScanners, assetScanTemplate } = scanTemplate || {};
     const { operationTime, cronLine } = scheduled || {};
 
@@ -36,7 +38,8 @@ const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
         },
         scanTemplate: {
             scope: scope || "",
-            scopeSelector: "all",
+            fullScope: typeof fullScope === 'boolean' ? fullScope : true,
+            scopeConfig: scopeConfig || SCOPE_CONFIG_INITIAL_VALUE,
             maxParallelScanners: maxParallelScanners || 2,
             assetScanTemplate: {
                 scanFamiliesConfig: {
