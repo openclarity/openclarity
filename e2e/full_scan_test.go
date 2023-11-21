@@ -17,6 +17,7 @@ package e2e
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo/v2"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	uibackend_models "github.com/openclarity/vmclarity/pkg/uibackend/api/models"
 )
 
 var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, misconfigurations, rootkits, SBOM, secrets and vulnerabilities)", func() {
@@ -76,6 +78,53 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
 			}, DefaultTimeout*10, time.Second).Should(gomega.BeTrue())
+
+			ginkgo.By("waiting until asset is found in riskiest assets dashboard")
+			gomega.Eventually(func() bool {
+				riskiestAssets, err := uiClient.GetDashboardRiskiestAssets(ctx)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				if riskiestAssets == nil {
+					return false
+				}
+				for _, v := range *riskiestAssets.Vulnerabilities {
+					if strings.Contains(*v.AssetInfo.Name, "alpine") && *v.CriticalVulnerabilitiesCount > 1 {
+						return true
+					}
+				}
+				return false
+			}, DefaultTimeout*2, time.Second).Should(gomega.BeTrue())
+
+			ginkgo.By("waiting until findings trends dashboard is populated with vulnerabilities")
+			gomega.Eventually(func() bool {
+				findingsTrends, err := uiClient.GetDashboardFindingsTrends(
+					ctx,
+					uibackend_models.GetDashboardFindingsTrendsParams{
+						StartTime: time.Now().Add(-time.Minute * 10),
+						EndTime:   time.Now(),
+					},
+				)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				if findingsTrends == nil {
+					return false
+				}
+				for _, trend := range *findingsTrends {
+					if *trend.FindingType == uibackend_models.VULNERABILITY {
+						for _, t := range *trend.Trends {
+							if *t.Count > 0 {
+								return true
+							}
+						}
+					}
+				}
+				return false
+			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+
+			ginkgo.By("waiting until findings impact dashboard is populated with vulnerabilities")
+			gomega.Eventually(func() bool {
+				findingsImpact, err := uiClient.GetDashboardFindingsImpact(ctx)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				return findingsImpact != nil && findingsImpact.Vulnerabilities != nil && len(*findingsImpact.Vulnerabilities) > 0
+			}, DefaultTimeout*2, time.Second).Should(gomega.BeTrue())
 		})
 	})
 

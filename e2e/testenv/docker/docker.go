@@ -37,9 +37,8 @@ import (
 )
 
 const (
-	dockerVMclarityAPIServerServiceName = "apiserver"
-	dockerStateRunning                  = "running"
-	dockerHealthStateHealthy            = "healthy"
+	dockerStateRunning       = "running"
+	dockerHealthStateHealthy = "healthy"
 )
 
 type ContextKeyType string
@@ -195,28 +194,28 @@ func (e *DockerEnv) Services() []string {
 	return services
 }
 
-func (e *DockerEnv) VMClarityAPIURL() (*url.URL, error) {
-	var vmClarityBackend types.ServiceConfig
+func (e *DockerEnv) GetGatewayServiceURL() (*url.URL, error) {
+	var service types.ServiceConfig
 	var ok bool
 
 	for _, srv := range e.project.Services {
-		if srv.Name == dockerVMclarityAPIServerServiceName {
-			vmClarityBackend = srv
+		if srv.Name == "gateway" {
+			service = srv
 			ok = true
 			break
 		}
 	}
 
 	if !ok {
-		return nil, errors.Errorf("container with name %s is not available", dockerVMclarityAPIServerServiceName)
+		return nil, errors.Errorf("container with name gateway is not available")
 	}
 
-	if len(vmClarityBackend.Ports) < 1 {
-		return nil, errors.Errorf("container with name %s has no ports published", dockerVMclarityAPIServerServiceName)
+	if len(service.Ports) < 1 {
+		return nil, errors.Errorf("container with name gateway has no ports published")
 	}
 
-	port := vmClarityBackend.Ports[0].Published
-	hostIP := vmClarityBackend.Ports[0].HostIP
+	port := service.Ports[0].Published
+	hostIP := service.Ports[0].HostIP
 	if hostIP == "" {
 		hostIP = "127.0.0.1"
 	}
