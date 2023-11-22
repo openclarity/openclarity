@@ -119,8 +119,8 @@ func createFindings(ctx context.Context, assetScans []models.AssetScan) []models
 			FoundOn:     foundOn,
 			// InvalidatedOn: utils.PointerTo(foundOn.Add(2 * time.Minute)),
 		}
-		if assetScan.Sboms != nil && assetScan.Sboms.Packages != nil {
-			ret = append(ret, createPackageFindings(ctx, findingBase, *assetScan.Sboms.Packages)...)
+		if assetScan.Sbom != nil && assetScan.Sbom.Packages != nil {
+			ret = append(ret, createPackageFindings(ctx, findingBase, *assetScan.Sbom.Packages)...)
 		}
 		if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
 			ret = append(ret, createVulnerabilityFindings(ctx, findingBase, *assetScan.Vulnerabilities.Vulnerabilities)...)
@@ -691,10 +691,9 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 			}
 			// Create Exploits if needed
 			if *result.ScanFamiliesConfig.Exploits.Enabled {
-				result.Status.Exploits = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				result.Exploits = &models.ExploitScan{
+					Exploits: createExploitsResult(),
+					Status:   models.NewScannerStatus(models.ScannerStatusStateDone, models.ScannerStatusReasonSuccess, nil),
 				}
 				result.Stats.Exploits = &[]models.AssetScanInputScanStats{
 					{
@@ -716,23 +715,25 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("dir"),
 					},
 				}
-				result.Exploits = &models.ExploitScan{
-					Exploits: createExploitsResult(),
-				}
 				result.Summary.TotalExploits = utils.PointerTo(len(*result.Exploits.Exploits))
 			} else {
-				result.Status.Exploits = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Exploits = &models.ExploitScan{
+					Exploits: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalExploits = utils.PointerTo(0)
 			}
 
 			// Create Malware if needed
 			if *result.ScanFamiliesConfig.Malware.Enabled {
-				result.Status.Malware = &models.AssetScanState{
-					Errors:             &[]string{"failed to scan malware"},
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				result.Malware = &models.MalwareScan{
+					Malware:  createMalwareResult(),
+					Metadata: nil,
+					Status: models.NewScannerStatus(
+						models.ScannerStatusStateFailed,
+						models.ScannerStatusReasonError,
+						utils.PointerTo("failed to scan malware"),
+					),
 				}
 				result.Stats.Malware = &[]models.AssetScanInputScanStats{
 					{
@@ -754,23 +755,22 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("dir"),
 					},
 				}
-				result.Malware = &models.MalwareScan{
-					Malware: createMalwareResult(),
-				}
 				result.Summary.TotalMalware = utils.PointerTo(len(*result.Malware.Malware))
 			} else {
-				result.Status.Malware = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Malware = &models.MalwareScan{
+					Malware:  nil,
+					Metadata: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalMalware = utils.PointerTo(0)
 			}
 
 			// Create Misconfigurations if needed
 			if *result.ScanFamiliesConfig.Misconfigurations.Enabled {
-				result.Status.Misconfigurations = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateInProgress),
+				result.Misconfigurations = &models.MisconfigurationScan{
+					Misconfigurations: createMisconfigurationsResult(),
+					Scanners:          nil,
+					Status:            models.NewScannerStatus(models.ScannerStatusStateInProgress, models.ScannerStatusReasonScanning, nil),
 				}
 				result.Stats.Misconfigurations = &[]models.AssetScanInputScanStats{
 					{
@@ -783,23 +783,21 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("rootfs"),
 					},
 				}
-				result.Misconfigurations = &models.MisconfigurationScan{
-					Misconfigurations: createMisconfigurationsResult(),
-				}
 				result.Summary.TotalMisconfigurations = utils.PointerTo(len(*result.Misconfigurations.Misconfigurations))
 			} else {
-				result.Status.Misconfigurations = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Misconfigurations = &models.MisconfigurationScan{
+					Misconfigurations: nil,
+					Scanners:          nil,
+					Status:            models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalMisconfigurations = utils.PointerTo(0)
 			}
 
 			// Create Packages if needed
 			if *result.ScanFamiliesConfig.Sbom.Enabled {
-				result.Status.Sbom = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStatePending),
+				result.Sbom = &models.SbomScan{
+					Packages: createPackagesResult(),
+					Status:   models.NewScannerStatus(models.ScannerStatusStatePending, models.ScannerStatusReasonScheduled, nil),
 				}
 				result.Stats.Sbom = &[]models.AssetScanInputScanStats{
 					{
@@ -812,23 +810,20 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("rootfs"),
 					},
 				}
-				result.Sboms = &models.SbomScan{
-					Packages: createPackagesResult(),
-				}
-				result.Summary.TotalPackages = utils.PointerTo(len(*result.Sboms.Packages))
+				result.Summary.TotalPackages = utils.PointerTo(len(*result.Sbom.Packages))
 			} else {
-				result.Status.Sbom = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Sbom = &models.SbomScan{
+					Packages: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalPackages = utils.PointerTo(0)
 			}
 
 			// Create Rootkits if needed
 			if *result.ScanFamiliesConfig.Rootkits.Enabled {
-				result.Status.Rootkits = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				result.Rootkits = &models.RootkitScan{
+					Rootkits: createRootkitsResult(),
+					Status:   models.NewScannerStatus(models.ScannerStatusStateDone, models.ScannerStatusReasonSuccess, nil),
 				}
 				result.Stats.Rootkits = &[]models.AssetScanInputScanStats{
 					{
@@ -841,23 +836,20 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("rootfs"),
 					},
 				}
-				result.Rootkits = &models.RootkitScan{
-					Rootkits: createRootkitsResult(),
-				}
 				result.Summary.TotalRootkits = utils.PointerTo(len(*result.Rootkits.Rootkits))
 			} else {
-				result.Status.Rootkits = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Rootkits = &models.RootkitScan{
+					Rootkits: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalRootkits = utils.PointerTo(0)
 			}
 
 			// Create Secrets if needed
 			if *result.ScanFamiliesConfig.Secrets.Enabled {
-				result.Status.Secrets = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				result.Secrets = &models.SecretScan{
+					Secrets: createSecretsResult(),
+					Status:  models.NewScannerStatus(models.ScannerStatusStateDone, models.ScannerStatusReasonSuccess, nil),
 				}
 				result.Stats.Secrets = &[]models.AssetScanInputScanStats{
 					{
@@ -879,23 +871,24 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("dir"),
 					},
 				}
-				result.Secrets = &models.SecretScan{
-					Secrets: createSecretsResult(),
-				}
 				result.Summary.TotalSecrets = utils.PointerTo(len(*result.Secrets.Secrets))
 			} else {
-				result.Status.Secrets = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Secrets = &models.SecretScan{
+					Secrets: nil,
+					Status:  models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalSecrets = utils.PointerTo(0)
 			}
 
 			// Create Vulnerabilities if needed
 			if *result.ScanFamiliesConfig.Vulnerabilities.Enabled {
-				result.Status.Vulnerabilities = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateDone),
+				result.Vulnerabilities = &models.VulnerabilityScan{
+					Vulnerabilities: createVulnerabilitiesResult(),
+					Status: models.NewScannerStatus(
+						models.ScannerStatusStateDone,
+						models.ScannerStatusReasonSuccess,
+						nil,
+					),
 				}
 				result.Stats.Vulnerabilities = &[]models.AssetScanInputScanStats{
 					{
@@ -908,23 +901,21 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("rootfs"),
 					},
 				}
-				result.Vulnerabilities = &models.VulnerabilityScan{
-					Vulnerabilities: createVulnerabilitiesResult(),
-				}
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(result.Vulnerabilities.Vulnerabilities)
 			} else {
-				result.Status.Vulnerabilities = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.Vulnerabilities = &models.VulnerabilityScan{
+					Vulnerabilities: nil,
+					Status:          models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(nil)
 			}
 
 			// Create InfoFinder if needed
 			if *result.ScanFamiliesConfig.InfoFinder.Enabled {
-				result.Status.InfoFinder = &models.AssetScanState{
-					Errors:             nil,
-					LastTransitionTime: &timeNow,
-					State:              utils.PointerTo(models.AssetScanStateStateInProgress),
+				result.InfoFinder = &models.InfoFinderScan{
+					Infos:    creatInfoFinderInfos(),
+					Scanners: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateInProgress, models.ScannerStatusReasonScanning, nil),
 				}
 				result.Stats.InfoFinder = &[]models.AssetScanInputScanStats{
 					{
@@ -937,13 +928,12 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 						Type: utils.PointerTo("rootfs"),
 					},
 				}
-				result.InfoFinder = &models.InfoFinderScan{
-					Infos: creatInfoFinderInfos(),
-				}
 				result.Summary.TotalInfoFinder = utils.PointerTo(len(*result.InfoFinder.Infos))
 			} else {
-				result.Status.InfoFinder = &models.AssetScanState{
-					State: utils.PointerTo(models.AssetScanStateStateNotScanned),
+				result.InfoFinder = &models.InfoFinderScan{
+					Infos:    nil,
+					Scanners: nil,
+					Status:   models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil),
 				}
 				result.Summary.TotalInfoFinder = utils.PointerTo(0)
 			}

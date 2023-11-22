@@ -7,12 +7,15 @@ import COLORS from 'utils/scss_variables.module.scss';
 import './status-indicator.scss';
 
 export const STATUS_MAPPING = {
-    NotScanned: {title: "Not Scanned", color: COLORS["color-grey"]},
     Pending: {title: "Pending", color: COLORS["color-main"]},
+    InProgress: {title: "In Progress", color: COLORS["color-main"]},
+    Skipped: {title: "Skipped", color: COLORS["color-grey"]},
+    Failed: {title: "Failed", color: COLORS["color-error"]},
+    Done: {title: "Done", color: COLORS["color-success"]},
+
+    NotScanned: {title: "Not Scanned", color: COLORS["color-grey"]},
     Scheduled: {title: "Scheduled", color: COLORS["color-main"]},
     ReadyToScan: {title: "Ready To Scan", color: COLORS["color-main"]},
-    InProgress: {title: "In Progress", color: COLORS["color-main"]},
-    Done: {title: "Done", color: COLORS["color-success"]},
     Aborted: {title: "Aborted", color: COLORS["color-grey"]}
 }
 

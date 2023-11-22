@@ -89,7 +89,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanStatus"},
 			},
-			"sboms": odatasql.FieldMeta{
+			"sbom": odatasql.FieldMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"SbomScan"},
 			},
@@ -228,6 +228,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Package"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
 	"Package": {
@@ -255,6 +259,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					FieldType:           odatasql.ComplexFieldType,
 					ComplexFieldSchemas: []string{"Vulnerability"},
 				},
+			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
 			},
 		},
 	},
@@ -295,6 +303,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Malware"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
 	"Malware": {
@@ -313,6 +325,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					FieldType:           odatasql.ComplexFieldType,
 					ComplexFieldSchemas: []string{"Secret"},
 				},
+			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
 			},
 		},
 	},
@@ -340,6 +356,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Misconfiguration"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
 	"Misconfiguration": {
@@ -363,6 +383,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Rootkit"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
 	"Rootkit": {
@@ -385,6 +409,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"InfoFinderInfo"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
 	"InfoFinderInfo": {
@@ -404,8 +432,13 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					ComplexFieldSchemas: []string{"Exploit"},
 				},
 			},
+			"status": odatasql.FieldMeta{
+				FieldType:           odatasql.ComplexFieldType,
+				ComplexFieldSchemas: []string{"ScannerStatus"},
+			},
 		},
 	},
+
 	"Exploit": {
 		Fields: odatasql.Schema{
 			"name":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
@@ -1005,38 +1038,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"AssetScanState"},
 			},
-			"sbom": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"vulnerabilities": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"malware": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"rootkits": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"secrets": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"misconfigurations": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"exploits": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-			"infoFinder": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
 		},
 	},
 	"AssetScanState": {
@@ -1187,6 +1188,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+		},
+	},
+	"ScannerStatus": {
+		Fields: odatasql.Schema{
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 		},
 	},
 	"Annotation": {

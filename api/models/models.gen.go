@@ -186,6 +186,24 @@ const (
 	VULNERABILITY    ScanType = "VULNERABILITY"
 )
 
+// Defines values for ScannerStatusReason.
+const (
+	ScannerStatusReasonError        ScannerStatusReason = "Error"
+	ScannerStatusReasonNotScheduled ScannerStatusReason = "NotScheduled"
+	ScannerStatusReasonScanning     ScannerStatusReason = "Scanning"
+	ScannerStatusReasonScheduled    ScannerStatusReason = "Scheduled"
+	ScannerStatusReasonSuccess      ScannerStatusReason = "Success"
+)
+
+// Defines values for ScannerStatusState.
+const (
+	ScannerStatusStateDone       ScannerStatusState = "Done"
+	ScannerStatusStateFailed     ScannerStatusState = "Failed"
+	ScannerStatusStateInProgress ScannerStatusState = "InProgress"
+	ScannerStatusStatePending    ScannerStatusState = "Pending"
+	ScannerStatusStateSkipped    ScannerStatusState = "Skipped"
+)
+
 // Defines values for VulnerabilitySeverity.
 const (
 	CRITICAL   VulnerabilitySeverity = "CRITICAL"
@@ -279,7 +297,7 @@ type AssetScan struct {
 	ResourceCleanupStatus *ResourceCleanupStatus `json:"resourceCleanupStatus,omitempty"`
 	Revision              *int                   `json:"revision,omitempty"`
 	Rootkits              *RootkitScan           `json:"rootkits,omitempty"`
-	Sboms                 *SbomScan              `json:"sboms,omitempty"`
+	Sbom                  *SbomScan              `json:"sbom,omitempty"`
 
 	// Scan Describes an expandable relationship to Scan object
 	Scan *ScanRelationship `json:"scan,omitempty"`
@@ -403,7 +421,7 @@ type AssetScanRelationship struct {
 	ResourceCleanupStatus *ResourceCleanupStatus `json:"resourceCleanupStatus,omitempty"`
 	Revision              *int                   `json:"revision,omitempty"`
 	Rootkits              *RootkitScan           `json:"rootkits,omitempty"`
-	Sboms                 *SbomScan              `json:"sboms,omitempty"`
+	Sbom                  *SbomScan              `json:"sbom,omitempty"`
 
 	// Scan Describes an expandable relationship to Scan object
 	Scan *ScanRelationship `json:"scan,omitempty"`
@@ -455,15 +473,7 @@ type AssetScanStats struct {
 
 // AssetScanStatus defines model for AssetScanStatus.
 type AssetScanStatus struct {
-	Exploits          *AssetScanState `json:"exploits,omitempty"`
-	General           *AssetScanState `json:"general,omitempty"`
-	InfoFinder        *AssetScanState `json:"infoFinder,omitempty"`
-	Malware           *AssetScanState `json:"malware,omitempty"`
-	Misconfigurations *AssetScanState `json:"misconfigurations,omitempty"`
-	Rootkits          *AssetScanState `json:"rootkits,omitempty"`
-	Sbom              *AssetScanState `json:"sbom,omitempty"`
-	Secrets           *AssetScanState `json:"secrets,omitempty"`
-	Vulnerabilities   *AssetScanState `json:"vulnerabilities,omitempty"`
+	General *AssetScanState `json:"general,omitempty"`
 }
 
 // AssetScanTemplate defines model for AssetScanTemplate.
@@ -582,7 +592,8 @@ type ExploitFindingInfo struct {
 
 // ExploitScan defines model for ExploitScan.
 type ExploitScan struct {
-	Exploits *[]Exploit `json:"exploits"`
+	Exploits *[]Exploit     `json:"exploits"`
+	Status   *ScannerStatus `json:"status,omitempty"`
 }
 
 // ExploitsConfig defines model for ExploitsConfig.
@@ -664,6 +675,7 @@ type InfoFinderInfo struct {
 type InfoFinderScan struct {
 	Infos    *[]InfoFinderInfo `json:"infos"`
 	Scanners *[]string         `json:"scanners"`
+	Status   *ScannerStatus    `json:"status,omitempty"`
 }
 
 // InfoType defines model for InfoType.
@@ -700,6 +712,7 @@ type MalwareFindingInfo struct {
 type MalwareScan struct {
 	Malware  *[]Malware         `json:"malware"`
 	Metadata *[]ScannerMetadata `json:"metadata"`
+	Status   *ScannerStatus     `json:"status,omitempty"`
 }
 
 // MalwareType defines model for MalwareType.
@@ -746,6 +759,7 @@ type MisconfigurationFindingInfo struct {
 type MisconfigurationScan struct {
 	Misconfigurations *[]Misconfiguration `json:"misconfigurations"`
 	Scanners          *[]string           `json:"scanners"`
+	Status            *ScannerStatus      `json:"status,omitempty"`
 }
 
 // MisconfigurationSeverity defines model for MisconfigurationSeverity.
@@ -953,7 +967,8 @@ type RootkitFindingInfo struct {
 
 // RootkitScan defines model for RootkitScan.
 type RootkitScan struct {
-	Rootkits *[]Rootkit `json:"rootkits"`
+	Rootkits *[]Rootkit     `json:"rootkits"`
+	Status   *ScannerStatus `json:"status,omitempty"`
 }
 
 // RootkitType defines model for RootkitType.
@@ -982,7 +997,8 @@ type SBOMConfig struct {
 
 // SbomScan defines model for SbomScan.
 type SbomScan struct {
-	Packages *[]Package `json:"packages"`
+	Packages *[]Package     `json:"packages"`
+	Status   *ScannerStatus `json:"status,omitempty"`
 }
 
 // Scan defines model for Scan.
@@ -1314,6 +1330,59 @@ type ScannerMetadata struct {
 	ScannerSummary *ScannerSummary `json:"scannerSummary,omitempty"`
 }
 
+// ScannerStatus defines model for ScannerStatus.
+type ScannerStatus struct {
+	// LastTransitionTime Last date time when the status has changed.
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
+
+	// Message Human readable message.
+	Message *string `json:"message,omitempty"`
+
+	// Reason Machine readable reason for state transition.
+	//
+	// | State      | Reason            | Description                                 |
+	// | ---------- | ----------------- | ------------------------------------------- |
+	// | Pending    | Scheduled         | Scanner has been enabled in ScanConfig      |
+	// | InProgress | Scanning          | Scanner is currently running                |
+	// | Skipped    | NotScheduled      | Scanner hasn't been enabled in ScanConfig   |
+	// | Failed     | Error             | Scanner finished with an error              |
+	// | Done       | Success           | Scanner finished successfully               |
+	Reason ScannerStatusReason `json:"reason"`
+
+	// State Describes the state of a scanner on the asset.
+	//
+	// | State       | Description                                                              |
+	// | ----------- | ------------------------------------------------------------------------ |
+	// | Pending     | Scanner is pending and waits for state transition to InProgress state    |
+	// | InProgress  | Scanning is being performed                                              |
+	// | Skipped     | Scanner is **not** scheduled                                             |
+	// | Failed      | Scanner has failed, check *reason* and *message* fields for the details  |
+	// | Done        | Scanner has finished scanning with no errors                             |
+	State ScannerStatusState `json:"state"`
+}
+
+// ScannerStatusReason Machine readable reason for state transition.
+//
+// | State      | Reason            | Description                                 |
+// | ---------- | ----------------- | ------------------------------------------- |
+// | Pending    | Scheduled         | Scanner has been enabled in ScanConfig      |
+// | InProgress | Scanning          | Scanner is currently running                |
+// | Skipped    | NotScheduled      | Scanner hasn't been enabled in ScanConfig   |
+// | Failed     | Error             | Scanner finished with an error              |
+// | Done       | Success           | Scanner finished successfully               |
+type ScannerStatusReason string
+
+// ScannerStatusState Describes the state of a scanner on the asset.
+//
+// | State       | Description                                                              |
+// | ----------- | ------------------------------------------------------------------------ |
+// | Pending     | Scanner is pending and waits for state transition to InProgress state    |
+// | InProgress  | Scanning is being performed                                              |
+// | Skipped     | Scanner is **not** scheduled                                             |
+// | Failed      | Scanner has failed, check *reason* and *message* fields for the details  |
+// | Done        | Scanner has finished scanning with no errors                             |
+type ScannerStatusState string
+
 // ScannerSummary defines model for ScannerSummary.
 type ScannerSummary struct {
 	DataRead           *string `json:"DataRead,omitempty"`
@@ -1369,7 +1438,8 @@ type SecretFindingInfo struct {
 
 // SecretScan defines model for SecretScan.
 type SecretScan struct {
-	Secrets *[]Secret `json:"secrets"`
+	Secrets *[]Secret      `json:"secrets"`
+	Status  *ScannerStatus `json:"status,omitempty"`
 }
 
 // SecretsConfig defines model for SecretsConfig.
@@ -1484,6 +1554,7 @@ type VulnerabilityFix struct {
 
 // VulnerabilityScan defines model for VulnerabilityScan.
 type VulnerabilityScan struct {
+	Status          *ScannerStatus   `json:"status,omitempty"`
 	Vulnerabilities *[]Vulnerability `json:"vulnerabilities"`
 }
 

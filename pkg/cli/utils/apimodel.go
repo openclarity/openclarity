@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"strings"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
@@ -40,35 +39,35 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-func ConvertSBOMResultToAPIModel(sbomResults *sbom.Results) *models.SbomScan {
+func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []models.Package {
 	packages := []models.Package{}
 
-	if sbomResults.SBOM.Components != nil {
-		for _, component := range *sbomResults.SBOM.Components {
-			packages = append(packages, *ConvertPackageInfoToAPIModel(component))
-		}
+	if sbomResults == nil || sbomResults.SBOM == nil || sbomResults.SBOM.Components == nil {
+		return packages
 	}
 
-	return &models.SbomScan{
-		Packages: &packages,
+	for _, component := range *sbomResults.SBOM.Components {
+		packages = append(packages, models.Package{
+			Cpes:     utils.PointerTo([]string{component.CPE}),
+			Language: utils.PointerTo(cyclonedx_helper.GetComponentLanguage(component)),
+			Licenses: utils.PointerTo(cyclonedx_helper.GetComponentLicenses(component)),
+			Name:     utils.PointerTo(component.Name),
+			Purl:     utils.PointerTo(component.PackageURL),
+			Type:     utils.PointerTo(string(component.Type)),
+			Version:  utils.PointerTo(component.Version),
+		})
 	}
+
+	return packages
 }
 
-func ConvertPackageInfoToAPIModel(component cdx.Component) *models.Package {
-	return &models.Package{
-		Cpes:     utils.PointerTo([]string{component.CPE}),
-		Language: utils.PointerTo(cyclonedx_helper.GetComponentLanguage(component)),
-		Licenses: utils.PointerTo(cyclonedx_helper.GetComponentLicenses(component)),
-		Name:     utils.PointerTo(component.Name),
-		Purl:     utils.PointerTo(component.PackageURL),
-		Type:     utils.PointerTo(string(component.Type)),
-		Version:  utils.PointerTo(component.Version),
-	}
-}
+func ConvertVulnResultToVulnerabilities(vulnerabilitiesResults *vulnerabilities.Results) []models.Vulnerability {
+	vuls := []models.Vulnerability{}
 
-func ConvertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results) *models.VulnerabilityScan {
-	// nolint:prealloc
-	var vuls []models.Vulnerability
+	if vulnerabilitiesResults == nil || vulnerabilitiesResults.MergedResults == nil || vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey == nil {
+		return vuls
+	}
+
 	for _, vulCandidates := range vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey {
 		if len(vulCandidates) < 1 {
 			continue
@@ -91,9 +90,7 @@ func ConvertVulnResultToAPIModel(vulnerabilitiesResults *vulnerabilities.Results
 		vuls = append(vuls, vul)
 	}
 
-	return &models.VulnerabilityScan{
-		Vulnerabilities: &vuls,
-	}
+	return vuls
 }
 
 func ConvertVulnSeverityToAPIModel(severity string) *models.VulnerabilitySeverity {
@@ -170,12 +167,14 @@ func ConvertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]models.VulnerabilityCvss 
 	return &ret
 }
 
-func ConvertMalwareResultToAPIModel(malwareResults *malware.MergedResults) *models.MalwareScan {
-	if malwareResults == nil {
-		return &models.MalwareScan{}
+func ConvertMalwareResultToMalwareAndMetadata(malwareResults *malware.MergedResults) ([]models.Malware, []models.ScannerMetadata) {
+	malwareList := []models.Malware{}
+	metadata := []models.ScannerMetadata{}
+
+	if malwareResults == nil || malwareResults.DetectedMalware == nil {
+		return malwareList, metadata
 	}
 
-	malwareList := []models.Malware{}
 	for _, m := range malwareResults.DetectedMalware {
 		mal := m // Prevent loop variable pointer export
 		malwareList = append(malwareList, models.Malware{
@@ -186,7 +185,6 @@ func ConvertMalwareResultToAPIModel(malwareResults *malware.MergedResults) *mode
 		})
 	}
 
-	metadata := []models.ScannerMetadata{}
 	for n, s := range malwareResults.ScansSummary {
 		name, summary := n, s // Prevent loop variable pointer export
 		metadata = append(metadata, models.ScannerMetadata{
@@ -205,18 +203,16 @@ func ConvertMalwareResultToAPIModel(malwareResults *malware.MergedResults) *mode
 		})
 	}
 
-	return &models.MalwareScan{
-		Malware:  &malwareList,
-		Metadata: &metadata,
-	}
+	return malwareList, metadata
 }
 
-func ConvertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.SecretScan {
-	if secretsResults == nil || secretsResults.MergedResults == nil {
-		return &models.SecretScan{}
+func ConvertSecretsResultToSecrets(secretsResults *secrets.Results) []models.Secret {
+	secretsSlice := []models.Secret{}
+
+	if secretsResults == nil || secretsResults.MergedResults == nil || secretsResults.MergedResults.Results == nil {
+		return secretsSlice
 	}
 
-	var secretsSlice []models.Secret
 	for _, resultsCandidate := range secretsResults.MergedResults.Results {
 		for i := range resultsCandidate.Findings {
 			finding := resultsCandidate.Findings[i]
@@ -232,22 +228,15 @@ func ConvertSecretsResultToAPIModel(secretsResults *secrets.Results) *models.Sec
 		}
 	}
 
-	if secretsSlice == nil {
-		return &models.SecretScan{}
-	}
-
-	return &models.SecretScan{
-		Secrets: &secretsSlice,
-	}
+	return secretsSlice
 }
 
-func ConvertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.ExploitScan {
-	if exploitsResults == nil || exploitsResults.Exploits == nil {
-		return &models.ExploitScan{}
-	}
+func ConvertExploitsResultToExploits(exploitsResults *exploits.Results) []models.Exploit {
+	retExploits := []models.Exploit{}
 
-	// nolint:prealloc
-	var retExploits []models.Exploit
+	if exploitsResults == nil || exploitsResults.Exploits == nil {
+		return retExploits
+	}
 
 	for i := range exploitsResults.Exploits {
 		exploit := exploitsResults.Exploits[i]
@@ -261,13 +250,7 @@ func ConvertExploitsResultToAPIModel(exploitsResults *exploits.Results) *models.
 		})
 	}
 
-	if retExploits == nil {
-		return &models.ExploitScan{}
-	}
-
-	return &models.ExploitScan{
-		Exploits: &retExploits,
-	}
+	return retExploits
 }
 
 func MisconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationTypes.Severity) (models.MisconfigurationSeverity, error) {
@@ -283,12 +266,13 @@ func MisconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationT
 	}
 }
 
-func ConvertMisconfigurationResultToAPIModel(misconfigurationResults *misconfiguration.Results) (*models.MisconfigurationScan, error) {
-	if misconfigurationResults == nil || misconfigurationResults.Misconfigurations == nil {
-		return &models.MisconfigurationScan{}, nil
-	}
+func ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfigurationResults *misconfiguration.Results) ([]models.Misconfiguration, []string, error) {
+	misconfigurations := []models.Misconfiguration{}
+	scanners := []string{}
 
-	retMisconfigurations := make([]models.Misconfiguration, len(misconfigurationResults.Misconfigurations))
+	if misconfigurationResults == nil || misconfigurationResults.Misconfigurations == nil {
+		return misconfigurations, scanners, nil
+	}
 
 	for i := range misconfigurationResults.Misconfigurations {
 		// create a separate variable for the loop because we need
@@ -298,10 +282,10 @@ func ConvertMisconfigurationResultToAPIModel(misconfigurationResults *misconfigu
 
 		severity, err := MisconfigurationSeverityToAPIMisconfigurationSeverity(misconfig.Severity)
 		if err != nil {
-			return nil, fmt.Errorf("unable to convert scanner result severity to API severity: %w", err)
+			return misconfigurations, scanners, fmt.Errorf("unable to convert scanner result severity to API severity: %w", err)
 		}
 
-		retMisconfigurations[i] = models.Misconfiguration{
+		misconfigurations = append(misconfigurations, models.Misconfiguration{
 			ScannerName:     &misconfig.ScannerName,
 			ScannedPath:     &misconfig.ScannedPath,
 			TestCategory:    &misconfig.TestCategory,
@@ -310,37 +294,31 @@ func ConvertMisconfigurationResultToAPIModel(misconfigurationResults *misconfigu
 			Severity:        &severity,
 			Message:         &misconfig.Message,
 			Remediation:     &misconfig.Remediation,
-		}
+		})
 	}
 
-	return &models.MisconfigurationScan{
-		Scanners:          utils.PointerTo(misconfigurationResults.Metadata.Scanners),
-		Misconfigurations: &retMisconfigurations,
-	}, nil
+	return misconfigurations, misconfigurationResults.Metadata.Scanners, nil
 }
 
-func ConvertInfoFinderResultToAPIModel(results *infofinder.Results) (*models.InfoFinderScan, error) {
-	if results == nil || results.Infos == nil {
-		return &models.InfoFinderScan{}, nil
-	}
+func ConvertInfoFinderResultToInfosAndScanners(results *infofinder.Results) ([]models.InfoFinderInfo, []string, error) {
+	infos := []models.InfoFinderInfo{}
 
-	ret := make([]models.InfoFinderInfo, len(results.Infos))
+	if results == nil || results.Infos == nil {
+		return infos, []string{}, nil
+	}
 
 	for i := range results.Infos {
 		info := results.Infos[i]
 
-		ret[i] = models.InfoFinderInfo{
+		infos = append(infos, models.InfoFinderInfo{
 			Data:        &info.Data,
 			Path:        &info.Path,
 			ScannerName: &info.ScannerName,
 			Type:        convertInfoTypeToAPIModel(info.Type),
-		}
+		})
 	}
 
-	return &models.InfoFinderScan{
-		Infos:    &ret,
-		Scanners: utils.PointerTo(results.Metadata.Scanners),
-	}, nil
+	return infos, results.Metadata.Scanners, nil
 }
 
 func convertInfoTypeToAPIModel(infoType types.InfoType) *models.InfoType {
@@ -359,12 +337,13 @@ func convertInfoTypeToAPIModel(infoType types.InfoType) *models.InfoType {
 	}
 }
 
-func ConvertRootkitsResultToAPIModel(rootkitsResults *rootkits.Results) *models.RootkitScan {
-	if rootkitsResults == nil || rootkitsResults.MergedResults == nil {
-		return &models.RootkitScan{}
+func ConvertRootkitsResultToRootkits(rootkitsResults *rootkits.Results) []models.Rootkit {
+	rootkitsList := []models.Rootkit{}
+
+	if rootkitsResults == nil || rootkitsResults.MergedResults == nil || rootkitsResults.MergedResults.Rootkits == nil {
+		return rootkitsList
 	}
 
-	rootkitsList := []models.Rootkit{}
 	for _, r := range rootkitsResults.MergedResults.Rootkits {
 		rootkit := r // Prevent loop variable pointer export
 		rootkitsList = append(rootkitsList, models.Rootkit{
@@ -374,9 +353,7 @@ func ConvertRootkitsResultToAPIModel(rootkitsResults *rootkits.Results) *models.
 		})
 	}
 
-	return &models.RootkitScan{
-		Rootkits: &rootkitsList,
-	}
+	return rootkitsList
 }
 
 func ConvertRootkitTypeToAPIModel(rootkitType rootkitsTypes.RootkitType) *models.RootkitType {

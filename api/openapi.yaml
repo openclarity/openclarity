@@ -2378,7 +2378,7 @@ components:
               $ref: '#/components/schemas/ScanRelationship'
             status:
               $ref: '#/components/schemas/AssetScanStatus'
-            sboms:
+            sbom:
               $ref: '#/components/schemas/SbomScan'
             vulnerabilities:
               $ref: '#/components/schemas/VulnerabilityScan'
@@ -2417,6 +2417,63 @@ components:
       # required:
       #  - asset
       #  - scan
+
+    ScannerStatus:
+      type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
+      properties:
+        state:
+          description: |
+            Describes the state of a scanner on the asset.
+            
+            | State       | Description                                                              |
+            | ----------- | ------------------------------------------------------------------------ |
+            | Pending     | Scanner is pending and waits for state transition to InProgress state    |
+            | InProgress  | Scanning is being performed                                              |
+            | Skipped     | Scanner is **not** scheduled                                             |
+            | Failed      | Scanner has failed, check *reason* and *message* fields for the details  |
+            | Done        | Scanner has finished scanning with no errors                             |
+          type: string
+          enum:
+            - Pending
+            - InProgress
+            - Skipped
+            - Failed
+            - Done
+          x-enum-varnames:
+            - ScannerStatusStatePending
+            - ScannerStatusStateInProgress
+            - ScannerStatusStateSkipped
+            - ScannerStatusStateFailed
+            - ScannerStatusStateDone
+        reason:
+          description: |
+            Machine readable reason for state transition.
+
+            | State      | Reason            | Description                                 |
+            | ---------- | ----------------- | ------------------------------------------- |
+            | Pending    | Scheduled         | Scanner has been enabled in ScanConfig      |
+            | InProgress | Scanning          | Scanner is currently running                |
+            | Skipped    | NotScheduled      | Scanner hasn't been enabled in ScanConfig   |
+            | Failed     | Error             | Scanner finished with an error              |
+            | Done       | Success           | Scanner finished successfully               |
+          type: string
+          enum:
+            - Scheduled
+            - Scanning
+            - NotScheduled
+            - Error
+            - Success
+        message:
+          description: Human readable message.
+          type: string
+        lastTransitionTime:
+          description: Last date time when the status has changed.
+          type: string
+          format: date-time
 
     AssetScanStats:
       type: object
@@ -2493,7 +2550,7 @@ components:
             status:
               $ref: '#/components/schemas/AssetScanStatus'
               readOnly: true
-            sboms:
+            sbom:
               $ref: '#/components/schemas/SbomScan'
               readOnly: true
             vulnerabilities:
@@ -2580,22 +2637,6 @@ components:
       type: object
       properties:
         general:
-          $ref: '#/components/schemas/AssetScanState'
-        sbom:
-          $ref: '#/components/schemas/AssetScanState'
-        vulnerabilities:
-          $ref: '#/components/schemas/AssetScanState'
-        malware:
-          $ref: '#/components/schemas/AssetScanState'
-        rootkits:
-          $ref: '#/components/schemas/AssetScanState'
-        secrets:
-          $ref: '#/components/schemas/AssetScanState'
-        misconfigurations:
-          $ref: '#/components/schemas/AssetScanState'
-        exploits:
-          $ref: '#/components/schemas/AssetScanState'
-        infoFinder:
           $ref: '#/components/schemas/AssetScanState'
 
     AssetScanState:
@@ -2993,6 +3034,8 @@ components:
     SbomScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         packages:
           type: array
           items:
@@ -3002,6 +3045,8 @@ components:
     VulnerabilityScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         vulnerabilities:
           type: array
           items:
@@ -3011,6 +3056,8 @@ components:
     MalwareScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         malware:
           type: array
           items:
@@ -3025,6 +3072,8 @@ components:
     RootkitScan:
       type: object
       properties:
+        status:
+          $ref: '#/components/schemas/ScannerStatus'
         rootkits:
           type: array
           items:
@@ -3034,6 +3083,8 @@ components:
     SecretScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         secrets:
           type: array
           items:
@@ -3043,6 +3094,8 @@ components:
     MisconfigurationScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         scanners:
           type: array
           items:
@@ -3057,6 +3110,8 @@ components:
     InfoFinderScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         scanners:
           type: array
           items:
@@ -3095,6 +3150,8 @@ components:
     ExploitScan:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/ScannerStatus"
         exploits:
           type: array
           items:
