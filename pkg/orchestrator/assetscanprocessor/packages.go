@@ -75,10 +75,10 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 		return fmt.Errorf("failed to check existing package findings: %w", err)
 	}
 
-	if assetScan.Sboms != nil && assetScan.Sboms.Packages != nil {
+	if assetScan.Sbom != nil && assetScan.Sbom.Packages != nil {
 		// Create new or update existing findings all the packages found by the
 		// scan.
-		for _, item := range *assetScan.Sboms.Packages {
+		for _, item := range *assetScan.Sbom.Packages {
 			itemFindingInfo := models.PackageFindingInfo{
 				Cpes:     item.Cpes,
 				Language: item.Language,

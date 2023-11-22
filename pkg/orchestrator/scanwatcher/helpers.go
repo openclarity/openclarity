@@ -67,41 +67,9 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 		ScanFamiliesConfig:            familiesConfig,
 		ScannerInstanceCreationConfig: scan.AssetScanTemplate.ScannerInstanceCreationConfig,
 		Status: &models.AssetScanStatus{
-			Exploits: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Exploits),
-			},
 			General: &models.AssetScanState{
 				Errors: nil,
 				State:  utils.PointerTo(models.AssetScanStateStatePending),
-			},
-			Malware: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Malware),
-			},
-			Misconfigurations: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Misconfigurations),
-			},
-			Rootkits: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Rootkits),
-			},
-			Sbom: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Sbom),
-			},
-			Secrets: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Secrets),
-			},
-			Vulnerabilities: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.Vulnerabilities),
-			},
-			InfoFinder: &models.AssetScanState{
-				Errors: nil,
-				State:  getInitStateFromFamilyConfig(familiesConfig.InfoFinder),
 			},
 		},
 		ResourceCleanupStatus: models.NewResourceCleanupStatus(
@@ -109,15 +77,50 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 			models.ResourceCleanupStatusReasonAssetScanCreated,
 			nil,
 		),
+		Sbom: &models.SbomScan{
+			Packages: nil,
+			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Sbom),
+		},
+		Exploits: &models.ExploitScan{
+			Exploits: nil,
+			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Exploits),
+		},
+		Vulnerabilities: &models.VulnerabilityScan{
+			Vulnerabilities: nil,
+			Status:          mapFamilyConfigToScannerStatus(familiesConfig.Vulnerabilities),
+		},
+		Malware: &models.MalwareScan{
+			Malware:  nil,
+			Metadata: nil,
+			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Malware),
+		},
+		Rootkits: &models.RootkitScan{
+			Rootkits: nil,
+			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Rootkits),
+		},
+		Secrets: &models.SecretScan{
+			Secrets: nil,
+			Status:  mapFamilyConfigToScannerStatus(familiesConfig.Secrets),
+		},
+		Misconfigurations: &models.MisconfigurationScan{
+			Misconfigurations: nil,
+			Scanners:          nil,
+			Status:            mapFamilyConfigToScannerStatus(familiesConfig.Misconfigurations),
+		},
+		InfoFinder: &models.InfoFinderScan{
+			Infos:    nil,
+			Scanners: nil,
+			Status:   mapFamilyConfigToScannerStatus(familiesConfig.InfoFinder),
+		},
 	}, nil
 }
 
-func getInitStateFromFamilyConfig(config models.FamilyConfigEnabler) *models.AssetScanStateState {
+func mapFamilyConfigToScannerStatus(config models.FamilyConfigEnabler) *models.ScannerStatus {
 	if config == nil || !config.IsEnabled() {
-		return utils.PointerTo(models.AssetScanStateStateNotScanned)
+		return models.NewScannerStatus(models.ScannerStatusStateSkipped, models.ScannerStatusReasonNotScheduled, nil)
 	}
 
-	return utils.PointerTo(models.AssetScanStateStatePending)
+	return models.NewScannerStatus(models.ScannerStatusStatePending, models.ScannerStatusReasonScheduled, nil)
 }
 
 func newScanSummary() *models.ScanSummary {

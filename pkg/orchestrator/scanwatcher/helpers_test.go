@@ -30,13 +30,71 @@ import (
 func TestNewAssetScanFromScan(t *testing.T) {
 	scanID := string(uuid.NewUUID())
 	assetID := string(uuid.NewUUID())
+
 	transitionTime := time.Now()
+
 	resourceCleanupStatus := models.NewResourceCleanupStatus(
 		models.ResourceCleanupStatusStatePending,
 		models.ResourceCleanupStatusReasonAssetScanCreated,
 		nil,
 	)
 	resourceCleanupStatus.LastTransitionTime = transitionTime
+
+	sbomScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStatePending,
+		models.ScannerStatusReasonScheduled,
+		nil,
+	)
+	sbomScanStatus.LastTransitionTime = transitionTime
+
+	exploitScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStatePending,
+		models.ScannerStatusReasonScheduled,
+		nil,
+	)
+	exploitScanStatus.LastTransitionTime = transitionTime
+
+	vulnerabilityScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStatePending,
+		models.ScannerStatusReasonScheduled,
+		nil,
+	)
+	vulnerabilityScanStatus.LastTransitionTime = transitionTime
+
+	malwareScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStatePending,
+		models.ScannerStatusReasonScheduled,
+		nil,
+	)
+	malwareScanStatus.LastTransitionTime = transitionTime
+
+	rootkitScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStateSkipped,
+		models.ScannerStatusReasonNotScheduled,
+		nil,
+	)
+	rootkitScanStatus.LastTransitionTime = transitionTime
+
+	secretScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStateSkipped,
+		models.ScannerStatusReasonNotScheduled,
+		nil,
+	)
+	secretScanStatus.LastTransitionTime = transitionTime
+
+	misconfigurationScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStateSkipped,
+		models.ScannerStatusReasonNotScheduled,
+		nil,
+	)
+	misconfigurationScanStatus.LastTransitionTime = transitionTime
+
+	infoFinderScanStatus := models.NewScannerStatus(
+		models.ScannerStatusStatePending,
+		models.ScannerStatusReasonScheduled,
+		nil,
+	)
+	infoFinderScanStatus.LastTransitionTime = transitionTime
 
 	tests := []struct {
 		Name    string
@@ -84,41 +142,45 @@ func TestNewAssetScanFromScan(t *testing.T) {
 					Id: scanID,
 				},
 				Status: &models.AssetScanStatus{
-					Exploits: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStatePending),
-					},
 					General: &models.AssetScanState{
 						Errors: nil,
 						State:  utils.PointerTo(models.AssetScanStateStatePending),
 					},
-					Malware: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStatePending),
-					},
-					Misconfigurations: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
-					},
-					Rootkits: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
-					},
-					Sbom: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStatePending),
-					},
-					Secrets: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStateNotScanned),
-					},
-					Vulnerabilities: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStatePending),
-					},
-					InfoFinder: &models.AssetScanState{
-						State: utils.PointerTo(models.AssetScanStateStatePending),
-					},
+				},
+				Sbom: &models.SbomScan{
+					Packages: nil,
+					Status:   sbomScanStatus,
+				},
+				Exploits: &models.ExploitScan{
+					Exploits: nil,
+					Status:   exploitScanStatus,
+				},
+				Vulnerabilities: &models.VulnerabilityScan{
+					Vulnerabilities: nil,
+					Status:          vulnerabilityScanStatus,
+				},
+				Malware: &models.MalwareScan{
+					Malware:  nil,
+					Metadata: nil,
+					Status:   malwareScanStatus,
+				},
+				Rootkits: &models.RootkitScan{
+					Rootkits: nil,
+					Status:   rootkitScanStatus,
+				},
+				Secrets: &models.SecretScan{
+					Secrets: nil,
+					Status:  secretScanStatus,
+				},
+				Misconfigurations: &models.MisconfigurationScan{
+					Misconfigurations: nil,
+					Scanners:          nil,
+					Status:            misconfigurationScanStatus,
+				},
+				InfoFinder: &models.InfoFinderScan{
+					Infos:    nil,
+					Scanners: nil,
+					Status:   infoFinderScanStatus,
 				},
 				Summary: newAssetScanSummary(),
 				Asset: &models.AssetRelationship{
@@ -155,6 +217,14 @@ func TestNewAssetScanFromScan(t *testing.T) {
 
 			result, err := newAssetScanFromScan(test.Scan, test.AssetID)
 			result.ResourceCleanupStatus.LastTransitionTime = transitionTime
+			result.Sbom.Status.LastTransitionTime = transitionTime
+			result.Exploits.Status.LastTransitionTime = transitionTime
+			result.Vulnerabilities.Status.LastTransitionTime = transitionTime
+			result.Malware.Status.LastTransitionTime = transitionTime
+			result.Rootkits.Status.LastTransitionTime = transitionTime
+			result.Secrets.Status.LastTransitionTime = transitionTime
+			result.Misconfigurations.Status.LastTransitionTime = transitionTime
+			result.InfoFinder.Status.LastTransitionTime = transitionTime
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)
 			g.Expect(result).Should(BeComparableTo(test.ExpectedAssetScan))

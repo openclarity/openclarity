@@ -118,13 +118,13 @@ const TabAssetScanDetails = ({data}) => {
                     <div style={{borderBottom: `3px solid ${BORDER_COLOR}`, margin: "20px 0"}}></div>
                     {
                         STATUS_DISPLAY_ITEMS.map(({dataKey, title}, index) => {
-                            const {state, errors} = (status || {})[dataKey] || {};
                             const typeStats = (stats || {})[dataKey] || [];
-                            
+                            const {status: { state, message }} = (data || {})[dataKey] || {status: {}};
+
                             return (
                                 <div key={dataKey} style={{marginTop: ITEM_MARGIN}}>
                                     <TitleValueDisplay title={!!title ? `${title} scan details` : null} isLargeTitle>
-                                        <div style={{marginBottom: ITEM_MARGIN}}><StatusDisplay state={state} errors={errors} /></div>
+                                        <div style={{marginBottom: ITEM_MARGIN}}><StatusDisplay state={state} errors={message === undefined ? [] : [message]} /></div>
                                         {typeStats?.map((typeStats, index) => <StatsDisplay key={index} {...typeStats} />)}
                                     </TitleValueDisplay>
                                     {index + 1 < STATUS_DISPLAY_ITEMS.length &&
