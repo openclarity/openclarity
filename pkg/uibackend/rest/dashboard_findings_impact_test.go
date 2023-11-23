@@ -472,6 +472,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(19),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path1"),
 						RootkitName: utils.PointerTo("name1"),
 						RootkitType: utils.PointerTo(models.RootkitType("type1")),
 					},
@@ -479,6 +480,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(7),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path2"),
 						RootkitName: utils.PointerTo("name2"),
 						RootkitType: utils.PointerTo(models.RootkitType("type2")),
 					},
@@ -486,6 +488,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(5),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path3"),
 						RootkitName: utils.PointerTo("name3"),
 						RootkitType: utils.PointerTo(models.RootkitType("type3")),
 					},
@@ -532,6 +535,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(19),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path1"),
 						RootkitName: utils.PointerTo("name1"),
 						RootkitType: utils.PointerTo(models.RootkitType("type1")),
 					},
@@ -539,6 +543,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(7),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path2"),
 						RootkitName: utils.PointerTo("name2"),
 						RootkitType: utils.PointerTo(models.RootkitType("type2")),
 					},
@@ -546,6 +551,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(5),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path3"),
 						RootkitName: utils.PointerTo("name3"),
 						RootkitType: utils.PointerTo(models.RootkitType("type3")),
 					},
@@ -553,6 +559,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(4),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path4"),
 						RootkitName: utils.PointerTo("name3"),
 						RootkitType: utils.PointerTo(models.RootkitType("type3")),
 					},
@@ -560,6 +567,7 @@ func Test_createFindingsImpact(t *testing.T) {
 				{
 					AffectedAssetsCount: utils.PointerTo(3),
 					Rootkit: &models.Rootkit{
+						Message:     utils.PointerTo("path5"),
 						RootkitName: utils.PointerTo("name3"),
 						RootkitType: utils.PointerTo(models.RootkitType("type3")),
 					},

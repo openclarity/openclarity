@@ -242,6 +242,8 @@ components:
           type: string
         rootkitType:
           $ref: '#/components/schemas/RootkitType'
+        message:
+          type: string
 
     RootkitType:
       type: string
