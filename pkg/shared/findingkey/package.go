@@ -26,8 +26,15 @@ type PackageKey struct {
 	PackageVersion string
 }
 
+// String returns an unique string representation of the package finding.
 func (k PackageKey) String() string {
 	return fmt.Sprintf("%s.%s", k.PackageName, k.PackageVersion)
+}
+
+// PackageString returns an unique string representation of the package independent of
+// where the package finding was found by the scanner.
+func (k PackageKey) PackageString() string {
+	return k.String()
 }
 
 func GeneratePackageKey(info models.PackageFindingInfo) PackageKey {

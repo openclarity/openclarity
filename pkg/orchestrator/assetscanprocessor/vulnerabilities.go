@@ -45,7 +45,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 		return fmt.Errorf("failed to check for existing finding: %w", err)
 	}
 
-	existingMap := map[findingkey.VulKey]string{}
+	existingMap := map[findingkey.VulnerabilityKey]string{}
 	for _, finding := range *existingFindings.Items {
 		vuln, err := (*finding.FindingInfo).AsVulnerabilityFindingInfo()
 		if err != nil {

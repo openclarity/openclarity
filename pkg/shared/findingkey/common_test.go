@@ -81,7 +81,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, exploitFindingInfo),
 			},
-			want:    GenerateExploitFindingUniqueKey(exploitFindingInfo),
+			want:    GenerateExploitKey(exploitFindingInfo).ExploitString(),
 			wantErr: false,
 		},
 		{
@@ -89,7 +89,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, vulFindingInfo),
 			},
-			want:    GenerateVulnerabilityKey(vulFindingInfo).String(),
+			want:    GenerateVulnerabilityKey(vulFindingInfo).VulnerabilityString(),
 			wantErr: false,
 		},
 		{
@@ -97,7 +97,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, malwareFindingInfo),
 			},
-			want:    GenerateMalwareKey(malwareFindingInfo).String(),
+			want:    GenerateMalwareKey(malwareFindingInfo).MalwareString(),
 			wantErr: false,
 		},
 		{
@@ -105,7 +105,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, miscFindingInfo),
 			},
-			want:    GenerateMisconfigurationKey(miscFindingInfo).String(),
+			want:    GenerateMisconfigurationKey(miscFindingInfo).MisconfigurationString(),
 			wantErr: false,
 		},
 		{
@@ -113,7 +113,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, rootkitFindingInfo),
 			},
-			want:    GenerateRootkitKey(rootkitFindingInfo).String(),
+			want:    GenerateRootkitKey(rootkitFindingInfo).RootkitString(),
 			wantErr: false,
 		},
 		{
@@ -121,7 +121,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, secretFindingInfo),
 			},
-			want:    GenerateSecretKey(secretFindingInfo).String(),
+			want:    GenerateSecretKey(secretFindingInfo).SecretString(),
 			wantErr: false,
 		},
 		{
@@ -129,7 +129,7 @@ func TestGenerateFindingKey(t *testing.T) {
 			args: args{
 				findingInfo: createFindingInfo(t, pkgFindingInfo),
 			},
-			want:    GeneratePackageKey(pkgFindingInfo).String(),
+			want:    GeneratePackageKey(pkgFindingInfo).PackageString(),
 			wantErr: false,
 		},
 	}

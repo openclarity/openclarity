@@ -29,19 +29,19 @@ func GenerateFindingKey(findingInfo *models.Finding_FindingInfo) (string, error)
 
 	switch info := value.(type) {
 	case models.ExploitFindingInfo:
-		return GenerateExploitFindingUniqueKey(info), nil
+		return GenerateExploitKey(info).ExploitString(), nil
 	case models.VulnerabilityFindingInfo:
-		return GenerateVulnerabilityKey(info).String(), nil
+		return GenerateVulnerabilityKey(info).VulnerabilityString(), nil
 	case models.MalwareFindingInfo:
-		return GenerateMalwareKey(info).String(), nil
+		return GenerateMalwareKey(info).MalwareString(), nil
 	case models.MisconfigurationFindingInfo:
-		return GenerateMisconfigurationKey(info).String(), nil
+		return GenerateMisconfigurationKey(info).MisconfigurationString(), nil
 	case models.RootkitFindingInfo:
-		return GenerateRootkitKey(info).String(), nil
+		return GenerateRootkitKey(info).RootkitString(), nil
 	case models.SecretFindingInfo:
-		return GenerateSecretKey(info).String(), nil
+		return GenerateSecretKey(info).SecretString(), nil
 	case models.PackageFindingInfo:
-		return GeneratePackageKey(info).String(), nil
+		return GeneratePackageKey(info).PackageString(), nil
 	default:
 		return "", fmt.Errorf("unsupported finding info type %T", value)
 	}
