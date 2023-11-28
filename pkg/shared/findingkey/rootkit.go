@@ -27,8 +27,15 @@ type RootkitKey struct {
 	Message     string
 }
 
+// String returns an unique string representation of the rootkit finding.
 func (k RootkitKey) String() string {
 	return fmt.Sprintf("%s.%s.%s", k.Name, k.RootkitType, k.Message)
+}
+
+// RootkitString returns an unique string representation of the rootkit independent of
+// where the rootkit finding was found by the scanner.
+func (k RootkitKey) RootkitString() string {
+	return k.String()
 }
 
 func GenerateRootkitKey(info models.RootkitFindingInfo) RootkitKey {
