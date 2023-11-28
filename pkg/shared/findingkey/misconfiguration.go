@@ -29,8 +29,15 @@ type MisconfigurationKey struct {
 	Message     string
 }
 
+// String returns an unique string representation of the misconfiguration finding.
 func (k MisconfigurationKey) String() string {
 	return fmt.Sprintf("%s.%s.%s", k.ScannerName, k.TestID, k.Message)
+}
+
+// MisconfigurationString returns an unique string representation of the misconfiguration independent of
+// where the misconfiguration finding was found by the scanner.
+func (k MisconfigurationKey) MisconfigurationString() string {
+	return k.String()
 }
 
 func GenerateMisconfigurationKey(info models.MisconfigurationFindingInfo) MisconfigurationKey {

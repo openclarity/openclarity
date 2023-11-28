@@ -27,8 +27,15 @@ type SecretKey struct {
 	EndColumn   int
 }
 
+// String returns an unique string representation of the secret finding.
 func (k SecretKey) String() string {
 	return fmt.Sprintf("%s.%d.%d", k.Fingerprint, k.StartColumn, k.EndColumn)
+}
+
+// SecretString returns an unique string representation of the secret independent of
+// where the secret finding was found by the scanner.
+func (k SecretKey) SecretString() string {
+	return k.String()
 }
 
 func GenerateSecretKey(secret models.SecretFindingInfo) SecretKey {

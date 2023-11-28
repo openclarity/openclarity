@@ -27,9 +27,10 @@ const TABS_COLUMNS_MAPPING = {
 		]
 	},
 	[FINDINGS_MAPPING.EXPLOITS.dataKey]: {
-		headerItems: ["Vulnerability name"],
+		headerItems: ["Vulnerability name", "URLs"],
 		bodyItems: [
-			{dataKey: "exploit.cveID"}
+			{dataKey: "exploit.cveID"},
+			{dataKey: "exploit.urls"}
 		]
 	},
 	[FINDINGS_MAPPING.MISCONFIGURATIONS.dataKey]: {
