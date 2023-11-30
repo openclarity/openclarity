@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/api
 
-go 1.20
+go 1.21.4
 
 require (
 	github.com/deepmap/oapi-codegen/v2 v2.0.0
