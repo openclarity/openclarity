@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity
 
-go 1.21
+go 1.21.4
 
 require (
 	cloud.google.com/go/compute v1.23.3
