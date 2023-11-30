@@ -5,6 +5,18 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  groups:
+    aws-sdk:
+      patterns:
+        - "github.com/aws/aws-sdk-go-v2"
+        - "github.com/aws/aws-sdk-go-v2/*"
+        - "github.com/aws/smithy-go"
+    azure-sdk:
+      patterns:
+        - "github.com/Azure/azure-sdk-for-go/sdk/*"
+    google-sdk:
+      patterns:
+        - "cloud.google.com/go/*"
 - package-ecosystem: docker
   directory: "/"
   schedule:
