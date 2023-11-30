@@ -16,6 +16,7 @@ DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
+GO_VERSION ?= 1.21.4
 
 ####
 ## Runtime variables
@@ -98,7 +99,7 @@ clean-ui: ## Clean UI build
 TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
 
 $(TIDYGOMODULES):
-	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$$(cat .go-version)
+	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$(GO_VERSION)
 
 .PHONY: gomod-tidy
 gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
