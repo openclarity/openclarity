@@ -77,7 +77,7 @@ properties:
     description: The container image to use for the grype server
   freshclamMirrorContainerImage:
     type: string
-    default: ghcr.io/openclarity/freshclam-mirror:v0.2.0
+    default: ghcr.io/openclarity/freshclam-mirror:v0.3.0
     description: The container image to use for the fresh clam mirror server
   postgresqlContainerImage:
     type: string

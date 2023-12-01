@@ -446,7 +446,7 @@ Resources:
                     TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.41.0"]
                     GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.7.0"]
                     YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.1.0"]
-                    FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.2.0"]
+                    FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.0"]
                     PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
 
             "/etc/vmclarity/uibackend.env":
@@ -1116,7 +1116,7 @@ Parameters:
   FreshclamMirrorContainerImageOverride:
     Description: >
       Name of the container image used for the freshclam mirror server.
-      "ghcr.io/openclarity/freshclam-mirror:v0.2.0" will be used if not overridden.
+      "ghcr.io/openclarity/freshclam-mirror:v0.3.0" will be used if not overridden.
     Type: String
     Default: ''
   TrivyServerContainerImageOverride:

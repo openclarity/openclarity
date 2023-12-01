@@ -55,7 +55,7 @@ param grypeServerContainerImage string = 'ghcr.io/openclarity/grype-server:v0.7.
 param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0.2.4'
 
 @description ('Freshclam Mirror Container Image')
-param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.2.0'
+param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.3.0'
 
 @description ('Yara Rule Server Container Image')
 param yaraRuleServerContainerImage string = 'ghcr.io/openclarity/yara-rule-server:v0.1.0'
