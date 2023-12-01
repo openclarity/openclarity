@@ -116,7 +116,13 @@ func DumpServiceLogs(ctx ginkgo.SpecContext, testEnv types.Environment, config *
 	ginkgo.GinkgoWriter.Println(formatter.F("{{red}}[FAILED] Report Service Logs:{{/}}"))
 
 	if len(config.services) == 0 {
-		config.services = testEnv.Services()
+		services, err := testEnv.Services(ctx)
+		if err != nil {
+			ginkgo.GinkgoWriter.Println(formatter.F("{{red}}failed to retrieve list of services{{/}}"))
+			return
+		}
+
+		config.services = services.IDs()
 	}
 
 	err := testEnv.ServiceLogs(ctx, config.services, config.startTime, formatter.ColorableStdOut, formatter.ColorableStdErr)

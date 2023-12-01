@@ -18,50 +18,38 @@ package testenv
 import (
 	"fmt"
 
-	"github.com/spf13/viper"
-
 	"github.com/openclarity/vmclarity/e2e/testenv/docker"
+	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/e2e/testenv/types"
 )
 
-const (
-	DefaultEnvPrefix = "VMCLARITY_E2E"
-	DefaultPlatform  = types.Docker
-	DefaultReuseFlag = false
-)
-
-func NewConfig() (*types.Config, error) {
-	// Avoid modifying the global instance
-	v := viper.New()
-
-	v.SetEnvPrefix(DefaultEnvPrefix)
-	v.AllowEmptyEnv(true)
-	v.AutomaticEnv()
-
-	_ = v.BindEnv("platform")
-	v.SetDefault("platform", DefaultPlatform)
-	_ = v.BindEnv("use_existing")
-	v.SetDefault("use_existing", DefaultReuseFlag)
-
-	config := &types.Config{}
-	if err := v.Unmarshal(config); err != nil {
-		return nil, fmt.Errorf("failed to parse testenv configuration: %w", err)
+// New returns an object implementing the types.Environment interface from Config.
+func New(config *Config, opts ...ConfigOptFn) (types.Environment, error) {
+	opts = append(opts,
+		withResolvedWorkDirPath(),
+		withDefaultWorkDir(),
+	)
+	if err := applyConfigWithOpts(config, opts...); err != nil {
+		return nil, fmt.Errorf("failed to apply options to ProviderConfig: %w", err)
 	}
 
-	return config, nil
-}
-
-func New(config *types.Config) (types.Environment, error) {
 	var env types.Environment
 	var err error
-
 	switch config.Platform {
-	case types.Docker:
-		env, err = docker.New(config)
-	case types.AWS, types.Azure, types.GCP, types.Kubernetes:
+	case types.EnvironmentTypeDocker:
+		env, err = docker.New(config.Docker,
+			docker.WithContext(config.ctx),
+			docker.WithWorkDir(config.WorkDir),
+		)
+	case types.EnvironmentTypeKubernetes:
+		env, err = kubernetes.New(config.Kubernetes,
+			kubernetes.WithLogger(config.logger),
+			kubernetes.WithWorkDir(config.WorkDir),
+		)
+	case types.EnvironmentTypeAWS, types.EnvironmentTypeAzure, types.EnvironmentTypeGCP:
 		fallthrough
 	default:
-		err = fmt.Errorf("platform is not supported: %s", config.Platform)
+		err = fmt.Errorf("unsupported Environment: %s", config.Platform)
 	}
 
 	return env, err

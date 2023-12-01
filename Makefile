@@ -10,10 +10,8 @@ SHELL = /usr/bin/env bash -o pipefail
 ## Project variables
 ####
 
-BINARY_NAME ?= vmclarity
 VERSION ?= $(shell git rev-parse --short HEAD)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
-DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
 GO_VERSION ?= 1.21.4
@@ -31,6 +29,16 @@ INSTALLATION_DIR := $(ROOT_DIR)/installation
 HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm
 HELM_OCI_REPOSITORY := ghcr.io/openclarity/charts
 DIST_DIR ?= $(ROOT_DIR)/dist
+
+VMCLARITY_APISERVER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG)
+VMCLARITY_ORCHESTRATOR_IMAGE = $(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG)
+VMCLARITY_UI_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG)
+VMCLARITY_UIBACKEND_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG)
+VMCLARITY_SCANNER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG)
+
+####
+## Load additional makefiles
+####
 
 include makefile.d/*.mk
 
@@ -131,12 +139,12 @@ fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
 .PHONY: e2e
 e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Run end-to-end test suite
-	@cd e2e && \
-	export VMCLARITY_APISERVER_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) && \
-	export VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) && \
-	export VMCLARITY_SCANNER_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) && \
-	export VMCLARITY_UI_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) && \
-	export VMCLARITY_UIBACKEND_CONTAINER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) && \
+	export VMCLARITY_E2E_APISERVER_IMAGE=$(VMCLARITY_APISERVER_IMAGE) \
+           VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(VMCLARITY_ORCHESTRATOR_IMAGE) \
+           VMCLARITY_E2E_UI_IMAGE=$(VMCLARITY_UI_IMAGE) \
+           VMCLARITY_E2E_UIBACKEND_IMAGE=$(VMCLARITY_UIBACKEND_IMAGE) \
+           VMCLARITY_E2E_SCANNER_IMAGE=$(VMCLARITY_SCANNER_IMAGE) && \
+	cd e2e && \
 	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 .PHONY: license-check
@@ -188,7 +196,7 @@ docker-apiserver: ## Build API Server container image
 	docker build --file ./Dockerfile.apiserver --build-arg VERSION=$(VERSION) \
 		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(DOCKER_IMAGE)-apiserver:$(DOCKER_TAG) .
+		-t $(VMCLARITY_APISERVER_IMAGE) .
 
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
 VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
@@ -201,7 +209,7 @@ docker-cli: ## Build CLI container image
 		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
-		-t $(DOCKER_IMAGE)-cli:$(DOCKER_TAG) .
+		-t $(VMCLARITY_SCANNER_IMAGE) .
 
 .PHONY: docker-orchestrator
 docker-orchestrator: ## Build Orchestrator container image
@@ -209,13 +217,13 @@ docker-orchestrator: ## Build Orchestrator container image
 	docker build --file ./Dockerfile.orchestrator --build-arg VERSION=$(VERSION) \
 		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(DOCKER_IMAGE)-orchestrator:$(DOCKER_TAG) .
+		-t $(VMCLARITY_ORCHESTRATOR_IMAGE) .
 
 .PHONY: docker-ui
 docker-ui: ## Build UI container image
 	$(info Building ui docker image ...)
 	docker build --file ./Dockerfile.ui \
-		-t $(DOCKER_IMAGE)-ui:$(DOCKER_TAG) .
+		-t $(VMCLARITY_UI_IMAGE) .
 
 .PHONY: docker-ui-backend
 docker-ui-backend: ## Build UI Backend container image
@@ -223,7 +231,7 @@ docker-ui-backend: ## Build UI Backend container image
 	docker build --file ./Dockerfile.uibackend --build-arg VERSION=$(VERSION) \
 		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(DOCKER_IMAGE)-ui-backend:$(DOCKER_TAG) .
+		-t $(VMCLARITY_UIBACKEND_IMAGE) .
 
 .PHONY: push-docker
 push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend ## Build and push all container images
