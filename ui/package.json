@@ -15,6 +15,7 @@
     "@react-awesome-query-builder/mui": "^6.4.2",
     "@readme/openapi-parser": "^2.5.0",
     "@turingpointde/cvss.js": "^1.4.7",
+    "@vitejs/plugin-react": "^4.2.0",
     "antd": "^5.11.1",
     "assert": "^2.1.0",
     "buffer": "^6.0.3",
@@ -26,8 +27,8 @@
     "https-browserify": "^1.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "pretty-bytes": "^6.1.1",
     "path-browserify": "^1.0.1",
+    "pretty-bytes": "^6.1.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-datetime-picker": "^5.5.3",
@@ -36,7 +37,6 @@
     "react-js-cron": "^3.1.0",
     "react-querybuilder": "^6.5.3",
     "react-router-dom": "^6.8.1",
-    "react-scripts": "^5.0.1",
     "react-select": "^5.7.0",
     "react-table": "^7.8.0",
     "react-time-picker": "^5.2.0",
@@ -50,6 +50,8 @@
     "stream-http": "^3.2.0",
     "url": "^0.11.3",
     "util": "^0.12.5",
+    "vite": "^5.0.2",
+    "vite-tsconfig-paths": "^4.2.1",
     "yaml-loader": "^0.8.0"
   },
   "overrides": {
@@ -57,9 +59,9 @@
     "webpack": "^5.76.0"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "eslintConfig": {
     "extends": [
