@@ -39,6 +39,9 @@ linters-settings:
     forbid:
       - ^print.*$
 
+  cyclop:
+    max-complexity: 15
+
 linters:
   enable-all: true
   disable:

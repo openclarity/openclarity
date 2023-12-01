@@ -17,18 +17,13 @@ package types
 
 import (
 	"context"
+	"fmt"
 	"io"
-	"net/url"
+	"strings"
 	"time"
 )
 
 type Environment interface {
-	// Start the test environment by ensuring that all the services are running.
-	// Returns error if it fails to start services.
-	Start(ctx context.Context) error
-	// Stop the test environment by ensuring that all the services are stopped.
-	// Returns error if it fails to stop services.
-	Stop(ctx context.Context) error
 	// SetUp the test environment by installing the necessary components.
 	// Returns error if it fails to set up the environment.
 	SetUp(ctx context.Context) error
@@ -42,28 +37,43 @@ type Environment interface {
 	// Returns error if it cannot retrieve logs.
 	ServiceLogs(ctx context.Context, services []string, startTime time.Time, stdout, stderr io.Writer) error
 	// Services returns a list of services for the environment.
-	Services() []string
-	// GetGatewayServiceURL returns the URL for communicating with a VMClarity gateway service.
-	// Returns error if it fails to determine the URL.
-	GetGatewayServiceURL() (*url.URL, error)
+	Services(ctx context.Context) (Services, error)
+	// Endpoints returns an Endpoints object containing API endpoints for services
+	Endpoints(ctx context.Context) (*Endpoints, error)
 	// Context updates the provided ctx with environment specific data like with initialized client data allowing tests
 	// to interact with the underlying infrastructure.
-	Context(ctx context.Context) context.Context
+	Context(ctx context.Context) (context.Context, error)
 }
 
-type Platform string
+type EnvironmentType string
 
 const (
-	Docker     Platform = "docker"
-	Kubernetes Platform = "kubernetes"
-	AWS        Platform = "aws"
-	GCP        Platform = "gpc"
-	Azure      Platform = "azure"
+	EnvironmentTypeDocker     EnvironmentType = "docker"
+	EnvironmentTypeKubernetes EnvironmentType = "kubernetes"
+	EnvironmentTypeAWS        EnvironmentType = "aws"
+	EnvironmentTypeGCP        EnvironmentType = "gpc"
+	EnvironmentTypeAzure      EnvironmentType = "azure"
 )
 
-type Config struct {
-	// Platform defines the platform to be used for running end-to-end test suite.
-	Platform Platform `mapstructure:"platform"`
-	// ReuseEnv determines if the test environment needs to be set-up/started or not before running the test suite.
-	ReuseEnv bool `mapstructure:"use_existing"`
+func (p *EnvironmentType) UnmarshalText(text []byte) error {
+	var platform EnvironmentType
+
+	switch strings.ToLower(string(text)) {
+	case strings.ToLower(string(EnvironmentTypeDocker)):
+		platform = EnvironmentTypeDocker
+	case strings.ToLower(string(EnvironmentTypeKubernetes)):
+		platform = EnvironmentTypeKubernetes
+	case strings.ToLower(string(EnvironmentTypeAWS)):
+		platform = EnvironmentTypeAWS
+	case strings.ToLower(string(EnvironmentTypeGCP)):
+		platform = EnvironmentTypeGCP
+	case strings.ToLower(string(EnvironmentTypeAzure)):
+		platform = EnvironmentTypeAzure
+	default:
+		return fmt.Errorf("failed to unmarshal text into Environment: %s", text)
+	}
+
+	*p = platform
+
+	return nil
 }
