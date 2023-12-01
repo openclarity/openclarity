@@ -19,114 +19,66 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
-	"strings"
 	"time"
 
-	"github.com/docker/compose/v2/cmd/formatter"
-
-	"github.com/compose-spec/compose-go/cli"
-	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/cli/cli/command"
 	cliflags "github.com/docker/cli/cli/flags"
-	"github.com/docker/compose/v2/pkg/api"
+	"github.com/docker/compose/v2/cmd/formatter"
 	"github.com/docker/compose/v2/pkg/compose"
+
+	"github.com/compose-spec/compose-go/types"
+	"github.com/docker/compose/v2/pkg/api"
 	"github.com/pkg/errors"
 
 	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
-)
-
-const (
-	dockerStateRunning       = "running"
-	dockerHealthStateHealthy = "healthy"
+	"github.com/openclarity/vmclarity/e2e/testenv/utils"
 )
 
 type ContextKeyType string
 
-const DockerComposeContextKey ContextKeyType = "DockerCompose"
-
-var dockerComposeFiles = []string{
-	"../installation/docker/docker-compose.yml",
-	"testenv/docker/docker-compose.override.yml",
-}
+const (
+	GatewayServiceName                     = "gateway"
+	DockerComposeContextKey ContextKeyType = "DockerCompose"
+)
 
 type DockerEnv struct {
 	composer api.Service
 	project  *types.Project
+
+	meta map[string]interface{}
 }
 
-// nolint:wrapcheck
-func New(_ *envtypes.Config) (*DockerEnv, error) {
-	projOpts, err := cli.NewProjectOptions(
-		dockerComposeFiles,
-		cli.WithName("vmclarity-e2e"),
-		cli.WithResolvedPaths(true),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	err = cli.WithOsEnv(projOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	project, err := cli.ProjectFromOptions(projOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	for i, service := range project.Services {
-		service.CustomLabels = map[string]string{
-			api.ProjectLabel:     project.Name,
-			api.ServiceLabel:     service.Name,
-			api.WorkingDirLabel:  project.WorkingDir,
-			api.ConfigFilesLabel: strings.Join(project.ComposeFiles, ","),
-			api.OneoffLabel:      "False",
-		}
-		project.Services[i] = service
-	}
-
-	cmd, err := command.NewDockerCli()
-	if err != nil {
-		return nil, err
-	}
-
-	cliOpts := cliflags.NewClientOptions()
-
-	if err = cmd.Initialize(cliOpts); err != nil {
-		return nil, err
-	}
-
-	return &DockerEnv{
-		composer: compose.NewComposeService(cmd),
-		project:  project,
-	}, nil
-}
-
-// nolint:wrapcheck
-func (e *DockerEnv) Start(ctx context.Context) error {
+func (e *DockerEnv) SetUp(ctx context.Context) error {
 	timeout := 1 * time.Minute
+	services, err := e.Services(ctx)
+	if err != nil {
+		return err
+	}
+
 	opts := api.UpOptions{
 		Create: api.CreateOptions{
 			RemoveOrphans: true,
 			QuietPull:     true,
 			Timeout:       &timeout,
-			Services:      e.Services(),
+			Services:      services.IDs(),
 			Inherit:       false,
 		},
 		Start: api.StartOptions{
 			Project:     e.project,
 			Wait:        true,
 			WaitTimeout: 10 * time.Minute, // nolint:gomnd
-			Services:    e.Services(),
+			Services:    services.IDs(),
 		},
 	}
-	return e.composer.Up(ctx, e.project, opts)
+
+	if err = e.composer.Up(ctx, e.project, opts); err != nil {
+		return fmt.Errorf("failed to set up environment: %w", err)
+	}
+
+	return nil
 }
 
-// nolint:wrapcheck
-func (e *DockerEnv) Stop(ctx context.Context) error {
+func (e *DockerEnv) TearDown(ctx context.Context) error {
 	timeout := 1 * time.Minute
 	opts := api.DownOptions{
 		RemoveOrphans: true,
@@ -134,98 +86,151 @@ func (e *DockerEnv) Stop(ctx context.Context) error {
 		Volumes:       true,
 		Timeout:       &timeout,
 	}
-	return e.composer.Down(ctx, e.project.Name, opts)
-}
 
-func (e *DockerEnv) SetUp(_ context.Context) error {
-	// NOTE(chrisgacsal): nothing to do
+	if err := e.composer.Down(ctx, e.project.Name, opts); err != nil {
+		return fmt.Errorf("failed to tear down environment: %w", err)
+	}
+
 	return nil
 }
 
-func (e *DockerEnv) TearDown(_ context.Context) error {
-	// NOTE(chrisgacsal): nothing to do
-	return nil
-}
-
-// nolint:wrapcheck
 func (e *DockerEnv) ServicesReady(ctx context.Context) (bool, error) {
-	services := e.Services()
+	logger := utils.GetLoggerFromContextOrDiscard(ctx).WithFields(e.meta)
 
-	ps, err := e.composer.Ps(
-		ctx,
-		e.project.Name,
-		api.PsOptions{
-			Services: services,
-			Project:  e.project,
-		},
-	)
+	services, err := e.Services(ctx)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to retrieve list of services: %w", err)
 	}
 
-	if len(services) != len(ps) {
-		return false, nil
-	}
-
-	for _, c := range ps {
-		if c.State != dockerStateRunning && c.Health != dockerHealthStateHealthy {
-			return false, nil
+	var result bool
+	for _, service := range services {
+		logger.Debugf("checking service readiness. Service=%s State=%s", service.GetID(), service.GetState())
+		switch service.GetState() {
+		case envtypes.ServiceStateReady:
+			result = true
+		case envtypes.ServiceStateDegraded, envtypes.ServiceStateNotReady, envtypes.ServiceStateUnknown:
+			fallthrough
+		default:
+			result = false
 		}
 	}
 
-	return true, nil
+	return result, nil
 }
 
-// nolint:wrapcheck
 func (e *DockerEnv) ServiceLogs(ctx context.Context, services []string, startTime time.Time, stdout, stderr io.Writer) error {
 	consumer := formatter.NewLogConsumer(ctx, stdout, stderr, true, true, false)
-	return e.composer.Logs(ctx, e.project.Name, consumer, api.LogOptions{
+
+	err := e.composer.Logs(ctx, e.project.Name, consumer, api.LogOptions{
 		Project:  e.project,
 		Services: services,
 		Since:    startTime.Format(time.RFC3339Nano),
 	})
-}
-
-func (e *DockerEnv) Services() []string {
-	services := make([]string, len(e.project.Services))
-	for i, srv := range e.project.Services {
-		services[i] = srv.Name
+	if err != nil {
+		return fmt.Errorf("failed to retrieve service logs: %w", err)
 	}
-	return services
+
+	return nil
 }
 
-func (e *DockerEnv) GetGatewayServiceURL() (*url.URL, error) {
-	var service types.ServiceConfig
-	var ok bool
+func (e *DockerEnv) Services(ctx context.Context) (envtypes.Services, error) {
+	serviceCollection := NewServiceCollectionFromProject(e.project)
+
+	ps, err := e.composer.Ps(ctx, e.project.Name, api.PsOptions{
+		Services: serviceCollection.ServiceNames(),
+		Project:  e.project,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get list of available services: %w", err)
+	}
+
+	serviceMap := make(map[string]types.ServiceConfig)
+	for _, srv := range e.project.Services {
+		serviceMap[srv.Name] = srv
+	}
+
+	for _, summary := range ps {
+		var healthCheckEnabled bool
+		if srv, ok := serviceMap[summary.Service]; ok {
+			if srv.HealthCheck != nil && !srv.HealthCheck.Disable {
+				healthCheckEnabled = true
+			}
+		}
+		serviceCollection[summary.Service].State = getServiceState(summary, healthCheckEnabled)
+	}
+
+	return serviceCollection.AsServices(), nil
+}
+
+func (e *DockerEnv) Endpoints(_ context.Context) (*envtypes.Endpoints, error) {
+	var gatewayService types.ServiceConfig
+	var found bool
 
 	for _, srv := range e.project.Services {
-		if srv.Name == "gateway" {
-			service = srv
-			ok = true
+		if srv.Name == GatewayServiceName {
+			gatewayService = srv
+			found = true
 			break
 		}
 	}
 
-	if !ok {
-		return nil, errors.Errorf("container with name gateway is not available")
+	if !found {
+		return nil, errors.Errorf("service with name %s is not available", GatewayServiceName)
 	}
 
-	if len(service.Ports) < 1 {
-		return nil, errors.Errorf("container with name gateway has no ports published")
+	if len(gatewayService.Ports) < 1 {
+		return nil, errors.Errorf("service with name %s has no published ports", GatewayServiceName)
 	}
 
-	port := service.Ports[0].Published
-	hostIP := service.Ports[0].HostIP
-	if hostIP == "" {
-		hostIP = "127.0.0.1"
+	port := gatewayService.Ports[0].Published
+	host := gatewayService.Ports[0].HostIP
+	if host == "" {
+		host = "127.0.0.1"
 	}
 
-	return &url.URL{
-		Scheme: "http",
-		Host:   fmt.Sprintf("%s:%s", hostIP, port),
-	}, nil
+	endpoints := new(envtypes.Endpoints)
+	endpoints.SetAPI("http", host, port, "/api")
+	endpoints.SetUIBackend("http", host, port, "/ui/api")
+
+	return endpoints, nil
 }
 
-func (e *DockerEnv) Context(ctx context.Context) context.Context {
-	return context.WithValue(ctx, DockerComposeContextKey, e.composer)
+func (e *DockerEnv) Context(ctx context.Context) (context.Context, error) {
+	return context.WithValue(ctx, DockerComposeContextKey, e.composer), nil
+}
+
+func (e *DockerEnv) Deployments() []string {
+	return []string{e.project.Name}
+}
+
+func New(config *Config, opts ...ConfigOptFn) (*DockerEnv, error) {
+	if err := applyConfigWithOpts(config, opts...); err != nil {
+		return nil, fmt.Errorf("failed to apply config options: %w", err)
+	}
+
+	project, err := ProjectFromConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create project from config: %w", err)
+	}
+
+	cmd, err := command.NewDockerCli()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create docker client: %w", err)
+	}
+
+	cliOpts := cliflags.NewClientOptions()
+
+	if err = cmd.Initialize(cliOpts); err != nil {
+		return nil, fmt.Errorf("failed to initialize docker client: %w", err)
+	}
+
+	return &DockerEnv{
+		composer: compose.NewComposeService(cmd),
+		project:  project,
+		meta: map[string]interface{}{
+			"environment": "docker",
+			"name":        config.EnvName,
+			"project":     project.Name,
+		},
+	}, nil
 }

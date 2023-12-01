@@ -17,9 +17,6 @@ package e2e
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"os"
 	"testing"
 	"time"
 
@@ -27,6 +24,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/e2e/config"
 	"github.com/openclarity/vmclarity/e2e/testenv"
 	"github.com/openclarity/vmclarity/e2e/testenv/types"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
@@ -35,10 +33,11 @@ import (
 )
 
 var (
-	testEnv  types.Environment
+	testEnv types.Environment
+	cfg     *config.Config
+
 	client   *backendclient.BackendClient
 	uiClient *uibackendclient.UIBackendClient
-	config   *types.Config
 )
 
 func TestEndToEnd(t *testing.T) {
@@ -50,23 +49,24 @@ func beforeSuite(ctx context.Context) {
 	var err error
 
 	ginkgo.By("initializing test environment")
-	log.InitLogger(logrus.DebugLevel.String(), os.Stderr)
+	log.InitLogger(logrus.DebugLevel.String(), ginkgo.GinkgoWriter)
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	config, err = testenv.NewConfig()
+	// Get end-to-end test suite configuration
+	cfg, err = config.NewConfig()
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	testEnv, err = testenv.New(config)
+	// Create new testenv from configuration
+	testEnv, err = testenv.New(&cfg.TestEnvConfig, testenv.WithContext(ctx), testenv.WithLogger(logger))
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	if !config.ReuseEnv {
+	if !cfg.ReuseEnv {
+		setupCtx, cancel := context.WithTimeout(ctx, cfg.EnvSetupTimeout)
+		defer cancel()
+
 		ginkgo.By("setup test environment")
-		err = testEnv.SetUp(ctx)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-		ginkgo.By("starting test environment")
-		err = testEnv.Start(ctx)
+		err = testEnv.SetUp(setupCtx)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	} else {
 		ginkgo.By("re-using test environment")
@@ -79,34 +79,22 @@ func beforeSuite(ctx context.Context) {
 		return ready
 	}, time.Second*5).Should(gomega.BeTrue())
 
-	u, err := testEnv.GetGatewayServiceURL()
+	endpoints, err := testEnv.Endpoints(ctx)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	base := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
-
-	clientURL, err := url.JoinPath(base, "api")
+	client, err = backendclient.Create(endpoints.API.String())
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	client, err = backendclient.Create(clientURL)
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-	uiClientURL, err := url.JoinPath(base, "ui", "api")
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-	uiClient, err = uibackendclient.Create(uiClientURL)
+	uiClient, err = uibackendclient.Create(endpoints.UIBackend.String())
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 }
 
 var _ = ginkgo.BeforeSuite(beforeSuite)
 
 func afterSuite(ctx context.Context) {
-	if !config.ReuseEnv {
-		ginkgo.By("stopping test environment")
-		err := testEnv.Stop(ctx)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
+	if !cfg.ReuseEnv {
 		ginkgo.By("tearing down test environment")
-		err = testEnv.TearDown(ctx)
+		err := testEnv.TearDown(ctx)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	}
 }
