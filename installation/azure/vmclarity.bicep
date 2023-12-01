@@ -48,7 +48,7 @@ param grypeServerContainerImage string = 'ghcr.io/openclarity/grype-server:v0.7.
 param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0.2.4'
 
 @description ('Freshclam Mirror Container Image')
-param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.2.0'
+param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.3.0'
 
 @description('Postgres Container Image')
 param postgresContainerImage string = 'docker.io/bitnami/postgresql:12.14.0-debian-11-r28'

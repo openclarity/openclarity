@@ -300,7 +300,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Freshclam Mirror Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.2.0",
+                            "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.3.0",
                             "toolTip": "Freshclam Mirror Container Image",
                             "constraints": {
                                 "required": false,
