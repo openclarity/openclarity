@@ -84,7 +84,7 @@ func (p *Provider) SetUp(ctx context.Context) error {
 		return nil
 	}
 
-	nodes, err := p.kind.ListNodes(p.config.ClusterName)
+	nodes, err := p.kind.ListNodes(p.generatedClusterName)
 	if err != nil {
 		return fmt.Errorf("failed to list nodes in cluster: %w", err)
 	}
@@ -109,7 +109,7 @@ func (p *Provider) TearDown(_ context.Context) error {
 			p.kubeConfigPath,
 		)
 		if err != nil {
-			return fmt.Errorf("failed to delete cluster with name %s: %w", p.config.ClusterName, err)
+			return fmt.Errorf("failed to delete cluster with name %s: %w", p.generatedClusterName, err)
 		}
 
 		return nil
@@ -140,7 +140,7 @@ func (p *Provider) KubeConfig(_ context.Context) (string, error) {
 
 func (p *Provider) ExportKubeConfig(_ context.Context, explicitPath string) error {
 	if err := p.kind.ExportKubeConfig(p.generatedClusterName, explicitPath, false); err != nil {
-		return fmt.Errorf("failed to export KubeConfig for cluster %s to path %s: %w", p.config.ClusterName, p.kubeConfigPath, err)
+		return fmt.Errorf("failed to export KubeConfig for cluster %s to path %s: %w", p.generatedClusterName, p.kubeConfigPath, err)
 	}
 
 	return nil
