@@ -61,9 +61,18 @@ func (l *DockerImageLoader) imageIDsFromRepoTags(ctx context.Context, repoTags [
 	return imageIDs, nil
 }
 
-// nolint:gocognit
 func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error {
-	logger := utils.GetLoggerFromContextOrDiscard(ctx)
+	logger := utils.GetLoggerFromContextOrDiscard(ctx).WithFields(map[string]interface{}{
+		"images": l.images,
+		"nodes":  nodes,
+	})
+
+	if len(nodes) == 0 {
+		logger.Warn("skipping loading container images as no target nodes provided")
+		return nil
+	}
+
+	logger.Debug("loading images to nodes")
 
 	// Get image IDs for Image RepoTags
 	mapping := make(imageIDRepoTagMapping, 0)
@@ -89,35 +98,7 @@ func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error 
 
 	nodeLoaders := []func(r io.Reader) error{}
 	for _, node := range nodes {
-		node := node
-		nodeLoaders = append(nodeLoaders, func(r io.Reader) error {
-			if err := nodeutils.LoadImageArchive(node, r); err != nil {
-				return fmt.Errorf("failed to load image from stream: %w", err)
-			}
-
-			for imageID, repoTag := range mapping {
-				tags, err := nodeutils.ImageTags(node, imageID)
-				if err != nil {
-					return fmt.Errorf("failed to get repoTags for imageID %s: %w", imageID, err)
-				}
-
-				exists := false
-				for tag := range tags {
-					if tag == repoTag {
-						exists = true
-					}
-				}
-				if exists {
-					continue
-				}
-
-				if err = nodeutils.ReTagImage(node, imageID, repoTag); err != nil {
-					return fmt.Errorf("failed to set %s tag for %s imageID: %w", repoTag, imageID, err)
-				}
-			}
-
-			return nil
-		})
+		nodeLoaders = append(nodeLoaders, newNodeLoader(node, mapping))
 	}
 
 	if err = fanout.FanOut(ctx, imageData, nodeLoaders); err != nil {
@@ -161,4 +142,37 @@ func (m imageIDRepoTagMapping) IDs() []string {
 	}
 
 	return ids
+}
+
+type nodeLoaderFn func(r io.Reader) error
+
+func newNodeLoader(node nodes.Node, mapping imageIDRepoTagMapping) nodeLoaderFn {
+	return func(r io.Reader) error {
+		if err := nodeutils.LoadImageArchive(node, r); err != nil {
+			return fmt.Errorf("failed to load image from stream: %w", err)
+		}
+
+		for imageID, repoTag := range mapping {
+			tags, err := nodeutils.ImageTags(node, imageID)
+			if err != nil {
+				return fmt.Errorf("failed to get repoTags for imageID %s: %w", imageID, err)
+			}
+
+			exists := false
+			for tag := range tags {
+				if tag == repoTag {
+					exists = true
+				}
+			}
+			if exists {
+				continue
+			}
+
+			if err = nodeutils.ReTagImage(node, imageID, repoTag); err != nil {
+				return fmt.Errorf("failed to set %s tag for %s imageID: %w", repoTag, imageID, err)
+			}
+		}
+
+		return nil
+	}
 }
