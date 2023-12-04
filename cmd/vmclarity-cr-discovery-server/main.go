@@ -13,14 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package utils
+package main
 
-import "os"
+import (
+	"fmt"
+	"os"
 
-func GetEnvOrDefault(k, d string) string {
-	if v, ok := os.LookupEnv(k); ok && v != "" {
-		return v
+	"github.com/openclarity/vmclarity/cmd/vmclarity-cr-discovery-server/cmd"
+)
+
+func main() {
+	err := cmd.Execute()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-
-	return d
 }

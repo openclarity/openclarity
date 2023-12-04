@@ -1,0 +1,15 @@
+{{- if eq .Values.orchestrator.provider "kubernetes" }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "vmclarity.orchestrator.name" . }}
+  labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "vmclarity.orchestrator.name" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "vmclarity.orchestrator.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

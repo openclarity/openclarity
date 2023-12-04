@@ -65,6 +65,38 @@ func (d *Discoverer) Start(ctx context.Context) {
 	}()
 }
 
+func (d *Discoverer) handleAssetConflict(existingAsset, newAsset models.AssetType) (models.AssetType, error) {
+	discriminator, err := newAsset.Discriminator()
+	if err != nil {
+		return models.AssetType{}, fmt.Errorf("failed to get objectType from discovered asset: %w", err)
+	}
+	switch discriminator {
+	case "ContainerImageInfo":
+		newContainerImageInfo, err := newAsset.AsContainerImageInfo()
+		if err != nil {
+			return models.AssetType{}, fmt.Errorf("failed to convert discoverered asset to ContainerImageInfo: %w", err)
+		}
+		existingContainerImageInfo, err := existingAsset.AsContainerImageInfo()
+		if err != nil {
+			return models.AssetType{}, fmt.Errorf("failed to convert existing asset to ContainerImageInfo: %w", err)
+		}
+		mergedContainerImageInfo, err := existingContainerImageInfo.Merge(newContainerImageInfo)
+		if err != nil {
+			return models.AssetType{}, fmt.Errorf("failed to merge new and existing ContainerImageInfos, existing: %s, new: %s: %w", existingContainerImageInfo.String(), newContainerImageInfo.String(), err)
+		}
+
+		mergedAssetType := models.AssetType{}
+		err = mergedAssetType.FromContainerImageInfo(mergedContainerImageInfo)
+		if err != nil {
+			return models.AssetType{}, fmt.Errorf("failed to convert merged ContainerImageInfo to AssetType: %w", err)
+		}
+		return mergedAssetType, nil
+	}
+
+	return newAsset, nil
+}
+
+// nolint:cyclop
 func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	discoveryTime := time.Now()
 
@@ -97,9 +129,19 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 		}
 
 		// As we got a conflict it means there is an existing asset
-		// which matches the unique properties of this asset, in this
-		// case we'll patch the just AssetInfo and FirstSeen instead.
-		assetData.FirstSeen = nil
+		// which matches the unique properties of this asset. First
+		// we'll handle any extra steps that need to be performed due
+		// to this conflict, such as merging newly discovered info with
+		// existing info. Then we'll patch the AssetInfo and LastSeen.
+		handledAssetType, err := d.handleAssetConflict(*conflictError.ConflictingAsset.AssetInfo, assetType)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to handle conflicting asset: %w", err))
+			continue
+		}
+		assetData = models.Asset{
+			AssetInfo: &handledAssetType,
+			LastSeen:  &discoveryTime,
+		}
 		err = d.backendClient.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
 		if err != nil {
 			failedPatchAssets[*conflictError.ConflictingAsset.Id] = struct{}{}

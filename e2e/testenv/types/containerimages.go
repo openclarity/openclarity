@@ -22,11 +22,12 @@ import (
 )
 
 type ContainerImages[T string | ImageRef] struct {
-	APIServer    T `mapstructure:"apiserver_image"`
-	Orchestrator T `mapstructure:"orchestrator_image"`
-	UI           T `mapstructure:"ui_image"`
-	UIBackend    T `mapstructure:"uibackend_image"`
-	Scanner      T `mapstructure:"scanner_image"`
+	APIServer         T `mapstructure:"apiserver_image"`
+	Orchestrator      T `mapstructure:"orchestrator_image"`
+	UI                T `mapstructure:"ui_image"`
+	UIBackend         T `mapstructure:"uibackend_image"`
+	Scanner           T `mapstructure:"scanner_image"`
+	CRDiscoveryServer T `mapstructure:"cr_discovery_server_image"`
 }
 
 func (t ContainerImages[T]) AsSlice() []T {
@@ -36,6 +37,7 @@ func (t ContainerImages[T]) AsSlice() []T {
 		t.UI,
 		t.UIBackend,
 		t.Scanner,
+		t.CRDiscoveryServer,
 	}
 }
 
@@ -51,6 +53,7 @@ func (t ContainerImages[T]) AsStringSlice() ([]string, error) {
 			s.UI.String(),
 			s.UIBackend.String(),
 			s.Scanner.String(),
+			s.CRDiscoveryServer.String(),
 		}, nil
 	}
 

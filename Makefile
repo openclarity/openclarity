@@ -35,6 +35,7 @@ VMCLARITY_ORCHESTRATOR_IMAGE = $(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKE
 VMCLARITY_UI_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG)
 VMCLARITY_UIBACKEND_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG)
 VMCLARITY_SCANNER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG)
+VMCLARITY_CR_DISCOVERY_SERVER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG)
 
 ####
 ## Load additional makefiles
@@ -60,7 +61,7 @@ help: ## Display this help
 build: ui build-all-go ## Build all components
 
 .PHONY: build-all-go
-build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend ## Build all go components
+build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
 bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w \
@@ -89,6 +90,9 @@ bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backen
 		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
 		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-ui-backend/main.go
+
+bin/vmclarity-cr-discovery-server: $(shell find api) $(shell find cmd/vmclarity-cr-discovery-server) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
+	go build -race -o bin/vmclarity-cr-discovery-server cmd/vmclarity-cr-discovery-server/main.go
 
 .PHONY: clean
 clean: clean-ui clean-go ## Clean all build artifacts
@@ -188,7 +192,7 @@ test: ## Run Go unit tests
 ##@ Docker
 
 .PHONY: docker
-docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Build All Docker images
+docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server ## Build All Docker images
 
 .PHONY: docker-apiserver
 docker-apiserver: ## Build API Server container image
@@ -233,8 +237,16 @@ docker-ui-backend: ## Build UI Backend container image
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		-t $(VMCLARITY_UIBACKEND_IMAGE) .
 
+.PHONY: docker-cr-discovery-server
+docker-cr-discovery-server: ## Build K8S Image Resolver Docker image
+	$(info Building cr-discovery-server docker image ...)
+	docker build --file ./Dockerfile.cr-discovery-server --build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
+		-t $(VMCLARITY_CR_DISCOVERY_SERVER_IMAGE) .
+
 .PHONY: push-docker
-push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend ## Build and push all container images
+push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend push-docker-cr-discovery-server ## Build and Push All Docker images
 
 .PHONY: push-docker-apiserver
 push-docker-apiserver: docker-apiserver ## Build and push API Server container image
@@ -260,6 +272,11 @@ push-docker-ui: docker-ui ## Build and Push UI container image
 push-docker-ui-backend: docker-ui-backend ## Build and push UI Backend container image
 	$(info Publishing ui-backend docker image ...)
 	docker push $(DOCKER_IMAGE)-ui-backend:$(DOCKER_TAG)
+
+.PHONY: push-docker-cr-discovery-server
+push-docker-cr-discovery-server: docker-cr-discovery-server ## Build and Push K8S Image Resolver Docker image
+	@echo "Publishing cr-discovery-server docker image ..."
+	docker push $(DOCKER_IMAGE)-cr-discovery-server:$(DOCKER_TAG)
 
 ##@ Code generation
 

@@ -22,10 +22,10 @@ linters-settings:
       - github.com/docker/docker
       - oras.land/oras-go
       # End-to-end testing
-      - go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc
-      - go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
-      - go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
-      - github.com/cucumber/godog
+      - cloud.google.com/go
+      - go.opentelemetry.io/otel
+      - go.opentelemetry.io/otel/metric
+      - go.opentelemetry.io/otel/sdk
       # Viper
       - github.com/mitchellh/mapstructure
 

@@ -78,6 +78,14 @@ func WithContainerImages(images *ContainerImages) ValuesOpts {
 					"digest":     images.UIBackend.Digest(),
 				},
 			},
+			"crDiscoveryServer": map[string]interface{}{
+				"image": map[string]interface{}{
+					"registry":   images.CRDiscoveryServer.Domain(),
+					"repository": images.CRDiscoveryServer.Path(),
+					"tag":        images.CRDiscoveryServer.Tag(),
+					"digest":     images.CRDiscoveryServer.Digest(),
+				},
+			},
 		}
 
 		*values = chartutil.MergeTables(v, *values)

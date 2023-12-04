@@ -25,7 +25,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 
-	docker2 "github.com/openclarity/vmclarity/e2e/testenv/docker"
+	"github.com/openclarity/vmclarity/e2e/testenv/docker"
 	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/helm"
 	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/types"
@@ -35,7 +35,7 @@ import (
 
 var ImageTag = utils.GetEnvOrDefault("VERSION", "latest")
 
-var DockerContainerImages = docker2.ContainerImages{
+var DockerContainerImages = docker.ContainerImages{
 	APIServer:    "ghcr.io/openclarity/vmclarity-apiserver:" + ImageTag,
 	Orchestrator: "ghcr.io/openclarity/vmclarity-orchestrator:" + ImageTag,
 	UI:           "ghcr.io/openclarity/vmclarity-ui:" + ImageTag,
@@ -44,22 +44,25 @@ var DockerContainerImages = docker2.ContainerImages{
 }
 
 var KubernetesContainerImages = kubernetes.ContainerImages{
-	APIServer:    envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-apiserver", "ghcr.io", "openclarity/vmclarity-apiserver", ImageTag, ""),
-	Orchestrator: envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-orchestrator", "ghcr.io", "openclarity/vmclarity-orchestrator", ImageTag, ""),
-	UI:           envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui", "ghcr.io", "openclarity/vmclarity-ui", ImageTag, ""),
-	UIBackend:    envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui-backend", "ghcr.io", "openclarity/vmclarity-ui-backend", ImageTag, ""),
-	Scanner:      envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cli", "ghcr.io", "openclarity/vmclarity-cli", ImageTag, ""),
+	APIServer:         envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-apiserver", "ghcr.io", "openclarity/vmclarity-apiserver", ImageTag, ""),
+	Orchestrator:      envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-orchestrator", "ghcr.io", "openclarity/vmclarity-orchestrator", ImageTag, ""),
+	UI:                envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui", "ghcr.io", "openclarity/vmclarity-ui", ImageTag, ""),
+	UIBackend:         envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui-backend", "ghcr.io", "openclarity/vmclarity-ui-backend", ImageTag, ""),
+	Scanner:           envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cli", "ghcr.io", "openclarity/vmclarity-cli", ImageTag, ""),
+	CRDiscoveryServer: envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cr-discovery-server", "ghcr.io", "openclarity/vmclarity-cr-discovery-server", ImageTag, ""),
 }
 
 func TestTestEnv(t *testing.T) {
 	tests := []struct {
-		Name string
+		Name    string
+		Timeout time.Duration
 
 		TestEnvConfig    *Config
 		ExpectedServices envtypes.Services
 	}{
 		{
-			Name: "Kind cluster with Helm installer and embedded Chart",
+			Name:    "Kind cluster with Helm installer and embedded Chart",
+			Timeout: 30 * time.Minute,
 			TestEnvConfig: &Config{
 				Platform: "kubernetes",
 				EnvName:  "testenv-k8s-test",
@@ -84,11 +87,12 @@ func TestTestEnv(t *testing.T) {
 			ExpectedServices: NewKubernetesServices("default", "testenv-k8s-test"),
 		},
 		{
-			Name: "Docker Compose with embedded Manifests",
+			Name:    "Docker Compose with embedded Manifests",
+			Timeout: 10 * time.Minute,
 			TestEnvConfig: &Config{
 				Platform: "docker",
 				EnvName:  "testenv-docker-test",
-				Docker: &docker2.Config{
+				Docker: &docker.Config{
 					EnvName: "testenv-docker-test",
 					Images:  DockerContainerImages,
 				},
@@ -105,7 +109,7 @@ func TestTestEnv(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+			ctx, cancel := context.WithTimeout(context.Background(), test.Timeout)
 
 			// Cancel test context at the end of test run
 			t.Cleanup(func() {
@@ -114,7 +118,9 @@ func TestTestEnv(t *testing.T) {
 				}
 			})
 
-			logger := logrus.NewEntry(logrus.StandardLogger())
+			log := logrus.StandardLogger()
+			log.SetLevel(logrus.DebugLevel)
+			logger := logrus.NewEntry(log)
 			ctx = utils.SetLoggerForContext(ctx, logger)
 
 			workDir := t.TempDir()
@@ -135,6 +141,7 @@ func TestTestEnv(t *testing.T) {
 			// Tear down the testenv at the end of test run
 			t.Cleanup(func() {
 				if env != nil {
+					t.Log("tearing down test environment...")
 					if err := env.TearDown(ctx); err != nil {
 						t.Logf("failed to cleanup testenv: %v", err)
 					}
@@ -301,89 +308,96 @@ func NewKubernetesServices(namespace, release string) envtypes.Services {
 			Component:   "primary",
 			State:       envtypes.ServiceStateReady,
 		},
+		&kubernetes.Service{
+			ID:          release + "-vmclarity-cr-discovery-server",
+			Namespace:   namespace,
+			Application: "vmclarity",
+			Component:   "cr-discovery-server",
+			State:       envtypes.ServiceStateReady,
+		},
 	}
 }
 
 func NewDockerServices(project string) envtypes.Services {
 	return envtypes.Services{
-		&docker2.Service{
+		&docker.Service{
 			ID:          "alpine",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "alpine",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "apiserver",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "apiserver",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "exploit-db-server",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "exploit-db-server",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "freshclam-mirror",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "freshclam-mirror",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "gateway",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "gateway",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "grype-server",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "grype-server",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "orchestrator",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "orchestrator",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "swagger-ui",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "swagger-ui",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "trivy-server",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "trivy-server",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "ui",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "ui",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "uibackend",
 			Namespace:   project,
 			Application: "vmclarity",
 			Component:   "uibackend",
 			State:       envtypes.ServiceStateReady,
 		},
-		&docker2.Service{
+		&docker.Service{
 			ID:          "yara-rule-server",
 			Namespace:   project,
 			Application: "vmclarity",
