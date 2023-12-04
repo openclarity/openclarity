@@ -146,6 +146,8 @@ spec:
             {{- end }}
 
             {{- if eq .Values.orchestrator.provider "kubernetes" }}
+            - name: VMCLARITY_KUBERNETES_CONTAINER_RUNTIME_DISCOVERY_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
             {{- with .Values.orchestrator.kubernetes }}
             {{- end -}}
             {{- end }}

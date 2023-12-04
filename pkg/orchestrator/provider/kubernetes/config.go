@@ -29,6 +29,10 @@ type Config struct {
 	// KubeConfig defines a path to a kubeconfig file to use to connect to
 	// the Kubernetes API
 	KubeConfig string `mapstructure:"kubeconfig"`
+
+	// Container Runtime Discovery Namespace is the namespace where the
+	// container runtime discovery daemonset is running.
+	ContainerRuntimeDiscoveryNamespace string `mapstructure:"container_runtime_discovery_namespace"`
 }
 
 func NewConfig() (*Config, error) {
@@ -40,6 +44,7 @@ func NewConfig() (*Config, error) {
 	v.AutomaticEnv()
 
 	_ = v.BindEnv("kubeconfig")
+	_ = v.BindEnv("container_runtime_discovery_namespace")
 
 	config := &Config{}
 	if err := v.Unmarshal(config); err != nil {
