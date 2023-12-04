@@ -1,0 +1,51 @@
+{{- if eq .Values.orchestrator.provider "kubernetes" -}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "vmclarity.crDiscoveryServer.name" . }}
+  labels: {{- include "vmclarity.crDiscoveryServer.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.crDiscoveryServer.labels.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.crDiscoveryServer.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.crDiscoveryServer.affinity }}
+      affinity: {{- .Values.crDiscoveryServer.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.crDiscoveryServer.nodeSelector }}
+      nodeSelector: {{- .Values.crDiscoveryServer.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.crDiscoveryServer.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.crDiscoveryServer.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.crDiscoveryServer.tolerations }}
+      tolerations: {{- .Values.crDiscoveryServer.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: cr-discovery-server
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.crDiscoveryServer.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.crDiscoveryServer.image.pullPolicy | quote }}
+          {{- if .Values.crDiscoveryServer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.crDiscoveryServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.crDiscoveryServer.resources }}
+          resources: {{- toYaml .Values.crDiscoveryServer.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /var/run/containerd
+              name: containerd
+              readOnly: true
+            - mountPath: /var/lib/docker
+              name: docker
+              readOnly: true
+      volumes:
+        - name: docker
+          hostPath:
+            path: /var/lib/docker
+        - name: containerd
+          hostPath:
+            path: /var/run/containerd
+      serviceAccountName: {{ include "vmclarity.crDiscoveryServer.serviceAccountName" . }}
+{{- end -}}

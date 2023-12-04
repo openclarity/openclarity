@@ -51,6 +51,26 @@ secrets.
 | apiserver.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | apiserver.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | apiserver.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
+| crDiscoveryServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
+| crDiscoveryServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
+| crDiscoveryServer.containerSecurityContext.enabled | bool | `false` | Container security context enabled |
+| crDiscoveryServer.containerSecurityContext.privileged | bool | `false` | Whether the container should run in privileged mode |
+| crDiscoveryServer.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container file system as ReadOnly |
+| crDiscoveryServer.containerSecurityContext.runAsGroup | int | `1001` | Group ID which the containers should run as |
+| crDiscoveryServer.containerSecurityContext.runAsNonRoot | bool | `true` | Whether the containers should run as a non-root user |
+| crDiscoveryServer.containerSecurityContext.runAsUser | int | `1001` | User ID which the containers should run as |
+| crDiscoveryServer.image.digest | string | `""` | Container Runtime Discovery Server image digest. If set will override the tag. |
+| crDiscoveryServer.image.pullPolicy | string | `"IfNotPresent"` | Container Runtime Discovery Server image pull policy |
+| crDiscoveryServer.image.registry | string | `"ghcr.io"` | Container Runtime Discovery Server container registry |
+| crDiscoveryServer.image.repository | string | `"openclarity/vmclarity-cr-discovery-server"` | Container Runtime Discovery Server container repository |
+| crDiscoveryServer.image.tag | string | `"latest"` | Container Runtime Discovery Server container tag |
+| crDiscoveryServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
+| crDiscoveryServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
+| crDiscoveryServer.resources.limits | object | `{}` | The resources limits for the container runtime discovery server containers |
+| crDiscoveryServer.resources.requests | object | `{}` | The requested resources for the container runtime discovery server containers |
+| crDiscoveryServer.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
+| crDiscoveryServer.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
+| crDiscoveryServer.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | exploitDBServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | exploitDBServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | exploitDBServer.containerSecurityContext.enabled | bool | `true` | Container security context enabled |

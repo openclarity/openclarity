@@ -434,6 +434,7 @@ func (p *Provider) getNetworkIDFromName(ctx context.Context, networkName string)
 	return networks[0].ID, nil
 }
 
+// nolint:cyclop
 func (p *Provider) exportAsset(ctx context.Context, config *provider.ScanJobConfig) (io.ReadCloser, func(), error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
