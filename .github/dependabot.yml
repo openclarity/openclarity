@@ -17,6 +17,9 @@ updates:
     google-sdk:
       patterns:
         - "cloud.google.com/go/*"
+    containrd:
+      patterns:
+        - "github.com/containerd/*"
 - package-ecosystem: docker
   directory: "/"
   schedule:
