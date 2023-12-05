@@ -2,7 +2,8 @@ import OpenAPIParser from '@readme/openapi-parser';
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from "classnames";
 import throttle from "lodash/throttle";
-import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/mui';
+import { Utils as QbUtils } from '@react-awesome-query-builder/core';
+import { Query, Builder } from '@react-awesome-query-builder/mui';
 import { useFetch } from 'hooks';
 import { useField } from 'formik';
 

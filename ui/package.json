@@ -50,9 +50,14 @@
     "stream-http": "^3.2.0",
     "url": "^0.11.3",
     "util": "^0.12.5",
-    "vite": "^5.0.2",
-    "vite-tsconfig-paths": "^4.2.1",
     "yaml-loader": "^0.8.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-property-in-object": "^7.22.11",
+    "react-app-rewired": "^2.2.1",
+    "vite": "^5.0.2",
+    "vite-tsconfig-paths": "^4.2.1"
   },
   "overrides": {
     "nth-check": "^2.0.1",
@@ -80,11 +85,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:8080",
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-transform-private-property-in-object": "^7.22.11",
-    "react-app-rewired": "^2.2.1"
   }
 }

@@ -10,6 +10,13 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script type="module">
+      import process from "process";
+      import { Buffer } from "buffer";
+
+      window.Buffer = Buffer;
+      window.process = process;
+    </script>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

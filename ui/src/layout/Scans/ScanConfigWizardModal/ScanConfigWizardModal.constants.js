@@ -1,4 +1,4 @@
-import { Utils as QbUtils } from '@react-awesome-query-builder/mui';
+import { Utils as QbUtils } from '@react-awesome-query-builder/core';
 
 const SCOPE_CONFIG_INITIAL_VALUE = { id: QbUtils.uuid(), type: "group" };
 

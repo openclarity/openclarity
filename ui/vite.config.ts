@@ -2,8 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
+const PROXY_TARGET = 'http://localhost:8080';
+
 export default defineConfig({
-    // depending on your application, base can also be "/"
     base: '',
     plugins: [react(), viteTsconfigPaths()],
     define: {
@@ -12,21 +13,20 @@ export default defineConfig({
     resolve: {
         alias: {
             utils: '/src/utils',
+            process: 'process/browser',
         }
     },
     server: {    
-        // this ensures that the browser opens upon server start
         open: true,
-        // this sets a default port to 3000  
         port: 3000,
         proxy: {
             '/api': {
-                target: 'http://localhost:8080',
+                target: PROXY_TARGET,
                 changeOrigin: true,
                 secure: false,
             },
             '/ui/api': {
-                target: 'http://localhost:8080',
+                target: PROXY_TARGET,
                 changeOrigin: true,
                 secure: false,
             },
