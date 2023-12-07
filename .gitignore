@@ -4,6 +4,5 @@ bin/
 **/.vagrant
 /cloud-config.cfg
 db.db
-ui/build/
 site/
 dist
