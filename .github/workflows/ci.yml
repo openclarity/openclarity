@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
           # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
