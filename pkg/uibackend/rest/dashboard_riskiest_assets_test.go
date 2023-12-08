@@ -18,6 +18,7 @@ package rest
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -491,6 +492,8 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 	}
 }
 
+const SummaryQueryTemplate = "summary/%s/%s desc"
+
 func Test_getOrderByOdataForVulnerabilities(t *testing.T) {
 	tests := []struct {
 		name string
@@ -498,16 +501,14 @@ func Test_getOrderByOdataForVulnerabilities(t *testing.T) {
 	}{
 		{
 			name: "sanity",
-			want: fmt.Sprintf("summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc",
-				totalVulnerabilitiesSummaryFieldName, totalCriticalVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalHighVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalMediumVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalLowVulnerabilitiesFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalNegligibleVulnerabilitiesFieldName),
+			want: strings.Join(
+				[]string{
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalCriticalVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalHighVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalMediumVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalLowVulnerabilitiesFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalNegligibleVulnerabilitiesFieldName),
+				}, ","),
 		},
 	}
 	for _, tt := range tests {
@@ -533,16 +534,14 @@ func Test_getOrderByOData(t *testing.T) {
 			args: args{
 				totalFindingField: totalVulnerabilitiesSummaryFieldName,
 			},
-			want: fmt.Sprintf("summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc,"+
-				"summary/%s/%s desc",
-				totalVulnerabilitiesSummaryFieldName, totalCriticalVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalHighVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalMediumVulnerabilitiesSummaryFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalLowVulnerabilitiesFieldName,
-				totalVulnerabilitiesSummaryFieldName, totalNegligibleVulnerabilitiesFieldName),
+			want: strings.Join(
+				[]string{
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalCriticalVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalHighVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalMediumVulnerabilitiesSummaryFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalLowVulnerabilitiesFieldName),
+					fmt.Sprintf(SummaryQueryTemplate, totalVulnerabilitiesSummaryFieldName, totalNegligibleVulnerabilitiesFieldName),
+				}, ","),
 		},
 		{
 			name: "not vulnerabilities",

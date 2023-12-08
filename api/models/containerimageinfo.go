@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -101,7 +102,7 @@ const nilString = "nil"
 func (c ContainerImageInfo) String() string {
 	size := nilString
 	if c.Size != nil {
-		size = fmt.Sprintf("%d", *c.Size)
+		size = strconv.Itoa(*c.Size)
 	}
 
 	labels := nilString
