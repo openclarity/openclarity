@@ -39,7 +39,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 RUN xx-verify /bin/vmclarity-orchestrator
 
-FROM alpine:3.18
+FROM alpine:3.19
 
 COPY --from=builder ["/bin/vmclarity-orchestrator", "/bin/vmclarity-orchestrator"]
 
