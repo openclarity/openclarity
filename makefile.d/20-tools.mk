@@ -32,7 +32,7 @@ bin/actionlint-$(ACTIONLINT_VERSION): | $(BIN_DIR)
 ####
 
 AZURECLI_BIN := $(BIN_DIR)/az
-AZURECLI_VERSION := 2.53.0
+AZURECLI_VERSION := 2.55.0
 AZURECLI_VENV := $(AZURECLI_BIN)-$(AZURECLI_VERSION)
 
 bin/az: $(AZURECLI_VENV)/bin/az
@@ -48,7 +48,7 @@ $(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
 ####
 
 BICEP_BIN := $(BIN_DIR)/bicep
-BICEP_VERSION := 0.22.6
+BICEP_VERSION := 0.23.1
 BICEP_OSTYPE := $(OSTYPE)
 BICEP_ARCH := $(ARCHTYPE)
 
@@ -75,7 +75,7 @@ bin/bicep-$(BICEP_VERSION): | $(BIN_DIR)
 ####
 
 CFNLINT_BIN := $(BIN_DIR)/cfn-lint
-CFNLINT_VERSION := 0.82.2
+CFNLINT_VERSION := 0.83.4
 CFNLINT_VENV := $(CFNLINT_BIN)-$(CFNLINT_VERSION)
 
 bin/cfn-lint: $(CFNLINT_VENV)/bin/cfn-lint
@@ -92,7 +92,7 @@ $(CFNLINT_VENV)/bin/cfn-lint: | $(BIN_DIR)
 
 GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
 GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
-GOLANGCI_VERSION := 1.54.2
+GOLANGCI_VERSION := 1.55.2
 
 bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
 	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
@@ -106,7 +106,7 @@ bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
 ####
 
 YQ_BIN := $(BIN_DIR)/yq
-YQ_VERSION := 4.35.2
+YQ_VERSION := 4.40.4
 
 bin/yq: bin/yq-$(YQ_VERSION)
 	@ln -sf $(notdir $<) $@
@@ -121,7 +121,7 @@ bin/yq-$(YQ_VERSION): | $(BIN_DIR)
 ####
 
 HELM_BIN := $(BIN_DIR)/helm
-HELM_VERSION := 3.13.1
+HELM_VERSION := 3.13.2
 
 bin/helm: bin/helm-$(HELM_VERSION)
 	@ln -sf $(notdir $<) $@
