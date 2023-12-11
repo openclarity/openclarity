@@ -19,11 +19,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -99,7 +97,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 
 	ctx, cancel := context.WithCancel(ctx)
 
-	config, err := uibackend.LoadConfig()
+	config, err := uibackend.NewConfig()
 	if err != nil {
 		logger.Fatalf("unable to load configuration")
 	}
@@ -108,8 +106,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	healthServer.Start()
 	healthServer.SetIsReady(false)
 
-	backendAddress := fmt.Sprintf("http://%s", net.JoinHostPort(config.APIServerHost, strconv.Itoa(config.APIServerPort)))
-	backendClient, err := backendclient.Create(backendAddress)
+	backendClient, err := backendclient.Create(config.APIServerAddress)
 	if err != nil {
 		logger.Fatalf("Failed to create a backend client: %v", err)
 	}
