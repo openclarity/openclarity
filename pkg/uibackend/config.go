@@ -16,35 +16,55 @@
 package uibackend
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
 const (
-	ListenAddress       = "LISTEN_ADDRESS"
-	APIServerHost       = "APISERVER_HOST"
-	APIServerDisableTLS = "APISERVER_DISABLE_TLS"
-	APIServerPort       = "APISERVER_PORT"
-	HealthCheckAddress  = "HEALTH_CHECK_ADDRESS"
+	DefaultEnvPrefix          = "VMCLARITY_UIBACKEND"
+	DefaultListenAddress      = "0.0.0.0:8890"
+	DefaultHealthCheckAddress = "0.0.0.0:8083"
 )
 
 type Config struct {
-	ListenAddress      string `json:"listen-address,omitempty"`
-	APIServerHost      string `json:"apiserver-host,omitempty"`
-	APIServerPort      int    `json:"apiserver-port,omitempty"`
-	HealthCheckAddress string `json:"health-check-address,omitempty"`
+	ListenAddress      string `json:"listen-address,omitempty" mapstructure:"listen_address"`
+	APIServerAddress   string `json:"apiserver-address,omitempty" mapstructure:"apiserver_address"`
+	HealthCheckAddress string `json:"healthcheck-address,omitempty" mapstructure:"healthcheck_address"`
 }
 
-func LoadConfig() (*Config, error) {
-	viper.AutomaticEnv()
+func NewConfig() (*Config, error) {
+	v := viper.NewWithOptions(
+		viper.KeyDelimiter("."),
+		viper.EnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_")),
+	)
 
-	viper.SetDefault(ListenAddress, ":8890")
-	viper.SetDefault(HealthCheckAddress, ":8083")
+	v.SetEnvPrefix(DefaultEnvPrefix)
+	v.AllowEmptyEnv(true)
+	v.AutomaticEnv()
 
-	c := &Config{
-		ListenAddress:      viper.GetString(ListenAddress),
-		APIServerHost:      viper.GetString(APIServerHost),
-		APIServerPort:      viper.GetInt(APIServerPort),
-		HealthCheckAddress: viper.GetString(HealthCheckAddress),
+	_ = v.BindEnv("listen_address")
+	v.SetDefault("listen_address", DefaultListenAddress)
+
+	_ = v.BindEnv("apiserver_address")
+
+	_ = v.BindEnv("healthcheck_address")
+	v.SetDefault("healthcheck_address", DefaultHealthCheckAddress)
+
+	decodeHooks := mapstructure.ComposeDecodeHookFunc(
+		// TextUnmarshallerHookFunc is needed to decode custom types
+		mapstructure.TextUnmarshallerHookFunc(),
+		// Default decoders
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+	)
+
+	config := &Config{}
+	if err := v.Unmarshal(config, viper.DecodeHook(decodeHooks)); err != nil {
+		return nil, fmt.Errorf("failed to load UI backend configuration: %w", err)
 	}
-	return c, nil
+
+	return config, nil
 }
