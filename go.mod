@@ -46,7 +46,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.0
+	github.com/spf13/viper v1.18.1
 	github.com/vulsio/go-exploitdb v0.4.6
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/sync v0.5.0
