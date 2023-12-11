@@ -93,11 +93,11 @@ Resources:
           Fn::Sub: |
             #!/bin/bash -xe
             apt-get update -y
-            
+
             apt-get -y install python3-pip
-            
+
             pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
-            
+
             ln -s /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
 
             /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
@@ -454,10 +454,9 @@ Resources:
                 ##
                 ## UIBackend configuration
                 ##
-                # Host for the VMClarity backend server
-                APISERVER_HOST=apiserver
-                # Port number for the VMClarity backend server
-                APISERVER_PORT=8888
+                # VMClarity API server address
+                VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
+
 
             "/etc/vmclarity/swagger-config.json":
               content: |

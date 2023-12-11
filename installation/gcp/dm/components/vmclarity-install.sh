@@ -340,10 +340,8 @@ cat << 'EOF' > /etc/vmclarity/uibackend.env
 ##
 ## UIBackend configuration
 ##
-# Host for the VMClarity backend server
-APISERVER_HOST=apiserver
-# Port number for the VMClarity backend server
-APISERVER_PORT=8888
+# VMClarity API server address
+VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 EOF
 chmod 644 /etc/vmclarity/uibackend.env
 

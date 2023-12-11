@@ -58,10 +58,7 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           env:
-            # Host for the VMClarity backend server
-            - name: APISERVER_HOST
-              value: {{ include "vmclarity.apiserver.name" . }}
-            # Port number for the VMClarity backend server
-            - name: APISERVER_PORT
-              value: "8888"
+            # VMClarity API server address
+            - name: VMCLARITY_UIBACKEND_APISERVER_ADDRESS
+              value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
       serviceAccountName: {{ include "vmclarity.uibackend.serviceAccountName" . }}
