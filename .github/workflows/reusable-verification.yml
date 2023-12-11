@@ -72,6 +72,12 @@ jobs:
         run: |
           make lint-helm
 
+      - name: Run linters for Azure/Bicep
+        run: |
+          make gen-bicep
+          make lint-bicep
+          [[ -z "$(git status --porcelain)" ]] || exit 1
+
   actions:
     runs-on: ubuntu-latest
     steps:
