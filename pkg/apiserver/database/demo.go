@@ -667,13 +667,11 @@ func createAssetScans(scans []models.Scan) []models.AssetScan {
 					Id: *scan.Id,
 				},
 				Secrets: nil,
-				Status: &models.AssetScanStatus{
-					General: &models.AssetScanState{
-						Errors:             &[]string{"general errors were found"},
-						LastTransitionTime: &timeNow,
-						State:              utils.PointerTo(models.AssetScanStateStateInProgress),
-					},
-				},
+				Status: models.NewAssetScanStatus(
+					models.AssetScanStatusStateInProgress,
+					models.AssetScanStatusReasonScannerIsRunning,
+					nil,
+				),
 				Summary: &models.ScanFindingsSummary{},
 				Stats: &models.AssetScanStats{
 					General: &models.AssetScanGeneralStats{

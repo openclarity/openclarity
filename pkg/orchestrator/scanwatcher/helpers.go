@@ -66,12 +66,11 @@ func newAssetScanFromScan(scan *models.Scan, assetID string) (*models.AssetScan,
 		},
 		ScanFamiliesConfig:            familiesConfig,
 		ScannerInstanceCreationConfig: scan.AssetScanTemplate.ScannerInstanceCreationConfig,
-		Status: &models.AssetScanStatus{
-			General: &models.AssetScanState{
-				Errors: nil,
-				State:  utils.PointerTo(models.AssetScanStateStatePending),
-			},
-		},
+		Status: models.NewAssetScanStatus(
+			models.AssetScanStatusStatePending,
+			models.AssetScanStatusReasonCreated,
+			nil,
+		),
 		ResourceCleanupStatus: models.NewResourceCleanupStatus(
 			models.ResourceCleanupStatusStatePending,
 			models.ResourceCleanupStatusReasonAssetScanCreated,
@@ -153,20 +152,19 @@ func updateScanSummaryFromAssetScan(scan *models.Scan, result models.AssetScan) 
 		scan.Summary = newScanSummary()
 	}
 
-	state, ok := result.GetGeneralState()
+	status, ok := result.GetStatus()
 	if !ok {
-		return fmt.Errorf("general state must not be nil for AssetScan. AssetScanID=%s", *result.Id)
+		return fmt.Errorf("status must not be nil for AssetScan. AssetScanID=%s", *result.Id)
 	}
 
 	s, r := scan.Summary, result.Summary
 
-	switch state {
-	case models.AssetScanStateStateNotScanned:
-	case models.AssetScanStateStatePending, models.AssetScanStateStateScheduled, models.AssetScanStateStateReadyToScan:
+	switch status.State {
+	case models.AssetScanStatusStatePending, models.AssetScanStatusStateScheduled, models.AssetScanStatusStateReadyToScan:
 		fallthrough
-	case models.AssetScanStateStateInProgress, models.AssetScanStateStateAborted:
+	case models.AssetScanStatusStateInProgress, models.AssetScanStatusStateAborted:
 		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
-	case models.AssetScanStateStateDone:
+	case models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
 		s.TotalInfoFinder = utils.PointerTo(*s.TotalInfoFinder + *r.TotalInfoFinder)

@@ -27,15 +27,29 @@ const (
 	AssetScanEstimationStateStateReasonUnexpected AssetScanEstimationStateStateReason = "Unexpected"
 )
 
-// Defines values for AssetScanStateState.
+// Defines values for AssetScanStatusReason.
 const (
-	AssetScanStateStateAborted     AssetScanStateState = "Aborted"
-	AssetScanStateStateDone        AssetScanStateState = "Done"
-	AssetScanStateStateInProgress  AssetScanStateState = "InProgress"
-	AssetScanStateStateNotScanned  AssetScanStateState = "NotScanned"
-	AssetScanStateStatePending     AssetScanStateState = "Pending"
-	AssetScanStateStateReadyToScan AssetScanStateState = "ReadyToScan"
-	AssetScanStateStateScheduled   AssetScanStateState = "Scheduled"
+	AssetScanStatusReasonAbortTimeout     AssetScanStatusReason = "AbortTimedOut"
+	AssetScanStatusReasonCancellation     AssetScanStatusReason = "Cancellation"
+	AssetScanStatusReasonCreated          AssetScanStatusReason = "Created"
+	AssetScanStatusReasonError            AssetScanStatusReason = "Error"
+	AssetScanStatusReasonProvisioning     AssetScanStatusReason = "Provisioning"
+	AssetScanStatusReasonResourcesReady   AssetScanStatusReason = "ResourcesReady"
+	AssetScanStatusReasonScannerIsRunning AssetScanStatusReason = "ScannerIsRunning"
+	AssetScanStatusReasonSuccess          AssetScanStatusReason = "Success"
+	AssetScanStatusReasonTimeout          AssetScanStatusReason = "Timeout"
+	AssetScanStatusReasonUnSupervised     AssetScanStatusReason = "UnSupervised"
+)
+
+// Defines values for AssetScanStatusState.
+const (
+	AssetScanStatusStateAborted     AssetScanStatusState = "Aborted"
+	AssetScanStatusStateDone        AssetScanStatusState = "Done"
+	AssetScanStatusStateFailed      AssetScanStatusState = "Failed"
+	AssetScanStatusStateInProgress  AssetScanStatusState = "InProgress"
+	AssetScanStatusStatePending     AssetScanStatusState = "Pending"
+	AssetScanStatusStateReadyToScan AssetScanStatusState = "ReadyToScan"
+	AssetScanStatusStateScheduled   AssetScanStatusState = "Scheduled"
 )
 
 // Defines values for CloudProvider.
@@ -446,16 +460,6 @@ type AssetScanScanTime struct {
 	StartTime *time.Time `json:"startTime,omitempty"`
 }
 
-// AssetScanState defines model for AssetScanState.
-type AssetScanState struct {
-	Errors             *[]string            `json:"errors"`
-	LastTransitionTime *time.Time           `json:"lastTransitionTime,omitempty"`
-	State              *AssetScanStateState `json:"state,omitempty"`
-}
-
-// AssetScanStateState defines model for AssetScanState.State.
-type AssetScanStateState string
-
 // AssetScanStats defines model for AssetScanStats.
 type AssetScanStats struct {
 	Exploits *[]AssetScanInputScanStats `json:"exploits,omitempty"`
@@ -473,8 +477,70 @@ type AssetScanStats struct {
 
 // AssetScanStatus defines model for AssetScanStatus.
 type AssetScanStatus struct {
-	General *AssetScanState `json:"general,omitempty"`
+	// LastTransitionTime Last date time when the status has changed.
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
+
+	// Message Human readable message.
+	Message *string `json:"message,omitempty"`
+
+	// Reason Machine readable reason for state transition.
+	//
+	// | State       | Reason           | Description                                                                                |
+	// | ----------- | ---------------- | ------------------------------------------------------------------------------------------ |
+	// | Pending     | Created          | Scan is pending as it has been newly created                                               |
+	// | Scheduled   | Provisioning     | Scan is scheduled as Asset resources are being provisioned                                 |
+	// | ReadyToScan | UnSupervised     | Scan is created manually without the involvement of the Orchestrator (e.g. CI/CD scenario) |
+	// | ReadyToScan | ResourcesReady   | Scan is ready to scan as Asset resources have been provisioned                             |
+	// | InProgress  | ScannerIsRunning | Scan is in progress as Scanner is still performing scanning on Asset resources             |
+	// | Aborted     | Cancellation     | Scan has been aborted due to cancellation request                                          |
+	// | Aborted     | Timeout          | Scan has been aborted due to timeout                                                       |
+	// | Failed      | Error            | Scan has failed to one or more errors reported by the Scanner                              |
+	// | Failed      | AbortTimeout     | Scan has failed due to being in Aborted state for too long                                 |
+	// | Done        | Success          | Scan has finished successfully                                                             |
+	Reason AssetScanStatusReason `json:"reason"`
+
+	// State Describes the state of scan result.
+	//
+	// | State       | Description                                                                                      |
+	// | ----------- | ------------------------------------------------------------------------------------------------ |
+	// | Pending     | Initial state for AssetScan waiting for being scheduled                                          |
+	// | Scheduled   | AssetScan which has been scheduled on Provider                                                   |
+	// | ReadyToScan | Provider acknowledged that scanners for AssetScan is ready to run                                |
+	// | InProgress  | Scanners are running on the Target                                                               |
+	// | Aborted     | AssetScan has been aborted and all running Scanners need to be cancelled and shutdown gracefully |
+	// | Failed      | Running Scanners on Target has failed, check *reason* and *message* fields for the details       |
+	// | Done        | Running Scanners on Target has finished with no errors                                           |
+	State AssetScanStatusState `json:"state"`
 }
+
+// AssetScanStatusReason Machine readable reason for state transition.
+//
+// | State       | Reason           | Description                                                                                |
+// | ----------- | ---------------- | ------------------------------------------------------------------------------------------ |
+// | Pending     | Created          | Scan is pending as it has been newly created                                               |
+// | Scheduled   | Provisioning     | Scan is scheduled as Asset resources are being provisioned                                 |
+// | ReadyToScan | UnSupervised     | Scan is created manually without the involvement of the Orchestrator (e.g. CI/CD scenario) |
+// | ReadyToScan | ResourcesReady   | Scan is ready to scan as Asset resources have been provisioned                             |
+// | InProgress  | ScannerIsRunning | Scan is in progress as Scanner is still performing scanning on Asset resources             |
+// | Aborted     | Cancellation     | Scan has been aborted due to cancellation request                                          |
+// | Aborted     | Timeout          | Scan has been aborted due to timeout                                                       |
+// | Failed      | Error            | Scan has failed to one or more errors reported by the Scanner                              |
+// | Failed      | AbortTimeout     | Scan has failed due to being in Aborted state for too long                                 |
+// | Done        | Success          | Scan has finished successfully                                                             |
+type AssetScanStatusReason string
+
+// AssetScanStatusState Describes the state of scan result.
+//
+// | State       | Description                                                                                      |
+// | ----------- | ------------------------------------------------------------------------------------------------ |
+// | Pending     | Initial state for AssetScan waiting for being scheduled                                          |
+// | Scheduled   | AssetScan which has been scheduled on Provider                                                   |
+// | ReadyToScan | Provider acknowledged that scanners for AssetScan is ready to run                                |
+// | InProgress  | Scanners are running on the Target                                                               |
+// | Aborted     | AssetScan has been aborted and all running Scanners need to be cancelled and shutdown gracefully |
+// | Failed      | Running Scanners on Target has failed, check *reason* and *message* fields for the details       |
+// | Done        | Running Scanners on Target has finished with no errors                                           |
+type AssetScanStatusState string
 
 // AssetScanTemplate defines model for AssetScanTemplate.
 type AssetScanTemplate struct {

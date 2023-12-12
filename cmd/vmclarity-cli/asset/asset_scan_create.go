@@ -27,7 +27,6 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 // AssetScanCreateCmd represents the standalone command.
@@ -104,11 +103,11 @@ func createEmptyAssetScanForAsset(asset models.Asset) models.AssetScan {
 		Asset: &models.AssetRelationship{
 			Id: *asset.Id,
 		},
-		Status: &models.AssetScanStatus{
-			General: &models.AssetScanState{
-				State: utils.PointerTo(models.AssetScanStateStateReadyToScan),
-			},
-		},
+		Status: models.NewAssetScanStatus(
+			models.AssetScanStatusStateReadyToScan,
+			models.AssetScanStatusReasonResourcesReady,
+			nil,
+		),
 		ResourceCleanupStatus: models.NewResourceCleanupStatus(
 			models.ResourceCleanupStatusStateSkipped,
 			models.ResourceCleanupStatusReasonNotApplicable,
