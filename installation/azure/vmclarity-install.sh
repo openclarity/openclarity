@@ -36,27 +36,27 @@ if [ "__DatabaseToUse__" == "Postgresql" ]; then
 
   # Configure the VMClarity backend to use the local postgres
   # service
-  echo "DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "DB_PASS=__PostgresDBPassword__" >> /etc/vmclarity/apiserver.env
-  echo "DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-  echo "DB_PORT_NUMBER=5432" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_PASS=__PostgresDBPassword__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
 elif [ "__DatabaseToUse__" == "External Postgresql" ]; then
   # Configure the VMClarity backend to use the postgres
   # database configured by the user.
-  echo "DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "DB_NAME=__ExternalDBName__" >> /etc/vmclarity/apiserver.env
-  echo "DB_USER=__ExternalDBUsername__" >> /etc/vmclarity/apiserver.env
-  echo "DB_PASS=__ExternalDBPassword__" >> /etc/vmclarity/apiserver.env
-  echo "DB_HOST=__ExternalDBHost__" >> /etc/vmclarity/apiserver.env
-  echo "DB_PORT_NUMBER=__ExternalDBPort__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_NAME=__ExternalDBName__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_USER=__ExternalDBUsername__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_PASS=__ExternalDBPassword__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_HOST=__ExternalDBHost__" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DB_PORT=__ExternalDBPort__" >> /etc/vmclarity/apiserver.env
 elif [ "__DatabaseToUse__" == "SQLite" ]; then
   # Configure the VMClarity backend to use the SQLite DB
   # driver and configure the storage location so that it
   # persists.
-  echo "DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-  echo "LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
+  echo "VMCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
 fi
 
 # Replace anywhere in the config.env __CONTROLPLANE_HOST__
