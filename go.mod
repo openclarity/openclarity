@@ -26,10 +26,10 @@ require (
 	github.com/containerd/containerd v1.7.6
 	github.com/containerd/nerdctl v1.6.0
 	github.com/containers/image/v5 v5.29.0
-	github.com/deepmap/oapi-codegen/v2 v2.0.0
+	github.com/deepmap/oapi-codegen/v2 v2.0.1-0.20231204155340-1f53862bcc64
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/evanphx/json-patch v5.7.0+incompatible
-	github.com/getkin/kin-openapi v0.120.0
+	github.com/getkin/kin-openapi v0.122.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.4.0
