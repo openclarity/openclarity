@@ -58,13 +58,13 @@ const AssetScansTable = () => {
             Header: "Scan status",
             id: "status",
             sortIds: [
-                "status.general.state",
-                "status.general.errors"
+                "status.state",
+                "status.message"
             ],
             accessor: original => {
-                const {state, errors} = original?.status?.general || {};
+                const {state, message} = original?.status || {};
                 
-                return <StatusIndicator state={state} errors={errors} tooltipId={original.id} />;
+                return <StatusIndicator state={state} errors={message === undefined ? [] : [message]} tooltipId={original.id} />;
             }
         },
         getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
@@ -83,7 +83,7 @@ const AssetScansTable = () => {
             filtersConfig={[
                 ...getAssetColumnsFiltersConfig({prefix: "asset.assetInfo", withLabels: false}),
                 ...scanColumnsFiltersConfig,
-                {value: "status.general.state", label: "Scan status", operators: [
+                {value: "status.state", label: "Scan status", operators: [
                     {...OPERATORS.eq, valueItems: FILTER_SCAN_STATUSES},
                     {...OPERATORS.ne, valueItems: FILTER_SCAN_STATUSES}
                 ]},

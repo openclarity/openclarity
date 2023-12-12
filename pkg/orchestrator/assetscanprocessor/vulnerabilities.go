@@ -29,9 +29,9 @@ import (
 func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, assetScan models.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	completedTime := assetScan.Status.General.LastTransitionTime
+	completedTime := assetScan.Status.LastTransitionTime
 
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Vulnerability", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Vulnerability", completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing vulnerability findings: %w", err)
 	}
@@ -91,7 +91,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 				FoundBy: &models.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
-				FoundOn:     assetScan.Status.General.LastTransitionTime,
+				FoundOn:     &assetScan.Status.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
@@ -119,7 +119,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	// Invalidate any findings of this type for this asset where foundOn is
 	// older than this asset scan, and has not already been invalidated by
 	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Vulnerability", assetScan.Asset.Id, *completedTime)
+	err = asp.invalidateOlderFindingsByType(ctx, "Vulnerability", assetScan.Asset.Id, completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older vulnerability finding: %w", err)
 	}

@@ -33,6 +33,13 @@ func TestNewAssetScanFromScan(t *testing.T) {
 
 	transitionTime := time.Now()
 
+	status := models.NewAssetScanStatus(
+		models.AssetScanStatusStatePending,
+		models.AssetScanStatusReasonCreated,
+		nil,
+	)
+	status.LastTransitionTime = transitionTime
+
 	resourceCleanupStatus := models.NewResourceCleanupStatus(
 		models.ResourceCleanupStatusStatePending,
 		models.ResourceCleanupStatusReasonAssetScanCreated,
@@ -141,12 +148,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 				Scan: &models.ScanRelationship{
 					Id: scanID,
 				},
-				Status: &models.AssetScanStatus{
-					General: &models.AssetScanState{
-						Errors: nil,
-						State:  utils.PointerTo(models.AssetScanStateStatePending),
-					},
-				},
+				Status: status,
 				Sbom: &models.SbomScan{
 					Packages: nil,
 					Status:   sbomScanStatus,
@@ -216,6 +218,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			result, err := newAssetScanFromScan(test.Scan, test.AssetID)
+			result.Status.LastTransitionTime = transitionTime
 			result.ResourceCleanupStatus.LastTransitionTime = transitionTime
 			result.Sbom.Status.LastTransitionTime = transitionTime
 			result.Exploits.Status.LastTransitionTime = transitionTime

@@ -84,8 +84,8 @@ func (w *Watcher) GetAssetScans(ctx context.Context) ([]AssetScanReconcileEvent,
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching AssetScans which need to be reconciled")
 
-	filter := fmt.Sprintf("(status/general/state ne '%s' and status/general/state ne '%s') or resourceCleanupStatus/state eq '%s'",
-		models.AssetScanStateStateDone, models.AssetScanStateStateNotScanned, models.ResourceCleanupStatusStatePending)
+	filter := fmt.Sprintf("(status/state ne '%s' and status/state ne '%s') or resourceCleanupStatus/state eq '%s'",
+		models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed, models.ResourceCleanupStatusStatePending)
 	selector := "id,scan/id,asset/id"
 	params := models.GetAssetScansParams{
 		Filter: &filter,
@@ -146,34 +146,32 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 		return fmt.Errorf("failed to get AssetScan with %s id: %w", event.AssetScanID, err)
 	}
 
-	state, ok := assetScan.GetGeneralState()
+	status, ok := assetScan.GetStatus()
 	if !ok {
-		return fmt.Errorf("cannot determine state of AssetScan with %s id", event.AssetScanID)
+		return fmt.Errorf("cannot determine status of AssetScan with %s id", event.AssetScanID)
 	}
 
-	logger.Tracef("Reconciling AssetScan state: %s", state)
+	logger.Tracef("Reconciling AssetScan state: %s", status.State)
 
-	switch state {
-	case models.AssetScanStateStatePending:
+	switch status.State {
+	case models.AssetScanStatusStatePending:
 		if err = w.reconcilePending(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStateStateScheduled:
+	case models.AssetScanStatusStateScheduled:
 		if err = w.reconcileScheduled(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStateStateReadyToScan, models.AssetScanStateStateInProgress:
+	case models.AssetScanStatusStateReadyToScan, models.AssetScanStatusStateInProgress:
 		// TODO(chrisgacsal): make sure that AssetScan state is set to ABORTED state once the AssetScan
 		//                    schema is extended with timeout field and the deadline is missed.
 		break
-	case models.AssetScanStateStateAborted:
+	case models.AssetScanStatusStateAborted:
 		if err = w.reconcileAborted(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStateStateNotScanned:
-		break
-	case models.AssetScanStateStateDone:
-		if err = w.reconcileDone(ctx, &assetScan); err != nil {
+	case models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed:
+		if err = w.reconcileDoneAndFailed(ctx, &assetScan); err != nil {
 			return err
 		}
 	default:
@@ -197,8 +195,8 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 	if assetScan.Scan != nil && assetScan.Scan.Id != "" && assetScan.Scan.MaxParallelScanners != nil {
 		// Check whether we have reached the maximum number of running scans
 		// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
-		filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s' and resourceCleanupStatus/state eq '%s'",
-			assetScan.Scan.Id, models.AssetScanStateStateDone, models.AssetScanStateStatePending, models.ResourceCleanupStatusStatePending)
+		filter := fmt.Sprintf("scan/id eq '%s' and status/state ne '%s' and status/state ne '%s' and status/state ne '%s' and resourceCleanupStatus/state eq '%s'",
+			assetScan.Scan.Id, models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed, models.AssetScanStatusStatePending, models.ResourceCleanupStatusStatePending)
 		assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
 			Filter: utils.PointerTo(filter),
 			Count:  utils.PointerTo(true),
@@ -223,8 +221,11 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 		}
 	}
 
-	assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateScheduled)
-	assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+	assetScan.Status = models.NewAssetScanStatus(
+		models.AssetScanStatusStateScheduled,
+		models.AssetScanStatusReasonProvisioning,
+		nil,
+	)
 
 	assetScanPatch := models.AssetScan{
 		Status: assetScan.Status,
@@ -274,19 +275,26 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 	var retryableError provider.RetryableError
 	switch {
 	case errors.As(err, &fatalError):
-		assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateDone)
-		assetScan.Status.General.Errors = utils.PointerTo([]string{fatalError.Error()})
-		assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+		assetScan.Status = models.NewAssetScanStatus(
+			models.AssetScanStatusStateFailed,
+			models.AssetScanStatusReasonError,
+			utils.PointerTo(fatalError.Error()),
+		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
 		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
-		assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateDone)
-		assetScan.Status.General.Errors = utils.PointerTo(utils.UnwrapErrorStrings(err))
-		assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+		assetScan.Status = models.NewAssetScanStatus(
+			models.AssetScanStatusStateFailed,
+			models.AssetScanStatusReasonError,
+			utils.PointerTo(errors.Join(utils.UnwrapErrors(err)...).Error()),
+		)
 	default:
-		assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateReadyToScan)
-		assetScan.Status.General.LastTransitionTime = utils.PointerTo(time.Now())
+		assetScan.Status = models.NewAssetScanStatus(
+			models.AssetScanStatusStateReadyToScan,
+			models.AssetScanStatusReasonResourcesReady,
+			nil,
+		)
 	}
 
 	assetScanPatch := models.AssetScan{
@@ -300,7 +308,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 	return nil
 }
 
-func (w *Watcher) reconcileDone(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *models.AssetScan) error {
 	if assetScan.Scan == nil || assetScan.ResourceCleanupStatus == nil {
 		return errors.New("invalid AssetScan: Scan and/or ResourceCleanupStatus are nil")
 	}
@@ -325,11 +333,6 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 		return errors.New("invalid AssetScan: ID is nil")
 	}
 
-	isDone, ok := assetScan.IsDone()
-	if !ok {
-		return fmt.Errorf("invalid AssetScan: failed to determine General State. AssetScanID=%s", *assetScan.Id)
-	}
-
 	switch w.deleteJobPolicy {
 	case DeleteJobPolicyNever:
 		assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
@@ -338,7 +341,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 			nil,
 		)
 	case DeleteJobPolicyOnSuccess:
-		if isDone && assetScan.HasErrors() {
+		if assetScan.Status.State == models.AssetScanStatusStateFailed {
 			assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
 				models.ResourceCleanupStatusStateSkipped,
 				models.ResourceCleanupStatusReasonDeletePolicy,
@@ -422,15 +425,12 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *models.AssetS
 	}
 
 	// Check if AssetScan is in aborted state for more time than the timeout allows
-	if assetScan.Status == nil || assetScan.Status.General == nil {
-		return errors.New("invalid AssetScan: Status or General is nil")
+	if assetScan.Status == nil {
+		return errors.New("invalid AssetScan: Status is nil")
 	}
 
-	var transitionTimeToAbort time.Time
-	if assetScan.Status.General.LastTransitionTime != nil {
-		transitionTimeToAbort = *assetScan.Status.General.LastTransitionTime
-		logger.Debugf("AssetScan moved to aborted state: %s", transitionTimeToAbort)
-	}
+	transitionTimeToAbort := assetScan.Status.LastTransitionTime
+	logger.Debugf("AssetScan moved to aborted state: %s", transitionTimeToAbort)
 
 	now := time.Now()
 	abortTimedOut := now.After(transitionTimeToAbort.Add(w.abortTimeout))
@@ -442,11 +442,11 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *models.AssetS
 	logger.Tracef("AssetScan in aborted state is timed out. TransitionTime=%s Timeout=%s",
 		transitionTimeToAbort, w.abortTimeout)
 
-	assetScan.Status.General.State = utils.PointerTo(models.AssetScanStateStateDone)
-	assetScan.Status.General.LastTransitionTime = utils.PointerTo(now)
-	assetScan.Status.General.Errors = utils.PointerTo([]string{
-		fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout),
-	})
+	assetScan.Status = models.NewAssetScanStatus(
+		models.AssetScanStatusStateFailed,
+		models.AssetScanStatusReasonAbortTimeout,
+		utils.PointerTo(fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout)),
+	)
 
 	assetScanPatch := models.AssetScan{
 		Status: assetScan.Status,

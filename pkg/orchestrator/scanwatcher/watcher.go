@@ -356,7 +356,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 
 	// FIXME(chrisgacsal):a add pagination to API queries in poller/reconciler logic by using Top/Skip
 	filter := fmt.Sprintf("scan/id eq '%s'", scanID)
-	selector := "id,status/general,summary"
+	selector := "id,status,summary"
 	assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
@@ -373,7 +373,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 	// Reset Scan Summary as it is going to be recalculated
 	scan.Summary = newScanSummary()
 
-	var assetScansWithErr int
+	var failedAssetScans int
 	for _, assetScan := range *assetScans.Items {
 		assetScanID, ok := assetScan.GetID()
 		if !ok {
@@ -385,16 +385,20 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 				scanID, assetScanID, err)
 		}
 
-		errs := assetScan.GetGeneralErrors()
-		if len(errs) > 0 {
-			assetScansWithErr++
+		status, ok := assetScan.GetStatus()
+		if !ok {
+			return fmt.Errorf("status must not be nil for AssetScan. AssetScanID=%s", *assetScan.Id)
+		}
+
+		if status.State == models.AssetScanStatusStateFailed {
+			failedAssetScans++
 		}
 	}
 	logger.Tracef("Scan Summary updated. JobCompleted=%d JobLeftToRun=%d", *scan.Summary.JobsCompleted,
 		*scan.Summary.JobsLeftToRun)
 
 	if *scan.Summary.JobsLeftToRun <= 0 {
-		if assetScansWithErr > 0 {
+		if failedAssetScans > 0 {
 			scan.State = utils.PointerTo(models.ScanStateFailed)
 			scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreAssetFailedToScan)
 		} else {
@@ -402,7 +406,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 			scan.StateReason = utils.PointerTo(models.ScanStateReasonSuccess)
 		}
 		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total asset scans",
-			*assetScans.Count-assetScansWithErr, assetScansWithErr, *assetScans.Count))
+			*assetScans.Count-failedAssetScans, failedAssetScans, *assetScans.Count))
 
 		scan.EndTime = utils.PointerTo(time.Now())
 	}
@@ -435,8 +439,8 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 		return errors.New("invalid Scan: ID is nil")
 	}
 
-	filter := fmt.Sprintf("scan/id eq '%s' and status/general/state ne '%s' and status/general/state ne '%s'",
-		scanID, models.AssetScanStateStateAborted, models.AssetScanStateStateDone)
+	filter := fmt.Sprintf("scan/id eq '%s' and status/state ne '%s' and status/state ne '%s' and status/state ne '%s'",
+		scanID, models.AssetScanStatusStateAborted, models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed)
 	selector := "id,status"
 	params := models.GetAssetScansParams{
 		Filter: &filter,
@@ -462,11 +466,11 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 			go func() {
 				defer wg.Done()
 				as := models.AssetScan{
-					Status: &models.AssetScanStatus{
-						General: &models.AssetScanState{
-							State: utils.PointerTo(models.AssetScanStateStateAborted),
-						},
-					},
+					Status: models.NewAssetScanStatus(
+						models.AssetScanStatusStateAborted,
+						models.AssetScanStatusReasonCancellation,
+						nil,
+					),
 				}
 
 				err = w.backend.PatchAssetScan(ctx, as, assetScanID)

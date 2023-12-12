@@ -26,6 +26,7 @@ type Manager interface {
 	WaitForReadyState(context.Context) error
 	MarkInProgress(context.Context, *families.Config) error
 	MarkFamilyScanInProgress(context.Context, types.FamilyType) error
-	MarkDone(context.Context, []error) error
+	MarkDone(context.Context) error
+	MarkFailed(context.Context, string) error
 	IsAborted(ctx context.Context) (bool, error)
 }
