@@ -39,17 +39,17 @@ type ServerImpl struct {
 }
 
 type Server struct {
-	port       int
+	address    string
 	echoServer *echo.Echo
 }
 
-func CreateRESTServer(port int, dbHandler databaseTypes.Database) (*Server, error) {
+func CreateRESTServer(address string, dbHandler databaseTypes.Database) (*Server, error) {
 	e, err := createEchoServer(dbHandler)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rest server: %w", err)
 	}
 	return &Server{
-		port:       port,
+		address:    address,
 		echoServer: e,
 	}, nil
 }
@@ -86,7 +86,7 @@ func (s *Server) Start(ctx context.Context, errChan chan struct{}) {
 
 	logger.Infof("Starting REST server")
 	go func() {
-		if err := s.echoServer.Start(fmt.Sprintf("0.0.0.0:%d", s.port)); err != nil {
+		if err := s.echoServer.Start(s.address); err != nil {
 			logger.Errorf("Failed to start REST server: %v", err)
 			errChan <- common.Empty
 		}

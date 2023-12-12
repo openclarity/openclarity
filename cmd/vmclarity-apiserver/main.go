@@ -83,7 +83,7 @@ func runCommand(_ *cobra.Command, _ []string) {
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	config, err := apiserver.LoadConfig()
+	config, err := apiserver.NewConfig()
 	if err != nil {
 		logger.Fatalf("failed to load API server config: %v", err)
 	}
