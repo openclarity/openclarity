@@ -60,9 +60,9 @@ func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Con
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan models.AssetScan) error {
-	completedTime := assetScan.Status.General.LastTransitionTime
+	completedTime := assetScan.Status.LastTransitionTime
 
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", *completedTime)
+	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to check for newer existing rootkit findings: %w", err)
 	}
@@ -98,7 +98,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 				FoundBy: &models.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
-				FoundOn:     assetScan.Status.General.LastTransitionTime,
+				FoundOn:     &assetScan.Status.LastTransitionTime,
 				FindingInfo: &findingInfo,
 			}
 
@@ -126,7 +126,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 	// Invalidate any findings of this type for this asset where foundOn is
 	// older than this asset scan, and has not already been invalidated by
 	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, *completedTime)
+	err = asp.invalidateOlderFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, completedTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older rootkit finding: %w", err)
 	}

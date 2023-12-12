@@ -89,7 +89,7 @@ const TabAssetScanDetails = ({data}) => {
     const {id: assetId, assetInfo} = asset || {};
     const {instanceID, objectType, location} = assetInfo || {};
     const {id: scanId, startTime, endTime} = scan || {};
-    const {state, errors} = status?.general || {};
+    const {state, message} = status || {};
 
     const ITEM_MARGIN = "46px";
 
@@ -112,7 +112,7 @@ const TabAssetScanDetails = ({data}) => {
                 <>
                     <Title medium>Asset scan details</Title>
                     <TitleValueDisplay title="Overview" isLargeTitle>
-                        <StatusDisplay state={state} errors={errors} />
+                        <StatusDisplay state={state} errors={message === undefined ? [] : [message]} />
                         <TimeDataDisplayRow startTime={startTime} endTime={endTime} />
                     </TitleValueDisplay>
                     <div style={{borderBottom: `3px solid ${BORDER_COLOR}`, margin: "20px 0"}}></div>

@@ -128,9 +128,8 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 	}
 
 	// For processing asset scans to findings we need to find all the scan
-	// results by general status and findingsProcessed, so add an index for
-	// that.
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scans_findings_processed_idx ON asset_scans((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.general.state")))
+	// results by status and findingsProcessed, so add an index for that.
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scans_findings_processed_idx ON asset_scans((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.state")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index asset_scans_findings_processed_idx: %w", idb.Error)
 	}

@@ -1032,24 +1032,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 		},
 	},
-	"AssetScanStatus": {
-		Fields: odatasql.Schema{
-			"general": odatasql.FieldMeta{
-				FieldType:           odatasql.ComplexFieldType,
-				ComplexFieldSchemas: []string{"AssetScanState"},
-			},
-		},
-	},
-	"AssetScanState": {
-		Fields: odatasql.Schema{
-			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"errors": odatasql.FieldMeta{
-				FieldType:          odatasql.CollectionFieldType,
-				CollectionItemMeta: &odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			},
-		},
-	},
 	scanEstimationSchemaName: {
 		Table: "scan_estimations",
 		Fields: odatasql.Schema{
@@ -1191,6 +1173,14 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 		},
 	},
 	"ScannerStatus": {
+		Fields: odatasql.Schema{
+			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+		},
+	},
+	"AssetScanStatus": {
 		Fields: odatasql.Schema{
 			"state":              odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
