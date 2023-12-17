@@ -17,9 +17,14 @@ updates:
     google-sdk:
       patterns:
         - "cloud.google.com/go/*"
-    containrd:
+    containerd:
       patterns:
         - "github.com/containerd/*"
+    k8s:
+      patterns:
+        - "k8s.io/api"
+        - "k8s.io/apimachinery"
+        - "k8s.io/client-go"
 - package-ecosystem: docker
   directory: "/"
   schedule:
