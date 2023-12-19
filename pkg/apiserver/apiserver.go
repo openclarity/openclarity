@@ -64,7 +64,7 @@ func Run(ctx context.Context, config *Config) {
 		logger.Fatalf("Failed to initialise database: %v", err)
 	}
 
-	if config.EnableFakeData {
+	if config.EnableDBFakeData {
 		go database.CreateDemoData(ctx, dbHandler)
 	}
 
