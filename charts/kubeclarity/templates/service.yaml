@@ -5,8 +5,6 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
   labels:
     {{- include "kubeclarity.labels" . | nindent 4 }}
-  annotations:
-    helm.sh/hook: pre-install
 {{ template "kubeclarity.service.annotations" .}}
 spec:
   type: {{ .Values.kubeclarity.service.type }}
