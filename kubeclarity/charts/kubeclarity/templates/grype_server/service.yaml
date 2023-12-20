@@ -6,8 +6,6 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
   labels:
     {{ include "kubeclarity.grype-server.labels" . }}
-  annotations:
-    helm.sh/hook: pre-install
 spec:
   ports:
     - name: healthz
