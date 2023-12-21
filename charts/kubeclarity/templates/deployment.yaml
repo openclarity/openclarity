@@ -52,22 +52,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $databaseKey | default "postgres-database" }}
+                  key: {{ $databaseKey }}
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $hostKey | default "postgres-host" }}
+                  key: {{ $hostKey }}
             - name: DB_PORT_NUMBER
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $portKey | default "postgres-port" }}
+                  key: {{ $portKey }}
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $usernameKey | default "postgres-username" }}
+                  key: {{ $usernameKey }}
           securityContext:
             capabilities:
               drop:
