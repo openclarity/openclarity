@@ -157,32 +157,32 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $databaseKey | default "postgres-database" }}
+                  key: {{ $databaseKey }}
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $hostKey | default "postgres-host" }}
+                  key: {{ $hostKey }}
             - name: DB_PORT_NUMBER
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $portKey | default "postgres-port" }}
+                  key: {{ $portKey }}
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $usernameKey | default "postgres-username" }}
+                  key: {{ $usernameKey }}
             - name: DB_SSL_MODE
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $sslmodeKey | default "postgres-sslmode" }}
+                  key: {{ $sslmodeKey }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: {{ $secretKey | default "postgres-password" }}
+                  key: {{ $secretKey }}
             # runtime-scan envs
             - name: SCANNER_JOB_RESULT_LISTEN_PORT
               value: "{{ index .Values "kubeclarity-runtime-scan" "resultServicePort" }}"
