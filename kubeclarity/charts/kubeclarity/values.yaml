@@ -455,7 +455,17 @@ kubeclarity-postgresql-external:
 kubeclarity-postgresql-secret:
   # Set create to true if you want this helm chart to create a secret holding pgsql password
   # based on global.databasePassword value
-  # If create is set to false, a secret should already exist which has PostgreSQL
-  # password under secretKey key
+  # If create is set to false, a secret should already exist which contains the following keys:
+  # PostgreSQL password under secretKey
+  # PostgreSQL username under usernameKey
+  # PostgreSQL host under hostKey
+  # PostgreSQL port under portKey
+  # PostgreSQL database name under databaseKey
+  # SSL mode under sslmodeKey (disable/enable)
   create: true
   secretKey: "postgres-password"
+  usernameKey: "postgres-username"
+  hostKey: "postgres-host"
+  portKey: "postgres-port"
+  databaseKey: "postgres-database"
+  sslmodeKey: "postgres-sslmode"
