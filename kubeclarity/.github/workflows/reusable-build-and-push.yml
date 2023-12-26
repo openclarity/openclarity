@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload artifact
         if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kubeclarity
           path: /tmp/kubeclarity.tar
@@ -127,7 +127,7 @@ jobs:
 
       - name: Upload artifact
         if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cis_docker_benchmark_scanner
           path: /tmp/cis_docker_benchmark_scanner.tar
@@ -179,7 +179,7 @@ jobs:
 
       - name: Upload artifact
         if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: runtime_k8s_scanner
           path: /tmp/runtime_k8s_scanner.tar
@@ -231,7 +231,7 @@ jobs:
 
       - name: Upload artifact
         if: ${{ inputs.upload == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kubeclarity-sbom-db
           path: /tmp/kubeclarity-sbom-db.tar
