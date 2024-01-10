@@ -15,7 +15,7 @@ export const ScanCounterDisplay = () => {
                 "$count": true,
                 "$top": 1,
                 "$select": "id",
-                "$filter": "state eq 'Aborted' or state eq 'Failed' or state eq 'Done'",
+                "$filter": "status/state eq 'Aborted' or status/state eq 'Failed' or status/state eq 'Done'",
             }
         }
     );

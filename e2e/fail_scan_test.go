@@ -69,10 +69,10 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			ginkgo.By("waiting until scan state changes to failed with nothing to scan as state reason")
 			params := models.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
-					"scanConfig/id eq '%s' and state eq '%s' and stateReason eq '%s'",
+					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					models.ScanStateDone,
-					models.ScanRelationshipStateReasonNothingToScan,
+					models.AssetScanStatusStateDone,
+					models.ScanStatusReasonNothingToScan,
 				)),
 			}
 			var scans *models.Scans
@@ -124,10 +124,10 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			ginkgo.By("waiting until scan state changes to failed with timed out as state reason")
 			params := models.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
-					"scanConfig/id eq '%s' and state eq '%s' and stateReason eq '%s'",
+					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					models.ScanStateFailed,
-					models.ScanStateReasonTimedOut,
+					models.ScanStatusStateFailed,
+					models.ScanStatusReasonTimeout,
 				)),
 			}
 			var scans *models.Scans

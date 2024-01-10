@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"gorm.io/gorm"
+
 	"github.com/labstack/echo/v4"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -42,6 +44,15 @@ func (s *ServerImpl) PostScans(ctx echo.Context) error {
 	err := ctx.Bind(&scan)
 	if err != nil {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	status, ok := scan.GetStatus()
+	switch {
+	case !ok:
+		return sendError(ctx, http.StatusBadRequest, "invalid request: status is missing")
+	case status.State != models.ScanStatusStatePending:
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("invalid request: initial state for scan is invalid: %s", status.State))
+	default:
 	}
 
 	createdScan, err := s.dbHandler.ScansTable().CreateScan(scan)
@@ -105,6 +116,27 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID, pa
 	}
 	scan.Id = &scanID
 
+	// check if a scan with id already exists
+	existingScan, err := s.dbHandler.ScansTable().GetScan(scanID, models.GetScansScanIDParams{})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan was not found: scanID=%v: %v", scanID, err))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan: scanID=%v: %v", scanID, err))
+	}
+
+	// check for valid state transition if the status was provided
+	if status, ok := scan.GetStatus(); ok {
+		existingStatus, ok := existingScan.GetStatus()
+		if !ok {
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing scan: scanID=%v", existingScan.Id))
+		}
+		err = existingStatus.IsValidTransition(status)
+		if err != nil {
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		}
+	}
+
 	updatedScan, err := s.dbHandler.ScansTable().UpdateScan(scan, params)
 	if err != nil {
 		var validationErr *common.BadRequestError
@@ -131,6 +163,7 @@ func (s *ServerImpl) PatchScansScanID(ctx echo.Context, scanID models.ScanID, pa
 	return sendResponse(ctx, http.StatusOK, updatedScan)
 }
 
+// nolint:cyclop
 func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID, params models.PutScansScanIDParams) error {
 	var scan models.Scan
 	err := ctx.Bind(&scan)
@@ -144,6 +177,29 @@ func (s *ServerImpl) PutScansScanID(ctx echo.Context, scanID models.ScanID, para
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scan.Id, scanID))
 	}
 	scan.Id = &scanID
+
+	// check if a scan with id already exists
+	existingScan, err := s.dbHandler.ScansTable().GetScan(scanID, models.GetScansScanIDParams{})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan was not found: scanID=%v: %v", scanID, err))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan: scanID=%v: %v", scanID, err))
+	}
+
+	// check for valid state transition
+	status, ok := scan.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
+	existingStatus, ok := existingScan.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing scan: scanID=%v", existingScan.Id))
+	}
+	err = existingStatus.IsValidTransition(status)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
 
 	updatedScan, err := s.dbHandler.ScansTable().SaveScan(scan, params)
 	if err != nil {
