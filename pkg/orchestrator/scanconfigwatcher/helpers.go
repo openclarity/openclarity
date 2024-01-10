@@ -33,7 +33,11 @@ func newScanFromScanConfig(scanConfig *models.ScanConfig) *models.Scan {
 		Scope:               scanConfig.ScanTemplate.Scope,
 		MaxParallelScanners: scanConfig.ScanTemplate.MaxParallelScanners,
 		TimeoutSeconds:      scanConfig.ScanTemplate.TimeoutSeconds,
-		State:               utils.PointerTo(models.ScanStatePending),
+		Status: models.NewScanStatus(
+			models.ScanStatusStatePending,
+			models.ScanStatusReasonCreated,
+			nil,
+		),
 		Summary: &models.ScanSummary{
 			JobsCompleted:          utils.PointerTo(0),
 			JobsLeftToRun:          utils.PointerTo(0),

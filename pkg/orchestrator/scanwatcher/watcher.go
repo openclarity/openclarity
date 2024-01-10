@@ -81,7 +81,7 @@ func (w *Watcher) GetRunningScans(ctx context.Context) ([]ScanReconcileEvent, er
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching running Scans")
 
-	filter := fmt.Sprintf("state ne '%s' and state ne '%s'", models.ScanStateDone, models.ScanStateFailed)
+	filter := fmt.Sprintf("status/state ne '%s' and status/state ne '%s'", models.ScanStatusStateDone, models.ScanStatusStateFailed)
 	selector := "id"
 	params := models.GetScansParams{
 		Filter: &filter,
@@ -132,44 +132,42 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error
 	}
 
 	if scan.IsTimedOut(w.scanTimeout) {
-		scan.State = utils.PointerTo(models.ScanStateFailed)
-		scan.StateMessage = utils.PointerTo("Scan has been timed out")
-		scan.StateReason = utils.PointerTo(models.ScanStateReasonTimedOut)
+		scan.Status = models.NewScanStatus(
+			models.ScanStatusStateFailed,
+			models.ScanStatusReasonTimeout,
+			utils.PointerTo("Scan has timed out"),
+		)
 
-		err = w.backend.PatchScan(ctx, *scan.Id, &models.Scan{
-			State:        scan.State,
-			StateMessage: scan.StateMessage,
-			StateReason:  scan.StateReason,
-		})
+		err = w.backend.PatchScan(ctx, *scan.Id, &models.Scan{Status: scan.Status})
 		if err != nil {
 			return fmt.Errorf("failed to patch Scan. ScanID=%s: %w", event.ScanID, err)
 		}
 	}
 
-	state, ok := scan.GetState()
+	status, ok := scan.GetStatus()
 	if !ok {
-		return fmt.Errorf("failed to determine state of Scan. ScanID=%s", event.ScanID)
+		return fmt.Errorf("failed to determine status of Scan. ScanID=%s", event.ScanID)
 	}
-	logger.Tracef("Reconciling Scan state: %s", state)
+	logger.Tracef("Reconciling Scan state: %s", status.State)
 
-	switch state {
-	case models.ScanStatePending:
+	switch status.State {
+	case models.ScanStatusStatePending:
 		if err = w.reconcilePending(ctx, scan); err != nil {
 			return err
 		}
-	case models.ScanStateDiscovered:
+	case models.ScanStatusStateDiscovered:
 		if err = w.reconcileDiscovered(ctx, scan); err != nil {
 			return err
 		}
-	case models.ScanStateInProgress:
+	case models.ScanStatusStateInProgress:
 		if err = w.reconcileInProgress(ctx, scan); err != nil {
 			return err
 		}
-	case models.ScanStateAborted:
+	case models.ScanStatusStateAborted:
 		if err = w.reconcileAborted(ctx, scan); err != nil {
 			return err
 		}
-	case models.ScanStateDone, models.ScanStateFailed:
+	case models.ScanStatusStateDone, models.ScanStatusStateFailed:
 		logger.Debug("Reconciling Scan is skipped as it is already finished.")
 		fallthrough
 	default:
@@ -222,20 +220,23 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *models.Scan) error
 			assetIds = append(assetIds, *asset.Id)
 		}
 		scan.AssetIDs = &assetIds
-		scan.State = utils.PointerTo(models.ScanStateDiscovered)
-		scan.StateMessage = utils.PointerTo("Assets for Scan are successfully discovered")
+		scan.Status = models.NewScanStatus(
+			models.ScanStatusStateDiscovered,
+			models.ScanStatusReasonAssetsDiscovered,
+			utils.PointerTo("Assets for Scan are successfully discovered"),
+		)
 	} else {
-		scan.State = utils.PointerTo(models.ScanStateDone)
-		scan.StateReason = utils.PointerTo(models.ScanStateReasonNothingToScan)
-		scan.StateMessage = utils.PointerTo("No instances found in scope for Scan")
+		scan.Status = models.NewScanStatus(
+			models.ScanStatusStateDone,
+			models.ScanStatusReasonNothingToScan,
+			utils.PointerTo("No instances found in scope for Scan"),
+		)
 	}
 	logger.Debugf("%d Asset(s) have been created for Scan", numOfAssets)
 
 	scanPatch := &models.Scan{
-		AssetIDs:     scan.AssetIDs,
-		State:        scan.State,
-		StateReason:  scan.StateReason,
-		StateMessage: scan.StateMessage,
+		AssetIDs: scan.AssetIDs,
+		Status:   scan.Status,
 	}
 
 	if err = w.backend.PatchScan(ctx, scanID, scanPatch); err != nil {
@@ -260,10 +261,13 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *models.Scan) er
 	if err := w.createAssetScansForScan(ctx, scan); err != nil {
 		return fmt.Errorf("failed to creates AssetScan(s) for Scan. ScanID=%s: %w", scanID, err)
 	}
-	scan.State = utils.PointerTo(models.ScanStateInProgress)
 
 	scanPatch := &models.Scan{
-		State:    scan.State,
+		Status: models.NewScanStatus(
+			models.ScanStatusStateInProgress,
+			models.ScanStatusReasonAssetScansRunning,
+			nil,
+		),
 		Summary:  scan.Summary,
 		AssetIDs: scan.AssetIDs,
 	}
@@ -398,25 +402,36 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *models.Scan) er
 		*scan.Summary.JobsLeftToRun)
 
 	if *scan.Summary.JobsLeftToRun <= 0 {
-		if failedAssetScans > 0 {
-			scan.State = utils.PointerTo(models.ScanStateFailed)
-			scan.StateReason = utils.PointerTo(models.ScanStateReasonOneOrMoreAssetFailedToScan)
-		} else {
-			scan.State = utils.PointerTo(models.ScanStateDone)
-			scan.StateReason = utils.PointerTo(models.ScanStateReasonSuccess)
-		}
-		scan.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total asset scans",
-			*assetScans.Count-failedAssetScans, failedAssetScans, *assetScans.Count))
+		message := utils.PointerTo(
+			fmt.Sprintf(
+				"%d succeeded, %d failed out of %d total asset scans",
+				*assetScans.Count-failedAssetScans,
+				failedAssetScans,
+				*assetScans.Count,
+			),
+		)
 
+		if failedAssetScans > 0 {
+			scan.Status = models.NewScanStatus(
+				models.ScanStatusStateFailed,
+				models.ScanStatusReasonError,
+				message,
+			)
+		} else {
+			scan.Status = models.NewScanStatus(
+				models.ScanStatusStateDone,
+				models.ScanStatusReasonSuccess,
+				message,
+			)
+		}
 		scan.EndTime = utils.PointerTo(time.Now())
 	}
 
 	scanPatch := &models.Scan{
-		State:        scan.State,
-		Summary:      scan.Summary,
-		StateMessage: scan.StateMessage,
-		EndTime:      scan.EndTime,
-		AssetIDs:     scan.AssetIDs,
+		Status:   scan.Status,
+		Summary:  scan.Summary,
+		EndTime:  scan.EndTime,
+		AssetIDs: scan.AssetIDs,
 	}
 	err = w.backend.PatchScan(ctx, scanID, scanPatch)
 	if err != nil {
@@ -492,16 +507,16 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *models.Scan) error
 	}
 
 	scan.EndTime = utils.PointerTo(time.Now())
-	scan.State = utils.PointerTo(models.ScanStateFailed)
-	scan.StateReason = utils.PointerTo(models.ScanStateReasonAborted)
-	scan.StateMessage = utils.PointerTo("Scan has been aborted")
+	scan.Status = models.NewScanStatus(
+		models.ScanStatusStateFailed,
+		models.ScanStatusReasonCancellation,
+		utils.PointerTo("Scan has been aborted"),
+	)
 
 	scanPatch := &models.Scan{
-		State:        scan.State,
-		EndTime:      scan.EndTime,
-		StateReason:  scan.StateReason,
-		StateMessage: scan.StateMessage,
-		AssetIDs:     scan.AssetIDs,
+		Status:   scan.Status,
+		EndTime:  scan.EndTime,
+		AssetIDs: scan.AssetIDs,
 	}
 	err = w.backend.PatchScan(ctx, scanID, scanPatch)
 	if err != nil {

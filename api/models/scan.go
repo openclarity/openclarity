@@ -19,15 +19,12 @@ import "time"
 
 const DefaultMaxParallelScanners int = 2
 
-func (s *Scan) GetState() (ScanState, bool) {
-	var state ScanState
-	var ok bool
-
-	if s.State != nil {
-		state, ok = *s.State, true
+func (s *Scan) GetStatus() (*ScanStatus, bool) {
+	if s.Status == nil {
+		return nil, false
 	}
 
-	return state, ok
+	return s.Status, true
 }
 
 func (s *Scan) GetID() (string, bool) {

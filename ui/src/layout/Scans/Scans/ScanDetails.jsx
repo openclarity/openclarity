@@ -53,7 +53,7 @@ const ScanDetails = () => (
         className="scan-details-page-wrapper"
         backTitle="Scans"
         url={APIS.SCANS}
-        select="id,name,scanConfig,scope,assetScanTemplate,maxParallelScanners,startTime,endTime,summary,state,stateMessage,stateReason"
+        select="id,name,scanConfig,scope,assetScanTemplate,maxParallelScanners,startTime,endTime,summary,status"
         getTitleData={({name, startTime}) => ({title: name, subTitle: formatDate(startTime)})}
         detailsContent={props => <DetailsContent {...props} />}
     />

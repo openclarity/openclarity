@@ -63,55 +63,52 @@ func NewAssetScanStatus(s AssetScanStatusState, r AssetScanStatusReason, m *stri
 	}
 }
 
-func (as *AssetScanStatus) Equals(a *AssetScanStatus) bool {
-	if as.Message == nil && a.Message != nil {
+func (a *AssetScanStatus) Equals(b *AssetScanStatus) bool {
+	if a.Message == nil && b.Message != nil {
 		return false
 	}
-	if a.Message == nil && as.Message != nil {
+	if b.Message == nil && a.Message != nil {
 		return false
 	}
-	if as.Message == nil && a.Message == nil {
-		return as.State == a.State && as.Reason == a.Reason
+	if a.Message == nil && b.Message == nil {
+		return a.State == b.State && a.Reason == b.Reason
 	}
 
-	return as.State == a.State && as.Reason == a.Reason && *as.Message == *a.Message
+	return a.State == b.State && a.Reason == b.Reason && *a.Message == *b.Message
 }
 
-func (as *AssetScanStatus) isValidStatusTransition(a *AssetScanStatus) error {
-	transitions, ok := assetScanStatusStateTransitions[as.State]
-	if ok {
-		for _, transition := range transitions {
-			if transition == a.State {
-				return nil
-			}
+func (a *AssetScanStatus) isValidStatusTransition(b *AssetScanStatus) error {
+	transitions := assetScanStatusStateTransitions[a.State]
+	for _, transition := range transitions {
+		if transition == b.State {
+			return nil
 		}
 	}
 
-	return fmt.Errorf("invalid transition: from=%s to=%s", as.State, a.State)
+	return fmt.Errorf("invalid transition: from=%s to=%s", a.State, b.State)
 }
 
-func (as *AssetScanStatus) isValidReason(a *AssetScanStatus) error {
-	reasons, ok := assetScanStatusReasonMapping[a.State]
-	if ok {
-		for _, reason := range reasons {
-			if reason == a.Reason {
-				return nil
-			}
+func (a *AssetScanStatus) isValidReason() error {
+	reasons := assetScanStatusReasonMapping[a.State]
+	for _, reason := range reasons {
+		if reason == a.Reason {
+			return nil
 		}
 	}
 
 	return fmt.Errorf("invalid reason for state: state=%s reason=%s", a.State, a.Reason)
 }
 
-func (as *AssetScanStatus) IsValidTransition(r *AssetScanStatus) error {
-	if as.Equals(r) {
+func (a *AssetScanStatus) IsValidTransition(b *AssetScanStatus) error {
+	if a.Equals(b) {
 		return nil
 	}
 
-	if err := as.isValidStatusTransition(r); err != nil {
+	if err := b.isValidReason(); err != nil {
 		return err
 	}
-	if err := as.isValidReason(r); err != nil {
+
+	if err := a.isValidStatusTransition(b); err != nil {
 		return err
 	}
 

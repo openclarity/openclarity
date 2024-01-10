@@ -45,10 +45,10 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			ginkgo.By("waiting until scan starts")
 			scanParams := models.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
-					"scanConfig/id eq '%s' and state ne '%s' and state ne '%s'",
+					"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 					*apiScanConfig.Id,
-					models.ScanStateDone,
-					models.ScanStateFailed,
+					models.ScanStatusStateDone,
+					models.ScanStatusStateFailed,
 				)),
 			}
 			var scans *models.Scans
@@ -68,9 +68,10 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			ginkgo.By("waiting until scan state changes to done")
 			scanParams = models.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
-					"scanConfig/id eq '%s' and state eq '%s'",
+					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					models.ScanStateDone,
+					models.ScanStatusStateDone,
+					models.ScanStatusReasonSuccess,
 				)),
 			}
 			gomega.Eventually(func() bool {
