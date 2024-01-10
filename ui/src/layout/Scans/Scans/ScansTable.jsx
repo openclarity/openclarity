@@ -64,19 +64,19 @@ const ScansTable = () => {
             id: "status",
             sortIds: ["state"],
             Cell: ({row}) => {
-                const {id, state, stateReason, stateMessage, summary} = row.original;
-                const {jobsCompleted, jobsLeftToRun} = summary || {};
+                const {state, reason, message} = row.original.status || {};
+                const {jobsCompleted, jobsLeftToRun} = row.original.summary || {};
 
                 return (
                     <ScanProgressBar
                         state={state}
-                        stateReason={stateReason}
-                        stateMessage={stateMessage}
+                        stateReason={reason}
+                        stateMessage={message}
                         itemsCompleted={jobsCompleted}
                         itemsLeft={jobsLeftToRun}
                         barWidth="80px"
                         isMinimized
-                        minimizedTooltipId={id}
+                        minimizedTooltipId={row.original.id}
                     />
                 )
             },

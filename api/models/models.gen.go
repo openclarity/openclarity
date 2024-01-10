@@ -125,27 +125,6 @@ const (
 	RootkitTypeUNKNOWN     RootkitType = "UNKNOWN"
 )
 
-// Defines values for ScanState.
-const (
-	ScanStateAborted    ScanState = "Aborted"
-	ScanStateDiscovered ScanState = "Discovered"
-	ScanStateDone       ScanState = "Done"
-	ScanStateFailed     ScanState = "Failed"
-	ScanStateInProgress ScanState = "InProgress"
-	ScanStatePending    ScanState = "Pending"
-)
-
-// Defines values for ScanStateReason.
-const (
-	ScanStateReasonAborted                    ScanStateReason = "Aborted"
-	ScanStateReasonDiscoveryFailed            ScanStateReason = "DiscoveryFailed"
-	ScanStateReasonNothingToScan              ScanStateReason = "NothingToScan"
-	ScanStateReasonOneOrMoreAssetFailedToScan ScanStateReason = "OneOrMoreAssetFailedToScan"
-	ScanStateReasonSuccess                    ScanStateReason = "Success"
-	ScanStateReasonTimedOut                   ScanStateReason = "TimedOut"
-	ScanStateReasonUnexpected                 ScanStateReason = "Unexpected"
-)
-
 // Defines values for ScanEstimationStateState.
 const (
 	ScanEstimationStateStateAborted    ScanEstimationStateState = "Aborted"
@@ -167,25 +146,26 @@ const (
 	ScanEstimationStateStateReasonUnexpected                     ScanEstimationStateStateReason = "Unexpected"
 )
 
-// Defines values for ScanRelationshipState.
+// Defines values for ScanStatusReason.
 const (
-	ScanRelationshipStateAborted    ScanRelationshipState = "Aborted"
-	ScanRelationshipStateDiscovered ScanRelationshipState = "Discovered"
-	ScanRelationshipStateDone       ScanRelationshipState = "Done"
-	ScanRelationshipStateFailed     ScanRelationshipState = "Failed"
-	ScanRelationshipStateInProgress ScanRelationshipState = "InProgress"
-	ScanRelationshipStatePending    ScanRelationshipState = "Pending"
+	ScanStatusReasonAssetScansRunning ScanStatusReason = "AssetScansRunning"
+	ScanStatusReasonAssetsDiscovered  ScanStatusReason = "AssetsDiscovered"
+	ScanStatusReasonCancellation      ScanStatusReason = "Cancellation"
+	ScanStatusReasonCreated           ScanStatusReason = "Created"
+	ScanStatusReasonError             ScanStatusReason = "Error"
+	ScanStatusReasonNothingToScan     ScanStatusReason = "NothingToScan"
+	ScanStatusReasonSuccess           ScanStatusReason = "Success"
+	ScanStatusReasonTimeout           ScanStatusReason = "Timeout"
 )
 
-// Defines values for ScanRelationshipStateReason.
+// Defines values for ScanStatusState.
 const (
-	ScanRelationshipStateReasonAborted                    ScanRelationshipStateReason = "Aborted"
-	ScanRelationshipStateReasonDiscoveryFailed            ScanRelationshipStateReason = "DiscoveryFailed"
-	ScanRelationshipStateReasonNothingToScan              ScanRelationshipStateReason = "NothingToScan"
-	ScanRelationshipStateReasonOneOrMoreAssetFailedToScan ScanRelationshipStateReason = "OneOrMoreAssetFailedToScan"
-	ScanRelationshipStateReasonSuccess                    ScanRelationshipStateReason = "Success"
-	ScanRelationshipStateReasonTimedOut                   ScanRelationshipStateReason = "TimedOut"
-	ScanRelationshipStateReasonUnexpected                 ScanRelationshipStateReason = "Unexpected"
+	ScanStatusStateAborted    ScanStatusState = "Aborted"
+	ScanStatusStateDiscovered ScanStatusState = "Discovered"
+	ScanStatusStateDone       ScanStatusState = "Done"
+	ScanStatusStateFailed     ScanStatusState = "Failed"
+	ScanStatusStateInProgress ScanStatusState = "InProgress"
+	ScanStatusStatePending    ScanStatusState = "Pending"
 )
 
 // Defines values for ScanType.
@@ -1091,17 +1071,9 @@ type Scan struct {
 	// that this scan will operate over. For example
 	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
 	// to just assets in the eu-west-2 AWS region.
-	Scope     *string    `json:"scope,omitempty"`
-	StartTime *time.Time `json:"startTime,omitempty"`
-
-	// State The lifecycle state of this scan.
-	State *ScanState `json:"state,omitempty"`
-
-	// StateMessage Human-readable message indicating details about the last state transition.
-	StateMessage *string `json:"stateMessage,omitempty"`
-
-	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-	StateReason *ScanStateReason `json:"stateReason,omitempty"`
+	Scope     *string     `json:"scope,omitempty"`
+	StartTime *time.Time  `json:"startTime,omitempty"`
+	Status    *ScanStatus `json:"status,omitempty"`
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
@@ -1110,12 +1082,6 @@ type Scan struct {
 	// should run for before being automatically aborted.
 	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
-
-// ScanState The lifecycle state of this scan.
-type ScanState string
-
-// ScanStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-type ScanStateReason string
 
 // ScanConfig defines model for ScanConfig.
 type ScanConfig struct {
@@ -1300,17 +1266,9 @@ type ScanRelationship struct {
 	// that this scan will operate over. For example
 	// `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
 	// to just assets in the eu-west-2 AWS region.
-	Scope     *string    `json:"scope,omitempty"`
-	StartTime *time.Time `json:"startTime,omitempty"`
-
-	// State The lifecycle state of this scan.
-	State *ScanRelationshipState `json:"state,omitempty"`
-
-	// StateMessage Human-readable message indicating details about the last state transition.
-	StateMessage *string `json:"stateMessage,omitempty"`
-
-	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-	StateReason *ScanRelationshipStateReason `json:"stateReason,omitempty"`
+	Scope     *string     `json:"scope,omitempty"`
+	StartTime *time.Time  `json:"startTime,omitempty"`
+	Status    *ScanStatus `json:"status,omitempty"`
 
 	// Summary A summary of the progress of a scan for informational purposes.
 	Summary *ScanSummary `json:"summary,omitempty"`
@@ -1320,11 +1278,68 @@ type ScanRelationship struct {
 	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
 }
 
-// ScanRelationshipState The lifecycle state of this scan.
-type ScanRelationshipState string
+// ScanStatus defines model for ScanStatus.
+type ScanStatus struct {
+	// LastTransitionTime Last date time when the status has changed.
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
 
-// ScanRelationshipStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-type ScanRelationshipStateReason string
+	// Message Human readable message.
+	Message *string `json:"message,omitempty"`
+
+	// Reason Machine readable reason for state transition.
+	//
+	// | State      | Reason            | Description                                                |
+	// | ---------- | ----------------- | ---------------------------------------------------------- |
+	// | Pending    | Created           | Scan is pending as it has been newly created               |
+	// | Discovered | AssetsDiscovered  | Assets that fall into the scope of the Scan are discovered |
+	// | InProgress | AssetScansRunning | AssetScans are currently running                           |
+	// | Aborted    | Cancellation      | AssetScans are being moved to Aborted state                |
+	// | Failed     | Cancellation      | AssetScans are in Aborted state                            |
+	// | Failed     | Error             | At least one AssetScan has ended with an error             |
+	// | Failed     | Timeout           | Scan has been timed out                                    |
+	// | Done       | NothingToScan     | There are no assets that need to be scanned                |
+	// | Done       | Success           | Scan ended successfully without any errors                 |
+	Reason ScanStatusReason `json:"reason"`
+
+	// State Describes the state of Scan.
+	//
+	// | State      | Description                                                                   |
+	// | ---------- | ----------------------------------------------------------------------------- |
+	// | Pending    | The initial state when the scan is created, and is working to discover assets |
+	// | Discovered | The asset scans have been discovered and are waiting to be scheduled          |
+	// | InProgress | The asset scans have been scheduled and the assets are being scanned          |
+	// | Aborted    | The scan has been manually aborted                                            |
+	// | Failed     | One or more assets could not be successfully scanned                          |
+	// | Done       | All assets have been scanned successfully                                     |
+	State ScanStatusState `json:"state"`
+}
+
+// ScanStatusReason Machine readable reason for state transition.
+//
+// | State      | Reason            | Description                                                |
+// | ---------- | ----------------- | ---------------------------------------------------------- |
+// | Pending    | Created           | Scan is pending as it has been newly created               |
+// | Discovered | AssetsDiscovered  | Assets that fall into the scope of the Scan are discovered |
+// | InProgress | AssetScansRunning | AssetScans are currently running                           |
+// | Aborted    | Cancellation      | AssetScans are being moved to Aborted state                |
+// | Failed     | Cancellation      | AssetScans are in Aborted state                            |
+// | Failed     | Error             | At least one AssetScan has ended with an error             |
+// | Failed     | Timeout           | Scan has been timed out                                    |
+// | Done       | NothingToScan     | There are no assets that need to be scanned                |
+// | Done       | Success           | Scan ended successfully without any errors                 |
+type ScanStatusReason string
+
+// ScanStatusState Describes the state of Scan.
+//
+// | State      | Description                                                                   |
+// | ---------- | ----------------------------------------------------------------------------- |
+// | Pending    | The initial state when the scan is created, and is working to discover assets |
+// | Discovered | The asset scans have been discovered and are waiting to be scheduled          |
+// | InProgress | The asset scans have been scheduled and the assets are being scanned          |
+// | Aborted    | The scan has been manually aborted                                            |
+// | Failed     | One or more assets could not be successfully scanned                          |
+// | Done       | All assets have been scanned successfully                                     |
+type ScanStatusState string
 
 // ScanSummary defines model for ScanSummary.
 type ScanSummary struct {

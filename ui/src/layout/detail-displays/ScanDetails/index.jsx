@@ -17,8 +17,9 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
     const navigate = useNavigate();
     const filtersDispatch = useFilterDispatch();
 
-    const {id, name, scanConfig, scope, assetScanTemplate, startTime, endTime, summary, state, stateMessage, stateReason} = scanData || {};
+    const {id, name, scanConfig, scope, assetScanTemplate, startTime, endTime, summary, status} = scanData || {};
     const {jobsCompleted, jobsLeftToRun} = summary || {};
+    const {state, reason, message} = status || {}
 
     const formattedStartTime = formatDate(startTime);
     
@@ -50,8 +51,8 @@ const ScanDetails = ({scanData, withScanLink=false, withAssetScansLink=false}) =
                     <div style={{marginBottom: "20px"}}>
                         <ScanProgressBar
                             state={state}
-                            stateReason={stateReason}
-                            stateMessage={stateMessage}
+                            stateReason={reason}
+                            stateMessage={message}
                             itemsCompleted={jobsCompleted}
                             itemsLeft={jobsLeftToRun}
                         />
