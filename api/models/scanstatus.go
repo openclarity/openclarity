@@ -59,7 +59,7 @@ func NewScanStatus(s ScanStatusState, r ScanStatusReason, m *string) *ScanStatus
 	}
 }
 
-func (a *ScanStatus) Equals(b *ScanStatus) bool {
+func (a *ScanStatus) Equals(b ScanStatus) bool {
 	if a.Message == nil && b.Message != nil {
 		return false
 	}
@@ -73,7 +73,7 @@ func (a *ScanStatus) Equals(b *ScanStatus) bool {
 	return a.State == b.State && a.Reason == b.Reason && *a.Message == *b.Message
 }
 
-func (a *ScanStatus) isValidStatusTransition(b *ScanStatus) error {
+func (a *ScanStatus) isValidStatusTransition(b ScanStatus) error {
 	transitions := scanStatusStateTransitions[a.State]
 	for _, transition := range transitions {
 		if transition == b.State {
@@ -95,7 +95,7 @@ func (a *ScanStatus) isValidReason() error {
 	return fmt.Errorf("invalid reason for state: state=%s reason=%s", a.State, a.Reason)
 }
 
-func (a *ScanStatus) IsValidTransition(b *ScanStatus) error {
+func (a *ScanStatus) IsValidTransition(b ScanStatus) error {
 	if a.Equals(b) {
 		return nil
 	}

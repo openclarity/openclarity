@@ -15,12 +15,12 @@
 
 package models
 
-func (r *AssetScan) GetStatus() (*AssetScanStatus, bool) {
+func (r *AssetScan) GetStatus() (AssetScanStatus, bool) {
 	if r.Status == nil {
-		return nil, false
+		return AssetScanStatus{}, false
 	}
 
-	return r.Status, true
+	return *r.Status, true
 }
 
 func (r *AssetScan) GetID() (string, bool) {
@@ -56,10 +56,10 @@ func (r *AssetScan) GetAssetID() (string, bool) {
 	return assetID, ok
 }
 
-func (r *AssetScan) GetResourceCleanupStatus() (*ResourceCleanupStatus, bool) {
+func (r *AssetScan) GetResourceCleanupStatus() (ResourceCleanupStatus, bool) {
 	if r.ResourceCleanupStatus == nil {
-		return nil, false
+		return ResourceCleanupStatus{}, false
 	}
 
-	return r.ResourceCleanupStatus, true
+	return *r.ResourceCleanupStatus, true
 }

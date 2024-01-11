@@ -1683,7 +1683,7 @@ components:
             | Pending    | The initial state when the scan is created, and is working to discover assets |
             | Discovered | The asset scans have been discovered and are waiting to be scheduled          |
             | InProgress | The asset scans have been scheduled and the assets are being scanned          |
-            | Aborted    | The scan has been manually aborted                                            |
+            | Aborted    | The scan has been aborted                                                     |
             | Failed     | One or more assets could not be successfully scanned                          |
             | Done       | All assets have been scanned successfully                                     |
           type: string
@@ -1694,6 +1694,13 @@ components:
             - Aborted
             - Failed
             - Done
+          x-enum-varnames:
+            - ScanStatusStatePending
+            - ScanStatusStateDiscovered
+            - ScanStatusStateInProgress
+            - ScanStatusStateAborted
+            - ScanStatusStateFailed
+            - ScanStatusStateDone
         reason:
           description: |
             Machine readable reason for state transition.
@@ -2732,28 +2739,58 @@ components:
         assetScan:
           $ref: '#/components/schemas/AssetScan'
 
-    AssetScanEstimationState:
+    AssetScanEstimationStatus:
       type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
       properties:
         state:
+          description: |
+            Describes the state of asset scan estimation.
+
+            | State   | Description                                   |
+            | ------- | --------------------------------------------- |
+            | Pending | Initial state for AssetScanEstimation         |
+            | Aborted | AssetScanEstimation has been aborted          |
+            | Failed  | AssetScanEstimation has been failed           |
+            | Done    | AssetScanEstimation has finished successfully |
           type: string
           enum:
             - Pending
             - Aborted
             - Failed
             - Done
-        stateMessage:
-          description: Human-readable message indicating details about the last state transition.
-          type: string
-        stateReason:
-          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+        reason:
+          description: |
+            Machine readable reason for state transition.
+
+            | State   | Reason       | Description                                                      |
+            | ------- | ------------ | ---------------------------------------------------------------- |
+            | Pending | Created      | AssetScanEstimation is pending as it has been newly created      |
+            | Aborted | Cancellation | AssetScanEstimation has been aborted due to cancellation request |
+            | Failed  | Aborted      | AssetScanEstimation has failed due to abort                      |
+            | Failed  | Error        | AssetScanEstimation has failed due to an error                   |
+            | Done    | Success      | AssetScanEstimation has finished successfully                    |
           type: string
           enum:
+            - Created
+            - Cancellation
             - Aborted
-            - TimedOut
-            - Unexpected
+            - Error
             - Success
+          x-enum-varnames:
+            - AssetScanEstimationStatusReasonCreated
+            - AssetScanEstimationStatusReasonCancellation
+            - AssetScanEstimationStatusReasonAborted
+            - AssetScanEstimationStatusReasonError
+            - AssetScanEstimationStatusReasonSuccess
+        message:
+          description: Human readable message.
+          type: string
         lastTransitionTime:
+          description: Last date time when the status has changed.
           type: string
           format: date-time
 
@@ -3547,8 +3584,8 @@ components:
               $ref: '#/components/schemas/AssetRelationship'
             scanEstimation:
               $ref: '#/components/schemas/ScanEstimationRelationship'
-            state:
-              $ref: '#/components/schemas/AssetScanEstimationState'
+            status:
+              $ref: '#/components/schemas/AssetScanEstimationStatus'
             estimation:
               $ref: '#/components/schemas/Estimation'
             assetScanTemplate:
