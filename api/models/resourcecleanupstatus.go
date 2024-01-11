@@ -39,7 +39,7 @@ func NewResourceCleanupStatus(s ResourceCleanupStatusState, r ResourceCleanupSta
 	}
 }
 
-func (a *ResourceCleanupStatus) Equals(b *ResourceCleanupStatus) bool {
+func (a *ResourceCleanupStatus) Equals(b ResourceCleanupStatus) bool {
 	if a.Message == nil && b.Message != nil {
 		return false
 	}
@@ -53,7 +53,7 @@ func (a *ResourceCleanupStatus) Equals(b *ResourceCleanupStatus) bool {
 	return a.State == b.State && a.Reason == b.Reason && *a.Message == *b.Message
 }
 
-func (a *ResourceCleanupStatus) isValidStatusTransition(b *ResourceCleanupStatus) error {
+func (a *ResourceCleanupStatus) isValidStatusTransition(b ResourceCleanupStatus) error {
 	transitions := resourceCleanupStatusStateTransitions[a.State]
 	for _, transition := range transitions {
 		if transition == b.State {
@@ -75,7 +75,7 @@ func (a *ResourceCleanupStatus) isValidReason() error {
 	return fmt.Errorf("invalid reason for state: state=%s reason=%s", a.State, a.Reason)
 }
 
-func (a *ResourceCleanupStatus) IsValidTransition(b *ResourceCleanupStatus) error {
+func (a *ResourceCleanupStatus) IsValidTransition(b ResourceCleanupStatus) error {
 	if a.Equals(b) {
 		return nil
 	}
