@@ -28,6 +28,7 @@ linters-settings:
       - go.opentelemetry.io/otel/sdk
       # Viper
       - github.com/mitchellh/mapstructure
+      - helm.sh/helm/v3
 
   gosec:
     # To specify a set of rules to explicitly exclude.
