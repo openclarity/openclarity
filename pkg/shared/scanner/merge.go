@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"sort"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"github.com/yudai/gojsondiff"
 	"github.com/yudai/gojsondiff/formatter"
@@ -249,7 +249,7 @@ func createVulnerabilityKey(vulnerability Vulnerability) VulnerabilityKey {
 
 func newMergedVulnerability(vulnerability Vulnerability, scannerInfo Info) *MergedVulnerability {
 	return &MergedVulnerability{
-		ID:            uuid.NewV4().String(),
+		ID:            uuid.New().String(),
 		Vulnerability: vulnerability,
 		ScannersInfo:  []Info{scannerInfo},
 	}
