@@ -466,6 +466,8 @@ replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240102124916-a62
 
 replace github.com/openclarity/vmclarity/api => ./api
 
-// NOTE(chrisgacsal): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327
-// Remove replace if the bugfix is released.
-replace github.com/mitchellh/mapstructure => github.com/prochac/mapstructure v0.0.0-20230418172516-63cde0dfe248
+// NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,
+// which has been solved in the go-viper fork.
+// Remove replace if all packages using the original repo has been switched to this fork (or at least viper:
+// https://github.com/spf13/viper/pull/1723)
+replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
