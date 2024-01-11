@@ -63,7 +63,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/containerd/containerd v1.7.11 // indirect
-	github.com/containerd/continuity v0.4.2 // indirect
+	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/typeurl/v2 v2.1.1 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/evanphx/json-patch v5.7.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsevents v0.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -124,7 +124,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.17.3 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
@@ -161,7 +161,7 @@ require (
 	github.com/opencontainers/runc v1.1.10 // indirect
 	github.com/oras-project/oras-credentials-go v0.3.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.17.0 // indirect

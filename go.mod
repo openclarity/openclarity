@@ -24,7 +24,7 @@ require (
 	github.com/aws/smithy-go v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containerd/containerd v1.7.11
-	github.com/containerd/nerdctl v1.6.0
+	github.com/containerd/nerdctl v1.7.2
 	github.com/containers/image/v5 v5.29.0
 	github.com/deepmap/oapi-codegen/v2 v2.0.1-0.20231204155340-1f53862bcc64
 	github.com/docker/docker v24.0.7+incompatible
@@ -155,11 +155,11 @@ require (
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/containerd/cgroups/v3 v3.0.2 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
-	github.com/containerd/continuity v0.4.2 // indirect
+	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/containerd/fifo v1.1.0 // indirect
-	github.com/containerd/imgcrypt v1.1.8 // indirect
+	github.com/containerd/imgcrypt v1.1.9 // indirect
 	github.com/containerd/log v0.1.0 // indirect
-	github.com/containerd/stargz-snapshotter v0.14.3 // indirect
+	github.com/containerd/stargz-snapshotter v0.15.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/containerd/ttrpc v1.2.2 // indirect
 	github.com/containerd/typeurl v1.0.3-0.20220422153119-7f6e6d160d67 // indirect
@@ -188,7 +188,7 @@ require (
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
 	github.com/facebookincubator/nvdtools v0.1.5 // indirect
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
@@ -276,7 +276,7 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/klauspost/compress v1.17.3 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/knqyf263/go-apk-version v0.0.0-20200609155635-041fdbb8563f // indirect
@@ -309,7 +309,7 @@ require (
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
 	github.com/microsoft/go-rustaudit v0.0.0-20220808201409-204dfee52032 // indirect
 	github.com/miekg/pkcs11 v1.1.1 // indirect
-	github.com/minio/sha256-simd v1.0.0 // indirect
+	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
@@ -354,7 +354,7 @@ require (
 	github.com/owenrumney/squealer v1.1.1 // indirect
 	github.com/package-url/packageurl-go v0.1.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
