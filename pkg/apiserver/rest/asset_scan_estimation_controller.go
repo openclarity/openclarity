@@ -45,6 +45,15 @@ func (s *ServerImpl) PostAssetScanEstimations(ctx echo.Context) error {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	status, ok := assetScanEstimation.GetStatus()
+	switch {
+	case !ok:
+		return sendError(ctx, http.StatusBadRequest, "invalid request: status is missing")
+	case status.State != models.AssetScanEstimationStatusStatePending:
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("invalid request: initial state for asset scan estimation is invalid: %s", status.State))
+	default:
+	}
+
 	createdAssetScanEstimation, err := s.dbHandler.AssetScanEstimationsTable().CreateAssetScanEstimation(assetScanEstimation)
 	if err != nil {
 		var conflictErr *common.ConflictError
@@ -81,8 +90,15 @@ func (s *ServerImpl) PatchAssetScanEstimationsAssetScanEstimationID(ctx echo.Con
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	// PATCH request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if assetScanEstimation.Id != nil && *assetScanEstimation.Id != assetScanEstimationID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *assetScanEstimation.Id, assetScanEstimationID))
+	}
+	assetScanEstimation.Id = &assetScanEstimationID
+
 	// check that an asset scan estimation with that id exists.
-	_, err = s.dbHandler.AssetScanEstimationsTable().GetAssetScanEstimation(assetScanEstimationID, models.GetAssetScanEstimationsAssetScanEstimationIDParams{})
+	existingAssetScanEstimation, err := s.dbHandler.AssetScanEstimationsTable().GetAssetScanEstimation(assetScanEstimationID, models.GetAssetScanEstimationsAssetScanEstimationIDParams{})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("asset scan estimation was not found. assetScanEstimationID=%v: %v", assetScanEstimationID, err))
@@ -90,12 +106,17 @@ func (s *ServerImpl) PatchAssetScanEstimationsAssetScanEstimationID(ctx echo.Con
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get asset scan estimation. assetScanEstimationID=%v: %v", assetScanEstimationID, err))
 	}
 
-	// PATCH request might not contain the ID in the body, so set it from
-	// the URL field so that the DB layer knows which object is being updated.
-	if assetScanEstimation.Id != nil && *assetScanEstimation.Id != assetScanEstimationID {
-		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *assetScanEstimation.Id, assetScanEstimationID))
+	// check for valid state transition if the status was provided
+	if status, ok := assetScanEstimation.GetStatus(); ok {
+		existingStatus, ok := existingAssetScanEstimation.GetStatus()
+		if !ok {
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing scan: scanID=%v", existingAssetScanEstimation.Id))
+		}
+		err = existingStatus.IsValidTransition(status)
+		if err != nil {
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		}
 	}
-	assetScanEstimation.Id = &assetScanEstimationID
 
 	updatedAssetScanEstimation, err := s.dbHandler.AssetScanEstimationsTable().UpdateAssetScanEstimation(assetScanEstimation, params)
 	if err != nil {
@@ -129,8 +150,15 @@ func (s *ServerImpl) PutAssetScanEstimationsAssetScanEstimationID(ctx echo.Conte
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
 	}
 
+	// PUT request might not contain the ID in the body, so set it from
+	// the URL field so that the DB layer knows which object is being updated.
+	if assetScanEstimation.Id != nil && *assetScanEstimation.Id != assetScanEstimationID {
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *assetScanEstimation.Id, assetScanEstimationID))
+	}
+	assetScanEstimation.Id = &assetScanEstimationID
+
 	// check that an asset scan estimation with that id exists.
-	_, err = s.dbHandler.AssetScanEstimationsTable().GetAssetScanEstimation(assetScanEstimationID, models.GetAssetScanEstimationsAssetScanEstimationIDParams{})
+	existingAssetScanEstimation, err := s.dbHandler.AssetScanEstimationsTable().GetAssetScanEstimation(assetScanEstimationID, models.GetAssetScanEstimationsAssetScanEstimationIDParams{})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("asset scan estimation was not found. assetScanEstimationID=%v: %v", assetScanEstimationID, err))
@@ -138,12 +166,19 @@ func (s *ServerImpl) PutAssetScanEstimationsAssetScanEstimationID(ctx echo.Conte
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get asset scan estimation. assetScanEstimationID=%v: %v", assetScanEstimationID, err))
 	}
 
-	// PUT request might not contain the ID in the body, so set it from
-	// the URL field so that the DB layer knows which object is being updated.
-	if assetScanEstimation.Id != nil && *assetScanEstimation.Id != assetScanEstimationID {
-		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *assetScanEstimation.Id, assetScanEstimationID))
+	// check for valid state transition
+	status, ok := assetScanEstimation.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
 	}
-	assetScanEstimation.Id = &assetScanEstimationID
+	existingStatus, ok := existingAssetScanEstimation.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing asset scan estimation: assetScanEstimationID=%v", existingAssetScanEstimation.Id))
+	}
+	err = existingStatus.IsValidTransition(status)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
 
 	updatedAssetScanEstimation, err := s.dbHandler.AssetScanEstimationsTable().SaveAssetScanEstimation(assetScanEstimation, params)
 	if err != nil {

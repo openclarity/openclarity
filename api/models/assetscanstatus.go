@@ -63,7 +63,7 @@ func NewAssetScanStatus(s AssetScanStatusState, r AssetScanStatusReason, m *stri
 	}
 }
 
-func (a *AssetScanStatus) Equals(b *AssetScanStatus) bool {
+func (a *AssetScanStatus) Equals(b AssetScanStatus) bool {
 	if a.Message == nil && b.Message != nil {
 		return false
 	}
@@ -77,7 +77,7 @@ func (a *AssetScanStatus) Equals(b *AssetScanStatus) bool {
 	return a.State == b.State && a.Reason == b.Reason && *a.Message == *b.Message
 }
 
-func (a *AssetScanStatus) isValidStatusTransition(b *AssetScanStatus) error {
+func (a *AssetScanStatus) isValidStatusTransition(b AssetScanStatus) error {
 	transitions := assetScanStatusStateTransitions[a.State]
 	for _, transition := range transitions {
 		if transition == b.State {
@@ -99,7 +99,7 @@ func (a *AssetScanStatus) isValidReason() error {
 	return fmt.Errorf("invalid reason for state: state=%s reason=%s", a.State, a.Reason)
 }
 
-func (a *AssetScanStatus) IsValidTransition(b *AssetScanStatus) error {
+func (a *AssetScanStatus) IsValidTransition(b AssetScanStatus) error {
 	if a.Equals(b) {
 		return nil
 	}

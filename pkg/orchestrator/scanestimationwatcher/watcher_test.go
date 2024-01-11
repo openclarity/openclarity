@@ -44,9 +44,11 @@ func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 					},
 				},
 				result: models.AssetScanEstimation{
-					State: &models.AssetScanEstimationState{
-						State: utils.PointerTo(models.AssetScanEstimationStateStateFailed),
-					},
+					Status: models.NewAssetScanEstimationStatus(
+						models.AssetScanEstimationStatusStateFailed,
+						models.AssetScanEstimationStatusReasonError,
+						nil,
+					),
 				},
 			},
 			wantErr: false,
