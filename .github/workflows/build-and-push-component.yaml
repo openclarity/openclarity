@@ -97,19 +97,23 @@ jobs:
 
       - name: Export digest
         if: inputs.push
+        id: digest
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
+          
+          echo "digest=${digest#sha256:}" >> "$GITHUB_OUTPUT"
 
       - name: Upload digests
         if: inputs.push
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.build-vars.outputs.digests-cache-name }}
+          name: ${{ needs.build-vars.outputs.digests-cache-name }}-${{ steps.digest.outputs.digest }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+          compression-level: 0
 
   merge-and-push:
     if: inputs.push
@@ -119,9 +123,10 @@ jobs:
       - build-and-push
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.build-vars.outputs.digests-cache-name }}
+          pattern: ${{ needs.build-vars.outputs.digests-cache-name }}-*
+          merge-multiple: true
           path: /tmp/digests
 
       - name: Set up Docker Buildx
