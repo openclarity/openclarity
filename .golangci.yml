@@ -14,10 +14,6 @@ linters-settings:
     replace-local: true
     # List of allowed `replace` directives. Default is empty.
     replace-allow-list:
-      # github.com/openclarity/kubeclarity job-manager-changes
-      - github.com/openclarity/kubeclarity/api
-      - github.com/openclarity/kubeclarity/cli
-      - github.com/openclarity/kubeclarity/shared
       # Replace these for trivy
       - github.com/docker/docker
       - oras.land/oras-go

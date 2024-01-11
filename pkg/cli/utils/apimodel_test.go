@@ -23,8 +23,6 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
@@ -40,7 +38,9 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/pkg/shared/scanner"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils/vulnerability"
 )
 
 func Test_ConvertSBOMResultToPackages(t *testing.T) {

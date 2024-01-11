@@ -20,15 +20,14 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/chkrootkit/config"
 	chkrootkitutils "github.com/openclarity/vmclarity/pkg/shared/families/rootkits/chkrootkit/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/common"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
-	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const (
@@ -83,7 +82,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		// nolint:gosec
 		cmd := exec.Command(chkrootkitBinaryPath, args...)
 		s.logger.Infof("running chkrootkit command: %v", cmd.String())
-		out, err := sharedutils.RunCommand(cmd)
+		out, err := utils.RunCommand(cmd)
 		if err != nil {
 			s.sendResults(retResults, fmt.Errorf("failed to run chkrootkit command: %w", err))
 			return

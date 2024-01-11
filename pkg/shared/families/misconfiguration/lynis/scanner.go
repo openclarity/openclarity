@@ -24,13 +24,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
-	sharedUtils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const (
@@ -123,7 +122,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		cmd := exec.Command(lynisBinaryPath, args...) // nolint:gosec
 
 		a.logger.Infof("Running command: %v", cmd.String())
-		_, err = sharedUtils.RunCommand(cmd)
+		_, err = utils.RunCommand(cmd)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to run command: %w", err))
 			return
@@ -131,7 +130,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		// Get Lynis DB directory
 		cmd = exec.Command(lynisBinaryPath, []string{"show", "dbdir"}...) // nolint:gosec
-		out, err := sharedUtils.RunCommand(cmd)
+		out, err := utils.RunCommand(cmd)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to run command: %w", err))
 			return

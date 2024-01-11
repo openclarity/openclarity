@@ -16,9 +16,8 @@
 package vulnerabilities
 
 import (
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
+	"github.com/openclarity/vmclarity/pkg/shared/scanner"
 )
 
 type Results struct {
