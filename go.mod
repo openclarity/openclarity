@@ -52,7 +52,6 @@ require (
 	github.com/openclarity/yara-rule-server v0.2.1
 	github.com/package-url/packageurl-go v0.1.1
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
