@@ -21,9 +21,9 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
 
 	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/shared/config"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"

@@ -246,12 +246,6 @@ replace (
 	github.com/openclarity/vmclarity/api => ../api
 )
 
-replace (
-	github.com/openclarity/kubeclarity/api => github.com/openclarity/kubeclarity/api v0.0.0-20230503074245-0199b41a7b8f
-	github.com/openclarity/kubeclarity/cli => github.com/openclarity/kubeclarity/cli v0.0.0-20230503074245-0199b41a7b8f
-	github.com/openclarity/kubeclarity/shared => github.com/openclarity/kubeclarity/shared v0.0.0-20230503074245-0199b41a7b8f
-)
-
 // NOTE(chrisgacsal): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327
 // Remove replace if the bugfix is released.
 replace github.com/mitchellh/mapstructure => github.com/prochac/mapstructure v0.0.0-20230418172516-63cde0dfe248

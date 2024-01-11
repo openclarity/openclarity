@@ -27,13 +27,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
-	sharedUtils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const ScannerName = "sshTopology"
@@ -364,7 +363,7 @@ func (s *Scanner) executeSSHKeyGenFingerprintCommand(hashAlgo string, filePath s
 	}
 	cmd := exec.Command("ssh-keygen", args...)
 	s.logger.Infof("Running command: %v", cmd.String())
-	output, err := sharedUtils.RunCommand(cmd)
+	output, err := utils.RunCommand(cmd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run command: %w", err)
 	}

@@ -23,7 +23,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
-	kubeclarityUtils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/common"
@@ -300,7 +299,7 @@ func findMatchingStatsForInputTypeRootFS(stats *[]models.AssetScanInputScanStats
 		return models.AssetScanInputScanStats{}, false
 	}
 	for i, scanStats := range *stats {
-		if *scanStats.Type == string(kubeclarityUtils.ROOTFS) {
+		if *scanStats.Type == string(utils.ROOTFS) {
 			ret := *stats
 			return ret[i], true
 		}

@@ -19,8 +19,6 @@ import (
 	"reflect"
 	"testing"
 
-	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
-
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
@@ -69,7 +67,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 					Inputs: []types.Input{
 						{
 							Input:     "/mnt/snapshot1",
-							InputType: string(kubeclarityutils.ROOTFS),
+							InputType: string(utils.ROOTFS),
 						},
 					},
 				},
@@ -83,7 +81,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 						{
 							StripPathFromResult: utils.PointerTo(true),
 							Input:               "/mnt/snapshot1",
-							InputType:           string(kubeclarityutils.ROOTFS),
+							InputType:           string(utils.ROOTFS),
 						},
 					},
 				},
@@ -93,7 +91,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 						{
 							StripPathFromResult: utils.PointerTo(true),
 							Input:               "/mnt/snapshot1",
-							InputType:           string(kubeclarityutils.ROOTFS),
+							InputType:           string(utils.ROOTFS),
 						},
 					},
 				},
@@ -117,7 +115,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 					Inputs: []types.Input{
 						{
 							Input:     "/mnt/snapshot1",
-							InputType: string(kubeclarityutils.ROOTFS),
+							InputType: string(utils.ROOTFS),
 						},
 					},
 					InputFromSbom: false,

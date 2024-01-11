@@ -22,7 +22,6 @@ import (
 	"time"
 
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
-	kubeclarityUtils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 	"gotest.tools/v3/assert"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -81,7 +80,7 @@ func Test_getScanSize(t *testing.T) {
 						{
 							Path: utils.PointerTo("/"),
 							Size: utils.PointerTo(int64(10)),
-							Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+							Type: utils.PointerTo(string(utils.ROOTFS)),
 						},
 					},
 				},
@@ -100,14 +99,14 @@ func Test_getScanSize(t *testing.T) {
 						{
 							Path: utils.PointerTo("/dir"),
 							Size: utils.PointerTo(int64(3)),
-							Type: utils.PointerTo(string(kubeclarityUtils.DIR)),
+							Type: utils.PointerTo(string(utils.DIR)),
 						},
 					},
 					Malware: &[]models.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/"),
 							Size: utils.PointerTo(int64(10)),
-							Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+							Type: utils.PointerTo(string(utils.ROOTFS)),
 						},
 					},
 				},
@@ -168,7 +167,7 @@ func Test_getScanDuration(t *testing.T) {
 								EndTime:   &timeNow,
 								StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
 							},
-							Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+							Type: utils.PointerTo(string(utils.ROOTFS)),
 						},
 					},
 					Secrets: &[]models.AssetScanInputScanStats{
@@ -178,7 +177,7 @@ func Test_getScanDuration(t *testing.T) {
 								EndTime:   &timeNow,
 								StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
 							},
-							Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+							Type: utils.PointerTo(string(utils.ROOTFS)),
 						},
 					},
 				},
@@ -263,7 +262,7 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 									EndTime:   &timeNow,
 									StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
 								},
-								Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+								Type: utils.PointerTo(string(utils.ROOTFS)),
 							},
 						},
 						Secrets: &[]models.AssetScanInputScanStats{
@@ -273,7 +272,7 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 									EndTime:   &timeNow,
 									StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
 								},
-								Type: utils.PointerTo(string(kubeclarityUtils.ROOTFS)),
+								Type: utils.PointerTo(string(utils.ROOTFS)),
 							},
 						},
 					},

@@ -22,14 +22,13 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
 	gitleaksconfig "github.com/openclarity/vmclarity/pkg/shared/families/secrets/gitleaks/config"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
-	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const (
@@ -112,7 +111,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 		cmd := exec.Command(gitleaksBinaryPath, args...)
 		a.logger.Infof("Running gitleaks command: %v", cmd.String())
-		_, err = sharedutils.RunCommand(cmd)
+		_, err = utils.RunCommand(cmd)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to run gitleaks command: %w", err))
 			return
