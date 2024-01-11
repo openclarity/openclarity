@@ -22,10 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
-
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/utils/containerrootfs"
 )
 
@@ -60,7 +59,7 @@ func ShouldStripInputPath(inputShouldStrip *bool, familyShouldStrip bool) bool {
 
 func GetInputSize(input types.Input) (int64, error) {
 	switch input.InputType {
-	case string(kubeclarityutils.ROOTFS), string(kubeclarityutils.DIR), string(kubeclarityutils.FILE):
+	case string(utils.ROOTFS), string(utils.DIR), string(utils.FILE):
 		// check if already exists in cache
 		sizeFromCache, ok := InputSizesCache[input.Input]
 		if ok {
@@ -115,12 +114,12 @@ func DirSizeMB(path string) (int64, error) {
 // pass it down from the family manager to the scanners.
 var ContainerRootfsCache *containerrootfs.Cache
 
-func ConvertInputToFilesystem(ctx context.Context, sourceType kubeclarityutils.SourceType, userInput string) (string, func(), error) {
+func ConvertInputToFilesystem(ctx context.Context, sourceType utils.SourceType, userInput string) (string, func(), error) {
 	switch sourceType {
-	case kubeclarityutils.DIR, kubeclarityutils.ROOTFS:
+	case utils.DIR, utils.ROOTFS:
 		return userInput, func() {}, nil
-	case kubeclarityutils.IMAGE, kubeclarityutils.DOCKERARCHIVE, kubeclarityutils.OCIARCHIVE, kubeclarityutils.OCIDIR:
-		source := kubeclarityutils.CreateSource(sourceType, userInput, false)
+	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
+		source := utils.CreateSource(sourceType, userInput, false)
 		// TODO(sambetts) Remove this when we're able to pass the
 		// context all the way from the family manager.
 		ctx := containerrootfs.SetCacheForContext(ctx, ContainerRootfsCache)
@@ -135,7 +134,7 @@ func ConvertInputToFilesystem(ctx context.Context, sourceType kubeclarityutils.S
 			}
 		}
 		return rootfs.Dir(), cleanup, nil
-	case kubeclarityutils.SBOM, kubeclarityutils.FILE:
+	case utils.SBOM, utils.FILE:
 		fallthrough
 	default:
 		return "", func() {}, fmt.Errorf("unable to convert %s to filesystem", sourceType)

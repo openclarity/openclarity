@@ -16,11 +16,11 @@
 package fake
 
 import (
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	kubeclarityUtils "github.com/openclarity/kubeclarity/shared/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	misconfigurationTypes "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 const ScannerName = "fake"
@@ -39,7 +39,7 @@ func New(_ job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 	}
 }
 
-func (a *Scanner) Run(sourceType kubeclarityUtils.SourceType, userInput string) error {
+func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 	go func() {
 		retResults := misconfigurationTypes.ScannerResult{
 			ScannerName:       ScannerName,

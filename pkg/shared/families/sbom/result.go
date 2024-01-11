@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/openclarity/kubeclarity/shared/pkg/converter"
 
+	"github.com/openclarity/vmclarity/pkg/shared/converter"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 )
 

@@ -16,8 +16,7 @@
 package vulnerabilities
 
 import (
-	"github.com/openclarity/kubeclarity/shared/pkg/config"
-
+	"github.com/openclarity/vmclarity/pkg/shared/config"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 )
 

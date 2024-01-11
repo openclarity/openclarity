@@ -20,16 +20,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils"
-
 	familiesinterface "github.com/openclarity/vmclarity/pkg/shared/families/interfaces"
 	familiesresults "github.com/openclarity/vmclarity/pkg/shared/families/results"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/common"
 	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits/job"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
 	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type Rootkits struct {

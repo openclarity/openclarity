@@ -16,8 +16,6 @@
 package families
 
 import (
-	kubeclarityutils "github.com/openclarity/kubeclarity/shared/pkg/utils"
-
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
 	infofinderTypes "github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
@@ -64,7 +62,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 		if familiesConfig.SBOM.Enabled {
 			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, types.Input{
 				Input:     mountDir,
-				InputType: string(kubeclarityutils.ROOTFS),
+				InputType: string(utils.ROOTFS),
 			})
 		}
 
@@ -74,7 +72,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			} else {
 				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, types.Input{
 					Input:     mountDir,
-					InputType: string(kubeclarityutils.ROOTFS),
+					InputType: string(utils.ROOTFS),
 				})
 			}
 		}
@@ -83,7 +81,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
+				InputType:           string(utils.ROOTFS),
 			})
 		}
 
@@ -91,7 +89,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
+				InputType:           string(utils.ROOTFS),
 			})
 		}
 
@@ -99,7 +97,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, types.Input{
 				StripPathFromResult: utils.PointerTo(true),
 				Input:               mountDir,
-				InputType:           string(kubeclarityutils.ROOTFS),
+				InputType:           string(utils.ROOTFS),
 			})
 		}
 
@@ -109,7 +107,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 				types.Input{
 					StripPathFromResult: utils.PointerTo(true),
 					Input:               mountDir,
-					InputType:           string(kubeclarityutils.ROOTFS),
+					InputType:           string(utils.ROOTFS),
 				},
 			)
 		}
@@ -120,7 +118,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 				types.Input{
 					StripPathFromResult: utils.PointerTo(true),
 					Input:               mountDir,
-					InputType:           string(kubeclarityutils.ROOTFS),
+					InputType:           string(utils.ROOTFS),
 				},
 			)
 		}

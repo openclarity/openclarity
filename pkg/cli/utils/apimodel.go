@@ -19,9 +19,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openclarity/kubeclarity/shared/pkg/scanner"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/cyclonedx_helper"
-	"github.com/openclarity/kubeclarity/shared/pkg/utils/vulnerability"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -36,7 +33,10 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
 	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
 	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/pkg/shared/scanner"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/pkg/shared/utils/cyclonedx_helper"
+	"github.com/openclarity/vmclarity/pkg/shared/utils/vulnerability"
 )
 
 func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []models.Package {
