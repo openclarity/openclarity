@@ -104,7 +104,7 @@ jobs:
         run: make dist-gcp-deployment
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: |
@@ -114,6 +114,7 @@ jobs:
             dist/bicep/vmclarity.json
             dist/bicep/vmclarity-UI.json
           if-no-files-found: error
+          compression-level: 0
 
   main_release:
     needs:
@@ -130,7 +131,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts
           path: dist
