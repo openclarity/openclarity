@@ -81,8 +81,8 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching running ScanEstimations")
 
-	filter := fmt.Sprintf("(state/state ne '%s' and state/state ne '%s') or (deleteAfter eq null or deleteAfter lt %s)",
-		models.ScanEstimationStateStateDone, models.ScanEstimationStateStateFailed, time.Now().Format(time.RFC3339))
+	filter := fmt.Sprintf("(status/state ne '%s' and status/state ne '%s') or (deleteAfter eq null or deleteAfter lt %s)",
+		models.ScanEstimationStatusStateDone, models.ScanEstimationStatusStateFailed, time.Now().Format(time.RFC3339))
 	selector := "id"
 	params := models.GetScanEstimationsParams{
 		Filter: &filter,
@@ -131,19 +131,19 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 	}
 
 	if scanEstimation.IsTimedOut(w.scanEstimationTimeout) {
-		scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateFailed)
-		scanEstimation.State.StateMessage = utils.PointerTo("ScanEstimation has been timed out")
-		scanEstimation.State.StateReason = utils.PointerTo(models.ScanEstimationStateStateReasonTimedOut)
-
 		err = w.backend.PatchScanEstimation(ctx, *scanEstimation.Id, &models.ScanEstimation{
-			State: scanEstimation.State,
+			Status: models.NewScanEstimationStatus(
+				models.ScanEstimationStatusStateFailed,
+				models.ScanEstimationStatusReasonTimeout,
+				utils.PointerTo("ScanEstimation has been timed out"),
+			),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%s: %w", event.ScanEstimationID, err)
 		}
 	}
 
-	state, ok := scanEstimation.GetState()
+	status, ok := scanEstimation.GetStatus()
 	if !ok {
 		if err = w.reconcileNoState(ctx, scanEstimation); err != nil {
 			return err
@@ -151,26 +151,26 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 		return nil
 	}
 
-	logger.Tracef("Reconciling ScanEstimation state: %s", state)
+	logger.Tracef("Reconciling ScanEstimation state: %s", status.State)
 
-	switch state {
-	case models.ScanEstimationStateStatePending:
+	switch status.State {
+	case models.ScanEstimationStatusStatePending:
 		if err = w.reconcilePending(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case models.ScanEstimationStateStateDiscovered:
+	case models.ScanEstimationStatusStateDiscovered:
 		if err = w.reconcileDiscovered(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case models.ScanEstimationStateStateInProgress:
+	case models.ScanEstimationStatusStateInProgress:
 		if err = w.reconcileInProgress(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case models.ScanEstimationStateStateAborted:
+	case models.ScanEstimationStatusStateAborted:
 		if err = w.reconcileAborted(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case models.ScanEstimationStateStateDone, models.ScanEstimationStateStateFailed:
+	case models.ScanEstimationStatusStateDone, models.ScanEstimationStatusStateFailed:
 		if err = w.reconcileDone(ctx, scanEstimation); err != nil {
 			return err
 		}
@@ -232,10 +232,12 @@ func (w *Watcher) reconcileNoState(ctx context.Context, scanEstimation *models.S
 		return errors.New("invalid ScanEstimation: ID is nil")
 	}
 
-	scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStatePending)
-
 	scanEstimationPatch := models.ScanEstimation{
-		State: scanEstimation.State,
+		Status: models.NewScanEstimationStatus(
+			models.ScanEstimationStatusStatePending,
+			models.ScanEstimationStatusReasonCreated,
+			nil,
+		),
 	}
 	err := w.backend.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
 	if err != nil {
@@ -287,12 +289,17 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *models.S
 			assetIds = append(assetIds, *asset.Id)
 		}
 		scanEstimation.AssetIDs = &assetIds
-		scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateDiscovered)
-		scanEstimation.State.StateMessage = utils.PointerTo("Assets for Scan estimation are successfully discovered")
+		scanEstimation.Status = models.NewScanEstimationStatus(
+			models.ScanEstimationStatusStateDiscovered,
+			models.ScanEstimationStatusReasonSuccessfulDiscovery,
+			utils.PointerTo("Assets for Scan estimation are successfully discovered"),
+		)
 	} else {
-		scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateDone)
-		scanEstimation.State.StateReason = utils.PointerTo(models.ScanEstimationStateStateReasonNothingToEstimate)
-		scanEstimation.State.StateMessage = utils.PointerTo("No instances found in scope for Scan estimation")
+		scanEstimation.Status = models.NewScanEstimationStatus(
+			models.ScanEstimationStatusStateDone,
+			models.ScanEstimationStatusReasonNothingToEstimate,
+			utils.PointerTo("No instances found in scope for Scan estimation"),
+		)
 	}
 	logger.Debugf("%d Asset(s) have been created for Scan estimation", numOfAssets)
 
@@ -305,7 +312,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *models.S
 		StartTime:               utils.PointerTo(time.Now()),
 		TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
 		AssetIDs:                scanEstimation.AssetIDs,
-		State:                   scanEstimation.State,
+		Status:                  scanEstimation.Status,
 		Summary: &models.ScanEstimationSummary{
 			JobsCompleted: utils.PointerTo(0),
 			JobsLeftToRun: utils.PointerTo(numOfAssets),
@@ -335,10 +342,12 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scanEstimation *model
 		return fmt.Errorf("failed to creates AssetScanEstimation(s) for ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
 
-	scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateInProgress)
-
 	scanEstimationPatch := &models.ScanEstimation{
-		State:                scanEstimation.State,
+		Status: models.NewScanEstimationStatus(
+			models.ScanEstimationStatusStateInProgress,
+			models.ScanEstimationStatusReasonRunning,
+			nil,
+		),
 		Summary:              scanEstimation.Summary,
 		AssetIDs:             scanEstimation.AssetIDs,
 		AssetScanEstimations: scanEstimation.AssetScanEstimations,
@@ -498,7 +507,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 	}
 
 	filter := fmt.Sprintf("scanEstimation/id eq '%s'", scanEstimationID)
-	selector := "id,state,estimation"
+	selector := "id,status,estimation"
 	assetScanEstimations, err := w.backend.GetAssetScanEstimations(ctx, models.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
@@ -540,17 +549,29 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 	logger.Tracef("ScanEstimation Summary updated. JobCompleted=%d JobLeftToRun=%d", *scanEstimation.Summary.JobsCompleted,
 		*scanEstimation.Summary.JobsLeftToRun)
 
+	message := utils.PointerTo(
+		fmt.Sprintf(
+			"%d succeeded, %d failed out of %d total asset scan estimations",
+			*assetScanEstimations.Count-failedAssetScanEstimations,
+			failedAssetScanEstimations,
+			*assetScanEstimations.Count,
+		),
+	)
+
 	if *scanEstimation.Summary.JobsLeftToRun <= 0 {
 		if failedAssetScanEstimations > 0 {
-			scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateFailed)
-			scanEstimation.State.StateReason = utils.PointerTo(models.ScanEstimationStateStateReasonOneOrMoreAssetFailedToEstimate)
+			scanEstimation.Status = models.NewScanEstimationStatus(
+				models.ScanEstimationStatusStateFailed,
+				models.ScanEstimationStatusReasonError,
+				message,
+			)
 		} else {
-			scanEstimation.State.State = utils.PointerTo(models.ScanEstimationStateStateDone)
-			scanEstimation.State.StateReason = utils.PointerTo(models.ScanEstimationStateStateReasonSuccess)
+			scanEstimation.Status = models.NewScanEstimationStatus(
+				models.ScanEstimationStatusStateDone,
+				models.ScanEstimationStatusReasonSuccess,
+				message,
+			)
 		}
-		scanEstimation.State.StateMessage = utils.PointerTo(fmt.Sprintf("%d succeeded, %d failed out of %d total asset scan estimations",
-			*assetScanEstimations.Count-failedAssetScanEstimations, failedAssetScanEstimations, *assetScanEstimations.Count))
-
 		scanEstimation.EndTime = utils.PointerTo(time.Now())
 
 		if err := updateTotalScanTimeWithParallelScans(scanEstimation); err != nil {
@@ -561,7 +582,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *model
 
 	scanEstimationPatch := &models.ScanEstimation{
 		DeleteAfter: scanEstimation.DeleteAfter,
-		State:       scanEstimation.State,
+		Status:      scanEstimation.Status,
 		Summary:     scanEstimation.Summary,
 		EndTime:     scanEstimation.EndTime,
 		AssetIDs:    scanEstimation.AssetIDs,
@@ -624,7 +645,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *models.S
 
 	filter := fmt.Sprintf("scanEstimation/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 		scanEstimationID, models.AssetScanEstimationStatusStateAborted, models.AssetScanEstimationStatusStateDone)
-	selector := "id,state"
+	selector := "id,status"
 	params := models.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
@@ -675,15 +696,14 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *models.S
 	}
 
 	scanEstimation.EndTime = utils.PointerTo(time.Now())
-	scanEstimation.State = &models.ScanEstimationState{
-		State:        utils.PointerTo(models.ScanEstimationStateStateFailed),
-		StateMessage: utils.PointerTo("ScanEstimation has been aborted"),
-		StateReason:  utils.PointerTo(models.ScanEstimationStateStateReasonAborted),
-	}
 
 	scanEstimationPatch := &models.ScanEstimation{
-		EndTime:  scanEstimation.EndTime,
-		State:    scanEstimation.State,
+		EndTime: scanEstimation.EndTime,
+		Status: models.NewScanEstimationStatus(
+			models.ScanEstimationStatusStateFailed,
+			models.ScanEstimationStatusReasonAborted,
+			utils.PointerTo("ScanEstimation has been aborted"),
+		),
 		AssetIDs: scanEstimation.AssetIDs,
 	}
 	err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
