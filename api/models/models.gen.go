@@ -126,25 +126,27 @@ const (
 	RootkitTypeUNKNOWN     RootkitType = "UNKNOWN"
 )
 
-// Defines values for ScanEstimationStateState.
+// Defines values for ScanEstimationStatusReason.
 const (
-	ScanEstimationStateStateAborted    ScanEstimationStateState = "Aborted"
-	ScanEstimationStateStateDiscovered ScanEstimationStateState = "Discovered"
-	ScanEstimationStateStateDone       ScanEstimationStateState = "Done"
-	ScanEstimationStateStateFailed     ScanEstimationStateState = "Failed"
-	ScanEstimationStateStateInProgress ScanEstimationStateState = "InProgress"
-	ScanEstimationStateStatePending    ScanEstimationStateState = "Pending"
+	ScanEstimationStatusReasonAborted             ScanEstimationStatusReason = "Aborted"
+	ScanEstimationStatusReasonCancellation        ScanEstimationStatusReason = "Cancellation"
+	ScanEstimationStatusReasonCreated             ScanEstimationStatusReason = "Created"
+	ScanEstimationStatusReasonError               ScanEstimationStatusReason = "Error"
+	ScanEstimationStatusReasonNothingToEstimate   ScanEstimationStatusReason = "NothingToEstimate"
+	ScanEstimationStatusReasonRunning             ScanEstimationStatusReason = "EstimationsRunning"
+	ScanEstimationStatusReasonSuccess             ScanEstimationStatusReason = "Success"
+	ScanEstimationStatusReasonSuccessfulDiscovery ScanEstimationStatusReason = "SuccessfulDiscovery"
+	ScanEstimationStatusReasonTimeout             ScanEstimationStatusReason = "TimeOut"
 )
 
-// Defines values for ScanEstimationStateStateReason.
+// Defines values for ScanEstimationStatusState.
 const (
-	ScanEstimationStateStateReasonAborted                        ScanEstimationStateStateReason = "Aborted"
-	ScanEstimationStateStateReasonDiscoveryFailed                ScanEstimationStateStateReason = "DiscoveryFailed"
-	ScanEstimationStateStateReasonNothingToEstimate              ScanEstimationStateStateReason = "NothingToEstimate"
-	ScanEstimationStateStateReasonOneOrMoreAssetFailedToEstimate ScanEstimationStateStateReason = "OneOrMoreAssetFailedToEstimate"
-	ScanEstimationStateStateReasonSuccess                        ScanEstimationStateStateReason = "Success"
-	ScanEstimationStateStateReasonTimedOut                       ScanEstimationStateStateReason = "TimedOut"
-	ScanEstimationStateStateReasonUnexpected                     ScanEstimationStateStateReason = "Unexpected"
+	ScanEstimationStatusStateAborted    ScanEstimationStatusState = "Aborted"
+	ScanEstimationStatusStateDiscovered ScanEstimationStatusState = "Discovered"
+	ScanEstimationStatusStateDone       ScanEstimationStatusState = "Done"
+	ScanEstimationStatusStateFailed     ScanEstimationStatusState = "Failed"
+	ScanEstimationStatusStateInProgress ScanEstimationStatusState = "InProgress"
+	ScanEstimationStatusStatePending    ScanEstimationStatusState = "Pending"
 )
 
 // Defines values for ScanStatusReason.
@@ -1179,13 +1181,13 @@ type ScanEstimation struct {
 	AssetScanEstimations *[]AssetScanEstimationRelationship `json:"assetScanEstimations,omitempty"`
 
 	// DeleteAfter The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished. This should not be set by the user, but use ttlSecondsAfterFinished instead.
-	DeleteAfter  *time.Time           `json:"deleteAfter,omitempty"`
-	EndTime      *time.Time           `json:"endTime,omitempty"`
-	Id           *string              `json:"id,omitempty"`
-	Revision     *int                 `json:"revision,omitempty"`
-	ScanTemplate *ScanTemplate        `json:"scanTemplate,omitempty"`
-	StartTime    *time.Time           `json:"startTime,omitempty"`
-	State        *ScanEstimationState `json:"state,omitempty"`
+	DeleteAfter  *time.Time            `json:"deleteAfter,omitempty"`
+	EndTime      *time.Time            `json:"endTime,omitempty"`
+	Id           *string               `json:"id,omitempty"`
+	Revision     *int                  `json:"revision,omitempty"`
+	ScanTemplate *ScanTemplate         `json:"scanTemplate,omitempty"`
+	StartTime    *time.Time            `json:"startTime,omitempty"`
+	Status       *ScanEstimationStatus `json:"status,omitempty"`
 
 	// Summary A summary of the AssetScanEstimations under this ScanEstimation
 	Summary *ScanEstimationSummary `json:"summary,omitempty"`
@@ -1199,23 +1201,68 @@ type ScanEstimationRelationship struct {
 	Id *string `json:"id,omitempty"`
 }
 
-// ScanEstimationState defines model for ScanEstimationState.
-type ScanEstimationState struct {
-	// State The lifecycle state of this scan estimation.
-	State *ScanEstimationStateState `json:"state,omitempty"`
+// ScanEstimationStatus defines model for ScanEstimationStatus.
+type ScanEstimationStatus struct {
+	// LastTransitionTime Last date time when the status has changed.
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
 
-	// StateMessage Human-readable message indicating details about the last state transition.
-	StateMessage *string `json:"stateMessage,omitempty"`
+	// Message Human readable message.
+	Message *string `json:"message,omitempty"`
 
-	// StateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-	StateReason *ScanEstimationStateStateReason `json:"stateReason,omitempty"`
+	// Reason Machine readable reason for state transition.
+	//
+	// | State      | Reason              | Description                                                       |
+	// | ---------- | ------------------- | ----------------------------------------------------------------- |
+	// | Pending    | Created             | Initial state for ScanEstimation                                  |
+	// | Discovered | SuccessfulDiscovery | Assets to estimate successfully discovered                        |
+	// | InProgress | Running             | Scan estimation is currently in progress                          |
+	// | Aborted    | Cancellation        | ScanEstimation has been cancelled                                 |
+	// | Failed     | Aborted             | ScanEstimation has failed due to abort                            |
+	// | Failed     | Error               | ScanEstimation has failed due to an error                         |
+	// | Failed     | Timeout             | ScanEstimation has failed due to timeout                          |
+	// | Done       | NothingToEstimate   | ScanEstimation has finished because there was nothing to estimate |
+	// | Done       | Success             | ScanEstimation has finished successfully                          |
+	Reason ScanEstimationStatusReason `json:"reason"`
+
+	// State Describes the state of scan estimation.
+	//
+	// | State      | Description                              |
+	// | ---------- | ---------------------------------------- |
+	// | Pending    | Initial state for ScanEstimation         |
+	// | Discovered | Assets have been discovered              |
+	// | InProgress | Scan estimation is in progress           |
+	// | Aborted    | ScanEstimation has aborted               |
+	// | Failed     | ScanEstimation has failed                |
+	// | Done       | ScanEstimation has finished successfully |
+	State ScanEstimationStatusState `json:"state"`
 }
 
-// ScanEstimationStateState The lifecycle state of this scan estimation.
-type ScanEstimationStateState string
+// ScanEstimationStatusReason Machine readable reason for state transition.
+//
+// | State      | Reason              | Description                                                       |
+// | ---------- | ------------------- | ----------------------------------------------------------------- |
+// | Pending    | Created             | Initial state for ScanEstimation                                  |
+// | Discovered | SuccessfulDiscovery | Assets to estimate successfully discovered                        |
+// | InProgress | Running             | Scan estimation is currently in progress                          |
+// | Aborted    | Cancellation        | ScanEstimation has been cancelled                                 |
+// | Failed     | Aborted             | ScanEstimation has failed due to abort                            |
+// | Failed     | Error               | ScanEstimation has failed due to an error                         |
+// | Failed     | Timeout             | ScanEstimation has failed due to timeout                          |
+// | Done       | NothingToEstimate   | ScanEstimation has finished because there was nothing to estimate |
+// | Done       | Success             | ScanEstimation has finished successfully                          |
+type ScanEstimationStatusReason string
 
-// ScanEstimationStateStateReason Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
-type ScanEstimationStateStateReason string
+// ScanEstimationStatusState Describes the state of scan estimation.
+//
+// | State      | Description                              |
+// | ---------- | ---------------------------------------- |
+// | Pending    | Initial state for ScanEstimation         |
+// | Discovered | Assets have been discovered              |
+// | InProgress | Scan estimation is in progress           |
+// | Aborted    | ScanEstimation has aborted               |
+// | Failed     | ScanEstimation has failed                |
+// | Done       | ScanEstimation has finished successfully |
+type ScanEstimationStatusState string
 
 // ScanEstimationSummary A summary of the AssetScanEstimations under this ScanEstimation
 type ScanEstimationSummary struct {
