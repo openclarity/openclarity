@@ -17,15 +17,12 @@ package models
 
 import "time"
 
-func (s *ScanEstimation) GetState() (ScanEstimationStateState, bool) {
-	var state ScanEstimationStateState
-	var ok bool
-
-	if s.State != nil && s.State.State != nil {
-		state, ok = *s.State.State, true
+func (s *ScanEstimation) GetStatus() (ScanEstimationStatus, bool) {
+	if s.Status == nil {
+		return ScanEstimationStatus{}, false
 	}
 
-	return state, ok
+	return *s.Status, true
 }
 
 func (s *ScanEstimation) GetID() (string, bool) {

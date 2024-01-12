@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/apiserver/common"
@@ -42,6 +43,15 @@ func (s *ServerImpl) PostScanEstimations(ctx echo.Context) error {
 	err := ctx.Bind(&scanEstimation)
 	if err != nil {
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("failed to bind request: %v", err))
+	}
+
+	status, ok := scanEstimation.GetStatus()
+	switch {
+	case !ok:
+		return sendError(ctx, http.StatusBadRequest, "invalid request: status is missing")
+	case status.State != models.ScanEstimationStatusStatePending:
+		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("invalid request: initial state for scan estimation is invalid: %s", status.State))
+	default:
 	}
 
 	createdScanEstimation, err := s.dbHandler.ScanEstimationsTable().CreateScanEstimation(scanEstimation)
@@ -98,6 +108,27 @@ func (s *ServerImpl) PatchScanEstimationsScanEstimationID(ctx echo.Context, scan
 	}
 	scanEstimation.Id = &scanEstimationID
 
+	// check that a scan estimation with that id exists.
+	existingScanEstimation, err := s.dbHandler.ScanEstimationsTable().GetScanEstimation(scanEstimationID, models.GetScanEstimationsScanEstimationIDParams{})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan estimation was not found. scanEstimationID=%v: %v", scanEstimationID, err))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan estimation. scanEstimationID=%v: %v", scanEstimationID, err))
+	}
+
+	// check for valid state transition if the status was provided
+	if status, ok := scanEstimation.GetStatus(); ok {
+		existingStatus, ok := existingScanEstimation.GetStatus()
+		if !ok {
+			return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing scan: scanID=%v", existingScanEstimation.Id))
+		}
+		err = existingStatus.IsValidTransition(status)
+		if err != nil {
+			return sendError(ctx, http.StatusBadRequest, err.Error())
+		}
+	}
+
 	updatedScanEstimation, err := s.dbHandler.ScanEstimationsTable().UpdateScanEstimation(scanEstimation, params)
 	if err != nil {
 		var validationErr *common.BadRequestError
@@ -130,6 +161,29 @@ func (s *ServerImpl) PutScanEstimationsScanEstimationID(ctx echo.Context, scanEs
 		return sendError(ctx, http.StatusBadRequest, fmt.Sprintf("id in body %s does not match object %s to be updated", *scanEstimation.Id, scanEstimationID))
 	}
 	scanEstimation.Id = &scanEstimationID
+
+	// check that a scan estimation with that id exists.
+	existingScanEstimation, err := s.dbHandler.ScanEstimationsTable().GetScanEstimation(scanEstimationID, models.GetScanEstimationsScanEstimationIDParams{})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("scan estimation was not found. scanEstimationID=%v: %v", scanEstimationID, err))
+		}
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get scan estimation. scanEstimationID=%v: %v", scanEstimationID, err))
+	}
+
+	// check for valid state transition
+	status, ok := scanEstimation.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
+	existingStatus, ok := existingScanEstimation.GetStatus()
+	if !ok {
+		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to retrieve Status for existing scan estimation: scanEstimationID=%v", existingScanEstimation.Id))
+	}
+	err = existingStatus.IsValidTransition(status)
+	if err != nil {
+		return sendError(ctx, http.StatusBadRequest, err.Error())
+	}
 
 	updatedScanEstimation, err := s.dbHandler.ScanEstimationsTable().SaveScanEstimation(scanEstimation, params)
 	if err != nil {

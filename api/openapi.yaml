@@ -3468,8 +3468,8 @@ components:
               type: array
               items:
                 type: string
-            state:
-              $ref: '#/components/schemas/ScanEstimationState'
+            status:
+              $ref: '#/components/schemas/ScanEstimationStatus'
             startTime:
               type: string
               format: date-time
@@ -3504,11 +3504,25 @@ components:
         id:
           type: string
 
-    ScanEstimationState:
+    ScanEstimationStatus:
       type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
       properties:
         state:
-          description: The lifecycle state of this scan estimation.
+          description: |
+            Describes the state of scan estimation.
+
+            | State      | Description                              |
+            | ---------- | ---------------------------------------- |
+            | Pending    | Initial state for ScanEstimation         |
+            | Discovered | Assets have been discovered              |
+            | InProgress | Scan estimation is in progress           |
+            | Aborted    | ScanEstimation has aborted               |
+            | Failed     | ScanEstimation has failed                |
+            | Done       | ScanEstimation has finished successfully |
           type: string
           enum:
             - Pending
@@ -3517,20 +3531,49 @@ components:
             - Aborted
             - Failed
             - Done
-        stateMessage:
-          description: Human-readable message indicating details about the last state transition.
-          type: string
-        stateReason:
-          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+        reason:
+          description: |
+            Machine readable reason for state transition.
+
+            | State      | Reason              | Description                                                       |
+            | ---------- | ------------------- | ----------------------------------------------------------------- |
+            | Pending    | Created             | Initial state for ScanEstimation                                  |
+            | Discovered | SuccessfulDiscovery | Assets to estimate successfully discovered                        |
+            | InProgress | Running             | Scan estimation is currently in progress                          |
+            | Aborted    | Cancellation        | ScanEstimation has been cancelled                                 |
+            | Failed     | Aborted             | ScanEstimation has failed due to abort                            |
+            | Failed     | Error               | ScanEstimation has failed due to an error                         |
+            | Failed     | Timeout             | ScanEstimation has failed due to timeout                          |
+            | Done       | NothingToEstimate   | ScanEstimation has finished because there was nothing to estimate |
+            | Done       | Success             | ScanEstimation has finished successfully                          |
           type: string
           enum:
+            - Created
+            - SuccessfulDiscovery
+            - EstimationsRunning
+            - Cancellation
             - Aborted
-            - TimedOut
-            - OneOrMoreAssetFailedToEstimate
-            - DiscoveryFailed
-            - Unexpected
+            - Error
+            - TimeOut
             - NothingToEstimate
             - Success
+          x-enum-varnames:
+            - ScanEstimationStatusReasonCreated
+            - ScanEstimationStatusReasonSuccessfulDiscovery
+            - ScanEstimationStatusReasonRunning
+            - ScanEstimationStatusReasonCancellation
+            - ScanEstimationStatusReasonAborted
+            - ScanEstimationStatusReasonError
+            - ScanEstimationStatusReasonTimeout
+            - ScanEstimationStatusReasonNothingToEstimate
+            - ScanEstimationStatusReasonSuccess
+        message:
+          description: Human readable message.
+          type: string
+        lastTransitionTime:
+          description: Last date time when the status has changed.
+          type: string
+          format: date-time
 
     Estimation:
       type: object
