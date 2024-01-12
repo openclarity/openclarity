@@ -323,7 +323,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 			distro := scanner.Distro{}
 			if report.Metadata.OS != nil {
 				// Trivy calls the distro name (ubuntu, debian, alpine) the family
-				distro.Name = report.Metadata.OS.Family
+				distro.Name = string(report.Metadata.OS.Family)
 				// Trivy calls the version (11, hardy heron, 22.04) the name
 				distro.Version = report.Metadata.OS.Name
 			}
