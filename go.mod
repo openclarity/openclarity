@@ -27,7 +27,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.24.6
 	github.com/aws/smithy-go v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/containerd/containerd v1.7.11
+	github.com/containerd/containerd v1.7.12
 	github.com/containerd/nerdctl v1.7.2
 	github.com/containers/image/v5 v5.29.0
 	github.com/deepmap/oapi-codegen/v2 v2.0.1-0.20231204155340-1f53862bcc64
@@ -324,6 +324,7 @@ require (
 	github.com/moby/spdystream v0.2.0 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/signal v0.7.0 // indirect
+	github.com/moby/sys/user v0.1.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
