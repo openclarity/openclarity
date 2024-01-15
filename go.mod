@@ -32,7 +32,7 @@ require (
 	github.com/containers/image/v5 v5.29.0
 	github.com/deepmap/oapi-codegen/v2 v2.0.1-0.20231204155340-1f53862bcc64
 	github.com/docker/docker v24.0.7+incompatible
-	github.com/evanphx/json-patch v5.7.0+incompatible
+	github.com/evanphx/json-patch v5.8.0+incompatible
 	github.com/getkin/kin-openapi v0.122.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/runtime v0.26.2
