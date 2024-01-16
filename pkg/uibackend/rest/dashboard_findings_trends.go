@@ -95,10 +95,10 @@ func validateParams(params models.GetDashboardFindingsTrendsParams) error {
 func createTimes(params models.GetDashboardFindingsTrendsParams) []time.Time {
 	times := make([]time.Time, numOfTimePoints)
 	timeBetweenPoints := params.EndTime.Sub(params.StartTime) / numOfTimePoints
-	time := params.EndTime
+	t := params.EndTime
 	for i := numOfTimePoints - 1; i >= 0; i-- {
-		times[i] = time
-		time = time.Add(-timeBetweenPoints)
+		times[i] = t
+		t = t.Add(-timeBetweenPoints)
 	}
 	return times
 }

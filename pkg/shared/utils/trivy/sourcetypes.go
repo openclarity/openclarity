@@ -81,7 +81,7 @@ func SetTrivyImageOptions(sourceType utils.SourceType, userInput string, trivyOp
 	case utils.DOCKERARCHIVE, utils.OCIDIR:
 		trivyOptions.ImageOptions.Input = userInput
 
-	// OCI Archive isn't natively supported so we'll convert it to a OCI
+	// OCI Archive isn't natively supported, so we'll convert it to an OCI
 	// directory first and then configure trivy as above.
 	case utils.OCIARCHIVE:
 		var err error

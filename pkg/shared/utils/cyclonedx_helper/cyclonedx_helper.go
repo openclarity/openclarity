@@ -121,7 +121,7 @@ func GetComponentLicenses(component cdx.Component) []string {
 func GetComponentLanguage(component cdx.Component) string {
 	// Get language from the PackageURL.
 	// PackageURL is a mandatory field for Component, so it should exist.
-	purl, err := purl.FromString(component.PackageURL)
+	p, err := purl.FromString(component.PackageURL)
 	if err != nil {
 		log.Warnf("Failed to convert PURL from string: %v", err)
 		return ""
@@ -129,7 +129,7 @@ func GetComponentLanguage(component cdx.Component) string {
 	var lang string
 	// Defined languages in package-url
 	// https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#package-url-type-definitions
-	switch purl.Type {
+	switch p.Type {
 	case "golang":
 		lang = "go"
 	case "pypi":

@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	DefaultScope   string        = "assetInfo/labels/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
-	DefaultTimeout time.Duration = 60 * time.Second
+	DefaultScope   string = "assetInfo/labels/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
+	DefaultTimeout        = 60 * time.Second
 )
 
 var FullScanFamiliesConfig = models.ScanFamiliesConfig{

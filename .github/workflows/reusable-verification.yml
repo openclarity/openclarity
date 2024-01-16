@@ -47,7 +47,7 @@ jobs:
 
       - name: Vendor dependencies to retrieve licenses locally
         # Vendor deps before running https://github.com/goph/licensei
-        # to avoid false-positives when modules Github repo could not be determined
+        # to avoid false-positives when modules GitHub repo could not be determined
         run: go mod vendor
 
       - name: Check licenses

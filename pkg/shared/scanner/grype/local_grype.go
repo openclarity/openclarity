@@ -80,7 +80,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 	s.logger.Infof("Loading DB. update=%v", s.config.UpdateDB)
 
-	store, dbStatus, _, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
+	vulnerabilityStore, dbStatus, _, err := grype.LoadVulnerabilityDB(dbConfig, s.config.UpdateDB)
 
 	if err = validateDBLoad(err, dbStatus); err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to load vulnerability DB: %w", err), s.logger)
@@ -116,7 +116,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 
 	s.logger.Infof("Found %d packages", len(packages))
 
-	vulnerabilityMatcher := createVulnerabilityMatcher(store)
+	vulnerabilityMatcher := createVulnerabilityMatcher(vulnerabilityStore)
 	allMatches, ignoredMatches, err := vulnerabilityMatcher.FindMatches(packages, context)
 	// We can ignore ErrAboveSeverityThreshold since we are not setting the FailSeverity on the matcher.
 	if err != nil && !errors.Is(err, grypeerr.ErrAboveSeverityThreshold) {
@@ -125,7 +125,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
-	doc, err := grype_models.NewDocument(packages, context, *allMatches, ignoredMatches, store.MetadataProvider, nil, dbStatus)
+	doc, err := grype_models.NewDocument(packages, context, *allMatches, ignoredMatches, vulnerabilityStore.MetadataProvider, nil, dbStatus)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
 		return

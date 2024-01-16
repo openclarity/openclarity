@@ -124,18 +124,18 @@ func purlStringToStruct(purlInput string) purl {
 	} else if len(purlParts) == 2 {
 		// Check type is a valid PURL type, if it is then use it.
 		//
-		// Otherwise check if the type is a namespace we know belong to
+		// Otherwise, check if the type is a namespace we know belong to
 		// one of the types, sometimes the anaylzers goof up and forget
 		// the type part, looking at you syft....
 		//
-		// If its a recognised namespace then we can correct the PURL,
+		// If it is a recognised namespace then we can correct the PURL,
 		// otherwise this is an invalid PURL so return the empty purl
 		// struct.
 		if isValidPurlType(purlParts[0]) {
 			output.typ = purlParts[0]
 		} else {
 			// Fix known cases otherwise just exclude the type from
-			// the purl or error maybe, havn't decided
+			// the purl or error maybe, haven't decided
 			switch purlParts[0] {
 			case "alpine":
 				output.typ = "apk"

@@ -230,7 +230,7 @@ func toVulnerabilityByKey(matches Matches) map[VulnerabilityKey]Vulnerability {
 					vulB, _ := json.Marshal(vul)
 					// nolint:errchkjson
 					newVulB, _ := json.Marshal(match.Vulnerability)
-					log.Debugf("Existing vul with the same key %q. vul=%+s, newVul=%s", key, vulB, newVulB)
+					log.Debugf("Existing vul with the same key %q. vul=%s, newVul=%s", key, vulB, newVulB)
 				} else if diff != nil {
 					log.Debugf("Existing vul with the same key %q. diff.JSONDiff=%+v", key, diff.JSONDiff)
 				} else {

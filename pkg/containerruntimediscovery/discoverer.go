@@ -31,7 +31,7 @@ type Discoverer interface {
 
 type DiscovererFactory func(ctx context.Context) (Discoverer, error)
 
-var discovererFactories map[string]DiscovererFactory = map[string]DiscovererFactory{
+var discovererFactories = map[string]DiscovererFactory{
 	"docker":     NewDockerDiscoverer,
 	"containerd": NewContainerdDiscoverer,
 }
