@@ -49,7 +49,7 @@ type Options struct {
 
 	// Example field of a collection of primitive type inside of a nested
 	// complex type
-	OtherThings []string `json:OtherThings`
+	OtherThings []string `json:"OtherThings"`
 }
 
 type Engine struct {

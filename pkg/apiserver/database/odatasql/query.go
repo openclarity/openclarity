@@ -136,7 +136,7 @@ func buildSelectFieldsFromSelectAndExpand(sqlVariant jsonsql.Variant, schemaMeta
 	var selectQuery *godata.GoDataSelectQuery
 	if selectString != nil && *selectString != "" {
 		// NOTE(sambetts):
-		// For now we'll won't parse the data here and instead pass
+		// For now we won't parse the data here and instead pass
 		// just the raw value into the selectTree. The select tree will
 		// parse the select query using the ExpandParser. If we can
 		// update the GoData select parser to handle paths properly and

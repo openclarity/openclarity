@@ -59,8 +59,7 @@ func New(c job_manager.IsConfig,
 
 	// Init trivy's loggers with a hook into our logger
 	lc := logrusCore{logger}
-	zap := zap.New(lc)
-	trivyLog.Logger = zap.Sugar()
+	trivyLog.Logger = zap.New(lc).Sugar()
 	dlog.SetLogger(trivyLog.Logger)
 	flog.SetLogger(trivyLog.Logger)
 

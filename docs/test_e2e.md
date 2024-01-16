@@ -1,4 +1,4 @@
-# End to End testing guide
+# End-to-end testing guide
 
 ## Table of Contents
 
@@ -7,7 +7,7 @@
   - [2. Update installation/aws/VMClarity.cfn](#2-update-installationawsvmclaritycfn)
   - [3. Install VMClarity cloudformation](#3-install-vmclarity-cloudformation)
   - [4. Ensure that VMClarity backend is working correctly](#4-ensure-that-vmclarity-backend-is-working-correctly)
-- [Performing an end to end test](#performing-an-end-to-end-test)
+- [Performing an end-to-end test](#performing-an-end-to-end-test)
 
 ## Installing a specific VMClarity build on AWS
 
@@ -37,7 +37,7 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
    sudo journalctl -u vmclarity
    ```
 
-## Performing an end to end test
+## Performing an end-to-end test
 
 1. Copy the example [scanConfig.json](scanConfig.json) into the ubuntu user's home directory
 

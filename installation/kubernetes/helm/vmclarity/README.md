@@ -40,7 +40,7 @@ secrets.
 | apiserver.image.digest | string | `""` | API Server image digest. If set will override the tag. |
 | apiserver.image.pullPolicy | string | `"IfNotPresent"` | API Server image pull policy |
 | apiserver.image.registry | string | `"ghcr.io"` | API Server image registry |
-| apiserver.image.repository | string | `"openclarity/vmclarity-apiserver"` | API Server image repositiory |
+| apiserver.image.repository | string | `"openclarity/vmclarity-apiserver"` | API Server image repository |
 | apiserver.image.tag | string | `"latest"` | API Server image tag (immutable tags are recommended) |
 | apiserver.logLevel | string | `"info"` | API Server log level |
 | apiserver.podSecurityContext.enabled | bool | `true` | Pod security context enabled |

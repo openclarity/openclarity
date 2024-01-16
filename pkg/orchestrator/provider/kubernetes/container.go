@@ -30,7 +30,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-var crDiscovererLabels map[string]string = map[string]string{
+var crDiscovererLabels = map[string]string{
 	"app.kubernetes.io/component": "cr-discovery-server",
 	"app.kubernetes.io/name":      "vmclarity",
 }

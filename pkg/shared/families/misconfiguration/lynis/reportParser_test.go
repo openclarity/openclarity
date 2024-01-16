@@ -525,7 +525,7 @@ func TestReportParser_scanLynisReportFile(t *testing.T) {
 	}
 }
 
-var testdataMisconfigurations []types.Misconfiguration = []types.Misconfiguration{
+var testdataMisconfigurations = []types.Misconfiguration{
 	{
 		ScannedPath:     "scanPath",
 		TestCategory:    "security",
