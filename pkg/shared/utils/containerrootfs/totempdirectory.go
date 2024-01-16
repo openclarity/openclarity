@@ -62,7 +62,7 @@ func toTempDirectory(ctx context.Context, src string) (Rootfs, error) {
 	successful := false
 	tdrf := &tempDirRootfs{}
 	defer func() {
-		// If we're successful then its the responsibility of the caller
+		// If we're successful then it is the responsibility of the caller
 		// to defer the cleanup, if we error during this function then
 		// we need to handle it.
 		if !successful {

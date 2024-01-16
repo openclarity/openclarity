@@ -17,7 +17,7 @@ We are using OpenAPIs in the project to describe our APIs. It should be the sing
 
 The API is changing frequently and we often face the issue that something is broken (especially on the UI) because of the changes made on the API.
 
-UI developers always have to check the open api description because they don't have typing support during development. This process is manual and error prone. It is also very hard to maintain because you might not know all the occurences that you have to change given a specific API change.
+UI developers always have to check the open api description because they don't have typing support during development. This process is manual and error-prone. It is also very hard to maintain because you might not know all the occurrences that you have to change given a specific API change.
 
 ## Proposal
 
@@ -27,7 +27,7 @@ We could generate a client side SDK based on the OpenAPIs. The [OpenAPI generato
 
 Besides generating the client side code to access the APIs we should also have a strategy for caching, request deduplication, keeping data up to date. Instead of solving all of this on our own we should use a proper data-fetching library. [`TanStack Query`](https://tanstack.com/query/v5/docs/react/overview) (formerly known as `react-query`) solves all of this (and even more) for us.
 
-The above proposal is just the ground work required for end to end type safety. Our client side code is written in JS at the moment. We should switch to TS in all the UI code and replace the API calls with the approppriate calls using the generated SDK to ensure end to end type safety.
+The above proposal is just the groundwork required for end to end type safety. Our client side code is written in JS at the moment. We should switch to TS in all the UI code and replace the API calls with the appropriate calls using the generated SDK to ensure end to end type safety.
 
 ### Abandoned Ideas (Optional)
 
@@ -68,7 +68,7 @@ const vmClarityApi = new VMClarityApi(undefined, undefined, axiosClient);
 ```
 
 
-4. Use the API instance in the your react-query based queries.
+4. Use the API instance in your react-query based queries.
 
 ```ts
 const { data: assets } = useQuery({

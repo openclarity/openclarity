@@ -8,7 +8,7 @@ apiserver:
   image:
     # -- API Server image registry
     registry: ghcr.io
-    # -- API Server image repositiory
+    # -- API Server image repository
     repository: openclarity/vmclarity-apiserver
     # -- API Server image tag (immutable tags are recommended)
     tag: latest

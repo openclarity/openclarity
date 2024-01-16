@@ -30,7 +30,7 @@ const (
 func InitLogger(level string, output io.Writer) {
 	logLevel, err := log.ParseLevel(level)
 	if err != nil {
-		log.Errorf("failed to prase log level, using default(%s): %v", DefaultLogLevel, err)
+		log.Errorf("failed to parse log level, using default(%s): %v", DefaultLogLevel, err)
 		logLevel = DefaultLogLevel
 	}
 	log.SetLevel(logLevel)

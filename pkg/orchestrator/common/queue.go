@@ -43,7 +43,7 @@ type Queue[T ReconcileEvent] struct {
 	queue []T
 
 	// A map used as a set of unique items which are in the queue. This is
-	// used by Enqueue and Has to provide a quick reference to whats in the
+	// used by Enqueue and Has to provide a quick reference to what is in the
 	// queue without needing to loop through the queue slice.
 	inqueue map[string]struct{}
 
@@ -118,7 +118,7 @@ func (q *Queue[T]) Dequeue(ctx context.Context) (T, error) {
 	return item, nil
 }
 
-// Enqueue will add item to the queue if its not in the queue already.
+// Enqueue will add item to the queue if it is not in the queue already.
 func (q *Queue[T]) Enqueue(item T) {
 	q.l.Lock()
 	defer q.l.Unlock()

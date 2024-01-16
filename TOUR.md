@@ -16,13 +16,13 @@ Figure 3. VMClarity Scan Setup Step 1
 
 <img src="img/vmclarity-scan-setup-1.png" alt="VMClarity Scan Setup - Step 1" width="40%" height="40%" title="VMClarity Scan Setup Step 1" />
 
-- In the "New scan config" wizard shown in Figure 4, follow the wizard steps to name the scan, and identify the AWS scope (region, VPC, security groups, etc). In the example shown in Figure 4, the AWS us-east-2 region, and a specific VPC were identied as well as a specific EC2 instance with the name "vmclarity-demo-vm".
+- In the "New scan config" wizard shown in Figure 4, follow the wizard steps to name the scan, and identify the AWS scope (region, VPC, security groups, etc.). In the example shown in Figure 4, the AWS us-east-2 region, and a specific VPC were identified as well as a specific EC2 instance with the name "vmclarity-demo-vm".
 
 Figure 4. VMClarity Scan Setup Step 2
 
 <img src="img/vmclarity-scan-setup-2.png" alt="VMClarity Scan Setup - Step 2" width="40%" height="40%" title="VMClarity Scan Setup Step 2" />
 
-- Next, identify all of the scan types you want enabled. As Figure 5 shows, all of the available scan types have been enabled.
+- Next, identify all the scan types you want enabled. As Figure 5 shows, all the available scan types have been enabled.
 
 Figure 5. VMClarity Scan Setup Step 3
 
@@ -34,7 +34,7 @@ Figure 6. VMClarity Scan Setup Step 4
 
 <img src="img/vmclarity-scan-setup-4.png" alt="VMClarity Scan Setup - Step 4" width="40%" height="40%" title="VMClarity Scan Setup Step 4" />
 
-- Once all of the scan setup steps have been entered, click on "Save".
+- Once all the scan setup steps have been entered, click on "Save".
 
 In the Scan Configurations tab, you will see the scan config listed as shown in Figure 7.
 

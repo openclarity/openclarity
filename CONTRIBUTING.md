@@ -45,13 +45,13 @@ possible, and, if possible, a test case.
 ### Building VMClarity Binaries
 
 Makefile targets are provided to compile and build the VMClarity binaries.
-`make build` can be used to build all of the components, but also specific
+`make build` can be used to build all the components, but also specific
 targets are provided, for example `make build-cli` and `make build-backend` to
 build the specific components in isolation.
 
 ### Building VMClarity Containers
 
-`make docker` can be used to build the VMClarity containers for all of the
+`make docker` can be used to build the VMClarity containers for all the
 components. Specific targets for example `make docker-cli` and `make
 docker-backend` are also provided.
 

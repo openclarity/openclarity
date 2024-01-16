@@ -51,7 +51,7 @@ func (s *ServerImpl) GetOpenAPISpec(ctx echo.Context) error {
 	// swagger-ui service dynamically loads the OpenAPI spec from the
 	// APIServer and knows where to send the TryItNow requests.
 	// Wherever the API server is accessed from through a proxy or
-	// sub-domain this will correct the servers entry to match that clients
+	// subdomain this will correct the servers entry to match that clients
 	// access path.
 	headers := ctx.Request().Header
 
