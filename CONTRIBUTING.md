@@ -42,6 +42,22 @@ possible, and, if possible, a test case.
 
 ## Development
 
+### Development Environment
+
+For the `gopls` language server to index the whole project, it is possible to create a local `go.work` file including the current go version used and the modules, followed by running `go mod tidy`, such as:
+
+```text
+go 1.21.4
+
+use (
+    ./api
+    ./e2e
+    ./
+)
+
+// maybe replaces if there are conflicts
+```
+
 ### Building VMClarity Binaries
 
 Makefile targets are provided to compile and build the VMClarity binaries.
