@@ -6,3 +6,4 @@ bin/
 db.db
 site/
 dist
+go.work*
