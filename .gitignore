@@ -7,3 +7,4 @@ db.db
 site/
 dist
 go.work*
+.envrc
