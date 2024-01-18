@@ -19,7 +19,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Setup Go caching
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/go/pkg/mod
@@ -32,7 +32,7 @@ jobs:
         run: make license-header
 
       - name: License cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .licensei.cache
           key: licensei-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
@@ -105,7 +105,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Setup Go caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build
@@ -116,7 +116,7 @@ jobs:
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
       - name: Cache golangci-lint cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.golangci.cache
           key: golangci-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
