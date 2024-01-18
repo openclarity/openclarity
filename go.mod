@@ -46,7 +46,7 @@ require (
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/onsi/gomega v1.30.0
+	github.com/onsi/gomega v1.31.0
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050
 	github.com/openclarity/vmclarity/api v0.0.0
 	github.com/openclarity/yara-rule-server v0.2.1
