@@ -29,7 +29,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containerd/containerd v1.7.12
 	github.com/containerd/nerdctl v1.7.2
-	github.com/containers/image/v5 v5.29.0
+	github.com/containers/image/v5 v5.29.1
 	github.com/deepmap/oapi-codegen/v2 v2.0.1-0.20231204155340-1f53862bcc64
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/evanphx/json-patch v5.8.1+incompatible
