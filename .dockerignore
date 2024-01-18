@@ -9,3 +9,4 @@ scanner_boot_test
 .envrc
 Dockerfile*
 dist
+go.work*
