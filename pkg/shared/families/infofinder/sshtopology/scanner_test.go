@@ -33,42 +33,28 @@ func Test_getHomeUserDirs(t *testing.T) {
 		rootDir string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    []string
-		wantErr bool
+		name string
+		args args
+		want []string
 	}{
 		{
 			name: "sanity",
 			args: args{
 				rootDir: "../testdata/rootfolder",
 			},
-			want:    []string{"../testdata/rootfolder/home/dir1", "../testdata/rootfolder/home/dir2"},
-			wantErr: false,
+			want: []string{"../testdata/rootfolder/home/dir1", "../testdata/rootfolder/home/dir2"},
 		},
 		{
 			name: "root folder with root home folder",
 			args: args{
 				rootDir: "../testdata/rootfolderwithroothome",
 			},
-			want:    []string{"../testdata/rootfolderwithroothome/root", "../testdata/rootfolderwithroothome/home/dir1", "../testdata/rootfolderwithroothome/home/dir2"},
-			wantErr: false,
-		},
-		{
-			name: "missing dir",
-			args: args{
-				rootDir: "../testdata/missingrootfolder",
-			},
-			wantErr: true,
+			want: []string{"../testdata/rootfolderwithroothome/root", "../testdata/rootfolderwithroothome/home/dir1", "../testdata/rootfolderwithroothome/home/dir2"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getHomeUserDirs(tt.args.rootDir)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getHomeUserDirs() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := getHomeUserDirs(tt.args.rootDir)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getHomeUserDirs() got = %v, want %v", got, tt.want)
 			}
