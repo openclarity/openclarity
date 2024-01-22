@@ -11,8 +11,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/uuid v1.5.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/onsi/ginkgo/v2 v2.13.2
-	github.com/onsi/gomega v1.31.0
+	github.com/onsi/ginkgo/v2 v2.15.0
+	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
 	github.com/opencontainers/go-digest v1.0.0
