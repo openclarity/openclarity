@@ -22,8 +22,8 @@ require (
 	github.com/aquasecurity/trivy v0.48.3
 	github.com/aquasecurity/trivy-db v0.0.0-20231005141211-4fc651f7ac8d
 	github.com/aws/aws-sdk-go-v2 v1.24.1
-	github.com/aws/aws-sdk-go-v2/config v1.26.5
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.144.0
+	github.com/aws/aws-sdk-go-v2/config v1.26.6
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.144.1
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.24.6
 	github.com/aws/smithy-go v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
@@ -140,7 +140,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.90 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.10 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.10 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.7.2 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.7.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.1.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ebs v1.18.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.24.1 // indirect
