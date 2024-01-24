@@ -9,7 +9,7 @@ require (
 	github.com/docker/compose/v2 v2.23.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.1
