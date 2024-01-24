@@ -38,7 +38,7 @@ require (
 	github.com/go-openapi/runtime v0.27.0
 	github.com/go-openapi/strfmt v0.22.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/labstack/echo/v4 v4.11.4
