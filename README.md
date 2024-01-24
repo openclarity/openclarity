@@ -56,7 +56,7 @@ The VMClarity project is focused on unifying detection and management of VM secu
 
 ### AWS
 
-1. Start the CloudFormation [wizard](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=VMClarity&templateURL=https://s3.eu-west-2.amazonaws.com/vmclarity-v0.4.0/VmClarity.cfn), or upload the [latest](https://github.com/openclarity/vmclarity/releases/latest) CloudFormation template 
+1. Start the CloudFormation [wizard](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=VMClarity&templateURL=https://vmclarity-cfn.s3.eu-central-1.amazonaws.com/0.6.0/VmClarity.cfn), or upload the [latest](https://github.com/openclarity/vmclarity/releases/latest) CloudFormation template 
 2. Specify the SSH key to be used to connect to VMClarity under 'KeyName'
 3. Once deployed, copy VmClarity SSH Address from the "Outputs" tab
 
