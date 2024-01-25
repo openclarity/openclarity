@@ -15,6 +15,7 @@ require (
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity v0.0.0
 	github.com/openclarity/vmclarity/api v0.0.0
+	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -244,6 +245,7 @@ require (
 replace (
 	github.com/openclarity/vmclarity => ../
 	github.com/openclarity/vmclarity/api => ../api
+	github.com/openclarity/vmclarity/utils => ../utils
 )
 
 // NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,

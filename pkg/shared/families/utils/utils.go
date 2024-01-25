@@ -23,9 +23,9 @@ import (
 	"strings"
 
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/utils/containerrootfs"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 // InputSizesCache global cache of already calculated input sizes. If input type is a DIR/ROOTFS/FILE than the key is the input path.

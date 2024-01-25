@@ -25,7 +25,7 @@ import (
 
 	"github.com/moby/sys/mountinfo"
 
-	"github.com/openclarity/vmclarity/pkg/shared/command"
+	"github.com/openclarity/vmclarity/utils/command"
 )
 
 const DefaultBinaryPath = "mount"

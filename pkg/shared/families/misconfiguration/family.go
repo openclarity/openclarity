@@ -27,8 +27,8 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	familiesutils "github.com/openclarity/vmclarity/pkg/shared/families/utils"
 	"github.com/openclarity/vmclarity/pkg/shared/job_manager"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Misconfiguration struct {

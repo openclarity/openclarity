@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 const (

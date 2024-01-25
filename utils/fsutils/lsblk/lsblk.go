@@ -21,7 +21,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/openclarity/vmclarity/pkg/shared/command"
+	"github.com/openclarity/vmclarity/utils/command"
 )
 
 type LsBlk struct {
