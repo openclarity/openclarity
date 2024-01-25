@@ -32,9 +32,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=.,target=/build,ro \
     xx-go build -ldflags="-s -w -extldflags -static \
-         -X 'github.com/openclarity/vmclarity/pkg/version.Version=${VERSION}' \
-         -X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=${COMMIT_HASH}' \
-         -X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+         -X 'github.com/openclarity/vmclarity/utils/version.Version=${VERSION}' \
+         -X 'github.com/openclarity/vmclarity/utils/version.CommitHash=${COMMIT_HASH}' \
+         -X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
         -o /bin/vmclarity-cr-discovery-server cmd/vmclarity-cr-discovery-server/main.go
 
 RUN xx-verify /bin/vmclarity-cr-discovery-server

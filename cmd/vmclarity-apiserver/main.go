@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/vmclarity/pkg/apiserver"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
-	"github.com/openclarity/vmclarity/pkg/version"
+	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/utils/version"
 )
 
 const (

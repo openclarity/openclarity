@@ -65,30 +65,30 @@ build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrat
 
 bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-orchestrator/main.go
 
 bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-apiserver/main.go
 
 bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w  \
-		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-cli/main.go
 
 bin/vmclarity-ui-backend: $(shell find api) $(shell find cmd/vmclarity-ui-backend) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-ui-backend/main.go
 
 bin/vmclarity-cr-discovery-server: $(shell find api) $(shell find cmd/vmclarity-cr-discovery-server) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
@@ -335,9 +335,9 @@ $(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $
 	GOARCH=$(lastword $(subst -, ,$*)) \
 	CGO_ENABLED=0 \
 	go build -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/pkg/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
+		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
+		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/$(notdir $@)/main.go
 
 $(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE

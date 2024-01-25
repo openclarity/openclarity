@@ -38,7 +38,7 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanestimationwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanwatcher"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Orchestrator struct {

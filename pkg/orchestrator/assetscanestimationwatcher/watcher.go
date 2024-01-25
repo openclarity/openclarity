@@ -25,8 +25,8 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator/common"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (

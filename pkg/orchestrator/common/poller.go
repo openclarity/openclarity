@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Poller[T ReconcileEvent] struct {
