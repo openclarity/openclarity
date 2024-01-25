@@ -33,8 +33,8 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/aws/scanestimation"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/cloudinit"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Provider struct {

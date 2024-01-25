@@ -26,8 +26,8 @@ import (
 	"github.com/containers/image/v5/docker/reference"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type ContainerdDiscoverer struct {

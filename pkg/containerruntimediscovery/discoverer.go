@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Discoverer interface {

@@ -43,12 +43,12 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/moby/sys/mountinfo v0.7.1
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050
 	github.com/openclarity/vmclarity/api v0.0.0
+	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/openclarity/yara-rule-server v0.2.1
 	github.com/package-url/packageurl-go v0.1.2
 	github.com/parnurzeal/gorequest v0.2.16
@@ -322,6 +322,7 @@ require (
 	github.com/moby/locker v1.0.1 // indirect
 	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
+	github.com/moby/sys/mountinfo v0.7.1 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/signal v0.7.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
@@ -485,7 +486,10 @@ require (
 // https://github.com/helm/helm/pull/12310
 replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240102124916-a62313e07d76
 
-replace github.com/openclarity/vmclarity/api => ./api
+replace (
+	github.com/openclarity/vmclarity/api => ./api
+	github.com/openclarity/vmclarity/utils => ./utils
+)
 
 // NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,
 // which has been solved in the go-viper fork.

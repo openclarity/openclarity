@@ -21,8 +21,8 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.SecretKey]string, error) {

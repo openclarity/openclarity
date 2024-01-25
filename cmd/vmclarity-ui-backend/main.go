@@ -34,11 +34,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/uibackend"
 	"github.com/openclarity/vmclarity/pkg/uibackend/api/server"
 	"github.com/openclarity/vmclarity/pkg/uibackend/rest"
-	"github.com/openclarity/vmclarity/pkg/version"
+	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/utils/version"
 )
 
 const (

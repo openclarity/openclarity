@@ -22,7 +22,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Rootfs interface {

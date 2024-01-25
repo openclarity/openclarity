@@ -20,7 +20,7 @@ import (
 
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type LocalState struct{}

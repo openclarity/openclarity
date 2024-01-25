@@ -28,8 +28,8 @@ import (
 	"github.com/openclarity/vmclarity/e2e/testenv"
 	"github.com/openclarity/vmclarity/e2e/testenv/types"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/log"
 	"github.com/openclarity/vmclarity/pkg/shared/uibackendclient"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
 var (
