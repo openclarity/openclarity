@@ -31,7 +31,7 @@ require (
 	github.com/containerd/nerdctl v1.7.2
 	github.com/containers/image/v5 v5.29.1
 	github.com/deepmap/oapi-codegen/v2 v2.1.0
-	github.com/docker/docker v25.0.0+incompatible
+	github.com/docker/docker v25.0.1+incompatible
 	github.com/evanphx/json-patch v5.8.1+incompatible
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/ghodss/yaml v1.0.0
