@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	containertypes "github.com/docker/docker/api/types/container"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -34,7 +35,7 @@ func (p *Provider) getContainerAssets(ctx context.Context) ([]models.AssetType, 
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// List all docker containers
-	containers, err := p.dockerClient.ContainerList(ctx, types.ContainerListOptions{All: true})
+	containers, err := p.dockerClient.ContainerList(ctx, containertypes.ListOptions{All: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}

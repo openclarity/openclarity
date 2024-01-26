@@ -16,7 +16,7 @@
 package docker
 
 import (
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/compose/v2/pkg/api"
 
 	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
