@@ -21,6 +21,7 @@ import (
 	"sync"
 
 	"github.com/docker/docker/api/types"
+	imagetypes "github.com/docker/docker/api/types/image"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -51,7 +52,7 @@ func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, erro
 			//
 			// If any processor returns an error, it will stop all processors.
 			// IDEA: Decide what the acceptance criteria should be (e.g. >= 50% images processed)
-			func(image types.ImageSummary) func() error {
+			func(image imagetypes.Summary) func() error {
 				return func() error {
 					// Get container image info
 					info, err := p.getContainerImageInfo(processCtx, image.ID)

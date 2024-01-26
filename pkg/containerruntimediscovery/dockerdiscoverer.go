@@ -21,6 +21,7 @@ import (
 	"time"
 
 	dtypes "github.com/docker/docker/api/types"
+	dcontainer "github.com/docker/docker/api/types/container"
 	dclient "github.com/docker/docker/client"
 
 	"github.com/openclarity/vmclarity/api/models"
@@ -97,7 +98,7 @@ func convertTags(tags map[string]string) *[]models.Tag {
 
 func (dd *DockerDiscoverer) Containers(ctx context.Context) ([]models.ContainerInfo, error) {
 	// List all docker containers
-	containers, err := dd.client.ContainerList(ctx, dtypes.ContainerListOptions{All: true})
+	containers, err := dd.client.ContainerList(ctx, dcontainer.ListOptions{All: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}

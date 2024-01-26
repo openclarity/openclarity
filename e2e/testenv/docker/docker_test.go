@@ -76,23 +76,18 @@ func TestProjectFromConfig(t *testing.T) {
 
 			g.Expect(project.Name).Should(BeEquivalentTo(test.DockerConfig.EnvName))
 
-			services := make(map[string]int)
-			for idx, service := range project.Services {
-				services[service.Name] = idx
-			}
-
-			for s, image := range test.ExpectedServiceImages {
-				idx, ok := services[s]
+			for service, image := range test.ExpectedServiceImages {
+				_, ok := project.Services[service]
 				g.Expect(ok).Should(BeTrue())
-				g.Expect(project.Services[idx].Image).Should(BeEquivalentTo(image))
+				g.Expect(project.Services[service].Image).Should(BeEquivalentTo(image))
 			}
 
-			for s, envs := range test.ExpectedServiceEnvironment {
-				idx, ok := services[s]
+			for service, envs := range test.ExpectedServiceEnvironment {
+				_, ok := project.Services[service]
 				g.Expect(ok).Should(BeTrue())
 
 				for name, value := range envs {
-					v, ok := project.Services[idx].Environment[name]
+					v, ok := project.Services[service].Environment[name]
 					g.Expect(ok).Should(BeTrue())
 					g.Expect(v).ShouldNot(BeNil())
 					g.Expect(*v).Should(BeEquivalentTo(value))

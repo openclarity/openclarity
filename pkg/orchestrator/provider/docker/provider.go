@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
@@ -123,7 +123,7 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 		return provider.FatalErrorf("failed to create scan container. Provider=%s: %w", models.Docker, err)
 	}
 
-	err = p.dockerClient.ContainerStart(ctx, containerID, types.ContainerStartOptions{})
+	err = p.dockerClient.ContainerStart(ctx, containerID, containertypes.StartOptions{})
 	if err != nil {
 		return provider.FatalErrorf("failed to start scan container. Provider=%s: %w", models.Docker, err)
 	}
@@ -136,7 +136,7 @@ func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJob
 	if err != nil {
 		return provider.FatalErrorf("failed to get scan container id. Provider=%s: %w", models.Docker, err)
 	}
-	err = p.dockerClient.ContainerRemove(ctx, containerID, types.ContainerRemoveOptions{Force: true})
+	err = p.dockerClient.ContainerRemove(ctx, containerID, containertypes.RemoveOptions{Force: true})
 	if err != nil {
 		return provider.FatalErrorf("failed to remove scan container. Provider=%s: %w", models.Docker, err)
 	}
@@ -173,10 +173,10 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 	// Create an ephemeral container to populate volume with asset contents
 	containerResp, err := p.dockerClient.ContainerCreate(
 		ctx,
-		&container.Config{
+		&containertypes.Config{
 			Image: p.config.HelperImage,
 		},
-		&container.HostConfig{
+		&containertypes.HostConfig{
 			Mounts: []mount.Mount{
 				{
 					Type:   mount.TypeVolume,
@@ -193,7 +193,7 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 		return "", fmt.Errorf("failed to create helper container: %w", err)
 	}
 	defer func() {
-		err := p.dockerClient.ContainerRemove(ctx, containerResp.ID, types.ContainerRemoveOptions{Force: true})
+		err := p.dockerClient.ContainerRemove(ctx, containerResp.ID, containertypes.RemoveOptions{Force: true})
 		if err != nil {
 			logger.Errorf("Failed to remove helper container=%s: %v", containerResp.ID, err)
 		}
@@ -353,7 +353,7 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 	// Create scan container
 	containerResp, err := p.dockerClient.ContainerCreate(
 		ctx,
-		&container.Config{
+		&containertypes.Config{
 			Image: config.ScannerImage,
 			Cmd: []string{
 				"scan",
@@ -365,7 +365,7 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 				config.AssetScanID,
 			},
 		},
-		&container.HostConfig{
+		&containertypes.HostConfig{
 			Mounts: []mount.Mount{
 				{
 					Type:   mount.TypeVolume,
@@ -397,7 +397,7 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 }
 
 func (p *Provider) getContainerIDFromName(ctx context.Context, containerName string) (string, error) {
-	containers, err := p.dockerClient.ContainerList(ctx, types.ContainerListOptions{
+	containers, err := p.dockerClient.ContainerList(ctx, containertypes.ListOptions{
 		All:     true,
 		Filters: filters.NewArgs(filters.Arg("name", containerName)),
 	})
@@ -455,7 +455,7 @@ func (p *Provider) exportAsset(ctx context.Context, config *provider.ScanJobConf
 		// Create an ephemeral container to export asset
 		containerResp, err := p.dockerClient.ContainerCreate(
 			ctx,
-			&container.Config{Image: value.ImageID},
+			&containertypes.Config{Image: value.ImageID},
 			nil,
 			nil,
 			nil,
@@ -466,7 +466,7 @@ func (p *Provider) exportAsset(ctx context.Context, config *provider.ScanJobConf
 		}
 
 		cleanup := func() {
-			err := p.dockerClient.ContainerRemove(ctx, containerResp.ID, types.ContainerRemoveOptions{Force: true})
+			err := p.dockerClient.ContainerRemove(ctx, containerResp.ID, containertypes.RemoveOptions{Force: true})
 			if err != nil {
 				logger.Errorf("failed to remove helper container=%s: %v", containerResp.ID, err)
 			}
