@@ -35,7 +35,7 @@ require (
 	github.com/evanphx/json-patch v5.8.1+incompatible
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-openapi/runtime v0.27.0
+	github.com/go-openapi/runtime v0.27.1
 	github.com/go-openapi/strfmt v0.22.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
