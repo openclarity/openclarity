@@ -26,9 +26,9 @@ import (
 
 	"github.com/openclarity/vmclarity/e2e/config"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
-	"github.com/openclarity/vmclarity/pkg/shared/uibackendclient"
 	"github.com/openclarity/vmclarity/testenv"
 	"github.com/openclarity/vmclarity/testenv/types"
+	uibackendclient "github.com/openclarity/vmclarity/uibackend/client"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 

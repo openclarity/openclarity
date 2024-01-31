@@ -30,7 +30,6 @@ require (
 	github.com/containerd/containerd v1.7.12
 	github.com/containerd/nerdctl v1.7.2
 	github.com/containers/image/v5 v5.29.1
-	github.com/deepmap/oapi-codegen/v2 v2.1.0
 	github.com/docker/docker v25.0.1+incompatible
 	github.com/evanphx/json-patch v5.9.0+incompatible
 	github.com/getkin/kin-openapi v0.123.0
@@ -44,7 +43,6 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/oapi-codegen/echo-middleware v1.0.1
-	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050
 	github.com/openclarity/vmclarity/api v0.0.0
@@ -340,6 +338,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/nwaples/rardecode v1.1.0 // indirect
+	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.58.0 // indirect

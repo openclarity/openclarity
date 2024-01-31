@@ -19,8 +19,8 @@ ignored = [
 ]
 
 [header]
-ignorePaths = ["api","pkg/uibackend/api"]
-ignoreFiles = ["*mock_*.go","*.pb.go"]
+ignorePaths = []
+ignoreFiles = ["*mock_*.go","*.pb.go","*.gen.go"]
 template = """// Copyright © :YEAR: Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
