@@ -24,9 +24,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	dockerenv "github.com/openclarity/vmclarity/e2e/testenv/docker"
-	k8senv "github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/e2e/testenv/types"
+	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
+	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
+	"github.com/openclarity/vmclarity/testenv/types"
 )
 
 const (

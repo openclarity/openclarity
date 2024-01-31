@@ -30,8 +30,8 @@ import (
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/pkg/errors"
 
-	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
-	"github.com/openclarity/vmclarity/e2e/testenv/utils"
+	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	"github.com/openclarity/vmclarity/testenv/utils"
 )
 
 type ContextKeyType string
