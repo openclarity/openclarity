@@ -13,45 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package models
+package server
 
-func MapToTags(tags map[string]string) *[]Tag {
-	ret := make([]Tag, 0, len(tags))
-	for key, val := range tags {
-		ret = append(ret, Tag{
-			Key:   key,
-			Value: val,
-		})
-	}
-	return &ret
+import (
+	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/uibackend/types"
+)
+
+// nolint:wrapcheck,unparam
+func sendError(ctx echo.Context, code int, message string) error {
+	log.Error(message)
+	response := &types.ApiResponse{Message: &message}
+	return ctx.JSON(code, response)
 }
 
-func MergeTags(left, right *[]Tag) *[]Tag {
-	if left == nil && right == nil {
-		return nil
-	}
-
-	merged := &[]Tag{}
-	if left == nil || len(*left) == 0 {
-		*merged = *right
-
-		return merged
-	}
-
-	if right == nil || len(*right) == 0 {
-		*merged = *left
-
-		return merged
-	}
-
-	m := map[string]string{}
-	for _, tag := range *left {
-		m[tag.Key] = tag.Value
-	}
-
-	for _, tag := range *right {
-		m[tag.Key] = tag.Value
-	}
-
-	return MapToTags(m)
+// nolint:wrapcheck,unparam
+func sendResponse(ctx echo.Context, code int, object interface{}) error {
+	return ctx.JSON(code, object)
 }

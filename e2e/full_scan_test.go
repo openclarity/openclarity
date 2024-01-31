@@ -25,7 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
-	uibackend_models "github.com/openclarity/vmclarity/pkg/uibackend/api/models"
+	uitypes "github.com/openclarity/vmclarity/uibackend/types"
 )
 
 var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, misconfigurations, rootkits, SBOM, secrets and vulnerabilities)", func() {
@@ -99,7 +99,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			gomega.Eventually(func() bool {
 				findingsTrends, err := uiClient.GetDashboardFindingsTrends(
 					ctx,
-					uibackend_models.GetDashboardFindingsTrendsParams{
+					uitypes.GetDashboardFindingsTrendsParams{
 						StartTime: time.Now().Add(-time.Minute * 10),
 						EndTime:   time.Now(),
 					},
@@ -109,7 +109,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					return false
 				}
 				for _, trend := range *findingsTrends {
-					if *trend.FindingType == uibackend_models.VULNERABILITY {
+					if *trend.FindingType == uitypes.VULNERABILITY {
 						for _, t := range *trend.Trends {
 							if *t.Count > 0 {
 								return true
