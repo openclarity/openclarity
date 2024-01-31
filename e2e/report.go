@@ -24,9 +24,9 @@ import (
 	"github.com/onsi/gomega"
 
 	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/e2e/testenv/types"
 	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/testenv/types"
 )
 
 type APIObject struct {

@@ -23,12 +23,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/openclarity/vmclarity/e2e/testenv"
-	dockerenv "github.com/openclarity/vmclarity/e2e/testenv/docker"
-	k8senv "github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/helm"
-	k8senvtypes "github.com/openclarity/vmclarity/e2e/testenv/kubernetes/types"
-	testenvtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
+	"github.com/openclarity/vmclarity/testenv"
+	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
+	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
+	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
+	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
+	testenvtypes "github.com/openclarity/vmclarity/testenv/types"
 )
 
 func TestConfig(t *testing.T) {

@@ -26,9 +26,9 @@ import (
 	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/compose/v2/pkg/api"
 
-	"github.com/openclarity/vmclarity/e2e/testenv/docker/asset"
-	"github.com/openclarity/vmclarity/e2e/testenv/utils"
 	"github.com/openclarity/vmclarity/installation"
+	"github.com/openclarity/vmclarity/testenv/docker/asset"
+	"github.com/openclarity/vmclarity/testenv/utils"
 )
 
 func ProjectFromConfig(config *Config) (*types.Project, error) {

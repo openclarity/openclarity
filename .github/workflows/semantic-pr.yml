@@ -52,6 +52,7 @@ jobs:
 
             deps
             e2e
+            testenv
 
       # Leave a comment if linter reports an error
       - uses: marocchino/sticky-pull-request-comment@v2

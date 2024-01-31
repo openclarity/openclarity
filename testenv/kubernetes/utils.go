@@ -19,7 +19,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
+	envtypes "github.com/openclarity/vmclarity/testenv/types"
 )
 
 // https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/

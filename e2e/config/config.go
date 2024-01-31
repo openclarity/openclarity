@@ -23,10 +23,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/e2e/testenv"
-	k8senv "github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/helm"
-	k8senvtypes "github.com/openclarity/vmclarity/e2e/testenv/kubernetes/types"
+	"github.com/openclarity/vmclarity/testenv"
+	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
+	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
+	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
 )
 
 const (
