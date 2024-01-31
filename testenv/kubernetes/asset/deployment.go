@@ -20,8 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
 	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	envtypes "github.com/openclarity/vmclarity/testenv/types"
 )
 
 func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {

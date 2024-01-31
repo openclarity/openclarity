@@ -27,8 +27,8 @@ import (
 	"sigs.k8s.io/kind/pkg/cluster/nodes"
 	"sigs.k8s.io/kind/pkg/cluster/nodeutils"
 
-	"github.com/openclarity/vmclarity/e2e/testenv/utils"
-	"github.com/openclarity/vmclarity/e2e/testenv/utils/fanout"
+	"github.com/openclarity/vmclarity/testenv/utils"
+	"github.com/openclarity/vmclarity/testenv/utils/fanout"
 )
 
 const (

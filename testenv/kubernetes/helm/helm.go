@@ -26,7 +26,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/rest"
 
-	"github.com/openclarity/vmclarity/e2e/testenv/utils"
+	"github.com/openclarity/vmclarity/testenv/utils"
 )
 
 const (

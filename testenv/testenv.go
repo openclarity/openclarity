@@ -18,9 +18,9 @@ package testenv
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/e2e/testenv/docker"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/e2e/testenv/types"
+	"github.com/openclarity/vmclarity/testenv/docker"
+	"github.com/openclarity/vmclarity/testenv/kubernetes"
+	"github.com/openclarity/vmclarity/testenv/types"
 )
 
 // New returns an object implementing the types.Environment interface from Config.

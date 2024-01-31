@@ -25,12 +25,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/e2e/testenv/docker"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/helm"
-	"github.com/openclarity/vmclarity/e2e/testenv/kubernetes/types"
-	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
-	"github.com/openclarity/vmclarity/e2e/testenv/utils"
+	"github.com/openclarity/vmclarity/testenv/docker"
+	"github.com/openclarity/vmclarity/testenv/kubernetes"
+	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
+	"github.com/openclarity/vmclarity/testenv/kubernetes/types"
+	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	"github.com/openclarity/vmclarity/testenv/utils"
 )
 
 var ImageTag = utils.GetEnvOrDefault("VERSION", "latest")

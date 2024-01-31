@@ -21,7 +21,7 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	envtypes "github.com/openclarity/vmclarity/e2e/testenv/types"
+	envtypes "github.com/openclarity/vmclarity/testenv/types"
 )
 
 func TestChartWithContainerImages(t *testing.T) {
