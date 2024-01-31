@@ -20,36 +20,37 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/containerd"
+	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/docker"
+	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
-type Discoverer interface {
-	Images(ctx context.Context) ([]models.ContainerImageInfo, error)
-	Containers(ctx context.Context) ([]models.ContainerInfo, error)
-}
-
-type DiscovererFactory func(ctx context.Context) (Discoverer, error)
-
-var discovererFactories = map[string]DiscovererFactory{
-	"docker":     NewDockerDiscoverer,
-	"containerd": NewContainerdDiscoverer,
+var discovererFactories = map[string]types.DiscovererFactory{
+	"docker":     docker.New,
+	"containerd": containerd.New,
 }
 
 // NewDiscoverer tries to create all registered discoverers and returns the
 // first that succeeds, if none of them succeed then we return all the errors
 // for the caller to evalulate.
-func NewDiscoverer(ctx context.Context) (Discoverer, error) {
+func NewDiscoverer(ctx context.Context) (types.Discoverer, error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 	errs := []error{}
 
 	for name, factory := range discovererFactories {
-		discoverer, err := factory(ctx)
+		discoverer, err := factory()
 		if err == nil {
 			logger.Infof("Loaded %s discoverer", name)
+			ok, err := discoverer.Ready(ctx)
+			if err != nil || !ok {
+				logger.Warnf("The %s discoverer is not ready. Skipping...", name)
+				continue
+			}
 			return discoverer, nil
 		}
 		errs = append(errs, fmt.Errorf("failed to create %s discoverer: %w", name, err))
 	}
+
 	return nil, errors.Join(errs...)
 }

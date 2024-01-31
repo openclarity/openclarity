@@ -142,12 +142,13 @@ $(FIXGOMODULES):
 fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
 .PHONY: e2e
-e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend ## Run end-to-end test suite
+e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server ## Run end-to-end test suite
 	export VMCLARITY_E2E_APISERVER_IMAGE=$(VMCLARITY_APISERVER_IMAGE) \
            VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(VMCLARITY_ORCHESTRATOR_IMAGE) \
            VMCLARITY_E2E_UI_IMAGE=$(VMCLARITY_UI_IMAGE) \
            VMCLARITY_E2E_UIBACKEND_IMAGE=$(VMCLARITY_UIBACKEND_IMAGE) \
-           VMCLARITY_E2E_SCANNER_IMAGE=$(VMCLARITY_SCANNER_IMAGE) && \
+           VMCLARITY_E2E_SCANNER_IMAGE=$(VMCLARITY_SCANNER_IMAGE) \
+           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(VMCLARITY_CR_DISCOVERY_SERVER_IMAGE) && \
 	cd e2e && \
 	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 

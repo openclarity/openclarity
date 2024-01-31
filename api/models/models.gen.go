@@ -611,7 +611,7 @@ type ContainerImageInfo struct {
 	Os           *string   `json:"os,omitempty"`
 	RepoDigests  *[]string `json:"repoDigests,omitempty"`
 	RepoTags     *[]string `json:"repoTags,omitempty"`
-	Size         *int      `json:"size,omitempty"`
+	Size         *int64    `json:"size,omitempty"`
 }
 
 // ContainerInfo defines model for ContainerInfo.

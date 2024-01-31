@@ -54,8 +54,8 @@ var (
 			abortCtx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 			defer cancel()
 
-			crds := containerruntimediscovery.NewContainerRuntimeDiscoveryServer(listenAddr, discoverer)
-			crds.Serve(abortCtx)
+			crds := containerruntimediscovery.NewContainerRuntimeDiscoveryServer(discoverer)
+			crds.Serve(abortCtx, listenAddr)
 
 			logger.Infof("Server started listening on %s...", listenAddr)
 

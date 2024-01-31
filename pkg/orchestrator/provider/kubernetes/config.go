@@ -23,16 +23,18 @@ import (
 
 const (
 	DefaultEnvPrefix = "VMCLARITY_KUBERNETES"
+	DefaultNamespace = "default"
 )
 
 type Config struct {
-	// KubeConfig defines a path to a kubeconfig file to use to connect to
-	// the Kubernetes API
+	// KubeConfig defines a path to a kubeconfig file to use to connect to the Kubernetes API.
 	KubeConfig string `mapstructure:"kubeconfig"`
 
-	// Container Runtime Discovery Namespace is the namespace where the
-	// container runtime discovery daemonset is running.
+	// ContainerRuntimeDiscoveryNamespace defines the namespace where container runtime discovery DaemonSet is deployed.
 	ContainerRuntimeDiscoveryNamespace string `mapstructure:"container_runtime_discovery_namespace"`
+
+	// ScannerNamespace defines the namespace where the scanners are deployed.
+	ScannerNamespace string `mapstructure:"scanner_namespace"`
 }
 
 func NewConfig() (*Config, error) {
@@ -44,7 +46,12 @@ func NewConfig() (*Config, error) {
 	v.AutomaticEnv()
 
 	_ = v.BindEnv("kubeconfig")
+
 	_ = v.BindEnv("container_runtime_discovery_namespace")
+	v.SetDefault("container_runtime_discovery_namespace", DefaultNamespace)
+
+	_ = v.BindEnv("scanner_namespace")
+	v.SetDefault("scanner_namespace", DefaultNamespace)
 
 	config := &Config{}
 	if err := v.Unmarshal(config); err != nil {

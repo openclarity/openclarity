@@ -61,30 +61,30 @@ func (c ContainerImageInfo) Merge(target ContainerImageInfo) (ContainerImageInfo
 	// as it is likely to be more accurate to the real size not taking into
 	// account deduplication in the CRI etc. The sizes are normally within
 	// a few kilobytes of each other.
-	size, err := CoalesceComparable(*c.Size, *target.Size)
+	size, err := CoalesceComparable(ValueOrZero(c.Size), ValueOrZero(target.Size))
 	if err != nil {
-		if *c.Size > *target.Size {
-			size = *c.Size
+		if ValueOrZero(c.Size) > ValueOrZero(target.Size) {
+			size = ValueOrZero(c.Size)
 		} else {
-			size = *target.Size
+			size = ValueOrZero(target.Size)
 		}
 	}
 
-	os, err := CoalesceComparable(*c.Os, *target.Os)
+	os, err := CoalesceComparable(ValueOrZero(c.Os), ValueOrZero(target.Os))
 	if err != nil {
 		return c, fmt.Errorf("failed to merge Os field: %w", err)
 	}
 
-	architecture, err := CoalesceComparable(*c.Architecture, *target.Architecture)
+	architecture, err := CoalesceComparable(ValueOrZero(c.Architecture), ValueOrZero(target.Architecture))
 	if err != nil {
 		return c, fmt.Errorf("failed to merge Architecture field: %w", err)
 	}
 
-	labels := UnionSlices(*c.Labels, *target.Labels)
+	labels := UnionSlices(ValueOrZero(c.Labels), ValueOrZero(target.Labels))
 
-	repoDigests := UnionSlices(*c.RepoDigests, *target.RepoDigests)
+	repoDigests := UnionSlices(ValueOrZero(c.RepoDigests), ValueOrZero(target.RepoDigests))
 
-	repoTags := UnionSlices(*c.RepoTags, *target.RepoTags)
+	repoTags := UnionSlices(ValueOrZero(c.RepoTags), ValueOrZero(target.RepoTags))
 
 	return ContainerImageInfo{
 		ImageID:      id,
@@ -102,7 +102,7 @@ const nilString = "nil"
 func (c ContainerImageInfo) String() string {
 	size := nilString
 	if c.Size != nil {
-		size = strconv.Itoa(*c.Size)
+		size = strconv.FormatInt(*c.Size, 10)
 	}
 
 	labels := nilString
