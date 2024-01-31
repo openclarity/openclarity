@@ -45,3 +45,13 @@ func UnionSlices[T comparable](inputs ...[]T) []T {
 	}
 	return result
 }
+
+// ValueOrZero returns the value that the pointer ptr pointers to. It returns
+// the zero value if ptr is nil.
+func ValueOrZero[T any](ptr *T) T {
+	var t T
+	if ptr != nil {
+		t = *ptr
+	}
+	return t
+}

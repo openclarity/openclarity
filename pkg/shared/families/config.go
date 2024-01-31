@@ -125,3 +125,74 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 	}
 	return familiesConfig
 }
+
+// TODO(sambetts) Refactor this and the function above.
+func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *Config {
+	// update families inputs with the oci archives
+	for _, archive := range archives {
+		if familiesConfig.SBOM.Enabled {
+			familiesConfig.SBOM.Inputs = append(familiesConfig.SBOM.Inputs, types.Input{
+				Input:     archive,
+				InputType: string(utils.OCIARCHIVE),
+			})
+		}
+
+		if familiesConfig.Vulnerabilities.Enabled {
+			if familiesConfig.SBOM.Enabled {
+				familiesConfig.Vulnerabilities.InputFromSbom = true
+			} else {
+				familiesConfig.Vulnerabilities.Inputs = append(familiesConfig.Vulnerabilities.Inputs, types.Input{
+					Input:     archive,
+					InputType: string(utils.OCIARCHIVE),
+				})
+			}
+		}
+
+		if familiesConfig.Secrets.Enabled {
+			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, types.Input{
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               archive,
+				InputType:           string(utils.OCIARCHIVE),
+			})
+		}
+
+		if familiesConfig.Malware.Enabled {
+			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, types.Input{
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               archive,
+				InputType:           string(utils.OCIARCHIVE),
+			})
+		}
+
+		if familiesConfig.Rootkits.Enabled {
+			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, types.Input{
+				StripPathFromResult: utils.PointerTo(true),
+				Input:               archive,
+				InputType:           string(utils.OCIARCHIVE),
+			})
+		}
+
+		if familiesConfig.Misconfiguration.Enabled {
+			familiesConfig.Misconfiguration.Inputs = append(
+				familiesConfig.Misconfiguration.Inputs,
+				types.Input{
+					StripPathFromResult: utils.PointerTo(true),
+					Input:               archive,
+					InputType:           string(utils.OCIARCHIVE),
+				},
+			)
+		}
+
+		if familiesConfig.InfoFinder.Enabled {
+			familiesConfig.InfoFinder.Inputs = append(
+				familiesConfig.InfoFinder.Inputs,
+				types.Input{
+					StripPathFromResult: utils.PointerTo(true),
+					Input:               archive,
+					InputType:           string(utils.OCIARCHIVE),
+				},
+			)
+		}
+	}
+	return familiesConfig
+}

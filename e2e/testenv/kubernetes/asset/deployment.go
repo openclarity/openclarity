@@ -33,6 +33,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 				"app.kubernetes.io/instance":   config.Name,
 				"app.kubernetes.io/component":  "asset",
 				"app.kubernetes.io/managed-by": "testenv",
+				"scanconfig":                   "test",
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -42,6 +43,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 					"app.kubernetes.io/name":      "vmclarity-asset",
 					"app.kubernetes.io/instance":  config.Name,
 					"app.kubernetes.io/component": "asset",
+					"scanconfig":                  "test",
 				},
 			},
 			Template: corev1.PodTemplateSpec{
@@ -51,6 +53,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 						"app.kubernetes.io/instance":   config.Name,
 						"app.kubernetes.io/component":  "asset",
 						"app.kubernetes.io/managed-by": "testenv",
+						"scanconfig":                   "test",
 					},
 				},
 				Spec: corev1.PodSpec{
