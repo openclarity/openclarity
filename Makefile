@@ -1,9 +1,10 @@
 SHELL=/bin/bash
 
 # Project variables
-BINARY_NAME ?= kubeclarity
-DOCKER_REGISTRY ?= ghcr.io/openclarity
-VERSION ?= $(shell git rev-parse HEAD)
+# BINARY_NAME ?= kubeclarity
+BINARY_NAME ?= dlp-ecr-repository
+DOCKER_REGISTRY ?= 353013733335.dkr.ecr.ap-south-1.amazonaws.com
+VERSION ?= dc1cca37925942f8866f7fb3b68bcc0f
 DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(BINARY_NAME)
 DOCKER_TAG ?= ${VERSION}
 
@@ -13,6 +14,7 @@ BIN_DIR := $(ROOT_DIR)/bin
 # Dependency versions
 LICENSEI_VERSION = 0.5.0
 
+# aws ecr get-login-password --region ap-south-1 | docker login -u AWS --password-stdin 353013733335.dkr.ecr.ap-south-1.amazonaws.com | docker push 353013733335.dkr.ecr.ap-south-1.amazonaws.com/dlp-ecr-repository/kubeclarity:dc1cca37925942f8866f7fb3b68bcc0f
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
@@ -86,9 +88,9 @@ push-docker: push-docker-backend push-docker-cli push-docker-sbom-db push-docker
 .PHONY: docker-sbom-db
 docker-sbom-db: ## Build SBOM DB Backend Docker image
 	@(echo "Building SBOM DB backend docker image ..." )
-	docker build --file ./Dockerfile.sbom_db --build-arg VERSION=${VERSION} \
+	DOCKER_BUILDKIT=1 docker build --file ./Dockerfile.sbom_db --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		--build-arg COMMIT_HASH=dc1cca37925942f8866f7fb3b68bcc0f \
 		-t ${DOCKER_IMAGE}-sbom-db:${DOCKER_TAG} .
 
 .PHONY: push-docker-sbom-db
@@ -99,22 +101,22 @@ push-docker-sbom-db: docker-sbom-db ## Build and Push SBOM DB Backend Docker ima
 .PHONY: docker-backend
 docker-backend: ## Build Backend Docker image
 	@(echo "Building backend docker image ..." )
-	docker build --file ./Dockerfile.backend --build-arg VERSION=${VERSION} \
+	DOCKER_BUILDKIT=1 docker build --file ./Dockerfile.backend --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+		--build-arg COMMIT_HASH=dc1cca37925942f8866f7fb3b68bcc0f \
+		-t ${DOCKER_IMAGE}:kubeclarity_1.0.0 .
 
 .PHONY: push-docker-backend
 push-docker-backend: docker-backend ## Build and Push Backend Docker image
 	@echo "Publishing backend docker image ..."
-	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	docker push ${DOCKER_IMAGE}:kubeclarity_1.0.0
 
 .PHONY: docker-cli
 docker-cli: ## Build CLI Docker image
 	@(echo "Building cli docker image ..." )
-	docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
+	DOCKER_BUILDKIT=1 docker build --file ./Dockerfile.cli --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		--build-arg COMMIT_HASH=dc1cca37925942f8866f7fb3b68bcc0f \
 		-t ${DOCKER_IMAGE}-cli:${DOCKER_TAG} .
 
 .PHONY: push-docker-cli
@@ -125,9 +127,9 @@ push-docker-cli: docker-cli ## Build and Push CLI Docker image
 .PHONY: docker-runtime-k8s-scanner
 docker-runtime-k8s-scanner: ## Build runtime k8s scanner Docker image
 	@(echo "Building runtime k8s scanner docker image ..." )
-	docker build --file ./Dockerfile.runtime_k8s_scanner --build-arg VERSION=${VERSION} \
+	DOCKER_BUILDKIT=1 docker build --file ./Dockerfile.runtime_k8s_scanner --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		--build-arg COMMIT_HASH=dc1cca37925942f8866f7fb3b68bcc0f \
 		-t ${DOCKER_IMAGE}-runtime-k8s-scanner:${DOCKER_TAG} .
 
 .PHONY: push-docker-runtime-k8s-scanner
@@ -138,9 +140,9 @@ push-docker-runtime-k8s-scanner: docker-runtime-k8s-scanner ## Build and Push ru
 .PHONY: docker-cis-docker-benchmark-scanner
 docker-cis-docker-benchmark-scanner: ## Build CIS docker benchmark scanner Docker image
 	@(echo "Building CIS docker benchmark scanner docker image ..." )
-	docker build --file ./Dockerfile.cis_docker_benchmark_scanner --build-arg VERSION=${VERSION} \
+	DOCKER_BUILDKIT=1 docker build --file ./Dockerfile.cis_docker_benchmark_scanner --build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
+		--build-arg COMMIT_HASH=dc1cca37925942f8866f7fb3b68bcc0f \
 		-t ${DOCKER_IMAGE}-cis-docker-benchmark-scanner:${DOCKER_TAG} .
 
 .PHONY: push-docker-cis-docker-benchmark-scanner

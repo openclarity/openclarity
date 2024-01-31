@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import { isUndefined, isNull, isEmpty } from 'lodash';
-import { useNotificationDispatch, showNotification } from 'context/NotificationProvider'; 
+import { useNotificationDispatch, showNotification } from 'context/NotificationProvider';
 import { NOTIFICATION_TYPES } from 'components/Notification';
 
 export const FETCH_METHODS = {
@@ -17,24 +17,26 @@ const FETCH_ACTIONS = {
     UPDATE_FETCH_PARAMS: "UPDATE_FETCH_PARAMS"
 }
 
+const BASE = 'https://api-gateway.digital.idb-digitallabs.com/kubeclarity'
+
 const queryString = (params) => Object.keys(params).map((key) => {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
 }).join('&');
 
-export const formatFetchUrl = ({url, queryParams, formatUrl}) => {
+export const formatFetchUrl = ({ url, queryParams, formatUrl }) => {
     const formattedUrl = !!formatUrl ? formatUrl(url) : url;
 
-    return isEmpty(queryParams) ? `/api/${formattedUrl}` : `/api/${formattedUrl}?${queryString(queryParams)}`;
+    return `${BASE}${isEmpty(queryParams) ? `/api/${formattedUrl}` : `/api/${formattedUrl}?${queryString(queryParams)}`}`;
 }
 
-export const formatFetchOptions = ({method, stringifiedSubmitData}) => {
+export const formatFetchOptions = ({ method, stringifiedSubmitData }) => {
     const options = {
         credentials: 'include',
         method
     };
 
     if (method === FETCH_METHODS.POST || method === FETCH_METHODS.PUT) {
-        options.headers = {'content-type': 'application/json'};
+        options.headers = { 'content-type': 'application/json' };
         options.body = stringifiedSubmitData;
     }
 
@@ -46,36 +48,36 @@ const getErrorMessage = (method) => `An error occurred when trying to ${method =
 function reducer(state, action) {
     switch (action.type) {
         case FETCH_ACTIONS.LOADING_DATA:
-            return {...state, loading: true, error: null, loadData: false};
+            return { ...state, loading: true, error: null, loadData: false };
         case FETCH_ACTIONS.LOAD_DATA_SUCCESS:
-            return {...state, loading: false, data: action.payload, loadData: false};
+            return { ...state, loading: false, data: action.payload, loadData: false };
         case FETCH_ACTIONS.LOAD_DATA_ERROR:
-            return {...state, loading: false, error: action.payload, loadData: false, data: null};
+            return { ...state, loading: false, error: action.payload, loadData: false, data: null };
         case FETCH_ACTIONS.UPDATE_FETCH_PARAMS:
-            const {queryParams, method=FETCH_METHODS.GET, submitData, formatUrl} = action.payload || {};
-            
+            const { queryParams, method = FETCH_METHODS.GET, submitData, formatUrl } = action.payload || {};
+
             return {
                 ...state,
-                url: formatFetchUrl({url: state.baseUrl, queryParams, formatUrl}),
+                url: formatFetchUrl({ url: state.baseUrl, queryParams, formatUrl }),
                 method: method.toUpperCase(),
                 submitData: !!submitData ? JSON.stringify(submitData) : null,
                 loadData: true,
                 data: undefined
             };
         default:
-            return {...state};
+            return { ...state };
     }
 }
 
-function useFetch(baseUrl, options){
-    const {queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount=true} = options || {};
+function useFetch(baseUrl, options) {
+    const { queryParams, method: initialMethod, submitData: inititalSubmitData, formatUrl, loadOnMount = true } = options || {};
 
     const [state, dispatch] = useReducer(reducer, {
         loading: false,
         error: null,
         data: loadOnMount ? undefined : null,
         baseUrl,
-        url: formatFetchUrl({url: baseUrl, queryParams, formatUrl}),
+        url: formatFetchUrl({ url: baseUrl, queryParams, formatUrl }),
         method: !!initialMethod ? initialMethod.toUpperCase() : FETCH_METHODS.GET,
         submitData: !!inititalSubmitData ? JSON.stringify(inititalSubmitData) : null,
         loadData: loadOnMount || false
@@ -91,15 +93,15 @@ function useFetch(baseUrl, options){
 
     const notificationDispatch = useNotificationDispatch();
 
-    const {url, method, submitData, loadData, data, error, loading} = state;
+    const { url, method, submitData, loadData, data, error, loading } = state;
 
     const doFetch = useCallback(async () => {
-        const options = formatFetchOptions({method, stringifiedSubmitData: submitData});
+        const options = formatFetchOptions({ method, stringifiedSubmitData: submitData });
 
-        dispatch({type: FETCH_ACTIONS.LOADING_DATA});
+        dispatch({ type: FETCH_ACTIONS.LOADING_DATA });
 
         let isError = false;
-        const showErrorMessage = () => showNotification(notificationDispatch, {message: getErrorMessage(method), type: NOTIFICATION_TYPES.ERROR});
+        const showErrorMessage = () => showNotification(notificationDispatch, { message: getErrorMessage(method), type: NOTIFICATION_TYPES.ERROR });
 
         fetch(url, options)
             .then(response => {
@@ -114,31 +116,31 @@ function useFetch(baseUrl, options){
                 }
 
                 if (isError) {
-                    dispatch({type: FETCH_ACTIONS.LOAD_DATA_ERROR, payload: data});
+                    dispatch({ type: FETCH_ACTIONS.LOAD_DATA_ERROR, payload: data });
 
                     showErrorMessage();
 
                     return;
                 }
-                
-                dispatch({type: FETCH_ACTIONS.LOAD_DATA_SUCCESS, payload: data});
+
+                dispatch({ type: FETCH_ACTIONS.LOAD_DATA_SUCCESS, payload: data });
             })
             .catch(error => {
                 if (!mounted.current) {
                     return;
                 }
-                
+
                 showErrorMessage();
-                
-                dispatch({type: FETCH_ACTIONS.LOAD_DATA_ERROR, payload: error});
+
+                dispatch({ type: FETCH_ACTIONS.LOAD_DATA_ERROR, payload: error });
             });
     }, [url, method, submitData, notificationDispatch]);
-    
+
     useEffect(() => {
         if (!mounted.current) {
             return;
         }
-        
+
         if (!loadData) {
             return;
         }
@@ -146,9 +148,9 @@ function useFetch(baseUrl, options){
         doFetch();
     }, [doFetch, loadOnMount, loadData]);
 
-    const fetchData = useCallback(fetchParams => dispatch({type: FETCH_ACTIONS.UPDATE_FETCH_PARAMS, payload: fetchParams}), []);
-    
-    return [{data, error, loading: loading || (isUndefined(data) && isNull(error))}, fetchData];
+    const fetchData = useCallback(fetchParams => dispatch({ type: FETCH_ACTIONS.UPDATE_FETCH_PARAMS, payload: fetchParams }), []);
+
+    return [{ data, error, loading: loading || (isUndefined(data) && isNull(error)) }, fetchData];
 }
 
 export default useFetch;

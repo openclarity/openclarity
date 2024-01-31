@@ -24,6 +24,7 @@ import (
 	"github.com/go-openapi/swag"
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
+	"github.com/rs/cors"
 
 	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 )
@@ -158,6 +159,18 @@ func (s *Server) Serve() (err error) {
 		}
 	}
 
+	// Create CORS middleware with default options
+    c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3006"},
+		AllowCredentials: true,
+		AllowedMethods: []string{"GET","POST","PUT","DELETE"},
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	})
+	
+    // Wrap your API handler with CORS middleware
+    handlerWithCORS := c.Handler(s.handler)
+
 	// set default handler, if none is set
 	if s.handler == nil {
 		if s.api == nil {
@@ -210,7 +223,8 @@ func (s *Server) Serve() (err error) {
 			httpServer.IdleTimeout = s.CleanupTimeout
 		}
 
-		httpServer.Handler = s.handler
+		httpServer.Handler = handlerWithCORS
+		// httpServer.Handler = s.handler
 
 		configureServer(httpServer, "http", s.httpServerL.Addr().String())
 

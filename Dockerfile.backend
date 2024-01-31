@@ -3,9 +3,9 @@ FROM node:20-slim AS site-build
 
 WORKDIR /app/ui-build
 
-COPY ui .
-RUN npm i
-RUN npm run build
+# COPY ui .
+# RUN npm i
+# RUN npm run build
 
 FROM golang:1.21.6-alpine AS builder
 
@@ -50,6 +50,6 @@ FROM alpine:3.19
 WORKDIR /app
 
 COPY --from=builder ["/build/backend/backend", "./backend"]
-COPY --from=site-build ["/app/ui-build/build", "site"]
+# COPY --from=site-build ["/app/ui-build/build", "site"]
 
 ENTRYPOINT ["/app/backend"]
