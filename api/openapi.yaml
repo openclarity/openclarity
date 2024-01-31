@@ -2293,6 +2293,7 @@ components:
           type: string
         size:
           type: integer
+          format: int64
       required:
         - objectType
         - imageID

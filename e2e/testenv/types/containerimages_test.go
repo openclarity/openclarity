@@ -32,11 +32,12 @@ func TestContainerImagesWithImageRef(t *testing.T) {
 		{
 			Name: "ImageRef",
 			ContainerImagesMap: map[string]string{
-				"apiserver_image":    "openclarity.io/vmclarity-apiserver",
-				"orchestrator_image": "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
-				"ui_image":           "ghcr.io/openclarity/vmclarity-ui:test",
-				"uibackend_image":    "openclarity.io/vmclarity-uibackend:test",
-				"scanner_image":      "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"apiserver_image":           "openclarity.io/vmclarity-apiserver",
+				"orchestrator_image":        "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ui_image":                  "ghcr.io/openclarity/vmclarity-ui:test",
+				"uibackend_image":           "openclarity.io/vmclarity-uibackend:test",
+				"scanner_image":             "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"cr_discovery_server_image": "ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 			ExpectedContainerImages: &ContainerImages[ImageRef]{
 				APIServer: ImageRef{
@@ -73,6 +74,13 @@ func TestContainerImagesWithImageRef(t *testing.T) {
 					path:   "library/vmclarity-scanner",
 					tag:    "",
 					digest: "sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				},
+				CRDiscoveryServer: ImageRef{
+					name:   "ghcr.io/openclarity/vmclarity-cr-discovery-server",
+					domain: "ghcr.io",
+					path:   "openclarity/vmclarity-cr-discovery-server",
+					tag:    "test",
+					digest: "",
 				},
 			},
 			ExpectedSlice: []ImageRef{
@@ -111,6 +119,13 @@ func TestContainerImagesWithImageRef(t *testing.T) {
 					tag:    "",
 					digest: "sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
 				},
+				{
+					name:   "ghcr.io/openclarity/vmclarity-cr-discovery-server",
+					domain: "ghcr.io",
+					path:   "openclarity/vmclarity-cr-discovery-server",
+					tag:    "test",
+					digest: "",
+				},
 			},
 			ExpectedStringSlice: []string{
 				"openclarity.io/vmclarity-apiserver:latest",
@@ -118,6 +133,7 @@ func TestContainerImagesWithImageRef(t *testing.T) {
 				"ghcr.io/openclarity/vmclarity-ui:test",
 				"openclarity.io/vmclarity-uibackend:test",
 				"docker.io/library/vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 		},
 	}
@@ -151,18 +167,20 @@ func TestContainerImagesWithString(t *testing.T) {
 		{
 			Name: "Values with container images",
 			ContainerImagesMap: map[string]string{
-				"apiserver_image":    "openclarity.io/vmclarity-apiserver",
-				"orchestrator_image": "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
-				"ui_image":           "ghcr.io/openclarity/vmclarity-ui:test",
-				"uibackend_image":    "openclarity.io/vmclarity-uibackend:test",
-				"scanner_image":      "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"apiserver_image":           "openclarity.io/vmclarity-apiserver",
+				"orchestrator_image":        "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ui_image":                  "ghcr.io/openclarity/vmclarity-ui:test",
+				"uibackend_image":           "openclarity.io/vmclarity-uibackend:test",
+				"scanner_image":             "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"cr_discovery_server_image": "ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 			ExpectedContainerImages: &ContainerImages[string]{
-				APIServer:    "openclarity.io/vmclarity-apiserver",
-				Orchestrator: "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
-				UI:           "ghcr.io/openclarity/vmclarity-ui:test",
-				UIBackend:    "openclarity.io/vmclarity-uibackend:test",
-				Scanner:      "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				APIServer:         "openclarity.io/vmclarity-apiserver",
+				Orchestrator:      "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				UI:                "ghcr.io/openclarity/vmclarity-ui:test",
+				UIBackend:         "openclarity.io/vmclarity-uibackend:test",
+				Scanner:           "vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				CRDiscoveryServer: "ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 			ExpectedSlice: []string{
 				"openclarity.io/vmclarity-apiserver",
@@ -170,6 +188,7 @@ func TestContainerImagesWithString(t *testing.T) {
 				"ghcr.io/openclarity/vmclarity-ui:test",
 				"openclarity.io/vmclarity-uibackend:test",
 				"vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 			ExpectedStringSlice: []string{
 				"openclarity.io/vmclarity-apiserver",
@@ -177,6 +196,7 @@ func TestContainerImagesWithString(t *testing.T) {
 				"ghcr.io/openclarity/vmclarity-ui:test",
 				"openclarity.io/vmclarity-uibackend:test",
 				"vmclarity-scanner@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ghcr.io/openclarity/vmclarity-cr-discovery-server:test",
 			},
 		},
 	}

@@ -10,4 +10,14 @@ rules:
       - "namespaces"
       - "pods"
     verbs: ["get", "list"]
+# TODO(sambetts) If possible move this to a namespace role instead of a cluster
+# role
+  - apiGroups: [""]
+    resources:
+      - "configmaps"
+    verbs: ["get", "list", "create", "delete", "patch"]
+  - apiGroups: ["batch"]
+    resources:
+      - "jobs"
+    verbs: ["get", "list", "create", "delete"]
 {{- end }}

@@ -24,10 +24,17 @@ import (
 	"net/http"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/openclarity/vmclarity/api/models"
 	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/utils/log"
+)
+
+const (
+	PodNamespaceLabel = "io.kubernetes.pod.namespace"
+	PodNameLabel      = "io.kubernetes.pod.name"
 )
 
 var crDiscovererLabels = map[string]string{
@@ -72,10 +79,19 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 		return fmt.Errorf("unable to decode response from discoverer: %w", err)
 	}
 
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	for _, container := range containerResponse.Containers {
+		container := container
 		// Update asset location based on the discoverer that
 		// we found it from
 		container.Location = utils.PointerTo(discoverer.Spec.NodeName)
+
+		if err = p.enrichContainerInfo(ctx, &container); err != nil {
+			logger.WithFields(map[string]interface{}{
+				"discoverer":  discoverer.Spec.NodeName,
+				"containerId": container.ContainerID,
+			}).Warnf("failed to enrich ContainerInfo: %v", err)
+		}
 
 		// Convert to asset
 		asset := models.AssetType{}
@@ -86,6 +102,40 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 
 		outputChan <- asset
 	}
+
+	return nil
+}
+
+func (p *Provider) enrichContainerInfo(ctx context.Context, c *models.ContainerInfo) error {
+	// Get namespace and Pod name for container
+	var ns, podName string
+	if c.Labels != nil {
+		for _, label := range *c.Labels {
+			switch label.Key {
+			case PodNamespaceLabel:
+				ns = label.Value
+			case PodNameLabel:
+				podName = label.Value
+			}
+		}
+	}
+
+	if ns == "" || podName == "" {
+		return nil
+	}
+
+	// Get Pod from K8s API
+	pod, err := p.clientSet.CoreV1().Pods(ns).Get(ctx, podName, metav1.GetOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to get Pod for container. ContainerId=%s: %w", c.ContainerID, err)
+	}
+
+	if pod == nil {
+		return nil
+	}
+
+	// Merge labels set for Pod into container labels where the former has higher precedence
+	c.Labels = models.MergeTags(c.Labels, models.MapToTags(pod.Labels))
 
 	return nil
 }

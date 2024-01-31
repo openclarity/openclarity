@@ -35,11 +35,12 @@ const (
 )
 
 const (
-	DefaultAPIServer    = "ghcr.io/openclarity/vmclarity-apiserver:latest"
-	DefaultOrchestrator = "ghcr.io/openclarity/vmclarity-orchestrator:latest"
-	DefaultUI           = "ghcr.io/openclarity/vmclarity-ui:latest"
-	DefaultUIBackend    = "ghcr.io/openclarity/vmclarity-ui-backend:latest"
-	DefaultScanner      = "ghcr.io/openclarity/vmclarity-cli:latest"
+	DefaultAPIServer         = "ghcr.io/openclarity/vmclarity-apiserver:latest"
+	DefaultOrchestrator      = "ghcr.io/openclarity/vmclarity-orchestrator:latest"
+	DefaultUI                = "ghcr.io/openclarity/vmclarity-ui:latest"
+	DefaultUIBackend         = "ghcr.io/openclarity/vmclarity-ui-backend:latest"
+	DefaultScanner           = "ghcr.io/openclarity/vmclarity-cli:latest"
+	DefaultCRDiscoveryServer = "ghcr.io/openclarity/vmclarity-cr-discovery-server:latest"
 )
 
 // Config is the configuration for testenv.

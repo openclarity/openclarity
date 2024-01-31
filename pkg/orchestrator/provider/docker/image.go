@@ -104,6 +104,6 @@ func (p *Provider) getContainerImageInfo(ctx context.Context, imageID string) (m
 		RepoDigests:  utils.PointerTo(image.RepoDigests),
 		ObjectType:   "ContainerImageInfo",
 		Os:           utils.PointerTo(image.Os),
-		Size:         utils.PointerTo(int(image.Size)),
+		Size:         utils.PointerTo(image.Size),
 	}, nil
 }
