@@ -8,10 +8,10 @@ import { APIS } from 'utils/systemConsts';
 import './scan-actions-display.scss';
 
 const ScanActionsDisplay = ({data, onUpdate}) => {
-    const {id, state} = data;
+    const {id, status: { state }} = data;
 
     const [{loading, error}, fetchScan] = useFetch(APIS.SCANS, {loadOnMount: false});
-	const prevLoading = usePrevious(loading);
+    const prevLoading = usePrevious(loading);
 
     useEffect(() => {
         if (prevLoading && !loading && !error && !!onUpdate) {
@@ -22,7 +22,7 @@ const ScanActionsDisplay = ({data, onUpdate}) => {
     if ([SCAN_STATES.Done.state, SCAN_STATES.Failed.state, SCAN_STATES.Aborted.state].includes(state) || loading) {
         return null;
     }
-    
+
     return (
         <div className="scan-actions-display">
             <IconWithTooltip
@@ -32,10 +32,17 @@ const ScanActionsDisplay = ({data, onUpdate}) => {
                 onClick={event => {
                     event.stopPropagation();
                     event.preventDefault();
-                    
+
                     fetchScan({
                         method: FETCH_METHODS.PATCH,
-                        submitData: {state: SCAN_STATES.Aborted.state},
+                        submitData: {
+                          status: {
+                            state: SCAN_STATES.Aborted.state,
+                            reason: "Cancellation",
+                            message: "Scan has been aborted",
+                            lastTransitionTime: new Date().toISOString(),
+                          },
+                        },
                         formatUrl: url => `${url}/${id}`
                     });
                 }}
