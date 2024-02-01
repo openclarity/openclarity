@@ -20,11 +20,11 @@ import (
 	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/anchore/syft/syft/formats"
-	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
-	"github.com/anchore/syft/syft/formats/spdxjson"
-	"github.com/anchore/syft/syft/formats/spdxtagvalue"
-	"github.com/anchore/syft/syft/formats/syftjson"
+	syftFormat "github.com/anchore/syft/syft/format"
+	"github.com/anchore/syft/syft/format/common/cyclonedxhelpers"
+	"github.com/anchore/syft/syft/format/spdxjson"
+	"github.com/anchore/syft/syft/format/spdxtagvalue"
+	"github.com/anchore/syft/syft/format/syftjson"
 	syftSbom "github.com/anchore/syft/syft/sbom"
 )
 
@@ -112,21 +112,36 @@ func cycloneDxToBytesUsingSyftConversion(sbom *cdx.BOM, format SbomFormat) ([]by
 		return nil, fmt.Errorf("unable to convert BOM to intermediary format: %w", err)
 	}
 
-	var syftFormatID syftSbom.FormatID
+	var syftFormatEncoder syftSbom.FormatEncoder
 	switch format {
 	case SpdxJSON:
-		syftFormatID = spdxjson.ID
+		syftFormatEncoder, err = spdxjson.NewFormatEncoderWithConfig(
+			spdxjson.DefaultEncoderConfig(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create spdxjson encoder: %w", err)
+		}
 	case SpdxTV:
-		syftFormatID = spdxtagvalue.ID
+		syftFormatEncoder, err = spdxtagvalue.NewFormatEncoderWithConfig(
+			spdxtagvalue.DefaultEncoderConfig(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create spdxtagvalue encoder: %w", err)
+		}
 	case SyftJSON:
-		syftFormatID = syftjson.ID
+		syftFormatEncoder, err = syftjson.NewFormatEncoderWithConfig(
+			syftjson.DefaultEncoderConfig(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create syftjson encoder: %w", err)
+		}
 	case CycloneDxXML, CycloneDxJSON, Unknown:
 		fallthrough
 	default:
 		return nil, fmt.Errorf("format %v is a native cyclonedx format, use CycloneDxToNativeFormatBytes instead", format)
 	}
 
-	data, err := formats.Encode(*syftSBOM, formats.ByName(string(syftFormatID)))
+	data, err := syftFormat.Encode(*syftSBOM, syftFormatEncoder)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode sbom: %w", err)
 	}

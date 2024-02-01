@@ -25,16 +25,16 @@ func GetTrivyDBOptions() (flag.DBOptions, error) {
 	// Get the Trivy CVE DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
-	dbRepoDefaultValue, ok := flag.DBRepositoryFlag.Default.(string)
-	if !ok {
+	dbRepoDefaultValue := flag.DBRepositoryFlag.Default
+	if dbRepoDefaultValue == "" {
 		return flag.DBOptions{}, fmt.Errorf("unable to get trivy DB repo config")
 	}
 
 	// Get the Trivy JAVA DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
-	javaDBRepoDefaultValue, ok := flag.JavaDBRepositoryFlag.Default.(string)
-	if !ok {
+	javaDBRepoDefaultValue := flag.JavaDBRepositoryFlag.Default
+	if javaDBRepoDefaultValue == "" {
 		return flag.DBOptions{}, fmt.Errorf("unable to get trivy java DB repo config")
 	}
 

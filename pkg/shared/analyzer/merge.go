@@ -395,11 +395,13 @@ func (m *MergedResults) getRealBomRefFromPreviousBomRef(bomRef string) string {
 func toBomDescriptor(name, version string, source utils.SourceType, srcMetadata *cdx.Metadata, hash string) *cdx.Metadata {
 	return &cdx.Metadata{
 		Timestamp: time.Now().Format(time.RFC3339),
-		Tools: &[]cdx.Tool{
-			{
-				Vendor:  "vmclarity",
-				Name:    name,
-				Version: version,
+		Tools: &cdx.ToolsChoice{
+			Components: &[]cdx.Component{
+				{
+					Author:  "vmclarity",
+					Name:    name,
+					Version: version,
+				},
 			},
 		},
 		Component: toBomDescriptorComponent(source, srcMetadata, hash),

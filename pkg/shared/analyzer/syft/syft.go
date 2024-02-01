@@ -20,7 +20,7 @@ import (
 
 	"github.com/anchore/syft/syft"
 	syft_artifact "github.com/anchore/syft/syft/artifact"
-	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
+	"github.com/anchore/syft/syft/format/common/cyclonedxhelpers"
 	"github.com/anchore/syft/syft/linux"
 	syft_pkg "github.com/anchore/syft/syft/pkg"
 	"github.com/anchore/syft/syft/pkg/cataloger"

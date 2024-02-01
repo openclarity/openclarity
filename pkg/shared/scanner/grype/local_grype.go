@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/anchore/clio"
 	"github.com/anchore/grype/grype"
 	"github.com/anchore/grype/grype/db"
 	"github.com/anchore/grype/grype/grypeerr"
@@ -125,7 +126,8 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
-	doc, err := grype_models.NewDocument(packages, context, *allMatches, ignoredMatches, vulnerabilityStore.MetadataProvider, nil, dbStatus)
+	id := clio.Identification{}
+	doc, err := grype_models.NewDocument(id, packages, context, *allMatches, ignoredMatches, vulnerabilityStore.MetadataProvider, nil, dbStatus)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
 		return

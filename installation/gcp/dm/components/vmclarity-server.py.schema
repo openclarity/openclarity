@@ -81,7 +81,7 @@ properties:
     description: The container image to use for the trivy server
   grypeServerContainerImage:
     type: string
-    default: ghcr.io/openclarity/grype-server:v0.7.0
+    default: ghcr.io/openclarity/grype-server:v0.7.2
     description: The container image to use for the grype server
   freshclamMirrorContainerImage:
     type: string
