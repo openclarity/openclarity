@@ -41,6 +41,10 @@ var (
 )
 
 func TestEndToEnd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping end-to-end test suite in short mode")
+	}
+
 	gomega.RegisterFailHandler(ginkgo.Fail)
 	ginkgo.RunSpecs(t, "Run end-to-end tests")
 }
