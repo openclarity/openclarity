@@ -246,8 +246,8 @@ github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbi
 github.com/BurntSushi/toml v1.3.2 h1:o7IhLm0Msx3BaB+n3Ag7L8EVlByGnpq14C4YWiu/gL8=
 github.com/BurntSushi/toml v1.3.2/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/CiscoM31/godata v1.0.9 h1:7ovi2efjWb6RloX96AJqBB9eyIfBdarzj8kzg7glPC4=
-github.com/CiscoM31/godata v1.0.9/go.mod h1:ZMiT6JuD3Rm83HEtiTx4JEChsd25YCrxchKGag/sdTc=
+github.com/CiscoM31/godata v1.0.10 h1:DZdJ6M8QNh4HquvDDOqNLu6h77Wl86KGK7Qlbmb90sk=
+github.com/CiscoM31/godata v1.0.10/go.mod h1:ZMiT6JuD3Rm83HEtiTx4JEChsd25YCrxchKGag/sdTc=
 github.com/CycloneDX/cyclonedx-go v0.7.2 h1:kKQ0t1dPOlugSIYVOMiMtFqeXI2wp/f5DBIdfux8gnQ=
 github.com/CycloneDX/cyclonedx-go v0.7.2/go.mod h1:K2bA+324+Og0X84fA8HhN2X066K7Bxz4rpMQ4ZhjtSk=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
