@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var HelmChartDir = "../../../../installation/kubernetes/helm/vmclarity"
+var HelmChartDir = "../../../installation/kubernetes/helm/vmclarity"
 
 func TestLoader(t *testing.T) {
 	tests := []struct {

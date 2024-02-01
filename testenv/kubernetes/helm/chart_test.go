@@ -16,7 +16,6 @@
 package helm
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -44,17 +43,18 @@ func TestChartWithContainerImages(t *testing.T) {
 				KubeConfigPath: "kubeconfig",
 			},
 			ContainerImagesMap: map[string]string{
-				"apiserver_image":    "openclarity.io/vmclarity-apiserver",
-				"orchestrator_image": "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
-				"ui_image":           "ghcr.io/openclarity/vmclarity-ui:test",
-				"uibackend_image":    "openclarity.io/vmclarity-uibackend:test",
-				"scanner_image":      "vmclarity-scanner:test",
+				"apiserver_image":           "openclarity.io/vmclarity-apiserver",
+				"orchestrator_image":        "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ui_image":                  "ghcr.io/openclarity/vmclarity-ui:test",
+				"uibackend_image":           "openclarity.io/vmclarity-uibackend:test",
+				"scanner_image":             "vmclarity-scanner:test",
+				"cr_discovery_server_image": "openclarity.io/vmclarity-cr-discovery-server:test",
 			},
 			ExpectedValues: map[string]map[string]string{
 				"apiserver.image": {
 					"registry":   "openclarity.io",
 					"repository": "vmclarity-apiserver",
-					"tag":        "",
+					"tag":        "latest",
 				},
 				"orchestrator.image": {
 					"registry":   "openclarity.io",
@@ -83,6 +83,11 @@ func TestChartWithContainerImages(t *testing.T) {
 					"repository": "vmclarity-uibackend",
 					"tag":        "test",
 				},
+				"crDiscoveryServer.image": {
+					"registry":   "openclarity.io",
+					"repository": "vmclarity-cr-discovery-server",
+					"tag":        "test",
+				},
 			},
 		},
 	}
@@ -106,7 +111,7 @@ func TestChartWithContainerImages(t *testing.T) {
 
 			yaml, err := values.YAML()
 			g.Expect(err).Should(Not(HaveOccurred()))
-			fmt.Println(yaml)
+			t.Logf("values YAML: %v", yaml)
 
 			for subSection, expectedValues := range test.ExpectedValues {
 				t.Logf("with subsection: %s", subSection)
