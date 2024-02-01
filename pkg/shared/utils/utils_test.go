@@ -23,24 +23,24 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 	type args struct {
-		vulnerabilities *[]models.Vulnerability
+		vulnerabilities *[]types.Vulnerability
 	}
 	tests := []struct {
 		name string
 		args args
-		want *models.VulnerabilityScanSummary
+		want *types.VulnerabilityScanSummary
 	}{
 		{
 			name: "nil should result in empty",
 			args: args{
 				vulnerabilities: nil,
 			},
-			want: &models.VulnerabilityScanSummary{
+			want: &types.VulnerabilityScanSummary{
 				TotalCriticalVulnerabilities:   PointerTo(0),
 				TotalHighVulnerabilities:       PointerTo(0),
 				TotalMediumVulnerabilities:     PointerTo(0),
@@ -51,15 +51,15 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 		{
 			name: "check one type",
 			args: args{
-				vulnerabilities: PointerTo([]models.Vulnerability{
+				vulnerabilities: PointerTo([]types.Vulnerability{
 					{
 						Description:       PointerTo("desc1"),
-						Severity:          PointerTo(models.CRITICAL),
+						Severity:          PointerTo(types.CRITICAL),
 						VulnerabilityName: PointerTo("CVE-1"),
 					},
 				}),
 			},
-			want: &models.VulnerabilityScanSummary{
+			want: &types.VulnerabilityScanSummary{
 				TotalCriticalVulnerabilities:   PointerTo(1),
 				TotalHighVulnerabilities:       PointerTo(0),
 				TotalMediumVulnerabilities:     PointerTo(0),
@@ -70,35 +70,35 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 		{
 			name: "check all severity types",
 			args: args{
-				vulnerabilities: PointerTo([]models.Vulnerability{
+				vulnerabilities: PointerTo([]types.Vulnerability{
 					{
 						Description:       PointerTo("desc1"),
-						Severity:          PointerTo(models.CRITICAL),
+						Severity:          PointerTo(types.CRITICAL),
 						VulnerabilityName: PointerTo("CVE-1"),
 					},
 					{
 						Description:       PointerTo("desc2"),
-						Severity:          PointerTo(models.HIGH),
+						Severity:          PointerTo(types.HIGH),
 						VulnerabilityName: PointerTo("CVE-2"),
 					},
 					{
 						Description:       PointerTo("desc3"),
-						Severity:          PointerTo(models.MEDIUM),
+						Severity:          PointerTo(types.MEDIUM),
 						VulnerabilityName: PointerTo("CVE-3"),
 					},
 					{
 						Description:       PointerTo("desc4"),
-						Severity:          PointerTo(models.LOW),
+						Severity:          PointerTo(types.LOW),
 						VulnerabilityName: PointerTo("CVE-4"),
 					},
 					{
 						Description:       PointerTo("desc5"),
-						Severity:          PointerTo(models.NEGLIGIBLE),
+						Severity:          PointerTo(types.NEGLIGIBLE),
 						VulnerabilityName: PointerTo("CVE-5"),
 					},
 				}),
 			},
-			want: &models.VulnerabilityScanSummary{
+			want: &types.VulnerabilityScanSummary{
 				TotalCriticalVulnerabilities:   PointerTo(1),
 				TotalHighVulnerabilities:       PointerTo(1),
 				TotalMediumVulnerabilities:     PointerTo(1),

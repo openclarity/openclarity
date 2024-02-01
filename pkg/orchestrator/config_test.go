@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanestimationwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanprocessor"
@@ -40,49 +40,49 @@ func TestUnmarshalCloudProvider(t *testing.T) {
 		CloudProviderText string
 
 		ExpectedNewErrorMatcher types.GomegaMatcher
-		ExpectedCloudProvider   models.CloudProvider
+		ExpectedCloudProvider   apitypes.CloudProvider
 	}{
 		{
 			Name:                    "AWS",
 			CloudProviderText:       "aWs",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.AWS,
+			ExpectedCloudProvider:   apitypes.AWS,
 		},
 		{
 			Name:                    "Azure",
 			CloudProviderText:       "aZuRe",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.Azure,
+			ExpectedCloudProvider:   apitypes.Azure,
 		},
 		{
 			Name:                    "Docker",
 			CloudProviderText:       "dOcKer",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.Docker,
+			ExpectedCloudProvider:   apitypes.Docker,
 		},
 		{
 			Name:                    "External",
 			CloudProviderText:       "eXterNal",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.External,
+			ExpectedCloudProvider:   apitypes.External,
 		},
 		{
 			Name:                    "GCP",
 			CloudProviderText:       "GCP",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.GCP,
+			ExpectedCloudProvider:   apitypes.GCP,
 		},
 		{
 			Name:                    "Kubernetes",
 			CloudProviderText:       "kuBERnetes",
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
-			ExpectedCloudProvider:   models.Kubernetes,
+			ExpectedCloudProvider:   apitypes.Kubernetes,
 		},
 		{
 			Name:                    "Invalid",
 			CloudProviderText:       "super awesome provider",
 			ExpectedNewErrorMatcher: HaveOccurred(),
-			ExpectedCloudProvider:   models.CloudProvider("invalid"),
+			ExpectedCloudProvider:   apitypes.CloudProvider("invalid"),
 		},
 	}
 
@@ -90,7 +90,7 @@ func TestUnmarshalCloudProvider(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			provider := models.CloudProvider("invalid")
+			provider := apitypes.CloudProvider("invalid")
 			err := provider.UnmarshalText([]byte(test.CloudProviderText))
 
 			g.Expect(err).Should(test.ExpectedNewErrorMatcher)
@@ -143,7 +143,7 @@ func TestConfig(t *testing.T) {
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
-				ProviderKind:           models.Docker,
+				ProviderKind:           apitypes.Docker,
 				APIServerAddress:       "http://example.com:8484/api",
 				HealthCheckAddress:     "example.com:18888",
 				ControllerStartupDelay: 15 * time.Second,

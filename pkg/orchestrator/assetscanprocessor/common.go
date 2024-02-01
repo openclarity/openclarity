@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -41,7 +41,7 @@ func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, ass
 	// already been invalidated by a newer scan. We'll find the oldest
 	// newer scan, and use its FoundOn time as the InvalidatedOn time for
 	// this scan.
-	newerFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	newerFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn gt %s",
 			findingType, assetID, completedTime.Format(time.RFC3339))),
@@ -64,7 +64,7 @@ func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context
 	// Invalidate any findings of this type for this asset where foundOn is
 	// older than this asset scan, and has not already been invalidated by
 	// an asset scan older than this asset scan.
-	findingsToInvalidate, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	findingsToInvalidate, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn lt %s and (invalidatedOn gt %s or invalidatedOn eq null)",
 			findingType, assetID, completedTime.Format(time.RFC3339), completedTime.Format(time.RFC3339))),
@@ -88,7 +88,7 @@ func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context
 func (asp *AssetScanProcessor) getActiveFindingsByType(ctx context.Context, findingType string, assetID string) (int, error) {
 	filter := fmt.Sprintf("findingInfo/objectType eq '%s' and asset/id eq '%s' and invalidatedOn eq null",
 		findingType, assetID)
-	activeFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	activeFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Count:  utils.PointerTo(true),
 		Filter: &filter,
 

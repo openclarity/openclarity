@@ -22,15 +22,15 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/common"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type AssetScanProcessor struct {
-	client           *backendclient.BackendClient
+	client           *client.BackendClient
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
 }
@@ -44,15 +44,15 @@ func New(config Config) *AssetScanProcessor {
 }
 
 // Returns true if AssetScanStatus.State is DONE and there are no Errors.
-func statusCompletedWithNoErrors(status *models.ScannerStatus) bool {
-	return status != nil && status.State == models.ScannerStatusStateDone
+func statusCompletedWithNoErrors(status *types.ScannerStatus) bool {
+	return status != nil && status.State == types.ScannerStatusStateDone
 }
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanReconcileEvent) error {
 	// Get latest information, in case we've been sat in the reconcile
 	// queue for a while
-	assetScan, err := asp.client.GetAssetScan(ctx, event.AssetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := asp.client.GetAssetScan(ctx, event.AssetScanID, types.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan from API: %w", err)
 	}
@@ -127,7 +127,7 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 }
 
 type AssetScanReconcileEvent struct {
-	AssetScanID models.AssetScanID
+	AssetScanID types.AssetScanID
 }
 
 func (e AssetScanReconcileEvent) ToFields() logrus.Fields {
@@ -146,8 +146,8 @@ func (e AssetScanReconcileEvent) Hash() string {
 
 func (asp *AssetScanProcessor) GetItems(ctx context.Context) ([]AssetScanReconcileEvent, error) {
 	filter := fmt.Sprintf("(status/state eq '%s' or status/state eq '%s') and (findingsProcessed eq false or findingsProcessed eq null)",
-		models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed)
-	assetScans, err := asp.client.GetAssetScans(ctx, models.GetAssetScansParams{
+		types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed)
+	assetScans, err := asp.client.GetAssetScans(ctx, types.GetAssetScansParams{
 		Filter: utils.PointerTo(filter),
 		Select: utils.PointerTo("id"),
 	})

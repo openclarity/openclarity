@@ -20,70 +20,70 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	provider_service "github.com/openclarity/vmclarity/pkg/orchestrator/provider/external/proto"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-func convertAssetToModels(asset *provider_service.Asset) (models.Asset, error) {
+func convertAssetToModels(asset *provider_service.Asset) (types.Asset, error) {
 	if asset == nil {
-		return models.Asset{}, fmt.Errorf("asset is nil")
+		return types.Asset{}, fmt.Errorf("asset is nil")
 	}
 
-	assetType := models.AssetType{}
+	assetType := types.AssetType{}
 	switch asset.AssetType.(type) {
 	case *provider_service.Asset_Vminfo:
 		vminfo := asset.GetVminfo()
 
-		if err := assetType.FromVMInfo(models.VMInfo{
+		if err := assetType.FromVMInfo(types.VMInfo{
 			Image:            vminfo.Image,
 			InstanceID:       vminfo.Id,
-			InstanceProvider: utils.PointerTo(models.External),
+			InstanceProvider: utils.PointerTo(types.External),
 			InstanceType:     vminfo.InstanceType,
 			LaunchTime:       vminfo.LaunchTime.AsTime(),
 			Location:         vminfo.Location,
 			Platform:         vminfo.Platform,
-			SecurityGroups:   &[]models.SecurityGroup{},
+			SecurityGroups:   &[]types.SecurityGroup{},
 			Tags:             convertTagsToModels(vminfo.Tags),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from VMInfo: %w", err)
+			return types.Asset{}, fmt.Errorf("failed to convert asset from VMInfo: %w", err)
 		}
 	case *provider_service.Asset_Dirinfo:
 		dirinfo := asset.GetDirinfo()
 
-		if err := assetType.FromDirInfo(models.DirInfo{
+		if err := assetType.FromDirInfo(types.DirInfo{
 			DirName:  utils.PointerTo(dirinfo.DirName),
 			Location: utils.PointerTo(dirinfo.Location),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from Dirinfo: %w", err)
+			return types.Asset{}, fmt.Errorf("failed to convert asset from Dirinfo: %w", err)
 		}
 	case *provider_service.Asset_Podinfo:
 		podinfo := asset.GetPodinfo()
 
-		if err := assetType.FromPodInfo(models.PodInfo{
+		if err := assetType.FromPodInfo(types.PodInfo{
 			PodName:  utils.PointerTo(podinfo.PodName),
 			Location: utils.PointerTo(podinfo.Location),
 		}); err != nil {
-			return models.Asset{}, fmt.Errorf("failed to convert asset from Podinfo: %w", err)
+			return types.Asset{}, fmt.Errorf("failed to convert asset from Podinfo: %w", err)
 		}
 	default:
-		return models.Asset{}, fmt.Errorf("unsupported asset type: %t", asset.AssetType)
+		return types.Asset{}, fmt.Errorf("unsupported asset type: %t", asset.AssetType)
 	}
 
-	return models.Asset{
+	return types.Asset{
 		AssetInfo: &assetType,
 	}, nil
 }
 
-func convertAssetFromModels(asset models.Asset) (*provider_service.Asset, error) {
+func convertAssetFromModels(asset types.Asset) (*provider_service.Asset, error) {
 	value, err := asset.AssetInfo.ValueByDiscriminator()
 	if err != nil {
 		return nil, fmt.Errorf("failed to value by discriminator from asset info: %w", err)
 	}
 
 	switch info := value.(type) {
-	case models.VMInfo:
+	case types.VMInfo:
 		return &provider_service.Asset{
 			AssetType: &provider_service.Asset_Vminfo{Vminfo: &provider_service.VMInfo{
 				Id:           info.InstanceID,
@@ -95,14 +95,14 @@ func convertAssetFromModels(asset models.Asset) (*provider_service.Asset, error)
 				LaunchTime:   timestamppb.New(info.LaunchTime),
 			}},
 		}, nil
-	case models.DirInfo:
+	case types.DirInfo:
 		return &provider_service.Asset{
 			AssetType: &provider_service.Asset_Dirinfo{Dirinfo: &provider_service.DirInfo{
 				DirName:  *info.DirName,
 				Location: *info.Location,
 			}},
 		}, nil
-	case models.PodInfo:
+	case types.PodInfo:
 		return &provider_service.Asset{
 			AssetType: &provider_service.Asset_Podinfo{Podinfo: &provider_service.PodInfo{
 				PodName:  *info.PodName,
@@ -114,15 +114,15 @@ func convertAssetFromModels(asset models.Asset) (*provider_service.Asset, error)
 	}
 }
 
-func convertTagsToModels(tags []*provider_service.Tag) *[]models.Tag {
-	ret := make([]models.Tag, 0)
+func convertTagsToModels(tags []*provider_service.Tag) *[]types.Tag {
+	ret := make([]types.Tag, 0)
 
 	if len(tags) == 0 {
 		return nil
 	}
 
 	for _, tag := range tags {
-		ret = append(ret, models.Tag{
+		ret = append(ret, types.Tag{
 			Key:   tag.Key,
 			Value: tag.Val,
 		})
@@ -131,7 +131,7 @@ func convertTagsToModels(tags []*provider_service.Tag) *[]models.Tag {
 	return &ret
 }
 
-func convertTagsFromModels(tags *[]models.Tag) []*provider_service.Tag {
+func convertTagsFromModels(tags *[]types.Tag) []*provider_service.Tag {
 	ret := make([]*provider_service.Tag, 0)
 
 	if tags == nil {

@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/common"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
@@ -44,7 +44,7 @@ func New(c Config) *Watcher {
 }
 
 type Watcher struct {
-	backend          *backendclient.BackendClient
+	backend          *client.BackendClient
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
 
@@ -74,7 +74,7 @@ func (w *Watcher) GetScanConfigs(ctx context.Context) ([]ScanConfigReconcileEven
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Debugf("Fetching enabled ScanConfigs")
 
-	params := models.GetScanConfigsParams{
+	params := types.GetScanConfigsParams{
 		Filter: utils.PointerTo("disabled eq null or disabled eq false"),
 		Select: utils.PointerTo("id"),
 	}
@@ -111,7 +111,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	scanConfig, err := w.backend.GetScanConfig(ctx, event.ScanConfigID, models.GetScanConfigsScanConfigIDParams{})
+	scanConfig, err := w.backend.GetScanConfig(ctx, event.ScanConfigID, types.GetScanConfigsScanConfigIDParams{})
 	if err != nil || scanConfig == nil {
 		return fmt.Errorf("failed to fetch ScanConfig. Event=%s: %w", event, err)
 	}
@@ -155,8 +155,8 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 	return nil
 }
 
-func (w *Watcher) reconcileUnscheduled(ctx context.Context, scanConfig *models.ScanConfig) error {
-	scanConfigPatch := &models.ScanConfig{
+func (w *Watcher) reconcileUnscheduled(ctx context.Context, scanConfig *types.ScanConfig) error {
+	scanConfigPatch := &types.ScanConfig{
 		Disabled: utils.PointerTo(true),
 	}
 
@@ -167,14 +167,14 @@ func (w *Watcher) reconcileUnscheduled(ctx context.Context, scanConfig *models.S
 	return nil
 }
 
-func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *models.ScanConfig, schedule *ScanConfigSchedule) error {
+func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *types.ScanConfig, schedule *ScanConfigSchedule) error {
 	if err := w.createScan(ctx, scanConfig); err != nil {
 		return fmt.Errorf("failed to reconcile new Scan for ScanConfig. ScanConfigID=%s: %w", *scanConfig.Id, err)
 	}
 	nextOperationTime := schedule.OperationTime.NextAfter(schedule.Window.Next().Start())
 	// FIXME: disable ScanConfig if it was a oneshot
-	scanConfigPatch := &models.ScanConfig{
-		Scheduled: &models.RuntimeScheduleScanConfig{
+	scanConfigPatch := &types.ScanConfig{
+		Scheduled: &types.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
 			OperationTime: utils.PointerTo(nextOperationTime.Time()),
 		},
@@ -187,12 +187,12 @@ func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *models.ScanConfi
 	return nil
 }
 
-func (w *Watcher) createScan(ctx context.Context, scanConfig *models.ScanConfig) error {
+func (w *Watcher) createScan(ctx context.Context, scanConfig *types.ScanConfig) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	filter := fmt.Sprintf("scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'", *scanConfig.Id,
-		models.ScanStatusStateDone, models.ScanStatusStateFailed)
-	scans, err := w.backend.GetScans(ctx, models.GetScansParams{
+		types.ScanStatusStateDone, types.ScanStatusStateFailed)
+	scans, err := w.backend.GetScans(ctx, types.GetScansParams{
 		Filter: utils.PointerTo(filter),
 		Select: utils.PointerTo("id"),
 		Count:  utils.PointerTo(true),
@@ -218,7 +218,7 @@ func (w *Watcher) createScan(ctx context.Context, scanConfig *models.ScanConfig)
 
 	_, err = w.backend.PostScan(ctx, *scan)
 	if err != nil {
-		var conflictErr backendclient.ScanConflictError
+		var conflictErr client.ScanConflictError
 		if errors.As(err, &conflictErr) {
 			logger.Debugf("Scan already exist. ScanID=%s", *conflictErr.ConflictingScan.Id)
 			return nil
@@ -230,11 +230,11 @@ func (w *Watcher) createScan(ctx context.Context, scanConfig *models.ScanConfig)
 	return nil
 }
 
-func (w *Watcher) reconcileOverdue(ctx context.Context, scanConfig *models.ScanConfig, schedule *ScanConfigSchedule) error {
+func (w *Watcher) reconcileOverdue(ctx context.Context, scanConfig *types.ScanConfig, schedule *ScanConfigSchedule) error {
 	nextOperationTime := schedule.OperationTime.NextAfter(schedule.Window.Next().Start())
 
-	scanConfigPatch := &models.ScanConfig{
-		Scheduled: &models.RuntimeScheduleScanConfig{
+	scanConfigPatch := &types.ScanConfig{
+		Scheduled: &types.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
 			OperationTime: utils.PointerTo(nextOperationTime.Time()),
 		},

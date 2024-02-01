@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
@@ -28,11 +28,11 @@ const (
 )
 
 type ServerImpl struct {
-	BackendClient *backendclient.BackendClient
+	BackendClient *client.BackendClient
 	findingsImpactData
 }
 
-func CreateServer(client *backendclient.BackendClient) *ServerImpl {
+func CreateServer(client *client.BackendClient) *ServerImpl {
 	return &ServerImpl{
 		BackendClient: client,
 		findingsImpactData: findingsImpactData{

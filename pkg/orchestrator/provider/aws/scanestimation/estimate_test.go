@@ -24,7 +24,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"gotest.tools/v3/assert"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -54,17 +54,17 @@ func Test_getScanSize(t *testing.T) {
 		RootVolumeSize = 5
 	)
 
-	var assetType models.AssetType
-	err := assetType.FromVMInfo(models.VMInfo{
-		RootVolume: models.RootVolume{
+	var assetType types.AssetType
+	err := assetType.FromVMInfo(types.VMInfo{
+		RootVolume: types.RootVolume{
 			SizeGB: RootVolumeSize,
 		},
 	})
 	assert.NilError(t, err)
 
 	type args struct {
-		stats models.AssetScanStats
-		asset *models.Asset
+		stats types.AssetScanStats
+		asset *types.Asset
 	}
 	tests := []struct {
 		name    string
@@ -75,8 +75,8 @@ func Test_getScanSize(t *testing.T) {
 		{
 			name: "size found from first family (Sbom) stats",
 			args: args{
-				stats: models.AssetScanStats{
-					Sbom: &[]models.AssetScanInputScanStats{
+				stats: types.AssetScanStats{
+					Sbom: &[]types.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/"),
 							Size: utils.PointerTo(int64(10)),
@@ -84,7 +84,7 @@ func Test_getScanSize(t *testing.T) {
 						},
 					},
 				},
-				asset: &models.Asset{
+				asset: &types.Asset{
 					AssetInfo: &assetType,
 				},
 			},
@@ -94,15 +94,15 @@ func Test_getScanSize(t *testing.T) {
 		{
 			name: "size found not from first family (Malware) stats",
 			args: args{
-				stats: models.AssetScanStats{
-					Sbom: &[]models.AssetScanInputScanStats{
+				stats: types.AssetScanStats{
+					Sbom: &[]types.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/dir"),
 							Size: utils.PointerTo(int64(3)),
 							Type: utils.PointerTo(string(utils.DIR)),
 						},
 					},
-					Malware: &[]models.AssetScanInputScanStats{
+					Malware: &[]types.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/"),
 							Size: utils.PointerTo(int64(10)),
@@ -110,7 +110,7 @@ func Test_getScanSize(t *testing.T) {
 						},
 					},
 				},
-				asset: &models.Asset{
+				asset: &types.Asset{
 					AssetInfo: &assetType,
 				},
 			},
@@ -120,8 +120,8 @@ func Test_getScanSize(t *testing.T) {
 		{
 			name: "size not found from stats, get it from root volume size",
 			args: args{
-				stats: models.AssetScanStats{},
-				asset: &models.Asset{
+				stats: types.AssetScanStats{},
+				asset: &types.Asset{
 					AssetInfo: &assetType,
 				},
 			},
@@ -147,8 +147,8 @@ func Test_getScanDuration(t *testing.T) {
 	timeNow := time.Now()
 
 	type args struct {
-		stats          models.AssetScanStats
-		familiesConfig *models.ScanFamiliesConfig
+		stats          types.AssetScanStats
+		familiesConfig *types.ScanFamiliesConfig
 		scanSizeMB     int64
 	}
 	tests := []struct {
@@ -159,21 +159,21 @@ func Test_getScanDuration(t *testing.T) {
 		{
 			name: "Sbom and Secrets has stats, the other scan durations will be taken from the static map",
 			args: args{
-				stats: models.AssetScanStats{
-					Sbom: &[]models.AssetScanInputScanStats{
+				stats: types.AssetScanStats{
+					Sbom: &[]types.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/"),
-							ScanTime: &models.AssetScanScanTime{
+							ScanTime: &types.AssetScanScanTime{
 								EndTime:   &timeNow,
 								StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
 							},
 							Type: utils.PointerTo(string(utils.ROOTFS)),
 						},
 					},
-					Secrets: &[]models.AssetScanInputScanStats{
+					Secrets: &[]types.AssetScanInputScanStats{
 						{
 							Path: utils.PointerTo("/"),
-							ScanTime: &models.AssetScanScanTime{
+							ScanTime: &types.AssetScanScanTime{
 								EndTime:   &timeNow,
 								StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
 							},
@@ -181,20 +181,20 @@ func Test_getScanDuration(t *testing.T) {
 						},
 					},
 				},
-				familiesConfig: &models.ScanFamiliesConfig{
-					Misconfigurations: &models.MisconfigurationsConfig{
+				familiesConfig: &types.ScanFamiliesConfig{
+					Misconfigurations: &types.MisconfigurationsConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					Secrets: &models.SecretsConfig{
+					Secrets: &types.SecretsConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					Sbom: &models.SBOMConfig{
+					Sbom: &types.SBOMConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					Vulnerabilities: &models.VulnerabilitiesConfig{
+					Vulnerabilities: &types.VulnerabilitiesConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					Malware: &models.MalwareConfig{
+					Malware: &types.MalwareConfig{
 						Enabled: utils.PointerTo(true),
 					},
 				},
@@ -217,9 +217,9 @@ func Test_getScanDuration(t *testing.T) {
 }
 
 func TestScanEstimator_EstimateAssetScan(t *testing.T) {
-	var assetType models.AssetType
-	err := assetType.FromVMInfo(models.VMInfo{
-		RootVolume: models.RootVolume{
+	var assetType types.AssetType
+	err := assetType.FromVMInfo(types.VMInfo{
+		RootVolume: types.RootVolume{
 			SizeGB: 16,
 		},
 	})
@@ -237,7 +237,7 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *models.Estimation
+		want    *types.Estimation
 		wantErr bool
 	}{
 		{
@@ -254,21 +254,21 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 					ScannerInstanceType:     ec2types.InstanceTypeT2Large,
 					JobCreationTimeSec:      20 * 60,
 					ScannerRootVolumeSizeGB: 8,
-					Stats: models.AssetScanStats{
-						Sbom: &[]models.AssetScanInputScanStats{
+					Stats: types.AssetScanStats{
+						Sbom: &[]types.AssetScanInputScanStats{
 							{
 								Path: utils.PointerTo("/"),
-								ScanTime: &models.AssetScanScanTime{
+								ScanTime: &types.AssetScanScanTime{
 									EndTime:   &timeNow,
 									StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
 								},
 								Type: utils.PointerTo(string(utils.ROOTFS)),
 							},
 						},
-						Secrets: &[]models.AssetScanInputScanStats{
+						Secrets: &[]types.AssetScanInputScanStats{
 							{
 								Path: utils.PointerTo("/"),
-								ScanTime: &models.AssetScanScanTime{
+								ScanTime: &types.AssetScanScanTime{
 									EndTime:   &timeNow,
 									StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
 								},
@@ -276,25 +276,25 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 							},
 						},
 					},
-					Asset: &models.Asset{
+					Asset: &types.Asset{
 						AssetInfo: &assetType,
 						Id:        utils.PointerTo("id"),
 					},
-					AssetScanTemplate: &models.AssetScanTemplate{
-						ScanFamiliesConfig: &models.ScanFamiliesConfig{
-							Misconfigurations: &models.MisconfigurationsConfig{
+					AssetScanTemplate: &types.AssetScanTemplate{
+						ScanFamiliesConfig: &types.ScanFamiliesConfig{
+							Misconfigurations: &types.MisconfigurationsConfig{
 								Enabled: utils.PointerTo(true),
 							},
-							Secrets: &models.SecretsConfig{
+							Secrets: &types.SecretsConfig{
 								Enabled: utils.PointerTo(true),
 							},
-							Sbom: &models.SBOMConfig{
+							Sbom: &types.SBOMConfig{
 								Enabled: utils.PointerTo(true),
 							},
-							Vulnerabilities: &models.VulnerabilitiesConfig{
+							Vulnerabilities: &types.VulnerabilitiesConfig{
 								Enabled: utils.PointerTo(true),
 							},
-							Malware: &models.MalwareConfig{
+							Malware: &types.MalwareConfig{
 								Enabled: utils.PointerTo(true),
 							},
 						},
@@ -302,9 +302,9 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 					},
 				},
 			},
-			want: &models.Estimation{
+			want: &types.Estimation{
 				Cost: utils.PointerTo(float32(0.5883259)),
-				CostBreakdown: &[]models.CostBreakdownComponent{
+				CostBreakdown: &[]types.CostBreakdownComponent{
 					{
 						Cost:      float32(0.002162963),
 						Operation: string(Snapshot + "-us-east-1"),

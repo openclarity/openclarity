@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	uitypes "github.com/openclarity/vmclarity/uibackend/types"
 )
@@ -43,15 +43,15 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("waiting until scan starts")
-			scanParams := models.GetScansParams{
+			scanParams := types.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 					*apiScanConfig.Id,
-					models.ScanStatusStateDone,
-					models.ScanStatusStateFailed,
+					types.ScanStatusStateDone,
+					types.ScanStatusStateFailed,
 				)),
 			}
-			var scans *models.Scans
+			var scans *types.Scans
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -66,12 +66,12 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to done")
-			scanParams = models.GetScansParams{
+			scanParams = types.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					models.ScanStatusStateDone,
-					models.ScanStatusReasonSuccess,
+					types.ScanStatusStateDone,
+					types.ScanStatusReasonSuccess,
 				)),
 			}
 			gomega.Eventually(func() bool {

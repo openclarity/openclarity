@@ -32,7 +32,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"gopkg.in/yaml.v2"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -49,12 +49,12 @@ type Provider struct {
 func New(_ context.Context) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
-		return nil, fmt.Errorf("invalid configuration. Provider=%s: %w", models.Docker, err)
+		return nil, fmt.Errorf("invalid configuration. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, fmt.Errorf("failed to load provider configuration. Provider=%s: %w", models.Docker, err)
+		return nil, fmt.Errorf("failed to load provider configuration. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	return &Provider{
@@ -63,12 +63,12 @@ func New(_ context.Context) (*Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() models.CloudProvider {
-	return models.Docker
+func (p *Provider) Kind() apitypes.CloudProvider {
+	return apitypes.Docker
 }
 
-func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
-	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(ctx context.Context, stats apitypes.AssetScanStats, asset *apitypes.Asset, assetScanTemplate *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
+	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
@@ -80,14 +80,14 @@ func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer 
 		// Get image assets
 		imageAssets, err := p.getImageAssets(ctx)
 		if err != nil {
-			assetDiscoverer.Error = provider.FatalErrorf("failed to get images. Provider=%s: %w", models.Docker, err)
+			assetDiscoverer.Error = provider.FatalErrorf("failed to get images. Provider=%s: %w", apitypes.Docker, err)
 			return
 		}
 
 		// Get container assets
 		containerAssets, err := p.getContainerAssets(ctx)
 		if err != nil {
-			assetDiscoverer.Error = provider.FatalErrorf("failed to get containers. Provider=%s: %w", models.Docker, err)
+			assetDiscoverer.Error = provider.FatalErrorf("failed to get containers. Provider=%s: %w", apitypes.Docker, err)
 			return
 		}
 
@@ -110,22 +110,22 @@ func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer 
 func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	assetVolume, err := p.prepareScanAssetVolume(ctx, config)
 	if err != nil {
-		return provider.FatalErrorf("failed to prepare scan volume. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to prepare scan volume. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	networkID, err := p.createScanNetwork(ctx)
 	if err != nil {
-		return provider.FatalErrorf("failed to prepare scan network. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to prepare scan network. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	containerID, err := p.createScanContainer(ctx, assetVolume, networkID, config)
 	if err != nil {
-		return provider.FatalErrorf("failed to create scan container. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to create scan container. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	err = p.dockerClient.ContainerStart(ctx, containerID, containertypes.StartOptions{})
 	if err != nil {
-		return provider.FatalErrorf("failed to start scan container. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to start scan container. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	return nil
@@ -134,16 +134,16 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
 	containerID, err := p.getContainerIDFromName(ctx, config.AssetScanID)
 	if err != nil {
-		return provider.FatalErrorf("failed to get scan container id. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to get scan container id. Provider=%s: %w", apitypes.Docker, err)
 	}
 	err = p.dockerClient.ContainerRemove(ctx, containerID, containertypes.RemoveOptions{Force: true})
 	if err != nil {
-		return provider.FatalErrorf("failed to remove scan container. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to remove scan container. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	err = p.dockerClient.VolumeRemove(ctx, config.AssetScanID, true)
 	if err != nil {
-		return provider.FatalErrorf("failed to remove volume. Provider=%s: %w", models.Docker, err)
+		return provider.FatalErrorf("failed to remove volume. Provider=%s: %w", apitypes.Docker, err)
 	}
 
 	return nil
@@ -444,14 +444,14 @@ func (p *Provider) exportAsset(ctx context.Context, config *provider.ScanJobConf
 	}
 
 	switch value := objectType.(type) {
-	case models.ContainerInfo:
+	case apitypes.ContainerInfo:
 		contents, err := p.dockerClient.ContainerExport(ctx, value.ContainerID)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to export container: %w", err)
 		}
 		return contents, nil, nil
 
-	case models.ContainerImageInfo:
+	case apitypes.ContainerImageInfo:
 		// Create an ephemeral container to export asset
 		containerResp, err := p.dockerClient.ContainerCreate(
 			ctx,
@@ -488,10 +488,10 @@ func getScanConfigFileName(config *provider.ScanJobConfig) string {
 	return fmt.Sprintf("scanconfig_%s.yaml", config.AssetScanID)
 }
 
-func convertTags(tags map[string]string) *[]models.Tag {
-	ret := make([]models.Tag, 0, len(tags))
+func convertTags(tags map[string]string) *[]apitypes.Tag {
+	ret := make([]apitypes.Tag, 0, len(tags))
 	for key, val := range tags {
-		ret = append(ret, models.Tag{
+		ret = append(ret, apitypes.Tag{
 			Key:   key,
 			Value: val,
 		})

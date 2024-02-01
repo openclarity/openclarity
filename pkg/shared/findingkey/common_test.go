@@ -21,17 +21,17 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"gotest.tools/v3/assert"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func TestGenerateFindingKey(t *testing.T) {
-	rootkitFindingInfo := models.RootkitFindingInfo{
+	rootkitFindingInfo := types.RootkitFindingInfo{
 		Message:     utils.PointerTo("Message"),
 		RootkitName: utils.PointerTo("RootkitName"),
-		RootkitType: utils.PointerTo(models.RootkitType("RootkitType")),
+		RootkitType: utils.PointerTo(types.RootkitType("RootkitType")),
 	}
-	exploitFindingInfo := models.ExploitFindingInfo{
+	exploitFindingInfo := types.ExploitFindingInfo{
 		CveID:       utils.PointerTo("CveID"),
 		Description: utils.PointerTo("Description"),
 		Name:        utils.PointerTo("Name"),
@@ -39,36 +39,36 @@ func TestGenerateFindingKey(t *testing.T) {
 		Title:       utils.PointerTo("Title"),
 		Urls:        utils.PointerTo([]string{"url1", "url2"}),
 	}
-	vulFindingInfo := models.VulnerabilityFindingInfo{
-		Package: &models.Package{
+	vulFindingInfo := types.VulnerabilityFindingInfo{
+		Package: &types.Package{
 			Name:    utils.PointerTo("Package.Name"),
 			Version: utils.PointerTo("Package.Version"),
 		},
 		VulnerabilityName: utils.PointerTo("VulnerabilityName"),
 	}
-	malwareFindingInfo := models.MalwareFindingInfo{
+	malwareFindingInfo := types.MalwareFindingInfo{
 		MalwareName: utils.PointerTo("MalwareName"),
 		MalwareType: utils.PointerTo("MalwareType"),
 		Path:        utils.PointerTo("Path"),
 		RuleName:    utils.PointerTo("RuleName"),
 	}
-	miscFindingInfo := models.MisconfigurationFindingInfo{
+	miscFindingInfo := types.MisconfigurationFindingInfo{
 		Message:     utils.PointerTo("Message"),
 		ScannerName: utils.PointerTo("ScannerName"),
 		TestID:      utils.PointerTo("TestID"),
 	}
-	secretFindingInfo := models.SecretFindingInfo{
+	secretFindingInfo := types.SecretFindingInfo{
 		EndColumn:   utils.PointerTo(1),
 		Fingerprint: utils.PointerTo("Fingerprint"),
 		StartColumn: utils.PointerTo(2),
 	}
-	pkgFindingInfo := models.PackageFindingInfo{
+	pkgFindingInfo := types.PackageFindingInfo{
 		Name:    utils.PointerTo("Name"),
 		Version: utils.PointerTo("Version"),
 	}
 
 	type args struct {
-		findingInfo *models.Finding_FindingInfo
+		findingInfo *types.Finding_FindingInfo
 	}
 	tests := []struct {
 		name    string
@@ -147,24 +147,24 @@ func TestGenerateFindingKey(t *testing.T) {
 	}
 }
 
-func createFindingInfo(t *testing.T, info interface{}) *models.Finding_FindingInfo {
+func createFindingInfo(t *testing.T, info interface{}) *types.Finding_FindingInfo {
 	t.Helper()
 	var err error
-	findingInfoB := models.Finding_FindingInfo{}
+	findingInfoB := types.Finding_FindingInfo{}
 	switch fInfo := info.(type) {
-	case models.RootkitFindingInfo:
+	case types.RootkitFindingInfo:
 		err = findingInfoB.FromRootkitFindingInfo(fInfo)
-	case models.ExploitFindingInfo:
+	case types.ExploitFindingInfo:
 		err = findingInfoB.FromExploitFindingInfo(fInfo)
-	case models.SecretFindingInfo:
+	case types.SecretFindingInfo:
 		err = findingInfoB.FromSecretFindingInfo(fInfo)
-	case models.MisconfigurationFindingInfo:
+	case types.MisconfigurationFindingInfo:
 		err = findingInfoB.FromMisconfigurationFindingInfo(fInfo)
-	case models.MalwareFindingInfo:
+	case types.MalwareFindingInfo:
 		err = findingInfoB.FromMalwareFindingInfo(fInfo)
-	case models.VulnerabilityFindingInfo:
+	case types.VulnerabilityFindingInfo:
 		err = findingInfoB.FromVulnerabilityFindingInfo(fInfo)
-	case models.PackageFindingInfo:
+	case types.PackageFindingInfo:
 		err = findingInfoB.FromPackageFindingInfo(fInfo)
 	}
 	assert.NilError(t, err)

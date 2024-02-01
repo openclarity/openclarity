@@ -23,13 +23,13 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
-	assets, err := s.BackendClient.GetAssets(ctx.Request().Context(), backendmodels.GetAssetsParams{
+	assets, err := s.BackendClient.GetAssets(ctx.Request().Context(), apitypes.GetAssetsParams{
 		Filter: utils.PointerTo("terminatedOn eq null and assetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
@@ -42,7 +42,7 @@ func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
 	})
 }
 
-func createRegionFindingsFromAssets(assets *backendmodels.Assets) []types.RegionFindings {
+func createRegionFindingsFromAssets(assets *apitypes.Assets) []types.RegionFindings {
 	// Map regions to findings count per finding type
 	findingsPerRegion := make(map[string]*types.FindingsCount)
 
@@ -80,26 +80,26 @@ func createRegionFindingsFromAssets(assets *backendmodels.Assets) []types.Region
 	return items
 }
 
-func getAssetRegion(asset backendmodels.Asset) (string, error) {
+func getAssetRegion(asset apitypes.Asset) (string, error) {
 	discriminator, err := asset.AssetInfo.ValueByDiscriminator()
 	if err != nil {
 		return "", fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
 
 	switch info := discriminator.(type) {
-	case backendmodels.VMInfo:
+	case apitypes.VMInfo:
 		return getRegionByProvider(info), nil
 	default:
 		return "", fmt.Errorf("asset type is not supported (%T)", discriminator)
 	}
 }
 
-func getRegionByProvider(info backendmodels.VMInfo) string {
+func getRegionByProvider(info apitypes.VMInfo) string {
 	if info.InstanceProvider == nil {
 		log.Warnf("Instace provider is nil. instance id: %v", info.InstanceID)
 		return info.Location
 	}
-	if *info.InstanceProvider == backendmodels.AWS {
+	if *info.InstanceProvider == apitypes.AWS {
 		// AWS location is represented as region/vpc, need to return only the region
 		return strings.Split(info.Location, "/")[0]
 	}
@@ -107,7 +107,7 @@ func getRegionByProvider(info backendmodels.VMInfo) string {
 	return info.Location
 }
 
-func addAssetSummaryToFindingsCount(findingsCount *types.FindingsCount, summary *backendmodels.ScanFindingsSummary) *types.FindingsCount {
+func addAssetSummaryToFindingsCount(findingsCount *types.FindingsCount, summary *apitypes.ScanFindingsSummary) *types.FindingsCount {
 	if summary == nil {
 		return findingsCount
 	}
@@ -128,7 +128,7 @@ func addAssetSummaryToFindingsCount(findingsCount *types.FindingsCount, summary 
 	}
 }
 
-func getTotalVulnerabilities(summary *backendmodels.VulnerabilityScanSummary) int {
+func getTotalVulnerabilities(summary *apitypes.VulnerabilityScanSummary) int {
 	total := 0
 	if summary == nil {
 		return total

@@ -19,19 +19,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	logutils "github.com/openclarity/vmclarity/utils/log"
 )
 
-func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Context, assetScan models.AssetScan) (map[findingkey.PackageKey]string, error) {
+func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Context, assetScan types.AssetScan) (map[findingkey.PackageKey]string, error) {
 	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.PackageKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	existingFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/name,findingInfo/version"),
 	})
@@ -59,7 +59,7 @@ func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Con
 }
 
 // nolint:cyclop
-func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Context, assetScan models.AssetScan) error {
+func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Context, assetScan types.AssetScan) error {
 	completedTime := assetScan.Status.LastTransitionTime
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Package", completedTime)
@@ -79,7 +79,7 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 		// Create new or update existing findings all the packages found by the
 		// scan.
 		for _, item := range *assetScan.Sbom.Packages {
-			itemFindingInfo := models.PackageFindingInfo{
+			itemFindingInfo := types.PackageFindingInfo{
 				Cpes:     item.Cpes,
 				Language: item.Language,
 				Licenses: item.Licenses,
@@ -89,17 +89,17 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 				Version:  item.Version,
 			}
 
-			findingInfo := models.Finding_FindingInfo{}
+			findingInfo := types.Finding_FindingInfo{}
 			err = findingInfo.FromPackageFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert PackageFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := models.Finding{
-				Asset: &models.AssetRelationship{
+			finding := types.Finding{
+				Asset: &types.AssetRelationship{
 					Id: assetScan.Asset.Id,
 				},
-				FoundBy: &models.AssetScanRelationship{
+				FoundBy: &types.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
 				FoundOn:     &assetScan.Status.LastTransitionTime,
@@ -136,12 +136,12 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 	if asset.Summary == nil {
-		asset.Summary = &models.ScanFindingsSummary{}
+		asset.Summary = &types.ScanFindingsSummary{}
 	}
 
 	totalPackages, err := asp.getActiveFindingsByType(ctx, "Package", assetScan.Asset.Id)

@@ -21,7 +21,7 @@ import (
 
 	"github.com/aptible/supercronic/cronexpr"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 // The ScheduleWindow represents a timeframe defined by the start and end timestamps.
@@ -239,10 +239,10 @@ func (w ScanConfigSchedule) String() string {
 	return fmt.Sprintf("state: %s, operation time: [%s], schedule window: [%s]", w.State, w.OperationTime, w.Window)
 }
 
-// NewScanConfigSchedule returns a ScanConfigSchedule using the provided scanConfig models.ScanConfig and
+// NewScanConfigSchedule returns a ScanConfigSchedule using the provided scanConfig types.ScanConfig and
 // window ScheduleWindow.
 // nolint:cyclop
-func NewScanConfigSchedule(scanConfig *models.ScanConfig, window *ScheduleWindow) (*ScanConfigSchedule, error) {
+func NewScanConfigSchedule(scanConfig *types.ScanConfig, window *ScheduleWindow) (*ScanConfigSchedule, error) {
 	if scanConfig.Disabled != nil && *scanConfig.Disabled {
 		return &ScanConfigSchedule{
 			State:  ScheduleStateDisabled,

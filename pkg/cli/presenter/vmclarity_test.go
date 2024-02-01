@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -35,7 +35,7 @@ func Test_getInputScanStats(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *[]models.AssetScanInputScanStats
+		want *[]apitypes.AssetScanInputScanStats
 	}{
 		{
 			name: "no input scans",
@@ -57,10 +57,10 @@ func Test_getInputScanStats(t *testing.T) {
 					},
 				},
 			},
-			want: &[]models.AssetScanInputScanStats{
+			want: &[]apitypes.AssetScanInputScanStats{
 				{
 					Path: utils.PointerTo("/mnt/snap"),
-					ScanTime: &models.AssetScanScanTime{
+					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
@@ -89,10 +89,10 @@ func Test_getInputScanStats(t *testing.T) {
 					},
 				},
 			},
-			want: &[]models.AssetScanInputScanStats{
+			want: &[]apitypes.AssetScanInputScanStats{
 				{
 					Path: utils.PointerTo("/mnt/snap"),
-					ScanTime: &models.AssetScanScanTime{
+					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
@@ -101,7 +101,7 @@ func Test_getInputScanStats(t *testing.T) {
 				},
 				{
 					Path: utils.PointerTo("/mnt/snap2"),
-					ScanTime: &models.AssetScanScanTime{
+					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime2,
 					},

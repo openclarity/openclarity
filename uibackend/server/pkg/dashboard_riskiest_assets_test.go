@@ -24,14 +24,14 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"gotest.tools/v3/assert"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
 func Test_getTotalFindingField(t *testing.T) {
 	type args struct {
-		findingType backendmodels.ScanType
+		findingType apitypes.ScanType
 	}
 	tests := []struct {
 		name    string
@@ -50,7 +50,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "EXPLOIT",
 			args: args{
-				findingType: backendmodels.EXPLOIT,
+				findingType: apitypes.EXPLOIT,
 			},
 			want:    totalExploitsSummaryFieldName,
 			wantErr: false,
@@ -58,7 +58,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "MALWARE",
 			args: args{
-				findingType: backendmodels.MALWARE,
+				findingType: apitypes.MALWARE,
 			},
 			want:    totalMalwareSummaryFieldName,
 			wantErr: false,
@@ -66,7 +66,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "MISCONFIGURATION",
 			args: args{
-				findingType: backendmodels.MISCONFIGURATION,
+				findingType: apitypes.MISCONFIGURATION,
 			},
 			want:    totalMisconfigurationsSummaryFieldName,
 			wantErr: false,
@@ -74,7 +74,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "ROOTKIT",
 			args: args{
-				findingType: backendmodels.ROOTKIT,
+				findingType: apitypes.ROOTKIT,
 			},
 			want:    totalRootkitsSummaryFieldName,
 			wantErr: false,
@@ -82,7 +82,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "SECRET",
 			args: args{
-				findingType: backendmodels.SECRET,
+				findingType: apitypes.SECRET,
 			},
 			want:    totalSecretsSummaryFieldName,
 			wantErr: false,
@@ -90,7 +90,7 @@ func Test_getTotalFindingField(t *testing.T) {
 		{
 			name: "VULNERABILITY",
 			args: args{
-				findingType: backendmodels.VULNERABILITY,
+				findingType: apitypes.VULNERABILITY,
 			},
 			want:    totalVulnerabilitiesSummaryFieldName,
 			wantErr: false,
@@ -112,8 +112,8 @@ func Test_getTotalFindingField(t *testing.T) {
 
 func Test_getCount(t *testing.T) {
 	type args struct {
-		summary     *backendmodels.ScanFindingsSummary
-		findingType backendmodels.ScanType
+		summary     *apitypes.ScanFindingsSummary
+		findingType apitypes.ScanType
 	}
 	tests := []struct {
 		name    string
@@ -124,14 +124,14 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "unsupported finding type",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalExploits:          nil,
 					TotalMalware:           nil,
 					TotalMisconfigurations: nil,
 					TotalPackages:          nil,
 					TotalRootkits:          nil,
 					TotalSecrets:           nil,
-					TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+					TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 						TotalCriticalVulnerabilities:   nil,
 						TotalHighVulnerabilities:       nil,
 						TotalLowVulnerabilities:        nil,
@@ -147,10 +147,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalExploits",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalExploits: utils.PointerTo(1),
 				},
-				findingType: backendmodels.EXPLOIT,
+				findingType: apitypes.EXPLOIT,
 			},
 			want:    utils.PointerTo(1),
 			wantErr: false,
@@ -158,10 +158,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalMalware",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalMalware: utils.PointerTo(1),
 				},
-				findingType: backendmodels.MALWARE,
+				findingType: apitypes.MALWARE,
 			},
 			want:    utils.PointerTo(1),
 			wantErr: false,
@@ -169,10 +169,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalMisconfigurations",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalMisconfigurations: utils.PointerTo(1),
 				},
-				findingType: backendmodels.MISCONFIGURATION,
+				findingType: apitypes.MISCONFIGURATION,
 			},
 			want:    utils.PointerTo(1),
 			wantErr: false,
@@ -180,10 +180,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalRootkits",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalRootkits: utils.PointerTo(1),
 				},
-				findingType: backendmodels.ROOTKIT,
+				findingType: apitypes.ROOTKIT,
 			},
 			want:    utils.PointerTo(1),
 			wantErr: false,
@@ -191,10 +191,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalSecrets",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalSecrets: utils.PointerTo(1),
 				},
-				findingType: backendmodels.SECRET,
+				findingType: apitypes.SECRET,
 			},
 			want:    utils.PointerTo(1),
 			wantErr: false,
@@ -202,10 +202,10 @@ func Test_getCount(t *testing.T) {
 		{
 			name: "TotalInfoFinder - unsupported",
 			args: args{
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalInfoFinder: utils.PointerTo(1),
 				},
-				findingType: backendmodels.INFOFINDER,
+				findingType: apitypes.INFOFINDER,
 			},
 			want:    nil,
 			wantErr: true,
@@ -227,7 +227,7 @@ func Test_getCount(t *testing.T) {
 
 func Test_getAssetInfo(t *testing.T) {
 	type args struct {
-		asset *backendmodels.AssetType
+		asset *apitypes.AssetType
 	}
 	tests := []struct {
 		name    string
@@ -294,22 +294,22 @@ func Test_getAssetInfo(t *testing.T) {
 	}
 }
 
-func createVMInfo(t *testing.T, instanceID, location string) *backendmodels.AssetType {
+func createVMInfo(t *testing.T, instanceID, location string) *apitypes.AssetType {
 	t.Helper()
-	info := backendmodels.AssetType{}
-	err := info.FromVMInfo(backendmodels.VMInfo{
+	info := apitypes.AssetType{}
+	err := info.FromVMInfo(apitypes.VMInfo{
 		InstanceID:       instanceID,
-		InstanceProvider: utils.PointerTo(backendmodels.AWS),
+		InstanceProvider: utils.PointerTo(apitypes.AWS),
 		Location:         location,
 	})
 	assert.NilError(t, err)
 	return &info
 }
 
-func createContainerInfo(t *testing.T) *backendmodels.AssetType {
+func createContainerInfo(t *testing.T) *apitypes.AssetType {
 	t.Helper()
-	info := backendmodels.AssetType{}
-	err := info.FromContainerInfo(backendmodels.ContainerInfo{
+	info := apitypes.AssetType{}
+	err := info.FromContainerInfo(apitypes.ContainerInfo{
 		ContainerID:   "d66da925d976b8caf60ea59c5ec75b1950f87d506144942cdbf10061052a8088",
 		ContainerName: utils.PointerTo("hungry_mcclintock"),
 		Location:      utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
@@ -318,10 +318,10 @@ func createContainerInfo(t *testing.T) *backendmodels.AssetType {
 	return &info
 }
 
-func createContainerImageInfo(t *testing.T) *backendmodels.AssetType {
+func createContainerImageInfo(t *testing.T) *apitypes.AssetType {
 	t.Helper()
-	info := backendmodels.AssetType{}
-	err := info.FromContainerImageInfo(backendmodels.ContainerImageInfo{
+	info := apitypes.AssetType{}
+	err := info.FromContainerImageInfo(apitypes.ContainerImageInfo{
 		ImageID:     "sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab",
 		RepoTags:    utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator:latest"}),
 		RepoDigests: utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
@@ -330,10 +330,10 @@ func createContainerImageInfo(t *testing.T) *backendmodels.AssetType {
 	return &info
 }
 
-func createPodInfo(t *testing.T, podName, location string) *backendmodels.AssetType {
+func createPodInfo(t *testing.T, podName, location string) *apitypes.AssetType {
 	t.Helper()
-	info := backendmodels.AssetType{}
-	err := info.FromPodInfo(backendmodels.PodInfo{
+	info := apitypes.AssetType{}
+	err := info.FromPodInfo(apitypes.PodInfo{
 		Location: &location,
 		PodName:  &podName,
 	})
@@ -343,7 +343,7 @@ func createPodInfo(t *testing.T, podName, location string) *backendmodels.AssetT
 
 func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 	type args struct {
-		assets []backendmodels.Asset
+		assets []apitypes.Asset
 	}
 	tests := []struct {
 		name string
@@ -360,10 +360,10 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 		{
 			name: "supported and unsupported asset",
 			args: args{
-				assets: []backendmodels.Asset{
+				assets: []apitypes.Asset{
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
-							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+						Summary: &apitypes.ScanFindingsSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 								TotalCriticalVulnerabilities:   utils.PointerTo(1),
 								TotalHighVulnerabilities:       utils.PointerTo(2),
 								TotalLowVulnerabilities:        utils.PointerTo(3),
@@ -374,8 +374,8 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 						AssetInfo: createVMInfo(t, "vm name", "vm location"),
 					},
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
-							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+						Summary: &apitypes.ScanFindingsSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
@@ -410,8 +410,8 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 
 func Test_toAPIRiskyAssets(t *testing.T) {
 	type args struct {
-		assets      []backendmodels.Asset
-		findingType backendmodels.ScanType
+		assets      []apitypes.Asset
+		findingType apitypes.ScanType
 	}
 	tests := []struct {
 		name string
@@ -429,21 +429,21 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 		{
 			name: "supported and unsupported asset",
 			args: args{
-				assets: []backendmodels.Asset{
+				assets: []apitypes.Asset{
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
+						Summary: &apitypes.ScanFindingsSummary{
 							TotalMalware: utils.PointerTo(1),
 						},
 						AssetInfo: createVMInfo(t, "vm name", "vm location"),
 					},
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
+						Summary: &apitypes.ScanFindingsSummary{
 							TotalMalware: utils.PointerTo(2),
 						},
 						AssetInfo: createPodInfo(t, "pod name", "pod location"),
 					},
 				},
-				findingType: backendmodels.MALWARE,
+				findingType: apitypes.MALWARE,
 			},
 			want: []types.RiskyAsset{
 				{
@@ -459,18 +459,18 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 		{
 			name: "unsupported finding type asset",
 			args: args{
-				assets: []backendmodels.Asset{
+				assets: []apitypes.Asset{
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
-							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+						Summary: &apitypes.ScanFindingsSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
 						AssetInfo: createVMInfo(t, "name", "location"),
 					},
 					{
-						Summary: &backendmodels.ScanFindingsSummary{
-							TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+						Summary: &apitypes.ScanFindingsSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 								TotalHighVulnerabilities: utils.PointerTo(1),
 							},
 						},
@@ -562,7 +562,7 @@ func Test_getOrderByOData(t *testing.T) {
 
 func Test_vmInfoToAssetInfo(t *testing.T) {
 	type args struct {
-		info backendmodels.VMInfo
+		info apitypes.VMInfo
 	}
 	tests := []struct {
 		name    string
@@ -573,7 +573,7 @@ func Test_vmInfoToAssetInfo(t *testing.T) {
 		{
 			name: "unsupported provider",
 			args: args{
-				info: backendmodels.VMInfo{
+				info: apitypes.VMInfo{
 					InstanceProvider: nil,
 				},
 			},
@@ -583,9 +583,9 @@ func Test_vmInfoToAssetInfo(t *testing.T) {
 		{
 			name: "AWS EC2 Instance",
 			args: args{
-				info: backendmodels.VMInfo{
+				info: apitypes.VMInfo{
 					InstanceID:       "name",
-					InstanceProvider: utils.PointerTo(backendmodels.AWS),
+					InstanceProvider: utils.PointerTo(apitypes.AWS),
 					Location:         "location",
 				},
 			},
@@ -613,7 +613,7 @@ func Test_vmInfoToAssetInfo(t *testing.T) {
 
 func Test_getVMAssetType(t *testing.T) {
 	type args struct {
-		provider *backendmodels.CloudProvider
+		provider *apitypes.CloudProvider
 	}
 	tests := []struct {
 		name    string
@@ -632,7 +632,7 @@ func Test_getVMAssetType(t *testing.T) {
 		{
 			name: "unsupported provider",
 			args: args{
-				provider: utils.PointerTo(backendmodels.CloudProvider("unsupported provider")),
+				provider: utils.PointerTo(apitypes.CloudProvider("unsupported provider")),
 			},
 			want:    nil,
 			wantErr: true,
@@ -640,7 +640,7 @@ func Test_getVMAssetType(t *testing.T) {
 		{
 			name: "aws provider",
 			args: args{
-				provider: utils.PointerTo(backendmodels.AWS),
+				provider: utils.PointerTo(apitypes.AWS),
 			},
 			want:    utils.PointerTo(types.AWSEC2Instance),
 			wantErr: false,
