@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.23.1.45101",
-      "templateHash": "10553847190183975394"
+      "templateHash": "5867443734163333116"
     }
   },
   "parameters": {
@@ -97,7 +97,7 @@
     },
     "grypeServerContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.0",
+      "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.2",
       "metadata": {
         "description": "Grype Server Container Image"
       }
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.23.1.45101",
-              "templateHash": "15881482231126828353"
+              "templateHash": "12615136419961132894"
             }
           },
           "parameters": {
@@ -667,7 +667,7 @@
             },
             "grypeServerContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.0",
+              "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.2",
               "metadata": {
                 "description": "Grype Server Container Image"
               }

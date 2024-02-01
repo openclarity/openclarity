@@ -304,7 +304,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	matches := []scanner.Match{}
 	for _, result := range report.Results {
 		for _, vul := range result.Vulnerabilities {
-			typ, err := getTypeFromPurl(vul.PkgRef)
+			typ, err := getTypeFromPurl(vul.PkgIdentifier.BOMRef)
 			if err != nil {
 				a.logger.Error(err)
 				typ = ""
@@ -340,7 +340,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 				Package: scanner.Package{
 					Name:    vul.PkgName,
 					Version: vul.InstalledVersion,
-					PURL:    vul.PkgRef,
+					PURL:    vul.PkgIdentifier.BOMRef,
 					Type:    typ,
 					// TODO(sambetts) Trivy doesn't pass
 					// through this info from the SBOM so
