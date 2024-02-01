@@ -186,9 +186,18 @@ lint-go: bin/golangci-lint $(LINTGOMODULES) ## Lint Go source code
 lint-helm: ## Lint Helm charts
 	docker run --rm --workdir /workdir --volume "$(ROOT_DIR):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
 
+GOTEST_OPTS := -failfast -timeout 30m -short
+ifeq ($(CI),true)
+	GOTEST_OPTS += -v
+endif
+
+TESTGOMODULES = $(addprefix test-, $(GOMODULES))
+
+$(TESTGOMODULES):
+	cd $(dir $(@:test-%=%)) && go test $(GOTEST_OPTS) ./...
+
 .PHONY: test
-test: ## Run Go unit tests
-	@go test ./...
+test: $(TESTGOMODULES) ## Run Go unit tests
 
 ##@ Docker
 
