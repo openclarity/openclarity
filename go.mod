@@ -30,7 +30,7 @@ require (
 	github.com/containerd/containerd v1.7.13
 	github.com/containerd/nerdctl v1.7.3
 	github.com/containers/image/v5 v5.29.2
-	github.com/docker/docker v25.0.1+incompatible
+	github.com/docker/docker v25.0.2+incompatible
 	github.com/evanphx/json-patch v5.9.0+incompatible
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/ghodss/yaml v1.0.0
@@ -182,7 +182,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
-	github.com/docker/cli v25.0.0+incompatible // indirect
+	github.com/docker/cli v25.0.2+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
