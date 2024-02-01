@@ -27,8 +27,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.24.6
 	github.com/aws/smithy-go v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/containerd/containerd v1.7.12
-	github.com/containerd/nerdctl v1.7.2
+	github.com/containerd/containerd v1.7.13
+	github.com/containerd/nerdctl v1.7.3
 	github.com/containers/image/v5 v5.29.2
 	github.com/docker/docker v25.0.1+incompatible
 	github.com/evanphx/json-patch v5.9.0+incompatible
@@ -150,7 +150,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.18.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.7 // indirect
-	github.com/awslabs/soci-snapshotter v0.4.0 // indirect
+	github.com/awslabs/soci-snapshotter v0.4.1 // indirect
 	github.com/becheran/wildmatch-go v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -163,7 +163,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cheggaaa/pb/v3 v3.1.4 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/containerd/cgroups/v3 v3.0.2 // indirect
+	github.com/containerd/cgroups/v3 v3.0.3 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/containerd/fifo v1.1.0 // indirect
