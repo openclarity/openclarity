@@ -24,8 +24,8 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 
+	apiclient "github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/e2e/config"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/testenv"
 	"github.com/openclarity/vmclarity/testenv/types"
 	uibackendclient "github.com/openclarity/vmclarity/uibackend/client"
@@ -36,7 +36,7 @@ var (
 	testEnv types.Environment
 	cfg     *config.Config
 
-	client   *backendclient.BackendClient
+	client   *apiclient.BackendClient
 	uiClient *uibackendclient.UIBackendClient
 )
 
@@ -86,7 +86,7 @@ func beforeSuite(ctx context.Context) {
 	endpoints, err := testEnv.Endpoints(ctx)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	client, err = backendclient.Create(endpoints.API.String())
+	client, err = apiclient.Create(endpoints.API.String())
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 	uiClient, err = uibackendclient.Create(endpoints.UIBackend.String())

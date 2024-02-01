@@ -24,12 +24,12 @@ import (
 	imagetypes "github.com/docker/docker/api/types/image"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
-func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, error) {
+func (p *Provider) getImageAssets(ctx context.Context) ([]apitypes.AssetType, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// List all docker images
@@ -40,7 +40,7 @@ func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, erro
 
 	// Results will be written to assets concurrently
 	assetMu := sync.Mutex{}
-	assets := make([]models.AssetType, 0, len(images))
+	assets := make([]apitypes.AssetType, 0, len(images))
 
 	// Process each image in an independent processor goroutine
 	processGroup, processCtx := errgroup.WithContext(ctx)
@@ -62,7 +62,7 @@ func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, erro
 					}
 
 					// Convert to asset
-					asset := models.AssetType{}
+					asset := apitypes.AssetType{}
 					err = asset.FromContainerImageInfo(info)
 					if err != nil {
 						return fmt.Errorf("failed to create AssetType from ContainerImageInfo: %w", err)
@@ -90,13 +90,13 @@ func (p *Provider) getImageAssets(ctx context.Context) ([]models.AssetType, erro
 	return assets, nil
 }
 
-func (p *Provider) getContainerImageInfo(ctx context.Context, imageID string) (models.ContainerImageInfo, error) {
+func (p *Provider) getContainerImageInfo(ctx context.Context, imageID string) (apitypes.ContainerImageInfo, error) {
 	image, _, err := p.dockerClient.ImageInspectWithRaw(ctx, imageID)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("failed to inspect image: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to inspect image: %w", err)
 	}
 
-	return models.ContainerImageInfo{
+	return apitypes.ContainerImageInfo{
 		Architecture: utils.PointerTo(image.Architecture),
 		ImageID:      image.ID,
 		Labels:       convertTags(image.Config.Labels),

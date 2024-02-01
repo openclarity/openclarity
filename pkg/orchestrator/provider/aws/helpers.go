@@ -22,7 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
@@ -76,7 +76,7 @@ func EC2FiltersFromEC2Tags(tags []ec2types.Tag) []ec2types.Filter {
 	return filters
 }
 
-func EC2FiltersFromTags(tags []models.Tag) []ec2types.Filter {
+func EC2FiltersFromTags(tags []types.Tag) []ec2types.Filter {
 	filters := make([]ec2types.Filter, 0, len(tags))
 	for _, tag := range tags {
 		var name string
@@ -140,14 +140,14 @@ func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, region st
 	}
 }
 
-func getTagsFromECTags(tags []ec2types.Tag) []models.Tag {
+func getTagsFromECTags(tags []ec2types.Tag) []types.Tag {
 	if len(tags) == 0 {
 		return nil
 	}
 
-	ret := make([]models.Tag, len(tags))
+	ret := make([]types.Tag, len(tags))
 	for i, tag := range tags {
-		ret[i] = models.Tag{
+		ret[i] = types.Tag{
 			Key:   *tag.Key,
 			Value: *tag.Value,
 		}
@@ -193,13 +193,13 @@ func validateInstanceFields(instance ec2types.Instance) error {
 	return nil
 }
 
-func getSecurityGroupsIDs(sg []ec2types.GroupIdentifier) []models.SecurityGroup {
-	securityGroups := make([]models.SecurityGroup, 0, len(sg))
+func getSecurityGroupsIDs(sg []ec2types.GroupIdentifier) []types.SecurityGroup {
+	securityGroups := make([]types.SecurityGroup, 0, len(sg))
 	for _, s := range sg {
 		if s.GroupId == nil {
 			continue
 		}
-		securityGroups = append(securityGroups, models.SecurityGroup{
+		securityGroups = append(securityGroups, types.SecurityGroup{
 			Id: *s.GroupId,
 		})
 	}
@@ -207,12 +207,12 @@ func getSecurityGroupsIDs(sg []ec2types.GroupIdentifier) []models.SecurityGroup 
 	return securityGroups
 }
 
-func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdentifier) []models.SecurityGroup {
-	var ret []models.SecurityGroup
+func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdentifier) []types.SecurityGroup {
+	var ret []types.SecurityGroup
 
 	for _, identifier := range identifiers {
 		if identifier.GroupId != nil {
-			ret = append(ret, models.SecurityGroup{
+			ret = append(ret, types.SecurityGroup{
 				Id: *identifier.GroupId,
 			})
 		}
@@ -221,18 +221,18 @@ func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdenti
 	return ret
 }
 
-func getVMInfoFromInstance(i Instance) (models.AssetType, error) {
-	assetType := models.AssetType{}
-	err := assetType.FromVMInfo(models.VMInfo{
+func getVMInfoFromInstance(i Instance) (types.AssetType, error) {
+	assetType := types.AssetType{}
+	err := assetType.FromVMInfo(types.VMInfo{
 		Image:            i.Image,
 		InstanceID:       i.ID,
-		InstanceProvider: utils.PointerTo(models.AWS),
+		InstanceProvider: utils.PointerTo(types.AWS),
 		InstanceType:     i.InstanceType,
 		LaunchTime:       i.LaunchTime,
 		Location:         i.Location(),
 		ObjectType:       "VMInfo",
 		Platform:         i.Platform,
-		RootVolume: models.RootVolume{
+		RootVolume: types.RootVolume{
 			Encrypted: i.RootVolumeEncrypted,
 			SizeGB:    int(i.RootVolumeSizeGB),
 		},

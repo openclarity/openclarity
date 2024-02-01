@@ -31,7 +31,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
@@ -80,12 +80,12 @@ func New(_ context.Context) (provider.Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() models.CloudProvider {
-	return models.Kubernetes
+func (p *Provider) Kind() types.CloudProvider {
+	return types.Kubernetes
 }
 
-func (p *Provider) Estimate(_ context.Context, _ models.AssetScanStats, _ *models.Asset, _ *models.AssetScanTemplate) (*models.Estimation, error) {
-	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(_ context.Context, _ types.AssetScanStats, _ *types.Asset, _ *types.AssetScanTemplate) (*types.Estimation, error) {
+	return &types.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
@@ -141,7 +141,7 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 	}
 
 	switch value := objectType.(type) {
-	case models.ContainerImageInfo:
+	case types.ContainerImageInfo:
 		var pickedClient *containerruntimediscovery.Client
 		for _, client := range clients {
 			_, err := client.GetImage(ctx, value.ImageID)
@@ -160,7 +160,7 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 			// change this to a normal Errorf.
 			return provider.FatalErrorf("unable to run scanner job: %w", err)
 		}
-	case models.ContainerInfo:
+	case types.ContainerInfo:
 		var pickedClient *containerruntimediscovery.Client
 		for _, client := range clients {
 			_, err := client.GetContainer(ctx, value.ContainerID)

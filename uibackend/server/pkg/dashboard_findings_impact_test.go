@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
@@ -40,7 +40,7 @@ func Test_processFindings(t *testing.T) {
 	rfKey3, err := findingkey.GenerateFindingKey(rootkitFindingInfo3)
 	assert.NilError(t, err)
 	type args struct {
-		findings            []backendmodels.Finding
+		findings            []apitypes.Finding
 		findingAssetMap     map[findingAssetKey]struct{}
 		findingToAssetCount map[string]findingInfoCount
 	}
@@ -54,14 +54,14 @@ func Test_processFindings(t *testing.T) {
 		{
 			name: "findingAssetKey not in findingAssetMap - first time we see the finding",
 			args: args{
-				findings: []backendmodels.Finding{
+				findings: []apitypes.Finding{
 					{
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -85,14 +85,14 @@ func Test_processFindings(t *testing.T) {
 		{
 			name: "findingAssetKey already in findingAssetMap - expected no change",
 			args: args{
-				findings: []backendmodels.Finding{
+				findings: []apitypes.Finding{
 					{
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -123,14 +123,14 @@ func Test_processFindings(t *testing.T) {
 		{
 			name: "findingAssetKey not in findingAssetMap - already saw the finding",
 			args: args{
-				findings: []backendmodels.Finding{
+				findings: []apitypes.Finding{
 					{
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -165,15 +165,15 @@ func Test_processFindings(t *testing.T) {
 				"findingAssetKey not in findingAssetMap - already saw the finding," +
 				"findingAssetKey not in findingAssetMap - first time we see the finding",
 			args: args{
-				findings: []backendmodels.Finding{
+				findings: []apitypes.Finding{
 					{
 						// findingAssetKey already in findingAssetMap
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -181,12 +181,12 @@ func Test_processFindings(t *testing.T) {
 					},
 					{
 						// findingAssetKey not in findingAssetMap - already saw the finding
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -194,12 +194,12 @@ func Test_processFindings(t *testing.T) {
 					},
 					{
 						// findingAssetKey not in findingAssetMap - first time we see the finding
-						Asset: &backendmodels.AssetRelationship{
+						Asset: &apitypes.AssetRelationship{
 							Id: "asset-1",
 						},
-						FoundBy: &backendmodels.AssetScanRelationship{
+						FoundBy: &apitypes.AssetScanRelationship{
 							Id: "assetscan-1",
-							Asset: &backendmodels.AssetRelationship{
+							Asset: &apitypes.AssetRelationship{
 								Id: "asset-1",
 							},
 						},
@@ -263,14 +263,14 @@ func Test_processFindings(t *testing.T) {
 }
 
 // nolint:cyclop
-func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
+func compareFindingInfo(a, b apitypes.Finding_FindingInfo) bool {
 	value, err := a.ValueByDiscriminator()
 	if err != nil {
 		return false
 	}
 
 	switch findingInfoA := value.(type) {
-	case backendmodels.ExploitFindingInfo:
+	case apitypes.ExploitFindingInfo:
 		findingInfoB, err := b.AsExploitFindingInfo()
 		if err != nil {
 			return false
@@ -280,7 +280,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.VulnerabilityFindingInfo:
+	case apitypes.VulnerabilityFindingInfo:
 		findingInfoB, err := b.AsVulnerabilityFindingInfo()
 		if err != nil {
 			return false
@@ -290,7 +290,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.MalwareFindingInfo:
+	case apitypes.MalwareFindingInfo:
 		findingInfoB, err := b.AsMalwareFindingInfo()
 		if err != nil {
 			return false
@@ -300,7 +300,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.MisconfigurationFindingInfo:
+	case apitypes.MisconfigurationFindingInfo:
 		findingInfoB, err := b.AsMisconfigurationFindingInfo()
 		if err != nil {
 			return false
@@ -310,7 +310,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.RootkitFindingInfo:
+	case apitypes.RootkitFindingInfo:
 		findingInfoB, err := b.AsRootkitFindingInfo()
 		if err != nil {
 			return false
@@ -320,7 +320,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.SecretFindingInfo:
+	case apitypes.SecretFindingInfo:
 		findingInfoB, err := b.AsSecretFindingInfo()
 		if err != nil {
 			return false
@@ -330,7 +330,7 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 			return false
 		}
 		return true
-	case backendmodels.PackageFindingInfo:
+	case apitypes.PackageFindingInfo:
 		findingInfoB, err := b.AsPackageFindingInfo()
 		if err != nil {
 			return false
@@ -346,13 +346,13 @@ func compareFindingInfo(a, b backendmodels.Finding_FindingInfo) bool {
 	}
 }
 
-func createRootkitFindingInfo(t *testing.T, message, name, tpe string) *backendmodels.Finding_FindingInfo {
+func createRootkitFindingInfo(t *testing.T, message, name, tpe string) *apitypes.Finding_FindingInfo {
 	t.Helper()
-	findingInfoB := backendmodels.Finding_FindingInfo{}
-	err := findingInfoB.FromRootkitFindingInfo(backendmodels.RootkitFindingInfo{
+	findingInfoB := apitypes.Finding_FindingInfo{}
+	err := findingInfoB.FromRootkitFindingInfo(apitypes.RootkitFindingInfo{
 		Message:     utils.PointerTo(message),
 		RootkitName: utils.PointerTo(name),
-		RootkitType: utils.PointerTo(backendmodels.RootkitType(tpe)),
+		RootkitType: utils.PointerTo(apitypes.RootkitType(tpe)),
 	})
 	assert.NilError(t, err)
 	return &findingInfoB
@@ -441,7 +441,7 @@ func Test_getSortedFindingInfoCountSlice(t *testing.T) {
 func Test_createFindingsImpact(t *testing.T) {
 	type args struct {
 		findingInfoCountSlice []findingInfoCount
-		createFunc            func(findingInfo *backendmodels.Finding_FindingInfo, count int) (types.RootkitFindingImpact, error)
+		createFunc            func(findingInfo *apitypes.Finding_FindingInfo, count int) (types.RootkitFindingImpact, error)
 	}
 	tests := []struct {
 		name    string

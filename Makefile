@@ -70,12 +70,12 @@ bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchest
 		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o $@ cmd/vmclarity-orchestrator/main.go
 
-bin/vmclarity-apiserver: $(shell find api) $(shell find cmd/vmclarity-apiserver) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -ldflags="-s -w \
+bin/vmclarity-apiserver: $(shell find api) $(shell find api/server/cmd) $(shell find api/server/pkg) api/server/go.mod api/server/go.sum | $(BIN_DIR)
+	cd api/server && go build -race -ldflags="-s -w \
 		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o $@ cmd/vmclarity-apiserver/main.go
+		-o ../../$@ cmd/main.go
 
 bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
 	go build -race -ldflags="-s -w  \
@@ -299,14 +299,16 @@ gen-api: gen-apiserver-api gen-uibackend-api ## Generating API code
 .PHONY: gen-apiserver-api
 gen-apiserver-api: ## Generating Go library for API specification
 	$(info Generating API for backend code ...)
-	@(cd api && go generate)
+	@(cd api/types && go generate)
+	@(cd api/client && go generate)
+	@(cd api/server/pkg && go generate)
 
 .PHONY: gen-uibackend-api
 gen-uibackend-api: ## Generating Go library for UI Backend API specification
 	$(info Generating API for UI backend code ...)
+	@(cd uibackend/types && go generate)
 	@(cd uibackend/client && go generate)
 	@(cd uibackend/server/pkg && go generate)
-	@(cd uibackend/types && go generate)
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)

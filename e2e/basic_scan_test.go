@@ -22,7 +22,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -32,7 +32,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
-			var assets *models.Assets
+			var assets *types.Assets
 			var err error
 
 			ginkgo.By("waiting until test asset is found")
@@ -40,7 +40,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				reportFailedConfig.objects,
 				APIObject{"asset", DefaultScope},
 			)
-			assetsParams := models.GetAssetsParams{
+			assetsParams := types.GetAssetsParams{
 				Filter: utils.PointerTo(DefaultScope),
 			}
 			gomega.Eventually(func() bool {
@@ -68,7 +68,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				APIObject{"asset", filter},
 			)
 			gomega.Eventually(func() bool {
-				assets, err := client.GetAssets(ctx, models.GetAssetsParams{
+				assets, err := client.GetAssets(ctx, types.GetAssetsParams{
 					Filter: utils.PointerTo(filter),
 				})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -93,8 +93,8 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 	apiScanConfig, err := client.PostScanConfig(
 		ctx,
 		GetCustomScanConfig(
-			&models.ScanFamiliesConfig{
-				Sbom: &models.SBOMConfig{
+			&types.ScanFamiliesConfig{
+				Sbom: &types.SBOMConfig{
 					Enabled: utils.PointerTo(true),
 				},
 			},
@@ -114,15 +114,15 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 	ginkgo.By("waiting until scan starts")
-	scanParams := models.GetScansParams{
+	scanParams := types.GetScansParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 			*apiScanConfig.Id,
-			models.ScanStatusStateDone,
-			models.ScanStatusStateFailed,
+			types.ScanStatusStateDone,
+			types.ScanStatusStateFailed,
 		)),
 	}
-	var scans *models.Scans
+	var scans *types.Scans
 	gomega.Eventually(func() bool {
 		scans, err = client.GetScans(ctx, scanParams)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -137,12 +137,12 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 	}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 	ginkgo.By("waiting until scan state changes to done")
-	scanParams = models.GetScansParams{
+	scanParams = types.GetScansParams{
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 			*apiScanConfig.Id,
-			models.AssetScanStatusStateDone,
-			models.AssetScanStatusReasonSuccess,
+			types.AssetScanStatusStateDone,
+			types.AssetScanStatusReasonSuccess,
 		)),
 	}
 	gomega.Eventually(func() bool {

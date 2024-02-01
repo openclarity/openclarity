@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -99,7 +99,7 @@ func TestOperationTime(t *testing.T) {
 func TestScanConfigSchedule(t *testing.T) {
 	tests := []struct {
 		Name       string
-		ScanConfig *models.ScanConfig
+		ScanConfig *apitypes.ScanConfig
 		Schedule   *ScheduleWindow
 
 		ExpectedState        ScheduleState
@@ -110,7 +110,7 @@ func TestScanConfigSchedule(t *testing.T) {
 	}{
 		{
 			Name: "Disabled field is true",
-			ScanConfig: &models.ScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
 				Disabled: utils.PointerTo(true),
 			},
 			ExpectedState:                 ScheduleStateDisabled,
@@ -120,7 +120,7 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name:                          "Scheduled is nil",
-			ScanConfig:                    &models.ScanConfig{},
+			ScanConfig:                    &apitypes.ScanConfig{},
 			ExpectedState:                 ScheduleStateUnscheduled,
 			ExpectedErrorMatcher:          Not(HaveOccurred()),
 			ExpectedOperationTimeMatcher:  BeNil(),
@@ -128,8 +128,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime and CronLine are nil",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{},
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{},
 			},
 			ExpectedState:                 ScheduleStateUnscheduled,
 			ExpectedErrorMatcher:          Not(HaveOccurred()),
@@ -138,8 +138,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "Only OperationTime is set in the present",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					CronLine:      nil,
 					OperationTime: utils.PointerTo(time.Now()),
 				},
@@ -152,8 +152,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime and CronLine with exact time are set to present",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					CronLine:      utils.PointerTo("0 11 17 5 * 2023"),
 					OperationTime: utils.PointerTo(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC)),
 				},
@@ -166,8 +166,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime is set in the past and recurring CronLine is provided",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					CronLine:      utils.PointerTo("0 2 * * *"),
 					OperationTime: utils.PointerTo(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
 				},
@@ -180,8 +180,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime is set in the past and no CronLine is provided",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					OperationTime: utils.PointerTo(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -193,8 +193,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime is set in the future and no CronLine is provided",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					OperationTime: utils.PointerTo(time.Date(2023, 6, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -206,8 +206,8 @@ func TestScanConfigSchedule(t *testing.T) {
 		},
 		{
 			Name: "OperationTime is set in the future and recurring CronLine is provided",
-			ScanConfig: &models.ScanConfig{
-				Scheduled: &models.RuntimeScheduleScanConfig{
+			ScanConfig: &apitypes.ScanConfig{
+				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					CronLine:      utils.PointerTo("0 2 * * *"),
 					OperationTime: utils.PointerTo(time.Date(2023, 5, 17, 12, 0, 0, 0, time.UTC)),
 				},

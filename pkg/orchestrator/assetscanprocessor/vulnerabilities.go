@@ -19,14 +19,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
 // nolint:cyclop,gocognit
-func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, assetScan models.AssetScan) error {
+func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, assetScan types.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	completedTime := assetScan.Status.LastTransitionTime
@@ -37,7 +37,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	existingFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/vulnerabilityName,findingInfo/package/name,findingInfo/package/version"),
 	})
@@ -65,7 +65,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
 		// Create new findings for all the found vulnerabilities
 		for _, vuln := range *assetScan.Vulnerabilities.Vulnerabilities {
-			vulFindingInfo := models.VulnerabilityFindingInfo{
+			vulFindingInfo := types.VulnerabilityFindingInfo{
 				VulnerabilityName: vuln.VulnerabilityName,
 				Description:       vuln.Description,
 				Severity:          vuln.Severity,
@@ -78,17 +78,17 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 				Path:              vuln.Path,
 			}
 
-			findingInfo := models.Finding_FindingInfo{}
+			findingInfo := types.Finding_FindingInfo{}
 			err = findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := models.Finding{
-				Asset: &models.AssetRelationship{
+			finding := types.Finding{
+				Asset: &types.AssetRelationship{
 					Id: assetScan.Asset.Id,
 				},
-				FoundBy: &models.AssetScanRelationship{
+				FoundBy: &types.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
 				FoundOn:     &assetScan.Status.LastTransitionTime,
@@ -125,37 +125,37 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 
 	if asset.Summary == nil {
-		asset.Summary = &models.ScanFindingsSummary{}
+		asset.Summary = &types.ScanFindingsSummary{}
 	}
 
-	critialVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.CRITICAL)
+	critialVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, types.CRITICAL)
 	if err != nil {
 		return fmt.Errorf("failed to list active critial vulnerabilities: %w", err)
 	}
-	highVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.HIGH)
+	highVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, types.HIGH)
 	if err != nil {
 		return fmt.Errorf("failed to list active high vulnerabilities: %w", err)
 	}
-	mediumVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.MEDIUM)
+	mediumVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, types.MEDIUM)
 	if err != nil {
 		return fmt.Errorf("failed to list active medium vulnerabilities: %w", err)
 	}
-	lowVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.LOW)
+	lowVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, types.LOW)
 	if err != nil {
 		return fmt.Errorf("failed to list active low vulnerabilities: %w", err)
 	}
-	negligibleVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, models.NEGLIGIBLE)
+	negligibleVuls, err := asp.getActiveVulnerabilityFindingsCount(ctx, assetScan.Asset.Id, types.NEGLIGIBLE)
 	if err != nil {
 		return fmt.Errorf("failed to list active negligible vulnerabilities: %w", err)
 	}
 
-	asset.Summary.TotalVulnerabilities = &models.VulnerabilityScanSummary{
+	asset.Summary.TotalVulnerabilities = &types.VulnerabilityScanSummary{
 		TotalCriticalVulnerabilities:   &critialVuls,
 		TotalHighVulnerabilities:       &highVuls,
 		TotalMediumVulnerabilities:     &mediumVuls,
@@ -171,9 +171,9 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	return nil
 }
 
-func (asp *AssetScanProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity models.VulnerabilitySeverity) (int, error) {
+func (asp *AssetScanProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity types.VulnerabilitySeverity) (int, error) {
 	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and invalidatedOn eq null and findingInfo/severity eq '%s'", assetID, string(severity))
-	activeFindings, err := asp.client.GetFindings(ctx, models.GetFindingsParams{
+	activeFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
 		Count:  utils.PointerTo(true),
 		Filter: &filter,
 

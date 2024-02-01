@@ -26,7 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -81,12 +81,12 @@ func New(ctx context.Context) (*Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() models.CloudProvider {
-	return models.GCP
+func (p *Provider) Kind() types.CloudProvider {
+	return types.GCP
 }
 
-func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
-	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(ctx context.Context, stats types.AssetScanStats, asset *types.Asset, assetScanTemplate *types.AssetScanTemplate) (*types.Estimation, error) {
+	return &types.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 // nolint:cyclop
@@ -257,8 +257,8 @@ func getInstanceBootDisk(vm *computepb.Instance) (*computepb.AttachedDisk, error
 	return nil, fmt.Errorf("failed to find instance boot disk")
 }
 
-func (p *Provider) listInstances(ctx context.Context, filter *string, zone string) ([]models.AssetType, error) {
-	var ret []models.AssetType
+func (p *Provider) listInstances(ctx context.Context, filter *string, zone string) ([]types.AssetType, error) {
+	var ret []types.AssetType
 
 	it := p.instancesClient.List(ctx, &computepb.ListInstancesRequest{
 		Filter:     filter,
@@ -308,11 +308,11 @@ func (p *Provider) listAllRegions(ctx context.Context) ([]*computepb.Region, err
 	return ret, nil
 }
 
-func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computepb.Instance) (models.AssetType, error) {
-	assetType := models.AssetType{}
+func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computepb.Instance) (types.AssetType, error) {
+	assetType := types.AssetType{}
 	launchTime, err := time.Parse(time.RFC3339, *vm.CreationTimestamp)
 	if err != nil {
-		return models.AssetType{}, fmt.Errorf("failed to parse time: %v", *vm.CreationTimestamp)
+		return types.AssetType{}, fmt.Errorf("failed to parse time: %v", *vm.CreationTimestamp)
 	}
 	// get boot disk name
 	diskName := getLastURLPart(vm.Disks[0].Source)
@@ -335,31 +335,31 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 		image = getLastURLPart(disk.SourceImage)
 	}
 
-	err = assetType.FromVMInfo(models.VMInfo{
-		InstanceProvider: utils.PointerTo(models.GCP),
+	err = assetType.FromVMInfo(types.VMInfo{
+		InstanceProvider: utils.PointerTo(types.GCP),
 		InstanceID:       *vm.Name,
 		Image:            image,
 		InstanceType:     getLastURLPart(vm.MachineType),
 		LaunchTime:       launchTime,
 		Location:         getLastURLPart(vm.Zone),
 		Platform:         platform,
-		SecurityGroups:   &[]models.SecurityGroup{},
+		SecurityGroups:   &[]types.SecurityGroup{},
 		Tags:             utils.PointerTo(convertLabelsToTags(vm.Labels)),
 	})
 	if err != nil {
-		return models.AssetType{}, provider.FatalErrorf("failed to create AssetType from VMInfo: %w", err)
+		return types.AssetType{}, provider.FatalErrorf("failed to create AssetType from VMInfo: %w", err)
 	}
 
 	return assetType, nil
 }
 
-func convertLabelsToTags(labels map[string]string) []models.Tag {
-	tags := make([]models.Tag, 0, len(labels))
+func convertLabelsToTags(labels map[string]string) []types.Tag {
+	tags := make([]types.Tag, 0, len(labels))
 
 	for k, v := range labels {
 		tags = append(
 			tags,
-			models.Tag{
+			types.Tag{
 				Key:   k,
 				Value: v,
 			},

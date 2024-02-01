@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/common"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
@@ -49,7 +49,7 @@ func New(c Config) *Watcher {
 }
 
 type Watcher struct {
-	backend          *backendclient.BackendClient
+	backend          *client.BackendClient
 	provider         provider.Provider
 	scannerConfig    ScannerConfig
 	pollPeriod       time.Duration
@@ -85,9 +85,9 @@ func (w *Watcher) GetAssetScans(ctx context.Context) ([]AssetScanReconcileEvent,
 	logger.Debugf("Fetching AssetScans which need to be reconciled")
 
 	filter := fmt.Sprintf("(status/state ne '%s' and status/state ne '%s') or resourceCleanupStatus/state eq '%s'",
-		models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed, models.ResourceCleanupStatusStatePending)
+		types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed, types.ResourceCleanupStatusStatePending)
 	selector := "id,scan/id,asset/id"
-	params := models.GetAssetScansParams{
+	params := types.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
 		Count:  utils.PointerTo(true),
@@ -139,7 +139,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	assetScan, err := w.backend.GetAssetScan(ctx, event.AssetScanID, models.GetAssetScansAssetScanIDParams{
+	assetScan, err := w.backend.GetAssetScan(ctx, event.AssetScanID, types.GetAssetScansAssetScanIDParams{
 		Expand: utils.PointerTo("scan,asset"),
 	})
 	if err != nil {
@@ -154,23 +154,23 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 	logger.Tracef("Reconciling AssetScan state: %s", status.State)
 
 	switch status.State {
-	case models.AssetScanStatusStatePending:
+	case types.AssetScanStatusStatePending:
 		if err = w.reconcilePending(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStatusStateScheduled:
+	case types.AssetScanStatusStateScheduled:
 		if err = w.reconcileScheduled(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStatusStateReadyToScan, models.AssetScanStatusStateInProgress:
+	case types.AssetScanStatusStateReadyToScan, types.AssetScanStatusStateInProgress:
 		// TODO(chrisgacsal): make sure that AssetScan state is set to ABORTED state once the AssetScan
 		//                    schema is extended with timeout field and the deadline is missed.
 		break
-	case models.AssetScanStatusStateAborted:
+	case types.AssetScanStatusStateAborted:
 		if err = w.reconcileAborted(ctx, &assetScan); err != nil {
 			return err
 		}
-	case models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed:
+	case types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed:
 		if err = w.reconcileDoneAndFailed(ctx, &assetScan); err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) reconcilePending(ctx context.Context, assetScan *types.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -196,8 +196,8 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 		// Check whether we have reached the maximum number of running scans
 		// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
 		filter := fmt.Sprintf("scan/id eq '%s' and status/state ne '%s' and status/state ne '%s' and status/state ne '%s' and resourceCleanupStatus/state eq '%s'",
-			assetScan.Scan.Id, models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed, models.AssetScanStatusStatePending, models.ResourceCleanupStatusStatePending)
-		assetScans, err := w.backend.GetAssetScans(ctx, models.GetAssetScansParams{
+			assetScan.Scan.Id, types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed, types.AssetScanStatusStatePending, types.ResourceCleanupStatusStatePending)
+		assetScans, err := w.backend.GetAssetScans(ctx, types.GetAssetScansParams{
 			Filter: utils.PointerTo(filter),
 			Count:  utils.PointerTo(true),
 			Top:    utils.PointerTo(0),
@@ -221,13 +221,13 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 		}
 	}
 
-	assetScan.Status = models.NewAssetScanStatus(
-		models.AssetScanStatusStateScheduled,
-		models.AssetScanStatusReasonProvisioning,
+	assetScan.Status = types.NewAssetScanStatus(
+		types.AssetScanStatusStateScheduled,
+		types.AssetScanStatusReasonProvisioning,
 		nil,
 	)
 
-	assetScanPatch := models.AssetScan{
+	assetScanPatch := types.AssetScan{
 		Status: assetScan.Status,
 	}
 	err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
@@ -242,7 +242,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *models.AssetS
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *types.AssetScan) error {
 	assetScanID, ok := assetScan.GetID()
 	if !ok {
 		return errors.New("invalid AssetScan: ID is nil")
@@ -251,7 +251,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 	if assetScan.Asset == nil || assetScan.Asset.AssetInfo == nil {
 		return errors.New("invalid AssetScan: Asset or AssetInfo is nil")
 	}
-	asset := &models.Asset{
+	asset := &types.Asset{
 		Id:         utils.PointerTo(assetScan.Asset.Id),
 		Revision:   assetScan.Asset.Revision,
 		ScansCount: assetScan.Asset.ScansCount,
@@ -275,29 +275,29 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 	var retryableError provider.RetryableError
 	switch {
 	case errors.As(err, &fatalError):
-		assetScan.Status = models.NewAssetScanStatus(
-			models.AssetScanStatusStateFailed,
-			models.AssetScanStatusReasonError,
+		assetScan.Status = types.NewAssetScanStatus(
+			types.AssetScanStatusStateFailed,
+			types.AssetScanStatusReasonError,
 			utils.PointerTo(fatalError.Error()),
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
 		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
-		assetScan.Status = models.NewAssetScanStatus(
-			models.AssetScanStatusStateFailed,
-			models.AssetScanStatusReasonError,
+		assetScan.Status = types.NewAssetScanStatus(
+			types.AssetScanStatusStateFailed,
+			types.AssetScanStatusReasonError,
 			utils.PointerTo(errors.Join(utils.UnwrapErrors(err)...).Error()),
 		)
 	default:
-		assetScan.Status = models.NewAssetScanStatus(
-			models.AssetScanStatusStateReadyToScan,
-			models.AssetScanStatusReasonResourcesReady,
+		assetScan.Status = types.NewAssetScanStatus(
+			types.AssetScanStatusStateReadyToScan,
+			types.AssetScanStatusReasonResourcesReady,
 			nil,
 		)
 	}
 
-	assetScanPatch := models.AssetScan{
+	assetScanPatch := types.AssetScan{
 		Status: assetScan.Status,
 	}
 	err = w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
@@ -308,12 +308,12 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *models.Asse
 	return nil
 }
 
-func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *types.AssetScan) error {
 	if assetScan.Scan == nil || assetScan.ResourceCleanupStatus == nil {
 		return errors.New("invalid AssetScan: Scan and/or ResourceCleanupStatus are nil")
 	}
 
-	if assetScan.ResourceCleanupStatus.State != models.ResourceCleanupStatusStatePending {
+	if assetScan.ResourceCleanupStatus.State != types.ResourceCleanupStatusStatePending {
 		return nil
 	}
 
@@ -325,7 +325,7 @@ func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *models.
 }
 
 // nolint:cyclop
-func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -335,16 +335,16 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 
 	switch w.deleteJobPolicy {
 	case DeleteJobPolicyNever:
-		assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
-			models.ResourceCleanupStatusStateSkipped,
-			models.ResourceCleanupStatusReasonDeletePolicy,
+		assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
+			types.ResourceCleanupStatusStateSkipped,
+			types.ResourceCleanupStatusReasonDeletePolicy,
 			nil,
 		)
 	case DeleteJobPolicyOnSuccess:
-		if assetScan.Status.State == models.AssetScanStatusStateFailed {
-			assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
-				models.ResourceCleanupStatusStateSkipped,
-				models.ResourceCleanupStatusReasonDeletePolicy,
+		if assetScan.Status.State == types.AssetScanStatusStateFailed {
+			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
+				types.ResourceCleanupStatusStateSkipped,
+				types.ResourceCleanupStatusReasonDeletePolicy,
 				nil,
 			)
 			break
@@ -354,7 +354,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 		fallthrough
 	default:
 		// Get Asset
-		asset, err := w.backend.GetAsset(ctx, assetScan.Asset.Id, models.GetAssetsAssetIDParams{
+		asset, err := w.backend.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{
 			Select: utils.PointerTo("id,assetInfo"),
 		})
 		if err != nil {
@@ -380,9 +380,9 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 		var retryableError provider.RetryableError
 		switch {
 		case errors.As(err, &fatalError):
-			assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
-				models.ResourceCleanupStatusStateFailed,
-				models.ResourceCleanupStatusReasonProviderError,
+			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
+				types.ResourceCleanupStatusStateFailed,
+				types.ResourceCleanupStatusReasonProviderError,
 				utils.PointerTo(fatalError.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", fatalError)
@@ -390,22 +390,22 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 			// nolint:wrapcheck
 			return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 		case err != nil:
-			assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
-				models.ResourceCleanupStatusStateFailed,
-				models.ResourceCleanupStatusReasonProviderError,
+			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
+				types.ResourceCleanupStatusStateFailed,
+				types.ResourceCleanupStatusReasonProviderError,
 				utils.PointerTo(err.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", err)
 		default:
-			assetScan.ResourceCleanupStatus = models.NewResourceCleanupStatus(
-				models.ResourceCleanupStatusStateDone,
-				models.ResourceCleanupStatusReasonSuccess,
+			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
+				types.ResourceCleanupStatusStateDone,
+				types.ResourceCleanupStatusReasonSuccess,
 				nil,
 			)
 		}
 	}
 
-	assetScanPatch := models.AssetScan{
+	assetScanPatch := types.AssetScan{
 		ResourceCleanupStatus: assetScan.ResourceCleanupStatus,
 	}
 	if err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID); err != nil {
@@ -416,7 +416,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *models.AssetS
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *models.AssetScan) error {
+func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *types.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -442,13 +442,13 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *models.AssetS
 	logger.Tracef("AssetScan in aborted state is timed out. TransitionTime=%s Timeout=%s",
 		transitionTimeToAbort, w.abortTimeout)
 
-	assetScan.Status = models.NewAssetScanStatus(
-		models.AssetScanStatusStateFailed,
-		models.AssetScanStatusReasonAbortTimeout,
+	assetScan.Status = types.NewAssetScanStatus(
+		types.AssetScanStatusStateFailed,
+		types.AssetScanStatusReasonAbortTimeout,
 		utils.PointerTo(fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout)),
 	)
 
-	assetScanPatch := models.AssetScan{
+	assetScanPatch := types.AssetScan{
 		Status: assetScan.Status,
 	}
 	err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)

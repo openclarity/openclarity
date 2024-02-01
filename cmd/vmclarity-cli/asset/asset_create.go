@@ -24,11 +24,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/logutil"
 	cliutils "github.com/openclarity/vmclarity/pkg/cli/utils"
-
-	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 )
 
 // AssetCreateCmd represents the standalone command.
@@ -88,7 +87,7 @@ func init() {
 	}
 }
 
-func getAssetFromJSONFile(filename string) (*models.AssetType, error) {
+func getAssetFromJSONFile(filename string) (*types.AssetType, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -108,7 +107,7 @@ func getAssetFromJSONFile(filename string) (*models.AssetType, error) {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	assetType := &models.AssetType{}
+	assetType := &types.AssetType{}
 	if err := assetType.UnmarshalJSON(bs); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal asset into AssetType %w", err)
 	}
@@ -116,14 +115,14 @@ func getAssetFromJSONFile(filename string) (*models.AssetType, error) {
 	return assetType, nil
 }
 
-func createAsset(ctx context.Context, assetType *models.AssetType, server string, updateIfExists bool) (*models.Asset, error) {
-	client, err := backendclient.Create(server)
+func createAsset(ctx context.Context, assetType *types.AssetType, server string, updateIfExists bool) (*types.Asset, error) {
+	client, err := apiclient.Create(server)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 	}
 
 	creationTime := time.Now()
-	assetData := models.Asset{
+	assetData := types.Asset{
 		AssetInfo: assetType,
 		LastSeen:  &creationTime,
 		FirstSeen: &creationTime,
@@ -132,7 +131,7 @@ func createAsset(ctx context.Context, assetType *models.AssetType, server string
 	if err == nil {
 		return asset, nil
 	}
-	var conflictError backendclient.AssetConflictError
+	var conflictError apiclient.AssetConflictError
 	// As we got a conflict it means there is an existing asset
 	// which matches the unique properties of this asset, in this
 	// case if the update-if-exists flag is set we'll patch the just AssetInfo and FirstSeen instead.

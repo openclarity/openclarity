@@ -29,7 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/aws/scanestimation"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/cloudinit"
@@ -67,11 +67,11 @@ func New(ctx context.Context) (*Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() models.CloudProvider {
-	return models.AWS
+func (p *Provider) Kind() types.CloudProvider {
+	return types.AWS
 }
 
-func (p *Provider) Estimate(ctx context.Context, assetScanStats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
+func (p *Provider) Estimate(ctx context.Context, assetScanStats types.AssetScanStats, asset *types.Asset, assetScanTemplate *types.AssetScanTemplate) (*types.Estimation, error) {
 	var err error
 	const jobCreationTimeConst = 2
 
@@ -839,9 +839,9 @@ func (p *Provider) getInstancesFromDescribeInstancesOutput(ctx context.Context, 
 			rootVol, err := getRootVolumeInfo(ctx, p.ec2Client, instance, regionID)
 			if err != nil {
 				logger.Warnf("Couldn't get root volume info. instance id=%v: %v", utils.StringPointerValOrEmpty(instance.InstanceId), err)
-				rootVol = &models.RootVolume{
+				rootVol = &types.RootVolume{
 					SizeGB:    0,
-					Encrypted: models.RootVolumeEncryptedUnknown,
+					Encrypted: types.RootVolumeEncryptedUnknown,
 				}
 			}
 
@@ -867,7 +867,7 @@ func (p *Provider) getInstancesFromDescribeInstancesOutput(ctx context.Context, 
 	return ret
 }
 
-func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Instance, region string) (*models.RootVolume, error) {
+func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Instance, region string) (*types.RootVolume, error) {
 	if i.RootDeviceName == nil || *i.RootDeviceName == "" {
 		return nil, fmt.Errorf("RootDeviceName is not set")
 	}
@@ -901,7 +901,7 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 				}).Warnf("Found more than 1 root volume, using the first")
 			}
 
-			return &models.RootVolume{
+			return &types.RootVolume{
 				SizeGB:    int(utils.Int32PointerValOrEmpty(describeOut.Volumes[0].Size)),
 				Encrypted: encryptedToAPI(describeOut.Volumes[0].Encrypted),
 			}, nil
@@ -911,14 +911,14 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 	return nil, fmt.Errorf("instance doesn't have a root volume block device mapping")
 }
 
-func encryptedToAPI(encrypted *bool) models.RootVolumeEncrypted {
+func encryptedToAPI(encrypted *bool) types.RootVolumeEncrypted {
 	if encrypted == nil {
-		return models.RootVolumeEncryptedUnknown
+		return types.RootVolumeEncryptedUnknown
 	}
 	if *encrypted {
-		return models.RootVolumeEncryptedYes
+		return types.RootVolumeEncryptedYes
 	}
-	return models.RootVolumeEncryptedNo
+	return types.RootVolumeEncryptedNo
 }
 
 func (p *Provider) ListAllRegions(ctx context.Context) ([]Region, error) {

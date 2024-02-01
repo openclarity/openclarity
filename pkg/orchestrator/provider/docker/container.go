@@ -26,12 +26,12 @@ import (
 	containertypes "github.com/docker/docker/api/types/container"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
-func (p *Provider) getContainerAssets(ctx context.Context) ([]models.AssetType, error) {
+func (p *Provider) getContainerAssets(ctx context.Context) ([]apitypes.AssetType, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// List all docker containers
@@ -42,7 +42,7 @@ func (p *Provider) getContainerAssets(ctx context.Context) ([]models.AssetType, 
 
 	// Results will be written to assets concurrently
 	assetMu := sync.Mutex{}
-	assets := make([]models.AssetType, 0, len(containers))
+	assets := make([]apitypes.AssetType, 0, len(containers))
 
 	// Process each container in an independent processor goroutine
 	processGroup, processCtx := errgroup.WithContext(ctx)
@@ -64,7 +64,7 @@ func (p *Provider) getContainerAssets(ctx context.Context) ([]models.AssetType, 
 					}
 
 					// Convert to asset
-					asset := models.AssetType{}
+					asset := apitypes.AssetType{}
 					err = asset.FromContainerInfo(info)
 					if err != nil {
 						return fmt.Errorf("failed to create AssetType from ContainerInfo: %w", err)
@@ -92,27 +92,27 @@ func (p *Provider) getContainerAssets(ctx context.Context) ([]models.AssetType, 
 	return assets, nil
 }
 
-func (p *Provider) getContainerInfo(ctx context.Context, containerID string) (models.ContainerInfo, error) {
+func (p *Provider) getContainerInfo(ctx context.Context, containerID string) (apitypes.ContainerInfo, error) {
 	// Inspect container
 	info, err := p.dockerClient.ContainerInspect(ctx, containerID)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("failed to inspect container: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("failed to inspect container: %w", err)
 	}
 
 	createdAt, err := time.Parse(time.RFC3339, info.Created)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("failed to parse time: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("failed to parse time: %w", err)
 	}
 
 	// Get container image info
 	imageInfo, err := p.getContainerImageInfo(ctx, info.Image)
 	if err != nil {
-		return models.ContainerInfo{}, err
+		return apitypes.ContainerInfo{}, err
 	}
 
 	containerName := strings.Trim(info.Name, "/")
 
-	return models.ContainerInfo{
+	return apitypes.ContainerInfo{
 		ContainerName: &containerName,
 		CreatedAt:     utils.PointerTo(createdAt),
 		ContainerID:   containerID,

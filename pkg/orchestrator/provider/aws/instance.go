@@ -24,7 +24,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -34,16 +34,16 @@ type Instance struct {
 	ID                  string
 	Region              string
 	VpcID               string
-	SecurityGroups      []models.SecurityGroup
+	SecurityGroups      []types.SecurityGroup
 	AvailabilityZone    string
 	Image               string
 	InstanceType        string
 	Platform            string
-	Tags                []models.Tag
+	Tags                []types.Tag
 	LaunchTime          time.Time
 	RootDeviceName      string
 	RootVolumeSizeGB    int32
-	RootVolumeEncrypted models.RootVolumeEncrypted
+	RootVolumeEncrypted types.RootVolumeEncrypted
 	Volumes             []Volume
 
 	Metadata provider.ScanMetadata

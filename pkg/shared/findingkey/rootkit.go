@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 type RootkitKey struct {
@@ -38,7 +38,7 @@ func (k RootkitKey) RootkitString() string {
 	return k.String()
 }
 
-func GenerateRootkitKey(info models.RootkitFindingInfo) RootkitKey {
+func GenerateRootkitKey(info types.RootkitFindingInfo) RootkitKey {
 	return RootkitKey{
 		Name:        *info.RootkitName,
 		RootkitType: string(*info.RootkitType),

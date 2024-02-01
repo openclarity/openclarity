@@ -20,11 +20,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 type ScanConfigReconcileEvent struct {
-	ScanConfigID models.ScanConfigID
+	ScanConfigID types.ScanConfigID
 }
 
 func (e ScanConfigReconcileEvent) ToFields() log.Fields {

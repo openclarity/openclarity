@@ -27,7 +27,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v3"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -92,12 +92,12 @@ func New(_ context.Context) (*Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() models.CloudProvider {
-	return models.Azure
+func (p *Provider) Kind() types.CloudProvider {
+	return types.Azure
 }
 
-func (p *Provider) Estimate(ctx context.Context, stats models.AssetScanStats, asset *models.Asset, assetScanTemplate *models.AssetScanTemplate) (*models.Estimation, error) {
-	return &models.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(ctx context.Context, stats types.AssetScanStats, asset *types.Asset, assetScanTemplate *types.AssetScanTemplate) (*types.Estimation, error) {
+	return &types.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 // nolint:cyclop
@@ -231,8 +231,8 @@ func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, erro
 	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
 
-func (p *Provider) processVirtualMachineListIntoAssetTypes(ctx context.Context, vmList armcompute.VirtualMachineListResult) ([]models.AssetType, error) {
-	ret := make([]models.AssetType, 0, len(vmList.Value))
+func (p *Provider) processVirtualMachineListIntoAssetTypes(ctx context.Context, vmList armcompute.VirtualMachineListResult) ([]types.AssetType, error) {
+	ret := make([]types.AssetType, 0, len(vmList.Value))
 	for _, vm := range vmList.Value {
 		info, err := getVMInfoFromVirtualMachine(vm, p.getRootVolumeInfo(ctx, vm))
 		if err != nil {
@@ -243,11 +243,11 @@ func (p *Provider) processVirtualMachineListIntoAssetTypes(ctx context.Context, 
 	return ret, nil
 }
 
-func (p *Provider) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *models.RootVolume {
+func (p *Provider) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *types.RootVolume {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
-	ret := &models.RootVolume{
+	ret := &types.RootVolume{
 		SizeGB:    int(utils.Int32PointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
-		Encrypted: models.RootVolumeEncryptedUnknown,
+		Encrypted: types.RootVolumeEncryptedUnknown,
 	}
 	osDiskID, err := arm.ParseResourceID(utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
 	if err != nil {
@@ -267,11 +267,11 @@ func (p *Provider) getRootVolumeInfo(ctx context.Context, vm *armcompute.Virtual
 	return ret
 }
 
-func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *models.RootVolume) (models.AssetType, error) {
-	assetType := models.AssetType{}
-	err := assetType.FromVMInfo(models.VMInfo{
+func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *types.RootVolume) (types.AssetType, error) {
+	assetType := types.AssetType{}
+	err := assetType.FromVMInfo(types.VMInfo{
 		ObjectType:       "VMInfo",
-		InstanceProvider: utils.PointerTo(models.Azure),
+		InstanceProvider: utils.PointerTo(types.Azure),
 		InstanceID:       *vm.ID,
 		Image:            createImageURN(vm.Properties.StorageProfile.ImageReference),
 		InstanceType:     *vm.Type,
@@ -279,7 +279,7 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *models.
 		Location:         *vm.Location,
 		Platform:         string(*vm.Properties.StorageProfile.OSDisk.OSType),
 		RootVolume:       *rootVol,
-		SecurityGroups:   &[]models.SecurityGroup{},
+		SecurityGroups:   &[]types.SecurityGroup{},
 		Tags:             convertTags(vm.Tags),
 	})
 	if err != nil {
@@ -289,21 +289,21 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *models.
 	return assetType, err
 }
 
-func isEncrypted(disk armcompute.DisksClientGetResponse) models.RootVolumeEncrypted {
+func isEncrypted(disk armcompute.DisksClientGetResponse) types.RootVolumeEncrypted {
 	if disk.Properties.EncryptionSettingsCollection == nil {
-		return models.RootVolumeEncryptedNo
+		return types.RootVolumeEncryptedNo
 	}
 	if *disk.Properties.EncryptionSettingsCollection.Enabled {
-		return models.RootVolumeEncryptedYes
+		return types.RootVolumeEncryptedYes
 	}
 
-	return models.RootVolumeEncryptedNo
+	return types.RootVolumeEncryptedNo
 }
 
-func convertTags(tags map[string]*string) *[]models.Tag {
-	ret := make([]models.Tag, 0, len(tags))
+func convertTags(tags map[string]*string) *[]types.Tag {
+	ret := make([]types.Tag, 0, len(tags))
 	for key, val := range tags {
-		ret = append(ret, models.Tag{
+		ret = append(ret, types.Tag{
 			Key:   key,
 			Value: *val,
 		})

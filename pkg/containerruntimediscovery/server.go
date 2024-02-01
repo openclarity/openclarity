@@ -25,17 +25,17 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type ListImagesResponse struct {
-	Images []models.ContainerImageInfo
+	Images []apitypes.ContainerImageInfo
 }
 
 type ListContainersResponse struct {
-	Containers []models.ContainerInfo
+	Containers []apitypes.ContainerInfo
 }
 
 type ContainerRuntimeDiscoveryServer struct {

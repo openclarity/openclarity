@@ -24,7 +24,7 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
@@ -54,31 +54,31 @@ var orderedSeveritiesFields = []string{
 
 func (s *ServerImpl) GetDashboardRiskiestAssets(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
-	exploits, err := s.getRiskiestAssetsForFindingType(reqCtx, backendmodels.EXPLOIT)
+	exploits, err := s.getRiskiestAssetsForFindingType(reqCtx, apitypes.EXPLOIT)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get riskiest assets for exploits: %v", err))
 	}
 
-	malware, err := s.getRiskiestAssetsForFindingType(reqCtx, backendmodels.MALWARE)
+	malware, err := s.getRiskiestAssetsForFindingType(reqCtx, apitypes.MALWARE)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get riskiest assets for malware: %v", err))
 	}
 
-	misconfigurations, err := s.getRiskiestAssetsForFindingType(reqCtx, backendmodels.MISCONFIGURATION)
+	misconfigurations, err := s.getRiskiestAssetsForFindingType(reqCtx, apitypes.MISCONFIGURATION)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get riskiest assets for misconfigurations: %v", err))
 	}
 
-	rootkits, err := s.getRiskiestAssetsForFindingType(reqCtx, backendmodels.ROOTKIT)
+	rootkits, err := s.getRiskiestAssetsForFindingType(reqCtx, apitypes.ROOTKIT)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get riskiest assets for rootkits: %v", err))
 	}
 
-	secrets, err := s.getRiskiestAssetsForFindingType(reqCtx, backendmodels.SECRET)
+	secrets, err := s.getRiskiestAssetsForFindingType(reqCtx, apitypes.SECRET)
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get riskiest assets for secrets: %v", err))
@@ -100,7 +100,7 @@ func (s *ServerImpl) GetDashboardRiskiestAssets(ctx echo.Context) error {
 	})
 }
 
-func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findingType backendmodels.ScanType) ([]types.RiskyAsset, error) {
+func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findingType apitypes.ScanType) ([]types.RiskyAsset, error) {
 	riskiestAssets, err := s.getRiskiestAssetsPerFinding(ctx, findingType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get riskiest assets: %w", err)
@@ -110,7 +110,7 @@ func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findin
 }
 
 func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) ([]types.VulnerabilityRiskyAsset, error) {
-	assets, err := s.getRiskiestAssetsPerFinding(ctx, backendmodels.VULNERABILITY)
+	assets, err := s.getRiskiestAssetsPerFinding(ctx, apitypes.VULNERABILITY)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get riskiest assets: %w", err)
 	}
@@ -118,13 +118,13 @@ func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) 
 	return toAPIVulnerabilityRiskyAssets(*assets.Items), nil
 }
 
-func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingType backendmodels.ScanType) (*backendmodels.Assets, error) {
+func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingType apitypes.ScanType) (*apitypes.Assets, error) {
 	totalFindingField, err := getTotalFindingFieldName(findingType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get total findings field name: %w", err)
 	}
 
-	riskiestAssets, err := s.BackendClient.GetAssets(ctx, backendmodels.GetAssetsParams{
+	riskiestAssets, err := s.BackendClient.GetAssets(ctx, apitypes.GetAssetsParams{
 		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
 		Top:     utils.PointerTo(topRiskiestAssetsCount),
 		OrderBy: utils.PointerTo(getOrderByOData(totalFindingField)),
@@ -154,7 +154,7 @@ func getOrderByOdataForVulnerabilities() string {
 	return strings.Join(ret, ",")
 }
 
-func toAPIVulnerabilityRiskyAssets(assets []backendmodels.Asset) []types.VulnerabilityRiskyAsset {
+func toAPIVulnerabilityRiskyAssets(assets []apitypes.Asset) []types.VulnerabilityRiskyAsset {
 	ret := make([]types.VulnerabilityRiskyAsset, 0, len(assets))
 
 	for _, asset := range assets {
@@ -178,7 +178,7 @@ func toAPIVulnerabilityRiskyAssets(assets []backendmodels.Asset) []types.Vulnera
 	return ret
 }
 
-func toAPIRiskyAssets(assets []backendmodels.Asset, findingType backendmodels.ScanType) []types.RiskyAsset {
+func toAPIRiskyAssets(assets []apitypes.Asset, findingType apitypes.ScanType) []types.RiskyAsset {
 	ret := make([]types.RiskyAsset, 0, len(assets))
 
 	for _, asset := range assets {
@@ -203,25 +203,25 @@ func toAPIRiskyAssets(assets []backendmodels.Asset, findingType backendmodels.Sc
 	return ret
 }
 
-func getAssetInfo(asset *backendmodels.AssetType) (*types.AssetInfo, error) {
+func getAssetInfo(asset *apitypes.AssetType) (*types.AssetInfo, error) {
 	discriminator, err := asset.ValueByDiscriminator()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
 
 	switch info := discriminator.(type) {
-	case backendmodels.VMInfo:
+	case apitypes.VMInfo:
 		return vmInfoToAssetInfo(info)
-	case backendmodels.ContainerInfo:
+	case apitypes.ContainerInfo:
 		return containerInfoToAssetInfo(info)
-	case backendmodels.ContainerImageInfo:
+	case apitypes.ContainerImageInfo:
 		return containerImageInfoToAssetInfo(info)
 	default:
 		return nil, fmt.Errorf("asset type is not supported (%T)", discriminator)
 	}
 }
 
-func containerInfoToAssetInfo(info backendmodels.ContainerInfo) (*types.AssetInfo, error) {
+func containerInfoToAssetInfo(info apitypes.ContainerInfo) (*types.AssetInfo, error) {
 	return &types.AssetInfo{
 		Name:     info.ContainerName,
 		Location: info.Location,
@@ -229,7 +229,7 @@ func containerInfoToAssetInfo(info backendmodels.ContainerInfo) (*types.AssetInf
 	}, nil
 }
 
-func containerImageInfoToAssetInfo(info backendmodels.ContainerImageInfo) (*types.AssetInfo, error) {
+func containerImageInfoToAssetInfo(info apitypes.ContainerImageInfo) (*types.AssetInfo, error) {
 	location, _ := info.GetFirstRepoDigest()
 
 	return &types.AssetInfo{
@@ -239,7 +239,7 @@ func containerImageInfoToAssetInfo(info backendmodels.ContainerImageInfo) (*type
 	}, nil
 }
 
-func vmInfoToAssetInfo(info backendmodels.VMInfo) (*types.AssetInfo, error) {
+func vmInfoToAssetInfo(info apitypes.VMInfo) (*types.AssetInfo, error) {
 	assetType, err := getVMAssetType(info.InstanceProvider)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get asset type: %w", err)
@@ -251,60 +251,60 @@ func vmInfoToAssetInfo(info backendmodels.VMInfo) (*types.AssetInfo, error) {
 	}, nil
 }
 
-func getVMAssetType(provider *backendmodels.CloudProvider) (*types.AssetType, error) {
+func getVMAssetType(provider *apitypes.CloudProvider) (*types.AssetType, error) {
 	if provider == nil {
 		return nil, fmt.Errorf("provider is nil")
 	}
 	switch *provider {
-	case backendmodels.AWS:
+	case apitypes.AWS:
 		return utils.PointerTo(types.AWSEC2Instance), nil
-	case backendmodels.Azure:
+	case apitypes.Azure:
 		return utils.PointerTo(types.AzureInstance), nil
-	case backendmodels.GCP:
+	case apitypes.GCP:
 		return utils.PointerTo(types.GCPInstance), nil
-	case backendmodels.External:
+	case apitypes.External:
 		return utils.PointerTo(types.ExternalInstance), nil
-	case backendmodels.Docker, backendmodels.Kubernetes:
+	case apitypes.Docker, apitypes.Kubernetes:
 		fallthrough
 	default:
 		return nil, fmt.Errorf("unsupported provider: %v", *provider)
 	}
 }
 
-func getCountForFindingType(summary *backendmodels.ScanFindingsSummary, findingType backendmodels.ScanType) (*int, error) {
+func getCountForFindingType(summary *apitypes.ScanFindingsSummary, findingType apitypes.ScanType) (*int, error) {
 	switch findingType {
-	case backendmodels.EXPLOIT:
+	case apitypes.EXPLOIT:
 		return summary.TotalExploits, nil
-	case backendmodels.MALWARE:
+	case apitypes.MALWARE:
 		return summary.TotalMalware, nil
-	case backendmodels.MISCONFIGURATION:
+	case apitypes.MISCONFIGURATION:
 		return summary.TotalMisconfigurations, nil
-	case backendmodels.ROOTKIT:
+	case apitypes.ROOTKIT:
 		return summary.TotalRootkits, nil
-	case backendmodels.SECRET:
+	case apitypes.SECRET:
 		return summary.TotalSecrets, nil
-	case backendmodels.INFOFINDER, backendmodels.VULNERABILITY, backendmodels.SBOM:
+	case apitypes.INFOFINDER, apitypes.VULNERABILITY, apitypes.SBOM:
 		fallthrough
 	default:
 		return nil, fmt.Errorf("unsupported finding type: %v", findingType)
 	}
 }
 
-func getTotalFindingFieldName(findingType backendmodels.ScanType) (string, error) {
+func getTotalFindingFieldName(findingType apitypes.ScanType) (string, error) {
 	switch findingType {
-	case backendmodels.EXPLOIT:
+	case apitypes.EXPLOIT:
 		return totalExploitsSummaryFieldName, nil
-	case backendmodels.MALWARE:
+	case apitypes.MALWARE:
 		return totalMalwareSummaryFieldName, nil
-	case backendmodels.MISCONFIGURATION:
+	case apitypes.MISCONFIGURATION:
 		return totalMisconfigurationsSummaryFieldName, nil
-	case backendmodels.ROOTKIT:
+	case apitypes.ROOTKIT:
 		return totalRootkitsSummaryFieldName, nil
-	case backendmodels.SECRET:
+	case apitypes.SECRET:
 		return totalSecretsSummaryFieldName, nil
-	case backendmodels.VULNERABILITY:
+	case apitypes.VULNERABILITY:
 		return totalVulnerabilitiesSummaryFieldName, nil
-	case backendmodels.INFOFINDER, backendmodels.SBOM:
+	case apitypes.INFOFINDER, apitypes.SBOM:
 		fallthrough
 	default:
 		return "", fmt.Errorf("unsupported finding type: %v", findingType)

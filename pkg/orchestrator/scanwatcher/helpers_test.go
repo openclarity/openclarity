@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega/types"
 	"k8s.io/apimachinery/pkg/util/uuid"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -33,108 +33,108 @@ func TestNewAssetScanFromScan(t *testing.T) {
 
 	transitionTime := time.Now()
 
-	status := models.NewAssetScanStatus(
-		models.AssetScanStatusStatePending,
-		models.AssetScanStatusReasonCreated,
+	status := apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStatePending,
+		apitypes.AssetScanStatusReasonCreated,
 		nil,
 	)
 	status.LastTransitionTime = transitionTime
 
-	resourceCleanupStatus := models.NewResourceCleanupStatus(
-		models.ResourceCleanupStatusStatePending,
-		models.ResourceCleanupStatusReasonAssetScanCreated,
+	resourceCleanupStatus := apitypes.NewResourceCleanupStatus(
+		apitypes.ResourceCleanupStatusStatePending,
+		apitypes.ResourceCleanupStatusReasonAssetScanCreated,
 		nil,
 	)
 	resourceCleanupStatus.LastTransitionTime = transitionTime
 
-	sbomScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStatePending,
-		models.ScannerStatusReasonScheduled,
+	sbomScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStatePending,
+		apitypes.ScannerStatusReasonScheduled,
 		nil,
 	)
 	sbomScanStatus.LastTransitionTime = transitionTime
 
-	exploitScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStatePending,
-		models.ScannerStatusReasonScheduled,
+	exploitScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStatePending,
+		apitypes.ScannerStatusReasonScheduled,
 		nil,
 	)
 	exploitScanStatus.LastTransitionTime = transitionTime
 
-	vulnerabilityScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStatePending,
-		models.ScannerStatusReasonScheduled,
+	vulnerabilityScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStatePending,
+		apitypes.ScannerStatusReasonScheduled,
 		nil,
 	)
 	vulnerabilityScanStatus.LastTransitionTime = transitionTime
 
-	malwareScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStatePending,
-		models.ScannerStatusReasonScheduled,
+	malwareScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStatePending,
+		apitypes.ScannerStatusReasonScheduled,
 		nil,
 	)
 	malwareScanStatus.LastTransitionTime = transitionTime
 
-	rootkitScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStateSkipped,
-		models.ScannerStatusReasonNotScheduled,
+	rootkitScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateSkipped,
+		apitypes.ScannerStatusReasonNotScheduled,
 		nil,
 	)
 	rootkitScanStatus.LastTransitionTime = transitionTime
 
-	secretScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStateSkipped,
-		models.ScannerStatusReasonNotScheduled,
+	secretScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateSkipped,
+		apitypes.ScannerStatusReasonNotScheduled,
 		nil,
 	)
 	secretScanStatus.LastTransitionTime = transitionTime
 
-	misconfigurationScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStateSkipped,
-		models.ScannerStatusReasonNotScheduled,
+	misconfigurationScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateSkipped,
+		apitypes.ScannerStatusReasonNotScheduled,
 		nil,
 	)
 	misconfigurationScanStatus.LastTransitionTime = transitionTime
 
-	infoFinderScanStatus := models.NewScannerStatus(
-		models.ScannerStatusStatePending,
-		models.ScannerStatusReasonScheduled,
+	infoFinderScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStatePending,
+		apitypes.ScannerStatusReasonScheduled,
 		nil,
 	)
 	infoFinderScanStatus.LastTransitionTime = transitionTime
 
 	tests := []struct {
 		Name    string
-		Scan    *models.Scan
+		Scan    *apitypes.Scan
 		AssetID string
 
 		ExpectedErrorMatcher types.GomegaMatcher
-		ExpectedAssetScan    *models.AssetScan
+		ExpectedAssetScan    *apitypes.AssetScan
 	}{
 		{
 			Name: "AssetResult from valid Scan",
-			Scan: &models.Scan{
+			Scan: &apitypes.Scan{
 				Name:                utils.PointerTo("test-1234"),
 				Id:                  utils.PointerTo(scanID),
 				MaxParallelScanners: utils.PointerTo(2),
-				AssetScanTemplate: &models.AssetScanTemplate{
-					ScanFamiliesConfig: &models.ScanFamiliesConfig{
-						Exploits: &models.ExploitsConfig{
+				AssetScanTemplate: &apitypes.AssetScanTemplate{
+					ScanFamiliesConfig: &apitypes.ScanFamiliesConfig{
+						Exploits: &apitypes.ExploitsConfig{
 							Enabled: utils.PointerTo(true),
 						},
-						Malware: &models.MalwareConfig{
+						Malware: &apitypes.MalwareConfig{
 							Enabled: utils.PointerTo(true),
 						},
 						Misconfigurations: nil,
 						Rootkits:          nil,
-						Sbom: &models.SBOMConfig{
+						Sbom: &apitypes.SBOMConfig{
 							Enabled: utils.PointerTo(true),
 						},
 						Secrets: nil,
-						Vulnerabilities: &models.VulnerabilitiesConfig{
+						Vulnerabilities: &apitypes.VulnerabilitiesConfig{
 							Enabled: utils.PointerTo(true),
 						},
-						InfoFinder: &models.InfoFinderConfig{
+						InfoFinder: &apitypes.InfoFinderConfig{
 							Enabled:  utils.PointerTo(true),
 							Scanners: utils.PointerTo([]string{"test"}),
 						},
@@ -143,68 +143,68 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			},
 			AssetID:              assetID,
 			ExpectedErrorMatcher: Not(HaveOccurred()),
-			ExpectedAssetScan: &models.AssetScan{
+			ExpectedAssetScan: &apitypes.AssetScan{
 				ResourceCleanupStatus: resourceCleanupStatus,
-				Scan: &models.ScanRelationship{
+				Scan: &apitypes.ScanRelationship{
 					Id: scanID,
 				},
 				Status: status,
-				Sbom: &models.SbomScan{
+				Sbom: &apitypes.SbomScan{
 					Packages: nil,
 					Status:   sbomScanStatus,
 				},
-				Exploits: &models.ExploitScan{
+				Exploits: &apitypes.ExploitScan{
 					Exploits: nil,
 					Status:   exploitScanStatus,
 				},
-				Vulnerabilities: &models.VulnerabilityScan{
+				Vulnerabilities: &apitypes.VulnerabilityScan{
 					Vulnerabilities: nil,
 					Status:          vulnerabilityScanStatus,
 				},
-				Malware: &models.MalwareScan{
+				Malware: &apitypes.MalwareScan{
 					Malware:  nil,
 					Metadata: nil,
 					Status:   malwareScanStatus,
 				},
-				Rootkits: &models.RootkitScan{
+				Rootkits: &apitypes.RootkitScan{
 					Rootkits: nil,
 					Status:   rootkitScanStatus,
 				},
-				Secrets: &models.SecretScan{
+				Secrets: &apitypes.SecretScan{
 					Secrets: nil,
 					Status:  secretScanStatus,
 				},
-				Misconfigurations: &models.MisconfigurationScan{
+				Misconfigurations: &apitypes.MisconfigurationScan{
 					Misconfigurations: nil,
 					Scanners:          nil,
 					Status:            misconfigurationScanStatus,
 				},
-				InfoFinder: &models.InfoFinderScan{
+				InfoFinder: &apitypes.InfoFinderScan{
 					Infos:    nil,
 					Scanners: nil,
 					Status:   infoFinderScanStatus,
 				},
 				Summary: newAssetScanSummary(),
-				Asset: &models.AssetRelationship{
+				Asset: &apitypes.AssetRelationship{
 					Id: assetID,
 				},
-				ScanFamiliesConfig: &models.ScanFamiliesConfig{
-					Exploits: &models.ExploitsConfig{
+				ScanFamiliesConfig: &apitypes.ScanFamiliesConfig{
+					Exploits: &apitypes.ExploitsConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					Malware: &models.MalwareConfig{
+					Malware: &apitypes.MalwareConfig{
 						Enabled: utils.PointerTo(true),
 					},
 					Misconfigurations: nil,
 					Rootkits:          nil,
-					Sbom: &models.SBOMConfig{
+					Sbom: &apitypes.SBOMConfig{
 						Enabled: utils.PointerTo(true),
 					},
 					Secrets: nil,
-					Vulnerabilities: &models.VulnerabilitiesConfig{
+					Vulnerabilities: &apitypes.VulnerabilitiesConfig{
 						Enabled: utils.PointerTo(true),
 					},
-					InfoFinder: &models.InfoFinderConfig{
+					InfoFinder: &apitypes.InfoFinderConfig{
 						Enabled:  utils.PointerTo(true),
 						Scanners: utils.PointerTo([]string{"test"}),
 					},

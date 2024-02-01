@@ -18,8 +18,8 @@ package assetscanestimationwatcher
 import (
 	"time"
 
+	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 )
 
 const (
@@ -30,13 +30,13 @@ const (
 )
 
 type Config struct {
-	Backend          *backendclient.BackendClient
+	Backend          *client.BackendClient
 	Provider         provider.Provider
 	PollPeriod       time.Duration `mapstructure:"poll_period"`
 	ReconcileTimeout time.Duration `mapstructure:"reconcile_timeout"`
 }
 
-func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
+func (c Config) WithBackendClient(b *client.BackendClient) Config {
 	c.Backend = b
 	return c
 }

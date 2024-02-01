@@ -36,7 +36,7 @@ import (
 	"github.com/containerd/nerdctl/pkg/labels/k8slabels"
 	"github.com/containers/image/v5/docker/reference"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -120,7 +120,7 @@ func (d *discoverer) imageIDWalk(ctx context.Context, imageID string, fn ImageID
 	return nil
 }
 
-func (d *discoverer) Images(ctx context.Context) ([]models.ContainerImageInfo, error) {
+func (d *discoverer) Images(ctx context.Context) ([]apitypes.ContainerImageInfo, error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 
 	images, err := d.client.ListImages(ctx)
@@ -128,7 +128,7 @@ func (d *discoverer) Images(ctx context.Context) ([]models.ContainerImageInfo, e
 		return nil, fmt.Errorf("failed to list images: %w", err)
 	}
 
-	imageSet := map[string]models.ContainerImageInfo{}
+	imageSet := map[string]apitypes.ContainerImageInfo{}
 	for _, image := range images {
 		// Ignore our transient images used for snapshoting the
 		// containers they will be cleaned up as soon as the export is
@@ -158,7 +158,7 @@ func (d *discoverer) Images(ctx context.Context) ([]models.ContainerImageInfo, e
 		imageSet[imageInfo.ImageID] = imageInfo
 	}
 
-	result := []models.ContainerImageInfo{}
+	result := []apitypes.ContainerImageInfo{}
 	for _, image := range imageSet {
 		result = append(result, image)
 	}
@@ -166,8 +166,8 @@ func (d *discoverer) Images(ctx context.Context) ([]models.ContainerImageInfo, e
 	return result, nil
 }
 
-func (d *discoverer) Image(ctx context.Context, imageID string) (models.ContainerImageInfo, error) {
-	var result models.ContainerImageInfo
+func (d *discoverer) Image(ctx context.Context, imageID string) (apitypes.ContainerImageInfo, error) {
+	var result apitypes.ContainerImageInfo
 	var found bool
 
 	// Containerd doesn't allow to filter images by config digest (aka image ID), so we have to walk all the images
@@ -190,34 +190,34 @@ func (d *discoverer) Image(ctx context.Context, imageID string) (models.Containe
 
 	err := d.imageIDWalk(ctx, imageID, walkFn)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("failed to walk all image: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to walk all image: %w", err)
 	}
 	if !found {
-		return models.ContainerImageInfo{}, types.ErrNotFound
+		return apitypes.ContainerImageInfo{}, types.ErrNotFound
 	}
 
 	return result, nil
 }
 
-func (d *discoverer) getContainerImageInfo(ctx context.Context, image containerd.Image) (models.ContainerImageInfo, error) {
+func (d *discoverer) getContainerImageInfo(ctx context.Context, image containerd.Image) (apitypes.ContainerImageInfo, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	configDescriptor, err := image.Config(ctx)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("failed to load image config descriptor: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to load image config descriptor: %w", err)
 	}
 	id := configDescriptor.Digest.String()
 
 	imageSpec, err := image.Spec(ctx)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("failed to load image spec: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to load image spec: %w", err)
 	}
 
 	// Try to calculate uncompressed size of the image
 	snapshotterName := d.getSnapshotterName(ctx)
 	unpacked, err := image.IsUnpacked(ctx, snapshotterName)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("failed to determine whether the image is unpacked or not: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to determine whether the image is unpacked or not: %w", err)
 	}
 
 	if !unpacked && !d.skipUnpackImage {
@@ -241,16 +241,16 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, image containerd
 		// Get compressed image size
 		size, err = image.Size(ctx)
 		if err != nil {
-			return models.ContainerImageInfo{}, fmt.Errorf("failed to get compressed size of image %s: %w", id, err)
+			return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to get compressed size of image %s: %w", id, err)
 		}
 	}
 
 	repoTags, repoDigests := ParseImageReferences([]string{image.Name()})
 
-	return models.ContainerImageInfo{
+	return apitypes.ContainerImageInfo{
 		ImageID:      id,
 		Architecture: utils.PointerTo(imageSpec.Architecture),
-		Labels:       models.MapToTags(imageSpec.Config.Labels),
+		Labels:       apitypes.MapToTags(imageSpec.Config.Labels),
 		RepoTags:     &repoTags,
 		RepoDigests:  &repoDigests,
 		ObjectType:   "ContainerImageInfo",
@@ -352,13 +352,13 @@ func ParseImageReferences(refs []string) ([]string, []string) {
 	return tags, digests
 }
 
-func (d *discoverer) Containers(ctx context.Context) ([]models.ContainerInfo, error) {
+func (d *discoverer) Containers(ctx context.Context) ([]apitypes.ContainerInfo, error) {
 	containers, err := d.client.Containers(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to list containers: %w", err)
 	}
 
-	result := make([]models.ContainerInfo, len(containers))
+	result := make([]apitypes.ContainerInfo, len(containers))
 	for i, container := range containers {
 		// Get container info
 		info, err := d.getContainerInfo(ctx, container)
@@ -370,13 +370,13 @@ func (d *discoverer) Containers(ctx context.Context) ([]models.ContainerInfo, er
 	return result, nil
 }
 
-func (d *discoverer) Container(ctx context.Context, containerID string) (models.ContainerInfo, error) {
+func (d *discoverer) Container(ctx context.Context, containerID string) (apitypes.ContainerInfo, error) {
 	container, err := d.client.LoadContainer(ctx, containerID)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
-			return models.ContainerInfo{}, types.ErrNotFound
+			return apitypes.ContainerInfo{}, types.ErrNotFound
 		}
-		return models.ContainerInfo{}, fmt.Errorf("failed to get container from store: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("failed to get container from store: %w", err)
 	}
 
 	return d.getContainerInfo(ctx, container)
@@ -479,12 +479,12 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	return pr, clean.Release(), nil
 }
 
-func (d *discoverer) getContainerInfo(ctx context.Context, container containerd.Container) (models.ContainerInfo, error) {
+func (d *discoverer) getContainerInfo(ctx context.Context, container containerd.Container) (apitypes.ContainerInfo, error) {
 	id := container.ID()
 
 	labels, err := container.Labels(ctx)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to get labels for container %s: %w", id, err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to get labels for container %s: %w", id, err)
 	}
 	// If this doesn't exist then use empty string as the name. Containerd
 	// doesn't have the concept of a Name natively.
@@ -492,32 +492,32 @@ func (d *discoverer) getContainerInfo(ctx context.Context, container containerd.
 
 	info, err := container.Info(ctx)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to get info for container %s: %w", id, err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to get info for container %s: %w", id, err)
 	}
 	createdAt := info.CreatedAt
 
 	image, err := container.Image(ctx)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to get image from container %s: %w", id, err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to get image from container %s: %w", id, err)
 	}
 
 	configDescriptor, err := image.Config(ctx)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("failed to load image config descriptor: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("failed to load image config descriptor: %w", err)
 	}
 	imageID := configDescriptor.Digest.String()
 
 	imageInfo, err := d.Image(ctx, imageID)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to convert image %s to container image info: %w", image.Name(), err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to convert image %s to container image info: %w", image.Name(), err)
 	}
 
-	return models.ContainerInfo{
+	return apitypes.ContainerInfo{
 		ContainerID:   container.ID(),
 		ContainerName: utils.PointerTo(name),
 		CreatedAt:     utils.PointerTo(createdAt),
 		Image:         utils.PointerTo(imageInfo),
-		Labels:        models.MapToTags(labels),
+		Labels:        apitypes.MapToTags(labels),
 		ObjectType:    "ContainerInfo",
 	}, nil
 }

@@ -22,11 +22,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cmd/vmclarity-cli/logutil"
 	cliutils "github.com/openclarity/vmclarity/pkg/cli/utils"
-
-	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 )
 
 // AssetScanCreateCmd represents the standalone command.
@@ -72,13 +71,13 @@ func init() {
 	}
 }
 
-func createAssetScan(ctx context.Context, server, assetID string) (*models.AssetScan, error) {
-	client, err := backendclient.Create(server)
+func createAssetScan(ctx context.Context, server, assetID string) (*types.AssetScan, error) {
+	client, err := apiclient.Create(server)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 	}
 
-	asset, err := client.GetAsset(ctx, assetID, models.GetAssetsAssetIDParams{})
+	asset, err := client.GetAsset(ctx, assetID, types.GetAssetsAssetIDParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get asset %s: %w", assetID, err)
 	}
@@ -86,7 +85,7 @@ func createAssetScan(ctx context.Context, server, assetID string) (*models.Asset
 
 	assetScan, err := client.PostAssetScan(ctx, assetScanData)
 	if err != nil {
-		var conErr backendclient.AssetScanConflictError
+		var conErr apiclient.AssetScanConflictError
 		if errors.As(err, &conErr) {
 			assetScanID := *conErr.ConflictingAssetScan.Id
 			logutil.Logger.WithField("AssetScanID", assetScanID).Debug("AssetScan already exist.")
@@ -98,19 +97,19 @@ func createAssetScan(ctx context.Context, server, assetID string) (*models.Asset
 	return assetScan, nil
 }
 
-func createEmptyAssetScanForAsset(asset models.Asset) models.AssetScan {
-	return models.AssetScan{
-		Asset: &models.AssetRelationship{
+func createEmptyAssetScanForAsset(asset types.Asset) types.AssetScan {
+	return types.AssetScan{
+		Asset: &types.AssetRelationship{
 			Id: *asset.Id,
 		},
-		Status: models.NewAssetScanStatus(
-			models.AssetScanStatusStateReadyToScan,
-			models.AssetScanStatusReasonResourcesReady,
+		Status: types.NewAssetScanStatus(
+			types.AssetScanStatusStateReadyToScan,
+			types.AssetScanStatusReasonResourcesReady,
 			nil,
 		),
-		ResourceCleanupStatus: models.NewResourceCleanupStatus(
-			models.ResourceCleanupStatusStateSkipped,
-			models.ResourceCleanupStatusReasonNotApplicable,
+		ResourceCleanupStatus: types.NewResourceCleanupStatus(
+			types.ResourceCleanupStatusStateSkipped,
+			types.ResourceCleanupStatusReasonNotApplicable,
 			nil,
 		),
 	}

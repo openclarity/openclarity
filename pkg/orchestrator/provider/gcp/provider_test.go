@@ -19,11 +19,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openclarity/vmclarity/api/models"
-
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"github.com/google/go-cmp/cmp"
 
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -31,14 +30,14 @@ func Test_convertLabelsToTags(t *testing.T) {
 	tests := []struct {
 		name string
 		args map[string]string
-		want []models.Tag
+		want []types.Tag
 	}{
 		{
 			name: "sanity",
 			args: map[string]string{
 				"valid-tag": "valid-value",
 			},
-			want: []models.Tag{{
+			want: []types.Tag{{
 				Key: "valid-tag", Value: "valid-value",
 			}},
 		},

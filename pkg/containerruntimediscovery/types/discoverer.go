@@ -19,18 +19,18 @@ import (
 	"context"
 	"io"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
 type DiscovererFactory func() (Discoverer, error)
 
 type Discoverer interface {
-	Images(ctx context.Context) ([]models.ContainerImageInfo, error)
-	Image(ctx context.Context, imageID string) (models.ContainerImageInfo, error)
+	Images(ctx context.Context) ([]apitypes.ContainerImageInfo, error)
+	Image(ctx context.Context, imageID string) (apitypes.ContainerImageInfo, error)
 	ExportImage(ctx context.Context, imageID string) (io.ReadCloser, error)
 
-	Containers(ctx context.Context) ([]models.ContainerInfo, error)
-	Container(ctx context.Context, containerID string) (models.ContainerInfo, error)
+	Containers(ctx context.Context) ([]apitypes.ContainerInfo, error)
+	Container(ctx context.Context, containerID string) (apitypes.ContainerInfo, error)
 	ExportContainer(ctx context.Context, containerID string) (io.ReadCloser, func(), error)
 
 	Ready(ctx context.Context) (bool, error)
