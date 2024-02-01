@@ -18,7 +18,7 @@ package assetscanprocessor
 import (
 	"time"
 
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/api/client"
 )
 
 const (
@@ -27,12 +27,12 @@ const (
 )
 
 type Config struct {
-	Backend          *backendclient.BackendClient
+	Backend          *client.BackendClient
 	PollPeriod       time.Duration `mapstructure:"poll_period"`
 	ReconcileTimeout time.Duration `mapstructure:"reconcile_timeout"`
 }
 
-func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
+func (c Config) WithBackendClient(b *client.BackendClient) Config {
 	c.Backend = b
 	return c
 }

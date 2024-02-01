@@ -33,7 +33,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/api/client"
 	server "github.com/openclarity/vmclarity/uibackend/server/pkg"
 	"github.com/openclarity/vmclarity/utils/log"
 	"github.com/openclarity/vmclarity/utils/version"
@@ -104,7 +104,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	healthServer.Start()
 	healthServer.SetIsReady(false)
 
-	backendClient, err := backendclient.Create(config.APIServerAddress)
+	backendClient, err := client.Create(config.APIServerAddress)
 	if err != nil {
 		logger.Fatalf("Failed to create a backend client: %v", err)
 	}

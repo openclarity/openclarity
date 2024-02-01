@@ -25,7 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -264,47 +264,47 @@ func TestProvider_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 					ID:     "instance-1",
 					Region: "region-1",
 					VpcID:  "vpc1",
-					SecurityGroups: []models.SecurityGroup{
+					SecurityGroups: []types.SecurityGroup{
 						{Id: "group1"},
 					},
 					AvailabilityZone: "az1",
 					Image:            "image1",
 					InstanceType:     "t2.large",
 					Platform:         "linux",
-					Tags: []models.Tag{
+					Tags: []types.Tag{
 						{
 							Key:   "key-1",
 							Value: "val-1",
 						},
 					},
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
+					RootVolumeEncrypted: types.RootVolumeEncryptedUnknown,
 				},
 				{
 					ID:     "instance-2",
 					Region: "region-1",
 					VpcID:  "vpc2",
-					SecurityGroups: []models.SecurityGroup{
+					SecurityGroups: []types.SecurityGroup{
 						{Id: "group2"},
 					},
 					AvailabilityZone: "az2",
 					Image:            "image2",
 					InstanceType:     "t2.large",
 					Platform:         "linux",
-					Tags: []models.Tag{
+					Tags: []types.Tag{
 						{
 							Key:   "key-2",
 							Value: "val-2",
 						},
 					},
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
+					RootVolumeEncrypted: types.RootVolumeEncryptedUnknown,
 				},
 				{
 					ID:     "instance-3",
 					Region: "region-1",
 					VpcID:  "vpc3",
-					SecurityGroups: []models.SecurityGroup{
+					SecurityGroups: []types.SecurityGroup{
 						{Id: "group3"},
 					},
 					AvailabilityZone:    "az3",
@@ -313,7 +313,7 @@ func TestProvider_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 					Platform:            "linux",
 					Tags:                nil,
 					LaunchTime:          launchTime,
-					RootVolumeEncrypted: models.RootVolumeEncryptedUnknown,
+					RootVolumeEncrypted: types.RootVolumeEncryptedUnknown,
 				},
 			},
 		},
@@ -352,28 +352,28 @@ func Test_encryptedToAPI(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want models.RootVolumeEncrypted
+		want types.RootVolumeEncrypted
 	}{
 		{
 			name: "unknown",
 			args: args{
 				encrypted: nil,
 			},
-			want: models.RootVolumeEncryptedUnknown,
+			want: types.RootVolumeEncryptedUnknown,
 		},
 		{
 			name: "no",
 			args: args{
 				encrypted: utils.PointerTo(false),
 			},
-			want: models.RootVolumeEncryptedNo,
+			want: types.RootVolumeEncryptedNo,
 		},
 		{
 			name: "yes",
 			args: args{
 				encrypted: utils.PointerTo(true),
 			},
-			want: models.RootVolumeEncryptedYes,
+			want: types.RootVolumeEncryptedYes,
 		},
 	}
 	for _, tt := range tests {

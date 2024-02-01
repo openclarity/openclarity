@@ -22,7 +22,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
 )
 
@@ -36,7 +36,7 @@ func NewClient(endpoint string) *Client {
 	}
 }
 
-func (c *Client) GetImages(ctx context.Context) ([]models.ContainerImageInfo, error) {
+func (c *Client) GetImages(ctx context.Context) ([]apitypes.ContainerImageInfo, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/images", c.endpoint), nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create request to discoverer: %w", err)
@@ -66,39 +66,39 @@ func (c *Client) GetImages(ctx context.Context) ([]models.ContainerImageInfo, er
 	}
 }
 
-func (c *Client) GetImage(ctx context.Context, imageID string) (models.ContainerImageInfo, error) {
+func (c *Client) GetImage(ctx context.Context, imageID string) (apitypes.ContainerImageInfo, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/images/%s", c.endpoint, imageID), nil)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("unable to create request to discoverer: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("unable to create request to discoverer: %w", err)
 	}
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return models.ContainerImageInfo{}, fmt.Errorf("unable to contact discoverer: %w", err)
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("unable to contact discoverer: %w", err)
 	}
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		var info models.ContainerImageInfo
+		var info apitypes.ContainerImageInfo
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&info)
 		if err != nil {
-			return models.ContainerImageInfo{}, fmt.Errorf("failed to decode response: %w", err)
+			return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to decode response: %w", err)
 		}
 		return info, nil
 	case http.StatusNotFound:
-		return models.ContainerImageInfo{}, types.ErrNotFound
+		return apitypes.ContainerImageInfo{}, types.ErrNotFound
 	default:
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return models.ContainerImageInfo{}, fmt.Errorf("unexpected error status %d, failed to read body: %w", resp.StatusCode, err)
+			return apitypes.ContainerImageInfo{}, fmt.Errorf("unexpected error status %d, failed to read body: %w", resp.StatusCode, err)
 		}
-		return models.ContainerImageInfo{}, fmt.Errorf("unexpected error status %d: %v", resp.StatusCode, string(body))
+		return apitypes.ContainerImageInfo{}, fmt.Errorf("unexpected error status %d: %v", resp.StatusCode, string(body))
 	}
 }
 
-func (c *Client) GetContainers(ctx context.Context) ([]models.ContainerInfo, error) {
+func (c *Client) GetContainers(ctx context.Context) ([]apitypes.ContainerInfo, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/containers", c.endpoint), nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create request to discoverer: %w", err)
@@ -128,35 +128,35 @@ func (c *Client) GetContainers(ctx context.Context) ([]models.ContainerInfo, err
 	}
 }
 
-func (c *Client) GetContainer(ctx context.Context, containerID string) (models.ContainerInfo, error) {
+func (c *Client) GetContainer(ctx context.Context, containerID string) (apitypes.ContainerInfo, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/containers/%s", c.endpoint, containerID), nil)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to create request to discoverer: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to create request to discoverer: %w", err)
 	}
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return models.ContainerInfo{}, fmt.Errorf("unable to contact discoverer: %w", err)
+		return apitypes.ContainerInfo{}, fmt.Errorf("unable to contact discoverer: %w", err)
 	}
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		var info models.ContainerInfo
+		var info apitypes.ContainerInfo
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&info)
 		if err != nil {
-			return models.ContainerInfo{}, fmt.Errorf("failed to decode response: %w", err)
+			return apitypes.ContainerInfo{}, fmt.Errorf("failed to decode response: %w", err)
 		}
 		return info, nil
 	case http.StatusNotFound:
-		return models.ContainerInfo{}, types.ErrNotFound
+		return apitypes.ContainerInfo{}, types.ErrNotFound
 	default:
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return models.ContainerInfo{}, fmt.Errorf("unexpected error status %d, failed to read body: %w", resp.StatusCode, err)
+			return apitypes.ContainerInfo{}, fmt.Errorf("unexpected error status %d, failed to read body: %w", resp.StatusCode, err)
 		}
-		return models.ContainerInfo{}, fmt.Errorf("unexpected error status %d: %v", resp.StatusCode, string(body))
+		return apitypes.ContainerInfo{}, fmt.Errorf("unexpected error status %d: %v", resp.StatusCode, string(body))
 	}
 }
 

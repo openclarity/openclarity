@@ -22,7 +22,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -34,11 +34,11 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 			ginkgo.By("applying a provider")
 			apiProvider, err := client.PostProvider(
 				ctx,
-				models.Provider{
+				types.Provider{
 					DisplayName: utils.PointerTo("test-provider"),
-					Status: utils.PointerTo(models.ProviderStatus{
-						State:              models.ProviderStatusStateHealthy,
-						Reason:             models.HeartbeatReceived,
+					Status: utils.PointerTo(types.ProviderStatus{
+						State:              types.ProviderStatusStateHealthy,
+						Reason:             types.HeartbeatReceived,
 						LastTransitionTime: time.Now(),
 					}),
 				})
@@ -53,7 +53,7 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 			gomega.Eventually(func() bool {
 				providers, err := client.GetProviders(
 					ctx,
-					models.GetProvidersParams{
+					types.GetProvidersParams{
 						Filter: utils.PointerTo(fmt.Sprintf("id eq '%s'", *apiProvider.Id)),
 					})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())

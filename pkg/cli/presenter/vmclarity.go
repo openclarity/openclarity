@@ -20,9 +20,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	cliutils "github.com/openclarity/vmclarity/pkg/cli/utils"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
 	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
@@ -36,12 +36,12 @@ import (
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
-type AssetScanID = models.AssetScanID
+type AssetScanID = apitypes.AssetScanID
 
 type VMClarityPresenter struct {
-	client *backendclient.BackendClient
+	client *client.BackendClient
 
-	assetScanID models.AssetScanID
+	assetScanID apitypes.AssetScanID
 }
 
 func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
@@ -70,42 +70,42 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 }
 
 func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Sbom == nil {
-		assetScan.Sbom = &models.SbomScan{}
+		assetScan.Sbom = &apitypes.SbomScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Sbom.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Sbom.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		sbomResults, ok := res.Result.(*sbom.Results)
 		if !ok {
-			assetScan.Sbom.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Sbom.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to sbom results"),
 			)
 		} else {
 			assetScan.Sbom.Packages = utils.PointerTo(cliutils.ConvertSBOMResultToPackages(sbomResults))
 			assetScan.Summary.TotalPackages = utils.PointerTo(len(*assetScan.Sbom.Packages))
 			assetScan.Stats.Sbom = getInputScanStats(sbomResults.Metadata.InputScans)
-			assetScan.Sbom.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Sbom.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -120,42 +120,42 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 }
 
 func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Vulnerabilities == nil {
-		assetScan.Vulnerabilities = &models.VulnerabilityScan{}
+		assetScan.Vulnerabilities = &apitypes.VulnerabilityScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Vulnerabilities.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
 		if !ok {
-			assetScan.Vulnerabilities.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to vulnerabilities results"),
 			)
 		} else {
 			assetScan.Vulnerabilities.Vulnerabilities = utils.PointerTo(cliutils.ConvertVulnResultToVulnerabilities(vulnerabilitiesResults))
 			assetScan.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(assetScan.Vulnerabilities.Vulnerabilities)
 			assetScan.Stats.Vulnerabilities = getInputScanStats(vulnerabilitiesResults.Metadata.InputScans)
-			assetScan.Vulnerabilities.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -170,42 +170,42 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 }
 
 func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Secrets == nil {
-		assetScan.Secrets = &models.SecretScan{}
+		assetScan.Secrets = &apitypes.SecretScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Secrets.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Secrets.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		secretsResults, ok := res.Result.(*secrets.Results)
 		if !ok {
-			assetScan.Secrets.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Secrets.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to secrets results"),
 			)
 		} else {
 			assetScan.Secrets.Secrets = utils.PointerTo(cliutils.ConvertSecretsResultToSecrets(secretsResults))
 			assetScan.Summary.TotalSecrets = utils.PointerTo(len(*assetScan.Secrets.Secrets))
 			assetScan.Stats.Secrets = getInputScanStats(secretsResults.Metadata.InputScans)
-			assetScan.Secrets.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Secrets.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -219,17 +219,17 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 	return nil
 }
 
-func getInputScanStats(inputScans []types.InputScanMetadata) *[]models.AssetScanInputScanStats {
+func getInputScanStats(inputScans []types.InputScanMetadata) *[]apitypes.AssetScanInputScanStats {
 	if len(inputScans) == 0 {
 		return nil
 	}
 
-	ret := make([]models.AssetScanInputScanStats, 0, len(inputScans))
+	ret := make([]apitypes.AssetScanInputScanStats, 0, len(inputScans))
 	for i := range inputScans {
 		scan := inputScans[i]
-		ret = append(ret, models.AssetScanInputScanStats{
+		ret = append(ret, apitypes.AssetScanInputScanStats{
 			Path: &scan.InputPath,
-			ScanTime: &models.AssetScanScanTime{
+			ScanTime: &apitypes.AssetScanScanTime{
 				EndTime:   &scan.ScanEndTime,
 				StartTime: &scan.ScanStartTime,
 			},
@@ -242,33 +242,33 @@ func getInputScanStats(inputScans []types.InputScanMetadata) *[]models.AssetScan
 }
 
 func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Malware == nil {
-		assetScan.Malware = &models.MalwareScan{}
+		assetScan.Malware = &apitypes.MalwareScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Malware.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Malware.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		malwareResults, ok := res.Result.(*malware.MergedResults)
 		if !ok {
-			assetScan.Sbom.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Sbom.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to malware results"),
 			)
 		} else {
@@ -277,9 +277,9 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 			assetScan.Stats.Malware = getInputScanStats(malwareResults.Metadata.InputScans)
 			assetScan.Malware.Malware = utils.PointerTo(mware)
 			assetScan.Malware.Metadata = utils.PointerTo(mdata)
-			assetScan.Malware.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Malware.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -293,42 +293,42 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 }
 
 func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Exploits == nil {
-		assetScan.Exploits = &models.ExploitScan{}
+		assetScan.Exploits = &apitypes.ExploitScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Exploits.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Exploits.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		exploitsResults, ok := res.Result.(*exploits.Results)
 		if !ok {
-			assetScan.Exploits.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Exploits.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to exploits results"),
 			)
 		} else {
 			assetScan.Exploits.Exploits = utils.PointerTo(cliutils.ConvertExploitsResultToExploits(exploitsResults))
 			assetScan.Summary.TotalExploits = utils.PointerTo(len(*assetScan.Exploits.Exploits))
 			assetScan.Stats.Exploits = getInputScanStats(exploitsResults.Metadata.InputScans)
-			assetScan.Exploits.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Exploits.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -343,47 +343,47 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 }
 
 func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Misconfigurations == nil {
-		assetScan.Misconfigurations = &models.MisconfigurationScan{}
+		assetScan.Misconfigurations = &apitypes.MisconfigurationScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Misconfigurations.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		misconfigurationResults, ok := res.Result.(*misconfiguration.Results)
 		if !ok {
-			assetScan.Misconfigurations.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to misconfiguration results"),
 			)
 		} else {
 			misconfigurations, scanners, err := cliutils.ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfigurationResults)
 			if err != nil {
-				assetScan.Misconfigurations.Status = models.NewScannerStatus(
-					models.ScannerStatusStateFailed,
-					models.ScannerStatusReasonError,
+				assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
+					apitypes.ScannerStatusStateFailed,
+					apitypes.ScannerStatusReasonError,
 					utils.PointerTo(fmt.Errorf("failed to convert misconfiguration results from scan to API model: %w", err).Error()),
 				)
 			} else {
-				assetScan.Misconfigurations.Status = models.NewScannerStatus(
-					models.ScannerStatusStateDone,
-					models.ScannerStatusReasonSuccess,
+				assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
+					apitypes.ScannerStatusStateDone,
+					apitypes.ScannerStatusReasonSuccess,
 					nil,
 				)
 				assetScan.Misconfigurations.Misconfigurations = utils.PointerTo(misconfigurations)
@@ -403,47 +403,47 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 }
 
 func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.InfoFinder == nil {
-		assetScan.InfoFinder = &models.InfoFinderScan{}
+		assetScan.InfoFinder = &apitypes.InfoFinderScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.InfoFinder.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		results, ok := res.Result.(*infofinder.Results)
 		if !ok {
-			assetScan.InfoFinder.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to info finder results"),
 			)
 		} else {
 			apiInfoFinder, scanners, err := cliutils.ConvertInfoFinderResultToInfosAndScanners(results)
 			if err != nil {
-				assetScan.InfoFinder.Status = models.NewScannerStatus(
-					models.ScannerStatusStateFailed,
-					models.ScannerStatusReasonError,
+				assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
+					apitypes.ScannerStatusStateFailed,
+					apitypes.ScannerStatusReasonError,
 					utils.PointerTo(fmt.Errorf("failed to convert info finder results from scan to API model: %w", err).Error()),
 				)
 			} else {
-				assetScan.InfoFinder.Status = models.NewScannerStatus(
-					models.ScannerStatusStateDone,
-					models.ScannerStatusReasonSuccess,
+				assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
+					apitypes.ScannerStatusStateDone,
+					apitypes.ScannerStatusReasonSuccess,
 					nil,
 				)
 				assetScan.InfoFinder.Infos = utils.PointerTo(apiInfoFinder)
@@ -463,42 +463,42 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 }
 
 func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Rootkits == nil {
-		assetScan.Rootkits = &models.RootkitScan{}
+		assetScan.Rootkits = &apitypes.RootkitScan{}
 	}
 	if assetScan.Summary == nil {
-		assetScan.Summary = &models.ScanFindingsSummary{}
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
 	}
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
 
 	if res.Err != nil {
-		assetScan.Rootkits.Status = models.NewScannerStatus(
-			models.ScannerStatusStateFailed,
-			models.ScannerStatusReasonError,
+		assetScan.Rootkits.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
 			utils.PointerTo(res.Err.Error()),
 		)
 	} else {
 		rootkitsResults, ok := res.Result.(*rootkits.Results)
 		if !ok {
-			assetScan.Rootkits.Status = models.NewScannerStatus(
-				models.ScannerStatusStateFailed,
-				models.ScannerStatusReasonError,
+			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
 				utils.PointerTo("failed to convert to rootkits results"),
 			)
 		} else {
 			assetScan.Rootkits.Rootkits = utils.PointerTo(cliutils.ConvertRootkitsResultToRootkits(rootkitsResults))
 			assetScan.Summary.TotalRootkits = utils.PointerTo(len(*assetScan.Rootkits.Rootkits))
 			assetScan.Stats.Rootkits = getInputScanStats(rootkitsResults.Metadata.InputScans)
-			assetScan.Rootkits.Status = models.NewScannerStatus(
-				models.ScannerStatusStateDone,
-				models.ScannerStatusReasonSuccess,
+			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
 				nil,
 			)
 		}
@@ -511,7 +511,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 	return nil
 }
 
-func NewVMClarityPresenter(client *backendclient.BackendClient, id AssetScanID) (*VMClarityPresenter, error) {
+func NewVMClarityPresenter(client *client.BackendClient, id AssetScanID) (*VMClarityPresenter, error) {
 	if client == nil {
 		return nil, errors.New("backend client must not be nil")
 	}

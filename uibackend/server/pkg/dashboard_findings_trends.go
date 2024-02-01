@@ -25,7 +25,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
@@ -121,7 +121,7 @@ func (s *ServerImpl) getFindingTrendsForFindingType(ctx context.Context, finding
 
 func (s *ServerImpl) getFindingTrendPerPoint(ctx context.Context, findingType types.FindingType, point time.Time) (types.FindingTrend, error) {
 	// Count total findings for the given finding type that was active during the given time point.
-	findings, err := s.BackendClient.GetFindings(ctx, backendmodels.GetFindingsParams{
+	findings, err := s.BackendClient.GetFindings(ctx, apitypes.GetFindingsParams{
 		Count: utils.PointerTo(true),
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and foundOn le %v and (invalidatedOn eq null or invalidatedOn gt %v)",

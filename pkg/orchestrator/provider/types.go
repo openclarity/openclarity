@@ -18,12 +18,12 @@ package provider
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 type Provider interface {
-	// Kind returns models.CloudProvider
-	Kind() models.CloudProvider
+	// Kind returns types.CloudProvider
+	Kind() types.CloudProvider
 
 	Discoverer
 	Estimator
@@ -43,7 +43,7 @@ type Estimator interface {
 	// The cost estimation takes into account all the resources that are being used during a scan, and includes a detailed bill of the cost of each resource.
 	// If AssetScanTemplate contains several input paths to scan, the cost will be calculated for each input and will be summed up to a total cost.
 	// When exists, the scan size and scan time will be taken from the AssetScanStats. Otherwise, they will be estimated base on lab tests and Asset volume size.
-	Estimate(context.Context, models.AssetScanStats, *models.Asset, *models.AssetScanTemplate) (*models.Estimation, error)
+	Estimate(context.Context, types.AssetScanStats, *types.Asset, *types.AssetScanTemplate) (*types.Estimation, error)
 }
 
 type Scanner interface {
@@ -73,22 +73,22 @@ type ScanJobConfig struct {
 	VMClarityAddress string // The backend address for the scanner CLI to export too
 
 	ScanMetadata
-	models.ScannerInstanceCreationConfig
-	models.Asset
+	types.ScannerInstanceCreationConfig
+	types.Asset
 }
 
 // AssetDiscoverer is used to discover assets in a buffered manner.
 type AssetDiscoverer interface {
-	Chan() chan models.AssetType
+	Chan() chan types.AssetType
 	Err() error
 }
 
 type SimpleAssetDiscoverer struct {
-	OutputChan chan models.AssetType
+	OutputChan chan types.AssetType
 	Error      error
 }
 
-func (ad *SimpleAssetDiscoverer) Chan() chan models.AssetType {
+func (ad *SimpleAssetDiscoverer) Chan() chan types.AssetType {
 	return ad.OutputChan
 }
 
@@ -97,7 +97,7 @@ func (ad *SimpleAssetDiscoverer) Err() error {
 }
 
 func NewSimpleAssetDiscoverer() *SimpleAssetDiscoverer {
-	output := make(chan models.AssetType)
+	output := make(chan types.AssetType)
 	return &SimpleAssetDiscoverer{
 		OutputChan: output,
 		Error:      nil,

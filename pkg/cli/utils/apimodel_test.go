@@ -24,7 +24,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
 	common2 "github.com/openclarity/vmclarity/pkg/shared/families/exploits/common"
 	"github.com/openclarity/vmclarity/pkg/shared/families/infofinder"
@@ -48,7 +48,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 		result *sbom.Results
 	}
 	type returns struct {
-		packages []models.Package
+		packages []apitypes.Package
 	}
 	tests := []struct {
 		name string
@@ -106,7 +106,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 				},
 			},
 			want: returns{
-				packages: []models.Package{
+				packages: []apitypes.Package{
 					{
 						Cpes:     utils.PointerTo([]string{"cpe1"}),
 						Language: utils.PointerTo("python"),
@@ -138,7 +138,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 				},
 			},
 			want: returns{
-				packages: []models.Package{},
+				packages: []apitypes.Package{},
 			},
 		},
 	}
@@ -146,7 +146,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ConvertSBOMResultToPackages(tt.args.result)
-			if diff := cmp.Diff(tt.want.packages, got, cmpopts.SortSlices(func(a, b models.Package) bool { return *a.Purl < *b.Purl })); diff != "" {
+			if diff := cmp.Diff(tt.want.packages, got, cmpopts.SortSlices(func(a, b apitypes.Package) bool { return *a.Purl < *b.Purl })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -158,7 +158,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 		result *vulnerabilities.Results
 	}
 	type returns struct {
-		vulnerabilities []models.Vulnerability
+		vulnerabilities []apitypes.Vulnerability
 	}
 	tests := []struct {
 		name string
@@ -207,7 +207,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 											Versions: []string{"fv1", "fv2"},
 											State:    "fixed",
 										},
-										Severity: string(models.CRITICAL),
+										Severity: string(apitypes.CRITICAL),
 										Package: scanner.Package{
 											Name:     "package1",
 											Version:  "pv1",
@@ -258,7 +258,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 											Versions: []string{"fv3", "fv4"},
 											State:    "not-fixed",
 										},
-										Severity: string(models.HIGH),
+										Severity: string(apitypes.HIGH),
 										Package: scanner.Package{
 											Name:     "package2",
 											Version:  "pv2",
@@ -279,11 +279,11 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 				},
 			},
 			want: returns{
-				vulnerabilities: []models.Vulnerability{
+				vulnerabilities: []apitypes.Vulnerability{
 					{
-						Cvss: utils.PointerTo([]models.VulnerabilityCvss{
+						Cvss: utils.PointerTo([]apitypes.VulnerabilityCvss{
 							{
-								Metrics: &models.VulnerabilityCvssMetrics{
+								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           utils.PointerTo[float32](1),
 									ExploitabilityScore: nil,
 									ImpactScore:         nil,
@@ -292,7 +292,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 								Version: utils.PointerTo("v1"),
 							},
 							{
-								Metrics: &models.VulnerabilityCvssMetrics{
+								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           utils.PointerTo[float32](2),
 									ExploitabilityScore: utils.PointerTo[float32](2.1),
 									ImpactScore:         utils.PointerTo[float32](2.2),
@@ -302,18 +302,18 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 							},
 						}),
 						Description: utils.PointerTo("testbleed"),
-						Distro: &models.VulnerabilityDistro{
+						Distro: &apitypes.VulnerabilityDistro{
 							IDLike:  utils.PointerTo([]string{"IDLike1", "IDLike2"}),
 							Name:    utils.PointerTo("distro1"),
 							Version: utils.PointerTo("distrov1"),
 						},
-						Fix: &models.VulnerabilityFix{
+						Fix: &apitypes.VulnerabilityFix{
 							State:    utils.PointerTo("fixed"),
 							Versions: utils.PointerTo([]string{"fv1", "fv2"}),
 						},
 						LayerId: utils.PointerTo("lid1"),
 						Links:   utils.PointerTo([]string{"link1", "link2"}),
-						Package: &models.Package{
+						Package: &apitypes.Package{
 							Cpes:     utils.PointerTo([]string{"cpe1", "cpe2"}),
 							Language: utils.PointerTo("pl1"),
 							Licenses: utils.PointerTo([]string{"plic1", "plic2"}),
@@ -323,13 +323,13 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 							Version:  utils.PointerTo("pv1"),
 						},
 						Path:              utils.PointerTo("path1"),
-						Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.CRITICAL),
+						Severity:          utils.PointerTo[apitypes.VulnerabilitySeverity](apitypes.CRITICAL),
 						VulnerabilityName: utils.PointerTo("CVE-test-test-foo"),
 					},
 					{
-						Cvss: utils.PointerTo([]models.VulnerabilityCvss{
+						Cvss: utils.PointerTo([]apitypes.VulnerabilityCvss{
 							{
-								Metrics: &models.VulnerabilityCvssMetrics{
+								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           utils.PointerTo[float32](3),
 									ExploitabilityScore: nil,
 									ImpactScore:         nil,
@@ -338,7 +338,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 								Version: utils.PointerTo("v3"),
 							},
 							{
-								Metrics: &models.VulnerabilityCvssMetrics{
+								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           utils.PointerTo[float32](4),
 									ExploitabilityScore: utils.PointerTo[float32](4.1),
 									ImpactScore:         utils.PointerTo[float32](4.2),
@@ -348,18 +348,18 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 							},
 						}),
 						Description: utils.PointerTo("solartest"),
-						Distro: &models.VulnerabilityDistro{
+						Distro: &apitypes.VulnerabilityDistro{
 							IDLike:  utils.PointerTo([]string{"IDLike3", "IDLike4"}),
 							Name:    utils.PointerTo("distro2"),
 							Version: utils.PointerTo("distrov2"),
 						},
-						Fix: &models.VulnerabilityFix{
+						Fix: &apitypes.VulnerabilityFix{
 							State:    utils.PointerTo("not-fixed"),
 							Versions: utils.PointerTo([]string{"fv3", "fv4"}),
 						},
 						LayerId: utils.PointerTo("lid2"),
 						Links:   utils.PointerTo([]string{"link3", "link4"}),
-						Package: &models.Package{
+						Package: &apitypes.Package{
 							Cpes:     utils.PointerTo([]string{"cpe3", "cpe4"}),
 							Language: utils.PointerTo("pl2"),
 							Licenses: utils.PointerTo([]string{"plic3", "plic4"}),
@@ -369,7 +369,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 							Version:  utils.PointerTo("pv2"),
 						},
 						Path:              utils.PointerTo("path2"),
-						Severity:          utils.PointerTo[models.VulnerabilitySeverity](models.HIGH),
+						Severity:          utils.PointerTo[apitypes.VulnerabilitySeverity](apitypes.HIGH),
 						VulnerabilityName: utils.PointerTo("CVE-test-test-bar"),
 					},
 				},
@@ -380,7 +380,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ConvertVulnResultToVulnerabilities(tt.args.result)
-			if diff := cmp.Diff(tt.want.vulnerabilities, got, cmpopts.SortSlices(func(a, b models.Vulnerability) bool { return *a.VulnerabilityName < *b.VulnerabilityName })); diff != "" {
+			if diff := cmp.Diff(tt.want.vulnerabilities, got, cmpopts.SortSlices(func(a, b apitypes.Vulnerability) bool { return *a.VulnerabilityName < *b.VulnerabilityName })); diff != "" {
 				t.Errorf("convertVulnResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -421,14 +421,14 @@ func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []models.Secret
+		want []apitypes.Secret
 	}{
 		{
 			name: "nil secretsResults",
 			args: args{
 				secretsResults: nil,
 			},
-			want: []models.Secret{},
+			want: []apitypes.Secret{},
 		},
 		{
 			name: "nil secretsResults.MergedResults",
@@ -437,7 +437,7 @@ func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 					MergedResults: nil,
 				},
 			},
-			want: []models.Secret{},
+			want: []apitypes.Secret{},
 		},
 		{
 			name: "empty secretsResults.MergedResults.Results",
@@ -448,7 +448,7 @@ func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 					},
 				},
 			},
-			want: []models.Secret{},
+			want: []apitypes.Secret{},
 		},
 		{
 			name: "sanity",
@@ -474,7 +474,7 @@ func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 					},
 				},
 			},
-			want: []models.Secret{
+			want: []apitypes.Secret{
 				{
 					Description: &finding1.Description,
 					EndLine:     &finding1.EndLine,
@@ -508,7 +508,7 @@ func Test_ConvertSecretsResultToAPIModel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ConvertSecretsResultToSecrets(tt.args.secretsResults)
-			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Secret) bool { return *a.Fingerprint < *b.Fingerprint })); diff != "" {
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b apitypes.Secret) bool { return *a.Fingerprint < *b.Fingerprint })); diff != "" {
 				t.Errorf("convertSBOMResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -520,8 +520,8 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 		mergedResults *malware.MergedResults
 	}
 	type returns struct {
-		Malware  []models.Malware
-		Metadata []models.ScannerMetadata
+		Malware  []apitypes.Malware
+		Metadata []apitypes.ScannerMetadata
 	}
 	tests := []struct {
 		name string
@@ -534,8 +534,8 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 				mergedResults: nil,
 			},
 			want: returns{
-				Malware:  []models.Malware{},
-				Metadata: []models.ScannerMetadata{},
+				Malware:  []apitypes.Malware{},
+				Metadata: []apitypes.ScannerMetadata{},
 			},
 		},
 		{
@@ -546,8 +546,8 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 				},
 			},
 			want: returns{
-				Malware:  []models.Malware{},
-				Metadata: []models.ScannerMetadata{},
+				Malware:  []apitypes.Malware{},
+				Metadata: []apitypes.ScannerMetadata{},
 			},
 		},
 		{
@@ -587,27 +587,27 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 				},
 			},
 			want: returns{
-				Malware: []models.Malware{
+				Malware: []apitypes.Malware{
 					{
 						MalwareName: utils.PointerTo("Ransom!"),
-						MalwareType: utils.PointerTo[models.MalwareType]("RANSOMWARE"),
+						MalwareType: utils.PointerTo[apitypes.MalwareType]("RANSOMWARE"),
 						Path:        utils.PointerTo("/somepath/givememoney.exe"),
 					},
 					{
 						MalwareName: utils.PointerTo("Trojan:)"),
-						MalwareType: utils.PointerTo[models.MalwareType]("TROJAN"),
+						MalwareType: utils.PointerTo[apitypes.MalwareType]("TROJAN"),
 						Path:        utils.PointerTo("/somepath/gift.jar"),
 					},
 					{
 						MalwareName: utils.PointerTo("Worm<3"),
-						MalwareType: utils.PointerTo[models.MalwareType]("WORM"),
+						MalwareType: utils.PointerTo[apitypes.MalwareType]("WORM"),
 						Path:        utils.PointerTo("/somepath/innocent.exe"),
 					},
 				},
-				Metadata: []models.ScannerMetadata{
+				Metadata: []apitypes.ScannerMetadata{
 					{
 						ScannerName: utils.PointerTo("clam"),
-						ScannerSummary: &models.ScannerSummary{
+						ScannerSummary: &apitypes.ScannerSummary{
 							KnownViruses:       utils.PointerTo(100),
 							EngineVersion:      utils.PointerTo("1"),
 							ScannedDirectories: utils.PointerTo(10),
@@ -626,7 +626,7 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mware, mdata := ConvertMalwareResultToMalwareAndMetadata(tt.args.mergedResults)
-			if diff := cmp.Diff(tt.want, returns{Malware: mware, Metadata: mdata}, cmpopts.SortSlices(func(a, b models.Malware) bool { return *a.MalwareType < *b.MalwareType })); diff != "" {
+			if diff := cmp.Diff(tt.want, returns{Malware: mware, Metadata: mdata}, cmpopts.SortSlices(func(a, b apitypes.Malware) bool { return *a.MalwareType < *b.MalwareType })); diff != "" {
 				t.Errorf("convertMalwareResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -667,14 +667,14 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []models.Exploit
+		want []apitypes.Exploit
 	}{
 		{
 			name: "nil exploitsResults",
 			args: args{
 				exploitsResults: nil,
 			},
-			want: []models.Exploit{},
+			want: []apitypes.Exploit{},
 		},
 		{
 			name: "nil exploitsResults.Exploits",
@@ -683,7 +683,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 					Exploits: nil,
 				},
 			},
-			want: []models.Exploit{},
+			want: []apitypes.Exploit{},
 		},
 		{
 			name: "sanity",
@@ -702,7 +702,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 					},
 				},
 			},
-			want: []models.Exploit{
+			want: []apitypes.Exploit{
 				{
 					CveID:       utils.PointerTo(exploit1.CveID),
 					Description: utils.PointerTo(exploit1.Description),
@@ -733,7 +733,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ConvertExploitsResultToExploits(tt.args.exploitsResults)
-			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b models.Exploit) bool { return *a.CveID < *b.CveID })); diff != "" {
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b apitypes.Exploit) bool { return *a.CveID < *b.CveID })); diff != "" {
 				t.Errorf("convertExploitsResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -747,7 +747,7 @@ func Test_MisconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    models.MisconfigurationSeverity
+		want    apitypes.MisconfigurationSeverity
 		wantErr bool
 	}{
 		{
@@ -755,21 +755,21 @@ func Test_MisconfigurationSeverityToAPIMisconfigurationSeverity(t *testing.T) {
 			args: args{
 				sev: misconfigurationTypes.HighSeverity,
 			},
-			want: models.MisconfigurationHighSeverity,
+			want: apitypes.MisconfigurationHighSeverity,
 		},
 		{
 			name: "medium severity",
 			args: args{
 				sev: misconfigurationTypes.MediumSeverity,
 			},
-			want: models.MisconfigurationMediumSeverity,
+			want: apitypes.MisconfigurationMediumSeverity,
 		},
 		{
 			name: "low severity",
 			args: args{
 				sev: misconfigurationTypes.LowSeverity,
 			},
-			want: models.MisconfigurationLowSeverity,
+			want: apitypes.MisconfigurationLowSeverity,
 		},
 		{
 			name: "unknown severity",
@@ -847,7 +847,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 		misconfigurationResults *misconfiguration.Results
 	}
 	type returns struct {
-		Misconfigs []models.Misconfiguration
+		Misconfigs []apitypes.Misconfiguration
 		Scanners   []string
 	}
 	tests := []struct {
@@ -861,7 +861,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 				misconfigurationResults: nil,
 			},
 			want: returns{
-				[]models.Misconfiguration{},
+				[]apitypes.Misconfiguration{},
 				[]string{},
 			},
 		},
@@ -877,7 +877,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 				},
 			},
 			want: returns{
-				[]models.Misconfiguration{},
+				[]apitypes.Misconfiguration{},
 				[]string{},
 			},
 		},
@@ -897,13 +897,13 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 				},
 			},
 			want: returns{
-				[]models.Misconfiguration{
+				[]apitypes.Misconfiguration{
 					{
 						Message:         utils.PointerTo(misconfiguration1.Message),
 						Remediation:     utils.PointerTo(misconfiguration1.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration1.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration1.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationHighSeverity),
+						Severity:        utils.PointerTo(apitypes.MisconfigurationHighSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration1.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration1.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration1.TestID),
@@ -913,7 +913,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 						Remediation:     utils.PointerTo(misconfiguration2.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration2.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration2.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationMediumSeverity),
+						Severity:        utils.PointerTo(apitypes.MisconfigurationMediumSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration2.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration2.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration2.TestID),
@@ -923,7 +923,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 						Remediation:     utils.PointerTo(misconfiguration3.Remediation),
 						ScannedPath:     utils.PointerTo(misconfiguration3.ScannedPath),
 						ScannerName:     utils.PointerTo(misconfiguration3.ScannerName),
-						Severity:        utils.PointerTo(models.MisconfigurationHighSeverity),
+						Severity:        utils.PointerTo(apitypes.MisconfigurationHighSeverity),
 						TestCategory:    utils.PointerTo(misconfiguration3.TestCategory),
 						TestDescription: utils.PointerTo(misconfiguration3.TestDescription),
 						TestID:          utils.PointerTo(misconfiguration3.TestID),
@@ -940,7 +940,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 				t.Fatalf("Unexpected error: %v", err)
 			}
 
-			if diff := cmp.Diff(tt.want, returns{Misconfigs: misconfigs, Scanners: scanners}, cmpopts.SortSlices(func(a, b models.Misconfiguration) bool { return *a.TestID < *b.TestID })); diff != "" {
+			if diff := cmp.Diff(tt.want, returns{Misconfigs: misconfigs, Scanners: scanners}, cmpopts.SortSlices(func(a, b apitypes.Misconfiguration) bool { return *a.TestID < *b.TestID })); diff != "" {
 				t.Errorf("convertMisconfigurationResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -954,77 +954,77 @@ func Test_ConvertVulnSeverityToAPIModel(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *models.VulnerabilitySeverity
+		want *apitypes.VulnerabilitySeverity
 	}{
 		{
 			name: "DEFCON1 -> CRITICAL",
 			args: args{
 				severity: vulnerability.DEFCON1,
 			},
-			want: utils.PointerTo(models.CRITICAL),
+			want: utils.PointerTo(apitypes.CRITICAL),
 		},
 		{
 			name: "CRITICAL -> CRITICAL",
 			args: args{
 				severity: vulnerability.CRITICAL,
 			},
-			want: utils.PointerTo(models.CRITICAL),
+			want: utils.PointerTo(apitypes.CRITICAL),
 		},
 		{
 			name: "HIGH -> HIGH",
 			args: args{
 				severity: vulnerability.HIGH,
 			},
-			want: utils.PointerTo(models.HIGH),
+			want: utils.PointerTo(apitypes.HIGH),
 		},
 		{
 			name: "MEDIUM -> MEDIUM",
 			args: args{
 				severity: vulnerability.MEDIUM,
 			},
-			want: utils.PointerTo(models.MEDIUM),
+			want: utils.PointerTo(apitypes.MEDIUM),
 		},
 		{
 			name: "LOW -> LOW",
 			args: args{
 				severity: vulnerability.LOW,
 			},
-			want: utils.PointerTo(models.LOW),
+			want: utils.PointerTo(apitypes.LOW),
 		},
 		{
 			name: "NEGLIGIBLE -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.NEGLIGIBLE,
 			},
-			want: utils.PointerTo(models.NEGLIGIBLE),
+			want: utils.PointerTo(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "UNKNOWN -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.UNKNOWN,
 			},
-			want: utils.PointerTo(models.NEGLIGIBLE),
+			want: utils.PointerTo(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "NONE -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.NONE,
 			},
-			want: utils.PointerTo(models.NEGLIGIBLE),
+			want: utils.PointerTo(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "invalid -> NEGLIGIBLE",
 			args: args{
 				severity: "catastrophic",
 			},
-			want: utils.PointerTo(models.NEGLIGIBLE),
+			want: utils.PointerTo(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "high -> HIGH",
 			args: args{
 				severity: "high",
 			},
-			want: utils.PointerTo(models.HIGH),
+			want: utils.PointerTo(apitypes.HIGH),
 		},
 	}
 	for _, tt := range tests {
@@ -1041,7 +1041,7 @@ func TestConvertInfoFinderResultToInfosAndScanners(t *testing.T) {
 		results *infofinder.Results
 	}
 	type returns struct {
-		Infos    []models.InfoFinderInfo
+		Infos    []apitypes.InfoFinderInfo
 		Scanners []string
 	}
 	tests := []struct {
@@ -1056,7 +1056,7 @@ func TestConvertInfoFinderResultToInfosAndScanners(t *testing.T) {
 				results: nil,
 			},
 			want: returns{
-				Infos:    []models.InfoFinderInfo{},
+				Infos:    []apitypes.InfoFinderInfo{},
 				Scanners: []string{},
 			},
 			wantErr: false,
@@ -1069,7 +1069,7 @@ func TestConvertInfoFinderResultToInfosAndScanners(t *testing.T) {
 				},
 			},
 			want: returns{
-				Infos:    []models.InfoFinderInfo{},
+				Infos:    []apitypes.InfoFinderInfo{},
 				Scanners: []string{},
 			},
 			wantErr: false,
@@ -1110,21 +1110,21 @@ func TestConvertInfoFinderResultToInfosAndScanners(t *testing.T) {
 				},
 			},
 			want: returns{
-				Infos: []models.InfoFinderInfo{
+				Infos: []apitypes.InfoFinderInfo{
 					{
-						Type:        utils.PointerTo(models.InfoTypeSSHKnownHostFingerprint),
+						Type:        utils.PointerTo(apitypes.InfoTypeSSHKnownHostFingerprint),
 						Path:        utils.PointerTo("Path1"),
 						Data:        utils.PointerTo("Data1"),
 						ScannerName: utils.PointerTo("scanner1"),
 					},
 					{
-						Type:        utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint),
+						Type:        utils.PointerTo(apitypes.InfoTypeSSHDaemonKeyFingerprint),
 						Path:        utils.PointerTo("Path2"),
 						Data:        utils.PointerTo("Data2"),
 						ScannerName: utils.PointerTo("scanner2"),
 					},
 					{
-						Type:        utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint),
+						Type:        utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 						Path:        utils.PointerTo("Path3"),
 						Data:        utils.PointerTo("Data3"),
 						ScannerName: utils.PointerTo("scanner2"),
@@ -1159,42 +1159,42 @@ func Test_convertInfoTypeToAPIModel(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *models.InfoType
+		want *apitypes.InfoType
 	}{
 		{
 			name: "SSHKnownHostFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHKnownHostFingerprint,
 			},
-			want: utils.PointerTo(models.InfoTypeSSHKnownHostFingerprint),
+			want: utils.PointerTo(apitypes.InfoTypeSSHKnownHostFingerprint),
 		},
 		{
 			name: "SSHAuthorizedKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHAuthorizedKeyFingerprint,
 			},
-			want: utils.PointerTo(models.InfoTypeSSHAuthorizedKeyFingerprint),
+			want: utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 		},
 		{
 			name: "SSHPrivateKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHPrivateKeyFingerprint,
 			},
-			want: utils.PointerTo(models.InfoTypeSSHPrivateKeyFingerprint),
+			want: utils.PointerTo(apitypes.InfoTypeSSHPrivateKeyFingerprint),
 		},
 		{
 			name: "SSHDaemonKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHDaemonKeyFingerprint,
 			},
-			want: utils.PointerTo(models.InfoTypeSSHDaemonKeyFingerprint),
+			want: utils.PointerTo(apitypes.InfoTypeSSHDaemonKeyFingerprint),
 		},
 		{
 			name: "unknown",
 			args: args{
 				infoType: "unknown",
 			},
-			want: utils.PointerTo(models.InfoTypeUNKNOWN),
+			want: utils.PointerTo(apitypes.InfoTypeUNKNOWN),
 		},
 	}
 	for _, tt := range tests {

@@ -24,24 +24,24 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 
-	backendmodels "github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
 func Test_getAssetLocation(t *testing.T) {
-	assetInfo := backendmodels.AssetType{}
-	err := assetInfo.FromVMInfo(backendmodels.VMInfo{
-		InstanceProvider: utils.PointerTo(backendmodels.AWS),
+	assetInfo := apitypes.AssetType{}
+	err := assetInfo.FromVMInfo(apitypes.VMInfo{
+		InstanceProvider: utils.PointerTo(apitypes.AWS),
 		Location:         "us-east-1/vpcid-1/sg-1",
 	})
 	assert.NilError(t, err)
-	nonSupportedAssetInfo := backendmodels.AssetType{}
-	err = nonSupportedAssetInfo.FromDirInfo(backendmodels.DirInfo{})
+	nonSupportedAssetInfo := apitypes.AssetType{}
+	err = nonSupportedAssetInfo.FromDirInfo(apitypes.DirInfo{})
 	assert.NilError(t, err)
 
 	type args struct {
-		asset backendmodels.Asset
+		asset apitypes.Asset
 	}
 	tests := []struct {
 		name    string
@@ -52,7 +52,7 @@ func Test_getAssetLocation(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				asset: backendmodels.Asset{
+				asset: apitypes.Asset{
 					AssetInfo: &assetInfo,
 				},
 			},
@@ -62,7 +62,7 @@ func Test_getAssetLocation(t *testing.T) {
 		{
 			name: "non supported asset",
 			args: args{
-				asset: backendmodels.Asset{
+				asset: apitypes.Asset{
 					AssetInfo: &nonSupportedAssetInfo,
 				},
 			},
@@ -87,7 +87,7 @@ func Test_getAssetLocation(t *testing.T) {
 func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 	type args struct {
 		findingsCount *types.FindingsCount
-		summary       *backendmodels.ScanFindingsSummary
+		summary       *apitypes.ScanFindingsSummary
 	}
 	tests := []struct {
 		name string
@@ -127,14 +127,14 @@ func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 					Secrets:           utils.PointerTo(5),
 					Vulnerabilities:   utils.PointerTo(6),
 				},
-				summary: &backendmodels.ScanFindingsSummary{
+				summary: &apitypes.ScanFindingsSummary{
 					TotalExploits:          utils.PointerTo(2),
 					TotalMalware:           utils.PointerTo(3),
 					TotalMisconfigurations: utils.PointerTo(4),
 					TotalPackages:          utils.PointerTo(5),
 					TotalRootkits:          utils.PointerTo(6),
 					TotalSecrets:           utils.PointerTo(7),
-					TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+					TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 						TotalCriticalVulnerabilities:   utils.PointerTo(10),
 						TotalHighVulnerabilities:       utils.PointerTo(11),
 						TotalLowVulnerabilities:        utils.PointerTo(12),
@@ -166,7 +166,7 @@ func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 
 func Test_getTotalVulnerabilities(t *testing.T) {
 	type args struct {
-		summary *backendmodels.VulnerabilityScanSummary
+		summary *apitypes.VulnerabilityScanSummary
 	}
 	tests := []struct {
 		name string
@@ -183,7 +183,7 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				summary: &backendmodels.VulnerabilityScanSummary{
+				summary: &apitypes.VulnerabilityScanSummary{
 					TotalCriticalVulnerabilities:   utils.PointerTo(1),
 					TotalHighVulnerabilities:       utils.PointerTo(2),
 					TotalLowVulnerabilities:        utils.PointerTo(3),
@@ -205,22 +205,22 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 
 // nolint:errcheck
 func Test_createRegionFindingsFromAssets(t *testing.T) {
-	dirAsset := backendmodels.AssetType{}
-	dirAsset.FromDirInfo(backendmodels.DirInfo{
+	dirAsset := apitypes.AssetType{}
+	dirAsset.FromDirInfo(apitypes.DirInfo{
 		DirName:  utils.PointerTo("test-name"),
 		Location: utils.PointerTo("location-test"),
 	})
 
-	vmFromRegion1 := backendmodels.AssetType{}
-	vmFromRegion1.FromVMInfo(backendmodels.VMInfo{
+	vmFromRegion1 := apitypes.AssetType{}
+	vmFromRegion1.FromVMInfo(apitypes.VMInfo{
 		Location: "region1",
 	})
-	vm1FromRegion2 := backendmodels.AssetType{}
-	vm1FromRegion2.FromVMInfo(backendmodels.VMInfo{
+	vm1FromRegion2 := apitypes.AssetType{}
+	vm1FromRegion2.FromVMInfo(apitypes.VMInfo{
 		Location: "region2",
 	})
 	type args struct {
-		assets *backendmodels.Assets
+		assets *apitypes.Assets
 	}
 	tests := []struct {
 		name string
@@ -230,18 +230,18 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 		{
 			name: "Unsupported asset is skipped",
 			args: args{
-				assets: &backendmodels.Assets{
+				assets: &apitypes.Assets{
 					Count: utils.PointerTo(1),
-					Items: utils.PointerTo([]backendmodels.Asset{
+					Items: utils.PointerTo([]apitypes.Asset{
 						{
-							Summary: &backendmodels.ScanFindingsSummary{
+							Summary: &apitypes.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(1),
 								TotalMalware:           utils.PointerTo(1),
 								TotalMisconfigurations: utils.PointerTo(1),
 								TotalPackages:          utils.PointerTo(1),
 								TotalRootkits:          utils.PointerTo(1),
 								TotalSecrets:           utils.PointerTo(1),
-								TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 									TotalCriticalVulnerabilities:   utils.PointerTo(1),
 									TotalHighVulnerabilities:       utils.PointerTo(1),
 									TotalLowVulnerabilities:        utils.PointerTo(1),
@@ -259,18 +259,18 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				assets: &backendmodels.Assets{
+				assets: &apitypes.Assets{
 					Count: utils.PointerTo(3),
-					Items: &[]backendmodels.Asset{
+					Items: &[]apitypes.Asset{
 						{
-							Summary: &backendmodels.ScanFindingsSummary{
+							Summary: &apitypes.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(1),
 								TotalMalware:           utils.PointerTo(2),
 								TotalMisconfigurations: utils.PointerTo(3),
 								TotalPackages:          utils.PointerTo(4),
 								TotalRootkits:          utils.PointerTo(5),
 								TotalSecrets:           utils.PointerTo(6),
-								TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 									TotalCriticalVulnerabilities:   utils.PointerTo(7),
 									TotalHighVulnerabilities:       utils.PointerTo(8),
 									TotalLowVulnerabilities:        utils.PointerTo(9),
@@ -281,14 +281,14 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 							AssetInfo: &vmFromRegion1,
 						},
 						{
-							Summary: &backendmodels.ScanFindingsSummary{
+							Summary: &apitypes.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(2),
 								TotalMalware:           utils.PointerTo(3),
 								TotalMisconfigurations: utils.PointerTo(4),
 								TotalPackages:          utils.PointerTo(5),
 								TotalRootkits:          utils.PointerTo(6),
 								TotalSecrets:           utils.PointerTo(7),
-								TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 									TotalCriticalVulnerabilities:   utils.PointerTo(8),
 									TotalHighVulnerabilities:       utils.PointerTo(9),
 									TotalLowVulnerabilities:        utils.PointerTo(10),
@@ -299,14 +299,14 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 							AssetInfo: &vmFromRegion1,
 						},
 						{
-							Summary: &backendmodels.ScanFindingsSummary{
+							Summary: &apitypes.ScanFindingsSummary{
 								TotalExploits:          utils.PointerTo(3),
 								TotalMalware:           utils.PointerTo(4),
 								TotalMisconfigurations: utils.PointerTo(5),
 								TotalPackages:          utils.PointerTo(6),
 								TotalRootkits:          utils.PointerTo(7),
 								TotalSecrets:           utils.PointerTo(8),
-								TotalVulnerabilities: &backendmodels.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 									TotalCriticalVulnerabilities:   utils.PointerTo(9),
 									TotalHighVulnerabilities:       utils.PointerTo(10),
 									TotalLowVulnerabilities:        utils.PointerTo(11),
@@ -357,7 +357,7 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 
 func Test_getRegionByProvider(t *testing.T) {
 	type args struct {
-		info backendmodels.VMInfo
+		info apitypes.VMInfo
 	}
 	tests := []struct {
 		name string
@@ -367,7 +367,7 @@ func Test_getRegionByProvider(t *testing.T) {
 		{
 			name: "cloud provider is nil",
 			args: args{
-				info: backendmodels.VMInfo{
+				info: apitypes.VMInfo{
 					InstanceProvider: nil,
 					Location:         "eu-central-1/vpc-1",
 				},
@@ -377,8 +377,8 @@ func Test_getRegionByProvider(t *testing.T) {
 		{
 			name: "AWS cloud provider",
 			args: args{
-				info: backendmodels.VMInfo{
-					InstanceProvider: utils.PointerTo(backendmodels.AWS),
+				info: apitypes.VMInfo{
+					InstanceProvider: utils.PointerTo(apitypes.AWS),
 					Location:         "eu-central-1/vpc-1",
 				},
 			},
@@ -387,8 +387,8 @@ func Test_getRegionByProvider(t *testing.T) {
 		{
 			name: "non AWS cloud provider",
 			args: args{
-				info: backendmodels.VMInfo{
-					InstanceProvider: utils.PointerTo(backendmodels.CloudProvider("GCP")),
+				info: apitypes.VMInfo{
+					InstanceProvider: utils.PointerTo(apitypes.CloudProvider("GCP")),
 					Location:         "eu-central-1/vpc-1",
 				},
 			},

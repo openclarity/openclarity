@@ -23,7 +23,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanestimationwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanprocessor"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanwatcher"
@@ -41,12 +41,12 @@ const (
 	// poller for scan is offset by 7 seconds so should pick up the new
 	// scan after 7 seconds instead of the full poller time.
 	DefaultControllerStartupDelay = 7 * time.Second
-	DefaultProviderKind           = models.AWS
+	DefaultProviderKind           = types.AWS
 	DefaultHealthCheckAddress     = ":8082"
 )
 
 type Config struct {
-	ProviderKind models.CloudProvider `json:"provider,omitempty" mapstructure:"provider"`
+	ProviderKind types.CloudProvider `json:"provider,omitempty" mapstructure:"provider"`
 
 	APIServerAddress   string `json:"apiserver-address,omitempty" mapstructure:"apiserver_address"`
 	HealthCheckAddress string `json:"healthcheck-address,omitempty" mapstructure:"healthcheck_address"`

@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 // MisconfigurationKey One test can report multiple misconfigurations so we need to include the
@@ -40,7 +40,7 @@ func (k MisconfigurationKey) MisconfigurationString() string {
 	return k.String()
 }
 
-func GenerateMisconfigurationKey(info models.MisconfigurationFindingInfo) MisconfigurationKey {
+func GenerateMisconfigurationKey(info types.MisconfigurationFindingInfo) MisconfigurationKey {
 	return MisconfigurationKey{
 		ScannerName: *info.ScannerName,
 		TestID:      *info.TestID,

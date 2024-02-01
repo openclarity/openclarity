@@ -20,7 +20,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -29,34 +29,34 @@ const (
 	DefaultTimeout        = 60 * time.Second
 )
 
-var FullScanFamiliesConfig = models.ScanFamiliesConfig{
-	Exploits: &models.ExploitsConfig{
+var FullScanFamiliesConfig = types.ScanFamiliesConfig{
+	Exploits: &types.ExploitsConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	InfoFinder: &models.InfoFinderConfig{
+	InfoFinder: &types.InfoFinderConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Malware: &models.MalwareConfig{
+	Malware: &types.MalwareConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Misconfigurations: &models.MisconfigurationsConfig{
+	Misconfigurations: &types.MisconfigurationsConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Rootkits: &models.RootkitsConfig{
+	Rootkits: &types.RootkitsConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Sbom: &models.SBOMConfig{
+	Sbom: &types.SBOMConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Secrets: &models.SecretsConfig{
+	Secrets: &types.SecretsConfig{
 		Enabled: utils.PointerTo(true),
 	},
-	Vulnerabilities: &models.VulnerabilitiesConfig{
+	Vulnerabilities: &types.VulnerabilitiesConfig{
 		Enabled: utils.PointerTo(true),
 	},
 }
 
-func GetFullScanConfig() models.ScanConfig {
+func GetFullScanConfig() types.ScanConfig {
 	return GetCustomScanConfig(
 		&FullScanFamiliesConfig,
 		DefaultScope,
@@ -64,17 +64,17 @@ func GetFullScanConfig() models.ScanConfig {
 	)
 }
 
-func GetCustomScanConfig(scanFamiliesConfig *models.ScanFamiliesConfig, scope string, timeoutSeconds int) models.ScanConfig {
-	return models.ScanConfig{
+func GetCustomScanConfig(scanFamiliesConfig *types.ScanFamiliesConfig, scope string, timeoutSeconds int) types.ScanConfig {
+	return types.ScanConfig{
 		Name: utils.PointerTo(uuid.New().String()),
-		ScanTemplate: &models.ScanTemplate{
-			AssetScanTemplate: &models.AssetScanTemplate{
+		ScanTemplate: &types.ScanTemplate{
+			AssetScanTemplate: &types.AssetScanTemplate{
 				ScanFamiliesConfig: scanFamiliesConfig,
 			},
 			Scope:          utils.PointerTo(scope),
 			TimeoutSeconds: utils.PointerTo(timeoutSeconds),
 		},
-		Scheduled: &models.RuntimeScheduleScanConfig{
+		Scheduled: &types.RuntimeScheduleScanConfig{
 			CronLine: utils.PointerTo("0 */4 * * *"),
 			OperationTime: utils.PointerTo(
 				time.Date(2023, 1, 20, 15, 46, 18, 0, time.UTC),
@@ -83,18 +83,18 @@ func GetCustomScanConfig(scanFamiliesConfig *models.ScanFamiliesConfig, scope st
 	}
 }
 
-func UpdateScanConfigToStartNow(config *models.ScanConfig) *models.ScanConfig {
-	return &models.ScanConfig{
+func UpdateScanConfigToStartNow(config *types.ScanConfig) *types.ScanConfig {
+	return &types.ScanConfig{
 		Name: config.Name,
-		ScanTemplate: &models.ScanTemplate{
-			AssetScanTemplate: &models.AssetScanTemplate{
+		ScanTemplate: &types.ScanTemplate{
+			AssetScanTemplate: &types.AssetScanTemplate{
 				ScanFamiliesConfig: config.ScanTemplate.AssetScanTemplate.ScanFamiliesConfig,
 			},
 			MaxParallelScanners: config.ScanTemplate.MaxParallelScanners,
 			Scope:               config.ScanTemplate.Scope,
 			TimeoutSeconds:      config.ScanTemplate.TimeoutSeconds,
 		},
-		Scheduled: &models.RuntimeScheduleScanConfig{
+		Scheduled: &types.RuntimeScheduleScanConfig{
 			CronLine:      config.Scheduled.CronLine,
 			OperationTime: utils.PointerTo(time.Now()),
 		},

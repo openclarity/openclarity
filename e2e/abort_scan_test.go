@@ -22,7 +22,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
@@ -41,15 +41,15 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("waiting until scan starts")
-			params := models.GetScansParams{
+			params := types.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 					*apiScanConfig.Id,
-					models.ScanStatusStateDone,
-					models.ScanStatusStateFailed,
+					types.ScanStatusStateDone,
+					types.ScanStatusStateFailed,
 				)),
 			}
-			var scans *models.Scans
+			var scans *types.Scans
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -64,22 +64,22 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("aborting a scan")
-			err = client.PatchScan(ctx, *(*scans.Items)[0].Id, &models.Scan{
-				Status: models.NewScanStatus(
-					models.ScanStatusStateAborted,
-					models.ScanStatusReasonCancellation,
+			err = client.PatchScan(ctx, *(*scans.Items)[0].Id, &types.Scan{
+				Status: types.NewScanStatus(
+					types.ScanStatusStateAborted,
+					types.ScanStatusReasonCancellation,
 					nil,
 				),
 			})
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("waiting until scan state changes to failed with aborted as state reason")
-			params = models.GetScansParams{
+			params = types.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					models.AssetScanStatusStateFailed,
-					models.AssetScanStatusReasonCancellation,
+					types.AssetScanStatusStateFailed,
+					types.AssetScanStatusReasonCancellation,
 				)),
 			}
 			gomega.Eventually(func() bool {

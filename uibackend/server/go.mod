@@ -13,7 +13,8 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/api v0.0.0
+	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
@@ -53,14 +54,14 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/grpc v1.61.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -69,7 +70,8 @@ require (
 
 replace (
 	github.com/openclarity/vmclarity => ../../
-	github.com/openclarity/vmclarity/api => ../../api
+	github.com/openclarity/vmclarity/api/client => ../../api/client
+	github.com/openclarity/vmclarity/api/types => ../../api/types
 	github.com/openclarity/vmclarity/uibackend/types => ../types
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

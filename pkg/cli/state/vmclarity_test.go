@@ -22,7 +22,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 
-	"github.com/openclarity/vmclarity/api/models"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/config"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
@@ -35,13 +35,13 @@ var effectiveScanConfigJSON string
 
 func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 	type args struct {
-		annotations *models.Annotations
+		annotations *apitypes.Annotations
 		config      *families.Config
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *models.Annotations
+		want    *apitypes.Annotations
 		wantErr bool
 	}{
 		{
@@ -66,7 +66,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 					},
 				},
 			},
-			want: &models.Annotations{
+			want: &apitypes.Annotations{
 				{
 					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
 					Value: utils.PointerTo(effectiveScanConfigJSON),
@@ -76,7 +76,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 		{
 			name: "annotations is empty list",
 			args: args{
-				annotations: &models.Annotations{},
+				annotations: &apitypes.Annotations{},
 				config: &families.Config{
 					SBOM: sbom.Config{
 						Enabled:       true,
@@ -95,7 +95,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 					},
 				},
 			},
-			want: &models.Annotations{
+			want: &apitypes.Annotations{
 				{
 					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
 					Value: utils.PointerTo(effectiveScanConfigJSON),
@@ -105,7 +105,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 		{
 			name: "annotations is not empty",
 			args: args{
-				annotations: &models.Annotations{
+				annotations: &apitypes.Annotations{
 					{
 						Key:   utils.PointerTo("test"),
 						Value: utils.PointerTo("test"),
@@ -129,7 +129,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 					},
 				},
 			},
-			want: &models.Annotations{
+			want: &apitypes.Annotations{
 				{
 					Key:   utils.PointerTo("test"),
 					Value: utils.PointerTo("test"),
@@ -143,7 +143,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 		{
 			name: "annotations is not empty and contains effective scan config, overwrite it",
 			args: args{
-				annotations: &models.Annotations{
+				annotations: &apitypes.Annotations{
 					{
 						Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
 						Value: utils.PointerTo("test"),
@@ -167,7 +167,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 					},
 				},
 			},
-			want: &models.Annotations{
+			want: &apitypes.Annotations{
 				{
 					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
 					Value: utils.PointerTo(effectiveScanConfigJSON),
@@ -189,7 +189,7 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 					// In the case of effective scan config annotation the value won't
 					// match because it is a formatted JSON.
 					// We cannot use MatchJSON here because it doesn't work on pointers,
-					// and the models.Annotations value is a pointer to string.
+					// and the types.Annotations value is a pointer to string.
 					g.Expect(*got).To(ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras, gstruct.Fields{
 						"Key": Equal(w.Key),
 					})))

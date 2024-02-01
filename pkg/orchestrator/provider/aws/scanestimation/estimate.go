@@ -24,7 +24,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/common"
 	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
@@ -49,9 +49,9 @@ type EstimateAssetScanParams struct {
 	ScannerInstanceType     ec2types.InstanceType
 	JobCreationTimeSec      int64
 	ScannerRootVolumeSizeGB int64
-	Stats                   models.AssetScanStats
-	Asset                   *models.Asset
-	AssetScanTemplate       *models.AssetScanTemplate
+	Stats                   types.AssetScanStats
+	Asset                   *types.Asset
+	AssetScanTemplate       *types.AssetScanTemplate
 }
 
 func New(pricingClient *pricing.Client, ec2Client *ec2.Client) *ScanEstimator {
@@ -102,7 +102,7 @@ var FamilyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFor
 // In the future, we can let the user choose to use RI's or SP's as the scanner instances.
 
 // nolint:cyclop
-func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAssetScanParams) (*models.Estimation, error) {
+func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAssetScanParams) (*types.Estimation, error) {
 	var sourceSnapshotMonthlyCost float64
 	var err error
 
@@ -186,7 +186,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	jobTotalCost := sourceSnapshotCost + volumeFromSnapshotCost + scannerCost + scannerRootVolumeCost + dataTransferCost + destSnapshotCost
 
 	// Create the Estimation object base on the calculated data.
-	costBreakdown := []models.CostBreakdownComponent{
+	costBreakdown := []types.CostBreakdownComponent{
 		{
 			Cost:      float32(destSnapshotCost),
 			Operation: fmt.Sprintf("%v-%v", Snapshot, destRegion),
@@ -205,7 +205,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		},
 	}
 	if sourceRegion != destRegion {
-		costBreakdown = append(costBreakdown, []models.CostBreakdownComponent{
+		costBreakdown = append(costBreakdown, []types.CostBreakdownComponent{
 			{
 				Cost:      float32(sourceSnapshotCost),
 				Operation: fmt.Sprintf("%v-%v", Snapshot, sourceRegion),
@@ -217,7 +217,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 		}...)
 	}
 
-	estimation := models.Estimation{
+	estimation := types.Estimation{
 		Cost:          utils.PointerTo(float32(jobTotalCost)),
 		CostBreakdown: &costBreakdown,
 		Size:          utils.PointerTo(int(scanSizeGB)),
@@ -229,7 +229,7 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 
 // Search in all the families stats and look for the first family (by random order) that has scan size stats for ROOTFS scan.
 // nolint:cyclop
-func getScanSize(stats models.AssetScanStats, asset *models.Asset) (int64, error) {
+func getScanSize(stats types.AssetScanStats, asset *types.Asset) (int64, error) {
 	var scanSizeMB int64
 	const half = 2
 
@@ -294,9 +294,9 @@ func getScanSize(stats models.AssetScanStats, asset *models.Asset) (int64, error
 }
 
 // findMatchingStatsForInputTypeRootFS will find the first stats for rootfs scan.
-func findMatchingStatsForInputTypeRootFS(stats *[]models.AssetScanInputScanStats) (models.AssetScanInputScanStats, bool) {
+func findMatchingStatsForInputTypeRootFS(stats *[]types.AssetScanInputScanStats) (types.AssetScanInputScanStats, bool) {
 	if stats == nil {
-		return models.AssetScanInputScanStats{}, false
+		return types.AssetScanInputScanStats{}, false
 	}
 	for i, scanStats := range *stats {
 		if *scanStats.Type == string(utils.ROOTFS) {
@@ -304,11 +304,11 @@ func findMatchingStatsForInputTypeRootFS(stats *[]models.AssetScanInputScanStats
 			return ret[i], true
 		}
 	}
-	return models.AssetScanInputScanStats{}, false
+	return types.AssetScanInputScanStats{}, false
 }
 
 // nolint:cyclop
-func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFamiliesConfig, scanSizeMB int64) int64 {
+func getScanDuration(stats types.AssetScanStats, familiesConfig *types.ScanFamiliesConfig, scanSizeMB int64) int64 {
 	var totalScanDuration int64
 
 	scanSizeGB := float64(scanSizeMB) / MBInGB
@@ -380,7 +380,7 @@ func getScanDuration(stats models.AssetScanStats, familiesConfig *models.ScanFam
 	return totalScanDuration
 }
 
-func getScanDurationFromStats(stats *[]models.AssetScanInputScanStats) int64 {
+func getScanDurationFromStats(stats *[]types.AssetScanInputScanStats) int64 {
 	stat, ok := findMatchingStatsForInputTypeRootFS(stats)
 	if !ok {
 		return 0

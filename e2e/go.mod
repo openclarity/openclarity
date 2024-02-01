@@ -8,7 +8,8 @@ require (
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity v0.0.0
-	github.com/openclarity/vmclarity/api v0.0.0
+	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/testenv v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
@@ -216,7 +217,7 @@ require (
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
@@ -225,7 +226,7 @@ require (
 	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240116215550-a9fa1716bcac // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe // indirect
@@ -260,7 +261,8 @@ require (
 
 replace (
 	github.com/openclarity/vmclarity => ../
-	github.com/openclarity/vmclarity/api => ../api
+	github.com/openclarity/vmclarity/api/client => ../api/client
+	github.com/openclarity/vmclarity/api/types => ../api/types
 	github.com/openclarity/vmclarity/testenv => ../testenv
 	github.com/openclarity/vmclarity/uibackend/client => ../uibackend/client
 	github.com/openclarity/vmclarity/uibackend/types => ../uibackend/types

@@ -18,8 +18,8 @@ package discovery
 import (
 	"time"
 
+	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 )
 
 const (
@@ -27,12 +27,12 @@ const (
 )
 
 type Config struct {
-	Backend           *backendclient.BackendClient
+	Backend           *client.BackendClient
 	Provider          provider.Provider
 	DiscoveryInterval time.Duration `mapstructure:"interval"`
 }
 
-func (c Config) WithBackendClient(b *backendclient.BackendClient) Config {
+func (c Config) WithBackendClient(b *client.BackendClient) Config {
 	c.Backend = b
 	return c
 }

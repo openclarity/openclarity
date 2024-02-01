@@ -23,7 +23,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 type CmdRunError struct {
@@ -172,8 +172,8 @@ func StringKeyMapToArray[T any](m map[string]T) []T {
 	return ret
 }
 
-func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) *models.VulnerabilityScanSummary {
-	ret := &models.VulnerabilityScanSummary{
+func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]types.Vulnerability) *types.VulnerabilityScanSummary {
+	ret := &types.VulnerabilityScanSummary{
 		TotalCriticalVulnerabilities:   PointerTo(0),
 		TotalHighVulnerabilities:       PointerTo(0),
 		TotalMediumVulnerabilities:     PointerTo(0),
@@ -185,15 +185,15 @@ func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]models.Vulnerability) 
 	}
 	for _, vulnerability := range *vulnerabilities {
 		switch *vulnerability.Severity {
-		case models.CRITICAL:
+		case types.CRITICAL:
 			ret.TotalCriticalVulnerabilities = PointerTo(*ret.TotalCriticalVulnerabilities + 1)
-		case models.HIGH:
+		case types.HIGH:
 			ret.TotalHighVulnerabilities = PointerTo(*ret.TotalHighVulnerabilities + 1)
-		case models.MEDIUM:
+		case types.MEDIUM:
 			ret.TotalMediumVulnerabilities = PointerTo(*ret.TotalMediumVulnerabilities + 1)
-		case models.LOW:
+		case types.LOW:
 			ret.TotalLowVulnerabilities = PointerTo(*ret.TotalLowVulnerabilities + 1)
-		case models.NEGLIGIBLE:
+		case types.NEGLIGIBLE:
 			ret.TotalNegligibleVulnerabilities = PointerTo(*ret.TotalNegligibleVulnerabilities + 1)
 		}
 	}

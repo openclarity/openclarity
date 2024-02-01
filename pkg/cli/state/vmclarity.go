@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	"github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/families/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
@@ -35,12 +35,12 @@ const (
 	effectiveScanConfigAnnotationKey = "openclarity.io/vmclarity-scanner/config"
 )
 
-type AssetScanID = models.AssetScanID
+type AssetScanID = apitypes.AssetScanID
 
 type VMClarityState struct {
-	client *backendclient.BackendClient
+	client *client.BackendClient
 
-	assetScanID models.AssetScanID
+	assetScanID apitypes.AssetScanID
 }
 
 // nolint:cyclop
@@ -64,12 +64,12 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 			}
 
 			switch status.State {
-			case models.AssetScanStatusStatePending, models.AssetScanStatusStateScheduled:
-			case models.AssetScanStatusStateAborted:
+			case apitypes.AssetScanStatusStatePending, apitypes.AssetScanStatusStateScheduled:
+			case apitypes.AssetScanStatusStateAborted:
 				// Do nothing as WaitForAborted is responsible for handling this case
-			case models.AssetScanStatusStateReadyToScan, models.AssetScanStatusStateInProgress:
+			case apitypes.AssetScanStatusStateReadyToScan, apitypes.AssetScanStatusStateInProgress:
 				return nil
-			case models.AssetScanStatusStateDone, models.AssetScanStatusStateFailed:
+			case apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed:
 				return fmt.Errorf("failed to wait for AssetScan become ready as it is in %s state", status.State)
 			}
 		case <-ctx.Done():
@@ -79,23 +79,23 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 }
 
 func (v *VMClarityState) MarkInProgress(ctx context.Context, config *families.Config) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Stats == nil {
-		assetScan.Stats = &models.AssetScanStats{}
+		assetScan.Stats = &apitypes.AssetScanStats{}
 	}
-	assetScan.Stats.General = &models.AssetScanGeneralStats{
-		ScanTime: &models.AssetScanScanTime{
+	assetScan.Stats.General = &apitypes.AssetScanGeneralStats{
+		ScanTime: &apitypes.AssetScanScanTime{
 			StartTime: utils.PointerTo(time.Now()),
 		},
 	}
 
-	assetScan.Status = models.NewAssetScanStatus(
-		models.AssetScanStatusStateInProgress,
-		models.AssetScanStatusReasonScannerIsRunning,
+	assetScan.Status = apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStateInProgress,
+		apitypes.AssetScanStatusReasonScannerIsRunning,
 		nil,
 	)
 
@@ -113,15 +113,15 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context, config *families.Co
 }
 
 func (v *VMClarityState) MarkDone(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	assetScan.Stats.General.ScanTime.EndTime = utils.PointerTo(time.Now())
-	assetScan.Status = models.NewAssetScanStatus(
-		models.AssetScanStatusStateDone,
-		models.AssetScanStatusReasonSuccess,
+	assetScan.Status = apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStateDone,
+		apitypes.AssetScanStatusReasonSuccess,
 		nil,
 	)
 
@@ -134,15 +134,15 @@ func (v *VMClarityState) MarkDone(ctx context.Context) error {
 }
 
 func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	assetScan.Stats.General.ScanTime.EndTime = utils.PointerTo(time.Now())
-	assetScan.Status = models.NewAssetScanStatus(
-		models.AssetScanStatusStateFailed,
-		models.AssetScanStatusReasonError,
+	assetScan.Status = apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStateFailed,
+		apitypes.AssetScanStatusReasonError,
 		utils.PointerTo(errorMessage),
 	)
 
@@ -178,18 +178,18 @@ func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyTyp
 }
 
 func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Exploits == nil {
-		assetScan.Exploits = &models.ExploitScan{}
+		assetScan.Exploits = &apitypes.ExploitScan{}
 	}
 
-	assetScan.Exploits.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Exploits.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -202,18 +202,18 @@ func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
 }
 
 func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Secrets == nil {
-		assetScan.Secrets = &models.SecretScan{}
+		assetScan.Secrets = &apitypes.SecretScan{}
 	}
 
-	assetScan.Secrets.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Secrets.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -226,18 +226,18 @@ func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
 }
 
 func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Sbom == nil {
-		assetScan.Sbom = &models.SbomScan{}
+		assetScan.Sbom = &apitypes.SbomScan{}
 	}
 
-	assetScan.Sbom.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Sbom.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -250,18 +250,18 @@ func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
 }
 
 func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Vulnerabilities == nil {
-		assetScan.Vulnerabilities = &models.VulnerabilityScan{}
+		assetScan.Vulnerabilities = &apitypes.VulnerabilityScan{}
 	}
 
-	assetScan.Vulnerabilities.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -274,18 +274,18 @@ func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) 
 }
 
 func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.InfoFinder == nil {
-		assetScan.InfoFinder = &models.InfoFinderScan{}
+		assetScan.InfoFinder = &apitypes.InfoFinderScan{}
 	}
 
-	assetScan.InfoFinder.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -298,18 +298,18 @@ func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error
 }
 
 func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Malware == nil {
-		assetScan.Malware = &models.MalwareScan{}
+		assetScan.Malware = &apitypes.MalwareScan{}
 	}
 
-	assetScan.Malware.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Malware.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -322,18 +322,18 @@ func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
 }
 
 func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Misconfigurations == nil {
-		assetScan.Misconfigurations = &models.MisconfigurationScan{}
+		assetScan.Misconfigurations = &apitypes.MisconfigurationScan{}
 	}
 
-	assetScan.Misconfigurations.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -346,18 +346,18 @@ func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context
 }
 
 func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{})
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
 	if assetScan.Rootkits == nil {
-		assetScan.Rootkits = &models.RootkitScan{}
+		assetScan.Rootkits = &apitypes.RootkitScan{}
 	}
 
-	assetScan.Rootkits.Status = models.NewScannerStatus(
-		models.ScannerStatusStateInProgress,
-		models.ScannerStatusReasonScanning,
+	assetScan.Rootkits.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
 		nil,
 	)
 
@@ -370,7 +370,7 @@ func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
 }
 
 func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, models.GetAssetScansAssetScanIDParams{
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{
 		Select: utils.PointerTo("id,status"),
 	})
 	if err != nil {
@@ -382,14 +382,14 @@ func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
 		return false, errors.New("failed to get status of asset scan")
 	}
 
-	if status.State == models.AssetScanStatusStateAborted {
+	if status.State == apitypes.AssetScanStatusStateAborted {
 		return true, nil
 	}
 
 	return false, nil
 }
 
-func NewVMClarityState(client *backendclient.BackendClient, id AssetScanID) (*VMClarityState, error) {
+func NewVMClarityState(client *client.BackendClient, id AssetScanID) (*VMClarityState, error) {
 	if client == nil {
 		return nil, errors.New("backend client must not be nil")
 	}
@@ -399,8 +399,8 @@ func NewVMClarityState(client *backendclient.BackendClient, id AssetScanID) (*VM
 	}, nil
 }
 
-func appendEffectiveScanConfigAnnotation(annotations *models.Annotations, config *families.Config) (*models.Annotations, error) {
-	var newAnnotations models.Annotations
+func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, config *families.Config) (*apitypes.Annotations, error) {
+	var newAnnotations apitypes.Annotations
 	if annotations != nil {
 		// Add all annotations except the effective scan config one.
 		for _, annotation := range *annotations {
@@ -415,7 +415,7 @@ func appendEffectiveScanConfigAnnotation(annotations *models.Annotations, config
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal effective families config: %w", err)
 	}
-	newAnnotations = append(newAnnotations, models.Annotations{
+	newAnnotations = append(newAnnotations, apitypes.Annotations{
 		{
 			Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
 			Value: utils.PointerTo(string(configJSON)),

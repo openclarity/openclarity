@@ -22,7 +22,8 @@ import (
 
 	"github.com/Portshift/go-utils/healthz"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanestimationwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanprocessor"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/assetscanwatcher"
@@ -37,7 +38,6 @@ import (
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanconfigwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanestimationwatcher"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/scanwatcher"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
@@ -67,7 +67,7 @@ func Run(ctx context.Context, config *Config) error {
 // NewWithProvider returns an Orchestrator initialized using the p provider.Provider.
 // Use this method when Orchestrator needs to rely on custom provider.Provider implementation.
 // E.g. End-to-End testing.
-func NewWithProvider(config *Config, p provider.Provider, b *backendclient.BackendClient) (*Orchestrator, error) {
+func NewWithProvider(config *Config, p provider.Provider, b *client.BackendClient) (*Orchestrator, error) {
 	scanConfigWatcherConfig := config.ScanConfigWatcherConfig.WithBackendClient(b)
 	discoveryConfig := config.DiscoveryConfig.WithBackendClient(b).WithProviderClient(p)
 	scanWatcherConfig := config.ScanWatcherConfig.WithBackendClient(b).WithProviderClient(p)
@@ -92,7 +92,7 @@ func NewWithProvider(config *Config, p provider.Provider, b *backendclient.Backe
 
 // New returns a new Orchestrator initialized using the provided configuration.
 func New(ctx context.Context, config *Config) (*Orchestrator, error) {
-	backendClient, err := backendclient.Create(config.APIServerAddress)
+	backendClient, err := client.Create(config.APIServerAddress)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a backend client: %w", err)
 	}
@@ -128,20 +128,20 @@ func (o *Orchestrator) Stop(ctx context.Context) {
 }
 
 // nolint:wrapcheck
-// NewProvider returns an initialized provider.Provider based on the kind models.CloudProvider.
-func NewProvider(ctx context.Context, kind models.CloudProvider) (provider.Provider, error) {
+// NewProvider returns an initialized provider.Provider based on the kind types.CloudProvider.
+func NewProvider(ctx context.Context, kind types.CloudProvider) (provider.Provider, error) {
 	switch kind {
-	case models.Azure:
+	case types.Azure:
 		return azure.New(ctx)
-	case models.Docker:
+	case types.Docker:
 		return docker.New(ctx)
-	case models.AWS:
+	case types.AWS:
 		return aws.New(ctx)
-	case models.GCP:
+	case types.GCP:
 		return gcp.New(ctx)
-	case models.External:
+	case types.External:
 		return external.New(ctx)
-	case models.Kubernetes:
+	case types.Kubernetes:
 		return kubernetes.New(ctx)
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", kind)

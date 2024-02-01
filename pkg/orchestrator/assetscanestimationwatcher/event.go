@@ -20,13 +20,13 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/models"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 type AssetScanEstimationReconcileEvent struct {
-	AssetScanEstimationID models.AssetScanEstimationID
-	ScanEstimationID      models.ScanEstimationID
-	AssetID               models.AssetScanID
+	AssetScanEstimationID types.AssetScanEstimationID
+	ScanEstimationID      types.ScanEstimationID
+	AssetID               types.AssetScanID
 }
 
 func (e AssetScanEstimationReconcileEvent) ToFields() log.Fields {

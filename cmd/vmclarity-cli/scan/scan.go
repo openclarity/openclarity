@@ -34,7 +34,7 @@ import (
 
 	"github.com/openclarity/vmclarity/pkg/cli/presenter"
 
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	apiclient "github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/utils/log"
 )
@@ -205,10 +205,10 @@ func newCli(config *families.Config, server, assetScanID, output string) (*cli.C
 	}
 
 	if server != "" {
-		var client *backendclient.BackendClient
+		var client *apiclient.BackendClient
 		var p presenter.Presenter
 
-		client, err = backendclient.Create(server)
+		client, err = apiclient.Create(server)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 		}

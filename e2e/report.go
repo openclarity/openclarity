@@ -23,8 +23,8 @@ import (
 	"github.com/onsi/ginkgo/v2/formatter"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/models"
-	"github.com/openclarity/vmclarity/pkg/shared/backendclient"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/testenv/types"
 )
@@ -45,7 +45,7 @@ type ReportFailedConfig struct {
 }
 
 // ReportFailed gathers relevant API data and docker service logs for debugging purposes.
-func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *backendclient.BackendClient, config *ReportFailedConfig) {
+func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *apiclient.BackendClient, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println("------------------------------")
 
 	DumpAPIData(ctx, client, config)
@@ -57,7 +57,7 @@ func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *bac
 // nolint:cyclop
 // DumpAPIData prints API objects filtered using test parameters (e.g. assets filtered by scope, scan configs filtered by id).
 // If filter not provided, no objects are printed.
-func DumpAPIData(ctx ginkgo.SpecContext, client *backendclient.BackendClient, config *ReportFailedConfig) {
+func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.BackendClient, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println(formatter.F("{{red}}[FAILED] Report API Data:{{/}}"))
 
 	if config.allAPIObjects {
@@ -67,11 +67,11 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *backendclient.BackendClient, co
 	for _, object := range config.objects {
 		switch object.objectType {
 		case "asset":
-			var params models.GetAssetsParams
+			var params apitypes.GetAssetsParams
 			if object.filter == "" {
-				params = models.GetAssetsParams{}
+				params = apitypes.GetAssetsParams{}
 			} else {
-				params = models.GetAssetsParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetAssetsParams{Filter: utils.PointerTo(object.filter)}
 			}
 			assets, err := client.GetAssets(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -81,11 +81,11 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *backendclient.BackendClient, co
 			ginkgo.GinkgoWriter.Printf("Asset: %s\n", string(buf))
 
 		case "scanConfig":
-			var params models.GetScanConfigsParams
+			var params apitypes.GetScanConfigsParams
 			if object.filter == "" {
-				params = models.GetScanConfigsParams{}
+				params = apitypes.GetScanConfigsParams{}
 			} else {
-				params = models.GetScanConfigsParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetScanConfigsParams{Filter: utils.PointerTo(object.filter)}
 			}
 			scanConfigs, err := client.GetScanConfigs(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -95,11 +95,11 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *backendclient.BackendClient, co
 			ginkgo.GinkgoWriter.Printf("Scan Config: %s\n", string(buf))
 
 		case "scan":
-			var params models.GetScansParams
+			var params apitypes.GetScansParams
 			if object.filter == "" {
-				params = models.GetScansParams{}
+				params = apitypes.GetScansParams{}
 			} else {
-				params = models.GetScansParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetScansParams{Filter: utils.PointerTo(object.filter)}
 			}
 			scans, err := client.GetScans(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
