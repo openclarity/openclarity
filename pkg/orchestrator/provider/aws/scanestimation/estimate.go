@@ -25,9 +25,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
 	"github.com/openclarity/vmclarity/api/types"
+	familiestypes "github.com/openclarity/vmclarity/cli/pkg/families/types"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider/common"
-	familiestypes "github.com/openclarity/vmclarity/pkg/shared/families/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type MarketOption string

@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 
 	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 var _ = ginkgo.Describe("Posting and getting a provider", func() {

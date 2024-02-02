@@ -32,10 +32,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/cli/pkg/families"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
-	"github.com/openclarity/vmclarity/pkg/shared/families"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type Provider struct {

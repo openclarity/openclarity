@@ -26,7 +26,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 

@@ -24,7 +24,7 @@ import (
 	"github.com/onsi/gomega"
 
 	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	uitypes "github.com/openclarity/vmclarity/uibackend/types"
 )
 

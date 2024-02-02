@@ -16,8 +16,8 @@ require (
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.31.1
-	github.com/openclarity/vmclarity v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
@@ -80,11 +80,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.4.7 // indirect
+	k8s.io/client-go v0.29.1 // indirect
 )
 
 replace (
 	github.com/openclarity/vmclarity => ../../
 	github.com/openclarity/vmclarity/api/types => ../types
+	github.com/openclarity/vmclarity/cli => ../../cli
 	github.com/openclarity/vmclarity/uibackend/types => ../../uibackend/types
 	github.com/openclarity/vmclarity/utils => ../../utils
 )
