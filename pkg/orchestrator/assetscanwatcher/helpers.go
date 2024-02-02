@@ -22,8 +22,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 type jobConfigInput struct {

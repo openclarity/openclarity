@@ -20,8 +20,8 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/findingkey"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	logutils "github.com/openclarity/vmclarity/utils/log"
 )
 

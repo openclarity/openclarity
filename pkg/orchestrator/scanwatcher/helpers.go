@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 func newVulnerabilityScanSummary() *types.VulnerabilityScanSummary {

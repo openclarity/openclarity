@@ -7,9 +7,9 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.1
-	github.com/openclarity/vmclarity v0.0.0
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/testenv v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
@@ -159,6 +159,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
+	github.com/openclarity/vmclarity v0.6.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc5 // indirect
 	github.com/oras-project/oras-credentials-go v0.3.1 // indirect
@@ -263,6 +264,7 @@ replace (
 	github.com/openclarity/vmclarity => ../
 	github.com/openclarity/vmclarity/api/client => ../api/client
 	github.com/openclarity/vmclarity/api/types => ../api/types
+	github.com/openclarity/vmclarity/cli => ../cli
 	github.com/openclarity/vmclarity/testenv => ../testenv
 	github.com/openclarity/vmclarity/uibackend/client => ../uibackend/client
 	github.com/openclarity/vmclarity/uibackend/types => ../uibackend/types
