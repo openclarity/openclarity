@@ -46,8 +46,11 @@ jobs:
           ##
           ## Set digests cache name
           ##
-
-          echo "digests-cache-name=digests-${{ github.run_id }}-${image_name}" >> "$GITHUB_OUTPUT"
+          ##    Example: digest-1234-a2850e9cc4e2b3a3
+          ##
+          
+          image_name_hash="$(sha256sum <<< "${image_name}" | cut -f1 -d' ')"
+          printf "digests-cache-name=digest-%s-%.16s" "${{ github.run_id }}" "${image_name_hash}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     runs-on: ubuntu-latest
