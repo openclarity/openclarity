@@ -26,8 +26,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
+	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
@@ -43,7 +43,7 @@ var crDiscovererLabels = map[string]string{
 }
 
 // nolint:cyclop
-func (p *Provider) discoverContainers(ctx context.Context, outputChan chan types.AssetType, crDiscoverers []corev1.Pod) error {
+func (p *Provider) discoverContainers(ctx context.Context, outputChan chan apitypes.AssetType, crDiscoverers []corev1.Pod) error {
 	for _, discoverer := range crDiscoverers {
 		err := p.discoverContainersFromDiscoverer(ctx, outputChan, discoverer)
 		if err != nil {
@@ -54,7 +54,7 @@ func (p *Provider) discoverContainers(ctx context.Context, outputChan chan types
 	return nil
 }
 
-func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputChan chan types.AssetType, discoverer corev1.Pod) error {
+func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputChan chan apitypes.AssetType, discoverer corev1.Pod) error {
 	discovererEndpoint := net.JoinHostPort(discoverer.Status.PodIP, "8080")
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/containers", discovererEndpoint), nil)
 	if err != nil {
@@ -72,7 +72,7 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 		return fmt.Errorf("unexpected error from discoverer status %s: %s", resp.Status, b)
 	}
 
-	var containerResponse containerruntimediscovery.ListContainersResponse
+	var containerResponse types.ListContainersResponse
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&containerResponse)
 	if err != nil {
@@ -94,7 +94,7 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 		}
 
 		// Convert to asset
-		asset := types.AssetType{}
+		asset := apitypes.AssetType{}
 		err = asset.FromContainerInfo(container)
 		if err != nil {
 			return fmt.Errorf("failed to create AssetType from ContainerInfo: %w", err)
@@ -106,7 +106,7 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 	return nil
 }
 
-func (p *Provider) enrichContainerInfo(ctx context.Context, c *types.ContainerInfo) error {
+func (p *Provider) enrichContainerInfo(ctx context.Context, c *apitypes.ContainerInfo) error {
 	// Get namespace and Pod name for container
 	var ns, podName string
 	if c.Labels != nil {
@@ -135,7 +135,7 @@ func (p *Provider) enrichContainerInfo(ctx context.Context, c *types.ContainerIn
 	}
 
 	// Merge labels set for Pod into container labels where the former has higher precedence
-	c.Labels = types.MergeTags(c.Labels, types.MapToTags(pod.Labels))
+	c.Labels = apitypes.MergeTags(c.Labels, apitypes.MapToTags(pod.Labels))
 
 	return nil
 }

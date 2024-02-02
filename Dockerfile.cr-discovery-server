@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=lo
       gcc \
       libc6-dev
 
-WORKDIR /build
+WORKDIR /build/containerruntimediscovery/server
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
          -X 'github.com/openclarity/vmclarity/utils/version.Version=${VERSION}' \
          -X 'github.com/openclarity/vmclarity/utils/version.CommitHash=${COMMIT_HASH}' \
          -X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
-        -o /bin/vmclarity-cr-discovery-server cmd/vmclarity-cr-discovery-server/main.go
+        -o /bin/vmclarity-cr-discovery-server cmd/main.go
 
 RUN xx-verify /bin/vmclarity-cr-discovery-server
 

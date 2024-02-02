@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package containerruntimediscovery
+package client
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 	"net/http"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
 )
 
 type Client struct {
@@ -50,7 +50,7 @@ func (c *Client) GetImages(ctx context.Context) ([]apitypes.ContainerImageInfo, 
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		var lir ListImagesResponse
+		var lir types.ListImagesResponse
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&lir)
 		if err != nil {
@@ -112,7 +112,7 @@ func (c *Client) GetContainers(ctx context.Context) ([]apitypes.ContainerInfo, e
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		var lcr ListContainersResponse
+		var lcr types.ListContainersResponse
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&lcr)
 		if err != nil {

@@ -29,6 +29,9 @@ on:
       cli-image:
         value: ${{ jobs.images.outputs.cli-image }}
         description: 'Name of the container image for VMClarity CLI'
+      cr-discovery-server-image:
+        value: ${{ jobs.images.outputs.cr-discovery-server-image }}
+        description: 'Name of the container image for VMClarity ContainerRuntime Discovery Server'
 
 jobs:
   images:
@@ -39,6 +42,7 @@ jobs:
       ui-backend-image: ${{ steps.images.outputs.ui-backend-image }}
       ui-image: ${{ steps.images.outputs.ui-image }}
       cli-image: ${{ steps.images.outputs.cli-image }}
+      cr-discovery-server-image: ${{ steps.images.outputs.cr-discovery-server-image }}
     steps:
       - name: Set container image names
         id: images
@@ -63,4 +67,5 @@ jobs:
             echo "ui-backend-image=${registry}/vmclarity-ui-backend${suffix}"
             echo "ui-image=${registry}/vmclarity-ui${suffix}"
             echo "cli-image=${registry}/vmclarity-cli${suffix}"
+            echo "cr-discovery-server-image=${registry}/vmclarity-cr-discovery-server${suffix}"
           } >> "$GITHUB_OUTPUT"

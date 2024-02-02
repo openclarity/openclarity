@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package containerruntimediscovery
+package pkg
 
 import (
 	"context"
@@ -25,18 +25,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
-
-type ListImagesResponse struct {
-	Images []apitypes.ContainerImageInfo
-}
-
-type ListContainersResponse struct {
-	Containers []apitypes.ContainerInfo
-}
 
 type ContainerRuntimeDiscoveryServer struct {
 	server *echo.Echo
@@ -89,7 +80,7 @@ func (crds *ContainerRuntimeDiscoveryServer) ListImages(c echo.Context) error {
 		return fmt.Errorf("failed to discover images: %w", err)
 	}
 
-	response := ListImagesResponse{
+	response := types.ListImagesResponse{
 		Images: images,
 	}
 	// nolint: wrapcheck
@@ -141,7 +132,7 @@ func (crds *ContainerRuntimeDiscoveryServer) ListContainers(c echo.Context) erro
 		return fmt.Errorf("failed to discover containers: %w", err)
 	}
 
-	response := ListContainersResponse{
+	response := types.ListContainersResponse{
 		Containers: containers,
 	}
 
