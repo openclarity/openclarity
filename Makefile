@@ -77,12 +77,12 @@ bin/vmclarity-apiserver: $(shell find api) $(shell find api/server/cmd) $(shell 
 		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
 		-o ../../$@ cmd/main.go
 
-bin/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -ldflags="-s -w  \
+bin/vmclarity-cli: $(shell find api) $(shell find cli/cmd) $(shell find cli/pkg) cli/go.mod cli/go.sum | $(BIN_DIR)
+	cd cli && go build -race -ldflags="-s -w  \
 		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o $@ cmd/vmclarity-cli/main.go
+		-o ../$@ cmd/main.go
 
 bin/vmclarity-ui-backend: $(shell find api) $(shell find uibackend/server/cmd) $(shell find uibackend/server/pkg) uibackend/server/go.mod uibackend/server/go.sum | $(BIN_DIR)
 	cd uibackend/server && go build -race -ldflags="-s -w \
@@ -347,7 +347,7 @@ $(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/vmclarity-cli $(DIS
 	$(info --- Bundling $(dir $<) into $(notdir $@))
 	tar cv -f $@ -C $(dir $<) --use-compress-program='gzip -9' $(notdir $^)
 
-$(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cmd/vmclarity-cli) $(shell find pkg) go.mod go.sum
+$(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cli/cmd) $(shell find cli/pkg) cli/go.mod cli/go.sum
 	$(info --- Building $(notdir $@) for $*)
 	GOOS=$(firstword $(subst -, ,$*)) \
 	GOARCH=$(lastword $(subst -, ,$*)) \

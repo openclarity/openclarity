@@ -24,7 +24,7 @@ import (
 	"github.com/onsi/gomega/types"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 func TestOperationTime(t *testing.T) {

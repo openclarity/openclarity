@@ -16,7 +16,7 @@ RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=lo
       gcc \
       libc6-dev
 
-WORKDIR /build
+WORKDIR /build/cli
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
      -X 'github.com/openclarity/vmclarity/utils/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/utils/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
-    -o /bin/vmclarity-cli cmd/vmclarity-cli/main.go
+    -o /bin/vmclarity-cli cmd/main.go
 
 FROM ${VMCLARITY_TOOLS_BASE}
 

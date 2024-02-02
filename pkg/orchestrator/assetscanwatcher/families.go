@@ -21,25 +21,25 @@ import (
 	"github.com/anchore/syft/syft/source"
 
 	"github.com/openclarity/vmclarity/api/types"
-	sharedconfig "github.com/openclarity/vmclarity/pkg/shared/config"
-	"github.com/openclarity/vmclarity/pkg/shared/families"
-	"github.com/openclarity/vmclarity/pkg/shared/families/exploits"
-	exploitsCommon "github.com/openclarity/vmclarity/pkg/shared/families/exploits/common"
-	exploitdbConfig "github.com/openclarity/vmclarity/pkg/shared/families/exploits/exploitdb/config"
-	infofinderTypes "github.com/openclarity/vmclarity/pkg/shared/families/infofinder/types"
-	"github.com/openclarity/vmclarity/pkg/shared/families/malware"
-	clamconfig "github.com/openclarity/vmclarity/pkg/shared/families/malware/clam/config"
-	malwarecommon "github.com/openclarity/vmclarity/pkg/shared/families/malware/common"
-	yaraconfig "github.com/openclarity/vmclarity/pkg/shared/families/malware/yara/config"
-	misconfiguration "github.com/openclarity/vmclarity/pkg/shared/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/pkg/shared/families/rootkits"
-	chkrootkitConfig "github.com/openclarity/vmclarity/pkg/shared/families/rootkits/chkrootkit/config"
-	rootkitsCommon "github.com/openclarity/vmclarity/pkg/shared/families/rootkits/common"
-	"github.com/openclarity/vmclarity/pkg/shared/families/sbom"
-	"github.com/openclarity/vmclarity/pkg/shared/families/secrets"
-	secretscommon "github.com/openclarity/vmclarity/pkg/shared/families/secrets/common"
-	gitleaksconfig "github.com/openclarity/vmclarity/pkg/shared/families/secrets/gitleaks/config"
-	"github.com/openclarity/vmclarity/pkg/shared/families/vulnerabilities"
+	cliconfig "github.com/openclarity/vmclarity/cli/pkg/config"
+	"github.com/openclarity/vmclarity/cli/pkg/families"
+	"github.com/openclarity/vmclarity/cli/pkg/families/exploits"
+	exploitsCommon "github.com/openclarity/vmclarity/cli/pkg/families/exploits/common"
+	exploitdbConfig "github.com/openclarity/vmclarity/cli/pkg/families/exploits/exploitdb/config"
+	infofinderTypes "github.com/openclarity/vmclarity/cli/pkg/families/infofinder/types"
+	"github.com/openclarity/vmclarity/cli/pkg/families/malware"
+	clamconfig "github.com/openclarity/vmclarity/cli/pkg/families/malware/clam/config"
+	malwarecommon "github.com/openclarity/vmclarity/cli/pkg/families/malware/common"
+	yaraconfig "github.com/openclarity/vmclarity/cli/pkg/families/malware/yara/config"
+	misconfiguration "github.com/openclarity/vmclarity/cli/pkg/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/cli/pkg/families/rootkits"
+	chkrootkitConfig "github.com/openclarity/vmclarity/cli/pkg/families/rootkits/chkrootkit/config"
+	rootkitsCommon "github.com/openclarity/vmclarity/cli/pkg/families/rootkits/common"
+	"github.com/openclarity/vmclarity/cli/pkg/families/sbom"
+	"github.com/openclarity/vmclarity/cli/pkg/families/secrets"
+	secretscommon "github.com/openclarity/vmclarity/cli/pkg/families/secrets/common"
+	gitleaksconfig "github.com/openclarity/vmclarity/cli/pkg/families/secrets/gitleaks/config"
+	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 )
 
 type FamiliesConfigOption func(*families.Config)
@@ -54,13 +54,13 @@ func withSBOM(config *types.SBOMConfig, opts *ScannerConfig) FamiliesConfigOptio
 			Enabled:       true,
 			AnalyzersList: config.GetAnalyzersList(),
 			Inputs:        nil, // rootfs directory will be determined by the CLI after mount.
-			AnalyzersConfig: &sharedconfig.Config{
+			AnalyzersConfig: &cliconfig.Config{
 				// TODO(sambetts) The user needs to be able to provide this configuration
-				Registry: &sharedconfig.Registry{},
-				Analyzer: &sharedconfig.Analyzer{
+				Registry: &cliconfig.Registry{},
+				Analyzer: &cliconfig.Analyzer{
 					Scope:        "squashed", // TODO(sambetts) This should be a default in the scanner/cli config
 					OutputFormat: "cyclonedx",
-					TrivyConfig: sharedconfig.AnalyzerTrivyConfig{
+					TrivyConfig: cliconfig.AnalyzerTrivyConfig{
 						Timeout: int(opts.TrivyScanTimeout / time.Second), // NOTE(chrisgacsal): Timeout is expected to be in seconds.
 					},
 				},
@@ -75,19 +75,19 @@ func withVulnerabilities(config *types.VulnerabilitiesConfig, opts *ScannerConfi
 			return
 		}
 
-		var grypeConfig sharedconfig.GrypeConfig
+		var grypeConfig cliconfig.GrypeConfig
 		if opts.GrypeServerAddress != "" {
-			grypeConfig = sharedconfig.GrypeConfig{
-				Mode: sharedconfig.ModeRemote,
-				RemoteGrypeConfig: sharedconfig.RemoteGrypeConfig{
+			grypeConfig = cliconfig.GrypeConfig{
+				Mode: cliconfig.ModeRemote,
+				RemoteGrypeConfig: cliconfig.RemoteGrypeConfig{
 					GrypeServerAddress: opts.GrypeServerAddress,
 					GrypeServerTimeout: opts.GrypeServerTimeout,
 				},
 			}
 		} else {
-			grypeConfig = sharedconfig.GrypeConfig{
-				Mode: sharedconfig.ModeLocal,
-				LocalGrypeConfig: sharedconfig.LocalGrypeConfig{
+			grypeConfig = cliconfig.GrypeConfig{
+				Mode: cliconfig.ModeLocal,
+				LocalGrypeConfig: cliconfig.LocalGrypeConfig{
 					UpdateDB:   true,
 					DBRootDir:  "/tmp/",
 					ListingURL: "https://toolbox-data.anchore.io/grype/databases/listing.json",
@@ -100,12 +100,12 @@ func withVulnerabilities(config *types.VulnerabilitiesConfig, opts *ScannerConfi
 			Enabled:       true,
 			ScannersList:  config.GetScannersList(),
 			InputFromSbom: false, // will be determined by the CLI.
-			ScannersConfig: &sharedconfig.Config{
+			ScannersConfig: &cliconfig.Config{
 				// TODO(sambetts) The user needs to be able to provide this configuration
-				Registry: &sharedconfig.Registry{},
-				Scanner: &sharedconfig.Scanner{
+				Registry: &cliconfig.Registry{},
+				Scanner: &cliconfig.Scanner{
 					GrypeConfig: grypeConfig,
-					TrivyConfig: sharedconfig.ScannerTrivyConfig{
+					TrivyConfig: cliconfig.ScannerTrivyConfig{
 						Timeout:    int(opts.TrivyScanTimeout / time.Second), // NOTE(chrisgacsal): Timeout is expected to be in seconds.
 						ServerAddr: opts.TrivyServerAddress,
 					},

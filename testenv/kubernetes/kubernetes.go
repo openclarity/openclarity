@@ -26,7 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	sharedutils "github.com/openclarity/vmclarity/pkg/shared/utils"
+	sharedutils "github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/asset"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/kind"

@@ -21,9 +21,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	provider_service "github.com/openclarity/vmclarity/pkg/orchestrator/provider/external/proto"
-	"github.com/openclarity/vmclarity/pkg/shared/utils"
 )
 
 func convertAssetToModels(asset *provider_service.Asset) (types.Asset, error) {
