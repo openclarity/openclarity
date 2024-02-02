@@ -107,6 +107,18 @@ jobs:
       push: ${{ inputs.push }}
       timestamp: ${{ needs.timestamp.outputs.timestamp }}
 
+  vmclarity-cr-discovery-server:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.cr-discovery-server
+      image_name: ${{ needs.images.outputs.cr-discovery-server-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
   post-images:
     if: github.event_name == 'pull_request' && inputs.post_image_tags
     runs-on: ubuntu-latest
@@ -117,6 +129,7 @@ jobs:
       - vmclarity-ui-backend
       - vmclarity-ui
       - vmclarity-cli
+      - vmclarity-cr-discovery-server
     steps:
       - name: Post comment with image tags
         uses: marocchino/sticky-pull-request-comment@v2
@@ -134,4 +147,4 @@ jobs:
             * `${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}`
             * `${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}`
             * `${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}`
-
+            * `${{ format('{0}:{1}', needs.images.outputs.cr-discovery-server-image, inputs.image_tag) }}`

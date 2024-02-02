@@ -31,8 +31,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
+	apitypes "github.com/openclarity/vmclarity/api/types"
+	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
 	"github.com/openclarity/vmclarity/pkg/orchestrator/provider"
 	"github.com/openclarity/vmclarity/pkg/shared/families"
 	"github.com/openclarity/vmclarity/pkg/shared/utils"
@@ -80,12 +80,12 @@ func New(_ context.Context) (provider.Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() types.CloudProvider {
-	return types.Kubernetes
+func (p *Provider) Kind() apitypes.CloudProvider {
+	return apitypes.Kubernetes
 }
 
-func (p *Provider) Estimate(_ context.Context, _ types.AssetScanStats, _ *types.Asset, _ *types.AssetScanTemplate) (*types.Estimation, error) {
-	return &types.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(_ context.Context, _ apitypes.AssetScanStats, _ *apitypes.Asset, _ *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
+	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
@@ -134,15 +134,15 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 		return fmt.Errorf("failed to get asset object type: %w", err)
 	}
 
-	clients := []*containerruntimediscovery.Client{}
+	clients := []*discoveryclient.Client{}
 	for _, discoverer := range discoverers.Items {
 		discovererEndpoint := net.JoinHostPort(discoverer.Status.PodIP, "8080")
-		clients = append(clients, containerruntimediscovery.NewClient(discovererEndpoint))
+		clients = append(clients, discoveryclient.NewClient(discovererEndpoint))
 	}
 
 	switch value := objectType.(type) {
-	case types.ContainerImageInfo:
-		var pickedClient *containerruntimediscovery.Client
+	case apitypes.ContainerImageInfo:
+		var pickedClient *discoveryclient.Client
 		for _, client := range clients {
 			_, err := client.GetImage(ctx, value.ImageID)
 			if err == nil {
@@ -160,8 +160,8 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 			// change this to a normal Errorf.
 			return provider.FatalErrorf("unable to run scanner job: %w", err)
 		}
-	case types.ContainerInfo:
-		var pickedClient *containerruntimediscovery.Client
+	case apitypes.ContainerInfo:
+		var pickedClient *discoveryclient.Client
 		for _, client := range clients {
 			_, err := client.GetContainer(ctx, value.ContainerID)
 			if err == nil {

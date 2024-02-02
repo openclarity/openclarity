@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package main
 
 import (
 	"context"
@@ -27,7 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
+	server "github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
@@ -46,7 +46,7 @@ var (
 			ctx := cmd.Context()
 			ctx = log.SetLoggerForContext(ctx, logger)
 
-			discoverer, err := containerruntimediscovery.NewDiscoverer(ctx)
+			discoverer, err := server.NewDiscoverer(ctx)
 			if err != nil {
 				return fmt.Errorf("unable to create discoverer: %w", err)
 			}
@@ -54,7 +54,7 @@ var (
 			abortCtx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 			defer cancel()
 
-			crds := containerruntimediscovery.NewContainerRuntimeDiscoveryServer(discoverer)
+			crds := server.NewContainerRuntimeDiscoveryServer(discoverer)
 			crds.Serve(abortCtx, listenAddr)
 
 			logger.Infof("Server started listening on %s...", listenAddr)
@@ -77,12 +77,6 @@ var (
 	}
 )
 
-// Execute executes the root command.
-func Execute() error {
-	// nolint: wrapcheck
-	return rootCmd.Execute()
-}
-
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(
@@ -98,4 +92,8 @@ func init() {
 
 func initConfig() {
 	viper.AutomaticEnv()
+}
+
+func main() {
+	cobra.CheckErr(rootCmd.Execute())
 }

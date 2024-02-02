@@ -25,13 +25,13 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery"
+	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
 // nolint:cyclop,gocognit
-func (p *Provider) discoverImages(ctx context.Context, outputChan chan types.AssetType, crDiscoverers []corev1.Pod) error {
+func (p *Provider) discoverImages(ctx context.Context, outputChan chan apitypes.AssetType, crDiscoverers []corev1.Pod) error {
 	for _, discoverer := range crDiscoverers {
 		err := p.discoverImagesFromDiscoverer(ctx, outputChan, discoverer)
 		if err != nil {
@@ -42,7 +42,7 @@ func (p *Provider) discoverImages(ctx context.Context, outputChan chan types.Ass
 	return nil
 }
 
-func (p *Provider) discoverImagesFromDiscoverer(ctx context.Context, outputChan chan types.AssetType, discoverer corev1.Pod) error {
+func (p *Provider) discoverImagesFromDiscoverer(ctx context.Context, outputChan chan apitypes.AssetType, discoverer corev1.Pod) error {
 	discovererEndpoint := net.JoinHostPort(discoverer.Status.PodIP, "8080")
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/images", discovererEndpoint), nil)
 	if err != nil {
@@ -59,7 +59,7 @@ func (p *Provider) discoverImagesFromDiscoverer(ctx context.Context, outputChan 
 		return fmt.Errorf("unexpected error from discoverer status %s: %s", resp.Status, b)
 	}
 
-	var imageResponse containerruntimediscovery.ListImagesResponse
+	var imageResponse types.ListImagesResponse
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&imageResponse)
 	if err != nil {
@@ -75,7 +75,7 @@ func (p *Provider) discoverImagesFromDiscoverer(ctx context.Context, outputChan 
 		}
 
 		// Convert to asset
-		asset := types.AssetType{}
+		asset := apitypes.AssetType{}
 		err = asset.FromContainerImageInfo(image)
 		if err != nil {
 			return fmt.Errorf("failed to create AssetType from ContainerImageInfo: %w", err)
