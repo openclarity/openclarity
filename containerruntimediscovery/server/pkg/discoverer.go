@@ -13,16 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package containerruntimediscovery
+package pkg
 
 import (
 	"context"
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/containerd"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/docker"
-	"github.com/openclarity/vmclarity/pkg/containerruntimediscovery/types"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg/containerd"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg/docker"
+	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 

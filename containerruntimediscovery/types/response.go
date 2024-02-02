@@ -13,19 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package types
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/openclarity/vmclarity/cmd/vmclarity-cr-discovery-server/cmd"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
-func main() {
-	err := cmd.Execute()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+type ListImagesResponse struct {
+	Images []apitypes.ContainerImageInfo
+}
+
+type ListContainersResponse struct {
+	Containers []apitypes.ContainerInfo
 }
