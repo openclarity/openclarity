@@ -247,6 +247,8 @@ replace (
 	github.com/openclarity/vmclarity/api/client => ../api/client
 	github.com/openclarity/vmclarity/api/types => ../api/types
 	github.com/openclarity/vmclarity/cli => ../cli
+	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
+	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
 	github.com/openclarity/vmclarity/utils => ../utils
 )
 
