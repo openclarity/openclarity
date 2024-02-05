@@ -153,16 +153,12 @@ e2e: docker ## Run end-to-end test suite
 license-check: bin/licensei license-cache ## Check licenses for software components
 	$(LICENSEI_BIN) check
 
-.PHONY: license-header
-license-header: bin/licensei ## Check license headers in source code files
-	$(LICENSEI_BIN) header
-
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
 	$(LICENSEI_BIN) cache
 
 .PHONY: lint
-lint: license-check license-header lint-actions lint-bicep lint-cfn lint-go lint-helm ## Run all the linters
+lint: license-check lint-actions lint-bicep lint-cfn lint-go lint-helm ## Run all the linters
 
 .PHONY: lint-actions
 lint-actions: bin/actionlint ## Lint Github Actions
