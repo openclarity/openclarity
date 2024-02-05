@@ -30,13 +30,6 @@ HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm
 HELM_OCI_REPOSITORY := ghcr.io/openclarity/charts
 DIST_DIR ?= $(ROOT_DIR)/dist
 
-VMCLARITY_APISERVER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG)
-VMCLARITY_ORCHESTRATOR_IMAGE = $(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG)
-VMCLARITY_UI_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG)
-VMCLARITY_UIBACKEND_IMAGE = $(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG)
-VMCLARITY_SCANNER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG)
-VMCLARITY_CR_DISCOVERY_SERVER_IMAGE = $(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG)
-
 ####
 ## Load additional makefiles
 ####
@@ -146,13 +139,13 @@ $(FIXGOMODULES):
 fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
 .PHONY: e2e
-e2e: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server ## Run end-to-end test suite
-	export VMCLARITY_E2E_APISERVER_IMAGE=$(VMCLARITY_APISERVER_IMAGE) \
-           VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(VMCLARITY_ORCHESTRATOR_IMAGE) \
-           VMCLARITY_E2E_UI_IMAGE=$(VMCLARITY_UI_IMAGE) \
-           VMCLARITY_E2E_UIBACKEND_IMAGE=$(VMCLARITY_UIBACKEND_IMAGE) \
-           VMCLARITY_E2E_SCANNER_IMAGE=$(VMCLARITY_SCANNER_IMAGE) \
-           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(VMCLARITY_CR_DISCOVERY_SERVER_IMAGE) && \
+e2e: docker ## Run end-to-end test suite
+	export VMCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) \
+           VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) \
+           VMCLARITY_E2E_UI_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) \
+           VMCLARITY_E2E_UIBACKEND_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) \
+           VMCLARITY_E2E_SCANNER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) \
+           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG) && \
 	cd e2e && \
 	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
@@ -205,92 +198,93 @@ test: $(TESTGOMODULES) ## Run Go unit tests
 
 ##@ Docker
 
+# Export params required in Docker Bake
+BAKE_OPTS =
+BAKE_OPTS += --set *.args.DOCKER_REGISTRY=$(DOCKER_REGISTRY)
+BAKE_OPTS += --set *.args.DOCKER_TAG=$(DOCKER_TAG)
+BAKE_OPTS += --set *.args.VERSION=$(VERSION)
+BAKE_OPTS += --set *.args.BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)
+BAKE_OPTS += --set *.args.COMMIT_HASH=$(COMMIT_HASH)
+ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
+	BAKE_OPTS += --set vmclarity-cli.args.VMCLARITY_TOOLS_BASE=$(VMCLARITY_TOOLS_BASE)
+endif
+
 .PHONY: docker
-docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server ## Build All Docker images
+docker: ## Build All Docker images
+	$(info Building all docker images ...)
+	docker buildx bake $(BAKE_OPTS)
 
 .PHONY: docker-apiserver
 docker-apiserver: ## Build API Server container image
 	$(info Building apiserver docker image ...)
-	docker build --file ./Dockerfile.apiserver --build-arg VERSION=$(VERSION) \
-		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
-		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(VMCLARITY_APISERVER_IMAGE) .
-
-ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
-VMCLARITY_TOOLS_CLI_DOCKER_ARG=--build-arg VMCLARITY_TOOLS_BASE=${VMCLARITY_TOOLS_BASE}
-endif
+	docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
 
 .PHONY: docker-cli
 docker-cli: ## Build CLI container image
 	$(info Building cli docker image ...)
-	docker build --file ./Dockerfile.cli --build-arg VERSION=$(VERSION) \
-		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
-		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		${VMCLARITY_TOOLS_CLI_DOCKER_ARG} \
-		-t $(VMCLARITY_SCANNER_IMAGE) .
+	docker buildx bake $(BAKE_OPTS) vmclarity-cli
 
 .PHONY: docker-orchestrator
 docker-orchestrator: ## Build Orchestrator container image
 	$(info Building orchestrator docker image ...)
-	docker build --file ./Dockerfile.orchestrator --build-arg VERSION=$(VERSION) \
-		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
-		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(VMCLARITY_ORCHESTRATOR_IMAGE) .
+	docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
 
 .PHONY: docker-ui
 docker-ui: ## Build UI container image
 	$(info Building ui docker image ...)
-	docker build --file ./Dockerfile.ui \
-		-t $(VMCLARITY_UI_IMAGE) .
+	docker buildx bake $(BAKE_OPTS) vmclarity-ui
 
 .PHONY: docker-ui-backend
 docker-ui-backend: ## Build UI Backend container image
 	$(info Building ui-backend docker image ...)
-	docker build --file ./Dockerfile.uibackend --build-arg VERSION=$(VERSION) \
-		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
-		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(VMCLARITY_UIBACKEND_IMAGE) .
+	docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
 
 .PHONY: docker-cr-discovery-server
 docker-cr-discovery-server: ## Build K8S Image Resolver Docker image
 	$(info Building cr-discovery-server docker image ...)
-	docker build --file ./Dockerfile.cr-discovery-server --build-arg VERSION=$(VERSION) \
-		--build-arg BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)  \
-		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
-		-t $(VMCLARITY_CR_DISCOVERY_SERVER_IMAGE) .
+	docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
 
 .PHONY: push-docker
-push-docker: push-docker-apiserver push-docker-cli push-docker-orchestrator push-docker-ui push-docker-ui-backend push-docker-cr-discovery-server ## Build and Push All Docker images
+push-docker: BAKE_OPTS += --set *.output=type=registry
+push-docker: ## Build and Push All Docker images
+	$(info Publishing all docker images ...)
+	docker buildx bake $(BAKE_OPTS)
 
 .PHONY: push-docker-apiserver
-push-docker-apiserver: docker-apiserver ## Build and push API Server container image
+push-docker-apiserver: BAKE_OPTS += --set *.output=type=registry
+push-docker-apiserver: ## Build and push API Server container image
 	$(info Publishing apiserver docker image ...)
-	docker push $(DOCKER_IMAGE)-apiserver:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
 
 .PHONY: push-docker-cli
-push-docker-cli: docker-cli ## Build and push CLI Docker image
+push-docker-cli: BAKE_OPTS += --set *.output=type=registry
+push-docker-cli: ## Build and push CLI Docker image
 	$(info Publishing cli docker image ...)
-	docker push $(DOCKER_IMAGE)-cli:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-cli
 
 .PHONY: push-docker-orchestrator
-push-docker-orchestrator: docker-orchestrator ## Build and push Orchestrator container image
+push-docker-orchestrator: BAKE_OPTS += --set *.output=type=registry
+push-docker-orchestrator: ## Build and push Orchestrator container image
 	$(info Publishing orchestrator docker image ...)
-	docker push $(DOCKER_IMAGE)-orchestrator:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
 
 .PHONY: push-docker-ui
-push-docker-ui: docker-ui ## Build and Push UI container image
+push-docker-ui: BAKE_OPTS += --set *.output=type=registry
+push-docker-ui: ## Build and Push UI container image
 	$(info Publishing ui docker image ...)
-	docker push $(DOCKER_IMAGE)-ui:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-ui
 
 .PHONY: push-docker-ui-backend
-push-docker-ui-backend: docker-ui-backend ## Build and push UI Backend container image
+push-docker-ui-backend: BAKE_OPTS += --set *.output=type=registry
+push-docker-ui-backend: ## Build and push UI Backend container image
 	$(info Publishing ui-backend docker image ...)
-	docker push $(DOCKER_IMAGE)-ui-backend:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
 
 .PHONY: push-docker-cr-discovery-server
-push-docker-cr-discovery-server: docker-cr-discovery-server ## Build and Push K8S Image Resolver Docker image
+push-docker-cr-discovery-server: BAKE_OPTS += --set *.output=type=registry
+push-docker-cr-discovery-server: ## Build and Push K8S Image Resolver Docker image
 	@echo "Publishing cr-discovery-server docker image ..."
-	docker push $(DOCKER_IMAGE)-cr-discovery-server:$(DOCKER_TAG)
+	docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
 
 ##@ Code generation
 
