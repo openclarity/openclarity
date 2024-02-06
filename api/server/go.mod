@@ -84,6 +84,7 @@ require (
 )
 
 replace (
+	github.com/openclarity/vmclarity/api/client => ../client
 	github.com/openclarity/vmclarity/api/types => ../types
 	github.com/openclarity/vmclarity/cli => ../../cli
 	github.com/openclarity/vmclarity/uibackend/types => ../../uibackend/types

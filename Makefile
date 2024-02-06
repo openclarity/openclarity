@@ -113,6 +113,15 @@ $(TIDYGOMODULES):
 .PHONY: gomod-tidy
 gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
 
+.PHONY: $(MODLISTGOMODULES)
+MODLISTGOMODULES = $(addprefix modlist-, $(GOMODULES))
+
+$(MODLISTGOMODULES):
+	cd $(dir $(@:modlist-%=%)) && go list -m -mod=readonly all 1> /dev/null
+
+.PHONY: gomod-list
+gomod-list: $(MODLISTGOMODULES)
+
 .PHONY: ui
 ui: ## Build UI component
 	$(info Building UI ...)
