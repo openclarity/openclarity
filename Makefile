@@ -149,13 +149,29 @@ e2e: docker ## Run end-to-end test suite
 	cd e2e && \
 	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
-.PHONY: license-check
-license-check: bin/licensei license-cache ## Check licenses for software components
-	$(LICENSEI_BIN) check
+VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 
-.PHONY: license-cache
-license-cache: bin/licensei ## Generate license cache
-	$(LICENSEI_BIN) cache
+$(VENDORMODULES):
+	cd $(dir $(@:vendor-%=%)) && go mod vendor
+
+.PHONY: gomod-vendor
+gomod-vendor: $(VENDORMODULES) # Make vendored copy of dependencies for all modules
+
+LICENSECHECKMODULES = $(GOMODULES)
+
+$(LICENSECHECKMODULES):
+	cd $(dir $(@:license-check-%=%)) && "$(LICENSEI_BIN)" check --config "$(LICENSEI_CONFIG)"
+
+.PHONY: license-check
+license-check: bin/licensei license-cache $(LICENSECHECKMODULES) ## Check licenses for software components
+
+LICENSECACHEMODULES = $(addprefix license-cache-, $(GOMODULES))
+
+$(LICENSECACHEMODULES):
+	cd $(dir $(@:license-cache-%=%)) && "$(LICENSEI_BIN)" cache --config "$(LICENSEI_CONFIG)"
+
++.PHONY: license-cache
+license-cache: bin/licensei $(LICENSECACHEMODULES) ## Generate license cache
 
 .PHONY: lint
 lint: license-check lint-actions lint-bicep lint-cfn lint-go lint-helm ## Run all the linters
