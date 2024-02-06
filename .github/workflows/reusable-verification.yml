@@ -16,7 +16,7 @@ jobs:
           # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
           # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
           cache: false
-          go-version-file: 'go.mod'
+          go-version-file: '.go-version'
 
       - name: License cache
         uses: actions/cache@v4
@@ -92,7 +92,7 @@ jobs:
           # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
           # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
           cache: false
-          go-version-file: 'go.mod'
+          go-version-file: '.go-version'
 
       - name: Setup Go caching
         uses: actions/cache@v4
