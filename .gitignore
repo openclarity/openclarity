@@ -8,3 +8,5 @@ site/
 dist
 go.work*
 .envrc
+.licensei.cache
+vendor

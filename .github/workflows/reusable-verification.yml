@@ -18,34 +18,27 @@ jobs:
           cache: false
           go-version-file: 'go.mod'
 
-      - name: Setup Go caching
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ github.ref_name }}-
-            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
-
       - name: License cache
         uses: actions/cache@v4
         with:
-          path: .licensei.cache
+          path: |
+            .licensei.cache
+            **/.licensei.cache
           key: licensei-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             licensei-${{ github.ref_name }}-
             licensei-${{ github.event.repository.default_branch }}-
+          save-always: true
+
+      # Vendor deps before running https://github.com/goph/licensei
+      # to avoid false-positives when modules GitHub repo could not be determined
+      - name: Vendor dependencies to retrieve licenses locally
+        run: make gomod-vendor
 
       - name: Download license information for dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make license-cache
-
-      - name: Vendor dependencies to retrieve licenses locally
-        # Vendor deps before running https://github.com/goph/licensei
-        # to avoid false-positives when modules GitHub repo could not be determined
-        run: make gomod-vendor
 
       - name: Check licenses
         env:
