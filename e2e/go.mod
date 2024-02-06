@@ -13,7 +13,7 @@ require (
 	github.com/openclarity/vmclarity/testenv v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/utils v0.0.0-20240202114539-0b2edd72c17d
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.18.2
 )
@@ -90,6 +90,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.20.2 // indirect
 	github.com/go-openapi/jsonreference v0.20.3 // indirect
 	github.com/go-openapi/swag v0.22.8 // indirect
+	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
@@ -135,6 +136,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/miekg/pkcs11 v1.1.1 // indirect
@@ -159,7 +161,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/vmclarity v0.6.0 // indirect
+	github.com/openclarity/vmclarity/installation v0.0.0-00010101000000-000000000000 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc5 // indirect
 	github.com/oras-project/oras-credentials-go v0.3.1 // indirect
@@ -261,12 +263,12 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity => ../
 	github.com/openclarity/vmclarity/api/client => ../api/client
 	github.com/openclarity/vmclarity/api/types => ../api/types
 	github.com/openclarity/vmclarity/cli => ../cli
 	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
+	github.com/openclarity/vmclarity/installation => ../installation
 	github.com/openclarity/vmclarity/testenv => ../testenv
 	github.com/openclarity/vmclarity/uibackend/client => ../uibackend/client
 	github.com/openclarity/vmclarity/uibackend/types => ../uibackend/types
