@@ -3,6 +3,7 @@
 ####
 
 LICENSEI_BIN := $(BIN_DIR)/licensei
+LICENSEI_CONFIG := $(ROOT_DIR)/.licensei.toml
 LICENSEI_VERSION = 0.9.0
 
 bin/licensei: bin/licensei-$(LICENSEI_VERSION)
