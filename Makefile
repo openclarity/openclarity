@@ -56,12 +56,12 @@ build: ui build-all-go ## Build all components
 .PHONY: build-all-go
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
-bin/vmclarity-orchestrator: $(shell find api) $(shell find cmd/vmclarity-orchestrator) $(shell find pkg) go.mod go.sum | $(BIN_DIR)
-	go build -race -ldflags="-s -w \
+bin/vmclarity-orchestrator: $(shell find api) $(shell find orchestrator/cmd) $(shell find orchestrator/pkg) go.mod go.sum | $(BIN_DIR)
+	cd orchestrator && go build -race -ldflags="-s -w \
 		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
 		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o $@ cmd/vmclarity-orchestrator/main.go
+		-o ../$@ cmd/main.go
 
 bin/vmclarity-apiserver: $(shell find api) $(shell find api/server/cmd) $(shell find api/server/pkg) api/server/go.mod api/server/go.sum | $(BIN_DIR)
 	cd api/server && go build -race -ldflags="-s -w \

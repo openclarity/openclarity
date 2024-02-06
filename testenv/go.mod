@@ -11,8 +11,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.31.1
-	github.com/openclarity/vmclarity v0.6.0
 	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/installation v0.0.0-00010101000000-000000000000
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -158,7 +158,7 @@ require (
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000 // indirect
-	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000 // indirect
+	github.com/openclarity/vmclarity/utils v0.0.0-20240202114539-0b2edd72c17d // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc5 // indirect
 	github.com/oras-project/oras-credentials-go v0.3.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -243,12 +243,12 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity => ../
 	github.com/openclarity/vmclarity/api/client => ../api/client
 	github.com/openclarity/vmclarity/api/types => ../api/types
 	github.com/openclarity/vmclarity/cli => ../cli
 	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
+	github.com/openclarity/vmclarity/installation => ../installation
 	github.com/openclarity/vmclarity/utils => ../utils
 )
 
