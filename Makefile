@@ -14,7 +14,7 @@ VERSION ?= $(shell git rev-parse --short HEAD)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
-GO_VERSION ?= 1.21.4
+GO_VERSION ?= $(shell cat $(ROOT_DIR)/.go-version)
 
 ####
 ## Runtime variables
