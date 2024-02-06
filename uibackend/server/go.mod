@@ -70,7 +70,6 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity => ../../
 	github.com/openclarity/vmclarity/api/client => ../../api/client
 	github.com/openclarity/vmclarity/api/types => ../../api/types
 	github.com/openclarity/vmclarity/cli => ../../cli
