@@ -22,7 +22,7 @@ GO_VERSION ?= $(shell cat $(ROOT_DIR)/.go-version)
 
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_DIR := $(ROOT_DIR)/bin
-GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod')
+GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod' -exec dirname {} \;)
 BUILD_TIMESTAMP := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 COMMIT_HASH := $(shell git rev-parse HEAD)
 INSTALLATION_DIR := $(ROOT_DIR)/installation
@@ -56,40 +56,25 @@ build: ui build-all-go ## Build all components
 .PHONY: build-all-go
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
-bin/vmclarity-orchestrator: $(shell find api) $(shell find orchestrator/cmd) $(shell find orchestrator/pkg) go.mod go.sum | $(BIN_DIR)
-	cd orchestrator && go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o ../$@ cmd/main.go
+LDFLAGS = -s -w
+LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)'
+LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)'
+LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
-bin/vmclarity-apiserver: $(shell find api) $(shell find api/server/cmd) $(shell find api/server/pkg) api/server/go.mod api/server/go.sum | $(BIN_DIR)
-	cd api/server && go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o ../../$@ cmd/main.go
+bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils) | $(BIN_DIR)
+	cd orchestrator && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cli: $(shell find api) $(shell find cli/cmd) $(shell find cli/pkg) cli/go.mod cli/go.sum | $(BIN_DIR)
-	cd cli && go build -race -ldflags="-s -w  \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o ../$@ cmd/main.go
+bin/vmclarity-apiserver: $(shell find api api/server) | $(BIN_DIR)
+	cd api/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-ui-backend: $(shell find api) $(shell find uibackend/server/cmd) $(shell find uibackend/server/pkg) uibackend/server/go.mod uibackend/server/go.sum | $(BIN_DIR)
-	cd uibackend/server && go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o ../../$@ cmd/main.go
+bin/vmclarity-cli: $(shell find api cli utils) | $(BIN_DIR)
+	cd cli && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cr-discovery-server: $(shell find api) $(shell find containerruntimediscovery/server/cmd) $(shell find containerruntimediscovery/server/pkg) containerruntimediscovery/server/go.mod containerruntimediscovery/server/go.sum | $(BIN_DIR)
-	cd containerruntimediscovery/server && go build -race -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o ../../$@ cmd/main.go
+bin/vmclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
+	cd uibackend/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+
+bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils) | $(BIN_DIR)
+	cd containerruntimediscovery/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
 clean: clean-ui clean-go ## Clean all build artifacts
@@ -108,7 +93,7 @@ clean-ui: ## Clean UI build
 TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
 
 $(TIDYGOMODULES):
-	cd $(dir $(@:tidy-%=%)) && go mod tidy -go=$(GO_VERSION)
+	cd $(@:tidy-%=%) && go mod tidy -go=$(GO_VERSION)
 
 .PHONY: gomod-tidy
 gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
@@ -117,7 +102,7 @@ gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
 MODLISTGOMODULES = $(addprefix modlist-, $(GOMODULES))
 
 $(MODLISTGOMODULES):
-	cd $(dir $(@:modlist-%=%)) && go list -m -mod=readonly all 1> /dev/null
+	cd $(@:modlist-%=%) && go list -m -mod=readonly all 1> /dev/null
 
 .PHONY: gomod-list
 gomod-list: $(MODLISTGOMODULES)
@@ -138,46 +123,51 @@ FIXGOMODULES = $(addprefix fix-, $(GOMODULES))
 
 .PHONY: $(LINTGOMODULES)
 $(LINTGOMODULES):
-	cd $(dir $(@:lint-%=%)) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)"
+	cd $(@:lint-%=%) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)"
 
 .PHONY: $(FIXGOMODULES)
 $(FIXGOMODULES):
-	cd $(dir $(@:fix-%=%)) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)" --fix
+	cd $(@:fix-%=%) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)" --fix
 
 .PHONY: fix
 fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
+E2E_TARGETS =
+E2E_ENV =
+ifneq ($(CI),true)
+	E2E_TARGETS += docker
+	E2E_ENV += VMCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_UI_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_UIBACKEND_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_SCANNER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG)
+endif
+
 .PHONY: e2e
-e2e: docker ## Run end-to-end test suite
-	export VMCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG) \
-           VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG) \
-           VMCLARITY_E2E_UI_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG) \
-           VMCLARITY_E2E_UIBACKEND_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG) \
-           VMCLARITY_E2E_SCANNER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG) \
-           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG) && \
-	cd e2e && \
-	go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
+e2e: $(E2E_TARGETS) ## Run end-to-end test suite
+	cd e2e && $(E2E_ENV) go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 
 $(VENDORMODULES):
-	cd $(dir $(@:vendor-%=%)) && go mod vendor
+	cd $(@:vendor-%=%) && go mod vendor
 
 .PHONY: gomod-vendor
 gomod-vendor: $(VENDORMODULES) # Make vendored copy of dependencies for all modules
 
-LICENSECHECKMODULES = $(GOMODULES)
+LICENSECHECKMODULES = $(addprefix license-check-, $(GOMODULES))
 
 $(LICENSECHECKMODULES):
-	cd $(dir $(@:license-check-%=%)) && "$(LICENSEI_BIN)" check --config "$(LICENSEI_CONFIG)"
+	cd $(@:license-check-%=%) && "$(LICENSEI_BIN)" check --config "$(LICENSEI_CONFIG)"
 
 .PHONY: license-check
-license-check: bin/licensei license-cache $(LICENSECHECKMODULES) ## Check licenses for software components
+license-check: bin/licensei $(LICENSECHECKMODULES) ## Check licenses for software components
 
 LICENSECACHEMODULES = $(addprefix license-cache-, $(GOMODULES))
 
 $(LICENSECACHEMODULES):
-	cd $(dir $(@:license-cache-%=%)) && "$(LICENSEI_BIN)" cache --config "$(LICENSEI_CONFIG)"
+	cd $(@:license-cache-%=%) && "$(LICENSEI_BIN)" cache --config "$(LICENSEI_CONFIG)"
 
 +.PHONY: license-cache
 license-cache: bin/licensei $(LICENSECACHEMODULES) ## Generate license cache
@@ -212,7 +202,7 @@ endif
 TESTGOMODULES = $(addprefix test-, $(GOMODULES))
 
 $(TESTGOMODULES):
-	cd $(dir $(@:test-%=%)) && go test $(GOTEST_OPTS) ./...
+	cd $(@:test-%=%) && go test $(GOTEST_OPTS) ./...
 
 .PHONY: test
 test: $(TESTGOMODULES) ## Run Go unit tests
@@ -220,12 +210,13 @@ test: $(TESTGOMODULES) ## Run Go unit tests
 ##@ Docker
 
 # Export params required in Docker Bake
+BAKE_ENV = DOCKER_REGISTRY=$(DOCKER_REGISTRY)
+BAKE_ENV += DOCKER_TAG=$(DOCKER_TAG)
+BAKE_ENV += VERSION=$(VERSION)
+BAKE_ENV += BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)
+BAKE_ENV += COMMIT_HASH=$(COMMIT_HASH)
+
 BAKE_OPTS =
-BAKE_OPTS += --set *.args.DOCKER_REGISTRY=$(DOCKER_REGISTRY)
-BAKE_OPTS += --set *.args.DOCKER_TAG=$(DOCKER_TAG)
-BAKE_OPTS += --set *.args.VERSION=$(VERSION)
-BAKE_OPTS += --set *.args.BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)
-BAKE_OPTS += --set *.args.COMMIT_HASH=$(COMMIT_HASH)
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
 	BAKE_OPTS += --set vmclarity-cli.args.VMCLARITY_TOOLS_BASE=$(VMCLARITY_TOOLS_BASE)
 endif
@@ -233,79 +224,79 @@ endif
 .PHONY: docker
 docker: ## Build All Docker images
 	$(info Building all docker images ...)
-	docker buildx bake $(BAKE_OPTS)
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS)
 
 .PHONY: docker-apiserver
 docker-apiserver: ## Build API Server container image
 	$(info Building apiserver docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
 
 .PHONY: docker-cli
 docker-cli: ## Build CLI container image
 	$(info Building cli docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-cli
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cli
 
 .PHONY: docker-orchestrator
 docker-orchestrator: ## Build Orchestrator container image
 	$(info Building orchestrator docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
 
 .PHONY: docker-ui
 docker-ui: ## Build UI container image
 	$(info Building ui docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-ui
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui
 
 .PHONY: docker-ui-backend
 docker-ui-backend: ## Build UI Backend container image
 	$(info Building ui-backend docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
 
 .PHONY: docker-cr-discovery-server
 docker-cr-discovery-server: ## Build K8S Image Resolver Docker image
 	$(info Building cr-discovery-server docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
 
 .PHONY: push-docker
 push-docker: BAKE_OPTS += --set *.output=type=registry
 push-docker: ## Build and Push All Docker images
 	$(info Publishing all docker images ...)
-	docker buildx bake $(BAKE_OPTS)
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS)
 
 .PHONY: push-docker-apiserver
 push-docker-apiserver: BAKE_OPTS += --set *.output=type=registry
 push-docker-apiserver: ## Build and push API Server container image
 	$(info Publishing apiserver docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
 
 .PHONY: push-docker-cli
 push-docker-cli: BAKE_OPTS += --set *.output=type=registry
 push-docker-cli: ## Build and push CLI Docker image
 	$(info Publishing cli docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-cli
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cli
 
 .PHONY: push-docker-orchestrator
 push-docker-orchestrator: BAKE_OPTS += --set *.output=type=registry
 push-docker-orchestrator: ## Build and push Orchestrator container image
 	$(info Publishing orchestrator docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
 
 .PHONY: push-docker-ui
 push-docker-ui: BAKE_OPTS += --set *.output=type=registry
 push-docker-ui: ## Build and Push UI container image
 	$(info Publishing ui docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-ui
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui
 
 .PHONY: push-docker-ui-backend
 push-docker-ui-backend: BAKE_OPTS += --set *.output=type=registry
 push-docker-ui-backend: ## Build and push UI Backend container image
 	$(info Publishing ui-backend docker image ...)
-	docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
 
 .PHONY: push-docker-cr-discovery-server
 push-docker-cr-discovery-server: BAKE_OPTS += --set *.output=type=registry
 push-docker-cr-discovery-server: ## Build and Push K8S Image Resolver Docker image
 	@echo "Publishing cr-discovery-server docker image ..."
-	docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
 
 ##@ Code generation
 
@@ -362,16 +353,12 @@ $(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/vmclarity-cli $(DIS
 	$(info --- Bundling $(dir $<) into $(notdir $@))
 	tar cv -f $@ -C $(dir $<) --use-compress-program='gzip -9' $(notdir $^)
 
-$(DIST_DIR)/%/vmclarity-cli: $(shell find api) $(shell find cli/cmd) $(shell find cli/pkg) cli/go.mod cli/go.sum
+$(DIST_DIR)/%/vmclarity-cli: $(shell find api cli utils)
 	$(info --- Building $(notdir $@) for $*)
 	GOOS=$(firstword $(subst -, ,$*)) \
 	GOARCH=$(lastword $(subst -, ,$*)) \
 	CGO_ENABLED=0 \
-	go build -ldflags="-s -w \
-		-X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)' \
-		-X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'" \
-		-o $@ cmd/$(notdir $@)/main.go
+	go build -ldflags="$(LDFLAGS)" -o $@ cmd/$(notdir $@)/main.go
 
 $(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE
 	cp -v $< $@

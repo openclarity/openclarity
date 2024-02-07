@@ -14,6 +14,18 @@ ignored = [
     "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
     "github.com/invopop/yaml", # MIT - https://github.com/invopop/yaml/blob/main/LICENSE
     "github.com/openclarity/vmclarity/api", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/api/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/api/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/cli", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/provider", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/utils", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/installation", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/testenv", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/uibackend/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/uibackend/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/uibackend/server", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/containerruntimediscovery/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/containerruntimediscovery/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/xi2/xz", # Unlicense - Public Domain -  https://github.com/xi2/xz/blob/master/LICENSE"
     "github.com/rcrowley/go-metrics", # Custom License - https://github.com/rcrowley/go-metrics/blob/master/LICENSE"
     "github.com/csaf-poc/csaf_distribution/v3", # MIT - https://github.com/csaf-poc/csaf_distribution/blob/main/LICENSES/MIT.txt
