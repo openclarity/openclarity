@@ -19,12 +19,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
-func newVulnerabilityScanSummary() *types.VulnerabilityScanSummary {
-	return &types.VulnerabilityScanSummary{
+func newVulnerabilityScanSummary() *apitypes.VulnerabilityScanSummary {
+	return &apitypes.VulnerabilityScanSummary{
 		TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
 		TotalHighVulnerabilities:       utils.PointerTo[int](0),
 		TotalMediumVulnerabilities:     utils.PointerTo[int](0),
@@ -33,8 +33,8 @@ func newVulnerabilityScanSummary() *types.VulnerabilityScanSummary {
 	}
 }
 
-func newAssetScanSummary() *types.ScanFindingsSummary {
-	return &types.ScanFindingsSummary{
+func newAssetScanSummary() *apitypes.ScanFindingsSummary {
+	return &apitypes.ScanFindingsSummary{
 		TotalExploits:          utils.PointerTo[int](0),
 		TotalMalware:           utils.PointerTo[int](0),
 		TotalMisconfigurations: utils.PointerTo[int](0),
@@ -46,7 +46,7 @@ func newAssetScanSummary() *types.ScanFindingsSummary {
 	}
 }
 
-func newAssetScanFromScan(scan *types.Scan, assetID string) (*types.AssetScan, error) {
+func newAssetScanFromScan(scan *apitypes.Scan, assetID string) (*apitypes.AssetScan, error) {
 	if scan == nil {
 		return nil, errors.New("failed to create AssetScan: Scan is nil")
 	}
@@ -56,57 +56,57 @@ func newAssetScanFromScan(scan *types.Scan, assetID string) (*types.AssetScan, e
 	}
 	familiesConfig := scan.AssetScanTemplate.ScanFamiliesConfig
 
-	return &types.AssetScan{
+	return &apitypes.AssetScan{
 		Summary: newAssetScanSummary(),
-		Scan: &types.ScanRelationship{
+		Scan: &apitypes.ScanRelationship{
 			Id: *scan.Id,
 		},
-		Asset: &types.AssetRelationship{
+		Asset: &apitypes.AssetRelationship{
 			Id: assetID,
 		},
 		ScanFamiliesConfig:            familiesConfig,
 		ScannerInstanceCreationConfig: scan.AssetScanTemplate.ScannerInstanceCreationConfig,
-		Status: types.NewAssetScanStatus(
-			types.AssetScanStatusStatePending,
-			types.AssetScanStatusReasonCreated,
+		Status: apitypes.NewAssetScanStatus(
+			apitypes.AssetScanStatusStatePending,
+			apitypes.AssetScanStatusReasonCreated,
 			nil,
 		),
-		ResourceCleanupStatus: types.NewResourceCleanupStatus(
-			types.ResourceCleanupStatusStatePending,
-			types.ResourceCleanupStatusReasonAssetScanCreated,
+		ResourceCleanupStatus: apitypes.NewResourceCleanupStatus(
+			apitypes.ResourceCleanupStatusStatePending,
+			apitypes.ResourceCleanupStatusReasonAssetScanCreated,
 			nil,
 		),
-		Sbom: &types.SbomScan{
+		Sbom: &apitypes.SbomScan{
 			Packages: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Sbom),
 		},
-		Exploits: &types.ExploitScan{
+		Exploits: &apitypes.ExploitScan{
 			Exploits: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Exploits),
 		},
-		Vulnerabilities: &types.VulnerabilityScan{
+		Vulnerabilities: &apitypes.VulnerabilityScan{
 			Vulnerabilities: nil,
 			Status:          mapFamilyConfigToScannerStatus(familiesConfig.Vulnerabilities),
 		},
-		Malware: &types.MalwareScan{
+		Malware: &apitypes.MalwareScan{
 			Malware:  nil,
 			Metadata: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Malware),
 		},
-		Rootkits: &types.RootkitScan{
+		Rootkits: &apitypes.RootkitScan{
 			Rootkits: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.Rootkits),
 		},
-		Secrets: &types.SecretScan{
+		Secrets: &apitypes.SecretScan{
 			Secrets: nil,
 			Status:  mapFamilyConfigToScannerStatus(familiesConfig.Secrets),
 		},
-		Misconfigurations: &types.MisconfigurationScan{
+		Misconfigurations: &apitypes.MisconfigurationScan{
 			Misconfigurations: nil,
 			Scanners:          nil,
 			Status:            mapFamilyConfigToScannerStatus(familiesConfig.Misconfigurations),
 		},
-		InfoFinder: &types.InfoFinderScan{
+		InfoFinder: &apitypes.InfoFinderScan{
 			Infos:    nil,
 			Scanners: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.InfoFinder),
@@ -114,16 +114,16 @@ func newAssetScanFromScan(scan *types.Scan, assetID string) (*types.AssetScan, e
 	}, nil
 }
 
-func mapFamilyConfigToScannerStatus(config types.FamilyConfigEnabler) *types.ScannerStatus {
+func mapFamilyConfigToScannerStatus(config apitypes.FamilyConfigEnabler) *apitypes.ScannerStatus {
 	if config == nil || !config.IsEnabled() {
-		return types.NewScannerStatus(types.ScannerStatusStateSkipped, types.ScannerStatusReasonNotScheduled, nil)
+		return apitypes.NewScannerStatus(apitypes.ScannerStatusStateSkipped, apitypes.ScannerStatusReasonNotScheduled, nil)
 	}
 
-	return types.NewScannerStatus(types.ScannerStatusStatePending, types.ScannerStatusReasonScheduled, nil)
+	return apitypes.NewScannerStatus(apitypes.ScannerStatusStatePending, apitypes.ScannerStatusReasonScheduled, nil)
 }
 
-func newScanSummary() *types.ScanSummary {
-	return &types.ScanSummary{
+func newScanSummary() *apitypes.ScanSummary {
+	return &apitypes.ScanSummary{
 		JobsCompleted:          utils.PointerTo(0),
 		JobsLeftToRun:          utils.PointerTo(0),
 		TotalExploits:          utils.PointerTo(0),
@@ -133,7 +133,7 @@ func newScanSummary() *types.ScanSummary {
 		TotalRootkits:          utils.PointerTo(0),
 		TotalSecrets:           utils.PointerTo(0),
 		TotalInfoFinder:        utils.PointerTo(0),
-		TotalVulnerabilities: &types.VulnerabilityScanSummary{
+		TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 			TotalCriticalVulnerabilities:   utils.PointerTo(0),
 			TotalHighVulnerabilities:       utils.PointerTo(0),
 			TotalLowVulnerabilities:        utils.PointerTo(0),
@@ -143,7 +143,7 @@ func newScanSummary() *types.ScanSummary {
 	}
 }
 
-func updateScanSummaryFromAssetScan(scan *types.Scan, result types.AssetScan) error {
+func updateScanSummaryFromAssetScan(scan *apitypes.Scan, result apitypes.AssetScan) error {
 	if result.Summary == nil {
 		return errors.New("invalid AssetScan: Summary field is nil")
 	}
@@ -160,11 +160,11 @@ func updateScanSummaryFromAssetScan(scan *types.Scan, result types.AssetScan) er
 	s, r := scan.Summary, result.Summary
 
 	switch status.State {
-	case types.AssetScanStatusStatePending, types.AssetScanStatusStateScheduled, types.AssetScanStatusStateReadyToScan:
+	case apitypes.AssetScanStatusStatePending, apitypes.AssetScanStatusStateScheduled, apitypes.AssetScanStatusStateReadyToScan:
 		fallthrough
-	case types.AssetScanStatusStateInProgress, types.AssetScanStatusStateAborted:
+	case apitypes.AssetScanStatusStateInProgress, apitypes.AssetScanStatusStateAborted:
 		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
-	case types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed:
+	case apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
 		s.TotalInfoFinder = utils.PointerTo(*s.TotalInfoFinder + *r.TotalInfoFinder)
@@ -173,7 +173,7 @@ func updateScanSummaryFromAssetScan(scan *types.Scan, result types.AssetScan) er
 		s.TotalPackages = utils.PointerTo(*s.TotalPackages + *r.TotalPackages)
 		s.TotalRootkits = utils.PointerTo(*s.TotalRootkits + *r.TotalRootkits)
 		s.TotalSecrets = utils.PointerTo(*s.TotalSecrets + *r.TotalSecrets)
-		s.TotalVulnerabilities = &types.VulnerabilityScanSummary{
+		s.TotalVulnerabilities = &apitypes.VulnerabilityScanSummary{
 			TotalCriticalVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
 				*r.TotalVulnerabilities.TotalCriticalVulnerabilities),
 			TotalHighVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalHighVulnerabilities +

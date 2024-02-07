@@ -22,7 +22,7 @@ import (
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
@@ -30,14 +30,14 @@ func Test_convertLabelsToTags(t *testing.T) {
 	tests := []struct {
 		name string
 		args map[string]string
-		want []types.Tag
+		want []apitypes.Tag
 	}{
 		{
 			name: "sanity",
 			args: map[string]string{
 				"valid-tag": "valid-value",
 			},
-			want: []types.Tag{{
+			want: []apitypes.Tag{{
 				Key: "valid-tag", Value: "valid-value",
 			}},
 		},

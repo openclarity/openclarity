@@ -23,8 +23,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
@@ -39,7 +39,7 @@ type (
 
 func New(c Config) *Watcher {
 	return &Watcher{
-		backend:               c.Backend,
+		client:                c.Client,
 		provider:              c.Provider,
 		pollPeriod:            c.PollPeriod,
 		reconcileTimeout:      c.ReconcileTimeout,
@@ -49,7 +49,7 @@ func New(c Config) *Watcher {
 }
 
 type Watcher struct {
-	backend               *client.BackendClient
+	client                *apiclient.Client
 	provider              provider.Provider
 	pollPeriod            time.Duration
 	reconcileTimeout      time.Duration
@@ -82,14 +82,14 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	logger.Debugf("Fetching running ScanEstimations")
 
 	filter := fmt.Sprintf("(status/state ne '%s' and status/state ne '%s') or (deleteAfter eq null or deleteAfter lt %s)",
-		types.ScanEstimationStatusStateDone, types.ScanEstimationStatusStateFailed, time.Now().Format(time.RFC3339))
+		apitypes.ScanEstimationStatusStateDone, apitypes.ScanEstimationStatusStateFailed, time.Now().Format(time.RFC3339))
 	selector := "id"
-	params := types.GetScanEstimationsParams{
+	params := apitypes.GetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
 		Count:  utils.PointerTo(true),
 	}
-	scanEstimations, err := w.backend.GetScanEstimations(ctx, params)
+	scanEstimations, err := w.client.GetScanEstimations(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get running ScanEstimations: %w", err)
 	}
@@ -124,17 +124,17 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	params := types.GetScanEstimationsScanEstimationIDParams{}
-	scanEstimation, err := w.backend.GetScanEstimation(ctx, event.ScanEstimationID, params)
+	params := apitypes.GetScanEstimationsScanEstimationIDParams{}
+	scanEstimation, err := w.client.GetScanEstimation(ctx, event.ScanEstimationID, params)
 	if err != nil || scanEstimation == nil {
 		return fmt.Errorf("failed to fetch ScanEstimation. ScanEstimationID=%s: %w", event.ScanEstimationID, err)
 	}
 
 	if scanEstimation.IsTimedOut(w.scanEstimationTimeout) {
-		err = w.backend.PatchScanEstimation(ctx, *scanEstimation.Id, &types.ScanEstimation{
-			Status: types.NewScanEstimationStatus(
-				types.ScanEstimationStatusStateFailed,
-				types.ScanEstimationStatusReasonTimeout,
+		err = w.client.PatchScanEstimation(ctx, *scanEstimation.Id, &apitypes.ScanEstimation{
+			Status: apitypes.NewScanEstimationStatus(
+				apitypes.ScanEstimationStatusStateFailed,
+				apitypes.ScanEstimationStatusReasonTimeout,
 				utils.PointerTo("ScanEstimation has been timed out"),
 			),
 		})
@@ -154,23 +154,23 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 	logger.Tracef("Reconciling ScanEstimation state: %s", status.State)
 
 	switch status.State {
-	case types.ScanEstimationStatusStatePending:
+	case apitypes.ScanEstimationStatusStatePending:
 		if err = w.reconcilePending(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case types.ScanEstimationStatusStateDiscovered:
+	case apitypes.ScanEstimationStatusStateDiscovered:
 		if err = w.reconcileDiscovered(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case types.ScanEstimationStatusStateInProgress:
+	case apitypes.ScanEstimationStatusStateInProgress:
 		if err = w.reconcileInProgress(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case types.ScanEstimationStatusStateAborted:
+	case apitypes.ScanEstimationStatusStateAborted:
 		if err = w.reconcileAborted(ctx, scanEstimation); err != nil {
 			return err
 		}
-	case types.ScanEstimationStatusStateDone, types.ScanEstimationStatusStateFailed:
+	case apitypes.ScanEstimationStatusStateDone, apitypes.ScanEstimationStatusStateFailed:
 		if err = w.reconcileDone(ctx, scanEstimation); err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 	return nil
 }
 
-func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	if scanEstimation.EndTime == nil {
 		scanEstimation.EndTime = utils.PointerTo(time.Now())
 	}
@@ -203,12 +203,12 @@ func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *types.ScanE
 		scanEstimation.DeleteAfter = utils.PointerTo(endTime.Add(time.Duration(ttl) * time.Second))
 		// if delete time has already pass, no need to patch the object, just delete it.
 		if !timeNow.After(*scanEstimation.DeleteAfter) {
-			scanEstimationPatch := types.ScanEstimation{
+			scanEstimationPatch := apitypes.ScanEstimation{
 				DeleteAfter:             scanEstimation.DeleteAfter,
 				EndTime:                 scanEstimation.EndTime,
 				TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
 			}
-			err := w.backend.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
+			err := w.client.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
 			if err != nil {
 				return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%v: %w", scanEstimationID, err)
 			}
@@ -217,7 +217,7 @@ func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *types.ScanE
 	}
 
 	if timeNow.After(*scanEstimation.DeleteAfter) {
-		err := w.backend.DeleteScanEstimation(ctx, scanEstimationID)
+		err := w.client.DeleteScanEstimation(ctx, scanEstimationID)
 		if err != nil {
 			return fmt.Errorf("failed to delete ScanEstimation. ScanEstimationID=%v: %w", scanEstimationID, err)
 		}
@@ -226,27 +226,27 @@ func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *types.ScanE
 	return nil
 }
 
-func (w *Watcher) reconcileNoState(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcileNoState(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	scanEstimationID, ok := scanEstimation.GetID()
 	if !ok {
 		return errors.New("invalid ScanEstimation: ID is nil")
 	}
 
-	scanEstimationPatch := types.ScanEstimation{
-		Status: types.NewScanEstimationStatus(
-			types.ScanEstimationStatusStatePending,
-			types.ScanEstimationStatusReasonCreated,
+	scanEstimationPatch := apitypes.ScanEstimation{
+		Status: apitypes.NewScanEstimationStatus(
+			apitypes.ScanEstimationStatusStatePending,
+			apitypes.ScanEstimationStatusReasonCreated,
 			nil,
 		),
 	}
-	err := w.backend.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
+	err := w.client.PatchScanEstimation(ctx, scanEstimationID, &scanEstimationPatch)
 	if err != nil {
 		return fmt.Errorf("failed to update ScanEstimation. ScanEstimationID=%v: %w", scanEstimationID, err)
 	}
 	return nil
 }
 
-func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scanEstimation == nil {
@@ -273,7 +273,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *types.Sc
 		assetFilter = fmt.Sprintf("(%s) and (%s)", assetFilter, scope)
 	}
 
-	assets, err := w.backend.GetAssets(ctx, types.GetAssetsParams{
+	assets, err := w.client.GetAssets(ctx, apitypes.GetAssetsParams{
 		Filter: &assetFilter,
 		Select: utils.PointerTo("id"),
 	})
@@ -289,15 +289,15 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *types.Sc
 			assetIds = append(assetIds, *asset.Id)
 		}
 		scanEstimation.AssetIDs = &assetIds
-		scanEstimation.Status = types.NewScanEstimationStatus(
-			types.ScanEstimationStatusStateDiscovered,
-			types.ScanEstimationStatusReasonSuccessfulDiscovery,
+		scanEstimation.Status = apitypes.NewScanEstimationStatus(
+			apitypes.ScanEstimationStatusStateDiscovered,
+			apitypes.ScanEstimationStatusReasonSuccessfulDiscovery,
 			utils.PointerTo("Assets for Scan estimation are successfully discovered"),
 		)
 	} else {
-		scanEstimation.Status = types.NewScanEstimationStatus(
-			types.ScanEstimationStatusStateDone,
-			types.ScanEstimationStatusReasonNothingToEstimate,
+		scanEstimation.Status = apitypes.NewScanEstimationStatus(
+			apitypes.ScanEstimationStatusStateDone,
+			apitypes.ScanEstimationStatusReasonNothingToEstimate,
 			utils.PointerTo("No instances found in scope for Scan estimation"),
 		)
 	}
@@ -308,25 +308,25 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *types.Sc
 		scanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultScanEstimationTTLSeconds)
 	}
 
-	scanEstimationPatch := &types.ScanEstimation{
+	scanEstimationPatch := &apitypes.ScanEstimation{
 		StartTime:               utils.PointerTo(time.Now()),
 		TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
 		AssetIDs:                scanEstimation.AssetIDs,
 		Status:                  scanEstimation.Status,
-		Summary: &types.ScanEstimationSummary{
+		Summary: &apitypes.ScanEstimationSummary{
 			JobsCompleted: utils.PointerTo(0),
 			JobsLeftToRun: utils.PointerTo(numOfAssets),
 		},
 	}
 
-	if err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch); err != nil {
+	if err = w.client.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch); err != nil {
 		return fmt.Errorf("failed to patch Scan estimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
 
 	return nil
 }
 
-func (w *Watcher) reconcileDiscovered(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcileDiscovered(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scanEstimation == nil {
@@ -342,17 +342,17 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scanEstimation *types
 		return fmt.Errorf("failed to creates AssetScanEstimation(s) for ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
 
-	scanEstimationPatch := &types.ScanEstimation{
-		Status: types.NewScanEstimationStatus(
-			types.ScanEstimationStatusStateInProgress,
-			types.ScanEstimationStatusReasonRunning,
+	scanEstimationPatch := &apitypes.ScanEstimation{
+		Status: apitypes.NewScanEstimationStatus(
+			apitypes.ScanEstimationStatusStateInProgress,
+			apitypes.ScanEstimationStatusReasonRunning,
 			nil,
 		),
 		Summary:              scanEstimation.Summary,
 		AssetIDs:             scanEstimation.AssetIDs,
 		AssetScanEstimations: scanEstimation.AssetScanEstimations,
 	}
-	err := w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
+	err := w.client.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
 	if err != nil {
 		return fmt.Errorf("failed to update Scan estimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
@@ -362,7 +362,7 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scanEstimation *types
 	return nil
 }
 
-func (w *Watcher) createAssetScanEstimationsForScanEstimation(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) createAssetScanEstimationsForScanEstimation(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scanEstimation.AssetIDs == nil || *scanEstimation.AssetIDs == nil {
@@ -401,40 +401,40 @@ func (w *Watcher) createAssetScanEstimationsForScanEstimation(ctx context.Contex
 	}
 
 	if scanEstimation.Summary == nil {
-		scanEstimation.Summary = &types.ScanEstimationSummary{}
+		scanEstimation.Summary = &apitypes.ScanEstimationSummary{}
 	}
 	scanEstimation.Summary.JobsLeftToRun = utils.PointerTo(numOfAssets)
 
 	return nil
 }
 
-func (w *Watcher) newAssetScanEstimationFromScanEstimation(scanEstimation *types.ScanEstimation, assetID string) (types.AssetScanEstimation, error) {
+func (w *Watcher) newAssetScanEstimationFromScanEstimation(scanEstimation *apitypes.ScanEstimation, assetID string) (apitypes.AssetScanEstimation, error) {
 	if scanEstimation == nil {
-		return types.AssetScanEstimation{}, fmt.Errorf("empty scan estimation")
+		return apitypes.AssetScanEstimation{}, fmt.Errorf("empty scan estimation")
 	}
 
 	if scanEstimation.ScanTemplate == nil {
-		return types.AssetScanEstimation{}, fmt.Errorf("empty scan template")
+		return apitypes.AssetScanEstimation{}, fmt.Errorf("empty scan template")
 	}
 
-	return types.AssetScanEstimation{
+	return apitypes.AssetScanEstimation{
 		TTLSecondsAfterFinished: utils.PointerTo(DefaultScanEstimationTTLSeconds),
-		Asset: &types.AssetRelationship{
+		Asset: &apitypes.AssetRelationship{
 			Id: assetID,
 		},
 		AssetScanTemplate: scanEstimation.ScanTemplate.AssetScanTemplate,
-		ScanEstimation: &types.ScanEstimationRelationship{
+		ScanEstimation: &apitypes.ScanEstimationRelationship{
 			Id: scanEstimation.Id,
 		},
-		Status: types.NewAssetScanEstimationStatus(
-			types.AssetScanEstimationStatusStatePending,
-			types.AssetScanEstimationStatusReasonCreated,
+		Status: apitypes.NewAssetScanEstimationStatus(
+			apitypes.AssetScanEstimationStatusStatePending,
+			apitypes.AssetScanEstimationStatusReasonCreated,
 			nil,
 		),
 	}, nil
 }
 
-func (w *Watcher) createAssetScanEstimationForAsset(ctx context.Context, scanEstimation *types.ScanEstimation, assetID string) error {
+func (w *Watcher) createAssetScanEstimationForAsset(ctx context.Context, scanEstimation *apitypes.ScanEstimation, assetID string) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanEstimationData, err := w.newAssetScanEstimationFromScanEstimation(scanEstimation, assetID)
@@ -442,9 +442,9 @@ func (w *Watcher) createAssetScanEstimationForAsset(ctx context.Context, scanEst
 		return fmt.Errorf("failed to generate new AssetScanEstimation for ScanEstimation. ScanEstimationID=%s, AssetID=%s: %w", *scanEstimation.Id, assetID, err)
 	}
 
-	ret, err := w.backend.PostAssetScanEstimation(ctx, assetScanEstimationData)
+	ret, err := w.client.PostAssetScanEstimation(ctx, assetScanEstimationData)
 	if err != nil {
-		var conErr client.AssetScanEstimationConflictError
+		var conErr apiclient.AssetScanEstimationConflictError
 		if errors.As(err, &conErr) {
 			assetScanEstimationID := *conErr.ConflictingAssetScanEstimation.Id
 			logger.WithField("AssetScanEstimationID", assetScanEstimationID).Debug("AssetScanEstimation already exist.")
@@ -454,14 +454,14 @@ func (w *Watcher) createAssetScanEstimationForAsset(ctx context.Context, scanEst
 	}
 
 	if scanEstimation.AssetScanEstimations == nil {
-		scanEstimation.AssetScanEstimations = &[]types.AssetScanEstimationRelationship{}
+		scanEstimation.AssetScanEstimations = &[]apitypes.AssetScanEstimationRelationship{}
 	}
-	*scanEstimation.AssetScanEstimations = append(*scanEstimation.AssetScanEstimations, types.AssetScanEstimationRelationship{Id: ret.Id})
+	*scanEstimation.AssetScanEstimations = append(*scanEstimation.AssetScanEstimations, apitypes.AssetScanEstimationRelationship{Id: ret.Id})
 
 	return nil
 }
 
-func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *types.ScanEstimation, assetScanEstimation types.AssetScanEstimation) error {
+func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *apitypes.ScanEstimation, assetScanEstimation apitypes.AssetScanEstimation) error {
 	status, ok := assetScanEstimation.GetStatus()
 	if !ok {
 		return fmt.Errorf("state must not be nil for AssetScan. AssetScanID=%s", *assetScanEstimation.Id)
@@ -470,9 +470,9 @@ func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *types.Sc
 	s := scanEstimation.Summary
 
 	switch status.State {
-	case types.AssetScanEstimationStatusStatePending:
+	case apitypes.AssetScanEstimationStatusStatePending:
 		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
-	case types.AssetScanEstimationStatusStateDone:
+	case apitypes.AssetScanEstimationStatusStateDone:
 		if s.TotalScanTime == nil {
 			s.TotalScanTime = utils.PointerTo(0)
 		}
@@ -486,7 +486,7 @@ func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *types.Sc
 		*(s.TotalScanSize) += utils.ValueOrZero(assetScanEstimation.Estimation.Size)
 		*(s.TotalScanCost) += utils.ValueOrZero(assetScanEstimation.Estimation.Cost)
 		fallthrough
-	case types.AssetScanEstimationStatusStateAborted, types.AssetScanEstimationStatusStateFailed:
+	case apitypes.AssetScanEstimationStatusStateAborted, apitypes.AssetScanEstimationStatusStateFailed:
 		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
 	}
 
@@ -494,7 +494,7 @@ func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *types.Sc
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scanEstimation == nil {
@@ -508,7 +508,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 
 	filter := fmt.Sprintf("scanEstimation/id eq '%s'", scanEstimationID)
 	selector := "id,status,estimation"
-	assetScanEstimations, err := w.backend.GetAssetScanEstimations(ctx, types.GetAssetScanEstimationsParams{
+	assetScanEstimations, err := w.client.GetAssetScanEstimations(ctx, apitypes.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
 		Count:  utils.PointerTo(true),
@@ -522,7 +522,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 	}
 
 	// Reset Scan Summary as it is going to be recalculated
-	scanEstimation.Summary = &types.ScanEstimationSummary{
+	scanEstimation.Summary = &apitypes.ScanEstimationSummary{
 		JobsCompleted: utils.PointerTo(0),
 		JobsLeftToRun: utils.PointerTo(0),
 	}
@@ -542,7 +542,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 		status, ok := assetScanEstimation.GetStatus()
 		if !ok {
 			logger.Warnf("Failed to get assetScanEstimation %v state", assetScanEstimationID)
-		} else if status.State == types.AssetScanEstimationStatusStateFailed {
+		} else if status.State == apitypes.AssetScanEstimationStatusStateFailed {
 			failedAssetScanEstimations++
 		}
 	}
@@ -560,15 +560,15 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 
 	if *scanEstimation.Summary.JobsLeftToRun <= 0 {
 		if failedAssetScanEstimations > 0 {
-			scanEstimation.Status = types.NewScanEstimationStatus(
-				types.ScanEstimationStatusStateFailed,
-				types.ScanEstimationStatusReasonError,
+			scanEstimation.Status = apitypes.NewScanEstimationStatus(
+				apitypes.ScanEstimationStatusStateFailed,
+				apitypes.ScanEstimationStatusReasonError,
 				message,
 			)
 		} else {
-			scanEstimation.Status = types.NewScanEstimationStatus(
-				types.ScanEstimationStatusStateDone,
-				types.ScanEstimationStatusReasonSuccess,
+			scanEstimation.Status = apitypes.NewScanEstimationStatus(
+				apitypes.ScanEstimationStatusStateDone,
+				apitypes.ScanEstimationStatusReasonSuccess,
 				message,
 			)
 		}
@@ -580,14 +580,14 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 		scanEstimation.DeleteAfter = utils.PointerTo(scanEstimation.EndTime.Add(time.Duration(*scanEstimation.TTLSecondsAfterFinished) * time.Second))
 	}
 
-	scanEstimationPatch := &types.ScanEstimation{
+	scanEstimationPatch := &apitypes.ScanEstimation{
 		DeleteAfter: scanEstimation.DeleteAfter,
 		Status:      scanEstimation.Status,
 		Summary:     scanEstimation.Summary,
 		EndTime:     scanEstimation.EndTime,
 		AssetIDs:    scanEstimation.AssetIDs,
 	}
-	err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
+	err = w.client.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
 	if err != nil {
 		return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
@@ -595,7 +595,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *types
 	return nil
 }
 
-func updateTotalScanTimeWithParallelScans(scanEstimation *types.ScanEstimation) error {
+func updateTotalScanTimeWithParallelScans(scanEstimation *apitypes.ScanEstimation) error {
 	if scanEstimation == nil {
 		return fmt.Errorf("empty scan estimation")
 	}
@@ -631,7 +631,7 @@ func updateTotalScanTimeWithParallelScans(scanEstimation *types.ScanEstimation) 
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *types.ScanEstimation) error {
+func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if scanEstimation == nil {
@@ -644,14 +644,14 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *types.Sc
 	}
 
 	filter := fmt.Sprintf("scanEstimation/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
-		scanEstimationID, types.AssetScanEstimationStatusStateAborted, types.AssetScanEstimationStatusStateDone)
+		scanEstimationID, apitypes.AssetScanEstimationStatusStateAborted, apitypes.AssetScanEstimationStatusStateDone)
 	selector := "id,status"
-	params := types.GetAssetScanEstimationsParams{
+	params := apitypes.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
 	}
 
-	assetScanEstimations, err := w.backend.GetAssetScanEstimations(ctx, params)
+	assetScanEstimations, err := w.client.GetAssetScanEstimations(ctx, params)
 	if err != nil {
 		return fmt.Errorf("failed to fetch AssetScanEstimation(s) for ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}
@@ -669,15 +669,15 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *types.Sc
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				ase := types.AssetScanEstimation{
-					Status: types.NewAssetScanEstimationStatus(
-						types.AssetScanEstimationStatusStateAborted,
-						types.AssetScanEstimationStatusReasonCancellation,
+				ase := apitypes.AssetScanEstimation{
+					Status: apitypes.NewAssetScanEstimationStatus(
+						apitypes.AssetScanEstimationStatusStateAborted,
+						apitypes.AssetScanEstimationStatusReasonCancellation,
 						nil,
 					),
 				}
 
-				err = w.backend.PatchAssetScanEstimation(ctx, ase, assetScanEstimationID)
+				err = w.client.PatchAssetScanEstimation(ctx, ase, assetScanEstimationID)
 				if err != nil {
 					logger.WithField("AssetScanEstimationID", assetScanEstimationID).Error("Failed to patch AssetScanEstimation")
 					reconciliationFailed = true
@@ -697,16 +697,16 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *types.Sc
 
 	scanEstimation.EndTime = utils.PointerTo(time.Now())
 
-	scanEstimationPatch := &types.ScanEstimation{
+	scanEstimationPatch := &apitypes.ScanEstimation{
 		EndTime: scanEstimation.EndTime,
-		Status: types.NewScanEstimationStatus(
-			types.ScanEstimationStatusStateFailed,
-			types.ScanEstimationStatusReasonAborted,
+		Status: apitypes.NewScanEstimationStatus(
+			apitypes.ScanEstimationStatusStateFailed,
+			apitypes.ScanEstimationStatusReasonAborted,
 			utils.PointerTo("ScanEstimation has been aborted"),
 		),
 		AssetIDs: scanEstimation.AssetIDs,
 	}
-	err = w.backend.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
+	err = w.client.PatchScanEstimation(ctx, scanEstimationID, scanEstimationPatch)
 	if err != nil {
 		return fmt.Errorf("failed to patch ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
 	}

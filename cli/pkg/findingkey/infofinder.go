@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
 type InfoFinderKey struct {
@@ -32,7 +32,7 @@ func (k InfoFinderKey) String() string {
 	return fmt.Sprintf("%s.%s.%s.%s", k.ScannerName, k.Type, k.Data, k.Path)
 }
 
-func GenerateInfoFinderKey(info types.InfoFinderFindingInfo) InfoFinderKey {
+func GenerateInfoFinderKey(info apitypes.InfoFinderFindingInfo) InfoFinderKey {
 	return InfoFinderKey{
 		ScannerName: *info.ScannerName,
 		Type:        string(*info.Type),

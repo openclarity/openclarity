@@ -20,7 +20,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
@@ -31,7 +31,7 @@ func Test_isEncrypted(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want types.RootVolumeEncrypted
+		want apitypes.RootVolumeEncrypted
 	}{
 		{
 			name: "encrypted",
@@ -46,7 +46,7 @@ func Test_isEncrypted(t *testing.T) {
 					},
 				},
 			},
-			want: types.RootVolumeEncryptedYes,
+			want: apitypes.RootVolumeEncryptedYes,
 		},
 		{
 			name: "not encrypted",
@@ -59,7 +59,7 @@ func Test_isEncrypted(t *testing.T) {
 					},
 				},
 			},
-			want: types.RootVolumeEncryptedNo,
+			want: apitypes.RootVolumeEncryptedNo,
 		},
 	}
 	for _, tt := range tests {

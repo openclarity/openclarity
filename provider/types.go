@@ -18,12 +18,12 @@ package provider
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
 type Provider interface {
-	// Kind returns types.CloudProvider
-	Kind() types.CloudProvider
+	// Kind returns apitypes.CloudProvider
+	Kind() apitypes.CloudProvider
 
 	Discoverer
 	Estimator
@@ -43,7 +43,7 @@ type Estimator interface {
 	// The cost estimation takes into account all the resources that are being used during a scan, and includes a detailed bill of the cost of each resource.
 	// If AssetScanTemplate contains several input paths to scan, the cost will be calculated for each input and will be summed up to a total cost.
 	// When exists, the scan size and scan time will be taken from the AssetScanStats. Otherwise, they will be estimated base on lab tests and Asset volume size.
-	Estimate(context.Context, types.AssetScanStats, *types.Asset, *types.AssetScanTemplate) (*types.Estimation, error)
+	Estimate(context.Context, apitypes.AssetScanStats, *apitypes.Asset, *apitypes.AssetScanTemplate) (*apitypes.Estimation, error)
 }
 
 type Scanner interface {
@@ -73,22 +73,22 @@ type ScanJobConfig struct {
 	VMClarityAddress string // The backend address for the scanner CLI to export too
 
 	ScanMetadata
-	types.ScannerInstanceCreationConfig
-	types.Asset
+	apitypes.ScannerInstanceCreationConfig
+	apitypes.Asset
 }
 
 // AssetDiscoverer is used to discover assets in a buffered manner.
 type AssetDiscoverer interface {
-	Chan() chan types.AssetType
+	Chan() chan apitypes.AssetType
 	Err() error
 }
 
 type SimpleAssetDiscoverer struct {
-	OutputChan chan types.AssetType
+	OutputChan chan apitypes.AssetType
 	Error      error
 }
 
-func (ad *SimpleAssetDiscoverer) Chan() chan types.AssetType {
+func (ad *SimpleAssetDiscoverer) Chan() chan apitypes.AssetType {
 	return ad.OutputChan
 }
 
@@ -97,7 +97,7 @@ func (ad *SimpleAssetDiscoverer) Err() error {
 }
 
 func NewSimpleAssetDiscoverer() *SimpleAssetDiscoverer {
-	output := make(chan types.AssetType)
+	output := make(chan apitypes.AssetType)
 	return &SimpleAssetDiscoverer{
 		OutputChan: output,
 		Error:      nil,

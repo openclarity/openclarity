@@ -34,6 +34,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/vmclarity/api/client"
+	apiserver "github.com/openclarity/vmclarity/uibackend/server/internal/server"
 	server "github.com/openclarity/vmclarity/uibackend/server/pkg"
 	"github.com/openclarity/vmclarity/utils/log"
 	"github.com/openclarity/vmclarity/utils/version"
@@ -104,14 +105,14 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	healthServer.Start()
 	healthServer.SetIsReady(false)
 
-	backendClient, err := client.Create(config.APIServerAddress)
+	client, err := client.New(config.APIServerAddress)
 	if err != nil {
-		logger.Fatalf("Failed to create a backend client: %v", err)
+		logger.Fatalf("Failed to create an API client: %v", err)
 	}
-	handler := server.CreateServer(backendClient)
+	handler := server.CreateServer(client)
 	handler.StartBackgroundProcessing(ctx)
 
-	swagger, err := server.GetSwagger()
+	swagger, err := apiserver.GetSwagger()
 	if err != nil {
 		logger.Fatalf("failed to load UI swagger spec: %v", err)
 	}
@@ -121,7 +122,7 @@ func runCommand(cmd *cobra.Command, _ []string) {
 	e.Use(echomiddleware.Recover())
 	e.Use(middleware.OapiRequestValidator(swagger))
 
-	server.RegisterHandlers(e, handler)
+	apiserver.RegisterHandlers(e, handler)
 
 	go func() {
 		if err := e.Start(config.ListenAddress); err != nil && errors.Is(err, http.ErrServerClosed) {

@@ -121,7 +121,7 @@ func (s *ServerImpl) getFindingTrendsForFindingType(ctx context.Context, finding
 
 func (s *ServerImpl) getFindingTrendPerPoint(ctx context.Context, findingType types.FindingType, point time.Time) (types.FindingTrend, error) {
 	// Count total findings for the given finding type that was active during the given time point.
-	findings, err := s.BackendClient.GetFindings(ctx, apitypes.GetFindingsParams{
+	findings, err := s.Client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Count: utils.PointerTo(true),
 		Filter: utils.PointerTo(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and foundOn le %v and (invalidatedOn eq null or invalidatedOn gt %v)",

@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/provider"
 	provider_service "github.com/openclarity/vmclarity/provider/external/proto"
 )
@@ -61,12 +61,12 @@ func New(_ context.Context) (*Provider, error) {
 	}, nil
 }
 
-func (p *Provider) Kind() types.CloudProvider {
-	return types.External
+func (p *Provider) Kind() apitypes.CloudProvider {
+	return apitypes.External
 }
 
-func (p *Provider) Estimate(ctx context.Context, stats types.AssetScanStats, asset *types.Asset, assetScanTemplate *types.AssetScanTemplate) (*types.Estimation, error) {
-	return &types.Estimation{}, provider.FatalErrorf("Not Implemented")
+func (p *Provider) Estimate(ctx context.Context, stats apitypes.AssetScanStats, asset *apitypes.Asset, assetScanTemplate *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
+	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
 
 func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {

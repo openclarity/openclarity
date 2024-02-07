@@ -28,7 +28,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
+	discoverytypes "github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
@@ -72,7 +72,7 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 		return fmt.Errorf("unexpected error from discoverer status %s: %s", resp.Status, b)
 	}
 
-	var containerResponse types.ListContainersResponse
+	var containerResponse discoverytypes.ListContainersResponse
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&containerResponse)
 	if err != nil {

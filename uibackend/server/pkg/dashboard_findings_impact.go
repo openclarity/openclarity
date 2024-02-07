@@ -466,7 +466,7 @@ func (s *ServerImpl) getFindingToAssetCountMapWithFilter(ctx context.Context, fi
 	top := 100
 	skip := 0
 	for {
-		f, err := s.BackendClient.GetFindings(ctx, apitypes.GetFindingsParams{
+		f, err := s.Client.GetFindings(ctx, apitypes.GetFindingsParams{
 			Filter: &filter,
 			Top:    &top,
 			Skip:   &skip,

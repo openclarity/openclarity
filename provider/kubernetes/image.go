@@ -26,7 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
+	discoverytypes "github.com/openclarity/vmclarity/containerruntimediscovery/types"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
@@ -59,7 +59,7 @@ func (p *Provider) discoverImagesFromDiscoverer(ctx context.Context, outputChan 
 		return fmt.Errorf("unexpected error from discoverer status %s: %s", resp.Status, b)
 	}
 
-	var imageResponse types.ListImagesResponse
+	var imageResponse discoverytypes.ListImagesResponse
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&imageResponse)
 	if err != nil {

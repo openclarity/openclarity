@@ -19,19 +19,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
-func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan types.AssetScan) (map[findingkey.RootkitKey]string, error) {
+func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.RootkitKey]string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.RootkitKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
+	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
 	})
@@ -59,7 +59,7 @@ func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Con
 }
 
 // nolint:cyclop
-func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan types.AssetScan) error {
+func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
 	completedTime := assetScan.Status.LastTransitionTime
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", completedTime)
@@ -79,23 +79,23 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 		// Create new or update existing findings all the rootkits found by the
 		// scan.
 		for _, item := range *assetScan.Rootkits.Rootkits {
-			itemFindingInfo := types.RootkitFindingInfo{
+			itemFindingInfo := apitypes.RootkitFindingInfo{
 				Message:     item.Message,
 				RootkitName: item.RootkitName,
 				RootkitType: item.RootkitType,
 			}
 
-			findingInfo := types.Finding_FindingInfo{}
+			findingInfo := apitypes.Finding_FindingInfo{}
 			err = findingInfo.FromRootkitFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := types.Finding{
-				Asset: &types.AssetRelationship{
+			finding := apitypes.Finding{
+				Asset: &apitypes.AssetRelationship{
 					Id: assetScan.Asset.Id,
 				},
-				FoundBy: &types.AssetScanRelationship{
+				FoundBy: &apitypes.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
 				FoundOn:     &assetScan.Status.LastTransitionTime,
@@ -132,12 +132,12 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 	if asset.Summary == nil {
-		asset.Summary = &types.ScanFindingsSummary{}
+		asset.Summary = &apitypes.ScanFindingsSummary{}
 	}
 
 	totalRootkits, err := asp.getActiveFindingsByType(ctx, "Rootkit", assetScan.Asset.Id)

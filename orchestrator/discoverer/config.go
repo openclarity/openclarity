@@ -27,13 +27,13 @@ const (
 )
 
 type Config struct {
-	Backend           *client.BackendClient
+	Client            *client.Client
 	Provider          provider.Provider
 	DiscoveryInterval time.Duration `mapstructure:"interval"`
 }
 
-func (c Config) WithBackendClient(b *client.BackendClient) Config {
-	c.Backend = b
+func (c Config) WithBackendClient(client *client.Client) Config {
+	c.Client = client
 	return c
 }
 
