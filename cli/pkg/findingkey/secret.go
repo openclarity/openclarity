@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
 type SecretKey struct {
@@ -38,7 +38,7 @@ func (k SecretKey) SecretString() string {
 	return k.String()
 }
 
-func GenerateSecretKey(secret types.SecretFindingInfo) SecretKey {
+func GenerateSecretKey(secret apitypes.SecretFindingInfo) SecretKey {
 	return SecretKey{
 		Fingerprint: *secret.Fingerprint,
 		StartColumn: *secret.StartColumn,

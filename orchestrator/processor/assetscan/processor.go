@@ -22,37 +22,37 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type AssetScanProcessor struct {
-	client           *client.BackendClient
+	client           *apiclient.Client
 	pollPeriod       time.Duration
 	reconcileTimeout time.Duration
 }
 
 func New(config Config) *AssetScanProcessor {
 	return &AssetScanProcessor{
-		client:           config.Backend,
+		client:           config.Client,
 		pollPeriod:       config.PollPeriod,
 		reconcileTimeout: config.ReconcileTimeout,
 	}
 }
 
 // Returns true if AssetScanStatus.State is DONE and there are no Errors.
-func statusCompletedWithNoErrors(status *types.ScannerStatus) bool {
-	return status != nil && status.State == types.ScannerStatusStateDone
+func statusCompletedWithNoErrors(status *apitypes.ScannerStatus) bool {
+	return status != nil && status.State == apitypes.ScannerStatusStateDone
 }
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanReconcileEvent) error {
 	// Get latest information, in case we've been sat in the reconcile
 	// queue for a while
-	assetScan, err := asp.client.GetAssetScan(ctx, event.AssetScanID, types.GetAssetScansAssetScanIDParams{})
+	assetScan, err := asp.client.GetAssetScan(ctx, event.AssetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan from API: %w", err)
 	}
@@ -127,7 +127,7 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 }
 
 type AssetScanReconcileEvent struct {
-	AssetScanID types.AssetScanID
+	AssetScanID apitypes.AssetScanID
 }
 
 func (e AssetScanReconcileEvent) ToFields() logrus.Fields {
@@ -146,8 +146,8 @@ func (e AssetScanReconcileEvent) Hash() string {
 
 func (asp *AssetScanProcessor) GetItems(ctx context.Context) ([]AssetScanReconcileEvent, error) {
 	filter := fmt.Sprintf("(status/state eq '%s' or status/state eq '%s') and (findingsProcessed eq false or findingsProcessed eq null)",
-		types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed)
-	assetScans, err := asp.client.GetAssetScans(ctx, types.GetAssetScansParams{
+		apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed)
+	assetScans, err := asp.client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
 		Filter: utils.PointerTo(filter),
 		Select: utils.PointerTo("id"),
 	})

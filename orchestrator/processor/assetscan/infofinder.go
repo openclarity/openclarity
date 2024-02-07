@@ -19,19 +19,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	logutils "github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/utils/log"
 )
 
-func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.Context, assetScan types.AssetScan) (map[findingkey.InfoFinderKey]string, error) {
-	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
+func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.InfoFinderKey]string, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.InfoFinderKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'InfoFinder' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
+	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/scannerName,findingInfo/type,findingInfo/data,findingInfo/path"),
 	})
@@ -59,7 +59,7 @@ func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.
 }
 
 // nolint:cyclop
-func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.Context, assetScan types.AssetScan) error {
+func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
 	completedTime := assetScan.Status.LastTransitionTime
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "InfoFinder", completedTime)
@@ -79,24 +79,24 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 		// Create new or update existing findings all the infos found by the
 		// scan.
 		for _, item := range *assetScan.InfoFinder.Infos {
-			itemFindingInfo := types.InfoFinderFindingInfo{
+			itemFindingInfo := apitypes.InfoFinderFindingInfo{
 				Data:        item.Data,
 				Path:        item.Path,
 				ScannerName: item.ScannerName,
 				Type:        item.Type,
 			}
 
-			findingInfo := types.Finding_FindingInfo{}
+			findingInfo := apitypes.Finding_FindingInfo{}
 			err = findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert InfoFinderFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := types.Finding{
-				Asset: &types.AssetRelationship{
+			finding := apitypes.Finding{
+				Asset: &apitypes.AssetRelationship{
 					Id: assetScan.Asset.Id,
 				},
-				FoundBy: &types.AssetScanRelationship{
+				FoundBy: &apitypes.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
 				FoundOn:     &assetScan.Status.LastTransitionTime,
@@ -133,12 +133,12 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 	if asset.Summary == nil {
-		asset.Summary = &types.ScanFindingsSummary{}
+		asset.Summary = &apitypes.ScanFindingsSummary{}
 	}
 
 	totalInfoFinder, err := asp.getActiveFindingsByType(ctx, "InfoFinder", assetScan.Asset.Id)

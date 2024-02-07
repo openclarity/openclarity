@@ -28,13 +28,13 @@ const (
 )
 
 type ServerImpl struct {
-	BackendClient *client.BackendClient
+	Client *client.Client
 	findingsImpactData
 }
 
-func CreateServer(client *client.BackendClient) *ServerImpl {
+func CreateServer(client *client.Client) *ServerImpl {
 	return &ServerImpl{
-		BackendClient: client,
+		Client: client,
 		findingsImpactData: findingsImpactData{
 			findingsImpactFetchedChannel: make(chan struct{}),
 		},

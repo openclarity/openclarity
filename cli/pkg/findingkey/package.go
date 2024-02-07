@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
 type PackageKey struct {
@@ -37,7 +37,7 @@ func (k PackageKey) PackageString() string {
 	return k.String()
 }
 
-func GeneratePackageKey(info types.PackageFindingInfo) PackageKey {
+func GeneratePackageKey(info apitypes.PackageFindingInfo) PackageKey {
 	return PackageKey{
 		PackageName:    *info.Name,
 		PackageVersion: *info.Version,

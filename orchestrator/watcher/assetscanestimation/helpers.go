@@ -21,26 +21,26 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 // getLatestAssetScanStats - for each family, find the latest AssetScan that has AssetScanStats of this family,
 // and add the family stats to the returned aggregated AssetScanStats.
 // nolint:cyclop
-func (w *Watcher) getLatestAssetScanStats(ctx context.Context, asset *types.Asset) types.AssetScanStats {
-	var stats types.AssetScanStats
+func (w *Watcher) getLatestAssetScanStats(ctx context.Context, asset *apitypes.Asset) apitypes.AssetScanStats {
+	var stats apitypes.AssetScanStats
 
 	filterTmpl := "asset/id eq '%s' and status/state eq 'Done' and (status/%s/errors eq null or length(status/%s/errors) eq 0) and scanFamiliesConfig/%s/enabled eq true"
 
 	families := []string{"exploits", "sbom", "vulnerabilities", "malware", "misconfigurations", "rootkits", "secrets"}
 	for _, family := range families {
-		params := types.GetAssetScansParams{
+		params := apitypes.GetAssetScansParams{
 			Filter:  utils.PointerTo(fmt.Sprintf(filterTmpl, *asset.Id, family, family, family)),
 			Top:     utils.PointerTo(1), // get the latest asset scan for this family
 			OrderBy: utils.PointerTo("status/lastTransitionTime DESC"),
 		}
-		res, err := w.backend.GetAssetScans(ctx, params)
+		res, err := w.client.GetAssetScans(ctx, params)
 		if err != nil {
 			logrus.Errorf("Failed to get asset scans for %s. Omitting stats: %v", family, err)
 			continue

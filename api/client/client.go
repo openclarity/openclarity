@@ -21,31 +21,32 @@ import (
 	"fmt"
 	"net/http"
 
+	apiclient "github.com/openclarity/vmclarity/api/client/internal/client"
 	"github.com/openclarity/vmclarity/api/types"
 )
 
-type BackendClient struct {
-	apiClient ClientWithResponsesInterface
+type Client struct {
+	api apiclient.ClientWithResponsesInterface
 }
 
-func Create(serverAddress string) (*BackendClient, error) {
-	apiClient, err := NewClientWithResponses(serverAddress)
+func New(serverAddress string) (*Client, error) {
+	api, err := apiclient.NewClientWithResponses(serverAddress)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create VMClarity API client. serverAddress=%v: %w", serverAddress, err)
 	}
 
-	return &BackendClient{
-		apiClient: apiClient,
+	return &Client{
+		api: api,
 	}, nil
 }
 
-func (b *BackendClient) GetAssetScan(ctx context.Context, assetScanID string, params types.GetAssetScansAssetScanIDParams) (types.AssetScan, error) {
+func (c *Client) GetAssetScan(ctx context.Context, assetScanID string, params types.GetAssetScansAssetScanIDParams) (types.AssetScan, error) {
 	newGetExistingError := func(err error) error {
 		return fmt.Errorf("failed to get existing asset scan %v: %w", assetScanID, err)
 	}
 
 	var assetScans types.AssetScan
-	resp, err := b.apiClient.GetAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params)
+	resp, err := c.api.GetAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params)
 	if err != nil {
 		return assetScans, newGetExistingError(err)
 	}
@@ -72,13 +73,13 @@ func (b *BackendClient) GetAssetScan(ctx context.Context, assetScanID string, pa
 	}
 }
 
-func (b *BackendClient) GetAssetScans(ctx context.Context, params types.GetAssetScansParams) (types.AssetScans, error) {
+func (c *Client) GetAssetScans(ctx context.Context, params types.GetAssetScansParams) (types.AssetScans, error) {
 	newGetAssetScansError := func(err error) error {
 		return fmt.Errorf("failed to get asset scans: %w", err)
 	}
 
 	var assetScans types.AssetScans
-	resp, err := b.apiClient.GetAssetScansWithResponse(ctx, &params)
+	resp, err := c.api.GetAssetScansWithResponse(ctx, &params)
 	if err != nil {
 		return assetScans, newGetAssetScansError(err)
 	}
@@ -97,13 +98,13 @@ func (b *BackendClient) GetAssetScans(ctx context.Context, params types.GetAsset
 	}
 }
 
-func (b *BackendClient) PatchAssetScan(ctx context.Context, assetScan types.AssetScan, assetScanID string) error {
+func (c *Client) PatchAssetScan(ctx context.Context, assetScan types.AssetScan, assetScanID string) error {
 	newUpdateAssetScanError := func(err error) error {
 		return fmt.Errorf("failed to update asset scan %v: %w", assetScanID, err)
 	}
 
 	params := types.PatchAssetScansAssetScanIDParams{}
-	resp, err := b.apiClient.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
+	resp, err := c.api.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
 	if err != nil {
 		return newUpdateAssetScanError(err)
 	}
@@ -135,8 +136,8 @@ func (b *BackendClient) PatchAssetScan(ctx context.Context, assetScan types.Asse
 	}
 }
 
-func (b *BackendClient) PostScan(ctx context.Context, scan types.Scan) (*types.Scan, error) {
-	resp, err := b.apiClient.PostScansWithResponse(ctx, scan)
+func (c *Client) PostScan(ctx context.Context, scan types.Scan) (*types.Scan, error) {
+	resp, err := c.api.PostScansWithResponse(ctx, scan)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a scan: %w", err)
 	}
@@ -170,8 +171,8 @@ func (b *BackendClient) PostScan(ctx context.Context, scan types.Scan) (*types.S
 	}
 }
 
-func (b *BackendClient) PostAssetScan(ctx context.Context, assetScan types.AssetScan) (*types.AssetScan, error) {
-	resp, err := b.apiClient.PostAssetScansWithResponse(ctx, assetScan)
+func (c *Client) PostAssetScan(ctx context.Context, assetScan types.AssetScan) (*types.AssetScan, error) {
+	resp, err := c.api.PostAssetScansWithResponse(ctx, assetScan)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an asset scan: %w", err)
 	}
@@ -205,9 +206,9 @@ func (b *BackendClient) PostAssetScan(ctx context.Context, assetScan types.Asset
 	}
 }
 
-func (b *BackendClient) PatchScan(ctx context.Context, scanID types.ScanID, scan *types.Scan) error {
+func (c *Client) PatchScan(ctx context.Context, scanID types.ScanID, scan *types.Scan) error {
 	params := types.PatchScansScanIDParams{}
-	resp, err := b.apiClient.PatchScansScanIDWithResponse(ctx, scanID, &params, *scan)
+	resp, err := c.api.PatchScansScanIDWithResponse(ctx, scanID, &params, *scan)
 	if err != nil {
 		return fmt.Errorf("failed to update a scan: %w", err)
 	}
@@ -238,34 +239,34 @@ func (b *BackendClient) PatchScan(ctx context.Context, scanID types.ScanID, scan
 	}
 }
 
-func (b *BackendClient) GetAssetScanSummary(ctx context.Context, assetScanID string) (*types.ScanFindingsSummary, error) {
+func (c *Client) GetAssetScanSummary(ctx context.Context, assetScanID string) (*types.ScanFindingsSummary, error) {
 	params := types.GetAssetScansAssetScanIDParams{
 		Select: types.PointerTo("summary"),
 	}
-	assetScan, err := b.GetAssetScan(ctx, assetScanID, params)
+	assetScan, err := c.GetAssetScan(ctx, assetScanID, params)
 	if err != nil {
 		return nil, err
 	}
 	return assetScan.Summary, nil
 }
 
-func (b *BackendClient) GetAssetScanStatus(ctx context.Context, assetScanID string) (*types.AssetScanStatus, error) {
+func (c *Client) GetAssetScanStatus(ctx context.Context, assetScanID string) (*types.AssetScanStatus, error) {
 	params := types.GetAssetScansAssetScanIDParams{
 		Select: types.PointerTo("status"),
 	}
-	assetScan, err := b.GetAssetScan(ctx, assetScanID, params)
+	assetScan, err := c.GetAssetScan(ctx, assetScanID, params)
 	if err != nil {
 		return nil, err
 	}
 	return assetScan.Status, nil
 }
 
-func (b *BackendClient) PatchAssetScanStatus(ctx context.Context, assetScanID string, status *types.AssetScanStatus) error {
+func (c *Client) PatchAssetScanStatus(ctx context.Context, assetScanID string, status *types.AssetScanStatus) error {
 	assetScan := types.AssetScan{
 		Status: status,
 	}
 	params := types.PatchAssetScansAssetScanIDParams{}
-	resp, err := b.apiClient.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
+	resp, err := c.api.PatchAssetScansAssetScanIDWithResponse(ctx, assetScanID, &params, assetScan)
 	if err != nil {
 		return fmt.Errorf("failed to update an asset scan status: %w", err)
 	}
@@ -296,8 +297,8 @@ func (b *BackendClient) PatchAssetScanStatus(ctx context.Context, assetScanID st
 	}
 }
 
-func (b *BackendClient) GetScan(ctx context.Context, scanID string, params types.GetScansScanIDParams) (*types.Scan, error) {
-	resp, err := b.apiClient.GetScansScanIDWithResponse(ctx, scanID, &params)
+func (c *Client) GetScan(ctx context.Context, scanID string, params types.GetScansScanIDParams) (*types.Scan, error) {
+	resp, err := c.api.GetScansScanIDWithResponse(ctx, scanID, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get a scan: %w", err)
 	}
@@ -323,8 +324,8 @@ func (b *BackendClient) GetScan(ctx context.Context, scanID string, params types
 	}
 }
 
-func (b *BackendClient) PostScanConfig(ctx context.Context, scanConfig types.ScanConfig) (*types.ScanConfig, error) {
-	resp, err := b.apiClient.PostScanConfigsWithResponse(ctx, scanConfig)
+func (c *Client) PostScanConfig(ctx context.Context, scanConfig types.ScanConfig) (*types.ScanConfig, error) {
+	resp, err := c.api.PostScanConfigsWithResponse(ctx, scanConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scan config: %w", err)
 	}
@@ -358,8 +359,8 @@ func (b *BackendClient) PostScanConfig(ctx context.Context, scanConfig types.Sca
 	}
 }
 
-func (b *BackendClient) GetScanEstimation(ctx context.Context, scanEstimationID string, params types.GetScanEstimationsScanEstimationIDParams) (*types.ScanEstimation, error) {
-	resp, err := b.apiClient.GetScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params)
+func (c *Client) GetScanEstimation(ctx context.Context, scanEstimationID string, params types.GetScanEstimationsScanEstimationIDParams) (*types.ScanEstimation, error) {
+	resp, err := c.api.GetScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get a scan estimation: %w", err)
 	}
@@ -385,8 +386,8 @@ func (b *BackendClient) GetScanEstimation(ctx context.Context, scanEstimationID 
 	}
 }
 
-func (b *BackendClient) GetScanEstimations(ctx context.Context, params types.GetScanEstimationsParams) (*types.ScanEstimations, error) {
-	resp, err := b.apiClient.GetScanEstimationsWithResponse(ctx, &params)
+func (c *Client) GetScanEstimations(ctx context.Context, params types.GetScanEstimationsParams) (*types.ScanEstimations, error) {
+	resp, err := c.api.GetScanEstimationsWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scanEstimations: %w", err)
 	}
@@ -404,9 +405,9 @@ func (b *BackendClient) GetScanEstimations(ctx context.Context, params types.Get
 	}
 }
 
-func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationID types.ScanEstimationID, scanEstimation *types.ScanEstimation) error {
+func (c *Client) PatchScanEstimation(ctx context.Context, scanEstimationID types.ScanEstimationID, scanEstimation *types.ScanEstimation) error {
 	params := types.PatchScanEstimationsScanEstimationIDParams{}
-	resp, err := b.apiClient.PatchScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params, *scanEstimation)
+	resp, err := c.api.PatchScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID, &params, *scanEstimation)
 	if err != nil {
 		return fmt.Errorf("failed to update a scan estimation: %w", err)
 	}
@@ -437,8 +438,8 @@ func (b *BackendClient) PatchScanEstimation(ctx context.Context, scanEstimationI
 	}
 }
 
-func (b *BackendClient) DeleteScanEstimation(ctx context.Context, scanEstimationID types.ScanEstimationID) error {
-	resp, err := b.apiClient.DeleteScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID)
+func (c *Client) DeleteScanEstimation(ctx context.Context, scanEstimationID types.ScanEstimationID) error {
+	resp, err := c.api.DeleteScanEstimationsScanEstimationIDWithResponse(ctx, scanEstimationID)
 	if err != nil {
 		return fmt.Errorf("failed to delete a scan estimation: %w", err)
 	}
@@ -464,8 +465,8 @@ func (b *BackendClient) DeleteScanEstimation(ctx context.Context, scanEstimation
 	}
 }
 
-func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEstimation types.AssetScanEstimation) (*types.AssetScanEstimation, error) {
-	resp, err := b.apiClient.PostAssetScanEstimationsWithResponse(ctx, assetScanEstimation)
+func (c *Client) PostAssetScanEstimation(ctx context.Context, assetScanEstimation types.AssetScanEstimation) (*types.AssetScanEstimation, error) {
+	resp, err := c.api.PostAssetScanEstimationsWithResponse(ctx, assetScanEstimation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an asset scan estimation: %w", err)
 	}
@@ -499,8 +500,8 @@ func (b *BackendClient) PostAssetScanEstimation(ctx context.Context, assetScanEs
 	}
 }
 
-func (b *BackendClient) DeleteAssetScanEstimation(ctx context.Context, assetScanEstimationID types.AssetScanEstimationID) error {
-	resp, err := b.apiClient.DeleteAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID)
+func (c *Client) DeleteAssetScanEstimation(ctx context.Context, assetScanEstimationID types.AssetScanEstimationID) error {
+	resp, err := c.api.DeleteAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID)
 	if err != nil {
 		return fmt.Errorf("failed to delete a asset scan estimation: %w", err)
 	}
@@ -526,13 +527,13 @@ func (b *BackendClient) DeleteAssetScanEstimation(ctx context.Context, assetScan
 	}
 }
 
-func (b *BackendClient) GetAssetScanEstimations(ctx context.Context, params types.GetAssetScanEstimationsParams) (types.AssetScanEstimations, error) {
+func (c *Client) GetAssetScanEstimations(ctx context.Context, params types.GetAssetScanEstimationsParams) (types.AssetScanEstimations, error) {
 	newGetAssetScanEstimationsError := func(err error) error {
 		return fmt.Errorf("failed to get asset scan estimations: %w", err)
 	}
 
 	var assetScanEstimations types.AssetScanEstimations
-	resp, err := b.apiClient.GetAssetScanEstimationsWithResponse(ctx, &params)
+	resp, err := c.api.GetAssetScanEstimationsWithResponse(ctx, &params)
 	if err != nil {
 		return assetScanEstimations, newGetAssetScanEstimationsError(err)
 	}
@@ -551,13 +552,13 @@ func (b *BackendClient) GetAssetScanEstimations(ctx context.Context, params type
 	}
 }
 
-func (b *BackendClient) GetAssetScanEstimation(ctx context.Context, assetScanEstimationID string, params types.GetAssetScanEstimationsAssetScanEstimationIDParams) (types.AssetScanEstimation, error) {
+func (c *Client) GetAssetScanEstimation(ctx context.Context, assetScanEstimationID string, params types.GetAssetScanEstimationsAssetScanEstimationIDParams) (types.AssetScanEstimation, error) {
 	newGetExistingError := func(err error) error {
 		return fmt.Errorf("failed to get existing asset scan estimation %v: %w", assetScanEstimationID, err)
 	}
 
 	var assetScanEstimations types.AssetScanEstimation
-	resp, err := b.apiClient.GetAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params)
+	resp, err := c.api.GetAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params)
 	if err != nil {
 		return assetScanEstimations, newGetExistingError(err)
 	}
@@ -584,13 +585,13 @@ func (b *BackendClient) GetAssetScanEstimation(ctx context.Context, assetScanEst
 	}
 }
 
-func (b *BackendClient) PatchAssetScanEstimation(ctx context.Context, assetScanEstimation types.AssetScanEstimation, assetScanEstimationID string) error {
+func (c *Client) PatchAssetScanEstimation(ctx context.Context, assetScanEstimation types.AssetScanEstimation, assetScanEstimationID string) error {
 	newUpdateAssetScanEstimationError := func(err error) error {
 		return fmt.Errorf("failed to update asset scan estimation %v: %w", assetScanEstimationID, err)
 	}
 
 	params := types.PatchAssetScanEstimationsAssetScanEstimationIDParams{}
-	resp, err := b.apiClient.PatchAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params, assetScanEstimation)
+	resp, err := c.api.PatchAssetScanEstimationsAssetScanEstimationIDWithResponse(ctx, assetScanEstimationID, &params, assetScanEstimation)
 	if err != nil {
 		return newUpdateAssetScanEstimationError(err)
 	}
@@ -622,8 +623,8 @@ func (b *BackendClient) PatchAssetScanEstimation(ctx context.Context, assetScanE
 	}
 }
 
-func (b *BackendClient) GetScanConfigs(ctx context.Context, params types.GetScanConfigsParams) (*types.ScanConfigs, error) {
-	resp, err := b.apiClient.GetScanConfigsWithResponse(ctx, &params)
+func (c *Client) GetScanConfigs(ctx context.Context, params types.GetScanConfigsParams) (*types.ScanConfigs, error) {
+	resp, err := c.api.GetScanConfigsWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scan configs: %w", err)
 	}
@@ -641,8 +642,8 @@ func (b *BackendClient) GetScanConfigs(ctx context.Context, params types.GetScan
 	}
 }
 
-func (b *BackendClient) GetScanConfig(ctx context.Context, scanConfigID string, params types.GetScanConfigsScanConfigIDParams) (*types.ScanConfig, error) {
-	resp, err := b.apiClient.GetScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params)
+func (c *Client) GetScanConfig(ctx context.Context, scanConfigID string, params types.GetScanConfigsScanConfigIDParams) (*types.ScanConfig, error) {
+	resp, err := c.api.GetScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get a scan config: %w", err)
 	}
@@ -668,13 +669,13 @@ func (b *BackendClient) GetScanConfig(ctx context.Context, scanConfigID string, 
 	}
 }
 
-func (b *BackendClient) PatchScanConfig(ctx context.Context, scanConfigID string, scanConfig *types.ScanConfig) error {
+func (c *Client) PatchScanConfig(ctx context.Context, scanConfigID string, scanConfig *types.ScanConfig) error {
 	newPatchScanConfigResultError := func(err error) error {
 		return fmt.Errorf("failed to update scan config %v: %w", scanConfigID, err)
 	}
 
 	params := types.PatchScanConfigsScanConfigIDParams{}
-	resp, err := b.apiClient.PatchScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params, *scanConfig)
+	resp, err := c.api.PatchScanConfigsScanConfigIDWithResponse(ctx, scanConfigID, &params, *scanConfig)
 	if err != nil {
 		return newPatchScanConfigResultError(err)
 	}
@@ -706,8 +707,8 @@ func (b *BackendClient) PatchScanConfig(ctx context.Context, scanConfigID string
 	}
 }
 
-func (b *BackendClient) GetScans(ctx context.Context, params types.GetScansParams) (*types.Scans, error) {
-	resp, err := b.apiClient.GetScansWithResponse(ctx, &params)
+func (c *Client) GetScans(ctx context.Context, params types.GetScansParams) (*types.Scans, error) {
+	resp, err := c.api.GetScansWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get scans: %w", err)
 	}
@@ -726,8 +727,8 @@ func (b *BackendClient) GetScans(ctx context.Context, params types.GetScansParam
 }
 
 //nolint:cyclop
-func (b *BackendClient) PostAsset(ctx context.Context, asset types.Asset) (*types.Asset, error) {
-	resp, err := b.apiClient.PostAssetsWithResponse(ctx, asset)
+func (c *Client) PostAsset(ctx context.Context, asset types.Asset) (*types.Asset, error) {
+	resp, err := c.api.PostAssetsWithResponse(ctx, asset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an asset: %w", err)
 	}
@@ -762,13 +763,13 @@ func (b *BackendClient) PostAsset(ctx context.Context, asset types.Asset) (*type
 }
 
 //nolint:cyclop
-func (b *BackendClient) PatchAsset(ctx context.Context, asset types.Asset, assetID string) error {
+func (c *Client) PatchAsset(ctx context.Context, asset types.Asset, assetID string) error {
 	newUpdateAssetError := func(err error) error {
 		return fmt.Errorf("failed to update asset %v: %w", assetID, err)
 	}
 
 	params := types.PatchAssetsAssetIDParams{}
-	resp, err := b.apiClient.PatchAssetsAssetIDWithResponse(ctx, assetID, &params, asset)
+	resp, err := c.api.PatchAssetsAssetIDWithResponse(ctx, assetID, &params, asset)
 	if err != nil {
 		return newUpdateAssetError(err)
 	}
@@ -796,13 +797,13 @@ func (b *BackendClient) PatchAsset(ctx context.Context, asset types.Asset, asset
 }
 
 // nolint:cyclop
-func (b *BackendClient) GetAsset(ctx context.Context, assetID string, params types.GetAssetsAssetIDParams) (types.Asset, error) {
+func (c *Client) GetAsset(ctx context.Context, assetID string, params types.GetAssetsAssetIDParams) (types.Asset, error) {
 	newGetExistingError := func(err error) error {
 		return fmt.Errorf("failed to get existing asset %v: %w", assetID, err)
 	}
 
 	var asset types.Asset
-	resp, err := b.apiClient.GetAssetsAssetIDWithResponse(ctx, assetID, &params)
+	resp, err := c.api.GetAssetsAssetIDWithResponse(ctx, assetID, &params)
 	if err != nil {
 		return asset, newGetExistingError(err)
 	}
@@ -829,8 +830,8 @@ func (b *BackendClient) GetAsset(ctx context.Context, assetID string, params typ
 	}
 }
 
-func (b *BackendClient) GetAssets(ctx context.Context, params types.GetAssetsParams) (*types.Assets, error) {
-	resp, err := b.apiClient.GetAssetsWithResponse(ctx, &params)
+func (c *Client) GetAssets(ctx context.Context, params types.GetAssetsParams) (*types.Assets, error) {
+	resp, err := c.api.GetAssetsWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get assets: %w", err)
 	}
@@ -848,8 +849,8 @@ func (b *BackendClient) GetAssets(ctx context.Context, params types.GetAssetsPar
 	}
 }
 
-func (b *BackendClient) GetFindings(ctx context.Context, params types.GetFindingsParams) (*types.Findings, error) {
-	resp, err := b.apiClient.GetFindingsWithResponse(ctx, &params)
+func (c *Client) GetFindings(ctx context.Context, params types.GetFindingsParams) (*types.Findings, error) {
+	resp, err := c.api.GetFindingsWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get findings: %w", err)
 	}
@@ -867,8 +868,8 @@ func (b *BackendClient) GetFindings(ctx context.Context, params types.GetFinding
 	}
 }
 
-func (b *BackendClient) PatchFinding(ctx context.Context, findingID types.FindingID, finding types.Finding) error {
-	resp, err := b.apiClient.PatchFindingsFindingIDWithResponse(ctx, findingID, finding)
+func (c *Client) PatchFinding(ctx context.Context, findingID types.FindingID, finding types.Finding) error {
+	resp, err := c.api.PatchFindingsFindingIDWithResponse(ctx, findingID, finding)
 	if err != nil {
 		return fmt.Errorf("failed to update a finding: %w", err)
 	}
@@ -899,8 +900,8 @@ func (b *BackendClient) PatchFinding(ctx context.Context, findingID types.Findin
 	}
 }
 
-func (b *BackendClient) PostFinding(ctx context.Context, finding types.Finding) (*types.Finding, error) {
-	resp, err := b.apiClient.PostFindingsWithResponse(ctx, finding)
+func (c *Client) PostFinding(ctx context.Context, finding types.Finding) (*types.Finding, error) {
+	resp, err := c.api.PostFindingsWithResponse(ctx, finding)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a finding: %w", err)
 	}
@@ -930,8 +931,8 @@ func (b *BackendClient) PostFinding(ctx context.Context, finding types.Finding) 
 }
 
 //nolint:cyclop
-func (b *BackendClient) PostProvider(ctx context.Context, provider types.Provider) (*types.Provider, error) {
-	resp, err := b.apiClient.PostProvidersWithResponse(ctx, provider)
+func (c *Client) PostProvider(ctx context.Context, provider types.Provider) (*types.Provider, error) {
+	resp, err := c.api.PostProvidersWithResponse(ctx, provider)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a provider: %w", err)
 	}
@@ -966,13 +967,13 @@ func (b *BackendClient) PostProvider(ctx context.Context, provider types.Provide
 }
 
 //nolint:cyclop
-func (b *BackendClient) PatchProvider(ctx context.Context, provider types.Provider, providerID string) error {
+func (c *Client) PatchProvider(ctx context.Context, provider types.Provider, providerID string) error {
 	newUpdateProviderError := func(err error) error {
 		return fmt.Errorf("failed to update provider %v: %w", providerID, err)
 	}
 
 	params := types.PatchProvidersProviderIDParams{}
-	resp, err := b.apiClient.PatchProvidersProviderIDWithResponse(ctx, providerID, &params, provider)
+	resp, err := c.api.PatchProvidersProviderIDWithResponse(ctx, providerID, &params, provider)
 	if err != nil {
 		return newUpdateProviderError(err)
 	}
@@ -1000,13 +1001,13 @@ func (b *BackendClient) PatchProvider(ctx context.Context, provider types.Provid
 }
 
 // nolint:cyclop
-func (b *BackendClient) GetProvider(ctx context.Context, providerID string, params types.GetProvidersProviderIDParams) (types.Provider, error) {
+func (c *Client) GetProvider(ctx context.Context, providerID string, params types.GetProvidersProviderIDParams) (types.Provider, error) {
 	newGetExistingError := func(err error) error {
 		return fmt.Errorf("failed to get existing provider %v: %w", providerID, err)
 	}
 
 	var provider types.Provider
-	resp, err := b.apiClient.GetProvidersProviderIDWithResponse(ctx, providerID, &params)
+	resp, err := c.api.GetProvidersProviderIDWithResponse(ctx, providerID, &params)
 	if err != nil {
 		return provider, newGetExistingError(err)
 	}
@@ -1033,8 +1034,8 @@ func (b *BackendClient) GetProvider(ctx context.Context, providerID string, para
 	}
 }
 
-func (b *BackendClient) GetProviders(ctx context.Context, params types.GetProvidersParams) (*types.Providers, error) {
-	resp, err := b.apiClient.GetProvidersWithResponse(ctx, &params)
+func (c *Client) GetProviders(ctx context.Context, params types.GetProvidersParams) (*types.Providers, error) {
+	resp, err := c.api.GetProvidersWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get providers: %w", err)
 	}

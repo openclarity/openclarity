@@ -124,7 +124,7 @@ func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingTyp
 		return nil, fmt.Errorf("failed to get total findings field name: %w", err)
 	}
 
-	riskiestAssets, err := s.BackendClient.GetAssets(ctx, apitypes.GetAssetsParams{
+	riskiestAssets, err := s.Client.GetAssets(ctx, apitypes.GetAssetsParams{
 		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
 		Top:     utils.PointerTo(topRiskiestAssetsCount),
 		OrderBy: utils.PointerTo(getOrderByOData(totalFindingField)),

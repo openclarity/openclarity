@@ -24,6 +24,7 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	middleware "github.com/oapi-codegen/echo-middleware"
 
+	apiserver "github.com/openclarity/vmclarity/api/server/internal/server"
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/utils/log"
@@ -54,7 +55,7 @@ func CreateRESTServer(address string, dbHandler dbtypes.Database) (*Server, erro
 }
 
 func createEchoServer(dbHandler dbtypes.Database) (*echo.Echo, error) {
-	swagger, err := GetSwagger()
+	swagger, err := apiserver.GetSwagger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load swagger spec: %w", err)
 	}
@@ -75,7 +76,7 @@ func createEchoServer(dbHandler dbtypes.Database) (*echo.Echo, error) {
 		dbHandler: dbHandler,
 	}
 	// Register paths with the backend implementation
-	RegisterHandlers(e, apiImpl)
+	apiserver.RegisterHandlers(e, apiImpl)
 
 	return e, nil
 }

@@ -23,7 +23,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gotest.tools/v3/assert"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/provider"
 	provider_service "github.com/openclarity/vmclarity/provider/external/proto"
@@ -32,17 +32,17 @@ import (
 func Test_convertAssetToModels(t *testing.T) {
 	timeNow := time.Now()
 
-	wantVMInfo := types.AssetType{}
-	err := wantVMInfo.FromVMInfo(types.VMInfo{
+	wantVMInfo := apitypes.AssetType{}
+	err := wantVMInfo.FromVMInfo(apitypes.VMInfo{
 		Image:            "image1",
 		InstanceID:       "id1",
-		InstanceProvider: utils.PointerTo(types.External),
+		InstanceProvider: utils.PointerTo(apitypes.External),
 		InstanceType:     "type1",
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
 		Platform:         "linux",
-		SecurityGroups:   &[]types.SecurityGroup{},
-		Tags: &[]types.Tag{
+		SecurityGroups:   &[]apitypes.SecurityGroup{},
+		Tags: &[]apitypes.Tag{
 			{
 				Key:   "key1",
 				Value: "val1",
@@ -51,15 +51,15 @@ func Test_convertAssetToModels(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	wantDirInfo := types.AssetType{}
-	err = wantDirInfo.FromDirInfo(types.DirInfo{
+	wantDirInfo := apitypes.AssetType{}
+	err = wantDirInfo.FromDirInfo(apitypes.DirInfo{
 		DirName:  utils.PointerTo("dir1"),
 		Location: utils.PointerTo("dirLocation1"),
 	})
 	assert.NilError(t, err)
 
-	wantPodInfo := types.AssetType{}
-	err = wantPodInfo.FromPodInfo(types.PodInfo{
+	wantPodInfo := apitypes.AssetType{}
+	err = wantPodInfo.FromPodInfo(apitypes.PodInfo{
 		PodName:  utils.PointerTo("pod1"),
 		Location: utils.PointerTo("podLocation1"),
 	})
@@ -71,7 +71,7 @@ func Test_convertAssetToModels(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    types.Asset
+		want    apitypes.Asset
 		wantErr bool
 	}{
 		{
@@ -79,7 +79,7 @@ func Test_convertAssetToModels(t *testing.T) {
 			args: args{
 				asset: nil,
 			},
-			want:    types.Asset{},
+			want:    apitypes.Asset{},
 			wantErr: true,
 		},
 		{
@@ -87,7 +87,7 @@ func Test_convertAssetToModels(t *testing.T) {
 			args: args{
 				asset: &provider_service.Asset{},
 			},
-			want:    types.Asset{},
+			want:    apitypes.Asset{},
 			wantErr: true,
 		},
 		{
@@ -110,7 +110,7 @@ func Test_convertAssetToModels(t *testing.T) {
 					}},
 				},
 			},
-			want: types.Asset{
+			want: apitypes.Asset{
 				AssetInfo: &wantVMInfo,
 			},
 			wantErr: false,
@@ -125,7 +125,7 @@ func Test_convertAssetToModels(t *testing.T) {
 					}},
 				},
 			},
-			want: types.Asset{
+			want: apitypes.Asset{
 				AssetInfo: &wantDirInfo,
 			},
 			wantErr: false,
@@ -140,7 +140,7 @@ func Test_convertAssetToModels(t *testing.T) {
 					}},
 				},
 			},
-			want: types.Asset{
+			want: apitypes.Asset{
 				AssetInfo: &wantPodInfo,
 			},
 			wantErr: false,
@@ -163,17 +163,17 @@ func Test_convertAssetToModels(t *testing.T) {
 func Test_convertAssetFromModels(t *testing.T) {
 	timeNow := time.Now()
 
-	vminfo := types.AssetType{}
-	err := vminfo.FromVMInfo(types.VMInfo{
+	vminfo := apitypes.AssetType{}
+	err := vminfo.FromVMInfo(apitypes.VMInfo{
 		Image:            "image1",
 		InstanceID:       "id1",
-		InstanceProvider: utils.PointerTo(types.External),
+		InstanceProvider: utils.PointerTo(apitypes.External),
 		InstanceType:     "type1",
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
 		Platform:         "linux",
-		SecurityGroups:   &[]types.SecurityGroup{},
-		Tags: &[]types.Tag{
+		SecurityGroups:   &[]apitypes.SecurityGroup{},
+		Tags: &[]apitypes.Tag{
 			{
 				Key:   "key1",
 				Value: "val1",
@@ -182,22 +182,22 @@ func Test_convertAssetFromModels(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	dirinfo := types.AssetType{}
-	err = dirinfo.FromDirInfo(types.DirInfo{
+	dirinfo := apitypes.AssetType{}
+	err = dirinfo.FromDirInfo(apitypes.DirInfo{
 		DirName:  utils.PointerTo("dir1"),
 		Location: utils.PointerTo("dirLocation1"),
 	})
 	assert.NilError(t, err)
 
-	podinfo := types.AssetType{}
-	err = podinfo.FromPodInfo(types.PodInfo{
+	podinfo := apitypes.AssetType{}
+	err = podinfo.FromPodInfo(apitypes.PodInfo{
 		PodName:  utils.PointerTo("pod1"),
 		Location: utils.PointerTo("podLocation1"),
 	})
 	assert.NilError(t, err)
 
 	type args struct {
-		asset types.Asset
+		asset apitypes.Asset
 	}
 	tests := []struct {
 		name    string
@@ -208,7 +208,7 @@ func Test_convertAssetFromModels(t *testing.T) {
 		{
 			name: "vm info",
 			args: args{
-				asset: types.Asset{
+				asset: apitypes.Asset{
 					AssetInfo: &vminfo,
 				},
 			},
@@ -233,7 +233,7 @@ func Test_convertAssetFromModels(t *testing.T) {
 		{
 			name: "dir info",
 			args: args{
-				asset: types.Asset{
+				asset: apitypes.Asset{
 					AssetInfo: &dirinfo,
 				},
 			},
@@ -248,7 +248,7 @@ func Test_convertAssetFromModels(t *testing.T) {
 		{
 			name: "pod info",
 			args: args{
-				asset: types.Asset{
+				asset: apitypes.Asset{
 					AssetInfo: &podinfo,
 				},
 			},
@@ -282,7 +282,7 @@ func Test_convertTagsToModels(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *[]types.Tag
+		want *[]apitypes.Tag
 	}{
 		{
 			name: "no tags",
@@ -301,7 +301,7 @@ func Test_convertTagsToModels(t *testing.T) {
 					},
 				},
 			},
-			want: &[]types.Tag{
+			want: &[]apitypes.Tag{
 				{
 					Key:   "key1",
 					Value: "val1",
@@ -322,7 +322,7 @@ func Test_convertTagsToModels(t *testing.T) {
 					},
 				},
 			},
-			want: &[]types.Tag{
+			want: &[]apitypes.Tag{
 				{
 					Key:   "key1",
 					Value: "val1",
@@ -344,8 +344,8 @@ func Test_convertTagsToModels(t *testing.T) {
 }
 
 func Test_convertScanJobConfig(t *testing.T) {
-	podinfo := types.AssetType{}
-	err := podinfo.FromPodInfo(types.PodInfo{
+	podinfo := apitypes.AssetType{}
+	err := podinfo.FromPodInfo(apitypes.PodInfo{
 		PodName:  utils.PointerTo("pod1"),
 		Location: utils.PointerTo("podLocation1"),
 	})
@@ -372,12 +372,12 @@ func Test_convertScanJobConfig(t *testing.T) {
 						AssetScanID: "assetscanid1",
 						AssetID:     "assetid1",
 					},
-					ScannerInstanceCreationConfig: types.ScannerInstanceCreationConfig{
+					ScannerInstanceCreationConfig: apitypes.ScannerInstanceCreationConfig{
 						MaxPrice:         nil,
 						RetryMaxAttempts: nil,
 						UseSpotInstances: false,
 					},
-					Asset: types.Asset{
+					Asset: apitypes.Asset{
 						AssetInfo: &podinfo,
 					},
 				},

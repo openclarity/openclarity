@@ -45,7 +45,7 @@ type ReportFailedConfig struct {
 }
 
 // ReportFailed gathers relevant API data and docker service logs for debugging purposes.
-func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *apiclient.BackendClient, config *ReportFailedConfig) {
+func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *apiclient.Client, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println("------------------------------")
 
 	DumpAPIData(ctx, client, config)
@@ -57,7 +57,7 @@ func ReportFailed(ctx ginkgo.SpecContext, testEnv types.Environment, client *api
 // nolint:cyclop
 // DumpAPIData prints API objects filtered using test parameters (e.g. assets filtered by scope, scan configs filtered by id).
 // If filter not provided, no objects are printed.
-func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.BackendClient, config *ReportFailedConfig) {
+func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.Client, config *ReportFailedConfig) {
 	ginkgo.GinkgoWriter.Println(formatter.F("{{red}}[FAILED] Report API Data:{{/}}"))
 
 	if config.allAPIObjects {

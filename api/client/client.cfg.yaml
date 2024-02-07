@@ -1,5 +1,5 @@
 package: client
-output: client.gen.go
+output: internal/client/client.gen.go
 additional-imports:
   - package: github.com/openclarity/vmclarity/api/types
     alias: .

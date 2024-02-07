@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
@@ -37,7 +37,7 @@ type (
 
 func New(c Config) *Watcher {
 	return &Watcher{
-		backend:          c.Backend,
+		client:           c.Client,
 		provider:         c.Provider,
 		scannerConfig:    c.ScannerConfig,
 		pollPeriod:       c.PollPeriod,
@@ -49,7 +49,7 @@ func New(c Config) *Watcher {
 }
 
 type Watcher struct {
-	backend          *client.BackendClient
+	client           *apiclient.Client
 	provider         provider.Provider
 	scannerConfig    ScannerConfig
 	pollPeriod       time.Duration
@@ -85,14 +85,14 @@ func (w *Watcher) GetAssetScans(ctx context.Context) ([]AssetScanReconcileEvent,
 	logger.Debugf("Fetching AssetScans which need to be reconciled")
 
 	filter := fmt.Sprintf("(status/state ne '%s' and status/state ne '%s') or resourceCleanupStatus/state eq '%s'",
-		types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed, types.ResourceCleanupStatusStatePending)
+		apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed, apitypes.ResourceCleanupStatusStatePending)
 	selector := "id,scan/id,asset/id"
-	params := types.GetAssetScansParams{
+	params := apitypes.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
 		Count:  utils.PointerTo(true),
 	}
-	assetScans, err := w.backend.GetAssetScans(ctx, params)
+	assetScans, err := w.client.GetAssetScans(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get AssetScans: %w", err)
 	}
@@ -139,7 +139,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithFields(event.ToFields())
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	assetScan, err := w.backend.GetAssetScan(ctx, event.AssetScanID, types.GetAssetScansAssetScanIDParams{
+	assetScan, err := w.client.GetAssetScan(ctx, event.AssetScanID, apitypes.GetAssetScansAssetScanIDParams{
 		Expand: utils.PointerTo("scan,asset"),
 	})
 	if err != nil {
@@ -154,23 +154,23 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 	logger.Tracef("Reconciling AssetScan state: %s", status.State)
 
 	switch status.State {
-	case types.AssetScanStatusStatePending:
+	case apitypes.AssetScanStatusStatePending:
 		if err = w.reconcilePending(ctx, &assetScan); err != nil {
 			return err
 		}
-	case types.AssetScanStatusStateScheduled:
+	case apitypes.AssetScanStatusStateScheduled:
 		if err = w.reconcileScheduled(ctx, &assetScan); err != nil {
 			return err
 		}
-	case types.AssetScanStatusStateReadyToScan, types.AssetScanStatusStateInProgress:
+	case apitypes.AssetScanStatusStateReadyToScan, apitypes.AssetScanStatusStateInProgress:
 		// TODO(chrisgacsal): make sure that AssetScan state is set to ABORTED state once the AssetScan
 		//                    schema is extended with timeout field and the deadline is missed.
 		break
-	case types.AssetScanStatusStateAborted:
+	case apitypes.AssetScanStatusStateAborted:
 		if err = w.reconcileAborted(ctx, &assetScan); err != nil {
 			return err
 		}
-	case types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed:
+	case apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed:
 		if err = w.reconcileDoneAndFailed(ctx, &assetScan); err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcilePending(ctx context.Context, assetScan *types.AssetScan) error {
+func (w *Watcher) reconcilePending(ctx context.Context, assetScan *apitypes.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -196,8 +196,8 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *types.AssetSc
 		// Check whether we have reached the maximum number of running scans
 		// TODO(chrisgacsal): the number of concurrent scans needs to be part of the provider config and handled there
 		filter := fmt.Sprintf("scan/id eq '%s' and status/state ne '%s' and status/state ne '%s' and status/state ne '%s' and resourceCleanupStatus/state eq '%s'",
-			assetScan.Scan.Id, types.AssetScanStatusStateDone, types.AssetScanStatusStateFailed, types.AssetScanStatusStatePending, types.ResourceCleanupStatusStatePending)
-		assetScans, err := w.backend.GetAssetScans(ctx, types.GetAssetScansParams{
+			assetScan.Scan.Id, apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed, apitypes.AssetScanStatusStatePending, apitypes.ResourceCleanupStatusStatePending)
+		assetScans, err := w.client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
 			Filter: utils.PointerTo(filter),
 			Count:  utils.PointerTo(true),
 			Top:    utils.PointerTo(0),
@@ -221,16 +221,16 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *types.AssetSc
 		}
 	}
 
-	assetScan.Status = types.NewAssetScanStatus(
-		types.AssetScanStatusStateScheduled,
-		types.AssetScanStatusReasonProvisioning,
+	assetScan.Status = apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStateScheduled,
+		apitypes.AssetScanStatusReasonProvisioning,
 		nil,
 	)
 
-	assetScanPatch := types.AssetScan{
+	assetScanPatch := apitypes.AssetScan{
 		Status: assetScan.Status,
 	}
-	err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
+	err := w.client.PatchAssetScan(ctx, assetScanPatch, assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to update AssetScan. AssetScan=%s: %w", assetScanID, err)
 	}
@@ -242,7 +242,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *types.AssetSc
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *types.AssetScan) error {
+func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.AssetScan) error {
 	assetScanID, ok := assetScan.GetID()
 	if !ok {
 		return errors.New("invalid AssetScan: ID is nil")
@@ -251,7 +251,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *types.Asset
 	if assetScan.Asset == nil || assetScan.Asset.AssetInfo == nil {
 		return errors.New("invalid AssetScan: Asset or AssetInfo is nil")
 	}
-	asset := &types.Asset{
+	asset := &apitypes.Asset{
 		Id:         utils.PointerTo(assetScan.Asset.Id),
 		Revision:   assetScan.Asset.Revision,
 		ScansCount: assetScan.Asset.ScansCount,
@@ -275,32 +275,32 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *types.Asset
 	var retryableError provider.RetryableError
 	switch {
 	case errors.As(err, &fatalError):
-		assetScan.Status = types.NewAssetScanStatus(
-			types.AssetScanStatusStateFailed,
-			types.AssetScanStatusReasonError,
+		assetScan.Status = apitypes.NewAssetScanStatus(
+			apitypes.AssetScanStatusStateFailed,
+			apitypes.AssetScanStatusReasonError,
 			utils.PointerTo(fatalError.Error()),
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
 		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
-		assetScan.Status = types.NewAssetScanStatus(
-			types.AssetScanStatusStateFailed,
-			types.AssetScanStatusReasonError,
+		assetScan.Status = apitypes.NewAssetScanStatus(
+			apitypes.AssetScanStatusStateFailed,
+			apitypes.AssetScanStatusReasonError,
 			utils.PointerTo(errors.Join(utils.UnwrapErrors(err)...).Error()),
 		)
 	default:
-		assetScan.Status = types.NewAssetScanStatus(
-			types.AssetScanStatusStateReadyToScan,
-			types.AssetScanStatusReasonResourcesReady,
+		assetScan.Status = apitypes.NewAssetScanStatus(
+			apitypes.AssetScanStatusStateReadyToScan,
+			apitypes.AssetScanStatusReasonResourcesReady,
 			nil,
 		)
 	}
 
-	assetScanPatch := types.AssetScan{
+	assetScanPatch := apitypes.AssetScan{
 		Status: assetScan.Status,
 	}
-	err = w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
+	err = w.client.PatchAssetScan(ctx, assetScanPatch, assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to update AssetScan. AssetScan=%s: %w", assetScanID, err)
 	}
@@ -308,12 +308,12 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *types.Asset
 	return nil
 }
 
-func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *types.AssetScan) error {
+func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *apitypes.AssetScan) error {
 	if assetScan.Scan == nil || assetScan.ResourceCleanupStatus == nil {
 		return errors.New("invalid AssetScan: Scan and/or ResourceCleanupStatus are nil")
 	}
 
-	if assetScan.ResourceCleanupStatus.State != types.ResourceCleanupStatusStatePending {
+	if assetScan.ResourceCleanupStatus.State != apitypes.ResourceCleanupStatusStatePending {
 		return nil
 	}
 
@@ -325,7 +325,7 @@ func (w *Watcher) reconcileDoneAndFailed(ctx context.Context, assetScan *types.A
 }
 
 // nolint:cyclop
-func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetScan) error {
+func (w *Watcher) cleanupResources(ctx context.Context, assetScan *apitypes.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -335,16 +335,16 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetSc
 
 	switch w.deleteJobPolicy {
 	case DeleteJobPolicyNever:
-		assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
-			types.ResourceCleanupStatusStateSkipped,
-			types.ResourceCleanupStatusReasonDeletePolicy,
+		assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
+			apitypes.ResourceCleanupStatusStateSkipped,
+			apitypes.ResourceCleanupStatusReasonDeletePolicy,
 			nil,
 		)
 	case DeleteJobPolicyOnSuccess:
-		if assetScan.Status.State == types.AssetScanStatusStateFailed {
-			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
-				types.ResourceCleanupStatusStateSkipped,
-				types.ResourceCleanupStatusReasonDeletePolicy,
+		if assetScan.Status.State == apitypes.AssetScanStatusStateFailed {
+			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
+				apitypes.ResourceCleanupStatusStateSkipped,
+				apitypes.ResourceCleanupStatusReasonDeletePolicy,
 				nil,
 			)
 			break
@@ -354,7 +354,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetSc
 		fallthrough
 	default:
 		// Get Asset
-		asset, err := w.backend.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{
+		asset, err := w.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{
 			Select: utils.PointerTo("id,assetInfo"),
 		})
 		if err != nil {
@@ -380,9 +380,9 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetSc
 		var retryableError provider.RetryableError
 		switch {
 		case errors.As(err, &fatalError):
-			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
-				types.ResourceCleanupStatusStateFailed,
-				types.ResourceCleanupStatusReasonProviderError,
+			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
+				apitypes.ResourceCleanupStatusStateFailed,
+				apitypes.ResourceCleanupStatusReasonProviderError,
 				utils.PointerTo(fatalError.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", fatalError)
@@ -390,25 +390,25 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetSc
 			// nolint:wrapcheck
 			return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 		case err != nil:
-			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
-				types.ResourceCleanupStatusStateFailed,
-				types.ResourceCleanupStatusReasonProviderError,
+			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
+				apitypes.ResourceCleanupStatusStateFailed,
+				apitypes.ResourceCleanupStatusReasonProviderError,
 				utils.PointerTo(err.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", err)
 		default:
-			assetScan.ResourceCleanupStatus = types.NewResourceCleanupStatus(
-				types.ResourceCleanupStatusStateDone,
-				types.ResourceCleanupStatusReasonSuccess,
+			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
+				apitypes.ResourceCleanupStatusStateDone,
+				apitypes.ResourceCleanupStatusReasonSuccess,
 				nil,
 			)
 		}
 	}
 
-	assetScanPatch := types.AssetScan{
+	assetScanPatch := apitypes.AssetScan{
 		ResourceCleanupStatus: assetScan.ResourceCleanupStatus,
 	}
-	if err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID); err != nil {
+	if err := w.client.PatchAssetScan(ctx, assetScanPatch, assetScanID); err != nil {
 		return fmt.Errorf("failed to patch for AssetScan. AssetScanID=%s: %w", assetScanID, err)
 	}
 
@@ -416,7 +416,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *types.AssetSc
 }
 
 // nolint:cyclop
-func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *types.AssetScan) error {
+func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *apitypes.AssetScan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	assetScanID, ok := assetScan.GetID()
@@ -442,16 +442,16 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *types.AssetSc
 	logger.Tracef("AssetScan in aborted state is timed out. TransitionTime=%s Timeout=%s",
 		transitionTimeToAbort, w.abortTimeout)
 
-	assetScan.Status = types.NewAssetScanStatus(
-		types.AssetScanStatusStateFailed,
-		types.AssetScanStatusReasonAbortTimeout,
+	assetScan.Status = apitypes.NewAssetScanStatus(
+		apitypes.AssetScanStatusStateFailed,
+		apitypes.AssetScanStatusReasonAbortTimeout,
 		utils.PointerTo(fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout)),
 	)
 
-	assetScanPatch := types.AssetScan{
+	assetScanPatch := apitypes.AssetScan{
 		Status: assetScan.Status,
 	}
-	err := w.backend.PatchAssetScan(ctx, assetScanPatch, assetScanID)
+	err := w.client.PatchAssetScan(ctx, assetScanPatch, assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to update AssetScan. AssetScan=%s: %w", assetScanID, err)
 	}

@@ -29,7 +29,7 @@ import (
 )
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
-	assets, err := s.BackendClient.GetAssets(ctx.Request().Context(), apitypes.GetAssetsParams{
+	assets, err := s.Client.GetAssets(ctx.Request().Context(), apitypes.GetAssetsParams{
 		Filter: utils.PointerTo("terminatedOn eq null and assetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {

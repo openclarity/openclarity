@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/cobra"
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/cmd/logutil"
 	cliutils "github.com/openclarity/vmclarity/cli/pkg/utils"
 )
@@ -87,7 +87,7 @@ func init() {
 	}
 }
 
-func getAssetFromJSONFile(filename string) (*types.AssetType, error) {
+func getAssetFromJSONFile(filename string) (*apitypes.AssetType, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -107,7 +107,7 @@ func getAssetFromJSONFile(filename string) (*types.AssetType, error) {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	assetType := &types.AssetType{}
+	assetType := &apitypes.AssetType{}
 	if err := assetType.UnmarshalJSON(bs); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal asset into AssetType %w", err)
 	}
@@ -115,14 +115,14 @@ func getAssetFromJSONFile(filename string) (*types.AssetType, error) {
 	return assetType, nil
 }
 
-func createAsset(ctx context.Context, assetType *types.AssetType, server string, updateIfExists bool) (*types.Asset, error) {
-	client, err := apiclient.Create(server)
+func createAsset(ctx context.Context, assetType *apitypes.AssetType, server string, updateIfExists bool) (*apitypes.Asset, error) {
+	client, err := apiclient.New(server)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 	}
 
 	creationTime := time.Now()
-	assetData := types.Asset{
+	assetData := apitypes.Asset{
 		AssetInfo: assetType,
 		LastSeen:  &creationTime,
 		FirstSeen: &creationTime,
