@@ -32,7 +32,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/job_manager"
 	"github.com/openclarity/vmclarity/cli/pkg/scanner"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 const (

@@ -20,28 +20,28 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func newVulnerabilityScanSummary() *apitypes.VulnerabilityScanSummary {
 	return &apitypes.VulnerabilityScanSummary{
-		TotalCriticalVulnerabilities:   utils.PointerTo[int](0),
-		TotalHighVulnerabilities:       utils.PointerTo[int](0),
-		TotalMediumVulnerabilities:     utils.PointerTo[int](0),
-		TotalLowVulnerabilities:        utils.PointerTo[int](0),
-		TotalNegligibleVulnerabilities: utils.PointerTo[int](0),
+		TotalCriticalVulnerabilities:   to.Ptr[int](0),
+		TotalHighVulnerabilities:       to.Ptr[int](0),
+		TotalMediumVulnerabilities:     to.Ptr[int](0),
+		TotalLowVulnerabilities:        to.Ptr[int](0),
+		TotalNegligibleVulnerabilities: to.Ptr[int](0),
 	}
 }
 
 func newAssetScanSummary() *apitypes.ScanFindingsSummary {
 	return &apitypes.ScanFindingsSummary{
-		TotalExploits:          utils.PointerTo[int](0),
-		TotalMalware:           utils.PointerTo[int](0),
-		TotalMisconfigurations: utils.PointerTo[int](0),
-		TotalPackages:          utils.PointerTo[int](0),
-		TotalRootkits:          utils.PointerTo[int](0),
-		TotalSecrets:           utils.PointerTo[int](0),
-		TotalInfoFinder:        utils.PointerTo[int](0),
+		TotalExploits:          to.Ptr[int](0),
+		TotalMalware:           to.Ptr[int](0),
+		TotalMisconfigurations: to.Ptr[int](0),
+		TotalPackages:          to.Ptr[int](0),
+		TotalRootkits:          to.Ptr[int](0),
+		TotalSecrets:           to.Ptr[int](0),
+		TotalInfoFinder:        to.Ptr[int](0),
 		TotalVulnerabilities:   newVulnerabilityScanSummary(),
 	}
 }
@@ -124,21 +124,21 @@ func mapFamilyConfigToScannerStatus(config apitypes.FamilyConfigEnabler) *apityp
 
 func newScanSummary() *apitypes.ScanSummary {
 	return &apitypes.ScanSummary{
-		JobsCompleted:          utils.PointerTo(0),
-		JobsLeftToRun:          utils.PointerTo(0),
-		TotalExploits:          utils.PointerTo(0),
-		TotalMalware:           utils.PointerTo(0),
-		TotalMisconfigurations: utils.PointerTo(0),
-		TotalPackages:          utils.PointerTo(0),
-		TotalRootkits:          utils.PointerTo(0),
-		TotalSecrets:           utils.PointerTo(0),
-		TotalInfoFinder:        utils.PointerTo(0),
+		JobsCompleted:          to.Ptr(0),
+		JobsLeftToRun:          to.Ptr(0),
+		TotalExploits:          to.Ptr(0),
+		TotalMalware:           to.Ptr(0),
+		TotalMisconfigurations: to.Ptr(0),
+		TotalPackages:          to.Ptr(0),
+		TotalRootkits:          to.Ptr(0),
+		TotalSecrets:           to.Ptr(0),
+		TotalInfoFinder:        to.Ptr(0),
 		TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-			TotalCriticalVulnerabilities:   utils.PointerTo(0),
-			TotalHighVulnerabilities:       utils.PointerTo(0),
-			TotalLowVulnerabilities:        utils.PointerTo(0),
-			TotalMediumVulnerabilities:     utils.PointerTo(0),
-			TotalNegligibleVulnerabilities: utils.PointerTo(0),
+			TotalCriticalVulnerabilities:   to.Ptr(0),
+			TotalHighVulnerabilities:       to.Ptr(0),
+			TotalLowVulnerabilities:        to.Ptr(0),
+			TotalMediumVulnerabilities:     to.Ptr(0),
+			TotalNegligibleVulnerabilities: to.Ptr(0),
 		},
 	}
 }
@@ -163,26 +163,26 @@ func updateScanSummaryFromAssetScan(scan *apitypes.Scan, result apitypes.AssetSc
 	case apitypes.AssetScanStatusStatePending, apitypes.AssetScanStatusStateScheduled, apitypes.AssetScanStatusStateReadyToScan:
 		fallthrough
 	case apitypes.AssetScanStatusStateInProgress, apitypes.AssetScanStatusStateAborted:
-		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
+		s.JobsLeftToRun = to.Ptr(*s.JobsLeftToRun + 1)
 	case apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed:
-		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
-		s.TotalExploits = utils.PointerTo(*s.TotalExploits + *r.TotalExploits)
-		s.TotalInfoFinder = utils.PointerTo(*s.TotalInfoFinder + *r.TotalInfoFinder)
-		s.TotalMalware = utils.PointerTo(*s.TotalMalware + *r.TotalMalware)
-		s.TotalMisconfigurations = utils.PointerTo(*s.TotalMisconfigurations + *r.TotalMisconfigurations)
-		s.TotalPackages = utils.PointerTo(*s.TotalPackages + *r.TotalPackages)
-		s.TotalRootkits = utils.PointerTo(*s.TotalRootkits + *r.TotalRootkits)
-		s.TotalSecrets = utils.PointerTo(*s.TotalSecrets + *r.TotalSecrets)
+		s.JobsCompleted = to.Ptr(*s.JobsCompleted + 1)
+		s.TotalExploits = to.Ptr(*s.TotalExploits + *r.TotalExploits)
+		s.TotalInfoFinder = to.Ptr(*s.TotalInfoFinder + *r.TotalInfoFinder)
+		s.TotalMalware = to.Ptr(*s.TotalMalware + *r.TotalMalware)
+		s.TotalMisconfigurations = to.Ptr(*s.TotalMisconfigurations + *r.TotalMisconfigurations)
+		s.TotalPackages = to.Ptr(*s.TotalPackages + *r.TotalPackages)
+		s.TotalRootkits = to.Ptr(*s.TotalRootkits + *r.TotalRootkits)
+		s.TotalSecrets = to.Ptr(*s.TotalSecrets + *r.TotalSecrets)
 		s.TotalVulnerabilities = &apitypes.VulnerabilityScanSummary{
-			TotalCriticalVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
+			TotalCriticalVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
 				*r.TotalVulnerabilities.TotalCriticalVulnerabilities),
-			TotalHighVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalHighVulnerabilities +
+			TotalHighVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalHighVulnerabilities +
 				*r.TotalVulnerabilities.TotalHighVulnerabilities),
-			TotalLowVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalLowVulnerabilities +
+			TotalLowVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalLowVulnerabilities +
 				*r.TotalVulnerabilities.TotalLowVulnerabilities),
-			TotalMediumVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalMediumVulnerabilities +
+			TotalMediumVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalMediumVulnerabilities +
 				*r.TotalVulnerabilities.TotalMediumVulnerabilities),
-			TotalNegligibleVulnerabilities: utils.PointerTo(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
+			TotalNegligibleVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
 				*r.TotalVulnerabilities.TotalNegligibleVulnerabilities),
 		}
 	}

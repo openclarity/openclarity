@@ -21,7 +21,7 @@ import (
 	"time"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, assetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {
@@ -42,11 +42,11 @@ func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, ass
 	// newer scan, and use its FoundOn time as the InvalidatedOn time for
 	// this scan.
 	newerFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: utils.PointerTo(fmt.Sprintf(
+		Filter: to.Ptr(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn gt %s",
 			findingType, assetID, completedTime.Format(time.RFC3339))),
-		OrderBy: utils.PointerTo("foundOn asc"),
-		Top:     utils.PointerTo(1), // because of the ordering we only need to get one result here and it'll be the oldest finding which matches the filter
+		OrderBy: to.Ptr("foundOn asc"),
+		Top:     to.Ptr(1), // because of the ordering we only need to get one result here and it'll be the oldest finding which matches the filter
 	})
 	if err != nil {
 		return found, newerTime, fmt.Errorf("failed to check for newer findings: %w", err)
@@ -65,7 +65,7 @@ func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context
 	// older than this asset scan, and has not already been invalidated by
 	// an asset scan older than this asset scan.
 	findingsToInvalidate, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: utils.PointerTo(fmt.Sprintf(
+		Filter: to.Ptr(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn lt %s and (invalidatedOn gt %s or invalidatedOn eq null)",
 			findingType, assetID, completedTime.Format(time.RFC3339), completedTime.Format(time.RFC3339))),
 	})
@@ -89,13 +89,13 @@ func (asp *AssetScanProcessor) getActiveFindingsByType(ctx context.Context, find
 	filter := fmt.Sprintf("findingInfo/objectType eq '%s' and asset/id eq '%s' and invalidatedOn eq null",
 		findingType, assetID)
 	activeFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 		Filter: &filter,
 
 		// select the smallest amount of data to return in items, we
 		// only care about the count.
-		Top:    utils.PointerTo(1),
-		Select: utils.PointerTo("id"),
+		Top:    to.Ptr(1),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to list all active findings: %w", err)

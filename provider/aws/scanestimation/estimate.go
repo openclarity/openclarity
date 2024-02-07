@@ -27,6 +27,7 @@ import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	familiestypes "github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider/common"
 )
 
@@ -218,10 +219,10 @@ func (s *ScanEstimator) EstimateAssetScan(ctx context.Context, params EstimateAs
 	}
 
 	estimation := apitypes.Estimation{
-		Cost:          utils.PointerTo(float32(jobTotalCost)),
+		Cost:          to.Ptr(float32(jobTotalCost)),
 		CostBreakdown: &costBreakdown,
-		Size:          utils.PointerTo(int(scanSizeGB)),
-		Duration:      utils.PointerTo(int(scanDurationSec)),
+		Size:          to.Ptr(int(scanSizeGB)),
+		Duration:      to.Ptr(int(scanDurationSec)),
 	}
 
 	return &estimation, nil

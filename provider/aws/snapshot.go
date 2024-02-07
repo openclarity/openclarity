@@ -23,9 +23,9 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Snapshot struct {
@@ -55,8 +55,8 @@ func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 
 	ec2TagsForSnapshot := EC2TagsFromScanMetadata(s.Metadata)
 	ec2TagsForSnapshot = append(ec2TagsForSnapshot, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
-		Value: utils.PointerTo(s.VolumeID),
+		Key:   to.Ptr(EC2TagKeyAssetVolumeID),
+		Value: to.Ptr(s.VolumeID),
 	})
 	ec2Filters := EC2FiltersFromEC2Tags(ec2TagsForSnapshot)
 
@@ -93,7 +93,7 @@ func (s *Snapshot) Copy(ctx context.Context, region string) (*Snapshot, error) {
 	copySnapParams := &ec2.CopySnapshotInput{
 		SourceRegion:     &s.Region,
 		SourceSnapshotId: &s.ID,
-		Description:      utils.PointerTo(EC2SnapshotDescription),
+		Description:      to.Ptr(EC2SnapshotDescription),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeSnapshot,
@@ -171,13 +171,13 @@ func (s *Snapshot) CreateVolume(ctx context.Context, az string) (*Volume, error)
 
 	ec2TagsForVolume := EC2TagsFromScanMetadata(s.Metadata)
 	ec2TagsForVolume = append(ec2TagsForVolume, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
-		Value: utils.PointerTo(s.VolumeID),
+		Key:   to.Ptr(EC2TagKeyAssetVolumeID),
+		Value: to.Ptr(s.VolumeID),
 	})
 
 	ec2Filters := EC2FiltersFromEC2Tags(ec2TagsForVolume)
 	ec2Filters = append(ec2Filters, ec2types.Filter{
-		Name:   utils.PointerTo(SnapshotIDFilterName),
+		Name:   to.Ptr(SnapshotIDFilterName),
 		Values: []string{s.ID},
 	})
 

@@ -29,10 +29,10 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/presenter"
 	"github.com/openclarity/vmclarity/cli/pkg/state"
+	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/utils/fsutils/blockdevice"
 	"github.com/openclarity/vmclarity/utils/fsutils/filesystem"
 	"github.com/openclarity/vmclarity/utils/fsutils/mount"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 const (

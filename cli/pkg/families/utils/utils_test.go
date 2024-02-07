@@ -18,7 +18,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestTrimMountPath(t *testing.T) {
@@ -146,7 +146,7 @@ func TestShouldStripInputPath(t *testing.T) {
 		{
 			name: "inputShouldStrip = false, familyShouldStrip = false",
 			args: args{
-				inputShouldStrip:  utils.PointerTo(false),
+				inputShouldStrip:  to.Ptr(false),
 				familyShouldStrip: false,
 			},
 			want: false,
@@ -154,7 +154,7 @@ func TestShouldStripInputPath(t *testing.T) {
 		{
 			name: "inputShouldStrip = false, familyShouldStrip = true",
 			args: args{
-				inputShouldStrip:  utils.PointerTo(false),
+				inputShouldStrip:  to.Ptr(false),
 				familyShouldStrip: true,
 			},
 			want: false,
@@ -162,7 +162,7 @@ func TestShouldStripInputPath(t *testing.T) {
 		{
 			name: "inputShouldStrip = true, familyShouldStrip = false",
 			args: args{
-				inputShouldStrip:  utils.PointerTo(true),
+				inputShouldStrip:  to.Ptr(true),
 				familyShouldStrip: false,
 			},
 			want: true,
@@ -170,7 +170,7 @@ func TestShouldStripInputPath(t *testing.T) {
 		{
 			name: "inputShouldStrip = true, familyShouldStrip = true",
 			args: args{
-				inputShouldStrip:  utils.PointerTo(true),
+				inputShouldStrip:  to.Ptr(true),
 				familyShouldStrip: true,
 			},
 			want: true,

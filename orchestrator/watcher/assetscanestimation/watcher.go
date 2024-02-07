@@ -23,10 +23,10 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (
@@ -84,7 +84,7 @@ func (w *Watcher) GetAssetScanEstimations(ctx context.Context) ([]AssetScanEstim
 	params := apitypes.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	}
 	assetScanEstimations, err := w.client.GetAssetScanEstimations(ctx, params)
 	if err != nil {
@@ -134,7 +134,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanEstimationReconc
 	ctx = log.SetLoggerForContext(ctx, logger)
 
 	assetScanEstimation, err := w.client.GetAssetScanEstimation(ctx, event.AssetScanEstimationID, apitypes.GetAssetScanEstimationsAssetScanEstimationIDParams{
-		Expand: utils.PointerTo("asset"),
+		Expand: to.Ptr("asset"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get AssetScanEstimation with %s id: %w", event.AssetScanEstimationID, err)
@@ -171,10 +171,10 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanEstimationReconc
 
 func (w *Watcher) reconcileDone(ctx context.Context, assetScanEstimation *apitypes.AssetScanEstimation) error {
 	if assetScanEstimation.EndTime == nil {
-		assetScanEstimation.EndTime = utils.PointerTo(time.Now())
+		assetScanEstimation.EndTime = to.Ptr(time.Now())
 	}
 	if assetScanEstimation.TTLSecondsAfterFinished == nil {
-		assetScanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultAssetScanEstimationTTLSeconds)
+		assetScanEstimation.TTLSecondsAfterFinished = to.Ptr(DefaultAssetScanEstimationTTLSeconds)
 	}
 
 	endTime := *assetScanEstimation.EndTime
@@ -188,7 +188,7 @@ func (w *Watcher) reconcileDone(ctx context.Context, assetScanEstimation *apityp
 	timeNow := time.Now()
 
 	if assetScanEstimation.DeleteAfter == nil {
-		assetScanEstimation.DeleteAfter = utils.PointerTo(endTime.Add(time.Duration(ttl) * time.Second))
+		assetScanEstimation.DeleteAfter = to.Ptr(endTime.Add(time.Duration(ttl) * time.Second))
 		// if delete time has already pass, no need to patch the object, just delete it.
 		if !timeNow.After(*assetScanEstimation.DeleteAfter) {
 			assetScanEstimationPatch := apitypes.AssetScanEstimation{
@@ -270,7 +270,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScanEstimation *api
 		assetScanEstimation.Status = apitypes.NewAssetScanEstimationStatus(
 			apitypes.AssetScanEstimationStatusStateFailed,
 			apitypes.AssetScanEstimationStatusReasonError,
-			utils.PointerTo(fatalError.Error()),
+			to.Ptr(fatalError.Error()),
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
@@ -294,13 +294,13 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScanEstimation *api
 
 	// Set default ttl if not set.
 	if assetScanEstimation.TTLSecondsAfterFinished == nil {
-		assetScanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultAssetScanEstimationTTLSeconds)
+		assetScanEstimation.TTLSecondsAfterFinished = to.Ptr(DefaultAssetScanEstimationTTLSeconds)
 	}
 
 	assetScanEstimationPatch := apitypes.AssetScanEstimation{
-		StartTime:               utils.PointerTo(startTime),
-		EndTime:                 utils.PointerTo(endTime),
-		DeleteAfter:             utils.PointerTo(endTime.Add(time.Duration(*assetScanEstimation.TTLSecondsAfterFinished) * time.Second)),
+		StartTime:               to.Ptr(startTime),
+		EndTime:                 to.Ptr(endTime),
+		DeleteAfter:             to.Ptr(endTime.Add(time.Duration(*assetScanEstimation.TTLSecondsAfterFinished) * time.Second)),
 		Status:                  assetScanEstimation.Status,
 		Estimation:              assetScanEstimation.Estimation,
 		TTLSecondsAfterFinished: assetScanEstimation.TTLSecondsAfterFinished,
@@ -329,7 +329,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScanEstimation *api
 		Status: apitypes.NewAssetScanEstimationStatus(
 			apitypes.AssetScanEstimationStatusStateFailed,
 			apitypes.AssetScanEstimationStatusReasonAborted,
-			utils.PointerTo("asset scan estimation was aborted"),
+			to.Ptr("asset scan estimation was aborted"),
 		),
 	}
 

@@ -25,7 +25,7 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/testenv/types"
 )
 
@@ -71,7 +71,7 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.Client, config *Repor
 			if object.filter == "" {
 				params = apitypes.GetAssetsParams{}
 			} else {
-				params = apitypes.GetAssetsParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetAssetsParams{Filter: to.Ptr(object.filter)}
 			}
 			assets, err := client.GetAssets(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -85,7 +85,7 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.Client, config *Repor
 			if object.filter == "" {
 				params = apitypes.GetScanConfigsParams{}
 			} else {
-				params = apitypes.GetScanConfigsParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetScanConfigsParams{Filter: to.Ptr(object.filter)}
 			}
 			scanConfigs, err := client.GetScanConfigs(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -99,7 +99,7 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.Client, config *Repor
 			if object.filter == "" {
 				params = apitypes.GetScansParams{}
 			} else {
-				params = apitypes.GetScansParams{Filter: utils.PointerTo(object.filter)}
+				params = apitypes.GetScansParams{Filter: to.Ptr(object.filter)}
 			}
 			scans, err := client.GetScans(ctx, params)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())

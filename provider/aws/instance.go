@@ -25,9 +25,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Instance struct {
@@ -145,9 +145,9 @@ func (i *Instance) AttachVolume(ctx context.Context, volume *Volume, deviceName 
 			logger.Trace("Attaching volume to instance")
 
 			attachVolParams := &ec2.AttachVolumeInput{
-				Device:     utils.PointerTo(deviceName),
-				InstanceId: utils.PointerTo(i.ID),
-				VolumeId:   utils.PointerTo(volume.ID),
+				Device:     to.Ptr(deviceName),
+				InstanceId: to.Ptr(i.ID),
+				VolumeId:   to.Ptr(volume.ID),
 			}
 			_, err := i.ec2Client.AttachVolume(ctx, attachVolParams, options)
 			if err != nil {

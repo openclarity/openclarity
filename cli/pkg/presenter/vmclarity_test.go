@@ -22,7 +22,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_getInputScanStats(t *testing.T) {
@@ -59,13 +59,13 @@ func Test_getInputScanStats(t *testing.T) {
 			},
 			want: &[]apitypes.AssetScanInputScanStats{
 				{
-					Path: utils.PointerTo("/mnt/snap"),
+					Path: to.Ptr("/mnt/snap"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
-					Size: utils.PointerTo(int64(450)),
-					Type: utils.PointerTo("rootfs"),
+					Size: to.Ptr(int64(450)),
+					Type: to.Ptr("rootfs"),
 				},
 			},
 		},
@@ -91,22 +91,22 @@ func Test_getInputScanStats(t *testing.T) {
 			},
 			want: &[]apitypes.AssetScanInputScanStats{
 				{
-					Path: utils.PointerTo("/mnt/snap"),
+					Path: to.Ptr("/mnt/snap"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
-					Size: utils.PointerTo(int64(450)),
-					Type: utils.PointerTo("rootfs"),
+					Size: to.Ptr(int64(450)),
+					Type: to.Ptr("rootfs"),
 				},
 				{
-					Path: utils.PointerTo("/mnt/snap2"),
+					Path: to.Ptr("/mnt/snap2"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime2,
 					},
-					Size: utils.PointerTo(int64(30)),
-					Type: utils.PointerTo("dir"),
+					Size: to.Ptr(int64(30)),
+					Type: to.Ptr("dir"),
 				},
 			},
 		},

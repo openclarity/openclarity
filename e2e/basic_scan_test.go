@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
@@ -41,7 +41,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				APIObject{"asset", DefaultScope},
 			)
 			assetsParams := apitypes.GetAssetsParams{
-				Filter: utils.PointerTo(DefaultScope),
+				Filter: to.Ptr(DefaultScope),
 			}
 			gomega.Eventually(func() bool {
 				assets, err = client.GetAssets(ctx, assetsParams)
@@ -69,7 +69,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 			)
 			gomega.Eventually(func() bool {
 				assets, err := client.GetAssets(ctx, apitypes.GetAssetsParams{
-					Filter: utils.PointerTo(filter),
+					Filter: to.Ptr(filter),
 				})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*assets.Items) == 1
@@ -95,7 +95,7 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 		GetCustomScanConfig(
 			&apitypes.ScanFamiliesConfig{
 				Sbom: &apitypes.SBOMConfig{
-					Enabled: utils.PointerTo(true),
+					Enabled: to.Ptr(true),
 				},
 			},
 			filter,
@@ -115,7 +115,7 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 
 	ginkgo.By("waiting until scan starts")
 	scanParams := apitypes.GetScansParams{
-		Filter: utils.PointerTo(fmt.Sprintf(
+		Filter: to.Ptr(fmt.Sprintf(
 			"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 			*apiScanConfig.Id,
 			apitypes.ScanStatusStateDone,
@@ -138,7 +138,7 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 
 	ginkgo.By("waiting until scan state changes to done")
 	scanParams = apitypes.GetScansParams{
-		Filter: utils.PointerTo(fmt.Sprintf(
+		Filter: to.Ptr(fmt.Sprintf(
 			"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 			*apiScanConfig.Id,
 			apitypes.AssetScanStatusStateDone,

@@ -36,7 +36,7 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/cli/pkg/families"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 const (

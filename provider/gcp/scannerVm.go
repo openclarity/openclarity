@@ -22,7 +22,7 @@ import (
 
 	"cloud.google.com/go/compute/apiv1/computepb"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 	"github.com/openclarity/vmclarity/provider/cloudinit"
 )
@@ -80,26 +80,26 @@ func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *prov
 			Metadata: &computepb.Metadata{
 				Items: []*computepb.Items{
 					{
-						Key:   utils.PointerTo("user-data"),
-						Value: utils.PointerTo(userData),
+						Key:   to.Ptr("user-data"),
+						Value: to.Ptr(userData),
 					},
 				},
 			},
-			Description: utils.PointerTo("VMClarity scanner"),
+			Description: to.Ptr("VMClarity scanner"),
 			Name:        &instanceName,
 			Disks: []*computepb.AttachedDisk{
 				{
 					InitializeParams: &computepb.AttachedDiskInitializeParams{
-						DiskType:    utils.PointerTo(fmt.Sprintf("zones/%s/diskTypes/pd-balanced", zone)),
-						DiskSizeGb:  utils.PointerTo[int64](DiskSizeGB),
+						DiskType:    to.Ptr(fmt.Sprintf("zones/%s/diskTypes/pd-balanced", zone)),
+						DiskSizeGb:  to.Ptr[int64](DiskSizeGB),
 						SourceImage: &p.config.ScannerSourceImage,
 					},
-					AutoDelete: utils.PointerTo(true),
-					Boot:       utils.PointerTo(true),
-					Type:       utils.PointerTo(computepb.AttachedDisk_PERSISTENT.String()),
+					AutoDelete: to.Ptr(true),
+					Boot:       to.Ptr(true),
+					Type:       to.Ptr(computepb.AttachedDisk_PERSISTENT.String()),
 				},
 			},
-			MachineType: utils.PointerTo(fmt.Sprintf("zones/%s/machineTypes/%s", zone, p.config.ScannerMachineType)),
+			MachineType: to.Ptr(fmt.Sprintf("zones/%s/machineTypes/%s", zone, p.config.ScannerMachineType)),
 			NetworkInterfaces: []*computepb.NetworkInterface{
 				{
 					Subnetwork: &p.config.ScannerSubnetwork,
@@ -112,8 +112,8 @@ func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *prov
 		req.InstanceResource.Metadata.Items = append(
 			req.InstanceResource.Metadata.Items,
 			&computepb.Items{
-				Key:   utils.PointerTo("ssh-keys"),
-				Value: utils.PointerTo(fmt.Sprintf("vmclarity:%s", p.config.ScannerSSHPublicKey)),
+				Key:   to.Ptr("ssh-keys"),
+				Value: to.Ptr(fmt.Sprintf("vmclarity:%s", p.config.ScannerSSHPublicKey)),
 			},
 		)
 	}
@@ -164,7 +164,7 @@ func (p *Provider) ensureDiskAttachedToScannerVM(ctx context.Context, vm *comput
 
 	if !diskAttached {
 		req := &computepb.AttachDiskInstanceRequest{
-			AttachedDiskResource: &computepb.AttachedDisk{Source: utils.PointerTo(disk.GetSelfLink())},
+			AttachedDiskResource: &computepb.AttachedDisk{Source: to.Ptr(disk.GetSelfLink())},
 			Instance:             *vm.Name,
 			Project:              p.config.ProjectID,
 			Zone:                 p.config.ScannerZone,

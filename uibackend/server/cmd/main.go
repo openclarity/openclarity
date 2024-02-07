@@ -34,10 +34,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/version"
 	apiserver "github.com/openclarity/vmclarity/uibackend/server/internal/server"
 	server "github.com/openclarity/vmclarity/uibackend/server/pkg"
-	"github.com/openclarity/vmclarity/utils/log"
-	"github.com/openclarity/vmclarity/utils/version"
 )
 
 const (

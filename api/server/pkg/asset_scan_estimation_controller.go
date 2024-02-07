@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (s *ServerImpl) GetAssetScanEstimations(ctx echo.Context, params types.GetAssetScanEstimationsParams) error {
@@ -58,7 +59,7 @@ func (s *ServerImpl) PostAssetScanEstimations(ctx echo.Context) error {
 		var conflictErr *common.ConflictError
 		if errors.As(err, &conflictErr) {
 			existResponse := &types.AssetScanEstimationExists{
-				Message:             types.PointerTo(conflictErr.Reason),
+				Message:             to.Ptr(conflictErr.Reason),
 				AssetScanEstimation: &createdAssetScanEstimation,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -125,7 +126,7 @@ func (s *ServerImpl) PatchAssetScanEstimationsAssetScanEstimationID(ctx echo.Con
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &types.AssetScanEstimationExists{
-				Message:             types.PointerTo(conflictErr.Reason),
+				Message:             to.Ptr(conflictErr.Reason),
 				AssetScanEstimation: &updatedAssetScanEstimation,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -187,7 +188,7 @@ func (s *ServerImpl) PutAssetScanEstimationsAssetScanEstimationID(ctx echo.Conte
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &types.AssetScanEstimationExists{
-				Message:             types.PointerTo(conflictErr.Reason),
+				Message:             to.Ptr(conflictErr.Reason),
 				AssetScanEstimation: &updatedAssetScanEstimation,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -205,7 +206,7 @@ func (s *ServerImpl) PutAssetScanEstimationsAssetScanEstimationID(ctx echo.Conte
 
 func (s *ServerImpl) DeleteAssetScanEstimationsAssetScanEstimationID(ctx echo.Context, assetScanEstimationID types.AssetScanEstimationID) error {
 	success := types.Success{
-		Message: types.PointerTo(fmt.Sprintf("asset scan estimation %v deleted", assetScanEstimationID)),
+		Message: to.Ptr(fmt.Sprintf("asset scan estimation %v deleted", assetScanEstimationID)),
 	}
 
 	if err := s.dbHandler.AssetScanEstimationsTable().DeleteAssetScanEstimation(assetScanEstimationID); err != nil {

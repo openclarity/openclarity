@@ -22,7 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 // getLatestAssetScanStats - for each family, find the latest AssetScan that has AssetScanStats of this family,
@@ -36,9 +36,9 @@ func (w *Watcher) getLatestAssetScanStats(ctx context.Context, asset *apitypes.A
 	families := []string{"exploits", "sbom", "vulnerabilities", "malware", "misconfigurations", "rootkits", "secrets"}
 	for _, family := range families {
 		params := apitypes.GetAssetScansParams{
-			Filter:  utils.PointerTo(fmt.Sprintf(filterTmpl, *asset.Id, family, family, family)),
-			Top:     utils.PointerTo(1), // get the latest asset scan for this family
-			OrderBy: utils.PointerTo("status/lastTransitionTime DESC"),
+			Filter:  to.Ptr(fmt.Sprintf(filterTmpl, *asset.Id, family, family, family)),
+			Top:     to.Ptr(1), // get the latest asset scan for this family
+			OrderBy: to.Ptr("status/lastTransitionTime DESC"),
 		}
 		res, err := w.client.GetAssetScans(ctx, params)
 		if err != nil {

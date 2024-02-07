@@ -21,7 +21,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
@@ -39,8 +39,8 @@ func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(0),
-						JobsLeftToRun: utils.PointerTo(0),
+						JobsCompleted: to.Ptr(0),
+						JobsLeftToRun: to.Ptr(0),
 					},
 				},
 				result: apitypes.AssetScanEstimation{
@@ -80,8 +80,8 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(5),
-						TotalScanTime: utils.PointerTo(30),
+						JobsCompleted: to.Ptr(5),
+						TotalScanTime: to.Ptr(30),
 					},
 					ScanTemplate: &apitypes.ScanTemplate{},
 				},
@@ -94,11 +94,11 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(5),
-						TotalScanTime: utils.PointerTo(30),
+						JobsCompleted: to.Ptr(5),
+						TotalScanTime: to.Ptr(30),
 					},
 					ScanTemplate: &apitypes.ScanTemplate{
-						MaxParallelScanners: utils.PointerTo(1),
+						MaxParallelScanners: to.Ptr(1),
 					},
 				},
 			},
@@ -110,11 +110,11 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(5),
-						TotalScanTime: utils.PointerTo(30),
+						JobsCompleted: to.Ptr(5),
+						TotalScanTime: to.Ptr(30),
 					},
 					ScanTemplate: &apitypes.ScanTemplate{
-						MaxParallelScanners: utils.PointerTo(5),
+						MaxParallelScanners: to.Ptr(5),
 					},
 				},
 			},
@@ -126,11 +126,11 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(3),
-						TotalScanTime: utils.PointerTo(30),
+						JobsCompleted: to.Ptr(3),
+						TotalScanTime: to.Ptr(30),
 					},
 					ScanTemplate: &apitypes.ScanTemplate{
-						MaxParallelScanners: utils.PointerTo(2),
+						MaxParallelScanners: to.Ptr(2),
 					},
 				},
 			},
@@ -142,11 +142,11 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 			args: args{
 				scanEstimation: &apitypes.ScanEstimation{
 					Summary: &apitypes.ScanEstimationSummary{
-						JobsCompleted: utils.PointerTo(2),
-						TotalScanTime: utils.PointerTo(30),
+						JobsCompleted: to.Ptr(2),
+						TotalScanTime: to.Ptr(30),
 					},
 					ScanTemplate: &apitypes.ScanTemplate{
-						MaxParallelScanners: utils.PointerTo(3),
+						MaxParallelScanners: to.Ptr(3),
 					},
 				},
 			},

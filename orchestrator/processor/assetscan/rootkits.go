@@ -21,8 +21,8 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.RootkitKey]string, error) {
@@ -33,7 +33,7 @@ func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Con
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
-		Select: utils.PointerTo("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
+		Select: to.Ptr("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
 	})
 	if err != nil {
 		return existingMap, fmt.Errorf("failed to query for findings: %w", err)

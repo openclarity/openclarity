@@ -21,8 +21,8 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 // nolint:cyclop,gocognit
@@ -39,7 +39,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
-		Select: utils.PointerTo("id,findingInfo/vulnerabilityName,findingInfo/package/name,findingInfo/package/version"),
+		Select: to.Ptr("id,findingInfo/vulnerabilityName,findingInfo/package/name,findingInfo/package/version"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to check for existing finding: %w", err)
@@ -174,13 +174,13 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 func (asp *AssetScanProcessor) getActiveVulnerabilityFindingsCount(ctx context.Context, assetID string, severity apitypes.VulnerabilitySeverity) (int, error) {
 	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and asset/id eq '%s' and invalidatedOn eq null and findingInfo/severity eq '%s'", assetID, string(severity))
 	activeFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 		Filter: &filter,
 
 		// select the smallest amount of data to return in items, we
 		// only care about the count.
-		Top:    utils.PointerTo(1),
-		Select: utils.PointerTo("id"),
+		Top:    to.Ptr(1),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to list all active findings: %w", err)

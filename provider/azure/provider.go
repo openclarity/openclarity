@@ -28,9 +28,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 const (
@@ -246,23 +246,23 @@ func (p *Provider) processVirtualMachineListIntoAssetTypes(ctx context.Context, 
 func (p *Provider) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *apitypes.RootVolume {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	ret := &apitypes.RootVolume{
-		SizeGB:    int(utils.Int32PointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
+		SizeGB:    int(to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
 		Encrypted: apitypes.RootVolumeEncryptedUnknown,
 	}
-	osDiskID, err := arm.ParseResourceID(utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
+	osDiskID, err := arm.ParseResourceID(to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
 	if err != nil {
 		logger.Warnf("Failed to parse disk ID. DiskID=%v: %v",
-			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
+			to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
 		return ret
 	}
 	osDisk, err := p.disksClient.Get(ctx, osDiskID.ResourceGroupName, osDiskID.Name, nil)
 	if err != nil {
 		logger.Warnf("Failed to get OS disk. DiskID=%v: %v",
-			utils.StringPointerValOrEmpty(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
+			to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID), err)
 		return ret
 	}
 	ret.Encrypted = isEncrypted(osDisk)
-	ret.SizeGB = int(utils.Int32PointerValOrEmpty(osDisk.Disk.Properties.DiskSizeGB))
+	ret.SizeGB = int(to.ValueOrZero(osDisk.Disk.Properties.DiskSizeGB))
 
 	return ret
 }
@@ -271,7 +271,7 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *apitype
 	assetType := apitypes.AssetType{}
 	err := assetType.FromVMInfo(apitypes.VMInfo{
 		ObjectType:       "VMInfo",
-		InstanceProvider: utils.PointerTo(apitypes.Azure),
+		InstanceProvider: to.Ptr(apitypes.Azure),
 		InstanceID:       *vm.ID,
 		Image:            createImageURN(vm.Properties.StorageProfile.ImageReference),
 		InstanceType:     *vm.Type,

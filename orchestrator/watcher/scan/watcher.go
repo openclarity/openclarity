@@ -24,10 +24,10 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (
@@ -86,7 +86,7 @@ func (w *Watcher) GetRunningScans(ctx context.Context) ([]ScanReconcileEvent, er
 	params := apitypes.GetScansParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	}
 	scans, err := w.client.GetScans(ctx, params)
 	if err != nil {
@@ -124,7 +124,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error
 	ctx = log.SetLoggerForContext(ctx, logger)
 
 	params := apitypes.GetScansScanIDParams{
-		Expand: utils.PointerTo("scanConfig"),
+		Expand: to.Ptr("scanConfig"),
 	}
 	scan, err := w.client.GetScan(ctx, event.ScanID, params)
 	if err != nil || scan == nil {
@@ -135,7 +135,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanReconcileEvent) error
 		scan.Status = apitypes.NewScanStatus(
 			apitypes.ScanStatusStateFailed,
 			apitypes.ScanStatusReasonTimeout,
-			utils.PointerTo("Scan has timed out"),
+			to.Ptr("Scan has timed out"),
 		)
 
 		err = w.client.PatchScan(ctx, *scan.Id, &apitypes.Scan{Status: scan.Status})
@@ -206,7 +206,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *apitypes.Scan) err
 
 	assets, err := w.client.GetAssets(ctx, apitypes.GetAssetsParams{
 		Filter: &assetFilter,
-		Select: utils.PointerTo("id"),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to discover Assets for Scan. ScanID=%s: %w", scanID, err)
@@ -223,13 +223,13 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *apitypes.Scan) err
 		scan.Status = apitypes.NewScanStatus(
 			apitypes.ScanStatusStateDiscovered,
 			apitypes.ScanStatusReasonAssetsDiscovered,
-			utils.PointerTo("Assets for Scan are successfully discovered"),
+			to.Ptr("Assets for Scan are successfully discovered"),
 		)
 	} else {
 		scan.Status = apitypes.NewScanStatus(
 			apitypes.ScanStatusStateDone,
 			apitypes.ScanStatusReasonNothingToScan,
-			utils.PointerTo("No instances found in scope for Scan"),
+			to.Ptr("No instances found in scope for Scan"),
 		)
 	}
 	logger.Debugf("%d Asset(s) have been created for Scan", numOfAssets)
@@ -319,7 +319,7 @@ func (w *Watcher) createAssetScansForScan(ctx context.Context, scan *apitypes.Sc
 		return fmt.Errorf("failed to create %d AssetScan(s) for Scan. ScanID=%s: %w", numOfErrs, *scan.Id, assetErrs[0])
 	}
 
-	scan.Summary.JobsLeftToRun = utils.PointerTo(numOfAssets)
+	scan.Summary.JobsLeftToRun = to.Ptr(numOfAssets)
 
 	return nil
 }
@@ -364,7 +364,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *apitypes.Scan) 
 	assetScans, err := w.client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to retrieve AssetScans for Scan. ScanID=%s: %w", scanID, err)
@@ -402,7 +402,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *apitypes.Scan) 
 		*scan.Summary.JobsLeftToRun)
 
 	if *scan.Summary.JobsLeftToRun <= 0 {
-		message := utils.PointerTo(
+		message := to.Ptr(
 			fmt.Sprintf(
 				"%d succeeded, %d failed out of %d total asset scans",
 				*assetScans.Count-failedAssetScans,
@@ -424,7 +424,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scan *apitypes.Scan) 
 				message,
 			)
 		}
-		scan.EndTime = utils.PointerTo(time.Now())
+		scan.EndTime = to.Ptr(time.Now())
 	}
 
 	scanPatch := &apitypes.Scan{
@@ -506,11 +506,11 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *apitypes.Scan) err
 		}
 	}
 
-	scan.EndTime = utils.PointerTo(time.Now())
+	scan.EndTime = to.Ptr(time.Now())
 	scan.Status = apitypes.NewScanStatus(
 		apitypes.ScanStatusStateFailed,
 		apitypes.ScanStatusReasonCancellation,
-		utils.PointerTo("Scan has been aborted"),
+		to.Ptr("Scan has been aborted"),
 	)
 
 	scanPatch := &apitypes.Scan{

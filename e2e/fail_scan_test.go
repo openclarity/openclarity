@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 var _ = ginkgo.Describe("Detecting scan failures", func() {
@@ -48,7 +48,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 
 			ginkgo.By("waiting until scan starts")
 			scanParams := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s'",
 					*apiScanConfig.Id,
 				)),
@@ -68,7 +68,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 
 			ginkgo.By("waiting until scan state changes to failed with nothing to scan as state reason")
 			params := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
 					apitypes.AssetScanStatusStateDone,
@@ -103,7 +103,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 
 			ginkgo.By("waiting until scan starts")
 			scanParams := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s'",
 					*apiScanConfig.Id,
 				)),
@@ -123,7 +123,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 
 			ginkgo.By("waiting until scan state changes to failed with timed out as state reason")
 			params := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
 					apitypes.ScanStatusStateFailed,

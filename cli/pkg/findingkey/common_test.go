@@ -22,49 +22,49 @@ import (
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestGenerateFindingKey(t *testing.T) {
 	rootkitFindingInfo := apitypes.RootkitFindingInfo{
-		Message:     utils.PointerTo("Message"),
-		RootkitName: utils.PointerTo("RootkitName"),
-		RootkitType: utils.PointerTo(apitypes.RootkitType("RootkitType")),
+		Message:     to.Ptr("Message"),
+		RootkitName: to.Ptr("RootkitName"),
+		RootkitType: to.Ptr(apitypes.RootkitType("RootkitType")),
 	}
 	exploitFindingInfo := apitypes.ExploitFindingInfo{
-		CveID:       utils.PointerTo("CveID"),
-		Description: utils.PointerTo("Description"),
-		Name:        utils.PointerTo("Name"),
-		SourceDB:    utils.PointerTo("SourceDB"),
-		Title:       utils.PointerTo("Title"),
-		Urls:        utils.PointerTo([]string{"url1", "url2"}),
+		CveID:       to.Ptr("CveID"),
+		Description: to.Ptr("Description"),
+		Name:        to.Ptr("Name"),
+		SourceDB:    to.Ptr("SourceDB"),
+		Title:       to.Ptr("Title"),
+		Urls:        to.Ptr([]string{"url1", "url2"}),
 	}
 	vulFindingInfo := apitypes.VulnerabilityFindingInfo{
 		Package: &apitypes.Package{
-			Name:    utils.PointerTo("Package.Name"),
-			Version: utils.PointerTo("Package.Version"),
+			Name:    to.Ptr("Package.Name"),
+			Version: to.Ptr("Package.Version"),
 		},
-		VulnerabilityName: utils.PointerTo("VulnerabilityName"),
+		VulnerabilityName: to.Ptr("VulnerabilityName"),
 	}
 	malwareFindingInfo := apitypes.MalwareFindingInfo{
-		MalwareName: utils.PointerTo("MalwareName"),
-		MalwareType: utils.PointerTo("MalwareType"),
-		Path:        utils.PointerTo("Path"),
-		RuleName:    utils.PointerTo("RuleName"),
+		MalwareName: to.Ptr("MalwareName"),
+		MalwareType: to.Ptr("MalwareType"),
+		Path:        to.Ptr("Path"),
+		RuleName:    to.Ptr("RuleName"),
 	}
 	miscFindingInfo := apitypes.MisconfigurationFindingInfo{
-		Message:     utils.PointerTo("Message"),
-		ScannerName: utils.PointerTo("ScannerName"),
-		TestID:      utils.PointerTo("TestID"),
+		Message:     to.Ptr("Message"),
+		ScannerName: to.Ptr("ScannerName"),
+		TestID:      to.Ptr("TestID"),
 	}
 	secretFindingInfo := apitypes.SecretFindingInfo{
-		EndColumn:   utils.PointerTo(1),
-		Fingerprint: utils.PointerTo("Fingerprint"),
-		StartColumn: utils.PointerTo(2),
+		EndColumn:   to.Ptr(1),
+		Fingerprint: to.Ptr("Fingerprint"),
+		StartColumn: to.Ptr(2),
 	}
 	pkgFindingInfo := apitypes.PackageFindingInfo{
-		Name:    utils.PointerTo("Name"),
-		Version: utils.PointerTo("Version"),
+		Name:    to.Ptr("Name"),
+		Version: to.Ptr("Version"),
 	}
 
 	type args struct {

@@ -21,7 +21,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type patchObjectTestNestedObject struct {
@@ -51,28 +51,28 @@ func Test_patchObject(t *testing.T) {
 			name:     "patch over unset",
 			existing: patchObjectTestObject{},
 			patch: patchObjectTestObject{
-				TestString: types.PointerTo("foo"),
-				TestInt:    types.PointerTo(1),
-				TestBool:   types.PointerTo(false),
+				TestString: to.Ptr("foo"),
+				TestInt:    to.Ptr(1),
+				TestBool:   to.Ptr(false),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedfoo",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arrayfoo"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arrayfoo"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedfoo",
 					},
 				}),
 			},
 			want: patchObjectTestObject{
-				TestString: types.PointerTo("foo"),
-				TestInt:    types.PointerTo(1),
-				TestBool:   types.PointerTo(false),
+				TestString: to.Ptr("foo"),
+				TestInt:    to.Ptr(1),
+				TestBool:   to.Ptr(false),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedfoo",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arrayfoo"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arrayfoo"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedfoo",
 					},
@@ -83,42 +83,42 @@ func Test_patchObject(t *testing.T) {
 		{
 			name: "patch over already set",
 			existing: patchObjectTestObject{
-				TestString: types.PointerTo("foo"),
-				TestInt:    types.PointerTo(1),
-				TestBool:   types.PointerTo(false),
+				TestString: to.Ptr("foo"),
+				TestInt:    to.Ptr(1),
+				TestBool:   to.Ptr(false),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedfoo",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arrayfoo"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arrayfoo"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedfoo",
 					},
 				}),
 			},
 			patch: patchObjectTestObject{
-				TestString: types.PointerTo("bar"),
-				TestInt:    types.PointerTo(2),
-				TestBool:   types.PointerTo(true),
+				TestString: to.Ptr("bar"),
+				TestInt:    to.Ptr(2),
+				TestBool:   to.Ptr(true),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedbar",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arraybar"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arraybar"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedbar",
 					},
 				}),
 			},
 			want: patchObjectTestObject{
-				TestString: types.PointerTo("bar"),
-				TestInt:    types.PointerTo(2),
-				TestBool:   types.PointerTo(true),
+				TestString: to.Ptr("bar"),
+				TestInt:    to.Ptr(2),
+				TestBool:   to.Ptr(true),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedbar",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arraybar"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arraybar"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedbar",
 					},
@@ -129,38 +129,38 @@ func Test_patchObject(t *testing.T) {
 		{
 			name: "patch Int, Bool, ArrayPrimitive and ArrayObject, String and NestedObject already set",
 			existing: patchObjectTestObject{
-				TestString: types.PointerTo("foo"),
-				TestInt:    types.PointerTo(1),
-				TestBool:   types.PointerTo(false),
+				TestString: to.Ptr("foo"),
+				TestInt:    to.Ptr(1),
+				TestBool:   to.Ptr(false),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedfoo",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arrayfoo"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arrayfoo"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedfoo",
 					},
 				}),
 			},
 			patch: patchObjectTestObject{
-				TestInt:            types.PointerTo(2),
-				TestBool:           types.PointerTo(true),
-				TestArrayPrimitive: types.PointerTo([]string{"arraybar"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestInt:            to.Ptr(2),
+				TestBool:           to.Ptr(true),
+				TestArrayPrimitive: to.Ptr([]string{"arraybar"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedbar",
 					},
 				}),
 			},
 			want: patchObjectTestObject{
-				TestString: types.PointerTo("foo"),
-				TestInt:    types.PointerTo(2),
-				TestBool:   types.PointerTo(true),
+				TestString: to.Ptr("foo"),
+				TestInt:    to.Ptr(2),
+				TestBool:   to.Ptr(true),
 				TestNestedObject: &patchObjectTestNestedObject{
 					NestedString: "nestedfoo",
 				},
-				TestArrayPrimitive: types.PointerTo([]string{"arraybar"}),
-				TestArrayObject: types.PointerTo([]patchObjectTestNestedObject{
+				TestArrayPrimitive: to.Ptr([]string{"arraybar"}),
+				TestArrayObject: to.Ptr([]patchObjectTestNestedObject{
 					{
 						NestedString: "arraynestedbar",
 					},
@@ -171,7 +171,7 @@ func Test_patchObject(t *testing.T) {
 		{
 			name: "patch null to unset a field",
 			existing: patchObjectTestObject{
-				TestArrayPrimitive: types.PointerTo([]string{"arraybar"}),
+				TestArrayPrimitive: to.Ptr([]string{"arraybar"}),
 			},
 			patch: patchObjectTestObject{
 				TestArrayPrimitive: &nilArray,

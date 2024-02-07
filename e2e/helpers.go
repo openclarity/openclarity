@@ -21,7 +21,7 @@ import (
 	"github.com/google/uuid"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 const (
@@ -31,28 +31,28 @@ const (
 
 var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
 	Exploits: &apitypes.ExploitsConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	InfoFinder: &apitypes.InfoFinderConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Malware: &apitypes.MalwareConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Misconfigurations: &apitypes.MisconfigurationsConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Rootkits: &apitypes.RootkitsConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Sbom: &apitypes.SBOMConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Secrets: &apitypes.SecretsConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 	Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-		Enabled: utils.PointerTo(true),
+		Enabled: to.Ptr(true),
 	},
 }
 
@@ -66,17 +66,17 @@ func GetFullScanConfig() apitypes.ScanConfig {
 
 func GetCustomScanConfig(scanFamiliesConfig *apitypes.ScanFamiliesConfig, scope string, timeoutSeconds int) apitypes.ScanConfig {
 	return apitypes.ScanConfig{
-		Name: utils.PointerTo(uuid.New().String()),
+		Name: to.Ptr(uuid.New().String()),
 		ScanTemplate: &apitypes.ScanTemplate{
 			AssetScanTemplate: &apitypes.AssetScanTemplate{
 				ScanFamiliesConfig: scanFamiliesConfig,
 			},
-			Scope:          utils.PointerTo(scope),
-			TimeoutSeconds: utils.PointerTo(timeoutSeconds),
+			Scope:          to.Ptr(scope),
+			TimeoutSeconds: to.Ptr(timeoutSeconds),
 		},
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
-			CronLine: utils.PointerTo("0 */4 * * *"),
-			OperationTime: utils.PointerTo(
+			CronLine: to.Ptr("0 */4 * * *"),
+			OperationTime: to.Ptr(
 				time.Date(2023, 1, 20, 15, 46, 18, 0, time.UTC),
 			),
 		},
@@ -96,7 +96,7 @@ func UpdateScanConfigToStartNow(config *apitypes.ScanConfig) *apitypes.ScanConfi
 		},
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
 			CronLine:      config.Scheduled.CronLine,
-			OperationTime: utils.PointerTo(time.Now()),
+			OperationTime: to.Ptr(time.Now()),
 		},
 	}
 }

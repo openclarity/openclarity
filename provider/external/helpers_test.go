@@ -24,7 +24,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 	provider_service "github.com/openclarity/vmclarity/provider/external/proto"
 )
@@ -36,7 +36,7 @@ func Test_convertAssetToModels(t *testing.T) {
 	err := wantVMInfo.FromVMInfo(apitypes.VMInfo{
 		Image:            "image1",
 		InstanceID:       "id1",
-		InstanceProvider: utils.PointerTo(apitypes.External),
+		InstanceProvider: to.Ptr(apitypes.External),
 		InstanceType:     "type1",
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
@@ -53,15 +53,15 @@ func Test_convertAssetToModels(t *testing.T) {
 
 	wantDirInfo := apitypes.AssetType{}
 	err = wantDirInfo.FromDirInfo(apitypes.DirInfo{
-		DirName:  utils.PointerTo("dir1"),
-		Location: utils.PointerTo("dirLocation1"),
+		DirName:  to.Ptr("dir1"),
+		Location: to.Ptr("dirLocation1"),
 	})
 	assert.NilError(t, err)
 
 	wantPodInfo := apitypes.AssetType{}
 	err = wantPodInfo.FromPodInfo(apitypes.PodInfo{
-		PodName:  utils.PointerTo("pod1"),
-		Location: utils.PointerTo("podLocation1"),
+		PodName:  to.Ptr("pod1"),
+		Location: to.Ptr("podLocation1"),
 	})
 	assert.NilError(t, err)
 
@@ -167,7 +167,7 @@ func Test_convertAssetFromModels(t *testing.T) {
 	err := vminfo.FromVMInfo(apitypes.VMInfo{
 		Image:            "image1",
 		InstanceID:       "id1",
-		InstanceProvider: utils.PointerTo(apitypes.External),
+		InstanceProvider: to.Ptr(apitypes.External),
 		InstanceType:     "type1",
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
@@ -184,15 +184,15 @@ func Test_convertAssetFromModels(t *testing.T) {
 
 	dirinfo := apitypes.AssetType{}
 	err = dirinfo.FromDirInfo(apitypes.DirInfo{
-		DirName:  utils.PointerTo("dir1"),
-		Location: utils.PointerTo("dirLocation1"),
+		DirName:  to.Ptr("dir1"),
+		Location: to.Ptr("dirLocation1"),
 	})
 	assert.NilError(t, err)
 
 	podinfo := apitypes.AssetType{}
 	err = podinfo.FromPodInfo(apitypes.PodInfo{
-		PodName:  utils.PointerTo("pod1"),
-		Location: utils.PointerTo("podLocation1"),
+		PodName:  to.Ptr("pod1"),
+		Location: to.Ptr("podLocation1"),
 	})
 	assert.NilError(t, err)
 
@@ -346,8 +346,8 @@ func Test_convertTagsToModels(t *testing.T) {
 func Test_convertScanJobConfig(t *testing.T) {
 	podinfo := apitypes.AssetType{}
 	err := podinfo.FromPodInfo(apitypes.PodInfo{
-		PodName:  utils.PointerTo("pod1"),
-		Location: utils.PointerTo("podLocation1"),
+		PodName:  to.Ptr("pod1"),
+		Location: to.Ptr("podLocation1"),
 	})
 	assert.NilError(t, err)
 

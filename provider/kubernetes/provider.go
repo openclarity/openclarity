@@ -33,8 +33,8 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 )
 
@@ -237,7 +237,7 @@ func (p *Provider) runScannerJob(ctx context.Context, config *provider.ScanJobCo
 			Namespace: p.config.ScannerNamespace,
 		},
 		Spec: batchv1.JobSpec{
-			// TTLSecondsAfterFinished: utils.PointerTo(int32(120)),
+			// TTLSecondsAfterFinished: to.Ptr(int32(120)),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					InitContainers: []corev1.Container{
@@ -302,7 +302,7 @@ func (p *Provider) runScannerJob(ctx context.Context, config *provider.ScanJobCo
 					},
 				},
 			},
-			BackoffLimit: utils.PointerTo[int32](0),
+			BackoffLimit: to.Ptr[int32](0),
 		},
 	}
 
@@ -318,7 +318,7 @@ func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJob
 	jobName := fmt.Sprintf("vmclarity-scan-%s", config.AssetScanID)
 
 	err := p.clientSet.BatchV1().Jobs(p.config.ScannerNamespace).Delete(ctx, jobName, metav1.DeleteOptions{
-		PropagationPolicy: utils.PointerTo(metav1.DeletePropagationBackground),
+		PropagationPolicy: to.Ptr(metav1.DeletePropagationBackground),
 	})
 	if err != nil && !k8sErrors.IsNotFound(err) {
 		return fmt.Errorf("unable to delete job: %w", err)

@@ -5,7 +5,6 @@ go 1.21.4
 require (
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -14,6 +13,7 @@ require (
 	github.com/containers/image/v5 v5.29.2
 	github.com/docker/docker v25.0.2+incompatible
 	github.com/labstack/echo/v4 v4.11.4
+	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
@@ -126,7 +126,7 @@ require (
 	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
-	google.golang.org/grpc v1.60.1 // indirect
+	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -137,5 +137,6 @@ require (
 replace (
 	github.com/openclarity/vmclarity/api/types => ../../api/types
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../types
+	github.com/openclarity/vmclarity/core => ../../core
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

@@ -25,10 +25,10 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (
@@ -87,7 +87,7 @@ func (w *Watcher) GetScanEstimations(ctx context.Context) ([]ScanEstimationRecon
 	params := apitypes.GetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	}
 	scanEstimations, err := w.client.GetScanEstimations(ctx, params)
 	if err != nil {
@@ -135,7 +135,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 			Status: apitypes.NewScanEstimationStatus(
 				apitypes.ScanEstimationStatusStateFailed,
 				apitypes.ScanEstimationStatusReasonTimeout,
-				utils.PointerTo("ScanEstimation has been timed out"),
+				to.Ptr("ScanEstimation has been timed out"),
 			),
 		})
 		if err != nil {
@@ -183,10 +183,10 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanEstimationReconcileEv
 
 func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *apitypes.ScanEstimation) error {
 	if scanEstimation.EndTime == nil {
-		scanEstimation.EndTime = utils.PointerTo(time.Now())
+		scanEstimation.EndTime = to.Ptr(time.Now())
 	}
 	if scanEstimation.TTLSecondsAfterFinished == nil {
-		scanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultScanEstimationTTLSeconds)
+		scanEstimation.TTLSecondsAfterFinished = to.Ptr(DefaultScanEstimationTTLSeconds)
 	}
 
 	endTime := *scanEstimation.EndTime
@@ -200,7 +200,7 @@ func (w *Watcher) reconcileDone(ctx context.Context, scanEstimation *apitypes.Sc
 	timeNow := time.Now()
 
 	if scanEstimation.DeleteAfter == nil {
-		scanEstimation.DeleteAfter = utils.PointerTo(endTime.Add(time.Duration(ttl) * time.Second))
+		scanEstimation.DeleteAfter = to.Ptr(endTime.Add(time.Duration(ttl) * time.Second))
 		// if delete time has already pass, no need to patch the object, just delete it.
 		if !timeNow.After(*scanEstimation.DeleteAfter) {
 			scanEstimationPatch := apitypes.ScanEstimation{
@@ -275,7 +275,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *apitypes
 
 	assets, err := w.client.GetAssets(ctx, apitypes.GetAssetsParams{
 		Filter: &assetFilter,
-		Select: utils.PointerTo("id"),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to discover Assets for Scan estimation. ScanEstimationID=%s: %w", scanEstimationID, err)
@@ -292,30 +292,30 @@ func (w *Watcher) reconcilePending(ctx context.Context, scanEstimation *apitypes
 		scanEstimation.Status = apitypes.NewScanEstimationStatus(
 			apitypes.ScanEstimationStatusStateDiscovered,
 			apitypes.ScanEstimationStatusReasonSuccessfulDiscovery,
-			utils.PointerTo("Assets for Scan estimation are successfully discovered"),
+			to.Ptr("Assets for Scan estimation are successfully discovered"),
 		)
 	} else {
 		scanEstimation.Status = apitypes.NewScanEstimationStatus(
 			apitypes.ScanEstimationStatusStateDone,
 			apitypes.ScanEstimationStatusReasonNothingToEstimate,
-			utils.PointerTo("No instances found in scope for Scan estimation"),
+			to.Ptr("No instances found in scope for Scan estimation"),
 		)
 	}
 	logger.Debugf("%d Asset(s) have been created for Scan estimation", numOfAssets)
 
 	// Set default ttl if not set.
 	if scanEstimation.TTLSecondsAfterFinished == nil {
-		scanEstimation.TTLSecondsAfterFinished = utils.PointerTo(DefaultScanEstimationTTLSeconds)
+		scanEstimation.TTLSecondsAfterFinished = to.Ptr(DefaultScanEstimationTTLSeconds)
 	}
 
 	scanEstimationPatch := &apitypes.ScanEstimation{
-		StartTime:               utils.PointerTo(time.Now()),
+		StartTime:               to.Ptr(time.Now()),
 		TTLSecondsAfterFinished: scanEstimation.TTLSecondsAfterFinished,
 		AssetIDs:                scanEstimation.AssetIDs,
 		Status:                  scanEstimation.Status,
 		Summary: &apitypes.ScanEstimationSummary{
-			JobsCompleted: utils.PointerTo(0),
-			JobsLeftToRun: utils.PointerTo(numOfAssets),
+			JobsCompleted: to.Ptr(0),
+			JobsLeftToRun: to.Ptr(numOfAssets),
 		},
 	}
 
@@ -403,7 +403,7 @@ func (w *Watcher) createAssetScanEstimationsForScanEstimation(ctx context.Contex
 	if scanEstimation.Summary == nil {
 		scanEstimation.Summary = &apitypes.ScanEstimationSummary{}
 	}
-	scanEstimation.Summary.JobsLeftToRun = utils.PointerTo(numOfAssets)
+	scanEstimation.Summary.JobsLeftToRun = to.Ptr(numOfAssets)
 
 	return nil
 }
@@ -418,7 +418,7 @@ func (w *Watcher) newAssetScanEstimationFromScanEstimation(scanEstimation *apity
 	}
 
 	return apitypes.AssetScanEstimation{
-		TTLSecondsAfterFinished: utils.PointerTo(DefaultScanEstimationTTLSeconds),
+		TTLSecondsAfterFinished: to.Ptr(DefaultScanEstimationTTLSeconds),
 		Asset: &apitypes.AssetRelationship{
 			Id: assetID,
 		},
@@ -471,23 +471,23 @@ func updateScanEstimationSummaryFromAssetScanEstimation(scanEstimation *apitypes
 
 	switch status.State {
 	case apitypes.AssetScanEstimationStatusStatePending:
-		s.JobsLeftToRun = utils.PointerTo(*s.JobsLeftToRun + 1)
+		s.JobsLeftToRun = to.Ptr(*s.JobsLeftToRun + 1)
 	case apitypes.AssetScanEstimationStatusStateDone:
 		if s.TotalScanTime == nil {
-			s.TotalScanTime = utils.PointerTo(0)
+			s.TotalScanTime = to.Ptr(0)
 		}
 		if s.TotalScanSize == nil {
-			s.TotalScanSize = utils.PointerTo(0)
+			s.TotalScanSize = to.Ptr(0)
 		}
 		if s.TotalScanCost == nil {
-			s.TotalScanCost = utils.PointerTo(float32(0))
+			s.TotalScanCost = to.Ptr(float32(0))
 		}
-		*(s.TotalScanTime) += utils.ValueOrZero(assetScanEstimation.Estimation.Duration)
-		*(s.TotalScanSize) += utils.ValueOrZero(assetScanEstimation.Estimation.Size)
-		*(s.TotalScanCost) += utils.ValueOrZero(assetScanEstimation.Estimation.Cost)
+		*(s.TotalScanTime) += to.ValueOrZero(assetScanEstimation.Estimation.Duration)
+		*(s.TotalScanSize) += to.ValueOrZero(assetScanEstimation.Estimation.Size)
+		*(s.TotalScanCost) += to.ValueOrZero(assetScanEstimation.Estimation.Cost)
 		fallthrough
 	case apitypes.AssetScanEstimationStatusStateAborted, apitypes.AssetScanEstimationStatusStateFailed:
-		s.JobsCompleted = utils.PointerTo(*s.JobsCompleted + 1)
+		s.JobsCompleted = to.Ptr(*s.JobsCompleted + 1)
 	}
 
 	return nil
@@ -511,7 +511,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apity
 	assetScanEstimations, err := w.client.GetAssetScanEstimations(ctx, apitypes.GetAssetScanEstimationsParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to retrieve AssetScanEstimations for ScanEstimation. ScanEstimationID=%s: %w", scanEstimationID, err)
@@ -523,8 +523,8 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apity
 
 	// Reset Scan Summary as it is going to be recalculated
 	scanEstimation.Summary = &apitypes.ScanEstimationSummary{
-		JobsCompleted: utils.PointerTo(0),
-		JobsLeftToRun: utils.PointerTo(0),
+		JobsCompleted: to.Ptr(0),
+		JobsLeftToRun: to.Ptr(0),
 	}
 
 	var failedAssetScanEstimations int
@@ -549,7 +549,7 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apity
 	logger.Tracef("ScanEstimation Summary updated. JobCompleted=%d JobLeftToRun=%d", *scanEstimation.Summary.JobsCompleted,
 		*scanEstimation.Summary.JobsLeftToRun)
 
-	message := utils.PointerTo(
+	message := to.Ptr(
 		fmt.Sprintf(
 			"%d succeeded, %d failed out of %d total asset scan estimations",
 			*assetScanEstimations.Count-failedAssetScanEstimations,
@@ -572,12 +572,12 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apity
 				message,
 			)
 		}
-		scanEstimation.EndTime = utils.PointerTo(time.Now())
+		scanEstimation.EndTime = to.Ptr(time.Now())
 
 		if err := updateTotalScanTimeWithParallelScans(scanEstimation); err != nil {
 			return fmt.Errorf("failed to update scan time from paraller scans: %w", err)
 		}
-		scanEstimation.DeleteAfter = utils.PointerTo(scanEstimation.EndTime.Add(time.Duration(*scanEstimation.TTLSecondsAfterFinished) * time.Second))
+		scanEstimation.DeleteAfter = to.Ptr(scanEstimation.EndTime.Add(time.Duration(*scanEstimation.TTLSecondsAfterFinished) * time.Second))
 	}
 
 	scanEstimationPatch := &apitypes.ScanEstimation{
@@ -616,7 +616,7 @@ func updateTotalScanTimeWithParallelScans(scanEstimation *apitypes.ScanEstimatio
 		return fmt.Errorf("0 completed jobs in summary")
 	}
 
-	maxParallelScanners := utils.ValueOrZero(scanEstimation.ScanTemplate.MaxParallelScanners)
+	maxParallelScanners := to.ValueOrZero(scanEstimation.ScanTemplate.MaxParallelScanners)
 
 	if maxParallelScanners > 1 {
 		numberOfJobs := *scanEstimation.Summary.JobsCompleted
@@ -695,14 +695,14 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scanEstimation *apitypes
 		}
 	}
 
-	scanEstimation.EndTime = utils.PointerTo(time.Now())
+	scanEstimation.EndTime = to.Ptr(time.Now())
 
 	scanEstimationPatch := &apitypes.ScanEstimation{
 		EndTime: scanEstimation.EndTime,
 		Status: apitypes.NewScanEstimationStatus(
 			apitypes.ScanEstimationStatusStateFailed,
 			apitypes.ScanEstimationStatusReasonAborted,
-			utils.PointerTo("ScanEstimation has been aborted"),
+			to.Ptr("ScanEstimation has been aborted"),
 		),
 		AssetIDs: scanEstimation.AssetIDs,
 	}

@@ -25,6 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/cli/pkg/families/rootkits/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 // nolint:nonamedreturns
@@ -203,5 +204,5 @@ func processAliensToRootkits(aliensResult string) ([]Rootkit, error) {
 		return nil, fmt.Errorf("failed to get output: %w", err)
 	}
 
-	return utils.StringKeyMapToArray(rootkits), nil
+	return to.ValuesSlice(rootkits), nil
 }
