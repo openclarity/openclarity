@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_isEmptyOperationTime(t *testing.T) {
@@ -103,7 +104,7 @@ func Test_validateRuntimeScheduleScanConfig(t *testing.T) {
 			name: "operation time is missing - not a valid cron expression",
 			args: args{
 				scheduled: &types.RuntimeScheduleScanConfig{
-					CronLine: types.PointerTo("not valid"),
+					CronLine: to.Ptr("not valid"),
 				},
 			},
 			wantErr: true,
@@ -112,7 +113,7 @@ func Test_validateRuntimeScheduleScanConfig(t *testing.T) {
 			name: "operation time is missing - operation time should be set",
 			args: args{
 				scheduled: &types.RuntimeScheduleScanConfig{
-					CronLine: types.PointerTo("0 */4 * * *"),
+					CronLine: to.Ptr("0 */4 * * *"),
 				},
 			},
 			wantErr: false,
@@ -121,7 +122,7 @@ func Test_validateRuntimeScheduleScanConfig(t *testing.T) {
 			name: "cron line is missing - do nothing",
 			args: args{
 				scheduled: &types.RuntimeScheduleScanConfig{
-					OperationTime: types.PointerTo(time.Now()),
+					OperationTime: to.Ptr(time.Now()),
 				},
 			},
 			wantErr: false,

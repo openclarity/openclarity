@@ -24,7 +24,7 @@ import (
 	"github.com/onsi/gomega/types"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestOperationTime(t *testing.T) {
@@ -111,7 +111,7 @@ func TestScanConfigSchedule(t *testing.T) {
 		{
 			Name: "Disabled field is true",
 			ScanConfig: &apitypes.ScanConfig{
-				Disabled: utils.PointerTo(true),
+				Disabled: to.Ptr(true),
 			},
 			ExpectedState:                 ScheduleStateDisabled,
 			ExpectedErrorMatcher:          Not(HaveOccurred()),
@@ -141,7 +141,7 @@ func TestScanConfigSchedule(t *testing.T) {
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
 					CronLine:      nil,
-					OperationTime: utils.PointerTo(time.Now()),
+					OperationTime: to.Ptr(time.Now()),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Now(), 5*time.Minute),
@@ -154,8 +154,8 @@ func TestScanConfigSchedule(t *testing.T) {
 			Name: "OperationTime and CronLine with exact time are set to present",
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
-					CronLine:      utils.PointerTo("0 11 17 5 * 2023"),
-					OperationTime: utils.PointerTo(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC)),
+					CronLine:      to.Ptr("0 11 17 5 * 2023"),
+					OperationTime: to.Ptr(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC), 5*time.Minute),
@@ -168,8 +168,8 @@ func TestScanConfigSchedule(t *testing.T) {
 			Name: "OperationTime is set in the past and recurring CronLine is provided",
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
-					CronLine:      utils.PointerTo("0 2 * * *"),
-					OperationTime: utils.PointerTo(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
+					CronLine:      to.Ptr("0 2 * * *"),
+					OperationTime: to.Ptr(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC), 5*time.Minute),
@@ -182,7 +182,7 @@ func TestScanConfigSchedule(t *testing.T) {
 			Name: "OperationTime is set in the past and no CronLine is provided",
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
-					OperationTime: utils.PointerTo(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
+					OperationTime: to.Ptr(time.Date(2023, 4, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC), 5*time.Minute),
@@ -195,7 +195,7 @@ func TestScanConfigSchedule(t *testing.T) {
 			Name: "OperationTime is set in the future and no CronLine is provided",
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
-					OperationTime: utils.PointerTo(time.Date(2023, 6, 17, 11, 0, 0, 0, time.UTC)),
+					OperationTime: to.Ptr(time.Date(2023, 6, 17, 11, 0, 0, 0, time.UTC)),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC), 5*time.Minute),
@@ -208,8 +208,8 @@ func TestScanConfigSchedule(t *testing.T) {
 			Name: "OperationTime is set in the future and recurring CronLine is provided",
 			ScanConfig: &apitypes.ScanConfig{
 				Scheduled: &apitypes.RuntimeScheduleScanConfig{
-					CronLine:      utils.PointerTo("0 2 * * *"),
-					OperationTime: utils.PointerTo(time.Date(2023, 5, 17, 12, 0, 0, 0, time.UTC)),
+					CronLine:      to.Ptr("0 2 * * *"),
+					OperationTime: to.Ptr(time.Date(2023, 5, 17, 12, 0, 0, 0, time.UTC)),
 				},
 			},
 			Schedule:                      NewScheduleWindow(time.Date(2023, 5, 17, 11, 0, 0, 0, time.UTC), 5*time.Minute),

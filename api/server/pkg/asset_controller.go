@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (s *ServerImpl) GetAssets(ctx echo.Context, params types.GetAssetsParams) error {
@@ -51,7 +52,7 @@ func (s *ServerImpl) PostAssets(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &types.AssetExists{
-				Message: types.PointerTo(conflictErr.Reason),
+				Message: to.Ptr(conflictErr.Reason),
 				Asset:   &createdAsset,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -101,7 +102,7 @@ func (s *ServerImpl) PutAssetsAssetID(ctx echo.Context, assetID types.AssetID, p
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Asset with ID %v not found", assetID))
 		case errors.As(err, &conflictErr):
 			existResponse := &types.AssetExists{
-				Message: types.PointerTo(conflictErr.Reason),
+				Message: to.Ptr(conflictErr.Reason),
 				Asset:   &updatedAsset,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -140,7 +141,7 @@ func (s *ServerImpl) PatchAssetsAssetID(ctx echo.Context, assetID types.AssetID,
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Asset with ID %v not found", assetID))
 		case errors.As(err, &conflictErr):
 			existResponse := &types.AssetExists{
-				Message: types.PointerTo(conflictErr.Reason),
+				Message: to.Ptr(conflictErr.Reason),
 				Asset:   &updatedAsset,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -156,7 +157,7 @@ func (s *ServerImpl) PatchAssetsAssetID(ctx echo.Context, assetID types.AssetID,
 
 func (s *ServerImpl) DeleteAssetsAssetID(ctx echo.Context, assetID types.AssetID) error {
 	success := types.Success{
-		Message: types.PointerTo(fmt.Sprintf("asset %v deleted", assetID)),
+		Message: to.Ptr(fmt.Sprintf("asset %v deleted", assetID)),
 	}
 
 	if err := s.dbHandler.AssetsTable().DeleteAsset(assetID); err != nil {

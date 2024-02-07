@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (s *ServerImpl) GetProviders(ctx echo.Context, params types.GetProvidersParams) error {
@@ -51,7 +52,7 @@ func (s *ServerImpl) PostProviders(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &types.ProviderExists{
-				Message:  types.PointerTo(conflictErr.Reason),
+				Message:  to.Ptr(conflictErr.Reason),
 				Provider: &createdProvider,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -101,7 +102,7 @@ func (s *ServerImpl) PutProvidersProviderID(ctx echo.Context, providerID types.P
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Provider with ID %v not found", providerID))
 		case errors.As(err, &conflictErr):
 			existResponse := &types.ProviderExists{
-				Message:  types.PointerTo(conflictErr.Reason),
+				Message:  to.Ptr(conflictErr.Reason),
 				Provider: &updatedProvider,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -140,7 +141,7 @@ func (s *ServerImpl) PatchProvidersProviderID(ctx echo.Context, providerID types
 			return sendError(ctx, http.StatusNotFound, fmt.Sprintf("Provider with ID %v not found", providerID))
 		case errors.As(err, &conflictErr):
 			existResponse := &types.ProviderExists{
-				Message:  types.PointerTo(conflictErr.Reason),
+				Message:  to.Ptr(conflictErr.Reason),
 				Provider: &updatedProvider,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -156,7 +157,7 @@ func (s *ServerImpl) PatchProvidersProviderID(ctx echo.Context, providerID types
 
 func (s *ServerImpl) DeleteProvidersProviderID(ctx echo.Context, providerID types.ProviderID) error {
 	success := types.Success{
-		Message: types.PointerTo(fmt.Sprintf("provider %v deleted", providerID)),
+		Message: to.Ptr(fmt.Sprintf("provider %v deleted", providerID)),
 	}
 
 	if err := s.dbHandler.ProvidersTable().DeleteProvider(providerID); err != nil {

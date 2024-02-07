@@ -25,7 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/api/server/pkg/database"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 func createDatabaseConfig(config *Config) dbtypes.DBConfig {

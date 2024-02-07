@@ -24,7 +24,7 @@ import (
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	uitypes "github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -44,7 +44,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 
 			ginkgo.By("waiting until scan starts")
 			scanParams := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 					*apiScanConfig.Id,
 					apitypes.ScanStatusStateDone,
@@ -67,7 +67,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 
 			ginkgo.By("waiting until scan state changes to done")
 			scanParams = apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
 					apitypes.ScanStatusStateDone,

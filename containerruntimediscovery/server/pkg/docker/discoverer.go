@@ -28,7 +28,8 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type discoverer struct {
@@ -82,14 +83,14 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, imageID string) 
 	}
 
 	return apitypes.ContainerImageInfo{
-		Architecture: apitypes.PointerTo(image.Architecture),
+		Architecture: to.Ptr(image.Architecture),
 		ImageID:      image.ID,
 		Labels:       apitypes.MapToTags(image.Config.Labels),
 		RepoTags:     &image.RepoTags,
 		RepoDigests:  &image.RepoDigests,
 		ObjectType:   "ContainerImageInfo",
-		Os:           apitypes.PointerTo(image.Os),
-		Size:         apitypes.PointerTo(image.Size),
+		Os:           to.Ptr(image.Os),
+		Size:         to.Ptr(image.Size),
 	}, nil
 }
 
@@ -194,10 +195,10 @@ func (d *discoverer) getContainerInfo(ctx context.Context, containerID, imageID 
 	}
 
 	return apitypes.ContainerInfo{
-		ContainerName: apitypes.PointerTo(info.Name),
-		CreatedAt:     apitypes.PointerTo(createdAt),
+		ContainerName: to.Ptr(info.Name),
+		CreatedAt:     to.Ptr(createdAt),
 		ContainerID:   containerID,
-		Image:         apitypes.PointerTo(imageInfo),
+		Image:         to.Ptr(imageInfo),
 		Labels:        apitypes.MapToTags(info.Config.Labels),
 		ObjectType:    "ContainerInfo",
 	}, nil

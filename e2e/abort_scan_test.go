@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 var _ = ginkgo.Describe("Aborting a scan", func() {
@@ -42,7 +42,7 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 
 			ginkgo.By("waiting until scan starts")
 			params := apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'",
 					*apiScanConfig.Id,
 					apitypes.ScanStatusStateDone,
@@ -75,7 +75,7 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 
 			ginkgo.By("waiting until scan state changes to failed with aborted as state reason")
 			params = apitypes.GetScansParams{
-				Filter: utils.PointerTo(fmt.Sprintf(
+				Filter: to.Ptr(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
 					apitypes.AssetScanStatusStateFailed,

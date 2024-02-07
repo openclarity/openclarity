@@ -22,7 +22,7 @@ import (
 
 	"cloud.google.com/go/compute/apiv1/computepb"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 )
 
@@ -64,8 +64,8 @@ func (p *Provider) ensureDiskFromSnapshot(ctx context.Context, config *provider.
 		DiskResource: &computepb.Disk{
 			Name: &diskName,
 			// Use pd-balanced so that we have SSD not spinning HDD
-			Type:           utils.PointerTo(fmt.Sprintf("zones/%v/diskTypes/pd-balanced", p.config.ScannerZone)),
-			SourceSnapshot: utils.PointerTo(snapshot.GetSelfLink()),
+			Type:           to.Ptr(fmt.Sprintf("zones/%v/diskTypes/pd-balanced", p.config.ScannerZone)),
+			SourceSnapshot: to.Ptr(snapshot.GetSelfLink()),
 			SizeGb:         snapshot.DiskSizeGb, // specify the size of the source disk (target scan)
 		},
 	}

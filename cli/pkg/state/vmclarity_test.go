@@ -27,7 +27,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families"
 	"github.com/openclarity/vmclarity/cli/pkg/families/sbom"
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 //go:embed testdata/effective-config.json
@@ -68,8 +68,8 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			},
 			want: &apitypes.Annotations{
 				{
-					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-					Value: utils.PointerTo(effectiveScanConfigJSON),
+					Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+					Value: to.Ptr(effectiveScanConfigJSON),
 				},
 			},
 		},
@@ -97,8 +97,8 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			},
 			want: &apitypes.Annotations{
 				{
-					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-					Value: utils.PointerTo(effectiveScanConfigJSON),
+					Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+					Value: to.Ptr(effectiveScanConfigJSON),
 				},
 			},
 		},
@@ -107,8 +107,8 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			args: args{
 				annotations: &apitypes.Annotations{
 					{
-						Key:   utils.PointerTo("test"),
-						Value: utils.PointerTo("test"),
+						Key:   to.Ptr("test"),
+						Value: to.Ptr("test"),
 					},
 				},
 				config: &families.Config{
@@ -131,12 +131,12 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			},
 			want: &apitypes.Annotations{
 				{
-					Key:   utils.PointerTo("test"),
-					Value: utils.PointerTo("test"),
+					Key:   to.Ptr("test"),
+					Value: to.Ptr("test"),
 				},
 				{
-					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-					Value: utils.PointerTo(effectiveScanConfigJSON),
+					Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+					Value: to.Ptr(effectiveScanConfigJSON),
 				},
 			},
 		},
@@ -145,8 +145,8 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			args: args{
 				annotations: &apitypes.Annotations{
 					{
-						Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-						Value: utils.PointerTo("test"),
+						Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+						Value: to.Ptr("test"),
 					},
 				},
 				config: &families.Config{
@@ -169,8 +169,8 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 			},
 			want: &apitypes.Annotations{
 				{
-					Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-					Value: utils.PointerTo(effectiveScanConfigJSON),
+					Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+					Value: to.Ptr(effectiveScanConfigJSON),
 				},
 			},
 		},

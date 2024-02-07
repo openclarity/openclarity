@@ -34,9 +34,9 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/secrets"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/scanner"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/cli/pkg/utils/cyclonedx_helper"
 	"github.com/openclarity/vmclarity/cli/pkg/utils/vulnerability"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []apitypes.Package {
@@ -48,13 +48,13 @@ func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []apitypes.Package {
 
 	for _, component := range *sbomResults.SBOM.Components {
 		packages = append(packages, apitypes.Package{
-			Cpes:     utils.PointerTo([]string{component.CPE}),
-			Language: utils.PointerTo(cyclonedx_helper.GetComponentLanguage(component)),
-			Licenses: utils.PointerTo(cyclonedx_helper.GetComponentLicenses(component)),
-			Name:     utils.PointerTo(component.Name),
-			Purl:     utils.PointerTo(component.PackageURL),
-			Type:     utils.PointerTo(string(component.Type)),
-			Version:  utils.PointerTo(component.Version),
+			Cpes:     to.Ptr([]string{component.CPE}),
+			Language: to.Ptr(cyclonedx_helper.GetComponentLanguage(component)),
+			Licenses: to.Ptr(cyclonedx_helper.GetComponentLicenses(component)),
+			Name:     to.Ptr(component.Name),
+			Purl:     to.Ptr(component.PackageURL),
+			Type:     to.Ptr(string(component.Type)),
+			Version:  to.Ptr(component.Version),
 		})
 	}
 
@@ -77,15 +77,15 @@ func ConvertVulnResultToVulnerabilities(vulnerabilitiesResults *vulnerabilities.
 
 		vul := apitypes.Vulnerability{
 			Cvss:              ConvertVulnCvssToAPIModel(vulCandidate.Vulnerability.CVSS),
-			Description:       utils.PointerTo(vulCandidate.Vulnerability.Description),
+			Description:       to.Ptr(vulCandidate.Vulnerability.Description),
 			Distro:            ConvertVulnDistroToAPIModel(vulCandidate.Vulnerability.Distro),
 			Fix:               ConvertVulnFixToAPIModel(vulCandidate.Vulnerability.Fix),
-			LayerId:           utils.PointerTo(vulCandidate.Vulnerability.LayerID),
-			Links:             utils.PointerTo(vulCandidate.Vulnerability.Links),
+			LayerId:           to.Ptr(vulCandidate.Vulnerability.LayerID),
+			Links:             to.Ptr(vulCandidate.Vulnerability.Links),
 			Package:           ConvertVulnPackageToAPIModel(vulCandidate.Vulnerability.Package),
-			Path:              utils.PointerTo(vulCandidate.Vulnerability.Path),
+			Path:              to.Ptr(vulCandidate.Vulnerability.Path),
 			Severity:          ConvertVulnSeverityToAPIModel(vulCandidate.Vulnerability.Severity),
-			VulnerabilityName: utils.PointerTo(vulCandidate.Vulnerability.ID),
+			VulnerabilityName: to.Ptr(vulCandidate.Vulnerability.ID),
 		}
 		vuls = append(vuls, vul)
 	}
@@ -96,45 +96,45 @@ func ConvertVulnResultToVulnerabilities(vulnerabilitiesResults *vulnerabilities.
 func ConvertVulnSeverityToAPIModel(severity string) *apitypes.VulnerabilitySeverity {
 	switch strings.ToUpper(severity) {
 	case vulnerability.DEFCON1, vulnerability.CRITICAL:
-		return utils.PointerTo(apitypes.CRITICAL)
+		return to.Ptr(apitypes.CRITICAL)
 	case vulnerability.HIGH:
-		return utils.PointerTo(apitypes.HIGH)
+		return to.Ptr(apitypes.HIGH)
 	case vulnerability.MEDIUM:
-		return utils.PointerTo(apitypes.MEDIUM)
+		return to.Ptr(apitypes.MEDIUM)
 	case vulnerability.LOW:
-		return utils.PointerTo(apitypes.LOW)
+		return to.Ptr(apitypes.LOW)
 	case vulnerability.NEGLIGIBLE, vulnerability.UNKNOWN, vulnerability.NONE:
-		return utils.PointerTo(apitypes.NEGLIGIBLE)
+		return to.Ptr(apitypes.NEGLIGIBLE)
 	default:
 		log.Errorf("Can't convert severity %q, treating as negligible", severity)
-		return utils.PointerTo(apitypes.NEGLIGIBLE)
+		return to.Ptr(apitypes.NEGLIGIBLE)
 	}
 }
 
 func ConvertVulnFixToAPIModel(fix scanner.Fix) *apitypes.VulnerabilityFix {
 	return &apitypes.VulnerabilityFix{
-		State:    utils.PointerTo(fix.State),
-		Versions: utils.PointerTo(fix.Versions),
+		State:    to.Ptr(fix.State),
+		Versions: to.Ptr(fix.Versions),
 	}
 }
 
 func ConvertVulnDistroToAPIModel(distro scanner.Distro) *apitypes.VulnerabilityDistro {
 	return &apitypes.VulnerabilityDistro{
-		IDLike:  utils.PointerTo(distro.IDLike),
-		Name:    utils.PointerTo(distro.Name),
-		Version: utils.PointerTo(distro.Version),
+		IDLike:  to.Ptr(distro.IDLike),
+		Name:    to.Ptr(distro.Name),
+		Version: to.Ptr(distro.Version),
 	}
 }
 
 func ConvertVulnPackageToAPIModel(p scanner.Package) *apitypes.Package {
 	return &apitypes.Package{
-		Cpes:     utils.PointerTo(p.CPEs),
-		Language: utils.PointerTo(p.Language),
-		Licenses: utils.PointerTo(p.Licenses),
-		Name:     utils.PointerTo(p.Name),
-		Purl:     utils.PointerTo(p.PURL),
-		Type:     utils.PointerTo(p.Type),
-		Version:  utils.PointerTo(p.Version),
+		Cpes:     to.Ptr(p.CPEs),
+		Language: to.Ptr(p.Language),
+		Licenses: to.Ptr(p.Licenses),
+		Name:     to.Ptr(p.Name),
+		Purl:     to.Ptr(p.PURL),
+		Type:     to.Ptr(p.Type),
+		Version:  to.Ptr(p.Version),
 	}
 }
 
@@ -147,20 +147,20 @@ func ConvertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]apitypes.VulnerabilityCvs
 	for _, c := range cvss {
 		var exploitabilityScore *float32
 		if c.Metrics.ExploitabilityScore != nil {
-			exploitabilityScore = utils.PointerTo[float32](float32(*c.Metrics.ExploitabilityScore))
+			exploitabilityScore = to.Ptr[float32](float32(*c.Metrics.ExploitabilityScore))
 		}
 		var impactScore *float32
 		if c.Metrics.ImpactScore != nil {
-			impactScore = utils.PointerTo[float32](float32(*c.Metrics.ImpactScore))
+			impactScore = to.Ptr[float32](float32(*c.Metrics.ImpactScore))
 		}
 		ret = append(ret, apitypes.VulnerabilityCvss{
 			Metrics: &apitypes.VulnerabilityCvssMetrics{
-				BaseScore:           utils.PointerTo(float32(c.Metrics.BaseScore)),
+				BaseScore:           to.Ptr(float32(c.Metrics.BaseScore)),
 				ExploitabilityScore: exploitabilityScore,
 				ImpactScore:         impactScore,
 			},
-			Vector:  utils.PointerTo(c.Vector),
-			Version: utils.PointerTo(c.Version),
+			Vector:  to.Ptr(c.Vector),
+			Version: to.Ptr(c.Version),
 		})
 	}
 
@@ -178,10 +178,10 @@ func ConvertMalwareResultToMalwareAndMetadata(malwareResults *malware.MergedResu
 	for _, m := range malwareResults.DetectedMalware {
 		mal := m // Prevent loop variable pointer export
 		malwareList = append(malwareList, apitypes.Malware{
-			MalwareName: utils.OmitEmpty(mal.MalwareName),
-			MalwareType: utils.OmitEmpty(mal.MalwareType),
-			Path:        utils.OmitEmpty(mal.Path),
-			RuleName:    utils.OmitEmpty(mal.RuleName),
+			MalwareName: to.OmitEmpty(mal.MalwareName),
+			MalwareType: to.OmitEmpty(mal.MalwareType),
+			Path:        to.OmitEmpty(mal.Path),
+			RuleName:    to.OmitEmpty(mal.RuleName),
 		})
 	}
 
@@ -324,16 +324,16 @@ func ConvertInfoFinderResultToInfosAndScanners(results *infofinder.Results) ([]a
 func convertInfoTypeToAPIModel(infoType types.InfoType) *apitypes.InfoType {
 	switch infoType {
 	case types.SSHKnownHostFingerprint:
-		return utils.PointerTo(apitypes.InfoTypeSSHKnownHostFingerprint)
+		return to.Ptr(apitypes.InfoTypeSSHKnownHostFingerprint)
 	case types.SSHAuthorizedKeyFingerprint:
-		return utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint)
+		return to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint)
 	case types.SSHPrivateKeyFingerprint:
-		return utils.PointerTo(apitypes.InfoTypeSSHPrivateKeyFingerprint)
+		return to.Ptr(apitypes.InfoTypeSSHPrivateKeyFingerprint)
 	case types.SSHDaemonKeyFingerprint:
-		return utils.PointerTo(apitypes.InfoTypeSSHDaemonKeyFingerprint)
+		return to.Ptr(apitypes.InfoTypeSSHDaemonKeyFingerprint)
 	default:
 		log.Errorf("Can't convert info type %q, treating as %v", infoType, apitypes.InfoTypeUNKNOWN)
-		return utils.PointerTo(apitypes.InfoTypeUNKNOWN)
+		return to.Ptr(apitypes.InfoTypeUNKNOWN)
 	}
 }
 
@@ -359,17 +359,17 @@ func ConvertRootkitsResultToRootkits(rootkitsResults *rootkits.Results) []apityp
 func ConvertRootkitTypeToAPIModel(rootkitType rootkitsTypes.RootkitType) *apitypes.RootkitType {
 	switch rootkitType {
 	case rootkitsTypes.APPLICATION:
-		return utils.PointerTo(apitypes.RootkitTypeAPPLICATION)
+		return to.Ptr(apitypes.RootkitTypeAPPLICATION)
 	case rootkitsTypes.FIRMWARE:
-		return utils.PointerTo(apitypes.RootkitTypeFIRMWARE)
+		return to.Ptr(apitypes.RootkitTypeFIRMWARE)
 	case rootkitsTypes.KERNEL:
-		return utils.PointerTo(apitypes.RootkitTypeKERNEL)
+		return to.Ptr(apitypes.RootkitTypeKERNEL)
 	case rootkitsTypes.MEMORY:
-		return utils.PointerTo(apitypes.RootkitTypeMEMORY)
+		return to.Ptr(apitypes.RootkitTypeMEMORY)
 	case rootkitsTypes.UNKNOWN:
-		return utils.PointerTo(apitypes.RootkitTypeUNKNOWN)
+		return to.Ptr(apitypes.RootkitTypeUNKNOWN)
 	default:
 		log.Errorf("Can't convert rootkit type %q, treating as %v", rootkitType, apitypes.RootkitTypeUNKNOWN)
-		return utils.PointerTo(apitypes.RootkitTypeUNKNOWN)
+		return to.Ptr(apitypes.RootkitTypeUNKNOWN)
 	}
 }

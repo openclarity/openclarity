@@ -25,7 +25,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -350,9 +350,9 @@ func createRootkitFindingInfo(t *testing.T, message, name, tpe string) *apitypes
 	t.Helper()
 	findingInfoB := apitypes.Finding_FindingInfo{}
 	err := findingInfoB.FromRootkitFindingInfo(apitypes.RootkitFindingInfo{
-		Message:     utils.PointerTo(message),
-		RootkitName: utils.PointerTo(name),
-		RootkitType: utils.PointerTo(apitypes.RootkitType(tpe)),
+		Message:     to.Ptr(message),
+		RootkitName: to.Ptr(name),
+		RootkitType: to.Ptr(apitypes.RootkitType(tpe)),
 	})
 	assert.NilError(t, err)
 	return &findingInfoB
@@ -470,27 +470,27 @@ func Test_createFindingsImpact(t *testing.T) {
 			},
 			want: []types.RootkitFindingImpact{
 				{
-					AffectedAssetsCount: utils.PointerTo(19),
+					AffectedAssetsCount: to.Ptr(19),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path1"),
-						RootkitName: utils.PointerTo("name1"),
-						RootkitType: utils.PointerTo(types.RootkitType("type1")),
+						Message:     to.Ptr("path1"),
+						RootkitName: to.Ptr("name1"),
+						RootkitType: to.Ptr(types.RootkitType("type1")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(7),
+					AffectedAssetsCount: to.Ptr(7),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path2"),
-						RootkitName: utils.PointerTo("name2"),
-						RootkitType: utils.PointerTo(types.RootkitType("type2")),
+						Message:     to.Ptr("path2"),
+						RootkitName: to.Ptr("name2"),
+						RootkitType: to.Ptr(types.RootkitType("type2")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(5),
+					AffectedAssetsCount: to.Ptr(5),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path3"),
-						RootkitName: utils.PointerTo("name3"),
-						RootkitType: utils.PointerTo(types.RootkitType("type3")),
+						Message:     to.Ptr("path3"),
+						RootkitName: to.Ptr("name3"),
+						RootkitType: to.Ptr(types.RootkitType("type3")),
 					},
 				},
 			},
@@ -533,43 +533,43 @@ func Test_createFindingsImpact(t *testing.T) {
 			},
 			want: []types.RootkitFindingImpact{
 				{
-					AffectedAssetsCount: utils.PointerTo(19),
+					AffectedAssetsCount: to.Ptr(19),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path1"),
-						RootkitName: utils.PointerTo("name1"),
-						RootkitType: utils.PointerTo(types.RootkitType("type1")),
+						Message:     to.Ptr("path1"),
+						RootkitName: to.Ptr("name1"),
+						RootkitType: to.Ptr(types.RootkitType("type1")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(7),
+					AffectedAssetsCount: to.Ptr(7),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path2"),
-						RootkitName: utils.PointerTo("name2"),
-						RootkitType: utils.PointerTo(types.RootkitType("type2")),
+						Message:     to.Ptr("path2"),
+						RootkitName: to.Ptr("name2"),
+						RootkitType: to.Ptr(types.RootkitType("type2")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(5),
+					AffectedAssetsCount: to.Ptr(5),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path3"),
-						RootkitName: utils.PointerTo("name3"),
-						RootkitType: utils.PointerTo(types.RootkitType("type3")),
+						Message:     to.Ptr("path3"),
+						RootkitName: to.Ptr("name3"),
+						RootkitType: to.Ptr(types.RootkitType("type3")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(4),
+					AffectedAssetsCount: to.Ptr(4),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path4"),
-						RootkitName: utils.PointerTo("name3"),
-						RootkitType: utils.PointerTo(types.RootkitType("type3")),
+						Message:     to.Ptr("path4"),
+						RootkitName: to.Ptr("name3"),
+						RootkitType: to.Ptr(types.RootkitType("type3")),
 					},
 				},
 				{
-					AffectedAssetsCount: utils.PointerTo(3),
+					AffectedAssetsCount: to.Ptr(3),
 					Rootkit: &types.Rootkit{
-						Message:     utils.PointerTo("path5"),
-						RootkitName: utils.PointerTo("name3"),
-						RootkitType: utils.PointerTo(types.RootkitType("type3")),
+						Message:     to.Ptr("path5"),
+						RootkitName: to.Ptr("name3"),
+						RootkitType: to.Ptr(types.RootkitType("type3")),
 					},
 				},
 			},

@@ -23,9 +23,9 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (
@@ -75,8 +75,8 @@ func (w *Watcher) GetScanConfigs(ctx context.Context) ([]ScanConfigReconcileEven
 	logger.Debugf("Fetching enabled ScanConfigs")
 
 	params := apitypes.GetScanConfigsParams{
-		Filter: utils.PointerTo("disabled eq null or disabled eq false"),
-		Select: utils.PointerTo("id"),
+		Filter: to.Ptr("disabled eq null or disabled eq false"),
+		Select: to.Ptr("id"),
 	}
 	scanConfigs, err := w.client.GetScanConfigs(ctx, params)
 	if err != nil {
@@ -157,7 +157,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 
 func (w *Watcher) reconcileUnscheduled(ctx context.Context, scanConfig *apitypes.ScanConfig) error {
 	scanConfigPatch := &apitypes.ScanConfig{
-		Disabled: utils.PointerTo(true),
+		Disabled: to.Ptr(true),
 	}
 
 	if err := w.client.PatchScanConfig(ctx, *scanConfig.Id, scanConfigPatch); err != nil {
@@ -176,7 +176,7 @@ func (w *Watcher) reconcileDue(ctx context.Context, scanConfig *apitypes.ScanCon
 	scanConfigPatch := &apitypes.ScanConfig{
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
-			OperationTime: utils.PointerTo(nextOperationTime.Time()),
+			OperationTime: to.Ptr(nextOperationTime.Time()),
 		},
 	}
 
@@ -193,9 +193,9 @@ func (w *Watcher) createScan(ctx context.Context, scanConfig *apitypes.ScanConfi
 	filter := fmt.Sprintf("scanConfig/id eq '%s' and status/state ne '%s' and status/state ne '%s'", *scanConfig.Id,
 		apitypes.ScanStatusStateDone, apitypes.ScanStatusStateFailed)
 	scans, err := w.client.GetScans(ctx, apitypes.GetScansParams{
-		Filter: utils.PointerTo(filter),
-		Select: utils.PointerTo("id"),
-		Count:  utils.PointerTo(true),
+		Filter: to.Ptr(filter),
+		Select: to.Ptr("id"),
+		Count:  to.Ptr(true),
 	})
 	if err != nil || scans == nil {
 		return fmt.Errorf("failed to fetch scans for ScanConfig. ScanConfigID=%s: %w", *scanConfig.Id, err)
@@ -214,7 +214,7 @@ func (w *Watcher) createScan(ctx context.Context, scanConfig *apitypes.ScanConfi
 	}
 
 	scan := newScanFromScanConfig(scanConfig)
-	scan.StartTime = utils.PointerTo(time.Now())
+	scan.StartTime = to.Ptr(time.Now())
 
 	_, err = w.client.PostScan(ctx, *scan)
 	if err != nil {
@@ -236,7 +236,7 @@ func (w *Watcher) reconcileOverdue(ctx context.Context, scanConfig *apitypes.Sca
 	scanConfigPatch := &apitypes.ScanConfig{
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
 			CronLine:      scanConfig.Scheduled.CronLine,
-			OperationTime: utils.PointerTo(nextOperationTime.Time()),
+			OperationTime: to.Ptr(nextOperationTime.Time()),
 		},
 	}
 

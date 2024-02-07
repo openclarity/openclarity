@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 var _ = ginkgo.Describe("Posting and getting a provider", func() {
@@ -35,8 +35,8 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 			apiProvider, err := client.PostProvider(
 				ctx,
 				apitypes.Provider{
-					DisplayName: utils.PointerTo("test-provider"),
-					Status: utils.PointerTo(apitypes.ProviderStatus{
+					DisplayName: to.Ptr("test-provider"),
+					Status: to.Ptr(apitypes.ProviderStatus{
 						State:              apitypes.ProviderStatusStateHealthy,
 						Reason:             apitypes.HeartbeatReceived,
 						LastTransitionTime: time.Now(),
@@ -54,7 +54,7 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 				providers, err := client.GetProviders(
 					ctx,
 					apitypes.GetProvidersParams{
-						Filter: utils.PointerTo(fmt.Sprintf("id eq '%s'", *apiProvider.Id)),
+						Filter: to.Ptr(fmt.Sprintf("id eq '%s'", *apiProvider.Id)),
 					})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*providers.Items) == 1

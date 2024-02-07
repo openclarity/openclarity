@@ -27,7 +27,7 @@ import (
 	apiserver "github.com/openclarity/vmclarity/api/server/internal/server"
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 const (

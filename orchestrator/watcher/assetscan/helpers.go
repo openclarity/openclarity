@@ -22,7 +22,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 )
 
@@ -55,7 +55,7 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 
 	instanceCreationConfig := apitypes.ScannerInstanceCreationConfig{
 		MaxPrice:         nil,
-		RetryMaxAttempts: utils.PointerTo(1),
+		RetryMaxAttempts: to.Ptr(1),
 		UseSpotInstances: false,
 	}
 	if i.assetScan.ScannerInstanceCreationConfig != nil {

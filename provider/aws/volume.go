@@ -24,9 +24,9 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Volume struct {
@@ -51,8 +51,8 @@ func (v *Volume) CreateSnapshot(ctx context.Context) (*Snapshot, error) {
 
 	ec2TagsForSnapshot := EC2TagsFromScanMetadata(v.Metadata)
 	ec2TagsForSnapshot = append(ec2TagsForSnapshot, ec2types.Tag{
-		Key:   utils.PointerTo(EC2TagKeyAssetVolumeID),
-		Value: utils.PointerTo(v.ID),
+		Key:   to.Ptr(EC2TagKeyAssetVolumeID),
+		Value: to.Ptr(v.ID),
 	})
 
 	ec2Filters := EC2FiltersFromEC2Tags(ec2TagsForSnapshot)
@@ -89,7 +89,7 @@ func (v *Volume) CreateSnapshot(ctx context.Context) (*Snapshot, error) {
 
 	createParams := ec2.CreateSnapshotInput{
 		VolumeId:    &v.ID,
-		Description: utils.PointerTo(EC2SnapshotDescription),
+		Description: to.Ptr(EC2SnapshotDescription),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeSnapshot,

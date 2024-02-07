@@ -27,7 +27,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	discoverytypes "github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 // nolint:cyclop,gocognit

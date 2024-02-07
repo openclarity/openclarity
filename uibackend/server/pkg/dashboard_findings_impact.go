@@ -27,7 +27,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -243,7 +243,7 @@ func createMisconfigurationFindingImpact(findingInfo *apitypes.Finding_FindingIn
 }
 
 func toModelsMisconfigurationSeverity(severity *apitypes.MisconfigurationSeverity) *types.MisconfigurationSeverity {
-	return utils.PointerTo(types.MisconfigurationSeverity(*severity))
+	return to.Ptr(types.MisconfigurationSeverity(*severity))
 }
 
 func (s *ServerImpl) getRootkitsFindingImpact(ctx context.Context) ([]types.RootkitFindingImpact, error) {
@@ -281,7 +281,7 @@ func createRootkitFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count
 }
 
 func toModelsRootkitType(rootkitType *apitypes.RootkitType) *types.RootkitType {
-	return utils.PointerTo(types.RootkitType(*rootkitType))
+	return to.Ptr(types.RootkitType(*rootkitType))
 }
 
 func (s *ServerImpl) getSecretsFindingImpact(ctx context.Context) ([]types.SecretFindingImpact, error) {
@@ -368,15 +368,15 @@ func createVulnerabilityFindingImpact(findingInfo *apitypes.Finding_FindingInfo,
 func toModelsVulnerabilitySeverity(severity *apitypes.VulnerabilitySeverity) *types.VulnerabilitySeverity {
 	switch *severity {
 	case apitypes.CRITICAL:
-		return utils.PointerTo(types.CRITICAL)
+		return to.Ptr(types.CRITICAL)
 	case apitypes.HIGH:
-		return utils.PointerTo(types.HIGH)
+		return to.Ptr(types.HIGH)
 	case apitypes.MEDIUM:
-		return utils.PointerTo(types.MEDIUM)
+		return to.Ptr(types.MEDIUM)
 	case apitypes.LOW:
-		return utils.PointerTo(types.LOW)
+		return to.Ptr(types.LOW)
 	case apitypes.NEGLIGIBLE:
-		return utils.PointerTo(types.NEGLIGIBLE)
+		return to.Ptr(types.NEGLIGIBLE)
 	default:
 		// should not happen in runtime
 		panic("unsupported severity")
@@ -534,7 +534,7 @@ func processFindings(findings []apitypes.Finding, findingAssetMap map[findingAss
 
 // getSortedFindingInfoCountSlice will return a slice of findingInfoCount desc sorted by AssetCount.
 func getSortedFindingInfoCountSlice(findingAssetMapCount map[string]findingInfoCount) []findingInfoCount {
-	findingInfoCountSlice := utils.StringKeyMapToArray(findingAssetMapCount)
+	findingInfoCountSlice := to.ValuesSlice(findingAssetMapCount)
 	sort.Slice(findingInfoCountSlice, func(i, j int) bool {
 		return findingInfoCountSlice[i].AssetCount > findingInfoCountSlice[j].AssetCount
 	})

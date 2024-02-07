@@ -26,6 +26,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type FakePriceFetcher struct{}
@@ -78,9 +79,9 @@ func Test_getScanSize(t *testing.T) {
 				stats: apitypes.AssetScanStats{
 					Sbom: &[]apitypes.AssetScanInputScanStats{
 						{
-							Path: utils.PointerTo("/"),
-							Size: utils.PointerTo(int64(10)),
-							Type: utils.PointerTo(string(utils.ROOTFS)),
+							Path: to.Ptr("/"),
+							Size: to.Ptr(int64(10)),
+							Type: to.Ptr(string(utils.ROOTFS)),
 						},
 					},
 				},
@@ -97,16 +98,16 @@ func Test_getScanSize(t *testing.T) {
 				stats: apitypes.AssetScanStats{
 					Sbom: &[]apitypes.AssetScanInputScanStats{
 						{
-							Path: utils.PointerTo("/dir"),
-							Size: utils.PointerTo(int64(3)),
-							Type: utils.PointerTo(string(utils.DIR)),
+							Path: to.Ptr("/dir"),
+							Size: to.Ptr(int64(3)),
+							Type: to.Ptr(string(utils.DIR)),
 						},
 					},
 					Malware: &[]apitypes.AssetScanInputScanStats{
 						{
-							Path: utils.PointerTo("/"),
-							Size: utils.PointerTo(int64(10)),
-							Type: utils.PointerTo(string(utils.ROOTFS)),
+							Path: to.Ptr("/"),
+							Size: to.Ptr(int64(10)),
+							Type: to.Ptr(string(utils.ROOTFS)),
 						},
 					},
 				},
@@ -162,40 +163,40 @@ func Test_getScanDuration(t *testing.T) {
 				stats: apitypes.AssetScanStats{
 					Sbom: &[]apitypes.AssetScanInputScanStats{
 						{
-							Path: utils.PointerTo("/"),
+							Path: to.Ptr("/"),
 							ScanTime: &apitypes.AssetScanScanTime{
 								EndTime:   &timeNow,
-								StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
+								StartTime: to.Ptr(timeNow.Add(-50 * time.Second)),
 							},
-							Type: utils.PointerTo(string(utils.ROOTFS)),
+							Type: to.Ptr(string(utils.ROOTFS)),
 						},
 					},
 					Secrets: &[]apitypes.AssetScanInputScanStats{
 						{
-							Path: utils.PointerTo("/"),
+							Path: to.Ptr("/"),
 							ScanTime: &apitypes.AssetScanScanTime{
 								EndTime:   &timeNow,
-								StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
+								StartTime: to.Ptr(timeNow.Add(-360 * time.Second)),
 							},
-							Type: utils.PointerTo(string(utils.ROOTFS)),
+							Type: to.Ptr(string(utils.ROOTFS)),
 						},
 					},
 				},
 				familiesConfig: &apitypes.ScanFamiliesConfig{
 					Misconfigurations: &apitypes.MisconfigurationsConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Secrets: &apitypes.SecretsConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Sbom: &apitypes.SBOMConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Malware: &apitypes.MalwareConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 				},
 				scanSizeMB: 2500,
@@ -257,45 +258,45 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 					Stats: apitypes.AssetScanStats{
 						Sbom: &[]apitypes.AssetScanInputScanStats{
 							{
-								Path: utils.PointerTo("/"),
+								Path: to.Ptr("/"),
 								ScanTime: &apitypes.AssetScanScanTime{
 									EndTime:   &timeNow,
-									StartTime: utils.PointerTo(timeNow.Add(-50 * time.Second)),
+									StartTime: to.Ptr(timeNow.Add(-50 * time.Second)),
 								},
-								Type: utils.PointerTo(string(utils.ROOTFS)),
+								Type: to.Ptr(string(utils.ROOTFS)),
 							},
 						},
 						Secrets: &[]apitypes.AssetScanInputScanStats{
 							{
-								Path: utils.PointerTo("/"),
+								Path: to.Ptr("/"),
 								ScanTime: &apitypes.AssetScanScanTime{
 									EndTime:   &timeNow,
-									StartTime: utils.PointerTo(timeNow.Add(-360 * time.Second)),
+									StartTime: to.Ptr(timeNow.Add(-360 * time.Second)),
 								},
-								Type: utils.PointerTo(string(utils.ROOTFS)),
+								Type: to.Ptr(string(utils.ROOTFS)),
 							},
 						},
 					},
 					Asset: &apitypes.Asset{
 						AssetInfo: &assetType,
-						Id:        utils.PointerTo("id"),
+						Id:        to.Ptr("id"),
 					},
 					AssetScanTemplate: &apitypes.AssetScanTemplate{
 						ScanFamiliesConfig: &apitypes.ScanFamiliesConfig{
 							Misconfigurations: &apitypes.MisconfigurationsConfig{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 							Secrets: &apitypes.SecretsConfig{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 							Sbom: &apitypes.SBOMConfig{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 							Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 							Malware: &apitypes.MalwareConfig{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 						},
 						ScannerInstanceCreationConfig: nil,
@@ -303,7 +304,7 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 				},
 			},
 			want: &apitypes.Estimation{
-				Cost: utils.PointerTo(float32(0.5883259)),
+				Cost: to.Ptr(float32(0.5883259)),
 				CostBreakdown: &[]apitypes.CostBreakdownComponent{
 					{
 						Cost:      float32(0.002162963),
@@ -322,8 +323,8 @@ func TestScanEstimator_EstimateAssetScan(t *testing.T) {
 						Operation: string(ScannerRootVolume),
 					},
 				},
-				Size:     utils.PointerTo(8),
-				Duration: utils.PointerTo(2304),
+				Size:     to.Ptr(8),
+				Duration: to.Ptr(2304),
 			},
 			wantErr: false,
 		},

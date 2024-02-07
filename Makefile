@@ -57,23 +57,23 @@ build: ui build-all-go ## Build all components
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
 LDFLAGS = -s -w
-LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.Version=$(VERSION)'
-LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.CommitHash=$(COMMIT_HASH)'
-LDFLAGS += -X 'github.com/openclarity/vmclarity/utils/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
+LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.Version=$(VERSION)'
+LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.CommitHash=$(COMMIT_HASH)'
+LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
-bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils) | $(BIN_DIR)
+bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
 	cd orchestrator && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-apiserver: $(shell find api api/server) | $(BIN_DIR)
 	cd api/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cli: $(shell find api cli utils) | $(BIN_DIR)
+bin/vmclarity-cli: $(shell find api cli utils core) | $(BIN_DIR)
 	cd cli && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
 	cd uibackend/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils) | $(BIN_DIR)
+bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils core) | $(BIN_DIR)
 	cd containerruntimediscovery/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
@@ -353,7 +353,7 @@ $(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/vmclarity-cli $(DIS
 	$(info --- Bundling $(dir $<) into $(notdir $@))
 	tar cv -f $@ -C $(dir $<) --use-compress-program='gzip -9' $(notdir $^)
 
-$(DIST_DIR)/%/vmclarity-cli: $(shell find api cli utils)
+$(DIST_DIR)/%/vmclarity-cli: $(shell find api cli utils core)
 	$(info --- Building $(notdir $@) for $*)
 	GOOS=$(firstword $(subst -, ,$*)) \
 	GOARCH=$(lastword $(subst -, ,$*)) \

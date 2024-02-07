@@ -21,8 +21,8 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.InfoFinderKey]string, error) {
@@ -33,7 +33,7 @@ func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'InfoFinder' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
-		Select: utils.PointerTo("id,findingInfo/scannerName,findingInfo/type,findingInfo/data,findingInfo/path"),
+		Select: to.Ptr("id,findingInfo/scannerName,findingInfo/type,findingInfo/data,findingInfo/path"),
 	})
 	if err != nil {
 		return existingMap, fmt.Errorf("failed to query for findings: %w", err)

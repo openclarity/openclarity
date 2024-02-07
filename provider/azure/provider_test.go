@@ -21,7 +21,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_isEncrypted(t *testing.T) {
@@ -40,7 +40,7 @@ func Test_isEncrypted(t *testing.T) {
 					Disk: armcompute.Disk{
 						Properties: &armcompute.DiskProperties{
 							EncryptionSettingsCollection: &armcompute.EncryptionSettingsCollection{
-								Enabled: utils.PointerTo(true),
+								Enabled: to.Ptr(true),
 							},
 						},
 					},

@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type Config struct {
@@ -79,7 +80,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 
 		if familiesConfig.Secrets.Enabled {
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               mountDir,
 				InputType:           string(utils.ROOTFS),
 			})
@@ -87,7 +88,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 
 		if familiesConfig.Malware.Enabled {
 			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               mountDir,
 				InputType:           string(utils.ROOTFS),
 			})
@@ -95,7 +96,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 
 		if familiesConfig.Rootkits.Enabled {
 			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               mountDir,
 				InputType:           string(utils.ROOTFS),
 			})
@@ -105,7 +106,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,
 				types.Input{
-					StripPathFromResult: utils.PointerTo(true),
+					StripPathFromResult: to.Ptr(true),
 					Input:               mountDir,
 					InputType:           string(utils.ROOTFS),
 				},
@@ -116,7 +117,7 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 			familiesConfig.InfoFinder.Inputs = append(
 				familiesConfig.InfoFinder.Inputs,
 				types.Input{
-					StripPathFromResult: utils.PointerTo(true),
+					StripPathFromResult: to.Ptr(true),
 					Input:               mountDir,
 					InputType:           string(utils.ROOTFS),
 				},
@@ -150,7 +151,7 @@ func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *C
 
 		if familiesConfig.Secrets.Enabled {
 			familiesConfig.Secrets.Inputs = append(familiesConfig.Secrets.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               archive,
 				InputType:           string(utils.OCIARCHIVE),
 			})
@@ -158,7 +159,7 @@ func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *C
 
 		if familiesConfig.Malware.Enabled {
 			familiesConfig.Malware.Inputs = append(familiesConfig.Malware.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               archive,
 				InputType:           string(utils.OCIARCHIVE),
 			})
@@ -166,7 +167,7 @@ func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *C
 
 		if familiesConfig.Rootkits.Enabled {
 			familiesConfig.Rootkits.Inputs = append(familiesConfig.Rootkits.Inputs, types.Input{
-				StripPathFromResult: utils.PointerTo(true),
+				StripPathFromResult: to.Ptr(true),
 				Input:               archive,
 				InputType:           string(utils.OCIARCHIVE),
 			})
@@ -176,7 +177,7 @@ func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *C
 			familiesConfig.Misconfiguration.Inputs = append(
 				familiesConfig.Misconfiguration.Inputs,
 				types.Input{
-					StripPathFromResult: utils.PointerTo(true),
+					StripPathFromResult: to.Ptr(true),
 					Input:               archive,
 					InputType:           string(utils.OCIARCHIVE),
 				},
@@ -187,7 +188,7 @@ func SetOciArchiveForFamiliesInput(archives []string, familiesConfig *Config) *C
 			familiesConfig.InfoFinder.Inputs = append(
 				familiesConfig.InfoFinder.Inputs,
 				types.Input{
-					StripPathFromResult: utils.PointerTo(true),
+					StripPathFromResult: to.Ptr(true),
 					Input:               archive,
 					InputType:           string(utils.OCIARCHIVE),
 				},

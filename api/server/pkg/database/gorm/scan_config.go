@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type ScanConfig struct {
@@ -117,10 +118,10 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig types.ScanConfig) 
 	}
 
 	// Generate a new UUID
-	scanConfig.Id = types.PointerTo(uuid.New().String())
+	scanConfig.Id = to.Ptr(uuid.New().String())
 
 	// Initialise revision
-	scanConfig.Revision = types.PointerTo(1)
+	scanConfig.Revision = to.Ptr(1)
 
 	// TODO(sambetts) Lock the table here to prevent race conditions
 	// checking the uniqueness.

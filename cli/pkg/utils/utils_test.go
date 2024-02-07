@@ -16,14 +16,11 @@
 package utils
 
 import (
-	"log"
 	"reflect"
-	"sort"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
@@ -41,69 +38,69 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 				vulnerabilities: nil,
 			},
 			want: &apitypes.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   PointerTo(0),
-				TotalHighVulnerabilities:       PointerTo(0),
-				TotalMediumVulnerabilities:     PointerTo(0),
-				TotalLowVulnerabilities:        PointerTo(0),
-				TotalNegligibleVulnerabilities: PointerTo(0),
+				TotalCriticalVulnerabilities:   to.Ptr(0),
+				TotalHighVulnerabilities:       to.Ptr(0),
+				TotalMediumVulnerabilities:     to.Ptr(0),
+				TotalLowVulnerabilities:        to.Ptr(0),
+				TotalNegligibleVulnerabilities: to.Ptr(0),
 			},
 		},
 		{
 			name: "check one type",
 			args: args{
-				vulnerabilities: PointerTo([]apitypes.Vulnerability{
+				vulnerabilities: to.Ptr([]apitypes.Vulnerability{
 					{
-						Description:       PointerTo("desc1"),
-						Severity:          PointerTo(apitypes.CRITICAL),
-						VulnerabilityName: PointerTo("CVE-1"),
+						Description:       to.Ptr("desc1"),
+						Severity:          to.Ptr(apitypes.CRITICAL),
+						VulnerabilityName: to.Ptr("CVE-1"),
 					},
 				}),
 			},
 			want: &apitypes.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   PointerTo(1),
-				TotalHighVulnerabilities:       PointerTo(0),
-				TotalMediumVulnerabilities:     PointerTo(0),
-				TotalLowVulnerabilities:        PointerTo(0),
-				TotalNegligibleVulnerabilities: PointerTo(0),
+				TotalCriticalVulnerabilities:   to.Ptr(1),
+				TotalHighVulnerabilities:       to.Ptr(0),
+				TotalMediumVulnerabilities:     to.Ptr(0),
+				TotalLowVulnerabilities:        to.Ptr(0),
+				TotalNegligibleVulnerabilities: to.Ptr(0),
 			},
 		},
 		{
 			name: "check all severity types",
 			args: args{
-				vulnerabilities: PointerTo([]apitypes.Vulnerability{
+				vulnerabilities: to.Ptr([]apitypes.Vulnerability{
 					{
-						Description:       PointerTo("desc1"),
-						Severity:          PointerTo(apitypes.CRITICAL),
-						VulnerabilityName: PointerTo("CVE-1"),
+						Description:       to.Ptr("desc1"),
+						Severity:          to.Ptr(apitypes.CRITICAL),
+						VulnerabilityName: to.Ptr("CVE-1"),
 					},
 					{
-						Description:       PointerTo("desc2"),
-						Severity:          PointerTo(apitypes.HIGH),
-						VulnerabilityName: PointerTo("CVE-2"),
+						Description:       to.Ptr("desc2"),
+						Severity:          to.Ptr(apitypes.HIGH),
+						VulnerabilityName: to.Ptr("CVE-2"),
 					},
 					{
-						Description:       PointerTo("desc3"),
-						Severity:          PointerTo(apitypes.MEDIUM),
-						VulnerabilityName: PointerTo("CVE-3"),
+						Description:       to.Ptr("desc3"),
+						Severity:          to.Ptr(apitypes.MEDIUM),
+						VulnerabilityName: to.Ptr("CVE-3"),
 					},
 					{
-						Description:       PointerTo("desc4"),
-						Severity:          PointerTo(apitypes.LOW),
-						VulnerabilityName: PointerTo("CVE-4"),
+						Description:       to.Ptr("desc4"),
+						Severity:          to.Ptr(apitypes.LOW),
+						VulnerabilityName: to.Ptr("CVE-4"),
 					},
 					{
-						Description:       PointerTo("desc5"),
-						Severity:          PointerTo(apitypes.NEGLIGIBLE),
-						VulnerabilityName: PointerTo("CVE-5"),
+						Description:       to.Ptr("desc5"),
+						Severity:          to.Ptr(apitypes.NEGLIGIBLE),
+						VulnerabilityName: to.Ptr("CVE-5"),
 					},
 				}),
 			},
 			want: &apitypes.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   PointerTo(1),
-				TotalHighVulnerabilities:       PointerTo(1),
-				TotalMediumVulnerabilities:     PointerTo(1),
-				TotalLowVulnerabilities:        PointerTo(1),
-				TotalNegligibleVulnerabilities: PointerTo(1),
+				TotalCriticalVulnerabilities:   to.Ptr(1),
+				TotalHighVulnerabilities:       to.Ptr(1),
+				TotalMediumVulnerabilities:     to.Ptr(1),
+				TotalLowVulnerabilities:        to.Ptr(1),
+				TotalNegligibleVulnerabilities: to.Ptr(1),
 			},
 		},
 	}
@@ -111,149 +108,6 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GetVulnerabilityTotalsPerSeverity(tt.args.vulnerabilities); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetVulnerabilityTotalsPerSeverity() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-// nolint:forcetypeassert
-func TestStringKeyMapToArray(t *testing.T) {
-	type TestObject struct {
-		TestInt     int
-		TestStr     string
-		TestPointer *bool
-	}
-	type args struct {
-		m map[string]any
-	}
-	tests := []struct {
-		name string
-		args args
-		want []any
-	}{
-		{
-			name: "nil map",
-			args: args{
-				m: nil,
-			},
-			want: []any{},
-		},
-		{
-			name: "empty map",
-			args: args{
-				m: map[string]any{},
-			},
-			want: []any{},
-		},
-		{
-			name: "string to int map",
-			args: args{
-				m: map[string]any{
-					"a": 1,
-					"b": 2,
-					"c": 3,
-				},
-			},
-			want: []any{1, 2, 3},
-		},
-		{
-			name: "string to object map",
-			args: args{
-				m: map[string]any{
-					"a": TestObject{
-						TestInt:     1,
-						TestStr:     "1",
-						TestPointer: PointerTo(true),
-					},
-					"b": TestObject{
-						TestInt:     2,
-						TestStr:     "2",
-						TestPointer: PointerTo(true),
-					},
-					"c": TestObject{
-						TestInt:     3,
-						TestStr:     "3",
-						TestPointer: PointerTo(false),
-					},
-				},
-			},
-			want: []any{
-				TestObject{
-					TestInt:     1,
-					TestStr:     "1",
-					TestPointer: PointerTo(true),
-				},
-				TestObject{
-					TestInt:     2,
-					TestStr:     "2",
-					TestPointer: PointerTo(true),
-				},
-				TestObject{
-					TestInt:     3,
-					TestStr:     "3",
-					TestPointer: PointerTo(false),
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := StringKeyMapToArray(tt.args.m)
-			if got != nil {
-				sort.Slice(got, func(i, j int) bool {
-					switch got[0].(type) {
-					case int:
-						return got[i].(int) < got[j].(int)
-					case TestObject:
-						return got[i].(TestObject).TestInt < got[j].(TestObject).TestInt
-					default:
-						log.Fatalf("unknown type returned %T", got[0])
-					}
-					return false
-				})
-			}
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("StringKeyMapToArray() mismatch (-want +got):\n%s", diff)
-			}
-		})
-	}
-}
-
-func Test_IntPointerValOrEmpty(t *testing.T) {
-	type args struct {
-		val *int
-	}
-	tests := []struct {
-		name string
-		args args
-		want int
-	}{
-		{
-			name: "nil should be 0",
-			args: args{
-				val: nil,
-			},
-			want: 0,
-		},
-		{
-			name: "not nil",
-			args: args{
-				val: PointerTo(5),
-			},
-			want: 5,
-		},
-		{
-			name: "not nil 0",
-			args: args{
-				val: PointerTo(0),
-			},
-			want: 0,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := IntPointerValOrEmpty(tt.args.val); got != tt.want {
-				t.Errorf("IntPointerValOrEmpty() = %v, want %v", got, tt.want)
 			}
 		})
 	}

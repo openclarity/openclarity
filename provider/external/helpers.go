@@ -21,7 +21,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 	provider_service "github.com/openclarity/vmclarity/provider/external/proto"
 )
@@ -39,7 +39,7 @@ func convertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error)
 		if err := assetType.FromVMInfo(apitypes.VMInfo{
 			Image:            vminfo.Image,
 			InstanceID:       vminfo.Id,
-			InstanceProvider: utils.PointerTo(apitypes.External),
+			InstanceProvider: to.Ptr(apitypes.External),
 			InstanceType:     vminfo.InstanceType,
 			LaunchTime:       vminfo.LaunchTime.AsTime(),
 			Location:         vminfo.Location,
@@ -53,8 +53,8 @@ func convertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error)
 		dirinfo := asset.GetDirinfo()
 
 		if err := assetType.FromDirInfo(apitypes.DirInfo{
-			DirName:  utils.PointerTo(dirinfo.DirName),
-			Location: utils.PointerTo(dirinfo.Location),
+			DirName:  to.Ptr(dirinfo.DirName),
+			Location: to.Ptr(dirinfo.Location),
 		}); err != nil {
 			return apitypes.Asset{}, fmt.Errorf("failed to convert asset from Dirinfo: %w", err)
 		}
@@ -62,8 +62,8 @@ func convertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error)
 		podinfo := asset.GetPodinfo()
 
 		if err := assetType.FromPodInfo(apitypes.PodInfo{
-			PodName:  utils.PointerTo(podinfo.PodName),
-			Location: utils.PointerTo(podinfo.Location),
+			PodName:  to.Ptr(podinfo.PodName),
+			Location: to.Ptr(podinfo.Location),
 		}); err != nil {
 			return apitypes.Asset{}, fmt.Errorf("failed to convert asset from Podinfo: %w", err)
 		}

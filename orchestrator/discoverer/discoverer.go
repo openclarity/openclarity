@@ -25,7 +25,7 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 )
 
@@ -106,7 +106,7 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	failedPatchAssets := make(map[string]struct{})
 	for assetType := range discoverer.Chan() {
 		assetData := apitypes.Asset{
-			AssetInfo: utils.PointerTo(assetType),
+			AssetInfo: to.Ptr(assetType),
 			LastSeen:  &discoveryTime,
 			FirstSeen: &discoveryTime,
 		}
@@ -162,8 +162,8 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	// which don't belong to us. We need to give the provider some kind of
 	// identity in this case.
 	assetResp, err := d.client.GetAssets(ctx, apitypes.GetAssetsParams{
-		Filter: utils.PointerTo(fmt.Sprintf("terminatedOn eq null and (lastSeen eq null or lastSeen lt %s)", discoveryTime.Format(time.RFC3339))),
-		Select: utils.PointerTo("id"),
+		Filter: to.Ptr(fmt.Sprintf("terminatedOn eq null and (lastSeen eq null or lastSeen lt %s)", discoveryTime.Format(time.RFC3339))),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get existing Assets: %w", err)

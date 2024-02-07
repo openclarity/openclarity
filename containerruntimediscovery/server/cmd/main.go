@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/viper"
 
 	server "github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 var (

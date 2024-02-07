@@ -12,8 +12,8 @@ require (
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/provider v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
@@ -461,8 +461,10 @@ replace (
 	github.com/openclarity/vmclarity/cli => ../cli
 	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
+	github.com/openclarity/vmclarity/core => ../core
 	github.com/openclarity/vmclarity/provider => ../provider
 	github.com/openclarity/vmclarity/utils => ../utils
+
 )
 
 // NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,

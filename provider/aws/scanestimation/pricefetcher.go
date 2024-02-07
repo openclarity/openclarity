@@ -28,7 +28,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 	"github.com/aws/aws-sdk-go-v2/service/pricing/types"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type PriceFetcher interface {
@@ -155,12 +155,12 @@ func (o *PriceFetcherImpl) getSpotInstancePerHourCost(ctx context.Context, regio
 	ret, err := o.ec2Client.DescribeSpotPriceHistory(ctx, &ec2.DescribeSpotPriceHistoryInput{
 		Filters: []ec2types.Filter{
 			{
-				Name:   utils.PointerTo("product-description"),
+				Name:   to.Ptr("product-description"),
 				Values: []string{"Linux/UNIX"},
 			},
 		},
 		InstanceTypes: []ec2types.InstanceType{instanceType},
-		StartTime:     utils.PointerTo(timeNow.Add(-12 * time.Hour)), // last 12 hours should be enough as we only want the latest.
+		StartTime:     to.Ptr(timeNow.Add(-12 * time.Hour)), // last 12 hours should be enough as we only want the latest.
 	}, func(options *ec2.Options) {
 		options.Region = regionCode
 	})
@@ -187,9 +187,9 @@ func (o *PriceFetcherImpl) getPricePerUnit(ctx context.Context, usageType, opera
 	filters := createGetProductsFilters(usageType, "AmazonEC2", operation)
 
 	products, err := o.pricingClient.GetProducts(ctx, &pricing.GetProductsInput{
-		ServiceCode:   utils.PointerTo("AmazonEC2"),
+		ServiceCode:   to.Ptr("AmazonEC2"),
 		Filters:       filters,
-		FormatVersion: utils.PointerTo("aws_v1"),
+		FormatVersion: to.Ptr("aws_v1"),
 	}, func(options *pricing.Options) {
 		// the Pricing API is only available on us-east-1 and ap-south-1. for now, we've chosen to use the us-east-1 endpoint.
 		options.Region = usEast1RegionCode
@@ -218,19 +218,19 @@ func createGetProductsFilters(usageType, serviceCode, operation string) []types.
 		// An AWS SKU uniquely combines product (service code), Usage Type, and Operation for an AWS resource.
 		// See https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/procedures.html for more details
 		{
-			Field: utils.PointerTo("ServiceCode"),
+			Field: to.Ptr("ServiceCode"),
 			Type:  "TERM_MATCH",
 			Value: &serviceCode,
 		},
 		{
-			Field: utils.PointerTo("usagetype"),
+			Field: to.Ptr("usagetype"),
 			Type:  "TERM_MATCH",
 			Value: &usageType,
 		},
 	}
 	if operation != "" {
 		filters = append(filters, types.Filter{
-			Field: utils.PointerTo("operation"),
+			Field: to.Ptr("operation"),
 			Type:  "TERM_MATCH",
 			Value: &operation,
 		})

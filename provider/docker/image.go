@@ -25,8 +25,8 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (p *Provider) getImageAssets(ctx context.Context) ([]apitypes.AssetType, error) {
@@ -97,13 +97,13 @@ func (p *Provider) getContainerImageInfo(ctx context.Context, imageID string) (a
 	}
 
 	return apitypes.ContainerImageInfo{
-		Architecture: utils.PointerTo(image.Architecture),
+		Architecture: to.Ptr(image.Architecture),
 		ImageID:      image.ID,
 		Labels:       convertTags(image.Config.Labels),
-		RepoTags:     utils.PointerTo(image.RepoTags),
-		RepoDigests:  utils.PointerTo(image.RepoDigests),
+		RepoTags:     to.Ptr(image.RepoTags),
+		RepoDigests:  to.Ptr(image.RepoDigests),
 		ObjectType:   "ContainerImageInfo",
-		Os:           utils.PointerTo(image.Os),
-		Size:         utils.PointerTo(image.Size),
+		Os:           to.Ptr(image.Os),
+		Size:         to.Ptr(image.Size),
 	}, nil
 }

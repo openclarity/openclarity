@@ -24,6 +24,7 @@ require (
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/openclarity/yara-rule-server v0.2.1
 	github.com/package-url/packageurl-go v0.1.2
@@ -452,6 +453,7 @@ replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240102124916-a62
 replace (
 	github.com/openclarity/vmclarity/api/client => ../api/client
 	github.com/openclarity/vmclarity/api/types => ../api/types
+	github.com/openclarity/vmclarity/core => ../core
 	github.com/openclarity/vmclarity/utils => ../utils
 )
 
