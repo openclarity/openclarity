@@ -18,7 +18,6 @@ require (
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/utils v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -87,6 +86,5 @@ replace (
 	github.com/openclarity/vmclarity/api/client => ../client
 	github.com/openclarity/vmclarity/api/types => ../types
 	github.com/openclarity/vmclarity/cli => ../../cli
-	github.com/openclarity/vmclarity/uibackend/types => ../../uibackend/types
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

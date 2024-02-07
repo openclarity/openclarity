@@ -18,29 +18,29 @@ package findingkey
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
-func GenerateFindingKey(findingInfo *types.Finding_FindingInfo) (string, error) {
+func GenerateFindingKey(findingInfo *apitypes.Finding_FindingInfo) (string, error) {
 	value, err := findingInfo.ValueByDiscriminator()
 	if err != nil {
 		return "", fmt.Errorf("failed to value by discriminator from finding info: %w", err)
 	}
 
 	switch info := value.(type) {
-	case types.ExploitFindingInfo:
+	case apitypes.ExploitFindingInfo:
 		return GenerateExploitKey(info).ExploitString(), nil
-	case types.VulnerabilityFindingInfo:
+	case apitypes.VulnerabilityFindingInfo:
 		return GenerateVulnerabilityKey(info).VulnerabilityString(), nil
-	case types.MalwareFindingInfo:
+	case apitypes.MalwareFindingInfo:
 		return GenerateMalwareKey(info).MalwareString(), nil
-	case types.MisconfigurationFindingInfo:
+	case apitypes.MisconfigurationFindingInfo:
 		return GenerateMisconfigurationKey(info).MisconfigurationString(), nil
-	case types.RootkitFindingInfo:
+	case apitypes.RootkitFindingInfo:
 		return GenerateRootkitKey(info).RootkitString(), nil
-	case types.SecretFindingInfo:
+	case apitypes.SecretFindingInfo:
 		return GenerateSecretKey(info).SecretString(), nil
-	case types.PackageFindingInfo:
+	case apitypes.PackageFindingInfo:
 		return GeneratePackageKey(info).PackageString(), nil
 	default:
 		return "", fmt.Errorf("unsupported finding info type %T", value)

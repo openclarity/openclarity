@@ -22,8 +22,8 @@ import (
 
 	"github.com/Portshift/go-utils/healthz"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	discovery "github.com/openclarity/vmclarity/orchestrator/discoverer"
 	assetscanprocessor "github.com/openclarity/vmclarity/orchestrator/processor/assetscan"
 	assetscanwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/assetscan"
@@ -67,14 +67,14 @@ func Run(ctx context.Context, config *Config) error {
 // NewWithProvider returns an Orchestrator initialized using the p provider.Provider.
 // Use this method when Orchestrator needs to rely on custom provider.Provider implementation.
 // E.g. End-to-End testing.
-func NewWithProvider(config *Config, p provider.Provider, b *client.BackendClient) (*Orchestrator, error) {
-	scanConfigWatcherConfig := config.ScanConfigWatcherConfig.WithBackendClient(b)
-	discoveryConfig := config.DiscoveryConfig.WithBackendClient(b).WithProviderClient(p)
-	scanWatcherConfig := config.ScanWatcherConfig.WithBackendClient(b).WithProviderClient(p)
-	assetScanWatcherConfig := config.AssetScanWatcherConfig.WithBackendClient(b).WithProviderClient(p)
-	assetScanProcessorConfig := config.AssetScanProcessorConfig.WithBackendClient(b)
-	assetScanEstimationWatcherConfig := config.AssetScanEstimationWatcherConfig.WithBackendClient(b).WithProviderClient(p)
-	scanEstimationWatcherConfig := config.ScanEstimationWatcherConfig.WithBackendClient(b).WithProviderClient(p)
+func NewWithProvider(config *Config, p provider.Provider, c *apiclient.Client) (*Orchestrator, error) {
+	scanConfigWatcherConfig := config.ScanConfigWatcherConfig.WithBackendClient(c)
+	discoveryConfig := config.DiscoveryConfig.WithBackendClient(c).WithProviderClient(p)
+	scanWatcherConfig := config.ScanWatcherConfig.WithBackendClient(c).WithProviderClient(p)
+	assetScanWatcherConfig := config.AssetScanWatcherConfig.WithBackendClient(c).WithProviderClient(p)
+	assetScanProcessorConfig := config.AssetScanProcessorConfig.WithBackendClient(c)
+	assetScanEstimationWatcherConfig := config.AssetScanEstimationWatcherConfig.WithBackendClient(c).WithProviderClient(p)
+	scanEstimationWatcherConfig := config.ScanEstimationWatcherConfig.WithBackendClient(c).WithProviderClient(p)
 
 	return &Orchestrator{
 		controllers: []Controller{
@@ -92,9 +92,9 @@ func NewWithProvider(config *Config, p provider.Provider, b *client.BackendClien
 
 // New returns a new Orchestrator initialized using the provided configuration.
 func New(ctx context.Context, config *Config) (*Orchestrator, error) {
-	backendClient, err := client.Create(config.APIServerAddress)
+	client, err := apiclient.New(config.APIServerAddress)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create a backend client: %w", err)
+		return nil, fmt.Errorf("failed to create an API client: %w", err)
 	}
 
 	p, err := NewProvider(ctx, config.ProviderKind)
@@ -102,7 +102,7 @@ func New(ctx context.Context, config *Config) (*Orchestrator, error) {
 		return nil, fmt.Errorf("failed to initialize provider. Provider=%s: %w", config.ProviderKind, err)
 	}
 
-	return NewWithProvider(config, p, backendClient)
+	return NewWithProvider(config, p, client)
 }
 
 // Start makes the Orchestrator to start all Controller(s).
@@ -128,20 +128,20 @@ func (o *Orchestrator) Stop(ctx context.Context) {
 }
 
 // nolint:wrapcheck
-// NewProvider returns an initialized provider.Provider based on the kind types.CloudProvider.
-func NewProvider(ctx context.Context, kind types.CloudProvider) (provider.Provider, error) {
+// NewProvider returns an initialized provider.Provider based on the kind apitypes.CloudProvider.
+func NewProvider(ctx context.Context, kind apitypes.CloudProvider) (provider.Provider, error) {
 	switch kind {
-	case types.Azure:
+	case apitypes.Azure:
 		return azure.New(ctx)
-	case types.Docker:
+	case apitypes.Docker:
 		return docker.New(ctx)
-	case types.AWS:
+	case apitypes.AWS:
 		return aws.New(ctx)
-	case types.GCP:
+	case apitypes.GCP:
 		return gcp.New(ctx)
-	case types.External:
+	case apitypes.External:
 		return external.New(ctx)
-	case types.Kubernetes:
+	case apitypes.Kubernetes:
 		return kubernetes.New(ctx)
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", kind)

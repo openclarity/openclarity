@@ -15,7 +15,9 @@
 
 package azure
 
-import "github.com/openclarity/vmclarity/api/types"
+import (
+	apitypes "github.com/openclarity/vmclarity/api/types"
+)
 
 const (
 	ProvisioningStateSucceeded = "Succeeded"
@@ -27,10 +29,10 @@ type ScanScope struct {
 	ScanStopped       bool
 	// Only assets that have these tags will be selected for scanning within the selected scan scope.
 	// Multiple tags will be treated as an AND operator.
-	TagSelector []types.Tag
+	TagSelector []apitypes.Tag
 	// Assets that have these tags will be excluded from the scan, even if they match the tag selector.
 	// Multiple tags will be treated as an AND operator.
-	ExcludeTags []types.Tag
+	ExcludeTags []apitypes.Tag
 }
 
 type ResourceGroup struct {

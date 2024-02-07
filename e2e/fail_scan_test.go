@@ -22,7 +22,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
@@ -47,7 +47,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("waiting until scan starts")
-			scanParams := types.GetScansParams{
+			scanParams := apitypes.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s'",
 					*apiScanConfig.Id,
@@ -67,15 +67,15 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to failed with nothing to scan as state reason")
-			params := types.GetScansParams{
+			params := apitypes.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					types.AssetScanStatusStateDone,
-					types.ScanStatusReasonNothingToScan,
+					apitypes.AssetScanStatusStateDone,
+					apitypes.ScanStatusReasonNothingToScan,
 				)),
 			}
-			var scans *types.Scans
+			var scans *apitypes.Scans
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -102,7 +102,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("waiting until scan starts")
-			scanParams := types.GetScansParams{
+			scanParams := apitypes.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s'",
 					*apiScanConfig.Id,
@@ -122,15 +122,15 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to failed with timed out as state reason")
-			params := types.GetScansParams{
+			params := apitypes.GetScansParams{
 				Filter: utils.PointerTo(fmt.Sprintf(
 					"scanConfig/id eq '%s' and status/state eq '%s' and status/reason eq '%s'",
 					*apiScanConfig.Id,
-					types.ScanStatusStateFailed,
-					types.ScanStatusReasonTimeout,
+					apitypes.ScanStatusStateFailed,
+					apitypes.ScanStatusReasonTimeout,
 				)),
 			}
-			var scans *types.Scans
+			var scans *apitypes.Scans
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())

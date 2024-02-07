@@ -24,7 +24,8 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/uibackend/types"
+	apiserver "github.com/openclarity/vmclarity/api/server/internal/server"
+	"github.com/openclarity/vmclarity/api/types"
 )
 
 // nolint:wrapcheck
@@ -40,7 +41,7 @@ func sendResponse(ctx echo.Context, code int, object interface{}) error {
 }
 
 func (s *ServerImpl) GetOpenAPISpec(ctx echo.Context) error {
-	swagger, err := GetSwagger()
+	swagger, err := apiserver.GetSwagger()
 	if err != nil {
 		return fmt.Errorf("failed to load swagger spec: %w", err)
 	}

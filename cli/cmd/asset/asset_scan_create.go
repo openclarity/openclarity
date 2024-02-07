@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/cmd/logutil"
 	cliutils "github.com/openclarity/vmclarity/cli/pkg/utils"
 )
@@ -71,13 +71,13 @@ func init() {
 	}
 }
 
-func createAssetScan(ctx context.Context, server, assetID string) (*types.AssetScan, error) {
-	client, err := apiclient.Create(server)
+func createAssetScan(ctx context.Context, server, assetID string) (*apitypes.AssetScan, error) {
+	client, err := apiclient.New(server)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
 	}
 
-	asset, err := client.GetAsset(ctx, assetID, types.GetAssetsAssetIDParams{})
+	asset, err := client.GetAsset(ctx, assetID, apitypes.GetAssetsAssetIDParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get asset %s: %w", assetID, err)
 	}
@@ -97,19 +97,19 @@ func createAssetScan(ctx context.Context, server, assetID string) (*types.AssetS
 	return assetScan, nil
 }
 
-func createEmptyAssetScanForAsset(asset types.Asset) types.AssetScan {
-	return types.AssetScan{
-		Asset: &types.AssetRelationship{
+func createEmptyAssetScanForAsset(asset apitypes.Asset) apitypes.AssetScan {
+	return apitypes.AssetScan{
+		Asset: &apitypes.AssetRelationship{
 			Id: *asset.Id,
 		},
-		Status: types.NewAssetScanStatus(
-			types.AssetScanStatusStateReadyToScan,
-			types.AssetScanStatusReasonResourcesReady,
+		Status: apitypes.NewAssetScanStatus(
+			apitypes.AssetScanStatusStateReadyToScan,
+			apitypes.AssetScanStatusReasonResourcesReady,
 			nil,
 		),
-		ResourceCleanupStatus: types.NewResourceCleanupStatus(
-			types.ResourceCleanupStatusStateSkipped,
-			types.ResourceCleanupStatusReasonNotApplicable,
+		ResourceCleanupStatus: apitypes.NewResourceCleanupStatus(
+			apitypes.ResourceCleanupStatusStateSkipped,
+			apitypes.ResourceCleanupStatusReasonNotApplicable,
 			nil,
 		),
 	}

@@ -23,8 +23,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/api/types"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/provider"
 )
@@ -34,13 +34,13 @@ const (
 )
 
 type Discoverer struct {
-	backendClient  *client.BackendClient
+	client         *apiclient.Client
 	providerClient provider.Provider
 }
 
 func New(config Config) *Discoverer {
 	return &Discoverer{
-		backendClient:  config.Backend,
+		client:         config.Client,
 		providerClient: config.Provider,
 	}
 }
@@ -65,30 +65,30 @@ func (d *Discoverer) Start(ctx context.Context) {
 	}()
 }
 
-func (d *Discoverer) handleAssetConflict(existingAsset, newAsset types.AssetType) (types.AssetType, error) {
+func (d *Discoverer) handleAssetConflict(existingAsset, newAsset apitypes.AssetType) (apitypes.AssetType, error) {
 	discriminator, err := newAsset.Discriminator()
 	if err != nil {
-		return types.AssetType{}, fmt.Errorf("failed to get objectType from discovered asset: %w", err)
+		return apitypes.AssetType{}, fmt.Errorf("failed to get objectType from discovered asset: %w", err)
 	}
 	switch discriminator {
 	case "ContainerImageInfo":
 		newContainerImageInfo, err := newAsset.AsContainerImageInfo()
 		if err != nil {
-			return types.AssetType{}, fmt.Errorf("failed to convert discoverered asset to ContainerImageInfo: %w", err)
+			return apitypes.AssetType{}, fmt.Errorf("failed to convert discoverered asset to ContainerImageInfo: %w", err)
 		}
 		existingContainerImageInfo, err := existingAsset.AsContainerImageInfo()
 		if err != nil {
-			return types.AssetType{}, fmt.Errorf("failed to convert existing asset to ContainerImageInfo: %w", err)
+			return apitypes.AssetType{}, fmt.Errorf("failed to convert existing asset to ContainerImageInfo: %w", err)
 		}
 		mergedContainerImageInfo, err := existingContainerImageInfo.Merge(newContainerImageInfo)
 		if err != nil {
-			return types.AssetType{}, fmt.Errorf("failed to merge new and existing ContainerImageInfos, existing: %s, new: %s: %w", existingContainerImageInfo.String(), newContainerImageInfo.String(), err)
+			return apitypes.AssetType{}, fmt.Errorf("failed to merge new and existing ContainerImageInfos, existing: %s, new: %s: %w", existingContainerImageInfo.String(), newContainerImageInfo.String(), err)
 		}
 
-		mergedAssetType := types.AssetType{}
+		mergedAssetType := apitypes.AssetType{}
 		err = mergedAssetType.FromContainerImageInfo(mergedContainerImageInfo)
 		if err != nil {
-			return types.AssetType{}, fmt.Errorf("failed to convert merged ContainerImageInfo to AssetType: %w", err)
+			return apitypes.AssetType{}, fmt.Errorf("failed to convert merged ContainerImageInfo to AssetType: %w", err)
 		}
 		return mergedAssetType, nil
 	}
@@ -105,17 +105,17 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	errs := []error{}
 	failedPatchAssets := make(map[string]struct{})
 	for assetType := range discoverer.Chan() {
-		assetData := types.Asset{
+		assetData := apitypes.Asset{
 			AssetInfo: utils.PointerTo(assetType),
 			LastSeen:  &discoveryTime,
 			FirstSeen: &discoveryTime,
 		}
-		_, err := d.backendClient.PostAsset(ctx, assetData)
+		_, err := d.client.PostAsset(ctx, assetData)
 		if err == nil {
 			continue
 		}
 
-		var conflictError client.AssetConflictError
+		var conflictError apiclient.AssetConflictError
 		if !errors.As(err, &conflictError) {
 			// If there is an error, and it's not a conflict telling
 			// us that the asset already exists, then we need to
@@ -138,11 +138,11 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 			errs = append(errs, fmt.Errorf("failed to handle conflicting asset: %w", err))
 			continue
 		}
-		assetData = types.Asset{
+		assetData = apitypes.Asset{
 			AssetInfo: &handledAssetType,
 			LastSeen:  &discoveryTime,
 		}
-		err = d.backendClient.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
+		err = d.client.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
 		if err != nil {
 			failedPatchAssets[*conflictError.ConflictingAsset.Id] = struct{}{}
 			errs = append(errs, fmt.Errorf("failed to patch asset: %w", err))
@@ -161,7 +161,7 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 	// need to filter these assets by provider so that we don't find assets
 	// which don't belong to us. We need to give the provider some kind of
 	// identity in this case.
-	assetResp, err := d.backendClient.GetAssets(ctx, types.GetAssetsParams{
+	assetResp, err := d.client.GetAssets(ctx, apitypes.GetAssetsParams{
 		Filter: utils.PointerTo(fmt.Sprintf("terminatedOn eq null and (lastSeen eq null or lastSeen lt %s)", discoveryTime.Format(time.RFC3339))),
 		Select: utils.PointerTo("id"),
 	})
@@ -177,11 +177,11 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 			continue
 		}
 
-		assetData := types.Asset{
+		assetData := apitypes.Asset{
 			TerminatedOn: &discoveryTime,
 		}
 
-		err := d.backendClient.PatchAsset(ctx, assetData, *asset.Id)
+		err := d.client.PatchAsset(ctx, assetData, *asset.Id)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("failed to patch asset: %w", err))
 		}

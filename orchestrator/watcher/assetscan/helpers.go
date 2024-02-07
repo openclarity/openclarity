@@ -21,15 +21,15 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/provider"
 )
 
 type jobConfigInput struct {
 	config    *ScannerConfig
-	assetScan *types.AssetScan
-	asset     *types.Asset
+	assetScan *apitypes.AssetScan
+	asset     *apitypes.Asset
 }
 
 func (i *jobConfigInput) Validate() error {
@@ -53,7 +53,7 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		return nil, fmt.Errorf("faield to create JobConfig: %w", err)
 	}
 
-	instanceCreationConfig := types.ScannerInstanceCreationConfig{
+	instanceCreationConfig := apitypes.ScannerInstanceCreationConfig{
 		MaxPrice:         nil,
 		RetryMaxAttempts: utils.PointerTo(1),
 		UseSpotInstances: false,

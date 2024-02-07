@@ -19,26 +19,26 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
-func newScanFromScanConfig(scanConfig *types.ScanConfig) *types.Scan {
-	return &types.Scan{
+func newScanFromScanConfig(scanConfig *apitypes.ScanConfig) *apitypes.Scan {
+	return &apitypes.Scan{
 		Name: utils.PointerTo(fmt.Sprintf("%s-%s", *scanConfig.Name, scanConfig.Scheduled.OperationTime.Format(time.RFC3339))),
-		ScanConfig: &types.ScanConfigRelationship{
+		ScanConfig: &apitypes.ScanConfigRelationship{
 			Id: *scanConfig.Id,
 		},
 		AssetScanTemplate:   scanConfig.ScanTemplate.AssetScanTemplate,
 		Scope:               scanConfig.ScanTemplate.Scope,
 		MaxParallelScanners: scanConfig.ScanTemplate.MaxParallelScanners,
 		TimeoutSeconds:      scanConfig.ScanTemplate.TimeoutSeconds,
-		Status: types.NewScanStatus(
-			types.ScanStatusStatePending,
-			types.ScanStatusReasonCreated,
+		Status: apitypes.NewScanStatus(
+			apitypes.ScanStatusStatePending,
+			apitypes.ScanStatusReasonCreated,
 			nil,
 		),
-		Summary: &types.ScanSummary{
+		Summary: &apitypes.ScanSummary{
 			JobsCompleted:          utils.PointerTo(0),
 			JobsLeftToRun:          utils.PointerTo(0),
 			TotalExploits:          utils.PointerTo(0),
@@ -48,7 +48,7 @@ func newScanFromScanConfig(scanConfig *types.ScanConfig) *types.Scan {
 			TotalRootkits:          utils.PointerTo(0),
 			TotalSecrets:           utils.PointerTo(0),
 			TotalInfoFinder:        utils.PointerTo(0),
-			TotalVulnerabilities: &types.VulnerabilityScanSummary{
+			TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
 				TotalCriticalVulnerabilities:   utils.PointerTo(0),
 				TotalHighVulnerabilities:       utils.PointerTo(0),
 				TotalLowVulnerabilities:        utils.PointerTo(0),

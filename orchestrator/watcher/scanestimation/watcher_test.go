@@ -20,14 +20,14 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 	type args struct {
-		scanEstimation *types.ScanEstimation
-		result         types.AssetScanEstimation
+		scanEstimation *apitypes.ScanEstimation
+		result         apitypes.AssetScanEstimation
 	}
 	tests := []struct {
 		name    string
@@ -37,16 +37,16 @@ func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(0),
 						JobsLeftToRun: utils.PointerTo(0),
 					},
 				},
-				result: types.AssetScanEstimation{
-					Status: types.NewAssetScanEstimationStatus(
-						types.AssetScanEstimationStatusStateFailed,
-						types.AssetScanEstimationStatusReasonError,
+				result: apitypes.AssetScanEstimation{
+					Status: apitypes.NewAssetScanEstimationStatus(
+						apitypes.AssetScanEstimationStatusStateFailed,
+						apitypes.AssetScanEstimationStatusReasonError,
 						nil,
 					),
 				},
@@ -67,7 +67,7 @@ func Test_updateScanEstimationSummaryFromAssetScanEstimation(t *testing.T) {
 
 func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 	type args struct {
-		scanEstimation *types.ScanEstimation
+		scanEstimation *apitypes.ScanEstimation
 	}
 	tests := []struct {
 		name              string
@@ -78,12 +78,12 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 		{
 			name: "max parallel scanners == nil",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(5),
 						TotalScanTime: utils.PointerTo(30),
 					},
-					ScanTemplate: &types.ScanTemplate{},
+					ScanTemplate: &apitypes.ScanTemplate{},
 				},
 			},
 			wantTotalScanTime: 30,
@@ -92,12 +92,12 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 		{
 			name: "max parallel scanners == 1",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(5),
 						TotalScanTime: utils.PointerTo(30),
 					},
-					ScanTemplate: &types.ScanTemplate{
+					ScanTemplate: &apitypes.ScanTemplate{
 						MaxParallelScanners: utils.PointerTo(1),
 					},
 				},
@@ -108,12 +108,12 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 		{
 			name: "max parallel scanners == number of jobs",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(5),
 						TotalScanTime: utils.PointerTo(30),
 					},
-					ScanTemplate: &types.ScanTemplate{
+					ScanTemplate: &apitypes.ScanTemplate{
 						MaxParallelScanners: utils.PointerTo(5),
 					},
 				},
@@ -124,12 +124,12 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 		{
 			name: "max parallel scanners < number of jobs",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(3),
 						TotalScanTime: utils.PointerTo(30),
 					},
-					ScanTemplate: &types.ScanTemplate{
+					ScanTemplate: &apitypes.ScanTemplate{
 						MaxParallelScanners: utils.PointerTo(2),
 					},
 				},
@@ -140,12 +140,12 @@ func Test_updateTotalScanTimeWithParallelScans(t *testing.T) {
 		{
 			name: "max parallel scanners > number of jobs",
 			args: args{
-				scanEstimation: &types.ScanEstimation{
-					Summary: &types.ScanEstimationSummary{
+				scanEstimation: &apitypes.ScanEstimation{
+					Summary: &apitypes.ScanEstimationSummary{
 						JobsCompleted: utils.PointerTo(2),
 						TotalScanTime: utils.PointerTo(30),
 					},
-					ScanTemplate: &types.ScanTemplate{
+					ScanTemplate: &apitypes.ScanTemplate{
 						MaxParallelScanners: utils.PointerTo(3),
 					},
 				},

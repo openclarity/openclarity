@@ -20,26 +20,27 @@ import (
 	"fmt"
 	"net/http"
 
+	apiclient "github.com/openclarity/vmclarity/uibackend/client/internal/client"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
-type UIBackendClient struct {
-	apiClient ClientWithResponsesInterface
+type Client struct {
+	api apiclient.ClientWithResponsesInterface
 }
 
-func Create(serverAddress string) (*UIBackendClient, error) {
-	apiClient, err := NewClientWithResponses(serverAddress)
+func New(serverAddress string) (*Client, error) {
+	api, err := apiclient.NewClientWithResponses(serverAddress)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create VMClarity API client. serverAddress=%v: %w", serverAddress, err)
 	}
 
-	return &UIBackendClient{
-		apiClient: apiClient,
+	return &Client{
+		api: api,
 	}, nil
 }
 
-func (b *UIBackendClient) GetDashboardRiskiestAssets(ctx context.Context) (*types.RiskiestAssets, error) {
-	resp, err := b.apiClient.GetDashboardRiskiestAssetsWithResponse(ctx)
+func (c *Client) GetDashboardRiskiestAssets(ctx context.Context) (*types.RiskiestAssets, error) {
+	resp, err := c.api.GetDashboardRiskiestAssetsWithResponse(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard riskiest assets: %w", err)
 	}
@@ -58,8 +59,8 @@ func (b *UIBackendClient) GetDashboardRiskiestAssets(ctx context.Context) (*type
 	}
 }
 
-func (b *UIBackendClient) GetDashboardRiskiestRegions(ctx context.Context) (*types.RiskiestRegions, error) {
-	resp, err := b.apiClient.GetDashboardRiskiestRegionsWithResponse(ctx)
+func (c *Client) GetDashboardRiskiestRegions(ctx context.Context) (*types.RiskiestRegions, error) {
+	resp, err := c.api.GetDashboardRiskiestRegionsWithResponse(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard riskiest regions: %w", err)
 	}
@@ -78,8 +79,8 @@ func (b *UIBackendClient) GetDashboardRiskiestRegions(ctx context.Context) (*typ
 	}
 }
 
-func (b *UIBackendClient) GetDashboardFindingsImpact(ctx context.Context) (*types.FindingsImpact, error) {
-	resp, err := b.apiClient.GetDashboardFindingsImpactWithResponse(ctx)
+func (c *Client) GetDashboardFindingsImpact(ctx context.Context) (*types.FindingsImpact, error) {
+	resp, err := c.api.GetDashboardFindingsImpactWithResponse(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard findings trends: %w", err)
 	}
@@ -98,8 +99,8 @@ func (b *UIBackendClient) GetDashboardFindingsImpact(ctx context.Context) (*type
 	}
 }
 
-func (b *UIBackendClient) GetDashboardFindingsTrends(ctx context.Context, params types.GetDashboardFindingsTrendsParams) (*[]types.FindingTrends, error) {
-	resp, err := b.apiClient.GetDashboardFindingsTrendsWithResponse(ctx, &params)
+func (c *Client) GetDashboardFindingsTrends(ctx context.Context, params types.GetDashboardFindingsTrendsParams) (*[]types.FindingTrends, error) {
+	resp, err := c.api.GetDashboardFindingsTrendsWithResponse(ctx, &params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard findings trends: %w", err)
 	}

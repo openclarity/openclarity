@@ -19,19 +19,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/utils/log"
 )
 
-func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Context, assetScan types.AssetScan) (map[findingkey.SecretKey]string, error) {
+func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.SecretKey]string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	existingMap := map[findingkey.SecretKey]string{}
 
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Secret' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, types.GetFindingsParams{
+	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
 		Select: utils.PointerTo("id,findingInfo/fingerprint,findingInfo/startColumn,findingInfo/endColumn"),
 	})
@@ -59,7 +59,7 @@ func (asp *AssetScanProcessor) getExistingSecretFindingsForScan(ctx context.Cont
 }
 
 // nolint:cyclop
-func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Context, assetScan types.AssetScan) error {
+func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
 	completedTime := assetScan.Status.LastTransitionTime
 
 	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Secret", completedTime)
@@ -79,7 +79,7 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 		// Create new or update existing findings all the secrets found by the
 		// scan.
 		for _, item := range *assetScan.Secrets.Secrets {
-			itemFindingInfo := types.SecretFindingInfo{
+			itemFindingInfo := apitypes.SecretFindingInfo{
 				Description: item.Description,
 				EndLine:     item.EndLine,
 				FilePath:    item.FilePath,
@@ -89,17 +89,17 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 				EndColumn:   item.EndColumn,
 			}
 
-			findingInfo := types.Finding_FindingInfo{}
+			findingInfo := apitypes.Finding_FindingInfo{}
 			err = findingInfo.FromSecretFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := types.Finding{
-				Asset: &types.AssetRelationship{
+			finding := apitypes.Finding{
+				Asset: &apitypes.AssetRelationship{
 					Id: assetScan.Asset.Id,
 				},
-				FoundBy: &types.AssetScanRelationship{
+				FoundBy: &apitypes.AssetScanRelationship{
 					Id: *assetScan.Id,
 				},
 				FoundOn:     &assetScan.Status.LastTransitionTime,
@@ -136,12 +136,12 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 	}
 
 	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, types.GetAssetsAssetIDParams{})
+	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
 	}
 	if asset.Summary == nil {
-		asset.Summary = &types.ScanFindingsSummary{}
+		asset.Summary = &apitypes.ScanFindingsSummary{}
 	}
 
 	totalSecrets, err := asp.getActiveFindingsByType(ctx, "Secret", assetScan.Asset.Id)

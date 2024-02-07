@@ -19,13 +19,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 )
 
 func TestGenerateInfoFinderKey(t *testing.T) {
 	type args struct {
-		info types.InfoFinderFindingInfo
+		info apitypes.InfoFinderFindingInfo
 	}
 	tests := []struct {
 		name string
@@ -35,16 +35,16 @@ func TestGenerateInfoFinderKey(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				info: types.InfoFinderFindingInfo{
+				info: apitypes.InfoFinderFindingInfo{
 					Data:        utils.PointerTo("data"),
 					Path:        utils.PointerTo("path"),
 					ScannerName: utils.PointerTo("scanner"),
-					Type:        utils.PointerTo(types.InfoTypeSSHAuthorizedKeyFingerprint),
+					Type:        utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 				},
 			},
 			want: InfoFinderKey{
 				ScannerName: "scanner",
-				Type:        string(types.InfoTypeSSHAuthorizedKeyFingerprint),
+				Type:        string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 				Data:        "data",
 				Path:        "path",
 			},
@@ -75,7 +75,7 @@ func TestInfoFinderKey_String(t *testing.T) {
 			name: "sanity",
 			fields: fields{
 				ScannerName: "scanner",
-				Type:        string(types.InfoTypeSSHAuthorizedKeyFingerprint),
+				Type:        string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 				Data:        "data",
 				Path:        "path",
 			},
