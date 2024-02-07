@@ -17,6 +17,7 @@ package assetscanestimation
 
 import (
 	"fmt"
+	"log/slog"
 
 	log "github.com/sirupsen/logrus"
 
@@ -35,6 +36,12 @@ func (e AssetScanEstimationReconcileEvent) ToFields() log.Fields {
 		"ScanEstimationID":      e.ScanEstimationID,
 		"AssetID":               e.AssetID,
 	}
+}
+
+func (e AssetScanEstimationReconcileEvent) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("ID", e.AssetScanEstimationID),
+	)
 }
 
 func (e AssetScanEstimationReconcileEvent) String() string {

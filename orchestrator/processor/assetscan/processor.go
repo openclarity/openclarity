@@ -18,15 +18,17 @@ package assetscan
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	controllerruntime "github.com/openclarity/simple-controller-runtime"
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/orchestrator/common"
 )
 
 type AssetScanProcessor struct {
@@ -136,6 +138,12 @@ func (e AssetScanReconcileEvent) ToFields() logrus.Fields {
 	}
 }
 
+func (e AssetScanReconcileEvent) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("ID", e.AssetScanID),
+	)
+}
+
 func (e AssetScanReconcileEvent) String() string {
 	return fmt.Sprintf("AssetScanID=%s", e.AssetScanID)
 }
@@ -167,16 +175,16 @@ func (asp *AssetScanProcessor) Start(ctx context.Context) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("controller", "AssetScanProcessor")
 	ctx = log.SetLoggerForContext(ctx, logger)
 
-	queue := common.NewQueue[AssetScanReconcileEvent]()
+	queue := controllerruntime.NewQueue[AssetScanReconcileEvent]()
 
-	poller := common.Poller[AssetScanReconcileEvent]{
+	poller := controllerruntime.Poller[AssetScanReconcileEvent]{
 		PollPeriod: asp.pollPeriod,
 		GetItems:   asp.GetItems,
 		Queue:      queue,
 	}
 	poller.Start(ctx)
 
-	reconciler := common.Reconciler[AssetScanReconcileEvent]{
+	reconciler := controllerruntime.Reconciler[AssetScanReconcileEvent]{
 		ReconcileFunction: asp.Reconcile,
 		ReconcileTimeout:  asp.reconcileTimeout,
 		Queue:             queue,

@@ -17,6 +17,7 @@ package scanestimation
 
 import (
 	"fmt"
+	"log/slog"
 
 	log "github.com/sirupsen/logrus"
 
@@ -31,6 +32,12 @@ func (e ScanEstimationReconcileEvent) ToFields() log.Fields {
 	return log.Fields{
 		"ScanEstimationID": e.ScanEstimationID,
 	}
+}
+
+func (e ScanEstimationReconcileEvent) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("ID", e.ScanEstimationID),
+	)
 }
 
 func (e ScanEstimationReconcileEvent) String() string {

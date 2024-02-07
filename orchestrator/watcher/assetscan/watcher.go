@@ -21,19 +21,20 @@ import (
 	"fmt"
 	"time"
 
+	controllerruntime "github.com/openclarity/simple-controller-runtime"
+
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
 )
 
 type (
-	AssetScanQueue      = common.Queue[AssetScanReconcileEvent]
-	AssetScanPoller     = common.Poller[AssetScanReconcileEvent]
-	AssetScanReconciler = common.Reconciler[AssetScanReconcileEvent]
+	AssetScanQueue      = controllerruntime.Queue[AssetScanReconcileEvent]
+	AssetScanPoller     = controllerruntime.Poller[AssetScanReconcileEvent]
+	AssetScanReconciler = controllerruntime.Reconciler[AssetScanReconcileEvent]
 )
 
 func New(c Config) *Watcher {
@@ -45,7 +46,7 @@ func New(c Config) *Watcher {
 		reconcileTimeout: c.ReconcileTimeout,
 		deleteJobPolicy:  c.DeleteJobPolicy,
 		abortTimeout:     c.AbortTimeout,
-		queue:            common.NewQueue[AssetScanReconcileEvent](),
+		queue:            controllerruntime.NewQueue[AssetScanReconcileEvent](),
 	}
 }
 
@@ -237,7 +238,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *apitypes.Asse
 	}
 
 	// nolint:wrapcheck
-	return common.NewRequeueAfterError(time.Second,
+	return controllerruntime.NewRequeueAfterError(time.Second,
 		fmt.Sprintf("AssetScan state moved to Scheduled. Skip waiting for another reconcile cycle. AssetScanID=%s",
 			assetScanID))
 }
@@ -283,7 +284,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.As
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
-		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
+		return controllerruntime.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
 		assetScan.Status = apitypes.NewAssetScanStatus(
 			apitypes.AssetScanStatusStateFailed,
@@ -389,7 +390,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *apitypes.Asse
 			logger.Errorf("resource cleanup failed: %v", fatalError)
 		case errors.As(err, &retryableError):
 			// nolint:wrapcheck
-			return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
+			return controllerruntime.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 		case err != nil:
 			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
 				apitypes.ResourceCleanupStatusStateFailed,

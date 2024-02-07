@@ -17,6 +17,7 @@ package scan
 
 import (
 	"fmt"
+	"log/slog"
 
 	log "github.com/sirupsen/logrus"
 
@@ -31,6 +32,12 @@ func (e ScanReconcileEvent) ToFields() log.Fields {
 	return log.Fields{
 		"ScanID": e.ScanID,
 	}
+}
+
+func (e ScanReconcileEvent) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("ID", e.ScanID),
+	)
 }
 
 func (e ScanReconcileEvent) String() string {

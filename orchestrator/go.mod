@@ -6,7 +6,6 @@ require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
 	github.com/anchore/syft v0.100.0
 	github.com/aptible/supercronic v0.2.29
-	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.31.1
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
@@ -21,6 +20,8 @@ require (
 	gotest.tools/v3 v3.5.1
 	k8s.io/apimachinery v0.29.1
 )
+
+require github.com/google/go-cmp v0.6.0 // indirect
 
 require (
 	cloud.google.com/go v0.112.0 // indirect
@@ -307,6 +308,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.60.0 // indirect
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 // indirect
+	github.com/openclarity/simple-controller-runtime v0.1.0
 	github.com/openclarity/vmclarity/containerruntimediscovery/client v0.0.0-00010101000000-000000000000 // indirect
 	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.0.0-00010101000000-000000000000 // indirect
 	github.com/openclarity/yara-rule-server v0.2.1 // indirect

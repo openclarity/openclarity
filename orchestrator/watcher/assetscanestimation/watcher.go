@@ -21,18 +21,19 @@ import (
 	"fmt"
 	"time"
 
+	controllerruntime "github.com/openclarity/simple-controller-runtime"
+
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
 )
 
 type (
-	AssetScanEstimationQueue      = common.Queue[AssetScanEstimationReconcileEvent]
-	AssetScanEstimationPoller     = common.Poller[AssetScanEstimationReconcileEvent]
-	AssetScanEstimationReconciler = common.Reconciler[AssetScanEstimationReconcileEvent]
+	AssetScanEstimationQueue      = controllerruntime.Queue[AssetScanEstimationReconcileEvent]
+	AssetScanEstimationPoller     = controllerruntime.Poller[AssetScanEstimationReconcileEvent]
+	AssetScanEstimationReconciler = controllerruntime.Reconciler[AssetScanEstimationReconcileEvent]
 )
 
 func New(c Config) *Watcher {
@@ -41,7 +42,7 @@ func New(c Config) *Watcher {
 		provider:         c.Provider,
 		pollPeriod:       c.PollPeriod,
 		reconcileTimeout: c.ReconcileTimeout,
-		queue:            common.NewQueue[AssetScanEstimationReconcileEvent](),
+		queue:            controllerruntime.NewQueue[AssetScanEstimationReconcileEvent](),
 	}
 }
 
@@ -274,7 +275,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScanEstimation *api
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
-		return common.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
+		return controllerruntime.NewRequeueAfterError(retryableError.RetryAfter(), retryableError.Error())
 	case err != nil:
 		return fmt.Errorf("failed to estimate asset scan: %w", err)
 	default:

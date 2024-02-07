@@ -23,18 +23,19 @@ import (
 	"sync"
 	"time"
 
+	controllerruntime "github.com/openclarity/simple-controller-runtime"
+
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
 )
 
 type (
-	ScanEstimationQueue      = common.Queue[ScanEstimationReconcileEvent]
-	ScanEstimationPoller     = common.Poller[ScanEstimationReconcileEvent]
-	ScanEstimationReconciler = common.Reconciler[ScanEstimationReconcileEvent]
+	ScanEstimationQueue      = controllerruntime.Queue[ScanEstimationReconcileEvent]
+	ScanEstimationPoller     = controllerruntime.Poller[ScanEstimationReconcileEvent]
+	ScanEstimationReconciler = controllerruntime.Reconciler[ScanEstimationReconcileEvent]
 )
 
 func New(c Config) *Watcher {
@@ -44,7 +45,7 @@ func New(c Config) *Watcher {
 		pollPeriod:            c.PollPeriod,
 		reconcileTimeout:      c.ReconcileTimeout,
 		scanEstimationTimeout: c.ScanEstimationTimeout,
-		queue:                 common.NewQueue[ScanEstimationReconcileEvent](),
+		queue:                 controllerruntime.NewQueue[ScanEstimationReconcileEvent](),
 	}
 }
 

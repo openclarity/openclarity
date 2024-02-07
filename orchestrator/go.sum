@@ -1225,6 +1225,8 @@ github.com/open-policy-agent/opa v0.60.0 h1:ZPoPt4yeNs5UXCpd/P/btpSyR8CR0wfhVoh9
 github.com/open-policy-agent/opa v0.60.0/go.mod h1:aD5IK6AiLNYBjNXn7E02++yC8l4Z+bRDvgM6Ss0bBzA=
 github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 h1:rGFpElM9By+Vnl3Bn981O0rbCQSCxHfxQnLP0e6XQU4=
 github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050/go.mod h1:OpxYuVnq2FpR8fw6MxgGhIcjGC6k8PF32FxWqdfO5uM=
+github.com/openclarity/simple-controller-runtime v0.1.0 h1:+SoDEdzWbDKaH8MmC+7QMl6gUfxhbJI8AaZFl982EqU=
+github.com/openclarity/simple-controller-runtime v0.1.0/go.mod h1:z6dWotuzPx+B9exeapva2ecKrMPhJtQ/i0wAqKSTGeE=
 github.com/openclarity/yara-rule-server v0.2.1 h1:vJw3oDPJRrWM9iyjxePOXuCDFN4ZfPfwKfDA8Ln2z4M=
 github.com/openclarity/yara-rule-server v0.2.1/go.mod h1:uDWsTlFm8ZO6xARv+2GSitfxLExp8wkNiiHQ+o44mjU=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
