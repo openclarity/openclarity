@@ -17,10 +17,8 @@ package log
 
 import (
 	"io"
-	"os"
 
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc/grpclog"
 )
 
 const (
@@ -34,7 +32,6 @@ func InitLogger(level string, output io.Writer) {
 		logLevel = DefaultLogLevel
 	}
 	log.SetLevel(logLevel)
-	setGrpcLogs(logLevel)
 
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp:          true,
@@ -49,14 +46,4 @@ func InitLogger(level string, output io.Writer) {
 	}
 
 	log.SetOutput(output)
-}
-
-// Set log level to Trace to see grpc logs. We do this so that they don't mess with our stdio.
-func setGrpcLogs(level log.Level) {
-	if level < log.TraceLevel {
-		grpclog.SetLoggerV2(grpclog.NewLoggerV2(io.Discard, io.Discard, io.Discard))
-	} else {
-		verboseLevel := 2
-		grpclog.SetLoggerV2(grpclog.NewLoggerV2WithVerbosity(os.Stderr, os.Stderr, os.Stderr, verboseLevel))
-	}
 }
