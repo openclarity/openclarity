@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func (s *ServerImpl) GetFindings(ctx echo.Context, params types.GetFindingsParams) error {
@@ -60,7 +61,7 @@ func (s *ServerImpl) PostFindings(ctx echo.Context) error {
 		switch true {
 		case errors.As(err, &conflictErr):
 			existResponse := &types.FindingExists{
-				Message: types.PointerTo(conflictErr.Reason),
+				Message: to.Ptr(conflictErr.Reason),
 				Finding: &createdFinding,
 			}
 			return sendResponse(ctx, http.StatusConflict, existResponse)
@@ -76,7 +77,7 @@ func (s *ServerImpl) PostFindings(ctx echo.Context) error {
 
 func (s *ServerImpl) DeleteFindingsFindingID(ctx echo.Context, findingID types.FindingID) error {
 	success := types.Success{
-		Message: types.PointerTo(fmt.Sprintf("finding %v deleted", findingID)),
+		Message: to.Ptr(fmt.Sprintf("finding %v deleted", findingID)),
 	}
 
 	if err := s.dbHandler.FindingsTable().DeleteFinding(findingID); err != nil {

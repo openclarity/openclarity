@@ -26,7 +26,7 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_getInstanceState(t *testing.T) {
@@ -47,17 +47,17 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-1"),
+									InstanceId: to.Ptr("instance-1"),
 								},
 								{
-									InstanceId: utils.PointerTo("instance-2"),
+									InstanceId: to.Ptr("instance-2"),
 								},
 							},
 						},
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-3"),
+									InstanceId: to.Ptr("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -78,10 +78,10 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-1"),
+									InstanceId: to.Ptr("instance-1"),
 								},
 								{
-									InstanceId: utils.PointerTo("instance-2"),
+									InstanceId: to.Ptr("instance-2"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNamePending,
 									},
@@ -91,7 +91,7 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-3"),
+									InstanceId: to.Ptr("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -112,10 +112,10 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-1"),
+									InstanceId: to.Ptr("instance-1"),
 								},
 								{
-									InstanceId: utils.PointerTo("instance-2"),
+									InstanceId: to.Ptr("instance-2"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNamePending,
 									},
@@ -125,7 +125,7 @@ func Test_getInstanceState(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-3"),
+									InstanceId: to.Ptr("instance-3"),
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
@@ -181,52 +181,52 @@ func TestProvider_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-1"),
+									InstanceId: to.Ptr("instance-1"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.PointerTo("key-1"),
-											Value: utils.PointerTo("val-1"),
+											Key:   to.Ptr("key-1"),
+											Value: to.Ptr("val-1"),
 										},
 									},
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
-									VpcId:   utils.PointerTo("vpc1"),
-									ImageId: utils.PointerTo("image1"),
+									VpcId:   to.Ptr("vpc1"),
+									ImageId: to.Ptr("image1"),
 									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az1"),
+										AvailabilityZone: to.Ptr("az1"),
 									},
 									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
+									PlatformDetails: to.Ptr("linux"),
+									LaunchTime:      to.Ptr(launchTime),
 									SecurityGroups: []ec2types.GroupIdentifier{
 										{
-											GroupId: utils.PointerTo("group1"),
+											GroupId: to.Ptr("group1"),
 										},
 									},
 								},
 								{
-									InstanceId: utils.PointerTo("instance-2"),
+									InstanceId: to.Ptr("instance-2"),
 									Tags: []ec2types.Tag{
 										{
-											Key:   utils.PointerTo("key-2"),
-											Value: utils.PointerTo("val-2"),
+											Key:   to.Ptr("key-2"),
+											Value: to.Ptr("val-2"),
 										},
 									},
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
-									VpcId:   utils.PointerTo("vpc2"),
-									ImageId: utils.PointerTo("image2"),
+									VpcId:   to.Ptr("vpc2"),
+									ImageId: to.Ptr("image2"),
 									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az2"),
+										AvailabilityZone: to.Ptr("az2"),
 									},
 									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
+									PlatformDetails: to.Ptr("linux"),
+									LaunchTime:      to.Ptr(launchTime),
 									SecurityGroups: []ec2types.GroupIdentifier{
 										{
-											GroupId: utils.PointerTo("group2"),
+											GroupId: to.Ptr("group2"),
 										},
 									},
 								},
@@ -235,21 +235,21 @@ func TestProvider_getInstancesFromDescribeInstancesOutput(t *testing.T) {
 						{
 							Instances: []ec2types.Instance{
 								{
-									InstanceId: utils.PointerTo("instance-3"),
-									VpcId:      utils.PointerTo("vpc3"),
-									ImageId:    utils.PointerTo("image3"),
+									InstanceId: to.Ptr("instance-3"),
+									VpcId:      to.Ptr("vpc3"),
+									ImageId:    to.Ptr("image3"),
 									Placement: &ec2types.Placement{
-										AvailabilityZone: utils.PointerTo("az3"),
+										AvailabilityZone: to.Ptr("az3"),
 									},
 									State: &ec2types.InstanceState{
 										Name: ec2types.InstanceStateNameRunning,
 									},
 									InstanceType:    "t2.large",
-									PlatformDetails: utils.PointerTo("linux"),
-									LaunchTime:      utils.PointerTo(launchTime),
+									PlatformDetails: to.Ptr("linux"),
+									LaunchTime:      to.Ptr(launchTime),
 									SecurityGroups: []ec2types.GroupIdentifier{
 										{
-											GroupId: utils.PointerTo("group3"),
+											GroupId: to.Ptr("group3"),
 										},
 									},
 								},
@@ -364,14 +364,14 @@ func Test_encryptedToAPI(t *testing.T) {
 		{
 			name: "no",
 			args: args{
-				encrypted: utils.PointerTo(false),
+				encrypted: to.Ptr(false),
 			},
 			want: apitypes.RootVolumeEncryptedNo,
 		},
 		{
 			name: "yes",
 			args: args{
-				encrypted: utils.PointerTo(true),
+				encrypted: to.Ptr(true),
 			},
 			want: apitypes.RootVolumeEncryptedYes,
 		},

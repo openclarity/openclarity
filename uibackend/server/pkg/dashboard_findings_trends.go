@@ -26,7 +26,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -122,13 +122,13 @@ func (s *ServerImpl) getFindingTrendsForFindingType(ctx context.Context, finding
 func (s *ServerImpl) getFindingTrendPerPoint(ctx context.Context, findingType types.FindingType, point time.Time) (types.FindingTrend, error) {
 	// Count total findings for the given finding type that was active during the given time point.
 	findings, err := s.Client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Count: utils.PointerTo(true),
-		Filter: utils.PointerTo(fmt.Sprintf(
+		Count: to.Ptr(true),
+		Filter: to.Ptr(fmt.Sprintf(
 			"findingInfo/objectType eq '%s' and foundOn le %v and (invalidatedOn eq null or invalidatedOn gt %v)",
 			getObjectType(findingType), point.Format(time.RFC3339), point.Format(time.RFC3339))),
 		// Select the smallest amount of data to return in items, we only care about the count.
-		Select: utils.PointerTo("id"),
-		Top:    utils.PointerTo(0),
+		Select: to.Ptr("id"),
+		Top:    to.Ptr(0),
 	})
 	if err != nil {
 		return types.FindingTrend{}, fmt.Errorf("failed to get findings for the given point: %w", err)

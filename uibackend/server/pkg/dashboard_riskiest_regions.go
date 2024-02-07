@@ -24,13 +24,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
 func (s *ServerImpl) GetDashboardRiskiestRegions(ctx echo.Context) error {
 	assets, err := s.Client.GetAssets(ctx.Request().Context(), apitypes.GetAssetsParams{
-		Filter: utils.PointerTo("terminatedOn eq null and assetInfo/objectType eq 'VMInfo'"),
+		Filter: to.Ptr("terminatedOn eq null and assetInfo/objectType eq 'VMInfo'"),
 	})
 	if err != nil {
 		return sendError(ctx, http.StatusInternalServerError, fmt.Sprintf("failed to get assets: %v", err))
@@ -56,12 +56,12 @@ func createRegionFindingsFromAssets(assets *apitypes.Assets) []types.RegionFindi
 		}
 		if _, ok := findingsPerRegion[region]; !ok {
 			findingsPerRegion[region] = &types.FindingsCount{
-				Exploits:          utils.PointerTo(0),
-				Malware:           utils.PointerTo(0),
-				Misconfigurations: utils.PointerTo(0),
-				Rootkits:          utils.PointerTo(0),
-				Secrets:           utils.PointerTo(0),
-				Vulnerabilities:   utils.PointerTo(0),
+				Exploits:          to.Ptr(0),
+				Malware:           to.Ptr(0),
+				Misconfigurations: to.Ptr(0),
+				Rootkits:          to.Ptr(0),
+				Secrets:           to.Ptr(0),
+				Vulnerabilities:   to.Ptr(0),
 			}
 		}
 		regionFindings := findingsPerRegion[region]
@@ -112,12 +112,12 @@ func addAssetSummaryToFindingsCount(findingsCount *types.FindingsCount, summary 
 		return findingsCount
 	}
 
-	secrets := *findingsCount.Secrets + utils.IntPointerValOrEmpty(summary.TotalSecrets)
-	exploits := *findingsCount.Exploits + utils.IntPointerValOrEmpty(summary.TotalExploits)
+	secrets := *findingsCount.Secrets + to.ValueOrZero(summary.TotalSecrets)
+	exploits := *findingsCount.Exploits + to.ValueOrZero(summary.TotalExploits)
 	vulnerabilities := *findingsCount.Vulnerabilities + getTotalVulnerabilities(summary.TotalVulnerabilities)
-	rootkits := *findingsCount.Rootkits + utils.IntPointerValOrEmpty(summary.TotalRootkits)
-	malware := *findingsCount.Malware + utils.IntPointerValOrEmpty(summary.TotalMalware)
-	misconfigurations := *findingsCount.Misconfigurations + utils.IntPointerValOrEmpty(summary.TotalMisconfigurations)
+	rootkits := *findingsCount.Rootkits + to.ValueOrZero(summary.TotalRootkits)
+	malware := *findingsCount.Malware + to.ValueOrZero(summary.TotalMalware)
+	misconfigurations := *findingsCount.Misconfigurations + to.ValueOrZero(summary.TotalMisconfigurations)
 	return &types.FindingsCount{
 		Exploits:          &exploits,
 		Malware:           &malware,
@@ -133,11 +133,11 @@ func getTotalVulnerabilities(summary *apitypes.VulnerabilityScanSummary) int {
 	if summary == nil {
 		return total
 	}
-	total += utils.IntPointerValOrEmpty(summary.TotalCriticalVulnerabilities)
-	total += utils.IntPointerValOrEmpty(summary.TotalHighVulnerabilities)
-	total += utils.IntPointerValOrEmpty(summary.TotalMediumVulnerabilities)
-	total += utils.IntPointerValOrEmpty(summary.TotalLowVulnerabilities)
-	total += utils.IntPointerValOrEmpty(summary.TotalNegligibleVulnerabilities)
+	total += to.ValueOrZero(summary.TotalCriticalVulnerabilities)
+	total += to.ValueOrZero(summary.TotalHighVulnerabilities)
+	total += to.ValueOrZero(summary.TotalMediumVulnerabilities)
+	total += to.ValueOrZero(summary.TotalLowVulnerabilities)
+	total += to.ValueOrZero(summary.TotalNegligibleVulnerabilities)
 
 	return total
 }

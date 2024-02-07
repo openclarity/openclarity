@@ -33,6 +33,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type AssetScanID = apitypes.AssetScanID
@@ -88,7 +89,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 		assetScan.Sbom.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		sbomResults, ok := res.Result.(*sbom.Results)
@@ -96,11 +97,11 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to sbom results"),
+				to.Ptr("failed to convert to sbom results"),
 			)
 		} else {
-			assetScan.Sbom.Packages = utils.PointerTo(ConvertSBOMResultToPackages(sbomResults))
-			assetScan.Summary.TotalPackages = utils.PointerTo(len(*assetScan.Sbom.Packages))
+			assetScan.Sbom.Packages = to.Ptr(ConvertSBOMResultToPackages(sbomResults))
+			assetScan.Summary.TotalPackages = to.Ptr(len(*assetScan.Sbom.Packages))
 			assetScan.Stats.Sbom = getInputScanStats(sbomResults.Metadata.InputScans)
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
@@ -138,7 +139,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 		assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
@@ -146,10 +147,10 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to vulnerabilities results"),
+				to.Ptr("failed to convert to vulnerabilities results"),
 			)
 		} else {
-			assetScan.Vulnerabilities.Vulnerabilities = utils.PointerTo(ConvertVulnResultToVulnerabilities(vulnerabilitiesResults))
+			assetScan.Vulnerabilities.Vulnerabilities = to.Ptr(ConvertVulnResultToVulnerabilities(vulnerabilitiesResults))
 			assetScan.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(assetScan.Vulnerabilities.Vulnerabilities)
 			assetScan.Stats.Vulnerabilities = getInputScanStats(vulnerabilitiesResults.Metadata.InputScans)
 			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
@@ -188,7 +189,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 		assetScan.Secrets.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		secretsResults, ok := res.Result.(*secrets.Results)
@@ -196,11 +197,11 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 			assetScan.Secrets.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to secrets results"),
+				to.Ptr("failed to convert to secrets results"),
 			)
 		} else {
-			assetScan.Secrets.Secrets = utils.PointerTo(ConvertSecretsResultToSecrets(secretsResults))
-			assetScan.Summary.TotalSecrets = utils.PointerTo(len(*assetScan.Secrets.Secrets))
+			assetScan.Secrets.Secrets = to.Ptr(ConvertSecretsResultToSecrets(secretsResults))
+			assetScan.Summary.TotalSecrets = to.Ptr(len(*assetScan.Secrets.Secrets))
 			assetScan.Stats.Secrets = getInputScanStats(secretsResults.Metadata.InputScans)
 			assetScan.Secrets.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
@@ -260,7 +261,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 		assetScan.Malware.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		malwareResults, ok := res.Result.(*malware.MergedResults)
@@ -268,14 +269,14 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to malware results"),
+				to.Ptr("failed to convert to malware results"),
 			)
 		} else {
 			mware, mdata := ConvertMalwareResultToMalwareAndMetadata(malwareResults)
-			assetScan.Summary.TotalMalware = utils.PointerTo(len(mware))
+			assetScan.Summary.TotalMalware = to.Ptr(len(mware))
 			assetScan.Stats.Malware = getInputScanStats(malwareResults.Metadata.InputScans)
-			assetScan.Malware.Malware = utils.PointerTo(mware)
-			assetScan.Malware.Metadata = utils.PointerTo(mdata)
+			assetScan.Malware.Malware = to.Ptr(mware)
+			assetScan.Malware.Metadata = to.Ptr(mdata)
 			assetScan.Malware.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -311,7 +312,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 		assetScan.Exploits.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		exploitsResults, ok := res.Result.(*exploits.Results)
@@ -319,11 +320,11 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 			assetScan.Exploits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to exploits results"),
+				to.Ptr("failed to convert to exploits results"),
 			)
 		} else {
-			assetScan.Exploits.Exploits = utils.PointerTo(ConvertExploitsResultToExploits(exploitsResults))
-			assetScan.Summary.TotalExploits = utils.PointerTo(len(*assetScan.Exploits.Exploits))
+			assetScan.Exploits.Exploits = to.Ptr(ConvertExploitsResultToExploits(exploitsResults))
+			assetScan.Summary.TotalExploits = to.Ptr(len(*assetScan.Exploits.Exploits))
 			assetScan.Stats.Exploits = getInputScanStats(exploitsResults.Metadata.InputScans)
 			assetScan.Exploits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
@@ -361,7 +362,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 		assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		misconfigurationResults, ok := res.Result.(*misconfiguration.Results)
@@ -369,7 +370,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 			assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to misconfiguration results"),
+				to.Ptr("failed to convert to misconfiguration results"),
 			)
 		} else {
 			misconfigurations, scanners, err := ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfigurationResults)
@@ -377,7 +378,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 				assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
 					apitypes.ScannerStatusStateFailed,
 					apitypes.ScannerStatusReasonError,
-					utils.PointerTo(fmt.Errorf("failed to convert misconfiguration results from scan to API model: %w", err).Error()),
+					to.Ptr(fmt.Errorf("failed to convert misconfiguration results from scan to API model: %w", err).Error()),
 				)
 			} else {
 				assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
@@ -385,10 +386,10 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 					apitypes.ScannerStatusReasonSuccess,
 					nil,
 				)
-				assetScan.Misconfigurations.Misconfigurations = utils.PointerTo(misconfigurations)
-				assetScan.Misconfigurations.Scanners = utils.PointerTo(scanners)
+				assetScan.Misconfigurations.Misconfigurations = to.Ptr(misconfigurations)
+				assetScan.Misconfigurations.Scanners = to.Ptr(scanners)
 			}
-			assetScan.Summary.TotalMisconfigurations = utils.PointerTo(len(misconfigurationResults.Misconfigurations))
+			assetScan.Summary.TotalMisconfigurations = to.Ptr(len(misconfigurationResults.Misconfigurations))
 			assetScan.Stats.Misconfigurations = getInputScanStats(misconfigurationResults.Metadata.InputScans)
 		}
 	}
@@ -421,7 +422,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 		assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		results, ok := res.Result.(*infofinder.Results)
@@ -429,7 +430,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 			assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to info finder results"),
+				to.Ptr("failed to convert to info finder results"),
 			)
 		} else {
 			apiInfoFinder, scanners, err := ConvertInfoFinderResultToInfosAndScanners(results)
@@ -437,7 +438,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 				assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
 					apitypes.ScannerStatusStateFailed,
 					apitypes.ScannerStatusReasonError,
-					utils.PointerTo(fmt.Errorf("failed to convert info finder results from scan to API model: %w", err).Error()),
+					to.Ptr(fmt.Errorf("failed to convert info finder results from scan to API model: %w", err).Error()),
 				)
 			} else {
 				assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
@@ -445,10 +446,10 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 					apitypes.ScannerStatusReasonSuccess,
 					nil,
 				)
-				assetScan.InfoFinder.Infos = utils.PointerTo(apiInfoFinder)
-				assetScan.InfoFinder.Scanners = utils.PointerTo(scanners)
+				assetScan.InfoFinder.Infos = to.Ptr(apiInfoFinder)
+				assetScan.InfoFinder.Scanners = to.Ptr(scanners)
 			}
-			assetScan.Summary.TotalInfoFinder = utils.PointerTo(len(results.Infos))
+			assetScan.Summary.TotalInfoFinder = to.Ptr(len(results.Infos))
 			assetScan.Stats.InfoFinder = getInputScanStats(results.Metadata.InputScans)
 		}
 	}
@@ -481,7 +482,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		assetScan.Rootkits.Status = apitypes.NewScannerStatus(
 			apitypes.ScannerStatusStateFailed,
 			apitypes.ScannerStatusReasonError,
-			utils.PointerTo(res.Err.Error()),
+			to.Ptr(res.Err.Error()),
 		)
 	} else {
 		rootkitsResults, ok := res.Result.(*rootkits.Results)
@@ -489,11 +490,11 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
 				apitypes.ScannerStatusReasonError,
-				utils.PointerTo("failed to convert to rootkits results"),
+				to.Ptr("failed to convert to rootkits results"),
 			)
 		} else {
-			assetScan.Rootkits.Rootkits = utils.PointerTo(ConvertRootkitsResultToRootkits(rootkitsResults))
-			assetScan.Summary.TotalRootkits = utils.PointerTo(len(*assetScan.Rootkits.Rootkits))
+			assetScan.Rootkits.Rootkits = to.Ptr(ConvertRootkitsResultToRootkits(rootkitsResults))
+			assetScan.Summary.TotalRootkits = to.Ptr(len(*assetScan.Rootkits.Rootkits))
 			assetScan.Stats.Rootkits = getInputScanStats(rootkitsResults.Metadata.InputScans)
 			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,

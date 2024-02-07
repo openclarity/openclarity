@@ -25,11 +25,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/e2e/config"
 	"github.com/openclarity/vmclarity/testenv"
 	"github.com/openclarity/vmclarity/testenv/types"
 	uibackendclient "github.com/openclarity/vmclarity/uibackend/client"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 var (

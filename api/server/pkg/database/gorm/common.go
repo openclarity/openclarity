@@ -24,7 +24,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/openclarity/vmclarity/api/server/pkg/database/types"
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func getExistingObjByID(db *gorm.DB, schema, objID string, obj interface{}) error {
@@ -83,7 +83,7 @@ func checkRevisionEtag(ifMatch *int, revision *int) error {
 
 func bumpRevision(oldrevision *int) *int {
 	if oldrevision != nil {
-		return apitypes.PointerTo(*oldrevision + 1)
+		return to.Ptr(*oldrevision + 1)
 	}
-	return apitypes.PointerTo(1)
+	return to.Ptr(1)
 }

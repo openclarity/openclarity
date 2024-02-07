@@ -39,8 +39,8 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/scanner"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	"github.com/openclarity/vmclarity/cli/pkg/utils/vulnerability"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_ConvertSBOMResultToPackages(t *testing.T) {
@@ -68,7 +68,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 								Version:    "v10.0.0-foo1",
 								PackageURL: "pkg:pypi/testcomponent1@v10.0.0-foo",
 								CPE:        "cpe1",
-								Licenses: utils.PointerTo[cdx.Licenses]([]cdx.LicenseChoice{
+								Licenses: to.Ptr[cdx.Licenses]([]cdx.LicenseChoice{
 									{
 										License: &cdx.License{
 											ID: "lic1",
@@ -88,7 +88,7 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 								Version:    "v10.0.0-foo2",
 								PackageURL: "pkg:pypi/testcomponent2@v10.0.0-foo",
 								CPE:        "cpe2",
-								Licenses: utils.PointerTo[cdx.Licenses]([]cdx.LicenseChoice{
+								Licenses: to.Ptr[cdx.Licenses]([]cdx.LicenseChoice{
 									{
 										License: &cdx.License{
 											ID: "lic3",
@@ -108,22 +108,22 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 			want: returns{
 				packages: []apitypes.Package{
 					{
-						Cpes:     utils.PointerTo([]string{"cpe1"}),
-						Language: utils.PointerTo("python"),
-						Licenses: utils.PointerTo([]string{"lic1", "lic2"}),
-						Name:     utils.PointerTo("testcomponent1"),
-						Purl:     utils.PointerTo("pkg:pypi/testcomponent1@v10.0.0-foo"),
-						Type:     utils.PointerTo(string(cdx.ComponentTypeLibrary)),
-						Version:  utils.PointerTo("v10.0.0-foo1"),
+						Cpes:     to.Ptr([]string{"cpe1"}),
+						Language: to.Ptr("python"),
+						Licenses: to.Ptr([]string{"lic1", "lic2"}),
+						Name:     to.Ptr("testcomponent1"),
+						Purl:     to.Ptr("pkg:pypi/testcomponent1@v10.0.0-foo"),
+						Type:     to.Ptr(string(cdx.ComponentTypeLibrary)),
+						Version:  to.Ptr("v10.0.0-foo1"),
 					},
 					{
-						Cpes:     utils.PointerTo([]string{"cpe2"}),
-						Language: utils.PointerTo("python"),
-						Licenses: utils.PointerTo([]string{"lic3", "lic4"}),
-						Name:     utils.PointerTo("testcomponent2"),
-						Purl:     utils.PointerTo("pkg:pypi/testcomponent2@v10.0.0-foo"),
-						Type:     utils.PointerTo(string(cdx.ComponentTypeLibrary)),
-						Version:  utils.PointerTo("v10.0.0-foo2"),
+						Cpes:     to.Ptr([]string{"cpe2"}),
+						Language: to.Ptr("python"),
+						Licenses: to.Ptr([]string{"lic3", "lic4"}),
+						Name:     to.Ptr("testcomponent2"),
+						Purl:     to.Ptr("pkg:pypi/testcomponent2@v10.0.0-foo"),
+						Type:     to.Ptr(string(cdx.ComponentTypeLibrary)),
+						Version:  to.Ptr("v10.0.0-foo2"),
 					},
 				},
 			},
@@ -198,8 +198,8 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 												Vector:  "vector2",
 												Metrics: scanner.CvssMetrics{
 													BaseScore:           2,
-													ExploitabilityScore: utils.PointerTo(2.1),
-													ImpactScore:         utils.PointerTo(2.2),
+													ExploitabilityScore: to.Ptr(2.1),
+													ImpactScore:         to.Ptr(2.2),
 												},
 											},
 										},
@@ -249,8 +249,8 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 												Vector:  "vector4",
 												Metrics: scanner.CvssMetrics{
 													BaseScore:           4,
-													ExploitabilityScore: utils.PointerTo(4.1),
-													ImpactScore:         utils.PointerTo(4.2),
+													ExploitabilityScore: to.Ptr(4.1),
+													ImpactScore:         to.Ptr(4.2),
 												},
 											},
 										},
@@ -281,96 +281,96 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 			want: returns{
 				vulnerabilities: []apitypes.Vulnerability{
 					{
-						Cvss: utils.PointerTo([]apitypes.VulnerabilityCvss{
+						Cvss: to.Ptr([]apitypes.VulnerabilityCvss{
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
-									BaseScore:           utils.PointerTo[float32](1),
+									BaseScore:           to.Ptr[float32](1),
 									ExploitabilityScore: nil,
 									ImpactScore:         nil,
 								},
-								Vector:  utils.PointerTo("vector1"),
-								Version: utils.PointerTo("v1"),
+								Vector:  to.Ptr("vector1"),
+								Version: to.Ptr("v1"),
 							},
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
-									BaseScore:           utils.PointerTo[float32](2),
-									ExploitabilityScore: utils.PointerTo[float32](2.1),
-									ImpactScore:         utils.PointerTo[float32](2.2),
+									BaseScore:           to.Ptr[float32](2),
+									ExploitabilityScore: to.Ptr[float32](2.1),
+									ImpactScore:         to.Ptr[float32](2.2),
 								},
-								Vector:  utils.PointerTo("vector2"),
-								Version: utils.PointerTo("v2"),
+								Vector:  to.Ptr("vector2"),
+								Version: to.Ptr("v2"),
 							},
 						}),
-						Description: utils.PointerTo("testbleed"),
+						Description: to.Ptr("testbleed"),
 						Distro: &apitypes.VulnerabilityDistro{
-							IDLike:  utils.PointerTo([]string{"IDLike1", "IDLike2"}),
-							Name:    utils.PointerTo("distro1"),
-							Version: utils.PointerTo("distrov1"),
+							IDLike:  to.Ptr([]string{"IDLike1", "IDLike2"}),
+							Name:    to.Ptr("distro1"),
+							Version: to.Ptr("distrov1"),
 						},
 						Fix: &apitypes.VulnerabilityFix{
-							State:    utils.PointerTo("fixed"),
-							Versions: utils.PointerTo([]string{"fv1", "fv2"}),
+							State:    to.Ptr("fixed"),
+							Versions: to.Ptr([]string{"fv1", "fv2"}),
 						},
-						LayerId: utils.PointerTo("lid1"),
-						Links:   utils.PointerTo([]string{"link1", "link2"}),
+						LayerId: to.Ptr("lid1"),
+						Links:   to.Ptr([]string{"link1", "link2"}),
 						Package: &apitypes.Package{
-							Cpes:     utils.PointerTo([]string{"cpe1", "cpe2"}),
-							Language: utils.PointerTo("pl1"),
-							Licenses: utils.PointerTo([]string{"plic1", "plic2"}),
-							Name:     utils.PointerTo("package1"),
-							Purl:     utils.PointerTo("purl1"),
-							Type:     utils.PointerTo("pt1"),
-							Version:  utils.PointerTo("pv1"),
+							Cpes:     to.Ptr([]string{"cpe1", "cpe2"}),
+							Language: to.Ptr("pl1"),
+							Licenses: to.Ptr([]string{"plic1", "plic2"}),
+							Name:     to.Ptr("package1"),
+							Purl:     to.Ptr("purl1"),
+							Type:     to.Ptr("pt1"),
+							Version:  to.Ptr("pv1"),
 						},
-						Path:              utils.PointerTo("path1"),
-						Severity:          utils.PointerTo[apitypes.VulnerabilitySeverity](apitypes.CRITICAL),
-						VulnerabilityName: utils.PointerTo("CVE-test-test-foo"),
+						Path:              to.Ptr("path1"),
+						Severity:          to.Ptr[apitypes.VulnerabilitySeverity](apitypes.CRITICAL),
+						VulnerabilityName: to.Ptr("CVE-test-test-foo"),
 					},
 					{
-						Cvss: utils.PointerTo([]apitypes.VulnerabilityCvss{
+						Cvss: to.Ptr([]apitypes.VulnerabilityCvss{
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
-									BaseScore:           utils.PointerTo[float32](3),
+									BaseScore:           to.Ptr[float32](3),
 									ExploitabilityScore: nil,
 									ImpactScore:         nil,
 								},
-								Vector:  utils.PointerTo("vector3"),
-								Version: utils.PointerTo("v3"),
+								Vector:  to.Ptr("vector3"),
+								Version: to.Ptr("v3"),
 							},
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
-									BaseScore:           utils.PointerTo[float32](4),
-									ExploitabilityScore: utils.PointerTo[float32](4.1),
-									ImpactScore:         utils.PointerTo[float32](4.2),
+									BaseScore:           to.Ptr[float32](4),
+									ExploitabilityScore: to.Ptr[float32](4.1),
+									ImpactScore:         to.Ptr[float32](4.2),
 								},
-								Vector:  utils.PointerTo("vector4"),
-								Version: utils.PointerTo("v4"),
+								Vector:  to.Ptr("vector4"),
+								Version: to.Ptr("v4"),
 							},
 						}),
-						Description: utils.PointerTo("solartest"),
+						Description: to.Ptr("solartest"),
 						Distro: &apitypes.VulnerabilityDistro{
-							IDLike:  utils.PointerTo([]string{"IDLike3", "IDLike4"}),
-							Name:    utils.PointerTo("distro2"),
-							Version: utils.PointerTo("distrov2"),
+							IDLike:  to.Ptr([]string{"IDLike3", "IDLike4"}),
+							Name:    to.Ptr("distro2"),
+							Version: to.Ptr("distrov2"),
 						},
 						Fix: &apitypes.VulnerabilityFix{
-							State:    utils.PointerTo("not-fixed"),
-							Versions: utils.PointerTo([]string{"fv3", "fv4"}),
+							State:    to.Ptr("not-fixed"),
+							Versions: to.Ptr([]string{"fv3", "fv4"}),
 						},
-						LayerId: utils.PointerTo("lid2"),
-						Links:   utils.PointerTo([]string{"link3", "link4"}),
+						LayerId: to.Ptr("lid2"),
+						Links:   to.Ptr([]string{"link3", "link4"}),
 						Package: &apitypes.Package{
-							Cpes:     utils.PointerTo([]string{"cpe3", "cpe4"}),
-							Language: utils.PointerTo("pl2"),
-							Licenses: utils.PointerTo([]string{"plic3", "plic4"}),
-							Name:     utils.PointerTo("package2"),
-							Purl:     utils.PointerTo("purl2"),
-							Type:     utils.PointerTo("pt2"),
-							Version:  utils.PointerTo("pv2"),
+							Cpes:     to.Ptr([]string{"cpe3", "cpe4"}),
+							Language: to.Ptr("pl2"),
+							Licenses: to.Ptr([]string{"plic3", "plic4"}),
+							Name:     to.Ptr("package2"),
+							Purl:     to.Ptr("purl2"),
+							Type:     to.Ptr("pt2"),
+							Version:  to.Ptr("pv2"),
 						},
-						Path:              utils.PointerTo("path2"),
-						Severity:          utils.PointerTo[apitypes.VulnerabilitySeverity](apitypes.HIGH),
-						VulnerabilityName: utils.PointerTo("CVE-test-test-bar"),
+						Path:              to.Ptr("path2"),
+						Severity:          to.Ptr[apitypes.VulnerabilitySeverity](apitypes.HIGH),
+						VulnerabilityName: to.Ptr("CVE-test-test-bar"),
 					},
 				},
 			},
@@ -589,34 +589,34 @@ func Test_ConvertMalwareResultToMalwareAndMetadata(t *testing.T) {
 			want: returns{
 				Malware: []apitypes.Malware{
 					{
-						MalwareName: utils.PointerTo("Ransom!"),
-						MalwareType: utils.PointerTo[apitypes.MalwareType]("RANSOMWARE"),
-						Path:        utils.PointerTo("/somepath/givememoney.exe"),
+						MalwareName: to.Ptr("Ransom!"),
+						MalwareType: to.Ptr[apitypes.MalwareType]("RANSOMWARE"),
+						Path:        to.Ptr("/somepath/givememoney.exe"),
 					},
 					{
-						MalwareName: utils.PointerTo("Trojan:)"),
-						MalwareType: utils.PointerTo[apitypes.MalwareType]("TROJAN"),
-						Path:        utils.PointerTo("/somepath/gift.jar"),
+						MalwareName: to.Ptr("Trojan:)"),
+						MalwareType: to.Ptr[apitypes.MalwareType]("TROJAN"),
+						Path:        to.Ptr("/somepath/gift.jar"),
 					},
 					{
-						MalwareName: utils.PointerTo("Worm<3"),
-						MalwareType: utils.PointerTo[apitypes.MalwareType]("WORM"),
-						Path:        utils.PointerTo("/somepath/innocent.exe"),
+						MalwareName: to.Ptr("Worm<3"),
+						MalwareType: to.Ptr[apitypes.MalwareType]("WORM"),
+						Path:        to.Ptr("/somepath/innocent.exe"),
 					},
 				},
 				Metadata: []apitypes.ScannerMetadata{
 					{
-						ScannerName: utils.PointerTo("clam"),
+						ScannerName: to.Ptr("clam"),
 						ScannerSummary: &apitypes.ScannerSummary{
-							KnownViruses:       utils.PointerTo(100),
-							EngineVersion:      utils.PointerTo("1"),
-							ScannedDirectories: utils.PointerTo(10),
-							ScannedFiles:       utils.PointerTo(1000),
-							InfectedFiles:      utils.PointerTo(3),
-							SuspectedFiles:     utils.PointerTo(4),
-							DataScanned:        utils.PointerTo("800 MB"),
-							DataRead:           utils.PointerTo("1.6 GB"),
-							TimeTaken:          utils.PointerTo("1000000 ms"),
+							KnownViruses:       to.Ptr(100),
+							EngineVersion:      to.Ptr("1"),
+							ScannedDirectories: to.Ptr(10),
+							ScannedFiles:       to.Ptr(1000),
+							InfectedFiles:      to.Ptr(3),
+							SuspectedFiles:     to.Ptr(4),
+							DataScanned:        to.Ptr("800 MB"),
+							DataRead:           to.Ptr("1.6 GB"),
+							TimeTaken:          to.Ptr("1000000 ms"),
 						},
 					},
 				},
@@ -704,27 +704,27 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 			},
 			want: []apitypes.Exploit{
 				{
-					CveID:       utils.PointerTo(exploit1.CveID),
-					Description: utils.PointerTo(exploit1.Description),
-					Name:        utils.PointerTo(exploit1.Name),
-					SourceDB:    utils.PointerTo(exploit1.SourceDB),
-					Title:       utils.PointerTo(exploit1.Title),
+					CveID:       to.Ptr(exploit1.CveID),
+					Description: to.Ptr(exploit1.Description),
+					Name:        to.Ptr(exploit1.Name),
+					SourceDB:    to.Ptr(exploit1.SourceDB),
+					Title:       to.Ptr(exploit1.Title),
 					Urls:        &exploit1.URLs,
 				},
 				{
-					CveID:       utils.PointerTo(exploit2.CveID),
-					Description: utils.PointerTo(exploit2.Description),
-					Name:        utils.PointerTo(exploit2.Name),
-					SourceDB:    utils.PointerTo(exploit2.SourceDB),
-					Title:       utils.PointerTo(exploit2.Title),
+					CveID:       to.Ptr(exploit2.CveID),
+					Description: to.Ptr(exploit2.Description),
+					Name:        to.Ptr(exploit2.Name),
+					SourceDB:    to.Ptr(exploit2.SourceDB),
+					Title:       to.Ptr(exploit2.Title),
 					Urls:        &exploit2.URLs,
 				},
 				{
-					CveID:       utils.PointerTo(exploit3.CveID),
-					Description: utils.PointerTo(exploit3.Description),
-					Name:        utils.PointerTo(exploit3.Name),
-					SourceDB:    utils.PointerTo(exploit3.SourceDB),
-					Title:       utils.PointerTo(exploit3.Title),
+					CveID:       to.Ptr(exploit3.CveID),
+					Description: to.Ptr(exploit3.Description),
+					Name:        to.Ptr(exploit3.Name),
+					SourceDB:    to.Ptr(exploit3.SourceDB),
+					Title:       to.Ptr(exploit3.Title),
 					Urls:        &exploit3.URLs,
 				},
 			},
@@ -899,34 +899,34 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 			want: returns{
 				[]apitypes.Misconfiguration{
 					{
-						Message:         utils.PointerTo(misconfiguration1.Message),
-						Remediation:     utils.PointerTo(misconfiguration1.Remediation),
-						ScannedPath:     utils.PointerTo(misconfiguration1.ScannedPath),
-						ScannerName:     utils.PointerTo(misconfiguration1.ScannerName),
-						Severity:        utils.PointerTo(apitypes.MisconfigurationHighSeverity),
-						TestCategory:    utils.PointerTo(misconfiguration1.TestCategory),
-						TestDescription: utils.PointerTo(misconfiguration1.TestDescription),
-						TestID:          utils.PointerTo(misconfiguration1.TestID),
+						Message:         to.Ptr(misconfiguration1.Message),
+						Remediation:     to.Ptr(misconfiguration1.Remediation),
+						ScannedPath:     to.Ptr(misconfiguration1.ScannedPath),
+						ScannerName:     to.Ptr(misconfiguration1.ScannerName),
+						Severity:        to.Ptr(apitypes.MisconfigurationHighSeverity),
+						TestCategory:    to.Ptr(misconfiguration1.TestCategory),
+						TestDescription: to.Ptr(misconfiguration1.TestDescription),
+						TestID:          to.Ptr(misconfiguration1.TestID),
 					},
 					{
-						Message:         utils.PointerTo(misconfiguration2.Message),
-						Remediation:     utils.PointerTo(misconfiguration2.Remediation),
-						ScannedPath:     utils.PointerTo(misconfiguration2.ScannedPath),
-						ScannerName:     utils.PointerTo(misconfiguration2.ScannerName),
-						Severity:        utils.PointerTo(apitypes.MisconfigurationMediumSeverity),
-						TestCategory:    utils.PointerTo(misconfiguration2.TestCategory),
-						TestDescription: utils.PointerTo(misconfiguration2.TestDescription),
-						TestID:          utils.PointerTo(misconfiguration2.TestID),
+						Message:         to.Ptr(misconfiguration2.Message),
+						Remediation:     to.Ptr(misconfiguration2.Remediation),
+						ScannedPath:     to.Ptr(misconfiguration2.ScannedPath),
+						ScannerName:     to.Ptr(misconfiguration2.ScannerName),
+						Severity:        to.Ptr(apitypes.MisconfigurationMediumSeverity),
+						TestCategory:    to.Ptr(misconfiguration2.TestCategory),
+						TestDescription: to.Ptr(misconfiguration2.TestDescription),
+						TestID:          to.Ptr(misconfiguration2.TestID),
 					},
 					{
-						Message:         utils.PointerTo(misconfiguration3.Message),
-						Remediation:     utils.PointerTo(misconfiguration3.Remediation),
-						ScannedPath:     utils.PointerTo(misconfiguration3.ScannedPath),
-						ScannerName:     utils.PointerTo(misconfiguration3.ScannerName),
-						Severity:        utils.PointerTo(apitypes.MisconfigurationHighSeverity),
-						TestCategory:    utils.PointerTo(misconfiguration3.TestCategory),
-						TestDescription: utils.PointerTo(misconfiguration3.TestDescription),
-						TestID:          utils.PointerTo(misconfiguration3.TestID),
+						Message:         to.Ptr(misconfiguration3.Message),
+						Remediation:     to.Ptr(misconfiguration3.Remediation),
+						ScannedPath:     to.Ptr(misconfiguration3.ScannedPath),
+						ScannerName:     to.Ptr(misconfiguration3.ScannerName),
+						Severity:        to.Ptr(apitypes.MisconfigurationHighSeverity),
+						TestCategory:    to.Ptr(misconfiguration3.TestCategory),
+						TestDescription: to.Ptr(misconfiguration3.TestDescription),
+						TestID:          to.Ptr(misconfiguration3.TestID),
 					},
 				},
 				[]string{"foo", "bar"},
@@ -961,70 +961,70 @@ func Test_ConvertVulnSeverityToAPIModel(t *testing.T) {
 			args: args{
 				severity: vulnerability.DEFCON1,
 			},
-			want: utils.PointerTo(apitypes.CRITICAL),
+			want: to.Ptr(apitypes.CRITICAL),
 		},
 		{
 			name: "CRITICAL -> CRITICAL",
 			args: args{
 				severity: vulnerability.CRITICAL,
 			},
-			want: utils.PointerTo(apitypes.CRITICAL),
+			want: to.Ptr(apitypes.CRITICAL),
 		},
 		{
 			name: "HIGH -> HIGH",
 			args: args{
 				severity: vulnerability.HIGH,
 			},
-			want: utils.PointerTo(apitypes.HIGH),
+			want: to.Ptr(apitypes.HIGH),
 		},
 		{
 			name: "MEDIUM -> MEDIUM",
 			args: args{
 				severity: vulnerability.MEDIUM,
 			},
-			want: utils.PointerTo(apitypes.MEDIUM),
+			want: to.Ptr(apitypes.MEDIUM),
 		},
 		{
 			name: "LOW -> LOW",
 			args: args{
 				severity: vulnerability.LOW,
 			},
-			want: utils.PointerTo(apitypes.LOW),
+			want: to.Ptr(apitypes.LOW),
 		},
 		{
 			name: "NEGLIGIBLE -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.NEGLIGIBLE,
 			},
-			want: utils.PointerTo(apitypes.NEGLIGIBLE),
+			want: to.Ptr(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "UNKNOWN -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.UNKNOWN,
 			},
-			want: utils.PointerTo(apitypes.NEGLIGIBLE),
+			want: to.Ptr(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "NONE -> NEGLIGIBLE",
 			args: args{
 				severity: vulnerability.NONE,
 			},
-			want: utils.PointerTo(apitypes.NEGLIGIBLE),
+			want: to.Ptr(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "invalid -> NEGLIGIBLE",
 			args: args{
 				severity: "catastrophic",
 			},
-			want: utils.PointerTo(apitypes.NEGLIGIBLE),
+			want: to.Ptr(apitypes.NEGLIGIBLE),
 		},
 		{
 			name: "high -> HIGH",
 			args: args{
 				severity: "high",
 			},
-			want: utils.PointerTo(apitypes.HIGH),
+			want: to.Ptr(apitypes.HIGH),
 		},
 	}
 	for _, tt := range tests {
@@ -1112,22 +1112,22 @@ func TestConvertInfoFinderResultToInfosAndScanners(t *testing.T) {
 			want: returns{
 				Infos: []apitypes.InfoFinderInfo{
 					{
-						Type:        utils.PointerTo(apitypes.InfoTypeSSHKnownHostFingerprint),
-						Path:        utils.PointerTo("Path1"),
-						Data:        utils.PointerTo("Data1"),
-						ScannerName: utils.PointerTo("scanner1"),
+						Type:        to.Ptr(apitypes.InfoTypeSSHKnownHostFingerprint),
+						Path:        to.Ptr("Path1"),
+						Data:        to.Ptr("Data1"),
+						ScannerName: to.Ptr("scanner1"),
 					},
 					{
-						Type:        utils.PointerTo(apitypes.InfoTypeSSHDaemonKeyFingerprint),
-						Path:        utils.PointerTo("Path2"),
-						Data:        utils.PointerTo("Data2"),
-						ScannerName: utils.PointerTo("scanner2"),
+						Type:        to.Ptr(apitypes.InfoTypeSSHDaemonKeyFingerprint),
+						Path:        to.Ptr("Path2"),
+						Data:        to.Ptr("Data2"),
+						ScannerName: to.Ptr("scanner2"),
 					},
 					{
-						Type:        utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
-						Path:        utils.PointerTo("Path3"),
-						Data:        utils.PointerTo("Data3"),
-						ScannerName: utils.PointerTo("scanner2"),
+						Type:        to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+						Path:        to.Ptr("Path3"),
+						Data:        to.Ptr("Data3"),
+						ScannerName: to.Ptr("scanner2"),
 					},
 				},
 				Scanners: []string{"scanner1", "scanner2"},
@@ -1166,35 +1166,35 @@ func Test_convertInfoTypeToAPIModel(t *testing.T) {
 			args: args{
 				infoType: infofinderTypes.SSHKnownHostFingerprint,
 			},
-			want: utils.PointerTo(apitypes.InfoTypeSSHKnownHostFingerprint),
+			want: to.Ptr(apitypes.InfoTypeSSHKnownHostFingerprint),
 		},
 		{
 			name: "SSHAuthorizedKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHAuthorizedKeyFingerprint,
 			},
-			want: utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+			want: to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 		},
 		{
 			name: "SSHPrivateKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHPrivateKeyFingerprint,
 			},
-			want: utils.PointerTo(apitypes.InfoTypeSSHPrivateKeyFingerprint),
+			want: to.Ptr(apitypes.InfoTypeSSHPrivateKeyFingerprint),
 		},
 		{
 			name: "SSHDaemonKeyFingerprint",
 			args: args{
 				infoType: infofinderTypes.SSHDaemonKeyFingerprint,
 			},
-			want: utils.PointerTo(apitypes.InfoTypeSSHDaemonKeyFingerprint),
+			want: to.Ptr(apitypes.InfoTypeSSHDaemonKeyFingerprint),
 		},
 		{
 			name: "unknown",
 			args: args{
 				infoType: "unknown",
 			},
-			want: utils.PointerTo(apitypes.InfoTypeUNKNOWN),
+			want: to.Ptr(apitypes.InfoTypeUNKNOWN),
 		},
 	}
 	for _, tt := range tests {

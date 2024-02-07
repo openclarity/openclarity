@@ -25,7 +25,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -125,10 +125,10 @@ func (s *ServerImpl) getRiskiestAssetsPerFinding(ctx context.Context, findingTyp
 	}
 
 	riskiestAssets, err := s.Client.GetAssets(ctx, apitypes.GetAssetsParams{
-		Select:  utils.PointerTo(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
-		Top:     utils.PointerTo(topRiskiestAssetsCount),
-		OrderBy: utils.PointerTo(getOrderByOData(totalFindingField)),
-		Filter:  utils.PointerTo(fmt.Sprintf("terminatedOn eq null and summary/%s ne null and summary/%s gt 0", totalFindingField, totalFindingField)),
+		Select:  to.Ptr(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
+		Top:     to.Ptr(topRiskiestAssetsCount),
+		OrderBy: to.Ptr(getOrderByOData(totalFindingField)),
+		Filter:  to.Ptr(fmt.Sprintf("terminatedOn eq null and summary/%s ne null and summary/%s gt 0", totalFindingField, totalFindingField)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get assets: %w", err)
@@ -225,7 +225,7 @@ func containerInfoToAssetInfo(info apitypes.ContainerInfo) (*types.AssetInfo, er
 	return &types.AssetInfo{
 		Name:     info.ContainerName,
 		Location: info.Location,
-		Type:     utils.PointerTo(types.Container),
+		Type:     to.Ptr(types.Container),
 	}, nil
 }
 
@@ -235,7 +235,7 @@ func containerImageInfoToAssetInfo(info apitypes.ContainerImageInfo) (*types.Ass
 	return &types.AssetInfo{
 		Name:     &info.ImageID,
 		Location: &location,
-		Type:     utils.PointerTo(types.ContainerImage),
+		Type:     to.Ptr(types.ContainerImage),
 	}, nil
 }
 
@@ -257,13 +257,13 @@ func getVMAssetType(provider *apitypes.CloudProvider) (*types.AssetType, error) 
 	}
 	switch *provider {
 	case apitypes.AWS:
-		return utils.PointerTo(types.AWSEC2Instance), nil
+		return to.Ptr(types.AWSEC2Instance), nil
 	case apitypes.Azure:
-		return utils.PointerTo(types.AzureInstance), nil
+		return to.Ptr(types.AzureInstance), nil
 	case apitypes.GCP:
-		return utils.PointerTo(types.GCPInstance), nil
+		return to.Ptr(types.GCPInstance), nil
 	case apitypes.External:
-		return utils.PointerTo(types.ExternalInstance), nil
+		return to.Ptr(types.ExternalInstance), nil
 	case apitypes.Docker, apitypes.Kubernetes:
 		fallthrough
 	default:

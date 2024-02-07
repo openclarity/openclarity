@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestGenerateInfoFinderKey(t *testing.T) {
@@ -36,10 +36,10 @@ func TestGenerateInfoFinderKey(t *testing.T) {
 			name: "sanity",
 			args: args{
 				info: apitypes.InfoFinderFindingInfo{
-					Data:        utils.PointerTo("data"),
-					Path:        utils.PointerTo("path"),
-					ScannerName: utils.PointerTo("scanner"),
-					Type:        utils.PointerTo(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+					Data:        to.Ptr("data"),
+					Path:        to.Ptr("path"),
+					ScannerName: to.Ptr("scanner"),
+					Type:        to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 				},
 			},
 			want: InfoFinderKey{

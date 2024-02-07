@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	sharedutils "github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	envtypes "github.com/openclarity/vmclarity/testenv/types"
 )
 
@@ -37,7 +37,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: sharedutils.PointerTo[int32](1),
+			Replicas: to.Ptr[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app.kubernetes.io/name":      "vmclarity-asset",
@@ -80,7 +80,7 @@ func WithReplicas(r int32) DeploymentOptFn {
 			return nil
 		}
 
-		d.Spec.Replicas = sharedutils.PointerTo(r)
+		d.Spec.Replicas = to.Ptr(r)
 
 		return nil
 	}

@@ -26,7 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	sharedutils "github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/asset"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/kind"
@@ -174,7 +174,7 @@ func (e *KubernetesEnv) Services(ctx context.Context) (envtypes.Services, error)
 
 	deployments, err := client.AppsV1().Deployments(e.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector:  labelSelector,
-		TimeoutSeconds: sharedutils.PointerTo[int64](ListOperationTimeout),
+		TimeoutSeconds: to.Ptr[int64](ListOperationTimeout),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get Deployments from cluster: %w", err)
@@ -193,7 +193,7 @@ func (e *KubernetesEnv) Services(ctx context.Context) (envtypes.Services, error)
 
 	statefulSets, err := client.AppsV1().StatefulSets(e.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector:  labelSelector,
-		TimeoutSeconds: sharedutils.PointerTo[int64](ListOperationTimeout),
+		TimeoutSeconds: to.Ptr[int64](ListOperationTimeout),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get StatefulSets from cluster: %w", err)
@@ -212,7 +212,7 @@ func (e *KubernetesEnv) Services(ctx context.Context) (envtypes.Services, error)
 
 	daemonSets, err := client.AppsV1().DaemonSets(e.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector:  labelSelector,
-		TimeoutSeconds: sharedutils.PointerTo[int64](ListOperationTimeout),
+		TimeoutSeconds: to.Ptr[int64](ListOperationTimeout),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get DaemonSets from cluster: %w", err)

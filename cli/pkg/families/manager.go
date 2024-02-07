@@ -32,7 +32,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/utils"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/utils/containerrootfs"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 type Manager struct {

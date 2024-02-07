@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	dbtypes "github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 const (
@@ -112,10 +113,10 @@ func (t *AssetsTableHandler) CreateAsset(asset types.Asset) (types.Asset, error)
 	}
 
 	// Generate a new UUID
-	asset.Id = types.PointerTo(uuid.New().String())
+	asset.Id = to.Ptr(uuid.New().String())
 
 	// Initialise revision
-	asset.Revision = types.PointerTo(1)
+	asset.Revision = to.Ptr(1)
 
 	// TODO(sambetts) Lock the table here to prevent race conditions
 	// checking the uniqueness.

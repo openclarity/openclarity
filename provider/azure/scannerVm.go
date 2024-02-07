@@ -21,11 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v3"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 	"github.com/openclarity/vmclarity/provider/cloudinit"
 )
@@ -159,8 +158,8 @@ func (p *Provider) ensureDiskAttachedToScannerVM(ctx context.Context, vm armcomp
 	if !vmAttachedToDisk {
 		vm.Properties.StorageProfile.DataDisks = []*armcompute.DataDisk{
 			{
-				CreateOption: utils.PointerTo(armcompute.DiskCreateOptionTypesAttach),
-				Lun:          utils.PointerTo[int32](0),
+				CreateOption: to.Ptr(armcompute.DiskCreateOptionTypesAttach),
+				Lun:          to.Ptr[int32](0),
 				ManagedDisk: &armcompute.ManagedDiskParameters{
 					ID: disk.ID,
 				},

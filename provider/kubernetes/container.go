@@ -27,9 +27,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
 	discoverytypes "github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 const (
@@ -84,7 +84,7 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 		container := container
 		// Update asset location based on the discoverer that
 		// we found it from
-		container.Location = utils.PointerTo(discoverer.Spec.NodeName)
+		container.Location = to.Ptr(discoverer.Spec.NodeName)
 
 		if err = p.enrichContainerInfo(ctx, &container); err != nil {
 			logger.WithFields(map[string]interface{}{

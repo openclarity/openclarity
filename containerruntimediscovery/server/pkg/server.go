@@ -26,7 +26,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 type ContainerRuntimeDiscoveryServer struct {

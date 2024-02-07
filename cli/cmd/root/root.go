@@ -24,8 +24,8 @@ import (
 	"github.com/openclarity/vmclarity/cli/cmd/asset"
 	"github.com/openclarity/vmclarity/cli/cmd/logutil"
 	"github.com/openclarity/vmclarity/cli/cmd/scan"
-	"github.com/openclarity/vmclarity/utils/log"
-	"github.com/openclarity/vmclarity/utils/version"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/version"
 )
 
 // RootCmd represents the base command when called without any subcommands.

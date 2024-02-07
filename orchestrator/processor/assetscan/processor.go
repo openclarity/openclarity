@@ -24,9 +24,9 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type AssetScanProcessor struct {
@@ -117,7 +117,7 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 	}
 
 	// Mark post-processing completed for this asset scan
-	assetScan.FindingsProcessed = utils.PointerTo(true)
+	assetScan.FindingsProcessed = to.Ptr(true)
 	err = asp.client.PatchAssetScan(ctx, assetScan, *assetScan.Id)
 	if err != nil {
 		return fmt.Errorf("failed to update asset scan %s: %w", *assetScan.Id, err)
@@ -148,8 +148,8 @@ func (asp *AssetScanProcessor) GetItems(ctx context.Context) ([]AssetScanReconci
 	filter := fmt.Sprintf("(status/state eq '%s' or status/state eq '%s') and (findingsProcessed eq false or findingsProcessed eq null)",
 		apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed)
 	assetScans, err := asp.client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
-		Filter: utils.PointerTo(filter),
-		Select: utils.PointerTo("id"),
+		Filter: to.Ptr(filter),
+		Select: to.Ptr("id"),
 	})
 	if err != nil {
 		return []AssetScanReconcileEvent{}, fmt.Errorf("failed to get asset scans from API: %w", err)

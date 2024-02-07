@@ -26,8 +26,8 @@ import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families"
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 const (
@@ -89,7 +89,7 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context, config *families.Co
 	}
 	assetScan.Stats.General = &apitypes.AssetScanGeneralStats{
 		ScanTime: &apitypes.AssetScanScanTime{
-			StartTime: utils.PointerTo(time.Now()),
+			StartTime: to.Ptr(time.Now()),
 		},
 	}
 
@@ -118,7 +118,7 @@ func (v *VMClarityState) MarkDone(ctx context.Context) error {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	assetScan.Stats.General.ScanTime.EndTime = utils.PointerTo(time.Now())
+	assetScan.Stats.General.ScanTime.EndTime = to.Ptr(time.Now())
 	assetScan.Status = apitypes.NewAssetScanStatus(
 		apitypes.AssetScanStatusStateDone,
 		apitypes.AssetScanStatusReasonSuccess,
@@ -139,11 +139,11 @@ func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) er
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	assetScan.Stats.General.ScanTime.EndTime = utils.PointerTo(time.Now())
+	assetScan.Stats.General.ScanTime.EndTime = to.Ptr(time.Now())
 	assetScan.Status = apitypes.NewAssetScanStatus(
 		apitypes.AssetScanStatusStateFailed,
 		apitypes.AssetScanStatusReasonError,
-		utils.PointerTo(errorMessage),
+		to.Ptr(errorMessage),
 	)
 
 	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
@@ -371,7 +371,7 @@ func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
 
 func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
 	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{
-		Select: utils.PointerTo("id,status"),
+		Select: to.Ptr("id,status"),
 	})
 	if err != nil {
 		return false, fmt.Errorf("failed to get asset scan: %w", err)
@@ -417,8 +417,8 @@ func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, conf
 	}
 	newAnnotations = append(newAnnotations, apitypes.Annotations{
 		{
-			Key:   utils.PointerTo(effectiveScanConfigAnnotationKey),
-			Value: utils.PointerTo(string(configJSON)),
+			Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+			Value: to.Ptr(string(configJSON)),
 		},
 	}...)
 

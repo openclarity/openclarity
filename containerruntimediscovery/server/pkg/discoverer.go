@@ -23,7 +23,7 @@ import (
 	"github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg/containerd"
 	"github.com/openclarity/vmclarity/containerruntimediscovery/server/pkg/docker"
 	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/utils/log"
+	"github.com/openclarity/vmclarity/core/log"
 )
 
 var discovererFactories = map[string]types.DiscovererFactory{

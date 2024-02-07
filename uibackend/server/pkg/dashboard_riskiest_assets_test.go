@@ -25,7 +25,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
@@ -148,62 +148,62 @@ func Test_getCount(t *testing.T) {
 			name: "TotalExploits",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalExploits: utils.PointerTo(1),
+					TotalExploits: to.Ptr(1),
 				},
 				findingType: apitypes.EXPLOIT,
 			},
-			want:    utils.PointerTo(1),
+			want:    to.Ptr(1),
 			wantErr: false,
 		},
 		{
 			name: "TotalMalware",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalMalware: utils.PointerTo(1),
+					TotalMalware: to.Ptr(1),
 				},
 				findingType: apitypes.MALWARE,
 			},
-			want:    utils.PointerTo(1),
+			want:    to.Ptr(1),
 			wantErr: false,
 		},
 		{
 			name: "TotalMisconfigurations",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalMisconfigurations: utils.PointerTo(1),
+					TotalMisconfigurations: to.Ptr(1),
 				},
 				findingType: apitypes.MISCONFIGURATION,
 			},
-			want:    utils.PointerTo(1),
+			want:    to.Ptr(1),
 			wantErr: false,
 		},
 		{
 			name: "TotalRootkits",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalRootkits: utils.PointerTo(1),
+					TotalRootkits: to.Ptr(1),
 				},
 				findingType: apitypes.ROOTKIT,
 			},
-			want:    utils.PointerTo(1),
+			want:    to.Ptr(1),
 			wantErr: false,
 		},
 		{
 			name: "TotalSecrets",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalSecrets: utils.PointerTo(1),
+					TotalSecrets: to.Ptr(1),
 				},
 				findingType: apitypes.SECRET,
 			},
-			want:    utils.PointerTo(1),
+			want:    to.Ptr(1),
 			wantErr: false,
 		},
 		{
 			name: "TotalInfoFinder - unsupported",
 			args: args{
 				summary: &apitypes.ScanFindingsSummary{
-					TotalInfoFinder: utils.PointerTo(1),
+					TotalInfoFinder: to.Ptr(1),
 				},
 				findingType: apitypes.INFOFINDER,
 			},
@@ -249,9 +249,9 @@ func Test_getAssetInfo(t *testing.T) {
 				asset: createVMInfo(t, "name", "location"),
 			},
 			want: &types.AssetInfo{
-				Location: utils.PointerTo("location"),
-				Name:     utils.PointerTo("name"),
-				Type:     utils.PointerTo(types.AWSEC2Instance),
+				Location: to.Ptr("location"),
+				Name:     to.Ptr("name"),
+				Type:     to.Ptr(types.AWSEC2Instance),
 			},
 			wantErr: false,
 		},
@@ -261,9 +261,9 @@ func Test_getAssetInfo(t *testing.T) {
 				asset: createContainerInfo(t),
 			},
 			want: &types.AssetInfo{
-				Location: utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
-				Name:     utils.PointerTo("hungry_mcclintock"),
-				Type:     utils.PointerTo(types.Container),
+				Location: to.Ptr("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
+				Name:     to.Ptr("hungry_mcclintock"),
+				Type:     to.Ptr(types.Container),
 			},
 			wantErr: false,
 		},
@@ -273,9 +273,9 @@ func Test_getAssetInfo(t *testing.T) {
 				asset: createContainerImageInfo(t),
 			},
 			want: &types.AssetInfo{
-				Location: utils.PointerTo("ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"),
-				Name:     utils.PointerTo("sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab"),
-				Type:     utils.PointerTo(types.ContainerImage),
+				Location: to.Ptr("ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"),
+				Name:     to.Ptr("sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab"),
+				Type:     to.Ptr(types.ContainerImage),
 			},
 			wantErr: false,
 		},
@@ -299,7 +299,7 @@ func createVMInfo(t *testing.T, instanceID, location string) *apitypes.AssetType
 	info := apitypes.AssetType{}
 	err := info.FromVMInfo(apitypes.VMInfo{
 		InstanceID:       instanceID,
-		InstanceProvider: utils.PointerTo(apitypes.AWS),
+		InstanceProvider: to.Ptr(apitypes.AWS),
 		Location:         location,
 	})
 	assert.NilError(t, err)
@@ -311,8 +311,8 @@ func createContainerInfo(t *testing.T) *apitypes.AssetType {
 	info := apitypes.AssetType{}
 	err := info.FromContainerInfo(apitypes.ContainerInfo{
 		ContainerID:   "d66da925d976b8caf60ea59c5ec75b1950f87d506144942cdbf10061052a8088",
-		ContainerName: utils.PointerTo("hungry_mcclintock"),
-		Location:      utils.PointerTo("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
+		ContainerName: to.Ptr("hungry_mcclintock"),
+		Location:      to.Ptr("gke-sambetts-dev-clu-sambetts-dev-nod-449204c7-gqx5"),
 	})
 	assert.NilError(t, err)
 	return &info
@@ -323,8 +323,8 @@ func createContainerImageInfo(t *testing.T) *apitypes.AssetType {
 	info := apitypes.AssetType{}
 	err := info.FromContainerImageInfo(apitypes.ContainerImageInfo{
 		ImageID:     "sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab",
-		RepoTags:    utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator:latest"}),
-		RepoDigests: utils.PointerTo([]string{"ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
+		RepoTags:    to.Ptr([]string{"ghcr.io/openclarity/vmclarity-orchestrator:latest"}),
+		RepoDigests: to.Ptr([]string{"ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
 	})
 	assert.NilError(t, err)
 	return &info
@@ -364,11 +364,11 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 					{
 						Summary: &apitypes.ScanFindingsSummary{
 							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-								TotalCriticalVulnerabilities:   utils.PointerTo(1),
-								TotalHighVulnerabilities:       utils.PointerTo(2),
-								TotalLowVulnerabilities:        utils.PointerTo(3),
-								TotalMediumVulnerabilities:     utils.PointerTo(4),
-								TotalNegligibleVulnerabilities: utils.PointerTo(5),
+								TotalCriticalVulnerabilities:   to.Ptr(1),
+								TotalHighVulnerabilities:       to.Ptr(2),
+								TotalLowVulnerabilities:        to.Ptr(3),
+								TotalMediumVulnerabilities:     to.Ptr(4),
+								TotalNegligibleVulnerabilities: to.Ptr(5),
 							},
 						},
 						AssetInfo: createVMInfo(t, "vm name", "vm location"),
@@ -376,7 +376,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 					{
 						Summary: &apitypes.ScanFindingsSummary{
 							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-								TotalHighVulnerabilities: utils.PointerTo(1),
+								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},
 						AssetInfo: createPodInfo(t, "pod name", "pod location"),
@@ -385,15 +385,15 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 			},
 			want: []types.VulnerabilityRiskyAsset{
 				{
-					CriticalVulnerabilitiesCount:   utils.PointerTo(1),
-					HighVulnerabilitiesCount:       utils.PointerTo(2),
-					LowVulnerabilitiesCount:        utils.PointerTo(3),
-					MediumVulnerabilitiesCount:     utils.PointerTo(4),
-					NegligibleVulnerabilitiesCount: utils.PointerTo(5),
+					CriticalVulnerabilitiesCount:   to.Ptr(1),
+					HighVulnerabilitiesCount:       to.Ptr(2),
+					LowVulnerabilitiesCount:        to.Ptr(3),
+					MediumVulnerabilitiesCount:     to.Ptr(4),
+					NegligibleVulnerabilitiesCount: to.Ptr(5),
 					AssetInfo: &types.AssetInfo{
-						Location: utils.PointerTo("vm location"),
-						Name:     utils.PointerTo("vm name"),
-						Type:     utils.PointerTo(types.AWSEC2Instance),
+						Location: to.Ptr("vm location"),
+						Name:     to.Ptr("vm name"),
+						Type:     to.Ptr(types.AWSEC2Instance),
 					},
 				},
 			},
@@ -432,13 +432,13 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 				assets: []apitypes.Asset{
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalMalware: utils.PointerTo(1),
+							TotalMalware: to.Ptr(1),
 						},
 						AssetInfo: createVMInfo(t, "vm name", "vm location"),
 					},
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalMalware: utils.PointerTo(2),
+							TotalMalware: to.Ptr(2),
 						},
 						AssetInfo: createPodInfo(t, "pod name", "pod location"),
 					},
@@ -447,11 +447,11 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 			},
 			want: []types.RiskyAsset{
 				{
-					Count: utils.PointerTo(1),
+					Count: to.Ptr(1),
 					AssetInfo: &types.AssetInfo{
-						Location: utils.PointerTo("vm location"),
-						Name:     utils.PointerTo("vm name"),
-						Type:     utils.PointerTo(types.AWSEC2Instance),
+						Location: to.Ptr("vm location"),
+						Name:     to.Ptr("vm name"),
+						Type:     to.Ptr(types.AWSEC2Instance),
 					},
 				},
 			},
@@ -463,7 +463,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 					{
 						Summary: &apitypes.ScanFindingsSummary{
 							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-								TotalHighVulnerabilities: utils.PointerTo(1),
+								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},
 						AssetInfo: createVMInfo(t, "name", "location"),
@@ -471,7 +471,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 					{
 						Summary: &apitypes.ScanFindingsSummary{
 							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-								TotalHighVulnerabilities: utils.PointerTo(1),
+								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},
 						AssetInfo: createVMInfo(t, "name1", "location1"),
@@ -585,14 +585,14 @@ func Test_vmInfoToAssetInfo(t *testing.T) {
 			args: args{
 				info: apitypes.VMInfo{
 					InstanceID:       "name",
-					InstanceProvider: utils.PointerTo(apitypes.AWS),
+					InstanceProvider: to.Ptr(apitypes.AWS),
 					Location:         "location",
 				},
 			},
 			want: &types.AssetInfo{
-				Location: utils.PointerTo("location"),
-				Name:     utils.PointerTo("name"),
-				Type:     utils.PointerTo(types.AWSEC2Instance),
+				Location: to.Ptr("location"),
+				Name:     to.Ptr("name"),
+				Type:     to.Ptr(types.AWSEC2Instance),
 			},
 			wantErr: false,
 		},
@@ -632,7 +632,7 @@ func Test_getVMAssetType(t *testing.T) {
 		{
 			name: "unsupported provider",
 			args: args{
-				provider: utils.PointerTo(apitypes.CloudProvider("unsupported provider")),
+				provider: to.Ptr(apitypes.CloudProvider("unsupported provider")),
 			},
 			want:    nil,
 			wantErr: true,
@@ -640,9 +640,9 @@ func Test_getVMAssetType(t *testing.T) {
 		{
 			name: "aws provider",
 			args: args{
-				provider: utils.PointerTo(apitypes.AWS),
+				provider: to.Ptr(apitypes.AWS),
 			},
-			want:    utils.PointerTo(types.AWSEC2Instance),
+			want:    to.Ptr(types.AWSEC2Instance),
 			wantErr: false,
 		},
 	}

@@ -24,7 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/uuid"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func TestNewAssetScanFromScan(t *testing.T) {
@@ -114,29 +114,29 @@ func TestNewAssetScanFromScan(t *testing.T) {
 		{
 			Name: "AssetResult from valid Scan",
 			Scan: &apitypes.Scan{
-				Name:                utils.PointerTo("test-1234"),
-				Id:                  utils.PointerTo(scanID),
-				MaxParallelScanners: utils.PointerTo(2),
+				Name:                to.Ptr("test-1234"),
+				Id:                  to.Ptr(scanID),
+				MaxParallelScanners: to.Ptr(2),
 				AssetScanTemplate: &apitypes.AssetScanTemplate{
 					ScanFamiliesConfig: &apitypes.ScanFamiliesConfig{
 						Exploits: &apitypes.ExploitsConfig{
-							Enabled: utils.PointerTo(true),
+							Enabled: to.Ptr(true),
 						},
 						Malware: &apitypes.MalwareConfig{
-							Enabled: utils.PointerTo(true),
+							Enabled: to.Ptr(true),
 						},
 						Misconfigurations: nil,
 						Rootkits:          nil,
 						Sbom: &apitypes.SBOMConfig{
-							Enabled: utils.PointerTo(true),
+							Enabled: to.Ptr(true),
 						},
 						Secrets: nil,
 						Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-							Enabled: utils.PointerTo(true),
+							Enabled: to.Ptr(true),
 						},
 						InfoFinder: &apitypes.InfoFinderConfig{
-							Enabled:  utils.PointerTo(true),
-							Scanners: utils.PointerTo([]string{"test"}),
+							Enabled:  to.Ptr(true),
+							Scanners: to.Ptr([]string{"test"}),
 						},
 					},
 				},
@@ -190,23 +190,23 @@ func TestNewAssetScanFromScan(t *testing.T) {
 				},
 				ScanFamiliesConfig: &apitypes.ScanFamiliesConfig{
 					Exploits: &apitypes.ExploitsConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Malware: &apitypes.MalwareConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Misconfigurations: nil,
 					Rootkits:          nil,
 					Sbom: &apitypes.SBOMConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					Secrets: nil,
 					Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-						Enabled: utils.PointerTo(true),
+						Enabled: to.Ptr(true),
 					},
 					InfoFinder: &apitypes.InfoFinderConfig{
-						Enabled:  utils.PointerTo(true),
-						Scanners: utils.PointerTo([]string{"test"}),
+						Enabled:  to.Ptr(true),
+						Scanners: to.Ptr([]string{"test"}),
 					},
 				},
 			},

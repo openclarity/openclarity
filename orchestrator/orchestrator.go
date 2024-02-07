@@ -24,6 +24,7 @@ import (
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/log"
 	discovery "github.com/openclarity/vmclarity/orchestrator/discoverer"
 	assetscanprocessor "github.com/openclarity/vmclarity/orchestrator/processor/assetscan"
 	assetscanwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/assetscan"
@@ -38,7 +39,6 @@ import (
 	"github.com/openclarity/vmclarity/provider/external"
 	"github.com/openclarity/vmclarity/provider/gcp"
 	"github.com/openclarity/vmclarity/provider/kubernetes"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Orchestrator struct {

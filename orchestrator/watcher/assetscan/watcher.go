@@ -24,9 +24,10 @@ import (
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type (
@@ -90,7 +91,7 @@ func (w *Watcher) GetAssetScans(ctx context.Context) ([]AssetScanReconcileEvent,
 	params := apitypes.GetAssetScansParams{
 		Filter: &filter,
 		Select: &selector,
-		Count:  utils.PointerTo(true),
+		Count:  to.Ptr(true),
 	}
 	assetScans, err := w.client.GetAssetScans(ctx, params)
 	if err != nil {
@@ -140,7 +141,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event AssetScanReconcileEvent) 
 	ctx = log.SetLoggerForContext(ctx, logger)
 
 	assetScan, err := w.client.GetAssetScan(ctx, event.AssetScanID, apitypes.GetAssetScansAssetScanIDParams{
-		Expand: utils.PointerTo("scan,asset"),
+		Expand: to.Ptr("scan,asset"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get AssetScan with %s id: %w", event.AssetScanID, err)
@@ -198,9 +199,9 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *apitypes.Asse
 		filter := fmt.Sprintf("scan/id eq '%s' and status/state ne '%s' and status/state ne '%s' and status/state ne '%s' and resourceCleanupStatus/state eq '%s'",
 			assetScan.Scan.Id, apitypes.AssetScanStatusStateDone, apitypes.AssetScanStatusStateFailed, apitypes.AssetScanStatusStatePending, apitypes.ResourceCleanupStatusStatePending)
 		assetScans, err := w.client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
-			Filter: utils.PointerTo(filter),
-			Count:  utils.PointerTo(true),
-			Top:    utils.PointerTo(0),
+			Filter: to.Ptr(filter),
+			Count:  to.Ptr(true),
+			Top:    to.Ptr(0),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to fetch in-progress AssetScans for Scan. ScanID=%s: %w",
@@ -252,7 +253,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.As
 		return errors.New("invalid AssetScan: Asset or AssetInfo is nil")
 	}
 	asset := &apitypes.Asset{
-		Id:         utils.PointerTo(assetScan.Asset.Id),
+		Id:         to.Ptr(assetScan.Asset.Id),
 		Revision:   assetScan.Asset.Revision,
 		ScansCount: assetScan.Asset.ScansCount,
 		Summary:    assetScan.Asset.Summary,
@@ -278,7 +279,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.As
 		assetScan.Status = apitypes.NewAssetScanStatus(
 			apitypes.AssetScanStatusStateFailed,
 			apitypes.AssetScanStatusReasonError,
-			utils.PointerTo(fatalError.Error()),
+			to.Ptr(fatalError.Error()),
 		)
 	case errors.As(err, &retryableError):
 		// nolint:wrapcheck
@@ -287,7 +288,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.As
 		assetScan.Status = apitypes.NewAssetScanStatus(
 			apitypes.AssetScanStatusStateFailed,
 			apitypes.AssetScanStatusReasonError,
-			utils.PointerTo(errors.Join(utils.UnwrapErrors(err)...).Error()),
+			to.Ptr(errors.Join(utils.UnwrapErrors(err)...).Error()),
 		)
 	default:
 		assetScan.Status = apitypes.NewAssetScanStatus(
@@ -355,7 +356,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *apitypes.Asse
 	default:
 		// Get Asset
 		asset, err := w.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{
-			Select: utils.PointerTo("id,assetInfo"),
+			Select: to.Ptr("id,assetInfo"),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to fetch Asset. AssetID=%s: %w", assetScan.Asset.Id, err)
@@ -383,7 +384,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *apitypes.Asse
 			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
 				apitypes.ResourceCleanupStatusStateFailed,
 				apitypes.ResourceCleanupStatusReasonProviderError,
-				utils.PointerTo(fatalError.Error()),
+				to.Ptr(fatalError.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", fatalError)
 		case errors.As(err, &retryableError):
@@ -393,7 +394,7 @@ func (w *Watcher) cleanupResources(ctx context.Context, assetScan *apitypes.Asse
 			assetScan.ResourceCleanupStatus = apitypes.NewResourceCleanupStatus(
 				apitypes.ResourceCleanupStatusStateFailed,
 				apitypes.ResourceCleanupStatusReasonProviderError,
-				utils.PointerTo(err.Error()),
+				to.Ptr(err.Error()),
 			)
 			logger.Errorf("resource cleanup failed: %v", err)
 		default:
@@ -445,7 +446,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, assetScan *apitypes.Asse
 	assetScan.Status = apitypes.NewAssetScanStatus(
 		apitypes.AssetScanStatusStateFailed,
 		apitypes.AssetScanStatusReasonAbortTimeout,
-		utils.PointerTo(fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout)),
+		to.Ptr(fmt.Sprintf("failed to wait for scanner to finish graceful shutdown on abort after: %s", w.abortTimeout)),
 	)
 
 	assetScanPatch := apitypes.AssetScan{

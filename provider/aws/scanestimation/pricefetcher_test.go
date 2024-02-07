@@ -21,7 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/pricing/types"
 
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_createGetProductsFilters(t *testing.T) {
@@ -44,14 +44,14 @@ func Test_createGetProductsFilters(t *testing.T) {
 			},
 			want: []types.Filter{
 				{
-					Field: utils.PointerTo("ServiceCode"),
+					Field: to.Ptr("ServiceCode"),
 					Type:  "TERM_MATCH",
-					Value: utils.PointerTo("sampleServiceCode"),
+					Value: to.Ptr("sampleServiceCode"),
 				},
 				{
-					Field: utils.PointerTo("usagetype"),
+					Field: to.Ptr("usagetype"),
 					Type:  "TERM_MATCH",
-					Value: utils.PointerTo("sampleUsageType"),
+					Value: to.Ptr("sampleUsageType"),
 				},
 			},
 		},
@@ -64,19 +64,19 @@ func Test_createGetProductsFilters(t *testing.T) {
 			},
 			want: []types.Filter{
 				{
-					Field: utils.PointerTo("ServiceCode"),
+					Field: to.Ptr("ServiceCode"),
 					Type:  "TERM_MATCH",
-					Value: utils.PointerTo("sampleServiceCode"),
+					Value: to.Ptr("sampleServiceCode"),
 				},
 				{
-					Field: utils.PointerTo("usagetype"),
+					Field: to.Ptr("usagetype"),
 					Type:  "TERM_MATCH",
-					Value: utils.PointerTo("sampleUsageType"),
+					Value: to.Ptr("sampleUsageType"),
 				},
 				{
-					Field: utils.PointerTo("operation"),
+					Field: to.Ptr("operation"),
 					Type:  "TERM_MATCH",
-					Value: utils.PointerTo("sampleOperation"),
+					Value: to.Ptr("sampleOperation"),
 				},
 			},
 		},

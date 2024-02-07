@@ -27,9 +27,9 @@ import (
 	"google.golang.org/api/iterator"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/utils/log"
 )
 
 type Provider struct {
@@ -262,7 +262,7 @@ func (p *Provider) listInstances(ctx context.Context, filter *string, zone strin
 
 	it := p.instancesClient.List(ctx, &computepb.ListInstancesRequest{
 		Filter:     filter,
-		MaxResults: utils.PointerTo[uint32](maxResults),
+		MaxResults: to.Ptr[uint32](maxResults),
 		Project:    p.config.ProjectID,
 		Zone:       zone,
 	})
@@ -290,7 +290,7 @@ func (p *Provider) listAllRegions(ctx context.Context) ([]*computepb.Region, err
 	var ret []*computepb.Region
 
 	it := p.regionsClient.List(ctx, &computepb.ListRegionsRequest{
-		MaxResults: utils.PointerTo[uint32](maxResults),
+		MaxResults: to.Ptr[uint32](maxResults),
 		Project:    p.config.ProjectID,
 	})
 	for {
@@ -336,7 +336,7 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 	}
 
 	err = assetType.FromVMInfo(apitypes.VMInfo{
-		InstanceProvider: utils.PointerTo(apitypes.GCP),
+		InstanceProvider: to.Ptr(apitypes.GCP),
 		InstanceID:       *vm.Name,
 		Image:            image,
 		InstanceType:     getLastURLPart(vm.MachineType),
@@ -344,7 +344,7 @@ func (p *Provider) getVMInfoFromVirtualMachine(ctx context.Context, vm *computep
 		Location:         getLastURLPart(vm.Zone),
 		Platform:         platform,
 		SecurityGroups:   &[]apitypes.SecurityGroup{},
-		Tags:             utils.PointerTo(convertLabelsToTags(vm.Labels)),
+		Tags:             to.Ptr(convertLabelsToTags(vm.Labels)),
 	})
 	if err != nil {
 		return apitypes.AssetType{}, provider.FatalErrorf("failed to create AssetType from VMInfo: %w", err)

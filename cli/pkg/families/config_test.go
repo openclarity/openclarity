@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/cli/pkg/families/types"
 	"github.com/openclarity/vmclarity/cli/pkg/families/vulnerabilities"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_SetMountPointsForFamiliesInput(t *testing.T) {
@@ -79,7 +80,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 					Enabled: true,
 					Inputs: []types.Input{
 						{
-							StripPathFromResult: utils.PointerTo(true),
+							StripPathFromResult: to.Ptr(true),
 							Input:               "/mnt/snapshot1",
 							InputType:           string(utils.ROOTFS),
 						},
@@ -89,7 +90,7 @@ func Test_SetMountPointsForFamiliesInput(t *testing.T) {
 					Enabled: true,
 					Inputs: []types.Input{
 						{
-							StripPathFromResult: utils.PointerTo(true),
+							StripPathFromResult: to.Ptr(true),
 							Input:               "/mnt/snapshot1",
 							InputType:           string(utils.ROOTFS),
 						},

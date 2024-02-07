@@ -25,14 +25,14 @@ import (
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 
 func Test_getAssetLocation(t *testing.T) {
 	assetInfo := apitypes.AssetType{}
 	err := assetInfo.FromVMInfo(apitypes.VMInfo{
-		InstanceProvider: utils.PointerTo(apitypes.AWS),
+		InstanceProvider: to.Ptr(apitypes.AWS),
 		Location:         "us-east-1/vpcid-1/sg-1",
 	})
 	assert.NilError(t, err)
@@ -98,58 +98,58 @@ func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 			name: "nil",
 			args: args{
 				findingsCount: &types.FindingsCount{
-					Exploits:          utils.PointerTo(1),
-					Malware:           utils.PointerTo(2),
-					Misconfigurations: utils.PointerTo(3),
-					Rootkits:          utils.PointerTo(4),
-					Secrets:           utils.PointerTo(5),
-					Vulnerabilities:   utils.PointerTo(6),
+					Exploits:          to.Ptr(1),
+					Malware:           to.Ptr(2),
+					Misconfigurations: to.Ptr(3),
+					Rootkits:          to.Ptr(4),
+					Secrets:           to.Ptr(5),
+					Vulnerabilities:   to.Ptr(6),
 				},
 				summary: nil,
 			},
 			want: &types.FindingsCount{
-				Exploits:          utils.PointerTo(1),
-				Malware:           utils.PointerTo(2),
-				Misconfigurations: utils.PointerTo(3),
-				Rootkits:          utils.PointerTo(4),
-				Secrets:           utils.PointerTo(5),
-				Vulnerabilities:   utils.PointerTo(6),
+				Exploits:          to.Ptr(1),
+				Malware:           to.Ptr(2),
+				Misconfigurations: to.Ptr(3),
+				Rootkits:          to.Ptr(4),
+				Secrets:           to.Ptr(5),
+				Vulnerabilities:   to.Ptr(6),
 			},
 		},
 		{
 			name: "sanity",
 			args: args{
 				findingsCount: &types.FindingsCount{
-					Exploits:          utils.PointerTo(1),
-					Malware:           utils.PointerTo(2),
-					Misconfigurations: utils.PointerTo(3),
-					Rootkits:          utils.PointerTo(4),
-					Secrets:           utils.PointerTo(5),
-					Vulnerabilities:   utils.PointerTo(6),
+					Exploits:          to.Ptr(1),
+					Malware:           to.Ptr(2),
+					Misconfigurations: to.Ptr(3),
+					Rootkits:          to.Ptr(4),
+					Secrets:           to.Ptr(5),
+					Vulnerabilities:   to.Ptr(6),
 				},
 				summary: &apitypes.ScanFindingsSummary{
-					TotalExploits:          utils.PointerTo(2),
-					TotalMalware:           utils.PointerTo(3),
-					TotalMisconfigurations: utils.PointerTo(4),
-					TotalPackages:          utils.PointerTo(5),
-					TotalRootkits:          utils.PointerTo(6),
-					TotalSecrets:           utils.PointerTo(7),
+					TotalExploits:          to.Ptr(2),
+					TotalMalware:           to.Ptr(3),
+					TotalMisconfigurations: to.Ptr(4),
+					TotalPackages:          to.Ptr(5),
+					TotalRootkits:          to.Ptr(6),
+					TotalSecrets:           to.Ptr(7),
 					TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-						TotalCriticalVulnerabilities:   utils.PointerTo(10),
-						TotalHighVulnerabilities:       utils.PointerTo(11),
-						TotalLowVulnerabilities:        utils.PointerTo(12),
-						TotalMediumVulnerabilities:     utils.PointerTo(13),
-						TotalNegligibleVulnerabilities: utils.PointerTo(14),
+						TotalCriticalVulnerabilities:   to.Ptr(10),
+						TotalHighVulnerabilities:       to.Ptr(11),
+						TotalLowVulnerabilities:        to.Ptr(12),
+						TotalMediumVulnerabilities:     to.Ptr(13),
+						TotalNegligibleVulnerabilities: to.Ptr(14),
 					},
 				},
 			},
 			want: &types.FindingsCount{
-				Exploits:          utils.PointerTo(3),
-				Malware:           utils.PointerTo(5),
-				Misconfigurations: utils.PointerTo(7),
-				Rootkits:          utils.PointerTo(10),
-				Secrets:           utils.PointerTo(12),
-				Vulnerabilities:   utils.PointerTo(66),
+				Exploits:          to.Ptr(3),
+				Malware:           to.Ptr(5),
+				Misconfigurations: to.Ptr(7),
+				Rootkits:          to.Ptr(10),
+				Secrets:           to.Ptr(12),
+				Vulnerabilities:   to.Ptr(66),
 			},
 		},
 	}
@@ -184,11 +184,11 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 			name: "sanity",
 			args: args{
 				summary: &apitypes.VulnerabilityScanSummary{
-					TotalCriticalVulnerabilities:   utils.PointerTo(1),
-					TotalHighVulnerabilities:       utils.PointerTo(2),
-					TotalLowVulnerabilities:        utils.PointerTo(3),
-					TotalMediumVulnerabilities:     utils.PointerTo(4),
-					TotalNegligibleVulnerabilities: utils.PointerTo(5),
+					TotalCriticalVulnerabilities:   to.Ptr(1),
+					TotalHighVulnerabilities:       to.Ptr(2),
+					TotalLowVulnerabilities:        to.Ptr(3),
+					TotalMediumVulnerabilities:     to.Ptr(4),
+					TotalNegligibleVulnerabilities: to.Ptr(5),
 				},
 			},
 			want: 15,
@@ -207,8 +207,8 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 func Test_createRegionFindingsFromAssets(t *testing.T) {
 	dirAsset := apitypes.AssetType{}
 	dirAsset.FromDirInfo(apitypes.DirInfo{
-		DirName:  utils.PointerTo("test-name"),
-		Location: utils.PointerTo("location-test"),
+		DirName:  to.Ptr("test-name"),
+		Location: to.Ptr("location-test"),
 	})
 
 	vmFromRegion1 := apitypes.AssetType{}
@@ -231,22 +231,22 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 			name: "Unsupported asset is skipped",
 			args: args{
 				assets: &apitypes.Assets{
-					Count: utils.PointerTo(1),
-					Items: utils.PointerTo([]apitypes.Asset{
+					Count: to.Ptr(1),
+					Items: to.Ptr([]apitypes.Asset{
 						{
 							Summary: &apitypes.ScanFindingsSummary{
-								TotalExploits:          utils.PointerTo(1),
-								TotalMalware:           utils.PointerTo(1),
-								TotalMisconfigurations: utils.PointerTo(1),
-								TotalPackages:          utils.PointerTo(1),
-								TotalRootkits:          utils.PointerTo(1),
-								TotalSecrets:           utils.PointerTo(1),
+								TotalExploits:          to.Ptr(1),
+								TotalMalware:           to.Ptr(1),
+								TotalMisconfigurations: to.Ptr(1),
+								TotalPackages:          to.Ptr(1),
+								TotalRootkits:          to.Ptr(1),
+								TotalSecrets:           to.Ptr(1),
 								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-									TotalCriticalVulnerabilities:   utils.PointerTo(1),
-									TotalHighVulnerabilities:       utils.PointerTo(1),
-									TotalLowVulnerabilities:        utils.PointerTo(1),
-									TotalMediumVulnerabilities:     utils.PointerTo(1),
-									TotalNegligibleVulnerabilities: utils.PointerTo(1),
+									TotalCriticalVulnerabilities:   to.Ptr(1),
+									TotalHighVulnerabilities:       to.Ptr(1),
+									TotalLowVulnerabilities:        to.Ptr(1),
+									TotalMediumVulnerabilities:     to.Ptr(1),
+									TotalNegligibleVulnerabilities: to.Ptr(1),
 								},
 							},
 							AssetInfo: &dirAsset,
@@ -260,58 +260,58 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 			name: "sanity",
 			args: args{
 				assets: &apitypes.Assets{
-					Count: utils.PointerTo(3),
+					Count: to.Ptr(3),
 					Items: &[]apitypes.Asset{
 						{
 							Summary: &apitypes.ScanFindingsSummary{
-								TotalExploits:          utils.PointerTo(1),
-								TotalMalware:           utils.PointerTo(2),
-								TotalMisconfigurations: utils.PointerTo(3),
-								TotalPackages:          utils.PointerTo(4),
-								TotalRootkits:          utils.PointerTo(5),
-								TotalSecrets:           utils.PointerTo(6),
+								TotalExploits:          to.Ptr(1),
+								TotalMalware:           to.Ptr(2),
+								TotalMisconfigurations: to.Ptr(3),
+								TotalPackages:          to.Ptr(4),
+								TotalRootkits:          to.Ptr(5),
+								TotalSecrets:           to.Ptr(6),
 								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-									TotalCriticalVulnerabilities:   utils.PointerTo(7),
-									TotalHighVulnerabilities:       utils.PointerTo(8),
-									TotalLowVulnerabilities:        utils.PointerTo(9),
-									TotalMediumVulnerabilities:     utils.PointerTo(10),
-									TotalNegligibleVulnerabilities: utils.PointerTo(11),
+									TotalCriticalVulnerabilities:   to.Ptr(7),
+									TotalHighVulnerabilities:       to.Ptr(8),
+									TotalLowVulnerabilities:        to.Ptr(9),
+									TotalMediumVulnerabilities:     to.Ptr(10),
+									TotalNegligibleVulnerabilities: to.Ptr(11),
 								},
 							},
 							AssetInfo: &vmFromRegion1,
 						},
 						{
 							Summary: &apitypes.ScanFindingsSummary{
-								TotalExploits:          utils.PointerTo(2),
-								TotalMalware:           utils.PointerTo(3),
-								TotalMisconfigurations: utils.PointerTo(4),
-								TotalPackages:          utils.PointerTo(5),
-								TotalRootkits:          utils.PointerTo(6),
-								TotalSecrets:           utils.PointerTo(7),
+								TotalExploits:          to.Ptr(2),
+								TotalMalware:           to.Ptr(3),
+								TotalMisconfigurations: to.Ptr(4),
+								TotalPackages:          to.Ptr(5),
+								TotalRootkits:          to.Ptr(6),
+								TotalSecrets:           to.Ptr(7),
 								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-									TotalCriticalVulnerabilities:   utils.PointerTo(8),
-									TotalHighVulnerabilities:       utils.PointerTo(9),
-									TotalLowVulnerabilities:        utils.PointerTo(10),
-									TotalMediumVulnerabilities:     utils.PointerTo(11),
-									TotalNegligibleVulnerabilities: utils.PointerTo(12),
+									TotalCriticalVulnerabilities:   to.Ptr(8),
+									TotalHighVulnerabilities:       to.Ptr(9),
+									TotalLowVulnerabilities:        to.Ptr(10),
+									TotalMediumVulnerabilities:     to.Ptr(11),
+									TotalNegligibleVulnerabilities: to.Ptr(12),
 								},
 							},
 							AssetInfo: &vmFromRegion1,
 						},
 						{
 							Summary: &apitypes.ScanFindingsSummary{
-								TotalExploits:          utils.PointerTo(3),
-								TotalMalware:           utils.PointerTo(4),
-								TotalMisconfigurations: utils.PointerTo(5),
-								TotalPackages:          utils.PointerTo(6),
-								TotalRootkits:          utils.PointerTo(7),
-								TotalSecrets:           utils.PointerTo(8),
+								TotalExploits:          to.Ptr(3),
+								TotalMalware:           to.Ptr(4),
+								TotalMisconfigurations: to.Ptr(5),
+								TotalPackages:          to.Ptr(6),
+								TotalRootkits:          to.Ptr(7),
+								TotalSecrets:           to.Ptr(8),
 								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-									TotalCriticalVulnerabilities:   utils.PointerTo(9),
-									TotalHighVulnerabilities:       utils.PointerTo(10),
-									TotalLowVulnerabilities:        utils.PointerTo(11),
-									TotalMediumVulnerabilities:     utils.PointerTo(12),
-									TotalNegligibleVulnerabilities: utils.PointerTo(13),
+									TotalCriticalVulnerabilities:   to.Ptr(9),
+									TotalHighVulnerabilities:       to.Ptr(10),
+									TotalLowVulnerabilities:        to.Ptr(11),
+									TotalMediumVulnerabilities:     to.Ptr(12),
+									TotalNegligibleVulnerabilities: to.Ptr(13),
 								},
 							},
 							AssetInfo: &vm1FromRegion2,
@@ -322,25 +322,25 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 			want: []types.RegionFindings{
 				{
 					FindingsCount: &types.FindingsCount{
-						Exploits:          utils.PointerTo(3),
-						Malware:           utils.PointerTo(5),
-						Misconfigurations: utils.PointerTo(7),
-						Rootkits:          utils.PointerTo(11),
-						Secrets:           utils.PointerTo(13),
-						Vulnerabilities:   utils.PointerTo(95),
+						Exploits:          to.Ptr(3),
+						Malware:           to.Ptr(5),
+						Misconfigurations: to.Ptr(7),
+						Rootkits:          to.Ptr(11),
+						Secrets:           to.Ptr(13),
+						Vulnerabilities:   to.Ptr(95),
 					},
-					RegionName: utils.PointerTo("region1"),
+					RegionName: to.Ptr("region1"),
 				},
 				{
 					FindingsCount: &types.FindingsCount{
-						Exploits:          utils.PointerTo(3),
-						Malware:           utils.PointerTo(4),
-						Misconfigurations: utils.PointerTo(5),
-						Rootkits:          utils.PointerTo(7),
-						Secrets:           utils.PointerTo(8),
-						Vulnerabilities:   utils.PointerTo(55),
+						Exploits:          to.Ptr(3),
+						Malware:           to.Ptr(4),
+						Misconfigurations: to.Ptr(5),
+						Rootkits:          to.Ptr(7),
+						Secrets:           to.Ptr(8),
+						Vulnerabilities:   to.Ptr(55),
 					},
-					RegionName: utils.PointerTo("region2"),
+					RegionName: to.Ptr("region2"),
 				},
 			},
 		},
@@ -378,7 +378,7 @@ func Test_getRegionByProvider(t *testing.T) {
 			name: "AWS cloud provider",
 			args: args{
 				info: apitypes.VMInfo{
-					InstanceProvider: utils.PointerTo(apitypes.AWS),
+					InstanceProvider: to.Ptr(apitypes.AWS),
 					Location:         "eu-central-1/vpc-1",
 				},
 			},
@@ -388,7 +388,7 @@ func Test_getRegionByProvider(t *testing.T) {
 			name: "non AWS cloud provider",
 			args: args{
 				info: apitypes.VMInfo{
-					InstanceProvider: utils.PointerTo(apitypes.CloudProvider("GCP")),
+					InstanceProvider: to.Ptr(apitypes.CloudProvider("GCP")),
 					Location:         "eu-central-1/vpc-1",
 				},
 			},

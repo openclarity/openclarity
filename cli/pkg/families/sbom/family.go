@@ -29,8 +29,8 @@ import (
 	familiesutils "github.com/openclarity/vmclarity/cli/pkg/families/utils"
 	"github.com/openclarity/vmclarity/cli/pkg/job_manager"
 	"github.com/openclarity/vmclarity/cli/pkg/utils"
-	"github.com/openclarity/vmclarity/utils/log"
-	"github.com/openclarity/vmclarity/utils/version"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/version"
 )
 
 type SBOM struct {

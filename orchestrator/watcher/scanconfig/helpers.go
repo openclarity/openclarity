@@ -20,12 +20,12 @@ import (
 	"time"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func newScanFromScanConfig(scanConfig *apitypes.ScanConfig) *apitypes.Scan {
 	return &apitypes.Scan{
-		Name: utils.PointerTo(fmt.Sprintf("%s-%s", *scanConfig.Name, scanConfig.Scheduled.OperationTime.Format(time.RFC3339))),
+		Name: to.Ptr(fmt.Sprintf("%s-%s", *scanConfig.Name, scanConfig.Scheduled.OperationTime.Format(time.RFC3339))),
 		ScanConfig: &apitypes.ScanConfigRelationship{
 			Id: *scanConfig.Id,
 		},
@@ -39,21 +39,21 @@ func newScanFromScanConfig(scanConfig *apitypes.ScanConfig) *apitypes.Scan {
 			nil,
 		),
 		Summary: &apitypes.ScanSummary{
-			JobsCompleted:          utils.PointerTo(0),
-			JobsLeftToRun:          utils.PointerTo(0),
-			TotalExploits:          utils.PointerTo(0),
-			TotalMalware:           utils.PointerTo(0),
-			TotalMisconfigurations: utils.PointerTo(0),
-			TotalPackages:          utils.PointerTo(0),
-			TotalRootkits:          utils.PointerTo(0),
-			TotalSecrets:           utils.PointerTo(0),
-			TotalInfoFinder:        utils.PointerTo(0),
+			JobsCompleted:          to.Ptr(0),
+			JobsLeftToRun:          to.Ptr(0),
+			TotalExploits:          to.Ptr(0),
+			TotalMalware:           to.Ptr(0),
+			TotalMisconfigurations: to.Ptr(0),
+			TotalPackages:          to.Ptr(0),
+			TotalRootkits:          to.Ptr(0),
+			TotalSecrets:           to.Ptr(0),
+			TotalInfoFinder:        to.Ptr(0),
 			TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
-				TotalCriticalVulnerabilities:   utils.PointerTo(0),
-				TotalHighVulnerabilities:       utils.PointerTo(0),
-				TotalLowVulnerabilities:        utils.PointerTo(0),
-				TotalMediumVulnerabilities:     utils.PointerTo(0),
-				TotalNegligibleVulnerabilities: utils.PointerTo(0),
+				TotalCriticalVulnerabilities:   to.Ptr(0),
+				TotalHighVulnerabilities:       to.Ptr(0),
+				TotalLowVulnerabilities:        to.Ptr(0),
+				TotalMediumVulnerabilities:     to.Ptr(0),
+				TotalNegligibleVulnerabilities: to.Ptr(0),
 			},
 		},
 	}

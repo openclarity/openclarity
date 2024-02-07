@@ -25,9 +25,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/version"
 	"github.com/openclarity/vmclarity/orchestrator"
-	"github.com/openclarity/vmclarity/utils/log"
-	"github.com/openclarity/vmclarity/utils/version"
 )
 
 const (

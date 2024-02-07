@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 func Test_convertLabelsToTags(t *testing.T) {
@@ -68,19 +68,19 @@ func Test_getInstanceBootDisk(t *testing.T) {
 				vm: &computepb.Instance{
 					Disks: []*computepb.AttachedDisk{
 						{
-							DeviceName: utils.PointerTo("device1"),
-							Boot:       utils.PointerTo(true),
+							DeviceName: to.Ptr("device1"),
+							Boot:       to.Ptr(true),
 						},
 						{
-							DeviceName: utils.PointerTo("device2"),
-							Boot:       utils.PointerTo(false),
+							DeviceName: to.Ptr("device2"),
+							Boot:       to.Ptr(false),
 						},
 					},
 				},
 			},
 			want: &computepb.AttachedDisk{
-				DeviceName: utils.PointerTo("device1"),
-				Boot:       utils.PointerTo(true),
+				DeviceName: to.Ptr("device1"),
+				Boot:       to.Ptr(true),
 			},
 			wantErr: false,
 		},
@@ -90,12 +90,12 @@ func Test_getInstanceBootDisk(t *testing.T) {
 				vm: &computepb.Instance{
 					Disks: []*computepb.AttachedDisk{
 						{
-							DeviceName: utils.PointerTo("device1"),
-							Boot:       utils.PointerTo(false),
+							DeviceName: to.Ptr("device1"),
+							Boot:       to.Ptr(false),
 						},
 						{
-							DeviceName: utils.PointerTo("device2"),
-							Boot:       utils.PointerTo(false),
+							DeviceName: to.Ptr("device2"),
+							Boot:       to.Ptr(false),
 						},
 					},
 				},

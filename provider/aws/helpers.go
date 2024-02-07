@@ -23,31 +23,31 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
 )
 
 func EC2TagsFromScanMetadata(meta provider.ScanMetadata) []ec2types.Tag {
 	return []ec2types.Tag{
 		{
-			Key:   utils.PointerTo(EC2TagKeyOwner),
-			Value: utils.PointerTo(EC2TagValueOwner),
+			Key:   to.Ptr(EC2TagKeyOwner),
+			Value: to.Ptr(EC2TagValueOwner),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyName),
-			Value: utils.PointerTo(fmt.Sprintf(EC2TagValueNamePattern, meta.AssetScanID)),
+			Key:   to.Ptr(EC2TagKeyName),
+			Value: to.Ptr(fmt.Sprintf(EC2TagValueNamePattern, meta.AssetScanID)),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyScanID),
-			Value: utils.PointerTo(meta.ScanID),
+			Key:   to.Ptr(EC2TagKeyScanID),
+			Value: to.Ptr(meta.ScanID),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyAssetScanID),
-			Value: utils.PointerTo(meta.AssetScanID),
+			Key:   to.Ptr(EC2TagKeyAssetScanID),
+			Value: to.Ptr(meta.AssetScanID),
 		},
 		{
-			Key:   utils.PointerTo(EC2TagKeyAssetID),
-			Value: utils.PointerTo(meta.AssetID),
+			Key:   to.Ptr(EC2TagKeyAssetID),
+			Value: to.Ptr(meta.AssetID),
 		},
 	}
 }
@@ -68,7 +68,7 @@ func EC2FiltersFromEC2Tags(tags []ec2types.Tag) []ec2types.Filter {
 		}
 
 		filters = append(filters, ec2types.Filter{
-			Name:   utils.PointerTo(name),
+			Name:   to.Ptr(name),
 			Values: value,
 		})
 	}
@@ -92,7 +92,7 @@ func EC2FiltersFromTags(tags []apitypes.Tag) []ec2types.Filter {
 		}
 
 		filters = append(filters, ec2types.Filter{
-			Name:   utils.PointerTo(name),
+			Name:   to.Ptr(name),
 			Values: value,
 		})
 	}
@@ -226,7 +226,7 @@ func getVMInfoFromInstance(i Instance) (apitypes.AssetType, error) {
 	err := assetType.FromVMInfo(apitypes.VMInfo{
 		Image:            i.Image,
 		InstanceID:       i.ID,
-		InstanceProvider: utils.PointerTo(apitypes.AWS),
+		InstanceProvider: to.Ptr(apitypes.AWS),
 		InstanceType:     i.InstanceType,
 		LaunchTime:       i.LaunchTime,
 		Location:         i.Location(),
@@ -236,8 +236,8 @@ func getVMInfoFromInstance(i Instance) (apitypes.AssetType, error) {
 			Encrypted: i.RootVolumeEncrypted,
 			SizeGB:    int(i.RootVolumeSizeGB),
 		},
-		SecurityGroups: utils.PointerTo(i.SecurityGroups),
-		Tags:           utils.PointerTo(i.Tags),
+		SecurityGroups: to.Ptr(i.SecurityGroups),
+		Tags:           to.Ptr(i.Tags),
 	})
 	if err != nil {
 		err = fmt.Errorf("failed to create AssetType from VMInfo: %w", err)

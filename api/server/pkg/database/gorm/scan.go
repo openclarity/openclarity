@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/api/server/pkg/common"
 	"github.com/openclarity/vmclarity/api/server/pkg/database/types"
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 const (
@@ -105,10 +106,10 @@ func (s *ScansTableHandler) CreateScan(scan apitypes.Scan) (apitypes.Scan, error
 	}
 
 	// Generate a new UUID
-	scan.Id = apitypes.PointerTo(uuid.New().String())
+	scan.Id = to.Ptr(uuid.New().String())
 
 	// Initialise revision
-	scan.Revision = apitypes.PointerTo(1)
+	scan.Revision = to.Ptr(1)
 
 	// TODO do we want ScanConfig to be required in the api?
 	if scan.ScanConfig != nil {
