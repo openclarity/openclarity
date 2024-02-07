@@ -100,6 +100,3 @@ issues:
     - path: _test\.go
       linters:
         - govet
-    - path: pkg/apiserver/database/demo.go
-      linters:
-        - gomnd
