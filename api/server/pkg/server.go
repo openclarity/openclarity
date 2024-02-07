@@ -63,10 +63,6 @@ func Run(ctx context.Context, config *Config) {
 		logger.Fatalf("Failed to initialise database: %v", err)
 	}
 
-	if config.EnableDBFakeData {
-		go database.CreateDemoData(ctx, dbHandler)
-	}
-
 	// nolint:contextcheck
 	restServer, err := CreateRESTServer(config.ListenAddress, dbHandler)
 	if err != nil {

@@ -45,7 +45,6 @@ type Config struct {
 	DBHost           string `json:"db-host,omitempty" mapstructure:"db_host"`
 	DBPort           string `json:"db-port,omitempty" mapstructure:"db_port"`
 	EnableDBInfoLogs bool   `json:"enable-db-info-logs" mapstructure:"enable_db_info_logs"`
-	EnableDBFakeData bool   `json:"enable-db-fake-data" mapstructure:"enable_db_fake_data"`
 
 	LocalDBPath string `json:"local-db-path,omitempty" mapstructure:"local_db_path"`
 }
@@ -80,8 +79,6 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("db_port")
 
 	_ = v.BindEnv("enable_db_info_logs")
-
-	_ = v.BindEnv("enable_db_fake_data")
 
 	_ = v.BindEnv("local_db_path")
 

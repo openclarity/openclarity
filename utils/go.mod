@@ -7,7 +7,6 @@ require (
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/onsi/gomega v1.31.0
 	github.com/sirupsen/logrus v1.9.3
-	google.golang.org/grpc v1.60.1
 )
 
 require (
