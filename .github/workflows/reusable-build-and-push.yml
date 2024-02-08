@@ -31,7 +31,7 @@ jobs:
       timestamp: ${{ steps.timestamp.outputs.timestamp }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Set timestamp
         id: timestamp
@@ -132,7 +132,7 @@ jobs:
       - vmclarity-cr-discovery-server
     steps:
       - name: Post comment with image tags
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2
         with:
           hide_and_recreate: true
           hide_classify: "OUTDATED"
