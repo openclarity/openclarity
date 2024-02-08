@@ -1,0 +1,182 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "configMigration": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^Makefile$",
+        "^makefile.d/.*.mk$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?( registryUrl=(?<registryUrl>.*?))?\\s.*?_VERSION\\s?:?=\\s?(?<currentValue>.*)\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ],
+  "dependencyDashboardAutoclose": true,
+  "dependencyDashboardLabels": ["dependencies"],
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "enabled": true,
+  "enabledManagers": [
+    "bicep",
+    "custom.regex",
+    "docker-compose",
+    "dockerfile",
+    "github-actions",
+    "gomod",
+    "helm-values",
+    "helmv3"
+  ],
+  "forkProcessing": "disabled",
+  "labels": ["dependencies"],
+  "ignoreDeps": [
+    "github.com/openclarity/vmclarity/api",
+    "github.com/openclarity/vmclarity/api/client",
+    "github.com/openclarity/vmclarity/api/types",
+    "github.com/openclarity/vmclarity/cli",
+    "github.com/openclarity/vmclarity/containerruntimediscovery/client",
+    "github.com/openclarity/vmclarity/containerruntimediscovery/types",
+    "github.com/openclarity/vmclarity/core",
+    "github.com/openclarity/vmclarity/e2e",
+    "github.com/openclarity/vmclarity/installation",
+    "github.com/openclarity/vmclarity/provider",
+    "github.com/openclarity/vmclarity/testenv",
+    "github.com/openclarity/vmclarity/uibackend/client",
+    "github.com/openclarity/vmclarity/uibackend/server",
+    "github.com/openclarity/vmclarity/uibackend/types",
+    "github.com/openclarity/vmclarity/utils"
+  ],
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchCategories": ["golang"],
+      "addLabels": [
+        "go"
+      ]
+    },
+    {
+      "matchCategories": ["kubernetes"],
+      "addLabels": [
+        "kubernetes"
+      ]
+    },
+    {
+      "matchFileNames": [
+        "Makefile",
+        "makefile.d/*.mk"
+      ],
+      "addLabels": [
+        "build"
+      ],
+      "extractVersion": "^v(?<version>.*)$",
+      "semanticCommitType": "build"
+    },
+    {
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "addLabels": [
+        "ci"
+      ],
+      "semanticCommitType": "ci"
+    },
+    {
+      "matchFileNames": [
+        "e2e/**",
+        "testenv/**"
+      ],
+      "addLabels": [
+        "test"
+      ],
+      "semanticCommitType": "test"
+    },
+    {
+      "groupName": "Docker",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "github.com/docker",
+        "github.com/compose-spec"
+      ]
+    },
+    {
+      "groupName": "gorm.io",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "gorm.io/gorm",
+        "gorm.io/driver"
+      ]
+    },
+    {
+      "groupName": "Azure SDK",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "github.com/Azure/azure-sdk-for-go"
+      ]
+    },
+    {
+      "groupName": "Google SDK",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "cloud.google.com/go"
+      ]
+    },
+    {
+      "groupName": "Containerd",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "github.com/containerd"
+      ]
+    },
+    {
+      "groupName": "Kubernetes",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "k8s.io",
+        "sigs.k8s.io"
+      ]
+    },
+    {
+      "groupName": "Azure Bicep",
+      "matchDatasources": [
+        "azure-bicep-resource"
+      ]
+    }
+  ],
+  "postUpdateOptions": [
+    "gomodMassage",
+    "gomodTidy",
+    "gomodUpdateImportPaths",
+    "helmUpdateSubChartArchives"
+  ],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 5,
+  "printConfig": false,
+  "reviewersFromCodeOwners": true,
+  "schedule": [
+    "after 6am every weekday",
+    "before 12pm every weekday"
+  ],
+  "semanticCommits": "enabled",
+  "timezone": "Etc/UTC",
+  "vulnerabilityAlerts": {
+    "enabled": false,
+    "labels": ["security"]
+  }
+}
