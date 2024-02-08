@@ -53,7 +53,7 @@ $(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
 
 BICEP_BIN := $(BIN_DIR)/bicep
 # renovate: datasource=github-releases depName=Azure/bicep versioning=semver
-BICEP_VERSION := 0.23.1
+BICEP_VERSION := 0.25.3
 BICEP_OSTYPE := $(OSTYPE)
 BICEP_ARCH := $(ARCHTYPE)
 
