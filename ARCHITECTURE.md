@@ -51,4 +51,4 @@ the configured analysis on the mounted snapshot, and report the results to the
 VMClarity API. These results are then processed by the VMClarity backend into
 findings.
 
-![VMClarity Architecture Overview](img/vmclarity-arch-20230725.svg)
+![VMClarity Architecture Overview](assets/vmclarity-arch-20230725.svg)
