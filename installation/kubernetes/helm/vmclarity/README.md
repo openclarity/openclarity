@@ -41,7 +41,7 @@ secrets.
 | apiserver.image.pullPolicy | string | `"IfNotPresent"` | API Server image pull policy |
 | apiserver.image.registry | string | `"ghcr.io"` | API Server image registry |
 | apiserver.image.repository | string | `"openclarity/vmclarity-apiserver"` | API Server image repository |
-| apiserver.image.tag | string | `"latest@sha256:715b667e71ae7bafc16e531529748a378b168697945fbd88ee964842aa468ee3"` | API Server image tag (immutable tags are recommended) |
+| apiserver.image.tag | string | `"latest"` | API Server image tag (immutable tags are recommended) |
 | apiserver.logLevel | string | `"info"` | API Server log level |
 | apiserver.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | apiserver.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -63,7 +63,7 @@ secrets.
 | crDiscoveryServer.image.pullPolicy | string | `"IfNotPresent"` | Container Runtime Discovery Server image pull policy |
 | crDiscoveryServer.image.registry | string | `"ghcr.io"` | Container Runtime Discovery Server container registry |
 | crDiscoveryServer.image.repository | string | `"openclarity/vmclarity-cr-discovery-server"` | Container Runtime Discovery Server container repository |
-| crDiscoveryServer.image.tag | string | `"latest@sha256:384258670bfa3a1791e28775d0b9997a54a671581d76500c9b6ce40ed786320d"` | Container Runtime Discovery Server container tag |
+| crDiscoveryServer.image.tag | string | `"latest"` | Container Runtime Discovery Server container tag |
 | crDiscoveryServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | crDiscoveryServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | crDiscoveryServer.resources.limits | object | `{}` | The resources limits for the container runtime discovery server containers |
@@ -205,7 +205,7 @@ secrets.
 | orchestrator.image.pullPolicy | string | `"IfNotPresent"` | Orchestrator image pull policy |
 | orchestrator.image.registry | string | `"ghcr.io"` | Orchestrator image registry |
 | orchestrator.image.repository | string | `"openclarity/vmclarity-orchestrator"` | Orchestrator image repository |
-| orchestrator.image.tag | string | `"latest@sha256:daf0110581b74efb17098f0912b6b13f6a1752c358dbd013cd65727bec07fb72"` | Orchestrator image tag (immutable tags are recommended) |
+| orchestrator.image.tag | string | `"latest"` | Orchestrator image tag (immutable tags are recommended) |
 | orchestrator.kubernetes | object | `{}` |  |
 | orchestrator.logLevel | string | `"info"` | Orchestrator service log level |
 | orchestrator.podSecurityContext.enabled | bool | `true` | Whether Orchestrator pod security context is enabled |
@@ -218,7 +218,7 @@ secrets.
 | orchestrator.scannerImage.digest | string | `""` | Scanner Container image digest. If set will override the tag. |
 | orchestrator.scannerImage.registry | string | `"ghcr.io"` | Scanner Container image registry |
 | orchestrator.scannerImage.repository | string | `"openclarity/vmclarity-cli"` | Scanner Container image repository |
-| orchestrator.scannerImage.tag | string | `"latest@sha256:7afdf17aacdc7835d468b8e90e24efc39ad33f0e645d787e4b9ab635e6b68b0b"` | Scanner Container image tag (immutable tags are recommended) |
+| orchestrator.scannerImage.tag | string | `"latest"` | Scanner Container image tag (immutable tags are recommended) |
 | orchestrator.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | orchestrator.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | orchestrator.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
@@ -303,7 +303,7 @@ secrets.
 | ui.image.pullPolicy | string | `"IfNotPresent"` | UI Image pull policy |
 | ui.image.registry | string | `"ghcr.io"` | UI image registry |
 | ui.image.repository | string | `"openclarity/vmclarity-ui"` | UI image repository |
-| ui.image.tag | string | `"latest@sha256:dfbcaf17897f8a086b59e1023602b1c3b408fb6a675357344e890b7346720d2e"` | UI image tag |
+| ui.image.tag | string | `"latest"` | UI image tag |
 | ui.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | ui.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | ui.replicas | int | `1` | Number of replicas for the UI service |
@@ -324,7 +324,7 @@ secrets.
 | uibackend.image.pullPolicy | string | `"IfNotPresent"` | UI Backend image pull policy |
 | uibackend.image.registry | string | `"ghcr.io"` | UI Backend image registry |
 | uibackend.image.repository | string | `"openclarity/vmclarity-ui-backend"` | UI Backend image repository |
-| uibackend.image.tag | string | `"latest@sha256:044b1c821bfb6f77bf96f276eaddcb0197d6093e247852428c5e4384df375b71"` | UI Backend image tag |
+| uibackend.image.tag | string | `"latest"` | UI Backend image tag |
 | uibackend.logLevel | string | `"info"` | Log level for the UI backend service |
 | uibackend.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | uibackend.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
