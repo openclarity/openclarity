@@ -3,11 +3,11 @@ module github.com/openclarity/vmclarity/testenv
 go 1.21.4
 
 require (
-	github.com/compose-spec/compose-go/v2 v2.0.0-rc.2
+	github.com/compose-spec/compose-go/v2 v2.0.0-rc.5
 	github.com/distribution/reference v0.5.0
-	github.com/docker/cli v25.0.2+incompatible
-	github.com/docker/compose/v2 v2.24.3
-	github.com/docker/docker v25.0.2+incompatible
+	github.com/docker/cli v25.0.3+incompatible
+	github.com/docker/compose/v2 v2.24.5
+	github.com/docker/docker v25.0.3+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.31.1
@@ -262,6 +262,3 @@ replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure/v2
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
 replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240130123003-498142f7035f
-
-// NOTE(chrisgacsal): see https://github.com/compose-spec/compose-go/issues/519
-replace golang.org/x/exp => golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
