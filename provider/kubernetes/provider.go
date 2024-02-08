@@ -32,7 +32,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/families"
+	"github.com/openclarity/vmclarity/cli/families"
 	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"

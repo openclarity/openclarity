@@ -25,8 +25,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	familiestypes "github.com/openclarity/vmclarity/cli/pkg/families/types"
-	"github.com/openclarity/vmclarity/cli/pkg/utils"
+	familiestypes "github.com/openclarity/vmclarity/cli/families/types"
+	"github.com/openclarity/vmclarity/cli/utils"
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider/common"
 )

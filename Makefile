@@ -311,14 +311,14 @@ gen-apiserver-api: ## Generating Go library for API specification
 	$(info Generating API for backend code ...)
 	@(cd api/types && go generate)
 	@(cd api/client && go generate)
-	@(cd api/server/pkg && go generate)
+	@(cd api/server && go generate)
 
 .PHONY: gen-uibackend-api
 gen-uibackend-api: ## Generating Go library for UI Backend API specification
 	$(info Generating API for UI backend code ...)
 	@(cd uibackend/types && go generate)
 	@(cd uibackend/client && go generate)
-	@(cd uibackend/server/pkg && go generate)
+	@(cd uibackend/server && go generate)
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)

@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	server "github.com/openclarity/vmclarity/api/server/pkg"
+	server "github.com/openclarity/vmclarity/api/server"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
 )

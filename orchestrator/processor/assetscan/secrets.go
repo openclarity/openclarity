@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/findingkey"
+	"github.com/openclarity/vmclarity/cli/findingkey"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
 )
