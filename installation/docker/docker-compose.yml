@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   apiserver:
-    image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest}
+    image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest@sha256:715b667e71ae7bafc16e531529748a378b168697945fbd88ee964842aa468ee3}
     command:
       - run
       - --log-level
@@ -26,7 +26,7 @@ services:
       retries: 60
 
   orchestrator:
-    image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
+    image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-orchestrator:latest@sha256:daf0110581b74efb17098f0912b6b13f6a1752c358dbd013cd65727bec07fb72}
     command:
       - run
       - --log-level
@@ -49,7 +49,7 @@ services:
       retries: 60
 
   ui:
-    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest}
+    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest@sha256:dfbcaf17897f8a086b59e1023602b1c3b408fb6a675357344e890b7346720d2e}
     deploy:
       mode: replicated
       replicas: 1
@@ -57,7 +57,7 @@ services:
         condition: on-failure
 
   uibackend:
-    image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
+    image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui-backend:latest@sha256:044b1c821bfb6f77bf96f276eaddcb0197d6093e247852428c5e4384df375b71}
     command:
       - run
       - --log-level
@@ -76,7 +76,7 @@ services:
       retries: 60
 
   gateway:
-    image: nginx
+    image: nginx@sha256:84c52dfd55c467e12ef85cad6a252c0990564f03c4850799bf41dd738738691f
     ports:
       - "8080:80"
     configs:
@@ -89,7 +89,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
+    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4@sha256:16530b9be24ae507a216bc6405c0eb945f25efb47020d3afd286e33b0fb22482}
     ports:
       - "1326:1326"
     deploy:
@@ -103,7 +103,7 @@ services:
       retries: 60
 
   trivy-server:
-    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.41.0}
+    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.41.0@sha256:d1796f197930d89590b1cbfbbda9f80ae6e878a1cb77dc652b198dba5c17dcdf}
     command:
       - server
     ports:
@@ -120,7 +120,7 @@ services:
       retries: 60
 
   grype-server:
-    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.2}
+    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.2@sha256:33391b234bdc08c8383f213fa973ffc860d3aea589b862dc34dc461b9e2271df}
     command:
       - run
       - --log-level
@@ -142,7 +142,7 @@ services:
       retries: 60
 
   freshclam-mirror:
-    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.0}
+    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.0@sha256:d7d6ff86915e378afb9ea75505d5f2df368215beac12b462b01c4c67d5e4617f}
     ports:
       - "1000:80"
     deploy:
@@ -152,7 +152,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
+    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0@sha256:be517c96bb0f7d00166b8598a213d6c6d7997df0ce1a2c3678c46d1dbedd731f}
     command:
       - run
     ports:
@@ -171,7 +171,7 @@ services:
       retries: 60
 
   postgresql:
-    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28}
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.14.0-debian-11-r28@sha256:78e0a3156646b633890ba37c3e62eaa7cda8e864e0d5890f1cec3d8e5b0e19c7}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
@@ -184,7 +184,7 @@ services:
         condition: on-failure
 
   swagger-ui:
-    image: swaggerapi/swagger-ui:v5.3.1
+    image: swaggerapi/swagger-ui:v5.3.1@sha256:ed97fba3dc40c61fbf8346f0f0fdf494bea36ac6b55d3fb4446e9255965a46d9
     environment:
       CONFIG_URL: /apidocs/swagger-config.json
     configs:
