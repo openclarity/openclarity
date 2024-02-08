@@ -3,7 +3,7 @@
 bin
 docs
 e2e
-img
+assets
 installation
 scanner_boot_test
 .envrc

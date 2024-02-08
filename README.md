@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./img/logos/VMClarity-logo-dark-bg-horizontal@4x.png">
-  <source media="(prefers-color-scheme: light)" srcset="./img/logos/VMClarity-logo-light-bg-horizontal@4x.png">
-  <img alt="VMClarity Logo" src="./img/logos/VMClarity-logo-light-bg-horizontal@4x.png">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/logos/VMClarity-logo-dark-bg-horizontal@4x.png">
+  <source media="(prefers-color-scheme: light)" srcset="./assets/logos/VMClarity-logo-light-bg-horizontal@4x.png">
+  <img alt="VMClarity Logo" src="./assets/logos/VMClarity-logo-light-bg-horizontal@4x.png">
 </picture>
 
 [![Slack Invite](https://img.shields.io/badge/Slack-Join-blue?logo=slack)](https://outshift.slack.com/messages/vmclarity)
@@ -12,7 +12,7 @@
 VMClarity is an open source tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and security threats such as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked secrets.
 
-<img src="./img/vmclarity_demo.gif" alt="VMClarity demo" />
+<img src="./assets/vmclarity_demo.gif" alt="VMClarity demo" />
 
 Join [VMClarity's Slack channel](https://outshift.slack.com/messages/vmclarity) to hear about the latest announcements and upcoming activities. We would love to get your feedback!
 
