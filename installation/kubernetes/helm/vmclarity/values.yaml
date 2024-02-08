@@ -615,7 +615,7 @@ grypeServer:
     # -- Grype server container repository
     repository: openclarity/grype-server
     # -- Grype server container tag
-    tag: v0.7.0
+    tag: v0.7.2
     # -- Grype server image digest. If set will override the tag.
     digest: ""
     # -- Grype server image pull policy
