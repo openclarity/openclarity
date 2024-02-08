@@ -206,7 +206,7 @@ bin/git-cliff-$(GITCLIFF_VERSION): | $(BIN_DIR)
 
 TYPOS_BIN := $(BIN_DIR)/typos
 # renovate: datasource=github-releases depName=crate-ci/typos versioning=semver
-TYPOS_VERSION := 1.4.0
+TYPOS_VERSION := 1.18.2
 TYPOS_OSTYPE := $(OSTYPE)
 TYPOS_ARCH := $(ARCHTYPE)
 TYPOS_URL =
