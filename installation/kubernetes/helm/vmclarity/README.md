@@ -125,7 +125,7 @@ secrets.
 | gateway.image.pullPolicy | string | `"IfNotPresent"` | Gateway service container pull policy |
 | gateway.image.registry | string | `"docker.io"` | Gateway service container registry |
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
-| gateway.image.tag | string | `"1.25.1"` | Gateway service container tag |
+| gateway.image.tag | string | `"1.25.3"` | Gateway service container tag |
 | gateway.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | gateway.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | gateway.replicas | int | `1` | Number of replicas for the gateway |

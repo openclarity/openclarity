@@ -354,7 +354,7 @@ gateway:
     # -- Gateway service container repository
     repository: nginxinc/nginx-unprivileged
     # -- Gateway service container tag
-    tag: 1.25.1
+    tag: 1.25.3
     # -- Gateway image digest. If set will override the tag.
     digest: ""
     # -- Gateway service container pull policy
