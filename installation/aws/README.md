@@ -24,7 +24,7 @@ The private subnet (VmClarityScannerSubnet) hosts the VM snapshot instances
 (EC2) that are scanned for security vulnerabilities.
 
 Figure 2. VMClarity Cloud Formation Resources
-![VMClarity CloudFormation Resources](../../img/vmclarity-cf-basic.svg)
+![VMClarity CloudFormation Resources](../../assets/vmclarity-cf-basic.svg)
 
 ## Deploy the VMClarity AWS CloudFormation Stack
 
