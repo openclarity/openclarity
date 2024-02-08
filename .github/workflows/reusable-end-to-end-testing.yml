@@ -24,10 +24,10 @@ jobs:
     needs: images
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
           # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
@@ -35,7 +35,7 @@ jobs:
           go-version-file: '.go-version'
 
       - name: Setup Go caching
-        uses: actions/cache@v4
+        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
         with:
           path: |
             ~/.cache/go-build
