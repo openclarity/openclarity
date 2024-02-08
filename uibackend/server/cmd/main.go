@@ -36,8 +36,8 @@ import (
 	"github.com/openclarity/vmclarity/api/client"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
+	server "github.com/openclarity/vmclarity/uibackend/server"
 	apiserver "github.com/openclarity/vmclarity/uibackend/server/internal/server"
-	server "github.com/openclarity/vmclarity/uibackend/server/pkg"
 )
 
 const (
