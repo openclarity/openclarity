@@ -8,7 +8,7 @@ require (
 	github.com/anchore/grype v0.74.0
 	github.com/anchore/stereoscope v0.0.1
 	github.com/anchore/syft v0.100.0
-	github.com/aquasecurity/go-dep-parser v0.0.0-20240131191227-2779e24d07b5
+	github.com/aquasecurity/go-dep-parser v0.0.0-20240208080026-8cc7d408bce4
 	github.com/aquasecurity/trivy v0.49.0
 	github.com/aquasecurity/trivy-db v0.0.0-20231005141211-4fc651f7ac8d
 	github.com/cenkalti/backoff v2.2.1+incompatible
