@@ -11,7 +11,7 @@ apiserver:
     # -- API Server image repository
     repository: openclarity/vmclarity-apiserver
     # -- API Server image tag (immutable tags are recommended)
-    tag: latest@sha256:715b667e71ae7bafc16e531529748a378b168697945fbd88ee964842aa468ee3
+    tag: latest
     # -- API Server image digest. If set will override the tag.
     digest: ""
     # -- API Server image pull policy
@@ -73,7 +73,7 @@ orchestrator:
     # -- Orchestrator image repository
     repository: openclarity/vmclarity-orchestrator
     # -- Orchestrator image tag (immutable tags are recommended)
-    tag: latest@sha256:daf0110581b74efb17098f0912b6b13f6a1752c358dbd013cd65727bec07fb72
+    tag: latest
     # -- Orchestrator image digest. If set will override the tag.
     digest: ""
     # -- Orchestrator image pull policy
@@ -137,7 +137,7 @@ orchestrator:
     # -- Scanner Container image repository
     repository: openclarity/vmclarity-cli
     # -- Scanner Container image tag (immutable tags are recommended)
-    tag: latest@sha256:7afdf17aacdc7835d468b8e90e24efc39ad33f0e645d787e4b9ab635e6b68b0b
+    tag: latest
     # -- Scanner Container image digest. If set will override the tag.
     digest: ""
 
@@ -235,7 +235,7 @@ ui:
     # -- UI image repository
     repository: openclarity/vmclarity-ui
     # -- UI image tag
-    tag: latest@sha256:dfbcaf17897f8a086b59e1023602b1c3b408fb6a675357344e890b7346720d2e
+    tag: latest
     # -- UI image digest. If set will override the tag
     digest: ""
     # -- UI Image pull policy
@@ -293,7 +293,7 @@ uibackend:
     # -- UI Backend image repository
     repository: openclarity/vmclarity-ui-backend
     # -- UI Backend image tag
-    tag: latest@sha256:044b1c821bfb6f77bf96f276eaddcb0197d6093e247852428c5e4384df375b71
+    tag: latest
     # -- UI Backend image digest. If set will override the tag.
     digest: ""
     # -- UI Backend image pull policy
@@ -847,7 +847,7 @@ crDiscoveryServer:
     # -- Container Runtime Discovery Server container repository
     repository: openclarity/vmclarity-cr-discovery-server
     # -- Container Runtime Discovery Server container tag
-    tag: latest@sha256:384258670bfa3a1791e28775d0b9997a54a671581d76500c9b6ce40ed786320d
+    tag: latest
     # -- Container Runtime Discovery Server image digest. If set will override the tag.
     digest: ""
     # -- Container Runtime Discovery Server image pull policy
