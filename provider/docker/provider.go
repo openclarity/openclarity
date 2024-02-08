@@ -33,7 +33,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/pkg/families"
+	"github.com/openclarity/vmclarity/cli/families"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/provider"
 )
