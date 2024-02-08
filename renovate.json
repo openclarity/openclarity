@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "docker:pinDigests",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
   "configMigration": true,
@@ -158,6 +157,13 @@
       "matchDatasources": [
         "azure-bicep-resource"
       ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": true,
+      "allowedVersions": "!/latest$/"
     }
   ],
   "postUpdateOptions": [
