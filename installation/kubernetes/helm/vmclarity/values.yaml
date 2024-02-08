@@ -11,7 +11,7 @@ apiserver:
     # -- API Server image repository
     repository: openclarity/vmclarity-apiserver
     # -- API Server image tag (immutable tags are recommended)
-    tag: latest
+    tag: latest@sha256:715b667e71ae7bafc16e531529748a378b168697945fbd88ee964842aa468ee3
     # -- API Server image digest. If set will override the tag.
     digest: ""
     # -- API Server image pull policy
@@ -73,7 +73,7 @@ orchestrator:
     # -- Orchestrator image repository
     repository: openclarity/vmclarity-orchestrator
     # -- Orchestrator image tag (immutable tags are recommended)
-    tag: latest
+    tag: latest@sha256:daf0110581b74efb17098f0912b6b13f6a1752c358dbd013cd65727bec07fb72
     # -- Orchestrator image digest. If set will override the tag.
     digest: ""
     # -- Orchestrator image pull policy
@@ -137,7 +137,7 @@ orchestrator:
     # -- Scanner Container image repository
     repository: openclarity/vmclarity-cli
     # -- Scanner Container image tag (immutable tags are recommended)
-    tag: latest
+    tag: latest@sha256:7afdf17aacdc7835d468b8e90e24efc39ad33f0e645d787e4b9ab635e6b68b0b
     # -- Scanner Container image digest. If set will override the tag.
     digest: ""
 
@@ -235,7 +235,7 @@ ui:
     # -- UI image repository
     repository: openclarity/vmclarity-ui
     # -- UI image tag
-    tag: latest
+    tag: latest@sha256:dfbcaf17897f8a086b59e1023602b1c3b408fb6a675357344e890b7346720d2e
     # -- UI image digest. If set will override the tag
     digest: ""
     # -- UI Image pull policy
@@ -293,7 +293,7 @@ uibackend:
     # -- UI Backend image repository
     repository: openclarity/vmclarity-ui-backend
     # -- UI Backend image tag
-    tag: latest
+    tag: latest@sha256:044b1c821bfb6f77bf96f276eaddcb0197d6093e247852428c5e4384df375b71
     # -- UI Backend image digest. If set will override the tag.
     digest: ""
     # -- UI Backend image pull policy
@@ -354,7 +354,7 @@ gateway:
     # -- Gateway service container repository
     repository: nginxinc/nginx-unprivileged
     # -- Gateway service container tag
-    tag: 1.25.3
+    tag: 1.25.3@sha256:5c7c5f3a43fdd395ae5b21fa4ff4daba0c5c561071bd6eb21cbb4cf616d0aee0
     # -- Gateway image digest. If set will override the tag.
     digest: ""
     # -- Gateway service container pull policy
@@ -426,7 +426,7 @@ postgresql:
     # -- Postgresql container repository
     repository: bitnami/postgresql
     # -- Postgresql container tag
-    tag: 14.6.0-debian-11-r31
+    tag: 14.6.0-debian-11-r31@sha256:5f00817d0f92465eeb1a823380ad43c8e49eecd261fc0f25dd44ab316e8c7b1c
     # -- Postgresql image digest. If set will override the tag.
     digest: ""
     # -- Postgresql container image pull policy
@@ -499,7 +499,7 @@ exploitDBServer:
     # -- Exploit DB Server container repository
     repository: openclarity/exploit-db-server
     # -- Exploit DB Server container tag
-    tag: v0.2.3
+    tag: v0.2.3@sha256:faa74ed783cf5520ec4c8889a0dbce024a1992b50c7515dfd00cad5253f8590a
     # -- Exploit DB Server image digest. If set will override the tag.
     digest: ""
     # -- Exploit DB Server image pull policy
@@ -557,7 +557,7 @@ trivyServer:
     # -- Trivy Server container repository
     repository: aquasec/trivy
     # -- Trivy Server container tag
-    tag: 0.41.0
+    tag: 0.41.0@sha256:d1796f197930d89590b1cbfbbda9f80ae6e878a1cb77dc652b198dba5c17dcdf
     # -- Trivy Server image digest. If set will override the tag.
     digest: ""
     # -- Trivy Server image pull policy
@@ -615,7 +615,7 @@ grypeServer:
     # -- Grype server container repository
     repository: openclarity/grype-server
     # -- Grype server container tag
-    tag: v0.7.2
+    tag: v0.7.2@sha256:33391b234bdc08c8383f213fa973ffc860d3aea589b862dc34dc461b9e2271df
     # -- Grype server image digest. If set will override the tag.
     digest: ""
     # -- Grype server image pull policy
@@ -676,7 +676,7 @@ freshclamMirror:
     # -- Freshclam Mirror container repository
     repository: openclarity/freshclam-mirror
     # -- Freshclam Mirror container tag
-    tag: v0.3.0
+    tag: v0.3.0@sha256:d7d6ff86915e378afb9ea75505d5f2df368215beac12b462b01c4c67d5e4617f
     # -- Freshclam Mirror image digest. If set will override the tag.
     digest: ""
     # -- Freshclam Mirror image pull policy
@@ -734,7 +734,7 @@ swaggerUI:
     # -- Swagger UI container repository
     repository: swaggerapi/swagger-ui
     # -- Swagger UI container tag
-    tag: v5.3.1
+    tag: v5.3.1@sha256:ed97fba3dc40c61fbf8346f0f0fdf494bea36ac6b55d3fb4446e9255965a46d9
     # -- Swagger UI image digest. If set will override the tag.
     digest: ""
     # -- Swagger UI image pull policy
@@ -792,7 +792,7 @@ yaraRuleServer:
     # -- Yara Rule Server container repository
     repository: openclarity/yara-rule-server
     # -- Yara Rule Server container tag
-    tag: v0.1.0
+    tag: v0.1.0@sha256:be517c96bb0f7d00166b8598a213d6c6d7997df0ce1a2c3678c46d1dbedd731f
     # -- Yara Rule Server image digest. If set will override the tag.
     digest: ""
     # -- Yara Rule Server image pull policy
@@ -847,7 +847,7 @@ crDiscoveryServer:
     # -- Container Runtime Discovery Server container repository
     repository: openclarity/vmclarity-cr-discovery-server
     # -- Container Runtime Discovery Server container tag
-    tag: latest
+    tag: latest@sha256:384258670bfa3a1791e28775d0b9997a54a671581d76500c9b6ce40ed786320d
     # -- Container Runtime Discovery Server image digest. If set will override the tag.
     digest: ""
     # -- Container Runtime Discovery Server image pull policy

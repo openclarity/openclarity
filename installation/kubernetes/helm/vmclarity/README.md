@@ -41,7 +41,7 @@ secrets.
 | apiserver.image.pullPolicy | string | `"IfNotPresent"` | API Server image pull policy |
 | apiserver.image.registry | string | `"ghcr.io"` | API Server image registry |
 | apiserver.image.repository | string | `"openclarity/vmclarity-apiserver"` | API Server image repository |
-| apiserver.image.tag | string | `"latest"` | API Server image tag (immutable tags are recommended) |
+| apiserver.image.tag | string | `"latest@sha256:715b667e71ae7bafc16e531529748a378b168697945fbd88ee964842aa468ee3"` | API Server image tag (immutable tags are recommended) |
 | apiserver.logLevel | string | `"info"` | API Server log level |
 | apiserver.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | apiserver.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -63,7 +63,7 @@ secrets.
 | crDiscoveryServer.image.pullPolicy | string | `"IfNotPresent"` | Container Runtime Discovery Server image pull policy |
 | crDiscoveryServer.image.registry | string | `"ghcr.io"` | Container Runtime Discovery Server container registry |
 | crDiscoveryServer.image.repository | string | `"openclarity/vmclarity-cr-discovery-server"` | Container Runtime Discovery Server container repository |
-| crDiscoveryServer.image.tag | string | `"latest"` | Container Runtime Discovery Server container tag |
+| crDiscoveryServer.image.tag | string | `"latest@sha256:384258670bfa3a1791e28775d0b9997a54a671581d76500c9b6ce40ed786320d"` | Container Runtime Discovery Server container tag |
 | crDiscoveryServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | crDiscoveryServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | crDiscoveryServer.resources.limits | object | `{}` | The resources limits for the container runtime discovery server containers |
@@ -83,7 +83,7 @@ secrets.
 | exploitDBServer.image.pullPolicy | string | `"IfNotPresent"` | Exploit DB Server image pull policy |
 | exploitDBServer.image.registry | string | `"ghcr.io"` | Exploit DB Server container registry |
 | exploitDBServer.image.repository | string | `"openclarity/exploit-db-server"` | Exploit DB Server container repository |
-| exploitDBServer.image.tag | string | `"v0.2.3"` | Exploit DB Server container tag |
+| exploitDBServer.image.tag | string | `"v0.2.3@sha256:faa74ed783cf5520ec4c8889a0dbce024a1992b50c7515dfd00cad5253f8590a"` | Exploit DB Server container tag |
 | exploitDBServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | exploitDBServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | exploitDBServer.replicas | int | `1` | Number of replicas for the exploit-db-server service |
@@ -104,7 +104,7 @@ secrets.
 | freshclamMirror.image.pullPolicy | string | `"IfNotPresent"` | Freshclam Mirror image pull policy |
 | freshclamMirror.image.registry | string | `"ghcr.io"` | Freshclam Mirror container registry |
 | freshclamMirror.image.repository | string | `"openclarity/freshclam-mirror"` | Freshclam Mirror container repository |
-| freshclamMirror.image.tag | string | `"v0.3.0"` | Freshclam Mirror container tag |
+| freshclamMirror.image.tag | string | `"v0.3.0@sha256:d7d6ff86915e378afb9ea75505d5f2df368215beac12b462b01c4c67d5e4617f"` | Freshclam Mirror container tag |
 | freshclamMirror.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | freshclamMirror.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | freshclamMirror.replicas | int | `1` | Number of replicas for the freshclam mirror service |
@@ -125,7 +125,7 @@ secrets.
 | gateway.image.pullPolicy | string | `"IfNotPresent"` | Gateway service container pull policy |
 | gateway.image.registry | string | `"docker.io"` | Gateway service container registry |
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
-| gateway.image.tag | string | `"1.25.3"` | Gateway service container tag |
+| gateway.image.tag | string | `"1.25.3@sha256:5c7c5f3a43fdd395ae5b21fa4ff4daba0c5c561071bd6eb21cbb4cf616d0aee0"` | Gateway service container tag |
 | gateway.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | gateway.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | gateway.replicas | int | `1` | Number of replicas for the gateway |
@@ -153,7 +153,7 @@ secrets.
 | grypeServer.image.pullPolicy | string | `"IfNotPresent"` | Grype server image pull policy |
 | grypeServer.image.registry | string | `"ghcr.io"` | Grype server container registry |
 | grypeServer.image.repository | string | `"openclarity/grype-server"` | Grype server container repository |
-| grypeServer.image.tag | string | `"v0.7.2"` | Grype server container tag |
+| grypeServer.image.tag | string | `"v0.7.2@sha256:33391b234bdc08c8383f213fa973ffc860d3aea589b862dc34dc461b9e2271df"` | Grype server container tag |
 | grypeServer.logLevel | string | `"info"` | Log level for the grype-server service |
 | grypeServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | grypeServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -205,7 +205,7 @@ secrets.
 | orchestrator.image.pullPolicy | string | `"IfNotPresent"` | Orchestrator image pull policy |
 | orchestrator.image.registry | string | `"ghcr.io"` | Orchestrator image registry |
 | orchestrator.image.repository | string | `"openclarity/vmclarity-orchestrator"` | Orchestrator image repository |
-| orchestrator.image.tag | string | `"latest"` | Orchestrator image tag (immutable tags are recommended) |
+| orchestrator.image.tag | string | `"latest@sha256:daf0110581b74efb17098f0912b6b13f6a1752c358dbd013cd65727bec07fb72"` | Orchestrator image tag (immutable tags are recommended) |
 | orchestrator.kubernetes | object | `{}` |  |
 | orchestrator.logLevel | string | `"info"` | Orchestrator service log level |
 | orchestrator.podSecurityContext.enabled | bool | `true` | Whether Orchestrator pod security context is enabled |
@@ -218,7 +218,7 @@ secrets.
 | orchestrator.scannerImage.digest | string | `""` | Scanner Container image digest. If set will override the tag. |
 | orchestrator.scannerImage.registry | string | `"ghcr.io"` | Scanner Container image registry |
 | orchestrator.scannerImage.repository | string | `"openclarity/vmclarity-cli"` | Scanner Container image repository |
-| orchestrator.scannerImage.tag | string | `"latest"` | Scanner Container image tag (immutable tags are recommended) |
+| orchestrator.scannerImage.tag | string | `"latest@sha256:7afdf17aacdc7835d468b8e90e24efc39ad33f0e645d787e4b9ab635e6b68b0b"` | Scanner Container image tag (immutable tags are recommended) |
 | orchestrator.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | orchestrator.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | orchestrator.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
@@ -240,7 +240,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"14.6.0-debian-11-r31"` | Postgresql container tag |
+| postgresql.image.tag | string | `"14.6.0-debian-11-r31@sha256:5f00817d0f92465eeb1a823380ad43c8e49eecd261fc0f25dd44ab316e8c7b1c"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.resources.limits | object | `{}` | The resources limits for the postgresql containers |
@@ -261,7 +261,7 @@ secrets.
 | swaggerUI.image.pullPolicy | string | `"IfNotPresent"` | Swagger UI image pull policy |
 | swaggerUI.image.registry | string | `"docker.io"` | Swagger UI container registry |
 | swaggerUI.image.repository | string | `"swaggerapi/swagger-ui"` | Swagger UI container repository |
-| swaggerUI.image.tag | string | `"v5.3.1"` | Swagger UI container tag |
+| swaggerUI.image.tag | string | `"v5.3.1@sha256:ed97fba3dc40c61fbf8346f0f0fdf494bea36ac6b55d3fb4446e9255965a46d9"` | Swagger UI container tag |
 | swaggerUI.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | swaggerUI.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | swaggerUI.replicas | int | `1` | Number of replicas for the swagger-ui service |
@@ -282,7 +282,7 @@ secrets.
 | trivyServer.image.pullPolicy | string | `"IfNotPresent"` | Trivy Server image pull policy |
 | trivyServer.image.registry | string | `"docker.io"` | Trivy Server container registry |
 | trivyServer.image.repository | string | `"aquasec/trivy"` | Trivy Server container repository |
-| trivyServer.image.tag | string | `"0.41.0"` | Trivy Server container tag |
+| trivyServer.image.tag | string | `"0.41.0@sha256:d1796f197930d89590b1cbfbbda9f80ae6e878a1cb77dc652b198dba5c17dcdf"` | Trivy Server container tag |
 | trivyServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | trivyServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | trivyServer.replicas | int | `1` | Number of replicas for the trivy server service |
@@ -303,7 +303,7 @@ secrets.
 | ui.image.pullPolicy | string | `"IfNotPresent"` | UI Image pull policy |
 | ui.image.registry | string | `"ghcr.io"` | UI image registry |
 | ui.image.repository | string | `"openclarity/vmclarity-ui"` | UI image repository |
-| ui.image.tag | string | `"latest"` | UI image tag |
+| ui.image.tag | string | `"latest@sha256:dfbcaf17897f8a086b59e1023602b1c3b408fb6a675357344e890b7346720d2e"` | UI image tag |
 | ui.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | ui.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | ui.replicas | int | `1` | Number of replicas for the UI service |
@@ -324,7 +324,7 @@ secrets.
 | uibackend.image.pullPolicy | string | `"IfNotPresent"` | UI Backend image pull policy |
 | uibackend.image.registry | string | `"ghcr.io"` | UI Backend image registry |
 | uibackend.image.repository | string | `"openclarity/vmclarity-ui-backend"` | UI Backend image repository |
-| uibackend.image.tag | string | `"latest"` | UI Backend image tag |
+| uibackend.image.tag | string | `"latest@sha256:044b1c821bfb6f77bf96f276eaddcb0197d6093e247852428c5e4384df375b71"` | UI Backend image tag |
 | uibackend.logLevel | string | `"info"` | Log level for the UI backend service |
 | uibackend.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | uibackend.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -346,7 +346,7 @@ secrets.
 | yaraRuleServer.image.pullPolicy | string | `"IfNotPresent"` | Yara Rule Server image pull policy |
 | yaraRuleServer.image.registry | string | `"ghcr.io"` | Yara Rule Server container registry |
 | yaraRuleServer.image.repository | string | `"openclarity/yara-rule-server"` | Yara Rule Server container repository |
-| yaraRuleServer.image.tag | string | `"v0.1.0"` | Yara Rule Server container tag |
+| yaraRuleServer.image.tag | string | `"v0.1.0@sha256:be517c96bb0f7d00166b8598a213d6c6d7997df0ce1a2c3678c46d1dbedd731f"` | Yara Rule Server container tag |
 | yaraRuleServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | yaraRuleServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | yaraRuleServer.replicas | int | `1` | Number of replicas for the Yara Rule Server service |
