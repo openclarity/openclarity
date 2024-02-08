@@ -130,7 +130,7 @@ bin/yq-$(YQ_VERSION): | $(BIN_DIR)
 
 HELM_BIN := $(BIN_DIR)/helm
 # renovate: datasource=github-releases depName=helm/helm versioning=semver
-HELM_VERSION := 3.13.2
+HELM_VERSION := 3.14.0
 
 bin/helm: bin/helm-$(HELM_VERSION)
 	@ln -sf $(notdir $<) $@
