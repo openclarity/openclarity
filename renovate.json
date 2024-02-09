@@ -157,13 +157,6 @@
       "matchDatasources": [
         "azure-bicep-resource"
       ]
-    },
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "pinDigests": true,
-      "allowedVersions": "!/latest$/"
     }
   ],
   "postUpdateOptions": [
