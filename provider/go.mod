@@ -31,7 +31,7 @@ require (
 	google.golang.org/api v0.163.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.1
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
@@ -424,7 +424,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/gorm v1.25.7 // indirect
 	helm.sh/helm/v3 v3.14.0 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
