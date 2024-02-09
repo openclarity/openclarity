@@ -18,6 +18,7 @@ package fanout
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	_ "embed"
 	"fmt"
 	"io"
@@ -25,7 +26,6 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
-	"golang.org/x/exp/rand"
 )
 
 func TestFanOut(t *testing.T) {
