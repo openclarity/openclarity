@@ -426,7 +426,7 @@ postgresql:
     # -- Postgresql container repository
     repository: bitnami/postgresql
     # -- Postgresql container tag
-    tag: 14.6.0-debian-11-r31
+    tag: 16.2.0-debian-11-r1
     # -- Postgresql image digest. If set will override the tag.
     digest: ""
     # -- Postgresql container image pull policy
