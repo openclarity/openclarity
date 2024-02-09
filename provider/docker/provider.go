@@ -31,7 +31,7 @@ import (
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/cli/families"
