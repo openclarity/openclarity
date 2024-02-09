@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Cloud Formation Linter with Latest Version
-        uses: scottbrenner/cfn-lint-action@37aa911f6b6a9d8fe9fba4a96e069086a8dc95de # v2
+        uses: scottbrenner/cfn-lint-action@37aa911f6b6a9d8fe9fba4a96e069086a8dc95de # v2.4.0
 
       - name: Run linters for Cloudformation
         run: |
