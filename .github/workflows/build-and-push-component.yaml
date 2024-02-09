@@ -126,7 +126,7 @@ jobs:
       - build-and-push
     steps:
       - name: Download digests
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           pattern: ${{ needs.build-vars.outputs.digests-cache-name }}-*
           merge-multiple: true
