@@ -99,7 +99,7 @@ require (
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
-	github.com/aquasecurity/trivy v0.49.0 // indirect
+	github.com/aquasecurity/trivy v0.49.1 // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20231005141211-4fc651f7ac8d // indirect
 	github.com/aquasecurity/trivy-iac v0.8.0 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
@@ -120,7 +120,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.2.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.16.10 // indirect
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.18.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.7 // indirect
@@ -208,7 +208,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
-	github.com/google/go-containerregistry v0.17.0 // indirect
+	github.com/google/go-containerregistry v0.19.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
 	github.com/google/licenseclassifier/v2 v2.0.0 // indirect
@@ -279,7 +279,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
 	github.com/microsoft/go-rustaudit v0.0.0-20220808201409-204dfee52032 // indirect
@@ -308,7 +308,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.60.0 // indirect
+	github.com/open-policy-agent/opa v0.61.0 // indirect
 	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 // indirect
 	github.com/openclarity/yara-rule-server v0.2.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -331,10 +331,10 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
+	github.com/prometheus/client_golang v1.18.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
-	github.com/prometheus/common v0.44.0 // indirect
-	github.com/prometheus/procfs v0.11.1 // indirect
+	github.com/prometheus/common v0.45.0 // indirect
+	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
