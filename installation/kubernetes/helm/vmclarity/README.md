@@ -282,7 +282,7 @@ secrets.
 | trivyServer.image.pullPolicy | string | `"IfNotPresent"` | Trivy Server image pull policy |
 | trivyServer.image.registry | string | `"docker.io"` | Trivy Server container registry |
 | trivyServer.image.repository | string | `"aquasec/trivy"` | Trivy Server container repository |
-| trivyServer.image.tag | string | `"0.41.0@sha256:d1796f197930d89590b1cbfbbda9f80ae6e878a1cb77dc652b198dba5c17dcdf"` | Trivy Server container tag |
+| trivyServer.image.tag | string | `"0.49.1"` | Trivy Server container tag |
 | trivyServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | trivyServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | trivyServer.replicas | int | `1` | Number of replicas for the trivy server service |
