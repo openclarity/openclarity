@@ -22,11 +22,11 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	syftFormat "github.com/anchore/syft/syft/format"
-	"github.com/anchore/syft/syft/format/common/cyclonedxhelpers"
 	"github.com/anchore/syft/syft/format/spdxjson"
 	"github.com/anchore/syft/syft/format/spdxtagvalue"
 	"github.com/anchore/syft/syft/format/syftjson"
 	syftSbom "github.com/anchore/syft/syft/sbom"
+	"github.com/tdewolff/parse/v2/buffer"
 )
 
 type SbomFormat uint
@@ -108,7 +108,12 @@ func cycloneDxToBytesUsingCycloneDxEncoder(sbom *cdx.BOM, format SbomFormat) ([]
 // cyclonedx format (json or xml) use cycloneDxToBytesUsingCycloneDxEncoder
 // instead.
 func cycloneDxToBytesUsingSyftConversion(sbom *cdx.BOM, format SbomFormat) ([]byte, error) {
-	syftSBOM, err := cyclonedxhelpers.ToSyftModel(sbom)
+	b, err := cycloneDxToBytesUsingCycloneDxEncoder(sbom, CycloneDxJSON)
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert BOM to intermediary format: %w", err)
+	}
+
+	syftSBOM, _, _, err := syftFormat.Decode(buffer.NewReader(b))
 	if err != nil {
 		return nil, fmt.Errorf("unable to convert BOM to intermediary format: %w", err)
 	}
