@@ -39,6 +39,7 @@ require (
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
 	k8s.io/client-go v0.29.1
+	www.velocidex.com/golang/regparser v0.0.0-20221020153526-bbc758cbd18b
 )
 
 require (
