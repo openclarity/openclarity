@@ -83,7 +83,7 @@ secrets.
 | exploitDBServer.image.pullPolicy | string | `"IfNotPresent"` | Exploit DB Server image pull policy |
 | exploitDBServer.image.registry | string | `"ghcr.io"` | Exploit DB Server container registry |
 | exploitDBServer.image.repository | string | `"openclarity/exploit-db-server"` | Exploit DB Server container repository |
-| exploitDBServer.image.tag | string | `"v0.2.3@sha256:faa74ed783cf5520ec4c8889a0dbce024a1992b50c7515dfd00cad5253f8590a"` | Exploit DB Server container tag |
+| exploitDBServer.image.tag | string | `"v0.2.3"` | Exploit DB Server container tag |
 | exploitDBServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | exploitDBServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | exploitDBServer.replicas | int | `1` | Number of replicas for the exploit-db-server service |
@@ -104,7 +104,7 @@ secrets.
 | freshclamMirror.image.pullPolicy | string | `"IfNotPresent"` | Freshclam Mirror image pull policy |
 | freshclamMirror.image.registry | string | `"ghcr.io"` | Freshclam Mirror container registry |
 | freshclamMirror.image.repository | string | `"openclarity/freshclam-mirror"` | Freshclam Mirror container repository |
-| freshclamMirror.image.tag | string | `"v0.3.0@sha256:d7d6ff86915e378afb9ea75505d5f2df368215beac12b462b01c4c67d5e4617f"` | Freshclam Mirror container tag |
+| freshclamMirror.image.tag | string | `"v0.3.0"` | Freshclam Mirror container tag |
 | freshclamMirror.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | freshclamMirror.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | freshclamMirror.replicas | int | `1` | Number of replicas for the freshclam mirror service |
@@ -125,7 +125,7 @@ secrets.
 | gateway.image.pullPolicy | string | `"IfNotPresent"` | Gateway service container pull policy |
 | gateway.image.registry | string | `"docker.io"` | Gateway service container registry |
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
-| gateway.image.tag | string | `"1.25.3@sha256:5c7c5f3a43fdd395ae5b21fa4ff4daba0c5c561071bd6eb21cbb4cf616d0aee0"` | Gateway service container tag |
+| gateway.image.tag | string | `"1.25.3"` | Gateway service container tag |
 | gateway.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | gateway.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | gateway.replicas | int | `1` | Number of replicas for the gateway |
@@ -153,7 +153,7 @@ secrets.
 | grypeServer.image.pullPolicy | string | `"IfNotPresent"` | Grype server image pull policy |
 | grypeServer.image.registry | string | `"ghcr.io"` | Grype server container registry |
 | grypeServer.image.repository | string | `"openclarity/grype-server"` | Grype server container repository |
-| grypeServer.image.tag | string | `"v0.7.2@sha256:33391b234bdc08c8383f213fa973ffc860d3aea589b862dc34dc461b9e2271df"` | Grype server container tag |
+| grypeServer.image.tag | string | `"v0.7.2"` | Grype server container tag |
 | grypeServer.logLevel | string | `"info"` | Log level for the grype-server service |
 | grypeServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | grypeServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -240,7 +240,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"14.6.0-debian-11-r31@sha256:5f00817d0f92465eeb1a823380ad43c8e49eecd261fc0f25dd44ab316e8c7b1c"` | Postgresql container tag |
+| postgresql.image.tag | string | `"14.6.0-debian-11-r31"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.resources.limits | object | `{}` | The resources limits for the postgresql containers |
@@ -261,7 +261,7 @@ secrets.
 | swaggerUI.image.pullPolicy | string | `"IfNotPresent"` | Swagger UI image pull policy |
 | swaggerUI.image.registry | string | `"docker.io"` | Swagger UI container registry |
 | swaggerUI.image.repository | string | `"swaggerapi/swagger-ui"` | Swagger UI container repository |
-| swaggerUI.image.tag | string | `"v5.3.1@sha256:ed97fba3dc40c61fbf8346f0f0fdf494bea36ac6b55d3fb4446e9255965a46d9"` | Swagger UI container tag |
+| swaggerUI.image.tag | string | `"v5.3.1"` | Swagger UI container tag |
 | swaggerUI.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | swaggerUI.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | swaggerUI.replicas | int | `1` | Number of replicas for the swagger-ui service |
@@ -346,7 +346,7 @@ secrets.
 | yaraRuleServer.image.pullPolicy | string | `"IfNotPresent"` | Yara Rule Server image pull policy |
 | yaraRuleServer.image.registry | string | `"ghcr.io"` | Yara Rule Server container registry |
 | yaraRuleServer.image.repository | string | `"openclarity/yara-rule-server"` | Yara Rule Server container repository |
-| yaraRuleServer.image.tag | string | `"v0.1.0@sha256:be517c96bb0f7d00166b8598a213d6c6d7997df0ce1a2c3678c46d1dbedd731f"` | Yara Rule Server container tag |
+| yaraRuleServer.image.tag | string | `"v0.1.0"` | Yara Rule Server container tag |
 | yaraRuleServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | yaraRuleServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | yaraRuleServer.replicas | int | `1` | Number of replicas for the Yara Rule Server service |
