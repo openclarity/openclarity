@@ -28,7 +28,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.18.2
 	golang.org/x/sync v0.6.0
-	google.golang.org/api v0.162.0
+	google.golang.org/api v0.163.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/yaml.v2 v2.4.0
