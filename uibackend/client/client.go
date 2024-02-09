@@ -17,6 +17,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -48,7 +49,7 @@ func (c *Client) GetDashboardRiskiestAssets(ctx context.Context) (*types.Riskies
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get dashboard riskiest assets: empty body")
+			return nil, errors.New("failed to get dashboard riskiest assets: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -68,7 +69,7 @@ func (c *Client) GetDashboardRiskiestRegions(ctx context.Context) (*types.Riskie
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get dashboard riskiest regions: empty body")
+			return nil, errors.New("failed to get dashboard riskiest regions: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -88,7 +89,7 @@ func (c *Client) GetDashboardFindingsImpact(ctx context.Context) (*types.Finding
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get dashboard findings trends: empty body")
+			return nil, errors.New("failed to get dashboard findings trends: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -108,7 +109,7 @@ func (c *Client) GetDashboardFindingsTrends(ctx context.Context, params types.Ge
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get dashboard findings trends: empty body")
+			return nil, errors.New("failed to get dashboard findings trends: empty body")
 		}
 		return resp.JSON200, nil
 	default:

@@ -171,12 +171,11 @@ func (s *ScanConfigsTableHandler) CreateScanConfig(scanConfig types.ScanConfig) 
 
 func validateRuntimeScheduleScanConfig(scheduled *types.RuntimeScheduleScanConfig) error {
 	if scheduled == nil {
-		return fmt.Errorf("scheduled must be configured")
+		return errors.New("scheduled must be configured")
 	}
 
 	if scheduled.CronLine == nil && isEmptyOperationTime(scheduled.OperationTime) {
-		return fmt.Errorf("both operationTime and cronLine are not set, " +
-			"at least one should be set")
+		return errors.New("both operationTime and cronLine are not set, at least one should be set")
 	}
 
 	if scheduled.CronLine != nil {
@@ -356,7 +355,7 @@ func (s *ScanConfigsTableHandler) checkUniqueness(scanConfig types.ScanConfig) (
 		}
 		// In the case of updating a scan config, needs to be checked whether other scan config exists with same name.
 		return sc, &common.ConflictError{
-			Reason: fmt.Sprintf("Scan config exists with name=%s", *sc.Name),
+			Reason: "Scan config exists with name=" + *sc.Name,
 		}
 	}
 	return types.ScanConfig{}, nil

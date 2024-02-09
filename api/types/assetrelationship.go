@@ -17,12 +17,13 @@ package types
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
 func (a *AssetRelationship) ToAsset() (*Asset, error) {
 	if a == nil {
-		return nil, fmt.Errorf("asset relationship is nil")
+		return nil, errors.New("asset relationship is nil")
 	}
 
 	B, err := json.Marshal(a)

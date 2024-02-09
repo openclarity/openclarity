@@ -136,7 +136,7 @@ func NewCache() *Cache {
 
 func (cache *Cache) ToTempDirectory(ctx context.Context, src string) (Rootfs, error) {
 	if cache == nil {
-		return nil, fmt.Errorf("uninitialized cache")
+		return nil, errors.New("uninitialized cache")
 	}
 
 	cache.mu.Lock()
@@ -157,7 +157,7 @@ func (cache *Cache) ToTempDirectory(ctx context.Context, src string) (Rootfs, er
 
 func (cache *Cache) CleanupAll() error {
 	if cache == nil {
-		return fmt.Errorf("uninitialized cache")
+		return errors.New("uninitialized cache")
 	}
 	cache.mu.Lock()
 	defer cache.mu.Unlock()

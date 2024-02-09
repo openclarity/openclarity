@@ -17,7 +17,6 @@ package types
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/openclarity/vmclarity/api/types"
 )
@@ -34,7 +33,7 @@ type PreconditionFailedError struct {
 }
 
 func (e *PreconditionFailedError) Error() string {
-	return fmt.Sprintf("Precondition failed: %s", e.Reason)
+	return "Precondition failed: " + e.Reason
 }
 
 type DBConfig struct {

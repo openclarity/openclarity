@@ -34,7 +34,7 @@ type ConsoleWriter struct {
 }
 
 func (w *ConsoleWriter) Write(b []byte, prefix string) error {
-	buf := bytes.NewBufferString(fmt.Sprintf("%s results:\n", prefix))
+	buf := bytes.NewBufferString(prefix + " results:\n")
 	buf.Write(b)
 	buf.WriteString("\n=================================================\n")
 

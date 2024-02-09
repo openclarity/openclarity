@@ -17,6 +17,7 @@ package odatasql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/CiscoM31/godata"
@@ -56,12 +57,12 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 	// need to save the filter/select and process any sub selects/expands
 	if len(path) == 0 {
 		if st.filter != nil {
-			return fmt.Errorf("filter for field specified twice")
+			return errors.New("filter for field specified twice")
 		}
 		st.filter = filter
 
 		if st.orderby != nil {
-			return fmt.Errorf("orderby for field specified twice")
+			return errors.New("orderby for field specified twice")
 		}
 		st.orderby = orderby
 
@@ -69,7 +70,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 
 		if sel != nil {
 			if len(st.children) > 0 {
-				return fmt.Errorf("can not specify selection for field in multiple places")
+				return errors.New("can not specify selection for field in multiple places")
 			}
 
 			// Parse $select using ParseExpandString because godata.ParseSelectString
@@ -81,7 +82,7 @@ func (st *selectNode) insert(path []*godata.Token, filter *godata.GoDataFilterQu
 
 			for _, s := range childSelections.ExpandItems {
 				if s.Expand != nil {
-					return fmt.Errorf("expand can not be specified inside of select")
+					return errors.New("expand can not be specified inside of select")
 				}
 				err := st.insert(s.Path, s.Filter, s.OrderBy, s.Select, nil, false)
 				if err != nil {

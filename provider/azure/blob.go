@@ -36,7 +36,7 @@ var (
 )
 
 func blobNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("%s.vhd", config.AssetScanID)
+	return config.AssetScanID + ".vhd"
 }
 
 func (p *Provider) blobURLFromBlobName(blobName string) string {

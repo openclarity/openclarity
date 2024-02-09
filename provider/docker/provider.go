@@ -17,6 +17,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -247,7 +248,7 @@ func (p *Provider) createScanAssetVolume(ctx context.Context, volumeName string)
 		}
 		return nil
 	}
-	return fmt.Errorf("invalid number of volumes found")
+	return errors.New("invalid number of volumes found")
 }
 
 // createScanNetwork returns network id or error.

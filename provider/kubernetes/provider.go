@@ -215,7 +215,7 @@ func (p *Provider) runScannerJob(ctx context.Context, config *provider.ScanJobCo
 		return fmt.Errorf("failed to generate scanner config yaml: %w", err)
 	}
 
-	jobName := fmt.Sprintf("vmclarity-scan-%s", config.AssetScanID)
+	jobName := "vmclarity-scan-" + config.AssetScanID
 
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -315,7 +315,7 @@ func (p *Provider) runScannerJob(ctx context.Context, config *provider.ScanJobCo
 }
 
 func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	jobName := fmt.Sprintf("vmclarity-scan-%s", config.AssetScanID)
+	jobName := "vmclarity-scan-" + config.AssetScanID
 
 	err := p.clientSet.BatchV1().Jobs(p.config.ScannerNamespace).Delete(ctx, jobName, metav1.DeleteOptions{
 		PropagationPolicy: to.Ptr(metav1.DeletePropagationBackground),

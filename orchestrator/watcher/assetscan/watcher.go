@@ -238,8 +238,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, assetScan *apitypes.Asse
 
 	// nolint:wrapcheck
 	return common.NewRequeueAfterError(time.Second,
-		fmt.Sprintf("AssetScan state moved to Scheduled. Skip waiting for another reconcile cycle. AssetScanID=%s",
-			assetScanID))
+		"AssetScan state moved to Scheduled. Skip waiting for another reconcile cycle. AssetScanID="+assetScanID)
 }
 
 // nolint:cyclop

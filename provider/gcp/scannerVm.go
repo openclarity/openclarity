@@ -38,7 +38,7 @@ const (
 )
 
 func scannerVMNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("vmclarity-scanner-%s", config.AssetScanID)
+	return "vmclarity-scanner-" + config.AssetScanID
 }
 
 func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig) (*computepb.Instance, error) {
@@ -113,7 +113,7 @@ func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *prov
 			req.InstanceResource.Metadata.Items,
 			&computepb.Items{
 				Key:   to.Ptr("ssh-keys"),
-				Value: to.Ptr(fmt.Sprintf("vmclarity:%s", p.config.ScannerSSHPublicKey)),
+				Value: to.Ptr("vmclarity:" + p.config.ScannerSSHPublicKey),
 			},
 		)
 	}

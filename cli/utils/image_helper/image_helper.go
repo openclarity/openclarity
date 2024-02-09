@@ -16,7 +16,7 @@
 package image_helper // nolint:revive,stylecheck
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 
 	"github.com/containers/image/v5/docker/reference"
@@ -64,7 +64,7 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 
 func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, imageName string) (string, error) {
 	if imageID == "" && len(repoDigests) == 0 {
-		return "", fmt.Errorf("RepoDigest and ImageID are missing")
+		return "", errors.New("RepoDigest and ImageID are missing")
 	}
 
 	hash := GetHashFromRepoDigest(repoDigests, imageName)

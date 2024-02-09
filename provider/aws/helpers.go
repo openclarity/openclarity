@@ -16,6 +16,7 @@
 package aws
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -61,7 +62,7 @@ func EC2FiltersFromEC2Tags(tags []ec2types.Tag) []ec2types.Filter {
 		if tag.Key == nil || *tag.Key == "" {
 			continue
 		}
-		name = fmt.Sprintf("tag:%s", *tag.Key)
+		name = "tag:" + *tag.Key
 
 		if tag.Value != nil {
 			value = []string{*tag.Value}
@@ -86,7 +87,7 @@ func EC2FiltersFromTags(tags []apitypes.Tag) []ec2types.Filter {
 			continue
 		}
 
-		name = fmt.Sprintf("tag:%s", tag.Key)
+		name = "tag:" + tag.Key
 		if tag.Value != "" {
 			value = []string{tag.Value}
 		}
@@ -170,25 +171,25 @@ func getInstanceState(result *ec2.DescribeInstancesOutput, instanceID string) ec
 
 func validateInstanceFields(instance ec2types.Instance) error {
 	if instance.InstanceId == nil {
-		return fmt.Errorf("instance id does not exist")
+		return errors.New("instance id does not exist")
 	}
 	if instance.Placement == nil {
-		return fmt.Errorf("insatnce Placement does not exist")
+		return errors.New("insatnce Placement does not exist")
 	}
 	if instance.Placement.AvailabilityZone == nil {
-		return fmt.Errorf("insatnce AvailabilityZone does not exist")
+		return errors.New("insatnce AvailabilityZone does not exist")
 	}
 	if instance.ImageId == nil {
-		return fmt.Errorf("instance ImageId does not exist")
+		return errors.New("instance ImageId does not exist")
 	}
 	if instance.PlatformDetails == nil {
-		return fmt.Errorf("instance PlatformDetails does not exist")
+		return errors.New("instance PlatformDetails does not exist")
 	}
 	if instance.LaunchTime == nil {
-		return fmt.Errorf("instance LaunchTime does not exist")
+		return errors.New("instance LaunchTime does not exist")
 	}
 	if instance.VpcId == nil {
-		return fmt.Errorf("instance VpcId does not exist")
+		return errors.New("instance VpcId does not exist")
 	}
 	return nil
 }

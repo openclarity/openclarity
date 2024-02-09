@@ -16,7 +16,7 @@
 package cyclonedx_helper // nolint:revive,stylecheck
 
 import (
-	"fmt"
+	"errors"
 	"sort"
 	"strings"
 
@@ -31,7 +31,7 @@ func GetComponentHash(component *cdx.Component) (string, error) {
 	var lastHash string
 
 	if component == nil {
-		return "", fmt.Errorf("missing component")
+		return "", errors.New("missing component")
 	}
 
 	// In the case of an Image, the BOM version contains the manifestDigest
@@ -72,7 +72,7 @@ func GetComponentHash(component *cdx.Component) (string, error) {
 	}
 
 	if lastHash == "" {
-		return "", fmt.Errorf("no sha256 hash found in component")
+		return "", errors.New("no sha256 hash found in component")
 	}
 	return lastHash, nil
 }

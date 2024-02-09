@@ -16,7 +16,7 @@
 package results
 
 import (
-	"fmt"
+	"errors"
 )
 
 // Results store slice of results from all families.
@@ -41,5 +41,5 @@ func GetResult[familyType any](r *Results) (familyType, error) {
 		}
 	}
 	var res familyType
-	return res, fmt.Errorf("missing result")
+	return res, errors.New("missing result")
 }

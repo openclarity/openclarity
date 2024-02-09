@@ -17,7 +17,6 @@ package azure
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4"
@@ -32,7 +31,7 @@ var (
 )
 
 func snapshotNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("snapshot-%s", config.AssetScanID)
+	return "snapshot-" + config.AssetScanID
 }
 
 func (p *Provider) ensureSnapshotForVMRootVolume(ctx context.Context, config *provider.ScanJobConfig, vm armcompute.VirtualMachine) (armcompute.Snapshot, error) {

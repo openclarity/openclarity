@@ -16,8 +16,6 @@
 package scanconfig
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
@@ -34,7 +32,7 @@ func (e ScanConfigReconcileEvent) ToFields() log.Fields {
 }
 
 func (e ScanConfigReconcileEvent) String() string {
-	return fmt.Sprintf("ScanConfigID=%s", e.ScanConfigID)
+	return "ScanConfigID=" + e.ScanConfigID
 }
 
 func (e ScanConfigReconcileEvent) Hash() string {
