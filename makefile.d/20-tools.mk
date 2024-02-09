@@ -114,7 +114,7 @@ bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
 
 YQ_BIN := $(BIN_DIR)/yq
 # renovate: datasource=github-releases depName=mikefarah/yq versioning=semver
-YQ_VERSION := 4.40.5
+YQ_VERSION := 4.40.7
 
 bin/yq: bin/yq-$(YQ_VERSION)
 	@ln -sf $(notdir $<) $@
