@@ -17,6 +17,7 @@ package families
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/openclarity/vmclarity/cli/families/exploits"
@@ -96,7 +97,7 @@ type FamilyNotifier interface {
 
 func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 	var oneOrMoreFamilyFailed bool
-	var errors []error
+	var errs []error
 	familyResults := results.New()
 
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
@@ -111,7 +112,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 
 	for _, family := range m.families {
 		if err := notifier.FamilyStarted(ctx, family.GetType()); err != nil {
-			errors = append(errors, fmt.Errorf("family started notification failed: %w", err))
+			errs = append(errs, fmt.Errorf("family started notification failed: %w", err))
 			continue
 		}
 
@@ -137,7 +138,7 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 				FamilyType: family.GetType(),
 				Err:        fmt.Errorf("failed to run family %v: aborted", family.GetType()),
 			}); err != nil {
-				errors = append(errors, fmt.Errorf("family finished notification failed: %w", err))
+				errs = append(errs, fmt.Errorf("family finished notification failed: %w", err))
 			}
 		case r := <-result:
 			logger.Debugf("received result from family %q: %v", family.GetType(), r)
@@ -148,14 +149,14 @@ func (m *Manager) Run(ctx context.Context, notifier FamilyNotifier) []error {
 				familyResults.SetResults(r.Result)
 			}
 			if err := notifier.FamilyFinished(ctx, r); err != nil {
-				errors = append(errors, fmt.Errorf("family finished notification failed: %w", err))
+				errs = append(errs, fmt.Errorf("family finished notification failed: %w", err))
 			}
 			close(result)
 		}
 	}
 
 	if oneOrMoreFamilyFailed {
-		errors = append(errors, fmt.Errorf("at least one family failed to run"))
+		errs = append(errs, errors.New("at least one family failed to run"))
 	}
-	return errors
+	return errs
 }

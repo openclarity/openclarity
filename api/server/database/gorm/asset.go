@@ -229,7 +229,7 @@ func (t *AssetsTableHandler) SaveAsset(asset types.Asset, params types.PutAssets
 // nolint:cyclop
 func (t *AssetsTableHandler) UpdateAsset(asset types.Asset, params types.PatchAssetsAssetIDParams) (types.Asset, error) {
 	if asset.Id == nil || *asset.Id == "" {
-		return types.Asset{}, fmt.Errorf("ID is required to update asset in DB")
+		return types.Asset{}, errors.New("ID is required to update asset in DB")
 	}
 
 	var dbObj Asset

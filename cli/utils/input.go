@@ -35,11 +35,11 @@ func CreateSource(sourceType SourceType, src string, localImage bool) string {
 	case IMAGE:
 		return setImageSource(localImage, src)
 	case DOCKERARCHIVE:
-		return fmt.Sprintf("docker-archive:%s", src)
+		return "docker-archive:" + src
 	case OCIARCHIVE:
-		return fmt.Sprintf("oci-archive:%s", src)
+		return "oci-archive:" + src
 	case OCIDIR:
-		return fmt.Sprintf("oci-dir:%s", src)
+		return "oci-dir:" + src
 	case ROOTFS, DIR:
 		return fmt.Sprintf("%s:%s", DIR, src)
 	case FILE, SBOM:

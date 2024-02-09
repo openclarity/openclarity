@@ -16,8 +16,6 @@
 package scanestimation
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
@@ -34,7 +32,7 @@ func (e ScanEstimationReconcileEvent) ToFields() log.Fields {
 }
 
 func (e ScanEstimationReconcileEvent) String() string {
-	return fmt.Sprintf("ScanEstimationID=%s", e.ScanEstimationID)
+	return "ScanEstimationID=" + e.ScanEstimationID
 }
 
 func (e ScanEstimationReconcileEvent) Hash() string {

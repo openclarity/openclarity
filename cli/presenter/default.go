@@ -18,6 +18,7 @@ package presenter
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/openclarity/vmclarity/cli/families"
@@ -65,7 +66,7 @@ func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.
 func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res families.FamilyResult) error {
 	sbomResults, ok := res.Result.(*sbom.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to sbom results")
+		return errors.New("failed to convert to sbom results")
 	}
 
 	outputFormat := p.FamiliesConfig.SBOM.AnalyzersConfig.Analyzer.OutputFormat
@@ -84,7 +85,7 @@ func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res families.Fami
 func (p *DefaultPresenter) ExportVulResult(_ context.Context, res families.FamilyResult) error {
 	vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to vulnerabilities results")
+		return errors.New("failed to convert to vulnerabilities results")
 	}
 
 	bytes, err := json.Marshal(vulnerabilitiesResults.MergedResults)
@@ -101,7 +102,7 @@ func (p *DefaultPresenter) ExportVulResult(_ context.Context, res families.Famil
 func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res families.FamilyResult) error {
 	secretsResults, ok := res.Result.(*secrets.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to secrets results")
+		return errors.New("failed to convert to secrets results")
 	}
 
 	bytes, err := json.Marshal(secretsResults)
@@ -118,7 +119,7 @@ func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res families.F
 func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res families.FamilyResult) error {
 	malwareResults, ok := res.Result.(*malware.MergedResults)
 	if !ok {
-		return fmt.Errorf("failed to convert to malware results")
+		return errors.New("failed to convert to malware results")
 	}
 
 	bytes, err := json.Marshal(malwareResults)
@@ -135,7 +136,7 @@ func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res families.F
 func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res families.FamilyResult) error {
 	exploitsResults, ok := res.Result.(*exploits.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to exploits results")
+		return errors.New("failed to convert to exploits results")
 	}
 
 	bytes, err := json.Marshal(exploitsResults)
@@ -157,7 +158,7 @@ func (p *DefaultPresenter) ExportMisconfigurationResult(context.Context, familie
 func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res families.FamilyResult) error {
 	rootkitsResults, ok := res.Result.(*rootkits.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to rootkits results")
+		return errors.New("failed to convert to rootkits results")
 	}
 
 	bytes, err := json.Marshal(rootkitsResults)
@@ -178,7 +179,7 @@ func (p *DefaultPresenter) ExportInfoFinderResult(_ context.Context, res familie
 
 	infoFinderResults, ok := res.Result.(*infofinder.Results)
 	if !ok {
-		return fmt.Errorf("failed to convert to infofinder results")
+		return errors.New("failed to convert to infofinder results")
 	}
 
 	bytes, err := json.Marshal(infoFinderResults)

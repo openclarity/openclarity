@@ -18,6 +18,7 @@ package trivy
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -389,7 +390,7 @@ func getTypeFromPurl(purl string) (string, error) {
 
 	typ, _, found := strings.Cut(u.Opaque, "/")
 	if !found {
-		return "", fmt.Errorf("type not found in purl")
+		return "", errors.New("type not found in purl")
 	}
 
 	return typ, nil

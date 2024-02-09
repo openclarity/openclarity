@@ -16,7 +16,7 @@
 package trivy
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/aquasecurity/trivy/pkg/flag"
 )
@@ -27,7 +27,7 @@ func GetTrivyDBOptions() (flag.DBOptions, error) {
 	// future.
 	dbRepoDefaultValue := flag.DBRepositoryFlag.Default
 	if dbRepoDefaultValue == "" {
-		return flag.DBOptions{}, fmt.Errorf("unable to get trivy DB repo config")
+		return flag.DBOptions{}, errors.New("unable to get trivy DB repo config")
 	}
 
 	// Get the Trivy JAVA DB URL default value from the trivy
@@ -35,7 +35,7 @@ func GetTrivyDBOptions() (flag.DBOptions, error) {
 	// future.
 	javaDBRepoDefaultValue := flag.JavaDBRepositoryFlag.Default
 	if javaDBRepoDefaultValue == "" {
-		return flag.DBOptions{}, fmt.Errorf("unable to get trivy java DB repo config")
+		return flag.DBOptions{}, errors.New("unable to get trivy java DB repo config")
 	}
 
 	return flag.DBOptions{

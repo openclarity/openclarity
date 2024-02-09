@@ -17,6 +17,7 @@ package lynis
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -84,7 +85,7 @@ func (a *ReportParser) parseLynisReportLine(scanPath string, line string) (bool,
 	// Everything else should be in the "option" format, <option>=<value>
 	option, value, ok := strings.Cut(line, "=")
 	if !ok {
-		return false, types.Misconfiguration{}, fmt.Errorf("line not in option=value format")
+		return false, types.Misconfiguration{}, errors.New("line not in option=value format")
 	}
 
 	switch option {

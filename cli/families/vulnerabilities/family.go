@@ -17,6 +17,7 @@ package vulnerabilities
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -76,7 +77,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 	}
 
 	if len(v.conf.Inputs) == 0 {
-		return nil, fmt.Errorf("inputs list is empty")
+		return nil, errors.New("inputs list is empty")
 	}
 
 	var vulResults Results

@@ -18,6 +18,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -55,17 +56,17 @@ func (c *Client) GetAssetScan(ctx context.Context, assetScanID string, params ty
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return assetScans, newGetExistingError(fmt.Errorf("empty body"))
+			return assetScans, newGetExistingError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return assetScans, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return assetScans, newGetExistingError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return assetScans, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return assetScans, newGetExistingError(fmt.Errorf("not found"))
+		return assetScans, newGetExistingError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return assetScans, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -88,7 +89,7 @@ func (c *Client) GetAssetScans(ctx context.Context, params types.GetAssetScansPa
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return assetScans, newGetAssetScansError(fmt.Errorf("empty body"))
+			return assetScans, newGetAssetScansError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	default:
@@ -113,7 +114,7 @@ func (c *Client) PatchAssetScan(ctx context.Context, assetScan types.AssetScan, 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateAssetScanError(fmt.Errorf("empty body"))
+			return newUpdateAssetScanError(errors.New("empty body"))
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -123,12 +124,12 @@ func (c *Client) PatchAssetScan(ctx context.Context, assetScan types.AssetScan, 
 		return newUpdateAssetScanError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateAssetScanError(fmt.Errorf("empty body on not found"))
+			return newUpdateAssetScanError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return newUpdateAssetScanError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateAssetScanError(fmt.Errorf("not found"))
+		return newUpdateAssetScanError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return newUpdateAssetScanError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -216,7 +217,7 @@ func (c *Client) PatchScan(ctx context.Context, scanID types.ScanID, scan *types
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update a scan: empty body")
+			return errors.New("failed to update a scan: empty body")
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -226,12 +227,12 @@ func (c *Client) PatchScan(ctx context.Context, scanID types.ScanID, scan *types
 		return fmt.Errorf("failed to update a scan. status code=%v", resp.StatusCode())
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update a scan: empty body on not found")
+			return errors.New("failed to update a scan: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to update a scan, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to update a scan, not found")
+		return errors.New("failed to update a scan, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to update scan. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -274,7 +275,7 @@ func (c *Client) PatchAssetScanStatus(ctx context.Context, assetScanID string, s
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update an asset scan status: empty body")
+			return errors.New("failed to update an asset scan status: empty body")
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -284,12 +285,12 @@ func (c *Client) PatchAssetScanStatus(ctx context.Context, assetScanID string, s
 		return fmt.Errorf("failed to update asset scan status. status code=%v", resp.StatusCode())
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update an asset scan status: empty body on not found")
+			return errors.New("failed to update an asset scan status: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to update asset scan status, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to update asset scan status, not found")
+		return errors.New("failed to update asset scan status, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to update asset scan status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -306,17 +307,17 @@ func (c *Client) GetScan(ctx context.Context, scanID string, params types.GetSca
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get a scan: empty body")
+			return nil, errors.New("failed to get a scan: empty body")
 		}
 		return resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return nil, fmt.Errorf("failed to get a scan: empty body on not found")
+			return nil, errors.New("failed to get a scan: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan, not found: %v", *resp.JSON404.Message)
 		}
-		return nil, fmt.Errorf("failed to get a scan, not found")
+		return nil, errors.New("failed to get a scan, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -368,17 +369,17 @@ func (c *Client) GetScanEstimation(ctx context.Context, scanEstimationID string,
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get a scan estimation: empty body")
+			return nil, errors.New("failed to get a scan estimation: empty body")
 		}
 		return resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return nil, fmt.Errorf("failed to get a scan estimation: empty body on not found")
+			return nil, errors.New("failed to get a scan estimation: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan estimation, not found: %v", *resp.JSON404.Message)
 		}
-		return nil, fmt.Errorf("failed to get a scan estimation, not found")
+		return nil, errors.New("failed to get a scan estimation, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan estimation status. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -395,7 +396,7 @@ func (c *Client) GetScanEstimations(ctx context.Context, params types.GetScanEst
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no scanEstimations: empty body")
+			return nil, errors.New("no scanEstimations: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -415,7 +416,7 @@ func (c *Client) PatchScanEstimation(ctx context.Context, scanEstimationID types
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update a scan estimation: empty body")
+			return errors.New("failed to update a scan estimation: empty body")
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -425,12 +426,12 @@ func (c *Client) PatchScanEstimation(ctx context.Context, scanEstimationID types
 		return fmt.Errorf("failed to update a scan estimation. status code=%v", resp.StatusCode())
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update a scan estimation: empty body on not found")
+			return errors.New("failed to update a scan estimation: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to update a scan estimation, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to update a scan estimation, not found")
+		return errors.New("failed to update a scan estimation, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to update scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -447,17 +448,17 @@ func (c *Client) DeleteScanEstimation(ctx context.Context, scanEstimationID type
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to delete a scan estimation: empty body")
+			return errors.New("failed to delete a scan estimation: empty body")
 		}
 		return nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to delete a scan estimation: empty body on not found")
+			return errors.New("failed to delete a scan estimation: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to delete a scan estimation, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to delete a scan estimation, not found")
+		return errors.New("failed to delete a scan estimation, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to delete scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -509,17 +510,17 @@ func (c *Client) DeleteAssetScanEstimation(ctx context.Context, assetScanEstimat
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to delete asset scan estimation: empty body")
+			return errors.New("failed to delete asset scan estimation: empty body")
 		}
 		return nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to delete asset scan estimation: empty body on not found")
+			return errors.New("failed to delete asset scan estimation: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to delete asset scan estimation, not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to delete asset scan estimation, not found")
+		return errors.New("failed to delete asset scan estimation, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to delete asset scan estimation. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -542,7 +543,7 @@ func (c *Client) GetAssetScanEstimations(ctx context.Context, params types.GetAs
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return assetScanEstimations, newGetAssetScanEstimationsError(fmt.Errorf("empty body"))
+			return assetScanEstimations, newGetAssetScanEstimationsError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	default:
@@ -567,17 +568,17 @@ func (c *Client) GetAssetScanEstimation(ctx context.Context, assetScanEstimation
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return assetScanEstimations, newGetExistingError(fmt.Errorf("empty body"))
+			return assetScanEstimations, newGetExistingError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return assetScanEstimations, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return assetScanEstimations, newGetExistingError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return assetScanEstimations, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return assetScanEstimations, newGetExistingError(fmt.Errorf("not found"))
+		return assetScanEstimations, newGetExistingError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return assetScanEstimations, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -600,7 +601,7 @@ func (c *Client) PatchAssetScanEstimation(ctx context.Context, assetScanEstimati
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateAssetScanEstimationError(fmt.Errorf("empty body"))
+			return newUpdateAssetScanEstimationError(errors.New("empty body"))
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -610,12 +611,12 @@ func (c *Client) PatchAssetScanEstimation(ctx context.Context, assetScanEstimati
 		return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateAssetScanEstimationError(fmt.Errorf("empty body on not found"))
+			return newUpdateAssetScanEstimationError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return newUpdateAssetScanEstimationError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateAssetScanEstimationError(fmt.Errorf("not found"))
+		return newUpdateAssetScanEstimationError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return newUpdateAssetScanEstimationError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -632,7 +633,7 @@ func (c *Client) GetScanConfigs(ctx context.Context, params types.GetScanConfigs
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no scan configs: empty body")
+			return nil, errors.New("no scan configs: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -651,17 +652,17 @@ func (c *Client) GetScanConfig(ctx context.Context, scanConfigID string, params 
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("failed to get scan config: empty body")
+			return nil, errors.New("failed to get scan config: empty body")
 		}
 		return resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return nil, fmt.Errorf("failed to get a scan config: empty body on not found")
+			return nil, errors.New("failed to get a scan config: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan config, not found: %v", *resp.JSON404.Message)
 		}
-		return nil, fmt.Errorf("failed to get a scan config, not found")
+		return nil, errors.New("failed to get a scan config, not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return nil, fmt.Errorf("failed to get a scan config. status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message)
@@ -684,7 +685,7 @@ func (c *Client) PatchScanConfig(ctx context.Context, scanConfigID string, scanC
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newPatchScanConfigResultError(fmt.Errorf("empty body"))
+			return newPatchScanConfigResultError(errors.New("empty body"))
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -694,12 +695,12 @@ func (c *Client) PatchScanConfig(ctx context.Context, scanConfigID string, scanC
 		return newPatchScanConfigResultError(fmt.Errorf("status code=%v", resp.StatusCode()))
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newPatchScanConfigResultError(fmt.Errorf("empty body on not found"))
+			return newPatchScanConfigResultError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return newPatchScanConfigResultError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newPatchScanConfigResultError(fmt.Errorf("not found"))
+		return newPatchScanConfigResultError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return newPatchScanConfigResultError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -716,7 +717,7 @@ func (c *Client) GetScans(ctx context.Context, params types.GetScansParams) (*ty
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no scans: empty body")
+			return nil, errors.New("no scans: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -778,17 +779,17 @@ func (c *Client) PatchAsset(ctx context.Context, asset types.Asset, assetID stri
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateAssetError(fmt.Errorf("empty body"))
+			return newUpdateAssetError(errors.New("empty body"))
 		}
 		return nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateAssetError(fmt.Errorf("empty body on not found"))
+			return newUpdateAssetError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return newUpdateAssetError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateAssetError(fmt.Errorf("not found"))
+		return newUpdateAssetError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return newUpdateAssetError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -812,17 +813,17 @@ func (c *Client) GetAsset(ctx context.Context, assetID string, params types.GetA
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return asset, newGetExistingError(fmt.Errorf("empty body"))
+			return asset, newGetExistingError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return asset, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return asset, newGetExistingError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return asset, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return asset, newGetExistingError(fmt.Errorf("not found"))
+		return asset, newGetExistingError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return asset, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -839,7 +840,7 @@ func (c *Client) GetAssets(ctx context.Context, params types.GetAssetsParams) (*
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no assets: empty body")
+			return nil, errors.New("no assets: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -858,7 +859,7 @@ func (c *Client) GetFindings(ctx context.Context, params types.GetFindingsParams
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no findings: empty body")
+			return nil, errors.New("no findings: empty body")
 		}
 		return resp.JSON200, nil
 	default:
@@ -877,7 +878,7 @@ func (c *Client) PatchFinding(ctx context.Context, findingID types.FindingID, fi
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return fmt.Errorf("failed to update a finding: empty body")
+			return errors.New("failed to update a finding: empty body")
 		}
 		return nil
 	case http.StatusBadRequest:
@@ -887,12 +888,12 @@ func (c *Client) PatchFinding(ctx context.Context, findingID types.FindingID, fi
 		return fmt.Errorf("failed to update a finding: status code=%v", resp.StatusCode())
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return fmt.Errorf("failed to update a finding: empty body on not found")
+			return errors.New("failed to update a finding: empty body on not found")
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return fmt.Errorf("failed to update a finding: not found: %v", *resp.JSON404.Message)
 		}
-		return fmt.Errorf("failed to update a finding: not found")
+		return errors.New("failed to update a finding: not found")
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return fmt.Errorf("failed to update a finding: status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
@@ -982,17 +983,17 @@ func (c *Client) PatchProvider(ctx context.Context, provider types.Provider, pro
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return newUpdateProviderError(fmt.Errorf("empty body"))
+			return newUpdateProviderError(errors.New("empty body"))
 		}
 		return nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return newUpdateProviderError(fmt.Errorf("empty body on not found"))
+			return newUpdateProviderError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return newUpdateProviderError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return newUpdateProviderError(fmt.Errorf("not found"))
+		return newUpdateProviderError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return newUpdateProviderError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -1016,17 +1017,17 @@ func (c *Client) GetProvider(ctx context.Context, providerID string, params type
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return provider, newGetExistingError(fmt.Errorf("empty body"))
+			return provider, newGetExistingError(errors.New("empty body"))
 		}
 		return *resp.JSON200, nil
 	case http.StatusNotFound:
 		if resp.JSON404 == nil {
-			return provider, newGetExistingError(fmt.Errorf("empty body on not found"))
+			return provider, newGetExistingError(errors.New("empty body on not found"))
 		}
 		if resp.JSON404 != nil && resp.JSON404.Message != nil {
 			return provider, newGetExistingError(fmt.Errorf("not found: %v", *resp.JSON404.Message))
 		}
-		return provider, newGetExistingError(fmt.Errorf("not found"))
+		return provider, newGetExistingError(errors.New("not found"))
 	default:
 		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
 			return provider, newGetExistingError(fmt.Errorf("status code=%v: %v", resp.StatusCode(), *resp.JSONDefault.Message))
@@ -1043,7 +1044,7 @@ func (c *Client) GetProviders(ctx context.Context, params types.GetProvidersPara
 	switch resp.StatusCode() {
 	case http.StatusOK:
 		if resp.JSON200 == nil {
-			return nil, fmt.Errorf("no providers: empty body")
+			return nil, errors.New("no providers: empty body")
 		}
 		return resp.JSON200, nil
 	default:

@@ -16,6 +16,7 @@
 package aws
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -46,23 +47,23 @@ type Config struct {
 
 func (c *Config) Validate() error {
 	if c.ScannerRegion == "" {
-		return fmt.Errorf("parameter Region must be provided")
+		return errors.New("parameter Region must be provided")
 	}
 
 	if c.SubnetID == "" {
-		return fmt.Errorf("parameter SubnetID must be provided")
+		return errors.New("parameter SubnetID must be provided")
 	}
 
 	if c.SecurityGroupID == "" {
-		return fmt.Errorf("parameter SecurityGroupID must be provided")
+		return errors.New("parameter SecurityGroupID must be provided")
 	}
 
 	if c.ScannerImage == "" {
-		return fmt.Errorf("parameter ScannerImage must be provided")
+		return errors.New("parameter ScannerImage must be provided")
 	}
 
 	if c.ScannerInstanceType == "" {
-		return fmt.Errorf("parameter ScannerInstanceType must be provided")
+		return errors.New("parameter ScannerInstanceType must be provided")
 	}
 
 	return nil

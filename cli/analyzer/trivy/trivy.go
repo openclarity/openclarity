@@ -17,6 +17,7 @@ package trivy
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -189,7 +190,7 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 
 func getImageHash(properties *[]cdx.Property, src string) (string, error) {
 	if properties == nil {
-		return "", fmt.Errorf("properties was nil")
+		return "", errors.New("properties was nil")
 	}
 
 	var repoDigests []string

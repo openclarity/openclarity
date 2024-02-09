@@ -80,7 +80,7 @@ func ToDirectory(ctx context.Context, src, dest string) error {
 
 			numBytes, err := io.Copy(output, io.LimitReader(content, perFileReadLimit))
 			if numBytes >= perFileReadLimit || errors.Is(err, io.EOF) {
-				return fmt.Errorf("zip read limit hit (potential decompression bomb attack)")
+				return errors.New("zip read limit hit (potential decompression bomb attack)")
 			}
 			if err != nil {
 				return fmt.Errorf("unable to copy file: %w", err)

@@ -16,6 +16,7 @@
 package syft
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/anchore/syft/syft"
@@ -138,6 +139,6 @@ func getImageHash(sbom syft_sbom.SBOM, src string) (string, error) {
 		}
 		return hash, nil
 	default:
-		return "", fmt.Errorf("failed to get image hash from source metadata")
+		return "", errors.New("failed to get image hash from source metadata")
 	}
 }

@@ -17,6 +17,7 @@ package azure
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
@@ -88,51 +89,51 @@ func NewConfig() (*Config, error) {
 // nolint:cyclop
 func (c Config) Validate() error {
 	if c.SubscriptionID == "" {
-		return fmt.Errorf("parameter SubscriptionID must be provided")
+		return errors.New("parameter SubscriptionID must be provided")
 	}
 
 	if c.ScannerLocation == "" {
-		return fmt.Errorf("parameter ScannerLocation must be provided")
+		return errors.New("parameter ScannerLocation must be provided")
 	}
 
 	if c.ScannerResourceGroup == "" {
-		return fmt.Errorf("parameter ScannerResourceGroup must be provided")
+		return errors.New("parameter ScannerResourceGroup must be provided")
 	}
 
 	if c.ScannerSubnet == "" {
-		return fmt.Errorf("parameter ScannerSubnet must be provided")
+		return errors.New("parameter ScannerSubnet must be provided")
 	}
 
 	if c.ScannerVMSize == "" {
-		return fmt.Errorf("parameter ScannerVMSize must be provided")
+		return errors.New("parameter ScannerVMSize must be provided")
 	}
 
 	if c.ScannerImagePublisher == "" {
-		return fmt.Errorf("parameter ScannerImagePublisher must be provided")
+		return errors.New("parameter ScannerImagePublisher must be provided")
 	}
 
 	if c.ScannerImageOffer == "" {
-		return fmt.Errorf("parameter ScannerImageOffer must be provided")
+		return errors.New("parameter ScannerImageOffer must be provided")
 	}
 
 	if c.ScannerImageSKU == "" {
-		return fmt.Errorf("parameter ScannerImageSKU must be provided")
+		return errors.New("parameter ScannerImageSKU must be provided")
 	}
 
 	if c.ScannerImageVersion == "" {
-		return fmt.Errorf("parameter ScannerImageVersion must be provided")
+		return errors.New("parameter ScannerImageVersion must be provided")
 	}
 
 	if c.ScannerSecurityGroup == "" {
-		return fmt.Errorf("parameter ScannerSecurityGroup must be provided")
+		return errors.New("parameter ScannerSecurityGroup must be provided")
 	}
 
 	if c.ScannerStorageAccountName == "" {
-		return fmt.Errorf("parameter ScannerStorageAccountName must be provided")
+		return errors.New("parameter ScannerStorageAccountName must be provided")
 	}
 
 	if c.ScannerStorageContainerName == "" {
-		return fmt.Errorf("parameter ScannerStorageContainerName must be provided")
+		return errors.New("parameter ScannerStorageContainerName must be provided")
 	}
 
 	return nil

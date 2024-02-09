@@ -192,7 +192,7 @@ func (t *ProvidersTableHandler) SaveProvider(provider types.Provider, params typ
 // nolint:cyclop
 func (t *ProvidersTableHandler) UpdateProvider(provider types.Provider, params types.PatchProvidersProviderIDParams) (types.Provider, error) {
 	if provider.Id == nil || *provider.Id == "" {
-		return types.Provider{}, fmt.Errorf("ID is required to update provider in DB")
+		return types.Provider{}, errors.New("ID is required to update provider in DB")
 	}
 
 	if provider.Status.State == "" || provider.Status.Reason == "" || provider.Status.LastTransitionTime.IsZero() {

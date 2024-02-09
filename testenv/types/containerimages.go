@@ -16,6 +16,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
@@ -57,7 +58,7 @@ func (t ContainerImages[T]) AsStringSlice() ([]string, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("failed to convert to string slice")
+	return nil, errors.New("failed to convert to string slice")
 }
 
 func NewContainerImages[T string | ImageRef](images map[string]string) (*ContainerImages[T], error) {

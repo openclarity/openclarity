@@ -36,7 +36,7 @@ var (
 )
 
 func scannerVMNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("vmclarity-scanner-%s", config.AssetScanID)
+	return "vmclarity-scanner-" + config.AssetScanID
 }
 
 func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig, networkInterface armnetwork.Interface) (armcompute.VirtualMachine, error) {
@@ -79,7 +79,7 @@ func (p *Provider) ensureScannerVirtualMachine(ctx context.Context, config *prov
 					Version:   to.Ptr(p.config.ScannerImageVersion),
 				},
 				OSDisk: &armcompute.OSDisk{
-					Name:         to.Ptr(fmt.Sprintf("%s-rootvolume", vmName)),
+					Name:         to.Ptr(vmName + "-rootvolume"),
 					CreateOption: to.Ptr(armcompute.DiskCreateOptionTypesFromImage),
 					// Delete disk on VM delete
 					DeleteOption: to.Ptr(armcompute.DiskDeleteOptionTypesDelete),
