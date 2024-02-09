@@ -89,7 +89,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4@sha256:16530b9be24ae507a216bc6405c0eb945f25efb47020d3afd286e33b0fb22482}
+    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
     ports:
       - "1326:1326"
     deploy:
@@ -103,7 +103,7 @@ services:
       retries: 60
 
   trivy-server:
-    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.49.1@sha256:91494b87ddc64f62860d52997532643956c24eeee0d0dda317d563c28c8581bc}
+    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.49.1}
     command:
       - server
     ports:
@@ -120,7 +120,7 @@ services:
       retries: 60
 
   grype-server:
-    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.2@sha256:33391b234bdc08c8383f213fa973ffc860d3aea589b862dc34dc461b9e2271df}
+    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.2}
     command:
       - run
       - --log-level
@@ -142,7 +142,7 @@ services:
       retries: 60
 
   freshclam-mirror:
-    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.0@sha256:d7d6ff86915e378afb9ea75505d5f2df368215beac12b462b01c4c67d5e4617f}
+    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.0}
     ports:
       - "1000:80"
     deploy:
@@ -152,7 +152,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0@sha256:be517c96bb0f7d00166b8598a213d6c6d7997df0ce1a2c3678c46d1dbedd731f}
+    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
     command:
       - run
     ports:
@@ -171,7 +171,7 @@ services:
       retries: 60
 
   postgresql:
-    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.17.0-debian-11-r28@sha256:f1fb96f5d86d7280d0fb977968e0a1f5a7a8dacb64b012394ef47bd079d1544d}
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.17.0-debian-11-r28}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
@@ -184,7 +184,7 @@ services:
         condition: on-failure
 
   swagger-ui:
-    image: swaggerapi/swagger-ui:v5.11.3@sha256:4d342e0b0d06d026254b023db54106825e59877dfbca860914242f02fe3f1300
+    image: swaggerapi/swagger-ui:v5.11.3
     environment:
       CONFIG_URL: /apidocs/swagger-config.json
     configs:
