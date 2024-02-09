@@ -410,11 +410,11 @@ func (w *Watcher) createAssetScanEstimationsForScanEstimation(ctx context.Contex
 
 func (w *Watcher) newAssetScanEstimationFromScanEstimation(scanEstimation *apitypes.ScanEstimation, assetID string) (apitypes.AssetScanEstimation, error) {
 	if scanEstimation == nil {
-		return apitypes.AssetScanEstimation{}, fmt.Errorf("empty scan estimation")
+		return apitypes.AssetScanEstimation{}, errors.New("empty scan estimation")
 	}
 
 	if scanEstimation.ScanTemplate == nil {
-		return apitypes.AssetScanEstimation{}, fmt.Errorf("empty scan template")
+		return apitypes.AssetScanEstimation{}, errors.New("empty scan template")
 	}
 
 	return apitypes.AssetScanEstimation{
@@ -597,23 +597,23 @@ func (w *Watcher) reconcileInProgress(ctx context.Context, scanEstimation *apity
 
 func updateTotalScanTimeWithParallelScans(scanEstimation *apitypes.ScanEstimation) error {
 	if scanEstimation == nil {
-		return fmt.Errorf("empty scan estimation")
+		return errors.New("empty scan estimation")
 	}
 
 	if scanEstimation.ScanTemplate == nil {
-		return fmt.Errorf("empty scan template")
+		return errors.New("empty scan template")
 	}
 
 	if scanEstimation.Summary == nil {
-		return fmt.Errorf("empty summary")
+		return errors.New("empty summary")
 	}
 
 	if scanEstimation.Summary.JobsCompleted == nil {
-		return fmt.Errorf("jobsCompleted is not set")
+		return errors.New("jobsCompleted is not set")
 	}
 
 	if *scanEstimation.Summary.JobsCompleted == 0 {
-		return fmt.Errorf("0 completed jobs in summary")
+		return errors.New("0 completed jobs in summary")
 	}
 
 	maxParallelScanners := to.ValueOrZero(scanEstimation.ScanTemplate.MaxParallelScanners)

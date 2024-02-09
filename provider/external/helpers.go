@@ -16,6 +16,7 @@
 package external
 
 import (
+	"errors"
 	"fmt"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -28,7 +29,7 @@ import (
 
 func convertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error) {
 	if asset == nil {
-		return apitypes.Asset{}, fmt.Errorf("asset is nil")
+		return apitypes.Asset{}, errors.New("asset is nil")
 	}
 
 	assetType := apitypes.AssetType{}

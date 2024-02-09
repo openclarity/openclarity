@@ -17,6 +17,7 @@ package converter
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -72,7 +73,7 @@ func CycloneDxToBytes(sbom *cdx.BOM, format SbomFormat) ([]byte, error) {
 	case Unknown:
 	default:
 	}
-	return nil, fmt.Errorf("can not convert cyclonedx SBOM to unknown format")
+	return nil, errors.New("can not convert cyclonedx SBOM to unknown format")
 }
 
 // cycloneDxToBytesUsingCycloneDxEncoder supports encoding a cdx.BOM to one of

@@ -17,7 +17,6 @@ package azure
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v3"
@@ -32,7 +31,7 @@ var (
 )
 
 func networkInterfaceNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return fmt.Sprintf("scanner-nic-%s", config.AssetScanID)
+	return "scanner-nic-" + config.AssetScanID
 }
 
 func (p *Provider) ensureNetworkInterface(ctx context.Context, config *provider.ScanJobConfig) (armnetwork.Interface, error) {
@@ -57,7 +56,7 @@ func (p *Provider) ensureNetworkInterface(ctx context.Context, config *provider.
 		Properties: &armnetwork.InterfacePropertiesFormat{
 			IPConfigurations: []*armnetwork.InterfaceIPConfiguration{
 				{
-					Name: to.Ptr(fmt.Sprintf("%s-ipconfig", nicName)),
+					Name: to.Ptr(nicName + "-ipconfig"),
 					Properties: &armnetwork.InterfaceIPConfigurationPropertiesFormat{
 						PrivateIPAllocationMethod: to.Ptr(armnetwork.IPAllocationMethodDynamic),
 						Subnet: &armnetwork.Subnet{

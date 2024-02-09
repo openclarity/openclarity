@@ -99,7 +99,7 @@ $(CFNLINT_VENV)/bin/cfn-lint: | $(BIN_DIR)
 GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
 GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
 # renovate: datasource=go depName=github.com/golangci/golangci-lint versioning=semver
-GOLANGCI_VERSION := 1.55.2
+GOLANGCI_VERSION := 1.56.1
 
 bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
 	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint

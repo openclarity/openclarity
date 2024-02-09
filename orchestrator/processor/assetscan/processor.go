@@ -137,7 +137,7 @@ func (e AssetScanReconcileEvent) ToFields() logrus.Fields {
 }
 
 func (e AssetScanReconcileEvent) String() string {
-	return fmt.Sprintf("AssetScanID=%s", e.AssetScanID)
+	return "AssetScanID=" + e.AssetScanID
 }
 
 func (e AssetScanReconcileEvent) Hash() string {

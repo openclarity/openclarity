@@ -16,6 +16,7 @@
 package external
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -31,7 +32,7 @@ type Config struct {
 
 func (c *Config) Validate() error {
 	if c.ProviderPluginAddress == "" {
-		return fmt.Errorf("parameter ProviderPluginAddress must be provided")
+		return errors.New("parameter ProviderPluginAddress must be provided")
 	}
 
 	return nil

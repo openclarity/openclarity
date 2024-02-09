@@ -16,6 +16,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -79,7 +80,7 @@ func logarithmicFit(xData, yData []float64) (float64, float64, error) {
 	}
 
 	if ((float64(n))*sumLnX2 - sumLnX*sumLnX) == 0 {
-		return 0, 0, fmt.Errorf("zero denominator in calculations")
+		return 0, 0, errors.New("zero denominator in calculations")
 	}
 
 	a := ((float64(n))*sumLnXY - sumLnX*sumY) / ((float64(n))*sumLnX2 - sumLnX*sumLnX)

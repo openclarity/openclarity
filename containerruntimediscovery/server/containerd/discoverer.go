@@ -307,7 +307,7 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 			return nil, fmt.Errorf("failed to get image info to export: %w", err)
 		}
 		if imageInfo.RepoDigests == nil || len(*imageInfo.RepoDigests) == 0 {
-			return nil, fmt.Errorf("image has no known repo digests can not safely fetch it")
+			return nil, errors.New("image has no known repo digests can not safely fetch it")
 		}
 
 		// TODO(sambetts) Maybe try all the digests in case one has gone missing?
@@ -423,7 +423,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 			return nil, func() {}, fmt.Errorf("failed to get image info to export: %w", err)
 		}
 		if imageInfo.RepoDigests == nil || len(*imageInfo.RepoDigests) == 0 {
-			return nil, func() {}, fmt.Errorf("image has no known repo digests can not safely fetch it")
+			return nil, func() {}, errors.New("image has no known repo digests can not safely fetch it")
 		}
 
 		// TODO(sambetts) Maybe try all the digests in case one has gone missing?
@@ -445,7 +445,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		}
 	})
 
-	imageName := fmt.Sprintf("vmclarity.io/container-snapshot:%s", containerID)
+	imageName := "vmclarity.io/container-snapshot:" + containerID
 	_, err = commit.Commit(ctx, d.client, container, &commit.Opts{
 		Author:  "VMClarity",
 		Message: fmt.Sprintf("Snapshot of container %s for security scanning", containerID),

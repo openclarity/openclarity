@@ -17,6 +17,7 @@ package sbom
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -43,7 +44,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 	logger.Info("SBOM Run...")
 
 	if len(s.conf.Inputs) == 0 {
-		return nil, fmt.Errorf("inputs list is empty")
+		return nil, errors.New("inputs list is empty")
 	}
 
 	// TODO: move the logic from cli utils to shared utils

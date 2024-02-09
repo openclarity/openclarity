@@ -84,7 +84,7 @@ func (s *ServerImpl) GetDashboardFindingsTrends(ctx echo.Context, params types.G
 
 func validateParams(params types.GetDashboardFindingsTrendsParams) error {
 	if !params.StartTime.Before(params.EndTime) {
-		return fmt.Errorf("start time must be before end time")
+		return errors.New("start time must be before end time")
 	}
 
 	return nil

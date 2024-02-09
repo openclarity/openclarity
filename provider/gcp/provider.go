@@ -254,7 +254,7 @@ func getInstanceBootDisk(vm *computepb.Instance) (*computepb.AttachedDisk, error
 			return disk, nil
 		}
 	}
-	return nil, fmt.Errorf("failed to find instance boot disk")
+	return nil, errors.New("failed to find instance boot disk")
 }
 
 func (p *Provider) listInstances(ctx context.Context, filter *string, zone string) ([]apitypes.AssetType, error) {

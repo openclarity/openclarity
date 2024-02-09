@@ -17,6 +17,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -253,7 +254,7 @@ func vmInfoToAssetInfo(info apitypes.VMInfo) (*types.AssetInfo, error) {
 
 func getVMAssetType(provider *apitypes.CloudProvider) (*types.AssetType, error) {
 	if provider == nil {
-		return nil, fmt.Errorf("provider is nil")
+		return nil, errors.New("provider is nil")
 	}
 	switch *provider {
 	case apitypes.AWS:

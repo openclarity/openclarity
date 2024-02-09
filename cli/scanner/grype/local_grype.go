@@ -178,7 +178,7 @@ func validateDBLoad(loadErr error, status *db.Status) error {
 		return fmt.Errorf("failed to load vulnerability db: %w", loadErr)
 	}
 	if status == nil {
-		return fmt.Errorf("unable to determine DB status")
+		return errors.New("unable to determine DB status")
 	}
 	if status.Err != nil {
 		return fmt.Errorf("db could not be loaded: %w", status.Err)

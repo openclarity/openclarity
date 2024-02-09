@@ -17,6 +17,7 @@ package utils
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -109,7 +110,7 @@ func generateHash(files []string, open func(string) (io.ReadCloser, error)) (str
 	sort.Strings(files)
 	for _, file := range files {
 		if strings.Contains(file, "\n") {
-			return "", fmt.Errorf("filenames with newlines are not supported")
+			return "", errors.New("filenames with newlines are not supported")
 		}
 		r, err := open(file)
 		if err != nil {

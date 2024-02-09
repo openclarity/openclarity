@@ -698,7 +698,6 @@ func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJob
 		// Delete scanner volume
 		logger.Debug("Deleting scanner volume.")
 		done, err = p.deleteVolumes(ctx, ec2Filters, p.config.ScannerRegion)
-
 		if err != nil {
 			errs <- WrapError(fmt.Errorf("failed to delete scanner volume: %w", err))
 			return
@@ -869,16 +868,16 @@ func (p *Provider) getInstancesFromDescribeInstancesOutput(ctx context.Context, 
 
 func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Instance, region string) (*apitypes.RootVolume, error) {
 	if i.RootDeviceName == nil || *i.RootDeviceName == "" {
-		return nil, fmt.Errorf("RootDeviceName is not set")
+		return nil, errors.New("RootDeviceName is not set")
 	}
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	for _, mapping := range i.BlockDeviceMappings {
 		if to.ValueOrZero(mapping.DeviceName) == to.ValueOrZero(i.RootDeviceName) {
 			if mapping.Ebs == nil {
-				return nil, fmt.Errorf("EBS of the root volume is nil")
+				return nil, errors.New("EBS of the root volume is nil")
 			}
 			if mapping.Ebs.VolumeId == nil {
-				return nil, fmt.Errorf("volume ID of the root volume is nil")
+				return nil, errors.New("volume ID of the root volume is nil")
 			}
 			descParams := &ec2.DescribeVolumesInput{
 				VolumeIds: []string{*mapping.Ebs.VolumeId},
@@ -888,11 +887,11 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 				options.Region = region
 			})
 			if err != nil {
-				return nil, fmt.Errorf("failed to describe the root volume")
+				return nil, errors.New("failed to describe the root volume")
 			}
 
 			if len(describeOut.Volumes) == 0 {
-				return nil, fmt.Errorf("volume list is empty")
+				return nil, errors.New("volume list is empty")
 			}
 			if len(describeOut.Volumes) > 1 {
 				logger.WithFields(logrus.Fields{
@@ -908,7 +907,7 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 		}
 	}
 
-	return nil, fmt.Errorf("instance doesn't have a root volume block device mapping")
+	return nil, errors.New("instance doesn't have a root volume block device mapping")
 }
 
 func encryptedToAPI(encrypted *bool) apitypes.RootVolumeEncrypted {
