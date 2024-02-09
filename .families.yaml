@@ -3,9 +3,12 @@ sbom:
   analyzers_list:
     - "syft"
     - "gomod"
+#    - "windows"
   inputs:
     - input: "node:slim"
       input_type: "image"
+#    - input: "/mnt"
+#      input_type: "rootfs"
 #    - input: "nginx:1.10"
 #      input_type: "image"
 #  merge_with:
