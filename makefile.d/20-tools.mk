@@ -146,7 +146,7 @@ bin/helm-$(HELM_VERSION): | $(BIN_DIR)
 
 HELMDOCS_BIN := $(BIN_DIR)/helm-docs
 # renovate: datasource=github-releases depName=norwoodj/helm-docs versioning=semver
-HELMDOCS_VERSION := 1.11.3
+HELMDOCS_VERSION := 1.12.0
 HELMDOCS_OSTYPE := $(OSTYPE)
 HELMDOCS_ARCH := $(ARCHTYPE)
 
