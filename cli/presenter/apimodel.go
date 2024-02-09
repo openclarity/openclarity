@@ -178,10 +178,10 @@ func ConvertMalwareResultToMalwareAndMetadata(malwareResults *malware.MergedResu
 	for _, m := range malwareResults.DetectedMalware {
 		mal := m // Prevent loop variable pointer export
 		malwareList = append(malwareList, apitypes.Malware{
-			MalwareName: to.OmitEmpty(mal.MalwareName),
-			MalwareType: to.OmitEmpty(mal.MalwareType),
-			Path:        to.OmitEmpty(mal.Path),
-			RuleName:    to.OmitEmpty(mal.RuleName),
+			MalwareName: to.PtrOrNil(mal.MalwareName),
+			MalwareType: to.PtrOrNil(mal.MalwareType),
+			Path:        to.PtrOrNil(mal.Path),
+			RuleName:    to.PtrOrNil(mal.RuleName),
 		})
 	}
 
