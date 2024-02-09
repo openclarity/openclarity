@@ -52,7 +52,7 @@ func (c *SBOMConfig) GetAnalyzersList() []string {
 		return *c.Analyzers
 	}
 
-	return []string{"syft", "trivy"}
+	return []string{"syft", "trivy", "windows"}
 }
 
 func (c *RootkitsConfig) IsEnabled() bool {

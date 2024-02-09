@@ -120,6 +120,7 @@ These tools include:
 - SBOM Generation and Analysis
   - [Syft](https://github.com/anchore/syft)
   - [Trivy](https://github.com/aquasecurity/trivy)
+  - [Windows Registry](cli/analyzer/windows)
 - Vulnerability detection
   - [Grype](https://github.com/anchore/grype)
   - [Trivy](https://github.com/aquasecurity/trivy)
