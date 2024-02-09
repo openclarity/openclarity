@@ -19,7 +19,8 @@ func Ptr[T any](value T) *T {
 	return &value
 }
 
-func OmitEmpty[T comparable](t T) *T {
+// PtrOrNil returns a pointer to t if it has a non-empty value otherwise nil.
+func PtrOrNil[T comparable](t T) *T {
 	var empty T
 	if t == empty {
 		return nil
@@ -49,7 +50,8 @@ func Keys[K comparable, V any](m map[K]V) []K {
 	return s
 }
 
-func ValuesSlice[K comparable, V any](m map[K]V) []V {
+// Values returns a slice of values from m map.
+func Values[K comparable, V any](m map[K]V) []V {
 	s := make([]V, 0, len(m))
 	for _, v := range m {
 		s = append(s, v)

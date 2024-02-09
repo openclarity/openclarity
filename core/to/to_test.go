@@ -105,7 +105,7 @@ func Test_ValuesSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ValuesSlice(tt.args.m)
+			got := Values(tt.args.m)
 			if got != nil {
 				sort.Slice(got, func(i, j int) bool {
 					switch got[0].(type) {
