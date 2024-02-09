@@ -534,7 +534,7 @@ func processFindings(findings []apitypes.Finding, findingAssetMap map[findingAss
 
 // getSortedFindingInfoCountSlice will return a slice of findingInfoCount desc sorted by AssetCount.
 func getSortedFindingInfoCountSlice(findingAssetMapCount map[string]findingInfoCount) []findingInfoCount {
-	findingInfoCountSlice := to.ValuesSlice(findingAssetMapCount)
+	findingInfoCountSlice := to.Values(findingAssetMapCount)
 	sort.Slice(findingInfoCountSlice, func(i, j int) bool {
 		return findingInfoCountSlice[i].AssetCount > findingInfoCountSlice[j].AssetCount
 	})

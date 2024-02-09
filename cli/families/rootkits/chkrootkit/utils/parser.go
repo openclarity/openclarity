@@ -204,5 +204,5 @@ func processAliensToRootkits(aliensResult string) ([]Rootkit, error) {
 		return nil, fmt.Errorf("failed to get output: %w", err)
 	}
 
-	return to.ValuesSlice(rootkits), nil
+	return to.Values(rootkits), nil
 }
