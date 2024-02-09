@@ -34,7 +34,8 @@ import (
 	"github.com/anchore/grype/grype/pkg"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	"github.com/anchore/grype/grype/store"
-	"github.com/anchore/syft/syft/pkg/cataloger"
+	"github.com/anchore/syft/syft"
+	"github.com/anchore/syft/syft/cataloging"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/cli/config"
@@ -102,13 +103,12 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		SyftProviderConfig: pkg.SyftProviderConfig{
-			CatalogingOptions: cataloger.Config{
-				Search: cataloger.DefaultSearchConfig(),
-			},
+			SBOMOptions: syft.DefaultCreateSBOMConfig().
+				WithSearchConfig(cataloging.DefaultSearchConfig().WithScope(s.config.Scope)),
 			RegistryOptions: s.config.RegistryOptions,
 		},
 	}
-	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
+
 	packages, context, _, err := pkg.Provide(source, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
