@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "2921434033573746935"
+      "templateHash": "7261902024991961438"
     }
   },
   "parameters": {
@@ -203,7 +203,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2023-07-01",
       "name": "[variables('resourceGroupName')]",
       "location": "[parameters('location')]"
     },
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "5654666880978919332"
+              "templateHash": "2057808809876719344"
             }
           },
           "parameters": {
@@ -856,7 +856,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
-              "apiVersion": "2021-05-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('networkInterfaceName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -886,7 +886,7 @@
             },
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2021-05-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('vmClarityServerSecurityGroupName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -909,7 +909,7 @@
             },
             {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2021-05-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('vmClarityNetName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -945,7 +945,7 @@
             },
             {
               "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2021-05-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('publicIPAddressName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -962,7 +962,7 @@
             },
             {
               "type": "Microsoft.Compute/virtualMachines",
-              "apiVersion": "2021-11-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('vmclarityServerVMName')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -1005,7 +1005,7 @@
             {
               "condition": "[and(equals(parameters('securityType'), 'TrustedLaunch'), and(equals(variables('securityProfileJson').uefiSettings.secureBootEnabled, true()), equals(variables('securityProfileJson').uefiSettings.vTpmEnabled, true())))]",
               "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2022-03-01",
+              "apiVersion": "2023-09-01",
               "name": "[format('{0}/{1}', variables('vmclarityServerVMName'), variables('vmClarityGuestAttestationName'))]",
               "location": "[parameters('location')]",
               "properties": {
@@ -1029,7 +1029,7 @@
             },
             {
               "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2023-03-01",
+              "apiVersion": "2023-09-01",
               "name": "[format('{0}/{1}', variables('vmclarityServerVMName'), variables('vmClarityServerCustomScriptName'))]",
               "location": "[parameters('location')]",
               "properties": {
@@ -1050,7 +1050,7 @@
             },
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2021-05-01",
+              "apiVersion": "2023-09-01",
               "name": "[variables('vmClarityScannerSecurityGroupName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -1073,7 +1073,7 @@
             },
             {
               "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2023-01-01",
               "name": "[variables('storageAccountName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -1099,7 +1099,7 @@
             },
             {
               "type": "Microsoft.Storage/storageAccounts/blobServices",
-              "apiVersion": "2021-02-01",
+              "apiVersion": "2023-01-01",
               "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
@@ -1107,7 +1107,7 @@
             },
             {
               "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2023-01-01",
               "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', variables('snapshotContainerName'))]",
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
@@ -1135,11 +1135,11 @@
             },
             "hostname": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2021-05-01').dnsSettings.fqdn]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2023-09-01').dnsSettings.fqdn]"
             },
             "sshCommand": {
               "type": "string",
-              "value": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2021-05-01').dnsSettings.fqdn)]"
+              "value": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2023-09-01').dnsSettings.fqdn)]"
             }
           }
         }
