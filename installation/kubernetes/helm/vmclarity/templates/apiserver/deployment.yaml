@@ -40,7 +40,7 @@ spec:
             - name: VMCLARITY_APISERVER_DATABASE_DRIVER
               value: POSTGRES
             - name: VMCLARITY_APISERVER_DB_HOST
-              value: {{ include "postgresql.primary.fullname" .Subcharts.postgresql }}
+              value: {{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}
             - name: VMCLARITY_APISERVER_DB_PORT
               value: "5432"
             - name: VMCLARITY_APISERVER_DB_NAME
@@ -50,7 +50,7 @@ spec:
             - name: VMCLARITY_APISERVER_DB_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "postgresql.secretName" .Subcharts.postgresql }}
+                  name: {{ include "postgresql.v1.secretName" .Subcharts.postgresql }}
                   key: password
           ports:
             - name: http
