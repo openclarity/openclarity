@@ -171,7 +171,7 @@ services:
       retries: 60
 
   postgresql:
-    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:12.17.0-debian-11-r28}
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.2.0-debian-11-r1}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
