@@ -38,7 +38,7 @@ jobs:
     name: Cleanup container images for Pull Request
     steps:
       - name: Remove images for PR#${{ github.event.pull_request.number }}
-        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2
+        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2.2.1
         with:
           image-names: ${{ env.images }}
           cut-off: 1 second ago UTC
@@ -55,7 +55,7 @@ jobs:
     name: Cleanup stale container images
     steps:
       - name: Remove stale images
-        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2
+        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2.2.1
         with:
           image-names: ${{ env.images }}
           cut-off: 7 days ago UTC
@@ -72,7 +72,7 @@ jobs:
     name: Cleanup stale container images
     steps:
       - name: Remove stale images
-        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2
+        uses: snok/container-retention-policy@b56f4ff7539c1f94f01e5dc726671cd619aa8072 # v2.2.1
         with:
           image-names: ${{ env.images }}
           cut-off: ${{ inputs.cut-off }}
