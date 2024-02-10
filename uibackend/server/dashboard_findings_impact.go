@@ -230,14 +230,14 @@ func createMisconfigurationFindingImpact(findingInfo *apitypes.Finding_FindingIn
 	return types.MisconfigurationFindingImpact{
 		AffectedAssetsCount: &count,
 		Misconfiguration: &types.Misconfiguration{
-			Message:         info.Message,
-			Remediation:     info.Remediation,
-			ScannedPath:     info.ScannedPath,
-			ScannerName:     info.ScannerName,
-			Severity:        toModelsMisconfigurationSeverity(info.Severity),
-			TestCategory:    info.TestCategory,
-			TestDescription: info.TestDescription,
-			TestID:          info.TestID,
+			Message:     info.Message,
+			Remediation: info.Remediation,
+			Location:    info.Location,
+			ScannerName: info.ScannerName,
+			Severity:    toModelsMisconfigurationSeverity(info.Severity),
+			Category:    info.Category,
+			Description: info.Description,
+			Id:          info.Id,
 		},
 	}, nil
 }

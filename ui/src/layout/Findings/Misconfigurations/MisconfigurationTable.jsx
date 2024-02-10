@@ -11,10 +11,10 @@ const FILTER_SEVERITY_ITEMS = Object.keys(MISCONFIGURATION_SEVERITY_MAP)
 const MisconfigurationsTable = () => {
     const columns = useMemo(() => [
         {
-            Header: "Test ID",
-            id: "testId",
-            sortIds: ["findingInfo.testID"],
-            accessor: "findingInfo.testID"
+            Header: "ID",
+            id: "id",
+            sortIds: ["findingInfo.id"],
+            accessor: "findingInfo.id"
         },
         {
             Header: "Severity",
@@ -25,8 +25,8 @@ const MisconfigurationsTable = () => {
         {
             Header: "Description",
             id: "description",
-            sortIds: ["findingInfo.testDescription"],
-            accessor: "findingInfo.testDescription",
+            sortIds: ["findingInfo.description"],
+            accessor: "findingInfo.description",
             width: 200
         },
         ...getAssetAndScanColumnsConfigList()
@@ -37,7 +37,7 @@ const MisconfigurationsTable = () => {
             columns={columns}
             filterType={FILTER_TYPES.FINDINGS_MISCONFIGURATIONS}
             filtersConfig={[
-                {value: "findingInfo.testID", label: "Test ID", operators: [
+                {value: "findingInfo.id", label: "ID", operators: [
                     {...OPERATORS.eq, valueItems: [], creatable: true},
                     {...OPERATORS.ne, valueItems: [], creatable: true},
                     {...OPERATORS.startswith},
@@ -48,7 +48,7 @@ const MisconfigurationsTable = () => {
                     {...OPERATORS.eq, valueItems: FILTER_SEVERITY_ITEMS},
                     {...OPERATORS.ne, valueItems: FILTER_SEVERITY_ITEMS}
                 ]},
-                {value: "findingInfo.testDescription", label: "Description", operators: [
+                {value: "findingInfo.description", label: "Description", operators: [
                     {...OPERATORS.eq, valueItems: [], creatable: true},
                     {...OPERATORS.ne, valueItems: [], creatable: true},
                     {...OPERATORS.startswith},

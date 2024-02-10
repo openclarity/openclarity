@@ -286,14 +286,14 @@ func ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfiguratio
 		}
 
 		misconfigurations = append(misconfigurations, apitypes.Misconfiguration{
-			ScannerName:     &misconfig.ScannerName,
-			ScannedPath:     &misconfig.ScannedPath,
-			TestCategory:    &misconfig.TestCategory,
-			TestID:          &misconfig.TestID,
-			TestDescription: &misconfig.TestDescription,
-			Severity:        &severity,
-			Message:         &misconfig.Message,
-			Remediation:     &misconfig.Remediation,
+			ScannerName: &misconfig.ScannerName,
+			Location:    &misconfig.Location,
+			Category:    &misconfig.Category,
+			Id:          &misconfig.ID,
+			Description: &misconfig.Description,
+			Severity:    &severity,
+			Message:     &misconfig.Message,
+			Remediation: &misconfig.Remediation,
 		})
 	}
 

@@ -30,13 +30,13 @@ type Misconfiguration struct {
 	// This might just be the scanner input if the tool scans it as a whole
 	// or it can be a specific file if the scanner performs some
 	// sub-discovery like trivy.
-	ScannedPath string `json:"ScannedPath"`
+	Location string `json:"Location"`
 
 	// Information about the test that was run to detect this specific
 	// misconfiguration, this is specific to each Scanner.
-	TestCategory    string `json:"TestCategory"`
-	TestID          string `json:"TestID"`
-	TestDescription string `json:"TestDescription"`
+	Category    string `json:"Category"`
+	ID          string `json:"ID"`
+	Description string `json:"Description"`
 
 	// Information about this specific misconfiguration hit
 	Severity    Severity `json:"Severity"`

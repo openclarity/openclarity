@@ -814,27 +814,49 @@ type MetadataReadOnly struct {
 
 // Misconfiguration defines model for Misconfiguration.
 type Misconfiguration struct {
-	Message         *string                   `json:"message,omitempty"`
-	Remediation     *string                   `json:"remediation,omitempty"`
-	ScannedPath     *string                   `json:"scannedPath,omitempty"`
-	ScannerName     *string                   `json:"scannerName,omitempty"`
-	Severity        *MisconfigurationSeverity `json:"severity,omitempty"`
-	TestCategory    *string                   `json:"testCategory,omitempty"`
-	TestDescription *string                   `json:"testDescription,omitempty"`
-	TestID          *string                   `json:"testID,omitempty"`
+	// Category Specifies misconfiguration impact category
+	Category *string `json:"category,omitempty"`
+
+	// Description Additional context such as the potential impact
+	Description *string `json:"description,omitempty"`
+
+	// Id Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
+	Id *string `json:"id,omitempty"`
+
+	// Location Location within the asset where the misconfiguration was recorded (e.g. filesystem path)
+	Location *string `json:"location,omitempty"`
+
+	// Message Short info about the misconfiguration
+	Message *string `json:"message,omitempty"`
+
+	// Remediation Possible fix for the misconfiguration
+	Remediation *string                   `json:"remediation,omitempty"`
+	ScannerName *string                   `json:"scannerName,omitempty"`
+	Severity    *MisconfigurationSeverity `json:"severity,omitempty"`
 }
 
 // MisconfigurationFindingInfo defines model for MisconfigurationFindingInfo.
 type MisconfigurationFindingInfo struct {
-	Message         *string                   `json:"message,omitempty"`
-	ObjectType      string                    `json:"objectType"`
-	Remediation     *string                   `json:"remediation,omitempty"`
-	ScannedPath     *string                   `json:"scannedPath,omitempty"`
-	ScannerName     *string                   `json:"scannerName,omitempty"`
-	Severity        *MisconfigurationSeverity `json:"severity,omitempty"`
-	TestCategory    *string                   `json:"testCategory,omitempty"`
-	TestDescription *string                   `json:"testDescription,omitempty"`
-	TestID          *string                   `json:"testID,omitempty"`
+	// Category Specifies misconfiguration impact category
+	Category *string `json:"category,omitempty"`
+
+	// Description Additional context such as the potential impact
+	Description *string `json:"description,omitempty"`
+
+	// Id Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
+	Id *string `json:"id,omitempty"`
+
+	// Location Location within the asset where the misconfiguration was recorded (e.g. filesystem path)
+	Location *string `json:"location,omitempty"`
+
+	// Message Short info about the misconfiguration
+	Message    *string `json:"message,omitempty"`
+	ObjectType string  `json:"objectType"`
+
+	// Remediation Possible fix for the misconfiguration
+	Remediation *string                   `json:"remediation,omitempty"`
+	ScannerName *string                   `json:"scannerName,omitempty"`
+	Severity    *MisconfigurationSeverity `json:"severity,omitempty"`
 }
 
 // MisconfigurationScan defines model for MisconfigurationScan.

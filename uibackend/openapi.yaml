@@ -177,20 +177,26 @@ components:
       properties:
         scannerName:
           type: string
-        scannedPath:
+        id:
           type: string
-        testCategory:
+          description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
+        location:
           type: string
-        testID:
+          description: Location within the asset where the misconfiguration was recorded (e.g. filesystem path)
+        category:
           type: string
-        testDescription:
-          type: string
-        severity:
-          $ref: '#/components/schemas/MisconfigurationSeverity'
+          description: Specifies misconfiguration impact category
         message:
           type: string
+          description: Short info about the misconfiguration
+        description:
+          type: string
+          description: Additional context such as the potential impact
         remediation:
           type: string
+          description: Possible fix for the misconfiguration
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
 
     MisconfigurationSeverity:
       type: string
@@ -381,7 +387,7 @@ components:
       properties:
         regions:
           type: array
-          description: List of regions with the findings that was found on them. 
+          description: List of regions with the findings that was found on them.
             Regions with no findings will not be reported.
           items:
             $ref: '#/components/schemas/RegionFindings'
