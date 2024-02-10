@@ -40,7 +40,7 @@ const DetailsContent = ({data}) => {
 const MisconfigurationDetails = () => (
     <FindingsDetailsPage
         backTitle="Misconfigurations"
-        getTitleData={({findingInfo}) => ({title: findingInfo.testID})}
+        getTitleData={({findingInfo}) => ({title: findingInfo.id})}
         detailsContent={DetailsContent}
     />
 )

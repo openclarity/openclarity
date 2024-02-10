@@ -55,7 +55,7 @@ func TestGenerateFindingKey(t *testing.T) {
 	miscFindingInfo := apitypes.MisconfigurationFindingInfo{
 		Message:     to.Ptr("Message"),
 		ScannerName: to.Ptr("ScannerName"),
-		TestID:      to.Ptr("TestID"),
+		Id:          to.Ptr("Id"),
 	}
 	secretFindingInfo := apitypes.SecretFindingInfo{
 		EndColumn:   to.Ptr(1),

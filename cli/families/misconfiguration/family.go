@@ -77,7 +77,7 @@ func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfac
 // StripPathFromResult strip input path from results wherever it is found.
 func StripPathFromResult(result misconfigurationTypes.ScannerResult, path string) misconfigurationTypes.ScannerResult {
 	for i := range result.Misconfigurations {
-		result.Misconfigurations[i].ScannedPath = familiesutils.TrimMountPath(result.Misconfigurations[i].ScannedPath, path)
+		result.Misconfigurations[i].Location = familiesutils.TrimMountPath(result.Misconfigurations[i].Location, path)
 	}
 	return result
 }
