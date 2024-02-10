@@ -25,13 +25,13 @@ import (
 // message in the unique key.
 type MisconfigurationKey struct {
 	ScannerName string
-	TestID      string
+	ID          string
 	Message     string
 }
 
 // String returns an unique string representation of the misconfiguration finding.
 func (k MisconfigurationKey) String() string {
-	return fmt.Sprintf("%s.%s.%s", k.ScannerName, k.TestID, k.Message)
+	return fmt.Sprintf("%s.%s.%s", k.ScannerName, k.ID, k.Message)
 }
 
 // MisconfigurationString returns an unique string representation of the misconfiguration independent of
@@ -43,7 +43,7 @@ func (k MisconfigurationKey) MisconfigurationString() string {
 func GenerateMisconfigurationKey(info apitypes.MisconfigurationFindingInfo) MisconfigurationKey {
 	return MisconfigurationKey{
 		ScannerName: *info.ScannerName,
-		TestID:      *info.TestID,
+		ID:          *info.Id,
 		Message:     *info.Message,
 	}
 }

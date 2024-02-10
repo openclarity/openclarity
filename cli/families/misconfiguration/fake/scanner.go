@@ -55,44 +55,44 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 func createFakeMisconfigurationReport() []misconfigurationTypes.Misconfiguration {
 	return []misconfigurationTypes.Misconfiguration{
 		{
-			ScannedPath: "/fake",
+			Location: "/fake",
 
-			TestCategory:    "FAKE",
-			TestID:          "Test1",
-			TestDescription: "Fake test number 1",
+			Category:    "FAKE",
+			ID:          "Test1",
+			Description: "Fake test number 1",
 
 			Message:     "Fake test number 1 failed",
 			Severity:    misconfigurationTypes.HighSeverity,
 			Remediation: "fix the thing number 1",
 		},
 		{
-			ScannedPath: "/fake",
+			Location: "/fake",
 
-			TestCategory:    "FAKE",
-			TestID:          "Test2",
-			TestDescription: "Fake test number 2",
+			Category:    "FAKE",
+			ID:          "Test2",
+			Description: "Fake test number 2",
 
 			Message:     "Fake test number 2 failed",
 			Severity:    misconfigurationTypes.LowSeverity,
 			Remediation: "fix the thing number 2",
 		},
 		{
-			ScannedPath: "/fake",
+			Location: "/fake",
 
-			TestCategory:    "FAKE",
-			TestID:          "Test3",
-			TestDescription: "Fake test number 3",
+			Category:    "FAKE",
+			ID:          "Test3",
+			Description: "Fake test number 3",
 
 			Message:     "Fake test number 3 failed",
 			Severity:    misconfigurationTypes.MediumSeverity,
 			Remediation: "fix the thing number 3",
 		},
 		{
-			ScannedPath: "/fake",
+			Location: "/fake",
 
-			TestCategory:    "FAKE",
-			TestID:          "Test4",
-			TestDescription: "Fake test number 4",
+			Category:    "FAKE",
+			ID:          "Test4",
+			Description: "Fake test number 4",
 
 			Message:     "Fake test number 4 failed",
 			Severity:    misconfigurationTypes.HighSeverity,

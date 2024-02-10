@@ -799,11 +799,11 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 	misconfiguration1 := misconfiguration.FlattenedMisconfiguration{
 		ScannerName: "foo",
 		Misconfiguration: misconfigurationTypes.Misconfiguration{
-			ScannedPath: "/scanned/path",
+			Location: "/scanned/path",
 
-			TestCategory:    "category1",
-			TestID:          "testid1",
-			TestDescription: "Test description 1",
+			Category:    "category1",
+			ID:          "id1",
+			Description: "Test description 1",
 
 			Severity:    misconfigurationTypes.HighSeverity,
 			Message:     "You got a problem with 1",
@@ -814,11 +814,11 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 	misconfiguration2 := misconfiguration.FlattenedMisconfiguration{
 		ScannerName: "foo",
 		Misconfiguration: misconfigurationTypes.Misconfiguration{
-			ScannedPath: "/scanned/path",
+			Location: "/scanned/path",
 
-			TestCategory:    "category2",
-			TestID:          "testid2",
-			TestDescription: "Test description 2",
+			Category:    "category2",
+			ID:          "id2",
+			Description: "Test description 2",
 
 			Severity:    misconfigurationTypes.MediumSeverity,
 			Message:     "You got a problem",
@@ -829,11 +829,11 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 	misconfiguration3 := misconfiguration.FlattenedMisconfiguration{
 		ScannerName: "bar",
 		Misconfiguration: misconfigurationTypes.Misconfiguration{
-			ScannedPath: "/scanned/path",
+			Location: "/scanned/path",
 
-			TestCategory:    "category1",
-			TestID:          "testid3",
-			TestDescription: "Test description 1",
+			Category:    "category1",
+			ID:          "id3",
+			Description: "Test description 1",
 
 			Severity:    misconfigurationTypes.HighSeverity,
 			Message:     "You got a problem with 1",
@@ -899,34 +899,34 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 			want: returns{
 				[]apitypes.Misconfiguration{
 					{
-						Message:         to.Ptr(misconfiguration1.Message),
-						Remediation:     to.Ptr(misconfiguration1.Remediation),
-						ScannedPath:     to.Ptr(misconfiguration1.ScannedPath),
-						ScannerName:     to.Ptr(misconfiguration1.ScannerName),
-						Severity:        to.Ptr(apitypes.MisconfigurationHighSeverity),
-						TestCategory:    to.Ptr(misconfiguration1.TestCategory),
-						TestDescription: to.Ptr(misconfiguration1.TestDescription),
-						TestID:          to.Ptr(misconfiguration1.TestID),
+						Message:     to.Ptr(misconfiguration1.Message),
+						Remediation: to.Ptr(misconfiguration1.Remediation),
+						Location:    to.Ptr(misconfiguration1.Location),
+						ScannerName: to.Ptr(misconfiguration1.ScannerName),
+						Severity:    to.Ptr(apitypes.MisconfigurationHighSeverity),
+						Category:    to.Ptr(misconfiguration1.Category),
+						Description: to.Ptr(misconfiguration1.Description),
+						Id:          to.Ptr(misconfiguration1.ID),
 					},
 					{
-						Message:         to.Ptr(misconfiguration2.Message),
-						Remediation:     to.Ptr(misconfiguration2.Remediation),
-						ScannedPath:     to.Ptr(misconfiguration2.ScannedPath),
-						ScannerName:     to.Ptr(misconfiguration2.ScannerName),
-						Severity:        to.Ptr(apitypes.MisconfigurationMediumSeverity),
-						TestCategory:    to.Ptr(misconfiguration2.TestCategory),
-						TestDescription: to.Ptr(misconfiguration2.TestDescription),
-						TestID:          to.Ptr(misconfiguration2.TestID),
+						Message:     to.Ptr(misconfiguration2.Message),
+						Remediation: to.Ptr(misconfiguration2.Remediation),
+						Location:    to.Ptr(misconfiguration2.Location),
+						ScannerName: to.Ptr(misconfiguration2.ScannerName),
+						Severity:    to.Ptr(apitypes.MisconfigurationMediumSeverity),
+						Category:    to.Ptr(misconfiguration2.Category),
+						Description: to.Ptr(misconfiguration2.Description),
+						Id:          to.Ptr(misconfiguration2.ID),
 					},
 					{
-						Message:         to.Ptr(misconfiguration3.Message),
-						Remediation:     to.Ptr(misconfiguration3.Remediation),
-						ScannedPath:     to.Ptr(misconfiguration3.ScannedPath),
-						ScannerName:     to.Ptr(misconfiguration3.ScannerName),
-						Severity:        to.Ptr(apitypes.MisconfigurationHighSeverity),
-						TestCategory:    to.Ptr(misconfiguration3.TestCategory),
-						TestDescription: to.Ptr(misconfiguration3.TestDescription),
-						TestID:          to.Ptr(misconfiguration3.TestID),
+						Message:     to.Ptr(misconfiguration3.Message),
+						Remediation: to.Ptr(misconfiguration3.Remediation),
+						Location:    to.Ptr(misconfiguration3.Location),
+						ScannerName: to.Ptr(misconfiguration3.ScannerName),
+						Severity:    to.Ptr(apitypes.MisconfigurationHighSeverity),
+						Category:    to.Ptr(misconfiguration3.Category),
+						Description: to.Ptr(misconfiguration3.Description),
+						Id:          to.Ptr(misconfiguration3.ID),
 					},
 				},
 				[]string{"foo", "bar"},
@@ -940,7 +940,7 @@ func Test_ConvertMisconfigurationResultToMisconfigurations(t *testing.T) {
 				t.Fatalf("Unexpected error: %v", err)
 			}
 
-			if diff := cmp.Diff(tt.want, returns{Misconfigs: misconfigs, Scanners: scanners}, cmpopts.SortSlices(func(a, b apitypes.Misconfiguration) bool { return *a.TestID < *b.TestID })); diff != "" {
+			if diff := cmp.Diff(tt.want, returns{Misconfigs: misconfigs, Scanners: scanners}, cmpopts.SortSlices(func(a, b apitypes.Misconfiguration) bool { return *a.Id < *b.Id })); diff != "" {
 				t.Errorf("convertMisconfigurationResultToAPIModel() mismatch (-want +got):\n%s", diff)
 			}
 		})

@@ -1677,7 +1677,7 @@ components:
         state:
           description: |
             Describes the state of Scan.
-            
+
             | State      | Description                                                                   |
             | ---------- | ----------------------------------------------------------------------------- |
             | Pending    | The initial state when the scan is created, and is working to discover assets |
@@ -1704,7 +1704,7 @@ components:
         reason:
           description: |
             Machine readable reason for state transition.
-            
+
             | State      | Reason            | Description                                                |
             | ---------- | ----------------- | ---------------------------------------------------------- |
             | Pending    | Created           | Scan is pending as it has been newly created               |
@@ -2037,7 +2037,7 @@ components:
       description: 'Runtime schedule scan configuration.
           If only operationTime is set, it will be a single scan scheduled for the operationTime.
           If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine.
-          If both operationTime and cronLine are set, the first scan will run at operationTime 
+          If both operationTime and cronLine are set, the first scan will run at operationTime
           and the operationTime will be the first time that the cronLine will be effective from.'
       properties:
         cronLine:
@@ -2252,7 +2252,7 @@ components:
         location:
           type: string
         image:
-          $ref: '#/components/schemas/ContainerImageInfo' 
+          $ref: '#/components/schemas/ContainerImageInfo'
         containerID:
           type: string
         createdAt:
@@ -2335,7 +2335,7 @@ components:
         state:
           description: |
             Describes the state of resource cleanup.
-            
+
             | State   | Description                                                |
             | ------- | ---------------------------------------------------------- |
             | Pending | Initial state for cleaning up resources                    |
@@ -2535,7 +2535,7 @@ components:
         state:
           description: |
             Describes the state of a scanner on the asset.
-            
+
             | State       | Description                                                              |
             | ----------- | ------------------------------------------------------------------------ |
             | Pending     | Scanner is pending and waits for state transition to InProgress state    |
@@ -3086,20 +3086,26 @@ components:
       properties:
         scannerName:
           type: string
-        scannedPath:
+        id:
           type: string
-        testCategory:
+          description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
+        location:
           type: string
-        testID:
+          description: Location within the asset where the misconfiguration was recorded (e.g. filesystem path)
+        category:
           type: string
-        testDescription:
-          type: string
-        severity:
-          $ref: '#/components/schemas/MisconfigurationSeverity'
+          description: Specifies misconfiguration impact category
         message:
           type: string
+          description: Short info about the misconfiguration
+        description:
+          type: string
+          description: Additional context such as the potential impact
         remediation:
           type: string
+          description: Possible fix for the misconfiguration
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
 
     Secret:
       type: object

@@ -33,7 +33,7 @@ func (asp *AssetScanProcessor) getExistingMisconfigurationFindingsForScan(ctx co
 	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and foundBy/id eq '%s'", *assetScan.Id)
 	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
 		Filter: &existingFilter,
-		Select: to.Ptr("id,findingInfo/scannerName,findingInfo/testId,findingInfo/message"),
+		Select: to.Ptr("id,findingInfo/scannerName,findingInfo/id,findingInfo/message"),
 	})
 	if err != nil {
 		return existingMap, fmt.Errorf("failed to query for findings: %w", err)
@@ -80,14 +80,14 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 		// scan.
 		for _, item := range *assetScan.Misconfigurations.Misconfigurations {
 			itemFindingInfo := apitypes.MisconfigurationFindingInfo{
-				Message:         item.Message,
-				Remediation:     item.Remediation,
-				ScannedPath:     item.ScannedPath,
-				ScannerName:     item.ScannerName,
-				Severity:        item.Severity,
-				TestCategory:    item.TestCategory,
-				TestDescription: item.TestDescription,
-				TestID:          item.TestID,
+				Message:     item.Message,
+				Remediation: item.Remediation,
+				Location:    item.Location,
+				ScannerName: item.ScannerName,
+				Severity:    item.Severity,
+				Category:    item.Category,
+				Description: item.Description,
+				Id:          item.Id,
 			}
 
 			findingInfo := apitypes.Finding_FindingInfo{}

@@ -97,7 +97,7 @@ func (a *ReportParser) parseLynisReportLine(scanPath string, line string) (bool,
 
 		// LYNIS suggestions are about the lynis install itself, we
 		// should ignore these.
-		if mis.TestID == "LYNIS" {
+		if mis.ID == "LYNIS" {
 			return false, types.Misconfiguration{}, nil
 		}
 
@@ -133,12 +133,12 @@ func (a *ReportParser) valueToMisconfiguration(scanPath string, value string, se
 	message := fmt.Sprintf("%s Details: %s", parts[1], parts[2])
 
 	return types.Misconfiguration{
-		ScannedPath:     scanPath,
-		TestCategory:    a.testdb.GetCategoryForTestID(parts[0]),
-		TestID:          parts[0],
-		TestDescription: a.testdb.GetDescriptionForTestID(parts[0]),
-		Severity:        severity,
-		Message:         message,
-		Remediation:     parts[3],
+		Location:    scanPath,
+		Category:    a.testdb.GetCategoryForTestID(parts[0]),
+		ID:          parts[0],
+		Description: a.testdb.GetDescriptionForTestID(parts[0]),
+		Severity:    severity,
+		Message:     message,
+		Remediation: parts[3],
 	}, nil
 }
