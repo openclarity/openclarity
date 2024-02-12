@@ -169,7 +169,7 @@ LICENSECACHEMODULES = $(addprefix license-cache-, $(GOMODULES))
 $(LICENSECACHEMODULES):
 	cd $(@:license-cache-%=%) && "$(LICENSEI_BIN)" cache --config "$(LICENSEI_CONFIG)"
 
-+.PHONY: license-cache
+.PHONY: license-cache
 license-cache: bin/licensei $(LICENSECACHEMODULES) ## Generate license cache
 
 .PHONY: lint
