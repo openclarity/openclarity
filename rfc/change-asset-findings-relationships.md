@@ -3,12 +3,12 @@
 *Note: this RFC template follows HashiCrop RFC format described [here](https://works.hashicorp.com/articles/rfc-template)*
 
 
-|               |                                            |
-|---------------|--------------------------------------------|
-| **Created**   | 2023-01-15                                 |
-| **Status**    | WIP\| **InReview** \| Approved \| Obsolete |
-| **Owner**     | *ramizpolic*                               |
-| **Approvers** | *github handles*                           |
+|               |                                                               |
+|---------------|---------------------------------------------------------------|
+| **Created**   | 2023-01-15                                                    |
+| **Status**    | WIP\| InReview \| **Approved** \| Obsolete                    |
+| **Owner**     | *ramizpolic*                                                  |
+| **Approvers** | [PR-1042](https://github.com/openclarity/vmclarity/pull/1042) |
 
 ---
 

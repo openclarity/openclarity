@@ -2,12 +2,12 @@
 
 *Note: this RFC template follows HashiCrop RFC format described [here](https://works.hashicorp.com/articles/rfc-template)*
 
-|               |                                             |
-| ------------- | ------------------------------------------- |
-| **Created**   | 2023-11-14                                  |
-| **Status**    | **WIP** \| InReview \| Approved \| Obsolete |
-| **Owner**     | *gallotamas*             |
-| **Approvers** | *TODO*          |
+|               |                                                             |
+|---------------|-------------------------------------------------------------|
+| **Created**   | 2023-11-14                                                  |
+| **Status**    | WIP \| InReview \| **Approved** \| Obsolete                 |
+| **Owner**     | *gallotamas*                                                |
+| **Approvers** | [PR-946](https://github.com/openclarity/vmclarity/pull/946) |
 
 ---
 
