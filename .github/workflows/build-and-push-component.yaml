@@ -82,7 +82,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@849707117b03d39aba7924c50a10376a69e88d7d # v4.1.0
         id: bake
         with:
           targets: ${{ inputs.bake_target_name }}
