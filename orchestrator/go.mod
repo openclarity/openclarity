@@ -83,7 +83,7 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aquasecurity/defsec v0.94.1 // indirect
-	github.com/aquasecurity/go-dep-parser v0.0.0-20240208080026-8cc7d408bce4 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5 // indirect
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
