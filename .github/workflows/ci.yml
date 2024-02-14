@@ -89,6 +89,9 @@ jobs:
       use_release_repository: false
 
   success:
+    # https://github.com/actions/runner/issues/2566
+    # https://github.com/actions/toolkit/issues/581
+    if: ${{ !cancelled() && !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
     needs:
       - build
       - e2e
