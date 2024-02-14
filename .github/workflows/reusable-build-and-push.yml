@@ -3,6 +3,11 @@ name: Build & Push
 on:
   workflow_call:
     inputs:
+      registry_name:
+        required: false
+        type: string
+        description: 'Registry name used for container image names. Default is `ghcr.io/openclarity`.'
+        default: ghcr.io/openclarity
       image_tag:
         required: true
         type: string
@@ -23,12 +28,20 @@ on:
         description: |
           If set to true the image tags pushed to the repository are posted as comment for the Pull Request.
           Only works if the event type is `pull_request`.
+      bake-group:
+        required: false
+        type: string
+        description: 'Name of the Docker Bake group of targets'
+        default: default
 
 jobs:
-  timestamp:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.timestamp.outputs.timestamp }}
+      registry: ${{ steps.registry.outputs.registry }}
+      suffix: ${{ steps.suffix.outputs.suffix }}
+      targets: ${{ steps.targets.outputs.targets }}
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -39,98 +52,90 @@ jobs:
           ##
           ## Set timestamp variable
           ##
-          
+
           echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
-  images:
-    uses: ./.github/workflows/reusable-image-names.yml
-    with:
-      use_release_repository: ${{ inputs.use_release_repository }}
+      - name: Set registry
+        id: registry
+        run: |
+          ##
+          ## Determine the image name registry
+          ##
 
-  vmclarity-apiserver:
+          # Remove trailing slash characters(s)
+          # shellcheck disable=SC2001
+          echo "registry=$(sed -e 's@/*$@@' <<< ${{ inputs.registry_name }})" >> "$GITHUB_OUTPUT"
+
+      - name: Set suffix
+        id: suffix
+        run: |
+          ##
+          ## Determine the image name suffix based on the release type
+          ##
+
+          # Set image name suffix
+          suffix=-dev
+          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
+            suffix=
+          fi
+
+          echo "suffix=${suffix}" >> "$GITHUB_OUTPUT"
+
+      - name: List targets
+        id: targets
+        uses: docker/bake-action/subaction/list-targets@v4
+        with:
+          target: ${{ inputs.bake-group }}
+
+  build-and-push:
     needs:
-      - images
-      - timestamp
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.prepare.outputs.targets) }}
     uses: ./.github/workflows/build-and-push-component.yaml
     with:
-      dockerfile: Dockerfile.apiserver
-      image_name: ${{ needs.images.outputs.apiserver-image }}
+      image_name: "${{ needs.prepare.outputs.registry }}/${{ matrix.target }}${{ needs.prepare.outputs.suffix }}"
       image_tag: ${{ inputs.image_tag }}
       push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
-
-  vmclarity-orchestrator:
-    needs:
-      - images
-      - timestamp
-    uses: ./.github/workflows/build-and-push-component.yaml
-    with:
-      dockerfile: Dockerfile.orchestrator
-      image_name: ${{ needs.images.outputs.orchestrator-image }}
-      image_tag: ${{ inputs.image_tag }}
-      push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
-
-  vmclarity-ui-backend:
-    needs:
-      - images
-      - timestamp
-    uses: ./.github/workflows/build-and-push-component.yaml
-    with:
-      dockerfile: Dockerfile.uibackend
-      image_name: ${{ needs.images.outputs.ui-backend-image }}
-      image_tag: ${{ inputs.image_tag }}
-      push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
-
-  vmclarity-ui:
-    needs:
-      - images
-      - timestamp
-    uses: ./.github/workflows/build-and-push-component.yaml
-    with:
-      dockerfile: Dockerfile.ui
-      image_name: ${{ needs.images.outputs.ui-image }}
-      image_tag: ${{ inputs.image_tag }}
-      push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
-
-  vmclarity-cli:
-    needs:
-      - images
-      - timestamp
-    uses: ./.github/workflows/build-and-push-component.yaml
-    with:
-      dockerfile: Dockerfile.cli
-      image_name: ${{ needs.images.outputs.cli-image }}
-      image_tag: ${{ inputs.image_tag }}
-      push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
-
-  vmclarity-cr-discovery-server:
-    needs:
-      - images
-      - timestamp
-    uses: ./.github/workflows/build-and-push-component.yaml
-    with:
-      dockerfile: Dockerfile.cr-discovery-server
-      image_name: ${{ needs.images.outputs.cr-discovery-server-image }}
-      image_tag: ${{ inputs.image_tag }}
-      push: ${{ inputs.push }}
-      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+      timestamp: ${{ needs.prepare.outputs.timestamp }}
+      bake_target_name: ${{ matrix.target }}
+      post_image_tags: ${{ inputs.post_image_tags }}
 
   post-images:
     if: github.event_name == 'pull_request' && inputs.post_image_tags
     runs-on: ubuntu-latest
     needs:
-      - images
-      - vmclarity-apiserver
-      - vmclarity-orchestrator
-      - vmclarity-ui-backend
-      - vmclarity-ui
-      - vmclarity-cli
-      - vmclarity-cr-discovery-server
+      - prepare
+      - build-and-push
     steps:
+      - name: Download image names
+        uses: actions/download-artifact@v4
+        with:
+          pattern: image-names-${{ github.run_id }}-*
+          merge-multiple: true
+          path: /tmp/image-names
+
+      - name: Get image names
+        run: |
+          ##
+          ## Cat out the image names from the directory, prefixing (* `) and suffixing (`) them to create
+          ## markdown list items and saving this multiline string with base64 encoding to a Github env.
+          ##
+          ## Example:
+          ##
+          ## * `ghcr.io/openclarity/vmclarity-apiserver:latest`
+          ## * `ghcr.io/openclarity/vmclarity-orchestrator:latest`
+          ## * `ghcr.io/openclarity/vmclarity-ui-backend:latest`
+
+          set -o pipefail
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          {
+            echo "image-names<<$EOF"; cat /tmp/image-names/* | sed "s/.*/* \`&\`/"; echo "$EOF"
+          } >> "$GITHUB_ENV"
+
       - name: Post comment with image tags
         uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         with:
@@ -140,11 +145,6 @@ jobs:
           header: image-tags
           message: |
             Hey!
-            
+
             Your images are ready:
-            * `${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}`
-            * `${{ format('{0}:{1}', needs.images.outputs.cr-discovery-server-image, inputs.image_tag) }}`
+            ${{ env.image-names }}

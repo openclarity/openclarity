@@ -7,6 +7,11 @@ on:
         required: true
         type: string
         description: 'Image tag to build and push.'
+      registry_name:
+        required: false
+        type: string
+        description: 'Registry name used for container image names. Default is `ghcr.io/openclarity`.'
+        default: ghcr.io/openclarity
       use_release_repository:
         required: false
         type: boolean
@@ -15,9 +20,40 @@ on:
 
 jobs:
   images:
-    uses: ./.github/workflows/reusable-image-names.yml
-    with:
-      use_release_repository: ${{ inputs.use_release_repository }}
+    runs-on: ubuntu-latest
+    outputs:
+      apiserver-image: ${{ steps.images.outputs.apiserver-image }}
+      orchestrator-image: ${{ steps.images.outputs.orchestrator-image }}
+      ui-backend-image: ${{ steps.images.outputs.ui-backend-image }}
+      ui-image: ${{ steps.images.outputs.ui-image }}
+      cli-image: ${{ steps.images.outputs.cli-image }}
+      cr-discovery-server-image: ${{ steps.images.outputs.cr-discovery-server-image }}
+    steps:
+      - name: Set container image names
+        id: images
+        run: |
+          ##
+          ## Determine the image name suffix based on the release type
+          ##
+
+          # Remove trailing slash characters(s)
+          # shellcheck disable=SC2001
+          registry="$(sed -e 's@/*$@@' <<< ${{ inputs.registry_name }})"
+
+          # Set image name suffix
+          suffix=-dev
+          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
+            suffix=
+          fi
+
+          {
+            echo "apiserver-image=${registry}/vmclarity-apiserver${suffix}"
+            echo "orchestrator-image=${registry}/vmclarity-orchestrator${suffix}"
+            echo "ui-backend-image=${registry}/vmclarity-ui-backend${suffix}"
+            echo "ui-image=${registry}/vmclarity-ui${suffix}"
+            echo "cli-image=${registry}/vmclarity-cli${suffix}"
+            echo "cr-discovery-server-image=${registry}/vmclarity-cr-discovery-server${suffix}"
+          } >> "$GITHUB_OUTPUT"
 
   run:
     runs-on: ubuntu-latest
@@ -52,5 +88,6 @@ jobs:
           VMCLARITY_E2E_UI_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}
           VMCLARITY_E2E_UIBACKEND_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
           VMCLARITY_E2E_SCANNER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
+          VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cr-discovery-server-image, inputs.image_tag) }}
         run: |
           make e2e
