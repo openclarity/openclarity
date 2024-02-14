@@ -3,10 +3,6 @@ name: 'Build and Push Component'
 on:
   workflow_call:
     inputs:
-      dockerfile:
-        required: true
-        type: string
-        description: 'Dockerfile to build and push'
       image_name:
         required: true
         type: string
@@ -24,6 +20,16 @@ on:
         required: true
         type: string
         description: 'The build timestamp to be used for binaries.'
+      bake_target_name:
+        required: true
+        type: string
+        description: 'Docker Bake target name.'
+      post_image_tags:
+        required: false
+        type: boolean
+        description: |
+          If set to true the image tags pushed to the repository are posted as comment for the Pull Request.
+          Only works if the event type is `pull_request`.
 
 jobs:
   build-vars:
@@ -34,22 +40,14 @@ jobs:
       - name: Set build variables
         id: build-vars
         run: |
-          
-          ##
-          ## Extract the image name
-          ##
-          ##    $ basename ghcr.io/openclarity/vmclarity-ui-dev
-          ##    vmclarity-ui-dev
-          ##
-          image_name="$(basename ${{ inputs.image_name }})"
-          
+
           ##
           ## Set digests cache name
           ##
           ##    Example: digest-1234-a2850e9cc4e2b3a3
           ##
-          
-          image_name_hash="$(sha256sum <<< "${image_name}" | cut -f1 -d' ')"
+
+          image_name_hash="$(sha256sum <<< "${{ inputs.bake_target_name }}" | cut -f1 -d' ')"
           printf "digests-cache-name=digest-%s-%.16s" "${{ github.run_id }}" "${image_name_hash}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
@@ -84,28 +82,28 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
-        id: build
+        uses: docker/bake-action@v4
+        id: bake
         with:
-          context: .
-          platforms: ${{ matrix.platform }}
-          file: ${{ inputs.dockerfile }}
-          outputs: type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-          build-args: |
-            VERSION=${{ inputs.image_tag }}
-            BUILD_TIMESTAMP=${{ inputs.timestamp }}
-            COMMIT_HASH=${{ github.sha }}
+          targets: ${{ inputs.bake_target_name }}
+          set: |
+            *.platform=${{ matrix.platform }}
+            *.output=type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+            *.tags=
+            *.cache-to=type=local,dest=/tmp/.buildx-cache
+            *.cache-from=type=local,src=/tmp/.buildx-cache
+        env:
+          VERSION: ${{ inputs.image_tag }}
+          BUILD_TIMESTAMP: ${{ inputs.timestamp }}
+          COMMIT_HASH: ${{ github.sha }}
 
       - name: Export digest
         if: inputs.push
         id: digest
         run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
+          digest=$(jq -r '."${{ inputs.bake_target_name }}"."containerimage.digest"'<<< '${{ steps.bake.outputs.metadata }}')
           touch "/tmp/digests/${digest#sha256:}"
-          
           echo "digest=${digest#sha256:}" >> "$GITHUB_OUTPUT"
 
       - name: Upload digests
@@ -152,4 +150,18 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ inputs.image_name }}:${{ inputs.image_tag }} 
+          docker buildx imagetools inspect ${{ inputs.image_name }}:${{ inputs.image_tag }}
+
+      - name: Save image name
+        if: inputs.post_image_tags
+        run: |
+          mkdir -p /tmp/image-names
+          echo "${{ inputs.image_name }}:${{ inputs.image_tag }}" >> "/tmp/image-names/${{ inputs.bake_target_name }}"
+
+      - name: Upload image names
+        if: inputs.post_image_tags
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-names-${{ github.run_id }}-${{ inputs.bake_target_name }}
+          path: /tmp/image-names/*
+          if-no-files-found: error
