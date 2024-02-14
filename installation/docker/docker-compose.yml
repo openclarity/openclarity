@@ -81,7 +81,7 @@ services:
       - "8080:80"
     configs:
       - source: gateway_config
-        target: /etc/nginx/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
     deploy:
       mode: replicated
       replicas: 1
