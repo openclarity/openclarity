@@ -160,7 +160,7 @@ jobs:
 
       - name: Upload image names
         if: inputs.post_image_tags
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: image-names-${{ github.run_id }}-${{ inputs.bake_target_name }}
           path: /tmp/image-names/*
