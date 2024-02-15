@@ -23,7 +23,6 @@ import (
 	"github.com/Portshift/go-utils/healthz"
 
 	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
 	discovery "github.com/openclarity/vmclarity/orchestrator/discoverer"
 	assetscanprocessor "github.com/openclarity/vmclarity/orchestrator/processor/assetscan"
@@ -33,12 +32,6 @@ import (
 	scanconfigwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/scanconfig"
 	scanestimationwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/scanestimation"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/aws"
-	"github.com/openclarity/vmclarity/provider/azure"
-	"github.com/openclarity/vmclarity/provider/docker"
-	"github.com/openclarity/vmclarity/provider/external"
-	"github.com/openclarity/vmclarity/provider/gcp"
-	"github.com/openclarity/vmclarity/provider/kubernetes"
 )
 
 type Orchestrator struct {
@@ -124,26 +117,5 @@ func (o *Orchestrator) Stop(ctx context.Context) {
 
 	if o.cancelFunc != nil {
 		o.cancelFunc()
-	}
-}
-
-// nolint:wrapcheck
-// NewProvider returns an initialized provider.Provider based on the kind apitypes.CloudProvider.
-func NewProvider(ctx context.Context, kind apitypes.CloudProvider) (provider.Provider, error) {
-	switch kind {
-	case apitypes.Azure:
-		return azure.New(ctx)
-	case apitypes.Docker:
-		return docker.New(ctx)
-	case apitypes.AWS:
-		return aws.New(ctx)
-	case apitypes.GCP:
-		return gcp.New(ctx)
-	case apitypes.External:
-		return external.New(ctx)
-	case apitypes.Kubernetes:
-		return kubernetes.New(ctx)
-	default:
-		return nil, fmt.Errorf("unsupported provider: %s", kind)
 	}
 }

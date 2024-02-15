@@ -26,13 +26,14 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 ARG VERSION
 ARG BUILD_TIMESTAMP
 ARG COMMIT_HASH
+ARG BUILD_OPTS
 
-ENV CGO_ENABLED=0
+ENV CGO_ENABLED=1
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=.,target=/build,ro \
-    xx-go build -ldflags="-s -w -extldflags -static \
+    xx-go build ${BUILD_OPTS} -ldflags="-s -w -extldflags -static \
      -X 'github.com/openclarity/vmclarity/core/version.Version=${VERSION}' \
      -X 'github.com/openclarity/vmclarity/core/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
@@ -44,7 +45,8 @@ RUN apk upgrade --quiet --no-cache
 
 RUN apk add --update --no-cache \
     util-linux \
-    ca-certificates
+    ca-certificates \
+    libc6-compat
 
 COPY --from=builder /bin/vmclarity-cli /bin/vmclarity-cli
 
