@@ -15,6 +15,7 @@ DOCKER_REGISTRY ?= ghcr.io/openclarity
 DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
 GO_VERSION ?= $(shell cat $(ROOT_DIR)/.go-version)
+GO_BUILD_TAGS ?=
 
 ####
 ## Runtime variables
@@ -56,25 +57,30 @@ build: ui build-all-go ## Build all components
 .PHONY: build-all-go
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
+BUILD_OPTS = -race
+ifneq ($(GO_BUILD_TAGS),)
+BUILD_OPTS += -tags $(GO_BUILD_TAGS)
+endif
+
 LDFLAGS = -s -w
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.Version=$(VERSION)'
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.CommitHash=$(COMMIT_HASH)'
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
 bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
-	cd orchestrator && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	cd orchestrator && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-apiserver: $(shell find api api/server) | $(BIN_DIR)
-	cd api/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	cd api/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-cli: $(shell find api cli utils core) | $(BIN_DIR)
-	cd cli && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	cd cli && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
-	cd uibackend/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	cd uibackend/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils core) | $(BIN_DIR)
-	cd containerruntimediscovery/server && go build -race -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	cd containerruntimediscovery/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
 clean: clean-ui clean-go ## Clean all build artifacts
@@ -215,6 +221,7 @@ BAKE_ENV += DOCKER_TAG=$(DOCKER_TAG)
 BAKE_ENV += VERSION=$(VERSION)
 BAKE_ENV += BUILD_TIMESTAMP=$(BUILD_TIMESTAMP)
 BAKE_ENV += COMMIT_HASH=$(COMMIT_HASH)
+BAKE_ENV += BUILD_OPTS="$(BUILD_OPTS)"
 
 BAKE_OPTS =
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
