@@ -10,6 +10,7 @@ variable "VERSION" {default = null}
 variable "BUILD_TIMESTAMP" {default = null}
 variable "COMMIT_HASH" {default = null}
 variable "VMCLARITY_TOOLS_BASE" {default = null}
+variable "BUILD_OPTS" {default = null}
 
 function "get_tag" {
   params = [name]
@@ -40,6 +41,7 @@ target "_common_args_for_go" {
 		VERSION = "${VERSION}"
 		BUILD_TIMESTAMP = "${BUILD_TIMESTAMP}"
 		COMMIT_HASH = "${COMMIT_HASH}"
+		BUILD_OPTS = "${BUILD_OPTS}"
 	}
 }
 
