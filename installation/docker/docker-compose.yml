@@ -76,7 +76,7 @@ services:
       retries: 60
 
   gateway:
-    image: nginxinc/nginx-unprivileged:1.25.3
+    image: nginxinc/nginx-unprivileged:1.25.4
     ports:
       - "8080:80"
     configs:
