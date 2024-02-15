@@ -16,7 +16,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	helm.sh/helm/v3 v3.14.0
+	helm.sh/helm/v3 v3.14.1
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
 	k8s.io/cli-runtime v0.29.1
