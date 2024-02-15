@@ -19,7 +19,7 @@ Join [VMClarity's Slack channel](https://outshift.slack.com/messages/vmclarity) 
 # Table of Contents<!-- omit in toc -->
 
 - [Why VMClarity?](#why-vmclarity)
-- [Quick Start](#quick-start)
+- [Getting started](#getting-started)
 - [Overview](#overview)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -50,56 +50,9 @@ However, there are challenges with assembling and managing these tools yourself:
 
 The VMClarity project is focused on unifying detection and management of VM security threats in an agentless manner.
 
-# Quick start
+# Getting started
 
-## Install VMClarity
-
-### AWS
-
-1. Start the CloudFormation [wizard](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=VMClarity&templateURL=https://vmclarity-cfn.s3.eu-central-1.amazonaws.com/0.6.0/VmClarity.cfn), or upload the [latest](https://github.com/openclarity/vmclarity/releases/latest) CloudFormation template 
-2. Specify the SSH key to be used to connect to VMClarity under 'KeyName'
-3. Once deployed, copy VmClarity SSH Address from the "Outputs" tab
-
-For a detailed installation guide, please see [AWS](installation/aws/README.md).
-
-### Azure
-
-1. Click the [![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenclarity%2Fvmclarity%2Fmain%2Finstallation%2Fazure%2Fvmclarity.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenclarity%2Fvmclarity%2Fmain%2Finstallation%2Fazure%2Fvmclarity-UI.json) button.
-2. Fill out the required fields in the wizard
-3. Once deployed, copy the VMClarity SSH address from the Outputs tab
-
-### GCP
-
-1. Change directory to `installation/gcp/dm`
-2. Copy `vmclarity-config.example.yaml` to `vmclarity-config.yaml`, update with required values.
-3. Deploy vmclarity using GCP deployment manager
-   ```
-   gcloud deployment-manager deployments create <vmclarity deployment name> --config vmclarity-config.yaml
-   ```
-4. Once deployed, copy the VMClarity SSH IP address from the CLI output.
-
-### Kubernetes
-
-1. helm install -n vmclarity --create-namespace vmclarity ./vmclarity
-
-## Access VMClarity UI
-
-1. Open connection to VMClarity API Gateway either:
-
-   * On AWS, Azure or GCP, open an SSH tunnel to VMClarity VM server
-     ```
-     ssh -N -L 8080:localhost:80 -i  "<Path to the SSH key specified during install>" ubuntu@<VmClarity SSH Address copied during install>
-     ```
-
-   * On Kubernetes port-forward vmclarity-gateway service:
-     ```
-     kubectl port-forward -n vmclarity service/vmclarity-gateway 8080:80
-     ```
-
-2. Access VMClarity UI in the browser: http://localhost:8080/
-3. Access the [API](api/openapi.yaml) via http://localhost:8080/api
-
-For a detailed UI tour, please see [tour](TOUR.md).
+For step-by-step guidance on how to deploy VMClarity across different environments, including AWS, Azure, GCP, and Docker, click on [this link](https://openclarity.io/docs/vmclarity/getting-started/) and choose your preferred provider for detailed deployment instructions.
 
 # Overview
 
