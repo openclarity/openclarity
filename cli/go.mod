@@ -38,7 +38,7 @@ require (
 	golang.org/x/sync v0.6.0
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
-	k8s.io/client-go v0.29.1
+	k8s.io/client-go v0.29.2
 	www.velocidex.com/golang/regparser v0.0.0-20221020153526-bbc758cbd18b
 )
 
@@ -425,9 +425,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.25.7 // indirect
 	helm.sh/helm/v3 v3.14.0 // indirect
-	k8s.io/api v0.29.1 // indirect
+	k8s.io/api v0.29.2 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
-	k8s.io/apimachinery v0.29.1 // indirect
+	k8s.io/apimachinery v0.29.2 // indirect
 	k8s.io/apiserver v0.29.0 // indirect
 	k8s.io/cli-runtime v0.29.0 // indirect
 	k8s.io/component-base v0.29.0 // indirect
