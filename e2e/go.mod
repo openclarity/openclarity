@@ -51,7 +51,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-	github.com/compose-spec/compose-go/v2 v2.0.0-rc.6 // indirect
+	github.com/compose-spec/compose-go/v2 v2.0.0-rc.7 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/containerd/containerd v1.7.13 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
@@ -63,7 +63,7 @@ require (
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/buildx v0.12.0-rc2.0.20231219140829-617f538cb315 // indirect
 	github.com/docker/cli v25.0.3+incompatible // indirect
-	github.com/docker/compose/v2 v2.24.5 // indirect
+	github.com/docker/compose/v2 v2.24.6 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker v25.0.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
