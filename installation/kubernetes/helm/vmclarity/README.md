@@ -23,7 +23,7 @@ secrets.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 14.1.1 |
+| https://charts.bitnami.com/bitnami | postgresql | 14.1.3 |
 
 ## Values
 
@@ -240,7 +240,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"16.2.0-debian-11-r1"` | Postgresql container tag |
+| postgresql.image.tag | string | `"16.2.0-debian-11-r17"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.resources.limits | object | `{}` | The resources limits for the postgresql containers |
