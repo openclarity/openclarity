@@ -31,7 +31,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
-	github.com/tdewolff/parse/v2 v2.7.11
+	github.com/tdewolff/parse/v2 v2.7.12
 	github.com/vulsio/go-exploitdb v0.4.6
 	github.com/yudai/gojsondiff v1.0.0
 	go.uber.org/zap v1.26.0
