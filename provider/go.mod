@@ -310,7 +310,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.61.0 // indirect
-	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 // indirect
+	github.com/openclarity/grype-server/api v0.0.0-20240201133700-ad5e6432b894 // indirect
 	github.com/openclarity/yara-rule-server v0.2.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc6 // indirect

@@ -307,7 +307,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.61.0 // indirect
-	github.com/openclarity/grype-server/api v0.0.0-20230413102042-bcaa60113050 // indirect
+	github.com/openclarity/grype-server/api v0.0.0-20240201133700-ad5e6432b894 // indirect
 	github.com/openclarity/vmclarity/containerruntimediscovery/client v0.0.0-00010101000000-000000000000 // indirect
 	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.0.0-00010101000000-000000000000 // indirect
 	github.com/openclarity/yara-rule-server v0.2.1 // indirect
