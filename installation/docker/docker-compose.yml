@@ -89,7 +89,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.2.4}
+    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.3.0}
     ports:
       - "1326:1326"
     deploy:

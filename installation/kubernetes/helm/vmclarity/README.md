@@ -83,7 +83,7 @@ secrets.
 | exploitDBServer.image.pullPolicy | string | `"IfNotPresent"` | Exploit DB Server image pull policy |
 | exploitDBServer.image.registry | string | `"ghcr.io"` | Exploit DB Server container registry |
 | exploitDBServer.image.repository | string | `"openclarity/exploit-db-server"` | Exploit DB Server container repository |
-| exploitDBServer.image.tag | string | `"v0.2.3"` | Exploit DB Server container tag |
+| exploitDBServer.image.tag | string | `"v0.3.0"` | Exploit DB Server container tag |
 | exploitDBServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | exploitDBServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | exploitDBServer.replicas | int | `1` | Number of replicas for the exploit-db-server service |
