@@ -35,8 +35,8 @@ github.com/containerd/imgcrypt v1.1.9 h1:AnXt0sMq1Z2uIdaLt/fIHcMgtfVlFx6XpuaZzoC
 github.com/containerd/imgcrypt v1.1.9/go.mod h1:zEN6Nz5d5XIKgq06Tzk82YRlPZULKGSJ8fxhXhMwrYY=
 github.com/containerd/log v0.1.0 h1:TCJt7ioM2cr/tfR8GPbGf9/VRAX8D2B4PjzCpfX540I=
 github.com/containerd/log v0.1.0/go.mod h1:VRRf09a7mHDIRezVKTRCrOq78v577GXq3bSa3EhrzVo=
-github.com/containerd/nerdctl v1.7.3 h1:of5XI05VLMYCFZfQVDjcQjEX9grBdnmV7FKS2oYK+t8=
-github.com/containerd/nerdctl v1.7.3/go.mod h1:q/2RzzdEhQCwl3HWjm560dwG6qrXmes18ble+5krZn0=
+github.com/containerd/nerdctl v1.7.4 h1:1X5JEDwdjFHw3ddOuHu1CkULatcnZX+6u49Xqah2LJU=
+github.com/containerd/nerdctl v1.7.4/go.mod h1:q/2RzzdEhQCwl3HWjm560dwG6qrXmes18ble+5krZn0=
 github.com/containerd/stargz-snapshotter v0.15.1 h1:fpsP4kf/Z4n2EYnU0WT8ZCE3eiKDwikDhL6VwxIlgeA=
 github.com/containerd/stargz-snapshotter v0.15.1/go.mod h1:74D+J1m1RMXytLmWxegXWhtOSRHPWZKpKc2NdK3S+us=
 github.com/containerd/ttrpc v1.2.2 h1:9vqZr0pxwOF5koz6N0N3kJ0zDHokrcPxIR/ZR2YFtOs=
