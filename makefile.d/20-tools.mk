@@ -174,7 +174,7 @@ bin/helm-docs-$(HELMDOCS_VERSION): | $(BIN_DIR)
 
 GITCLIFF_BIN := $(BIN_DIR)/git-cliff
 # renovate: datasource=github-releases depName=orhun/git-cliff versioning=semver
-GITCLIFF_VERSION := 1.4.0
+GITCLIFF_VERSION := 2.0.2
 GITCLIFF_OSTYPE := $(OSTYPE)
 GITCLIFF_ARCH := $(ARCHTYPE)
 GITCLIFF_URL =
