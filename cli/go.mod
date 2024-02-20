@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/anchore/clio v0.0.0-20240209204744-cb94e40a4f65
 	github.com/anchore/grype v0.74.6
-	github.com/anchore/stereoscope v0.0.2-0.20240208195325-681f6715b0e3
+	github.com/anchore/stereoscope v0.0.2-0.20240216182029-6171ee21e1d5
 	github.com/anchore/syft v0.105.0
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
 	github.com/aquasecurity/trivy v0.49.1
