@@ -15,7 +15,10 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?( registryUrl=(?<registryUrl>.*?))?\\s.*?_VERSION\\s?:?=\\s?(?<currentValue>.*)\\s"
       ],
-      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+      "description": [
+        "Custom dependency manager for updating tools defined in Makefiles."
+      ]
     }
   ],
   "dependencyDashboardAutoclose": true,
@@ -57,12 +60,18 @@
       "matchCategories": ["golang"],
       "addLabels": [
         "go"
+      ],
+      "description": [
+        "Add go label to PRs which bumps go dependencies."
       ]
     },
     {
       "matchCategories": ["kubernetes"],
       "addLabels": [
         "kubernetes"
+      ],
+      "description": [
+        "Add kubernetes label to PRs which bumps kubernetes dependencies."
       ]
     },
     {
@@ -74,7 +83,11 @@
         "build"
       ],
       "extractVersion": "^v(?<version>.*)$",
-      "semanticCommitType": "build"
+      "semanticCommitType": "build",
+      "description": [
+        "Add build label to PRs which are related to build tools defined in Makefiles.",
+        "Use build type for semantic commits."
+      ]
     },
     {
       "matchDatasources": [
@@ -83,7 +96,11 @@
       "addLabels": [
         "ci"
       ],
-      "semanticCommitType": "ci"
+      "semanticCommitType": "ci",
+      "description": [
+        "Add ci label to PRs which are related to Github Actions.",
+        "Use ci type for semantic commits."
+      ]
     },
     {
       "matchFileNames": [
@@ -93,7 +110,11 @@
       "addLabels": [
         "test"
       ],
-      "semanticCommitType": "test"
+      "semanticCommitType": "test",
+      "description": [
+        "Add test label to PRs which are related to Github Actions.",
+        "Use test type for semantic commits."
+      ]
     },
     {
       "groupName": "Docker",
@@ -103,6 +124,9 @@
       "matchPackagePrefixes": [
         "github.com/docker",
         "github.com/compose-spec"
+      ],
+      "description": [
+        "Group Docker dependency updates in single PR."
       ]
     },
     {
@@ -113,6 +137,9 @@
       "matchPackagePrefixes": [
         "gorm.io/gorm",
         "gorm.io/driver"
+      ],
+      "description": [
+        "Group gorm.io dependency updates in single PR."
       ]
     },
     {
@@ -122,6 +149,9 @@
       ],
       "matchPackagePrefixes": [
         "github.com/Azure/azure-sdk-for-go"
+      ],
+      "description": [
+        "Group Azure SDK dependency updates in single PR."
       ]
     },
     {
@@ -131,6 +161,9 @@
       ],
       "matchPackagePrefixes": [
         "cloud.google.com/go"
+      ],
+      "description": [
+        "Group Google SDK dependency updates in single PR."
       ]
     },
     {
@@ -140,6 +173,9 @@
       ],
       "matchPackagePrefixes": [
         "github.com/containerd"
+      ],
+      "description": [
+        "Group Containerd dependency updates in single PR."
       ]
     },
     {
@@ -150,12 +186,44 @@
       "matchPackagePrefixes": [
         "k8s.io",
         "sigs.k8s.io"
+      ],
+      "description": [
+        "Group Kubernetes dependency updates in single PR."
       ]
     },
     {
       "groupName": "Azure Bicep",
       "matchDatasources": [
         "azure-bicep-resource"
+      ],
+      "description": [
+        "Group Azure Bicep dependency updates in single PR."
+      ]
+    },
+    {
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackageNames": [
+        "github.com/aquasecurity/trivy-db"
+      ],
+      "allowedVersions": "!/^v1/",
+      "description": [
+        "Ignore versions starting with v1 for trivy-db as v1 is deprecated."
+      ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackagePrefixes": [
+        "ghcr.io/openclarity/vmclarity-"
+      ],
+      "allowedVersions": "/^latest$/",
+      "pinDigests": false,
+      "description": [
+        "Always use latest version for VMClarity container images.",
+        "Do not pin by digest."
       ]
     }
   ],
@@ -167,6 +235,7 @@
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
   "printConfig": false,
+  "rebaseWhen": "conflicted",
   "reviewersFromCodeOwners": true,
   "schedule": [
     "after 6am every weekday",
@@ -175,7 +244,7 @@
   "semanticCommits": "enabled",
   "timezone": "Etc/UTC",
   "vulnerabilityAlerts": {
-    "enabled": false,
+    "enabled": true,
     "labels": ["security"]
   }
 }
