@@ -100,7 +100,7 @@ require (
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/aquasecurity/trivy v0.49.1 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20240215120649-4db4d53727cb // indirect
+	github.com/aquasecurity/trivy-db v0.0.0-20240220070059-88dc6466aa40 // indirect
 	github.com/aquasecurity/trivy-iac v0.8.0 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
 	github.com/aquasecurity/trivy-policies v0.8.0 // indirect
