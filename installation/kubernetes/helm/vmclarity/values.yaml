@@ -499,7 +499,7 @@ exploitDBServer:
     # -- Exploit DB Server container repository
     repository: openclarity/exploit-db-server
     # -- Exploit DB Server container tag
-    tag: v0.2.3
+    tag: v0.3.0
     # -- Exploit DB Server image digest. If set will override the tag.
     digest: ""
     # -- Exploit DB Server image pull policy
