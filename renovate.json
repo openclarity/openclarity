@@ -225,6 +225,21 @@
         "Always use latest version for VMClarity container images.",
         "Do not pin by digest."
       ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "matchFileNames": [
+        "testenv/**/docker-compose.override.yml"
+      ],
+      "allowedVersions": "3.18.2",
+      "description": [
+        "Pin version of the Alpine container image used for testing."
+      ]
     }
   ],
   "postUpdateOptions": [
