@@ -34,7 +34,7 @@ require (
 	github.com/tdewolff/parse/v2 v2.7.12
 	github.com/vulsio/go-exploitdb v0.4.6
 	github.com/yudai/gojsondiff v1.0.0
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.6.0
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
