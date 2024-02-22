@@ -11,17 +11,53 @@ header = ""
 # template for the changelog body
 # https://keats.github.io/tera/docs/#introduction
 body = """
+{%- macro remote_url() -%}
+    https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+
 {% if version %}\
     ## {{ version | trim_start_matches(pat="v") }} - {{ timestamp | date(format="%Y-%m-%d") }}
 {% else %}\
     ## [unreleased]
 {% endif %}\
+
 {% for group, commits in commits | group_by(attribute="group") %}
-    ### {{ group | upper_first }}
-    {% for commit in commits %}
-        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}{% if commit.breaking %}[**BREAKING**] {% endif %}{{ commit.message | upper_first }}\
-    {% endfor %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits
+    | filter(attribute="scope")
+    | sort(attribute="scope") %}
+    {% if commit.github.pr_title -%}
+        {%- set commit_message = commit.github.pr_title -%}
+      {%- else -%}
+        {%- set commit_message = commit.message -%}
+    {%- endif -%}
+    * {{ commit_message | split(pat="\n") | first | trim }}\
+      {% if commit.github.username %} by @{{ commit.github.username }}{%- endif -%}
+      {% if commit.github.pr_number %} in \
+        [#{{ commit.github.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.github.pr_number }}) \
+      {%- endif %}
+    {% endfor -%}
 {% endfor %}\n
+
+{% if github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
+  {% raw %}\n{% endraw -%}
+  ### New Contributors
+{%- endif %}
+{% for contributor in github.contributors | filter(attribute="is_first_time", value=true) %}
+  * @{{ contributor.username }} made their first contribution
+    {%- if contributor.pr_number %} in \
+      [#{{ contributor.pr_number }}]({{ self::remote_url() }}/pull/{{ contributor.pr_number }}) \
+    {%- endif %}
+{%- endfor -%}
+
+{% if version %}
+    {% if previous.version %}
+      **Full Changelog**: {{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}
+    {% endif %}
+{% else -%}
+    **Full Changelog**: {{ self::remote_url() }}/compare/{{ previous.version }}...HEAD
+{% endif %}
+
 """
 # remove the leading and trailing whitespace from the template
 trim = true
@@ -48,23 +84,18 @@ commit_preprocessors = [
 ]
 # regex for parsing and grouping commits
 commit_parsers = [
-  { message = "^feat\\(ci\\)", group = "Miscellaneous Tasks" },
-  { message = "^refactor\\(ci\\)", group = "Miscellaneous Tasks" },
-  { message = "^feat\\(e2e\\)", group = "Testing" },
-  { message = "^fix\\(ci\\)", group = "Miscellaneous Tasks" },
-  # TODO(chrisgacsal): remove the rules above for the next release
   { message = "^feat", group = "Features" },
+  { message = "^fix\\(deps\\):", group = "Dependency Updates" },
   { message = "^fix", group = "Bug Fixes" },
   { message = "^doc", group = "Documentation" },
   { message = "^perf", group = "Performance" },
   { message = "^refactor", group = "Refactor" },
   { message = "^style", group = "Styling" },
   { message = "^test", group = "Testing" },
+  { message = "^release", skip = true },
   { message = "^chore\\(release\\): prepare for", skip = true },
-  { message = "^chore\\(deps\\)", skip = true },
-  { message = "^chore\\(pr\\)", skip = true },
-  { message = "^chore\\(pull\\)", skip = true },
-  { message = "^chore|ci", group = "Miscellaneous Tasks" },
+  { message = "^chore\\(deps\\):", skip = true },
+  { message = "^chore|ci|build", group = "Miscellaneous Tasks" },
   { body = ".*security", group = "Security" },
   { message = "^revert", group = "Revert" },
 ]
@@ -84,3 +115,7 @@ topo_order = false
 sort_commits = "newest"
 # limit the number of commits included in the changelog.
 # limit_commits = 42
+
+[remote.github]
+owner = "openclarity"
+repo = "vmclarity"

@@ -139,6 +139,7 @@ jobs:
       - name: Generate changelog
         env:
           VERSION: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make generate-release-notes
 
       - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
