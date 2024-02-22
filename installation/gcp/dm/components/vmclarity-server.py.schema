@@ -85,7 +85,7 @@ properties:
     description: The container image to use for the grype server
   freshclamMirrorContainerImage:
     type: string
-    default: ghcr.io/openclarity/freshclam-mirror:v0.3.0
+    default: ghcr.io/openclarity/freshclam-mirror:v0.3.1
     description: The container image to use for the fresh clam mirror server
   yaraRuleServerContainerImage:
     type: string
