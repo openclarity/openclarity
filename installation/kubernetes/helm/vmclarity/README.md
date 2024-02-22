@@ -346,7 +346,7 @@ secrets.
 | yaraRuleServer.image.pullPolicy | string | `"IfNotPresent"` | Yara Rule Server image pull policy |
 | yaraRuleServer.image.registry | string | `"ghcr.io"` | Yara Rule Server container registry |
 | yaraRuleServer.image.repository | string | `"openclarity/yara-rule-server"` | Yara Rule Server container repository |
-| yaraRuleServer.image.tag | string | `"v0.1.0"` | Yara Rule Server container tag |
+| yaraRuleServer.image.tag | string | `"v0.3.0"` | Yara Rule Server container tag |
 | yaraRuleServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | yaraRuleServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | yaraRuleServer.replicas | int | `1` | Number of replicas for the Yara Rule Server service |

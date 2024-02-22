@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "18087006676817818247"
+      "templateHash": "15765059140427146956"
     }
   },
   "parameters": {
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "13649397790537468138"
+              "templateHash": "4572725164467035150"
             }
           },
           "parameters": {
@@ -688,7 +688,7 @@
             },
             "yaraRuleServerContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/yara-rule-server:v0.1.0",
+              "defaultValue": "ghcr.io/openclarity/yara-rule-server:v0.3.0",
               "metadata": {
                 "description": "Yara Rule Server Container Image"
               }

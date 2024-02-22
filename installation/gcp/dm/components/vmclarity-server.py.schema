@@ -89,7 +89,7 @@ properties:
     description: The container image to use for the fresh clam mirror server
   yaraRuleServerContainerImage:
     type: string
-    default: ghcr.io/openclarity/yara-rule-server:v0.1.0
+    default: ghcr.io/openclarity/yara-rule-server:v0.3.0
     description: The container image to use for the yara rule server
   postgresqlContainerImage:
     type: string
