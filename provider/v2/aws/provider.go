@@ -17,11 +17,17 @@ package aws
 
 import (
 	"context"
+	"fmt"
+
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/provider"
 	"github.com/openclarity/vmclarity/provider/v2/aws/discoverer"
 	"github.com/openclarity/vmclarity/provider/v2/aws/estimator"
+	"github.com/openclarity/vmclarity/provider/v2/aws/estimator/scanestimation"
 	"github.com/openclarity/vmclarity/provider/v2/aws/scanner"
 )
 
@@ -34,14 +40,46 @@ type Provider struct {
 }
 
 func (p *Provider) Kind() apitypes.CloudProvider {
-	// TODO implement me
-	panic("implement me")
+	return apitypes.AWS
 }
 
-func New(_ context.Context) (provider.Provider, error) {
+func New(ctx context.Context) (provider.Provider, error) {
+	config, err := NewConfig()
+	if err != nil {
+		return nil, fmt.Errorf("invalid configuration. Provider=AWS: %w", err)
+	}
+
+	if err = config.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to validate provider configuration. Provider=AWS: %w", err)
+	}
+
+	cfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load aws config: %w", err)
+	}
+
+	ec2Client := ec2.NewFromConfig(cfg)
+
 	return &Provider{
-		Discoverer: &discoverer.Discoverer{},
-		Scanner:    &scanner.Scanner{},
-		Estimator:  &estimator.Estimator{},
+		Discoverer: &discoverer.Discoverer{
+			Ec2Client: ec2Client,
+		},
+		Scanner: &scanner.Scanner{
+			Kind:                apitypes.AWS,
+			ScannerRegion:       config.ScannerRegion,
+			BlockDeviceName:     config.BlockDeviceName,
+			ScannerImage:        config.ScannerImage,
+			ScannerInstanceType: config.ScannerInstanceType,
+			SecurityGroupID:     config.SecurityGroupID,
+			SubnetID:            config.SubnetID,
+			KeyPairName:         config.KeyPairName,
+			Ec2Client:           ec2Client,
+		},
+		Estimator: &estimator.Estimator{
+			ScannerRegion:       config.ScannerRegion,
+			ScannerInstanceType: config.ScannerInstanceType,
+			ScanEstimator:       scanestimation.New(pricing.NewFromConfig(cfg), ec2Client),
+			Ec2Client:           ec2Client,
+		},
 	}, nil
 }
