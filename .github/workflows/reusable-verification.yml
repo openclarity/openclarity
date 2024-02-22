@@ -111,6 +111,10 @@ jobs:
           make gomod-tidy
           [[ -z "$(git status --porcelain)" ]] || exit 1
 
+      - name: Run go vet
+        run: |
+          make vet
+
       - name: Cache golangci-lint cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
         with:
