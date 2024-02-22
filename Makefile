@@ -84,7 +84,7 @@ bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/se
 	cd containerruntimediscovery/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
-clean: clean-ui clean-go ## Clean all build artifacts
+clean: clean-ui clean-go clean-vendor ## Clean all build artifacts
 
 .PHONY: clean-go
 clean-go: ## Clean all Go build artifacts
@@ -95,6 +95,11 @@ clean-go: ## Clean all Go build artifacts
 clean-ui: ## Clean UI build
 	@rm -rf ui/build
 	$(info UI cleanup done)
+
+.PHONY: clean-vendor
+clean-vendor: ## Clean go vendor directories
+	$(info Clean go vendor directories)
+	@find $(ROOT_DIR) -name 'vendor' -type d -exec rm -rf {} \;
 
 .PHONY: $(LINTGOMODULES)
 TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
