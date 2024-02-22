@@ -123,7 +123,7 @@ ui: ## Build UI component
 ##@ Testing
 
 .PHONY: check
-check: lint test ## Run tests and linters
+check: vet lint test ## Run tests and linters
 
 LINTGOMODULES = $(addprefix lint-, $(GOMODULES))
 FIXGOMODULES = $(addprefix fix-, $(GOMODULES))
@@ -213,6 +213,14 @@ $(TESTGOMODULES):
 
 .PHONY: test
 test: $(TESTGOMODULES) ## Run Go unit tests
+
+VETGOMODULES = $(addprefix vet-, $(GOMODULES))
+
+$(VETGOMODULES):
+	go -C $(@:vet-%=%) vet ./...
+
+.PHONY: vet
+vet: $(VETGOMODULES) ## Run go vet for modules
 
 ##@ Docker
 
