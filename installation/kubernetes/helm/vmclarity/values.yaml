@@ -792,7 +792,7 @@ yaraRuleServer:
     # -- Yara Rule Server container repository
     repository: openclarity/yara-rule-server
     # -- Yara Rule Server container tag
-    tag: v0.1.0
+    tag: v0.3.0
     # -- Yara Rule Server image digest. If set will override the tag.
     digest: ""
     # -- Yara Rule Server image pull policy
