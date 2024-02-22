@@ -3,7 +3,7 @@ module github.com/openclarity/vmclarity/testenv
 go 1.21.4
 
 require (
-	github.com/compose-spec/compose-go/v2 v2.0.0-rc.7
+	github.com/compose-spec/compose-go/v2 v2.0.0-rc.8
 	github.com/distribution/reference v0.5.0
 	github.com/docker/cli v25.0.3+incompatible
 	github.com/docker/compose/v2 v2.24.6
