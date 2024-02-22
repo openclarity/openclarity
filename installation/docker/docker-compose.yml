@@ -152,7 +152,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.1.0}
+    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.3.0}
     command:
       - run
     ports:
