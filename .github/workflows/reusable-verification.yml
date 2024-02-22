@@ -60,7 +60,9 @@ jobs:
 
       - name: Run linters for Helm
         run: |
+          make gen-helm-docs
           make lint-helm
+          [[ -z "$(git status --porcelain)" ]] || exit 1
 
       - name: Run linters for Azure/Bicep
         run: |
@@ -104,6 +106,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ github.ref_name }}-
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+
+      - name: Verify APIs
+        run: |
+          make gen-api
+          [[ -z "$(git status --porcelain)" ]] || exit 1
 
       - name: Verify go modules
         run: |
