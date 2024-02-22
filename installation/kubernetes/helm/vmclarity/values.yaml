@@ -676,7 +676,7 @@ freshclamMirror:
     # -- Freshclam Mirror container repository
     repository: openclarity/freshclam-mirror
     # -- Freshclam Mirror container tag
-    tag: v0.3.0
+    tag: v0.3.1
     # -- Freshclam Mirror image digest. If set will override the tag.
     digest: ""
     # -- Freshclam Mirror image pull policy

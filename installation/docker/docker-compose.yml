@@ -142,7 +142,7 @@ services:
       retries: 60
 
   freshclam-mirror:
-    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.0}
+    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.1}
     ports:
       - "1000:80"
     deploy:

@@ -104,7 +104,7 @@ secrets.
 | freshclamMirror.image.pullPolicy | string | `"IfNotPresent"` | Freshclam Mirror image pull policy |
 | freshclamMirror.image.registry | string | `"ghcr.io"` | Freshclam Mirror container registry |
 | freshclamMirror.image.repository | string | `"openclarity/freshclam-mirror"` | Freshclam Mirror container repository |
-| freshclamMirror.image.tag | string | `"v0.3.0"` | Freshclam Mirror container tag |
+| freshclamMirror.image.tag | string | `"v0.3.1"` | Freshclam Mirror container tag |
 | freshclamMirror.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | freshclamMirror.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | freshclamMirror.replicas | int | `1` | Number of replicas for the freshclam mirror service |
