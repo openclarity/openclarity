@@ -71,7 +71,6 @@ func ProjectFromConfig(config *Config) (*types.Project, error) {
 
 	opts, err := cli.NewProjectOptions(
 		config.ComposeFiles,
-		cli.WithContext(config.ctx),
 		cli.WithName(config.EnvName),
 		cli.WithInterpolation(true),
 		cli.WithResolvedPaths(true),
@@ -83,7 +82,7 @@ func ProjectFromConfig(config *Config) (*types.Project, error) {
 
 	WithContainerImages(opts, config.Images)
 
-	project, err := cli.ProjectFromOptions(opts)
+	project, err := cli.ProjectFromOptions(config.ctx, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create compose project: %w", err)
 	}
