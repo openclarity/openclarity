@@ -13,17 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package estimator
+package scanner
 
-import (
-	"context"
-
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
+const (
+	ProvisioningStateReady = "READY"
+	InstanceStateRunning   = "RUNNING"
 )
-
-type Estimator struct{}
-
-func (e *Estimator) Estimate(ctx context.Context, stats apitypes.AssetScanStats, asset *apitypes.Asset, template *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
-	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
-}
