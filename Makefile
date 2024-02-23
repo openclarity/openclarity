@@ -69,19 +69,19 @@ LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.CommitHash=$(COMMIT
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
 bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
-	cd orchestrator && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	go -C $(ROOT_DIR)/orchestrator build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-apiserver: $(shell find api api/server) | $(BIN_DIR)
-	cd api/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	go -C $(ROOT_DIR)/api/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-cli: $(shell find api cli utils core) | $(BIN_DIR)
-	cd cli && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	go -C $(ROOT_DIR)/cli build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
-	cd uibackend/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	go -C $(ROOT_DIR)/uibackend/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils core) | $(BIN_DIR)
-	cd containerruntimediscovery/server && go build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
+	go -C $(ROOT_DIR)/containerruntimediscovery/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
 clean: clean-ui clean-go clean-vendor ## Clean all build artifacts
@@ -105,7 +105,7 @@ clean-vendor: ## Clean go vendor directories
 TIDYGOMODULES = $(addprefix tidy-, $(GOMODULES))
 
 $(TIDYGOMODULES):
-	cd $(@:tidy-%=%) && go mod tidy -go=$(GO_VERSION)
+	go -C $(@:tidy-%=%) mod tidy -go=$(GO_VERSION)
 
 .PHONY: gomod-tidy
 gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
@@ -114,7 +114,7 @@ gomod-tidy: $(TIDYGOMODULES) ## Run go mod tidy for all go modules
 MODLISTGOMODULES = $(addprefix modlist-, $(GOMODULES))
 
 $(MODLISTGOMODULES):
-	cd $(@:modlist-%=%) && go list -m -mod=readonly all 1> /dev/null
+	go -C $(@:modlist-%=%) list -m -mod=readonly all 1> /dev/null
 
 .PHONY: gomod-list
 gomod-list: $(MODLISTGOMODULES)
@@ -158,12 +158,12 @@ endif
 
 .PHONY: e2e
 e2e: $(E2E_TARGETS) ## Run end-to-end test suite
-	cd e2e && $(E2E_ENV) go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
+	$(E2E_ENV) go -C $(ROOT_DIR)/e2e test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 
 VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 
 $(VENDORMODULES):
-	cd $(@:vendor-%=%) && go mod vendor
+	go -C $(@:vendor-%=%) mod vendor
 
 .PHONY: gomod-vendor
 gomod-vendor: $(VENDORMODULES) # Make vendored copy of dependencies for all modules
@@ -214,7 +214,7 @@ endif
 TESTGOMODULES = $(addprefix test-, $(GOMODULES))
 
 $(TESTGOMODULES):
-	cd $(@:test-%=%) && go test $(GOTEST_OPTS) ./...
+	go -C $(@:test-%=%) test $(GOTEST_OPTS) ./...
 
 .PHONY: test
 test: $(TESTGOMODULES) ## Run Go unit tests
@@ -293,21 +293,21 @@ gen-api: gen-apiserver-api gen-uibackend-api ## Generating API code
 .PHONY: gen-apiserver-api
 gen-apiserver-api: ## Generating Go library for API specification
 	$(info Generating API for backend code ...)
-	@(cd api/types && go generate)
-	@(cd api/client && go generate)
-	@(cd api/server && go generate)
+	go -C $(ROOT_DIR)/api/types generate
+	go -C $(ROOT_DIR)/api/client generate
+	go -C $(ROOT_DIR)/api/server generate
 
 .PHONY: gen-uibackend-api
 gen-uibackend-api: ## Generating Go library for UI Backend API specification
 	$(info Generating API for UI backend code ...)
-	@(cd uibackend/types && go generate)
-	@(cd uibackend/client && go generate)
-	@(cd uibackend/server && go generate)
+	go -C $(ROOT_DIR)/uibackend/types generate
+	go -C $(ROOT_DIR)/uibackend/client generate
+	go -C $(ROOT_DIR)/uibackend/server generate
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
 	$(info Generating Azure Bicep template(s) ...)
-	@$(BICEP_BIN) build installation/azure/vmclarity.bicep
+	$(BICEP_BIN) build installation/azure/vmclarity.bicep
 
 .PHONY: gen-helm-docs
 gen-helm-docs: bin/helm-docs ## Generating documentation for Helm chart
@@ -342,7 +342,7 @@ $(DIST_DIR)/%/vmclarity-cli: $(shell find api cli utils core)
 	GOOS=$(firstword $(subst -, ,$*)) \
 	GOARCH=$(lastword $(subst -, ,$*)) \
 	CGO_ENABLED=0 \
-	go build -ldflags="$(LDFLAGS)" -o $@ cmd/$(notdir $@)/main.go
+	go -C $(ROOT_DIR)/cli build -ldflags="$(LDFLAGS)" -o $@ cmd/main.go
 
 $(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE
 	cp -v $< $@
