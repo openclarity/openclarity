@@ -734,7 +734,7 @@ swaggerUI:
     # -- Swagger UI container repository
     repository: swaggerapi/swagger-ui
     # -- Swagger UI container tag
-    tag: v5.11.7
+    tag: v5.11.8
     # -- Swagger UI image digest. If set will override the tag.
     digest: ""
     # -- Swagger UI image pull policy
