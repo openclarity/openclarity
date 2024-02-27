@@ -7,7 +7,7 @@ require (
 	github.com/anchore/clio v0.0.0-20240209204744-cb94e40a4f65
 	github.com/anchore/grype v0.74.6
 	github.com/anchore/stereoscope v0.0.2-0.20240216182029-6171ee21e1d5
-	github.com/anchore/syft v0.105.0
+	github.com/anchore/syft v0.105.1
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
 	github.com/aquasecurity/trivy v0.49.1
 	github.com/aquasecurity/trivy-db v0.0.0-20240220070059-88dc6466aa40
@@ -438,7 +438,7 @@ require (
 	modernc.org/libc v1.41.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.7.2 // indirect
-	modernc.org/sqlite v1.29.1 // indirect
+	modernc.org/sqlite v1.29.2 // indirect
 	oras.land/oras-go/v2 v2.4.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
