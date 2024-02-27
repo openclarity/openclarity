@@ -193,7 +193,7 @@ require (
 	github.com/go-openapi/loads v0.21.3 // indirect
 	github.com/go-openapi/runtime v0.27.1 // indirect
 	github.com/go-openapi/spec v0.20.12 // indirect
-	github.com/go-openapi/strfmt v0.22.0 // indirect
+	github.com/go-openapi/strfmt v0.22.1 // indirect
 	github.com/go-openapi/swag v0.22.8 // indirect
 	github.com/go-openapi/validate v0.22.4 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
@@ -393,7 +393,7 @@ require (
 	github.com/zclconf/go-cty v1.14.1 // indirect
 	github.com/zclconf/go-cty-yaml v1.0.3 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
-	go.mongodb.org/mongo-driver v1.13.1 // indirect
+	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
