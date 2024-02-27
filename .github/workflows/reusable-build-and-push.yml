@@ -111,7 +111,7 @@ jobs:
       - build-and-push
     steps:
       - name: Download image names
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
           pattern: image-names-${{ github.run_id }}-*
           merge-multiple: true
