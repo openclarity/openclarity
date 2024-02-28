@@ -252,7 +252,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Trivy Server Container Image",
                             "subLabel": "",
-                            "defaultValue": "docker.io/aquasec/trivy:0.41.0",
+                            "defaultValue": "docker.io/aquasec/trivy:0.49.1",
                             "toolTip": "Trivy Server Container Image",
                             "constraints": {
                                 "required": false,
@@ -284,7 +284,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Exploit DB Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.4",
+                            "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.3.0",
                             "toolTip": "Exploit DB Container Image",
                             "constraints": {
                                 "required": false,
@@ -393,7 +393,7 @@
                                     "type": "Microsoft.Common.TextBox",
                                     "label": "Postgres Container Image",
                                     "subLabel": "",
-                                    "defaultValue": "docker.io/bitnami/postgresql:12.14.0-debian-11-r28",
+                                    "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
                                     "toolTip": "Postgres Container Image",
                                     "constraints": {
                                         "required": false,
