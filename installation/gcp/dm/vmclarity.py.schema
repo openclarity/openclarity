@@ -65,11 +65,11 @@ properties:
     description: The container image to use for the scanner
   exploitDBServerContainerImage:
     type: string
-    default: ghcr.io/openclarity/exploit-db-server:v0.2.4
+    default: ghcr.io/openclarity/exploit-db-server:v0.3.0
     description: The container image to use for the exploit db server
   trivyServerContainerImage:
     type: string
-    default: docker.io/aquasec/trivy:0.41.0
+    default: docker.io/aquasec/trivy:0.49.1
     description: The container image to use for the trivy server
   grypeServerContainerImage:
     type: string
@@ -81,7 +81,7 @@ properties:
     description: The container image to use for the fresh clam mirror server
   postgresqlContainerImage:
     type: string
-    default: docker.io/bitnami/postgresql:12.14.0-debian-11-r28
+    default: docker.io/bitnami/postgresql:16.2.0-debian-11-r17
     description: The container image to use for the postgresql server
   assetScanDeletePolicy:
     type: string

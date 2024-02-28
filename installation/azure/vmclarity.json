@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "9430758127017233390"
+      "templateHash": "16011164229261488080"
     }
   },
   "parameters": {
@@ -90,7 +90,7 @@
     },
     "trivyServerContainerImage": {
       "type": "string",
-      "defaultValue": "docker.io/aquasec/trivy:0.41.0",
+      "defaultValue": "docker.io/aquasec/trivy:0.49.1",
       "metadata": {
         "description": "Trivy Server Container Image"
       }
@@ -104,7 +104,7 @@
     },
     "exploitDBContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.4",
+      "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.3.0",
       "metadata": {
         "description": "Exploit DB Container Image"
       }
@@ -118,7 +118,7 @@
     },
     "postgresContainerImage": {
       "type": "string",
-      "defaultValue": "docker.io/bitnami/postgresql:12.14.0-debian-11-r28",
+      "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
       "metadata": {
         "description": "Postgres Container Image"
       }
@@ -556,7 +556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8671480218452674455"
+              "templateHash": "8974618962954303441"
             }
           },
           "parameters": {
@@ -660,7 +660,7 @@
             },
             "trivyServerContainerImage": {
               "type": "string",
-              "defaultValue": "docker.io/aquasec/trivy:0.41.0",
+              "defaultValue": "docker.io/aquasec/trivy:0.49.1",
               "metadata": {
                 "description": "Trivy Server Container Image"
               }
@@ -674,7 +674,7 @@
             },
             "exploitDBContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.2.4",
+              "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.3.0",
               "metadata": {
                 "description": "Exploit DB Container Image"
               }
@@ -695,7 +695,7 @@
             },
             "postgresContainerImage": {
               "type": "string",
-              "defaultValue": "docker.io/bitnami/postgresql:12.14.0-debian-11-r28",
+              "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
               "metadata": {
                 "description": "Postgres Container Image"
               }
