@@ -316,7 +316,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Yara Rule Server Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/yara-rule-server:v0.3.1",
+                            "defaultValue": "ghcr.io/openclarity/yara-rule-server:v0.3.0",
                             "toolTip": "Yara Rule Server Container Image",
                             "constraints": {
                                 "required": false,
