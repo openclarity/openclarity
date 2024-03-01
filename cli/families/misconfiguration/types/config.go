@@ -16,6 +16,9 @@
 package types
 
 import (
+	"time"
+
+	cliconfig "github.com/openclarity/vmclarity/cli/config"
 	"github.com/openclarity/vmclarity/cli/families/types"
 )
 
@@ -34,11 +37,18 @@ type Config struct {
 //
 //	Lynis LynisConfig `yaml:"lynis" mapstructure:"lynis"`
 type ScannersConfig struct {
-	Lynis LynisConfig `yaml:"lynis" mapstructure:"lynis"`
+	Lynis     LynisConfig     `yaml:"lynis" mapstructure:"lynis"`
+	CISDocker CISDockerConfig `yaml:"cisdocker" mapstructure:"cisdocker"`
 }
 
 func (ScannersConfig) IsConfig() {}
 
 type LynisConfig struct {
 	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
+}
+
+// nolint:musttag
+type CISDockerConfig struct {
+	Timeout  time.Duration       `yaml:"timeout" mapstructure:"timeout"`
+	Registry *cliconfig.Registry `yaml:"registry" mapstructure:"registry"`
 }

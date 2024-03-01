@@ -16,6 +16,7 @@
 package job
 
 import (
+	"github.com/openclarity/vmclarity/cli/families/misconfiguration/cisdocker"
 	"github.com/openclarity/vmclarity/cli/families/misconfiguration/fake"
 	"github.com/openclarity/vmclarity/cli/families/misconfiguration/lynis"
 	"github.com/openclarity/vmclarity/cli/job_manager"
@@ -26,4 +27,5 @@ var Factory = job_manager.NewJobFactory()
 func init() {
 	Factory.Register(fake.ScannerName, fake.New)
 	Factory.Register(lynis.ScannerName, lynis.New)
+	Factory.Register(cisdocker.ScannerName, cisdocker.New)
 }
