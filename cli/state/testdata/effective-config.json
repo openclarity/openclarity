@@ -66,6 +66,10 @@
     "ScannersConfig": {
       "Lynis": {
         "BinaryPath": ""
+      },
+      "CISDocker": {
+        "Timeout": 0,
+        "Registry": null
       }
     }
   },

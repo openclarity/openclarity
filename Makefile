@@ -18,6 +18,9 @@ VMCLARITY_TOOLS_BASE ?=
 GO_VERSION ?= $(shell cat $(ROOT_DIR)/.go-version)
 GO_BUILD_TAGS ?=
 
+# Ignore unused C drivers for CIS Docker Benchmark libraries
+GO_BUILD_TAGS += exclude_graphdriver_btrfs exclude_graphdriver_devicemapper
+
 ####
 ## Runtime variables
 ####
@@ -59,9 +62,7 @@ build: ui build-all-go ## Build all components
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
 BUILD_OPTS = -race
-ifneq ($(GO_BUILD_TAGS),)
-BUILD_OPTS += -tags $(GO_BUILD_TAGS)
-endif
+BUILD_OPTS += -tags="$(GO_BUILD_TAGS)"
 
 LDFLAGS = -s -w
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.Version=$(VERSION)'
@@ -135,7 +136,7 @@ FIXGOMODULES = $(addprefix fix-, $(GOMODULES))
 
 .PHONY: $(LINTGOMODULES)
 $(LINTGOMODULES):
-	cd $(@:lint-%=%) && "$(GOLANGCI_BIN)" run -c "$(GOLANGCI_CONFIG)"
+	cd $(@:lint-%=%) && "$(GOLANGCI_BIN)" run --build-tags "$(GO_BUILD_TAGS)" -c "$(GOLANGCI_CONFIG)"
 
 .PHONY: $(FIXGOMODULES)
 $(FIXGOMODULES):
@@ -207,6 +208,7 @@ lint-helm: ## Lint Helm charts
 	docker run --rm --workdir /workdir --volume "$(ROOT_DIR):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
 
 GOTEST_OPTS := -failfast -timeout 30m -short
+GOTEST_OPTS += -tags="$(GO_BUILD_TAGS)"
 ifeq ($(CI),true)
 	GOTEST_OPTS += -v
 endif
@@ -219,10 +221,11 @@ $(TESTGOMODULES):
 .PHONY: test
 test: $(TESTGOMODULES) ## Run Go unit tests
 
+GOVET_OPTS := -tags="$(GO_BUILD_TAGS)"
 VETGOMODULES = $(addprefix vet-, $(GOMODULES))
 
 $(VETGOMODULES):
-	go -C $(@:vet-%=%) vet ./...
+	go -C $(@:vet-%=%) vet $(GOVET_OPTS) ./...
 
 .PHONY: vet
 vet: $(VETGOMODULES) ## Run go vet for modules

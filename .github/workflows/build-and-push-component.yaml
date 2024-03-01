@@ -96,6 +96,7 @@ jobs:
           VERSION: ${{ inputs.image_tag }}
           BUILD_TIMESTAMP: ${{ inputs.timestamp }}
           COMMIT_HASH: ${{ github.sha }}
+          BUILD_OPTS: -tags=exclude_graphdriver_btrfs,exclude_graphdriver_devicemapper
 
       - name: Export digest
         if: inputs.push

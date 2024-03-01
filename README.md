@@ -85,6 +85,7 @@ These tools include:
   - [ClamAV](https://github.com/Cisco-Talos/clamav)
 - Misconfiguration
   - [Lynis](https://github.com/CISOfy/lynis)
+  - [CIS Docker Benchmark](https://github.com/goodwithtech/dockle)
 - Rootkits
   - [Chkrootkit](https://github.com/Magentron/chkrootkit)
 
