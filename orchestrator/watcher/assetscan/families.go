@@ -193,6 +193,10 @@ func withMisconfigurationConfig(config *apitypes.MisconfigurationsConfig, _ *Sca
 				Lynis: misconfiguration.LynisConfig{
 					BinaryPath: "",
 				},
+				CISDocker: misconfiguration.CISDockerConfig{
+					Timeout:  0,
+					Registry: &cliconfig.Registry{},
+				},
 			},
 		}
 	}

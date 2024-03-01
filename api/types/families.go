@@ -76,7 +76,7 @@ func (c *MisconfigurationsConfig) GetScannersList() []string {
 		return *c.Scanners
 	}
 
-	return []string{"lynis"}
+	return []string{"lynis", "cisdocker"}
 }
 
 func (c *MalwareConfig) IsEnabled() bool {
