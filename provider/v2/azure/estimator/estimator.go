@@ -22,11 +22,8 @@ import (
 	"github.com/openclarity/vmclarity/provider"
 )
 
-var _ provider.Estimator = &Estimator{}
-
 type Estimator struct{}
 
 func (e *Estimator) Estimate(ctx context.Context, stats apitypes.AssetScanStats, asset *apitypes.Asset, template *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
-	// TODO implement me
-	panic("implement me")
+	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
 }
