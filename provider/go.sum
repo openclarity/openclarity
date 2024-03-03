@@ -975,6 +975,8 @@ github.com/hashicorp/memberlist v0.2.2/go.mod h1:MS2lj3INKhZjWNqd3N0m3J+Jxf3DAOn
 github.com/hashicorp/memberlist v0.3.0/go.mod h1:MS2lj3INKhZjWNqd3N0m3J+Jxf3DAOnAH9VT3Sh9MUE=
 github.com/hashicorp/serf v0.9.5/go.mod h1:UWDWwZeL5cuWDJdl0C6wrvrUwEqtQ4ZKBKKENpqIUyk=
 github.com/hashicorp/serf v0.9.6/go.mod h1:TXZNMjZQijwlDvp+r0b63xZ45H7JmCmgg4gpTwn9UV4=
+github.com/heimdalr/dag v1.4.0 h1:zG3JA4RDVLc55k3AXAgfwa+EgBNZ0TkfOO3C29Ucpmg=
+github.com/heimdalr/dag v1.4.0/go.mod h1:OCh6ghKmU0hPjtwMqWBoNxPmtRioKd1xSu7Zs4sbIqM=
 github.com/huandu/xstrings v1.3.3/go.mod h1:y5/lhBue+AyNmUVz9RLU9xbLR0o4KIIExikq4ovT0aE=
 github.com/huandu/xstrings v1.4.0 h1:D17IlohoQq4UcpqD7fDk80P7l+lwAmlFaBHgOipl2FU=
 github.com/huandu/xstrings v1.4.0/go.mod h1:y5/lhBue+AyNmUVz9RLU9xbLR0o4KIIExikq4ovT0aE=
@@ -1240,6 +1242,8 @@ github.com/open-policy-agent/opa v0.64.1 h1:n8IJTYlFWzqiOYx+JiawbErVxiqAyXohovcZ
 github.com/open-policy-agent/opa v0.64.1/go.mod h1:j4VeLorVpKipnkQ2TDjWshEuV3cvP/rHzQhYaraUXZY=
 github.com/openclarity/grype-server/api v0.0.0-20240502131359-2f1a56ef9b22 h1:el6Lv08DBTBjbz+4nxlf8y49SlzrPdTfE+T0k+t7DsY=
 github.com/openclarity/grype-server/api v0.0.0-20240502131359-2f1a56ef9b22/go.mod h1:luXlVKVWmYNDzJKwKReCH268FlzELa2Q/iH6oAcxALE=
+github.com/openclarity/vmclarity/workflow v0.0.0-20240529135718-9427f32382c0 h1:xNe5taWaenvcEUTneuzQ5BQuu12YNCg2kUYaZHYxXcE=
+github.com/openclarity/vmclarity/workflow v0.0.0-20240529135718-9427f32382c0/go.mod h1:7XvhwnI/VNd1Cv4ZnUfqtqkVHFZvvuHbmlx7LuDrJr0=
 github.com/openclarity/yara-rule-server v0.3.0 h1:kXbiWASsx5W+MgfZ5jLTQKep9anSzdbk4ODWiCZ8cnA=
 github.com/openclarity/yara-rule-server v0.3.0/go.mod h1:2amH9uD0uFllsj5QViHf7y4F+yw1vJnaiYX1wfShFrs=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
