@@ -362,8 +362,8 @@ github.com/aquasecurity/tml v0.6.1 h1:y2ZlGSfrhnn7t4ZJ/0rotuH+v5Jgv6BDDO5jB6A9gw
 github.com/aquasecurity/tml v0.6.1/go.mod h1:OnYMWY5lvI9ejU7yH9LCberWaaTBW7hBFsITiIMY2yY=
 github.com/aquasecurity/trivy v0.49.1 h1:JiwITykmxMgxNY4NZqxUgMxe0vWwDa4e5Glg46plqQI=
 github.com/aquasecurity/trivy v0.49.1/go.mod h1:e+AhmSIbE1g8Di5Io5UBLk/seForwoNbp7543h/DCHo=
-github.com/aquasecurity/trivy-db v0.0.0-20240220070059-88dc6466aa40 h1:DvQAAy+KBD1VNPaIeBdjkQzIQtFASPrHQxrieI1+uvg=
-github.com/aquasecurity/trivy-db v0.0.0-20240220070059-88dc6466aa40/go.mod h1:Yi4xcXo2v+XgOCmF1TzhXdVnrwoDK0yYnp9VrO2UZw0=
+github.com/aquasecurity/trivy-db v0.0.0-20240304133434-db9bf07792af h1:yJa59CZozORCJGQvm28x6gB1AUynlyitiZ8tF8iJw5Q=
+github.com/aquasecurity/trivy-db v0.0.0-20240304133434-db9bf07792af/go.mod h1:sECIuPk1bXaqGDdoRVRfJCNNrPwIrutIFrfoVy6AVWE=
 github.com/aquasecurity/trivy-iac v0.8.0 h1:NKFhk/BTwQ0jIh4t74V8+6UIGUvPlaxO9HPlSMQi3fo=
 github.com/aquasecurity/trivy-iac v0.8.0/go.mod h1:ARiMeNqcaVWOXJmp8hmtMnNm/Jd836IOmDBUW5r4KEk=
 github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 h1:JVgBIuIYbwG+ekC5lUHUpGJboPYiCcxiz06RCtz8neI=
@@ -1509,8 +1509,8 @@ github.com/zclconf/go-cty-yaml v1.0.3 h1:og/eOQ7lvA/WWhHGFETVWNduJM7Rjsv2RRpx1sd
 github.com/zclconf/go-cty-yaml v1.0.3/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 github.com/zregvart/helm/v3 v3.0.0-20240212104806-f974fac515ba h1:a+0Rw7GvTF40RAmYle67sbimUqX9O/k5iDnsG5n5ovk=
 github.com/zregvart/helm/v3 v3.0.0-20240212104806-f974fac515ba/go.mod h1:+hHgDin7Ifjs77PE65whDPGt/h4xecJttCQJM+1AUgA=
-go.etcd.io/bbolt v1.3.8 h1:xs88BrvEv273UsB79e0hcVrlUWmS0a8upikMFhSyAtA=
-go.etcd.io/bbolt v1.3.8/go.mod h1:N9Mkw9X8x5fupy0IKsmuqVtoGDyxsaDlbk4Rd05IAQw=
+go.etcd.io/bbolt v1.3.9 h1:8x7aARPEXiXbHmtUwAIv7eV2fQFHrLLavdiJ3uzJXoI=
+go.etcd.io/bbolt v1.3.9/go.mod h1:zaO32+Ti0PK1ivdPtgMESzuzL2VPoIG1PCQNvOdo/dE=
 go.etcd.io/etcd/api/v3 v3.5.1/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.1/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.1/go.mod h1:pMEacxZW7o8pg4CrFE7pquyCJJzZvkvdD2RibOCCCGs=
