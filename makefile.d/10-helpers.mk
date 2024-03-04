@@ -33,3 +33,12 @@ else
 		ARCHTYPE = arm64
 	endif
 endif
+
+####
+## Helper to create a comma-separated list from a space-separated list
+####
+
+null  :=
+space := $(null) #
+comma := ,
+subst-space-with-comma = $(subst $(space),$(comma),$(strip $(1)))

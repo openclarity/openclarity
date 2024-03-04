@@ -62,7 +62,9 @@ build: ui build-all-go ## Build all components
 build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
 
 BUILD_OPTS = -race
-BUILD_OPTS += -tags="$(GO_BUILD_TAGS)"
+ifneq ($(strip $(GO_BUILD_TAGS)),)
+	BUILD_OPTS += -tags=$(call subst-space-with-comma,$(GO_BUILD_TAGS))
+endif
 
 LDFLAGS = -s -w
 LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.Version=$(VERSION)'
