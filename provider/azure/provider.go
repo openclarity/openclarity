@@ -39,7 +39,7 @@ func (p *Provider) Kind() apitypes.CloudProvider {
 	return apitypes.Azure
 }
 
-func New(_ context.Context) (*Provider, error) {
+func New(_ context.Context, opts ...Option) (*Provider, error) {
 	config, err := NewConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
@@ -65,7 +65,7 @@ func New(_ context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to create compute client factory: %w", err)
 	}
 
-	return &Provider{
+	provider := &Provider{
 		Discoverer: &discoverer.Discoverer{
 			VMClient:    computeClientFactory.NewVirtualMachinesClient(),
 			DisksClient: computeClientFactory.NewDisksClient(),
@@ -92,5 +92,20 @@ func New(_ context.Context) (*Provider, error) {
 			ScannerStorageContainerName: config.ScannerStorageContainerName,
 		},
 		Estimator: &estimator.Estimator{},
-	}, nil
+	}
+
+	for _, opt := range opts {
+		opt(provider)
+	}
+
+	// default to running all tasks if no options are provided
+	if len(opts) == 0 {
+		provider.EnsureAssetVMInfo(nil)
+		provider.EnsureScannerVMWithCleanup(nil)
+		provider.EnsureSnapshotWithCleanup([]string{scanner.EnsureAssetVMInfoTaskName})
+		provider.EnsureDiskWithCleanup([]string{scanner.EnsureAssetVMInfoTaskName, scanner.EnsureSnapshotTaskName})
+		provider.EnsureAttachDiskToScannerVM([]string{scanner.EnsureDiskTaskName, scanner.EnsureScannerVMTaskName})
+	}
+
+	return provider, nil
 }

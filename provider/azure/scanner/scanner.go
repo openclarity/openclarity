@@ -19,14 +19,15 @@ package scanner
 import (
 	"context"
 	"fmt"
-	"strings"
+	"sync"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v5"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v5"
 
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/azure/utils"
+	"github.com/openclarity/vmclarity/workflow"
+	workflowTypes "github.com/openclarity/vmclarity/workflow/types"
 )
 
 const (
@@ -56,113 +57,19 @@ type Scanner struct {
 	ScannerSecurityGroup        string
 	ScannerStorageAccountName   string
 	ScannerStorageContainerName string
-}
 
-type AssetScanState struct {
-	assetVM   armcompute.VirtualMachinesClientGetResponse
-	scannerVM armcompute.VirtualMachine
-	snapshot  armcompute.Snapshot
-	disk      armcompute.Disk
+	RunAssetScanTasks    []*workflowTypes.Task[*AssetScanState]
+	RemoveAssetScanTasks []*workflowTypes.Task[*AssetScanState]
 }
 
 // nolint:cyclop
 func (s *Scanner) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	tasks := []*workflowTypes.Task[*AssetScanState]{
-		{
-			Name: "GetVMInfo",
-			Deps: nil,
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				vmInfo, err := config.AssetInfo.AsVMInfo()
-				if err != nil {
-					return provider.FatalErrorf("unable to get vminfo from asset: %w", err)
-				}
-
-				resourceGroup, vmName, err := resourceGroupAndNameFromInstanceID(vmInfo.InstanceID)
-				if err != nil {
-					return err
-				}
-
-				state.assetVM, err = s.VMClient.Get(ctx, resourceGroup, vmName, nil)
-				if err != nil {
-					_, err = utils.HandleAzureRequestError(err, "getting asset virtual machine %s", vmName)
-					return err
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureSnapshot",
-			Deps: []string{"GetVMInfo"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				var err error
-
-				state.snapshot, err = s.ensureSnapshotForVMRootVolume(ctx, config, state.assetVM.VirtualMachine)
-				if err != nil {
-					return fmt.Errorf("failed to ensure snapshot for vm root volume: %w", err)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureDisk",
-			Deps: []string{"GetVMInfo", "EnsureSnapshot"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				var err error
-
-				if *state.assetVM.Location == s.ScannerLocation {
-					state.disk, err = s.ensureManagedDiskFromSnapshot(ctx, config, state.snapshot)
-					if err != nil {
-						return fmt.Errorf("failed to ensure managed disk created from snapshot: %w", err)
-					}
-				} else {
-					state.disk, err = s.ensureManagedDiskFromSnapshotInDifferentRegion(ctx, config, state.snapshot)
-					if err != nil {
-						return fmt.Errorf("failed to ensure managed disk from snapshot in different region: %w", err)
-					}
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureScannerVM",
-			Deps: []string{"EnsureDisk"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				networkInterface, err := s.ensureNetworkInterface(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure scanner network interface: %w", err)
-				}
-
-				state.scannerVM, err = s.ensureScannerVirtualMachine(ctx, config, networkInterface)
-				if err != nil {
-					return fmt.Errorf("failed to ensure scanner virtual machine: %w", err)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "AttachDiskToScannerVM",
-			Deps: []string{"EnsureScannerVM", "EnsureDisk"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureDiskAttachedToScannerVM(ctx, state.scannerVM, state.disk)
-				if err != nil {
-					return fmt.Errorf("failed to ensure asset disk is attached to virtual machine: %w", err)
-				}
-
-				return nil
-			},
-		},
-	}
-
-	workflow, err := workflow.New[*AssetScanState, *workflowTypes.Task[*AssetScanState]](tasks)
+	workflow, err := workflow.New[*AssetScanState, *workflowTypes.Task[*AssetScanState]](s.RunAssetScanTasks)
 	if err != nil {
 		return fmt.Errorf("failed to create RunAssetScan workflow: %w", err)
 	}
 
-	err = workflow.Run(ctx, &AssetScanState{})
+	err = workflow.Run(ctx, &AssetScanState{config: config, mu: &sync.RWMutex{}})
 	if err != nil {
 		return fmt.Errorf("failed to run RunAssetScan workflow: %w", err)
 	}
@@ -171,90 +78,15 @@ func (s *Scanner) RunAssetScan(ctx context.Context, config *provider.ScanJobConf
 }
 
 func (s *Scanner) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	tasks := []*workflowTypes.Task[*AssetScanState]{
-		{
-			Name: "EnsureScannerVMDeleted",
-			Deps: nil,
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureScannerVirtualMachineDeleted(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure scanner virtual machine deleted: %w", err)
-				}
-				return nil
-			},
-		},
-		{
-			Name: "EnsureNetworkInterfaceDeleted",
-			Deps: nil, // []string{"EnsureScannerVMDeleted"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureNetworkInterfaceDeleted(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure network interface deleted: %w", err)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureTargetDiskDeleted",
-			Deps: nil, // []string{"EnsureNetworkInterfaceDeleted"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureTargetDiskDeleted(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure asset disk deleted: %w", err)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureBlobDeleted",
-			Deps: nil, // []string{"EnsureTargetDiskDeleted"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureBlobDeleted(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure snapshot copy blob deleted: %w", err)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name: "EnsureSnapshotDeleted",
-			Deps: nil, // []string{"EnsureBlobDeleted"},
-			Fn: func(ctx context.Context, state *AssetScanState) error {
-				err := s.ensureSnapshotDeleted(ctx, config)
-				if err != nil {
-					return fmt.Errorf("failed to ensure snapshot deleted: %w", err)
-				}
-
-				return nil
-			},
-		},
-	}
-
-	workflow, err := workflow.New[*AssetScanState, *workflowTypes.Task[*AssetScanState]](tasks)
+	workflow, err := workflow.New[*AssetScanState, *workflowTypes.Task[*AssetScanState]](s.RemoveAssetScanTasks)
 	if err != nil {
 		return fmt.Errorf("failed to create RemoveAssetScan workflow: %w", err)
 	}
 
-	err = workflow.Run(ctx, &AssetScanState{})
+	err = workflow.Run(ctx, &AssetScanState{config: config, mu: &sync.RWMutex{}})
 	if err != nil {
 		return fmt.Errorf("failed to run RemoveAssetScan workflow: %w", err)
 	}
 
 	return nil
-}
-
-// Example Instance ID:
-//
-// /subscriptions/ecad88af-09d5-4725-8d80-906e51fddf02/resourceGroups/vmclarity-sambetts-dev/providers/Microsoft.Compute/virtualMachines/vmclarity-server
-//
-// Will return "vmclarity-sambetts-dev" and "vmclarity-server".
-func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, error) {
-	idParts := strings.Split(instanceID, "/")
-	if len(idParts) != instanceIDPartsLength {
-		return "", "", provider.FatalErrorf("asset instance id in unexpected format got: %s", idParts)
-	}
-	return idParts[resourceGroupPartIdx], idParts[vmNamePartIdx], nil
 }
