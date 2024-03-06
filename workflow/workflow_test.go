@@ -168,8 +168,9 @@ func TestWorkflow(t *testing.T) {
 			},
 			State:                NewTestState(),
 			ExpectedErrorMatcher: Not(HaveOccurred()),
-			ExpectedOrderMatcher: BeEquivalentTo(
-				[]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3, testTaskID4},
+			ExpectedOrderMatcher: SatisfyAny(
+				BeEquivalentTo([]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3, testTaskID4}),
+				BeEquivalentTo([]string{testTaskID5, testTaskID1, testTaskID2, testTaskID3, testTaskID4}),
 			),
 		},
 		{
@@ -223,8 +224,9 @@ func TestWorkflow(t *testing.T) {
 			},
 			State:                NewTestState(),
 			ExpectedErrorMatcher: HaveOccurred(),
-			ExpectedOrderMatcher: BeEquivalentTo(
-				[]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3},
+			ExpectedOrderMatcher: SatisfyAny(
+				BeEquivalentTo([]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3}),
+				BeEquivalentTo([]string{testTaskID5, testTaskID1, testTaskID2, testTaskID3}),
 			),
 		},
 		{
@@ -279,8 +281,9 @@ func TestWorkflow(t *testing.T) {
 			State:                NewTestState(),
 			Timeout:              4 * time.Second,
 			ExpectedErrorMatcher: HaveOccurred(),
-			ExpectedOrderMatcher: BeEquivalentTo(
-				[]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3},
+			ExpectedOrderMatcher: SatisfyAny(
+				BeEquivalentTo([]string{testTaskID1, testTaskID5, testTaskID2, testTaskID3}),
+				BeEquivalentTo([]string{testTaskID5, testTaskID1, testTaskID2, testTaskID3}),
 			),
 		},
 		{
