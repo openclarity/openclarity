@@ -210,7 +210,7 @@ lint-helm: ## Lint Helm charts
 	docker run --rm --workdir /workdir --volume "$(ROOT_DIR):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
 
 GOTEST_OPTS := -failfast -timeout 30m -short
-GOTEST_OPTS += -tags="$(GO_BUILD_TAGS)"
+GOTEST_OPTS += $(BUILD_OPTS)
 ifeq ($(CI),true)
 	GOTEST_OPTS += -v
 endif
@@ -223,7 +223,7 @@ $(TESTGOMODULES):
 .PHONY: test
 test: $(TESTGOMODULES) ## Run Go unit tests
 
-GOVET_OPTS := -tags="$(GO_BUILD_TAGS)"
+GOVET_OPTS := $(BUILD_OPTS)
 VETGOMODULES = $(addprefix vet-, $(GOMODULES))
 
 $(VETGOMODULES):
