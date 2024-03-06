@@ -51,7 +51,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-	github.com/compose-spec/compose-go/v2 v2.0.0-rc.8 // indirect
+	github.com/compose-spec/compose-go/v2 v2.0.0-rc.8.0.20240228111658-a0507e98fe60 // indirect
 	github.com/containerd/console v1.0.4 // indirect
 	github.com/containerd/containerd v1.7.13 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
@@ -63,10 +63,10 @@ require (
 	github.com/deepmap/oapi-codegen/v2 v2.1.0 // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/buildx v0.12.0-rc2.0.20231219140829-617f538cb315 // indirect
-	github.com/docker/cli v25.0.3+incompatible // indirect
-	github.com/docker/compose/v2 v2.24.6 // indirect
+	github.com/docker/cli v25.0.4-0.20240305161310-2bf4225ad269+incompatible // indirect
+	github.com/docker/compose/v2 v2.24.7 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
-	github.com/docker/docker v25.0.3+incompatible // indirect
+	github.com/docker/docker v25.0.4-0.20240301160236-51e876cd964c+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/docker/go v1.5.1-1.0.20160303222718-d30aec9fd63c // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
