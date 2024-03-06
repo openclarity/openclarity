@@ -59,20 +59,31 @@ func (d *Dispatcher[S, R]) update(ctx context.Context, id string, status TaskSta
 	case <-ctx.Done():
 		return
 	default:
-		d.set(id, &status)
-		if status.Finished() {
+	}
+
+	d.set(id, &status)
+
+	if status.Finished() {
+		d.mu.RLock()
+		defer d.mu.RUnlock()
+
+		select {
+		case <-d.exitChan:
+			return
+		default:
 			select {
-			case <-d.exitChan:
-				return
 			case d.nextChan <- struct{}{}:
-			default:
 				return
+			default:
 			}
 		}
 	}
 }
 
 func (d *Dispatcher[S, R]) stop() {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
 	close(d.exitChan)
 	close(d.nextChan)
 }
