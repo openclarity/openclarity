@@ -5,9 +5,9 @@ go 1.21.4
 require (
 	github.com/compose-spec/compose-go/v2 v2.0.0-rc.8.0.20240228111658-a0507e98fe60
 	github.com/distribution/reference v0.5.0
-	github.com/docker/cli v25.0.4-0.20240305161310-2bf4225ad269+incompatible
+	github.com/docker/cli v25.0.4+incompatible
 	github.com/docker/compose/v2 v2.24.7
-	github.com/docker/docker v25.0.4-0.20240301160236-51e876cd964c+incompatible
+	github.com/docker/docker v25.0.4+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.31.1
