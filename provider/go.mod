@@ -16,7 +16,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.150.0
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.27.2
 	github.com/aws/smithy-go v1.20.1
-	github.com/docker/docker v25.0.3+incompatible
+	github.com/docker/docker v25.0.4+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.31.1
@@ -159,7 +159,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
-	github.com/docker/cli v25.0.3+incompatible // indirect
+	github.com/docker/cli v25.0.4+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.1 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
