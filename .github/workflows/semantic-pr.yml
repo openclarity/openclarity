@@ -34,6 +34,7 @@ jobs:
             revert
             style
             test
+            release
 
           scopes: |
             api
