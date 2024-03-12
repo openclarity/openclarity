@@ -1,0 +1,44 @@
+name: Post Release
+on:
+  release:
+    types: [published]
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.modules.outputs.modules }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Get modules
+        id: modules
+        run: |
+          # shellcheck disable=SC2016
+          echo "modules=$(find . -name go.mod -type f -print0 | xargs -0 awk '/module/ {print $2}' | jq -c -R '[.,inputs] | map(sub("^github.com\/openclarity\/vmclarity\/";""))')" >> "$GITHUB_OUTPUT"
+
+  create_module_tags:
+    needs:
+      - prepare
+    name: Create module tags
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tags: ${{ fromJson(needs.prepare.outputs.modules) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Create tags
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ matrix.tags }}/${{ github.ref_name }}',
+              sha: context.sha
+            })
