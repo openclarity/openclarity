@@ -83,7 +83,7 @@ jobs:
 
       - name: List targets
         id: targets
-        uses: docker/bake-action/subaction/list-targets@7ea090ddecd360d7059e3af5d09584c6e47d59d2 # v4.2.0
+        uses: docker/bake-action/subaction/list-targets@017aa056d6bfc9797de5a5dd354a209dc07b490e # v4.3.0
         with:
           target: ${{ inputs.bake-group }}
 
