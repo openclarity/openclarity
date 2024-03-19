@@ -39,7 +39,7 @@ require (
 	golang.org/x/sync v0.6.0
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
-	k8s.io/client-go v0.29.2
+	k8s.io/client-go v0.29.3
 	www.velocidex.com/golang/regparser v0.0.0-20221020153526-bbc758cbd18b
 )
 
@@ -211,7 +211,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/flatbuffers v23.5.26+incompatible // indirect
@@ -436,9 +436,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.25.7 // indirect
 	helm.sh/helm/v3 v3.14.3 // indirect
-	k8s.io/api v0.29.2 // indirect
+	k8s.io/api v0.29.3 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
-	k8s.io/apimachinery v0.29.2 // indirect
+	k8s.io/apimachinery v0.29.3 // indirect
 	k8s.io/apiserver v0.29.0 // indirect
 	k8s.io/cli-runtime v0.29.0 // indirect
 	k8s.io/component-base v0.29.0 // indirect
