@@ -8,7 +8,7 @@ require (
 	github.com/aptible/supercronic v0.2.29
 	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/onsi/gomega v1.31.1
+	github.com/onsi/gomega v1.32.0
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
