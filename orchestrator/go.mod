@@ -466,7 +466,7 @@ require (
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
-replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240212104806-f974fac515ba
+replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240318093951-dda9052de218
 
 replace (
 	github.com/openclarity/vmclarity/api/client => ../api/client
