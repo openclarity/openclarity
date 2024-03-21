@@ -9,7 +9,6 @@ services:
       - info
     ports:
       - "8888:8888"
-      - "8081:8081"
     env_file: ./apiserver.env
     deploy:
       mode: replicated
@@ -31,8 +30,6 @@ services:
       - run
       - --log-level
       - info
-    ports:
-      - "8082:8082"
     env_file: ./orchestrator.env
     deploy:
       mode: replicated
@@ -62,8 +59,6 @@ services:
       - run
       - --log-level
       - info
-    ports:
-      - "8083:8083"
     env_file: ./uibackend.env
     deploy:
       mode: replicated
@@ -137,7 +132,7 @@ services:
         source: grype-server-db
         target: /data
     healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "9991"]
+      test: wget --no-verbose --tries=10 --spider http://127.0.0.1:8080/healthz/ready || exit 1
       interval: 10s
       retries: 60
 
