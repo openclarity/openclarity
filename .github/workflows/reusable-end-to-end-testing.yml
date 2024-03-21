@@ -81,6 +81,24 @@ jobs:
             ${{ runner.os }}-go-${{ github.ref_name }}-
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
+      - name: Free up disk space
+        run: |
+          df -h
+          
+          # Remove .NET related tooling
+          sudo du -sh /usr/share/dotnet
+          sudo rm -rf /usr/share/dotnet
+          
+          # Remove Android related tooling
+          sudo du -sh /usr/local/lib/android
+          sudo rm -rf /usr/local/lib/android
+          
+          # Remove CodeQL
+          sudo du -sh /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          
+          df -h
+
       - name: Run end to end tests
         env:
           VMCLARITY_E2E_APISERVER_IMAGE:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
