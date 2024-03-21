@@ -31,9 +31,13 @@ GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod' -exec dirname {} \;)
 BUILD_TIMESTAMP := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 COMMIT_HASH := $(shell git rev-parse HEAD)
 INSTALLATION_DIR := $(ROOT_DIR)/installation
-HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm
+HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm/vmclarity
 HELM_OCI_REPOSITORY := ghcr.io/openclarity/charts
 DIST_DIR ?= $(ROOT_DIR)/dist
+BICEP_DIR := $(INSTALLATION_DIR)/azure
+CFN_DIR := $(INSTALLATION_DIR)/aws
+DOCKER_COMPOSE_DIR := $(INSTALLATION_DIR)/docker
+GCP_DM_DIR := $(INSTALLATION_DIR)/gcp/dm
 
 ####
 ## Load additional makefiles
@@ -355,7 +359,6 @@ $(DIST_DIR)/%/LICENSE: $(ROOT_DIR)/LICENSE
 $(DIST_DIR)/%/README.md: $(ROOT_DIR)/README.md
 	cp -v $< $@
 
-CFN_DIR := $(INSTALLATION_DIR)/aws
 CFN_FILES := $(shell find $(CFN_DIR))
 CFN_DIST_DIR := $(DIST_DIR)/cloudformation
 
@@ -379,7 +382,6 @@ $(CFN_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(CFN_DIST_DIR)
 $(CFN_DIST_DIR):
 	@mkdir -p $@
 
-BICEP_DIR := $(INSTALLATION_DIR)/azure
 BICEP_FILES := $(shell find $(BICEP_DIR))
 BICEP_DIST_DIR := $(DIST_DIR)/bicep
 
@@ -404,7 +406,6 @@ $(BICEP_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(BICEP_DIST_DIR)
 $(BICEP_DIST_DIR):
 	@mkdir -p $@
 
-DOCKER_COMPOSE_DIR := $(INSTALLATION_DIR)/docker
 DOCKER_COMPOSE_FILES := $(shell find $(DOCKER_COMPOSE_DIR))
 DOCKER_COMPOSE_DIST_DIR := $(DIST_DIR)/docker-compose
 
@@ -429,7 +430,6 @@ $(DOCKER_COMPOSE_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(DOCKER_COMPOSE_DIST_
 $(DOCKER_COMPOSE_DIST_DIR):
 	@mkdir -p $@
 
-GCP_DM_DIR := $(INSTALLATION_DIR)/gcp/dm
 GCP_DM_FILES := $(shell find $(GCP_DM_DIR))
 GCP_DM_DIST_DIR := $(DIST_DIR)/gcp-deployment
 
@@ -453,7 +453,6 @@ $(GCP_DM_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(GCP_DM_DIST_DIR)
 $(GCP_DM_DIST_DIR):
 	@mkdir -p $@
 
-HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm/vmclarity
 HELM_CHART_FILES := $(shell find $(HELM_CHART_DIR))
 HELM_CHART_DIST_DIR := $(DIST_DIR)/helm-vmclarity-chart
 
@@ -499,9 +498,31 @@ $(DIST_DIR)/CHANGELOG.md: $(ROOT_DIR)/cliff.toml bin/git-cliff | $(DIST_DIR)
 
 .PHONY: multimod-verify
 multimod-verify: bin/multimod
-	@echo "Validating versions.yaml file"
+	$(info --- Validating versions.yaml file)
 	$(MULTIMOD_BIN) verify
 
 .PHONY: multimod-prerelease
 multimod-prerelease: bin/multimod
 	$(MULTIMOD_BIN) prerelease --all-module-sets --skip-go-mod-tidy=true --commit-to-different-branch=false
+
+
+##@ Renovate
+
+
+.PHONY: renovate-fix-gomod
+renovate-fix-gomod: gomod-tidy ## Fix go.mod files after bumping Go dependency versions
+	$(info --- Fix go.mod files after bumping Go dependency versions)
+	git add ':/**/go.mod' ':/**/go.sum' \
+	&& git commit -m "fix: go mod tidy"
+
+.PHONY: renovate-fix-helm-docs
+renovate-fix-helm-docs: gen-helm-docs ## Fix Helm Chart documentation after version update
+	$(info --- Fix Helm Chart documentation after version update)
+	git add ':$(subst $(ROOT_DIR),,$(HELM_CHART_DIR))' \
+	&& git commit -m "docs: update helm docs"
+
+.PHONY: renovate-fix-bicep
+renovate-fix-bicep: gen-bicep ## Fix Azure Bicep files after version update
+	$(info --- Fix Azure Bicep files after version update)
+	git add ':$(subst $(ROOT_DIR),,$(BICEP_DIR))' \
+	&& git commit -m "fix: generate bicep template"
