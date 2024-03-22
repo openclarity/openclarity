@@ -11,7 +11,7 @@ require (
 	github.com/containerd/containerd v1.7.14
 	github.com/containerd/nerdctl v1.7.5
 	github.com/containers/image/v5 v5.30.0
-	github.com/docker/docker v25.0.5+incompatible
+	github.com/docker/docker v26.0.0+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
@@ -75,6 +75,7 @@ require (
 	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/locker v1.0.1 // indirect
 	github.com/moby/sys/mountinfo v0.7.1 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect

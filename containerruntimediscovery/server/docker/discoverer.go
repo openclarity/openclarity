@@ -21,9 +21,9 @@ import (
 	"io"
 	"time"
 
-	dtypes "github.com/docker/docker/api/types"
 	dcontainer "github.com/docker/docker/api/types/container"
 	dfilters "github.com/docker/docker/api/types/filters"
+	imagetypes "github.com/docker/docker/api/types/image"
 	dclient "github.com/docker/docker/client"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
@@ -51,7 +51,7 @@ func New() (types.Discoverer, error) {
 
 func (d *discoverer) Images(ctx context.Context) ([]apitypes.ContainerImageInfo, error) {
 	// List all docker images
-	images, err := d.client.ImageList(ctx, dtypes.ImageListOptions{})
+	images, err := d.client.ImageList(ctx, imagetypes.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list images: %w", err)
 	}
@@ -160,7 +160,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		return nil, func() {}, fmt.Errorf("failed to commit container to image: %w", err)
 	}
 	clean.Add(func() {
-		_, err := d.client.ImageRemove(ctx, idresp.ID, dtypes.ImageRemoveOptions{
+		_, err := d.client.ImageRemove(ctx, idresp.ID, imagetypes.RemoveOptions{
 			Force: true,
 		})
 		if err != nil {
