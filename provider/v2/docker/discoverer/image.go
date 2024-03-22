@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/docker/docker/api/types"
 	imagetypes "github.com/docker/docker/api/types/image"
 	"golang.org/x/sync/errgroup"
 
@@ -33,7 +32,7 @@ func (d *Discoverer) getImageAssets(ctx context.Context) ([]apitypes.AssetType, 
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// List all docker images
-	images, err := d.DockerClient.ImageList(ctx, types.ImageListOptions{})
+	images, err := d.DockerClient.ImageList(ctx, imagetypes.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list images: %w", err)
 	}

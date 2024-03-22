@@ -21,8 +21,8 @@ import (
 	"io"
 	"time"
 
-	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	imagetypes "github.com/docker/docker/api/types/image"
 	dockerclient "github.com/docker/docker/client"
 	"sigs.k8s.io/kind/pkg/cluster/nodes"
 	"sigs.k8s.io/kind/pkg/cluster/nodeutils"
@@ -43,7 +43,7 @@ type DockerImageLoader struct {
 func (l *DockerImageLoader) imageIDsFromRepoTags(ctx context.Context, repoTags []string) ([]string, error) {
 	imageIDs := make([]string, 0, len(l.images))
 	for _, repoTag := range repoTags {
-		result, err := l.docker.ImageList(ctx, dockertypes.ImageListOptions{
+		result, err := l.docker.ImageList(ctx, imagetypes.ListOptions{
 			Filters: filters.NewArgs(
 				filters.Arg("reference", repoTag)),
 		})

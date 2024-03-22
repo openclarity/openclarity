@@ -26,6 +26,7 @@ import (
 	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	imagetypes "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
@@ -162,7 +163,7 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 	}
 
 	// Pull image for ephemeral container
-	imagePullResp, err := p.dockerClient.ImagePull(ctx, p.config.HelperImage, types.ImagePullOptions{})
+	imagePullResp, err := p.dockerClient.ImagePull(ctx, p.config.HelperImage, imagetypes.PullOptions{})
 	if err != nil {
 		return "", fmt.Errorf("failed to pull helper image: %w", err)
 	}
@@ -335,14 +336,14 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 	}
 
 	// Pull scanner image if required
-	images, err := p.dockerClient.ImageList(ctx, types.ImageListOptions{
+	images, err := p.dockerClient.ImageList(ctx, imagetypes.ListOptions{
 		Filters: filters.NewArgs(filters.Arg("reference", config.ScannerImage)),
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to get images: %w", err)
 	}
 	if len(images) == 0 {
-		imagePullResp, err := p.dockerClient.ImagePull(ctx, config.ScannerImage, types.ImagePullOptions{})
+		imagePullResp, err := p.dockerClient.ImagePull(ctx, config.ScannerImage, imagetypes.PullOptions{})
 		if err != nil {
 			return "", fmt.Errorf("failed to pull scanner image: %w", err)
 		}
