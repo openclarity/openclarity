@@ -148,6 +148,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8081/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   orchestrator:
     image: {OrchestratorContainerImage}
@@ -163,6 +167,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   ui:
     image: {UIContainerImage}
@@ -188,6 +196,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   gateway:
     image: nginx
@@ -219,6 +231,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "1326"]
+      interval: 10s
+      retries: 60
 
   trivy-server:
     image: {TrivyServerContainerImage}
@@ -238,6 +254,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9992"]
+      interval: 10s
+      retries: 60
 
   grype-server:
     image: {GrypeServerContainerImage}
@@ -258,6 +278,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=10 --spider http://127.0.0.1:8080/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   freshclam-mirror:
     image: {FreshclamMirrorContainerImage}
@@ -291,6 +315,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   postgresql:
     image: {PostgresqlContainerImage}
