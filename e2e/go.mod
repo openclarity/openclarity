@@ -5,7 +5,7 @@ go 1.21.4
 require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/onsi/ginkgo/v2 v2.17.0
+	github.com/onsi/ginkgo/v2 v2.17.1
 	github.com/onsi/gomega v1.32.0
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
