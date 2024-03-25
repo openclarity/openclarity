@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
 	github.com/aws/aws-sdk-go-v2/config v1.27.9
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.152.0
-	github.com/aws/aws-sdk-go-v2/service/pricing v1.27.3
+	github.com/aws/aws-sdk-go-v2/service/pricing v1.28.0
 	github.com/aws/smithy-go v1.20.1
 	github.com/docker/docker v26.0.0+incompatible
 	github.com/google/go-cmp v0.6.0
