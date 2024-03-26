@@ -292,6 +292,12 @@ func (t *AssetsTableHandler) checkUniqueness(asset types.Asset) (*types.Asset, e
 		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
 
+	if asset.Id == nil || *asset.Id == "" {
+		return &types.Asset{}, &common.BadRequestError{
+			Reason: "asset ID is required",
+		}
+	}
+
 	var filter string
 	switch info := discriminator.(type) {
 	case types.VMInfo:
