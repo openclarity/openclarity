@@ -155,6 +155,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8081/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   orchestrator:
     image: __OrchestratorContainerImage__
@@ -170,6 +174,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   ui:
     image: __UIContainerImage__
@@ -195,6 +203,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   gateway:
     image: nginx
@@ -226,6 +238,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "1326"]
+      interval: 10s
+      retries: 60
 
   trivy-server:
     image: __TrivyServerContainerImage__
@@ -245,6 +261,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9992"]
+      interval: 10s
+      retries: 60
 
   grype-server:
     image: __GrypeServerContainerImage__
@@ -265,6 +285,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=10 --spider http://127.0.0.1:8080/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   freshclam-mirror:
     image: __FreshclamMirrorContainerImage__
@@ -298,6 +322,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
 
   postgresql:
     image: __PostgresqlContainerImage__

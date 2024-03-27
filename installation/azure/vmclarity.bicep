@@ -112,6 +112,7 @@ module vmClarityScanRole 'vmclarityScanRole.bicep' = {
   name: 'vmclarity-${deploypostfix}-scan-role'
   scope: vmClarityResourceGroup
   params: {
+    resourceGroupName: resourceGroupName
     principalID: vmClarityManagedIdentity.outputs.vmClarityIdentityPrincipalId
   }
 }
