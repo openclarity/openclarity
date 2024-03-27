@@ -10,7 +10,7 @@ require (
 	github.com/anchore/stereoscope v0.0.2-0.20240216182029-6171ee21e1d5
 	github.com/anchore/syft v0.105.1
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
-	github.com/aquasecurity/trivy v0.50.0
+	github.com/aquasecurity/trivy v0.50.1
 	github.com/aquasecurity/trivy-db v0.0.0-20240327054820-0ccb5f01aad8
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containers/image/v5 v5.30.0
