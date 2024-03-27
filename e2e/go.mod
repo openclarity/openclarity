@@ -62,7 +62,7 @@ require (
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/deepmap/oapi-codegen/v2 v2.1.0 // indirect
-	github.com/distribution/reference v0.5.0 // indirect
+	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/buildx v0.13.1 // indirect
 	github.com/docker/cli v26.0.0+incompatible // indirect
 	github.com/docker/compose/v2 v2.26.0 // indirect
