@@ -6,11 +6,12 @@ param resourceGroupName string
 @description('VMClarity Managed Identity Principal ID')
 param principalID string
 
-var discoverRoleName = guid(subscription().id, resourceGroupName, 'vmclarity-discoverer-snapshotter')
+var discoverRoleID = guid(subscription().id, resourceGroupName, 'vmclarity-discoverer-snapshotter')
+var discoverRoleName = 'VMClarity Discoverer Snapshotter for ${resourceGroupName}'
 var discoverRoleDescription = 'IAM Role to allow VMClarity to discover and snapshot virtual machines.'
 
 resource vmClarityDiscoverRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-  name: discoverRoleName
+  name: discoverRoleID
   properties: {
     roleName: discoverRoleName
     description: discoverRoleDescription

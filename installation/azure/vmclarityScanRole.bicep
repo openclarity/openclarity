@@ -1,13 +1,17 @@
 targetScope = 'resourceGroup'
 
+@description('VMClarity Resource Group Name')
+param resourceGroupName string
+
 @description('VMClarity Managed Identity Principal ID')
 param principalID string
 
-var scanRoleName = guid(resourceGroup().id, 'vmclarity-scanner')
+var scanRoleID = guid(resourceGroup().id, 'vmclarity-scanner')
+var scanRoleName = 'VMClarity Scanner for ${resourceGroupName}'
 var scanRoleDescription = 'IAM Role to allow VMClarity to deploy virtual machines that mount and scan snapshots.'
 
 resource vmClarityScanRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-  name: scanRoleName
+  name: scanRoleID
   properties: {
     roleName: scanRoleName
     description: scanRoleDescription
