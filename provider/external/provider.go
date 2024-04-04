@@ -49,7 +49,7 @@ func New(_ context.Context) (*Provider, error) {
 	// TODO secure connections
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	conn, err := grpc.Dial(config.ProviderPluginAddress, opts...)
+	conn, err := grpc.NewClient(config.ProviderPluginAddress, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial grpc. address=%v: %w", config.ProviderPluginAddress, err)
 	}
