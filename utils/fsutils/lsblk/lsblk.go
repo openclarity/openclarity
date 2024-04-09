@@ -16,6 +16,7 @@
 package lsblk
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -29,20 +30,40 @@ type LsBlk struct {
 	Environment []string
 }
 
-func (l *LsBlk) List(ctx context.Context) ([]BlockDevice, error) {
-	result, err := l.help(ctx)
+func (l *LsBlk) List(ctx context.Context, devPaths ...string) ([]BlockDevice, error) {
+	o, err := l.help(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run lsblk command: %w", err)
 	}
 
-	if strings.Contains(string(result), "--json") {
-		return l.listWithJSON(ctx)
+	args := []string{"--output-all", "--bytes", "--all"}
+	var parser func(*bytes.Buffer) ([]BlockDevice, error)
+	if strings.Contains(o.StdOut.String(), "--json") {
+		args = append(args, "--json")
+		parser = parseJSONFormat
+	} else {
+		args = append(args, "--pairs")
+		parser = parsePairsFormat
 	}
 
-	return l.listWithPairs(ctx)
+	if devPaths != nil {
+		args = append(args, devPaths...)
+	}
+
+	o, err = l.run(ctx, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to run lsblk command: %w", err)
+	}
+
+	blockDevices, err := parser(o.StdOut)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse lsblk output: %w", err)
+	}
+
+	return blockDevices, nil
 }
 
-func (l *LsBlk) help(ctx context.Context) ([]byte, error) {
+func (l *LsBlk) help(ctx context.Context) (*command.State, error) {
 	cmd := &command.Command{
 		Cmd:  l.BinaryPath,
 		Args: []string{"--help"},
@@ -54,13 +75,13 @@ func (l *LsBlk) help(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("failed to run lsblk command: %w", err)
 	}
 
-	return result.StdOut.Bytes(), nil
+	return result, nil
 }
 
-func (l *LsBlk) listWithJSON(ctx context.Context) ([]BlockDevice, error) {
+func (l *LsBlk) run(ctx context.Context, args ...string) (*command.State, error) {
 	cmd := &command.Command{
 		Cmd:  l.BinaryPath,
-		Args: []string{"--json", "--output-all", "--bytes", "--all"},
+		Args: args,
 		Env:  l.Environment,
 	}
 
@@ -69,32 +90,7 @@ func (l *LsBlk) listWithJSON(ctx context.Context) ([]BlockDevice, error) {
 		return nil, fmt.Errorf("failed to run lsblk command: %w", err)
 	}
 
-	blockDevices, err := parseJSONFormat(result.StdOut)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse lsblk output: %w", err)
-	}
-
-	return blockDevices, nil
-}
-
-func (l *LsBlk) listWithPairs(ctx context.Context) ([]BlockDevice, error) {
-	cmd := &command.Command{
-		Cmd:  l.BinaryPath,
-		Args: []string{"--pairs", "--output-all", "--bytes", "--all"},
-		Env:  l.Environment,
-	}
-
-	result, err := cmd.Run(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to run lsblk command: %w", err)
-	}
-
-	blockDevices, err := parsePairsFormat(result.StdOut)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse lsblk output: %w", err)
-	}
-
-	return blockDevices, nil
+	return result, nil
 }
 
 func New() *LsBlk {
