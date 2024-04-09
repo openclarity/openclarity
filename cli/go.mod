@@ -36,7 +36,7 @@ require (
 	github.com/vulsio/go-exploitdb v0.4.6
 	github.com/yudai/gojsondiff v1.0.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/sync v0.6.0
+	golang.org/x/sync v0.7.0
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
 	k8s.io/client-go v0.29.3
