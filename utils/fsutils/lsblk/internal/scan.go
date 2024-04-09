@@ -38,15 +38,15 @@ func ScanPairs(data []byte, atEOF bool) (int, []byte, error) {
 		}
 	}
 	// Scan until space or closing double quote
-	var qouted bool
+	var quoted bool
 	for i := start; i < len(data); i += width {
 		var r rune
 		r, width = utf8.DecodeRune(data[i:])
 
 		switch {
 		case isDoubleQuote(r):
-			qouted = !qouted
-		case unicode.IsSpace(r) && !qouted:
+			quoted = !quoted
+		case unicode.IsSpace(r) && !quoted:
 			return i + width, data[start:i], nil
 		}
 	}
