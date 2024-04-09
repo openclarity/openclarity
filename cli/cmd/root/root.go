@@ -16,7 +16,10 @@
 package root
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -40,7 +43,14 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	// Create os.Signal aware context.Context which will trigger context cancellation
+	// upon receiving any of the listed signals.
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGHUP, syscall.SIGTERM)
+	defer func() {
+		cancel()
+	}()
+
+	cobra.CheckErr(rootCmd.ExecuteContext(ctx))
 }
 
 // nolint: gochecknoinits
