@@ -28,7 +28,10 @@ import (
 	"github.com/openclarity/vmclarity/utils/command"
 )
 
-const DefaultBinaryPath = "mount"
+const (
+	DefaultMountBinaryPath  = "mount"
+	DefaultUmountBinaryPath = "umount"
+)
 
 const (
 	ErrUnknown                          MountErrorKind = -1
@@ -106,7 +109,7 @@ func (e MountError) Error() string {
 	return e.Kind.String()
 }
 
-func NewMountError(errCode int, errMsg string) error {
+func NewMountError(errCode int, errMsg string) MountError {
 	return MountError{
 		Kind: NewMountErrorKind(errCode),
 		Msg:  errMsg,
@@ -120,14 +123,35 @@ func Mount(ctx context.Context, source, target, fsType string, opts []string) er
 	}
 
 	cmd := &command.Command{
-		Cmd:  DefaultBinaryPath,
+		Cmd:  DefaultMountBinaryPath,
 		Args: args,
 	}
 
 	result, err := cmd.Run(ctx)
 	if err != nil {
-		err = NewMountError(result.ExitCode(), result.StdErr.String())
+		if result != nil {
+			err = NewMountError(result.ExitCode(), result.StdErr.String())
+		}
+
 		return fmt.Errorf("failed to run mount command: %w", err)
+	}
+
+	return nil
+}
+
+func Umount(ctx context.Context, mountPoint string) error {
+	cmd := &command.Command{
+		Cmd:  DefaultUmountBinaryPath,
+		Args: []string{"--force", "--recursive", mountPoint},
+	}
+
+	result, err := cmd.Run(ctx)
+	if err != nil {
+		if result != nil {
+			err = NewMountError(result.ExitCode(), result.StdErr.String())
+		}
+
+		return fmt.Errorf("failed to unmount mountpoint %s: %w", mountPoint, err)
 	}
 
 	return nil
