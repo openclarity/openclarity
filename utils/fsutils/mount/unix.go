@@ -101,7 +101,7 @@ type MountError struct {
 	Msg  string
 }
 
-func (e MountError) Error() string {
+func (e *MountError) Error() string {
 	if e.Msg != "" {
 		return fmt.Sprintf("%s: %s", e.Kind, e.Msg)
 	}
@@ -109,8 +109,8 @@ func (e MountError) Error() string {
 	return e.Kind.String()
 }
 
-func NewMountError(errCode int, errMsg string) MountError {
-	return MountError{
+func NewMountError(errCode int, errMsg string) *MountError {
+	return &MountError{
 		Kind: NewMountErrorKind(errCode),
 		Msg:  errMsg,
 	}
