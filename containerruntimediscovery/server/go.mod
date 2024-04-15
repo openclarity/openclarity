@@ -11,7 +11,7 @@ require (
 	github.com/containerd/containerd v1.7.15
 	github.com/containerd/nerdctl v1.7.5
 	github.com/containers/image/v5 v5.30.0
-	github.com/docker/docker v26.0.0+incompatible
+	github.com/docker/docker v26.0.1+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
