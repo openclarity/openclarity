@@ -17,7 +17,6 @@ package e2e
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo/v2"
@@ -34,7 +33,9 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("applying a scan configuration")
-			apiScanConfig, err := client.PostScanConfig(ctx, GetFullScanConfig())
+			apiScanConfig, err := client.PostScanConfig(
+				ctx,
+				GetFullScanConfig(cfg.TestSuiteParams.Scope, cfg.TestSuiteParams.ScanTimeout))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("updating scan configuration to run now")
@@ -78,7 +79,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, DefaultTimeout*10, time.Second).Should(gomega.BeTrue())
+			}, cfg.TestSuiteParams.ScanTimeout, time.Second).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until asset is found in riskiest assets dashboard")
 			gomega.Eventually(func() bool {
@@ -88,7 +89,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					return false
 				}
 				for _, v := range *riskiestAssets.Vulnerabilities {
-					if strings.Contains(*v.AssetInfo.Name, "alpine") && *v.CriticalVulnerabilitiesCount > 1 {
+					if *v.CriticalVulnerabilitiesCount > 1 {
 						return true
 					}
 				}

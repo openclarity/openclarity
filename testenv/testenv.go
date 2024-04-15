@@ -18,6 +18,7 @@ package testenv
 import (
 	"fmt"
 
+	"github.com/openclarity/vmclarity/testenv/aws"
 	"github.com/openclarity/vmclarity/testenv/docker"
 	"github.com/openclarity/vmclarity/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/testenv/types"
@@ -46,7 +47,11 @@ func New(config *Config, opts ...ConfigOptFn) (types.Environment, error) {
 			kubernetes.WithLogger(config.logger),
 			kubernetes.WithWorkDir(config.WorkDir),
 		)
-	case types.EnvironmentTypeAWS, types.EnvironmentTypeAzure, types.EnvironmentTypeGCP:
+	case types.EnvironmentTypeAWS:
+		env, err = aws.New(config.AWS,
+			aws.WithWorkDir(config.WorkDir),
+		)
+	case types.EnvironmentTypeAzure, types.EnvironmentTypeGCP:
 		fallthrough
 	default:
 		err = fmt.Errorf("unsupported Environment: %s", config.Platform)

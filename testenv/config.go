@@ -24,6 +24,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	awsenv "github.com/openclarity/vmclarity/testenv/aws"
 	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/testenv/types"
@@ -57,6 +58,8 @@ type Config struct {
 	Docker *dockerenv.Config `mapstructure:"docker,omitempty"`
 	// Kubernetes contains the configuration for Kubernetes platform.
 	Kubernetes *k8senv.Config `mapstructure:"kubernetes,omitempty"`
+	// AWS contains the configuration for AWS platform.
+	AWS *awsenv.Config `mapstructure:"aws,omitempty"`
 	// WorkDir contains the path to the work directory.
 	WorkDir string `mapstructure:"work_dir"`
 
