@@ -110,7 +110,7 @@ func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer 
 }
 
 func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	assetVolume, err := p.prepareScanAssetVolume(ctx, config)
+	assetScanMount, err := p.prepareAssetScanMount(ctx, config)
 	if err != nil {
 		return provider.FatalErrorf("failed to prepare scan volume. Provider=%s: %w", apitypes.Docker, err)
 	}
@@ -120,7 +120,7 @@ func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobCon
 		return provider.FatalErrorf("failed to prepare scan network. Provider=%s: %w", apitypes.Docker, err)
 	}
 
-	containerID, err := p.createScanContainer(ctx, assetVolume, networkID, config)
+	containerID, err := p.createScanContainer(ctx, assetScanMount, networkID, config)
 	if err != nil {
 		return provider.FatalErrorf("failed to create scan container. Provider=%s: %w", apitypes.Docker, err)
 	}
@@ -151,21 +151,44 @@ func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJob
 	return nil
 }
 
-// prepareScanAssetVolume returns volume name or error.
-func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.ScanJobConfig) (string, error) {
+// prepareAssetScanMount returns the mount for the asset scan.
+func (p *Provider) prepareAssetScanMount(ctx context.Context, config *provider.ScanJobConfig) (*mount.Mount, error) {
+	objectType, err := config.AssetInfo.ValueByDiscriminator()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get asset object type: %w", err)
+	}
+
+	switch value := objectType.(type) {
+	case apitypes.ContainerInfo, apitypes.ContainerImageInfo:
+		return p.prepareAssetScanVolume(ctx, config)
+
+	case apitypes.DirInfo:
+		return &mount.Mount{
+			Type:   mount.TypeBind,
+			Source: *value.Location,
+			Target: mountPointPath,
+		}, nil
+
+	default:
+		return nil, fmt.Errorf("failed to prepare mount for asset object type %T: Not implemented", value)
+	}
+}
+
+// prepareAssetScanVolume returns the mount for the asset scan.
+func (p *Provider) prepareAssetScanVolume(ctx context.Context, config *provider.ScanJobConfig) (*mount.Mount, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	volumeName := config.AssetScanID
 
 	// Create volume if not found
 	err := p.createScanAssetVolume(ctx, volumeName)
 	if err != nil {
-		return "", fmt.Errorf("failed to create scan volume : %w", err)
+		return nil, fmt.Errorf("failed to create scan volume : %w", err)
 	}
 
 	// Pull image for ephemeral container
 	imagePullResp, err := p.dockerClient.ImagePull(ctx, p.config.HelperImage, imagetypes.PullOptions{})
 	if err != nil {
-		return "", fmt.Errorf("failed to pull helper image: %w", err)
+		return nil, fmt.Errorf("failed to pull helper image: %w", err)
 	}
 
 	// Drain response to avoid blocking
@@ -192,7 +215,7 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 		"",
 	)
 	if err != nil {
-		return "", fmt.Errorf("failed to create helper container: %w", err)
+		return nil, fmt.Errorf("failed to create helper container: %w", err)
 	}
 	defer func() {
 		err := p.dockerClient.ContainerRemove(ctx, containerResp.ID, containertypes.RemoveOptions{Force: true})
@@ -204,7 +227,7 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 	// Export asset data to tar reader
 	assetContents, exportCleanup, err := p.exportAsset(ctx, config)
 	if err != nil {
-		return "", fmt.Errorf("failed to export asset: %w", err)
+		return nil, fmt.Errorf("failed to export asset: %w", err)
 	}
 	defer func() {
 		err := assetContents.Close()
@@ -219,10 +242,14 @@ func (p *Provider) prepareScanAssetVolume(ctx context.Context, config *provider.
 	// Copy asset data to ephemeral container
 	err = p.dockerClient.CopyToContainer(ctx, containerResp.ID, "/data", assetContents, types.CopyToContainerOptions{})
 	if err != nil {
-		return "", fmt.Errorf("failed to copy asset to container: %w", err)
+		return nil, fmt.Errorf("failed to copy asset to container: %w", err)
 	}
 
-	return volumeName, nil
+	return &mount.Mount{
+		Type:   mount.TypeVolume,
+		Source: volumeName,
+		Target: mountPointPath,
+	}, nil
 }
 
 func (p *Provider) createScanAssetVolume(ctx context.Context, volumeName string) error {
@@ -326,7 +353,7 @@ func (p *Provider) copyScanConfigToContainer(ctx context.Context, containerID st
 }
 
 // createScanContainer returns container id or error.
-func (p *Provider) createScanContainer(ctx context.Context, assetVolume, networkID string, config *provider.ScanJobConfig) (string, error) {
+func (p *Provider) createScanContainer(ctx context.Context, assetScanMount *mount.Mount, networkID string, config *provider.ScanJobConfig) (string, error) {
 	containerName := config.AssetScanID
 
 	// Do nothing if scan container already exists
@@ -368,13 +395,7 @@ func (p *Provider) createScanContainer(ctx context.Context, assetVolume, network
 			},
 		},
 		&containertypes.HostConfig{
-			Mounts: []mount.Mount{
-				{
-					Type:   mount.TypeVolume,
-					Source: assetVolume,
-					Target: mountPointPath,
-				},
-			},
+			Mounts: []mount.Mount{*assetScanMount},
 		},
 		&network.NetworkingConfig{
 			EndpointsConfig: map[string]*network.EndpointSettings{
