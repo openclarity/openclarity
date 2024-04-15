@@ -20,9 +20,9 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/findingkey"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/vmclarity/scanner/findingkey"
 )
 
 func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.RootkitKey]string, error) {

@@ -17,6 +17,7 @@ ignored = [
     "github.com/openclarity/vmclarity/api/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/api/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/cli", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/scanner", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/provider", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/utils", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/core", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE

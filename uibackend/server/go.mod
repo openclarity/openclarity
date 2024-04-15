@@ -14,8 +14,8 @@ require (
 	github.com/onsi/gomega v1.32.0
 	github.com/openclarity/vmclarity/api/client v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/cli v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/scanner v0.0.0-00010101000000-000000000000
 	github.com/openclarity/vmclarity/uibackend/types v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -69,8 +69,8 @@ require (
 replace (
 	github.com/openclarity/vmclarity/api/client => ../../api/client
 	github.com/openclarity/vmclarity/api/types => ../../api/types
-	github.com/openclarity/vmclarity/cli => ../../cli
 	github.com/openclarity/vmclarity/core => ../../core
+	github.com/openclarity/vmclarity/scanner => ../../scanner
 	github.com/openclarity/vmclarity/uibackend/types => ../types
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

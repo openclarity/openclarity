@@ -21,8 +21,8 @@ import (
 	"time"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/families/types"
 	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/vmclarity/scanner/families/types"
 )
 
 func Test_getInputScanStats(t *testing.T) {
