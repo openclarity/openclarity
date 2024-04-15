@@ -10,6 +10,7 @@ module-sets:
       - github.com/openclarity/vmclarity/utils
       - github.com/openclarity/vmclarity/installation
       - github.com/openclarity/vmclarity/cli
+      - github.com/openclarity/vmclarity/scanner
       - github.com/openclarity/vmclarity/testenv
       - github.com/openclarity/vmclarity/api/types
       - github.com/openclarity/vmclarity/api/server
@@ -19,3 +20,4 @@ module-sets:
       - github.com/openclarity/vmclarity/containerruntimediscovery/server
       - github.com/openclarity/vmclarity/containerruntimediscovery/client
       - github.com/openclarity/vmclarity/orchestrator
+      - github.com/openclarity/vmclarity/workflow
