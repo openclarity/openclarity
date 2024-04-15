@@ -91,7 +91,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 				ctx,
 				GetCustomScanConfig(
 					&FullScanFamiliesConfig,
-					DefaultScope,
+					cfg.TestSuiteParams.Scope,
 					2,
 				))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())

@@ -234,6 +234,9 @@ Resources:
                   # Enable and start/restart VMClarity backend
                   systemctl enable vmclarity.service
                   systemctl restart vmclarity.service
+
+                  # Add ubuntu user to docker group
+                  usermod -a -G docker ubuntu
               mode: "000744"
 
             "/etc/vmclarity/vmclarity.yaml":
@@ -1202,6 +1205,7 @@ Parameters:
   ExternalDBHost:
     Description: Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use.
     Type: String
+    Default: ''
   ExternalDBPort:
     Description: Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use.
     Type: Number
@@ -1210,12 +1214,15 @@ Parameters:
   ExternalDBName:
     Description: Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use.
     Type: String
+    Default: ''
   ExternalDBUsername:
     Description: Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
     Type: String
+    Default: ''
   ExternalDBPassword:
     Description: Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
     Type: String
+    Default: ''
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
