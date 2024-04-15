@@ -32,7 +32,10 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 	ginkgo.Context("which is running", func() {
 		ginkgo.It("should stop successfully", func(ctx ginkgo.SpecContext) {
 			ginkgo.By("applying a scan configuration")
-			apiScanConfig, err := client.PostScanConfig(ctx, GetFullScanConfig())
+			apiScanConfig, err := client.PostScanConfig(
+				ctx,
+				GetFullScanConfig(cfg.TestSuiteParams.Scope, cfg.TestSuiteParams.ScanTimeout),
+			)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 			ginkgo.By("updating scan configuration to run now")

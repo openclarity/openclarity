@@ -24,9 +24,11 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/openclarity/vmclarity/testenv"
+	"github.com/openclarity/vmclarity/testenv/aws"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
 	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
+	"github.com/openclarity/vmclarity/testenv/types"
 )
 
 const (
@@ -35,6 +37,34 @@ const (
 	DefaultEnvSetupTimeout = 30 * time.Minute
 )
 
+type TestSuiteParams struct {
+	ServicesReadyTimeout time.Duration
+	ScanTimeout          time.Duration
+	Scope                string
+}
+
+// nolint:gomnd
+func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
+	scope := "assetInfo/%s/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
+
+	switch t {
+	case types.EnvironmentTypeAWS, types.EnvironmentTypeGCP, types.EnvironmentTypeAzure:
+		return &TestSuiteParams{
+			ServicesReadyTimeout: 10 * time.Minute,
+			ScanTimeout:          20 * time.Minute,
+			Scope:                fmt.Sprintf(scope, "tags"),
+		}
+	case types.EnvironmentTypeDocker, types.EnvironmentTypeKubernetes:
+		return &TestSuiteParams{
+			ServicesReadyTimeout: 5 * time.Minute,
+			ScanTimeout:          2 * time.Minute,
+			Scope:                fmt.Sprintf(scope, "labels"),
+		}
+	default:
+		return &TestSuiteParams{}
+	}
+}
+
 type Config struct {
 	// ReuseEnv determines if the test environment needs to be set-up/started or not before running the test suite.
 	ReuseEnv bool `mapstructure:"use_existing"`
@@ -42,6 +72,8 @@ type Config struct {
 	EnvSetupTimeout time.Duration `mapstructure:"env_setup_timeout"`
 	// TestEnvConfig contains the configuration for testenv library.
 	TestEnvConfig testenv.Config `mapstructure:",squash"`
+	// TestSuiteParams contains test parameters for each environment.
+	TestSuiteParams *TestSuiteParams
 }
 
 func NewConfig() (*Config, error) {
@@ -75,6 +107,7 @@ func NewConfig() (*Config, error) {
 	v.SetDefault("env_name", testenv.DefaultEnvName)
 	v.RegisterAlias("docker.env_name", "env_name")
 	v.RegisterAlias("kubernetes.env_name", "env_name")
+	v.RegisterAlias("aws.env_name", "env_name")
 
 	_ = v.BindEnv("apiserver_image")
 	v.SetDefault("apiserver_image", testenv.DefaultAPIServer)
@@ -140,6 +173,12 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("kubernetes.helm.driver")
 	v.SetDefault("kubernetes.helm.driver", helm.DefaultHelmDriver)
 
+	_ = v.BindEnv("aws.region")
+	v.SetDefault("aws.region", aws.DefaultRegion)
+
+	_ = v.BindEnv("aws.public_key_file")
+	_ = v.BindEnv("aws.private_key_file")
+
 	decodeHooks := mapstructure.ComposeDecodeHookFunc(
 		// TextUnmarshallerHookFunc is needed to decode custom types
 		mapstructure.TextUnmarshallerHookFunc(),
@@ -152,6 +191,8 @@ func NewConfig() (*Config, error) {
 	if err := v.Unmarshal(config, viper.DecodeHook(decodeHooks)); err != nil {
 		return nil, fmt.Errorf("failed to parse end-to-end test suite configuration: %w", err)
 	}
+
+	config.TestSuiteParams = TestSuiteParamsForEnv(config.TestEnvConfig.Platform)
 
 	return config, nil
 }

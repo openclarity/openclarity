@@ -24,10 +24,7 @@ import (
 	"github.com/openclarity/vmclarity/core/to"
 )
 
-const (
-	DefaultScope   string = "assetInfo/labels/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
-	DefaultTimeout        = 60 * time.Second
-)
+const DefaultTimeout = 60 * time.Second
 
 var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
 	Exploits: &apitypes.ExploitsConfig{
@@ -36,8 +33,9 @@ var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
 	InfoFinder: &apitypes.InfoFinderConfig{
 		Enabled: to.Ptr(true),
 	},
+	// NOTE(paralta) Disabling the malware families to speed up the test
 	Malware: &apitypes.MalwareConfig{
-		Enabled: to.Ptr(true),
+		Enabled: to.Ptr(false),
 	},
 	Misconfigurations: &apitypes.MisconfigurationsConfig{
 		Enabled: to.Ptr(true),
@@ -56,11 +54,11 @@ var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
 	},
 }
 
-func GetFullScanConfig() apitypes.ScanConfig {
+func GetFullScanConfig(scope string, timeout time.Duration) apitypes.ScanConfig {
 	return GetCustomScanConfig(
 		&FullScanFamiliesConfig,
-		DefaultScope,
-		600, // nolint:gomnd
+		scope,
+		int(timeout.Seconds()),
 	)
 }
 

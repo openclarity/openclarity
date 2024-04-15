@@ -49,7 +49,9 @@ type DockerEnv struct {
 }
 
 func (e *DockerEnv) SetUp(ctx context.Context) error {
-	timeout := 1 * time.Minute
+	deadline, _ := ctx.Deadline()
+	timeout := time.Until(deadline)
+
 	services, err := e.Services(ctx)
 	if err != nil {
 		return err
@@ -66,7 +68,7 @@ func (e *DockerEnv) SetUp(ctx context.Context) error {
 		Start: api.StartOptions{
 			Project:     e.project,
 			Wait:        true,
-			WaitTimeout: 10 * time.Minute, // nolint:gomnd
+			WaitTimeout: timeout,
 			Services:    services.IDs(),
 		},
 	}

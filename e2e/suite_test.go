@@ -18,7 +18,6 @@ package e2e
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -62,7 +61,7 @@ func beforeSuite(ctx context.Context) {
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 	// Create new testenv from configuration
-	testEnv, err = testenv.New(&cfg.TestEnvConfig, testenv.WithContext(ctx), testenv.WithLogger(logger))
+	testEnv, err = testenv.New(&cfg.TestEnvConfig, testenv.WithContext(ctx), testenv.WithLogger(logger)) // nolint:contextcheck
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 	if !cfg.ReuseEnv {
@@ -81,7 +80,7 @@ func beforeSuite(ctx context.Context) {
 		ready, err := testEnv.ServicesReady(ctx)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		return ready
-	}, time.Second*5).Should(gomega.BeTrue())
+	}, cfg.TestSuiteParams.ServicesReadyTimeout).Should(gomega.BeTrue())
 
 	endpoints, err := testEnv.Endpoints(ctx)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
