@@ -26,8 +26,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/findingkey"
 	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/vmclarity/scanner/findingkey"
 	"github.com/openclarity/vmclarity/uibackend/types"
 )
 

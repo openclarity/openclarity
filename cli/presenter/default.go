@@ -21,15 +21,15 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/cli/families"
-	"github.com/openclarity/vmclarity/cli/families/exploits"
-	"github.com/openclarity/vmclarity/cli/families/infofinder"
-	"github.com/openclarity/vmclarity/cli/families/malware"
-	"github.com/openclarity/vmclarity/cli/families/rootkits"
-	"github.com/openclarity/vmclarity/cli/families/sbom"
-	"github.com/openclarity/vmclarity/cli/families/secrets"
-	"github.com/openclarity/vmclarity/cli/families/types"
-	"github.com/openclarity/vmclarity/cli/families/vulnerabilities"
+	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner/families/exploits"
+	"github.com/openclarity/vmclarity/scanner/families/infofinder"
+	"github.com/openclarity/vmclarity/scanner/families/malware"
+	"github.com/openclarity/vmclarity/scanner/families/rootkits"
+	"github.com/openclarity/vmclarity/scanner/families/sbom"
+	"github.com/openclarity/vmclarity/scanner/families/secrets"
+	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities"
 )
 
 type DefaultPresenter struct {
