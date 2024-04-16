@@ -99,7 +99,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		}
 	}
 
-	source := utils.CreateSource(sourceType, userInput, s.localImage)
+	source := utils.CreateSource(sourceType, s.localImage)
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		SyftProviderConfig: pkg.SyftProviderConfig{
@@ -109,7 +109,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		},
 	}
 
-	packages, context, _, err := pkg.Provide(source, providerConfig)
+	packages, context, _, err := pkg.Provide(source+":"+userInput, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
 		return

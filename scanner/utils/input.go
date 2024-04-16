@@ -15,8 +15,6 @@
 
 package utils
 
-import "fmt"
-
 type SourceType string
 
 const (
@@ -30,28 +28,22 @@ const (
 	FILE          SourceType = "file"
 )
 
-func CreateSource(sourceType SourceType, src string, localImage bool) string {
+func CreateSource(sourceType SourceType, localImage bool) string {
 	switch sourceType {
 	case IMAGE:
-		return setImageSource(localImage, src)
-	case DOCKERARCHIVE:
-		return "docker-archive:" + src
-	case OCIARCHIVE:
-		return "oci-archive:" + src
-	case OCIDIR:
-		return "oci-dir:" + src
+		return setImageSource(localImage)
 	case ROOTFS, DIR:
-		return fmt.Sprintf("%s:%s", DIR, src)
-	case FILE, SBOM:
+		return string(DIR)
+	case DOCKERARCHIVE, OCIARCHIVE, OCIDIR, FILE, SBOM:
 		fallthrough
 	default:
-		return fmt.Sprintf("%s:%s", sourceType, src)
+		return string(sourceType)
 	}
 }
 
-func setImageSource(local bool, source string) string {
+func setImageSource(local bool) string {
 	if local {
-		return "docker:" + source
+		return "docker"
 	}
-	return "registry:" + source
+	return "registry"
 }

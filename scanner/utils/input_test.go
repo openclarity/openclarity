@@ -21,8 +21,7 @@ import (
 
 func Test_setImageSource(t *testing.T) {
 	type args struct {
-		local  bool
-		source string
+		local bool
 	}
 	tests := []struct {
 		name string
@@ -32,22 +31,19 @@ func Test_setImageSource(t *testing.T) {
 		{
 			name: "local image source",
 			args: args{
-				local:  true,
-				source: "test:latest",
+				local: true,
 			},
-			want: "docker:test:latest",
+			want: "docker",
 		},
 		{
 			name: "remote image source",
-			args: args{
-				source: "test:latest",
-			},
-			want: "registry:test:latest",
+			args: args{},
+			want: "registry",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := setImageSource(tt.args.local, tt.args.source); got != tt.want {
+			if got := setImageSource(tt.args.local); got != tt.want {
 				t.Errorf("SetSource() = %v, want %v", got, tt.want)
 			}
 		})
@@ -57,7 +53,6 @@ func Test_setImageSource(t *testing.T) {
 func TestCreateSource(t *testing.T) {
 	type args struct {
 		sourceType SourceType
-		src        string
 		localImage bool
 	}
 	tests := []struct {
@@ -70,39 +65,35 @@ func TestCreateSource(t *testing.T) {
 			args: args{
 				sourceType: IMAGE,
 				localImage: true,
-				src:        "test:latest",
 			},
-			want: "docker:test:latest",
+			want: "docker",
 		},
 		{
 			name: "remote image source",
 			args: args{
 				sourceType: IMAGE,
-				src:        "test:latest",
 			},
-			want: "registry:test:latest",
+			want: "registry",
 		},
 		{
 			name: "local image source",
 			args: args{
 				sourceType: DIR,
 				localImage: true,
-				src:        "test/path",
 			},
-			want: "dir:test/path",
+			want: "dir",
 		},
 		{
 			name: "remote image source",
 			args: args{
 				sourceType: FILE,
-				src:        "test/path",
 			},
-			want: "file:test/path",
+			want: "file",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CreateSource(tt.args.sourceType, tt.args.src, tt.args.localImage); got != tt.want {
+			if got := CreateSource(tt.args.sourceType, tt.args.localImage); got != tt.want {
 				t.Errorf("CreateSource() = %v, want %v", got, tt.want)
 			}
 		})

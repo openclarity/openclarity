@@ -36,10 +36,10 @@ func TestCreateResults(t *testing.T) {
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &doc))
 
-	// set StereoscopeImageSourceMetadata type as Target
+	// set ImageMetadata type as Target
 	marshalTarget, err := json.Marshal(doc.Source.Target)
 	assert.NilError(t, err)
-	var imageSourceMetadata syft_source.StereoscopeImageSourceMetadata
+	var imageSourceMetadata syft_source.ImageMetadata
 	assert.NilError(t, json.Unmarshal(marshalTarget, &imageSourceMetadata))
 	doc.Source.Target = imageSourceMetadata
 
@@ -87,10 +87,10 @@ func Test_getSource(t *testing.T) {
 	assert.NilError(t, err)
 	assert.NilError(t, json.Unmarshal(file, &doc))
 
-	// set StereoscopeImageSourceMetadata type as Target
+	// set ImageMetadata type as Target
 	marshalTarget, err := json.Marshal(doc.Source.Target)
 	assert.NilError(t, err)
-	var imageSourceMetadata syft_source.StereoscopeImageSourceMetadata
+	var imageSourceMetadata syft_source.ImageMetadata
 	assert.NilError(t, json.Unmarshal(marshalTarget, &imageSourceMetadata))
 	doc.Source.Target = imageSourceMetadata
 
@@ -105,7 +105,7 @@ func Test_getSource(t *testing.T) {
 	}
 
 	// empty imageMetadata for SBOM input
-	sbomDoc.Source.Target = syft_source.StereoscopeImageSourceMetadata{}
+	sbomDoc.Source.Target = syft_source.ImageMetadata{}
 	// string for other input
 	otherDoc.Source.Target = "test"
 
