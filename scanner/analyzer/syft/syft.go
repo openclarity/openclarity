@@ -56,17 +56,16 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 }
 
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
-	src := utils.CreateSource(sourceType, userInput, a.localImage)
+	src := utils.CreateSource(sourceType, a.localImage)
+
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
 	// TODO platform can be defined
 	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
-	detection, err := syftsrc.Detect(src, syftsrc.DefaultDetectConfig())
-	if err != nil {
-		return fmt.Errorf("failed to create input from source analyzer=%s: %w", a.name, err)
-	}
-	source, err := detection.NewSource(syftsrc.DetectionSourceConfig{
-		RegistryOptions: a.config.RegistryOptions,
-	})
+	source, err := syft.GetSource(
+		context.Background(),
+		userInput,
+		syft.DefaultGetSourceConfig().WithSources(src).WithRegistryOptions(a.config.RegistryOptions),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to create source analyzer=%s: %w", a.name, err)
 	}
@@ -84,7 +83,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		}
 
 		cdxBom := cyclonedxhelpers.ToFormatModel(*sbom)
-		res = analyzer.CreateResults(cdxBom, a.name, src, sourceType)
+		res = analyzer.CreateResults(cdxBom, a.name, userInput, sourceType)
 
 		// Syft uses ManifestDigest to fill version information in the case of an image.
 		// We need RepoDigest/ImageID as well which is not set by Syft if we're using cycloneDX output.
@@ -117,7 +116,7 @@ func (a *Analyzer) setError(res *analyzer.Results, err error) {
 
 func getImageHash(s *syftsbom.SBOM, src string) (string, error) {
 	switch metadata := s.Source.Metadata.(type) {
-	case syftsrc.StereoscopeImageSourceMetadata:
+	case syftsrc.ImageMetadata:
 		hash, err := image_helper.GetHashFromRepoDigestsOrImageID(metadata.RepoDigests, metadata.ID, src)
 		if err != nil {
 			return "", fmt.Errorf("failed to get image hash from repo digests or image id: %w", err)

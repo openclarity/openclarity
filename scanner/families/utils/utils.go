@@ -119,11 +119,10 @@ func ConvertInputToFilesystem(ctx context.Context, sourceType utils.SourceType, 
 	case utils.DIR, utils.ROOTFS:
 		return userInput, func() {}, nil
 	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
-		source := utils.CreateSource(sourceType, userInput, false)
 		// TODO(sambetts) Remove this when we're able to pass the
 		// context all the way from the family manager.
 		ctx := containerrootfs.SetCacheForContext(ctx, ContainerRootfsCache)
-		rootfs, err := containerrootfs.ToTempDirectory(ctx, source)
+		rootfs, err := containerrootfs.ToTempDirectory(ctx, utils.CreateSource(sourceType, false)+":"+userInput)
 		if err != nil {
 			return "", func() {}, fmt.Errorf("failed to expand container to rootfs directory: %w", err)
 		}
