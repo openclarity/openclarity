@@ -23,10 +23,10 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.22.0
 	helm.sh/helm/v3 v3.14.4
-	k8s.io/api v0.29.3
-	k8s.io/apimachinery v0.29.3
-	k8s.io/cli-runtime v0.29.3
-	k8s.io/client-go v0.29.3
+	k8s.io/api v0.29.4
+	k8s.io/apimachinery v0.29.4
+	k8s.io/cli-runtime v0.29.4
+	k8s.io/client-go v0.29.4
 	sigs.k8s.io/kind v0.22.0
 )
 
