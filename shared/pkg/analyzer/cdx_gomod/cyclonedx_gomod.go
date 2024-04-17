@@ -94,7 +94,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		}
 
 		bom.Metadata.Timestamp = time.Now().Format(time.RFC3339)
-		bom.Metadata.Tools = &[]cdx.Tool{*tool}
+		bom.Metadata.Tools = &cdx.ToolsChoice{Tools: &[]cdx.Tool{*tool}}
 		assertLicenses(bom)
 
 		res = analyzer.CreateResults(bom, a.name, userInput, sourceType)
