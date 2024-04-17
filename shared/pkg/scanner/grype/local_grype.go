@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/anchore/clio"
 	"github.com/anchore/grype/grype"
 	"github.com/anchore/grype/grype/db"
 	"github.com/anchore/grype/grype/grypeerr"
@@ -33,7 +34,7 @@ import (
 	"github.com/anchore/grype/grype/pkg"
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	"github.com/anchore/grype/grype/store"
-	"github.com/anchore/syft/syft/pkg/cataloger"
+	"github.com/anchore/syft/syft"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -101,13 +102,11 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	s.logger.Infof("Gathering packages for source %s", source)
 	providerConfig := pkg.ProviderConfig{
 		SyftProviderConfig: pkg.SyftProviderConfig{
-			CatalogingOptions: cataloger.Config{
-				Search: cataloger.DefaultSearchConfig(),
-			},
+			SBOMOptions:     syft.DefaultCreateSBOMConfig(),
 			RegistryOptions: s.config.RegistryOptions,
 		},
 	}
-	providerConfig.CatalogingOptions.Search.Scope = s.config.Scope
+	providerConfig.SBOMOptions.Search.Scope = s.config.Scope
 	packages, context, _, err := pkg.Provide(source, providerConfig)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to analyze packages: %w", err), s.logger)
@@ -125,7 +124,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	s.logger.Infof("Found %d vulnerabilities", len(allMatches.Sorted()))
-	doc, err := grype_models.NewDocument(packages, context, *allMatches, ignoredMatches, store.MetadataProvider, nil, dbStatus)
+	doc, err := grype_models.NewDocument( /* TODO:??*/ clio.Identification{}, packages, context, *allMatches, ignoredMatches, store.MetadataProvider, nil, dbStatus)
 	if err != nil {
 		ReportError(s.resultChan, fmt.Errorf("failed to create document: %w", err), s.logger)
 		return

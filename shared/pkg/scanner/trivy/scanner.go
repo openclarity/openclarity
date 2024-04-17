@@ -305,11 +305,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 	matches := []scanner.Match{}
 	for _, result := range report.Results {
 		for _, vul := range result.Vulnerabilities {
-			typ, err := getTypeFromPurl(vul.PkgRef)
-			if err != nil {
-				a.logger.Error(err)
-				typ = ""
-			}
+			typ := vul.PkgIdentifier.PURL.Type
 
 			cvsses := getCVSSesFromVul(vul.CVSS)
 
@@ -323,7 +319,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 			distro := scanner.Distro{}
 			if report.Metadata.OS != nil {
 				// Trivy calls the distro name (ubuntu, debian, alpine) the family
-				distro.Name = report.Metadata.OS.Family
+				distro.Name = string(report.Metadata.OS.Family)
 				// Trivy calls the version (11, hardy heron, 22.04) the name
 				distro.Version = report.Metadata.OS.Name
 			}
@@ -341,7 +337,7 @@ func (a *Scanner) CreateResult(trivyJSON []byte, hash string) *scanner.Results {
 				Package: scanner.Package{
 					Name:    vul.PkgName,
 					Version: vul.InstalledVersion,
-					PURL:    vul.PkgRef,
+					PURL:    vul.PkgIdentifier.PURL.String(),
 					Type:    typ,
 					// TODO(sambetts) Trivy doesn't pass
 					// through this info from the SBOM so

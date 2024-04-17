@@ -17,14 +17,14 @@ package converter
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/anchore/syft/syft/formats"
-	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
-	"github.com/anchore/syft/syft/formats/spdxjson"
-	"github.com/anchore/syft/syft/formats/spdxtagvalue"
-	"github.com/anchore/syft/syft/formats/syftjson"
+	formats "github.com/anchore/syft/syft/format"
+	"github.com/anchore/syft/syft/format/spdxjson"
+	"github.com/anchore/syft/syft/format/spdxtagvalue"
+	"github.com/anchore/syft/syft/format/syftjson"
 	syftSbom "github.com/anchore/syft/syft/sbom"
 )
 
@@ -107,9 +107,15 @@ func cycloneDxToBytesUsingCycloneDxEncoder(sbom *cdx.BOM, format SbomFormat) ([]
 // cyclonedx format (json or xml) use cycloneDxToBytesUsingCycloneDxEncoder
 // instead.
 func cycloneDxToBytesUsingSyftConversion(sbom *cdx.BOM, format SbomFormat) ([]byte, error) {
-	syftSBOM, err := cyclonedxhelpers.ToSyftModel(sbom)
+
+	jsonSbom, err := json.Marshal(sbom)
 	if err != nil {
-		return nil, fmt.Errorf("unable to convert BOM to intermediary format: %w", err)
+		return nil, fmt.Errorf("unable to encode cyclone sbom: %w", err)
+	}
+
+	syftSBOM, _, _, err := formats.Decode(bytes.NewReader(jsonSbom))
+	if err != nil {
+		return nil, fmt.Errorf("unable to decode cyclone format to Syft BOM: %w", err)
 	}
 
 	var syftFormatID syftSbom.FormatID
@@ -126,7 +132,11 @@ func cycloneDxToBytesUsingSyftConversion(sbom *cdx.BOM, format SbomFormat) ([]by
 		return nil, fmt.Errorf("format %v is a native cyclonedx format, use CycloneDxToNativeFormatBytes instead", format)
 	}
 
-	data, err := formats.Encode(*syftSBOM, formats.ByName(string(syftFormatID)))
+	encoder := formats.NewEncoderCollection(formats.Encoders()...).GetByString(string(syftFormatID))
+	if encoder == nil {
+		return nil, fmt.Errorf("unable to find encoder for format: %s", syftFormatID)
+	}
+	data, err := formats.Encode(*syftSBOM, encoder)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode sbom: %w", err)
 	}

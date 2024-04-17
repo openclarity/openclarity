@@ -109,8 +109,8 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 
 	var srcName string
 	switch doc.Source.Target.(type) {
-	case syft_source.StereoscopeImageSourceMetadata:
-		imageMetadata := doc.Source.Target.(syft_source.StereoscopeImageSourceMetadata) // nolint:forcetypeassert
+	case syft_source.ImageMetadata:
+		imageMetadata := doc.Source.Target.(syft_source.ImageMetadata) // nolint:forcetypeassert
 		srcName = imageMetadata.UserInput
 		// If the userInput is a SBOM, the srcName and hash will be got from the SBOM.
 		if srcName == "" {

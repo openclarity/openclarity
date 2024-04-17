@@ -16,14 +16,12 @@
 package syft
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/anchore/syft/syft"
-	syft_artifact "github.com/anchore/syft/syft/artifact"
-	"github.com/anchore/syft/syft/formats/common/cyclonedxhelpers"
-	"github.com/anchore/syft/syft/linux"
-	syft_pkg "github.com/anchore/syft/syft/pkg"
-	"github.com/anchore/syft/syft/pkg/cataloger"
+	"github.com/anchore/syft/syft/cataloging"
+	"github.com/anchore/syft/syft/format/common/cyclonedxhelpers"
 	syft_sbom "github.com/anchore/syft/syft/sbom"
 	"github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
@@ -59,34 +57,24 @@ func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.
 func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	src := utils.CreateSource(sourceType, userInput, a.localImage)
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
-	// TODO platform can be defined
-	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
-	detection, err := source.Detect(src, source.DefaultDetectConfig())
-	if err != nil {
-		return fmt.Errorf("failed to create input from source analyzer=%s: %v", a.name, err)
-	}
-	s, err := detection.NewSource(source.DetectionSourceConfig{
-		RegistryOptions: a.config.RegistryOptions,
-	})
+
+	sc := syft.DefaultGetSourceConfig().WithRegistryOptions(a.config.RegistryOptions)
+	s, err := syft.GetSource(context.Background(), src, sc)
 	if err != nil {
 		return fmt.Errorf("failed to create source analyzer=%s: %v", a.name, err)
 	}
 
 	go func() {
 		res := &analyzer.Results{}
-		catalogerConfig := cataloger.Config{
-			Search: cataloger.DefaultSearchConfig(),
-		}
-		catalogerConfig.Search.Scope = a.config.Scope
 
-		p, r, d, err := syft.CatalogPackages(s, catalogerConfig)
+		cc := syft.DefaultCreateSBOMConfig().WithSearchConfig(cataloging.DefaultSearchConfig().WithScope(a.config.Scope))
+		sbom, err := syft.CreateSBOM(context.Background(), s, cc)
 		if err != nil {
-			a.setError(res, fmt.Errorf("failed to write results: %v", err))
+			a.setError(res, fmt.Errorf("failed to generate sbom: %w", err))
 			return
 		}
-		sbom := generateSBOM(p, r, d, s)
 
-		cdxBom := cyclonedxhelpers.ToFormatModel(sbom)
+		cdxBom := cyclonedxhelpers.ToFormatModel(*sbom)
 		res = analyzer.CreateResults(cdxBom, a.name, src, sourceType)
 
 		// Syft uses ManifestDigest to fill version information in the case of an image.
@@ -112,26 +100,15 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 	return nil
 }
 
-func generateSBOM(c *syft_pkg.Collection, r []syft_artifact.Relationship, d *linux.Release, s source.Source) syft_sbom.SBOM {
-	return syft_sbom.SBOM{
-		Artifacts: syft_sbom.Artifacts{
-			Packages:          c,
-			LinuxDistribution: d,
-		},
-		Source:        s.Describe(),
-		Relationships: r,
-	}
-}
-
 func (a *Analyzer) setError(res *analyzer.Results, err error) {
 	res.Error = err
 	a.logger.Error(res.Error)
 	a.resultChan <- res
 }
 
-func getImageHash(sbom syft_sbom.SBOM, src string) (string, error) {
+func getImageHash(sbom *syft_sbom.SBOM, src string) (string, error) {
 	switch metadata := sbom.Source.Metadata.(type) {
-	case source.StereoscopeImageSourceMetadata:
+	case source.ImageMetadata:
 		hash, err := image_helper.GetHashFromRepoDigestsOrImageID(metadata.RepoDigests, metadata.ID, src)
 		if err != nil {
 			return "", fmt.Errorf("failed to get image hash from repo digests or image id: %w", err)
