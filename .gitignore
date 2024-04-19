@@ -10,3 +10,4 @@ go.work*
 .envrc
 .licensei.cache
 vendor
+pyvenv.cfg
