@@ -24,7 +24,16 @@ group "default" {
 		"vmclarity-cr-discovery-server",
 		"vmclarity-orchestrator",
 		"vmclarity-ui",
-		"vmclarity-ui-backend"
+		"vmclarity-ui-backend",
+		"vmclarity-plugin-kics",
+	]
+}
+
+group "vmclarity-scanner-plugins" {
+	targets = [
+		"vmclarity-plugin-kics",
+		"vmclarity-plugin-example-go",
+		"vmclarity-plugin-example-python"
 	]
 }
 
@@ -111,5 +120,36 @@ target "vmclarity-ui-backend" {
 	labels = {
 		"org.opencontainers.image.title" = "VMClarity UI Backend"
 		"org.opencontainers.image.description" = "A separate backend API which offloads some processing from the browser to the infrastructure to process and filter data closer to the source."
+	}
+}
+
+target "vmclarity-plugin-kics" {
+	context = "."
+	dockerfile = "./plugins/store/kics/Dockerfile"
+	tags = get_tag("${target.vmclarity-plugin-kics.name}")
+	inherits = ["_common", "_common_args_for_go"]
+	labels = {
+		"org.opencontainers.image.title" = "VMClarity KICS Scanner"
+		"org.opencontainers.image.description" = ""
+	}
+}
+
+target "vmclarity-plugin-example-go" {
+	context = "."
+	dockerfile = "./plugins/sdk/go/example/Dockerfile"
+	tags = get_tag("${target.vmclarity-plugin-example-go.name}")
+	labels = {
+		"org.opencontainers.image.title" = "VMClarity Scanner Go Example"
+		"org.opencontainers.image.description" = ""
+	}
+}
+
+target "vmclarity-plugin-example-python" {
+	context = "."
+	dockerfile = "./plugins/sdk/python/example/Dockerfile"
+	tags = get_tag("${target.vmclarity-plugin-example-python.name}")
+	labels = {
+		"org.opencontainers.image.title" = "VMClarity Scanner Python Example"
+		"org.opencontainers.image.description" = ""
 	}
 }

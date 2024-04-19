@@ -1,0 +1,8 @@
+---
+package: plugin
+output: internal/plugin/plugin.gen.go
+generate:
+  echo-server: true
+  embedded-spec: true
+output-options:
+  skip-prune: true
