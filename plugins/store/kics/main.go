@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -28,13 +27,10 @@ import (
 
 	"github.com/openclarity/vmclarity/plugins/sdk/server"
 
-	"github.com/BurntSushi/toml"
 	"github.com/Checkmarx/kics/pkg/model"
 	"github.com/Checkmarx/kics/pkg/printer"
 	"github.com/Checkmarx/kics/pkg/progress"
 	"github.com/Checkmarx/kics/pkg/scan"
-	"github.com/hashicorp/hcl/v2/hclsimple"
-	"gopkg.in/yaml.v3"
 
 	"github.com/openclarity/vmclarity/plugins/sdk/types"
 )
@@ -53,7 +49,7 @@ type Scanner struct {
 	cancel context.CancelFunc
 }
 
-type ScanParametersConfig struct {
+type ScannerConfig struct {
 	PreviewLines     int      `json:"preview-lines" yaml:"preview-lines" toml:"preview-lines" hcl:"preview-lines"`
 	Platform         []string `json:"platform" yaml:"platform" toml:"platform" hcl:"platform"`
 	MaxFileSizeFlag  int      `json:"max-file-size-flag" yaml:"max-file-size-flag" toml:"max-file-size-flag" hcl:"max-file-size-flag"`
@@ -89,7 +85,7 @@ func (s *Scanner) Start(config types.Config) {
 		logger.Info("Scanner is running...")
 		s.SetStatus(types.NewScannerStatus(types.Running, types.Ptr("Scanner is running...")))
 
-		clientConfig, err := s.createScanParametersConfig(config.File)
+		clientConfig, err := s.createConfig(config.ScannerConfig)
 		if err != nil {
 			logger.Error("Failed to parse config file", slog.Any("error", err))
 			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed to parse config file: %w", err).Error())))
@@ -153,8 +149,8 @@ func (s *Scanner) Stop(_ types.Stop) {
 }
 
 //nolint:gomnd
-func (s *Scanner) createScanParametersConfig(configPath *string) (*ScanParametersConfig, error) {
-	config := ScanParametersConfig{
+func (s *Scanner) createConfig(input *string) (*ScannerConfig, error) {
+	config := ScannerConfig{
 		PreviewLines:     3,
 		Platform:         []string{"Ansible", "CloudFormation", "Common", "Crossplane", "Dockerfile", "DockerCompose", "Knative", "Kubernetes", "OpenAPI", "Terraform", "AzureResourceManager", "GRPC", "GoogleDeploymentManager", "Buildah", "Pulumi", "ServerlessFW", "CICD"},
 		MaxFileSizeFlag:  100,
@@ -164,54 +160,15 @@ func (s *Scanner) createScanParametersConfig(configPath *string) (*ScanParameter
 		Minimal:          true,
 	}
 
-	if configPath == nil {
+	if input == nil || *input == "" {
 		return &config, nil
 	}
 
-	file, err := os.Open(filepath.Clean(*configPath))
-	if err != nil {
-		return nil, fmt.Errorf("failed to open config file: %w", err)
-	}
-	defer file.Close()
-
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+	if err := json.Unmarshal([]byte(*input), &config); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON config: %w", err)
 	}
 
-	switch ext := filepath.Ext(*configPath); ext {
-	case ".json":
-		if err := json.Unmarshal(bytes, &config); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON config: %w", err)
-		} else {
-			return &config, nil
-		}
-
-	case ".yaml", ".yml":
-		if err := yaml.Unmarshal(bytes, &config); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal YAML config: %w", err)
-		} else {
-			return &config, nil
-		}
-
-	case ".toml":
-		if _, err := toml.Decode(string(bytes), &config); err != nil {
-			return nil, fmt.Errorf("failed to decode TOML config: %w", err)
-		} else {
-			return &config, nil
-		}
-
-	case ".hcl":
-		err := hclsimple.DecodeFile(*configPath, nil, &config)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode HCL config: %w", err)
-		} else {
-			return &config, nil
-		}
-
-	default:
-		return nil, fmt.Errorf("unsupported config file format: %s", ext)
-	}
+	return &config, nil
 }
 
 func (s *Scanner) formatOutput(rawFile, outputFile string) error {
