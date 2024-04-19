@@ -291,13 +291,18 @@ docker-cr-discovery-server: ## Build K8S Image Resolver Docker image
 	$(info Building cr-discovery-server docker image ...)
 	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
 
+.PHONY: docker-scanner-plugins
+docker-scanner-plugins: ## Build scanner plugin container images
+	$(info Building scanner plugin docker images ...)
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-scanner-plugins
+
 ##@ Code generation
 
 .PHONY: gen
 gen: gen-api gen-bicep gen-helm-docs ## Generating all code, manifests, docs
 
 .PHONY: gen-api
-gen-api: gen-apiserver-api gen-uibackend-api ## Generating API code
+gen-api: gen-apiserver-api gen-uibackend-api gen-plugin-sdk ## Generating API code
 
 .PHONY: gen-apiserver-api
 gen-apiserver-api: ## Generating Go library for API specification
@@ -312,6 +317,20 @@ gen-uibackend-api: ## Generating Go library for UI Backend API specification
 	go -C $(ROOT_DIR)/uibackend/types generate
 	go -C $(ROOT_DIR)/uibackend/client generate
 	go -C $(ROOT_DIR)/uibackend/server generate
+
+.PHONY: gen-plugin-sdk
+gen-plugin-sdk: gen-plugin-sdk-go gen-plugin-sdk-python ## Generating Scanner Plugin SDK code
+
+.PHONY: gen-plugin-sdk-go
+gen-plugin-sdk-go: ## Generating Scanner Plugin SDK code for Golang
+	$(info Generating Scanner Plugin SDK code for Golang ...)
+	go -C $(ROOT_DIR)/plugins/sdk/go generate
+	go -C $(ROOT_DIR)/plugins/runner generate
+
+.PHONY: gen-plugin-sdk-python
+gen-plugin-sdk-python: ## Generating Scanner Plugin SDK code for Python
+	$(info Generating Scanner Plugin SDK code for Python ...)
+	sh ./plugins/sdk/python/tools/gen-sdk.sh
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
