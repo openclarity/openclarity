@@ -488,7 +488,7 @@ func (w *Watcher) reconcileAborted(ctx context.Context, scan *apitypes.Scan) err
 					),
 				}
 
-				err = w.client.PatchAssetScan(ctx, as, assetScanID)
+				err := w.client.PatchAssetScan(ctx, as, assetScanID)
 				if err != nil {
 					logger.WithField("AssetScanID", assetScanID).Error("Failed to patch AssetScan")
 					reconciliationFailed = true

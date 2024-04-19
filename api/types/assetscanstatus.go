@@ -23,10 +23,12 @@ import (
 var assetScanStatusStateTransitions = map[AssetScanStatusState][]AssetScanStatusState{
 	AssetScanStatusStatePending: {
 		AssetScanStatusStateScheduled,
+		AssetScanStatusStateAborted,
 	},
 	AssetScanStatusStateScheduled: {
 		AssetScanStatusStateReadyToScan,
 		AssetScanStatusStateFailed,
+		AssetScanStatusStateAborted,
 	},
 	AssetScanStatusStateReadyToScan: {
 		AssetScanStatusStateInProgress,
