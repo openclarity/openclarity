@@ -56,14 +56,14 @@ type Annotations map[string]string
 
 // Config Describes config for scanner to start the scanning process.
 type Config struct {
-	// File The file with the configuration required by the scanner plugin. This is a path on the filesystem to the config file.
-	File *string `json:"file,omitempty"`
-
 	// InputDir The directory which should be scanned by the scanner plugin.
 	InputDir string `json:"inputDir" validate:"required"`
 
 	// OutputFile Path to JSON file where the scanner plugin should store its results.
 	OutputFile string `json:"outputFile" validate:"required"`
+
+	// ScannerConfig JSON string with the scanner configuration that should be used.
+	ScannerConfig *string `json:"scannerConfig,omitempty"`
 
 	// TimeoutSeconds The maximum time in seconds that a scan started from this scan
 	// should run for before being automatically aborted.

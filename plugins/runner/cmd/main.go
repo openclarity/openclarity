@@ -26,21 +26,6 @@ import (
 func main() {
 	ctx := context.Background()
 
-	manager, err := runner.NewPluginManager()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Printf("Initializing plugin manager\n")
-	cleanup, err := manager.Init(ctx)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer cleanup(ctx) //nolint:errcheck
-
-	fmt.Printf("Starting plugin\n")
 	config := runner.PluginConfig{
 		Name:          "",
 		ImageName:     "", // TODO Add image name
@@ -48,28 +33,35 @@ func main() {
 		OutputFile:    "", // TODO Add output file
 		ScannerConfig: "",
 	}
-	runner, cleanup, err := manager.Start(ctx, config)
+	runner, err := runner.New(config)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("Starting plugin runner\n")
+	cleanup, err := runner.Start(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer cleanup(ctx) //nolint:errcheck
 
-	fmt.Printf("Waiting for plugin %s to be ready\n", runner.Name)
+	fmt.Printf("Waiting for plugin %s to be ready\n", config.Name)
 	err = runner.WaitReady(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("Running plugin %s\n", runner.Name)
-	err = runner.Start(ctx)
+	fmt.Printf("Running plugin %s\n", config.Name)
+	err = runner.Run(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("Waiting for plugin %s to finish\n", runner.Name)
+	fmt.Printf("Waiting for plugin %s to finish\n", config.Name)
 	err = runner.WaitDone(ctx)
 	if err != nil {
 		fmt.Println(err)

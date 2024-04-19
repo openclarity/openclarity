@@ -145,10 +145,10 @@ components:
         - outputFile
         - timeoutSeconds
       properties:
-        file:
+        scannerConfig:
           type: string
           description: |
-            The file with the configuration required by the scanner plugin. This is a path on the filesystem to the config file.
+            JSON string with the scanner configuration that should be used.
         inputDir:
           type: string
           x-oapi-codegen-extra-tags:
