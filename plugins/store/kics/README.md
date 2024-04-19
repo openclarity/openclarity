@@ -31,9 +31,7 @@ The body of the POST request should include a JSON object with the configuration
 
 - The KICS scanner is designed to be started by **VMClarity**, therefore running it as a standalone tool is not recommended.
 
-- The `config.file` property in the POST request should point to a file on the host filesystem with the [parameters](https://github.com/Checkmarx/kics/blob/e387aa2505a3207e1087520972e0e52f7e0e6fdf/pkg/scan/client.go#L54) that the _KICS_ client will use.
-
-- The configuration file can be in any of the following formats: `JSON`, `TOML`, `YAML`, or `HCL`.
+- The value of the `scannerConfig` property in the POST request should contain the [parameters](https://github.com/Checkmarx/kics/blob/e387aa2505a3207e1087520972e0e52f7e0e6fdf/pkg/scan/client.go#L54) that the _KICS_ client will use.
 
 - Please note that not all _scan parameters_ are currently supported by the scanner.
 

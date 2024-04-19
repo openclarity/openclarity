@@ -12,11 +12,11 @@ class Config(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, file=None, input_dir=None, output_file=None, timeout_seconds=None):  # noqa: E501
+    def __init__(self, scanner_config=None, input_dir=None, output_file=None, timeout_seconds=None):  # noqa: E501
         """Config - a model defined in OpenAPI
 
-        :param file: The file of this Config.  # noqa: E501
-        :type file: str
+        :param scanner_config: The scanner_config of this Config.  # noqa: E501
+        :type scanner_config: str
         :param input_dir: The input_dir of this Config.  # noqa: E501
         :type input_dir: str
         :param output_file: The output_file of this Config.  # noqa: E501
@@ -25,20 +25,20 @@ class Config(Model):
         :type timeout_seconds: int
         """
         self.openapi_types = {
-            'file': str,
+            'scanner_config': str,
             'input_dir': str,
             'output_file': str,
             'timeout_seconds': int
         }
 
         self.attribute_map = {
-            'file': 'file',
+            'scanner_config': 'scannerConfig',
             'input_dir': 'inputDir',
             'output_file': 'outputFile',
             'timeout_seconds': 'timeoutSeconds'
         }
 
-        self._file = file
+        self._scanner_config = scanner_config
         self._input_dir = input_dir
         self._output_file = output_file
         self._timeout_seconds = timeout_seconds
@@ -55,27 +55,27 @@ class Config(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def file(self) -> str:
-        """Gets the file of this Config.
+    def scanner_config(self) -> str:
+        """Gets the scanner_config of this Config.
 
-        The file with the configuration required by the scanner plugin. This is a path on the filesystem to the config file.   # noqa: E501
+        JSON string with the scanner configuration that should be used.   # noqa: E501
 
-        :return: The file of this Config.
+        :return: The scanner_config of this Config.
         :rtype: str
         """
-        return self._file
+        return self._scanner_config
 
-    @file.setter
-    def file(self, file: str):
-        """Sets the file of this Config.
+    @scanner_config.setter
+    def scanner_config(self, scanner_config: str):
+        """Sets the scanner_config of this Config.
 
-        The file with the configuration required by the scanner plugin. This is a path on the filesystem to the config file.   # noqa: E501
+        JSON string with the scanner configuration that should be used.   # noqa: E501
 
-        :param file: The file of this Config.
-        :type file: str
+        :param scanner_config: The scanner_config of this Config.
+        :type scanner_config: str
         """
 
-        self._file = file
+        self._scanner_config = scanner_config
 
     @property
     def input_dir(self) -> str:

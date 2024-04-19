@@ -17,14 +17,18 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/docker/docker/api/types/filters"
 	imagetypes "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
+
+	runnerclient "github.com/openclarity/vmclarity/plugins/runner/internal/client"
 )
 
 type CleanupFunc func(ctx context.Context) error
@@ -57,4 +61,60 @@ func getScannerConfigSourcePath(name string) string {
 
 func getScannerConfigDestinationPath() string {
 	return filepath.Join("/plugin.json")
+}
+
+// Create http client for plugin scanner:
+// * try connecting to the plugin scanner container with container IP address
+// * if that fails, try connecting to the plugin scanner container with host IP address.
+func (r *Runner) createHTTPClient(ctx context.Context, pollInterval, timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("checking status of %s timed out", r.config.Name)
+
+		case <-ticker.C:
+			inspect, err := r.dockerClient.ContainerInspect(ctx, r.containerID)
+			if err != nil {
+				return fmt.Errorf("failed to inspect scanner container: %w", err)
+			}
+
+			// Create client
+			scannerIP := inspect.NetworkSettings.IPAddress
+			err = r.tryPluginScannerServer(ctx, "http://"+scannerIP+":8080")
+			if err != nil {
+				fmt.Printf("failed to use scanner IP address, trying scanner host IP address\n")
+				hostPort := inspect.NetworkSettings.Ports["8080/tcp"][0].HostPort
+				err = r.tryPluginScannerServer(ctx, "http://127.0.0.1:"+hostPort+"/")
+				if err != nil {
+					return errors.New("failed to create client")
+				}
+			}
+
+			return nil
+		}
+	}
+}
+
+func (r *Runner) tryPluginScannerServer(ctx context.Context, server string) error {
+	var err error
+
+	r.client, err = runnerclient.NewClientWithResponses(server)
+	if err != nil {
+		return fmt.Errorf("failed to create plugin client: %w", err)
+	}
+
+	newCtx, cancel := context.WithTimeout(ctx, 2*time.Second) //nolint:gomnd
+	defer cancel()
+	_, err = r.client.GetStatusWithResponse(newCtx)
+	if err != nil {
+		return fmt.Errorf("failed to ping plugin scanner server: %w", err)
+	}
+
+	return nil
 }
