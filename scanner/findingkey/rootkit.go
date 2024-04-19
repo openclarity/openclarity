@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 )
 
 type RootkitKey struct {
@@ -42,6 +43,6 @@ func GenerateRootkitKey(info apitypes.RootkitFindingInfo) RootkitKey {
 	return RootkitKey{
 		Name:        *info.RootkitName,
 		RootkitType: string(*info.RootkitType),
-		Message:     *info.Message,
+		Message:     to.ValueOrZero(info.Message),
 	}
 }
