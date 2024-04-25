@@ -108,6 +108,7 @@ func NewConfig() (*Config, error) {
 	v.RegisterAlias("docker.env_name", "env_name")
 	v.RegisterAlias("kubernetes.env_name", "env_name")
 	v.RegisterAlias("aws.env_name", "env_name")
+	v.RegisterAlias("gcp.env_name", "env_name")
 
 	_ = v.BindEnv("apiserver_image")
 	v.SetDefault("apiserver_image", testenv.DefaultAPIServer)
@@ -178,6 +179,9 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("aws.public_key_file")
 	_ = v.BindEnv("aws.private_key_file")
+
+	_ = v.BindEnv("gcp.public_key_file")
+	_ = v.BindEnv("gcp.private_key_file")
 
 	decodeHooks := mapstructure.ComposeDecodeHookFunc(
 		// TextUnmarshallerHookFunc is needed to decode custom types
