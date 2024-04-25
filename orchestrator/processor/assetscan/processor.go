@@ -48,7 +48,7 @@ func statusCompletedWithNoErrors(status *apitypes.ScannerStatus) bool {
 	return status != nil && status.State == apitypes.ScannerStatusStateDone
 }
 
-// nolint:cyclop
+// nolint:cyclop,gocognit
 func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanReconcileEvent) error {
 	// Get latest information, in case we've been sat in the reconcile
 	// queue for a while
@@ -113,6 +113,12 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 	if statusCompletedWithNoErrors(assetScan.InfoFinder.Status) {
 		if err := asp.reconcileResultInfoFindersToFindings(ctx, assetScan); err != nil {
 			return newFailedToReconcileTypeError(err, "infoFinder")
+		}
+	}
+
+	if statusCompletedWithNoErrors(assetScan.Plugins.Status) {
+		if err := asp.reconcileResultPluginsToFindings(ctx, assetScan); err != nil {
+			return newFailedToReconcileTypeError(err, "plugins")
 		}
 	}
 

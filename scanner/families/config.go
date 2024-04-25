@@ -21,6 +21,7 @@ import (
 	infofinderTypes "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
 	"github.com/openclarity/vmclarity/scanner/families/malware"
 	misconfigurationTypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/vmclarity/scanner/families/plugins"
 	"github.com/openclarity/vmclarity/scanner/families/rootkits"
 	"github.com/openclarity/vmclarity/scanner/families/sbom"
 	"github.com/openclarity/vmclarity/scanner/families/secrets"
@@ -43,6 +44,9 @@ type Config struct {
 
 	// Enrichers
 	Exploits exploits.Config `json:"exploits" yaml:"exploits" mapstructure:"exploits"`
+
+	// Plugins
+	Plugins plugins.Config `json:"plugins" yaml:"plugins" mapstructure:"plugins"`
 }
 
 func NewConfig() *Config {
@@ -122,6 +126,13 @@ func SetMountPointsForFamiliesInput(mountPoints []string, familiesConfig *Config
 					InputType:           string(utils.ROOTFS),
 				},
 			)
+		}
+
+		if familiesConfig.Plugins.Enabled {
+			familiesConfig.Plugins.Inputs = append(familiesConfig.Plugins.Inputs, types.Input{
+				Input:     mountDir,
+				InputType: string(utils.ROOTFS),
+			})
 		}
 	}
 	return familiesConfig

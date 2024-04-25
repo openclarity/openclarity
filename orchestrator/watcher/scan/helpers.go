@@ -43,6 +43,7 @@ func newAssetScanSummary() *apitypes.ScanFindingsSummary {
 		TotalSecrets:           to.Ptr[int](0),
 		TotalInfoFinder:        to.Ptr[int](0),
 		TotalVulnerabilities:   newVulnerabilityScanSummary(),
+		TotalPlugins:           to.Ptr[int](0),
 	}
 }
 
@@ -111,6 +112,10 @@ func newAssetScanFromScan(scan *apitypes.Scan, assetID string) (*apitypes.AssetS
 			Scanners: nil,
 			Status:   mapFamilyConfigToScannerStatus(familiesConfig.InfoFinder),
 		},
+		Plugins: &apitypes.PluginScan{
+			FindingInfos: nil,
+			Status:       mapFamilyConfigToScannerStatus(familiesConfig.Plugins),
+		},
 	}, nil
 }
 
@@ -140,6 +145,7 @@ func newScanSummary() *apitypes.ScanSummary {
 			TotalMediumVulnerabilities:     to.Ptr(0),
 			TotalNegligibleVulnerabilities: to.Ptr(0),
 		},
+		TotalPlugins: to.Ptr(0),
 	}
 }
 
@@ -185,6 +191,7 @@ func updateScanSummaryFromAssetScan(scan *apitypes.Scan, result apitypes.AssetSc
 			TotalNegligibleVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
 				*r.TotalVulnerabilities.TotalNegligibleVulnerabilities),
 		}
+		s.TotalPlugins = to.Ptr(*s.TotalPlugins + *r.TotalPlugins)
 	}
 
 	return nil

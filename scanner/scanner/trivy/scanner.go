@@ -50,10 +50,7 @@ import (
 
 const ScannerName = "trivy"
 
-func New(c job_manager.IsConfig,
-	logger *log.Entry,
-	resultChan chan job_manager.Result,
-) job_manager.Job {
+func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	conf := c.(*config.Config) // nolint:forcetypeassert
 
 	logger = logger.Dup().WithField("scanner", ScannerName)

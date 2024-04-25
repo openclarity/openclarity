@@ -78,7 +78,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 				Path:              vuln.Path,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)

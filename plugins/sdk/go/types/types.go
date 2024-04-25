@@ -22,8 +22,9 @@ import (
 	"time"
 )
 
-// APIVersion defines the current version of the Scanner Plugin API.
-const APIVersion = "1.0.0"
+func Ptr[T any](value T) *T {
+	return &value
+}
 
 func NewScannerStatus(s StatusState, m *string) *Status {
 	return &Status{
@@ -33,10 +34,6 @@ func NewScannerStatus(s StatusState, m *string) *Status {
 	}
 }
 
-func Ptr[T any](value T) *T {
-	return &value
-}
-
 // Export saves the data as JSON to the provided file.
 func (r *Result) Export(outputFile string) error {
 	data, err := json.MarshalIndent(r, "", "  ")
@@ -44,10 +41,26 @@ func (r *Result) Export(outputFile string) error {
 		return fmt.Errorf("failed to marshal result: %w", err)
 	}
 
-	err = os.WriteFile(outputFile, data, 0o660 /* read & write, owner & group */) //nolint:gosec,gomnd
+	err = os.WriteFile(outputFile, data, 0o440 /* read only, owner & group */) //nolint:gosec,gomnd
 	if err != nil {
 		return fmt.Errorf("failed to save result: %w", err)
 	}
 
+	return nil
+}
+
+// LoadFrom imports data from a JSON into the object.
+func (r *Result) LoadFrom(outputFile string) error {
+	contents, err := os.ReadFile(outputFile)
+	if err != nil {
+		return fmt.Errorf("failed to read result: %w", err)
+	}
+
+	var result Result
+	if err := json.Unmarshal(contents, &result); err != nil {
+		return fmt.Errorf("failed to unmarshal result: %w", err)
+	}
+
+	*r = result
 	return nil
 }

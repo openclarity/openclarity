@@ -1,2 +1,2 @@
 # flake8: noqa
-from plugin.server.server import logger, run_scanner_server, API_VERSION
+from plugin.server.server import Server, API_VERSION

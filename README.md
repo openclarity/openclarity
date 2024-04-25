@@ -88,6 +88,8 @@ These tools include:
   - [CIS Docker Benchmark](https://github.com/goodwithtech/dockle)
 - Rootkits
   - [Chkrootkit](https://github.com/Magentron/chkrootkit)
+- Security scanning plugins
+  - [Plugins](plugins)
 
 A high-level architecture overview is available [here](ARCHITECTURE.md)
 

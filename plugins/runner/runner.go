@@ -16,164 +16,98 @@
 package runner
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 	"time"
 
-	containertypes "github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/client"
-	"github.com/docker/go-connections/nat"
+	"github.com/openclarity/vmclarity/plugins/runner/internal/containermanager"
+	"github.com/openclarity/vmclarity/plugins/runner/internal/containermanager/docker"
+	"github.com/openclarity/vmclarity/plugins/runner/types"
 
 	"github.com/openclarity/vmclarity/core/to"
 	runnerclient "github.com/openclarity/vmclarity/plugins/runner/internal/client"
-	"github.com/openclarity/vmclarity/plugins/sdk/types"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk/types"
 )
 
-const (
-	DefaultScannerInputDir   = "/asset"
-	DefaultScannerOutputDir  = "/export"
-	DefaultScannerServerPort = "8080"
-	DefaultPollInterval      = 2 * time.Second
-	DefaultTimeout           = 60 * time.Second
-)
+const defaultPollInterval = 2 * time.Second
 
-var ErrScanNotDone = errors.New("scan has not finished yet")
-
-type PluginRunner interface {
-	Start(ctx context.Context) (CleanupFunc, error)
-	WaitReady(ctx context.Context) error
-	Run(ctx context.Context) error
-	WaitDone(ctx context.Context) error
-	Result() (io.Reader, error)
-	Stop(ctx context.Context) error
+type pluginRunner struct {
+	config           types.PluginConfig
+	containerManager containermanager.PluginContainerManager
+	client           runnerclient.ClientWithResponsesInterface
 }
 
-type PluginConfig struct {
-	// Name is the name of the plugin scanner
-	Name string `yaml:"name" mapstructure:"name"`
-	// ImageName is the name of the docker image that will be used to run the plugin scanner
-	ImageName string `yaml:"image_name" mapstructure:"image_name"`
-	// InputDir is a directory where the plugin scanner will read the asset filesystem
-	InputDir string `yaml:"input_dir" mapstructure:"input_dir"`
-	// OutputFile is a file where the plugin scanner will write the result
-	OutputFile string `yaml:"output_file" mapstructure:"output_file"`
-	// ScannerConfig is a json string that will be passed to the scanner in the plugin
-	ScannerConfig string `yaml:"scanner_config" mapstructure:"scanner_config"`
-}
-
-var _ PluginRunner = &Runner{}
-
-type Runner struct {
-	config       PluginConfig
-	client       runnerclient.ClientWithResponsesInterface
-	dockerClient *client.Client
-	containerID  string
-}
-
-func New(config PluginConfig) (*Runner, error) {
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+func New(config types.PluginConfig) (types.PluginRunner, error) {
+	// Create docker container
+	// TODO: switch to factory once the support for more container engines is added
+	manager, err := docker.New(config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create docker client: %w", err)
+		return nil, fmt.Errorf("failed to create plugin manager: %w", err)
 	}
 
-	return &Runner{
-		dockerClient: dockerClient,
-		config:       config,
+	return &pluginRunner{
+		config:           config,
+		containerManager: manager,
 	}, nil
 }
 
-func (r *Runner) Start(ctx context.Context) (CleanupFunc, error) {
-	// Write scanner config file to temp dir
-	err := os.WriteFile(getScannerConfigSourcePath(r.config.Name), []byte(r.config.ScannerConfig), 0o600) // nolint:gomnd
-	if err != nil {
-		return nil, fmt.Errorf("failed write scanner config file: %w", err)
+func (r *pluginRunner) Start(ctx context.Context) error {
+	if err := r.containerManager.Start(ctx); err != nil {
+		return fmt.Errorf("failed to create plugin container: %w", err)
 	}
 
-	// Pull scanner image if required
-	err = PullImage(ctx, r.dockerClient, r.config.ImageName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pull scanner image: %w", err)
-	}
-
-	// Create scanner container
-	containerResp, err := r.dockerClient.ContainerCreate(
-		ctx,
-		&containertypes.Config{
-			Image:        r.config.ImageName,
-			Env:          []string{"PLUGIN_SERVER_LISTEN_ADDRESS=0.0.0.0:" + DefaultScannerServerPort},
-			ExposedPorts: nat.PortSet{"8080/tcp": struct{}{}},
-		},
-		&containertypes.HostConfig{
-			PortBindings: map[nat.Port][]nat.PortBinding{
-				"8080/tcp": {
-					{
-						HostIP:   "127.0.0.1",
-						HostPort: "",
-					},
-				},
-			},
-			Mounts: []mount.Mount{
-				{
-					Type:   mount.TypeBind,
-					Source: getScannerConfigSourcePath(r.config.Name),
-					Target: getScannerConfigDestinationPath(),
-				},
-				{
-					Type:   mount.TypeBind,
-					Source: r.config.InputDir,
-					Target: DefaultScannerInputDir,
-				},
-				{
-					Type:   mount.TypeBind,
-					Source: filepath.Dir(r.config.OutputFile),
-					Target: DefaultScannerOutputDir,
-				},
-			},
-		},
-		nil,
-		nil,
-		r.config.Name,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create scanner container: %w", err)
-	}
-	r.containerID = containerResp.ID
-
-	err = r.dockerClient.ContainerStart(ctx, containerResp.ID, containertypes.StartOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to start scanner container: %w", err)
-	}
-
-	err = r.createHTTPClient(ctx, 1*time.Second, 20*time.Second) //nolint:gomnd
-	if err != nil {
-		return nil, fmt.Errorf("failed to create http client: %w", err)
-	}
-
-	return r.Stop, nil
+	return nil
 }
 
-func (r *Runner) WaitReady(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, DefaultTimeout)
+func (r *pluginRunner) Logs(ctx context.Context) (io.ReadCloser, error) {
+	logs, err := r.containerManager.Logs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load logs from container: %w", err)
+	}
+
+	return logs, nil
+}
+
+func (r *pluginRunner) WaitReady(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, types.WaitReadyTimeout)
 	defer cancel()
 
-	ticker := time.NewTicker(DefaultPollInterval)
+	ticker := time.NewTicker(defaultPollInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("checking health of %s timed out", r.config.Name)
+			return fmt.Errorf("waiting ready state for scanner %s timed out", r.config.Name)
 
 		case <-ticker.C:
+			// Check if plugin container is ready
+			ready, err := r.containerManager.Ready()
+			if err != nil {
+				return fmt.Errorf("failed to check plugin container state: %w", err)
+			}
+			if !ready {
+				continue
+			}
+
+			// Set plugin server endpoint
+			serverEndpoint, err := r.containerManager.GetPluginServerEndpoint()
+			if err != nil {
+				return fmt.Errorf("failed to get plugin server endpoint: %w", err)
+			}
+
+			err = r.setPluginServerClientFor(serverEndpoint)
+			if err != nil {
+				return fmt.Errorf("failed to set plugin server client: %w", err)
+			}
+
+			// Check for plugin server once container is ready
+			// TODO: add retry mechanism
 			resp, err := r.client.GetHealthzWithResponse(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to get scanner health: %w", err)
+				return fmt.Errorf("failed to get plguin server healthz: %w", err)
 			}
 
 			if resp.StatusCode() == 200 { //nolint:gomnd
@@ -183,34 +117,71 @@ func (r *Runner) WaitReady(ctx context.Context) error {
 	}
 }
 
-func (r *Runner) Run(ctx context.Context) error {
+func (r *pluginRunner) Metadata(ctx context.Context) (*plugintypes.Metadata, error) {
+	if r.client == nil {
+		return nil, errors.New("client missing, did not wait for ready state")
+	}
+
+	metadata, err := r.client.GetMetadataWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to post scan config: %w", err)
+	}
+
+	return metadata.JSON200, nil
+}
+
+func (r *pluginRunner) Run(ctx context.Context) error {
+	if r.client == nil {
+		return errors.New("client missing, did not wait for ready state")
+	}
+
 	_, err := r.client.PostConfigWithResponse(
 		ctx,
-		types.PostConfigJSONRequestBody{
+		containermanager.WithOverrides(plugintypes.Config{
 			ScannerConfig:  to.Ptr(r.config.ScannerConfig),
-			InputDir:       DefaultScannerInputDir,
-			OutputFile:     filepath.Join(DefaultScannerOutputDir, filepath.Base(r.config.OutputFile)),
-			TimeoutSeconds: int(DefaultTimeout),
-		},
+			TimeoutSeconds: int(types.ScanTimeout.Seconds()),
+		}),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to post scanner config: %w", err)
+		return fmt.Errorf("failed to post scan config: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Runner) WaitDone(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, DefaultTimeout)
+func (r *pluginRunner) Stop(ctx context.Context) error {
+	if r.client == nil {
+		return errors.New("client missing, did not wait for ready state")
+	}
+
+	_, err := r.client.PostStopWithResponse(
+		ctx,
+		plugintypes.PostStopJSONRequestBody{
+			TimeoutSeconds: int(types.GracefulStopTimeout.Seconds()),
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to post scan stop: %w", err)
+	}
+
+	return nil
+}
+
+func (r *pluginRunner) WaitDone(ctx context.Context) error {
+	if r.client == nil {
+		return errors.New("client missing, did not wait for ready state")
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, types.ScanTimeout)
 	defer cancel()
 
-	ticker := time.NewTicker(DefaultPollInterval)
+	ticker := time.NewTicker(defaultPollInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("checking status of %s timed out", r.config.Name)
+			return fmt.Errorf("waiting done state for scanner %s timed out", r.config.Name)
 
 		case <-ticker.C:
 			resp, err := r.client.GetStatusWithResponse(ctx)
@@ -218,45 +189,45 @@ func (r *Runner) WaitDone(ctx context.Context) error {
 				return fmt.Errorf("failed to get scanner status: %w", err)
 			}
 
-			if resp.JSON200.State == types.Done {
+			if resp.JSON200.State == plugintypes.Done {
 				return nil
+			}
+			if resp.JSON200.State == plugintypes.Failed {
+				msg := "<nil>"
+				if resp.JSON200.Message != nil {
+					msg = *resp.JSON200.Message
+				}
+				return fmt.Errorf("scan failed, message: %s", msg)
 			}
 		}
 	}
 }
 
-func (r *Runner) Result() (io.Reader, error) {
-	_, err := os.Stat(r.config.OutputFile)
+func (r *pluginRunner) Result(ctx context.Context) (io.ReadCloser, error) {
+	result, err := r.containerManager.Result(ctx)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, ErrScanNotDone
-		}
+		return nil, fmt.Errorf("failed to get result from container: %w", err)
 	}
 
-	file, err := os.Open(r.config.OutputFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open scanner result file: %w", err)
-	}
-
-	return bufio.NewReader(file), nil
+	return result, nil
 }
 
-func (r *Runner) Stop(ctx context.Context) error {
-	err := r.dockerClient.ContainerStop(ctx, r.containerID, containertypes.StopOptions{})
+func (r *pluginRunner) Remove(ctx context.Context) error {
+	err := r.containerManager.Remove(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to stop scanner container: %w", err)
+		return fmt.Errorf("failed to remove container: %w", err)
 	}
 
-	err = r.dockerClient.ContainerRemove(ctx, r.containerID, containertypes.RemoveOptions{})
+	return nil
+}
+
+func (r *pluginRunner) setPluginServerClientFor(server string) error {
+	client, err := runnerclient.NewClientWithResponses(server)
 	if err != nil {
-		return fmt.Errorf("failed to remove scanner container: %w", err)
+		return fmt.Errorf("could not create client for plugin server: %w", err)
 	}
 
-	// Remove scanner config file
-	err = os.RemoveAll(getScannerConfigSourcePath(r.config.Name))
-	if err != nil {
-		return fmt.Errorf("failed to remove scanner config file: %w", err)
-	}
+	r.client = client
 
 	return nil
 }

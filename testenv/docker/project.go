@@ -107,6 +107,7 @@ const (
 	UIImageEnv           = "VMCLARITY_UI_CONTAINER_IMAGE"
 	UIBackendImageEnv    = "VMCLARITY_UIBACKEND_CONTAINER_IMAGE"
 	ScannerImageEnv      = "VMCLARITY_SCANNER_CONTAINER_IMAGE"
+	PluginKicsEnv        = "VMCLARITY_PLUGIN_KICS_CONTAINER_IMAGE"
 )
 
 func WithContainerImages(o *cli.ProjectOptions, images ContainerImages) {
@@ -115,6 +116,7 @@ func WithContainerImages(o *cli.ProjectOptions, images ContainerImages) {
 	o.Environment[UIImageEnv] = images.UI
 	o.Environment[UIBackendImageEnv] = images.UIBackend
 	o.Environment[ScannerImageEnv] = images.Scanner
+	o.Environment[PluginKicsEnv] = images.PluginKics
 }
 
 func findComposeFiles(path string) ([]string, error) {

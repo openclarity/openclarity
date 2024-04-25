@@ -1,4 +1,4 @@
-// Copyright © 2024 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2022 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,30 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package common
 
-import (
-	"log/slog"
-	"os"
-)
+import "github.com/openclarity/vmclarity/scanner/families/plugins/runner/config"
 
-var logger *slog.Logger
+type ScannersConfig map[string]config.Config
 
-func init() {
-	var logLevel slog.Level
-	if logLevel.UnmarshalText([]byte(getLogLevel())) != nil {
-		logLevel = slog.LevelInfo
-	}
-
-	logger = slog.New(
-		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: logLevel,
-		}),
-	)
-}
-
-// GetLogger defines JSON logger that outputs to stdout with level loaded fom
-// EnvLogLevel.
-func GetLogger() *slog.Logger {
-	return logger
-}
+func (ScannersConfig) IsConfig() {}

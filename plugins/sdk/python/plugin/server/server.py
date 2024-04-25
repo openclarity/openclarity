@@ -18,31 +18,38 @@ API_VERSION = "1.0.0"
 # Load config internally
 _config = _ServerConfig()
 
-# Init and export logger
-logger = logging.getLogger('plugin.scanner')
-logger.addHandler(logging.StreamHandler(sys.stdout))
+# Init logger
+_logger = logging.getLogger('plugin.scanner')
+_logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
-def run_scanner_server(scanner: AbstractScanner):
-    """
-    Starts Plugin HTTP Server and uses provided scanner to respond to
-    requests. Run logs data to standard output via logger. This operation
-    blocks until exit. It handles graceful termination. Server listens on
-    address loaded from ENV_LISTEN_ADDRESS. It exists with error code 1 on error.
-    Can only be called once.
+class Server:
 
-    :param scanner:
-    :return:
-    """
-    try:
-        logger.info("Started HTTP server")
-        server = _Server(scanner)
-        server.start()
-        logger.info("Stopped HTTP server")
-        exit(0)
-    except Exception as e:
-        logger.error(f"HTTP server exited with error: {e}")
-        exit(1)
+    @classmethod
+    def run(cls, scanner: AbstractScanner):
+        """
+        Starts Plugin HTTP Server and uses provided scanner to respond to
+        requests. Run logs data to standard output via logger. This operation
+        blocks until exit. It handles graceful termination. Server listens on
+        address loaded from ENV_LISTEN_ADDRESS. It exists with error code 1 on error.
+        Can only be called once.
+
+        :param scanner:
+        :return:
+        """
+        try:
+            cls.logger().info("Started HTTP server")
+            server = _Server(scanner)
+            server.start()
+            cls.logger().info("Stopped HTTP server")
+            exit(0)
+        except Exception as e:
+            cls.logger().error(f"HTTP server exited with error: {e}")
+            exit(1)
+
+    @classmethod
+    def logger(cls):
+        return _logger
 
 
 class _Server:

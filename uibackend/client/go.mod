@@ -27,4 +27,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/openclarity/vmclarity/uibackend/types => ../types
+replace (
+	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
+	github.com/openclarity/vmclarity/uibackend/types => ../types
+)

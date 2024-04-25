@@ -395,7 +395,14 @@ func (p *Provider) createScanContainer(ctx context.Context, assetScanMount *moun
 			},
 		},
 		&containertypes.HostConfig{
-			Mounts: []mount.Mount{*assetScanMount},
+			Mounts: []mount.Mount{
+				*assetScanMount,
+				{
+					Type:   mount.TypeBind,
+					Source: "/var/run/docker.sock",
+					Target: "/var/run/docker.sock",
+				},
+			},
 		},
 		&network.NetworkingConfig{
 			EndpointsConfig: map[string]*network.EndpointSettings{

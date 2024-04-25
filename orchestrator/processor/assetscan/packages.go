@@ -89,7 +89,7 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 				Version:  item.Version,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromPackageFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert PackageFindingInfo into FindingInfo: %w", err)

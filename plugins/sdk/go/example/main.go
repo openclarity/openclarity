@@ -19,7 +19,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/server"
+	"github.com/openclarity/vmclarity/plugins/sdk/plugin"
 	"github.com/openclarity/vmclarity/plugins/sdk/types"
 )
 
@@ -36,7 +36,7 @@ func (s *Scanner) Metadata() *types.Metadata {
 }
 
 func (s *Scanner) Start(config types.Config) {
-	logger := server.GetLogger()
+	logger := plugin.GetLogger()
 
 	logger.Info("Starting scanner with config", slog.Any("config", config))
 
@@ -48,7 +48,16 @@ func (s *Scanner) Start(config types.Config) {
 		// Example scanning
 		time.Sleep(5 * time.Second) //nolint:gomnd
 
-		result := types.Result{}
+		result := types.Result{
+			Vmclarity: types.VMClarityData{
+				Vulnerabilities: types.Ptr([]types.Vulnerability{
+					{
+						VulnerabilityName: types.Ptr("vulnerability #1"),
+						Description:       types.Ptr("some vulnerability"),
+					},
+				}),
+			},
+		}
 		if err := result.Export(config.OutputFile); err != nil {
 			logger.Error("Failed to save result to output file")
 			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr("Scanner failed saving result.")))
@@ -74,7 +83,7 @@ func (s *Scanner) SetStatus(newStatus *types.Status) {
 }
 
 func main() {
-	server.Run(&Scanner{
+	plugin.Run(&Scanner{
 		status: types.NewScannerStatus(types.Ready, types.Ptr("Scanner ready")),
 	})
 }

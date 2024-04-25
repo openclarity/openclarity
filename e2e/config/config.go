@@ -140,6 +140,11 @@ func NewConfig() (*Config, error) {
 	v.RegisterAlias("docker.cr_discovery_server_image", "cr_discovery_server_image")
 	v.RegisterAlias("kubernetes.cr_discovery_server_image", "cr_discovery_server_image")
 
+	_ = v.BindEnv("plugin_kics_image")
+	v.SetDefault("plugin_kics_image", testenv.DefaultPluginKics)
+	v.RegisterAlias("docker.plugin_kics_image", "plugin_kics_image")
+	v.RegisterAlias("kubernetes.plugin_kics_image", "plugin_kics_image")
+
 	_ = v.BindEnv("docker.compose_files")
 
 	_ = v.BindEnv("kubernetes.provider")

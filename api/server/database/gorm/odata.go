@@ -518,6 +518,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
 			},
+			"totalPlugins": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	assetSchemaName: {
@@ -663,6 +664,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				FieldType:           odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{"VulnerabilityScanSummary"},
 			},
+			"totalPlugins": odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 	"VulnerabilityScanSummary": {

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package plugin
 
 import (
 	"fmt"
@@ -27,9 +27,9 @@ import (
 )
 
 // Run starts Plugin HTTP Server and uses provided Scanner to respond to
-// requests. Run logs data to standard output via GetLogger. This operation
+// requests. Run logs data to standard output using GetLogger. This operation
 // blocks until exit. It handles graceful termination. Server listens on address
-// loaded from EnvListenAddress. It exists with error code 1 on error. Run
+// loaded from EnvListenAddress. It exists with exit code 1 on error. Run
 // simplifies the main logic. Can only be called once.
 //
 // Usage example:
@@ -42,7 +42,7 @@ import (
 //
 //	func main() {
 //	     var myScanner types.Scanner    // your implementation of Scanner interface
-//	     runner.Run(myScanner)          // start server until exit
+//	     plugin.Run(myScanner)          // start server until exit
 //	}
 func Run(scanner types.Scanner) {
 	// Start server

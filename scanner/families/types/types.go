@@ -28,4 +28,6 @@ const (
 	InfoFinder       FamilyType = "infofinder"
 
 	Exploits FamilyType = "exploits"
+
+	Plugins FamilyType = "plugins"
 )

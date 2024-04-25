@@ -114,3 +114,7 @@ func (c *InfoFinderConfig) GetScannersList() []string {
 
 	return []string{"sshTopology"}
 }
+
+func (c *PluginsConfig) IsEnabled() bool {
+	return c != nil && c.Enabled != nil && *c.Enabled
+}

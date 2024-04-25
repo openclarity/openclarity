@@ -263,7 +263,7 @@ func Test_processFindings(t *testing.T) {
 }
 
 // nolint:cyclop
-func compareFindingInfo(a, b apitypes.Finding_FindingInfo) bool {
+func compareFindingInfo(a, b apitypes.FindingInfo) bool {
 	value, err := a.ValueByDiscriminator()
 	if err != nil {
 		return false
@@ -346,9 +346,9 @@ func compareFindingInfo(a, b apitypes.Finding_FindingInfo) bool {
 	}
 }
 
-func createRootkitFindingInfo(t *testing.T, message, name, tpe string) *apitypes.Finding_FindingInfo {
+func createRootkitFindingInfo(t *testing.T, message, name, tpe string) *apitypes.FindingInfo {
 	t.Helper()
-	findingInfoB := apitypes.Finding_FindingInfo{}
+	findingInfoB := apitypes.FindingInfo{}
 	err := findingInfoB.FromRootkitFindingInfo(apitypes.RootkitFindingInfo{
 		Message:     to.Ptr(message),
 		RootkitName: to.Ptr(name),
@@ -441,7 +441,7 @@ func Test_getSortedFindingInfoCountSlice(t *testing.T) {
 func Test_createFindingsImpact(t *testing.T) {
 	type args struct {
 		findingInfoCountSlice []findingInfoCount
-		createFunc            func(findingInfo *apitypes.Finding_FindingInfo, count int) (types.RootkitFindingImpact, error)
+		createFunc            func(findingInfo *apitypes.FindingInfo, count int) (types.RootkitFindingImpact, error)
 	}
 	tests := []struct {
 		name    string

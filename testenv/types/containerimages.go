@@ -29,6 +29,7 @@ type ContainerImages[T string | ImageRef] struct {
 	UIBackend         T `mapstructure:"uibackend_image"`
 	Scanner           T `mapstructure:"scanner_image"`
 	CRDiscoveryServer T `mapstructure:"cr_discovery_server_image"`
+	PluginKics        T `mapstructure:"plugin_kics_image"`
 }
 
 func (t ContainerImages[T]) AsSlice() []T {
@@ -39,6 +40,7 @@ func (t ContainerImages[T]) AsSlice() []T {
 		t.UIBackend,
 		t.Scanner,
 		t.CRDiscoveryServer,
+		t.PluginKics,
 	}
 }
 
@@ -55,6 +57,7 @@ func (t ContainerImages[T]) AsStringSlice() ([]string, error) {
 			s.UIBackend.String(),
 			s.Scanner.String(),
 			s.CRDiscoveryServer.String(),
+			s.PluginKics.String(),
 		}, nil
 	}
 
