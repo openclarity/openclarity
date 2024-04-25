@@ -136,7 +136,7 @@ func toResultsRootkits(rootkits []chkrootkitutils.Rootkit) []common.Rootkit {
 	return ret
 }
 
-func New(c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	conf := c.(*common.ScannersConfig) // nolint:forcetypeassert
 	return &Scanner{
 		name:       ScannerName,

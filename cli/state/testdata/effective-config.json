@@ -88,5 +88,11 @@
     "Inputs": null,
     "InputFromVuln": false,
     "ScannersConfig": null
+  },
+  "plugins": {
+    "Enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "ScannersConfig": null
   }
 }

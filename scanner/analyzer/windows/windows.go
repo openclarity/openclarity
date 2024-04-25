@@ -33,7 +33,7 @@ type Analyzer struct {
 	resultChan chan job_manager.Result
 }
 
-func New(_ job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func New(_ string, _ job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	return &Analyzer{
 		name:       AnalyzerName,
 		logger:     logger.Dup().WithField("analyzer", AnalyzerName),

@@ -56,6 +56,7 @@ func TestConfig(t *testing.T) {
 				"VMCLARITY_E2E_UIBACKEND_IMAGE":           "openclarity/vmclarity-uibackend:test",
 				"VMCLARITY_E2E_SCANNER_IMAGE":             "openclarity/vmclarity-cli:test",
 				"VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE": "openclarity/vmclarity-cr-discovery-server:test",
+				"VMCLARITY_E2E_PLUGIN_KICS_IMAGE":         "openclarity/vmclarity-plugin-kics:test",
 				// testenv.docker
 				"VMCLARITY_E2E_DOCKER_COMPOSE_FILES": "docker-compose.yml,docker-compose-override.yml",
 				// testenv.kubernetes
@@ -87,6 +88,7 @@ func TestConfig(t *testing.T) {
 						UIBackend:         "openclarity/vmclarity-uibackend:test",
 						Scanner:           "openclarity/vmclarity-cli:test",
 						CRDiscoveryServer: "openclarity/vmclarity-cr-discovery-server:test",
+						PluginKics:        "openclarity/vmclarity-plugin-kics:test",
 					},
 					Docker: &dockerenv.Config{
 						EnvName: "vmclarity-e2e-test",
@@ -97,6 +99,7 @@ func TestConfig(t *testing.T) {
 							UIBackend:         "openclarity/vmclarity-uibackend:test",
 							Scanner:           "openclarity/vmclarity-cli:test",
 							CRDiscoveryServer: "openclarity/vmclarity-cr-discovery-server:test",
+							PluginKics:        "openclarity/vmclarity-plugin-kics:test",
 						},
 						ComposeFiles: []string{
 							"docker-compose.yml",
@@ -128,6 +131,7 @@ func TestConfig(t *testing.T) {
 							UIBackend:         testenvtypes.NewImageRef("docker.io/openclarity/vmclarity-uibackend", "docker.io", "openclarity/vmclarity-uibackend", "test", ""),
 							Scanner:           testenvtypes.NewImageRef("docker.io/openclarity/vmclarity-cli", "docker.io", "openclarity/vmclarity-cli", "test", ""),
 							CRDiscoveryServer: testenvtypes.NewImageRef("docker.io/openclarity/vmclarity-cr-discovery-server", "docker.io", "openclarity/vmclarity-cr-discovery-server", "test", ""),
+							PluginKics:        testenvtypes.NewImageRef("docker.io/openclarity/vmclarity-plugin-kics", "docker.io", "openclarity/vmclarity-plugin-kics", "test", ""),
 						},
 					},
 					AWS: &awsenv.Config{
@@ -168,6 +172,7 @@ func TestConfig(t *testing.T) {
 						UIBackend:         "ghcr.io/openclarity/vmclarity-ui-backend:latest",
 						Scanner:           "ghcr.io/openclarity/vmclarity-cli:latest",
 						CRDiscoveryServer: "ghcr.io/openclarity/vmclarity-cr-discovery-server:latest",
+						PluginKics:        "ghcr.io/openclarity/vmclarity-plugin-kics:latest",
 					},
 					Docker: &dockerenv.Config{
 						EnvName: testenv.DefaultEnvName,
@@ -178,6 +183,7 @@ func TestConfig(t *testing.T) {
 							UIBackend:         "ghcr.io/openclarity/vmclarity-ui-backend:latest",
 							Scanner:           "ghcr.io/openclarity/vmclarity-cli:latest",
 							CRDiscoveryServer: "ghcr.io/openclarity/vmclarity-cr-discovery-server:latest",
+							PluginKics:        "ghcr.io/openclarity/vmclarity-plugin-kics:latest",
 						},
 						ComposeFiles: nil,
 					},
@@ -206,6 +212,7 @@ func TestConfig(t *testing.T) {
 							UIBackend:         testenvtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui-backend", "ghcr.io", "openclarity/vmclarity-ui-backend", "latest", ""),
 							Scanner:           testenvtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cli", "ghcr.io", "openclarity/vmclarity-cli", "latest", ""),
 							CRDiscoveryServer: testenvtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cr-discovery-server", "ghcr.io", "openclarity/vmclarity-cr-discovery-server", "latest", ""),
+							PluginKics:        testenvtypes.NewImageRef("ghcr.io/openclarity/vmclarity-plugin-kics", "ghcr.io", "openclarity/vmclarity-plugin-kics", "latest", ""),
 						},
 					},
 					AWS: &awsenv.Config{

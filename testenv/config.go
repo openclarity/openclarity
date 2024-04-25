@@ -43,6 +43,7 @@ const (
 	DefaultUIBackend         = "ghcr.io/openclarity/vmclarity-ui-backend:latest"
 	DefaultScanner           = "ghcr.io/openclarity/vmclarity-cli:latest"
 	DefaultCRDiscoveryServer = "ghcr.io/openclarity/vmclarity-cr-discovery-server:latest"
+	DefaultPluginKics        = "ghcr.io/openclarity/vmclarity-plugin-kics:latest"
 )
 
 // Config is the configuration for testenv.

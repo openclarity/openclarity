@@ -28,6 +28,7 @@ import (
 	"github.com/openclarity/vmclarity/scanner/families/infofinder"
 	"github.com/openclarity/vmclarity/scanner/families/malware"
 	"github.com/openclarity/vmclarity/scanner/families/misconfiguration"
+	"github.com/openclarity/vmclarity/scanner/families/plugins"
 	"github.com/openclarity/vmclarity/scanner/families/rootkits"
 	"github.com/openclarity/vmclarity/scanner/families/sbom"
 	"github.com/openclarity/vmclarity/scanner/families/secrets"
@@ -64,6 +65,8 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 		err = v.ExportMalwareResult(ctx, res)
 	case types.InfoFinder:
 		err = v.ExportInfoFinderResult(ctx, res)
+	case types.Plugins:
+		err = v.ExportPluginsResult(ctx, res)
 	}
 
 	return err
@@ -505,6 +508,57 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 	}
 
 	if err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID); err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get asset scan: %w", err)
+	}
+
+	if assetScan.Plugins == nil {
+		assetScan.Plugins = &apitypes.PluginScan{}
+	}
+	if assetScan.Summary == nil {
+		assetScan.Summary = &apitypes.ScanFindingsSummary{}
+	}
+	if assetScan.Stats == nil {
+		assetScan.Stats = &apitypes.AssetScanStats{}
+	}
+
+	if res.Err != nil {
+		assetScan.Plugins.Status = apitypes.NewScannerStatus(
+			apitypes.ScannerStatusStateFailed,
+			apitypes.ScannerStatusReasonError,
+			to.Ptr(res.Err.Error()),
+		)
+	} else {
+		pluginResults, ok := res.Result.(*plugins.Results)
+		if !ok {
+			assetScan.Plugins.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateFailed,
+				apitypes.ScannerStatusReasonError,
+				to.Ptr("failed to convert to plugins results"),
+			)
+		} else {
+			assetScan.Plugins.Status = apitypes.NewScannerStatus(
+				apitypes.ScannerStatusStateDone,
+				apitypes.ScannerStatusReasonSuccess,
+				nil,
+			)
+			assetScan.Plugins.FindingInfos = &pluginResults.Output
+			// TODO Total plugins should be split by type
+			assetScan.Summary.TotalPlugins = to.Ptr(pluginResults.GetTotal())
+			assetScan.Stats.Plugins = getInputScanStats(pluginResults.Metadata.InputScans)
+		}
+	}
+
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 

@@ -86,7 +86,7 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 				Type:        item.Type,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert InfoFinderFindingInfo into FindingInfo: %w", err)

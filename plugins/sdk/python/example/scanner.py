@@ -2,9 +2,9 @@
 
 import asyncio
 
-from plugin.models import Config, Status, Metadata, Stop, Result
+from plugin.models import Config, Status, Metadata, Stop, Result, VMClarityData, Vulnerability
 from plugin.scanner import AbstractScanner
-from plugin.server import run_scanner_server, logger
+from plugin.server import Server
 
 
 class ExampleScanner(AbstractScanner):
@@ -28,15 +28,25 @@ class ExampleScanner(AbstractScanner):
         return
 
     async def start(self, config: Config):
+        logger = Server.logger()
+
         # Mark scan started
-        logger.info("Scanner is running")
+        logger.info(f"Scanner is running, config={config.to_str()}")
         self.set_status(Status(state="Running", message="Scan running"))
 
         # Example scanning
         await asyncio.sleep(5)
         try:
-            result = Result()
+            result = Result(
+                vmclarity=VMClarityData(
+                    vulnerabilities=[Vulnerability(
+                        vulnerability_name="vulnerability #1",
+                        description="some vulnerability",
+                    )],
+                ),
+            )
             self.export_result(result=result, output_file=config.output_file)
+
         except Exception as e:
             logger.error(f"Scanner failed with error {e}")
             self.set_status(Status(state="Failed", message="Scan failed"))
@@ -48,4 +58,4 @@ class ExampleScanner(AbstractScanner):
 
 
 if __name__ == '__main__':
-    run_scanner_server(ExampleScanner())
+    Server.run(ExampleScanner())

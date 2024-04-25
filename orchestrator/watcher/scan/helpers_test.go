@@ -103,6 +103,13 @@ func TestNewAssetScanFromScan(t *testing.T) {
 	)
 	infoFinderScanStatus.LastTransitionTime = transitionTime
 
+	pluginScanStatus := apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateSkipped,
+		apitypes.ScannerStatusReasonNotScheduled,
+		nil,
+	)
+	pluginScanStatus.LastTransitionTime = transitionTime
+
 	tests := []struct {
 		Name    string
 		Scan    *apitypes.Scan
@@ -138,6 +145,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 							Enabled:  to.Ptr(true),
 							Scanners: to.Ptr([]string{"test"}),
 						},
+						Plugins: nil,
 					},
 				},
 			},
@@ -184,6 +192,10 @@ func TestNewAssetScanFromScan(t *testing.T) {
 					Scanners: nil,
 					Status:   infoFinderScanStatus,
 				},
+				Plugins: &apitypes.PluginScan{
+					FindingInfos: nil,
+					Status:       pluginScanStatus,
+				},
 				Summary: newAssetScanSummary(),
 				Asset: &apitypes.AssetRelationship{
 					Id: assetID,
@@ -208,6 +220,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 						Enabled:  to.Ptr(true),
 						Scanners: to.Ptr([]string{"test"}),
 					},
+					Plugins: nil,
 				},
 			},
 		},
@@ -228,6 +241,7 @@ func TestNewAssetScanFromScan(t *testing.T) {
 			result.Secrets.Status.LastTransitionTime = transitionTime
 			result.Misconfigurations.Status.LastTransitionTime = transitionTime
 			result.InfoFinder.Status.LastTransitionTime = transitionTime
+			result.Plugins.Status.LastTransitionTime = transitionTime
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)
 			g.Expect(result).Should(BeComparableTo(test.ExpectedAssetScan))

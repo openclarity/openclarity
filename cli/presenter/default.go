@@ -25,6 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/scanner/families/exploits"
 	"github.com/openclarity/vmclarity/scanner/families/infofinder"
 	"github.com/openclarity/vmclarity/scanner/families/malware"
+	"github.com/openclarity/vmclarity/scanner/families/plugins"
 	"github.com/openclarity/vmclarity/scanner/families/rootkits"
 	"github.com/openclarity/vmclarity/scanner/families/sbom"
 	"github.com/openclarity/vmclarity/scanner/families/secrets"
@@ -58,6 +59,8 @@ func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.
 		err = p.ExportMalwareResult(ctx, res)
 	case types.InfoFinder:
 		err = p.ExportInfoFinderResult(ctx, res)
+	case types.Plugins:
+		err = p.ExportPluginsFinderResult(ctx, res)
 	}
 
 	return err
@@ -189,6 +192,28 @@ func (p *DefaultPresenter) ExportInfoFinderResult(_ context.Context, res familie
 
 	if err = p.Write(bytes, "infofinder.json"); err != nil {
 		return fmt.Errorf("failed to output infofinder results: %w", err)
+	}
+
+	return nil
+}
+
+func (p *DefaultPresenter) ExportPluginsFinderResult(_ context.Context, res families.FamilyResult) error {
+	if res.Result == nil {
+		return nil
+	}
+
+	pluginsResults, ok := res.Result.(*plugins.Results)
+	if !ok {
+		return errors.New("failed to convert to plugins results")
+	}
+
+	bytes, err := json.Marshal(pluginsResults)
+	if err != nil {
+		return fmt.Errorf("failed to marshal plugins results: %w", err)
+	}
+
+	if err = p.Write(bytes, "plugins.json"); err != nil {
+		return fmt.Errorf("failed to output plugins results: %w", err)
 	}
 
 	return nil

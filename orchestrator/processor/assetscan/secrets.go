@@ -89,7 +89,7 @@ func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Cont
 				EndColumn:   item.EndColumn,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromSecretFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)

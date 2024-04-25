@@ -62,7 +62,8 @@ type Config struct {
 	// OutputFile Path to JSON file where the scanner plugin should store its results.
 	OutputFile string `json:"outputFile" validate:"required"`
 
-	// ScannerConfig JSON string with the scanner configuration that should be used.
+	// ScannerConfig Optional JSON string of internal scanner configuration used to override default scanner behaviour.
+	// The config schema needs to be documented and payload manually parsed by the developer of scanner plugin.
 	ScannerConfig *string `json:"scannerConfig,omitempty"`
 
 	// TimeoutSeconds The maximum time in seconds that a scan started from this scan

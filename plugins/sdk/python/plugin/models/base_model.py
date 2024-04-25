@@ -21,7 +21,7 @@ class Model:
         """Returns the dict as a model"""
         return util.deserialize_model(dikt, cls)
 
-    def to_dict(self):
+    def to_dict(self, include_none=True):
         """Returns the model properties as a dict
 
         :rtype: dict
@@ -30,21 +30,25 @@ class Model:
 
         for attr in self.openapi_types:
             value = getattr(self, attr)
+            insert_attr = self.attribute_map[attr]
             if isinstance(value, list):
-                result[attr] = list(map(
+                result[insert_attr] = list(map(
                     lambda x: x.to_dict() if hasattr(x, "to_dict") else x,
                     value
                 ))
             elif hasattr(value, "to_dict"):
-                result[attr] = value.to_dict()
+                result[insert_attr] = value.to_dict()
             elif isinstance(value, dict):
-                result[attr] = dict(map(
+                result[insert_attr] = dict(map(
                     lambda item: (item[0], item[1].to_dict())
                     if hasattr(item[1], "to_dict") else item,
                     value.items()
                 ))
             else:
-                result[attr] = value
+                result[insert_attr] = value
+
+            if (not include_none) and (result[insert_attr] is None):
+                del result[insert_attr]
 
         return result
 
@@ -54,14 +58,7 @@ class Model:
 
         :rtype: dict
         """
-        dikt = {}
-        for attr in self.openapi_types:
-            value = getattr(self, attr)
-            if value is None:
-                continue
-            attr = self.attribute_map[attr]
-            dikt[attr] = value
-        return dikt
+        return self.to_dict(include_none=False)
 
     def to_str(self):
         """Returns the string representation of the model

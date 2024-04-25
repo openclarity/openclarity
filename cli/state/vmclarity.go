@@ -173,6 +173,8 @@ func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyTyp
 		err = v.markMalwareScanInProgress(ctx)
 	case types.InfoFinder:
 		err = v.markInfoFinderScanInProgress(ctx)
+	case types.Plugins:
+		err = v.markPluginsScanInProgress(ctx)
 	}
 	return err
 }
@@ -356,6 +358,30 @@ func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
 	}
 
 	assetScan.Rootkits.Status = apitypes.NewScannerStatus(
+		apitypes.ScannerStatusStateInProgress,
+		apitypes.ScannerStatusReasonScanning,
+		nil,
+	)
+
+	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	if err != nil {
+		return fmt.Errorf("failed to patch asset scan: %w", err)
+	}
+
+	return nil
+}
+
+func (v *VMClarityState) markPluginsScanInProgress(ctx context.Context) error {
+	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get asset scan: %w", err)
+	}
+
+	if assetScan.Plugins == nil {
+		assetScan.Plugins = &apitypes.PluginScan{}
+	}
+
+	assetScan.Plugins.Status = apitypes.NewScannerStatus(
 		apitypes.ScannerStatusStateInProgress,
 		apitypes.ScannerStatusReasonScanning,
 		nil,

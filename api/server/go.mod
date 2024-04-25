@@ -17,7 +17,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.32.0
 	github.com/openclarity/vmclarity/api/types v0.0.0-00010101000000-000000000000
-	github.com/openclarity/vmclarity/core v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/core v0.0.0-20240419112718-35696f1f9930
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
@@ -55,6 +55,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk v0.0.0-00010101000000-000000000000 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -87,5 +88,6 @@ replace (
 	github.com/openclarity/vmclarity/api/client => ../client
 	github.com/openclarity/vmclarity/api/types => ../types
 	github.com/openclarity/vmclarity/core => ../../core
+	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

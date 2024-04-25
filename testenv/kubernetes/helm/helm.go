@@ -108,7 +108,7 @@ func New(config *Config, opts ...ConfigOptFn) (*Installer, error) {
 		withResolvedKubeConfigPath(),
 	)
 	if err := applyConfigWithOpts(config, opts...); err != nil {
-		return nil, fmt.Errorf("failed to apply options to Config: %w", err)
+		return nil, fmt.Errorf("failed to apply options to config: %w", err)
 	}
 
 	restClientGetter := &genericclioptions.ConfigFlags{

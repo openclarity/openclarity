@@ -85,7 +85,7 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 				RootkitType: item.RootkitType,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromRootkitFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)

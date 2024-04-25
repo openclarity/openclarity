@@ -37,7 +37,7 @@ type Scanner struct {
 	resultChan chan job_manager.Result
 }
 
-func New(c job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
+func New(_ string, c job_manager.IsConfig, logger *logrus.Entry, resultChan chan job_manager.Result) job_manager.Job {
 	conf := c.(types.ScannersConfig) // nolint:forcetypeassert
 	return &Scanner{
 		name:       ScannerName,

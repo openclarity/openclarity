@@ -58,7 +58,7 @@ class Config(Model):
     def scanner_config(self) -> str:
         """Gets the scanner_config of this Config.
 
-        JSON string with the scanner configuration that should be used.   # noqa: E501
+        Optional JSON string of internal scanner configuration used to override default scanner behaviour. The config schema needs to be documented and payload manually parsed by the developer of scanner plugin.   # noqa: E501
 
         :return: The scanner_config of this Config.
         :rtype: str
@@ -69,7 +69,7 @@ class Config(Model):
     def scanner_config(self, scanner_config: str):
         """Sets the scanner_config of this Config.
 
-        JSON string with the scanner configuration that should be used.   # noqa: E501
+        Optional JSON string of internal scanner configuration used to override default scanner behaviour. The config schema needs to be documented and payload manually parsed by the developer of scanner plugin.   # noqa: E501
 
         :param scanner_config: The scanner_config of this Config.
         :type scanner_config: str
