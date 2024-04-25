@@ -1,6 +1,6 @@
 module-sets:
   vmclarity:
-    version: v0.6.0
+    version: v0.7.0-rc.1
     modules:
       - github.com/openclarity/vmclarity/uibackend/types
       - github.com/openclarity/vmclarity/uibackend/server
@@ -21,3 +21,10 @@ module-sets:
       - github.com/openclarity/vmclarity/containerruntimediscovery/client
       - github.com/openclarity/vmclarity/orchestrator
       - github.com/openclarity/vmclarity/workflow
+      - github.com/openclarity/vmclarity/plugins/runner
+      - github.com/openclarity/vmclarity/plugins/sdk
+      - github.com/openclarity/vmclarity/plugins/example
+      - github.com/openclarity/vmclarity/plugins/store/kics
+
+excluded-modules:
+  - github.com/openclarity/vmclarity/e2e/testdata
