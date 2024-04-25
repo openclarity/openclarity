@@ -148,7 +148,8 @@ components:
         scannerConfig:
           type: string
           description: |
-            JSON string with the scanner configuration that should be used.
+            Optional JSON string of internal scanner configuration used to override default scanner behaviour.
+            The config schema needs to be documented and payload manually parsed by the developer of scanner plugin.
         inputDir:
           type: string
           x-oapi-codegen-extra-tags:

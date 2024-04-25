@@ -29,7 +29,7 @@ func NewJobFactory() *Factory {
 	return &Factory{createJobFuncs: make(map[string]CreateJobFunc)}
 }
 
-type CreateJobFunc func(conf IsConfig, logger *logrus.Entry, resultChan chan Result) Job
+type CreateJobFunc func(name string, conf IsConfig, logger *logrus.Entry, resultChan chan Result) Job
 
 func (f *Factory) Register(name string, createJobFunc CreateJobFunc) {
 	if f.createJobFuncs == nil {
@@ -49,5 +49,5 @@ func (f *Factory) CreateJob(name string, conf IsConfig, logger *logrus.Entry, re
 		return nil, fmt.Errorf("%v not a registered job", name)
 	}
 
-	return createFunc(conf, logger, resultChan), nil
+	return createFunc(name, conf, logger, resultChan), nil
 }

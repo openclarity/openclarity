@@ -75,6 +75,7 @@ const (
 // Defines values for MisconfigurationSeverity.
 const (
 	MisconfigurationHighSeverity   MisconfigurationSeverity = "MisconfigurationHighSeverity"
+	MisconfigurationInfoSeverity   MisconfigurationSeverity = "MisconfigurationInfoSeverity"
 	MisconfigurationLowSeverity    MisconfigurationSeverity = "MisconfigurationLowSeverity"
 	MisconfigurationMediumSeverity MisconfigurationSeverity = "MisconfigurationMediumSeverity"
 )
@@ -288,6 +289,7 @@ type AssetScan struct {
 	InfoFinder        *InfoFinderScan       `json:"infoFinder,omitempty"`
 	Malware           *MalwareScan          `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationScan `json:"misconfigurations,omitempty"`
+	Plugins           *PluginScan           `json:"plugins,omitempty"`
 
 	// Provider Describes a relationship to a provider which can be expanded.
 	Provider              *ProviderRelationship  `json:"provider,omitempty"`
@@ -485,6 +487,7 @@ type AssetScanStats struct {
 	InfoFinder        *[]AssetScanInputScanStats `json:"infoFinder,omitempty"`
 	Malware           *[]AssetScanInputScanStats `json:"malware,omitempty"`
 	Misconfigurations *[]AssetScanInputScanStats `json:"misconfigurations,omitempty"`
+	Plugins           *[]AssetScanInputScanStats `json:"plugins,omitempty"`
 	Rootkits          *[]AssetScanInputScanStats `json:"rootkits,omitempty"`
 	Sbom              *[]AssetScanInputScanStats `json:"sbom,omitempty"`
 	Secrets           *[]AssetScanInputScanStats `json:"secrets,omitempty"`
@@ -691,7 +694,7 @@ type Finding struct {
 
 	// Asset Describes a relationship to an asset which can be expanded.
 	Asset       *AssetRelationship     `json:"asset,omitempty"`
-	FindingInfo *Finding_FindingInfo   `json:"findingInfo,omitempty"`
+	FindingInfo *FindingInfo           `json:"findingInfo,omitempty"`
 	FoundBy     *AssetScanRelationship `json:"foundBy,omitempty"`
 
 	// FoundOn When this finding was discovered by a scan
@@ -702,17 +705,17 @@ type Finding struct {
 	InvalidatedOn *time.Time `json:"invalidatedOn,omitempty"`
 }
 
-// Finding_FindingInfo defines model for Finding.FindingInfo.
-type Finding_FindingInfo struct {
-	union json.RawMessage
-}
-
 // FindingExists defines model for FindingExists.
 type FindingExists struct {
 	Finding *Finding `json:"finding,omitempty"`
 
 	// Message Describes which unique constraint combination causes the conflict.
 	Message *string `json:"message,omitempty"`
+}
+
+// FindingInfo defines model for FindingInfo.
+type FindingInfo struct {
+	union json.RawMessage
 }
 
 // Findings defines model for Findings.
@@ -896,6 +899,25 @@ type PackageFindingInfo struct {
 	Purl       *string   `json:"purl,omitempty"`
 	Type       *string   `json:"type,omitempty"`
 	Version    *string   `json:"version,omitempty"`
+}
+
+// PluginScan defines model for PluginScan.
+type PluginScan struct {
+	FindingInfos *[]FindingInfo `json:"findingInfos,omitempty"`
+	Status       *ScannerStatus `json:"status,omitempty"`
+}
+
+// PluginScannerConfig defines model for PluginScannerConfig.
+type PluginScannerConfig struct {
+	Config    *string `json:"config,omitempty"`
+	ImageName *string `json:"image_name,omitempty"`
+}
+
+// PluginsConfig defines model for PluginsConfig.
+type PluginsConfig struct {
+	Enabled        *bool                           `json:"enabled,omitempty"`
+	ScannersConfig *map[string]PluginScannerConfig `json:"scanners_config,omitempty"`
+	ScannersList   *[]string                       `json:"scanners_list,omitempty"`
 }
 
 // PodInfo defines model for PodInfo.
@@ -1325,6 +1347,7 @@ type ScanFamiliesConfig struct {
 	InfoFinder        *InfoFinderConfig        `json:"infoFinder,omitempty"`
 	Malware           *MalwareConfig           `json:"malware,omitempty"`
 	Misconfigurations *MisconfigurationsConfig `json:"misconfigurations,omitempty"`
+	Plugins           *PluginsConfig           `json:"plugins,omitempty"`
 	Rootkits          *RootkitsConfig          `json:"rootkits,omitempty"`
 	Sbom              *SBOMConfig              `json:"sbom,omitempty"`
 	Secrets           *SecretsConfig           `json:"secrets,omitempty"`
@@ -1338,6 +1361,7 @@ type ScanFindingsSummary struct {
 	TotalMalware           *int `json:"totalMalware,omitempty"`
 	TotalMisconfigurations *int `json:"totalMisconfigurations,omitempty"`
 	TotalPackages          *int `json:"totalPackages,omitempty"`
+	TotalPlugins           *int `json:"totalPlugins,omitempty"`
 	TotalRootkits          *int `json:"totalRootkits,omitempty"`
 	TotalSecrets           *int `json:"totalSecrets,omitempty"`
 
@@ -1453,6 +1477,7 @@ type ScanSummary struct {
 	TotalMalware           *int `json:"totalMalware,omitempty"`
 	TotalMisconfigurations *int `json:"totalMisconfigurations,omitempty"`
 	TotalPackages          *int `json:"totalPackages,omitempty"`
+	TotalPlugins           *int `json:"totalPlugins,omitempty"`
 	TotalRootkits          *int `json:"totalRootkits,omitempty"`
 	TotalSecrets           *int `json:"totalSecrets,omitempty"`
 
@@ -2265,23 +2290,23 @@ func (t *AssetType) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsPackageFindingInfo returns the union data inside the Finding_FindingInfo as a PackageFindingInfo
-func (t Finding_FindingInfo) AsPackageFindingInfo() (PackageFindingInfo, error) {
+// AsPackageFindingInfo returns the union data inside the FindingInfo as a PackageFindingInfo
+func (t FindingInfo) AsPackageFindingInfo() (PackageFindingInfo, error) {
 	var body PackageFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromPackageFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided PackageFindingInfo
-func (t *Finding_FindingInfo) FromPackageFindingInfo(v PackageFindingInfo) error {
+// FromPackageFindingInfo overwrites any union data inside the FindingInfo as the provided PackageFindingInfo
+func (t *FindingInfo) FromPackageFindingInfo(v PackageFindingInfo) error {
 	v.ObjectType = "Package"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergePackageFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided PackageFindingInfo
-func (t *Finding_FindingInfo) MergePackageFindingInfo(v PackageFindingInfo) error {
+// MergePackageFindingInfo performs a merge with any union data inside the FindingInfo, using the provided PackageFindingInfo
+func (t *FindingInfo) MergePackageFindingInfo(v PackageFindingInfo) error {
 	v.ObjectType = "Package"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2293,23 +2318,23 @@ func (t *Finding_FindingInfo) MergePackageFindingInfo(v PackageFindingInfo) erro
 	return err
 }
 
-// AsVulnerabilityFindingInfo returns the union data inside the Finding_FindingInfo as a VulnerabilityFindingInfo
-func (t Finding_FindingInfo) AsVulnerabilityFindingInfo() (VulnerabilityFindingInfo, error) {
+// AsVulnerabilityFindingInfo returns the union data inside the FindingInfo as a VulnerabilityFindingInfo
+func (t FindingInfo) AsVulnerabilityFindingInfo() (VulnerabilityFindingInfo, error) {
 	var body VulnerabilityFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromVulnerabilityFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided VulnerabilityFindingInfo
-func (t *Finding_FindingInfo) FromVulnerabilityFindingInfo(v VulnerabilityFindingInfo) error {
+// FromVulnerabilityFindingInfo overwrites any union data inside the FindingInfo as the provided VulnerabilityFindingInfo
+func (t *FindingInfo) FromVulnerabilityFindingInfo(v VulnerabilityFindingInfo) error {
 	v.ObjectType = "Vulnerability"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeVulnerabilityFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided VulnerabilityFindingInfo
-func (t *Finding_FindingInfo) MergeVulnerabilityFindingInfo(v VulnerabilityFindingInfo) error {
+// MergeVulnerabilityFindingInfo performs a merge with any union data inside the FindingInfo, using the provided VulnerabilityFindingInfo
+func (t *FindingInfo) MergeVulnerabilityFindingInfo(v VulnerabilityFindingInfo) error {
 	v.ObjectType = "Vulnerability"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2321,23 +2346,23 @@ func (t *Finding_FindingInfo) MergeVulnerabilityFindingInfo(v VulnerabilityFindi
 	return err
 }
 
-// AsMalwareFindingInfo returns the union data inside the Finding_FindingInfo as a MalwareFindingInfo
-func (t Finding_FindingInfo) AsMalwareFindingInfo() (MalwareFindingInfo, error) {
+// AsMalwareFindingInfo returns the union data inside the FindingInfo as a MalwareFindingInfo
+func (t FindingInfo) AsMalwareFindingInfo() (MalwareFindingInfo, error) {
 	var body MalwareFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromMalwareFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided MalwareFindingInfo
-func (t *Finding_FindingInfo) FromMalwareFindingInfo(v MalwareFindingInfo) error {
+// FromMalwareFindingInfo overwrites any union data inside the FindingInfo as the provided MalwareFindingInfo
+func (t *FindingInfo) FromMalwareFindingInfo(v MalwareFindingInfo) error {
 	v.ObjectType = "Malware"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeMalwareFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided MalwareFindingInfo
-func (t *Finding_FindingInfo) MergeMalwareFindingInfo(v MalwareFindingInfo) error {
+// MergeMalwareFindingInfo performs a merge with any union data inside the FindingInfo, using the provided MalwareFindingInfo
+func (t *FindingInfo) MergeMalwareFindingInfo(v MalwareFindingInfo) error {
 	v.ObjectType = "Malware"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2349,23 +2374,23 @@ func (t *Finding_FindingInfo) MergeMalwareFindingInfo(v MalwareFindingInfo) erro
 	return err
 }
 
-// AsSecretFindingInfo returns the union data inside the Finding_FindingInfo as a SecretFindingInfo
-func (t Finding_FindingInfo) AsSecretFindingInfo() (SecretFindingInfo, error) {
+// AsSecretFindingInfo returns the union data inside the FindingInfo as a SecretFindingInfo
+func (t FindingInfo) AsSecretFindingInfo() (SecretFindingInfo, error) {
 	var body SecretFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromSecretFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided SecretFindingInfo
-func (t *Finding_FindingInfo) FromSecretFindingInfo(v SecretFindingInfo) error {
+// FromSecretFindingInfo overwrites any union data inside the FindingInfo as the provided SecretFindingInfo
+func (t *FindingInfo) FromSecretFindingInfo(v SecretFindingInfo) error {
 	v.ObjectType = "Secret"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeSecretFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided SecretFindingInfo
-func (t *Finding_FindingInfo) MergeSecretFindingInfo(v SecretFindingInfo) error {
+// MergeSecretFindingInfo performs a merge with any union data inside the FindingInfo, using the provided SecretFindingInfo
+func (t *FindingInfo) MergeSecretFindingInfo(v SecretFindingInfo) error {
 	v.ObjectType = "Secret"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2377,23 +2402,23 @@ func (t *Finding_FindingInfo) MergeSecretFindingInfo(v SecretFindingInfo) error 
 	return err
 }
 
-// AsMisconfigurationFindingInfo returns the union data inside the Finding_FindingInfo as a MisconfigurationFindingInfo
-func (t Finding_FindingInfo) AsMisconfigurationFindingInfo() (MisconfigurationFindingInfo, error) {
+// AsMisconfigurationFindingInfo returns the union data inside the FindingInfo as a MisconfigurationFindingInfo
+func (t FindingInfo) AsMisconfigurationFindingInfo() (MisconfigurationFindingInfo, error) {
 	var body MisconfigurationFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromMisconfigurationFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided MisconfigurationFindingInfo
-func (t *Finding_FindingInfo) FromMisconfigurationFindingInfo(v MisconfigurationFindingInfo) error {
+// FromMisconfigurationFindingInfo overwrites any union data inside the FindingInfo as the provided MisconfigurationFindingInfo
+func (t *FindingInfo) FromMisconfigurationFindingInfo(v MisconfigurationFindingInfo) error {
 	v.ObjectType = "Misconfiguration"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeMisconfigurationFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided MisconfigurationFindingInfo
-func (t *Finding_FindingInfo) MergeMisconfigurationFindingInfo(v MisconfigurationFindingInfo) error {
+// MergeMisconfigurationFindingInfo performs a merge with any union data inside the FindingInfo, using the provided MisconfigurationFindingInfo
+func (t *FindingInfo) MergeMisconfigurationFindingInfo(v MisconfigurationFindingInfo) error {
 	v.ObjectType = "Misconfiguration"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2405,23 +2430,23 @@ func (t *Finding_FindingInfo) MergeMisconfigurationFindingInfo(v Misconfiguratio
 	return err
 }
 
-// AsRootkitFindingInfo returns the union data inside the Finding_FindingInfo as a RootkitFindingInfo
-func (t Finding_FindingInfo) AsRootkitFindingInfo() (RootkitFindingInfo, error) {
+// AsRootkitFindingInfo returns the union data inside the FindingInfo as a RootkitFindingInfo
+func (t FindingInfo) AsRootkitFindingInfo() (RootkitFindingInfo, error) {
 	var body RootkitFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromRootkitFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided RootkitFindingInfo
-func (t *Finding_FindingInfo) FromRootkitFindingInfo(v RootkitFindingInfo) error {
+// FromRootkitFindingInfo overwrites any union data inside the FindingInfo as the provided RootkitFindingInfo
+func (t *FindingInfo) FromRootkitFindingInfo(v RootkitFindingInfo) error {
 	v.ObjectType = "Rootkit"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeRootkitFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided RootkitFindingInfo
-func (t *Finding_FindingInfo) MergeRootkitFindingInfo(v RootkitFindingInfo) error {
+// MergeRootkitFindingInfo performs a merge with any union data inside the FindingInfo, using the provided RootkitFindingInfo
+func (t *FindingInfo) MergeRootkitFindingInfo(v RootkitFindingInfo) error {
 	v.ObjectType = "Rootkit"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2433,23 +2458,23 @@ func (t *Finding_FindingInfo) MergeRootkitFindingInfo(v RootkitFindingInfo) erro
 	return err
 }
 
-// AsExploitFindingInfo returns the union data inside the Finding_FindingInfo as a ExploitFindingInfo
-func (t Finding_FindingInfo) AsExploitFindingInfo() (ExploitFindingInfo, error) {
+// AsExploitFindingInfo returns the union data inside the FindingInfo as a ExploitFindingInfo
+func (t FindingInfo) AsExploitFindingInfo() (ExploitFindingInfo, error) {
 	var body ExploitFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromExploitFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided ExploitFindingInfo
-func (t *Finding_FindingInfo) FromExploitFindingInfo(v ExploitFindingInfo) error {
+// FromExploitFindingInfo overwrites any union data inside the FindingInfo as the provided ExploitFindingInfo
+func (t *FindingInfo) FromExploitFindingInfo(v ExploitFindingInfo) error {
 	v.ObjectType = "Exploit"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeExploitFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided ExploitFindingInfo
-func (t *Finding_FindingInfo) MergeExploitFindingInfo(v ExploitFindingInfo) error {
+// MergeExploitFindingInfo performs a merge with any union data inside the FindingInfo, using the provided ExploitFindingInfo
+func (t *FindingInfo) MergeExploitFindingInfo(v ExploitFindingInfo) error {
 	v.ObjectType = "Exploit"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2461,23 +2486,23 @@ func (t *Finding_FindingInfo) MergeExploitFindingInfo(v ExploitFindingInfo) erro
 	return err
 }
 
-// AsInfoFinderFindingInfo returns the union data inside the Finding_FindingInfo as a InfoFinderFindingInfo
-func (t Finding_FindingInfo) AsInfoFinderFindingInfo() (InfoFinderFindingInfo, error) {
+// AsInfoFinderFindingInfo returns the union data inside the FindingInfo as a InfoFinderFindingInfo
+func (t FindingInfo) AsInfoFinderFindingInfo() (InfoFinderFindingInfo, error) {
 	var body InfoFinderFindingInfo
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromInfoFinderFindingInfo overwrites any union data inside the Finding_FindingInfo as the provided InfoFinderFindingInfo
-func (t *Finding_FindingInfo) FromInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
+// FromInfoFinderFindingInfo overwrites any union data inside the FindingInfo as the provided InfoFinderFindingInfo
+func (t *FindingInfo) FromInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
 	v.ObjectType = "InfoFinder"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeInfoFinderFindingInfo performs a merge with any union data inside the Finding_FindingInfo, using the provided InfoFinderFindingInfo
-func (t *Finding_FindingInfo) MergeInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
+// MergeInfoFinderFindingInfo performs a merge with any union data inside the FindingInfo, using the provided InfoFinderFindingInfo
+func (t *FindingInfo) MergeInfoFinderFindingInfo(v InfoFinderFindingInfo) error {
 	v.ObjectType = "InfoFinder"
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -2489,7 +2514,7 @@ func (t *Finding_FindingInfo) MergeInfoFinderFindingInfo(v InfoFinderFindingInfo
 	return err
 }
 
-func (t Finding_FindingInfo) Discriminator() (string, error) {
+func (t FindingInfo) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"objectType"`
 	}
@@ -2497,7 +2522,7 @@ func (t Finding_FindingInfo) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t Finding_FindingInfo) ValueByDiscriminator() (interface{}, error) {
+func (t FindingInfo) ValueByDiscriminator() (interface{}, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2524,12 +2549,12 @@ func (t Finding_FindingInfo) ValueByDiscriminator() (interface{}, error) {
 	}
 }
 
-func (t Finding_FindingInfo) MarshalJSON() ([]byte, error) {
+func (t FindingInfo) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Finding_FindingInfo) UnmarshalJSON(b []byte) error {
+func (t *FindingInfo) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

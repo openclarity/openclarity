@@ -21,7 +21,7 @@ import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 )
 
-func GenerateFindingKey(findingInfo *apitypes.Finding_FindingInfo) (string, error) {
+func GenerateFindingKey(findingInfo *apitypes.FindingInfo) (string, error) {
 	value, err := findingInfo.ValueByDiscriminator()
 	if err != nil {
 		return "", fmt.Errorf("failed to value by discriminator from finding info: %w", err)

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package plugin
 
 import (
 	"context"
@@ -31,6 +31,9 @@ import (
 
 	"github.com/openclarity/vmclarity/plugins/sdk/types"
 )
+
+// APIVersion defines the current version of the Scanner Plugin API.
+const APIVersion = "1.0.0"
 
 // server implements Scanner Plugin Server from OpenAPI specs and safely executes
 // and handles the operations on given Scanner.
@@ -108,7 +111,7 @@ func (s *server) GetMetadata(ctx echo.Context) error {
 
 	// Override API version so that we know on host which the actual API server being
 	// used for compatibility purposes.
-	metadata.ApiVersion = types.Ptr(types.APIVersion)
+	metadata.ApiVersion = types.Ptr(APIVersion)
 
 	return ctx.JSON(http.StatusOK, metadata)
 }

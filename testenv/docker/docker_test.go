@@ -42,6 +42,7 @@ func TestProjectFromConfig(t *testing.T) {
 					UI:           "openclarity/vmclarity-ui:latest",
 					UIBackend:    "openclarity/vmclarity-uibackend:latest",
 					Scanner:      "openclarity/vmclarity-cli:latest",
+					PluginKics:   "openclarity/vmclarity-plugin-kics:latest",
 				},
 				ComposeFiles: []string{
 					"../../installation/docker/docker-compose.yml",

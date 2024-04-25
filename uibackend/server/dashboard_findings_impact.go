@@ -49,7 +49,7 @@ type findingAssetKey struct {
 }
 
 type findingInfoCount struct {
-	FindingInfo *apitypes.Finding_FindingInfo
+	FindingInfo *apitypes.FindingInfo
 	AssetCount  int
 }
 
@@ -149,7 +149,7 @@ func (s *ServerImpl) getExploitsFindingImpact(ctx context.Context) ([]types.Expl
 	return ret, nil
 }
 
-func createExploitFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.ExploitFindingImpact, error) {
+func createExploitFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.ExploitFindingImpact, error) {
 	info, err := findingInfo.AsExploitFindingInfo()
 	if err != nil {
 		return types.ExploitFindingImpact{}, fmt.Errorf("failed to convert finding info to exploit info: %w", err)
@@ -186,7 +186,7 @@ func (s *ServerImpl) getMalwareFindingImpact(ctx context.Context) ([]types.Malwa
 	return ret, nil
 }
 
-func createMalwareFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.MalwareFindingImpact, error) {
+func createMalwareFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.MalwareFindingImpact, error) {
 	info, err := findingInfo.AsMalwareFindingInfo()
 	if err != nil {
 		return types.MalwareFindingImpact{}, fmt.Errorf("failed to convert finding info to malware info: %w", err)
@@ -221,7 +221,7 @@ func (s *ServerImpl) getMisconfigurationsFindingImpact(ctx context.Context) ([]t
 	return ret, nil
 }
 
-func createMisconfigurationFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.MisconfigurationFindingImpact, error) {
+func createMisconfigurationFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.MisconfigurationFindingImpact, error) {
 	info, err := findingInfo.AsMisconfigurationFindingInfo()
 	if err != nil {
 		return types.MisconfigurationFindingImpact{}, fmt.Errorf("failed to convert finding info to misconfiguration info: %w", err)
@@ -264,7 +264,7 @@ func (s *ServerImpl) getRootkitsFindingImpact(ctx context.Context) ([]types.Root
 	return ret, nil
 }
 
-func createRootkitFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.RootkitFindingImpact, error) {
+func createRootkitFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.RootkitFindingImpact, error) {
 	info, err := findingInfo.AsRootkitFindingInfo()
 	if err != nil {
 		return types.RootkitFindingImpact{}, fmt.Errorf("failed to convert finding info to rootkit info: %w", err)
@@ -302,7 +302,7 @@ func (s *ServerImpl) getSecretsFindingImpact(ctx context.Context) ([]types.Secre
 	return ret, nil
 }
 
-func createSecretFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.SecretFindingImpact, error) {
+func createSecretFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.SecretFindingImpact, error) {
 	info, err := findingInfo.AsSecretFindingInfo()
 	if err != nil {
 		return types.SecretFindingImpact{}, fmt.Errorf("failed to convert finding info to secret info: %w", err)
@@ -349,7 +349,7 @@ func (s *ServerImpl) getVulnerabilitiesFindingImpact(ctx context.Context) ([]typ
 	return ret, nil
 }
 
-func createVulnerabilityFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.VulnerabilityFindingImpact, error) {
+func createVulnerabilityFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.VulnerabilityFindingImpact, error) {
 	info, err := findingInfo.AsVulnerabilityFindingInfo()
 	if err != nil {
 		return types.VulnerabilityFindingImpact{}, fmt.Errorf("failed to convert finding info to vulnerability info: %w", err)
@@ -431,7 +431,7 @@ func (s *ServerImpl) getPackagesFindingImpact(ctx context.Context) ([]types.Pack
 	return ret, nil
 }
 
-func createPackageFindingImpact(findingInfo *apitypes.Finding_FindingInfo, count int) (types.PackageFindingImpact, error) {
+func createPackageFindingImpact(findingInfo *apitypes.FindingInfo, count int) (types.PackageFindingImpact, error) {
 	info, err := findingInfo.AsPackageFindingInfo()
 	if err != nil {
 		return types.PackageFindingImpact{}, fmt.Errorf("failed to convert finding info to package info: %w", err)
@@ -541,7 +541,7 @@ func getSortedFindingInfoCountSlice(findingAssetMapCount map[string]findingInfoC
 	return findingInfoCountSlice
 }
 
-func createFindingsImpact[T any](findingInfoCountSlice []findingInfoCount, createFunc func(findingInfo *apitypes.Finding_FindingInfo, count int) (T, error)) ([]T, error) {
+func createFindingsImpact[T any](findingInfoCountSlice []findingInfoCount, createFunc func(findingInfo *apitypes.FindingInfo, count int) (T, error)) ([]T, error) {
 	var ret []T
 	for i := 0; i < maxFindingsImpactCount && i < len(findingInfoCountSlice); i++ {
 		infoCount := findingInfoCountSlice[i]

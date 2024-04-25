@@ -121,3 +121,15 @@ rootkits:
   scanners_config:
     chkrootkit:
       binary_path: chkrootkit
+
+plugins:
+  enabled: false
+  scanners_list:
+    - "kics"
+  inputs: 
+    - input: "/tmp"
+      input_type: "rootfs"
+  scanners_config:
+    kics:
+      image_name: "ghcr.io/openclarity/vmclarity-plugin-kics:latest"
+      config: "{}"

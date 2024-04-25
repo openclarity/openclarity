@@ -21,6 +21,7 @@ const (
 	HighSeverity   Severity = "HighSeverity"
 	MediumSeverity Severity = "MediumSeverity"
 	LowSeverity    Severity = "LowSeverity"
+	InfoSeverity   Severity = "InfoSeverity"
 )
 
 type Misconfiguration struct {

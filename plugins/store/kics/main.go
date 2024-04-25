@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/server"
+	"github.com/openclarity/vmclarity/plugins/sdk/plugin"
 
 	"github.com/Checkmarx/kics/pkg/model"
 	"github.com/Checkmarx/kics/pkg/printer"
@@ -76,7 +76,7 @@ func (s *Scanner) SetStatus(newStatus *types.Status) {
 
 func (s *Scanner) Start(config types.Config) {
 	go func() {
-		logger := server.GetLogger()
+		logger := plugin.GetLogger()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.TimeoutSeconds)*time.Second)
 		s.cancel = cancel
@@ -213,7 +213,7 @@ func (s *Scanner) formatOutput(rawFile, outputFile string) error {
 }
 
 func main() {
-	server.Run(&Scanner{
+	plugin.Run(&Scanner{
 		status: types.NewScannerStatus(types.Ready, types.Ptr("Starting scanner...")),
 	})
 }

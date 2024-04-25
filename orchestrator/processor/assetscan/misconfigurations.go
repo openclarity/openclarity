@@ -90,7 +90,7 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 				Id:          item.Id,
 			}
 
-			findingInfo := apitypes.Finding_FindingInfo{}
+			findingInfo := apitypes.FindingInfo{}
 			err = findingInfo.FromMisconfigurationFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert MisconfigurationFindingInfo into FindingInfo: %w", err)

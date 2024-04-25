@@ -55,6 +55,7 @@ func newScanFromScanConfig(scanConfig *apitypes.ScanConfig) *apitypes.Scan {
 				TotalMediumVulnerabilities:     to.Ptr(0),
 				TotalNegligibleVulnerabilities: to.Ptr(0),
 			},
+			TotalPlugins: to.Ptr(0),
 		},
 	}
 }

@@ -261,6 +261,8 @@ func MisconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationT
 		return apitypes.MisconfigurationMediumSeverity, nil
 	case misconfigurationTypes.LowSeverity:
 		return apitypes.MisconfigurationLowSeverity, nil
+	case misconfigurationTypes.InfoSeverity:
+		return apitypes.MisconfigurationInfoSeverity, nil
 	default:
 		return apitypes.MisconfigurationLowSeverity, fmt.Errorf("unknown severity level %v", sev)
 	}

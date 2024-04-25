@@ -68,7 +68,7 @@ func TestGenerateFindingKey(t *testing.T) {
 	}
 
 	type args struct {
-		findingInfo *apitypes.Finding_FindingInfo
+		findingInfo *apitypes.FindingInfo
 	}
 	tests := []struct {
 		name    string
@@ -147,10 +147,10 @@ func TestGenerateFindingKey(t *testing.T) {
 	}
 }
 
-func createFindingInfo(t *testing.T, info interface{}) *apitypes.Finding_FindingInfo {
+func createFindingInfo(t *testing.T, info interface{}) *apitypes.FindingInfo {
 	t.Helper()
 	var err error
-	findingInfoB := apitypes.Finding_FindingInfo{}
+	findingInfoB := apitypes.FindingInfo{}
 	switch fInfo := info.(type) {
 	case apitypes.RootkitFindingInfo:
 		err = findingInfoB.FromRootkitFindingInfo(fInfo)
