@@ -48,11 +48,11 @@ var DockerManifestBundle = &manifest.Bundle{
 	Matcher: manifest.DefaultMatcher,
 }
 
-//go:embed all:gcp
+//go:embed all:gcp/dm
 var gcpManifestFS embed.FS
 
 var GCPManifestBundle = &manifest.Bundle{
-	Prefix:  "gcp",
+	Prefix:  "gcp/dm",
 	FS:      gcpManifestFS,
 	Matcher: manifest.DefaultMatcher,
 }
