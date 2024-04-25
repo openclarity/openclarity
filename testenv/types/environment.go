@@ -51,7 +51,7 @@ const (
 	EnvironmentTypeDocker     EnvironmentType = "docker"
 	EnvironmentTypeKubernetes EnvironmentType = "kubernetes"
 	EnvironmentTypeAWS        EnvironmentType = "aws"
-	EnvironmentTypeGCP        EnvironmentType = "gpc"
+	EnvironmentTypeGCP        EnvironmentType = "gcp"
 	EnvironmentTypeAzure      EnvironmentType = "azure"
 )
 

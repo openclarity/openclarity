@@ -87,6 +87,9 @@ systemctl daemon-reload
 # Enable and start/restart VMClarity backend
 systemctl enable vmclarity.service
 systemctl restart vmclarity.service
+
+# Add vmclarity user to docker group
+usermod -a -G docker vmclarity
 EOF
 chmod 744 /etc/vmclarity/deploy.sh
 

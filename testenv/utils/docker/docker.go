@@ -17,7 +17,9 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -27,6 +29,11 @@ import (
 
 	envtypes "github.com/openclarity/vmclarity/testenv/types"
 	"github.com/openclarity/vmclarity/testenv/utils"
+)
+
+const (
+	DockerTimeout  = 5 * time.Minute
+	TickerInterval = 5 * time.Second
 )
 
 type DockerHelper struct {
@@ -80,6 +87,27 @@ func (e *DockerHelper) Services(ctx context.Context) (envtypes.Services, error) 
 	}
 
 	return serviceCollection.AsServices(), nil
+}
+
+func (e *DockerHelper) WaitForDockerReady(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, DockerTimeout)
+	defer cancel()
+
+	ticker := time.NewTicker(TickerInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return errors.New("stopping periodic check due to timeout")
+		case <-ticker.C:
+			_, err := e.client.Ping(ctx)
+			if err != nil {
+				continue
+			}
+			return nil
+		}
+	}
 }
 
 func New(opts []client.Opt) (*DockerHelper, error) {

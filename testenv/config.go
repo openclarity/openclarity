@@ -26,6 +26,7 @@ import (
 
 	awsenv "github.com/openclarity/vmclarity/testenv/aws"
 	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
+	gcpenv "github.com/openclarity/vmclarity/testenv/gcp"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/testenv/types"
 )
@@ -60,6 +61,8 @@ type Config struct {
 	Kubernetes *k8senv.Config `mapstructure:"kubernetes,omitempty"`
 	// AWS contains the configuration for AWS platform.
 	AWS *awsenv.Config `mapstructure:"aws,omitempty"`
+	// GCP contains the configuration for GCP platform.
+	GCP *gcpenv.Config `mapstructure:"gcp,omitempty"`
 	// WorkDir contains the path to the work directory.
 	WorkDir string `mapstructure:"work_dir"`
 
