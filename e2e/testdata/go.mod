@@ -1,4 +1,4 @@
-module test
+module github.com/openclarity/vmclarity/e2e/testdata
 
 go 1.21.4
 
