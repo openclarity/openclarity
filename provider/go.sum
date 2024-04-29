@@ -1529,8 +1529,8 @@ github.com/zclconf/go-cty v1.14.1 h1:t9fyA35fwjjUMcmL5hLER+e/rEPqrbCK1/OSE4SI9KA
 github.com/zclconf/go-cty v1.14.1/go.mod h1:VvMs5i0vgZdhYawQNq5kePSpLAoz8u1xvZgrPIxfnZE=
 github.com/zclconf/go-cty-yaml v1.0.3 h1:og/eOQ7lvA/WWhHGFETVWNduJM7Rjsv2RRpx1sdFMLc=
 github.com/zclconf/go-cty-yaml v1.0.3/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
-github.com/zregvart/helm/v3 v3.0.0-20240402130115-358a649d3c7b h1:VhoMuHpHzQeASBybqJwhocEJhC95gDP5rgYwYtqBMIg=
-github.com/zregvart/helm/v3 v3.0.0-20240402130115-358a649d3c7b/go.mod h1:ygVRD69gHElKcLbYc9Q2DgFmKYCVcTeh3wqmg/L2K0E=
+github.com/zregvart/helm/v3 v3.0.0-20240418104007-9b1dba93af41 h1:4pJq+jymAJvRWZh3mnEhfbCO808agQHIG960R2Vmzig=
+github.com/zregvart/helm/v3 v3.0.0-20240418104007-9b1dba93af41/go.mod h1:dfSF3dw1COuz+fkLJVtwkKBdVOnlESNfFQLe4f6ClPw=
 go.etcd.io/bbolt v1.3.9 h1:8x7aARPEXiXbHmtUwAIv7eV2fQFHrLLavdiJ3uzJXoI=
 go.etcd.io/bbolt v1.3.9/go.mod h1:zaO32+Ti0PK1ivdPtgMESzuzL2VPoIG1PCQNvOdo/dE=
 go.etcd.io/etcd/api/v3 v3.5.1/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
