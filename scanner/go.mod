@@ -20,7 +20,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jinzhu/copier v0.4.0
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 	github.com/openclarity/grype-server/api v0.0.0-20240201133700-ad5e6432b894
 	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
 	github.com/openclarity/vmclarity/core v0.7.0-rc.1

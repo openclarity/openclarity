@@ -16,7 +16,7 @@ require (
 	github.com/docker/docker v26.0.2+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 	github.com/openclarity/vmclarity/core v0.7.0-rc.1
 	github.com/openclarity/vmclarity/installation v0.7.0-rc.1
 	github.com/opencontainers/go-digest v1.0.0

@@ -19,7 +19,7 @@ require (
 	github.com/docker/docker v26.0.2+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
 	github.com/openclarity/vmclarity/containerruntimediscovery/client v0.7.0-rc.1
 	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.0-rc.1
