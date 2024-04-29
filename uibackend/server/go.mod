@@ -11,7 +11,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/oapi-codegen/echo-middleware v1.0.1
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 	github.com/openclarity/vmclarity/api/client v0.7.0-rc.1
 	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
 	github.com/openclarity/vmclarity/core v0.7.0-rc.1
