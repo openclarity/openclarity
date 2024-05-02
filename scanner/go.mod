@@ -10,7 +10,7 @@ require (
 	github.com/anchore/stereoscope v0.0.2
 	github.com/anchore/syft v1.2.0
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
-	github.com/aquasecurity/trivy v0.50.1
+	github.com/aquasecurity/trivy v0.50.4
 	github.com/aquasecurity/trivy-db v0.0.0-20240401130858-5bfbd975e506
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containers/image/v5 v5.30.0
@@ -227,7 +227,7 @@ require (
 	github.com/google/pprof v0.0.0-20230406165453-00490a63f317 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/google/wire v0.5.0 // indirect
+	github.com/google/wire v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/gookit/color v1.5.4 // indirect
