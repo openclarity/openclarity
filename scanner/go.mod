@@ -7,7 +7,7 @@ require (
 	github.com/Portshift/dockle v0.3.2-0.20230921065504-6cd22e0b9ebe
 	github.com/anchore/clio v0.0.0-20240408173007-3c4abf89e72f
 	github.com/anchore/grype v0.76.0
-	github.com/anchore/stereoscope v0.0.2-0.20240229175558-fe426d1b1c84
+	github.com/anchore/stereoscope v0.0.2
 	github.com/anchore/syft v1.2.0
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
 	github.com/aquasecurity/trivy v0.50.1
