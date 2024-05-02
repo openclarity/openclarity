@@ -8,8 +8,8 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.7.15
-	github.com/containerd/nerdctl v1.7.5
+	github.com/containerd/containerd v1.7.16
+	github.com/containerd/nerdctl v1.7.6
 	github.com/containers/image/v5 v5.30.0
 	github.com/docker/docker v26.0.2+incompatible
 	github.com/labstack/echo/v4 v4.12.0
