@@ -25,8 +25,8 @@ github.com/containerd/cgroups/v3 v3.0.3 h1:S5ByHZ/h9PMe5IOQoN7E+nMc2UcLEM/V48DGD
 github.com/containerd/cgroups/v3 v3.0.3/go.mod h1:8HBe7V3aWGLFPd/k03swSIsGjZhHI2WzJmticMgVuz0=
 github.com/containerd/console v1.0.4 h1:F2g4+oChYvBTsASRTz8NP6iIAi97J3TtSAsLbIFn4ro=
 github.com/containerd/console v1.0.4/go.mod h1:YynlIjWYF8myEu6sdkwKIvGQq+cOckRm6So2avqoYAk=
-github.com/containerd/containerd v1.7.15 h1:afEHXdil9iAm03BmhjzKyXnnEBtjaLJefdU7DV0IFes=
-github.com/containerd/containerd v1.7.15/go.mod h1:ISzRRTMF8EXNpJlTzyr2XMhN+j9K302C21/+cr3kUnY=
+github.com/containerd/containerd v1.7.16 h1:7Zsfe8Fkj4Wi2My6DXGQ87hiqIrmOXolm72ZEkFU5Mg=
+github.com/containerd/containerd v1.7.16/go.mod h1:NL49g7A/Fui7ccmxV6zkBWwqMgmMxFWzujYCc+JLt7k=
 github.com/containerd/continuity v0.4.3 h1:6HVkalIp+2u1ZLH1J/pYX2oBVXlJZvh1X1A7bEZ9Su8=
 github.com/containerd/continuity v0.4.3/go.mod h1:F6PTNCKepoxEaXLQp3wDAjygEnImnZ/7o4JzpodfroQ=
 github.com/containerd/errdefs v0.1.0 h1:m0wCRBiu1WJT/Fr+iOoQHMQS/eP5myQ8lCv4Dz5ZURM=
@@ -37,8 +37,8 @@ github.com/containerd/imgcrypt v1.1.9 h1:AnXt0sMq1Z2uIdaLt/fIHcMgtfVlFx6XpuaZzoC
 github.com/containerd/imgcrypt v1.1.9/go.mod h1:zEN6Nz5d5XIKgq06Tzk82YRlPZULKGSJ8fxhXhMwrYY=
 github.com/containerd/log v0.1.0 h1:TCJt7ioM2cr/tfR8GPbGf9/VRAX8D2B4PjzCpfX540I=
 github.com/containerd/log v0.1.0/go.mod h1:VRRf09a7mHDIRezVKTRCrOq78v577GXq3bSa3EhrzVo=
-github.com/containerd/nerdctl v1.7.5 h1:vZhwrNuTzFfLWs7M6/WYLZIfz9lZ2JIGAOfp+5Nenzs=
-github.com/containerd/nerdctl v1.7.5/go.mod h1:NFw889YiQVZqhpCbsRet6TObQVdgNb6Tq3HeKhPIAyI=
+github.com/containerd/nerdctl v1.7.6 h1:qR6Q81clixkkwHjjBCfR7JswqjbjcoevG9T3shgNC1o=
+github.com/containerd/nerdctl v1.7.6/go.mod h1:ODDI0/gCmC13OZzr2wgJA5TvfhytK7ySNJG8PviSke4=
 github.com/containerd/stargz-snapshotter v0.15.1 h1:fpsP4kf/Z4n2EYnU0WT8ZCE3eiKDwikDhL6VwxIlgeA=
 github.com/containerd/stargz-snapshotter v0.15.1/go.mod h1:74D+J1m1RMXytLmWxegXWhtOSRHPWZKpKc2NdK3S+us=
 github.com/containerd/ttrpc v1.2.3 h1:4jlhbXIGvijRtNC8F/5CpuJZ7yKOBFGFOOXg1bkISz0=
