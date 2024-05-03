@@ -16,32 +16,39 @@
 package image_helper // nolint:revive,stylecheck
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
+
+	"github.com/openclarity/vmclarity/api/types"
 
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"
 )
 
-// FsLayerCommand represents a history command of a layer in a docker image.
-type FsLayerCommand struct {
-	Command string
-	Layer   string
+const ImageInfoMetadataKey = "vmclarity/internal/image_info"
+
+type ImageInfo struct {
+	Name    string
+	ID      string
+	Tags    []string
+	Digests []string
 }
 
-func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
-	if len(repoDigests) == 0 {
+func (image *ImageInfo) GetHashFromRepoDigests() string {
+	if len(image.Digests) == 0 {
 		return ""
 	}
 
-	normalizedName, err := reference.ParseNormalizedNamed(imageName)
+	normalizedName, err := reference.ParseNormalizedNamed(image.Name)
 	if err != nil {
-		log.Errorf("Failed to parse image name %s to normalized named: %v", imageName, err)
+		log.Errorf("Failed to parse image name %s to normalized named: %v", image.Name, err)
 		return ""
 	}
 	familiarName := reference.FamiliarName(normalizedName)
 	// iterating over RepoDigests and use RepoDigest which match to imageName
-	for _, repoDigest := range repoDigests {
+	for _, repoDigest := range image.Digests {
 		normalizedRepoDigest, err := reference.ParseNormalizedNamed(repoDigest)
 		if err != nil {
 			log.Errorf("Failed to parse repoDigest %s, %v", repoDigest, err)
@@ -62,22 +69,65 @@ func GetHashFromRepoDigest(repoDigests []string, imageName string) string {
 	return ""
 }
 
-func GetHashFromRepoDigestsOrImageID(repoDigests []string, imageID string, imageName string) (string, error) {
-	if imageID == "" && len(repoDigests) == 0 {
+func (image *ImageInfo) GetHashFromRepoDigestsOrImageID() (string, error) {
+	if image.ID == "" && len(image.Digests) == 0 {
 		return "", errors.New("RepoDigest and ImageID are missing")
 	}
 
-	hash := GetHashFromRepoDigest(repoDigests, imageName)
+	hash := image.GetHashFromRepoDigests()
 	if hash == "" {
 		// set hash using ImageID (https://github.com/opencontainers/image-spec/blob/main/config.md#imageid) if repo digests are missing
 		// image ID is represented as a hexadecimal encoding of 256 bits, e.g., sha256:a9561eb1b190625c9adb5a9513e72c4dedafc1cb2d4c5236c9a6957ec7dfd5a9
 		// we need only the hash
-		_, h, found := strings.Cut(imageID, ":")
+		_, h, found := strings.Cut(image.ID, ":")
 		if found {
 			hash = h
 		} else {
-			hash = imageID
+			hash = image.ID
 		}
 	}
 	return hash, nil
+}
+
+// ToMetadata note that only one ImageInfo can be specified in metadata as it is
+// always found under ImageInfoMetadataKey key.
+func (image *ImageInfo) ToMetadata() map[string]string {
+	bytes, _ := json.Marshal(image) // nolint:errchkjson
+
+	return map[string]string{
+		ImageInfoMetadataKey: string(bytes),
+	}
+}
+
+func (image *ImageInfo) FromMetadata(metadata map[string]string) error {
+	if image == nil || metadata == nil {
+		return nil
+	}
+
+	bytes, ok := metadata[ImageInfoMetadataKey]
+	if !ok {
+		return errors.New("could not find image info in metadata")
+	}
+
+	var newImage ImageInfo
+	if err := json.Unmarshal([]byte(bytes), &newImage); err != nil {
+		return fmt.Errorf("failed to load image info from annotations: %w", err)
+	}
+
+	*image = newImage
+
+	return nil
+}
+
+func (image *ImageInfo) ToContainerImageInfo() (*types.ContainerImageInfo, error) {
+	if image.ID == "" {
+		return nil, errors.New("image ID is empty")
+	}
+
+	return &types.ContainerImageInfo{
+		ObjectType:  "ContainerImageInfo", // TODO: switch globally to constants
+		ImageID:     image.ID,
+		RepoDigests: &image.Digests,
+		RepoTags:    &image.Tags,
+	}, nil
 }

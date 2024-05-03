@@ -38,9 +38,10 @@ import (
 	"github.com/anchore/syft/syft/cataloging"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/scanner/utils"
+
 	"github.com/openclarity/vmclarity/scanner/config"
 	"github.com/openclarity/vmclarity/scanner/job_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
 	"github.com/openclarity/vmclarity/scanner/utils/sbom"
 )
 
@@ -90,11 +91,20 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	var hash string
+	var metadata map[string]string
 	origInput := userInput
 	if sourceType == utils.SBOM {
-		origInput, hash, err = sbom.GetTargetNameAndHashFromSBOM(userInput)
+		bom, err := sbom.NewCycloneDX(userInput)
 		if err != nil {
-			ReportError(s.resultChan, fmt.Errorf("failed to get original source and hash from SBOM: %w", err), s.logger)
+			ReportError(s.resultChan, fmt.Errorf("failed to create CycloneDX SBOM: %w", err), s.logger)
+			return
+		}
+
+		origInput = bom.GetTargetNameFromSBOM()
+		metadata = bom.GetMetadataFromSBOM()
+		hash, err = bom.GetHashFromSBOM()
+		if err != nil {
+			ReportError(s.resultChan, fmt.Errorf("failed to get original hash from SBOM: %w", err), s.logger)
 			return
 		}
 	}
@@ -134,7 +144,7 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 	}
 
 	s.logger.Infof("Sending successful results")
-	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash)
+	s.resultChan <- CreateResults(doc, origInput, ScannerName, hash, metadata)
 }
 
 func createVulnerabilityMatcher(store *store.Store) *grype.VulnerabilityMatcher {
