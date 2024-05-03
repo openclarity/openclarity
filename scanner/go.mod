@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/Portshift/dockle v0.3.2-0.20230921065504-6cd22e0b9ebe
 	github.com/anchore/clio v0.0.0-20240408173007-3c4abf89e72f
-	github.com/anchore/grype v0.76.0
+	github.com/anchore/grype v0.77.2
 	github.com/anchore/stereoscope v0.0.3-0.20240423181235-8b297badafd5
 	github.com/anchore/syft v1.3.0
 	github.com/aquasecurity/go-dep-parser v0.0.0-20240213093706-423cd04548a5
@@ -447,7 +447,7 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/gorm v1.25.9 // indirect
+	gorm.io/gorm v1.25.10 // indirect
 	helm.sh/helm/v3 v3.14.3 // indirect
 	k8s.io/api v0.29.4 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
