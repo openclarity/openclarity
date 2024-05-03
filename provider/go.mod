@@ -87,7 +87,7 @@ require (
 	github.com/anchore/go-macholibre v0.0.0-20220308212642-53e6d0aaf6fb // indirect
 	github.com/anchore/go-struct-converter v0.0.0-20221118182256-c68fdcfa2092 // indirect
 	github.com/anchore/go-version v1.2.2-0.20210903204242-51efa5b487c4 // indirect
-	github.com/anchore/grype v0.76.0 // indirect
+	github.com/anchore/grype v0.77.2 // indirect
 	github.com/anchore/packageurl-go v0.1.1-0.20240312213626-055233e539b4 // indirect
 	github.com/anchore/stereoscope v0.0.3-0.20240423181235-8b297badafd5 // indirect
 	github.com/anchore/syft v1.3.0 // indirect
@@ -454,7 +454,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/gorm v1.25.9 // indirect
+	gorm.io/gorm v1.25.10 // indirect
 	helm.sh/helm/v3 v3.14.3 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
 	k8s.io/apiserver v0.29.0 // indirect
