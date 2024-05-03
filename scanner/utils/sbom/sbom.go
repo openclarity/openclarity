@@ -18,20 +18,46 @@ package sbom
 import (
 	"fmt"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/openclarity/vmclarity/scanner/converter"
 	"github.com/openclarity/vmclarity/scanner/utils/cyclonedx_helper"
 )
 
-func GetTargetNameAndHashFromSBOM(inputSBOMFile string) (string, string, error) {
+type CycloneDX struct {
+	BOM *cdx.BOM
+}
+
+func NewCycloneDX(inputSBOMFile string) (*CycloneDX, error) {
 	cdxBOM, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
 	if err != nil {
-		return "", "", converter.ErrFailedToGetCycloneDXSBOM
+		return nil, converter.ErrFailedToGetCycloneDXSBOM
 	}
 
-	hash, err := cyclonedx_helper.GetComponentHash(cdxBOM.Metadata.Component)
+	return &CycloneDX{
+		BOM: cdxBOM,
+	}, nil
+}
+
+func (c *CycloneDX) GetTargetNameFromSBOM() string {
+	return c.BOM.Metadata.Component.Name
+}
+
+func (c *CycloneDX) GetHashFromSBOM() (string, error) {
+	hash, err := cyclonedx_helper.GetComponentHash(c.BOM.Metadata.Component)
 	if err != nil {
-		return "", "", fmt.Errorf("unable to get hash from original SBOM: %w", err)
+		return "", fmt.Errorf("unable to get hash from original SBOM: %w", err)
 	}
 
-	return cdxBOM.Metadata.Component.Name, hash, nil
+	return hash, nil
+}
+
+func (c *CycloneDX) GetMetadataFromSBOM() map[string]string {
+	metadata := make(map[string]string)
+
+	for _, prop := range *c.BOM.Metadata.Component.Properties {
+		metadata[prop.Name] = prop.Value
+	}
+
+	return metadata
 }

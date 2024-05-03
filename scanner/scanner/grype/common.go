@@ -56,7 +56,7 @@ func ReportError(resultChan chan job_manager.Result, err error, logger *log.Entr
 	resultChan <- res
 }
 
-func CreateResults(doc grype_models.Document, userInput, scannerName, hash string) *scanner.Results {
+func CreateResults(doc grype_models.Document, userInput, scannerName, hash string, metadata map[string]string) *scanner.Results {
 	distro := getDistro(doc)
 
 	matches := make(scanner.Matches, len(doc.Matches))
@@ -97,11 +97,11 @@ func CreateResults(doc grype_models.Document, userInput, scannerName, hash strin
 		ScannerInfo: scanner.Info{
 			Name: scannerName,
 		},
-		Source: getSource(doc, userInput, hash),
+		Source: getSource(doc, userInput, hash, metadata),
 	}
 }
 
-func getSource(doc grype_models.Document, userInput, hash string) scanner.Source {
+func getSource(doc grype_models.Document, userInput, hash string, metadata map[string]string) scanner.Source {
 	var source scanner.Source
 	if doc.Source == nil {
 		return source
@@ -119,19 +119,28 @@ func getSource(doc grype_models.Document, userInput, hash string) scanner.Source
 		if hash != "" {
 			break
 		}
-		if h, err := image_helper.GetHashFromRepoDigestsOrImageID(imageMetadata.RepoDigests, imageMetadata.ID, userInput); err != nil {
+
+		imageInfo := image_helper.ImageInfo{
+			Name:    userInput,
+			ID:      imageMetadata.ID,
+			Tags:    imageMetadata.Tags,
+			Digests: imageMetadata.RepoDigests,
+		}
+		if h, err := imageInfo.GetHashFromRepoDigestsOrImageID(); err != nil {
 			log.Warningf("Failed to get image hash from repo digests or image id: %v", err)
 		} else {
 			hash = h
+			metadata = imageInfo.ToMetadata()
 		}
 	case string:
 		srcName = doc.Source.Target.(string) // nolint:forcetypeassert
 	}
 
 	return scanner.Source{
-		Type: doc.Source.Type,
-		Name: srcName,
-		Hash: hash,
+		Metadata: metadata,
+		Type:     doc.Source.Type,
+		Name:     srcName,
+		Hash:     hash,
 	}
 }
 

@@ -21,12 +21,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/openclarity/vmclarity/scanner/utils"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/openclarity/vmclarity/scanner/converter"
-	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
 type componentKey string // Unique identification of a package (name and version)
@@ -66,6 +67,8 @@ func (m *MergedResults) Merge(other *Results) *MergedResults {
 	if other.AppInfo.SourceHash != "" {
 		m.addSourceHash(other.AppInfo.SourceHash)
 	}
+
+	m.addSourceMetadata(other.AppInfo.SourceMetadata)
 
 	if bom.Components != nil {
 		otherComponentsByKey := toComponentByKey(bom.Components)
@@ -464,6 +467,31 @@ func (m *MergedResults) addSourceHash(sourceHash string) *MergedResults {
 	}
 	m.SrcMetaData.Component.Hashes = &[]cdx.Hash{
 		repoDigestHash,
+	}
+
+	return m
+}
+
+func (m *MergedResults) addSourceMetadata(metadata map[string]string) *MergedResults {
+	if m == nil || m.SrcMetaData == nil || m.SrcMetaData.Component == nil {
+		return m
+	}
+
+	if m.SrcMetaData.Component.Properties == nil {
+		m.SrcMetaData.Component.Properties = &[]cdx.Property{}
+	}
+
+	properties := m.SrcMetaData.Component.Properties
+
+	for key, value := range metadata {
+		if key == "" || value == "" {
+			continue
+		}
+
+		*properties = append(*properties, cdx.Property{
+			Name:  key,
+			Value: value,
+		})
 	}
 
 	return m

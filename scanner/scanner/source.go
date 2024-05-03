@@ -16,8 +16,8 @@
 package scanner
 
 type Source struct {
-	Type string `json:"type"`
-	// Name is the path in the case of the input type is dir or file, and userInput in the case of input type is image
-	Name string `json:"name"`
-	Hash string `json:"hash"`
+	Metadata map[string]string `json:"metadata"`
+	Type     string            `json:"type"`
+	Name     string            `json:"name"` // path in the case of the Type=dir or file, and userInput in the case of Type=image
+	Hash     string            `json:"hash"`
 }
