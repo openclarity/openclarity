@@ -16,8 +16,14 @@
 package vulnerabilities
 
 import (
+	"errors"
+	"fmt"
+
+	apitypes "github.com/openclarity/vmclarity/api/types"
+
 	"github.com/openclarity/vmclarity/scanner/families/types"
 	"github.com/openclarity/vmclarity/scanner/scanner"
+	"github.com/openclarity/vmclarity/scanner/utils/image_helper"
 )
 
 type Results struct {
@@ -26,3 +32,21 @@ type Results struct {
 }
 
 func (*Results) IsResults() {}
+
+func (r *Results) GetSourceImageInfo() (*apitypes.ContainerImageInfo, error) {
+	if r.MergedResults == nil {
+		return nil, errors.New("missing merged results")
+	}
+
+	sourceImage := image_helper.ImageInfo{}
+	if err := sourceImage.FromMetadata(r.MergedResults.Source.Metadata); err != nil {
+		return nil, fmt.Errorf("failed to load source image from metadata: %w", err)
+	}
+
+	containerImageInfo, err := sourceImage.ToContainerImageInfo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert container image: %w", err)
+	}
+
+	return containerImageInfo, nil
+}

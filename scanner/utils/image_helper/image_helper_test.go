@@ -78,7 +78,11 @@ func TestGetRepoDigest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetHashFromRepoDigest(tt.args.repoDigests, tt.args.imageName); got != tt.want {
+			imageInfo := ImageInfo{
+				Name:    tt.args.imageName,
+				Digests: tt.args.repoDigests,
+			}
+			if got := imageInfo.GetHashFromRepoDigests(); got != tt.want {
 				t.Errorf("GetHashFromRepoDigest() = %v, want %v", got, tt.want)
 			}
 		})
@@ -152,7 +156,12 @@ func TestGetHashFromRepoDigestsOrImageID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			imageInfo := ImageInfo{
+				Name:    tt.args.imageName,
+				ID:      tt.args.imageID,
+				Digests: tt.args.repoDigests,
+			}
+			got, err := imageInfo.GetHashFromRepoDigestsOrImageID()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -180,7 +189,12 @@ func TestGetHashFromRepoDigestsOrImageID1(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetHashFromRepoDigestsOrImageID(tt.args.repoDigests, tt.args.imageID, tt.args.imageName)
+			imageInfo := ImageInfo{
+				Name:    tt.args.imageName,
+				ID:      tt.args.imageID,
+				Digests: tt.args.repoDigests,
+			}
+			got, err := imageInfo.GetHashFromRepoDigestsOrImageID()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetHashFromRepoDigestsOrImageID() error = %v, wantErr %v", err, tt.wantErr)
 				return
