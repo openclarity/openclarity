@@ -5,7 +5,7 @@ param location string = resourceGroup().location
 
 var vmClarityIdentityName = 'vmclarity-discoverer-deployer-${uniqueString(resourceGroup().id)}'
 
-resource vmClarityServerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource vmClarityServerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: vmClarityIdentityName
   location: location
 }
