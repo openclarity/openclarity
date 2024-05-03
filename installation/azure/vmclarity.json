@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "10797339031674807195"
+      "templateHash": "8388116809162603286"
     }
   },
   "parameters": {
@@ -229,7 +229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "10331032093396709184"
+              "templateHash": "6038619536561269405"
             }
           },
           "parameters": {
@@ -247,7 +247,7 @@
           "resources": [
             {
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-              "apiVersion": "2018-11-30",
+              "apiVersion": "2023-01-31",
               "name": "[variables('vmClarityIdentityName')]",
               "location": "[parameters('location')]"
             }
@@ -259,7 +259,7 @@
             },
             "vmClarityIdentityPrincipalId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vmClarityIdentityName')), '2018-11-30').principalId]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vmClarityIdentityName')), '2023-01-31').principalId]"
             }
           }
         }
