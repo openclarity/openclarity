@@ -25,6 +25,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"path/filepath"
 	"sync/atomic"
 	"time"
 
@@ -321,12 +322,21 @@ func (cm *containerManager) waitContainerRunning(ctx context.Context) (*dockerty
 }
 
 func (cm *containerManager) getScanInputDirMount() (*mount.Mount, error) {
-	// If the host is running in a container, we need to remount as we don't know the
-	// mount type.
+	// Create set with all parent directories of the input dir
+	dir := cm.config.InputDir
+	dirSet := make(map[string]struct{})
+	for len(dir) > 1 {
+		dirSet[dir] = struct{}{}
+		dir = filepath.Dir(dir)
+	}
+
+	// If the host is running in a container, use the input dir mounted on the host container
+	// to mount on the plugin container.
+	// This is required to allow the plugin container to access the input dir from the host.
 	// TODO: add docs about flow
 	if cm.hostContainer != nil {
 		for _, p := range cm.hostContainer.Mounts {
-			if p.Destination != cm.config.InputDir {
+			if _, ok := dirSet[p.Destination]; !ok {
 				continue
 			}
 

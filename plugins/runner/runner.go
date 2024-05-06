@@ -107,7 +107,7 @@ func (r *pluginRunner) WaitReady(ctx context.Context) error {
 			// TODO: add retry mechanism
 			resp, err := r.client.GetHealthzWithResponse(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to get plguin server healthz: %w", err)
+				return fmt.Errorf("failed to get plugin server healthz: %w", err)
 			}
 
 			if resp.StatusCode() == 200 { //nolint:gomnd
