@@ -3280,6 +3280,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FindingInfo'
+          nullable: true
 
     InfoFinderInfo:
       type: object

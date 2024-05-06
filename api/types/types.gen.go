@@ -903,7 +903,7 @@ type PackageFindingInfo struct {
 
 // PluginScan defines model for PluginScan.
 type PluginScan struct {
-	FindingInfos *[]FindingInfo `json:"findingInfos,omitempty"`
+	FindingInfos *[]FindingInfo `json:"findingInfos"`
 	Status       *ScannerStatus `json:"status,omitempty"`
 }
 
