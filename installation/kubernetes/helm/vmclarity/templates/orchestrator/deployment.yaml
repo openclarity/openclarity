@@ -72,7 +72,7 @@ spec:
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS
               value: {{ .Values.orchestrator.trivyServerAddress | default (printf "http://%s:%s" (include "vmclarity.trivyServer.name" .) "9992") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "http://%s:%s" (include "vmclarity.grypeServer.name" .) "9991") }}
+              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "%s:%s" (include "vmclarity.grypeServer.name" .) "9991") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
               value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "vmclarity.freshclamMirror.name" .) "1000") }}
             - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_YARA_RULE_SERVER_ADDRESS
