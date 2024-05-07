@@ -61,6 +61,8 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 				apitypes.Asset{
 					AssetInfo: &assetType,
 					FirstSeen: to.Ptr(time.Now()),
+					// Set to future time so asset is not terminated by discoverer.
+					LastSeen: to.Ptr(time.Now().Add(time.Minute * 10)),
 				},
 			)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
