@@ -32,6 +32,20 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 
 	ginkgo.Context("which scans a docker container", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
+			ginkgo.By("waiting until test asset is found")
+			reportFailedConfig.objects = append(
+				reportFailedConfig.objects,
+				APIObject{"asset", cfg.TestSuiteParams.Scope},
+			)
+			assetsParams := apitypes.GetAssetsParams{
+				Filter: to.Ptr(cfg.TestSuiteParams.Scope),
+			}
+			gomega.Eventually(func() bool {
+				assets, err := client.GetAssets(ctx, assetsParams)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				return len(*assets.Items) == 1
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
+
 			ginkgo.By("applying a scan configuration")
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
@@ -64,7 +78,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					return true
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to done")
 			scanParams = apitypes.GetScansParams{
@@ -77,14 +91,14 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 			}
 			gomega.Eventually(func() bool {
 				scans, err = client.GetScans(ctx, scanParams)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				gomega.Expect(skipDBLockedErr(err)).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, cfg.TestSuiteParams.ScanTimeout, time.Second).Should(gomega.BeTrue())
+			}, cfg.TestSuiteParams.ScanTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until asset is found in riskiest assets dashboard")
 			gomega.Eventually(func() bool {
 				riskiestAssets, err := uiClient.GetDashboardRiskiestAssets(ctx)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				gomega.Expect(skipDBLockedErr(err)).NotTo(gomega.HaveOccurred()) // nolint:wrapcheck
 				if riskiestAssets == nil {
 					return false
 				}
@@ -94,7 +108,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					}
 				}
 				return false
-			}, DefaultTimeout*2, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until findings trends dashboard is populated with vulnerabilities")
 			gomega.Eventually(func() bool {
@@ -105,7 +119,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 						EndTime:   time.Now(),
 					},
 				)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				gomega.Expect(skipDBLockedErr(err)).NotTo(gomega.HaveOccurred()) // nolint:wrapcheck
 				if findingsTrends == nil {
 					return false
 				}
@@ -119,14 +133,14 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					}
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until findings impact dashboard is populated with vulnerabilities")
 			gomega.Eventually(func() bool {
 				findingsImpact, err := uiClient.GetDashboardFindingsImpact(ctx)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return findingsImpact != nil && findingsImpact.Vulnerabilities != nil && len(*findingsImpact.Vulnerabilities) > 0
-			}, DefaultTimeout*2, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

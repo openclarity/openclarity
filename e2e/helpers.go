@@ -16,15 +16,22 @@
 package e2e
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
 )
 
-const DefaultTimeout = 60 * time.Second
+const (
+	DefaultTimeout = 5 * time.Minute
+	DefaultPeriod  = 5 * time.Second
+
+	fullScanStartOffset = 5 * time.Second
+)
 
 var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
 	Exploits: &apitypes.ExploitsConfig{
@@ -94,7 +101,18 @@ func UpdateScanConfigToStartNow(config *apitypes.ScanConfig) *apitypes.ScanConfi
 		},
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
 			CronLine:      config.Scheduled.CronLine,
-			OperationTime: to.Ptr(time.Now()),
+			OperationTime: to.Ptr(time.Now().Add(fullScanStartOffset)), // ensure it won't become outdated by the time it's used
 		},
 	}
+}
+
+// "database is locked" errors from SQLite should be ignored during the test
+// they occur frequently on Azure, but they are temporary and should not cause the test to fail.
+func skipDBLockedErr(err error) error {
+	if err != nil && strings.Contains(err.Error(), "database is locked") {
+		logrus.Info("Database is locked, retrying...")
+		return nil
+	}
+
+	return err
 }

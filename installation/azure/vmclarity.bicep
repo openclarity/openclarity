@@ -50,6 +50,9 @@ param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0
 @description ('Freshclam Mirror Container Image')
 param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirror:v0.3.1'
 
+@description ('Yara Rule Server Container Image')
+param yaraRuleServerContainerImage string = 'ghcr.io/openclarity/yara-rule-server:v0.3.0'
+
 @description('Postgres Container Image')
 param postgresContainerImage string = 'docker.io/bitnami/postgresql:16.2.0-debian-11-r17'
 
@@ -147,6 +150,7 @@ module vmClarityDeploy 'vmclarityDeployModule.bicep' = {
     grypeServerContainerImage: grypeServerContainerImage
     exploitDBContainerImage: exploitDBContainerImage
     freshclamMirrorContainerImage: freshclamMirrorContainerImage
+    yaraRuleServerContainerImage: yaraRuleServerContainerImage
     postgresContainerImage: postgresContainerImage
     assetScanDeletePolicy: assetScanDeletePolicy
     databaseToUse: databaseToUse
