@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   apiserver:
     image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest}
