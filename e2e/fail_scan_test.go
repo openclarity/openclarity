@@ -17,7 +17,6 @@ package e2e
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -40,6 +39,11 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 					600,
 				))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+			reportFailedConfig.objects = append(
+				reportFailedConfig.objects,
+				APIObject{"scanConfig", fmt.Sprintf("id eq '%s'", *apiScanConfig.Id)},
+			)
 
 			ginkgo.By("updating scan configuration to run now")
 			updateScanConfig := UpdateScanConfigToStartNow(apiScanConfig)
@@ -64,7 +68,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 					return true
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to failed with nothing to scan as state reason")
 			params := apitypes.GetScansParams{
@@ -80,7 +84,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 
@@ -119,7 +123,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 					return true
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to failed with timed out as state reason")
 			params := apitypes.GetScansParams{
@@ -135,7 +139,7 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

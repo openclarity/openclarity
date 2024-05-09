@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/vmclarity/testenv/aws"
+	"github.com/openclarity/vmclarity/testenv/azure"
 	"github.com/openclarity/vmclarity/testenv/docker"
 	"github.com/openclarity/vmclarity/testenv/gcp"
 	"github.com/openclarity/vmclarity/testenv/kubernetes"
@@ -58,7 +59,9 @@ func New(config *Config, opts ...ConfigOptFn) (types.Environment, error) {
 			gcp.WithWorkDir(config.WorkDir),
 		)
 	case types.EnvironmentTypeAzure:
-		fallthrough
+		env, err = azure.New(config.Azure,
+			azure.WithWorkDir(config.WorkDir),
+		)
 	default:
 		err = fmt.Errorf("unsupported Environment: %s", config.Platform)
 	}
