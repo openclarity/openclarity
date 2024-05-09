@@ -233,7 +233,7 @@ func (p pluginAdapter) Misconfiguration(data plugintypes.Misconfiguration) (*Mis
 		Remediation: data.Remediation,
 		// TODO(ramizpolic): Remove ScannerName property from Misconfiguration API.
 		// TODO(ramizpolic): This data is available on higher Finding object.
-		ScannerName: nil,
+		ScannerName: to.Ptr(""),
 		Severity:    &severity,
 	}, nil
 }
