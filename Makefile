@@ -166,7 +166,7 @@ endif
 
 .PHONY: e2e
 e2e: $(E2E_TARGETS) ## Run end-to-end test suite
-	$(E2E_ENV) go -C $(ROOT_DIR)/e2e test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
+	$(E2E_ENV) go -C $(ROOT_DIR)/e2e test -v -failfast -test.v -test.paniconexit0 -ginkgo.timeout 2h -timeout 2h -ginkgo.v .
 
 VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 

@@ -77,7 +77,7 @@ param assetScanDeletePolicy string = 'Always'
   'External Postgresql'
   'SQLite'
 ])
-param databaseToUse string = 'Postgresql'
+param databaseToUse string = 'SQLite'
 
 @description('Password to configure Postgresql with on first install. Required if Postgres is selected as the Database To Use. Do not change this on stack update.')
 @secure()
@@ -143,6 +143,7 @@ var params = {
   ExternalDBName: externalDBName
   ExternalDBUsername: externalDBUsername
   ExternalDBPassword: externalDBPassword
+  AdminUsername: adminUsername
   AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
   AZURE_SCANNER_LOCATION: location
   AZURE_SCANNER_RESOURCE_GROUP: resourceGroup().name

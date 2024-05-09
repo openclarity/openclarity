@@ -58,7 +58,7 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 					})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*providers.Items) == 1
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

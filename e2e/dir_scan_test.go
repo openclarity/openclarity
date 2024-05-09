@@ -37,8 +37,7 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 	ginkgo.Context("which scans a directory", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
 			if cfg.TestEnvConfig.Platform != types.EnvironmentTypeDocker {
-				ginkgo.By("skipping test because it's not running on docker")
-				return
+				ginkgo.Skip("skipping test because it's not running on docker")
 			}
 
 			var assets *apitypes.Assets
@@ -81,7 +80,7 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 				assets, err = client.GetAssets(ctx, assetsParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*assets.Items) == 1
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("applying a scan configuration")
 			apiScanConfig, err := client.PostScanConfig(
@@ -139,7 +138,7 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 					return true
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until scan state changes to done")
 			scanParams = apitypes.GetScansParams{
@@ -154,19 +153,19 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 				scans, err = client.GetScans(ctx, scanParams)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, time.Second*120, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("verifying that at least one package was found")
 			gomega.Eventually(func() bool {
 				totalPackages := (*scans.Items)[0].Summary.TotalPackages
 				return *totalPackages > 0
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("verifying that at least one plugin finding was found")
 			gomega.Eventually(func() bool {
 				totalPlugins := (*scans.Items)[0].Summary.TotalPlugins
 				return totalPlugins != nil && *totalPlugins > 0
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

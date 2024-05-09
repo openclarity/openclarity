@@ -17,7 +17,6 @@ package e2e
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -64,7 +63,7 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 					return true
 				}
 				return false
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("aborting a scan")
 			err = client.PatchScan(ctx, *(*scans.Items)[0].Id, &apitypes.Scan{
@@ -89,7 +88,7 @@ var _ = ginkgo.Describe("Aborting a scan", func() {
 				scans, err = client.GetScans(ctx, params)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*scans.Items) == 1
-			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

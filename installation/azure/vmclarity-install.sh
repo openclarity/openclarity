@@ -87,6 +87,9 @@ systemctl daemon-reload
 # Enable and start/restart VMClarity backend
 systemctl enable vmclarity.service
 systemctl restart vmclarity.service
+
+# Add admin user to docker group and activate the changes
+usermod -a -G docker __AdminUsername__
 EOF
 chmod 744 /etc/vmclarity/deploy.sh
 

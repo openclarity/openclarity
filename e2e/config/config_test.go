@@ -25,6 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/testenv"
 	awsenv "github.com/openclarity/vmclarity/testenv/aws"
+	azureenv "github.com/openclarity/vmclarity/testenv/azure"
 	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
 	gcpenv "github.com/openclarity/vmclarity/testenv/gcp"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
@@ -73,6 +74,10 @@ func TestConfig(t *testing.T) {
 				// testenv.gcp
 				"VMCLARITY_E2E_GCP_PRIVATE_KEY_FILE": "/home/vmclarity/.ssh/id_rsa",
 				"VMCLARITY_E2E_GCP_PUBLIC_KEY_FILE":  "/home/vmclarity/.ssh/id_rsa.pub",
+				// testenv.azure
+				"VMCLARITY_E2E_AZURE_REGION":           "polandcentral",
+				"VMCLARITY_E2E_AZURE_PRIVATE_KEY_FILE": "/home/vmclarity/.ssh/id_rsa",
+				"VMCLARITY_E2E_AZURE_PUBLIC_KEY_FILE":  "/home/vmclarity/.ssh/id_rsa.pub",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -142,6 +147,12 @@ func TestConfig(t *testing.T) {
 					},
 					GCP: &gcpenv.Config{
 						EnvName:        "vmclarity-e2e-test",
+						PrivateKeyFile: "/home/vmclarity/.ssh/id_rsa",
+						PublicKeyFile:  "/home/vmclarity/.ssh/id_rsa.pub",
+					},
+					Azure: &azureenv.Config{
+						EnvName:        "vmclarity-e2e-test",
+						Region:         "polandcentral",
 						PrivateKeyFile: "/home/vmclarity/.ssh/id_rsa",
 						PublicKeyFile:  "/home/vmclarity/.ssh/id_rsa.pub",
 					},
@@ -223,6 +234,12 @@ func TestConfig(t *testing.T) {
 					},
 					GCP: &gcpenv.Config{
 						EnvName:        "vmclarity-testenv",
+						PrivateKeyFile: "",
+						PublicKeyFile:  "",
+					},
+					Azure: &azureenv.Config{
+						EnvName:        "vmclarity-testenv",
+						Region:         "eastus",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},

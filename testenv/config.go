@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	awsenv "github.com/openclarity/vmclarity/testenv/aws"
+	azureenv "github.com/openclarity/vmclarity/testenv/azure"
 	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
 	gcpenv "github.com/openclarity/vmclarity/testenv/gcp"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
@@ -64,6 +65,8 @@ type Config struct {
 	AWS *awsenv.Config `mapstructure:"aws,omitempty"`
 	// GCP contains the configuration for GCP platform.
 	GCP *gcpenv.Config `mapstructure:"gcp,omitempty"`
+	// Azure contains the configuration for Azure platform.
+	Azure *azureenv.Config `mapstructure:"azure,omitempty"`
 	// WorkDir contains the path to the work directory.
 	WorkDir string `mapstructure:"work_dir"`
 

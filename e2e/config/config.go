@@ -25,6 +25,7 @@ import (
 
 	"github.com/openclarity/vmclarity/testenv"
 	"github.com/openclarity/vmclarity/testenv/aws"
+	azureenv "github.com/openclarity/vmclarity/testenv/azure"
 	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
 	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
 	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
@@ -48,10 +49,16 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 	scope := "assetInfo/%s/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
 
 	switch t {
-	case types.EnvironmentTypeAWS, types.EnvironmentTypeGCP, types.EnvironmentTypeAzure:
+	case types.EnvironmentTypeAWS, types.EnvironmentTypeGCP:
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 10 * time.Minute,
 			ScanTimeout:          20 * time.Minute,
+			Scope:                fmt.Sprintf(scope, "tags"),
+		}
+	case types.EnvironmentTypeAzure:
+		return &TestSuiteParams{
+			ServicesReadyTimeout: 20 * time.Minute,
+			ScanTimeout:          40 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "tags"),
 		}
 	case types.EnvironmentTypeDocker, types.EnvironmentTypeKubernetes:
@@ -109,6 +116,7 @@ func NewConfig() (*Config, error) {
 	v.RegisterAlias("kubernetes.env_name", "env_name")
 	v.RegisterAlias("aws.env_name", "env_name")
 	v.RegisterAlias("gcp.env_name", "env_name")
+	v.RegisterAlias("azure.env_name", "env_name")
 
 	_ = v.BindEnv("apiserver_image")
 	v.SetDefault("apiserver_image", testenv.DefaultAPIServer)
@@ -187,6 +195,12 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("gcp.public_key_file")
 	_ = v.BindEnv("gcp.private_key_file")
+
+	_ = v.BindEnv("azure.region")
+	v.SetDefault("azure.region", azureenv.DefaultLocation)
+
+	_ = v.BindEnv("azure.public_key_file")
+	_ = v.BindEnv("azure.private_key_file")
 
 	decodeHooks := mapstructure.ComposeDecodeHookFunc(
 		// TextUnmarshallerHookFunc is needed to decode custom types
