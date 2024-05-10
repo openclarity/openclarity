@@ -56,6 +56,8 @@ func createDockleConfig(logger *logrus.Entry, sourceType utils.SourceType, name 
 	switch sourceType {
 	case utils.DOCKERARCHIVE:
 		dockleConfig.FilePath = name
+	case utils.ROOTFS, utils.DIR:
+		dockleConfig.DirPath = name
 	default:
 		dockleConfig.ImageName = name
 	}

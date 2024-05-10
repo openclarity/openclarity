@@ -69,7 +69,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		a.logger.Infof("Successfully scanned %s %s", sourceType, userInput)
 
-		retResults.Misconfigurations = parseDockleReport(userInput, assessmentMap)
+		retResults.Misconfigurations = parseDockleReport(sourceType, userInput, assessmentMap)
 
 		a.sendResults(retResults, nil)
 	}()
@@ -79,9 +79,9 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 func (a *Scanner) isValidInputType(sourceType utils.SourceType) bool {
 	switch sourceType {
-	case utils.IMAGE, utils.DOCKERARCHIVE:
+	case utils.IMAGE, utils.DOCKERARCHIVE, utils.ROOTFS, utils.DIR:
 		return true
-	case utils.ROOTFS, utils.DIR, utils.FILE, utils.SBOM, utils.OCIARCHIVE, utils.OCIDIR:
+	case utils.FILE, utils.SBOM, utils.OCIARCHIVE, utils.OCIDIR:
 		a.logger.Infof("source type %v is not supported for CIS Docker Benchmark scanner, skipping.", sourceType)
 	default:
 		a.logger.Infof("unknown source type %v, skipping.", sourceType)
