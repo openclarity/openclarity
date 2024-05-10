@@ -262,8 +262,8 @@ github.com/Microsoft/hcsshim v0.12.3/go.mod h1:Iyl1WVpZzr+UkzjekHZbV8o5Z9ZkxNGx6
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8=
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
-github.com/Portshift/dockle v0.3.2-0.20230921065504-6cd22e0b9ebe h1:9iFS0fDnBwPWF/pIB77Ym0YhpOyW+6Fs4CUwrQJCgHE=
-github.com/Portshift/dockle v0.3.2-0.20230921065504-6cd22e0b9ebe/go.mod h1:4Ah+8tyE5uzs8BBmUOo1bIyMWXQnIpx9mvsEzrsmo3Q=
+github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7 h1:d8TjnmUvMG8up/q+oVxanmAMqj+stbZEChx8FHXA9R8=
+github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7/go.mod h1:FUpB0D5B7AaKtY3Xt1kvO5QlJV2OifG3NNmvisDMla8=
 github.com/ProtonMail/go-crypto v1.1.0-alpha.0 h1:nHGfwXmFvJrSR9xu8qL7BkO4DqTHXE9N5vPhgY2I+j0=
 github.com/ProtonMail/go-crypto v1.1.0-alpha.0/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
