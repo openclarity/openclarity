@@ -1,0 +1,8 @@
+Thank you for installing {{ .Chart.Name | upper }}.
+
+Your release is named {{ .Release.Name }}.
+
+Here is how to access the VMClarity UI:
+
+    $ kubectl port-forward --namespace {{ .Release.Namespace }} service/{{ include "vmclarity.gateway.name" . }} 8080:80
+    $ Open VMClarity UI in the browser: http://localhost:8080/
