@@ -36,6 +36,10 @@ func (sqlite) CastToDateTime(strTime string) string {
 	return fmt.Sprintf("datetime(%s)", strTime)
 }
 
+func (sqlite) CastToInteger(strInt string) string {
+	return strInt
+}
+
 func (sqlite) JSONEach(source string) string {
 	return fmt.Sprintf("JSON_EACH(%s)", source)
 }

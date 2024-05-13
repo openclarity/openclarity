@@ -524,7 +524,7 @@ func buildWhereFromPrimative(sqlVariant jsonsql.Variant, node *godata.ParseNode)
 	case godata.ExpressionTokenString:
 		return sqlVariant.JSONQuote(node.Token.Value), nil
 	case godata.ExpressionTokenInteger, godata.ExpressionTokenFloat:
-		return node.Token.Value, nil
+		return sqlVariant.CastToInteger(node.Token.Value), nil
 	case godata.ExpressionTokenBoolean:
 		return singleQuote(node.Token.Value), nil
 	case godata.ExpressionTokenDateTime:
@@ -563,7 +563,7 @@ func buildWhereFromNav(sqlVariant jsonsql.Variant, schemaMetas map[string]Schema
 	case StringFieldType, BooleanFieldType:
 		return sqlVariant.JSONExtract(fieldSource, queryPath), nil
 	case NumberFieldType:
-		return sqlVariant.JSONExtractText(fieldSource, queryPath), nil
+		return sqlVariant.CastToInteger(sqlVariant.JSONExtractText(fieldSource, queryPath)), nil
 	case DateTimeFieldType:
 		return sqlVariant.CastToDateTime(sqlVariant.JSONExtractText(fieldSource, queryPath)), nil
 	case CollectionFieldType, RelationshipFieldType, ComplexFieldType:
