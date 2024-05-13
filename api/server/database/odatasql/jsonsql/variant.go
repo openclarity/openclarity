@@ -15,10 +15,12 @@
 
 package jsonsql
 
+//nolint:interfacebloat
 type Variant interface {
 	JSONObject(parts []string) string
 	JSONArrayAggregate(string) string
 	CastToDateTime(string) string
+	CastToInteger(string) string
 	JSONEach(source string) string
 	JSONArray(items []string) string
 	JSONExtract(source string, path string) string
