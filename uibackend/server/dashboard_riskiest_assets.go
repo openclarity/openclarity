@@ -111,9 +111,25 @@ func (s *ServerImpl) getRiskiestAssetsForFindingType(ctx context.Context, findin
 }
 
 func (s *ServerImpl) getRiskiestAssetsForVulnerabilityType(ctx context.Context) ([]types.VulnerabilityRiskyAsset, error) {
-	assets, err := s.getRiskiestAssetsPerFinding(ctx, apitypes.VULNERABILITY)
+	totalFindingField, err := getTotalFindingFieldName(apitypes.VULNERABILITY)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get riskiest assets: %w", err)
+		return nil, fmt.Errorf("failed to get total findings field name: %w", err)
+	}
+
+	totalVulnerabilitiesNotZeroFilter := ""
+	for _, field := range orderedSeveritiesFields {
+		totalVulnerabilitiesNotZeroFilter += fmt.Sprintf("summary/%s.%s gt 0 or ", totalFindingField, field)
+	}
+	totalVulnerabilitiesNotZeroFilter = strings.TrimSuffix(totalVulnerabilitiesNotZeroFilter, " or ")
+
+	assets, err := s.Client.GetAssets(ctx, apitypes.GetAssetsParams{
+		Select:  to.Ptr(fmt.Sprintf("summary/%s,assetInfo", totalFindingField)),
+		Top:     to.Ptr(topRiskiestAssetsCount),
+		OrderBy: to.Ptr(getOrderByOData(totalFindingField)),
+		Filter:  to.Ptr(fmt.Sprintf("terminatedOn eq null and summary/%s ne null and (%s)", totalFindingField, totalVulnerabilitiesNotZeroFilter)),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get assets: %w", err)
 	}
 
 	return toAPIVulnerabilityRiskyAssets(*assets.Items), nil

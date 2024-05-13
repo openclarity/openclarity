@@ -36,6 +36,10 @@ func (postgres) CastToDateTime(strTime string) string {
 	return fmt.Sprintf("(%s)::timestamptz", strTime)
 }
 
+func (postgres) CastToInteger(strInt string) string {
+	return fmt.Sprintf("(%s)::integer", strInt)
+}
+
 func (postgres) JSONEach(source string) string {
 	// The postgres function expect the data must be an array, so we need
 	// to detect any other types in the SQL statement and switch it to
