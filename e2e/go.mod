@@ -190,7 +190,7 @@ require (
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/openclarity/vmclarity/installation v0.7.0-rc.1 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000 // indirect
 	github.com/openclarity/vmclarity/utils v0.7.0-rc.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
@@ -304,7 +304,7 @@ replace (
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
 	github.com/openclarity/vmclarity/core => ../core
 	github.com/openclarity/vmclarity/installation => ../installation
-	github.com/openclarity/vmclarity/plugins/sdk => ../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../plugins/sdk-go
 	github.com/openclarity/vmclarity/testenv => ../testenv
 	github.com/openclarity/vmclarity/uibackend/client => ../uibackend/client
 	github.com/openclarity/vmclarity/uibackend/types => ../uibackend/types

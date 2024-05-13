@@ -19,8 +19,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/plugin"
-	"github.com/openclarity/vmclarity/plugins/sdk/types"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 //nolint:containedctx

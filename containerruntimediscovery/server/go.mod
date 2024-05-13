@@ -90,7 +90,7 @@ require (
 	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
@@ -142,6 +142,6 @@ replace (
 	github.com/openclarity/vmclarity/api/types => ../../api/types
 	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../types
 	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
 	github.com/openclarity/vmclarity/utils => ../../utils
 )

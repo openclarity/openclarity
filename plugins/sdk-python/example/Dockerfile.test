@@ -1,6 +1,3 @@
-## Image is built from root repo dir context.
-## Example: docker build . -f plugins/sdk/python/example/Dockerfile -t python-scanner
-
 FROM ubuntu:20.04 AS builder-image
 
 # Avoid stuck build due to user prompt
@@ -16,7 +13,7 @@ RUN python3.9 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 # Install SDK from folder
-COPY ./plugins/sdk/python /pluginsdk
+COPY ./plugins/sdk-python /pluginsdk
 RUN pip3 install --no-cache-dir wheel
 RUN pip3 install --no-cache-dir /pluginsdk
 
@@ -38,7 +35,7 @@ ENV VIRTUAL_ENV=/venv
 ENV PATH="/venv/bin:$PATH"
 
 # Copy example
-COPY ./plugins/sdk/python/example ./src
+COPY ./plugins/sdk-python/example ./src
 
 USER 65534
 

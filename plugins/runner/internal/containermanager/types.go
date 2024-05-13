@@ -19,7 +19,7 @@ import (
 	"context"
 	"io"
 
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk/types"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 const (

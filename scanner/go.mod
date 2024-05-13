@@ -25,7 +25,7 @@ require (
 	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
 	github.com/openclarity/vmclarity/core v0.7.0-rc.1
 	github.com/openclarity/vmclarity/plugins/runner v0.7.0-rc.1
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.2
 	github.com/sirupsen/logrus v1.9.3
@@ -479,7 +479,7 @@ replace (
 	github.com/openclarity/vmclarity/api/types => ../api/types
 	github.com/openclarity/vmclarity/core => ../core
 	github.com/openclarity/vmclarity/plugins/runner => ../plugins/runner
-	github.com/openclarity/vmclarity/plugins/sdk => ../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../plugins/sdk-go
 )
 
 // NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,

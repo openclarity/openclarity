@@ -23,7 +23,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/types"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 // Run starts Plugin HTTP Server and uses provided Scanner to respond to
@@ -36,8 +36,8 @@ import (
 //
 // import (
 //
-//	"github.com/openclarity/vmclarity/plugins/sdk/plugin"
-//	"github.com/openclarity/vmclarity/plugins/sdk/types"
+//	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
+//	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 //	)
 //
 //	func main() {

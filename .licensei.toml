@@ -29,9 +29,8 @@ ignored = [
     "github.com/openclarity/vmclarity/containerruntimediscovery/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/containerruntimediscovery/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/plugins/runner", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/sdk", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/sdk/go", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/sdk/go/example", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/plugins/sdk-go", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/vmclarity/plugins/sdk-go/example", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/openclarity/vmclarity/plugins/store/kics", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
     "github.com/xi2/xz", # Unlicense - Public Domain -  https://github.com/xi2/xz/blob/master/LICENSE"
     "github.com/rcrowley/go-metrics", # Custom License - https://github.com/rcrowley/go-metrics/blob/master/LICENSE"

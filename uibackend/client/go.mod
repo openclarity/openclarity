@@ -28,6 +28,6 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
 	github.com/openclarity/vmclarity/uibackend/types => ../types
 )
