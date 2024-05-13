@@ -22,8 +22,8 @@ module-sets:
       - github.com/openclarity/vmclarity/orchestrator
       - github.com/openclarity/vmclarity/workflow
       - github.com/openclarity/vmclarity/plugins/runner
-      - github.com/openclarity/vmclarity/plugins/sdk
-      - github.com/openclarity/vmclarity/plugins/example
+      - github.com/openclarity/vmclarity/plugins/sdk-go
+      - github.com/openclarity/vmclarity/plugins/sdk-go/example
       - github.com/openclarity/vmclarity/plugins/store/kics
 
 excluded-modules:

@@ -17,7 +17,7 @@ package types
 
 import (
 	"github.com/openclarity/vmclarity/core/to"
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk/types"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 // DefaultPluginAdapter is used to convert latest version Plugin API models to VMClarity.

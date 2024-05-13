@@ -1,11 +1,8 @@
-## Image is built from root repo dir context.
-## Example: docker build . -f plugins/sdk/go/example/Dockerfile -t go-scanner
-
 FROM --platform=$BUILDPLATFORM golang:1.22.2-alpine3.18@sha256:d995eb689a0c123590a3d34c65f57f3a118bda3fa26f92da5e089ae7d8fd81a0 AS builder
 
 ARG TARGETOS TARGETARCH
 
-WORKDIR /build/plugins/sdk/go/example
+WORKDIR /build/plugins/sdk-go/example
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=bind,source=.,target=/build,ro \

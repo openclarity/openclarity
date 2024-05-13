@@ -41,7 +41,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
@@ -72,7 +72,7 @@ replace (
 	github.com/openclarity/vmclarity/api/types => ../../api/types
 	github.com/openclarity/vmclarity/core => ../../core
 	github.com/openclarity/vmclarity/plugins/runner => ../../plugins/runner
-	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
 	github.com/openclarity/vmclarity/scanner => ../../scanner
 	github.com/openclarity/vmclarity/uibackend/types => ../types
 	github.com/openclarity/vmclarity/utils => ../../utils

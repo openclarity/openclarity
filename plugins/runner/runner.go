@@ -28,7 +28,7 @@ import (
 
 	"github.com/openclarity/vmclarity/core/to"
 	runnerclient "github.com/openclarity/vmclarity/plugins/runner/internal/client"
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk/types"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 const defaultPollInterval = 2 * time.Second

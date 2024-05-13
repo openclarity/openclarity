@@ -5,7 +5,7 @@ OPENAPI_GENERATOR_IMAGE="openapitools/openapi-generator-cli:v7.5.0"
 
 ## Script vars
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-PLUGIN_PATH="$(realpath $SCRIPT_PATH/../../..)"
+PLUGIN_PATH="$(realpath $SCRIPT_PATH/../..)"
 SDK_PATH="$(realpath $SCRIPT_PATH/..)"
 
 ## Generate code
@@ -17,7 +17,7 @@ docker run --rm \
   generate \
   -i /src/openapi.yaml \
   -g python-flask \
-  -o /src/sdk/python/generated \
+  -o /src/sdk-python/generated \
   --package-name "plugin" \
   --additional-properties "legacyDiscriminatorBehavior=false"
 

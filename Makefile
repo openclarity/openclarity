@@ -325,13 +325,13 @@ gen-plugin-sdk: gen-plugin-sdk-go gen-plugin-sdk-python ## Generating Scanner Pl
 .PHONY: gen-plugin-sdk-go
 gen-plugin-sdk-go: ## Generating Scanner Plugin SDK code for Golang
 	$(info Generating Scanner Plugin SDK code for Golang ...)
-	go -C $(ROOT_DIR)/plugins/sdk/go generate
+	go -C $(ROOT_DIR)/plugins/sdk-go generate
 	go -C $(ROOT_DIR)/plugins/runner generate
 
 .PHONY: gen-plugin-sdk-python
 gen-plugin-sdk-python: ## Generating Scanner Plugin SDK code for Python
 	$(info Generating Scanner Plugin SDK code for Python ...)
-	sh ./plugins/sdk/python/tools/gen-sdk.sh
+	sh ./plugins/sdk-python/tools/gen-sdk.sh
 
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
