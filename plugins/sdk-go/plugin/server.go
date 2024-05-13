@@ -22,14 +22,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/internal/plugin"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/internal/plugin"
 
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/types"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 // APIVersion defines the current version of the Scanner Plugin API.

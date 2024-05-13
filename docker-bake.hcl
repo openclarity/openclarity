@@ -136,7 +136,7 @@ target "vmclarity-plugin-kics" {
 
 target "vmclarity-plugin-example-go" {
 	context = "."
-	dockerfile = "./plugins/sdk/go/example/Dockerfile"
+	dockerfile = "./plugins/sdk-go/example/Dockerfile"
 	tags = get_tag("${target.vmclarity-plugin-example-go.name}")
 	labels = {
 		"org.opencontainers.image.title" = "VMClarity Scanner Go Example"
@@ -146,7 +146,7 @@ target "vmclarity-plugin-example-go" {
 
 target "vmclarity-plugin-example-python" {
 	context = "."
-	dockerfile = "./plugins/sdk/python/example/Dockerfile"
+	dockerfile = "./plugins/sdk-python/example/Dockerfile.test"
 	tags = get_tag("${target.vmclarity-plugin-example-python.name}")
 	labels = {
 		"org.opencontainers.image.title" = "VMClarity Scanner Python Example"

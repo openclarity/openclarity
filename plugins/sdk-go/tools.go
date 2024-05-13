@@ -16,7 +16,7 @@
 //go:build tools
 // +build tools
 
-package sdk
+package sdk_go // nolint:revive,stylecheck
 
 import (
 	_ "github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen"

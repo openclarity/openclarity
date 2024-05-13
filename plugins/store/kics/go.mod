@@ -4,7 +4,7 @@ go 1.21.4
 
 require (
 	github.com/Checkmarx/kics v1.7.13
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -245,4 +245,4 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-replace github.com/openclarity/vmclarity/plugins/sdk => ./../../sdk/go
+replace github.com/openclarity/vmclarity/plugins/sdk-go => ../../sdk-go

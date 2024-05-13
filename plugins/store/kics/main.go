@@ -25,14 +25,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/plugin"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
 
 	"github.com/Checkmarx/kics/pkg/model"
 	"github.com/Checkmarx/kics/pkg/printer"
 	"github.com/Checkmarx/kics/pkg/progress"
 	"github.com/Checkmarx/kics/pkg/scan"
 
-	"github.com/openclarity/vmclarity/plugins/sdk/types"
+	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
 
 var mapKICSSeverity = map[model.Severity]types.MisconfigurationSeverity{

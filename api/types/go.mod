@@ -6,7 +6,7 @@ require (
 	github.com/deepmap/oapi-codegen/v2 v2.1.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/openclarity/vmclarity/core v0.7.0-rc.1
-	github.com/openclarity/vmclarity/plugins/sdk v0.7.0-rc.1
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -29,5 +29,5 @@ require (
 
 replace (
 	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/sdk => ../../plugins/sdk/go
+	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
 )
