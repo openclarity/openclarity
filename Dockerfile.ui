@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/src/node_modules \
 RUN --mount=type=cache,target=/src/node_modules \
     npm run build
 
-FROM nginx:1.26.0@sha256:9f0d283eccddedf25816104877faf1cb584a8236ec4d7985a4965501d080d84f
+FROM nginx:1.26.0@sha256:f00e9a27310a9ea8205798d5dceca575a0c7da11a24a82e6ce69bc3f36317082
 
 COPY --from=site-build ["/src/build", "/usr/share/nginx/html"]
 
