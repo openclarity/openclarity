@@ -325,7 +325,7 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 			ctx,
 			pw,
 			archive.WithImage(d.client.ImageService(), img.Name()),
-			archive.WithPlatform(platforms.Default()),
+			archive.WithPlatform(platforms.DefaultStrict()),
 		)
 		if err != nil {
 			log.GetLoggerFromContextOrDefault(ctx).Errorf("failed to export image: %v", err)
@@ -469,7 +469,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 			ctx,
 			pw,
 			archive.WithImage(d.client.ImageService(), imageName),
-			archive.WithPlatform(platforms.Default()),
+			archive.WithPlatform(platforms.DefaultStrict()),
 		)
 		if err != nil {
 			log.GetLoggerFromContextOrDefault(ctx).Errorf("failed to export container snapshot: %v", err)
