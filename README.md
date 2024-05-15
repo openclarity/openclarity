@@ -152,7 +152,10 @@ KubeClarity vulnerability scanner integrates with the following scanners:
    or for OpenShift Restricted SCC compatible install:
 
    ```shell
-   helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity --set global.openShiftRestricted=true \
+   helm install --values values.yaml --create-namespace kubeclarity kubeclarity/kubeclarity -n kubeclarity \
+     --set global.podSecurityContext.fsGroup=null --set global.containerSecurityContext.ruAsGroup=null --set global.containerSecurityContext.ruAsUser=null \
+     --set kubeclarity-grype-server.podSecurityContext.fsGroup=null --set kubeclarity-grype-server.containerSecurityContext.ruAsGroup=null --set kubeclarity-grype-server.containerSecurityContext.ruAsUser=null \
+     --set kubeclarity-sbom-db.podSecurityContext.fsGroup=null --set kubeclarity-sbom-db.containerSecurityContext.ruAsGroup=null --set kubeclarity-sbom-db.containerSecurityContext.ruAsUser=null \
      --set kubeclarity-postgresql.securityContext.enabled=false --set kubeclarity-postgresql.containerSecurityContext.enabled=false \
      --set kubeclarity-postgresql.volumePermissions.enabled=true --set kubeclarity-postgresql.volumePermissions.securityContext.runAsUser="auto" \
      --set kubeclarity-postgresql.shmVolume.chmod.enabled=false

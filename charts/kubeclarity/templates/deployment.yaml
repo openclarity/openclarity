@@ -15,6 +15,8 @@
 {{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
+{{- $podSecurityContext := (coalesce .Values.kubeclarity.podSecurityContext .Values.global.podSecurityContext) -}}
+{{- $containerSecurityContext := (coalesce .Values.kubeclarity.containerSecurityContext .Values.global.containerSecurityContext) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,6 +44,8 @@ spec:
       {{- if $nodeSelector }}
       nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
       {{- end }}
+      securityContext:
+      {{- toYaml $podSecurityContext | nindent 8 }}
       initContainers:
         - name: '{{ include "kubeclarity.name" . }}-wait-for-pg-db'
           image: {{ index .Values "kubeclarity-postgresql" "image" "registry" }}/{{ index .Values "kubeclarity-postgresql" "image" "repository" }}:{{ index .Values "kubeclarity-postgresql" "image" "tag" }}
@@ -69,16 +73,7 @@ spec:
                   name: {{ $secretName }}
                   key: {{ $usernameKey }}
           securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-          {{- if not .Values.global.openShiftRestricted }}
-            runAsUser: 1001
-          {{- end }}
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+          {{- toYaml $containerSecurityContext | nindent 12 }}
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
         - name: '{{ include "kubeclarity.name" . }}-wait-for-sbom-db'
@@ -92,16 +87,7 @@ spec:
                 echo waiting for sbom database; sleep 2;
               done;
           securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-          {{- if not .Values.global.openShiftRestricted }}
-            runAsUser: 1001
-          {{- end }}
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+          {{- toYaml $containerSecurityContext | nindent 12 }}
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
@@ -116,16 +102,7 @@ spec:
                 echo waiting for grype-server to be ready; sleep 2;
               done;
           securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-          {{- if not .Values.global.openShiftRestricted }}
-            runAsUser: 1001
-          {{- end }}
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+          {{- toYaml $containerSecurityContext | nindent 12 }}
           resources:
 {{- toYaml .Values.kubeclarity.initContainers.resources | nindent 12 }}
 {{- end}}
@@ -218,16 +195,6 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-            {{- if not .Values.global.openShiftRestricted }}
-            runAsGroup: 1000
-            runAsUser: 1000
-            {{- end }}
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+          {{- toYaml $containerSecurityContext | nindent 12 }}
           resources:
 {{- toYaml .Values.kubeclarity.resources | nindent 12 }}

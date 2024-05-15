@@ -15,16 +15,27 @@ global:
     tag: "latest"
     imagePullPolicy: Always
 
-  ## Is this being installed under OpenShift restricted SCC?
-  ## NOTE: You also need to set the PostgreSQL section correctly if using the OpenShift restricted SCC
-  openShiftRestricted: false
-
   ## Affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
   nodeSelector:
-    kubernetes.io/os: linux
-    kubernetes.io/arch: amd64
+    #kubernetes.io/os: linux
+    #kubernetes.io/arch: amd64
+
+  podSecurityContext:
+    fsGroup: 1001
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    privileged: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    # set to nil in order to be openshift scc compliant
+    runAsUser: 1001
+    runAsGroup: 1001
 
 ## End of Global Values
 #######################################################################################
@@ -64,6 +75,13 @@ kubeclarity:
     refreshIntervalSeconds: 300
 
   podAnnotations: {}
+
+  podSecurityContext: {}
+  
+  containerSecurityContext: {}
+
+  ## Overrides global.containerSecurityContext
+  # containerSecurityContext: {}
 
   service:
     type: ClusterIP
@@ -145,8 +163,10 @@ kubeclarity-runtime-scan:
   # 1. The scanner job must run in the pod namespace to fetch image pull secrets, OR
   # 2. The scanner job must run in the release namespace to fetch service credentials (more info in https://github.com/openclarity/kubeclarity#private-registries-support-for-k8s-runtime-scan)
   namespace: ""
-
-  ## Scanner pods tolerations.
+  
+  ## Overrides global.podSecurityContext
+  # podSecurityContext: {}
+  
   # tolerations:
   # - key: key1
   #   operator: Exists
@@ -188,6 +208,9 @@ kubeclarity-runtime-scan:
       limits:
         memory: "1000Mi"
         cpu: "1000m"
+    
+    ## Overrides global.containerSecurityContext
+    # containerSecurityContext: {}
 
   vulnerability-scanner:
     ## Docker Image values.
@@ -206,6 +229,11 @@ kubeclarity-runtime-scan:
       limits:
         memory: "1000Mi"
         cpu: "1000m"
+
+    ## Overrides global.containerSecurityContext
+    # containerSecurityContext: {}
+
+  ## Scanner pods tolerations.
 
     ## Analyzer config.
     analyzer:
@@ -280,7 +308,23 @@ kubeclarity-grype-server:
     limits:
       cpu: "1000m"
       memory: "1G"
+    
+  ## Overrides global.podSecurityContext
+  podSecurityContext:
+    fsGroup: 1000
 
+  ## Overrides global.containerSecurityContext
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    privileged: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
@@ -358,6 +402,22 @@ kubeclarity-sbom-db:
     limits:
       memory: "1Gi"
       cpu: "200m"
+  
+  ## Overrides global.podSecurityContext
+  podSecurityContext:
+    fsGroup: 1000
+
+  ## Overrides global.containerSecurityContext
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    privileged: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
 
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity

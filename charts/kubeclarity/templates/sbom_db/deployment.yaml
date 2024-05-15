@@ -1,5 +1,7 @@
 {{- $affinity := (coalesce (index .Values "kubeclarity-sbom-db" "affinity") .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce (index .Values "kubeclarity-sbom-db" "nodeSelector") .Values.global.nodeSelector) -}}
+{{- $podSecurityContext := (coalesce (index .Values "kubeclarity-sbom-db" "podSecurityContext") .Values.global.podSecurityContext) -}}
+{{- $containerSecurityContext := (coalesce (index .Values "kubeclarity-sbom-db" "containerSecurityContext") .Values.global.containerSecurityContext) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,10 +23,8 @@ spec:
       volumes:
         - name: tmp-volume
           emptyDir: {}
-      {{- if not .Values.global.openShiftRestricted }}
       securityContext:
-        fsGroup: 1000
-      {{- end }}
+      {{- toYaml $podSecurityContext | nindent 8 }}
       {{- if $affinity }}
       affinity: {{- toYaml $affinity | nindent 8 }}
       {{- end }}
@@ -60,19 +60,9 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           securityContext:
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-            {{- if not .Values.global.openShiftRestricted }}
-            runAsGroup: 1000
-            runAsUser: 1000
-            {{- end }}
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+          {{- toYaml $containerSecurityContext | nindent 12 }}
           resources:
-{{- toYaml (index .Values "kubeclarity-sbom-db" "resources") | nindent 12 }}
+          {{- toYaml (index .Values "kubeclarity-sbom-db" "resources") | nindent 12 }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume

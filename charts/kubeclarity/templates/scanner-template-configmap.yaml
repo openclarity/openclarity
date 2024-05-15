@@ -7,6 +7,7 @@
 {{- end -}}
 {{- $affinity := (coalesce (index .Values "kubeclarity-runtime-scan" "affinity") .Values.global.affinity) -}}
 {{- $nodeSelector := (coalesce (index .Values "kubeclarity-runtime-scan" "nodeSelector") .Values.global.nodeSelector) -}}
+{{- $podSecurityContext := (coalesce (index .Values "kubeclarity-runtime-scan" "podSecurityContext") .Values.global.podSecurityContext) -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -44,10 +45,8 @@ data:
           volumes:
           - name: tmp-volume
             emptyDir: {}
-          {{- if not .Values.global.openShiftRestricted }}
           securityContext:
-            fsGroup: 1001
-          {{- end }}
+          {{- toYaml $podSecurityContext | nindent 12 }}
           containers:
           - name: vulnerability-scanner
             {{- if index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "docker" "imageName" }}
@@ -131,17 +130,7 @@ data:
               value: {{ join "," $noproxy }}
 {{- end}}
             securityContext:
-              capabilities:
-                drop:
-                - ALL
-              runAsNonRoot: true
-              {{- if not .Values.global.openShiftRestricted }}
-              runAsGroup: 1001
-              runAsUser: 1001
-              {{- end }}
-              privileged: false
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+            {{- toYaml (coalesce (index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "containerSecurityContext") .Values.global.containerSecurityContext) | nindent 14 }}
             resources:
 {{- toYaml (index .Values "kubeclarity-runtime-scan" "vulnerability-scanner" "resources") | nindent 14 }}
           - name: cis-docker-benchmark-scanner
@@ -180,16 +169,6 @@ data:
               value: {{ join "," $noproxy }}
 {{- end}}
             securityContext:
-              capabilities:
-                drop:
-                  - ALL
-              runAsNonRoot: true
-              {{- if not .Values.global.openShiftRestricted }}
-              runAsGroup: 1001
-              runAsUser: 1001
-              {{- end }}
-              privileged: false
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+            {{- toYaml (coalesce (index .Values "kubeclarity-runtime-scan" "cis-docker-benchmark-scanner" "containerSecurityContext") .Values.global.containerSecurityContext) | nindent 14 }}
             resources:
 {{- toYaml (index .Values "kubeclarity-runtime-scan" "cis-docker-benchmark-scanner" "resources") | nindent 14 }}
