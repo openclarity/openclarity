@@ -165,8 +165,15 @@ ifneq ($(CI),true)
 endif
 
 .PHONY: e2e
-e2e: $(E2E_TARGETS) ## Run end-to-end test suite
+e2e: $(E2E_TARGETS) ## Run end-to-end test suite on Docker
 	$(E2E_ENV) go -C $(ROOT_DIR)/e2e test -v -failfast -test.v -test.paniconexit0 -ginkgo.timeout 2h -timeout 2h -ginkgo.v .
+
+E2E_ENV_K8S = $(E2E_ENV)
+E2E_ENV_K8S += VMCLARITY_E2E_PLATFORM=kubernetes
+
+.PHONY: e2e-k8s
+e2e-k8s: $(E2E_TARGETS) ## Run end-to-end test suite on Kubernetes
+	$(E2E_ENV_K8S) go -C $(ROOT_DIR)/e2e test -v -failfast -test.v -test.paniconexit0 -ginkgo.timeout 2h -timeout 2h -ginkgo.v .
 
 VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 

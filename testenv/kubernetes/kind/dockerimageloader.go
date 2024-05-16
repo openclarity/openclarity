@@ -85,7 +85,7 @@ func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error 
 		mapping[ids[0]] = image
 	}
 
-	imageData, err := l.docker.ImageSave(ctx, mapping.IDs())
+	imageData, err := l.docker.ImageSave(ctx, mapping.RepoTags())
 	if err != nil {
 		return fmt.Errorf("failed to save images from local Docker: %w", err)
 	}
@@ -98,7 +98,7 @@ func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error 
 
 	nodeLoaders := []func(r io.Reader) error{}
 	for _, node := range nodes {
-		nodeLoaders = append(nodeLoaders, newNodeLoader(node, mapping))
+		nodeLoaders = append(nodeLoaders, newNodeLoader(node))
 	}
 
 	if err = fanout.FanOut(ctx, imageData, nodeLoaders); err != nil {
@@ -144,33 +144,25 @@ func (m imageIDRepoTagMapping) IDs() []string {
 	return ids
 }
 
+func (m imageIDRepoTagMapping) RepoTags() []string {
+	if m == nil {
+		return nil
+	}
+
+	repoTags := make([]string, 0, len(m))
+	for _, repoTag := range m {
+		repoTags = append(repoTags, repoTag)
+	}
+
+	return repoTags
+}
+
 type nodeLoaderFn func(r io.Reader) error
 
-func newNodeLoader(node nodes.Node, mapping imageIDRepoTagMapping) nodeLoaderFn {
+func newNodeLoader(node nodes.Node) nodeLoaderFn {
 	return func(r io.Reader) error {
 		if err := nodeutils.LoadImageArchive(node, r); err != nil {
 			return fmt.Errorf("failed to load image from stream: %w", err)
-		}
-
-		for imageID, repoTag := range mapping {
-			tags, err := nodeutils.ImageTags(node, imageID)
-			if err != nil {
-				return fmt.Errorf("failed to get repoTags for imageID %s: %w", imageID, err)
-			}
-
-			exists := false
-			for tag := range tags {
-				if tag == repoTag {
-					exists = true
-				}
-			}
-			if exists {
-				continue
-			}
-
-			if err = nodeutils.ReTagImage(node, imageID, repoTag); err != nil {
-				return fmt.Errorf("failed to set %s tag for %s imageID: %w", repoTag, imageID, err)
-			}
 		}
 
 		return nil

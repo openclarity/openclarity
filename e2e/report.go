@@ -107,6 +107,20 @@ func DumpAPIData(ctx ginkgo.SpecContext, client *apiclient.Client, config *Repor
 			buf, err := json.MarshalIndent(*scans.Items, "", "\t")
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 			ginkgo.GinkgoWriter.Printf("Scan: %s\n", string(buf))
+
+		case "assetScan":
+			var params apitypes.GetAssetScansParams
+			if object.filter == "" {
+				params = apitypes.GetAssetScansParams{}
+			} else {
+				params = apitypes.GetAssetScansParams{Filter: to.Ptr(object.filter)}
+			}
+			assetScans, err := client.GetAssetScans(ctx, params)
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+			buf, err := json.MarshalIndent(*assetScans.Items, "", "\t")
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			ginkgo.GinkgoWriter.Printf("Asset Scan: %s\n", string(buf))
 		}
 	}
 }
