@@ -17,6 +17,7 @@ package e2e
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -34,9 +35,9 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
 				GetCustomScanConfig(
-					&FullScanFamiliesConfig,
+					cfg.TestSuiteParams.FamiliesConfig,
 					"assetInfo/labels/any(t: t/key eq 'notexisting' and t/value eq 'label')",
-					600,
+					600*time.Second,
 				))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
@@ -94,9 +95,9 @@ var _ = ginkgo.Describe("Detecting scan failures", func() {
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
 				GetCustomScanConfig(
-					&FullScanFamiliesConfig,
+					cfg.TestSuiteParams.FamiliesConfig,
 					cfg.TestSuiteParams.Scope,
-					2,
+					2*time.Second,
 				))
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 

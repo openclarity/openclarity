@@ -56,8 +56,8 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 
 	ginkgo.Context("which scans a docker image", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
-			if cfg.TestEnvConfig.Platform != types.EnvironmentTypeDocker {
-				ginkgo.Skip("skipping test because it's not running on docker")
+			if cfg.TestEnvConfig.Platform != types.EnvironmentTypeDocker && cfg.TestEnvConfig.Platform != types.EnvironmentTypeKubernetes {
+				ginkgo.Skip("skipping test because it's not running on docker or kubernetes platform")
 			}
 
 			containerInfo, err := (*assets.Items)[0].AssetInfo.AsContainerInfo()
@@ -97,12 +97,10 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 		ctx,
 		GetCustomScanConfig(
 			&apitypes.ScanFamiliesConfig{
-				Sbom: &apitypes.SBOMConfig{
-					Enabled: to.Ptr(true),
-				},
+				Sbom: cfg.TestSuiteParams.FamiliesConfig.Sbom,
 			},
 			filter,
-			int(cfg.TestSuiteParams.ScanTimeout.Seconds()),
+			cfg.TestSuiteParams.ScanTimeout,
 		))
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
@@ -138,6 +136,11 @@ func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filte
 		}
 		return false
 	}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
+
+	report.objects = append(
+		report.objects,
+		APIObject{"assetScan", fmt.Sprintf("scan/id eq '%s'", *apiScanConfig.Id)},
+	)
 
 	ginkgo.By("waiting until scan state changes to done")
 	scanParams = apitypes.GetScansParams{

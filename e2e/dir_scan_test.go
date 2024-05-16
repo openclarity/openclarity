@@ -102,7 +102,7 @@ var _ = ginkgo.Describe("Running a SBOM and plugin scan", func() {
 						},
 					},
 					scope,
-					600,
+					600*time.Second,
 				),
 			)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())

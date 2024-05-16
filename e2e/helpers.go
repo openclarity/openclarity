@@ -33,43 +33,7 @@ const (
 	fullScanStartOffset = 5 * time.Second
 )
 
-var FullScanFamiliesConfig = apitypes.ScanFamiliesConfig{
-	Exploits: &apitypes.ExploitsConfig{
-		Enabled: to.Ptr(true),
-	},
-	InfoFinder: &apitypes.InfoFinderConfig{
-		Enabled: to.Ptr(true),
-	},
-	// NOTE(paralta) Disabling the malware families to speed up the test
-	Malware: &apitypes.MalwareConfig{
-		Enabled: to.Ptr(false),
-	},
-	Misconfigurations: &apitypes.MisconfigurationsConfig{
-		Enabled: to.Ptr(true),
-	},
-	Rootkits: &apitypes.RootkitsConfig{
-		Enabled: to.Ptr(true),
-	},
-	Sbom: &apitypes.SBOMConfig{
-		Enabled: to.Ptr(true),
-	},
-	Secrets: &apitypes.SecretsConfig{
-		Enabled: to.Ptr(true),
-	},
-	Vulnerabilities: &apitypes.VulnerabilitiesConfig{
-		Enabled: to.Ptr(true),
-	},
-}
-
-func GetFullScanConfig(scope string, timeout time.Duration) apitypes.ScanConfig {
-	return GetCustomScanConfig(
-		&FullScanFamiliesConfig,
-		scope,
-		int(timeout.Seconds()),
-	)
-}
-
-func GetCustomScanConfig(scanFamiliesConfig *apitypes.ScanFamiliesConfig, scope string, timeoutSeconds int) apitypes.ScanConfig {
+func GetCustomScanConfig(scanFamiliesConfig *apitypes.ScanFamiliesConfig, scope string, timeout time.Duration) apitypes.ScanConfig {
 	return apitypes.ScanConfig{
 		Name: to.Ptr(uuid.New().String()),
 		ScanTemplate: &apitypes.ScanTemplate{
@@ -77,7 +41,7 @@ func GetCustomScanConfig(scanFamiliesConfig *apitypes.ScanFamiliesConfig, scope 
 				ScanFamiliesConfig: scanFamiliesConfig,
 			},
 			Scope:          to.Ptr(scope),
-			TimeoutSeconds: to.Ptr(timeoutSeconds),
+			TimeoutSeconds: to.Ptr(int(timeout.Seconds())),
 		},
 		Scheduled: &apitypes.RuntimeScheduleScanConfig{
 			CronLine: to.Ptr("0 */4 * * *"),

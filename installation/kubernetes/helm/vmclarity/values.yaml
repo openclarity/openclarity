@@ -529,7 +529,7 @@ exploitDBServer:
 
   containerSecurityContext:
     # -- Container security context enabled
-    enabled: true
+    enabled: false
     # -- User ID which the containers should run as
     runAsUser: 1001
     # -- Group ID which the containers should run as
