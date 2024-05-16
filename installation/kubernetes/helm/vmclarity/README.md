@@ -73,7 +73,7 @@ secrets.
 | crDiscoveryServer.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | exploitDBServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | exploitDBServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
-| exploitDBServer.containerSecurityContext.enabled | bool | `true` | Container security context enabled |
+| exploitDBServer.containerSecurityContext.enabled | bool | `false` | Container security context enabled |
 | exploitDBServer.containerSecurityContext.privileged | bool | `false` | Whether the container should run in privileged mode |
 | exploitDBServer.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container file system as ReadOnly |
 | exploitDBServer.containerSecurityContext.runAsGroup | int | `1001` | Group ID which the containers should run as |

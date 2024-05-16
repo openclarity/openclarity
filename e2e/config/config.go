@@ -23,6 +23,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 
+	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/testenv"
 	"github.com/openclarity/vmclarity/testenv/aws"
 	azureenv "github.com/openclarity/vmclarity/testenv/azure"
@@ -42,6 +44,42 @@ type TestSuiteParams struct {
 	ServicesReadyTimeout time.Duration
 	ScanTimeout          time.Duration
 	Scope                string
+	FamiliesConfig       *apitypes.ScanFamiliesConfig
+}
+
+var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
+	Exploits: &apitypes.ExploitsConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"exploitdb"},
+	},
+	InfoFinder: &apitypes.InfoFinderConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"sshTopology"},
+	},
+	Malware: &apitypes.MalwareConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"clam", "yara"},
+	},
+	Misconfigurations: &apitypes.MisconfigurationsConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"lynis", "cisdocker"},
+	},
+	Rootkits: &apitypes.RootkitsConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"chkrootkit"},
+	},
+	Sbom: &apitypes.SBOMConfig{
+		Enabled:   to.Ptr(true),
+		Analyzers: &[]string{"syft", "trivy", "windows"},
+	},
+	Secrets: &apitypes.SecretsConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"gitleaks"},
+	},
+	Vulnerabilities: &apitypes.VulnerabilitiesConfig{
+		Enabled:  to.Ptr(true),
+		Scanners: &[]string{"grype", "trivy"},
+	},
 }
 
 // nolint:gomnd
@@ -50,22 +88,41 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 
 	switch t {
 	case types.EnvironmentTypeAWS, types.EnvironmentTypeGCP:
+		// NOTE(paralta) Disabling the malware families to speed up the test
+		familiesConfig := FullScanFamiliesConfig
+		familiesConfig.Malware.Enabled = to.Ptr(false)
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 10 * time.Minute,
 			ScanTimeout:          20 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "tags"),
+			FamiliesConfig:       familiesConfig,
 		}
 	case types.EnvironmentTypeAzure:
+		// NOTE(paralta) Disabling the malware families to speed up the test
+		familiesConfig := FullScanFamiliesConfig
+		familiesConfig.Malware.Enabled = to.Ptr(false)
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 20 * time.Minute,
 			ScanTimeout:          40 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "tags"),
+			FamiliesConfig:       familiesConfig,
 		}
-	case types.EnvironmentTypeDocker, types.EnvironmentTypeKubernetes:
+	case types.EnvironmentTypeDocker:
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 5 * time.Minute,
-			ScanTimeout:          2 * time.Minute,
+			ScanTimeout:          5 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "labels"),
+			FamiliesConfig:       FullScanFamiliesConfig,
+		}
+	case types.EnvironmentTypeKubernetes:
+		// NOTE(paralta) Disabling syft https://github.com/anchore/syft/issues/1545
+		familiesConfig := FullScanFamiliesConfig
+		familiesConfig.Sbom.Analyzers = &[]string{"trivy", "windows"}
+		return &TestSuiteParams{
+			ServicesReadyTimeout: 5 * time.Minute,
+			ScanTimeout:          5 * time.Minute,
+			Scope:                fmt.Sprintf(scope, "labels") + " and assetInfo/containerName eq 'alpine'",
+			FamiliesConfig:       familiesConfig,
 		}
 	default:
 		return &TestSuiteParams{}
