@@ -28,13 +28,23 @@ jobs:
       use_release_repository: false
       post_image_tags: true
 
-  e2e:
+  e2e-docker:
     needs: build
-    name: End-to-End
+    name: End-to-End Tests on Docker
     uses: ./.github/workflows/reusable-end-to-end-testing.yml
     with:
       image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
       use_release_repository: false
+      platform: docker
+
+  e2e-k8s:
+    needs: build
+    name: End-to-End Tests on Kubernetes
+    uses: ./.github/workflows/reusable-end-to-end-testing.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      use_release_repository: false
+      platform: kubernetes
 
   success:
     # https://github.com/actions/runner/issues/2566
@@ -42,7 +52,8 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
     needs:
       - build
-      - e2e
+      - e2e-docker
+      - e2e-k8s
     name: Success
     runs-on: ubuntu-latest
     steps:

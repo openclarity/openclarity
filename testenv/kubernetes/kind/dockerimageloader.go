@@ -52,7 +52,7 @@ func (l *DockerImageLoader) imageIDsFromRepoTags(ctx context.Context, repoTags [
 		}
 
 		if len(result) <= 0 {
-			return nil, fmt.Errorf("failed to find image: %s", repoTag)
+			continue
 		}
 
 		imageIDs = append(imageIDs, result[0].ID)
@@ -78,8 +78,30 @@ func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error 
 	mapping := make(imageIDRepoTagMapping, 0)
 	for _, image := range l.images {
 		ids, err := l.imageIDsFromRepoTags(ctx, []string{image})
-		if err != nil || len(ids) == 0 {
+		if err != nil {
 			return fmt.Errorf("failed to get ImageID for RepoTag %s: %w", image, err)
+		}
+
+		if len(ids) <= 0 {
+			logger.Infof("failed to find image %s locally, trying image pull", image)
+			resp, err := l.docker.ImagePull(ctx, image, imagetypes.PullOptions{})
+			if err != nil {
+				return fmt.Errorf("failed to pull image %s: %w", image, err)
+			}
+
+			// Drain response to avoid blocking
+			_, _ = io.Copy(io.Discard, resp)
+			_ = resp.Close()
+
+			result, err := l.docker.ImageList(ctx, imagetypes.ListOptions{
+				Filters: filters.NewArgs(
+					filters.Arg("reference", image)),
+			})
+			if err != nil {
+				return fmt.Errorf("failed to list image %s: %w", image, err)
+			}
+
+			ids = []string{result[0].ID}
 		}
 
 		mapping[ids[0]] = image
