@@ -17,6 +17,10 @@ on:
         type: boolean
         description: 'If set to true the image published to the release repository is used otherwise the development.'
         default: false
+      platform:
+        required: true
+        type: string
+        description: 'Platform used to run end-to-end tests. Supported values are `docker` and `kubernetes`.'
 
 jobs:
   images:
@@ -101,6 +105,16 @@ jobs:
             ${{ runner.os }}-go-${{ github.ref_name }}-
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
+      - name: Install kind for Kubernetes
+        if: inputs.platform == 'kubernetes'
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          skipClusterCreation: true
+
+      - name: Install helm for Kubernetes
+        if: inputs.platform == 'kubernetes'
+        uses: azure/setup-helm@v4.2.0
+
       - name: Run end to end tests
         env:
           VMCLARITY_E2E_APISERVER_IMAGE:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
@@ -110,5 +124,12 @@ jobs:
           VMCLARITY_E2E_SCANNER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cr-discovery-server-image, inputs.image_tag) }}
           VMCLARITY_E2E_SCANNER_PLUGIN_KICS: ${{ format('{0}:{1}', needs.images.outputs.plugin-kics-image, inputs.image_tag) }}
+          VMCLARITY_E2E_PLATFORM: ${{ inputs.platform }}
         run: |
-          make e2e
+          if [[ "${{ inputs.platform }}" == "kubernetes" ]]; then
+            make e2e-k8s
+          elif [[ "${{ inputs.platform }}" == "docker" ]]; then
+            make e2e-docker
+          else
+            echo "Invalid platform"
+          fi
