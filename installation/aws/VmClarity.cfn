@@ -177,9 +177,6 @@ Resources:
                   apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
                   if [ "${DatabaseToUse}" == "Postgresql" ]; then
-                    # Enable and start/restart postgres
-                    echo "COMPOSE_PROFILES=postgres" >> /etc/vmclarity/service.env
-
                     # Configure the VMClarity backend to use the local postgres
                     # service
                     echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
@@ -243,8 +240,6 @@ Resources:
               content:
                 Fn::Sub:
                   - |
-                    version: '3'
-
                     services:
                       apiserver:
                         image: ${APIServerContainerImage}
@@ -285,6 +280,9 @@ Resources:
                           replicas: 1
                           restart_policy:
                             condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
                         healthcheck:
                           test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
                           interval: 10s
@@ -299,6 +297,9 @@ Resources:
                           replicas: 1
                           restart_policy:
                             condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
 
                       uibackend:
                         image: ${UIBackendContainerImage}
@@ -314,6 +315,9 @@ Resources:
                           replicas: 1
                           restart_policy:
                             condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
                         healthcheck:
                           test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
                           interval: 10s
@@ -438,21 +442,6 @@ Resources:
                           interval: 10s
                           retries: 60
 
-                      postgresql:
-                        image: ${PostgresqlContainerImage}
-                        env_file: ./postgres.env
-                        ports:
-                          - "5432:5432"
-                        profiles:
-                          - postgres
-                        logging:
-                          driver: journald
-                        deploy:
-                          mode: replicated
-                          replicas: 1
-                          restart_policy:
-                            condition: on-failure
-
                       swagger-ui:
                         image: swaggerapi/swagger-ui:v5.17.7
                         environment:
@@ -478,7 +467,38 @@ Resources:
                     GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.7.2"]
                     YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.3.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.1"]
-                    PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
+
+            "/etc/vmclarity/vmclarity.override.yaml":
+              content:
+                Fn::If:
+                  - DatabaseIsLocalPostgresql
+                  - Fn::Sub:
+                    - |
+                      services:
+                        postgresql:
+                          image: ${PostgresqlContainerImage}
+                          env_file: ./postgres.env
+                          ports:
+                            - "5432:5432"
+                          logging:
+                            driver: journald
+                          deploy:
+                            mode: replicated
+                            replicas: 1
+                            restart_policy:
+                              condition: on-failure
+                          healthcheck:
+                            test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+                            interval: 10s
+                            retries: 60
+
+                        apiserver:
+                          depends_on:
+                            postgresql:
+                              condition: service_healthy
+
+                    - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
+                  - "\n"
 
             "/etc/vmclarity/uibackend.env":
               content: |
@@ -563,11 +583,6 @@ Resources:
                 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
               mode: "000644"
 
-            "/etc/vmclarity/service.env":
-              content: |
-                # COMPOSE_PROFILES=
-              mode: "000644"
-
             "/etc/vmclarity/yara-rule-server.yaml":
               content: |
                 enable_json_log: true
@@ -645,9 +660,8 @@ Resources:
                 TimeoutStartSec=0
                 Type=oneshot
                 RemainAfterExit=true
-                EnvironmentFile=/etc/vmclarity/service.env
-                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml up -d --wait --remove-orphans
-                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml down
+                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
+                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
 
                 [Install]
                 WantedBy=multi-user.target
@@ -1416,6 +1430,9 @@ Conditions:
     - !Equals
       - !Ref PostgresqlContainerImageOverride
       - ''
+  DatabaseIsLocalPostgresql: !Equals
+    - !Ref DatabaseToUse
+    - 'Postgresql'
 Outputs:
   URL:
     Value: !Sub "${VmClarityServer.PublicIp}"
