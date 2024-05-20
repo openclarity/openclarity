@@ -31,9 +31,6 @@ apt-get update
 apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 if [ "{DatabaseToUse}" == "Postgresql" ]; then
-  # Enable and start/restart postgres
-  echo "COMPOSE_PROFILES=postgres" >> /etc/vmclarity/service.env
-
   # Configure the VMClarity backend to use the local postgres
   # service
   echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
@@ -128,8 +125,6 @@ EOF
 chmod 644 /etc/vmclarity/orchestrator.env
 
 cat << 'EOF' > /etc/vmclarity/vmclarity.yaml
-version: '3'
-
 services:
   apiserver:
     image: {APIServerContainerImage}
@@ -170,6 +165,9 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    depends_on:
+      apiserver:
+        condition: service_healthy
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
       interval: 10s
@@ -184,6 +182,9 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    depends_on:
+      apiserver:
+        condition: service_healthy
 
   uibackend:
     image: {UIBackendContainerImage}
@@ -199,6 +200,9 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    depends_on:
+      apiserver:
+        condition: service_healthy
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
       interval: 10s
@@ -355,6 +359,35 @@ configs:
     file: ./yara-rule-server.yaml
 EOF
 
+touch /etc/vmclarity/vmclarity.override.yaml
+# shellcheck disable=SC2050
+if [ "{DatabaseToUse}" == "Postgresql" ]; then
+  cat << 'EOF' > /etc/vmclarity/vmclarity.override.yaml
+services:
+  postgresql:
+    image: {PostgresqlContainerImage}
+    env_file: ./postgres.env
+    ports:
+      - "5432:5432"
+    logging:
+      driver: journald
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      interval: 10s
+      retries: 60
+
+  apiserver:
+    depends_on:
+      postgresql:
+        condition: service_healthy
+EOF
+fi
+
 cat << 'EOF' > /etc/vmclarity/swagger-config.json
 {{
     "urls": [
@@ -375,11 +408,6 @@ cat << 'EOF' > /etc/vmclarity/uibackend.env
 VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 EOF
 chmod 644 /etc/vmclarity/uibackend.env
-
-cat << 'EOF' > /etc/vmclarity/service.env
-# COMPOSE_PROFILES=
-EOF
-chmod 644 /etc/vmclarity/service.env
 
 cat << 'EOF' > /etc/vmclarity/trivy-server.env
 TRIVY_LISTEN=0.0.0.0:9992
@@ -449,9 +477,8 @@ Requires=docker.service
 TimeoutStartSec=0
 Type=oneshot
 RemainAfterExit=true
-EnvironmentFile=/etc/vmclarity/service.env
-ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml up -d --wait --remove-orphans
-ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml down
+ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
+ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
 
 [Install]
 WantedBy=multi-user.target
