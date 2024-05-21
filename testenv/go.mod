@@ -17,9 +17,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
 	github.com/compose-spec/compose-go/v2 v2.1.0
 	github.com/distribution/reference v0.6.0
-	github.com/docker/cli v26.1.1+incompatible
+	github.com/docker/cli v26.1.3+incompatible
 	github.com/docker/compose/v2 v2.27.0
-	github.com/docker/docker v26.1.1+incompatible
+	github.com/docker/docker v26.1.3+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.33.1
