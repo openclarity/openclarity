@@ -72,7 +72,7 @@ type Server struct {
 
 func (s Server) WaitForSSH(ctx context.Context, t time.Duration) error {
 	// TODO(paralta): Implement method to check if SSH port is ready
-	time.Sleep(t) // nolint:gomnd
+	time.Sleep(t) // nolint:mnd
 
 	return nil
 }

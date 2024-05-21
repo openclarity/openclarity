@@ -46,7 +46,7 @@ func (s *Scanner) Start(config types.Config) {
 		s.SetStatus(types.NewScannerStatus(types.Running, types.Ptr("Scanner is running...")))
 
 		// Example scanning
-		time.Sleep(5 * time.Second) //nolint:gomnd
+		time.Sleep(5 * time.Second) //nolint:gomnd,mnd
 
 		result := types.Result{
 			Vmclarity: types.VMClarityData{

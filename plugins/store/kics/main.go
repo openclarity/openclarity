@@ -148,7 +148,7 @@ func (s *Scanner) Stop(_ types.Stop) {
 	}()
 }
 
-//nolint:gomnd
+//nolint:gomnd,mnd
 func (s *Scanner) createConfig(input *string) (*ScannerConfig, error) {
 	config := ScannerConfig{
 		PreviewLines:     3,

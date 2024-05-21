@@ -139,8 +139,8 @@ func runCommand(cmd *cobra.Command, _ []string) {
 
 	cancel()
 
-	// nolint:gomnd
-	ctx, cancel = context.WithTimeout(cmd.Context(), 10*time.Second)
+	// nolint:mnd
+	ctx, cancel = context.WithTimeout(cmd.Context(), 10*time.Second) //nolint:gomnd,mnd
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
 		logger.Fatalf("Failed to shutdown server: %v", err)
