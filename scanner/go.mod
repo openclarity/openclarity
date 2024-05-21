@@ -27,7 +27,7 @@ require (
 	github.com/openclarity/vmclarity/plugins/runner v0.7.0-rc.1
 	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000
 	github.com/openclarity/yara-rule-server v0.3.0
-	github.com/package-url/packageurl-go v0.1.2
+	github.com/package-url/packageurl-go v0.1.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tdewolff/parse/v2 v2.7.13
 	github.com/vulsio/go-exploitdb v0.4.6
