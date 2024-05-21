@@ -62,9 +62,9 @@ func (e *GCPEnv) afterSetUp(ctx context.Context) error {
 		User:          DefaultRemoteUser,
 		Host:          *e.serverIP,
 		Port:          utils.DefaultSSHPort,
-		LocalPort:     8080, //nolint:gomnd
+		LocalPort:     8080, //nolint:gomnd,mnd
 		RemoteAddress: "localhost",
-		RemotePort:    80, //nolint:gomnd
+		RemotePort:    80, //nolint:gomnd,mnd
 	}
 
 	e.sshPortForward, err = utils.NewSSHPortForward(e.sshPortForwardInput)

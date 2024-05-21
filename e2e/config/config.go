@@ -82,7 +82,7 @@ var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
 	},
 }
 
-// nolint:gomnd
+// nolint:gomnd,mnd
 func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 	scope := "assetInfo/%s/any(t: t/key eq 'scanconfig' and t/value eq 'test')"
 

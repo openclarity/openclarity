@@ -93,9 +93,9 @@ func (e *AWSEnv) afterSetUp(ctx context.Context) error {
 		User:          DefaultRemoteUser,
 		Host:          e.server.PublicIP,
 		Port:          utils.DefaultSSHPort,
-		LocalPort:     8080, //nolint:gomnd
+		LocalPort:     8080, //nolint:gomnd,mnd
 		RemoteAddress: "localhost",
-		RemotePort:    80, //nolint:gomnd
+		RemotePort:    80, //nolint:gomnd,mnd
 	}
 
 	e.sshPortForward, err = utils.NewSSHPortForward(e.sshPortForwardInput)

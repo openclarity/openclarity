@@ -90,7 +90,7 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 	})
 })
 
-// nolint:gomnd
+// nolint:mnd
 func RunSuccessfulScan(ctx ginkgo.SpecContext, report *ReportFailedConfig, filter string) {
 	ginkgo.By("applying a scan configuration")
 	apiScanConfig, err := client.PostScanConfig(

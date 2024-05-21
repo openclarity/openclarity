@@ -48,12 +48,12 @@ type SSHKeyPair struct {
 
 // Save is responsible for writing the SSHKeyPair to the filesystem.
 func (p *SSHKeyPair) Save(privKeyFile, pubKeyFile string) error {
-	err := os.WriteFile(privKeyFile, p.PrivateKey, 0o600) //nolint:gomnd
+	err := os.WriteFile(privKeyFile, p.PrivateKey, 0o600) //nolint:gomnd,mnd
 	if err != nil {
 		return fmt.Errorf("failed to save private key file: %w", err)
 	}
 
-	err = os.WriteFile(pubKeyFile, p.PublicKey, 0o600) //nolint:gosec,gomnd
+	err = os.WriteFile(pubKeyFile, p.PublicKey, 0o600) //nolint:gosec,gomnd,mnd
 	if err != nil {
 		return fmt.Errorf("failed to save public key file: %w", err)
 	}
@@ -82,7 +82,7 @@ func (p *SSHKeyPair) Load(privKeyFile, pubKeyFile string) error {
 
 // GenerateSSHKeyPair generates a new SSH key pair.
 func GenerateSSHKeyPair() (*SSHKeyPair, error) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048) //nolint:gomnd
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048) //nolint:gomnd,mnd
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate private key: %w", err)
 	}
