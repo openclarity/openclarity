@@ -163,7 +163,7 @@ func (e *KubernetesEnv) Services(ctx context.Context) (envtypes.Services, error)
 		return nil, fmt.Errorf("failed to get KubeConfig from cluster %s: %w", e.ProviderConfig.ClusterName, err)
 	}
 
-	services := make(envtypes.Services, 0, 100) //nolint:gomnd
+	services := make(envtypes.Services, 0, 100) //nolint:gomnd,mnd
 
 	client, err := NewClientFromKubeConfig([]byte(kubeConfig))
 	if err != nil {

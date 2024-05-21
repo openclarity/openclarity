@@ -84,7 +84,7 @@ var scanSizesGB = []float64{0.01, 2.5, 8.1}
 // The tests were made on a t2.large instance with a gp2 volume.
 // The times correspond to the scan size values in scanSizesGB.
 // TODO add infoFinder family stats.
-// nolint:gomnd
+// nolint:mnd
 var FamilyScanDurationsMap = map[familiestypes.FamilyType]*common.LogarithmicFormula{
 	familiestypes.SBOM:             common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 11, 37}),
 	familiestypes.Vulnerabilities:  common.MustLogarithmicFit(scanSizesGB, []float64{0.01, 1, 11}), // TODO check time with no sbom scan

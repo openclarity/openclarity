@@ -121,7 +121,7 @@ func (w *Watcher) Reconcile(ctx context.Context, event ScanConfigReconcileEvent)
 		return fmt.Errorf("invalid ScanConfig: ID is nil. Event=%s", event)
 	}
 
-	// nolint:gomnd
+	// nolint:gomnd,mnd
 	scheduleWindowSize := w.pollPeriod * 2
 	scheduleWindow := NewScheduleWindow(time.Now(), scheduleWindowSize)
 

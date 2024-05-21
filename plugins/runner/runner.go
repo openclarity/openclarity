@@ -110,7 +110,7 @@ func (r *pluginRunner) WaitReady(ctx context.Context) error {
 				return fmt.Errorf("failed to get plugin server healthz: %w", err)
 			}
 
-			if resp.StatusCode() == 200 { //nolint:gomnd
+			if resp.StatusCode() == 200 { //nolint:gomnd,mnd
 				return nil
 			}
 		}
