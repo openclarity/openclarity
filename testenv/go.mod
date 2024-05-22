@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/testenv
 
-go 1.21.4
+go 1.22.2
 
 require (
 	cloud.google.com/go/compute v1.23.4

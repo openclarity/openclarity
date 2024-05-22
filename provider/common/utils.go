@@ -63,7 +63,7 @@ func logarithmicFit(xData, yData []float64) (float64, float64, error) {
 
 	lnXData := make([]float64, n)
 
-	for i := 0; i < n; i++ {
+	for i := range n {
 		if xData[i] <= 0 {
 			return 0, 0, fmt.Errorf("input data contains non-positive x values: %v", xData)
 		}
@@ -72,7 +72,7 @@ func logarithmicFit(xData, yData []float64) (float64, float64, error) {
 
 	// Calculate the constants of the logarithmic regression model y = a * ln(x) + b
 	var sumLnX, sumY, sumLnX2, sumLnXY float64
-	for i := 0; i < n; i++ {
+	for i := range n {
 		sumLnX += lnXData[i]
 		sumY += yData[i]
 		sumLnX2 += lnXData[i] * lnXData[i]

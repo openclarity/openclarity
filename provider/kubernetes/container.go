@@ -81,7 +81,6 @@ func (p *Provider) discoverContainersFromDiscoverer(ctx context.Context, outputC
 
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	for _, container := range containerResponse.Containers {
-		container := container
 		// Update asset location based on the discoverer that
 		// we found it from
 		container.Location = to.Ptr(discoverer.Spec.NodeName)

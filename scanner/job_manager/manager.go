@@ -46,7 +46,7 @@ func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string
 	// create jobs
 	jobs := make([]Job, len(m.jobNames))
 	for i, name := range m.jobNames {
-		nameToResultChan[name] = make(chan Result, 10) // nolint:gomnd,mnd
+		nameToResultChan[name] = make(chan Result, 10) // nolint:mnd
 		job, err := m.jobFactory.CreateJob(name, m.config, m.logger, nameToResultChan[name])
 		if err != nil {
 			return nil, fmt.Errorf("failed to create job: %w", err)

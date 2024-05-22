@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/plugins/store/kics
 
-go 1.21.4
+go 1.22.2
 
 require (
 	github.com/Checkmarx/kics v1.7.13

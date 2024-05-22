@@ -55,7 +55,7 @@ func TestFanOut(t *testing.T) {
 
 			// Create consumers list
 			consumers := []func(io.Reader) error{}
-			for i := 0; i < test.NumOfReaders; i++ {
+			for range test.NumOfReaders {
 				// Create Buffer
 				b := bytes.NewBuffer(nil)
 				buffers = append(buffers, b)

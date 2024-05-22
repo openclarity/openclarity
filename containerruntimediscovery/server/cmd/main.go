@@ -63,7 +63,7 @@ var (
 
 			logger.Infof("Shutting down...")
 
-			shutdownContext, cancel := context.WithTimeout(ctx, 30*time.Second) // nolint:gomnd,mnd
+			shutdownContext, cancel := context.WithTimeout(ctx, 30*time.Second) // nolint:mnd
 			defer cancel()
 			err = crds.Shutdown(shutdownContext)
 			if err != nil {
