@@ -41,7 +41,7 @@ func (r *Result) Export(outputFile string) error {
 		return fmt.Errorf("failed to marshal result: %w", err)
 	}
 
-	err = os.WriteFile(outputFile, data, 0o440 /* read only, owner & group */) //nolint:gosec,gomnd,mnd
+	err = os.WriteFile(outputFile, data, 0o440 /* read only, owner & group */) //nolint:gosec,mnd
 	if err != nil {
 		return fmt.Errorf("failed to save result: %w", err)
 	}

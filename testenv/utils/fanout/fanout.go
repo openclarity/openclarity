@@ -38,7 +38,6 @@ func FanOut(ctx context.Context, r io.Reader, consumers []func(io.Reader) error)
 
 	// Start consumers
 	for idx, consumer := range consumers {
-		consumer := consumer
 		reader := readers[idx]
 
 		wg.Add(1)

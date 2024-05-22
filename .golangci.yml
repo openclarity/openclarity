@@ -70,7 +70,7 @@ linters:
     - gocritic
     - gochecknoglobals
     - testpackage
-    - goerr113
+    - err113
     - paralleltest
     - godox # Allow TODOs
     - tagliatelle # Allow json(camel)
@@ -81,6 +81,8 @@ linters:
     - varcheck # deprecated
     - structcheck # deprecated
     - nosnakecase # deprecated
+    - gomnd # deprecated
+    - execinquery # deprecated
     - gochecknoinits # Allow init function
     - nolintlint # Allow nolint
     - varnamelen # Allow short var names
