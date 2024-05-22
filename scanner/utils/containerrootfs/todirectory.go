@@ -52,7 +52,7 @@ func ToDirectory(ctx context.Context, src, dest string) error {
 
 		switch f.FileType {
 		case file.TypeDirectory:
-			// nolint:gomnd,mnd
+			// nolint:mnd
 			if err := os.MkdirAll(target, 0o755); err != nil {
 				return fmt.Errorf("unable to make directory %s: %w", path, err)
 			}

@@ -91,7 +91,7 @@ func isValidPurlType(t string) bool {
 	return ok
 }
 
-// nolint:gomnd,mnd
+// nolint:mnd
 func purlStringToStruct(purlInput string) purl {
 	if purlInput == "" {
 		return newPurl()

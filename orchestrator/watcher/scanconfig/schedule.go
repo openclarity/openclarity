@@ -91,7 +91,7 @@ func (w ScheduleWindow) String() string {
 //	<-------------------->
 //	         size
 //
-// nolint:gomnd,mnd
+// nolint:mnd
 func NewScheduleWindow(now time.Time, size time.Duration) *ScheduleWindow {
 	return &ScheduleWindow{
 		start: now.Add(-1 * size / 2),

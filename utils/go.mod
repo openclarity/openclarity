@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/utils
 
-go 1.21.4
+go 1.22.2
 
 require (
 	github.com/mitchellh/mapstructure v1.5.0

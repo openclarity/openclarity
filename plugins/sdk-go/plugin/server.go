@@ -71,7 +71,7 @@ func (s *server) Start(address string) error {
 }
 
 func (s *server) Stop() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) //nolint:gomnd,mnd
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) //nolint:mnd
 	defer cancel()
 
 	err := s.echo.Shutdown(ctx)

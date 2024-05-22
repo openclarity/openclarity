@@ -59,7 +59,7 @@ func newFanOutWriter(readers int) *fanOutWriter {
 	pipes := make([]pipe, readers)
 	writers := make([]io.Writer, readers)
 
-	for i := 0; i < readers; i++ {
+	for i := range readers {
 		out, in := io.Pipe()
 		pipes[i] = pipe{
 			In:  in,

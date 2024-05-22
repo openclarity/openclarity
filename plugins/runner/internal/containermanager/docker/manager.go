@@ -192,7 +192,7 @@ func (cm *containerManager) Logs(ctx context.Context) (io.ReadCloser, error) {
 		for scanner.Scan() {
 			// get current log part from docker container
 			rawBytes := scanner.Bytes()
-			if len(rawBytes) <= 8 { //nolint:gomnd,mnd
+			if len(rawBytes) <= 8 { //nolint:mnd
 				continue
 			}
 
@@ -248,7 +248,7 @@ func (cm *containerManager) Result(ctx context.Context) (io.ReadCloser, error) {
 	// TODO: use stream rather than copying everything
 	buf := new(bytes.Buffer)
 	for {
-		_, err := io.CopyN(buf, tr, 1024) //nolint:gomnd,mnd
+		_, err := io.CopyN(buf, tr, 1024) //nolint:mnd
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break

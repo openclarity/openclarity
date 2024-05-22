@@ -35,8 +35,6 @@ func (asp *AssetScanProcessor) reconcileResultPluginsToFindings(ctx context.Cont
 		// Create new or update existing findings all the plugin findingd found by the
 		// scan.
 		for _, findingInfo := range *assetScan.Plugins.FindingInfos {
-			findingInfo := findingInfo
-
 			finding := apitypes.Finding{
 				Asset: &apitypes.AssetRelationship{
 					Id: assetScan.Asset.Id,

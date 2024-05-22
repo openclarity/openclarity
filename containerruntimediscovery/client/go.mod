@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/containerruntimediscovery/client
 
-go 1.21.4
+go 1.22.2
 
 require (
 	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1

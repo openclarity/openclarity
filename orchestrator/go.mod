@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/orchestrator
 
-go 1.21.4
+go 1.22.2
 
 require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487

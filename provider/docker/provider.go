@@ -319,7 +319,7 @@ func (p *Provider) copyScanConfigToContainer(ctx context.Context, containerID st
 
 	// Write scan config file to temp dir
 	src := filepath.Join(os.TempDir(), getScanConfigFileName(config))
-	err = os.WriteFile(src, familiesConfigByte, 0o400) // nolint:gomnd,mnd
+	err = os.WriteFile(src, familiesConfigByte, 0o400) // nolint:mnd
 	if err != nil {
 		return fmt.Errorf("failed write scan config file: %w", err)
 	}
