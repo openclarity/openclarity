@@ -18,20 +18,28 @@ package external
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/provider"
-	provider_service "github.com/openclarity/vmclarity/provider/external/proto"
+	"github.com/openclarity/vmclarity/provider/external/discoverer"
+	"github.com/openclarity/vmclarity/provider/external/estimator"
+	"github.com/openclarity/vmclarity/provider/external/scanner"
+	provider_service "github.com/openclarity/vmclarity/provider/external/utils/proto"
 )
 
+var _ provider.Provider = &Provider{}
+
 type Provider struct {
-	client provider_service.ProviderClient
-	config *Config
-	conn   *grpc.ClientConn
+	*discoverer.Discoverer
+	*scanner.Scanner
+	*estimator.Estimator
+}
+
+func (p *Provider) Kind() apitypes.CloudProvider {
+	return apitypes.External
 }
 
 func New(_ context.Context) (*Provider, error) {
@@ -54,95 +62,15 @@ func New(_ context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to dial grpc. address=%v: %w", config.ProviderPluginAddress, err)
 	}
 
+	client := provider_service.NewProviderClient(conn)
+
 	return &Provider{
-		client: provider_service.NewProviderClient(conn),
-		config: config,
-		conn:   conn,
+		Discoverer: &discoverer.Discoverer{
+			Client: client,
+		},
+		Scanner: &scanner.Scanner{
+			Client: client,
+		},
+		Estimator: &estimator.Estimator{},
 	}, nil
-}
-
-func (p *Provider) Kind() apitypes.CloudProvider {
-	return apitypes.External
-}
-
-func (p *Provider) Estimate(ctx context.Context, stats apitypes.AssetScanStats, asset *apitypes.Asset, assetScanTemplate *apitypes.AssetScanTemplate) (*apitypes.Estimation, error) {
-	return &apitypes.Estimation{}, provider.FatalErrorf("Not Implemented")
-}
-
-func (p *Provider) DiscoverAssets(ctx context.Context) provider.AssetDiscoverer {
-	assetDiscoverer := provider.NewSimpleAssetDiscoverer()
-
-	go func() {
-		defer close(assetDiscoverer.OutputChan)
-
-		res, err := p.client.DiscoverAssets(ctx, &provider_service.DiscoverAssetsParams{})
-		if err != nil {
-			assetDiscoverer.Error = fmt.Errorf("failed to discover assets: %w", err)
-			return
-		}
-
-		assets := res.GetAssets()
-		for _, asset := range assets {
-			modelsAsset, err := convertAssetToModels(asset)
-			if err != nil {
-				assetDiscoverer.Error = fmt.Errorf("failed to convert asset to models asset: %w", err)
-				return
-			}
-
-			select {
-			case assetDiscoverer.OutputChan <- *modelsAsset.AssetInfo:
-			case <-ctx.Done():
-				assetDiscoverer.Error = ctx.Err()
-				return
-			}
-		}
-	}()
-
-	return assetDiscoverer
-}
-
-func (p *Provider) RunAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	scanJobConfig, err := convertScanJobConfig(config)
-	if err != nil {
-		return fmt.Errorf("failed to convert scan job config: %w", err)
-	}
-
-	res, err := p.client.RunAssetScan(ctx, &provider_service.RunAssetScanParams{
-		ScanJobConfig: scanJobConfig,
-	})
-	if err != nil {
-		return provider.FatalErrorf("failed to run asset scan: %v", err)
-	}
-
-	if res.Err == nil {
-		return provider.FatalErrorf("failed to run asset scan: an error type must be set")
-	}
-
-	switch res.Err.ErrorType.(type) {
-	case *provider_service.Error_ErrNone:
-		return nil
-	case *provider_service.Error_ErrRetry:
-		retryableErr := res.GetErr().GetErrRetry()
-		return provider.RetryableErrorf(time.Second*time.Duration(retryableErr.After), retryableErr.Err)
-	case *provider_service.Error_ErrFatal:
-		fatalErr := res.GetErr().GetErrFatal()
-		return provider.FatalErrorf("failed to run asset scan: %v", fatalErr.Err)
-	default:
-		return provider.FatalErrorf("failed to run asset scan: error type is not supported: %t", res.Err.GetErrorType())
-	}
-}
-
-func (p *Provider) RemoveAssetScan(ctx context.Context, config *provider.ScanJobConfig) error {
-	scanJobConfig, err := convertScanJobConfig(config)
-	if err != nil {
-		return fmt.Errorf("failed to convert scan job config: %w", err)
-	}
-
-	_, err = p.client.RemoveAssetScan(ctx, &provider_service.RemoveAssetScanParams{
-		ScanJobConfig: scanJobConfig,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to remove asset scan: %w", err)
-	}
-	return nil
 }
