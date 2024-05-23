@@ -69,7 +69,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-	github.com/compose-spec/compose-go/v2 v2.1.0 // indirect
+	github.com/compose-spec/compose-go/v2 v2.1.1 // indirect
 	github.com/containerd/console v1.0.4 // indirect
 	github.com/containerd/containerd v1.7.16 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect

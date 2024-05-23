@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.50.0
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.157.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
-	github.com/compose-spec/compose-go/v2 v2.1.0
+	github.com/compose-spec/compose-go/v2 v2.1.1
 	github.com/distribution/reference v0.6.0
 	github.com/docker/cli v26.1.3+incompatible
 	github.com/docker/compose/v2 v2.27.0
