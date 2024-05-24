@@ -28,17 +28,15 @@ import (
 
 	"github.com/openclarity/vmclarity/scanner/utils"
 
-	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
-	flog "github.com/aquasecurity/trivy/pkg/fanal/log"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
+	sloglogrus "github.com/samber/slog-logrus/v2"
 	log "github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 
 	"github.com/openclarity/vmclarity/scanner/config"
 	"github.com/openclarity/vmclarity/scanner/job_manager"
@@ -56,11 +54,9 @@ func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 
 	logger = logger.Dup().WithField("scanner", ScannerName)
 
-	// Init trivy's loggers with a hook into our logger
-	lc := logrusCore{logger}
-	trivyLog.Logger = zap.New(lc).Sugar()
-	dlog.SetLogger(trivyLog.Logger)
-	flog.SetLogger(trivyLog.Logger)
+	// Set up the logger for trivy
+	tlogger := trivyLog.New(sloglogrus.Option{Logger: logger.Logger}.NewLogrusHandler())
+	trivyLog.SetDefault(tlogger)
 
 	return &Scanner{
 		logger:     logger,
