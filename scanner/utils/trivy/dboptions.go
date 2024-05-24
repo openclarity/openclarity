@@ -17,17 +17,25 @@ package trivy
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/aquasecurity/trivy/pkg/flag"
+	"github.com/google/go-containerregistry/pkg/name"
 )
 
 func GetTrivyDBOptions() (flag.DBOptions, error) {
+	var dbRepository, javaDBRepository name.Reference
+	var err error
+
 	// Get the Trivy CVE DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
 	dbRepoDefaultValue := flag.DBRepositoryFlag.Default
 	if dbRepoDefaultValue == "" {
 		return flag.DBOptions{}, errors.New("unable to get trivy DB repo config")
+	}
+	if dbRepository, err = name.ParseReference(dbRepoDefaultValue, name.WithDefaultTag("")); err != nil {
+		return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
 	}
 
 	// Get the Trivy JAVA DB URL default value from the trivy
@@ -37,10 +45,13 @@ func GetTrivyDBOptions() (flag.DBOptions, error) {
 	if javaDBRepoDefaultValue == "" {
 		return flag.DBOptions{}, errors.New("unable to get trivy java DB repo config")
 	}
+	if javaDBRepository, err = name.ParseReference(dbRepoDefaultValue, name.WithDefaultTag("")); err != nil {
+		return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
+	}
 
 	return flag.DBOptions{
-		DBRepository:     dbRepoDefaultValue,     // Use the default trivy source for the vuln DB
-		JavaDBRepository: javaDBRepoDefaultValue, // Use the default trivy source for the java DB
-		NoProgress:       true,                   // Disable the interactive progress bar
+		DBRepository:     dbRepository,     // Use the default trivy source for the vuln DB
+		JavaDBRepository: javaDBRepository, // Use the default trivy source for the java DB
+		NoProgress:       true,             // Disable the interactive progress bar
 	}, nil
 }
