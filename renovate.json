@@ -49,6 +49,8 @@
     "github.com/openclarity/vmclarity/e2e",
     "github.com/openclarity/vmclarity/installation",
     "github.com/openclarity/vmclarity/orchestrator",
+    "github.com/openclarity/vmclarity/plugins/runner",
+    "github.com/openclarity/vmclarity/plugins/sdk-go",
     "github.com/openclarity/vmclarity/provider",
     "github.com/openclarity/vmclarity/testenv",
     "github.com/openclarity/vmclarity/uibackend/client",
