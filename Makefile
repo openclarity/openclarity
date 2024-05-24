@@ -270,9 +270,11 @@ ifeq ($(DOCKER_PUSH),true)
 endif
 
 .PHONY: docker
-docker: ## Build All Docker images
-	$(info Building all docker images ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS)
+# TODO(paralta) Check TODO for BAKE_ENV_ORCHESTRATOR
+# docker: ## Build All Docker images
+# 	$(info Building all docker images ...)
+# 	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS)
+docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server docker-scanner-plugins ## Build all Docker images
 
 .PHONY: docker-apiserver
 docker-apiserver: ## Build API Server container image
@@ -284,10 +286,14 @@ docker-cli: ## Build CLI container image
 	$(info Building cli docker image ...)
 	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cli
 
+# TODO(paralta) Temporary workaround to remove race flag from orchestrator build
+# since build fails in arm64 after #1587
+BAKE_ENV_ORCHESTRATOR = $(subst -race,, $(BAKE_ENV))
+
 .PHONY: docker-orchestrator
 docker-orchestrator: ## Build Orchestrator container image
 	$(info Building orchestrator docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
+	$(BAKE_ENV_ORCHESTRATOR) docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
 
 .PHONY: docker-ui
 docker-ui: ## Build UI container image
