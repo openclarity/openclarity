@@ -5,7 +5,7 @@ go 1.22.2
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7
-	github.com/anchore/clio v0.0.0-20240507184749-d03a6187e649
+	github.com/anchore/clio v0.0.0-20240522144804-d81e109008aa
 	github.com/anchore/grype v0.77.4
 	github.com/anchore/stereoscope v0.0.3-0.20240501181043-2e9894674185
 	github.com/anchore/syft v1.4.1
@@ -81,7 +81,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/anchore/fangs v0.0.0-20231201140849-5075d28d6d8b // indirect
+	github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f // indirect
 	github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 // indirect
 	github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a // indirect
 	github.com/anchore/go-macholibre v0.0.0-20220308212642-53e6d0aaf6fb // indirect
