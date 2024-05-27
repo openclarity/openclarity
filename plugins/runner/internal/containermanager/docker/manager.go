@@ -37,7 +37,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	imagetypes "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/client"
+	dockerclient "github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
@@ -46,12 +46,12 @@ import (
 const (
 	defaultInternalServerPort = nat.Port("8080/tcp")
 	defaultPollInterval       = 2 * time.Second
+	defaultPluginNetwork      = "vmclarity-plugins-network"
 )
 
 type containerManager struct {
-	dclient       *client.Client
-	config        types.PluginConfig
-	hostContainer *dockertypes.ContainerJSON
+	client *dockerClient
+	config types.PluginConfig
 
 	// set on Start
 	containerID string
@@ -63,21 +63,14 @@ type containerManager struct {
 
 func New(config types.PluginConfig) (containermanager.PluginContainerManager, error) {
 	// Load docker client
-	dclient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	client, err := newDockerClient()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create docker client: %w", err)
-	}
-
-	// Load host container
-	hostContainer, err := getHostContainer(context.Background(), dclient)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check host: %w", err)
+		return nil, err
 	}
 
 	return &containerManager{
-		dclient:       dclient,
-		config:        config,
-		hostContainer: hostContainer,
+		client: client,
+		config: config,
 	}, nil
 }
 
@@ -89,13 +82,13 @@ func (cm *containerManager) Start(ctx context.Context) error {
 	}
 
 	// Get scanner container mounts
-	scanDirMount, err := cm.getScanInputDirMount()
+	scanDirMount, err := cm.getScanInputDirMount(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get mounts: %w", err)
 	}
 
 	// Create scanner container
-	container, err := cm.dclient.ContainerCreate(
+	container, err := cm.client.ContainerCreate(
 		ctx,
 		&containertypes.Config{
 			Image: cm.config.ImageName,
@@ -125,20 +118,23 @@ func (cm *containerManager) Start(ctx context.Context) error {
 
 	cm.containerID = container.ID
 
-	// Connect container to host network if available
-	networkID, err := cm.getNetworkID()
+	// Connect plugin container to plugin network
+	networkID, err := cm.client.GetOrCreateBridgeNetwork(ctx, defaultPluginNetwork)
 	if err != nil {
 		return fmt.Errorf("failed to get network ID: %w", err)
 	}
-	if networkID != "" {
-		err = cm.dclient.NetworkConnect(ctx, networkID, cm.containerID, nil)
-		if err != nil {
-			return fmt.Errorf("failed to connect to network: %w", err)
-		}
+
+	if err := cm.client.NetworkConnect(ctx, networkID, cm.containerID, nil); err != nil {
+		return fmt.Errorf("failed to connect plugin to network: %w", err)
+	}
+
+	// Connect host container to plugin network
+	if err := cm.connectHostContainer(ctx, networkID); err != nil {
+		return fmt.Errorf("failed to connect host to network: %w", err)
 	}
 
 	// Start container
-	err = cm.dclient.ContainerStart(ctx, cm.containerID, containertypes.StartOptions{})
+	err = cm.client.ContainerStart(ctx, cm.containerID, containertypes.StartOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to start container: %w", err)
 	}
@@ -177,7 +173,7 @@ func (cm *containerManager) Logs(ctx context.Context) (io.ReadCloser, error) {
 
 	go func() {
 		// Get docker log stream
-		out, err := cm.dclient.ContainerLogs(ctx, cm.containerID, containertypes.LogsOptions{
+		out, err := cm.client.ContainerLogs(ctx, cm.containerID, containertypes.LogsOptions{
 			ShowStdout: true,
 			ShowStderr: true,
 			Follow:     true,
@@ -205,7 +201,7 @@ func (cm *containerManager) Logs(ctx context.Context) (io.ReadCloser, error) {
 	return reader, nil
 }
 
-func (cm *containerManager) GetPluginServerEndpoint() (string, error) {
+func (cm *containerManager) GetPluginServerEndpoint(ctx context.Context) (string, error) {
 	// Get running container data
 	container := cm.runningContainer.Load()
 	if container == nil {
@@ -214,7 +210,7 @@ func (cm *containerManager) GetPluginServerEndpoint() (string, error) {
 
 	// If the host is running in a container, use the plugin container hostname to
 	// communicate from host since they are on the same docker network.
-	if cm.hostContainer != nil {
+	if hostContainer, _ := cm.client.GetHostContainer(ctx); hostContainer != nil {
 		return "http://" + net.JoinHostPort(container.Config.Hostname, defaultInternalServerPort.Port()), nil
 	}
 
@@ -233,7 +229,7 @@ func (cm *containerManager) GetPluginServerEndpoint() (string, error) {
 
 func (cm *containerManager) Result(ctx context.Context) (io.ReadCloser, error) {
 	// Copy result file from container
-	reader, _, err := cm.dclient.CopyFromContainer(ctx, cm.containerID, containermanager.RemoteScanResultFileOverride)
+	reader, _, err := cm.client.CopyFromContainer(ctx, cm.containerID, containermanager.RemoteScanResultFileOverride)
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy scanner result file: %w", err)
 	}
@@ -262,9 +258,9 @@ func (cm *containerManager) Result(ctx context.Context) (io.ReadCloser, error) {
 
 func (cm *containerManager) Remove(ctx context.Context) error {
 	if cm.containerID != "" {
-		serr := cm.dclient.ContainerStop(ctx, cm.containerID, containertypes.StopOptions{}) // soft fail to allow removal
-		rerr := cm.dclient.ContainerRemove(ctx, cm.containerID, containertypes.RemoveOptions{})
-		if rerr != nil && !client.IsErrNotFound(rerr) {
+		serr := cm.client.ContainerStop(ctx, cm.containerID, containertypes.StopOptions{}) // soft fail to allow removal
+		rerr := cm.client.ContainerRemove(ctx, cm.containerID, containertypes.RemoveOptions{})
+		if rerr != nil && !dockerclient.IsErrNotFound(rerr) {
 			return fmt.Errorf("failed to remove scanner container: %w", errors.Join(serr, rerr))
 		}
 	}
@@ -273,7 +269,7 @@ func (cm *containerManager) Remove(ctx context.Context) error {
 }
 
 func (cm *containerManager) pullPluginImage(ctx context.Context) error {
-	images, err := cm.dclient.ImageList(ctx, imagetypes.ListOptions{
+	images, err := cm.client.ImageList(ctx, imagetypes.ListOptions{
 		Filters: filters.NewArgs(filters.Arg("reference", cm.config.ImageName)),
 	})
 	if err != nil {
@@ -281,7 +277,7 @@ func (cm *containerManager) pullPluginImage(ctx context.Context) error {
 	}
 
 	if len(images) == 0 {
-		resp, err := cm.dclient.ImagePull(ctx, cm.config.ImageName, imagetypes.PullOptions{})
+		resp, err := cm.client.ImagePull(ctx, cm.config.ImageName, imagetypes.PullOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to pull image: %w", err)
 		}
@@ -308,7 +304,7 @@ func (cm *containerManager) waitContainerRunning(ctx context.Context) (*dockerty
 
 		case <-ticker.C:
 			// Get state data needed to check the container
-			container, err := cm.dclient.ContainerInspect(ctx, cm.containerID)
+			container, err := cm.client.ContainerInspect(ctx, cm.containerID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to inspect scanner container: %w", err)
 			}
@@ -321,7 +317,7 @@ func (cm *containerManager) waitContainerRunning(ctx context.Context) (*dockerty
 	}
 }
 
-func (cm *containerManager) getScanInputDirMount() (*mount.Mount, error) {
+func (cm *containerManager) getScanInputDirMount(ctx context.Context) (*mount.Mount, error) {
 	// Create set with all parent directories of the input dir
 	dir := cm.config.InputDir
 	dirSet := make(map[string]struct{})
@@ -334,8 +330,8 @@ func (cm *containerManager) getScanInputDirMount() (*mount.Mount, error) {
 	// to mount on the plugin container.
 	// This is required to allow the plugin container to access the input dir from the host.
 	// TODO: add docs about flow
-	if cm.hostContainer != nil {
-		for _, p := range cm.hostContainer.Mounts {
+	if hostContainer, _ := cm.client.GetHostContainer(ctx); hostContainer != nil {
+		for _, p := range hostContainer.Mounts {
 			if _, ok := dirSet[p.Destination]; !ok {
 				continue
 			}
@@ -358,46 +354,26 @@ func (cm *containerManager) getScanInputDirMount() (*mount.Mount, error) {
 	}, nil
 }
 
-func (cm *containerManager) getNetworkID() (string, error) {
-	// NOTE(docker provider): When the CLI is run via docker provider, the plugin
-	// container needs to be in the same network so that we can communicate with it from host.
-	// Plugin container only needs to belong to one of host's network.
-	if cm.hostContainer != nil {
-		for _, hostNet := range cm.hostContainer.NetworkSettings.Networks {
-			return hostNet.NetworkID, nil
-		}
-
-		// We can create a new network here and attach the hostContainer to it before
-		// returning it. However, docker container usually belongs to at least one
-		// network (unless --net=none), so this code should never be reached with proper
-		// CLI installation.
-		return "", errors.New("no networks on host container")
+// connectHostContainer connects host (container) to plugin network if in container mode
+// to enable container name discovery.
+func (cm *containerManager) connectHostContainer(ctx context.Context, pluginNetworkID string) error {
+	hostContainer, _ := cm.client.GetHostContainer(ctx)
+	if hostContainer == nil {
+		return nil
 	}
 
-	// Use default docker network
-	return "", nil
-}
+	var connected bool
+	if hostContainer.NetworkSettings != nil {
+		_, connected = hostContainer.NetworkSettings.Networks[defaultPluginNetwork]
+	}
+	if connected {
+		return nil
+	}
 
-func getHostContainer(ctx context.Context, dclient *client.Client) (*dockertypes.ContainerJSON, error) {
-	// Check if the host is running inside a docker container.
-	// The hostname is the container ID unless it was manually changed.
-	hostname, err := os.Hostname()
+	err := cm.client.NetworkConnect(ctx, pluginNetworkID, hostContainer.ID, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get machine hostname: %w", err)
+		return fmt.Errorf("failed to connect host to plugin network: %w", err)
 	}
 
-	// Get host container details
-	switch container, err := dclient.ContainerInspect(ctx, hostname); {
-	case err == nil:
-		// host in container
-		return &container, nil
-
-	case client.IsErrNotFound(err):
-		// host not in container
-		return nil, nil // nolint:nilnil
-
-	default:
-		// docker error
-		return nil, fmt.Errorf("failed to inspect host: %w", err)
-	}
+	return nil
 }
