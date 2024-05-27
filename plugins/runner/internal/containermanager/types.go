@@ -32,7 +32,7 @@ const (
 type PluginContainerManager interface {
 	Start(ctx context.Context) error
 	Ready() (bool, error)
-	GetPluginServerEndpoint() (string, error)
+	GetPluginServerEndpoint(ctx context.Context) (string, error)
 	Logs(ctx context.Context) (io.ReadCloser, error)
 	Result(ctx context.Context) (io.ReadCloser, error)
 	Remove(ctx context.Context) error
