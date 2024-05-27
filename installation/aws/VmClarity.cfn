@@ -463,7 +463,7 @@ Resources:
                     UIContainerImage: !If [ UIContainerImageOverridden, !Ref UIContainerImageOverride, "ghcr.io/openclarity/vmclarity-ui:latest" ]
                     UIBackendContainerImage: !If [ UIBackendContainerImageOverridden, !Ref UIBackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-ui-backend:latest" ]
                     ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.3.0"]
-                    TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.51.2"]
+                    TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.51.4"]
                     GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.7.2"]
                     YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.3.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.1"]
@@ -1166,7 +1166,7 @@ Parameters:
   TrivyServerContainerImageOverride:
     Description: >
       Name of the container image used for the trivy server.
-      "docker.io/aquasec/trivy:0.51.2" will be used if not overridden.
+      "docker.io/aquasec/trivy:0.51.4" will be used if not overridden.
     Type: String
     Default: ''
   GrypeServerContainerImageOverride:
