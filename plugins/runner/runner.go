@@ -93,7 +93,7 @@ func (r *pluginRunner) WaitReady(ctx context.Context) error {
 			}
 
 			// Set plugin server endpoint
-			serverEndpoint, err := r.containerManager.GetPluginServerEndpoint()
+			serverEndpoint, err := r.containerManager.GetPluginServerEndpoint(ctx)
 			if err != nil {
 				return fmt.Errorf("failed to get plugin server endpoint: %w", err)
 			}

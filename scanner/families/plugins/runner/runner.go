@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/plugins/runner"
 	"github.com/openclarity/vmclarity/plugins/runner/types"
 	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
@@ -108,7 +109,11 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		// Stream logs
 		go func() {
-			logger := s.logger.WithField("metadata", metadata).WithField("plugin", s.config.Name)
+			logger := s.logger.WithField("metadata", map[string]interface{}{
+				"name":       to.ValueOrZero(metadata.Name),
+				"version":    to.ValueOrZero(metadata.Version),
+				"apiVersion": to.ValueOrZero(metadata.ApiVersion),
+			}).WithField("plugin", s.config.Name)
 
 			logs, err := rr.Logs(ctx)
 			if err != nil {
