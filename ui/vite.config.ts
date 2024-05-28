@@ -8,7 +8,7 @@ const PROXY_TARGET = 'http://localhost:8080';
 
 export default defineConfig(({ mode }) => {
     return {
-        base: '',
+        base: '/',
         plugins: [
             react(),
             viteTsconfigPaths(),
