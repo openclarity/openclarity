@@ -3,8 +3,8 @@ module github.com/openclarity/vmclarity/containerruntimediscovery/server
 go 1.22.2
 
 require (
-	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
-	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.0-rc.1
+	github.com/openclarity/vmclarity/api/types v0.7.0
+	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.0
 )
 
 require (
@@ -13,7 +13,7 @@ require (
 	github.com/containers/image/v5 v5.31.0
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/openclarity/vmclarity/core v0.7.0-rc.1
+	github.com/openclarity/vmclarity/core v0.7.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
@@ -90,7 +90,7 @@ require (
 	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect

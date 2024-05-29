@@ -22,10 +22,10 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/grype-server/api v0.0.0-20240502131359-2f1a56ef9b22
-	github.com/openclarity/vmclarity/api/types v0.7.0-rc.1
-	github.com/openclarity/vmclarity/core v0.7.0-rc.1
-	github.com/openclarity/vmclarity/plugins/runner v0.7.0-rc.1
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.0.0-00010101000000-000000000000
+	github.com/openclarity/vmclarity/api/types v0.7.0
+	github.com/openclarity/vmclarity/core v0.7.0
+	github.com/openclarity/vmclarity/plugins/runner v0.7.0
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.0
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/samber/slog-logrus/v2 v2.3.0
