@@ -67,6 +67,24 @@ jobs:
           cache: false
           go-version-file: '.go-version'
 
+      - name: Free up disk space
+        run: |
+          df -h
+
+          # Remove .NET related tooling
+          sudo du -sh /usr/share/dotnet
+          sudo rm -rf /usr/share/dotnet
+
+          # Remove Android related tooling
+          sudo du -sh /usr/local/lib/android
+          sudo rm -rf /usr/local/lib/android
+
+          # Remove CodeQL
+          sudo du -sh /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          df -h
+
       - name: Setup Go caching
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
