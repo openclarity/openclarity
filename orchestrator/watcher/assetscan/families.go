@@ -91,10 +91,13 @@ func withVulnerabilities(config *apitypes.VulnerabilitiesConfig, opts *ScannerCo
 			grypeConfig = cliconfig.GrypeConfig{
 				Mode: cliconfig.ModeLocal,
 				LocalGrypeConfig: cliconfig.LocalGrypeConfig{
-					UpdateDB:   true,
-					DBRootDir:  "/tmp/",
-					ListingURL: "https://toolbox-data.anchore.io/grype/databases/listing.json",
-					Scope:      source.SquashedScope,
+					UpdateDB:           true,
+					DBRootDir:          "/tmp/",
+					ListingURL:         cliconfig.DefaultGrypeListingURL,
+					MaxAllowedBuiltAge: cliconfig.DefaultGrypeMaxDatabaseAge,
+					ListingFileTimeout: cliconfig.DefaultGrypeListingFileTimeout,
+					UpdateTimeout:      cliconfig.DefaultGrypeUpdateTimeout,
+					Scope:              source.SquashedScope,
 				},
 			}
 		}
