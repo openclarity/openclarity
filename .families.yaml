@@ -113,6 +113,10 @@ malware:
     clam:
       freshclam_binary_path: freshclam
       clamscan_binary_path: clamscan
+      #clamscan_exclude_files:
+      #  - "^.*\.log$"
+      #clamscan_exclude_dirs:
+      #  - "^/sys"
 
 rootkits:
   enabled: true
