@@ -20,7 +20,7 @@ bin/licensei-$(LICENSEI_VERSION): | $(BIN_DIR)
 
 ACTIONLINT_BIN := $(BIN_DIR)/actionlint
 # renovate: datasource=go depName=github.com/rhysd/actionlint versioning=semver
-ACTIONLINT_VERSION := 1.7.0
+ACTIONLINT_VERSION := 1.7.1
 
 bin/actionlint: bin/actionlint-$(ACTIONLINT_VERSION)
 	@ln -sf actionlint-$(ACTIONLINT_VERSION) bin/actionlint
