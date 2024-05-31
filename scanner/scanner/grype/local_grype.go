@@ -80,6 +80,9 @@ func (s *LocalScanner) run(sourceType utils.SourceType, userInput string) {
 		DBRootDir:           s.config.DBRootDir,
 		ListingURL:          s.config.ListingURL,
 		ValidateByHashOnGet: false,
+		MaxAllowedBuiltAge:  s.config.MaxAllowedBuiltAge,
+		ListingFileTimeout:  s.config.ListingFileTimeout,
+		UpdateTimeout:       s.config.UpdateTimeout,
 	}
 	s.logger.Infof("Loading DB. update=%v", s.config.UpdateDB)
 

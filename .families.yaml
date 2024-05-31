@@ -46,6 +46,9 @@ vulnerabilities:
           update_db: true
           db_root_dir: "/tmp/"
           listing_url: "https://toolbox-data.anchore.io/grype/databases/listing.json"
+          max_allowed_built_age: "120h"
+          listing_file_timeout: "60s"
+          update_timeout: "60s"
           scope: "squashed"
         remote_grype_config:
           grype_server_address: ""
