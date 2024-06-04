@@ -343,7 +343,7 @@ services:
         condition: on-failure
 
   swagger-ui:
-    image: swaggerapi/swagger-ui:v5.17.12
+    image: swaggerapi/swagger-ui:v5.17.14
     environment:
       CONFIG_URL: /apidocs/swagger-config.json
     configs:
