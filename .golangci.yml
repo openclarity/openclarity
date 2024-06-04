@@ -58,14 +58,11 @@ linters:
   disable:
     - musttag
     - revive
-    - maligned
     - funlen
     - dupl
     - nestif
     - wsl
     - lll
-    - interfacer
-    - exhaustivestruct
     - nlreturn
     - gocritic
     - gochecknoglobals
@@ -74,13 +71,6 @@ linters:
     - paralleltest
     - godox # Allow TODOs
     - tagliatelle # Allow json(camel)
-    - scopelint # deprecated
-    - golint # deprecated
-    - ifshort # deprecated
-    - deadcode # deprecated
-    - varcheck # deprecated
-    - structcheck # deprecated
-    - nosnakecase # deprecated
     - gomnd # deprecated
     - execinquery # deprecated
     - gochecknoinits # Allow init function
