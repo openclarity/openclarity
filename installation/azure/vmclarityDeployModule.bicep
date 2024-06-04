@@ -196,7 +196,7 @@ var maaEndpoint = substring('emptystring', 0, 0)
 
 var vmClarityServerCustomScriptName = 'VmClarityServerCustomScript'
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
+resource networkInterface 'Microsoft.Network/networkInterfaces@2023-11-01' = {
   name: networkInterfaceName
   location: location
   properties: {
@@ -220,7 +220,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   }
 }
 
-resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: vmClarityServerSecurityGroupName
   location: location
   properties: {
@@ -245,7 +245,7 @@ resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2
 // Declare subnets inside of virtualNet so that they don't get deleted when
 // re-applying the template
 // https://github.com/Azure/bicep/issues/4653
-resource vmClarityNet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
+resource vmClarityNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   name: vmClarityNetName
   location: location
   properties: {
@@ -288,7 +288,7 @@ resource vmClarityNet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   }
 }
 
-resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = {
   name: publicIPAddressName
   location: location
   sku: {
@@ -304,7 +304,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
   }
 }
 
-resource vmClarityServer 'Microsoft.Compute/virtualMachines@2023-09-01' = {
+resource vmClarityServer 'Microsoft.Compute/virtualMachines@2024-03-01' = {
   name: vmclarityServerVMName
   location: location
   identity: {
@@ -342,7 +342,7 @@ resource vmClarityServer 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   }
 }
 
-resource vmclarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
+resource vmclarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
   parent: vmClarityServer
   name: vmClarityGuestAttestationName
   location: location
@@ -363,7 +363,7 @@ resource vmclarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/exte
   }
 }
 
-resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
   parent: vmClarityServer
   dependsOn: [
     vmclarityServerGuestAttestation
@@ -381,7 +381,7 @@ resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensio
   }
 }
 
-resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: vmClarityScannerSecurityGroupName
   location: location
   properties: {
@@ -407,7 +407,7 @@ var storageAccountName = toLower('store${uniqueString(resourceGroup().id)}')
 var storageAccountType = 'Standard_LRS'
 // var subnetRef = '${vmClarityNet.id}/subnets/${vmClarityServerSubnet.name}'
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -429,14 +429,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
   parent: storageAccount
   name: 'default'
 }
 
 var snapshotContainerName = 'snapshots'
 
-resource snapshotContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+resource snapshotContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
   parent: blobService
   name: snapshotContainerName
 }

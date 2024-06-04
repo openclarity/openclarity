@@ -98,7 +98,7 @@ param deploypostfix string
 
 var resourceGroupName = 'vmclarity-${deploypostfix}'
 
-resource vmClarityResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource vmClarityResourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: resourceGroupName
   location: location
 }
