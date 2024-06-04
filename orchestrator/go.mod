@@ -93,7 +93,7 @@ require (
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/aquasecurity/trivy v0.51.4 // indirect
 	github.com/aquasecurity/trivy-checks v0.10.5-0.20240430045208-6cc735de6b9e // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20240516042723-b8fe1376ffcd // indirect
+	github.com/aquasecurity/trivy-db v0.0.0-20240602051612-79d0fbd1e246 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.53.0 // indirect
