@@ -253,14 +253,12 @@
     "gomodUpdateImportPaths",
     "helmUpdateSubChartArchives"
   ],
-  "prConcurrentLimit": 10,
-  "prHourlyLimit": 5,
+  "prConcurrentLimit": 20,
   "printConfig": false,
   "rebaseWhen": "conflicted",
   "reviewersFromCodeOwners": true,
   "schedule": [
-    "after 6am every weekday",
-    "before 12pm every weekday"
+    "after 8am on Monday"
   ],
   "semanticCommits": "enabled",
   "timezone": "Etc/UTC",
