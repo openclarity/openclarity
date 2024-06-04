@@ -117,7 +117,10 @@ func (e *GCPEnv) SetUp(ctx context.Context) error {
 }
 
 func (e *GCPEnv) TearDown(ctx context.Context) error {
-	e.sshPortForward.Stop()
+	// Stop SSH port forwarding
+	if e.sshPortForward != nil {
+		e.sshPortForward.Stop()
+	}
 
 	op, err := e.dm.Deployments.Delete(ProjectID, e.envName).Context(ctx).Do()
 	if err != nil {
@@ -223,17 +226,9 @@ func New(config *Config, opts ...ConfigOptFn) (*GCPEnv, error) {
 		return nil, fmt.Errorf("failed to create IAM service: %w", err)
 	}
 
-	sshKeyPair := &utils.SSHKeyPair{}
-	if config.PublicKeyFile != "" && config.PrivateKeyFile != "" {
-		err = sshKeyPair.Load(config.PrivateKeyFile, config.PublicKeyFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load ssh key pair: %w", err)
-		}
-	} else {
-		sshKeyPair, err = utils.GenerateSSHKeyPair()
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate ssh key pair: %w", err)
-		}
+	sshKeyPair, err := utils.LoadOrGenerateAndSaveSSHKeyPair(config.PrivateKeyFile, config.PublicKeyFile, config.WorkDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSH key pair: %w", err)
 	}
 
 	return &GCPEnv{

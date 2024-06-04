@@ -70,10 +70,6 @@ func (e *AzureEnv) createAzureResources(ctx context.Context) error {
 	if err := json.Unmarshal(templateFile, &template); err != nil {
 		return fmt.Errorf("failed to unmarshal template file: %w", err)
 	}
-	// template, err := readTemplateJSON("./../installation/azure/vmclarity.json")
-	// if err != nil {
-	// 	return err
-	// }
 
 	deploymentResp, err := e.deploymentsClient.BeginCreateOrUpdateAtSubscriptionScope(
 		ctx,
@@ -119,20 +115,6 @@ func (e *AzureEnv) createAzureResources(ctx context.Context) error {
 
 	return nil
 }
-
-// func readTemplateJSON(path string) (map[string]interface{}, error) {
-// 	templateFile, err := os.ReadFile(path)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to read template file: %w", err)
-// 	}
-//
-// 	template := make(map[string]interface{})
-// 	if err := json.Unmarshal(templateFile, &template); err != nil {
-// 		return nil, fmt.Errorf("failed to unmarshal template file: %w", err)
-// 	}
-//
-// 	return template, nil
-// }
 
 func (e *AzureEnv) createTestParams() map[string]interface{} {
 	params := make(map[string]interface{})
