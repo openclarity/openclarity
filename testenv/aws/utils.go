@@ -84,10 +84,6 @@ func (e *AWSEnv) afterSetUp(ctx context.Context) error {
 		return errors.New("infrastructure is not ready")
 	}
 
-	if err = e.server.WaitForSSH(ctx, DefaultSSHPortReadyTimeout); err != nil {
-		return fmt.Errorf("failed to wait for the SSH port to become ready: %w", err)
-	}
-
 	e.sshPortForwardInput = &utils.SSHForwardInput{
 		PrivateKey:    e.sshKeyPair.PrivateKey,
 		User:          DefaultRemoteUser,
@@ -116,6 +112,11 @@ func (e *AWSEnv) afterSetUp(ctx context.Context) error {
 	e.DockerHelper, err = dockerhelper.New(clientOpts)
 	if err != nil {
 		return fmt.Errorf("failed to create Docker helper: %w", err)
+	}
+
+	err = e.DockerHelper.WaitForDockerReady(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to check if Docker client is ready: %w", err)
 	}
 
 	return nil

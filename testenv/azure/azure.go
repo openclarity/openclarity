@@ -210,18 +210,9 @@ func New(config *Config, opts ...ConfigOptFn) (*AzureEnv, error) {
 		return nil, fmt.Errorf("failed to create Azure compute client factory: %w", err)
 	}
 
-	sshKeyPair := &utils.SSHKeyPair{}
-	// Load SSH key-pair if provided, generate otherwise
-	if config.PublicKeyFile != "" && config.PrivateKeyFile != "" {
-		err = sshKeyPair.Load(config.PrivateKeyFile, config.PublicKeyFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load ssh key pair: %w", err)
-		}
-	} else {
-		sshKeyPair, err = utils.GenerateSSHKeyPair()
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate ssh key pair: %w", err)
-		}
+	sshKeyPair, err := utils.LoadOrGenerateAndSaveSSHKeyPair(config.PrivateKeyFile, config.PublicKeyFile, config.WorkDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSH key pair: %w", err)
 	}
 
 	return &AzureEnv{

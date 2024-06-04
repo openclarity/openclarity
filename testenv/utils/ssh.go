@@ -109,6 +109,34 @@ func GenerateSSHKeyPair() (*SSHKeyPair, error) {
 	}, nil
 }
 
+// Load SSH key-pair if provided, generate and save otherwise.
+func LoadOrGenerateAndSaveSSHKeyPair(privKeyFile, pubKeyFile, workDir string) (*SSHKeyPair, error) {
+	var err error
+	sshKeyPair := &SSHKeyPair{}
+
+	if privKeyFile != "" && pubKeyFile != "" {
+		err = sshKeyPair.Load(privKeyFile, pubKeyFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load ssh key pair: %w", err)
+		}
+	} else {
+		sshKeyPair, err = GenerateSSHKeyPair()
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate ssh key pair: %w", err)
+		}
+
+		privateKeyFile := filepath.Join(workDir, "id_rsa")
+		publicKeyFile := filepath.Join(workDir, "id_rsa.pub")
+		if _, err := os.Stat(privateKeyFile); errors.Is(err, os.ErrNotExist) {
+			if err := sshKeyPair.Save(privateKeyFile, publicKeyFile); err != nil {
+				return nil, fmt.Errorf("failed to save SSH keys to filesystem: %w", err)
+			}
+		}
+	}
+
+	return sshKeyPair, nil
+}
+
 type SSHForwardCallback func(ctx context.Context, err error) error
 
 type SSHForwardInput struct {

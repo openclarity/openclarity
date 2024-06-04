@@ -70,13 +70,6 @@ type Server struct {
 	PublicIP   string
 }
 
-func (s Server) WaitForSSH(ctx context.Context, t time.Duration) error {
-	// TODO(paralta): Implement method to check if SSH port is ready
-	time.Sleep(t) // nolint:mnd
-
-	return nil
-}
-
 // Setup AWS test environment from cloud formation template.
 // * Create a new CloudFormation stack from template
 // (upload template file to S3 is required since the template is larger than 51,200 bytes).
@@ -130,7 +123,9 @@ func (e *AWSEnv) SetUp(ctx context.Context) error {
 
 func (e *AWSEnv) TearDown(ctx context.Context) error {
 	// Stop SSH port forwarding
-	e.sshPortForward.Stop()
+	if e.sshPortForward != nil {
+		e.sshPortForward.Stop()
+	}
 
 	// Delete the CloudFormation stack
 	_, err := e.client.DeleteStack(
@@ -218,18 +213,9 @@ func New(config *Config, opts ...ConfigOptFn) (*AWSEnv, error) {
 	// Create AWS S3 client
 	s3Client := s3.NewFromConfig(cfg)
 
-	sshKeyPair := &utils.SSHKeyPair{}
-	// Load SSH key-pair if provided, generate otherwise
-	if config.PublicKeyFile != "" && config.PrivateKeyFile != "" {
-		err = sshKeyPair.Load(config.PrivateKeyFile, config.PublicKeyFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load ssh key pair: %w", err)
-		}
-	} else {
-		sshKeyPair, err = utils.GenerateSSHKeyPair()
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate ssh key pair: %w", err)
-		}
+	sshKeyPair, err := utils.LoadOrGenerateAndSaveSSHKeyPair(config.PrivateKeyFile, config.PublicKeyFile, config.WorkDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSH key pair: %w", err)
 	}
 
 	return &AWSEnv{
