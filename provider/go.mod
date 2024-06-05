@@ -16,8 +16,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.28.6
 	github.com/aws/smithy-go v1.20.2
 	github.com/docker/docker v26.1.3+incompatible
+	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/google/go-cmp v0.6.0
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/vmclarity/api/types v0.7.0
 	github.com/openclarity/vmclarity/containerruntimediscovery/client v0.7.0
@@ -306,6 +306,7 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/buildkit v0.13.2 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
@@ -493,9 +494,3 @@ replace (
 	github.com/openclarity/vmclarity/scanner => ../scanner
 	github.com/openclarity/vmclarity/utils => ../utils
 )
-
-// NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,
-// which has been solved in the go-viper fork.
-// Remove replace if all packages using the original repo has been switched to this fork (or at least viper:
-// https://github.com/spf13/viper/pull/1723)
-replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
