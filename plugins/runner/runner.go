@@ -189,15 +189,15 @@ func (r *pluginRunner) WaitDone(ctx context.Context) error {
 				return fmt.Errorf("failed to get scanner status: %w", err)
 			}
 
-			if resp.JSON200.State == plugintypes.Done {
+			if resp.JSON200.State == plugintypes.StateDone {
 				return nil
 			}
-			if resp.JSON200.State == plugintypes.Failed {
-				msg := "<nil>"
+			if resp.JSON200.State == plugintypes.StateFailed {
+				var reason string
 				if resp.JSON200.Message != nil {
-					msg = *resp.JSON200.Message
+					reason = *resp.JSON200.Message
 				}
-				return fmt.Errorf("scan failed, message: %s", msg)
+				return fmt.Errorf("scan failed, reason: %s", reason)
 			}
 		}
 	}

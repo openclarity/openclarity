@@ -83,12 +83,12 @@ func (s *Scanner) Start(config types.Config) {
 		defer cancel()
 
 		logger.Info("Scanner is running...")
-		s.SetStatus(types.NewScannerStatus(types.Running, types.Ptr("Scanner is running...")))
+		s.SetStatus(types.NewScannerStatus(types.StateRunning, types.Ptr("Scanner is running...")))
 
 		clientConfig, err := s.createConfig(config.ScannerConfig)
 		if err != nil {
 			logger.Error("Failed to parse config file", slog.Any("error", err))
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed to parse config file: %w", err).Error())))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr(fmt.Errorf("failed to parse config file: %w", err).Error())))
 			return
 		}
 
@@ -111,32 +111,32 @@ func (s *Scanner) Start(config types.Config) {
 		)
 		if err != nil {
 			logger.Error("Failed to create KICS client", slog.Any("error", err))
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed to create KICS client: %w", err).Error())))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr(fmt.Errorf("failed to create KICS client: %w", err).Error())))
 			return
 		}
 
 		err = c.PerformScan(ctx)
 		if err != nil {
 			logger.Error("Failed to perform KICS scan", slog.Any("error", err))
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed to perform KICS scan: %w", err).Error())))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr(fmt.Errorf("failed to perform KICS scan: %w", err).Error())))
 			return
 		}
 
 		if ctx.Err() != nil {
 			logger.Error("The operation timed out", slog.Any("error", ctx.Err()))
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed due to timeout %w", ctx.Err()).Error())))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr(fmt.Errorf("failed due to timeout %w", ctx.Err()).Error())))
 			return
 		}
 
 		err = s.formatOutput(rawOutputFile, config.OutputFile)
 		if err != nil {
 			logger.Error("Failed to format KICS output", slog.Any("error", err))
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr(fmt.Errorf("failed to format KICS output: %w", err).Error())))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr(fmt.Errorf("failed to format KICS output: %w", err).Error())))
 			return
 		}
 
 		logger.Info("Scanner finished running.")
-		s.SetStatus(types.NewScannerStatus(types.Done, types.Ptr("Scanner finished running.")))
+		s.SetStatus(types.NewScannerStatus(types.StateDone, types.Ptr("Scanner finished running.")))
 	}()
 }
 
@@ -214,6 +214,6 @@ func (s *Scanner) formatOutput(rawFile, outputFile string) error {
 
 func main() {
 	plugin.Run(&Scanner{
-		status: types.NewScannerStatus(types.Ready, types.Ptr("Starting scanner...")),
+		status: types.NewScannerStatus(types.StateReady, types.Ptr("Starting scanner...")),
 	})
 }
