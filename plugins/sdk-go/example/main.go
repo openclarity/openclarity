@@ -43,7 +43,7 @@ func (s *Scanner) Start(config types.Config) {
 	go func(config types.Config) {
 		// Mark scan started
 		logger.Info("Scanner is running...")
-		s.SetStatus(types.NewScannerStatus(types.Running, types.Ptr("Scanner is running...")))
+		s.SetStatus(types.NewScannerStatus(types.StateRunning, types.Ptr("Scanner is running...")))
 
 		// Example scanning
 		time.Sleep(5 * time.Second) //nolint:mnd
@@ -60,13 +60,13 @@ func (s *Scanner) Start(config types.Config) {
 		}
 		if err := result.Export(config.OutputFile); err != nil {
 			logger.Error("Failed to save result to output file")
-			s.SetStatus(types.NewScannerStatus(types.Failed, types.Ptr("Scanner failed saving result.")))
+			s.SetStatus(types.NewScannerStatus(types.StateFailed, types.Ptr("Scanner failed saving result.")))
 			return
 		}
 
 		// Mark scan done
 		logger.Info("Scanner finished running.")
-		s.SetStatus(types.NewScannerStatus(types.Done, types.Ptr("Scanner finished running.")))
+		s.SetStatus(types.NewScannerStatus(types.StateDone, types.Ptr("Scanner finished running.")))
 	}(config)
 }
 
@@ -84,6 +84,6 @@ func (s *Scanner) SetStatus(newStatus *types.Status) {
 
 func main() {
 	plugin.Run(&Scanner{
-		status: types.NewScannerStatus(types.Ready, types.Ptr("Scanner ready")),
+		status: types.NewScannerStatus(types.StateReady, types.Ptr("Scanner ready")),
 	})
 }

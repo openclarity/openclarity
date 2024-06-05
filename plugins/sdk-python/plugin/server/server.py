@@ -6,7 +6,7 @@ from threading import Thread
 from flask import Flask, jsonify, request, copy_current_request_context
 from flask.json.provider import DefaultJSONProvider
 
-from plugin.models import Config, ErrorResponse, Stop  # noqa: E501
+from plugin.models import Config, State, ErrorResponse, Stop  # noqa: E501
 from plugin.models.base_model import Model  # noqa: E501
 from plugin.scanner import AbstractScanner  # noqa: E501
 from plugin.server.config import _ServerConfig  # noqa: E501
@@ -74,7 +74,7 @@ class _Server:
 
     def get_healthz(self):
         status = self.scanner.get_status()
-        if status != "NotReady":
+        if status.state != State.NOTREADY:
             return {}, 200
 
         return {}, 503
@@ -96,7 +96,7 @@ class _Server:
         req_data = request.get_json()
         config = Config().from_dict(req_data)
 
-        if self.scanner.get_status().state != "Ready":
+        if self.scanner.get_status().state != State.READY:
             resp = ErrorResponse(message="scanner is not in ready state")
             return jsonify(resp), 409
 

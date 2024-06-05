@@ -92,7 +92,7 @@ func (s *server) Echo() *echo.Echo {
 func (s *server) GetHealthz(ctx echo.Context) error {
 	ready := false
 	if status := s.scanner.GetStatus(); status != nil {
-		ready = status.State != types.NotReady
+		ready = status.State != types.StateNotReady
 	}
 
 	if ready {
@@ -132,9 +132,9 @@ func (s *server) PostConfig(ctx echo.Context) error {
 		})
 	}
 
-	if s.scanner.GetStatus().State != types.Ready {
+	if s.scanner.GetStatus().State != types.StateReady {
 		return ctx.JSON(http.StatusConflict, &types.ErrorResponse{
-			Message: types.Ptr("scanner is not in ready state"),
+			Message: types.Ptr("scanner is not in Ready state"),
 		})
 	}
 

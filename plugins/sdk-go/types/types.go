@@ -26,7 +26,7 @@ func Ptr[T any](value T) *T {
 	return &value
 }
 
-func NewScannerStatus(s StatusState, m *string) *Status {
+func NewScannerStatus(s State, m *string) *Status {
 	return &Status{
 		State:              s,
 		Message:            m,
