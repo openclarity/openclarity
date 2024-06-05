@@ -21,7 +21,7 @@ require (
 	github.com/docker/compose/v2 v2.27.1
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/ghodss/yaml v1.0.0
-	github.com/mitchellh/mapstructure v1.5.0
+	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/vmclarity/core v0.7.0
 	github.com/openclarity/vmclarity/installation v0.7.0
@@ -165,6 +165,7 @@ require (
 	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/buildkit v0.13.2 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
@@ -283,12 +284,6 @@ replace (
 	github.com/openclarity/vmclarity/installation => ../installation
 	github.com/openclarity/vmclarity/utils => ../utils
 )
-
-// NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,
-// which has been solved in the go-viper fork.
-// Remove replace if all packages using the original repo has been switched to this fork (or at least viper:
-// https://github.com/spf13/viper/pull/1723)
-replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
