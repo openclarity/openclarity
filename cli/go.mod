@@ -196,6 +196,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-restruct/restruct v1.2.0-alpha // indirect
 	github.com/go-test/deep v1.1.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.0.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
@@ -481,9 +482,3 @@ replace (
 	github.com/openclarity/vmclarity/scanner => ../scanner
 	github.com/openclarity/vmclarity/utils => ../utils
 )
-
-// NOTE(akijakya): replace is required for the following issue: https://github.com/mitchellh/mapstructure/issues/327,
-// which has been solved in the go-viper fork.
-// Remove replace if all packages using the original repo has been switched to this fork (or at least viper:
-// https://github.com/spf13/viper/pull/1723)
-replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
