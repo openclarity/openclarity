@@ -14,6 +14,7 @@ from plugin.models.result import Result
 from plugin.models.rootkit import Rootkit
 from plugin.models.rootkit_type import RootkitType
 from plugin.models.secret import Secret
+from plugin.models.state import State
 from plugin.models.status import Status
 from plugin.models.stop import Stop
 from plugin.models.vm_clarity_data import VMClarityData

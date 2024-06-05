@@ -33,13 +33,13 @@ const (
 	RootkitTypeUnknown     RootkitType = "UNKNOWN"
 )
 
-// Defines values for StatusState.
+// Defines values for State.
 const (
-	Done     StatusState = "Done"
-	Failed   StatusState = "Failed"
-	NotReady StatusState = "NotReady"
-	Ready    StatusState = "Ready"
-	Running  StatusState = "Running"
+	StateDone     State = "Done"
+	StateFailed   State = "Failed"
+	StateNotReady State = "NotReady"
+	StateReady    State = "Ready"
+	StateRunning  State = "Running"
 )
 
 // Defines values for VulnerabilitySeverity.
@@ -190,6 +190,16 @@ type Secret struct {
 	StartLine   *int    `json:"startLine,omitempty"`
 }
 
+// State Describes the status of scanner.
+// | Status         | Description                                                   |
+// | -------------- | ------------------------------------------------------------- |
+// | NotReady       | Initial state when the scanner container starts               |
+// | Ready          | Scanner setup is complete and it is ready to receive requests |
+// | Running        | Scanner config was received and the scanner is running        |
+// | Failed         | Scanner failed                                                |
+// | Done           | Scanner completed successfully                                |
+type State string
+
 // Status Describes the scanner status.
 type Status struct {
 	// LastTransitionTime Last date time when the status has changed.
@@ -205,19 +215,9 @@ type Status struct {
 	// | Ready          | Scanner setup is complete and it is ready to receive requests |
 	// | Running        | Scanner config was received and the scanner is running        |
 	// | Failed         | Scanner failed                                                |
-	// | Done           | Scanner is completed successfully                             |
-	State StatusState `json:"state"`
+	// | Done           | Scanner completed successfully                                |
+	State State `json:"state"`
 }
-
-// StatusState Describes the status of scanner.
-// | Status         | Description                                                   |
-// | -------------- | ------------------------------------------------------------- |
-// | NotReady       | Initial state when the scanner container starts               |
-// | Ready          | Scanner setup is complete and it is ready to receive requests |
-// | Running        | Scanner config was received and the scanner is running        |
-// | Failed         | Scanner failed                                                |
-// | Done           | Scanner is completed successfully                             |
-type StatusState string
 
 // Stop Describes data for scanner to stop the scanning process.
 type Stop struct {
