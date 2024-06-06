@@ -208,6 +208,7 @@ components:
       description: Describes data saved to a JSON file when a scan finishes successfully.
       required:
         - vmclarity
+        - rawJSON
       properties:
         annotations:
           # Can be used to attach some scan data consumable by third-party service.
@@ -217,6 +218,11 @@ components:
           # Specifies concrete scan result data that can be consumed by VMClarity API.
           # Required.
           $ref: '#/components/schemas/VMClarityData'
+        rawJSON:
+          # Specifies raw scan result data.
+          # Required.
+          type: null
+          description: Defines scan result data that is not consumed by VMClarity API.
 
     VMClarityData:
       type: object

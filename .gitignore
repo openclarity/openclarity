@@ -11,3 +11,4 @@ go.work*
 .licensei.cache
 vendor
 pyvenv.cfg
+/queries/
