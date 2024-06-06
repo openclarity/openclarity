@@ -115,6 +115,9 @@ jobs:
         if: inputs.platform == 'kubernetes'
         uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
 
+      - name: Install btrfs
+        run: sudo apt-get install libbtrfs-dev -y
+
       - name: Run end to end tests
         env:
           VMCLARITY_E2E_APISERVER_IMAGE:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
@@ -123,7 +126,7 @@ jobs:
           VMCLARITY_E2E_UIBACKEND_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
           VMCLARITY_E2E_SCANNER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
           VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cr-discovery-server-image, inputs.image_tag) }}
-          VMCLARITY_E2E_SCANNER_PLUGIN_KICS: ${{ format('{0}:{1}', needs.images.outputs.plugin-kics-image, inputs.image_tag) }}
+          VMCLARITY_E2E_PLUGIN_KICS_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.plugin-kics-image, inputs.image_tag) }}
           VMCLARITY_E2E_PLATFORM: ${{ inputs.platform }}
         run: |
           if [[ "${{ inputs.platform }}" == "kubernetes" ]]; then

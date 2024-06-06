@@ -14,26 +14,31 @@ class Result(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, annotations=None, vmclarity=None):  # noqa: E501
+    def __init__(self, annotations=None, vmclarity=None, raw_json=None):  # noqa: E501
         """Result - a model defined in OpenAPI
 
         :param annotations: The annotations of this Result.  # noqa: E501
         :type annotations: Dict[str, str]
         :param vmclarity: The vmclarity of this Result.  # noqa: E501
         :type vmclarity: VMClarityData
+        :param raw_json: The raw_json of this Result.  # noqa: E501
+        :type raw_json: object
         """
         self.openapi_types = {
             'annotations': Dict[str, str],
-            'vmclarity': VMClarityData
+            'vmclarity': VMClarityData,
+            'raw_json': object
         }
 
         self.attribute_map = {
             'annotations': 'annotations',
-            'vmclarity': 'vmclarity'
+            'vmclarity': 'vmclarity',
+            'raw_json': 'rawJSON'
         }
 
         self._annotations = annotations
         self._vmclarity = vmclarity
+        self._raw_json = raw_json
 
     @classmethod
     def from_dict(cls, dikt) -> 'Result':
@@ -91,3 +96,28 @@ class Result(Model):
             raise ValueError("Invalid value for `vmclarity`, must not be `None`")  # noqa: E501
 
         self._vmclarity = vmclarity
+
+    @property
+    def raw_json(self) -> object:
+        """Gets the raw_json of this Result.
+
+        Defines scan result data that is not consumed by VMClarity API.  # noqa: E501
+
+        :return: The raw_json of this Result.
+        :rtype: object
+        """
+        return self._raw_json
+
+    @raw_json.setter
+    def raw_json(self, raw_json: object):
+        """Sets the raw_json of this Result.
+
+        Defines scan result data that is not consumed by VMClarity API.  # noqa: E501
+
+        :param raw_json: The raw_json of this Result.
+        :type raw_json: object
+        """
+        if raw_json is None:
+            raise ValueError("Invalid value for `raw_json`, must not be `None`")  # noqa: E501
+
+        self._raw_json = raw_json

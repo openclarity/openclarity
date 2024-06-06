@@ -17,16 +17,18 @@ package plugins
 
 import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
 	familiestypes "github.com/openclarity/vmclarity/scanner/families/types"
 )
 
 type Results struct {
-	Metadata familiestypes.Metadata `json:"Metadata"`
-	Output   []apitypes.FindingInfo `json:"Output"`
+	Metadata      familiestypes.Metadata        `json:"Metadata"`
+	Findings      []apitypes.FindingInfo        `json:"Findings"`
+	PluginOutputs map[string]plugintypes.Result `json:"PluginOutputs"`
 }
 
 func (*Results) IsResults() {}
 
 func (r *Results) GetTotal() int {
-	return len(r.Output)
+	return len(r.Findings)
 }
