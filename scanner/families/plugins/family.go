@@ -22,6 +22,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
+	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
 	"github.com/openclarity/vmclarity/scanner/families/interfaces"
 	"github.com/openclarity/vmclarity/scanner/families/plugins/common"
 	"github.com/openclarity/vmclarity/scanner/families/plugins/runner"
@@ -64,12 +65,15 @@ func (p *Plugins) Run(ctx context.Context, res *results.Results) (interfaces.IsR
 
 		// Merge results from all plugins into the same output
 		var mergedResults []apitypes.FindingInfo
+		mergedPluginResult := make(map[string]plugintypes.Result)
 		for name, result := range managerResults {
 			logger.Infof("Merging result from %q", name)
-			mergedResults = append(mergedResults, result.(*common.Results).Output...) //nolint:forcetypeassert
+			mergedResults = append(mergedResults, result.(*common.Results).Findings...) //nolint:forcetypeassert
+			mergedPluginResult[name] = *result.(*common.Results).Output                 //nolint:forcetypeassert
 		}
 
-		pluginsResults.Output = mergedResults
+		pluginsResults.Findings = mergedResults
+		pluginsResults.PluginOutputs = mergedPluginResult
 		pluginsResults.Metadata.InputScans = append(pluginsResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
 	}
 

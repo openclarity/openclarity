@@ -204,6 +204,7 @@ func (s *Scanner) formatOutput(rawFile, outputFile string) error {
 		Vmclarity: types.VMClarityData{
 			Misconfigurations: &misconfigurations,
 		},
+		RawJSON: summary,
 	}
 	if err := result.Export(outputFile); err != nil {
 		return fmt.Errorf("failed to save KICS result: %w", err)
