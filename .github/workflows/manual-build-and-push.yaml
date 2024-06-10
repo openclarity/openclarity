@@ -32,6 +32,9 @@ on:
         description: 'Name of the Docker Bake group of targets'
         default: default
 
+permissions:
+  packages: write
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
