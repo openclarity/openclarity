@@ -497,7 +497,7 @@ Resources:
                             postgresql:
                               condition: service_healthy
 
-                    - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:12.14.0-debian-11-r28"]
+                    - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:16.3.0-debian-12-r13"]
                   - "\n"
 
             "/etc/vmclarity/uibackend.env":
@@ -1190,7 +1190,7 @@ Parameters:
   PostgresqlContainerImageOverride:
     Description: >
       Name of the container image used for the postgres database server.
-      "bitnami/postgresql:12.14.0-debian-11-r28" will be used if not overridden.
+      "bitnami/postgresql:16.3.0-debian-12-r13" will be used if not overridden.
     Type: String
     Default: ''
   AssetScanDeletePolicy:

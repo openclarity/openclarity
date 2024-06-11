@@ -393,7 +393,7 @@
                                     "type": "Microsoft.Common.TextBox",
                                     "label": "Postgres Container Image",
                                     "subLabel": "",
-                                    "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
+                                    "defaultValue": "docker.io/bitnami/postgresql:16.3.0-debian-12-r13",
                                     "toolTip": "Postgres Container Image",
                                     "constraints": {
                                         "required": false,

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "5046454356582451200"
+      "templateHash": "14289603565584315375"
     }
   },
   "parameters": {
@@ -125,7 +125,7 @@
     },
     "postgresContainerImage": {
       "type": "string",
-      "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
+      "defaultValue": "docker.io/bitnami/postgresql:16.3.0-debian-12-r13",
       "metadata": {
         "description": "Postgres Container Image"
       }
@@ -577,7 +577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1731323228146633664"
+              "templateHash": "4121670983724059420"
             }
           },
           "parameters": {
@@ -716,7 +716,7 @@
             },
             "postgresContainerImage": {
               "type": "string",
-              "defaultValue": "docker.io/bitnami/postgresql:16.2.0-debian-11-r17",
+              "defaultValue": "docker.io/bitnami/postgresql:16.3.0-debian-12-r13",
               "metadata": {
                 "description": "Postgres Container Image"
               }
