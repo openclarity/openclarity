@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.7.17
+	github.com/containerd/containerd v1.7.18
 	github.com/containerd/nerdctl v1.7.6
 	github.com/containers/image/v5 v5.31.0
 	github.com/docker/docker v26.1.3+incompatible
