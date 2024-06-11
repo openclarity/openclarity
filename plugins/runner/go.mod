@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/deepmap/oapi-codegen/v2 v2.2.0
-	github.com/docker/docker v26.1.3+incompatible
+	github.com/docker/docker v26.1.4+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/openclarity/vmclarity/core v0.7.0
 	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.0
