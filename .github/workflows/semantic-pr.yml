@@ -40,7 +40,9 @@ jobs:
             api
             cli
             orchestrator
+            plugin
             provider
+            scanner
             ui
             uibackend
 
@@ -51,6 +53,7 @@ jobs:
             helm
             k8s
 
+            ci
             deps
             e2e
             testenv
