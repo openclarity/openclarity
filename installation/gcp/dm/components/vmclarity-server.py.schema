@@ -93,7 +93,7 @@ properties:
     description: The container image to use for the yara rule server
   postgresqlContainerImage:
     type: string
-    default: docker.io/bitnami/postgresql:16.2.0-debian-11-r17
+    default: docker.io/bitnami/postgresql:16.3.0-debian-12-r13
     description: The container image to use for the postgresql server
   assetScanDeletePolicy:
     type: string
