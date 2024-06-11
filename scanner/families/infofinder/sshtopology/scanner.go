@@ -55,8 +55,8 @@ func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 }
 
 // nolint:cyclop,gocognit
-func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
-	go func() {
+func (s *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
+	go func(ctx context.Context) {
 		s.logger.Debugf("Running with input=%v and source type=%v", userInput, sourceType)
 		retResults := types.ScannerResult{
 			ScannerName: ScannerName,
@@ -69,7 +69,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(ctx, sourceType, userInput)
 		if err != nil {
 			s.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
 			return
@@ -163,7 +163,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 
 		s.sendResults(retResults, nil)
-	}()
+	}(ctx)
 
 	return nil
 }

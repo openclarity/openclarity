@@ -39,10 +39,10 @@ type pluginRunner struct {
 	client           runnerclient.ClientWithResponsesInterface
 }
 
-func New(config types.PluginConfig) (types.PluginRunner, error) {
+func New(ctx context.Context, config types.PluginConfig) (types.PluginRunner, error) {
 	// Create docker container
 	// TODO: switch to factory once the support for more container engines is added
-	manager, err := docker.New(config)
+	manager, err := docker.New(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create plugin manager: %w", err)
 	}

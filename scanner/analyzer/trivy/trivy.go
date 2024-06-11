@@ -62,7 +62,7 @@ func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 }
 
 // nolint:cyclop
-func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
+func (a *Analyzer) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %v %v", a.name, sourceType, userInput)
 
 	tempFile, err := os.CreateTemp(a.config.TempDir, "trivy.sbom.*.json")
@@ -75,7 +75,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		return fmt.Errorf("unable to get db options: %w", err)
 	}
 
-	go func() {
+	go func(ctx context.Context) {
 		defer os.Remove(tempFile.Name())
 
 		res := &analyzer.Results{}
@@ -139,7 +139,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		// Ensure we're configured for private registry if required
 		trivyOptions = trivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
 
-		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+		err = artifact.Run(ctx, trivyOptions, trivySourceType)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to generate SBOM: %w", err))
 			return
@@ -182,7 +182,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
-	}()
+	}(ctx)
 
 	return nil
 }

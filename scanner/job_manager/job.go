@@ -16,9 +16,11 @@
 package job_manager // nolint:revive,stylecheck
 
 import (
+	"context"
+
 	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
 type Job interface {
-	Run(sourceType utils.SourceType, source string) error
+	Run(ctx context.Context, sourceType utils.SourceType, source string) error
 }

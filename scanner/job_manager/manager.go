@@ -16,6 +16,7 @@
 package job_manager // nolint:revive,stylecheck
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
@@ -40,7 +41,7 @@ func New(jobNames []string, config IsConfig, logger *logrus.Entry, factory *Fact
 	}
 }
 
-func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string]Result, error) {
+func (m *Manager) Run(ctx context.Context, sourceType utils.SourceType, userInput string) (map[string]Result, error) {
 	nameToResultChan := make(map[string]chan Result, len(m.jobNames))
 
 	// create jobs
@@ -57,7 +58,7 @@ func (m *Manager) Run(sourceType utils.SourceType, userInput string) (map[string
 
 	// start jobs
 	for _, j := range jobs {
-		err := j.Run(sourceType, userInput)
+		err := j.Run(ctx, sourceType, userInput)
 		if err != nil {
 			return nil, fmt.Errorf("failed to run job: %w", err)
 		}

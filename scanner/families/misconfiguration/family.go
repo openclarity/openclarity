@@ -44,7 +44,7 @@ func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfac
 	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, logger, job.Factory)
 	for _, input := range m.conf.Inputs {
 		startTime := time.Now()
-		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for misconfigurations: %w", input.Input, err)
 		}

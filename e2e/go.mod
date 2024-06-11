@@ -61,7 +61,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Microsoft/hcsshim v0.12.3 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
-	github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7 // indirect
+	github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7 // indirect
 	github.com/ProtonMail/go-crypto v1.1.0-alpha.2 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect

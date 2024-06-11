@@ -44,7 +44,7 @@ func (i InfoFinder) Run(ctx context.Context, _ *results.Results) (interfaces.IsR
 	manager := job_manager.New(i.conf.ScannersList, i.conf.ScannersConfig, logger, job.Factory)
 	for _, input := range i.conf.Inputs {
 		startTime := time.Now()
-		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for info: %w", input.Input, err)
 		}

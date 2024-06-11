@@ -16,6 +16,7 @@
 package windows
 
 import (
+	"context"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
@@ -42,7 +43,7 @@ func New(_ string, _ job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 }
 
 // nolint:cyclop
-func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
+func (a *Analyzer) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s analyzer on source %v %v", a.name, sourceType, userInput)
 
 	go func() {
