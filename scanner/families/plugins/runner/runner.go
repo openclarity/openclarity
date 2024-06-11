@@ -52,9 +52,9 @@ func New(name string, c job_manager.IsConfig, logger *logrus.Entry, resultChan c
 	}
 }
 
-func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
-	go func() {
-		ctx, cancel := context.WithCancel(context.Background())
+func (s *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
+	go func(ctx context.Context) {
+		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
 		retResults := common.Results{
@@ -68,7 +68,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		rr, err := runner.New(types.PluginConfig{
+		rr, err := runner.New(ctx, types.PluginConfig{
 			Name:          s.name,
 			ImageName:     s.config.ImageName,
 			InputDir:      userInput,
@@ -79,13 +79,13 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 		defer func() {
-			if err := rr.Stop(context.Background()); err != nil {
+			if err := rr.Stop(ctx); err != nil {
 				s.logger.WithError(err).Errorf("failed to stop runner")
 			}
 
 			// TODO: add short wait before removing to respect container shutdown procedure
 
-			if err := rr.Remove(context.Background()); err != nil {
+			if err := rr.Remove(ctx); err != nil {
 				s.logger.WithError(err).Errorf("failed to remove runner")
 			}
 		}() //nolint:errcheck
@@ -146,7 +146,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		retResults.Findings = findings
 		retResults.Output = pluginResult
 		s.sendResults(retResults, nil)
-	}()
+	}(ctx)
 
 	return nil
 }

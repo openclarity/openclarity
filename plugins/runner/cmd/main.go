@@ -32,7 +32,7 @@ func main() {
 	// Create plugin runner
 	fmt.Printf("Starting plugin runner\n")
 	config := LoadConfig()
-	runner, err := runner.New(config)
+	runner, err := runner.New(ctx, config)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
-	github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7
+	github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7
 	github.com/anchore/clio v0.0.0-20240606161808-779b8d1ce2db
 	github.com/anchore/grype v0.78.0
 	github.com/anchore/stereoscope v0.0.3-0.20240501181043-2e9894674185

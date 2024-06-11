@@ -16,6 +16,8 @@
 package fake
 
 import (
+	"context"
+
 	log "github.com/sirupsen/logrus"
 
 	misconfigurationTypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
@@ -39,7 +41,7 @@ func New(_ string, _ job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 	}
 }
 
-func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
+func (a *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	go func() {
 		retResults := misconfigurationTypes.ScannerResult{
 			ScannerName:       ScannerName,

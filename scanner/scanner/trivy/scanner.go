@@ -154,7 +154,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 }
 
 // nolint:cyclop
-func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
+func (a *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	a.logger.Infof("Called %s scanner on source %v %v", ScannerName, sourceType, userInput)
 
 	tempFile, err := os.CreateTemp(a.config.CacheDir, "trivy.scan.*.json")
@@ -162,7 +162,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
 
-	go func() {
+	go func(ctx context.Context) {
 		defer os.Remove(tempFile.Name())
 
 		var hash string
@@ -212,7 +212,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		// Ensure we're configured for private registry if required
 		trivyOptions = utilsTrivy.SetTrivyRegistryConfigs(a.config.Registry, trivyOptions)
 
-		err = artifact.Run(context.TODO(), trivyOptions, trivySourceType)
+		err = artifact.Run(ctx, trivyOptions, trivySourceType)
 		if err != nil {
 			a.setError(fmt.Errorf("failed to scan for vulnerabilities: %w", err))
 			return
@@ -226,7 +226,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- a.CreateResult(file, hash, metadata)
-	}()
+	}(ctx)
 
 	return nil
 }

@@ -55,8 +55,8 @@ func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 }
 
 // nolint: cyclop
-func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
-	go func() {
+func (a *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
+	go func(ctx context.Context) {
 		retResults := types.ScannerResult{
 			ScannerName: ScannerName,
 		}
@@ -94,7 +94,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 
 		reportPath := path.Join(reportDir, "lynis.dat")
 
-		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(ctx, sourceType, userInput)
 		if err != nil {
 			a.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
 			return
@@ -151,7 +151,7 @@ func (a *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 
 		a.sendResults(retResults, nil)
-	}()
+	}(ctx)
 
 	return nil
 }

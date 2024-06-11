@@ -61,7 +61,7 @@ type containerManager struct {
 	runningErr       atomic.Pointer[error]
 }
 
-func New(config types.PluginConfig) (containermanager.PluginContainerManager, error) {
+func New(ctx context.Context, config types.PluginConfig) (containermanager.PluginContainerManager, error) {
 	// Load docker client
 	client, err := newDockerClient()
 	if err != nil {
