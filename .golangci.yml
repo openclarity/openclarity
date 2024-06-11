@@ -16,6 +16,7 @@ linters-settings:
       - helm.sh/helm/v3
       - golang.org/x/exp
       - github.com/testcontainers/testcontainers-go
+      - github.com/mholt/archiver/v3
 
   gosec:
     # To specify a set of rules to explicitly exclude.
