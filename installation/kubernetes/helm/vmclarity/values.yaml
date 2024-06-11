@@ -557,7 +557,7 @@ trivyServer:
     # -- Trivy Server container repository
     repository: aquasec/trivy
     # -- Trivy Server container tag
-    tag: 0.51.4
+    tag: 0.52.1
     # -- Trivy Server image digest. If set will override the tag.
     digest: ""
     # -- Trivy Server image pull policy

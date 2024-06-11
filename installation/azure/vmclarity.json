@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "5886069833441829552"
+      "templateHash": "5046454356582451200"
     }
   },
   "parameters": {
@@ -90,7 +90,7 @@
     },
     "trivyServerContainerImage": {
       "type": "string",
-      "defaultValue": "docker.io/aquasec/trivy:0.51.4",
+      "defaultValue": "docker.io/aquasec/trivy:0.52.1",
       "metadata": {
         "description": "Trivy Server Container Image"
       }
@@ -577,7 +577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "18253640953342839395"
+              "templateHash": "1731323228146633664"
             }
           },
           "parameters": {
@@ -681,7 +681,7 @@
             },
             "trivyServerContainerImage": {
               "type": "string",
-              "defaultValue": "docker.io/aquasec/trivy:0.51.4",
+              "defaultValue": "docker.io/aquasec/trivy:0.52.1",
               "metadata": {
                 "description": "Trivy Server Container Image"
               }

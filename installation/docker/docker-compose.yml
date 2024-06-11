@@ -105,7 +105,7 @@ services:
       retries: 60
 
   trivy-server:
-    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.51.4}
+    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.52.1}
     command:
       - server
     ports:
