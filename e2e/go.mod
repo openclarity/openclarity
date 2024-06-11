@@ -551,3 +551,6 @@ replace (
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
 replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240610092413-9adc7dbafe42
+
+// NOTE(paralta): https://github.com/advisories/GHSA-rhh4-rh7c-7r5v
+replace github.com/mholt/archiver/v3 v3.5.1 => github.com/anchore/archiver/v3 v3.5.2
