@@ -71,7 +71,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/anchore/clio v0.0.0-20240522144804-d81e109008aa // indirect
+	github.com/anchore/clio v0.0.0-20240606161808-779b8d1ce2db // indirect
 	github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f // indirect
 	github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 // indirect
 	github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a // indirect
@@ -439,8 +439,8 @@ require (
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.20.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
