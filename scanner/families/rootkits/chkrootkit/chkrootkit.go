@@ -42,8 +42,8 @@ type Scanner struct {
 	resultChan chan job_manager.Result
 }
 
-func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
-	go func() {
+func (s *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
+	go func(ctx context.Context) {
 		retResults := common.Results{
 			ScannedInput: userInput,
 			ScannerName:  ScannerName,
@@ -67,7 +67,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		}
 		s.logger.Debugf("found chkrootkit binary at: %s", chkrootkitBinaryPath)
 
-		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(context.TODO(), sourceType, userInput)
+		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(ctx, sourceType, userInput)
 		if err != nil {
 			s.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
 			return
@@ -98,7 +98,7 @@ func (s *Scanner) Run(sourceType utils.SourceType, userInput string) error {
 		retResults.Rootkits = toResultsRootkits(rootkits)
 
 		s.sendResults(retResults, nil)
-	}()
+	}(ctx)
 
 	return nil
 }

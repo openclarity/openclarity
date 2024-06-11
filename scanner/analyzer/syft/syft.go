@@ -56,14 +56,14 @@ func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan jo
 	}
 }
 
-func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
+func (a *Analyzer) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	src := utils.CreateSource(sourceType, a.localImage)
 
 	a.logger.Infof("Called %s analyzer on source %s", a.name, src)
 	// TODO platform can be defined
 	// https://github.com/anchore/syft/blob/b20310eaf847c259beb4fe5128c842bd8aa4d4fc/cmd/syft/cli/options/packages.go#L48
 	source, err := syft.GetSource(
-		context.Background(),
+		ctx,
 		userInput,
 		syft.DefaultGetSourceConfig().WithSources(src).WithRegistryOptions(a.config.RegistryOptions),
 	)
@@ -71,13 +71,13 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 		return fmt.Errorf("failed to create source analyzer=%s: %w", a.name, err)
 	}
 
-	go func() {
+	go func(ctx context.Context) {
 		res := &analyzer.Results{}
 
 		sbomConfig := syft.DefaultCreateSBOMConfig().
 			WithSearchConfig(cataloging.DefaultSearchConfig().WithScope(a.config.Scope))
 
-		sbom, err := syft.CreateSBOM(context.TODO(), source, sbomConfig)
+		sbom, err := syft.CreateSBOM(ctx, source, sbomConfig)
 		if err != nil {
 			a.setError(res, fmt.Errorf("failed to write results: %w", err))
 			return
@@ -110,7 +110,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 
 		a.logger.Infof("Sending successful results")
 		a.resultChan <- res
-	}()
+	}(ctx)
 
 	return nil
 }

@@ -61,7 +61,7 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 	var sbomResults Results
 	for _, input := range s.conf.Inputs {
 		startTime := time.Now()
-		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		results, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to analyzer input %q: %w", s.conf.Inputs[0].Input, err)
 		}

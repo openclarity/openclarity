@@ -45,7 +45,7 @@ func (s Secrets) Run(ctx context.Context, _ *familiesresults.Results) (interface
 	var secretsResults Results
 	for _, input := range s.conf.Inputs {
 		startTime := time.Now()
-		results, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		results, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for secrets: %w", input.Input, err)
 		}

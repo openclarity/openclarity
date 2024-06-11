@@ -53,7 +53,7 @@ func (p *Plugins) Run(ctx context.Context, res *results.Results) (interfaces.IsR
 	var pluginsResults Results
 	for _, input := range p.conf.Inputs {
 		startTime := time.Now()
-		managerResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan input %q for plugins: %w", input.Input, err)
 		}

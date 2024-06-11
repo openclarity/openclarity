@@ -16,6 +16,7 @@
 package grype
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -55,7 +56,7 @@ func newRemoteScanner(conf *config.Config, logger *log.Entry, resultChan chan jo
 	}
 }
 
-func (s *RemoteScanner) Run(sourceType utils.SourceType, userInput string) error {
+func (s *RemoteScanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
 	// remote-grype supports only SBOM as a source input since it sends the SBOM to a centralized grype server for scanning.
 	if sourceType != utils.SBOM {
 		s.logger.Infof("Ignoring non SBOM input. type=%v", sourceType)

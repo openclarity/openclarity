@@ -284,8 +284,8 @@ github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2/go.mod h1:HBCaDe
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8=
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
-github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7 h1:d8TjnmUvMG8up/q+oVxanmAMqj+stbZEChx8FHXA9R8=
-github.com/Portshift/dockle v0.3.2-0.20240508131533-4f3b165086b7/go.mod h1:FUpB0D5B7AaKtY3Xt1kvO5QlJV2OifG3NNmvisDMla8=
+github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7 h1:VbPjdBPXkQAW5gMmBPrslfmmppc7nrsq5hnoBo+fUuE=
+github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7/go.mod h1:FUpB0D5B7AaKtY3Xt1kvO5QlJV2OifG3NNmvisDMla8=
 github.com/ProtonMail/go-crypto v1.1.0-alpha.2 h1:bkyFVUP+ROOARdgCiJzNQo2V2kiB97LyUpzH9P6Hrlg=
 github.com/ProtonMail/go-crypto v1.1.0-alpha.2/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=

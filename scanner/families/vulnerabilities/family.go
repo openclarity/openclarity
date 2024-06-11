@@ -83,7 +83,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *results.Results) (interfa
 	var vulResults Results
 	for _, input := range v.conf.Inputs {
 		startTime := time.Now()
-		runResults, err := manager.Run(utils.SourceType(input.InputType), input.Input)
+		runResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
 		if err != nil {
 			return nil, fmt.Errorf("failed to run for input %v of type %v: %w", input.Input, input.InputType, err)
 		}
