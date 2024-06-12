@@ -133,6 +133,8 @@ func isSupportedFS(fs string) bool {
 		return true
 	case string(filesystem.Xfs):
 		return true
+	case string(filesystem.Ntfs):
+		return true
 	default:
 		return false
 	}
