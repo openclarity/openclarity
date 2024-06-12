@@ -1,0 +1,84 @@
+   Device Identifier:         disk0
+   Device Node:               /dev/disk0
+   Whole:                     Yes
+   Part of Whole:             disk0
+   Device / Media Name:       APPLE SSD 0000
+
+   Volume Name:               Not applicable (no file system)
+   Mounted:                   Not applicable (no file system)
+   File System:               None
+
+   Content (IOContent):       GUID_partition_scheme
+   OS Can Be Installed:       No
+   Media Type:                Generic
+   Protocol:                  Apple Fabric
+   SMART Status:              Verified
+
+   Disk Size:                 1.0 GB (1073741824 Bytes)
+   Device Block Size:         4096 Bytes
+
+   Media OS Use Only:         No
+   Media Read-Only:           No
+   Volume Read-Only:          Not applicable (no file system)
+
+   Device Location:           Internal
+   Removable Media:           Fixed
+
+   Solid State:               Yes
+   Hardware AES Support:      Yes
+
+**********
+
+   Device Identifier:         disk3s6
+   Device Node:               /dev/disk3s6
+   Whole:                     No
+   Part of Whole:             disk3
+
+   Volume Name:               VM
+   Mounted:                   Yes
+   Mount Point:               /System/Volumes/VM
+
+   Partition Type:            0000-0000-0000-0000-0000
+   File System Personality:   APFS
+   Type (Bundle):             apfs
+   Name (User Visible):       APFS
+   Owners:                    Enabled
+
+   OS Can Be Installed:       No
+   Booter Disk:               disk3s2
+   Recovery Disk:             disk3s3
+   Media Type:                Generic
+   Protocol:                  Apple Fabric
+   SMART Status:              Verified
+   Volume UUID:               0000-0000-0000-0000-0000
+   Disk / Partition UUID:     0000-0000-0000-0000-0000
+
+   Disk Size:                 1.0 GB (1073741824 Bytes)
+   Device Block Size:         4096 Bytes
+
+   Volume Used Space:         2.1 GB (2147520512 Bytes)
+   Container Total Space:     1.0 GB (1073741824 Bytes)
+   Container Free Space:      1.0 GB (1073741824 Bytes)
+   Allocation Block Size:     4096 Bytes
+
+   Media OS Use Only:         No
+   Media Read-Only:           No
+   Volume Read-Only:          No
+
+   Device Location:           Internal
+   Removable Media:           Fixed
+
+   Solid State:               Yes
+   Hardware AES Support:      Yes
+
+   This disk is an APFS Volume.  APFS Information:
+   APFS Container:            disk3
+   APFS Physical Store:       disk0s2
+   Fusion Drive:              No
+   Encrypted:                 No
+   FileVault:                 No
+   Sealed:                    No
+   Locked:                    No
+
+**********
+

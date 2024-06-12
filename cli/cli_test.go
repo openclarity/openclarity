@@ -59,6 +59,13 @@ func Test_isSupportedFS(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "ntfs is supported",
+			args: args{
+				fs: filesystem.Ntfs,
+			},
+			want: true,
+		},
+		{
 			name: "btrfs is not supported",
 			args: args{
 				fs: "btrfs",
