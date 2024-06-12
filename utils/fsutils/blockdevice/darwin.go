@@ -13,26 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !linux && !darwin
-// +build !linux,!darwin
+//go:build darwin
+// +build darwin
 
 package blockdevice
 
 import (
 	"context"
 	"fmt"
-	"runtime"
+
+	"github.com/openclarity/vmclarity/utils/fsutils/diskutil"
 )
 
-type BlockDevice struct {
-	Name       string
-	Path       string
-	FSType     string
-	MountPoint string
-	Label      string
-	UUID       string
-}
+type BlockDevice = diskutil.BlockDevice
 
-func List(_ context.Context) ([]BlockDevice, error) {
-	return nil, fmt.Errorf("mount is unsupported on %s platform", runtime.GOOS)
+func List(ctx context.Context) ([]BlockDevice, error) {
+	blockDevices, err := diskutil.New().List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list block devices: %w", err)
+	}
+
+	return blockDevices, nil
 }
