@@ -1864,6 +1864,10 @@ components:
           type: array
           items:
             type: string
+        yara_directories_to_scan:
+          type: array
+          items:
+            type: string
 
     RootkitsConfig:
       type: object
