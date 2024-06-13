@@ -782,6 +782,12 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 					FieldType: odatasql.StringFieldType,
 				},
 			},
+			"yara_directories_to_scan": odatasql.FieldMeta{
+				FieldType: odatasql.CollectionFieldType,
+				CollectionItemMeta: &odatasql.FieldMeta{
+					FieldType: odatasql.StringFieldType,
+				},
+			},
 		},
 	},
 	"MisconfigurationsConfig": {
