@@ -176,8 +176,9 @@ func withMalwareConfig(config *apitypes.MalwareConfig, opts *ScannerConfig) Fami
 					AlternativeFreshclamMirrorURL: opts.AlternativeFreshclamMirrorURL,
 				},
 				Yara: yaraconfig.Config{
-					YaraBinaryPath:  "",
-					CompiledRuleURL: opts.YaraRuleServerAddress,
+					YaraBinaryPath:    "",
+					CompiledRuleURL:   opts.YaraRuleServerAddress,
+					DirectoriesToScan: config.GetYaraDirectoriesToScan(),
 				},
 			},
 		}

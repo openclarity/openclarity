@@ -778,8 +778,9 @@ type Malware struct {
 
 // MalwareConfig defines model for MalwareConfig.
 type MalwareConfig struct {
-	Enabled  *bool     `json:"enabled,omitempty"`
-	Scanners *[]string `json:"scanners,omitempty"`
+	Enabled               *bool     `json:"enabled,omitempty"`
+	Scanners              *[]string `json:"scanners,omitempty"`
+	YaraDirectoriesToScan *[]string `json:"yara_directories_to_scan,omitempty"`
 }
 
 // MalwareFindingInfo defines model for MalwareFindingInfo.

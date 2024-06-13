@@ -88,24 +88,18 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 
 	switch t {
 	case types.EnvironmentTypeAWS, types.EnvironmentTypeGCP:
-		// NOTE(paralta) Disabling the malware families to speed up the test
-		familiesConfig := FullScanFamiliesConfig
-		familiesConfig.Malware.Enabled = to.Ptr(false)
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 10 * time.Minute,
 			ScanTimeout:          20 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "tags"),
-			FamiliesConfig:       familiesConfig,
+			FamiliesConfig:       FullScanFamiliesConfig,
 		}
 	case types.EnvironmentTypeAzure:
-		// NOTE(paralta) Disabling the malware families to speed up the test
-		familiesConfig := FullScanFamiliesConfig
-		familiesConfig.Malware.Enabled = to.Ptr(false)
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 20 * time.Minute,
 			ScanTimeout:          40 * time.Minute,
 			Scope:                fmt.Sprintf(scope, "tags"),
-			FamiliesConfig:       familiesConfig,
+			FamiliesConfig:       FullScanFamiliesConfig,
 		}
 	case types.EnvironmentTypeDocker:
 		return &TestSuiteParams{

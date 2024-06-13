@@ -91,6 +91,14 @@ func (c *MalwareConfig) GetScannersList() []string {
 	return []string{"clam", "yara"}
 }
 
+func (c *MalwareConfig) GetYaraDirectoriesToScan() []string {
+	if c != nil && c.YaraDirectoriesToScan != nil && len(*c.YaraDirectoriesToScan) != 0 {
+		return *c.YaraDirectoriesToScan
+	}
+
+	return []string{"/home", "/opt", "/tmp", "/var/log"}
+}
+
 func (c *ExploitsConfig) IsEnabled() bool {
 	return c != nil && c.Enabled != nil && *c.Enabled
 }
