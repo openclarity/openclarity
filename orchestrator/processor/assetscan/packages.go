@@ -20,61 +20,10 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	logutils "github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/findingkey"
 )
-
-func (asp *AssetScanProcessor) getExistingPackageFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.PackageKey]string, error) {
-	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
-
-	existingMap := map[findingkey.PackageKey]string{}
-
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Package' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: &existingFilter,
-		Select: to.Ptr("id,findingInfo/name,findingInfo/version"),
-	})
-	if err != nil {
-		return existingMap, fmt.Errorf("failed to query for findings: %w", err)
-	}
-
-	for _, finding := range *existingFindings.Items {
-		info, err := (*finding.FindingInfo).AsPackageFindingInfo()
-		if err != nil {
-			return existingMap, fmt.Errorf("unable to get package finding info: %w", err)
-		}
-
-		key := findingkey.GeneratePackageKey(info)
-		if _, ok := existingMap[key]; ok {
-			return existingMap, fmt.Errorf("found multiple matching existing findings for package %s version %s", *info.Name, *info.Version)
-		}
-		existingMap[key] = *finding.Id
-	}
-
-	logger.Infof("Found %d existing package findings for this scan", len(existingMap))
-	logger.Debugf("Existing package map: %v", existingMap)
-
-	return existingMap, nil
-}
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	completedTime := assetScan.Status.LastTransitionTime
-
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Package", completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to check for newer existing package findings: %w", err)
-	}
-
-	// Build a map of existing findings for this scan to prevent us
-	// recreating existings ones as we might be re-reconciling the same
-	// asset scan because of downtime or a previous failure.
-	existingMap, err := asp.getExistingPackageFindingsForScan(ctx, assetScan)
-	if err != nil {
-		return fmt.Errorf("failed to check existing package findings: %w", err)
-	}
-
 	if assetScan.Sbom != nil && assetScan.Sbom.Packages != nil {
 		// Create new or update existing findings all the packages found by the
 		// scan.
@@ -90,47 +39,24 @@ func (asp *AssetScanProcessor) reconcileResultPackagesToFindings(ctx context.Con
 			}
 
 			findingInfo := apitypes.FindingInfo{}
-			err = findingInfo.FromPackageFindingInfo(itemFindingInfo)
+			err := findingInfo.FromPackageFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert PackageFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := apitypes.Finding{
-				Asset: &apitypes.AssetRelationship{
-					Id: assetScan.Asset.Id,
-				},
-				FoundBy: &apitypes.AssetScanRelationship{
-					Id: *assetScan.Id,
-				},
-				FoundOn:     &assetScan.Status.LastTransitionTime,
-				FindingInfo: &findingInfo,
+			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update finding: %w", err)
 			}
 
-			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this asset scan.
-			if newerFound {
-				finding.InvalidatedOn = &newerTime
-			}
-
-			key := findingkey.GeneratePackageKey(itemFindingInfo)
-			if id, ok := existingMap[key]; ok {
-				err = asp.client.PatchFinding(ctx, id, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
-			} else {
-				_, err = asp.client.PostFinding(ctx, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
+			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update asset finding: %w", err)
 			}
 		}
 	}
 
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Package", assetScan.Asset.Id, completedTime)
+	err := asp.invalidateOlderAssetFindingsByType(ctx, "Package", assetScan.Asset.Id, assetScan.Status.LastTransitionTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older package finding: %w", err)
 	}

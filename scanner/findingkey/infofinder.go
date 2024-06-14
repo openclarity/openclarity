@@ -32,6 +32,14 @@ func (k InfoFinderKey) String() string {
 	return fmt.Sprintf("%s.%s.%s.%s", k.ScannerName, k.Type, k.Data, k.Path)
 }
 
+// Filter returns a string that can be used to filter the info finder finding in the database.
+func (k InfoFinderKey) Filter() string {
+	return fmt.Sprintf(
+		"findingInfo/scannerName eq '%s' and findingInfo/type eq '%s' and findingInfo/data eq '%s' and findingInfo/path eq '%s'",
+		k.ScannerName, k.Type, k.Data, k.Path,
+	)
+}
+
 func GenerateInfoFinderKey(info apitypes.InfoFinderFindingInfo) InfoFinderKey {
 	return InfoFinderKey{
 		ScannerName: *info.ScannerName,

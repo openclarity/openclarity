@@ -5,7 +5,6 @@ import { OPERATORS } from 'components/Filter';
 import ToggleButton from 'components/ToggleButton';
 import InfoIcon from 'components/InfoIcon';
 import Loader from 'components/Loader';
-import { getAssetColumnsFiltersConfig } from 'utils/utils';
 import { APIS } from 'utils/systemConsts';
 import { useFilterDispatch, useFilterState, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
 
@@ -47,19 +46,16 @@ const FindingsTablePage = ({tableTitle, findingsObjectType, columns, filterType,
                 filterType={filterType}
                 filtersConfig={[
                     ...filtersConfig,
-                    ...getAssetColumnsFiltersConfig({prefix: "assetScan.asset.assetInfo", withType: false, withLabels: false}),
-                    {value: "foundOn", label: "Found on", isDate: true, operators: [
+                    {value: "firstSeen", label: "First seen", isDate: true, operators: [
                         {...OPERATORS.ge},
                         {...OPERATORS.le},
                     ]}
                 ]}
                 systemFilterType={FILTER_TYPES.FINDINGS_GENERAL}
                 filters={[
-                    `(findingInfo.objectType eq '${findingsObjectType}')`,
-                    ...(hideHistory ? ["(invalidatedOn eq null)"] : [])
+                    `(findingInfo.objectType eq '${findingsObjectType}')`
                 ].join(` and `)}
-                expand="asset"
-                defaultSortBy={{sortIds: ["foundOn"], desc: true}}
+                defaultSortBy={{sortIds: ["lastSeen"], desc: true}}
             />
         </div>
     )

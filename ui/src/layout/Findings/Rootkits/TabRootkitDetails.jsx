@@ -4,7 +4,7 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import { FindingsDetailsCommonFields } from '../utils';
 
 const TabPackageDetails = ({data}) => {
-    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {findingInfo, firstSeen, lastSeen} = data;
     const {rootkitName, message} = findingInfo;
 
     return (
@@ -17,7 +17,7 @@ const TabPackageDetails = ({data}) => {
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Message">{message}</TitleValueDisplay>
                     </TitleValueDisplayRow>
-                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
+                    <FindingsDetailsCommonFields firstSeen={firstSeen} lastSeen={lastSeen} />
                 </>  
             )}
         />

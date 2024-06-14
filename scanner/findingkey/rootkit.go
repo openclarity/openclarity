@@ -39,6 +39,14 @@ func (k RootkitKey) RootkitString() string {
 	return k.String()
 }
 
+// Filter returns a string that can be used to filter the rootkit finding in the database.
+func (k RootkitKey) Filter() string {
+	return fmt.Sprintf(
+		"findingInfo/rootkitName eq '%s' and findingInfo/rootkitType eq '%s' and findingInfo/message eq '%s'",
+		k.Name, k.RootkitType, k.Message,
+	)
+}
+
 func GenerateRootkitKey(info apitypes.RootkitFindingInfo) RootkitKey {
 	return RootkitKey{
 		Name:        *info.RootkitName,

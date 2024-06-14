@@ -851,22 +851,18 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"value": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
-	"Finding": {
+	findingSchemaName: {
 		Table: "findings",
 		Fields: odatasql.Schema{
-			"id": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"asset": odatasql.FieldMeta{
-				FieldType:            odatasql.RelationshipFieldType,
-				RelationshipSchema:   assetSchemaName,
-				RelationshipProperty: "id",
-			},
-			"foundBy": odatasql.FieldMeta{
+			"id":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"revision":  odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
+			"firstSeen": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"lastSeen":  odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"lastSeenBy": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
 				RelationshipSchema:   assetScansSchemaName,
 				RelationshipProperty: "id",
 			},
-			"foundOn":       odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
-			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
 			"findingInfo": odatasql.FieldMeta{
 				FieldType: odatasql.ComplexFieldType,
 				ComplexFieldSchemas: []string{
@@ -1234,6 +1230,26 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"reason":             odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"message":            odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"lastTransitionTime": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+		},
+	},
+	assetFindingSchemaName: {
+		Table: "asset_findings",
+		Fields: odatasql.Schema{
+			"id": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"asset": odatasql.FieldMeta{
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   assetSchemaName,
+				RelationshipProperty: "id",
+			},
+			"finding": odatasql.FieldMeta{
+				FieldType:            odatasql.RelationshipFieldType,
+				RelationshipSchema:   "Finding",
+				RelationshipProperty: "id",
+			},
+			"firstSeen":     odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"lastSeen":      odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"invalidatedOn": odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
+			"revision":      odatasql.FieldMeta{FieldType: odatasql.NumberFieldType},
 		},
 	},
 }

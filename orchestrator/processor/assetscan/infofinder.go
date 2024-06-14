@@ -20,61 +20,10 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/findingkey"
 )
-
-func (asp *AssetScanProcessor) getExistingInfoFinderFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.InfoFinderKey]string, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	existingMap := map[findingkey.InfoFinderKey]string{}
-
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'InfoFinder' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: &existingFilter,
-		Select: to.Ptr("id,findingInfo/scannerName,findingInfo/type,findingInfo/data,findingInfo/path"),
-	})
-	if err != nil {
-		return existingMap, fmt.Errorf("failed to query for findings: %w", err)
-	}
-
-	for _, finding := range *existingFindings.Items {
-		info, err := (*finding.FindingInfo).AsInfoFinderFindingInfo()
-		if err != nil {
-			return existingMap, fmt.Errorf("unable to get InfoFinder finding info: %w", err)
-		}
-
-		key := findingkey.GenerateInfoFinderKey(info)
-		if _, ok := existingMap[key]; ok {
-			return existingMap, fmt.Errorf("found multiple matching existing findings for InfoFinder %v", key)
-		}
-		existingMap[key] = *finding.Id
-	}
-
-	logger.Infof("Found %d existing InfoFinder findings for this scan", len(existingMap))
-	logger.Debugf("Existing InfoFinder map: %v", existingMap)
-
-	return existingMap, nil
-}
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	completedTime := assetScan.Status.LastTransitionTime
-
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "InfoFinder", completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to check for newer existing InfoFinder findings: %w", err)
-	}
-
-	// Build a map of existing findings for this scan to prevent us
-	// recreating existing ones as we might be re-reconciling the same
-	// asset scan because of downtime or a previous failure.
-	existingMap, err := asp.getExistingInfoFinderFindingsForScan(ctx, assetScan)
-	if err != nil {
-		return fmt.Errorf("failed to check existing InfoFinder findings: %w", err)
-	}
-
 	if assetScan.InfoFinder != nil && assetScan.InfoFinder.Infos != nil {
 		// Create new or update existing findings all the infos found by the
 		// scan.
@@ -87,47 +36,24 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 			}
 
 			findingInfo := apitypes.FindingInfo{}
-			err = findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
+			err := findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert InfoFinderFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := apitypes.Finding{
-				Asset: &apitypes.AssetRelationship{
-					Id: assetScan.Asset.Id,
-				},
-				FoundBy: &apitypes.AssetScanRelationship{
-					Id: *assetScan.Id,
-				},
-				FoundOn:     &assetScan.Status.LastTransitionTime,
-				FindingInfo: &findingInfo,
+			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update finding: %w", err)
 			}
 
-			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this asset scan.
-			if newerFound {
-				finding.InvalidatedOn = &newerTime
-			}
-
-			key := findingkey.GenerateInfoFinderKey(itemFindingInfo)
-			if id, ok := existingMap[key]; ok {
-				err = asp.client.PatchFinding(ctx, id, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
-			} else {
-				_, err = asp.client.PostFinding(ctx, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
+			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update asset finding: %w", err)
 			}
 		}
 	}
 
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "InfoFinder", assetScan.Asset.Id, completedTime)
+	err := asp.invalidateOlderAssetFindingsByType(ctx, "InfoFinder", assetScan.Asset.Id, assetScan.Status.LastTransitionTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older InfoFinder finding: %w", err)
 	}

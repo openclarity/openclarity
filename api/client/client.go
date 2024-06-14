@@ -1054,3 +1054,84 @@ func (c *Client) GetProviders(ctx context.Context, params types.GetProvidersPara
 		return nil, fmt.Errorf("failed to get providers. status code=%v", resp.StatusCode())
 	}
 }
+
+func (c *Client) GetAssetFindings(ctx context.Context, params types.GetAssetFindingsParams) (*types.AssetFindings, error) {
+	resp, err := c.api.GetAssetFindingsWithResponse(ctx, &params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get asset findings: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return nil, errors.New("no asset findings: empty body")
+		}
+		return resp.JSON200, nil
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to get asset findings. status code=%v: %s", resp.StatusCode(), *resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to get asset findings. status code=%v", resp.StatusCode())
+	}
+}
+
+func (c *Client) PatchAssetFinding(ctx context.Context, assetFindingID types.AssetFindingID, assetFinding types.AssetFinding) error {
+	resp, err := c.api.PatchAssetFindingsAssetFindingIDWithResponse(ctx, assetFindingID, &types.PatchAssetFindingsAssetFindingIDParams{}, assetFinding)
+	if err != nil {
+		return fmt.Errorf("failed to update an asset finding: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		if resp.JSON200 == nil {
+			return errors.New("failed to update an asset finding: empty body")
+		}
+		return nil
+	case http.StatusBadRequest:
+		if resp.JSON400 != nil && resp.JSON400.Message != nil {
+			return fmt.Errorf("failed to update an asset finding: status code=%v: %v", resp.StatusCode(), *resp.JSON400.Message)
+		}
+		return fmt.Errorf("failed to update an asset finding: status code=%v", resp.StatusCode())
+	case http.StatusNotFound:
+		if resp.JSON404 == nil {
+			return errors.New("failed to update an asset finding: empty body on not found")
+		}
+		if resp.JSON404 != nil && resp.JSON404.Message != nil {
+			return fmt.Errorf("failed to update an asset finding: not found: %v", *resp.JSON404.Message)
+		}
+		return errors.New("failed to update an asset finding: not found")
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return fmt.Errorf("failed to update an asset finding: status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return fmt.Errorf("failed to update an asset finding: status code=%v", resp.StatusCode())
+	}
+}
+
+func (c *Client) PostAssetFinding(ctx context.Context, assetFinding types.AssetFinding) (*types.AssetFinding, error) {
+	resp, err := c.api.PostAssetFindingsWithResponse(ctx, assetFinding)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create an asset finding: %w", err)
+	}
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		if resp.JSON201 == nil {
+			return nil, fmt.Errorf("failed to create an asset finding: empty body. status code=%v", http.StatusCreated)
+		}
+		return resp.JSON201, nil
+	case http.StatusConflict:
+		if resp.JSON409 == nil {
+			return nil, fmt.Errorf("failed to create an asset finding: empty body. status code=%v", http.StatusConflict)
+		}
+		if resp.JSON409.Finding == nil {
+			return nil, fmt.Errorf("failed to create an asset finding: no finding data. status code=%v", http.StatusConflict)
+		}
+		return nil, AssetFindingConflictError{
+			ConflictingAssetFinding: resp.JSON409.Finding,
+			Message:                 "conflict",
+		}
+	default:
+		if resp.JSONDefault != nil && resp.JSONDefault.Message != nil {
+			return nil, fmt.Errorf("failed to create an asset finding. status code=%v: %v", resp.StatusCode(), resp.JSONDefault.Message)
+		}
+		return nil, fmt.Errorf("failed to create an asset finding. status code=%v", resp.StatusCode())
+	}
+}

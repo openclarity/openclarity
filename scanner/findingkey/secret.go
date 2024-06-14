@@ -38,6 +38,14 @@ func (k SecretKey) SecretString() string {
 	return k.String()
 }
 
+// Filter returns a string that can be used to filter the secret finding in the database.
+func (k SecretKey) Filter() string {
+	return fmt.Sprintf(
+		"findingInfo/fingerprint eq '%s' and findingInfo/startColumn eq '%d' and findingInfo/endColumn eq '%d'",
+		k.Fingerprint, k.StartColumn, k.EndColumn,
+	)
+}
+
 func GenerateSecretKey(secret apitypes.SecretFindingInfo) SecretKey {
 	return SecretKey{
 		Fingerprint: *secret.Fingerprint,

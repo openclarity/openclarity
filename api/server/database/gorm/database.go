@@ -78,6 +78,7 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		AssetScanEstimation{},
 		ScanEstimation{},
 		Provider{},
+		AssetFinding{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to run auto migration: %w", err)
 	}
@@ -127,32 +128,16 @@ func initDataBase(config types.DBConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to create index providers_id_idx: %w", idb.Error)
 	}
 
+	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_findings_id_idx ON asset_findings((%s))", SQLVariant.JSONExtract("Data", "$.id")))
+	if idb.Error != nil {
+		return nil, fmt.Errorf("failed to create index asset_findings_id_idx: %w", idb.Error)
+	}
+
 	// For processing asset scans to findings we need to find all the scan
 	// results by status and findingsProcessed, so add an index for that.
 	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS asset_scans_findings_processed_idx ON asset_scans((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingsProcessed"), SQLVariant.JSONExtract("Data", "$.status.state")))
 	if idb.Error != nil {
 		return nil, fmt.Errorf("failed to create index asset_scans_findings_processed_idx: %w", idb.Error)
-	}
-
-	// The UI needs to find all the findings for a specific finding type
-	// and the asset scan processor needs to filter that list by a
-	// specific asset scan. So add a combined index for those cases.
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_assetscan_idx ON findings((%s), (%s))", SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"), SQLVariant.JSONExtract("Data", "$.assetScan.id")))
-	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index findings_by_type_and_assetscan_idx: %w", idb.Error)
-	}
-
-	// The finding trends widget in the backend UI needs to count all the findings for a specific finding type
-	// that was active during a given time point. So add a combined index for those cases.
-	// Example query:
-	//	SELECT COUNT(*) FROM findings WHERE ((findings.Data->'$.findingInfo.objectType' = JSON_QUOTE('Vulnerability') AND datetime(findings.Data->>'$.foundOn') <= datetime('2023-06-11T14:24:28Z')) AND (findings.Data->'$.invalidatedOn' is NULL OR datetime(findings.Data->>'$.invalidatedOn') > datetime('2023-06-11T14:24:28Z')))
-	idb = db.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS findings_by_type_and_foundOn_and_invalidatedOn_idx ON findings((%s), (%s), (%s), (%s))",
-		SQLVariant.JSONExtract("Data", "$.findingInfo.objectType"),
-		SQLVariant.JSONExtractText("Data", "$.foundOn"),
-		SQLVariant.JSONExtractText("Data", "$.invalidatedOn"),
-		SQLVariant.JSONExtract("Data", "$.invalidatedOn")))
-	if idb.Error != nil {
-		return nil, fmt.Errorf("failed to create index findings_by_type_and_foundOn_and_invalidatedOn_idx: %w", idb.Error)
 	}
 
 	// TODO(sambetts) Add indexes for all the uniqueness checks we need to

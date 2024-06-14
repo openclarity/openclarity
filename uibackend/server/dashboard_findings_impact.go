@@ -43,11 +43,6 @@ var orderedSeveritiesValues = []string{
 	string(apitypes.NEGLIGIBLE),
 }
 
-type findingAssetKey struct {
-	FindingKey string
-	AssetID    string
-}
-
 type findingInfoCount struct {
 	FindingInfo *apitypes.FindingInfo
 	AssetCount  int
@@ -448,18 +443,16 @@ func createPackageFindingImpact(findingInfo *apitypes.FindingInfo, count int) (t
 }
 
 func (s *ServerImpl) getVulnerabilityFindingToAssetCountMap(ctx context.Context, severity string) (map[string]findingInfoCount, error) {
-	filter := fmt.Sprintf("asset/terminatedOn eq null and findingInfo/objectType eq 'Vulnerability' and findingInfo/severity eq '%s' and invalidatedOn eq null", severity)
+	filter := fmt.Sprintf("findingInfo/objectType eq 'Vulnerability' and findingInfo/severity eq '%s'", severity)
 	return s.getFindingToAssetCountMapWithFilter(ctx, filter)
 }
 
 func (s *ServerImpl) getFindingToAssetCountMap(ctx context.Context, findingType string) (map[string]findingInfoCount, error) {
-	filter := fmt.Sprintf("asset/terminatedOn eq null and findingInfo/objectType eq '%s' and invalidatedOn eq null", findingType)
+	filter := fmt.Sprintf("findingInfo/objectType eq '%s'", findingType)
 	return s.getFindingToAssetCountMapWithFilter(ctx, filter)
 }
 
 func (s *ServerImpl) getFindingToAssetCountMapWithFilter(ctx context.Context, filter string) (map[string]findingInfoCount, error) {
-	// Used to make sure we are not counting the same asset more than once for a specific finding.
-	findingAssetMap := make(map[findingAssetKey]struct{})
 	// Used to count unique assets count for each finding.
 	findingToAssetCount := make(map[string]findingInfoCount)
 	// We will fetch findings in batches of 100
@@ -477,8 +470,28 @@ func (s *ServerImpl) getFindingToAssetCountMapWithFilter(ctx context.Context, fi
 
 		findings := *f.Items
 		log.Debugf("Got findings %+v", findings)
-		if err = processFindings(findings, findingAssetMap, findingToAssetCount); err != nil {
-			return nil, fmt.Errorf("failed to process findings: %w", err)
+
+		for idx, finding := range findings {
+			assetCount := 0
+			assetFindings, err := s.Client.GetAssetFindings(ctx, apitypes.GetAssetFindingsParams{
+				Filter: to.Ptr(fmt.Sprintf("finding/id eq '%s' and asset/terminatedOn eq null and invalidatedOn eq null", *finding.Id)),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get asset findings: %w", err)
+			}
+			if assetFindings.Items != nil {
+				assetCount = len(*assetFindings.Items)
+			}
+
+			fKey, err := findingkey.GenerateFindingKey(finding.FindingInfo)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate finding key: %w", err)
+			}
+
+			findingToAssetCount[fKey] = findingInfoCount{
+				FindingInfo: findings[idx].FindingInfo,
+				AssetCount:  assetCount,
+			}
 		}
 
 		if len(findings) < top {
@@ -491,45 +504,6 @@ func (s *ServerImpl) getFindingToAssetCountMapWithFilter(ctx context.Context, fi
 
 	log.Debugf("Returning findingToAssetCount: +%v", findingToAssetCount)
 	return findingToAssetCount, nil
-}
-
-// processFindings - updates the asset count (findingToAssetCount) for each finding.
-// findings - list of findings to process.
-// findingAssetMap - the current findingAssetMap to avoid counting the same asset.
-// findingToAssetCount - the current findingToAssetCount to update the asset count for each finding.
-func processFindings(findings []apitypes.Finding, findingAssetMap map[findingAssetKey]struct{}, findingToAssetCount map[string]findingInfoCount) error {
-	for idx, item := range findings {
-		fKey, err := findingkey.GenerateFindingKey(item.FindingInfo)
-		if err != nil {
-			return fmt.Errorf("failed to generate finding key: %w", err)
-		}
-		fsKey := findingAssetKey{
-			FindingKey: fKey,
-			AssetID:    item.Asset.Id,
-		}
-		if _, ok := findingAssetMap[fsKey]; !ok {
-			// Mark as seen to avoid counting the same asset more than once for a finding.
-			findingAssetMap[fsKey] = struct{}{}
-			log.Debugf("New finding info for an asset. fsKey=%+v, current finding to asset count %v", fsKey, findingToAssetCount[fKey])
-			if curFindingInfoCount, found := findingToAssetCount[fKey]; !found {
-				// First time we see the finding, save finding info and count the asset.
-				findingToAssetCount[fKey] = findingInfoCount{
-					FindingInfo: findings[idx].FindingInfo,
-					AssetCount:  1,
-				}
-			} else {
-				// We already saw the finding, just count the asset.
-				findingToAssetCount[fKey] = findingInfoCount{
-					FindingInfo: curFindingInfoCount.FindingInfo,
-					AssetCount:  curFindingInfoCount.AssetCount + 1,
-				}
-			}
-		} else {
-			log.Debugf("Already count asset %q for finding (%+v).", item.Asset.Id, fKey)
-		}
-	}
-
-	return nil
 }
 
 // getSortedFindingInfoCountSlice will return a slice of findingInfoCount desc sorted by AssetCount.
