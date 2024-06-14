@@ -3,8 +3,8 @@ module github.com/openclarity/vmclarity/containerruntimediscovery/client
 go 1.22.2
 
 require (
-	github.com/openclarity/vmclarity/api/types v0.7.0
-	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.0
+	github.com/openclarity/vmclarity/api/types v0.7.1
+	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.1
 )
 
 require (
@@ -19,8 +19,8 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/vmclarity/core v0.7.0 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.0 // indirect
+	github.com/openclarity/vmclarity/core v0.7.1 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.1 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/text v0.15.0 // indirect

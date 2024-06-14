@@ -1,6 +1,6 @@
 module-sets:
   vmclarity:
-    version: v0.7.0
+    version: v0.7.1
     modules:
       - github.com/openclarity/vmclarity/uibackend/types
       - github.com/openclarity/vmclarity/uibackend/server
