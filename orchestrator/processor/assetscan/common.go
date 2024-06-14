@@ -17,68 +17,114 @@ package assetscan
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
 )
 
-func (asp *AssetScanProcessor) newerExistingFindingTime(ctx context.Context, assetID string, findingType string, completedTime time.Time) (bool, time.Time, error) {
-	var found bool
-	var newerTime time.Time
-	// AssetScans can be processed out of chronological order:
-	//
-	// If multiple scans of the same asset complete, A first then B, we'll
-	// pick up the event for A, and then B. If while reconciling A we hit a
-	// failure (timeout or weird glitch), the reconciler will continue on
-	// and try to reconcile B. It will then pick up A on the next poll and
-	// re-reconcile it.
-	//
-	// So we need to check if any existing findings of this type exist with
-	// a foundOn time newer than this results completed time. If there are
-	// any newer results it means that this asset scan's findings have
-	// already been invalidated by a newer scan. We'll find the oldest
-	// newer scan, and use its FoundOn time as the InvalidatedOn time for
-	// this scan.
-	newerFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: to.Ptr(fmt.Sprintf(
-			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn gt %s",
-			findingType, assetID, completedTime.Format(time.RFC3339))),
-		OrderBy: to.Ptr("foundOn asc"),
-		Top:     to.Ptr(1), // because of the ordering we only need to get one result here and it'll be the oldest finding which matches the filter
-	})
-	if err != nil {
-		return found, newerTime, fmt.Errorf("failed to check for newer findings: %w", err)
+func (asp *AssetScanProcessor) createOrUpdateDBFinding(ctx context.Context, info *apitypes.FindingInfo, assetScanID string, completedTime time.Time) (string, error) {
+	// Create new finding
+	finding := apitypes.Finding{
+		FirstSeen: &completedTime,
+		LastSeen:  &completedTime,
+		LastSeenBy: &apitypes.AssetScanRelationship{
+			Id: assetScanID,
+		},
+		FindingInfo: info,
 	}
 
-	found = len(*newerFindings.Items) > 0
-	if found {
-		newerTime = *(*newerFindings.Items)[0].FoundOn
+	fd, err := asp.client.PostFinding(ctx, finding)
+	if err == nil {
+		return *fd.Id, nil
 	}
 
-	return found, newerTime, nil
+	var conflictError apiclient.FindingConflictError
+	if !errors.As(err, &conflictError) {
+		return "", fmt.Errorf("failed to create finding: %w", err)
+	}
+
+	var id string
+	// Update existing finding if newer
+	if conflictError.ConflictingFinding.LastSeen.Before(completedTime) {
+		id = *conflictError.ConflictingFinding.Id
+		finding := apitypes.Finding{
+			LastSeen: &completedTime,
+			LastSeenBy: &apitypes.AssetScanRelationship{
+				Id: assetScanID,
+			},
+			FindingInfo: info,
+		}
+
+		err = asp.client.PatchFinding(ctx, id, finding)
+		if err != nil {
+			return id, fmt.Errorf("failed to patch finding: %w", err)
+		}
+	}
+
+	return id, nil
 }
 
-func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context, findingType string, assetID string, completedTime time.Time) error {
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	findingsToInvalidate, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
+func (asp *AssetScanProcessor) createOrUpdateDBAssetFinding(ctx context.Context, assetID string, findingID string, completedTime time.Time) error {
+	// Create new asset finding
+	assetFinding := apitypes.AssetFinding{
+		Asset: &apitypes.AssetRelationship{
+			Id: assetID,
+		},
+		Finding: &apitypes.FindingRelationship{
+			Id: findingID,
+		},
+		FirstSeen: &completedTime,
+		LastSeen:  &completedTime,
+	}
+
+	_, err := asp.client.PostAssetFinding(ctx, assetFinding)
+	if err == nil {
+		return nil
+	}
+
+	var conflictError apiclient.AssetFindingConflictError
+	if !errors.As(err, &conflictError) {
+		return fmt.Errorf("failed to create asset finding: %w", err)
+	}
+
+	// Update existing asset finding if newer
+	if conflictError.ConflictingAssetFinding.LastSeen.Before(completedTime) {
+		assetFinding := apitypes.AssetFinding{
+			LastSeen: &completedTime,
+		}
+
+		err = asp.client.PatchAssetFinding(ctx, *conflictError.ConflictingAssetFinding.Id, assetFinding)
+		if err != nil {
+			return fmt.Errorf("failed to patch asset finding: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Invalidate any asset findings of this type where lastSeen is
+// older than this asset scan, and has not already been invalidated by
+// an asset scan older than this asset scan.
+func (asp *AssetScanProcessor) invalidateOlderAssetFindingsByType(ctx context.Context, findingType string, assetID string, completedTime time.Time) error {
+	assetFindingsToInvalidate, err := asp.client.GetAssetFindings(ctx, apitypes.GetAssetFindingsParams{
 		Filter: to.Ptr(fmt.Sprintf(
-			"findingInfo/objectType eq '%s' and asset/id eq '%s' and foundOn lt %s and (invalidatedOn gt %s or invalidatedOn eq null)",
+			"finding/findingInfo/objectType eq '%s' and asset/id eq '%s' and lastSeen lt %s and (invalidatedOn gt %s or invalidatedOn eq null)",
 			findingType, assetID, completedTime.Format(time.RFC3339), completedTime.Format(time.RFC3339))),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to query findings to invalidate: %w", err)
+		return fmt.Errorf("failed to query asset findings to invalidate: %w", err)
 	}
 
-	for _, finding := range *findingsToInvalidate.Items {
-		finding.InvalidatedOn = &completedTime
+	for _, assetFinding := range *assetFindingsToInvalidate.Items {
+		assetFinding.InvalidatedOn = &completedTime
 
-		err := asp.client.PatchFinding(ctx, *finding.Id, finding)
+		err := asp.client.PatchAssetFinding(ctx, *assetFinding.Id, assetFinding)
 		if err != nil {
-			return fmt.Errorf("failed to update existing finding %s: %w", *finding.Id, err)
+			return fmt.Errorf("failed to update existing asset finding %s: %w", *assetFinding.Id, err)
 		}
 	}
 
@@ -86,11 +132,12 @@ func (asp *AssetScanProcessor) invalidateOlderFindingsByType(ctx context.Context
 }
 
 func (asp *AssetScanProcessor) getActiveFindingsByType(ctx context.Context, findingType string, assetID string) (int, error) {
-	filter := fmt.Sprintf("findingInfo/objectType eq '%s' and asset/id eq '%s' and invalidatedOn eq null",
-		findingType, assetID)
-	activeFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Count:  to.Ptr(true),
-		Filter: &filter,
+	activeFindings, err := asp.client.GetAssetFindings(ctx, apitypes.GetAssetFindingsParams{
+		Count: to.Ptr(true),
+		Filter: to.Ptr(
+			fmt.Sprintf("finding/findingInfo/objectType eq '%s' and asset/id eq '%s' and invalidatedOn eq null",
+				findingType, assetID),
+		),
 
 		// select the smallest amount of data to return in items, we
 		// only care about the count.

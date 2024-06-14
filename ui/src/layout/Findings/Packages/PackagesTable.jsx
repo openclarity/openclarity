@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import ExpandableList from 'components/ExpandableList';
 import { OPERATORS } from 'components/Filter';
-import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { getScanColumnsConfigList } from 'layout/Findings/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 
@@ -37,7 +37,7 @@ const PackagesTable = () => {
                 )
             }
         },
-        ...getAssetAndScanColumnsConfigList()
+        ...getScanColumnsConfigList()
     ], []);
 
     return (

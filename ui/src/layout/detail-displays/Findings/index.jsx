@@ -4,9 +4,8 @@ import DoublePaneDisplay from 'components/DoublePaneDisplay';
 import Title from 'components/Title';
 import LinksList from 'components/LinksList';
 import VulnerabilitiesDisplay, { getTotlalVulnerabilitiesFromCounters } from 'components/VulnerabilitiesDisplay';
-import { FINDINGS_MAPPING, VULNERABIITY_FINDINGS_ITEM } from 'utils/systemConsts';
+import { FINDINGS_MAPPING } from 'utils/systemConsts';
 import { useFilterDispatch, setFilters, FILTER_TYPES } from 'context/FiltersProvider';
-import { getFindingsAbsolutePathByFindingType } from 'layout/Findings';
 import FindingsCounterDisplay from './FindingsCounterDisplay';
 import FindingsSystemFilterLinks from './FindingsSystemFilterLinks';
 
@@ -44,7 +43,7 @@ const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, finding
                     <LinksList
                         items={[
                             {
-                                path: getFindingsAbsolutePathByFindingType(VULNERABIITY_FINDINGS_ITEM.value),
+                                path: pathname,
                                 component: () => <VulnerabilitiesDisplay counters={totalVulnerabilities} />,
                                 callback: onFindingsClick
                             },
@@ -52,7 +51,7 @@ const Findings = ({findingsSummary, findingsFilter, findingsFilterTitle, finding
                                 const {totalKey, title, icon, color, value} = FINDINGS_MAPPING[findingType];
                                 
                                 return {
-                                    path: getFindingsAbsolutePathByFindingType(value),
+                                    path: pathname,
                                     component: () => (
                                         <FindingsCounterDisplay key={totalKey} icon={icon} color={color} count={findingsSummary[totalKey] || 0} title={title} />
                                     ),

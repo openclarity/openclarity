@@ -78,7 +78,27 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				return len(*assets.Items) == 1
 			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
+			imageAssetID := *(*assets.Items)[0].Id
+
 			RunSuccessfulScan(ctx, &reportFailedConfig, filter)
+
+			ginkgo.By("checking asset finding for image asset and alpine package finding is saved in the database")
+			gomega.Eventually(func() bool {
+				assets, err := client.GetAssetFindings(ctx, apitypes.GetAssetFindingsParams{
+					Filter: to.Ptr(fmt.Sprintf("asset/id eq '%s' and finding/findingInfo/name eq 'alpine'", imageAssetID)),
+				})
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				return len(*assets.Items) == 1
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
+
+			ginkgo.By("checking that only one alpine package finding is saved in the database")
+			gomega.Eventually(func() bool {
+				assets, err := client.GetFindings(ctx, apitypes.GetFindingsParams{
+					Filter: to.Ptr("findingInfo/objectType eq 'Package' and findingInfo/name eq 'alpine'"),
+				})
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				return len(*assets.Items) == 1
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
 

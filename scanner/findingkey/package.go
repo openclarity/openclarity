@@ -37,6 +37,14 @@ func (k PackageKey) PackageString() string {
 	return k.String()
 }
 
+// Filter returns a string that can be used to filter the package finding in the database.
+func (k PackageKey) Filter() string {
+	return fmt.Sprintf(
+		"findingInfo/name eq '%s' and findingInfo/version eq '%s'",
+		k.PackageName, k.PackageVersion,
+	)
+}
+
 func GeneratePackageKey(info apitypes.PackageFindingInfo) PackageKey {
 	return PackageKey{
 		PackageName:    *info.Name,

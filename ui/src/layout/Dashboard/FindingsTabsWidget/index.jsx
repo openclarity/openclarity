@@ -37,7 +37,7 @@ const WidgetContent = ({data=[], getHeaderItems, getBodyItems, selectedId}) => {
                                 </tr>
                             )
                         })
-                        : <div className="empty-results-display-wrapper">No results available</div>
+                        : <td><tr><div className="empty-results-display-wrapper">No results available</div></tr></td>
                 }
             </tbody>
         </table>

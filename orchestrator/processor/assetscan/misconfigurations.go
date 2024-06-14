@@ -18,69 +18,20 @@ package assetscan
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	logutils "github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/findingkey"
 )
-
-func (asp *AssetScanProcessor) getExistingMisconfigurationFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.MisconfigurationKey]string, error) {
-	logger := logutils.GetLoggerFromContextOrDiscard(ctx)
-
-	existingMap := map[findingkey.MisconfigurationKey]string{}
-
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Misconfiguration' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: &existingFilter,
-		Select: to.Ptr("id,findingInfo/scannerName,findingInfo/id,findingInfo/message"),
-	})
-	if err != nil {
-		return existingMap, fmt.Errorf("failed to query for findings: %w", err)
-	}
-
-	for _, finding := range *existingFindings.Items {
-		info, err := (*finding.FindingInfo).AsMisconfigurationFindingInfo()
-		if err != nil {
-			return existingMap, fmt.Errorf("unable to get misconfiguration finding info: %w", err)
-		}
-
-		key := findingkey.GenerateMisconfigurationKey(info)
-		if _, ok := existingMap[key]; ok {
-			return existingMap, fmt.Errorf("found multiple matching existing findings for misconfiguration %v", key)
-		}
-		existingMap[key] = *finding.Id
-	}
-
-	logger.Infof("Found %d existing misconfiguration findings for this scan", len(existingMap))
-	logger.Debugf("Existing misconfiguration map: %v", existingMap)
-
-	return existingMap, nil
-}
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	completedTime := assetScan.Status.LastTransitionTime
-
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Misconfiguration", completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to check for newer existing misconfiguration findings: %w", err)
-	}
-
-	// Build a map of existing findings for this scan to prevent us
-	// recreating existings ones as we might be re-reconciling the same
-	// asset scan because of downtime or a previous failure.
-	existingMap, err := asp.getExistingMisconfigurationFindingsForScan(ctx, assetScan)
-	if err != nil {
-		return fmt.Errorf("failed to check existing misconfiguration findings: %w", err)
-	}
-
 	if assetScan.Misconfigurations != nil && assetScan.Misconfigurations.Misconfigurations != nil {
 		// Create new or update existing findings all the misconfigurations found by the
 		// scan.
 		for _, item := range *assetScan.Misconfigurations.Misconfigurations {
+			message := strings.ReplaceAll(*item.Message, "'", "")
 			itemFindingInfo := apitypes.MisconfigurationFindingInfo{
-				Message:     item.Message,
+				Message:     &message,
 				Remediation: item.Remediation,
 				Location:    item.Location,
 				ScannerName: item.ScannerName,
@@ -91,47 +42,24 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 			}
 
 			findingInfo := apitypes.FindingInfo{}
-			err = findingInfo.FromMisconfigurationFindingInfo(itemFindingInfo)
+			err := findingInfo.FromMisconfigurationFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert MisconfigurationFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := apitypes.Finding{
-				Asset: &apitypes.AssetRelationship{
-					Id: assetScan.Asset.Id,
-				},
-				FoundBy: &apitypes.AssetScanRelationship{
-					Id: *assetScan.Id,
-				},
-				FoundOn:     &assetScan.Status.LastTransitionTime,
-				FindingInfo: &findingInfo,
+			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update finding: %w", err)
 			}
 
-			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this asset scan.
-			if newerFound {
-				finding.InvalidatedOn = &newerTime
-			}
-
-			key := findingkey.GenerateMisconfigurationKey(itemFindingInfo)
-			if id, ok := existingMap[key]; ok {
-				err = asp.client.PatchFinding(ctx, id, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
-			} else {
-				_, err = asp.client.PostFinding(ctx, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
+			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update asset finding: %w", err)
 			}
 		}
 	}
 
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Misconfiguration", assetScan.Asset.Id, completedTime)
+	err := asp.invalidateOlderAssetFindingsByType(ctx, "Misconfiguration", assetScan.Asset.Id, assetScan.Status.LastTransitionTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older misconfiguration finding: %w", err)
 	}

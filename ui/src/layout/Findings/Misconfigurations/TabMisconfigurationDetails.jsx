@@ -5,7 +5,7 @@ import { FindingsDetailsCommonFields } from '../utils';
 import { MISCONFIGURATION_SEVERITY_MAP } from './utils';
 
 const TabMisconfigurationDetails = ({data}) => {
-    const {findingInfo, foundOn, invalidatedOn} = data;
+    const {findingInfo, firstSeen, lastSeen} = data;
     const {id, severity, description, scannerName, location, remediation, category, message} = findingInfo;
 
     return (
@@ -30,7 +30,7 @@ const TabMisconfigurationDetails = ({data}) => {
                     <TitleValueDisplayRow>
                         <TitleValueDisplay title="Description" withOpen defaultOpen>{description}</TitleValueDisplay>
                     </TitleValueDisplayRow>
-                    <FindingsDetailsCommonFields foundOn={foundOn} invalidatedOn={invalidatedOn} />
+                    <FindingsDetailsCommonFields firstSeen={firstSeen} lastSeen={lastSeen} />
                 </>
             )}
         />
