@@ -905,6 +905,179 @@ paths:
         default:
           $ref: '#/components/responses/UnknownError'
 
+  /assetFindings:
+    get:
+      summary: Get all asset findings.
+      operationId: GetAssetFindings
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFindings'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create an asset finding
+      operationId: PostAssetFindings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetFinding'
+        required: true
+      responses:
+        201:
+          description: A new asset finding was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFinding'
+        400:
+          description: Invalid asset finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset finding conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFindingExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /assetFindings/{assetFindingID}:
+    get:
+      summary: Get the details for an asset finding.
+      operationId: GetAssetFindingsAssetFindingID
+      parameters:
+        - $ref: '#/components/parameters/assetFindingID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFinding'
+        404:
+          description: Asset finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update an asset finding.
+      operationId: PutAssetFindingsAssetFindingID
+      parameters:
+        - $ref: '#/components/parameters/assetFindingID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetFinding'
+        required: true
+      responses:
+        200:
+          description: Updated asset finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFinding'
+        400:
+          description: Invalid asset finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Asset finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset finding conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFindingExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch an asset finding.
+      operationId: PatchAssetFindingsAssetFindingID
+      parameters:
+        - $ref: '#/components/parameters/assetFindingID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetFinding'
+        required: true
+      responses:
+        200:
+          description: Patched asset finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFinding'
+        400:
+          description: Invalid asset finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Asset finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset finding conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFindingExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete an asset finding.
+      operationId: DeleteAssetFindingsAssetFindingID
+      parameters:
+        - $ref: '#/components/parameters/assetFindingID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Asset finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
   /scanEstimations:
     get:
       summary: Get all scan estimations. Each scan estimation contains details about a multi-asset scan estimation.
@@ -3455,29 +3628,51 @@ components:
           properties:
             id:
               type: string
-              # TODO(sambetts) Decide if we want the validation here by having
-              # separate schemas for GET, POST and PATCH
-              #
-              # We can't make anything readOnly or required here if we want to
-              # use the same schema for PATCH otherwise it will require you
-              # always send the required fields and remove the readOnly fields
-              # on the client side.
-              #
-              # readOnly: true
-            asset:
-              $ref: '#/components/schemas/AssetRelationship'
-            foundBy:
+            revision:
+              type: integer
+            firstSeen:
+              description: When this finding was first discovered by a scan
+              type: string
+              format: date-time
+            lastSeen:
+              description: When this finding was last discovered by a scan
+              type: string
+              format: date-time
+            lastSeenBy:
+              description: Last asset scan that discovered this finding.
               $ref: '#/components/schemas/AssetScanRelationship'
-            foundOn:
-              description: When this finding was discovered by a scan
-              type: string
-              format: date-time
-            invalidatedOn:
-              description: When this finding was invalidated by a newer scan
-              type: string
-              format: date-time
             findingInfo:
               $ref: '#/components/schemas/FindingInfo'
+
+    FindingRelationship:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            firstSeen:
+              description: When this finding was first discovered by a scan
+              type: string
+              format: date-time
+              readOnly: true
+            lastSeen:
+              description: When this finding was last discovered by a scan
+              type: string
+              format: date-time
+              readOnly: true
+            lastSeenBy:
+              description: Last asset scan that discovered this finding.
+              $ref: '#/components/schemas/AssetScanRelationship'
+              readOnly: true
+            findingInfo:
+              $ref: '#/components/schemas/FindingInfo'
+              readOnly: true
+          required: ['id']
 
     FindingInfo:
       anyOf:
@@ -3501,6 +3696,55 @@ components:
           Exploit: '#/components/schemas/ExploitFindingInfo'
           InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
 
+    AssetFindings:
+      type: object
+      properties:
+        count:
+          description: Total asset findings count according to the given filters
+          type: integer
+        items:
+          description: List of asset findings according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetFinding'
+
+    AssetFindingExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        finding:
+          $ref: '#/components/schemas/AssetFinding'
+
+    AssetFinding:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            finding:
+              $ref: '#/components/schemas/FindingRelationship'
+            firstSeen:
+              description: When this asset finding was first discovered by a scan
+              type: string
+              format: date-time
+            lastSeen:
+              description: When this asset finding was last discovered by a scan
+              type: string
+              format: date-time
+            invalidatedOn:
+              description: When this asset finding was invalidated by a newer scan
+              type: string
+              format: date-time
+            revision:
+              type: integer
+  
     ScanEstimations:
       type: object
       properties:
@@ -3834,6 +4078,13 @@ components:
 
     findingID:
       name: findingID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    assetFindingID:
+      name: assetFindingID
       in: path
       required: true
       schema:

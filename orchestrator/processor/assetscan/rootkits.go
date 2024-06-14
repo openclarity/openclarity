@@ -20,61 +20,10 @@ import (
 	"fmt"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/findingkey"
 )
-
-func (asp *AssetScanProcessor) getExistingRootkitFindingsForScan(ctx context.Context, assetScan apitypes.AssetScan) (map[findingkey.RootkitKey]string, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	existingMap := map[findingkey.RootkitKey]string{}
-
-	existingFilter := fmt.Sprintf("findingInfo/objectType eq 'Rootkit' and foundBy/id eq '%s'", *assetScan.Id)
-	existingFindings, err := asp.client.GetFindings(ctx, apitypes.GetFindingsParams{
-		Filter: &existingFilter,
-		Select: to.Ptr("id,findingInfo/rootkitName,findingInfo/rootkitType,findingInfo/path"),
-	})
-	if err != nil {
-		return existingMap, fmt.Errorf("failed to query for findings: %w", err)
-	}
-
-	for _, finding := range *existingFindings.Items {
-		info, err := (*finding.FindingInfo).AsRootkitFindingInfo()
-		if err != nil {
-			return existingMap, fmt.Errorf("unable to get rootkit finding info: %w", err)
-		}
-
-		key := findingkey.GenerateRootkitKey(info)
-		if _, ok := existingMap[key]; ok {
-			return existingMap, fmt.Errorf("found multiple matching existing findings for rootkit %v", key)
-		}
-		existingMap[key] = *finding.Id
-	}
-
-	logger.Infof("Found %d existing rootkit findings for this scan", len(existingMap))
-	logger.Debugf("Existing rootkit map: %v", existingMap)
-
-	return existingMap, nil
-}
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	completedTime := assetScan.Status.LastTransitionTime
-
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Rootkit", completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to check for newer existing rootkit findings: %w", err)
-	}
-
-	// Build a map of existing findings for this scan to prevent us
-	// recreating existings ones as we might be re-reconciling the same
-	// asset scan because of downtime or a previous failure.
-	existingMap, err := asp.getExistingRootkitFindingsForScan(ctx, assetScan)
-	if err != nil {
-		return fmt.Errorf("failed to check existing rootkit findings: %w", err)
-	}
-
 	if assetScan.Rootkits != nil && assetScan.Rootkits.Rootkits != nil {
 		// Create new or update existing findings all the rootkits found by the
 		// scan.
@@ -86,47 +35,24 @@ func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Con
 			}
 
 			findingInfo := apitypes.FindingInfo{}
-			err = findingInfo.FromRootkitFindingInfo(itemFindingInfo)
+			err := findingInfo.FromRootkitFindingInfo(itemFindingInfo)
 			if err != nil {
 				return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
 			}
 
-			finding := apitypes.Finding{
-				Asset: &apitypes.AssetRelationship{
-					Id: assetScan.Asset.Id,
-				},
-				FoundBy: &apitypes.AssetScanRelationship{
-					Id: *assetScan.Id,
-				},
-				FoundOn:     &assetScan.Status.LastTransitionTime,
-				FindingInfo: &findingInfo,
+			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update finding: %w", err)
 			}
 
-			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this asset scan.
-			if newerFound {
-				finding.InvalidatedOn = &newerTime
-			}
-
-			key := findingkey.GenerateRootkitKey(itemFindingInfo)
-			if id, ok := existingMap[key]; ok {
-				err = asp.client.PatchFinding(ctx, id, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
-			} else {
-				_, err = asp.client.PostFinding(ctx, finding)
-				if err != nil {
-					return fmt.Errorf("failed to create finding: %w", err)
-				}
+			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update asset finding: %w", err)
 			}
 		}
 	}
 
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, completedTime)
+	err := asp.invalidateOlderAssetFindingsByType(ctx, "Rootkit", assetScan.Asset.Id, assetScan.Status.LastTransitionTime)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate older rootkit finding: %w", err)
 	}

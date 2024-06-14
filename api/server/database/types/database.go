@@ -57,6 +57,7 @@ type Database interface {
 	ScanEstimationsTable() ScanEstimationsTable
 	AssetScanEstimationsTable() AssetScanEstimationsTable
 	ProvidersTable() ProvidersTable
+	AssetFindingsTable() AssetFindingsTable
 }
 
 type ScansTable interface {
@@ -145,4 +146,15 @@ type ProvidersTable interface {
 	SaveProvider(provider types.Provider, params types.PutProvidersProviderIDParams) (types.Provider, error)
 
 	DeleteProvider(providerID types.ProviderID) error
+}
+
+type AssetFindingsTable interface {
+	GetAssetFindings(params types.GetAssetFindingsParams) (types.AssetFindings, error)
+	GetAssetFinding(assetFindingID types.AssetFindingID, params types.GetAssetFindingsAssetFindingIDParams) (types.AssetFinding, error)
+
+	CreateAssetFinding(assetFinding types.AssetFinding) (types.AssetFinding, error)
+	UpdateAssetFinding(assetFinding types.AssetFinding, params types.PatchAssetFindingsAssetFindingIDParams) (types.AssetFinding, error)
+	SaveAssetFinding(assetFinding types.AssetFinding, params types.PutAssetFindingsAssetFindingIDParams) (types.AssetFinding, error)
+
+	DeleteAssetFinding(assetFindingID types.AssetFindingID) error
 }

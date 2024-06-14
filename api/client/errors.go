@@ -83,3 +83,12 @@ type ProviderConflictError struct {
 func (t ProviderConflictError) Error() string {
 	return fmt.Sprintf("Conflicting Provider Found with ID %s: %s", *t.ConflictingProvider.Id, t.Message)
 }
+
+type AssetFindingConflictError struct {
+	ConflictingAssetFinding *types.AssetFinding
+	Message                 string
+}
+
+func (t AssetFindingConflictError) Error() string {
+	return fmt.Sprintf("Conflicting Asset Finding Found with ID %s: %s", *t.ConflictingAssetFinding.Id, t.Message)
+}

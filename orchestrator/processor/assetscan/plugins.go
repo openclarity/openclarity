@@ -24,69 +24,48 @@ import (
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultPluginsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	completedTime := assetScan.Status.LastTransitionTime
-
-	newerFound, newerTime, err := asp.newerExistingFindingTime(ctx, assetScan.Asset.Id, "Plugin", completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to check for newer existing plugin findings: %w", err)
-	}
-
 	if assetScan.Plugins != nil && assetScan.Plugins.FindingInfos != nil {
-		// Create new or update existing findings all the plugin findingd found by the
-		// scan.
+		// Create new or update existing findings for all the plugin findings found by the
+		// scan. Note that plugin findings can belong to multiple families.
 		for _, findingInfo := range *assetScan.Plugins.FindingInfos {
-			finding := apitypes.Finding{
-				Asset: &apitypes.AssetRelationship{
-					Id: assetScan.Asset.Id,
-				},
-				FoundBy: &apitypes.AssetScanRelationship{
-					Id: *assetScan.Id,
-				},
-				FoundOn:     &assetScan.Status.LastTransitionTime,
-				FindingInfo: &findingInfo,
-			}
-
-			// Set InvalidatedOn time to the FoundOn time of the oldest
-			// finding, found after this asset scan.
-			if newerFound {
-				finding.InvalidatedOn = &newerTime
-			}
-
-			// TODO(paralta) Check if the finding already exists and patch it if it does.
-			_, err = asp.client.PostFinding(ctx, finding)
+			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
 			if err != nil {
-				return fmt.Errorf("failed to create finding: %w", err)
+				return fmt.Errorf("failed to update finding: %w", err)
+			}
+
+			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+			if err != nil {
+				return fmt.Errorf("failed to update asset finding: %w", err)
 			}
 		}
 	}
 
-	// Invalidate any findings of this type for this asset where foundOn is
-	// older than this asset scan, and has not already been invalidated by
-	// an asset scan older than this asset scan.
-	err = asp.invalidateOlderFindingsByType(ctx, "Plugin", assetScan.Asset.Id, completedTime)
-	if err != nil {
-		return fmt.Errorf("failed to invalidate older plugin finding: %w", err)
-	}
+	// TODO(paralta) Plugin findings can belong to multiple families and they cannot invalidate other family findings.
+	// This needs more thinking...
+	// err := asp.invalidateOlderAssetFindingsByType(ctx, "Plugin", assetScan.Asset.Id, assetScan.Status.LastTransitionTime)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to invalidate older plugin finding: %w", err)
+	// }
 
-	// Get all findings which aren't invalidated, and then update the asset's summary
-	asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{})
-	if err != nil {
-		return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
-	}
-	if asset.Summary == nil {
-		asset.Summary = &apitypes.ScanFindingsSummary{}
-	}
+	// // Get all findings which aren't invalidated, and then update the asset's summary
+	// asset, err := asp.client.GetAsset(ctx, assetScan.Asset.Id, apitypes.GetAssetsAssetIDParams{})
+	// if err != nil {
+	// 	return fmt.Errorf("failed to get asset %s: %w", assetScan.Asset.Id, err)
+	// }
+	// if asset.Summary == nil {
+	// 	asset.Summary = &apitypes.ScanFindingsSummary{}
+	// }
 
-	totalPlugins, err := asp.getActiveFindingsByType(ctx, "Plugin", assetScan.Asset.Id)
-	if err != nil {
-		return fmt.Errorf("failed to get active plugin findings: %w", err)
-	}
-	asset.Summary.TotalPlugins = &totalPlugins
+	// totalPlugins, err := asp.getActiveFindingsByType(ctx, "Plugin", assetScan.Asset.Id)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to get active plugin findings: %w", err)
+	// }
+	// asset.Summary.TotalPlugins = &totalPlugins
 
-	err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
-	if err != nil {
-		return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
-	}
+	// err = asp.client.PatchAsset(ctx, asset, assetScan.Asset.Id)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to patch asset %s: %w", assetScan.Asset.Id, err)
+	// }
 
 	return nil
 }

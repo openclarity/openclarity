@@ -40,6 +40,14 @@ func (k MisconfigurationKey) MisconfigurationString() string {
 	return k.String()
 }
 
+// Filter returns a string that can be used to filter the misconfiguration finding in the database.
+func (k MisconfigurationKey) Filter() string {
+	return fmt.Sprintf(
+		"findingInfo/scannerName eq '%s' and findingInfo/id eq '%s' and findingInfo/message eq '%s'",
+		k.ScannerName, k.ID, k.Message,
+	)
+}
+
 func GenerateMisconfigurationKey(info apitypes.MisconfigurationFindingInfo) MisconfigurationKey {
 	return MisconfigurationKey{
 		ScannerName: *info.ScannerName,

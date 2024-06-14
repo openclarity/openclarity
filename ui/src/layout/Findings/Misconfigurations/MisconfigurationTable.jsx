@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { getScanColumnsConfigList } from 'layout/Findings/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import { OPERATORS } from 'components/Filter';
 import FindingsTablePage from '../FindingsTablePage';
@@ -29,7 +29,7 @@ const MisconfigurationsTable = () => {
             accessor: "findingInfo.description",
             width: 200
         },
-        ...getAssetAndScanColumnsConfigList()
+        ...getScanColumnsConfigList()
     ], []);
 
     return (

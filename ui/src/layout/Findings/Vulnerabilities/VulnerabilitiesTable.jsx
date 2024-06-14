@@ -3,7 +3,7 @@ import ExpandableList from 'components/ExpandableList';
 import SeverityWithCvssDisplay, { SEVERITY_ITEMS } from 'components/SeverityWithCvssDisplay';
 import { OPERATORS } from 'components/Filter';
 import { getHigestVersionCvssData, toCapitalized } from 'utils/utils';
-import { getAssetAndScanColumnsConfigList } from 'layout/Findings/utils';
+import { getScanColumnsConfigList } from 'layout/Findings/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
 
@@ -65,7 +65,7 @@ const VulnerabilitiesTable = () => {
                 )
             }
         },
-        ...getAssetAndScanColumnsConfigList()
+        ...getScanColumnsConfigList()
     ], []);
 
     return (

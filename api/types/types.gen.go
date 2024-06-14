@@ -255,6 +255,44 @@ type AssetExists struct {
 	Message *string `json:"message,omitempty"`
 }
 
+// AssetFinding defines model for AssetFinding.
+type AssetFinding struct {
+	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+	Annotations *Annotations `json:"annotations,omitempty"`
+
+	// Asset Describes a relationship to an asset which can be expanded.
+	Asset   *AssetRelationship   `json:"asset,omitempty"`
+	Finding *FindingRelationship `json:"finding,omitempty"`
+
+	// FirstSeen When this asset finding was first discovered by a scan
+	FirstSeen *time.Time `json:"firstSeen,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+
+	// InvalidatedOn When this asset finding was invalidated by a newer scan
+	InvalidatedOn *time.Time `json:"invalidatedOn,omitempty"`
+
+	// LastSeen When this asset finding was last discovered by a scan
+	LastSeen *time.Time `json:"lastSeen,omitempty"`
+	Revision *int       `json:"revision,omitempty"`
+}
+
+// AssetFindingExists defines model for AssetFindingExists.
+type AssetFindingExists struct {
+	Finding *AssetFinding `json:"finding,omitempty"`
+
+	// Message Describes which unique constraint combination causes the conflict.
+	Message *string `json:"message,omitempty"`
+}
+
+// AssetFindings defines model for AssetFindings.
+type AssetFindings struct {
+	// Count Total asset findings count according to the given filters
+	Count *int `json:"count,omitempty"`
+
+	// Items List of asset findings according to the given filters
+	Items *[]AssetFinding `json:"items,omitempty"`
+}
+
 // AssetRelationship defines model for AssetRelationship.
 type AssetRelationship struct {
 	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
@@ -691,18 +729,16 @@ type ExploitsConfig struct {
 type Finding struct {
 	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
 	Annotations *Annotations `json:"annotations,omitempty"`
+	FindingInfo *FindingInfo `json:"findingInfo,omitempty"`
 
-	// Asset Describes a relationship to an asset which can be expanded.
-	Asset       *AssetRelationship     `json:"asset,omitempty"`
-	FindingInfo *FindingInfo           `json:"findingInfo,omitempty"`
-	FoundBy     *AssetScanRelationship `json:"foundBy,omitempty"`
+	// FirstSeen When this finding was first discovered by a scan
+	FirstSeen *time.Time `json:"firstSeen,omitempty"`
+	Id        *string    `json:"id,omitempty"`
 
-	// FoundOn When this finding was discovered by a scan
-	FoundOn *time.Time `json:"foundOn,omitempty"`
-	Id      *string    `json:"id,omitempty"`
-
-	// InvalidatedOn When this finding was invalidated by a newer scan
-	InvalidatedOn *time.Time `json:"invalidatedOn,omitempty"`
+	// LastSeen When this finding was last discovered by a scan
+	LastSeen   *time.Time             `json:"lastSeen,omitempty"`
+	LastSeenBy *AssetScanRelationship `json:"lastSeenBy,omitempty"`
+	Revision   *int                   `json:"revision,omitempty"`
 }
 
 // FindingExists defines model for FindingExists.
@@ -716,6 +752,22 @@ type FindingExists struct {
 // FindingInfo defines model for FindingInfo.
 type FindingInfo struct {
 	union json.RawMessage
+}
+
+// FindingRelationship defines model for FindingRelationship.
+type FindingRelationship struct {
+	// Annotations Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+	Annotations *Annotations `json:"annotations,omitempty"`
+	FindingInfo *FindingInfo `json:"findingInfo,omitempty"`
+
+	// FirstSeen When this finding was first discovered by a scan
+	FirstSeen *time.Time `json:"firstSeen,omitempty"`
+	Id        string     `json:"id"`
+
+	// LastSeen When this finding was last discovered by a scan
+	LastSeen   *time.Time             `json:"lastSeen,omitempty"`
+	LastSeenBy *AssetScanRelationship `json:"lastSeenBy,omitempty"`
+	Revision   *int                   `json:"revision,omitempty"`
 }
 
 // Findings defines model for Findings.
@@ -1780,6 +1832,9 @@ type VulnerabilityScanSummary struct {
 // VulnerabilitySeverity defines model for VulnerabilitySeverity.
 type VulnerabilitySeverity string
 
+// AssetFindingID defines model for assetFindingID.
+type AssetFindingID = string
+
 // AssetID defines model for assetID.
 type AssetID = string
 
@@ -1833,6 +1888,33 @@ type Success = SuccessResponse
 
 // UnknownError An object that is returned in all cases of failures.
 type UnknownError = ApiResponse
+
+// GetAssetFindingsParams defines parameters for GetAssetFindings.
+type GetAssetFindingsParams struct {
+	Filter  *OdataFilter `form:"$filter,omitempty" json:"$filter,omitempty"`
+	Select  *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Count   *OdataCount  `form:"$count,omitempty" json:"$count,omitempty"`
+	Top     *OdataTop    `form:"$top,omitempty" json:"$top,omitempty"`
+	Skip    *OdataSkip   `form:"$skip,omitempty" json:"$skip,omitempty"`
+	Expand  *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+	OrderBy *OrderBy     `form:"$orderby,omitempty" json:"$orderby,omitempty"`
+}
+
+// GetAssetFindingsAssetFindingIDParams defines parameters for GetAssetFindingsAssetFindingID.
+type GetAssetFindingsAssetFindingIDParams struct {
+	Select *OdataSelect `form:"$select,omitempty" json:"$select,omitempty"`
+	Expand *OdataExpand `form:"$expand,omitempty" json:"$expand,omitempty"`
+}
+
+// PatchAssetFindingsAssetFindingIDParams defines parameters for PatchAssetFindingsAssetFindingID.
+type PatchAssetFindingsAssetFindingIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
+
+// PutAssetFindingsAssetFindingIDParams defines parameters for PutAssetFindingsAssetFindingID.
+type PutAssetFindingsAssetFindingIDParams struct {
+	IfMatch *Ifmatch `json:"If-Match,omitempty"`
+}
 
 // GetAssetScanEstimationsParams defines parameters for GetAssetScanEstimations.
 type GetAssetScanEstimationsParams struct {
@@ -2039,6 +2121,15 @@ type PatchScansScanIDParams struct {
 type PutScansScanIDParams struct {
 	IfMatch *Ifmatch `json:"If-Match,omitempty"`
 }
+
+// PostAssetFindingsJSONRequestBody defines body for PostAssetFindings for application/json ContentType.
+type PostAssetFindingsJSONRequestBody = AssetFinding
+
+// PatchAssetFindingsAssetFindingIDJSONRequestBody defines body for PatchAssetFindingsAssetFindingID for application/json ContentType.
+type PatchAssetFindingsAssetFindingIDJSONRequestBody = AssetFinding
+
+// PutAssetFindingsAssetFindingIDJSONRequestBody defines body for PutAssetFindingsAssetFindingID for application/json ContentType.
+type PutAssetFindingsAssetFindingIDJSONRequestBody = AssetFinding
 
 // PostAssetScanEstimationsJSONRequestBody defines body for PostAssetScanEstimations for application/json ContentType.
 type PostAssetScanEstimationsJSONRequestBody = AssetScanEstimation

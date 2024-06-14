@@ -90,6 +90,30 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAssetFindings request
+	GetAssetFindings(ctx context.Context, params *GetAssetFindingsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostAssetFindingsWithBody request with any body
+	PostAssetFindingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostAssetFindings(ctx context.Context, body PostAssetFindingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAssetFindingsAssetFindingID request
+	DeleteAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAssetFindingsAssetFindingID request
+	GetAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *GetAssetFindingsAssetFindingIDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchAssetFindingsAssetFindingIDWithBody request with any body
+	PatchAssetFindingsAssetFindingIDWithBody(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, body PatchAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutAssetFindingsAssetFindingIDWithBody request with any body
+	PutAssetFindingsAssetFindingIDWithBody(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, body PutAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAssetScanEstimations request
 	GetAssetScanEstimations(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -281,6 +305,114 @@ type ClientInterface interface {
 	PutScansScanIDWithBody(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PutScansScanID(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, body PutScansScanIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAssetFindings(ctx context.Context, params *GetAssetFindingsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAssetFindingsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostAssetFindingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostAssetFindingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostAssetFindings(ctx context.Context, body PostAssetFindingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostAssetFindingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAssetFindingsAssetFindingIDRequest(c.Server, assetFindingID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *GetAssetFindingsAssetFindingIDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAssetFindingsAssetFindingIDRequest(c.Server, assetFindingID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAssetFindingsAssetFindingIDWithBody(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAssetFindingsAssetFindingIDRequestWithBody(c.Server, assetFindingID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, body PatchAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAssetFindingsAssetFindingIDRequest(c.Server, assetFindingID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutAssetFindingsAssetFindingIDWithBody(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutAssetFindingsAssetFindingIDRequestWithBody(c.Server, assetFindingID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutAssetFindingsAssetFindingID(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, body PutAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutAssetFindingsAssetFindingIDRequest(c.Server, assetFindingID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetAssetScanEstimations(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1145,6 +1277,421 @@ func (c *Client) PutScansScanID(ctx context.Context, scanID ScanID, params *PutS
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAssetFindingsRequest generates requests for GetAssetFindings
+func NewGetAssetFindingsRequest(server string, params *GetAssetFindingsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$filter", runtime.ParamLocationQuery, *params.Filter); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Select != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Count != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$count", runtime.ParamLocationQuery, *params.Count); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Top != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$top", runtime.ParamLocationQuery, *params.Top); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Skip != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$skip", runtime.ParamLocationQuery, *params.Skip); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Expand != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OrderBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$orderby", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostAssetFindingsRequest calls the generic PostAssetFindings builder with application/json body
+func NewPostAssetFindingsRequest(server string, body PostAssetFindingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostAssetFindingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostAssetFindingsRequestWithBody generates requests for PostAssetFindings with any type of body
+func NewPostAssetFindingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteAssetFindingsAssetFindingIDRequest generates requests for DeleteAssetFindingsAssetFindingID
+func NewDeleteAssetFindingsAssetFindingIDRequest(server string, assetFindingID AssetFindingID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetFindingID", runtime.ParamLocationPath, assetFindingID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAssetFindingsAssetFindingIDRequest generates requests for GetAssetFindingsAssetFindingID
+func NewGetAssetFindingsAssetFindingIDRequest(server string, assetFindingID AssetFindingID, params *GetAssetFindingsAssetFindingIDParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetFindingID", runtime.ParamLocationPath, assetFindingID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Select != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$select", runtime.ParamLocationQuery, *params.Select); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Expand != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "$expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchAssetFindingsAssetFindingIDRequest calls the generic PatchAssetFindingsAssetFindingID builder with application/json body
+func NewPatchAssetFindingsAssetFindingIDRequest(server string, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, body PatchAssetFindingsAssetFindingIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAssetFindingsAssetFindingIDRequestWithBody(server, assetFindingID, params, "application/json", bodyReader)
+}
+
+// NewPatchAssetFindingsAssetFindingIDRequestWithBody generates requests for PatchAssetFindingsAssetFindingID with any type of body
+func NewPatchAssetFindingsAssetFindingIDRequestWithBody(server string, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetFindingID", runtime.ParamLocationPath, assetFindingID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.IfMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPutAssetFindingsAssetFindingIDRequest calls the generic PutAssetFindingsAssetFindingID builder with application/json body
+func NewPutAssetFindingsAssetFindingIDRequest(server string, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, body PutAssetFindingsAssetFindingIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutAssetFindingsAssetFindingIDRequestWithBody(server, assetFindingID, params, "application/json", bodyReader)
+}
+
+// NewPutAssetFindingsAssetFindingIDRequestWithBody generates requests for PutAssetFindingsAssetFindingID with any type of body
+func NewPutAssetFindingsAssetFindingIDRequestWithBody(server string, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "assetFindingID", runtime.ParamLocationPath, assetFindingID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/assetFindings/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.IfMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "If-Match", runtime.ParamLocationHeader, *params.IfMatch)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
 }
 
 // NewGetAssetScanEstimationsRequest generates requests for GetAssetScanEstimations
@@ -4473,6 +5020,30 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAssetFindingsWithResponse request
+	GetAssetFindingsWithResponse(ctx context.Context, params *GetAssetFindingsParams, reqEditors ...RequestEditorFn) (*GetAssetFindingsResponse, error)
+
+	// PostAssetFindingsWithBodyWithResponse request with any body
+	PostAssetFindingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAssetFindingsResponse, error)
+
+	PostAssetFindingsWithResponse(ctx context.Context, body PostAssetFindingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAssetFindingsResponse, error)
+
+	// DeleteAssetFindingsAssetFindingIDWithResponse request
+	DeleteAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, reqEditors ...RequestEditorFn) (*DeleteAssetFindingsAssetFindingIDResponse, error)
+
+	// GetAssetFindingsAssetFindingIDWithResponse request
+	GetAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *GetAssetFindingsAssetFindingIDParams, reqEditors ...RequestEditorFn) (*GetAssetFindingsAssetFindingIDResponse, error)
+
+	// PatchAssetFindingsAssetFindingIDWithBodyWithResponse request with any body
+	PatchAssetFindingsAssetFindingIDWithBodyWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAssetFindingsAssetFindingIDResponse, error)
+
+	PatchAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, body PatchAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAssetFindingsAssetFindingIDResponse, error)
+
+	// PutAssetFindingsAssetFindingIDWithBodyWithResponse request with any body
+	PutAssetFindingsAssetFindingIDWithBodyWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutAssetFindingsAssetFindingIDResponse, error)
+
+	PutAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, body PutAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutAssetFindingsAssetFindingIDResponse, error)
+
 	// GetAssetScanEstimationsWithResponse request
 	GetAssetScanEstimationsWithResponse(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsResponse, error)
 
@@ -4664,6 +5235,154 @@ type ClientWithResponsesInterface interface {
 	PutScansScanIDWithBodyWithResponse(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutScansScanIDResponse, error)
 
 	PutScansScanIDWithResponse(ctx context.Context, scanID ScanID, params *PutScansScanIDParams, body PutScansScanIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutScansScanIDResponse, error)
+}
+
+type GetAssetFindingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetFindings
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAssetFindingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAssetFindingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostAssetFindingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *AssetFinding
+	JSON400      *ApiResponse
+	JSON409      *AssetFindingExists
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PostAssetFindingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostAssetFindingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteAssetFindingsAssetFindingIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Success
+	JSON404      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAssetFindingsAssetFindingIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAssetFindingsAssetFindingIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAssetFindingsAssetFindingIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetFinding
+	JSON404      *ApiResponse
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAssetFindingsAssetFindingIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAssetFindingsAssetFindingIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchAssetFindingsAssetFindingIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetFinding
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *AssetFindingExists
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAssetFindingsAssetFindingIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAssetFindingsAssetFindingIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutAssetFindingsAssetFindingIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetFinding
+	JSON400      *ApiResponse
+	JSON404      *ApiResponse
+	JSON409      *AssetFindingExists
+	JSONDefault  *UnknownError
+}
+
+// Status returns HTTPResponse.Status
+func (r PutAssetFindingsAssetFindingIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutAssetFindingsAssetFindingIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetAssetScanEstimationsResponse struct {
@@ -5859,6 +6578,84 @@ func (r PutScansScanIDResponse) StatusCode() int {
 	return 0
 }
 
+// GetAssetFindingsWithResponse request returning *GetAssetFindingsResponse
+func (c *ClientWithResponses) GetAssetFindingsWithResponse(ctx context.Context, params *GetAssetFindingsParams, reqEditors ...RequestEditorFn) (*GetAssetFindingsResponse, error) {
+	rsp, err := c.GetAssetFindings(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAssetFindingsResponse(rsp)
+}
+
+// PostAssetFindingsWithBodyWithResponse request with arbitrary body returning *PostAssetFindingsResponse
+func (c *ClientWithResponses) PostAssetFindingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAssetFindingsResponse, error) {
+	rsp, err := c.PostAssetFindingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostAssetFindingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostAssetFindingsWithResponse(ctx context.Context, body PostAssetFindingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAssetFindingsResponse, error) {
+	rsp, err := c.PostAssetFindings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostAssetFindingsResponse(rsp)
+}
+
+// DeleteAssetFindingsAssetFindingIDWithResponse request returning *DeleteAssetFindingsAssetFindingIDResponse
+func (c *ClientWithResponses) DeleteAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, reqEditors ...RequestEditorFn) (*DeleteAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.DeleteAssetFindingsAssetFindingID(ctx, assetFindingID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAssetFindingsAssetFindingIDResponse(rsp)
+}
+
+// GetAssetFindingsAssetFindingIDWithResponse request returning *GetAssetFindingsAssetFindingIDResponse
+func (c *ClientWithResponses) GetAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *GetAssetFindingsAssetFindingIDParams, reqEditors ...RequestEditorFn) (*GetAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.GetAssetFindingsAssetFindingID(ctx, assetFindingID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAssetFindingsAssetFindingIDResponse(rsp)
+}
+
+// PatchAssetFindingsAssetFindingIDWithBodyWithResponse request with arbitrary body returning *PatchAssetFindingsAssetFindingIDResponse
+func (c *ClientWithResponses) PatchAssetFindingsAssetFindingIDWithBodyWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.PatchAssetFindingsAssetFindingIDWithBody(ctx, assetFindingID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAssetFindingsAssetFindingIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PatchAssetFindingsAssetFindingIDParams, body PatchAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.PatchAssetFindingsAssetFindingID(ctx, assetFindingID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAssetFindingsAssetFindingIDResponse(rsp)
+}
+
+// PutAssetFindingsAssetFindingIDWithBodyWithResponse request with arbitrary body returning *PutAssetFindingsAssetFindingIDResponse
+func (c *ClientWithResponses) PutAssetFindingsAssetFindingIDWithBodyWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.PutAssetFindingsAssetFindingIDWithBody(ctx, assetFindingID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutAssetFindingsAssetFindingIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutAssetFindingsAssetFindingIDWithResponse(ctx context.Context, assetFindingID AssetFindingID, params *PutAssetFindingsAssetFindingIDParams, body PutAssetFindingsAssetFindingIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutAssetFindingsAssetFindingIDResponse, error) {
+	rsp, err := c.PutAssetFindingsAssetFindingID(ctx, assetFindingID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutAssetFindingsAssetFindingIDResponse(rsp)
+}
+
 // GetAssetScanEstimationsWithResponse request returning *GetAssetScanEstimationsResponse
 func (c *ClientWithResponses) GetAssetScanEstimationsWithResponse(ctx context.Context, params *GetAssetScanEstimationsParams, reqEditors ...RequestEditorFn) (*GetAssetScanEstimationsResponse, error) {
 	rsp, err := c.GetAssetScanEstimations(ctx, params, reqEditors...)
@@ -6481,6 +7278,274 @@ func (c *ClientWithResponses) PutScansScanIDWithResponse(ctx context.Context, sc
 		return nil, err
 	}
 	return ParsePutScansScanIDResponse(rsp)
+}
+
+// ParseGetAssetFindingsResponse parses an HTTP response from a GetAssetFindingsWithResponse call
+func ParseGetAssetFindingsResponse(rsp *http.Response) (*GetAssetFindingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAssetFindingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetFindings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostAssetFindingsResponse parses an HTTP response from a PostAssetFindingsWithResponse call
+func ParsePostAssetFindingsResponse(rsp *http.Response) (*PostAssetFindingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostAssetFindingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest AssetFinding
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetFindingExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAssetFindingsAssetFindingIDResponse parses an HTTP response from a DeleteAssetFindingsAssetFindingIDWithResponse call
+func ParseDeleteAssetFindingsAssetFindingIDResponse(rsp *http.Response) (*DeleteAssetFindingsAssetFindingIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAssetFindingsAssetFindingIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Success
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAssetFindingsAssetFindingIDResponse parses an HTTP response from a GetAssetFindingsAssetFindingIDWithResponse call
+func ParseGetAssetFindingsAssetFindingIDResponse(rsp *http.Response) (*GetAssetFindingsAssetFindingIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAssetFindingsAssetFindingIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetFinding
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchAssetFindingsAssetFindingIDResponse parses an HTTP response from a PatchAssetFindingsAssetFindingIDWithResponse call
+func ParsePatchAssetFindingsAssetFindingIDResponse(rsp *http.Response) (*PatchAssetFindingsAssetFindingIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAssetFindingsAssetFindingIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetFinding
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetFindingExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutAssetFindingsAssetFindingIDResponse parses an HTTP response from a PutAssetFindingsAssetFindingIDWithResponse call
+func ParsePutAssetFindingsAssetFindingIDResponse(rsp *http.Response) (*PutAssetFindingsAssetFindingIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutAssetFindingsAssetFindingIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetFinding
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AssetFindingExists
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest UnknownError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetAssetScanEstimationsResponse parses an HTTP response from a GetAssetScanEstimationsWithResponse call

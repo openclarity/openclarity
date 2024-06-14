@@ -121,10 +121,10 @@ func (s *ServerImpl) getFindingTrendsForFindingType(ctx context.Context, finding
 
 func (s *ServerImpl) getFindingTrendPerPoint(ctx context.Context, findingType types.FindingType, point time.Time) (types.FindingTrend, error) {
 	// Count total findings for the given finding type that was active during the given time point.
-	findings, err := s.Client.GetFindings(ctx, apitypes.GetFindingsParams{
+	findings, err := s.Client.GetAssetFindings(ctx, apitypes.GetAssetFindingsParams{
 		Count: to.Ptr(true),
 		Filter: to.Ptr(fmt.Sprintf(
-			"findingInfo/objectType eq '%s' and foundOn le %v and (invalidatedOn eq null or invalidatedOn gt %v)",
+			"finding/findingInfo/objectType eq '%s' and firstSeen le %v and (invalidatedOn eq null or invalidatedOn gt %v)",
 			getObjectType(findingType), point.Format(time.RFC3339), point.Format(time.RFC3339))),
 		// Select the smallest amount of data to return in items, we only care about the count.
 		Select: to.Ptr("id"),
