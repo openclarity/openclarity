@@ -139,7 +139,9 @@ func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) er
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
 
-	assetScan.Stats.General.ScanTime.EndTime = to.Ptr(time.Now())
+	if assetScan.Stats != nil && assetScan.Stats.General != nil && assetScan.Stats.General.ScanTime != nil {
+		assetScan.Stats.General.ScanTime.EndTime = to.Ptr(time.Now())
+	}
 	assetScan.Status = apitypes.NewAssetScanStatus(
 		apitypes.AssetScanStatusStateFailed,
 		apitypes.AssetScanStatusReasonError,
