@@ -541,6 +541,7 @@ multimod-verify: bin/multimod
 
 .PHONY: multimod-prerelease
 multimod-prerelease: bin/multimod
+	git stash --all
 	$(MULTIMOD_BIN) prerelease --all-module-sets --skip-go-mod-tidy=true --commit-to-different-branch=false
 
 
