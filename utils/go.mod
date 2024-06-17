@@ -3,7 +3,6 @@ module github.com/openclarity/vmclarity/utils
 go 1.22.2
 
 require (
-	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/onsi/gomega v1.33.1
 )

@@ -24,13 +24,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jaypipes/ghw"
 
 	"github.com/openclarity/vmclarity/cli/presenter"
 	"github.com/openclarity/vmclarity/cli/state"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/types"
-	"github.com/openclarity/vmclarity/utils/fsutils/blockdevice"
 	"github.com/openclarity/vmclarity/utils/fsutils/filesystem"
 	"github.com/openclarity/vmclarity/utils/fsutils/mount"
 )
@@ -68,29 +68,39 @@ func (c *CLI) FamilyFinished(ctx context.Context, res families.FamilyResult) err
 func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	blockDevices, err := blockdevice.List(ctx)
+	blockInfo, err := ghw.Block()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list block devices: %w", err)
 	}
-	logger.Debugf("Found block devices: %s", blockDevices)
+	logger.Debugf("Found block devices: %v", blockInfo)
 
+	// Mount all block devices that are not already mounted and have a supported filesystem.
 	var mountPoints []string
-	for _, device := range blockDevices {
-		// It is assumed that the device is part of the attached volume if it is not mounted
-		// and it has a supported filesystem.
-		if device.MountPoint == "" && isSupportedFS(device.FSType) {
-			mountPoint := fmt.Sprintf(MountPointTemplate, uuid.New())
+	for _, disk := range blockInfo.Disks {
+		for _, part := range disk.Partitions {
+			if part.MountPoint != "" {
+				logger.Debugf("Partition %s is already mounted at %s", part.Name, part.MountPoint)
+				continue
+			}
+
+			if !isSupportedFS(part.FilesystemLabel) {
+				logger.Debugf("Skipping partition %s with unsupported filesystem %s", part.Name, part.FilesystemLabel)
+				continue
+			}
+
+			mountPoint := fmt.Sprintf(MountPointTemplate, uuid.New().String())
 
 			if err := os.MkdirAll(mountPoint, MountPointDirPerm); err != nil {
 				return nil, fmt.Errorf("failed to create mountpoint. Device=%s MountPoint=%s: %w",
-					device.Path, mountPoint, err)
+					part.Name, mountPoint, err)
 			}
 
-			if err := mount.Mount(ctx, device.Path, mountPoint, device.FSType, DefaultMountOptions); err != nil {
+			devicePath := fmt.Sprintf("/dev/%s", part.Name)
+			if err := mount.Mount(ctx, devicePath, mountPoint, part.Type, DefaultMountOptions); err != nil {
 				return nil, fmt.Errorf("failed to mount device. Device=%s MountPoint=%s: %w",
-					device.Path, mountPoint, err)
+					part.Name, mountPoint, err)
 			}
-			logger.Infof("Device is mounted. Device=%s MountPoint=%s", device.Path, mountPoint)
+			logger.Infof("Device is mounted. Device=%s MountPoint=%s", part.Name, mountPoint)
 
 			mountPoints = append(mountPoints, mountPoint)
 		}
