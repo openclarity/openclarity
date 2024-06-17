@@ -25,6 +25,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jaypipes/ghw"
+	k8smount "k8s.io/mount-utils"
 
 	"github.com/openclarity/vmclarity/cli/presenter"
 	"github.com/openclarity/vmclarity/cli/state"
@@ -72,19 +73,21 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list block devices: %w", err)
 	}
-	logger.Debugf("Found block devices: %v", blockInfo)
+	logger.Infof("Found block devices: %+v", blockInfo)
 
 	// Mount all block devices that are not already mounted and have a supported filesystem.
 	var mountPoints []string
 	for _, disk := range blockInfo.Disks {
+		logger.Infof("Checking disk %+v", *disk)
 		for _, part := range disk.Partitions {
+			logger.Infof("Checking partition %+v", *part)
 			if part.MountPoint != "" {
-				logger.Debugf("Partition %s is already mounted at %s", part.Name, part.MountPoint)
+				logger.Infof("Partition %s is already mounted at %s", part.Name, part.MountPoint)
 				continue
 			}
 
-			if !isSupportedFS(part.FilesystemLabel) {
-				logger.Debugf("Skipping partition %s with unsupported filesystem %s", part.Name, part.FilesystemLabel)
+			if !isSupportedFS(part.Type) {
+				logger.Infof("Skipping partition %s with unsupported filesystem %s", part.Name, part.Type)
 				continue
 			}
 
@@ -96,9 +99,15 @@ func (c *CLI) MountVolumes(ctx context.Context) ([]string, error) {
 			}
 
 			devicePath := fmt.Sprintf("/dev/%s", part.Name)
-			if err := mount.Mount(ctx, devicePath, mountPoint, part.Type, DefaultMountOptions); err != nil {
-				return nil, fmt.Errorf("failed to mount device. Device=%s MountPoint=%s: %w",
-					part.Name, mountPoint, err)
+			if true {
+				if err := mount.Mount(ctx, devicePath, mountPoint, part.Type, DefaultMountOptions); err != nil {
+					return nil, fmt.Errorf("failed to mount device. Device=%s MountPoint=%s: %w",
+						part.Name, mountPoint, err)
+			} else {
+				if err := k8smount.New("").Mount(devicePath, mountPoint, part.Type, DefaultMountOptions); err != nil {
+					return nil, fmt.Errorf("failed to mount device. Device=%s MountPoint=%s: %w",
+						part.Name, mountPoint, err)
+									}
 			}
 			logger.Infof("Device is mounted. Device=%s MountPoint=%s", part.Name, mountPoint)
 

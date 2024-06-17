@@ -12,7 +12,7 @@ SHELL = /usr/bin/env bash -o pipefail
 
 VERSION ?= $(shell git rev-parse --short HEAD)
 DOCKER_REGISTRY ?= ghcr.io/openclarity
-DOCKER_PUSH ?= false
+DOCKER_PUSH ?= true
 DOCKER_TAG ?= $(VERSION)
 VMCLARITY_TOOLS_BASE ?=
 GO_VERSION ?= $(shell cat $(ROOT_DIR)/.go-version)
