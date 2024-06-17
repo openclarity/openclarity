@@ -23,6 +23,10 @@ git commit -m "release: update module set to version v0.7.0"
 ```
 
 * Run the version verification command to check for any issues.
+
+> [!NOTE]
+> If you use `go.work` and `go.work.sum` files in the project, temporarily remove/rename them so it won't interfere with this step.
+
 ```sh
 make multimod-verify
 ```
@@ -66,3 +70,14 @@ Please note that the release tag is not necessarily associated with the "release
 * Navigate to the [Releases page](https://github.com/openclarity/vmclarity/releases) and verify the draft release description as well as the assets listed.
 
 * Once the draft release has been verified, click on `Edit` release and then on `Publish Release`.
+
+## 5. Post release steps
+
+* In the [docs repository](https://github.com/openclarity/docs.openclarity.io), modify the value of `latest_version` in `config/_default/config.toml`, create a pull request and merge after it was reviewed.
+
+```toml
+[params]
+  latest_version = "0.7.0" # Used in some installation commands
+```
+
+* From the release page, download the AWS Cloudformation files (`aws-cloudformation-v0.7.0.tar.gz`), extract the archive locally and upload its contents to the S3 bucket used for storing them for VMClarity installation.
