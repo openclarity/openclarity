@@ -21,6 +21,10 @@ body = """
     ## [unreleased]
 {% endif %}\
 
+## Highlights ✨
+
+<!-- Summarize the most important changes here! -->
+
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits
@@ -84,20 +88,20 @@ commit_preprocessors = [
 ]
 # regex for parsing and grouping commits
 commit_parsers = [
-  { message = "^feat", group = "Features" },
-  { message = "^fix\\(deps\\):", group = "Dependency Updates" },
-  { message = "^fix", group = "Bug Fixes" },
-  { message = "^doc", group = "Documentation" },
-  { message = "^perf", group = "Performance" },
-  { message = "^refactor", group = "Refactor" },
-  { message = "^style", group = "Styling" },
-  { message = "^test", group = "Testing" },
+  { message = "^feat", group = "Features 🚀" },
+  { message = "^fix\\(deps\\):", group = "Dependency Updates ⬆️"},
+  { message = "^fix", group = "Bug Fixes 🐛" },
+  { message = "^doc", group = "Documentation 📚" },
+  { message = "^perf", group = "Performance 💪" },
+  { message = "^refactor", group = "Refactor 🔨" },
+  { message = "^style", group = "Styling 💄" },
+  { message = "^test", group = "Testing 🚨" },
   { message = "^release", skip = true },
   { message = "^chore\\(release\\): prepare for", skip = true },
   { message = "^chore\\(deps\\):", skip = true },
-  { message = "^chore|ci|build", group = "Miscellaneous Tasks" },
-  { body = ".*security", group = "Security" },
-  { message = "^revert", group = "Revert" },
+  { message = "^chore|ci|build", group = "Miscellaneous Tasks 📝" },
+  { body = ".*security", group = "Security 🔒" },
+  { message = "^revert", group = "Revert ⏪️" },
 ]
 # protect breaking changes from being skipped due to matching a skipping commit_parser
 protect_breaking_commits = true
