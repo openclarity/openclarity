@@ -18,7 +18,7 @@ require (
 	github.com/openclarity/vmclarity/scanner v0.7.1
 	github.com/openclarity/vmclarity/uibackend/types v0.7.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
 	gotest.tools/v3 v3.5.1
 )
