@@ -23,7 +23,7 @@ secrets.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 15.5.4 |
+| https://charts.bitnami.com/bitnami | postgresql | 15.5.6 |
 
 ## Values
 
