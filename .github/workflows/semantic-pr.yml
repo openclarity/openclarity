@@ -40,12 +40,16 @@ jobs:
           scopes: |
             api
             cli
+            containerruntimediscovery
+            core
             orchestrator
             plugin
             provider
             scanner
             ui
             uibackend
+            utils
+            workflow
 
             aws
             azure
