@@ -93,7 +93,7 @@ func (cm *containerManager) Start(ctx context.Context) error {
 		&containertypes.Config{
 			Image: cm.config.ImageName,
 			Env: []string{
-				fmt.Sprintf("%s=0.0.0.0:%s", plugin.EnvListenAddress, defaultInternalServerPort.Port()),
+				fmt.Sprintf("%s=http://0.0.0.0:%s", plugin.EnvListenAddress, defaultInternalServerPort.Port()),
 			},
 			ExposedPorts: nat.PortSet{defaultInternalServerPort: struct{}{}},
 		},
