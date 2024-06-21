@@ -26,6 +26,7 @@ import (
 	"github.com/openclarity/vmclarity/plugins/runner/internal/containermanager/docker"
 	"github.com/openclarity/vmclarity/plugins/runner/types"
 
+	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
 	runnerclient "github.com/openclarity/vmclarity/plugins/runner/internal/client"
 	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
@@ -71,6 +72,8 @@ func (r *pluginRunner) Logs(ctx context.Context) (io.ReadCloser, error) {
 }
 
 func (r *pluginRunner) WaitReady(ctx context.Context) error {
+	logger := log.GetLoggerFromContextOrDefault(ctx)
+
 	ctx, cancel := context.WithTimeout(ctx, types.WaitReadyTimeout)
 	defer cancel()
 
@@ -92,22 +95,24 @@ func (r *pluginRunner) WaitReady(ctx context.Context) error {
 				continue
 			}
 
-			// Set plugin server endpoint
-			serverEndpoint, err := r.containerManager.GetPluginServerEndpoint(ctx)
-			if err != nil {
-				return fmt.Errorf("failed to get plugin server endpoint: %w", err)
-			}
+			// Set plugin server endpoint and client if not already set
+			if r.client == nil {
+				serverEndpoint, err := r.containerManager.GetPluginServerEndpoint(ctx)
+				if err != nil {
+					return fmt.Errorf("failed to get plugin server endpoint: %w", err)
+				}
 
-			err = r.setPluginServerClientFor(serverEndpoint)
-			if err != nil {
-				return fmt.Errorf("failed to set plugin server client: %w", err)
+				err = r.setPluginServerClientFor(serverEndpoint)
+				if err != nil {
+					return fmt.Errorf("failed to set plugin server client: %w", err)
+				}
 			}
 
 			// Check for plugin server once container is ready
-			// TODO: add retry mechanism
 			resp, err := r.client.GetHealthzWithResponse(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to get plugin server healthz: %w", err)
+				logger.WithError(err).Error("failed to get plugin server healthz, retrying...")
+				continue
 			}
 
 			if resp.StatusCode() == 200 { //nolint:mnd
