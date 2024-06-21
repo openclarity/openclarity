@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/plugins/runner
 
-go 1.22.2
+go 1.22.4
 
 require (
 	github.com/deepmap/oapi-codegen/v2 v2.2.0

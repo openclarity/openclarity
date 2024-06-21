@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/cli
 
-go 1.22.2
+go 1.22.4
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
