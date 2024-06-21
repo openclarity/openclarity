@@ -26,28 +26,36 @@ import (
 	"github.com/anchore/stereoscope"
 	"github.com/anchore/stereoscope/pkg/file"
 	"github.com/anchore/stereoscope/pkg/filetree/filenode"
+	"github.com/anchore/stereoscope/pkg/image"
 
 	"github.com/openclarity/vmclarity/core/log"
 )
 
 const perFileReadLimit = 2 * file.GB
 
-// nolint:cyclop, gocognit
-func ToDirectory(ctx context.Context, src, dest string) error {
+func GetImageWithCleanup(ctx context.Context, src string) (*image.Image, func(), error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 
 	image, err := stereoscope.GetImage(ctx, src)
 	if err != nil {
-		return fmt.Errorf("unable to parse image from src %s: %w", src, err)
+		return nil, nil, fmt.Errorf("unable to parse image from src %s: %w", src, err)
 	}
-	defer func() {
+
+	cleanup := func() {
 		err := image.Cleanup()
 		if err != nil {
 			logger.WithError(err).Error("unable to clean up image")
 		}
-	}()
+	}
 
-	err = image.SquashedTree().Walk(func(path file.Path, f filenode.FileNode) error {
+	return image, cleanup, nil
+}
+
+// nolint:cyclop, gocognit
+func ToDirectory(ctx context.Context, image *image.Image, dest string) error {
+	logger := log.GetLoggerFromContextOrDefault(ctx)
+
+	err := image.SquashedTree().Walk(func(path file.Path, f filenode.FileNode) error {
 		target := filepath.Join(dest, string(path))
 
 		switch f.FileType {

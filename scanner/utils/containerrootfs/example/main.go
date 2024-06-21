@@ -23,7 +23,13 @@ import (
 )
 
 func main() {
-	err := containerrootfs.ToDirectory(context.TODO(), "nginx-1.10.tar", "output")
+	image, cleanup, err := containerrootfs.GetImageWithCleanup(context.TODO(), "nginx-1.10.tar")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cleanup()
+
+	err = containerrootfs.ToDirectory(context.TODO(), image, "output")
 	if err != nil {
 		log.Fatal(err)
 	}
