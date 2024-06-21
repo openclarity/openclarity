@@ -47,7 +47,7 @@ possible, and, if possible, a test case.
 For the `gopls` language server to index the whole project, it is possible to create a local `go.work` file including the current go version used and the modules, followed by running `go mod tidy`, such as:
 
 ```text
-go 1.22.2
+go 1.22.4
 
 use (
     ./api

@@ -1,6 +1,6 @@
 module github.com/openclarity/vmclarity/uibackend/server
 
-go 1.22.2
+go 1.22.4
 
 require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
