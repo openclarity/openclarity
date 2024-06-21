@@ -78,7 +78,13 @@ func toTempDirectory(ctx context.Context, src string) (Rootfs, error) {
 	}
 	tdrf.dir = tmpdir
 
-	err = ToDirectory(ctx, src, tmpdir)
+	image, cleanup, err := GetImageWithCleanup(ctx, src)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get image: %w", err)
+	}
+	defer cleanup()
+
+	err = ToDirectory(ctx, image, tmpdir)
 	if err != nil {
 		return nil, fmt.Errorf("unable to output squashed image to directory: %w", err)
 	}
