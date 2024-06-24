@@ -21,7 +21,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/grype-server/api v0.0.0-20240605105406-7ff9d7d5003b
+	github.com/openclarity/grype-server/api v0.0.0-20240619144520-b9ba72524a9c
 	github.com/openclarity/vmclarity/api/types v0.7.1
 	github.com/openclarity/vmclarity/core v0.7.1
 	github.com/openclarity/vmclarity/plugins/runner v0.7.1
