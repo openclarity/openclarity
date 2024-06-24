@@ -82,6 +82,24 @@ jobs:
           make lint-actions
           echo "::remove-matcher owner=actionlint::"
 
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Install modules
+        working-directory: ./ui
+        run: npm install
+
+      - name: Run ESLint
+        working-directory: ./ui
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: ./ui
+        run: npm run test
+
   go:
     runs-on: ubuntu-latest
     steps:
