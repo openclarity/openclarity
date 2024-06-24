@@ -11,7 +11,6 @@ const CronTitle = ({children}) => <div className="cron-field-title">{children}</
 
 const CronField = (props) => {
     const {className, quickOptions=[]} = props;
-    // eslint-disable-next-line no-unused-vars
     const [field, meta, helpers] = useField(props);
     const {value} = field; 
     const {setValue, setTouched} = helpers;
