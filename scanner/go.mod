@@ -30,7 +30,7 @@ require (
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/samber/slog-logrus/v2 v2.3.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/tdewolff/parse/v2 v2.7.14
+	github.com/tdewolff/parse/v2 v2.7.15
 	github.com/vulsio/go-exploitdb v0.4.6
 	github.com/yudai/gojsondiff v1.0.0
 	golang.org/x/sync v0.7.0
