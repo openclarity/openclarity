@@ -380,7 +380,7 @@ require (
 	github.com/sylabs/squashfs v0.6.1 // indirect
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
-	github.com/tdewolff/parse/v2 v2.7.14 // indirect
+	github.com/tdewolff/parse/v2 v2.7.15 // indirect
 	github.com/tetratelabs/wazero v1.7.2 // indirect
 	github.com/therootcompany/xz v1.0.1 // indirect
 	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
