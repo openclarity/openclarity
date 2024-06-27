@@ -259,15 +259,21 @@ func (s *FindingsTableHandler) DeleteFinding(findingID types.FindingID) error {
 
 //nolint:cyclop
 func (s *FindingsTableHandler) checkUniqueness(finding types.Finding) (*types.Finding, error) {
-	discriminator, err := finding.FindingInfo.ValueByDiscriminator()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
-	}
-
 	if finding.Id == nil || *finding.Id == "" {
 		return &types.Finding{}, &common.BadRequestError{
 			Reason: "finding ID is required",
 		}
+	}
+
+	if finding.FindingInfo == nil {
+		return &types.Finding{}, &common.BadRequestError{
+			Reason: "finding FindingInfo is required",
+		}
+	}
+
+	discriminator, err := finding.FindingInfo.ValueByDiscriminator()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get value by discriminator: %w", err)
 	}
 
 	// Construct filter based on discriminator type

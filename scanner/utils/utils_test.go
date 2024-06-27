@@ -30,14 +30,14 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *apitypes.VulnerabilityScanSummary
+		want *apitypes.VulnerabilitySeveritySummary
 	}{
 		{
 			name: "nil should result in empty",
 			args: args{
 				vulnerabilities: nil,
 			},
-			want: &apitypes.VulnerabilityScanSummary{
+			want: &apitypes.VulnerabilitySeveritySummary{
 				TotalCriticalVulnerabilities:   to.Ptr(0),
 				TotalHighVulnerabilities:       to.Ptr(0),
 				TotalMediumVulnerabilities:     to.Ptr(0),
@@ -56,7 +56,7 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 					},
 				}),
 			},
-			want: &apitypes.VulnerabilityScanSummary{
+			want: &apitypes.VulnerabilitySeveritySummary{
 				TotalCriticalVulnerabilities:   to.Ptr(1),
 				TotalHighVulnerabilities:       to.Ptr(0),
 				TotalMediumVulnerabilities:     to.Ptr(0),
@@ -95,7 +95,7 @@ func TestGetVulnerabilityTotalsPerSeverity(t *testing.T) {
 					},
 				}),
 			},
-			want: &apitypes.VulnerabilityScanSummary{
+			want: &apitypes.VulnerabilitySeveritySummary{
 				TotalCriticalVulnerabilities:   to.Ptr(1),
 				TotalHighVulnerabilities:       to.Ptr(1),
 				TotalMediumVulnerabilities:     to.Ptr(1),

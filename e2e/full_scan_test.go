@@ -17,6 +17,7 @@ package e2e
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo/v2"
@@ -150,6 +151,24 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				findingsImpact, err := uiClient.GetDashboardFindingsImpact(ctx)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return findingsImpact != nil && findingsImpact.Vulnerabilities != nil && len(*findingsImpact.Vulnerabilities) > 0
+			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
+
+			ginkgo.By("waiting until at least one findings summary has been updated")
+			vulnerabilityCountFilter := strings.Join([]string{
+				"summary/totalVulnerabilities/totalCriticalVulnerabilities gt 0",
+				"summary/totalVulnerabilities/totalHighVulnerabilities gt 0",
+				"summary/totalVulnerabilities/totalMediumVulnerabilities gt 0",
+				"summary/totalVulnerabilities/totalLowVulnerabilities gt 0",
+				"summary/totalVulnerabilities/totalNegligibleVulnerabilities gt 0",
+			}, " or ")
+			gomega.Eventually(func() bool {
+				findings, err := client.GetFindings(ctx, apitypes.GetFindingsParams{
+					Filter: to.Ptr(fmt.Sprintf("summary/updatedAt ne null and (%s)", vulnerabilityCountFilter)),
+					Top:    to.Ptr(1),
+					Count:  to.Ptr(true),
+				})
+				gomega.Expect(skipDBLockedErr(err)).NotTo(gomega.HaveOccurred())
+				return *findings.Count > 0
 			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
 		})
 	})
