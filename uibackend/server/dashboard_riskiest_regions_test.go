@@ -134,7 +134,7 @@ func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 					TotalPackages:          to.Ptr(5),
 					TotalRootkits:          to.Ptr(6),
 					TotalSecrets:           to.Ptr(7),
-					TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+					TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 						TotalCriticalVulnerabilities:   to.Ptr(10),
 						TotalHighVulnerabilities:       to.Ptr(11),
 						TotalLowVulnerabilities:        to.Ptr(12),
@@ -166,7 +166,7 @@ func Test_addAssetSummaryToFindingsCount(t *testing.T) {
 
 func Test_getTotalVulnerabilities(t *testing.T) {
 	type args struct {
-		summary *apitypes.VulnerabilityScanSummary
+		summary *apitypes.VulnerabilitySeveritySummary
 	}
 	tests := []struct {
 		name string
@@ -183,7 +183,7 @@ func Test_getTotalVulnerabilities(t *testing.T) {
 		{
 			name: "sanity",
 			args: args{
-				summary: &apitypes.VulnerabilityScanSummary{
+				summary: &apitypes.VulnerabilitySeveritySummary{
 					TotalCriticalVulnerabilities:   to.Ptr(1),
 					TotalHighVulnerabilities:       to.Ptr(2),
 					TotalLowVulnerabilities:        to.Ptr(3),
@@ -241,7 +241,7 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 								TotalPackages:          to.Ptr(1),
 								TotalRootkits:          to.Ptr(1),
 								TotalSecrets:           to.Ptr(1),
-								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 									TotalCriticalVulnerabilities:   to.Ptr(1),
 									TotalHighVulnerabilities:       to.Ptr(1),
 									TotalLowVulnerabilities:        to.Ptr(1),
@@ -270,7 +270,7 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 								TotalPackages:          to.Ptr(4),
 								TotalRootkits:          to.Ptr(5),
 								TotalSecrets:           to.Ptr(6),
-								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 									TotalCriticalVulnerabilities:   to.Ptr(7),
 									TotalHighVulnerabilities:       to.Ptr(8),
 									TotalLowVulnerabilities:        to.Ptr(9),
@@ -288,7 +288,7 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 								TotalPackages:          to.Ptr(5),
 								TotalRootkits:          to.Ptr(6),
 								TotalSecrets:           to.Ptr(7),
-								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 									TotalCriticalVulnerabilities:   to.Ptr(8),
 									TotalHighVulnerabilities:       to.Ptr(9),
 									TotalLowVulnerabilities:        to.Ptr(10),
@@ -306,7 +306,7 @@ func Test_createRegionFindingsFromAssets(t *testing.T) {
 								TotalPackages:          to.Ptr(6),
 								TotalRootkits:          to.Ptr(7),
 								TotalSecrets:           to.Ptr(8),
-								TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+								TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 									TotalCriticalVulnerabilities:   to.Ptr(9),
 									TotalHighVulnerabilities:       to.Ptr(10),
 									TotalLowVulnerabilities:        to.Ptr(11),

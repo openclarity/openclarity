@@ -128,7 +128,7 @@ func addAssetSummaryToFindingsCount(findingsCount *types.FindingsCount, summary 
 	}
 }
 
-func getTotalVulnerabilities(summary *apitypes.VulnerabilityScanSummary) int {
+func getTotalVulnerabilities(summary *apitypes.VulnerabilitySeveritySummary) int {
 	total := 0
 	if summary == nil {
 		return total

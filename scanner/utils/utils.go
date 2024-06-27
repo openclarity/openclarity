@@ -115,8 +115,8 @@ func RunCommandAndParseOutputLineByLine(cmd *exec.Cmd, pfn, ecFn processFn) erro
 	return nil
 }
 
-func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]apitypes.Vulnerability) *apitypes.VulnerabilityScanSummary {
-	ret := &apitypes.VulnerabilityScanSummary{
+func GetVulnerabilityTotalsPerSeverity(vulnerabilities *[]apitypes.Vulnerability) *apitypes.VulnerabilitySeveritySummary {
+	ret := &apitypes.VulnerabilitySeveritySummary{
 		TotalCriticalVulnerabilities:   to.Ptr(0),
 		TotalHighVulnerabilities:       to.Ptr(0),
 		TotalMediumVulnerabilities:     to.Ptr(0),

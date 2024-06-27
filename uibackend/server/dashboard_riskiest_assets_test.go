@@ -131,7 +131,7 @@ func Test_getCount(t *testing.T) {
 					TotalPackages:          nil,
 					TotalRootkits:          nil,
 					TotalSecrets:           nil,
-					TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+					TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 						TotalCriticalVulnerabilities:   nil,
 						TotalHighVulnerabilities:       nil,
 						TotalLowVulnerabilities:        nil,
@@ -363,7 +363,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 				assets: []apitypes.Asset{
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 								TotalCriticalVulnerabilities:   to.Ptr(1),
 								TotalHighVulnerabilities:       to.Ptr(2),
 								TotalLowVulnerabilities:        to.Ptr(3),
@@ -375,7 +375,7 @@ func Test_toAPIVulnerabilityRiskyAsset(t *testing.T) {
 					},
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},
@@ -462,7 +462,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 				assets: []apitypes.Asset{
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},
@@ -470,7 +470,7 @@ func Test_toAPIRiskyAssets(t *testing.T) {
 					},
 					{
 						Summary: &apitypes.ScanFindingsSummary{
-							TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+							TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 								TotalHighVulnerabilities: to.Ptr(1),
 							},
 						},

@@ -4,6 +4,10 @@ import { OPERATORS } from 'components/Filter';
 import { getScanColumnsConfigList } from 'layout/Findings/utils';
 import { FILTER_TYPES } from 'context/FiltersProvider';
 import FindingsTablePage from '../FindingsTablePage';
+import {
+    getVulnerabilitiesColumnConfigItem,
+    vulnerabilitiesCountersColumnsFiltersConfig
+} from "../../../utils/utils.jsx";
 
 const PackagesTable = () => {
     const columns = useMemo(() => [
@@ -37,7 +41,8 @@ const PackagesTable = () => {
                 )
             }
         },
-        ...getScanColumnsConfigList()
+        getVulnerabilitiesColumnConfigItem("package"),
+        ...getScanColumnsConfigList(),
     ], []);
 
     return (
@@ -68,7 +73,8 @@ const PackagesTable = () => {
                 ]},
                 {value: "findingInfo.licenses", label: "License", operators: [
                     {...OPERATORS.contains, valueItems: [], creatable: true}
-                ]}
+                ]},
+                ...vulnerabilitiesCountersColumnsFiltersConfig,
             ]}
             tableTitle="packages"
             findingsObjectType="Package"
