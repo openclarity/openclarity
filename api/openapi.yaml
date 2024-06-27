@@ -1946,11 +1946,11 @@ components:
         totalInfoFinder:
           type: integer
         totalVulnerabilities:
-          $ref: '#/components/schemas/VulnerabilityScanSummary'
+          $ref: '#/components/schemas/VulnerabilitySeveritySummary'
         totalPlugins:
           type: integer
 
-    VulnerabilityScanSummary:
+    VulnerabilitySeveritySummary:
       description: A summary of number of vulnerabilities found per severity.
       type: object
       properties:
@@ -3643,6 +3643,8 @@ components:
               $ref: '#/components/schemas/AssetScanRelationship'
             findingInfo:
               $ref: '#/components/schemas/FindingInfo'
+            summary:
+              $ref: '#/components/schemas/FindingSummary'
 
     FindingRelationship:
       type: object
@@ -3672,7 +3674,18 @@ components:
             findingInfo:
               $ref: '#/components/schemas/FindingInfo'
               readOnly: true
+            summary:
+              $ref: '#/components/schemas/FindingSummary'
+              readOnly: true
           required: ['id']
+
+    FindingSummary:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+        totalVulnerabilities:
+          $ref: '#/components/schemas/VulnerabilitySeveritySummary'
 
     FindingInfo:
       anyOf:

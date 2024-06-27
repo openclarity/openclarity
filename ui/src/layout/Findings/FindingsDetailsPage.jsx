@@ -6,7 +6,7 @@ const FindingsDetailsPage = ({backTitle, getTitleData, detailsContent: DetailsCo
     <DetailsPageWrapper
         backTitle={backTitle}
         url={APIS.FINDINGS}
-        select="id,findingInfo,firstSeen,lastSeen"
+        select="id,findingInfo,firstSeen,lastSeen,summary"
         getTitleData={getTitleData}
         detailsContent={props => <DetailsContent {...props} />}
     />

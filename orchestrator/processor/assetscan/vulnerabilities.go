@@ -95,7 +95,7 @@ func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx cont
 		return fmt.Errorf("failed to list active negligible vulnerabilities: %w", err)
 	}
 
-	asset.Summary.TotalVulnerabilities = &apitypes.VulnerabilityScanSummary{
+	asset.Summary.TotalVulnerabilities = &apitypes.VulnerabilitySeveritySummary{
 		TotalCriticalVulnerabilities:   &critialVuls,
 		TotalHighVulnerabilities:       &highVuls,
 		TotalMediumVulnerabilities:     &mediumVuls,

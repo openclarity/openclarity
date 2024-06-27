@@ -23,16 +23,6 @@ import (
 	"github.com/openclarity/vmclarity/core/to"
 )
 
-func newVulnerabilityScanSummary() *apitypes.VulnerabilityScanSummary {
-	return &apitypes.VulnerabilityScanSummary{
-		TotalCriticalVulnerabilities:   to.Ptr[int](0),
-		TotalHighVulnerabilities:       to.Ptr[int](0),
-		TotalMediumVulnerabilities:     to.Ptr[int](0),
-		TotalLowVulnerabilities:        to.Ptr[int](0),
-		TotalNegligibleVulnerabilities: to.Ptr[int](0),
-	}
-}
-
 func newAssetScanSummary() *apitypes.ScanFindingsSummary {
 	return &apitypes.ScanFindingsSummary{
 		TotalExploits:          to.Ptr[int](0),
@@ -42,8 +32,14 @@ func newAssetScanSummary() *apitypes.ScanFindingsSummary {
 		TotalRootkits:          to.Ptr[int](0),
 		TotalSecrets:           to.Ptr[int](0),
 		TotalInfoFinder:        to.Ptr[int](0),
-		TotalVulnerabilities:   newVulnerabilityScanSummary(),
-		TotalPlugins:           to.Ptr[int](0),
+		TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
+			TotalCriticalVulnerabilities:   to.Ptr[int](0),
+			TotalHighVulnerabilities:       to.Ptr[int](0),
+			TotalMediumVulnerabilities:     to.Ptr[int](0),
+			TotalLowVulnerabilities:        to.Ptr[int](0),
+			TotalNegligibleVulnerabilities: to.Ptr[int](0),
+		},
+		TotalPlugins: to.Ptr[int](0),
 	}
 }
 
@@ -138,7 +134,7 @@ func newScanSummary() *apitypes.ScanSummary {
 		TotalRootkits:          to.Ptr(0),
 		TotalSecrets:           to.Ptr(0),
 		TotalInfoFinder:        to.Ptr(0),
-		TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+		TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 			TotalCriticalVulnerabilities:   to.Ptr(0),
 			TotalHighVulnerabilities:       to.Ptr(0),
 			TotalLowVulnerabilities:        to.Ptr(0),
@@ -179,7 +175,7 @@ func updateScanSummaryFromAssetScan(scan *apitypes.Scan, result apitypes.AssetSc
 		s.TotalPackages = to.Ptr(*s.TotalPackages + *r.TotalPackages)
 		s.TotalRootkits = to.Ptr(*s.TotalRootkits + *r.TotalRootkits)
 		s.TotalSecrets = to.Ptr(*s.TotalSecrets + *r.TotalSecrets)
-		s.TotalVulnerabilities = &apitypes.VulnerabilityScanSummary{
+		s.TotalVulnerabilities = &apitypes.VulnerabilitySeveritySummary{
 			TotalCriticalVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalCriticalVulnerabilities +
 				*r.TotalVulnerabilities.TotalCriticalVulnerabilities),
 			TotalHighVulnerabilities: to.Ptr(*s.TotalVulnerabilities.TotalHighVulnerabilities +

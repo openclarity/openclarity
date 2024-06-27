@@ -48,7 +48,7 @@ func newScanFromScanConfig(scanConfig *apitypes.ScanConfig) *apitypes.Scan {
 			TotalRootkits:          to.Ptr(0),
 			TotalSecrets:           to.Ptr(0),
 			TotalInfoFinder:        to.Ptr(0),
-			TotalVulnerabilities: &apitypes.VulnerabilityScanSummary{
+			TotalVulnerabilities: &apitypes.VulnerabilitySeveritySummary{
 				TotalCriticalVulnerabilities:   to.Ptr(0),
 				TotalHighVulnerabilities:       to.Ptr(0),
 				TotalLowVulnerabilities:        to.Ptr(0),
