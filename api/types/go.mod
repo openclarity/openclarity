@@ -3,6 +3,7 @@ module github.com/openclarity/openclarity/api/types
 go 1.22.6
 
 require (
+	github.com/oapi-codegen/nullable v1.1.0
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2

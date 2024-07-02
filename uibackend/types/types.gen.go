@@ -5,6 +5,8 @@ package types
 
 import (
 	"time"
+
+	"github.com/oapi-codegen/nullable"
 )
 
 // Defines values for AssetType.
@@ -70,12 +72,12 @@ type AssetType string
 
 // Exploit defines model for Exploit.
 type Exploit struct {
-	CveID       *string   `json:"cveID,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	Name        *string   `json:"name,omitempty"`
-	SourceDB    *string   `json:"sourceDB,omitempty"`
-	Title       *string   `json:"title,omitempty"`
-	Urls        *[]string `json:"urls"`
+	CveID       *string                     `json:"cveID,omitempty"`
+	Description *string                     `json:"description,omitempty"`
+	Name        *string                     `json:"name,omitempty"`
+	SourceDB    *string                     `json:"sourceDB,omitempty"`
+	Title       *string                     `json:"title,omitempty"`
+	Urls        nullable.Nullable[[]string] `json:"urls,omitempty"`
 }
 
 // ExploitFindingImpact defines model for ExploitFindingImpact.
@@ -280,9 +282,9 @@ type VulnerabilitiesFindingImpact = []VulnerabilityFindingImpact
 
 // Vulnerability defines model for Vulnerability.
 type Vulnerability struct {
-	Cvss              *[]VulnerabilityCvss   `json:"cvss"`
-	Severity          *VulnerabilitySeverity `json:"severity,omitempty"`
-	VulnerabilityName *string                `json:"vulnerabilityName,omitempty"`
+	Cvss              nullable.Nullable[[]VulnerabilityCvss] `json:"cvss,omitempty"`
+	Severity          *VulnerabilitySeverity                 `json:"severity,omitempty"`
+	VulnerabilityName *string                                `json:"vulnerabilityName,omitempty"`
 }
 
 // VulnerabilityCvss defines model for VulnerabilityCvss.

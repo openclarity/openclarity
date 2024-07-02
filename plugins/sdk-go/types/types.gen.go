@@ -5,6 +5,8 @@ package types
 
 import (
 	"time"
+
+	"github.com/oapi-codegen/nullable"
 )
 
 // Defines values for InfoFinderType.
@@ -78,12 +80,12 @@ type ErrorResponse struct {
 
 // Exploit defines model for Exploit.
 type Exploit struct {
-	CveID       *string   `json:"cveID,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	Name        *string   `json:"name,omitempty"`
-	SourceDB    *string   `json:"sourceDB,omitempty"`
-	Title       *string   `json:"title,omitempty"`
-	Urls        *[]string `json:"urls"`
+	CveID       *string                     `json:"cveID,omitempty"`
+	Description *string                     `json:"description,omitempty"`
+	Name        *string                     `json:"name,omitempty"`
+	SourceDB    *string                     `json:"sourceDB,omitempty"`
+	Title       *string                     `json:"title,omitempty"`
+	Urls        nullable.Nullable[[]string] `json:"urls,omitempty"`
 }
 
 // InfoFinder defines model for InfoFinder.
@@ -159,13 +161,13 @@ type OpenClarityData struct {
 
 // Package defines model for Package.
 type Package struct {
-	Cpes     *[]string `json:"cpes"`
-	Language *string   `json:"language,omitempty"`
-	Licenses *[]string `json:"licenses"`
-	Name     *string   `json:"name,omitempty"`
-	Purl     *string   `json:"purl,omitempty"`
-	Type     *string   `json:"type,omitempty"`
-	Version  *string   `json:"version,omitempty"`
+	Cpes     nullable.Nullable[[]string] `json:"cpes,omitempty"`
+	Language *string                     `json:"language,omitempty"`
+	Licenses nullable.Nullable[[]string] `json:"licenses,omitempty"`
+	Name     *string                     `json:"name,omitempty"`
+	Purl     *string                     `json:"purl,omitempty"`
+	Type     *string                     `json:"type,omitempty"`
+	Version  *string                     `json:"version,omitempty"`
 }
 
 // Result Describes data saved to a JSON file when a scan finishes successfully.
@@ -245,18 +247,18 @@ type Stop struct {
 
 // Vulnerability defines model for Vulnerability.
 type Vulnerability struct {
-	Cvss        *[]VulnerabilityCvss `json:"cvss"`
-	Description *string              `json:"description,omitempty"`
+	Cvss        nullable.Nullable[[]VulnerabilityCvss] `json:"cvss,omitempty"`
+	Description *string                                `json:"description,omitempty"`
 
 	// Distro Distro provides information about a detected Linux distribution.
-	Distro            *VulnerabilityDistro   `json:"distro,omitempty"`
-	Fix               *VulnerabilityFix      `json:"fix,omitempty"`
-	LayerId           *string                `json:"layerId,omitempty"`
-	Links             *[]string              `json:"links"`
-	Package           *Package               `json:"package,omitempty"`
-	Path              *string                `json:"path,omitempty"`
-	Severity          *VulnerabilitySeverity `json:"severity,omitempty"`
-	VulnerabilityName *string                `json:"vulnerabilityName,omitempty"`
+	Distro            *VulnerabilityDistro        `json:"distro,omitempty"`
+	Fix               *VulnerabilityFix           `json:"fix,omitempty"`
+	LayerId           *string                     `json:"layerId,omitempty"`
+	Links             nullable.Nullable[[]string] `json:"links,omitempty"`
+	Package           *Package                    `json:"package,omitempty"`
+	Path              *string                     `json:"path,omitempty"`
+	Severity          *VulnerabilitySeverity      `json:"severity,omitempty"`
+	VulnerabilityName *string                     `json:"vulnerabilityName,omitempty"`
 }
 
 // VulnerabilityCvss defines model for VulnerabilityCvss.
@@ -271,7 +273,7 @@ type VulnerabilityCvss struct {
 // VulnerabilityDistro Distro provides information about a detected Linux distribution.
 type VulnerabilityDistro struct {
 	// IDLike the ID_LIKE field found within the /etc/os-release file
-	IDLike *[]string `json:"IDLike"`
+	IDLike nullable.Nullable[[]string] `json:"IDLike,omitempty"`
 
 	// Name Name of the Linux distribution
 	Name *string `json:"name,omitempty"`
@@ -282,8 +284,8 @@ type VulnerabilityDistro struct {
 
 // VulnerabilityFix defines model for VulnerabilityFix.
 type VulnerabilityFix struct {
-	State    *string   `json:"state,omitempty"`
-	Versions *[]string `json:"versions"`
+	State    *string                     `json:"state,omitempty"`
+	Versions nullable.Nullable[[]string] `json:"versions,omitempty"`
 }
 
 // VulnerabilitySeverity defines model for VulnerabilitySeverity.

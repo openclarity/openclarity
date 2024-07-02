@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/oapi-codegen/nullable"
 	"github.com/oapi-codegen/runtime"
 )
 
@@ -658,25 +659,25 @@ type CloudProvider string
 
 // ContainerImageInfo defines model for ContainerImageInfo.
 type ContainerImageInfo struct {
-	Architecture *string   `json:"architecture,omitempty"`
-	ImageID      string    `json:"imageID"`
-	Labels       *[]Tag    `json:"labels"`
-	ObjectType   string    `json:"objectType"`
-	Os           *string   `json:"os,omitempty"`
-	RepoDigests  *[]string `json:"repoDigests,omitempty"`
-	RepoTags     *[]string `json:"repoTags,omitempty"`
-	Size         *int64    `json:"size,omitempty"`
+	Architecture *string                  `json:"architecture,omitempty"`
+	ImageID      string                   `json:"imageID"`
+	Labels       nullable.Nullable[[]Tag] `json:"labels,omitempty"`
+	ObjectType   string                   `json:"objectType"`
+	Os           *string                  `json:"os,omitempty"`
+	RepoDigests  *[]string                `json:"repoDigests,omitempty"`
+	RepoTags     *[]string                `json:"repoTags,omitempty"`
+	Size         *int64                   `json:"size,omitempty"`
 }
 
 // ContainerInfo defines model for ContainerInfo.
 type ContainerInfo struct {
-	ContainerID   string              `json:"containerID"`
-	ContainerName *string             `json:"containerName,omitempty"`
-	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
-	Image         *ContainerImageInfo `json:"image,omitempty"`
-	Labels        *[]Tag              `json:"labels"`
-	Location      *string             `json:"location,omitempty"`
-	ObjectType    string              `json:"objectType"`
+	ContainerID   string                   `json:"containerID"`
+	ContainerName *string                  `json:"containerName,omitempty"`
+	CreatedAt     *time.Time               `json:"createdAt,omitempty"`
+	Image         *ContainerImageInfo      `json:"image,omitempty"`
+	Labels        nullable.Nullable[[]Tag] `json:"labels,omitempty"`
+	Location      *string                  `json:"location,omitempty"`
+	ObjectType    string                   `json:"objectType"`
 }
 
 // CostBreakdownComponent defines model for CostBreakdownComponent.
@@ -707,29 +708,29 @@ type Estimation struct {
 
 // Exploit defines model for Exploit.
 type Exploit struct {
-	CveID       *string   `json:"cveID,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	Name        *string   `json:"name,omitempty"`
-	SourceDB    *string   `json:"sourceDB,omitempty"`
-	Title       *string   `json:"title,omitempty"`
-	Urls        *[]string `json:"urls"`
+	CveID       *string                     `json:"cveID,omitempty"`
+	Description *string                     `json:"description,omitempty"`
+	Name        *string                     `json:"name,omitempty"`
+	SourceDB    *string                     `json:"sourceDB,omitempty"`
+	Title       *string                     `json:"title,omitempty"`
+	Urls        nullable.Nullable[[]string] `json:"urls,omitempty"`
 }
 
 // ExploitFindingInfo defines model for ExploitFindingInfo.
 type ExploitFindingInfo struct {
-	CveID       *string   `json:"cveID,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	Name        *string   `json:"name,omitempty"`
-	ObjectType  string    `json:"objectType"`
-	SourceDB    *string   `json:"sourceDB,omitempty"`
-	Title       *string   `json:"title,omitempty"`
-	Urls        *[]string `json:"urls"`
+	CveID       *string                     `json:"cveID,omitempty"`
+	Description *string                     `json:"description,omitempty"`
+	Name        *string                     `json:"name,omitempty"`
+	ObjectType  string                      `json:"objectType"`
+	SourceDB    *string                     `json:"sourceDB,omitempty"`
+	Title       *string                     `json:"title,omitempty"`
+	Urls        nullable.Nullable[[]string] `json:"urls,omitempty"`
 }
 
 // ExploitScan defines model for ExploitScan.
 type ExploitScan struct {
-	Exploits *[]Exploit     `json:"exploits"`
-	Status   *ScannerStatus `json:"status,omitempty"`
+	Exploits nullable.Nullable[[]Exploit] `json:"exploits,omitempty"`
+	Status   *ScannerStatus               `json:"status,omitempty"`
 }
 
 // ExploitsConfig defines model for ExploitsConfig.
@@ -830,9 +831,9 @@ type InfoFinderInfo struct {
 
 // InfoFinderScan defines model for InfoFinderScan.
 type InfoFinderScan struct {
-	Infos    *[]InfoFinderInfo `json:"infos"`
-	Scanners *[]string         `json:"scanners"`
-	Status   *ScannerStatus    `json:"status,omitempty"`
+	Infos    nullable.Nullable[[]InfoFinderInfo] `json:"infos,omitempty"`
+	Scanners nullable.Nullable[[]string]         `json:"scanners,omitempty"`
+	Status   *ScannerStatus                      `json:"status,omitempty"`
 }
 
 // InfoType defines model for InfoType.
@@ -868,9 +869,9 @@ type MalwareFindingInfo struct {
 
 // MalwareScan defines model for MalwareScan.
 type MalwareScan struct {
-	Malware  *[]Malware         `json:"malware"`
-	Metadata *[]ScannerMetadata `json:"metadata"`
-	Status   *ScannerStatus     `json:"status,omitempty"`
+	Malware  nullable.Nullable[[]Malware]         `json:"malware,omitempty"`
+	Metadata nullable.Nullable[[]ScannerMetadata] `json:"metadata,omitempty"`
+	Status   *ScannerStatus                       `json:"status,omitempty"`
 }
 
 // MalwareType defines model for MalwareType.
@@ -935,9 +936,9 @@ type MisconfigurationFindingInfo struct {
 
 // MisconfigurationScan defines model for MisconfigurationScan.
 type MisconfigurationScan struct {
-	Misconfigurations *[]Misconfiguration `json:"misconfigurations"`
-	Scanners          *[]string           `json:"scanners"`
-	Status            *ScannerStatus      `json:"status,omitempty"`
+	Misconfigurations nullable.Nullable[[]Misconfiguration] `json:"misconfigurations,omitempty"`
+	Scanners          nullable.Nullable[[]string]           `json:"scanners,omitempty"`
+	Status            *ScannerStatus                        `json:"status,omitempty"`
 }
 
 // MisconfigurationSeverity defines model for MisconfigurationSeverity.
@@ -951,31 +952,31 @@ type MisconfigurationsConfig struct {
 
 // Package defines model for Package.
 type Package struct {
-	Cpes     *[]string `json:"cpes"`
-	Language *string   `json:"language,omitempty"`
-	Licenses *[]string `json:"licenses"`
-	Name     *string   `json:"name,omitempty"`
-	Purl     *string   `json:"purl,omitempty"`
-	Type     *string   `json:"type,omitempty"`
-	Version  *string   `json:"version,omitempty"`
+	Cpes     nullable.Nullable[[]string] `json:"cpes,omitempty"`
+	Language *string                     `json:"language,omitempty"`
+	Licenses nullable.Nullable[[]string] `json:"licenses,omitempty"`
+	Name     *string                     `json:"name,omitempty"`
+	Purl     *string                     `json:"purl,omitempty"`
+	Type     *string                     `json:"type,omitempty"`
+	Version  *string                     `json:"version,omitempty"`
 }
 
 // PackageFindingInfo defines model for PackageFindingInfo.
 type PackageFindingInfo struct {
-	Cpes       *[]string `json:"cpes"`
-	Language   *string   `json:"language,omitempty"`
-	Licenses   *[]string `json:"licenses"`
-	Name       *string   `json:"name,omitempty"`
-	ObjectType string    `json:"objectType"`
-	Purl       *string   `json:"purl,omitempty"`
-	Type       *string   `json:"type,omitempty"`
-	Version    *string   `json:"version,omitempty"`
+	Cpes       nullable.Nullable[[]string] `json:"cpes,omitempty"`
+	Language   *string                     `json:"language,omitempty"`
+	Licenses   nullable.Nullable[[]string] `json:"licenses,omitempty"`
+	Name       *string                     `json:"name,omitempty"`
+	ObjectType string                      `json:"objectType"`
+	Purl       *string                     `json:"purl,omitempty"`
+	Type       *string                     `json:"type,omitempty"`
+	Version    *string                     `json:"version,omitempty"`
 }
 
 // PluginScan defines model for PluginScan.
 type PluginScan struct {
-	FindingInfos *[]FindingInfo `json:"findingInfos"`
-	Status       *ScannerStatus `json:"status,omitempty"`
+	FindingInfos nullable.Nullable[[]FindingInfo] `json:"findingInfos,omitempty"`
+	Status       *ScannerStatus                   `json:"status,omitempty"`
 }
 
 // PluginScannerConfig defines model for PluginScannerConfig.
@@ -1167,8 +1168,8 @@ type RootkitFindingInfo struct {
 
 // RootkitScan defines model for RootkitScan.
 type RootkitScan struct {
-	Rootkits *[]Rootkit     `json:"rootkits"`
-	Status   *ScannerStatus `json:"status,omitempty"`
+	Rootkits nullable.Nullable[[]Rootkit] `json:"rootkits,omitempty"`
+	Status   *ScannerStatus               `json:"status,omitempty"`
 }
 
 // RootkitType defines model for RootkitType.
@@ -1197,8 +1198,8 @@ type SBOMConfig struct {
 
 // SbomScan defines model for SbomScan.
 type SbomScan struct {
-	Packages *[]Package     `json:"packages"`
-	Status   *ScannerStatus `json:"status,omitempty"`
+	Packages nullable.Nullable[[]Package] `json:"packages,omitempty"`
+	Status   *ScannerStatus               `json:"status,omitempty"`
 }
 
 // Scan defines model for Scan.
@@ -1207,10 +1208,10 @@ type Scan struct {
 	Annotations *Annotations `json:"annotations,omitempty"`
 
 	// AssetIDs List of asset IDs to be scanned
-	AssetIDs          *[]string          `json:"assetIDs"`
-	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
-	EndTime           *time.Time         `json:"endTime,omitempty"`
-	Id                *string            `json:"id,omitempty"`
+	AssetIDs          nullable.Nullable[[]string] `json:"assetIDs,omitempty"`
+	AssetScanTemplate *AssetScanTemplate          `json:"assetScanTemplate,omitempty"`
+	EndTime           *time.Time                  `json:"endTime,omitempty"`
+	Id                *string                     `json:"id,omitempty"`
 
 	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
@@ -1449,10 +1450,10 @@ type ScanRelationship struct {
 	Annotations *Annotations `json:"annotations,omitempty"`
 
 	// AssetIDs List of asset IDs to be scanned
-	AssetIDs          *[]string          `json:"assetIDs"`
-	AssetScanTemplate *AssetScanTemplate `json:"assetScanTemplate,omitempty"`
-	EndTime           *time.Time         `json:"endTime,omitempty"`
-	Id                string             `json:"id"`
+	AssetIDs          nullable.Nullable[[]string] `json:"assetIDs,omitempty"`
+	AssetScanTemplate *AssetScanTemplate          `json:"assetScanTemplate,omitempty"`
+	EndTime           *time.Time                  `json:"endTime,omitempty"`
+	Id                string                      `json:"id"`
 
 	// MaxParallelScanners The maximum number of asset scans that can be scheduled in parallel for this scan
 	MaxParallelScanners *int    `json:"maxParallelScanners,omitempty"`
@@ -1721,8 +1722,8 @@ type SecretFindingInfo struct {
 
 // SecretScan defines model for SecretScan.
 type SecretScan struct {
-	Secrets *[]Secret      `json:"secrets"`
-	Status  *ScannerStatus `json:"status,omitempty"`
+	Secrets nullable.Nullable[[]Secret] `json:"secrets,omitempty"`
+	Status  *ScannerStatus              `json:"status,omitempty"`
 }
 
 // SecretsConfig defines model for SecretsConfig.
@@ -1760,9 +1761,9 @@ type VMInfo struct {
 	Platform         string              `json:"platform"`
 
 	// RootVolume Information about VM root volume
-	RootVolume     RootVolume       `json:"rootVolume"`
-	SecurityGroups *[]SecurityGroup `json:"securityGroups"`
-	Tags           *[]Tag           `json:"tags"`
+	RootVolume     RootVolume                         `json:"rootVolume"`
+	SecurityGroups nullable.Nullable[[]SecurityGroup] `json:"securityGroups,omitempty"`
+	Tags           nullable.Nullable[[]Tag]           `json:"tags,omitempty"`
 }
 
 // VMInfoArchitecture defines model for VMInfo.Architecture.
@@ -1776,18 +1777,18 @@ type VulnerabilitiesConfig struct {
 
 // Vulnerability defines model for Vulnerability.
 type Vulnerability struct {
-	Cvss        *[]VulnerabilityCvss `json:"cvss"`
-	Description *string              `json:"description,omitempty"`
+	Cvss        nullable.Nullable[[]VulnerabilityCvss] `json:"cvss,omitempty"`
+	Description *string                                `json:"description,omitempty"`
 
 	// Distro Distro provides information about a detected Linux distribution.
-	Distro            *VulnerabilityDistro   `json:"distro,omitempty"`
-	Fix               *VulnerabilityFix      `json:"fix,omitempty"`
-	LayerId           *string                `json:"layerId,omitempty"`
-	Links             *[]string              `json:"links"`
-	Package           *Package               `json:"package,omitempty"`
-	Path              *string                `json:"path,omitempty"`
-	Severity          *VulnerabilitySeverity `json:"severity,omitempty"`
-	VulnerabilityName *string                `json:"vulnerabilityName,omitempty"`
+	Distro            *VulnerabilityDistro        `json:"distro,omitempty"`
+	Fix               *VulnerabilityFix           `json:"fix,omitempty"`
+	LayerId           *string                     `json:"layerId,omitempty"`
+	Links             nullable.Nullable[[]string] `json:"links,omitempty"`
+	Package           *Package                    `json:"package,omitempty"`
+	Path              *string                     `json:"path,omitempty"`
+	Severity          *VulnerabilitySeverity      `json:"severity,omitempty"`
+	VulnerabilityName *string                     `json:"vulnerabilityName,omitempty"`
 }
 
 // VulnerabilityCvss defines model for VulnerabilityCvss.
@@ -1807,7 +1808,7 @@ type VulnerabilityCvssMetrics struct {
 // VulnerabilityDistro Distro provides information about a detected Linux distribution.
 type VulnerabilityDistro struct {
 	// IDLike the ID_LIKE field found within the /etc/os-release file
-	IDLike *[]string `json:"IDLike"`
+	IDLike nullable.Nullable[[]string] `json:"IDLike,omitempty"`
 
 	// Name Name of the Linux distribution
 	Name *string `json:"name,omitempty"`
@@ -1818,31 +1819,31 @@ type VulnerabilityDistro struct {
 
 // VulnerabilityFindingInfo defines model for VulnerabilityFindingInfo.
 type VulnerabilityFindingInfo struct {
-	Cvss        *[]VulnerabilityCvss `json:"cvss"`
-	Description *string              `json:"description,omitempty"`
+	Cvss        nullable.Nullable[[]VulnerabilityCvss] `json:"cvss,omitempty"`
+	Description *string                                `json:"description,omitempty"`
 
 	// Distro Distro provides information about a detected Linux distribution.
-	Distro            *VulnerabilityDistro   `json:"distro,omitempty"`
-	Fix               *VulnerabilityFix      `json:"fix,omitempty"`
-	LayerId           *string                `json:"layerId,omitempty"`
-	Links             *[]string              `json:"links"`
-	ObjectType        string                 `json:"objectType"`
-	Package           *Package               `json:"package,omitempty"`
-	Path              *string                `json:"path,omitempty"`
-	Severity          *VulnerabilitySeverity `json:"severity,omitempty"`
-	VulnerabilityName *string                `json:"vulnerabilityName,omitempty"`
+	Distro            *VulnerabilityDistro        `json:"distro,omitempty"`
+	Fix               *VulnerabilityFix           `json:"fix,omitempty"`
+	LayerId           *string                     `json:"layerId,omitempty"`
+	Links             nullable.Nullable[[]string] `json:"links,omitempty"`
+	ObjectType        string                      `json:"objectType"`
+	Package           *Package                    `json:"package,omitempty"`
+	Path              *string                     `json:"path,omitempty"`
+	Severity          *VulnerabilitySeverity      `json:"severity,omitempty"`
+	VulnerabilityName *string                     `json:"vulnerabilityName,omitempty"`
 }
 
 // VulnerabilityFix defines model for VulnerabilityFix.
 type VulnerabilityFix struct {
-	State    *string   `json:"state,omitempty"`
-	Versions *[]string `json:"versions"`
+	State    *string                     `json:"state,omitempty"`
+	Versions nullable.Nullable[[]string] `json:"versions,omitempty"`
 }
 
 // VulnerabilityScan defines model for VulnerabilityScan.
 type VulnerabilityScan struct {
-	Status          *ScannerStatus   `json:"status,omitempty"`
-	Vulnerabilities *[]Vulnerability `json:"vulnerabilities"`
+	Status          *ScannerStatus                     `json:"status,omitempty"`
+	Vulnerabilities nullable.Nullable[[]Vulnerability] `json:"vulnerabilities,omitempty"`
 }
 
 // VulnerabilitySeverity defines model for VulnerabilitySeverity.

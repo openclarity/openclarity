@@ -3,5 +3,9 @@ package: types
 output: types/types.gen.go
 generate:
   models: true
+additional-imports:
+  - package: github.com/oapi-codegen/nullable
+    alias:
 output-options:
   skip-prune: true
+  nullable-type: true
