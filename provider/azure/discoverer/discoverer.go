@@ -21,6 +21,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v5"
+	"github.com/oapi-codegen/nullable"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/log"
@@ -115,7 +116,7 @@ func getVMInfoFromVirtualMachine(vm *armcompute.VirtualMachine, rootVol *apitype
 		Location:         *vm.Location,
 		Platform:         string(*vm.Properties.StorageProfile.OSDisk.OSType),
 		RootVolume:       *rootVol,
-		SecurityGroups:   &[]apitypes.SecurityGroup{},
+		SecurityGroups:   nullable.NewNullNullable[[]apitypes.SecurityGroup](),
 		Tags:             convertTags(vm.Tags),
 	})
 	if err != nil {
@@ -136,7 +137,7 @@ func isEncrypted(disk armcompute.DisksClientGetResponse) apitypes.RootVolumeEncr
 	return apitypes.RootVolumeEncryptedNo
 }
 
-func convertTags(tags map[string]*string) *[]apitypes.Tag {
+func convertTags(tags map[string]*string) nullable.Nullable[[]apitypes.Tag] {
 	ret := make([]apitypes.Tag, 0, len(tags))
 	for key, val := range tags {
 		ret = append(ret, apitypes.Tag{
@@ -144,7 +145,11 @@ func convertTags(tags map[string]*string) *[]apitypes.Tag {
 			Value: *val,
 		})
 	}
-	return &ret
+
+	if len(ret) == 0 {
+		return nullable.NewNullNullable[[]apitypes.Tag]()
+	}
+	return nullable.NewNullableWithValue(ret)
 }
 
 // https://learn.microsoft.com/en-us/azure/virtual-machines/linux/tutorial-manage-vm#understand-vm-images

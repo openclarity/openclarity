@@ -15,14 +15,18 @@
 
 package types
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/oapi-codegen/nullable"
+)
 
 //nolint:staticcheck
 func TestLoader(t *testing.T) {
 	tests := []struct {
 		Name  string
-		Left  *[]Tag
-		Right *[]Tag
+		Left  []Tag
+		Right []Tag
 
 		Expected map[string]string
 	}{
@@ -35,7 +39,7 @@ func TestLoader(t *testing.T) {
 		{
 			Name: "Left nil",
 			Left: nil,
-			Right: &[]Tag{
+			Right: []Tag{
 				{
 					Key:   "key1",
 					Value: "right",
@@ -52,7 +56,7 @@ func TestLoader(t *testing.T) {
 		},
 		{
 			Name: "Right nil",
-			Left: &[]Tag{
+			Left: []Tag{
 				{
 					Key:   "key1",
 					Value: "left",
@@ -70,7 +74,7 @@ func TestLoader(t *testing.T) {
 		},
 		{
 			Name: "Merge",
-			Left: &[]Tag{
+			Left: []Tag{
 				{
 					Key:   "key1",
 					Value: "left",
@@ -80,7 +84,7 @@ func TestLoader(t *testing.T) {
 					Value: "left",
 				},
 			},
-			Right: &[]Tag{
+			Right: []Tag{
 				{
 					Key:   "key2",
 					Value: "right",
@@ -100,7 +104,7 @@ func TestLoader(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			merged := MergeTags(test.Left, test.Right)
+			merged := MergeTags(nullable.NewNullableWithValue(test.Left), nullable.NewNullableWithValue(test.Right))
 
 			if merged == nil && test.Expected == nil {
 				return
@@ -111,7 +115,7 @@ func TestLoader(t *testing.T) {
 			}
 
 			m := map[string]string{}
-			for _, tag := range *merged {
+			for _, tag := range merged.MustGet() {
 				m[tag.Key] = tag.Value
 			}
 

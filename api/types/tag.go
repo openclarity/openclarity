@@ -15,7 +15,9 @@
 
 package types
 
-func MapToTags(tags map[string]string) *[]Tag {
+import "github.com/oapi-codegen/nullable"
+
+func MapToTags(tags map[string]string) nullable.Nullable[[]Tag] {
 	ret := make([]Tag, 0, len(tags))
 	for key, val := range tags {
 		ret = append(ret, Tag{
@@ -23,33 +25,30 @@ func MapToTags(tags map[string]string) *[]Tag {
 			Value: val,
 		})
 	}
-	return &ret
+	return nullable.NewNullableWithValue(ret)
 }
 
-func MergeTags(left, right *[]Tag) *[]Tag {
-	if left == nil && right == nil {
-		return nil
+func MergeTags(left, right nullable.Nullable[[]Tag]) nullable.Nullable[[]Tag] {
+	if left.IsNull() && right.IsNull() {
+		return nullable.NewNullNullable[[]Tag]()
 	}
 
-	merged := &[]Tag{}
-	if left == nil || len(*left) == 0 {
-		*merged = *right
-
-		return merged
+	leftValues, err := left.Get()
+	if err != nil {
+		return right
 	}
 
-	if right == nil || len(*right) == 0 {
-		*merged = *left
-
-		return merged
+	rightValues, err := right.Get()
+	if err != nil {
+		return left
 	}
 
 	m := map[string]string{}
-	for _, tag := range *left {
+	for _, tag := range leftValues {
 		m[tag.Key] = tag.Value
 	}
 
-	for _, tag := range *right {
+	for _, tag := range rightValues {
 		m[tag.Key] = tag.Value
 	}
 

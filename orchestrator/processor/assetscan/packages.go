@@ -153,13 +153,15 @@ func (asp *AssetScanProcessor) getPackageVulnerabilitySeverityCount(ctx context.
 func withVulnerabilityPackageExtractor(assetScan apitypes.AssetScan) []apitypes.Package {
 	var packages []apitypes.Package
 
-	if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
-		for _, vuln := range *assetScan.Vulnerabilities.Vulnerabilities {
-			if vuln.Package == nil {
-				continue
-			}
+	if assetScan.Vulnerabilities != nil {
+		if vulnerabilities, err := assetScan.Vulnerabilities.Vulnerabilities.Get(); err == nil {
+			for _, vuln := range vulnerabilities {
+				if vuln.Package == nil {
+					continue
+				}
 
-			packages = append(packages, *vuln.Package)
+				packages = append(packages, *vuln.Package)
+			}
 		}
 	}
 
@@ -168,8 +170,10 @@ func withVulnerabilityPackageExtractor(assetScan apitypes.AssetScan) []apitypes.
 
 // withSbomPackageExtractor returns all package findings from SBOM scan.
 func withSbomPackageExtractor(assetScan apitypes.AssetScan) []apitypes.Package {
-	if assetScan.Sbom != nil && assetScan.Sbom.Packages != nil {
-		return *assetScan.Sbom.Packages
+	if assetScan.Sbom != nil {
+		if packages, err := assetScan.Sbom.Packages.Get(); err == nil {
+			return packages
+		}
 	}
 
 	return nil

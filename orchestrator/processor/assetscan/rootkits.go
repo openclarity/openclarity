@@ -24,30 +24,33 @@ import (
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultRootkitsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	if assetScan.Rootkits != nil && assetScan.Rootkits.Rootkits != nil {
-		// Create new or update existing findings all the rootkits found by the
-		// scan.
-		for _, item := range *assetScan.Rootkits.Rootkits {
-			itemFindingInfo := apitypes.RootkitFindingInfo{
-				Message:     item.Message,
-				RootkitName: item.RootkitName,
-				RootkitType: item.RootkitType,
-			}
+	if assetScan.Rootkits != nil {
 
-			findingInfo := apitypes.FindingInfo{}
-			err := findingInfo.FromRootkitFindingInfo(itemFindingInfo)
-			if err != nil {
-				return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
-			}
+		if rootkits, err := assetScan.Rootkits.Rootkits.Get(); err != nil {
+			// Create new or update existing findings all the rootkits found by the
+			// scan.
+			for _, item := range rootkits {
+				itemFindingInfo := apitypes.RootkitFindingInfo{
+					Message:     item.Message,
+					RootkitName: item.RootkitName,
+					RootkitType: item.RootkitType,
+				}
 
-			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update finding: %w", err)
-			}
+				findingInfo := apitypes.FindingInfo{}
+				err := findingInfo.FromRootkitFindingInfo(itemFindingInfo)
+				if err != nil {
+					return fmt.Errorf("unable to convert RootkitFindingInfo into FindingInfo: %w", err)
+				}
 
-			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update asset finding: %w", err)
+				id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update finding: %w", err)
+				}
+
+				err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update asset finding: %w", err)
+				}
 			}
 		}
 	}

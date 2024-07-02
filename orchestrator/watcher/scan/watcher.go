@@ -22,12 +22,13 @@ import (
 	"sync"
 	"time"
 
-	apiclient "github.com/openclarity/openclarity/api/client"
-	apitypes "github.com/openclarity/openclarity/api/types"
-	"github.com/openclarity/openclarity/core/log"
-	"github.com/openclarity/openclarity/core/to"
-	"github.com/openclarity/openclarity/orchestrator/common"
-	"github.com/openclarity/openclarity/provider"
+	"github.com/oapi-codegen/nullable"
+	apiclient "github.com/openclarity/vmclarity/api/client"
+	apitypes "github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/vmclarity/orchestrator/common"
+	"github.com/openclarity/vmclarity/provider"
 )
 
 type (
@@ -219,7 +220,7 @@ func (w *Watcher) reconcilePending(ctx context.Context, scan *apitypes.Scan) err
 		for _, asset := range *assets.Items {
 			assetIds = append(assetIds, *asset.Id)
 		}
-		scan.AssetIDs = &assetIds
+		scan.AssetIDs = nullable.NewNullableWithValue(assetIds)
 		scan.Status = apitypes.NewScanStatus(
 			apitypes.ScanStatusStateDiscovered,
 			apitypes.ScanStatusReasonAssetsDiscovered,
@@ -276,7 +277,9 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *apitypes.Scan) 
 		return fmt.Errorf("failed to update Scan. ScanID=%s: %w", scanID, err)
 	}
 
-	logger.Infof("Total %d unique assets for Scan", len(*scan.AssetIDs))
+	if assetIDs, err := scan.AssetIDs.Get(); err == nil {
+		logger.Infof("Total %d unique assets for Scan", len(assetIDs))
+	}
 
 	return nil
 }
@@ -284,14 +287,15 @@ func (w *Watcher) reconcileDiscovered(ctx context.Context, scan *apitypes.Scan) 
 func (w *Watcher) createAssetScansForScan(ctx context.Context, scan *apitypes.Scan) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
-	if scan.AssetIDs == nil || *scan.AssetIDs == nil {
+	assetIDs, err := scan.AssetIDs.Get()
+	if err != nil {
 		return nil
 	}
-	numOfAssets := len(*scan.AssetIDs)
+	numOfAssets := len(assetIDs)
 
 	errs := make(chan error, numOfAssets)
 	var wg sync.WaitGroup
-	for _, id := range *scan.AssetIDs {
+	for _, id := range assetIDs {
 		wg.Add(1)
 		assetID := id
 		go func() {

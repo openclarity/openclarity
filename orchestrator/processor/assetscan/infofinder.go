@@ -24,30 +24,32 @@ import (
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	if assetScan.InfoFinder != nil && assetScan.InfoFinder.Infos != nil {
-		// Create new or update existing findings all the infos found by the
-		// scan.
-		for _, item := range *assetScan.InfoFinder.Infos {
-			itemFindingInfo := apitypes.InfoFinderFindingInfo{
-				Data: item.Data,
-				Path: item.Path,
-				Type: item.Type,
-			}
+	if assetScan.InfoFinder != nil {
+		if infos, err := assetScan.InfoFinder.Infos.Get(); err != nil {
+			// Create new or update existing findings all the infos found by the
+			// scan.
+			for _, item := range infos {
+				itemFindingInfo := apitypes.InfoFinderFindingInfo{
+					Data: item.Data,
+					Path: item.Path,
+					Type: item.Type,
+				}
 
-			findingInfo := apitypes.FindingInfo{}
-			err := findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
-			if err != nil {
-				return fmt.Errorf("unable to convert InfoFinderFindingInfo into FindingInfo: %w", err)
-			}
+				findingInfo := apitypes.FindingInfo{}
+				err := findingInfo.FromInfoFinderFindingInfo(itemFindingInfo)
+				if err != nil {
+					return fmt.Errorf("unable to convert InfoFinderFindingInfo into FindingInfo: %w", err)
+				}
 
-			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update finding: %w", err)
-			}
+				id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update finding: %w", err)
+				}
 
-			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update asset finding: %w", err)
+				err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update asset finding: %w", err)
+				}
 			}
 		}
 	}

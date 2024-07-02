@@ -103,8 +103,8 @@ func (d *Discoverer) discoverContainersFromDiscoverer(ctx context.Context, outpu
 func (d *Discoverer) enrichContainerInfo(ctx context.Context, c *apitypes.ContainerInfo) error {
 	// Get namespace and Pod name for container
 	var ns, podName string
-	if c.Labels != nil {
-		for _, label := range *c.Labels {
+	if values, err := c.Labels.Get(); err != nil {
+		for _, label := range values {
 			switch label.Key {
 			case PodNamespaceLabel:
 				ns = label.Value

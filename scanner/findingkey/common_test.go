@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/oapi-codegen/nullable"
 	"gotest.tools/v3/assert"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
@@ -37,7 +38,7 @@ func TestGenerateFindingKey(t *testing.T) {
 		Name:        to.Ptr("Name"),
 		SourceDB:    to.Ptr("SourceDB"),
 		Title:       to.Ptr("Title"),
-		Urls:        to.Ptr([]string{"url1", "url2"}),
+		Urls:        nullable.NewNullableWithValue([]string{"url1", "url2"}),
 	}
 	vulFindingInfo := apitypes.VulnerabilityFindingInfo{
 		Package: &apitypes.Package{

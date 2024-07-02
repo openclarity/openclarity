@@ -23,6 +23,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gotest.tools/v3/assert"
 
+	"github.com/oapi-codegen/nullable"
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
 	"github.com/openclarity/openclarity/provider"
@@ -41,13 +42,13 @@ func Test_convertAssetToModels(t *testing.T) {
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
 		Platform:         "linux",
-		SecurityGroups:   &[]apitypes.SecurityGroup{},
-		Tags: &[]apitypes.Tag{
+		SecurityGroups:   nullable.NewNullNullable[[]apitypes.SecurityGroup](),
+		Tags: nullable.NewNullableWithValue([]apitypes.Tag{
 			{
 				Key:   "key1",
 				Value: "val1",
 			},
-		},
+		}),
 	})
 	assert.NilError(t, err)
 
@@ -172,13 +173,13 @@ func Test_convertAssetFromModels(t *testing.T) {
 		LaunchTime:       timestamppb.New(timeNow).AsTime(),
 		Location:         "location1",
 		Platform:         "linux",
-		SecurityGroups:   &[]apitypes.SecurityGroup{},
-		Tags: &[]apitypes.Tag{
+		SecurityGroups:   nullable.NewNullNullable[[]apitypes.SecurityGroup](),
+		Tags: nullable.NewNullableWithValue([]apitypes.Tag{
 			{
 				Key:   "key1",
 				Value: "val1",
 			},
-		},
+		}),
 	})
 	assert.NilError(t, err)
 

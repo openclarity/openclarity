@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/client"
+	"github.com/oapi-codegen/nullable"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/provider"
@@ -66,7 +67,7 @@ func (d *Discoverer) DiscoverAssets(ctx context.Context) provider.AssetDiscovere
 	return assetDiscoverer
 }
 
-func convertTags(tags map[string]string) *[]apitypes.Tag {
+func convertTags(tags map[string]string) nullable.Nullable[[]apitypes.Tag] {
 	ret := make([]apitypes.Tag, 0, len(tags))
 	for key, val := range tags {
 		ret = append(ret, apitypes.Tag{
@@ -74,5 +75,9 @@ func convertTags(tags map[string]string) *[]apitypes.Tag {
 			Value: val,
 		})
 	}
-	return &ret
+
+	if len(ret) == 0 {
+		return nullable.NewNullNullable[[]apitypes.Tag]()
+	}
+	return nullable.NewNullableWithValue(ret)
 }

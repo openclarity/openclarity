@@ -25,36 +25,38 @@ import (
 
 // nolint:cyclop,gocognit
 func (asp *AssetScanProcessor) reconcileResultVulnerabilitiesToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	if assetScan.Vulnerabilities != nil && assetScan.Vulnerabilities.Vulnerabilities != nil {
-		// Create new findings for all the found vulnerabilities
-		for _, vuln := range *assetScan.Vulnerabilities.Vulnerabilities {
-			vulFindingInfo := apitypes.VulnerabilityFindingInfo{
-				VulnerabilityName: vuln.VulnerabilityName,
-				Description:       vuln.Description,
-				Severity:          vuln.Severity,
-				Links:             vuln.Links,
-				Distro:            vuln.Distro,
-				Cvss:              vuln.Cvss,
-				Package:           vuln.Package,
-				Fix:               vuln.Fix,
-				LayerId:           vuln.LayerId,
-				Path:              vuln.Path,
-			}
+	if assetScan.Vulnerabilities != nil {
+		if vulnerabilities, err := assetScan.Vulnerabilities.Vulnerabilities.Get(); err != nil {
+			// Create new findings for all the found vulnerabilities
+			for _, vuln := range vulnerabilities {
+				vulFindingInfo := apitypes.VulnerabilityFindingInfo{
+					VulnerabilityName: vuln.VulnerabilityName,
+					Description:       vuln.Description,
+					Severity:          vuln.Severity,
+					Links:             vuln.Links,
+					Distro:            vuln.Distro,
+					Cvss:              vuln.Cvss,
+					Package:           vuln.Package,
+					Fix:               vuln.Fix,
+					LayerId:           vuln.LayerId,
+					Path:              vuln.Path,
+				}
 
-			findingInfo := apitypes.FindingInfo{}
-			err := findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
-			if err != nil {
-				return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)
-			}
+				findingInfo := apitypes.FindingInfo{}
+				err := findingInfo.FromVulnerabilityFindingInfo(vulFindingInfo)
+				if err != nil {
+					return fmt.Errorf("unable to convert VulnerabilityFindingInfo into FindingInfo: %w", err)
+				}
 
-			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update finding: %w", err)
-			}
+				id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update finding: %w", err)
+				}
 
-			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update asset finding: %w", err)
+				err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update asset finding: %w", err)
+				}
 			}
 		}
 	}

@@ -21,6 +21,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/oapi-codegen/nullable"
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
 	"github.com/openclarity/openclarity/provider"
@@ -45,7 +46,7 @@ func ConvertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error)
 			LaunchTime:       vminfo.LaunchTime.AsTime(),
 			Location:         vminfo.Location,
 			Platform:         vminfo.Platform,
-			SecurityGroups:   &[]apitypes.SecurityGroup{},
+			SecurityGroups:   nullable.NewNullNullable[[]apitypes.SecurityGroup](),
 			Tags:             convertTagsToModels(vminfo.Tags),
 		}); err != nil {
 			return apitypes.Asset{}, fmt.Errorf("failed to convert asset from VMInfo: %w", err)
@@ -115,7 +116,7 @@ func convertAssetFromModels(asset apitypes.Asset) (*provider_service.Asset, erro
 	}
 }
 
-func convertTagsToModels(tags []*provider_service.Tag) *[]apitypes.Tag {
+func convertTagsToModels(tags []*provider_service.Tag) nullable.Nullable[[]apitypes.Tag] {
 	ret := make([]apitypes.Tag, 0)
 
 	if len(tags) == 0 {
@@ -129,17 +130,21 @@ func convertTagsToModels(tags []*provider_service.Tag) *[]apitypes.Tag {
 		})
 	}
 
-	return &ret
+	if len(ret) == 0 {
+		return nullable.NewNullNullable[[]apitypes.Tag]()
+	}
+	return nullable.NewNullableWithValue(ret)
 }
 
-func convertTagsFromModels(tags *[]apitypes.Tag) []*provider_service.Tag {
+func convertTagsFromModels(tags nullable.Nullable[[]apitypes.Tag]) []*provider_service.Tag {
 	ret := make([]*provider_service.Tag, 0)
 
-	if tags == nil {
+	t, err := tags.Get()
+	if err != nil {
 		return nil
 	}
 
-	for _, tag := range *tags {
+	for _, tag := range t {
 		ret = append(ret, &provider_service.Tag{
 			Key: tag.Key,
 			Val: tag.Value,

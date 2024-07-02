@@ -80,7 +80,7 @@ func (c ContainerImageInfo) Merge(target ContainerImageInfo) (ContainerImageInfo
 		return c, fmt.Errorf("failed to merge Architecture field: %w", err)
 	}
 
-	labels := UnionSlices(ValueOrZero(c.Labels), ValueOrZero(target.Labels))
+	labels := UnionNullableSlices(c.Labels, target.Labels)
 
 	repoDigests := UnionSlices(ValueOrZero(c.RepoDigests), ValueOrZero(target.RepoDigests))
 
@@ -89,7 +89,7 @@ func (c ContainerImageInfo) Merge(target ContainerImageInfo) (ContainerImageInfo
 	return ContainerImageInfo{
 		ImageID:      id,
 		Size:         &size,
-		Labels:       &labels,
+		Labels:       labels,
 		Os:           &os,
 		Architecture: &architecture,
 		RepoDigests:  &repoDigests,
@@ -106,9 +106,9 @@ func (c ContainerImageInfo) String() string {
 	}
 
 	labels := nilString
-	if c.Labels != nil {
-		l := make([]string, len(*c.Labels))
-		for i, label := range *c.Labels {
+	if values, err := c.Labels.Get(); err == nil {
+		l := make([]string, len(values))
+		for i, label := range values {
 			l[i] = fmt.Sprintf("{Key: \"%s\", Value: \"%s\"}", label.Key, label.Value)
 		}
 		labels = fmt.Sprintf("[%s]", strings.Join(l, ", "))

@@ -23,6 +23,7 @@ import (
 	"sync"
 
 	"github.com/labstack/echo/v4"
+	"github.com/oapi-codegen/nullable"
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
@@ -377,15 +378,18 @@ func toModelsVulnerabilitySeverity(severity *apitypes.VulnerabilitySeverity) *ty
 	}
 }
 
-func toModelsVulnerabilityCVSSArray(cvss *[]apitypes.VulnerabilityCvss) *[]types.VulnerabilityCvss {
-	if cvss == nil {
+func toModelsVulnerabilityCVSSArray(cvss nullable.Nullable[[]apitypes.VulnerabilityCvss]) nullable.Nullable[[]types.VulnerabilityCvss] {
+	c, err := cvss.Get()
+	if err != nil {
 		return nil
 	}
-	ret := make([]types.VulnerabilityCvss, len(*cvss))
-	for i, vulnerabilityCvss := range *cvss {
+
+	ret := make([]types.VulnerabilityCvss, len(c))
+	for i, vulnerabilityCvss := range c {
 		ret[i] = toModelsVulnerabilityCVSS(vulnerabilityCvss)
 	}
-	return &ret
+
+	return nullable.NewNullableWithValue(ret)
 }
 
 func toModelsVulnerabilityCVSS(cvss apitypes.VulnerabilityCvss) types.VulnerabilityCvss {

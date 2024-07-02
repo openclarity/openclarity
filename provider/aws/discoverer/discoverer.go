@@ -22,6 +22,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/oapi-codegen/nullable"
 	"github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
@@ -155,8 +156,8 @@ func getVMInfoFromInstance(i types.Instance) (apitypes.AssetType, error) {
 			Encrypted: i.RootVolumeEncrypted,
 			SizeGB:    int(i.RootVolumeSizeGB),
 		},
-		SecurityGroups: to.Ptr(i.SecurityGroups),
-		Tags:           to.Ptr(i.Tags),
+		SecurityGroups: nullable.NewNullableWithValue(i.SecurityGroups),
+		Tags:           nullable.NewNullableWithValue(i.Tags),
 	})
 	if err != nil {
 		err = fmt.Errorf("failed to create AssetType from VMInfo: %w", err)

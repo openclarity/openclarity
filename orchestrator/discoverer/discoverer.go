@@ -139,8 +139,9 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 			continue
 		}
 		assetData = apitypes.Asset{
-			AssetInfo: &handledAssetType,
-			LastSeen:  &discoveryTime,
+			AssetInfo:    &handledAssetType,
+			LastSeen:     &discoveryTime,
+			TerminatedOn: nil,
 		}
 		err = d.client.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
 		if err != nil {

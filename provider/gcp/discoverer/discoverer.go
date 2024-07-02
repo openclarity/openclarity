@@ -23,6 +23,7 @@ import (
 
 	compute "cloud.google.com/go/compute/apiv1"
 	"cloud.google.com/go/compute/apiv1/computepb"
+	"github.com/oapi-codegen/nullable"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 
@@ -169,8 +170,8 @@ func (d *Discoverer) getVMInfoFromVirtualMachine(ctx context.Context, vm *comput
 		LaunchTime:       launchTime,
 		Location:         utils.GetLastURLPart(vm.Zone),
 		Platform:         platform,
-		SecurityGroups:   &[]apitypes.SecurityGroup{},
-		Tags:             to.Ptr(convertLabelsToTags(vm.Labels)),
+		SecurityGroups:   nullable.NewNullNullable[[]apitypes.SecurityGroup](),
+		Tags:             convertLabelsToTags(vm.Labels),
 	})
 	if err != nil {
 		return apitypes.AssetType{}, provider.FatalErrorf("failed to create AssetType from VMInfo: %w", err)
@@ -199,7 +200,7 @@ func getZonesLastPart(zones []string) []string {
 	return ret
 }
 
-func convertLabelsToTags(labels map[string]string) []apitypes.Tag {
+func convertLabelsToTags(labels map[string]string) nullable.Nullable[[]apitypes.Tag] {
 	tags := make([]apitypes.Tag, 0, len(labels))
 
 	for k, v := range labels {
@@ -212,5 +213,8 @@ func convertLabelsToTags(labels map[string]string) []apitypes.Tag {
 		)
 	}
 
-	return tags
+	if len(tags) == 0 {
+		return nullable.NewNullNullable[[]apitypes.Tag]()
+	}
+	return nullable.NewNullableWithValue(tags)
 }

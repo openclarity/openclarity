@@ -22,6 +22,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/oapi-codegen/nullable"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
@@ -100,18 +101,18 @@ func Test_ConvertSBOMResultToPackages(t *testing.T) {
 			want: returns{
 				packages: []apitypes.Package{
 					{
-						Cpes:     to.Ptr([]string{"cpe1"}),
+						Cpes:     nullable.NewNullableWithValue([]string{"cpe1"}),
 						Language: to.Ptr("python"),
-						Licenses: to.Ptr([]string{"lic1", "lic2"}),
+						Licenses: nullable.NewNullableWithValue([]string{"lic1", "lic2"}),
 						Name:     to.Ptr("testcomponent1"),
 						Purl:     to.Ptr("pkg:pypi/testcomponent1@v10.0.0-foo"),
 						Type:     to.Ptr(string(cdx.ComponentTypeLibrary)),
 						Version:  to.Ptr("v10.0.0-foo1"),
 					},
 					{
-						Cpes:     to.Ptr([]string{"cpe2"}),
+						Cpes:     nullable.NewNullableWithValue([]string{"cpe2"}),
 						Language: to.Ptr("python"),
-						Licenses: to.Ptr([]string{"lic3", "lic4"}),
+						Licenses: nullable.NewNullableWithValue([]string{"lic3", "lic4"}),
 						Name:     to.Ptr("testcomponent2"),
 						Purl:     to.Ptr("pkg:pypi/testcomponent2@v10.0.0-foo"),
 						Type:     to.Ptr(string(cdx.ComponentTypeLibrary)),
@@ -261,7 +262,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 			want: returns{
 				vulnerabilities: []apitypes.Vulnerability{
 					{
-						Cvss: to.Ptr([]apitypes.VulnerabilityCvss{
+						Cvss: nullable.NewNullableWithValue([]apitypes.VulnerabilityCvss{
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           to.Ptr[float32](1),
@@ -283,20 +284,20 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 						}),
 						Description: to.Ptr("testbleed"),
 						Distro: &apitypes.VulnerabilityDistro{
-							IDLike:  to.Ptr([]string{"IDLike1", "IDLike2"}),
+							IDLike:  nullable.NewNullableWithValue([]string{"IDLike1", "IDLike2"}),
 							Name:    to.Ptr("distro1"),
 							Version: to.Ptr("distrov1"),
 						},
 						Fix: &apitypes.VulnerabilityFix{
 							State:    to.Ptr("fixed"),
-							Versions: to.Ptr([]string{"fv1", "fv2"}),
+							Versions: nullable.NewNullableWithValue([]string{"fv1", "fv2"}),
 						},
 						LayerId: to.Ptr("lid1"),
-						Links:   to.Ptr([]string{"link1", "link2"}),
+						Links:   nullable.NewNullableWithValue([]string{"link1", "link2"}),
 						Package: &apitypes.Package{
-							Cpes:     to.Ptr([]string{"cpe1", "cpe2"}),
+							Cpes:     nullable.NewNullableWithValue([]string{"cpe1", "cpe2"}),
 							Language: to.Ptr("pl1"),
-							Licenses: to.Ptr([]string{"plic1", "plic2"}),
+							Licenses: nullable.NewNullableWithValue([]string{"plic1", "plic2"}),
 							Name:     to.Ptr("package1"),
 							Purl:     to.Ptr("purl1"),
 							Type:     to.Ptr("pt1"),
@@ -307,7 +308,7 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 						VulnerabilityName: to.Ptr("CVE-test-test-foo"),
 					},
 					{
-						Cvss: to.Ptr([]apitypes.VulnerabilityCvss{
+						Cvss: nullable.NewNullableWithValue([]apitypes.VulnerabilityCvss{
 							{
 								Metrics: &apitypes.VulnerabilityCvssMetrics{
 									BaseScore:           to.Ptr[float32](3),
@@ -329,20 +330,20 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 						}),
 						Description: to.Ptr("solartest"),
 						Distro: &apitypes.VulnerabilityDistro{
-							IDLike:  to.Ptr([]string{"IDLike3", "IDLike4"}),
+							IDLike:  nullable.NewNullableWithValue([]string{"IDLike3", "IDLike4"}),
 							Name:    to.Ptr("distro2"),
 							Version: to.Ptr("distrov2"),
 						},
 						Fix: &apitypes.VulnerabilityFix{
 							State:    to.Ptr("not-fixed"),
-							Versions: to.Ptr([]string{"fv3", "fv4"}),
+							Versions: nullable.NewNullableWithValue([]string{"fv3", "fv4"}),
 						},
 						LayerId: to.Ptr("lid2"),
-						Links:   to.Ptr([]string{"link3", "link4"}),
+						Links:   nullable.NewNullableWithValue([]string{"link3", "link4"}),
 						Package: &apitypes.Package{
-							Cpes:     to.Ptr([]string{"cpe3", "cpe4"}),
+							Cpes:     nullable.NewNullableWithValue([]string{"cpe3", "cpe4"}),
 							Language: to.Ptr("pl2"),
-							Licenses: to.Ptr([]string{"plic3", "plic4"}),
+							Licenses: nullable.NewNullableWithValue([]string{"plic3", "plic4"}),
 							Name:     to.Ptr("package2"),
 							Purl:     to.Ptr("purl2"),
 							Type:     to.Ptr("pt2"),
@@ -659,7 +660,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 					Name:        to.Ptr(exploit1.Name),
 					SourceDB:    to.Ptr(exploit1.SourceDB),
 					Title:       to.Ptr(exploit1.Title),
-					Urls:        &exploit1.URLs,
+					Urls:        nullable.NewNullableWithValue(exploit1.URLs),
 				},
 				{
 					CveID:       to.Ptr(exploit2.CveID),
@@ -667,7 +668,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 					Name:        to.Ptr(exploit2.Name),
 					SourceDB:    to.Ptr(exploit2.SourceDB),
 					Title:       to.Ptr(exploit2.Title),
-					Urls:        &exploit2.URLs,
+					Urls:        nullable.NewNullableWithValue(exploit2.URLs),
 				},
 				{
 					CveID:       to.Ptr(exploit3.CveID),
@@ -675,7 +676,7 @@ func Test_ConvertExploitsResultToExploits(t *testing.T) {
 					Name:        to.Ptr(exploit3.Name),
 					SourceDB:    to.Ptr(exploit3.SourceDB),
 					Title:       to.Ptr(exploit3.Title),
-					Urls:        &exploit3.URLs,
+					Urls:        nullable.NewNullableWithValue(exploit3.URLs),
 				},
 			},
 		},

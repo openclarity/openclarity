@@ -8,6 +8,7 @@ require (
 	github.com/aptible/supercronic v0.2.30
 	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/google/go-cmp v0.6.0
+	github.com/oapi-codegen/nullable v1.1.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/openclarity/api/client v0.7.2
 	github.com/openclarity/openclarity/api/types v0.7.2
@@ -15,6 +16,11 @@ require (
 	github.com/openclarity/openclarity/provider v0.7.2
 	github.com/openclarity/openclarity/scanner v0.7.2
 	github.com/openclarity/openclarity/utils v0.7.2
+	github.com/openclarity/vmclarity/api/client v0.7.2
+	github.com/openclarity/vmclarity/api/types v0.7.2
+	github.com/openclarity/vmclarity/core v0.7.2
+	github.com/openclarity/vmclarity/orchestrator v0.7.2
+	github.com/openclarity/vmclarity/provider v0.7.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -154,6 +160,7 @@ require (
 	github.com/csaf-poc/csaf_distribution/v3 v3.0.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/deepmap/oapi-codegen/v2 v2.2.0 // indirect
 	github.com/deitch/magic v0.0.0-20230404182410-1ff89d7342da // indirect
 	github.com/dgryski/go-minhash v0.0.0-20170608043002-7fe510aff544 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -332,7 +339,6 @@ require (
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nwaples/rardecode v1.1.0 // indirect
-	github.com/oapi-codegen/nullable v1.1.0 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -344,6 +350,7 @@ require (
 	github.com/openclarity/openclarity/plugins/runner v0.7.2 // indirect
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/openclarity/openclarity/workflow v0.7.2 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
@@ -444,7 +451,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
-	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect

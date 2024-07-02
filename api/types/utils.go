@@ -15,7 +15,11 @@
 
 package types
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/oapi-codegen/nullable"
+)
 
 // CoalesceComparable will return original if target is not set, and target if
 // original is not set. If both are set then they must be the same otherwise an
@@ -44,6 +48,26 @@ func UnionSlices[T comparable](inputs ...[]T) []T {
 		}
 	}
 	return result
+}
+
+// UnionNullableSlices returns the union of the input nullable slices.
+func UnionNullableSlices[T comparable](inputs ...nullable.Nullable[[]T]) nullable.Nullable[[]T] {
+	seen := map[T]struct{}{}
+	result := []T{}
+	for _, i := range inputs {
+		values, err := i.Get()
+		if err != nil {
+			continue
+		}
+		for _, j := range values {
+			if _, ok := seen[j]; !ok {
+				seen[j] = struct{}{}
+				result = append(result, j)
+			}
+		}
+	}
+
+	return nullable.NewNullableWithValue(result)
 }
 
 // ValueOrZero returns the value that the pointer ptr pointers to. It returns

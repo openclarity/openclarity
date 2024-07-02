@@ -24,34 +24,36 @@ import (
 
 // nolint:cyclop
 func (asp *AssetScanProcessor) reconcileResultSecretsToFindings(ctx context.Context, assetScan apitypes.AssetScan) error {
-	if assetScan.Secrets != nil && assetScan.Secrets.Secrets != nil {
-		// Create new or update existing findings all the secrets found by the
-		// scan.
-		for _, item := range *assetScan.Secrets.Secrets {
-			itemFindingInfo := apitypes.SecretFindingInfo{
-				Description: item.Description,
-				EndLine:     item.EndLine,
-				FilePath:    item.FilePath,
-				Fingerprint: item.Fingerprint,
-				StartLine:   item.StartLine,
-				StartColumn: item.StartColumn,
-				EndColumn:   item.EndColumn,
-			}
+	if assetScan.Secrets != nil {
+		if secrets, err := assetScan.Secrets.Secrets.Get(); err != nil {
+			// Create new or update existing findings all the secrets found by the
+			// scan.
+			for _, item := range secrets {
+				itemFindingInfo := apitypes.SecretFindingInfo{
+					Description: item.Description,
+					EndLine:     item.EndLine,
+					FilePath:    item.FilePath,
+					Fingerprint: item.Fingerprint,
+					StartLine:   item.StartLine,
+					StartColumn: item.StartColumn,
+					EndColumn:   item.EndColumn,
+				}
 
-			findingInfo := apitypes.FindingInfo{}
-			err := findingInfo.FromSecretFindingInfo(itemFindingInfo)
-			if err != nil {
-				return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)
-			}
+				findingInfo := apitypes.FindingInfo{}
+				err := findingInfo.FromSecretFindingInfo(itemFindingInfo)
+				if err != nil {
+					return fmt.Errorf("unable to convert SecretFindingInfo into FindingInfo: %w", err)
+				}
 
-			id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update finding: %w", err)
-			}
+				id, err := asp.createOrUpdateDBFinding(ctx, &findingInfo, *assetScan.Id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update finding: %w", err)
+				}
 
-			err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
-			if err != nil {
-				return fmt.Errorf("failed to update asset finding: %w", err)
+				err = asp.createOrUpdateDBAssetFinding(ctx, assetScan.Asset.Id, id, assetScan.Status.LastTransitionTime)
+				if err != nil {
+					return fmt.Errorf("failed to update asset finding: %w", err)
+				}
 			}
 		}
 	}
