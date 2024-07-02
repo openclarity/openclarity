@@ -17,7 +17,9 @@ package e2e
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/oapi-codegen/nullable"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
@@ -47,6 +49,23 @@ var _ = ginkgo.Describe("Running a basic scan (only SBOM)", func() {
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				return len(*assets.Items) == 1
 			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
+
+			ginkgo.By("marking asset as terminated")
+			asset := (*assets.Items)[0]
+			asset.TerminatedOn = nullable.NewNullableWithValue(time.Now())
+			err = client.PatchAsset(ctx, asset, *asset.Id)
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+			ginkgo.By("waiting until test asset is found again")
+			gomega.Eventually(func() bool {
+				assets, err = client.GetAssets(ctx, assetsParams)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				return len(*assets.Items) == 1 && (*assets.Items)[0].TerminatedOn == nil
+			}, DefaultTimeout, time.Second).Should(gomega.BeTrue())
+
+			containerInfo, err := (*assets.Items)[0].AssetInfo.AsContainerInfo()
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			imageID = containerInfo.Image.ImageID
 
 			RunSuccessfulScan(ctx, &reportFailedConfig, cfg.TestSuiteParams.Scope)
 		})

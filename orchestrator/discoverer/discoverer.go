@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/oapi-codegen/nullable"
 	log "github.com/sirupsen/logrus"
 
 	apiclient "github.com/openclarity/openclarity/api/client"
@@ -141,7 +142,7 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 		assetData = apitypes.Asset{
 			AssetInfo:    &handledAssetType,
 			LastSeen:     &discoveryTime,
-			TerminatedOn: nil,
+			TerminatedOn: nullable.NewNullNullable[time.Time](),
 		}
 		err = d.client.PatchAsset(ctx, assetData, *conflictError.ConflictingAsset.Id)
 		if err != nil {
@@ -179,7 +180,7 @@ func (d *Discoverer) DiscoverAndCreateAssets(ctx context.Context) error {
 		}
 
 		assetData := apitypes.Asset{
-			TerminatedOn: &discoveryTime,
+			TerminatedOn: nullable.NewNullableWithValue(discoveryTime),
 		}
 
 		err := d.client.PatchAsset(ctx, assetData, *asset.Id)

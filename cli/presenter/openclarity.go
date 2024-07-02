@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 
-<<<<<<< HEAD:cli/presenter/openclarity.go
+	"github.com/oapi-codegen/nullable"
 	apiclient "github.com/openclarity/openclarity/api/client"
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
@@ -35,23 +35,6 @@ import (
 	secrets "github.com/openclarity/openclarity/scanner/families/secrets/types"
 	vulnerabilities "github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 	"github.com/openclarity/openclarity/scanner/utils"
-=======
-	"github.com/oapi-codegen/nullable"
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families"
-	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
-	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
-	misconfiguration "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	plugins "github.com/openclarity/vmclarity/scanner/families/plugins/types"
-	rootkits "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
-	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
->>>>>>> b4ca021d (feat: change variables to nullable):cli/presenter/vmclarity.go
 )
 
 type AssetScanID = apitypes.AssetScanID

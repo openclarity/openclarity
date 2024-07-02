@@ -247,8 +247,8 @@ type Asset struct {
 	ScansCount *int `json:"scansCount,omitempty"`
 
 	// Summary A summary of the scan findings.
-	Summary      *ScanFindingsSummary `json:"summary,omitempty"`
-	TerminatedOn *time.Time           `json:"terminatedOn,omitempty"`
+	Summary      *ScanFindingsSummary         `json:"summary,omitempty"`
+	TerminatedOn nullable.Nullable[time.Time] `json:"terminatedOn,omitempty"`
 }
 
 // AssetCommon defines model for AssetCommon.
@@ -318,8 +318,8 @@ type AssetRelationship struct {
 	ScansCount *int `json:"scansCount,omitempty"`
 
 	// Summary A summary of the scan findings.
-	Summary      *ScanFindingsSummary `json:"summary,omitempty"`
-	TerminatedOn *time.Time           `json:"terminatedOn,omitempty"`
+	Summary      *ScanFindingsSummary         `json:"summary,omitempty"`
+	TerminatedOn nullable.Nullable[time.Time] `json:"terminatedOn,omitempty"`
 }
 
 // AssetScan defines model for AssetScan.
