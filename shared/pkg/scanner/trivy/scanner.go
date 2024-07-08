@@ -28,7 +28,6 @@ import (
 	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
-	flog "github.com/aquasecurity/trivy/pkg/fanal/log"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
@@ -62,7 +61,6 @@ func New(c job_manager.IsConfig,
 	zap := zap.New(lc)
 	trivyLog.Logger = zap.Sugar()
 	dlog.SetLogger(trivyLog.Logger)
-	flog.SetLogger(trivyLog.Logger)
 
 	return &Scanner{
 		logger:     logger,
