@@ -13,7 +13,7 @@ require (
 	github.com/anchore/syft v1.2.0
 	github.com/aquasecurity/go-dep-parser v0.0.0-20230803125501-bd9cf68d8636
 	github.com/aquasecurity/trivy v0.53.0
-	github.com/aquasecurity/trivy-db v0.0.0-20240705083242-e94dc822c86d
+	github.com/aquasecurity/trivy-db v0.0.0-20231005141211-4fc651f7ac8d
 	github.com/containers/image/v5 v5.31.1
 	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/runtime v0.28.0
