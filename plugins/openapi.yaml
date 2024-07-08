@@ -223,6 +223,11 @@ components:
           # Required.
           type: null
           description: Defines scan result data that is not consumed by VMClarity API.
+        rawSarif:
+          # Specifies raw scan result data in SARIF format.
+          # Optional.
+          type: null
+          description: Defines scan result data in that is not consumed by the VMClarity API.
 
     VMClarityData:
       type: object

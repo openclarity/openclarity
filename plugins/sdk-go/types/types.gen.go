@@ -164,6 +164,9 @@ type Result struct {
 	// RawJSON Defines scan result data that is not consumed by VMClarity API.
 	RawJSON interface{} `json:"rawJSON"`
 
+	// RawSarif Defines scan result data in that is not consumed by the VMClarity API.
+	RawSarif *interface{} `json:"rawSarif,omitempty"`
+
 	// Vmclarity Defines scan result data that can be consumed by VMClarity API.
 	Vmclarity VMClarityData `json:"vmclarity"`
 }
