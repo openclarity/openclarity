@@ -18,4 +18,4 @@ ENV PYTHONUNBUFFERED=1
 USER 65534
 
 # Run scanner when the container launches
-CMD ["python3", "/app/scanner.py"]
+CMD ["/usr/local/bin/python3", "/app/scanner.py"]

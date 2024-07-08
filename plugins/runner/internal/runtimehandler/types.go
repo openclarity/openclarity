@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package containermanager
+package runtimehandler
 
 import (
 	"context"
@@ -27,9 +27,9 @@ const (
 	RemoteScanResultFileOverride = "/tmp/result.json" // path in container where the output result file should be saved by scanner
 )
 
-// PluginContainerManager provides low-level container operations that hosts
-// plugin server. Use to ensure lifecycle and execution consistency.
-type PluginContainerManager interface {
+// PluginRuntimeHandler ensures lifecycle and execution consistency
+// across plugin runtime implementations.
+type PluginRuntimeHandler interface {
 	Start(ctx context.Context) error
 	Ready() (bool, error)
 	GetPluginServerEndpoint(ctx context.Context) (string, error)

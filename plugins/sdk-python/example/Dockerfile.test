@@ -40,4 +40,4 @@ COPY ./plugins/sdk-python/example ./src
 USER 65534
 
 # Run example scanner
-CMD ["python3", "/src/scanner.py"]
+CMD ["/usr/local/bin/python3", "/src/scanner.py"]

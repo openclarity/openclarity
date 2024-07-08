@@ -264,6 +264,7 @@ func withPluginsConfig(config *apitypes.PluginsConfig, _ *ScannerConfig) Familie
 			ScannersList:   *config.ScannersList,
 			Inputs:         nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: &scannersConfig,
+			BinaryMode:     config.BinaryMode,
 		}
 	}
 }

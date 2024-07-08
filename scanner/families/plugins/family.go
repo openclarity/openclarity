@@ -48,6 +48,16 @@ func (p *Plugins) Run(ctx context.Context, res *results.Results) (interfaces.IsR
 		factory.Register(n, runner.New)
 	}
 
+	// Top level BinaryMode overrides the individual scanner BinaryMode if set
+	if p.conf.BinaryMode != nil {
+		for name := range *p.conf.ScannersConfig {
+			// for _, config := range *p.conf.ScannersConfig {
+			config := (*p.conf.ScannersConfig)[name]
+			config.BinaryMode = *p.conf.BinaryMode
+			(*p.conf.ScannersConfig)[name] = config
+		}
+	}
+
 	manager := job_manager.New(p.conf.ScannersList, p.conf.ScannersConfig, logger, factory)
 
 	var pluginsResults Results

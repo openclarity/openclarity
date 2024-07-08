@@ -977,6 +977,7 @@ type PluginScannerConfig struct {
 
 // PluginsConfig defines model for PluginsConfig.
 type PluginsConfig struct {
+	BinaryMode     *bool                           `json:"binary_mode,omitempty"`
 	Enabled        *bool                           `json:"enabled,omitempty"`
 	ScannersConfig *map[string]PluginScannerConfig `json:"scanners_config,omitempty"`
 	ScannersList   *[]string                       `json:"scanners_list,omitempty"`
