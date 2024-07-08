@@ -14,7 +14,7 @@ class Result(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, annotations=None, vmclarity=None, raw_json=None):  # noqa: E501
+    def __init__(self, annotations=None, vmclarity=None, raw_json=None, raw_sarif=None):  # noqa: E501
         """Result - a model defined in OpenAPI
 
         :param annotations: The annotations of this Result.  # noqa: E501
@@ -23,22 +23,27 @@ class Result(Model):
         :type vmclarity: VMClarityData
         :param raw_json: The raw_json of this Result.  # noqa: E501
         :type raw_json: object
+        :param raw_sarif: The raw_sarif of this Result.  # noqa: E501
+        :type raw_sarif: object
         """
         self.openapi_types = {
             'annotations': Dict[str, str],
             'vmclarity': VMClarityData,
-            'raw_json': object
+            'raw_json': object,
+            'raw_sarif': object
         }
 
         self.attribute_map = {
             'annotations': 'annotations',
             'vmclarity': 'vmclarity',
-            'raw_json': 'rawJSON'
+            'raw_json': 'rawJSON',
+            'raw_sarif': 'rawSarif'
         }
 
         self._annotations = annotations
         self._vmclarity = vmclarity
         self._raw_json = raw_json
+        self._raw_sarif = raw_sarif
 
     @classmethod
     def from_dict(cls, dikt) -> 'Result':
@@ -121,3 +126,26 @@ class Result(Model):
             raise ValueError("Invalid value for `raw_json`, must not be `None`")  # noqa: E501
 
         self._raw_json = raw_json
+
+    @property
+    def raw_sarif(self) -> object:
+        """Gets the raw_sarif of this Result.
+
+        Defines scan result data in that is not consumed by the VMClarity API.  # noqa: E501
+
+        :return: The raw_sarif of this Result.
+        :rtype: object
+        """
+        return self._raw_sarif
+
+    @raw_sarif.setter
+    def raw_sarif(self, raw_sarif: object):
+        """Sets the raw_sarif of this Result.
+
+        Defines scan result data in that is not consumed by the VMClarity API.  # noqa: E501
+
+        :param raw_sarif: The raw_sarif of this Result.
+        :type raw_sarif: object
+        """
+
+        self._raw_sarif = raw_sarif
