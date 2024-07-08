@@ -1,4 +1,5 @@
-name: Main merge
+name: Main Merge
+
 on:
   push:
     branches:
@@ -15,8 +16,6 @@ jobs:
 
   build-and-push:
     needs: verification
-    uses: ./.github/workflows/reusable-build-and-push.yml
+    uses: ./.github/workflows/build-and-push-components-registry.yml
     with:
       image_tag: latest
-      push: true
-      use_release_repository: true

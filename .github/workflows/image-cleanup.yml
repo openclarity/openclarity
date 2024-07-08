@@ -1,4 +1,4 @@
-name: Container image cleanup
+name: Container Image Cleanup
 
 on:
   pull_request:
