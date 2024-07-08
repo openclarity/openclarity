@@ -117,7 +117,8 @@ export const getVulnerabilitiesColumnConfigItem = (props) => {
 };
 
 export const findingsColumnsFiltersConfig = Object.values(FINDINGS_MAPPING).map(({totalKey, title}) => {
-    const fitlerKey = `summary.${totalKey}`;
+    //const fitlerKey = `summary.${totalKey}`;
+    const fitlerKey = `asset.summary.${totalKey}`;
 
     return {value: fitlerKey, label: title, isNumber: true, operators: [
         {...OPERATORS.eq, valueItems: [], creatable: true},
@@ -128,7 +129,8 @@ export const findingsColumnsFiltersConfig = Object.values(FINDINGS_MAPPING).map(
 });
 
 export const vulnerabilitiesCountersColumnsFiltersConfig = Object.values(VULNERABILITY_SEVERITY_ITEMS).map(({totalKey, title}) => {
-    const fitlerKey = `summary.totalVulnerabilities.${totalKey}`;
+    //const fitlerKey = `summary.totalVulnerabilities.${totalKey}`;
+    const fitlerKey = `asset.summary.totalVulnerabilities.${totalKey}`;
 
     return {value: fitlerKey, label: `${title} vulnerabilities`, isNumber: true, operators: [
         {...OPERATORS.eq, valueItems: [], creatable: true},
