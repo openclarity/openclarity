@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload digests
         if: inputs.push
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: ${{ needs.build-vars.outputs.digests-cache-name }}-${{ steps.digest.outputs.digest }}
           path: /tmp/digests/*
@@ -161,7 +161,7 @@ jobs:
 
       - name: Upload image names
         if: inputs.post_image_tags
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: image-names-${{ github.run_id }}-${{ inputs.bake_target_name }}
           path: /tmp/image-names/*
