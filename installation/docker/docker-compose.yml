@@ -1,6 +1,7 @@
 services:
   apiserver:
     image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest}
+    pull_policy: always
     command:
       - run
       - --log-level
@@ -24,6 +25,7 @@ services:
 
   orchestrator:
     image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
+    pull_policy: always
     command:
       - run
       - --log-level
@@ -46,19 +48,21 @@ services:
       interval: 10s
       retries: 60
 
-  ui:
-    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest}
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-    depends_on:
-      apiserver:
-        condition: service_healthy
+  # ui:
+  #   image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest}
+  #   pull_policy: always
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: on-failure
+  #   depends_on:
+  #     apiserver:
+  #       condition: service_healthy
 
   uibackend:
     image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
+    pull_policy: always
     command:
       - run
       - --log-level
