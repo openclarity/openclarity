@@ -40,6 +40,8 @@ type PluginConfig struct {
 	ScannerConfig string `yaml:"scanner_config" mapstructure:"scanner_config"`
 	// TimeoutSeconds defines the number of seconds before the scan is marked failed due to timeout
 	TimeoutSeconds int `yaml:"timeout_seconds" mapstructure:"timeout_seconds"`
+	// BinaryMode is a flag to indicate that the plugin should be run as a binary
+	BinaryMode bool `yaml:"binary_mode" mapstructure:"binary_mode"`
 }
 
 type PluginRunner interface {

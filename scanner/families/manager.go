@@ -34,7 +34,7 @@ import (
 	"github.com/openclarity/vmclarity/scanner/families/types"
 	"github.com/openclarity/vmclarity/scanner/families/utils"
 	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/scanner/utils/containerrootfs"
+	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
 )
 
 type Manager struct {

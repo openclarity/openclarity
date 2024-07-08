@@ -131,9 +131,10 @@ rootkits:
 
 plugins:
   enabled: false
+  binary_mode: false
   scanners_list:
     - "kics"
-  inputs: 
+  inputs:
     - input: "/tmp"
       input_type: "rootfs"
   scanners_config:

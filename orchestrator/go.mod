@@ -332,6 +332,7 @@ require (
 	github.com/openclarity/vmclarity/containerruntimediscovery/types v0.7.1 // indirect
 	github.com/openclarity/vmclarity/plugins/runner v0.7.1 // indirect
 	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.1 // indirect
+	github.com/openclarity/vmclarity/utils v0.7.1 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
