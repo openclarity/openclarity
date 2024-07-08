@@ -25,7 +25,7 @@ import (
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families/types"
 	"github.com/openclarity/vmclarity/scanner/utils"
-	"github.com/openclarity/vmclarity/scanner/utils/containerrootfs"
+	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
 )
 
 // InputSizesCache global cache of already calculated input sizes. If input type is a DIR/ROOTFS/FILE than the key is the input path.

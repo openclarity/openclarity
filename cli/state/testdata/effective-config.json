@@ -93,6 +93,7 @@
     "Enabled": false,
     "ScannersList": null,
     "Inputs": null,
-    "ScannersConfig": null
+    "ScannersConfig": null,
+    "BinaryMode": null
   }
 }

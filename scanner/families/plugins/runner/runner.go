@@ -73,6 +73,7 @@ func (s *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInpu
 			ImageName:     s.config.ImageName,
 			InputDir:      userInput,
 			ScannerConfig: s.config.ScannerConfig,
+			BinaryMode:    s.config.BinaryMode,
 		})
 		if err != nil {
 			s.sendResults(retResults, fmt.Errorf("failed to create plugin runner: %w", err))

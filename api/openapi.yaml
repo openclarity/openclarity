@@ -2087,6 +2087,8 @@ components:
       properties:
         enabled:
           type: boolean
+        binary_mode:
+          type: boolean
         scanners_list:
           type: array
           items:

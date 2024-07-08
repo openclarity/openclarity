@@ -58,6 +58,7 @@ func NewConfig() *Config {
 		Malware:          malware.Config{},
 		Misconfiguration: misconfigurationTypes.Config{},
 		Exploits:         exploits.Config{},
+		Plugins:          plugins.Config{},
 	}
 }
 

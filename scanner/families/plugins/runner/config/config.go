@@ -24,4 +24,6 @@ type Config struct {
 	InputDir string `yaml:"input_dir" mapstructure:"input_dir"`
 	// ScannerConfig is a json string that will be passed to the scanner in the plugin
 	ScannerConfig string `yaml:"scanner_config" mapstructure:"scanner_config"`
+	// BinaryMode is a flag to indicate that the plugin should be run as a binary
+	BinaryMode bool `json:"binary_mode,omitempty" mapstructure:"binary_mode,omitempty"`
 }

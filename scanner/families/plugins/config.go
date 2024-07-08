@@ -25,4 +25,5 @@ type Config struct {
 	ScannersList   []string               `yaml:"scanners_list" mapstructure:"scanners_list"`
 	Inputs         []types.Input          `yaml:"inputs" mapstructure:"inputs"`
 	ScannersConfig *common.ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
+	BinaryMode     *bool                  `yaml:"binary_mode,omitempty" mapstructure:"binary_mode,omitempty"`
 }
