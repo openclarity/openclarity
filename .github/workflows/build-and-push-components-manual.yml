@@ -1,0 +1,14 @@
+name: Build and Push Components Manual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  build-and-push:
+    uses: ./.github/workflows/build-and-push-components-registry.yml
+    with:
+      suffix: "-dev"
+      image_tag: latest

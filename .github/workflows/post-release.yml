@@ -22,9 +22,8 @@ jobs:
           # shellcheck disable=SC2016
           echo "modules=$(find . -name go.mod -type f -print0 | xargs -0 awk '/module/ {print $2}' | jq -c -R '[.,inputs] | map(sub("^github.com\/openclarity\/vmclarity\/";""))')" >> "$GITHUB_OUTPUT"
 
-  create_module_tags:
-    needs:
-      - prepare
+  create-module-tags:
+    needs: prepare
     name: Create module tags
     runs-on: ubuntu-latest
     strategy:
