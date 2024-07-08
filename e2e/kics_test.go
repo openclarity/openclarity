@@ -18,6 +18,7 @@ package e2e
 import (
 	"context"
 	"path/filepath"
+	"reflect"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -98,3 +99,65 @@ var _ = ginkgo.Describe("Running KICS scan", func() {
 		})
 	})
 })
+
+var _ = ginkgo.Describe("Running a KICS scan", func() {
+	ginkgo.Context("which scans an openapi.yaml file and has report-formats set to sarif", func() {
+		ginkgo.It("should finish successfully, and output both JSON and Sarif format as well as VMClarity output", func(ctx ginkgo.SpecContext) {
+			if cfg.TestEnvConfig.Images.PluginKics == "" {
+				ginkgo.Skip("KICS plugin image not provided")
+			}
+
+			input, err := filepath.Abs("./testdata")
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			notifier := &Notifier{}
+
+			errs := families.New(&families.Config{
+				Plugins: plugins.Config{
+					Enabled:      true,
+					ScannersList: []string{scannerPluginName},
+					Inputs: []types.Input{
+						{
+							Input:     input,
+							InputType: string(utils.ROOTFS),
+						},
+					},
+					ScannersConfig: &common.ScannersConfig{
+						scannerPluginName: config.Config{
+							Name:          scannerPluginName,
+							ImageName:     cfg.TestEnvConfig.Images.PluginKics,
+							InputDir:      "",
+							ScannerConfig: "{\"report-formats\": [\"sarif\"]}",
+						},
+					},
+				},
+			}).Run(ctx, notifier)
+			gomega.Expect(errs).To(gomega.BeEmpty())
+
+			gomega.Eventually(func() bool {
+				results := notifier.Results[0].Result.(*plugins.Results).PluginOutputs[scannerPluginName] // nolint:forcetypeassert
+
+				isEmptyFuncs := []func() bool{
+					func() bool { return isEmpty(results.RawJSON) },
+					func() bool { return isEmpty(results.RawSarif) },
+					func() bool { return isEmpty(results.Vmclarity) },
+				}
+
+				for _, f := range isEmptyFuncs {
+					if f() {
+						return false
+					}
+				}
+
+				return true
+			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
+		})
+	})
+})
+
+func isEmpty(x interface{}) bool {
+	if x == nil {
+		return true
+	}
+
+	return reflect.DeepEqual(x, reflect.Zero(reflect.TypeOf(x)).Interface())
+}
