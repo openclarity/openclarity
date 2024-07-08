@@ -25,16 +25,13 @@ import (
 	"sort"
 	"strings"
 
-	dlog "github.com/aquasecurity/go-dep-parser/pkg/log"
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy/pkg/cache"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
-	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 	log "github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
 	"github.com/openclarity/kubeclarity/shared/pkg/job_manager"
@@ -55,12 +52,6 @@ func New(c job_manager.IsConfig,
 	conf := c.(*config.Config) // nolint:forcetypeassert
 
 	logger = logger.Dup().WithField("scanner", ScannerName)
-
-	// Init trivy's loggers with a hook into our logger
-	lc := logrusCore{logger}
-	zap := zap.New(lc)
-	trivyLog.Logger = zap.Sugar()
-	dlog.SetLogger(trivyLog.Logger)
 
 	return &Scanner{
 		logger:     logger,
@@ -99,7 +90,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
 	}
 
-	cacheDir := trivyFsutils.CacheDir()
+	cacheDir := cache.DefaultDir()
 	if a.config.CacheDir != "" {
 		cacheDir = a.config.CacheDir
 	}

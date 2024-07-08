@@ -17,12 +17,21 @@ package trivy
 
 import (
 	"github.com/aquasecurity/trivy/pkg/flag"
+	"github.com/google/go-containerregistry/pkg/name"
 )
 
 func GetTrivyDBOptions() (flag.DBOptions, error) {
+	dbRepository, err := name.ParseReference(flag.DBRepositoryFlag.Default, name.WithDefaultTag(""))
+	if err != nil {
+		return flag.DBOptions{}, err
+	}
+	javaRepository, err := name.ParseReference(flag.JavaDBRepositoryFlag.Default, name.WithDefaultTag(""))
+	if err != nil {
+		return flag.DBOptions{}, err
+	}
 	return flag.DBOptions{
-		DBRepository:     flag.DBRepositoryFlag.Default,     // Use the default trivy source for the vuln DB
-		JavaDBRepository: flag.JavaDBRepositoryFlag.Default, // Use the default trivy source for the java DB
-		NoProgress:       true,                              // Disable the interactive progress bar
+		DBRepository:     dbRepository,   // Use the default trivy source for the vuln DB
+		JavaDBRepository: javaRepository, // Use the default trivy source for the java DB
+		NoProgress:       true,           // Disable the interactive progress bar
 	}, nil
 }

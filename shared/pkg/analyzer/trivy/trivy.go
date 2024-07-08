@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aquasecurity/trivy/pkg/cache"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	log "github.com/sirupsen/logrus"
 
@@ -28,7 +29,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 
 	"github.com/openclarity/kubeclarity/shared/pkg/analyzer"
 	"github.com/openclarity/kubeclarity/shared/pkg/config"
@@ -90,7 +90,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			return
 		}
 
-		cacheDir := trivyFsutils.CacheDir()
+		cacheDir := cache.DefaultDir()
 		if a.config.CacheDir != "" {
 			cacheDir = a.config.CacheDir
 		}
