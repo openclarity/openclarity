@@ -6,7 +6,6 @@ on:
 
 permissions:
   packages: write
-  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,12 +20,9 @@ jobs:
   build:
     needs: verification
     name: Build
-    uses: ./.github/workflows/reusable-build-and-push.yml
+    uses: ./.github/workflows/build-and-upload-components.yml
     with:
       image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
-      push: true
-      use_release_repository: false
-      post_image_tags: true
 
   e2e-docker:
     needs: build
@@ -34,7 +30,6 @@ jobs:
     uses: ./.github/workflows/reusable-end-to-end-testing.yml
     with:
       image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
-      use_release_repository: false
       platform: docker
 
   e2e-k8s:
@@ -43,7 +38,6 @@ jobs:
     uses: ./.github/workflows/reusable-end-to-end-testing.yml
     with:
       image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
-      use_release_repository: false
       platform: kubernetes
 
   success:
@@ -58,5 +52,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Echo Success
-        run: |
-          echo "::notice Success!"
+        run: echo "::notice Success!"

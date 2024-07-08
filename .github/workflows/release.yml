@@ -10,48 +10,6 @@ permissions:
   contents: write
 
 jobs:
-  verification:
-    name: Verification
-    uses: ./.github/workflows/reusable-verification.yml
-    secrets: inherit
-
-  build_and_push:
-    needs:
-      - verification
-      - artifacts
-      - publish_helm
-    name: Build & Push
-    uses: ./.github/workflows/reusable-build-and-push.yml
-    with:
-      image_tag: ${{ github.ref_name }}
-      push: true
-      use_release_repository: true
-
-  publish_helm:
-    needs: verification
-    name: Publish Helm Chart
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
-      - name: Create Helm Chart package
-        env:
-          VERSION: ${{ github.ref_name }}
-        run: make dist-helm-chart
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Package and Publish Helm Chart
-        env:
-          VERSION: ${{ github.ref_name }}
-        run: make publish-helm-chart
-
   artifacts:
     name: Create artifacts
     runs-on: ubuntu-latest
@@ -63,7 +21,7 @@ jobs:
         uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
         with:
           # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
-          # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
+          # as it provides better flexibility like setting the cache key which reduces cache misses significantly.
           cache: false
           go-version-file: '.go-version'
 
@@ -134,12 +92,52 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-  main_release:
+  verification:
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  publish-helm-chart:
+    needs: verification
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Create Helm Chart package
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-helm-chart
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and Publish Helm Chart
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make publish-helm-chart
+
+  build-and-push:
     needs:
-      - verification
-      - build_and_push
-      - publish_helm
       - artifacts
+      - verification
+      - publish-helm-chart
+    name: Build
+    uses: ./.github/workflows/build-and-push-components-registry.yml
+    with:
+      image_tag: ${{ github.ref_name }}
+
+  main-release:
+    needs:
+      - artifacts
+      - verification
+      - publish-helm-chart
+      - build-and-push
     name: Release
     runs-on: ubuntu-latest
     steps:
@@ -160,7 +158,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make generate-release-notes
 
-      - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+      - name: Upload release
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
