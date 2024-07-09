@@ -5,8 +5,8 @@ go 1.22.4
 require (
 	github.com/deepmap/oapi-codegen/v2 v2.2.0
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/openclarity/vmclarity/api/types v0.7.1
-	github.com/openclarity/vmclarity/core v0.7.1
+	github.com/openclarity/vmclarity/api/types v0.7.2
+	github.com/openclarity/vmclarity/core v0.7.2
 )
 
 require (
@@ -19,7 +19,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.1 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
