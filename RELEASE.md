@@ -38,6 +38,9 @@ make multimod-verify
 make multimod-prerelease
 ```
 
+> [!NOTE]
+> If this command fails with `failed: working tree not clean`, please run `git stash --all` and retry.
+
 * Review the changes made in the last commit to ensure correctness.
 
 * Push the branch to the GitHub repository.
