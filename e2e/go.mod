@@ -7,13 +7,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/vmclarity/api/client v0.7.1
-	github.com/openclarity/vmclarity/api/types v0.7.1
-	github.com/openclarity/vmclarity/core v0.7.1
-	github.com/openclarity/vmclarity/scanner v0.7.1
-	github.com/openclarity/vmclarity/testenv v0.7.1
-	github.com/openclarity/vmclarity/uibackend/client v0.7.1
-	github.com/openclarity/vmclarity/uibackend/types v0.7.1
+	github.com/openclarity/vmclarity/api/client v0.7.2
+	github.com/openclarity/vmclarity/api/types v0.7.2
+	github.com/openclarity/vmclarity/core v0.7.2
+	github.com/openclarity/vmclarity/scanner v0.7.2
+	github.com/openclarity/vmclarity/testenv v0.7.2
+	github.com/openclarity/vmclarity/uibackend/client v0.7.2
+	github.com/openclarity/vmclarity/uibackend/types v0.7.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.18.2
 )
@@ -354,10 +354,10 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.64.1 // indirect
 	github.com/openclarity/grype-server/api v0.0.0-20240619144520-b9ba72524a9c // indirect
-	github.com/openclarity/vmclarity/installation v0.7.1 // indirect
-	github.com/openclarity/vmclarity/plugins/runner v0.7.1 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.1 // indirect
-	github.com/openclarity/vmclarity/utils v0.7.1 // indirect
+	github.com/openclarity/vmclarity/installation v0.7.2 // indirect
+	github.com/openclarity/vmclarity/plugins/runner v0.7.2 // indirect
+	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
+	github.com/openclarity/vmclarity/utils v0.7.2 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
