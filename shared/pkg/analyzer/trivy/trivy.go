@@ -102,7 +102,7 @@ func (a *Analyzer) Run(sourceType utils.SourceType, userInput string) error {
 			},
 			ScanOptions: trivyFlag.ScanOptions{
 				Target:   userInput,
-				Scanners: []trivyTypes.Scanner{}, // Disable all security checks for SBOM only scan
+				Scanners: []trivyTypes.Scanner{trivyTypes.SBOMScanner}, // SBOMScanner is special and should be enabled
 			},
 			ReportOptions: trivyFlag.ReportOptions{
 				Format:       trivyTypes.FormatCycloneDX, // Cyclonedx format for SBOM so that we don't need to convert
