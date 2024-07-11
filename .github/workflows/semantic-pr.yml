@@ -22,6 +22,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           requireScope: true
+          ignoreLabels: |
+            ignore-semantic-pr
           types: |
             BREAKING
             build
@@ -38,6 +40,8 @@ jobs:
             release
 
           scopes: |
+            general
+
             api
             cli
             containerruntimediscovery
