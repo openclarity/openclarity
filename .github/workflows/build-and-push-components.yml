@@ -1,8 +1,13 @@
-name: Build and Push Components Registry
+name: Build and Push Components
 
 on:
   workflow_call:
     inputs:
+      git_ref:
+        required: false
+        type: string
+        description: 'The branch, tag or SHA to build.'
+        default: ''
       image_tag:
         required: true
         type: string
@@ -16,12 +21,42 @@ on:
         required: false
         type: string
         description: 'Suffix to append to the image name'
-        default: ""
+        default: ''
       bake-group:
         required: false
         type: string
         description: 'Name of the Docker Bake group of targets'
         default: default
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        required: false
+        type: string
+        description: 'The branch, tag or SHA to build.'
+        default: ''
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to use.'
+        default: latest
+      registry_name:
+        required: false
+        type: string
+        description: 'Name of the registry.'
+        default: ghcr.io/openclarity
+      suffix:
+        required: false
+        type: string
+        description: 'Suffix to append to the image name'
+        default: '-dev'
+      bake-group:
+        required: false
+        type: string
+        description: 'Name of the Docker Bake group of targets'
+        default: default
+
+permissions:
+  packages: write
 
 jobs:
   prepare-build:
@@ -32,6 +67,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
 
       - name: Set timestamp
         id: timestamp
