@@ -128,7 +128,7 @@ jobs:
       - verification
       - publish-helm-chart
     name: Build
-    uses: ./.github/workflows/build-and-push-components-registry.yml
+    uses: ./.github/workflows/build-and-push-components.yml
     with:
       image_tag: ${{ github.ref_name }}
 
