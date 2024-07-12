@@ -16,6 +16,7 @@
 package sbom
 
 import (
+	"github.com/openclarity/vmclarity/scanner/families/sbom/cdx_gomod"
 	"github.com/openclarity/vmclarity/scanner/families/sbom/syft"
 	"github.com/openclarity/vmclarity/scanner/families/sbom/trivy"
 	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
@@ -30,4 +31,5 @@ func init() {
 	Factory.Register(syft.AnalyzerName, syft.New)
 	Factory.Register(trivy.AnalyzerName, trivy.New)
 	Factory.Register(windows.AnalyzerName, windows.New)
+	Factory.Register(cdx_gomod.AnalyzerName, cdx_gomod.New)
 }
