@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
@@ -38,6 +39,10 @@ import (
 	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
 	"github.com/openclarity/vmclarity/workflow"
 	workflowtypes "github.com/openclarity/vmclarity/workflow/types"
+)
+
+const (
+	shutdownGracePeriod = 2 * time.Second
 )
 
 type Scanner struct {
@@ -137,6 +142,9 @@ func (m *Scanner) Run(ctx context.Context, notifier families.FamilyNotifier) []e
 			ErrCh:    errCh,
 		})
 		if err != nil {
+			// Grace period to allow families to shut down properly in the event
+			// of context cancellation.
+			time.Sleep(shutdownGracePeriod)
 			errCh <- fmt.Errorf("failed to run families processor: %w", err)
 			return
 		}
