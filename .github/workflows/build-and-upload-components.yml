@@ -39,7 +39,7 @@ jobs:
 
       - name: List targets
         id: targets
-        uses: docker/bake-action/subaction/list-targets@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # v4.5.0
+        uses: docker/bake-action/subaction/list-targets@a99697dcb6a3c90dfa91a96de6490ad7bbbe5f29 # v4.6.0
         with:
           target: ${{ inputs.bake-group }}
 
@@ -65,7 +65,7 @@ jobs:
           restore-keys: ${{ runner.os }}-buildx-
 
       - name: Build
-        uses: docker/bake-action@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # v4.5.0
+        uses: docker/bake-action@a99697dcb6a3c90dfa91a96de6490ad7bbbe5f29 # v4.6.0
         id: bake
         with:
           targets: ${{ matrix.targets }}
