@@ -29,6 +29,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler"
 	"github.com/openclarity/vmclarity/plugins/runner/types"
 
@@ -107,6 +108,7 @@ func (h *containerRuntimeHandler) Start(ctx context.Context) error {
 				},
 			},
 			Mounts: []mount.Mount{*scanDirMount},
+			Init:   to.Ptr(true),
 		},
 		nil,
 		nil,
