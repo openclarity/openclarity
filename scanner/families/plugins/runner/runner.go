@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -46,6 +47,7 @@ func New(_ context.Context, name string, config types.ScannersConfig) (families.
 	}, nil
 }
 
+//nolint:cyclop
 func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) (*types.ScannerResult, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -67,77 +69,118 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		return nil, fmt.Errorf("failed to create plugin runner: %w", err)
 	}
 
-	finishRunner := func(ctx context.Context) {
-		if err := rr.Stop(ctx); err != nil {
+	shutdownRunner := func(ctx context.Context) {
+		shutdownContext := context.WithoutCancel(ctx)
+
+		if err := rr.Stop(shutdownContext); err != nil {
 			logger.WithError(err).Errorf("failed to stop runner")
 		}
 
-		// TODO: add short wait before removing to respect container shutdown procedure
-
-		if err := rr.Remove(ctx); err != nil {
+		if err := rr.Remove(shutdownContext); err != nil {
 			logger.WithError(err).Errorf("failed to remove runner")
 		}
 	} //nolint:errcheck
 
-	if err := rr.Start(ctx); err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to start plugin runner: %w", err)
+	type result struct {
+		Result types.ScannerResult
+		Err    error
 	}
 
-	if err := rr.WaitReady(ctx); err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to wait for plugin scanner to be ready: %w", err)
-	}
+	resChan := make(chan result)
 
-	// Get plugin metadata
-	metadata, err := rr.Metadata(ctx)
-	if err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to get plugin scanner metadata: %w", err)
-	}
+	go func(ctx context.Context) {
+		defer func() {
+			if e := recover(); e != nil {
+				shutdownRunner(ctx)
+				panic(e)
+			}
+		}()
 
-	// Stream logs
-	go func() {
-		logger := logger.WithField("metadata", map[string]interface{}{
-			"name":       to.ValueOrZero(metadata.Name),
-			"version":    to.ValueOrZero(metadata.Version),
-			"apiVersion": to.ValueOrZero(metadata.ApiVersion),
-		}).WithField("plugin", s.config.Name)
+		res := result{
+			Result: types.ScannerResult{},
+			Err:    nil,
+		}
 
-		logs, err := rr.Logs(ctx)
-		if err != nil {
-			logger.WithError(err).Warnf("could not listen for logs on plugin runner")
+		if err := rr.Start(ctx); err != nil {
+			res.Err = fmt.Errorf("failed to start plugin runner: %w", err)
+			resChan <- res
 			return
 		}
-		defer logs.Close()
 
-		for r := bufio.NewScanner(logs); r.Scan(); {
-			logger.Info(r.Text())
+		if err := rr.WaitReady(ctx); err != nil {
+			res.Err = fmt.Errorf("failed to wait for plugin scanner to be ready: %w", err)
+			resChan <- res
+			return
 		}
-	}()
 
-	if err := rr.Run(ctx); err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to run plugin scanner: %w", err)
+		// Get plugin metadata
+		metadata, err := rr.Metadata(ctx)
+		if err != nil {
+			res.Err = fmt.Errorf("failed to get plugin scanner metadata: %w", err)
+			resChan <- res
+			return
+		}
+
+		// Stream logs
+		go func() {
+			logger := logger.WithField("metadata", map[string]interface{}{
+				"name":       to.ValueOrZero(metadata.Name),
+				"version":    to.ValueOrZero(metadata.Version),
+				"apiVersion": to.ValueOrZero(metadata.ApiVersion),
+			}).WithField("plugin", s.config.Name)
+
+			logs, err := rr.Logs(ctx)
+			if err != nil {
+				logger.WithError(err).Warnf("could not listen for logs on plugin runner")
+				return
+			}
+			defer logs.Close()
+
+			for r := bufio.NewScanner(logs); r.Scan(); {
+				logger.Info(r.Text())
+			}
+		}()
+
+		if err := rr.Run(ctx); err != nil {
+			res.Err = fmt.Errorf("failed to run plugin scanner: %w", err)
+			resChan <- res
+			return
+		}
+
+		if err := rr.WaitDone(ctx); err != nil {
+			res.Err = fmt.Errorf("failed to wait for plugin scanner to finish: %w", err)
+			resChan <- res
+			return
+		}
+
+		findings, pluginResult, err := s.parseResults(ctx, rr)
+		if err != nil {
+			res.Err = fmt.Errorf("failed to parse plugin scanner results: %w", err)
+			resChan <- res
+			return
+		}
+
+		res.Result.Findings = findings
+		res.Result.Output = pluginResult
+		resChan <- res
+	}(ctx)
+
+	select {
+	case <-ctx.Done():
+		shutdownRunner(ctx)
+		return nil, errors.New("plugin context cancelled")
+	case r := <-resChan:
+		shutdownRunner(ctx)
+
+		if r.Err != nil {
+			return nil, fmt.Errorf("error during plugin execution: %w", r.Err)
+		}
+
+		return &types.ScannerResult{
+			Findings: r.Result.Findings,
+			Output:   r.Result.Output,
+		}, nil
 	}
-
-	if err := rr.WaitDone(ctx); err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to wait for plugin scanner to finish: %w", err)
-	}
-
-	findings, pluginResult, err := s.parseResults(ctx, rr)
-	if err != nil {
-		finishRunner(ctx)
-		return nil, fmt.Errorf("failed to parse plugin scanner results: %w", err)
-	}
-
-	finishRunner(ctx)
-
-	return &types.ScannerResult{
-		Findings: findings,
-		Output:   pluginResult,
-	}, nil
 }
 
 func (s *Scanner) parseResults(ctx context.Context, runner runnertypes.PluginRunner) ([]apitypes.FindingInfo, plugintypes.Result, error) {
