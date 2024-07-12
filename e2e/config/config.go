@@ -70,7 +70,7 @@ var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
 	},
 	Sbom: &apitypes.SBOMConfig{
 		Enabled:   to.Ptr(true),
-		Analyzers: &[]string{"syft", "trivy", "windows"},
+		Analyzers: &[]string{"syft", "trivy", "windows", "gomod"},
 	},
 	Secrets: &apitypes.SecretsConfig{
 		Enabled:  to.Ptr(true),

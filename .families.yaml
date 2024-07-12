@@ -4,6 +4,7 @@ sbom:
     - "syft"
     - "trivy"
     - "windows"
+    - "gomod"
   inputs:
     - input: "node:slim"
       input_type: "image"

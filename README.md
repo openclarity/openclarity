@@ -74,6 +74,7 @@ These tools include:
   - [Syft](https://github.com/anchore/syft)
   - [Trivy](https://github.com/aquasecurity/trivy)
   - [Windows Registry](cli/analyzer/windows)
+  - [Cyclonedx-gomod](https://github.com/CycloneDX/cyclonedx-gomod)
 - Vulnerability detection
   - [Grype](https://github.com/anchore/grype)
   - [Trivy](https://github.com/aquasecurity/trivy)
