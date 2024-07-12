@@ -16,6 +16,7 @@ export const APIS = {
     ASSETS: "assets",
     ASSET_SCANS: "assetScans",
     FINDINGS: "findings",
+    ASSET_FINDINGS: "assetFindings",
     DASHBOARD_RISKIEST_REGIONS: "dashboard/riskiestRegions",
     DASHBOARD_RISKIEST_ASSETS: "dashboard/riskiestAssets",
     DASHBOARD_FINDINGS_TRENDS: "dashboard/findingsTrends",

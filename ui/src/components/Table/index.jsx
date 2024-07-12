@@ -19,7 +19,7 @@ const ACTIONS_COLUMN_ID = "ACTIONS";
 const STATIC_COLUMN_IDS = [ACTIONS_COLUMN_ID];
 
 const Table = props => {
-    const {columns, defaultSortBy, onSortChnage, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0,
+    const {columns, defaultSortBy, onSortChnage, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0, defaultPageSize=50,
         onPageChange, noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
         actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, showCustomEmptyDisplay=true,
         actionsColumnWidth=80} = props;
@@ -71,7 +71,7 @@ const Table = props => {
             defaultColumn,
             initialState: {
                 pageIndex: defaultPageIndex,
-                pageSize: 50,
+                pageSize: defaultPageSize,
                 selectedRowIds: {}
             },
             manualPagination: true,
@@ -94,7 +94,7 @@ const Table = props => {
 
             hooks.visibleColumns.push(columns => {
                 const updatedColumns = columns;
-                
+
                 if (withRowActions) {
                     updatedColumns.push({
                         Header: () => null, // No header
@@ -127,7 +127,7 @@ const Table = props => {
     const cleanFilters = pickBy(filters, value => !isNull(value) && value !== "");
     const prevCleanFilters = usePrevious(cleanFilters);
     const filtersChanged = !isEqual(cleanFilters, prevCleanFilters) && !isUndefined(prevCleanFilters);
-    
+
     const prevPageIndex = usePrevious(pageIndex);
 
     const {sortIds: sortKeys, desc: sortDesc} = sortBy || {};
@@ -159,10 +159,10 @@ const Table = props => {
         if (loading) {
             return;
         }
-        
+
         fetchData({queryParams: {...getQueryParams()}});
     }, [fetchData, getQueryParams, loading])
-    
+
     useEffect(() => {
         if (!filtersChanged && pageIndex === prevPageIndex && !sortingChanged && prevRefreshTimestamp === refreshTimestamp) {
             return;
@@ -209,7 +209,7 @@ const Table = props => {
             <CustomEmptyResultsDisplay />
         )
     }
-    
+
     return (
         <div className="table-wrapper">
             {!withPagination ? <div className="no-pagination-results-total">{`Showing ${count} entries`}</div> :
@@ -236,7 +236,7 @@ const Table = props => {
                                         headerGroup.headers.map(column => {
                                             const {sortIds} = column;
                                             const isSorted = isEqual(sortIds, sortKeys);
-                                            
+
                                             return (
                                                 <div className="table-th" {...column.getHeaderProps()}>
                                                     <span className="table-th-content">{column.render('Header')}</span>
@@ -245,7 +245,7 @@ const Table = props => {
                                                             className={classnames("table-sort-icon", {sorted: isSorted}, {rotate: isSorted && sortDesc})}
                                                             name={ICON_NAMES.SORT}
                                                             size={9}
-                                                            onClick={() => setSortBy(({sortIds, desc}) => 
+                                                            onClick={() => setSortBy(({sortIds, desc}) =>
                                                                 ({sortIds: column.sortIds, desc: isEqual(column.sortIds, sortIds) ? !desc : false})
                                                             )}
                                                         />
@@ -271,7 +271,7 @@ const Table = props => {
                     {
                         page.map((row) => {
                             prepareRow(row);
-                    
+
                             return (
                                 <React.Fragment key={row.id}>
                                     <div
@@ -291,9 +291,9 @@ const Table = props => {
                                                     {"align-to-top": alignToTop},
                                                     {[className]: className}
                                                 );
-                        
+
                                                 const isTextValue = !!cell.column.accessor;
-                                                
+
                                                 return (
                                                     <div className={cellClassName} {...cell.getCellProps()}>
                                                         <ValueWithFallback>
@@ -310,7 +310,7 @@ const Table = props => {
                     }
                 </div>
             </div>
-            
+
         </div>
     )
 }
@@ -318,8 +318,8 @@ const Table = props => {
 export default React.memo(Table, (prevProps, nextProps) => {
     const {filters: prevFilters, refreshTimestamp: prevRefreshTimestamp, data: prevData} = prevProps;
     const {filters, refreshTimestamp, data} = nextProps;
-    
+
     const shouldRefresh = !isEqual(prevFilters, filters) || prevRefreshTimestamp !== refreshTimestamp || !isEqual(prevData, data);
-    
+
     return !shouldRefresh;
 });
