@@ -62,7 +62,7 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 		instanceCreationConfig = *i.assetScan.ScannerInstanceCreationConfig
 	}
 
-	scannerConfig := NewFamiliesConfigFrom(i.config, i.assetScan.ScanFamiliesConfig)
+	scannerConfig := NewScannerConfigFrom(i.config, i.assetScan.ScanFamiliesConfig)
 	scannerConfigYAML, err := yaml.Marshal(scannerConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert ScannerConfig to YAML for AssetScan with %s id",

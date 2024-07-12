@@ -83,6 +83,7 @@ linters:
     - tagalign # NOTE(chrisgacsal): does not seem to provide much value
     - protogetter # FIXME(chrisgacsal): needs code changes to enable
     - inamedparam # FIXME(chrisgacsal): needs code changes to enable
+    - exportloopref # Fixed in 1.22 - https://go.dev/blog/loopvar-preview
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source

@@ -15,6 +15,18 @@
 
 package config
 
+const (
+	DefaultChkrootkitBinaryPath = "chkrootkit"
+)
+
 type Config struct {
 	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
+}
+
+func (c *Config) GetBinaryPath() string {
+	if c.BinaryPath != "" {
+		return c.BinaryPath
+	}
+
+	return DefaultChkrootkitBinaryPath
 }

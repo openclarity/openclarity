@@ -19,64 +19,77 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
-	"github.com/openclarity/vmclarity/scanner/analyzer"
-	"github.com/openclarity/vmclarity/scanner/analyzer/job"
-	"github.com/openclarity/vmclarity/scanner/converter"
-	"github.com/openclarity/vmclarity/scanner/families/interfaces"
-	familiesresults "github.com/openclarity/vmclarity/scanner/families/results"
-	"github.com/openclarity/vmclarity/scanner/families/types"
-	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
+	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/utils/converter"
 )
 
 type SBOM struct {
-	conf Config
+	conf types.Config
+}
+
+func New(conf types.Config) families.Family[*types.Result] {
+	return &SBOM{
+		conf: conf,
+	}
+}
+
+func (s SBOM) GetType() families.FamilyType {
+	return families.SBOM
 }
 
 // nolint:cyclop
-func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.IsResults, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "sbom")
-	logger.Info("SBOM Run...")
+func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if len(s.conf.Inputs) == 0 {
 		return nil, errors.New("inputs list is empty")
 	}
 
-	// TODO: move the logic from cli utils to shared utils
-	// TODO: now that we support multiple inputs,
-	//  we need to change the fact the MergedResults assumes it is only for 1 input?
-	hash, err := utils.GenerateHash(utils.SourceType(s.conf.Inputs[0].InputType), s.conf.Inputs[0].Input)
+	// Calculate hash in a separate goroutine as it might take a while. In the
+	// meantime, run actual SBOM scanning.
+	hashCh := make(chan string, 1)
+	hashErrCh := make(chan error, 1)
+	go func() {
+		// TODO: move the logic from cli utils to shared utils
+		// TODO: now that we support multiple inputs,
+		//  we need to change the fact the mergedResults assumes it is only for 1 input?
+		logger.Infof("Generating hash for input %s", s.conf.Inputs[0].Input)
+
+		hash, err := utils.GenerateHash(s.conf.Inputs[0].InputType, s.conf.Inputs[0].Input)
+		hashCh <- hash
+		hashErrCh <- err
+	}()
+
+	// Run all scanners using scan manager
+	manager := scan_manager.New(s.conf.AnalyzersList, s.conf, Factory)
+	results, err := manager.Scan(ctx, s.conf.Inputs)
 	if err != nil {
+		return nil, fmt.Errorf("failed to process inputs for sbom: %w", err)
+	}
+
+	// Get hash
+	hash := <-hashCh
+	if err := <-hashErrCh; err != nil {
 		return nil, fmt.Errorf("failed to generate hash for source %s: %w", s.conf.Inputs[0].Input, err)
 	}
 
-	manager := job_manager.New(s.conf.AnalyzersList, s.conf.AnalyzersConfig, logger, job.Factory)
-	mergedResults := analyzer.NewMergedResults(utils.SourceType(s.conf.Inputs[0].InputType), hash)
+	// Create result
+	metadata := families.ScanMetadata{}
+	mergedResults := newMergedResults(s.conf.Inputs[0].InputType, hash)
 
-	var sbomResults Results
-	for _, input := range s.conf.Inputs {
-		startTime := time.Now()
-		results, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
-		if err != nil {
-			return nil, fmt.Errorf("failed to analyzer input %q: %w", s.conf.Inputs[0].Input, err)
-		}
-		endTime := time.Now()
-		inputSize, err := familiesutils.GetInputSize(input)
-		if err != nil {
-			logger.Warnf("Failed to calculate input %v size: %v", input, err)
-		}
+	// Merge results
+	for _, result := range results {
+		logger.Infof("Merging result from %q", result.Metadata)
 
-		// Merge results.
-		for name, result := range results {
-			logger.Infof("Merging result from %q", name)
-			mergedResults = mergedResults.Merge(result.(*analyzer.Results)) // nolint:forcetypeassert
-		}
-		sbomResults.Metadata.InputScans = append(sbomResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
+		metadata.Merge(result.Metadata)
+		mergedResults = mergedResults.Merge(result.ScanResult)
 	}
 
 	for i, with := range s.conf.MergeWith {
@@ -85,10 +98,18 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 		if err != nil {
 			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %w", with.SbomPath, err)
 		}
-		results := analyzer.CreateResults(cdxBOMBytes, name, with.SbomPath, utils.SBOM)
+		results := types.CreateScannerResult(cdxBOMBytes, name, with.SbomPath, common.SBOM)
 		logger.Infof("Merging result from %q", with.SbomPath)
+
+		metadata.Merge(families.ScanInputMetadata{
+			ScannerName: name,
+			InputType:   common.SBOM,
+			InputPath:   with.SbomPath,
+		})
 		mergedResults = mergedResults.Merge(results)
 	}
+
+	logger.Info("Converting SBOM results...")
 
 	// TODO(sambetts) Expose CreateMergedSBOM as well as
 	// CreateMergedSBOMBytes so that we don't need to re-convert it
@@ -102,21 +123,8 @@ func (s SBOM) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.I
 		return nil, fmt.Errorf("failed to load merged output to CDX bom: %w", err)
 	}
 
-	logger.Info("SBOM Done...")
+	// Create result from merged data
+	sbomResults := types.NewResult(metadata, cdxBom)
 
-	sbomResults.SBOM = cdxBom
-	return &sbomResults, nil
-}
-
-func (s SBOM) GetType() types.FamilyType {
-	return types.SBOM
-}
-
-// ensure types implement the requisite interfaces.
-var _ interfaces.Family = &SBOM{}
-
-func New(conf Config) *SBOM {
-	return &SBOM{
-		conf: conf,
-	}
+	return sbomResults, nil
 }

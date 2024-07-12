@@ -22,7 +22,7 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/families"
 )
 
 func Test_getInputScanStats(t *testing.T) {
@@ -30,7 +30,7 @@ func Test_getInputScanStats(t *testing.T) {
 	startTime := timeNow.Add(-5 * time.Second)
 	startTime2 := timeNow.Add(-10 * time.Second)
 	type args struct {
-		inputScans []types.InputScanMetadata
+		metadata families.ScanMetadata
 	}
 	tests := []struct {
 		name string
@@ -40,20 +40,24 @@ func Test_getInputScanStats(t *testing.T) {
 		{
 			name: "no input scans",
 			args: args{
-				inputScans: []types.InputScanMetadata{},
+				metadata: families.ScanMetadata{
+					Inputs: []families.ScanInputMetadata{},
+				},
 			},
 			want: nil,
 		},
 		{
 			name: "one input scans",
 			args: args{
-				inputScans: []types.InputScanMetadata{
-					{
-						InputType:     "rootfs",
-						InputPath:     "/mnt/snap",
-						InputSize:     450,
-						ScanStartTime: startTime,
-						ScanEndTime:   timeNow,
+				metadata: families.ScanMetadata{
+					Inputs: []families.ScanInputMetadata{
+						{
+							InputType: "rootfs",
+							InputPath: "/mnt/snap",
+							InputSize: 450,
+							StartTime: startTime,
+							EndTime:   timeNow,
+						},
 					},
 				},
 			},
@@ -72,20 +76,22 @@ func Test_getInputScanStats(t *testing.T) {
 		{
 			name: "two input scans",
 			args: args{
-				inputScans: []types.InputScanMetadata{
-					{
-						InputType:     "rootfs",
-						InputPath:     "/mnt/snap",
-						InputSize:     450,
-						ScanStartTime: startTime,
-						ScanEndTime:   timeNow,
-					},
-					{
-						InputType:     "dir",
-						InputPath:     "/mnt/snap2",
-						InputSize:     30,
-						ScanStartTime: startTime2,
-						ScanEndTime:   timeNow,
+				metadata: families.ScanMetadata{
+					Inputs: []families.ScanInputMetadata{
+						{
+							InputType: "rootfs",
+							InputPath: "/mnt/snap",
+							InputSize: 450,
+							StartTime: startTime,
+							EndTime:   timeNow,
+						},
+						{
+							InputType: "dir",
+							InputPath: "/mnt/snap2",
+							InputSize: 30,
+							StartTime: startTime2,
+							EndTime:   timeNow,
+						},
 					},
 				},
 			},
@@ -113,7 +119,7 @@ func Test_getInputScanStats(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getInputScanStats(tt.args.inputScans); !reflect.DeepEqual(got, tt.want) {
+			if got := getInputScanStats(tt.args.metadata); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getInputScanStats() = %v, want %v", got, tt.want)
 			}
 		})

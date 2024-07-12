@@ -20,30 +20,33 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/openclarity/vmclarity/scanner/common"
+
 	log "github.com/sirupsen/logrus"
 )
 
-func GenerateHash(inputType SourceType, source string) (string, error) {
+func GenerateHash(sourceType common.InputType, source string) (string, error) {
 	absPath, err := filepath.Abs(source)
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path of the source %s: %w", source, err)
 	}
-	switch inputType {
-	case IMAGE, DOCKERARCHIVE, OCIARCHIVE, OCIDIR:
+	switch sourceType {
+	case common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR:
 		log.Infof("Skip generating hash in the case of image")
 		return "", nil
-	case DIR, ROOTFS:
+	case common.DIR, common.ROOTFS:
 		hash, err := hashDir(absPath)
 		if err != nil {
 			return "", fmt.Errorf("failed to create hash for directory %s: %w", absPath, err)
 		}
 		return hash, nil
-	case FILE:
+	case common.FILE, common.CSV:
 		input, err := os.Open(absPath)
 		if err != nil {
 			return "", fmt.Errorf("failed to open file %s for generating hash: %w", absPath, err)
@@ -54,11 +57,11 @@ func GenerateHash(inputType SourceType, source string) (string, error) {
 			return "", fmt.Errorf("failed to create hash for file %s: %w", absPath, err)
 		}
 		return fmt.Sprintf("%x", hash.Sum(nil)), nil // nolint:perfsprint
-	case SBOM:
+	case common.SBOM:
 		log.Infof("Skip generating hash in the case of sbom")
 		return "", nil
 	default:
-		return "", fmt.Errorf("unsupported input type %s", inputType)
+		return "", fmt.Errorf("unsupported input type %s", sourceType)
 	}
 }
 
@@ -80,14 +83,14 @@ func hashDir(dir string) (string, error) {
 func dirFiles(dir string) ([]string, error) {
 	var files []string
 	dir = filepath.Clean(dir)
-	err := filepath.Walk(dir, func(file string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(dir, func(file string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if info.IsDir() {
 			return nil
 		}
-		if !info.Mode().IsRegular() {
+		if !info.Type().IsRegular() {
 			return nil
 		}
 		rel := file

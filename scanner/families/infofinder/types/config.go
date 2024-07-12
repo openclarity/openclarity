@@ -16,28 +16,18 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/common"
+	sshtopologyconfig "github.com/openclarity/vmclarity/scanner/families/infofinder/sshtopology/config"
 )
 
 type Config struct {
-	Enabled         bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
-	ScannersList    []string       `yaml:"scanners_list" mapstructure:"scanners_list"`
-	StripInputPaths bool           `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
-	Inputs          []types.Input  `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig  ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
+	Enabled         bool               `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	ScannersList    []string           `yaml:"scanners_list" mapstructure:"scanners_list"`
+	StripInputPaths bool               `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
+	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
+	ScannersConfig  ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config"`
 }
 
-// ScannersConfig
-// Add scanner specific configurations here, where the key is the scanner name,
-// and the value is the scanner specific configuration.
-//
-// For example if the scanner name is "sshTopology":
-//
-//	SSHTopology SSHTopologyConfig `yaml:"ssh_topology" mapstructure:"ssh_topology"`
 type ScannersConfig struct {
-	SSHTopology SSHTopologyConfig `yaml:"ssh_topology" mapstructure:"ssh_topology"`
+	SSHTopology sshtopologyconfig.Config `yaml:"ssh_topology" mapstructure:"ssh_topology"`
 }
-
-func (ScannersConfig) IsConfig() {}
-
-type SSHTopologyConfig struct{}
