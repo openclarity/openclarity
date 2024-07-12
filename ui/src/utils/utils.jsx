@@ -13,7 +13,7 @@ export const formatDate = (date) => formatDateBy(date, "MMM Do, YYYY HH:mm:ss");
 export const calculateDuration = (startTime, endTime) => {
     const startMoment = moment(startTime);
     const endMoment = moment(endTime || new Date());
-    
+
     if (!startTime) {
         return null;
     }
@@ -40,7 +40,7 @@ export const getHigestVersionCvssData = (cvssData) => {
     if (isEmpty(cvssData)) {
         return {};
     }
-    
+
     const sortedCvss = orderBy(cvssData || [], ["version"], ["desc"]);
 
     const {vector, metrics, version} = sortedCvss[0];
@@ -67,21 +67,26 @@ export const getHigestVersionCvssData = (cvssData) => {
     }
 }
 
-export const getFindingsColumnsConfigList = (tableTitle) => Object.values(FINDINGS_MAPPING).map(({totalKey, title, icon}) => {
+export const getFindingsColumnsConfigList = (props) => Object.values(FINDINGS_MAPPING).map(({totalKey, title, icon}) => {
+    const {tableTitle, withAssetPrefix=false} = props;
+    const prefix = (withAssetPrefix) ? "asset." : "";
+
     return {
         Header: <IconWithTooltip tooltipId={`table-header-${tableTitle}-${totalKey}`} tooltipText={title} name={icon} />,
         id: totalKey,
-        sortIds: [`summary.${totalKey}`],
+        sortIds: [`${prefix}summary.${totalKey}`],
         accessor: original => {
-            const {summary}  = original;
-            
+            const {summary}  = (withAssetPrefix) ? original.asset : original;
+
             return isEmpty(summary) ? 0 : (formatNumber(summary[totalKey] || 0));
         },
         width: 50
     }
 });
 
-export const getVulnerabilitiesColumnConfigItem = (tableTitle) => {
+export const getVulnerabilitiesColumnConfigItem = (props) => {
+    const { tableTitle, withAssetPrefix=false } = props;
+    const prefix = (withAssetPrefix) ? "asset." : "";
     const {title: vulnerabilitiesTitle, icon: vulnerabilitiesIcon} = VULNERABIITY_FINDINGS_ITEM;
 
     return {
@@ -94,15 +99,15 @@ export const getVulnerabilitiesColumnConfigItem = (tableTitle) => {
         ),
         id: "vulnerabilities",
         sortIds: [
-            "summary.totalVulnerabilities.totalCriticalVulnerabilities",
-            "summary.totalVulnerabilities.totalHighVulnerabilities",
-            "summary.totalVulnerabilities.totalMediumVulnerabilities",
-            "summary.totalVulnerabilities.totalLowVulnerabilities",
-            "summary.totalVulnerabilities.totalNegligibleVulnerabilities"
+            `${prefix}summary.totalVulnerabilities.totalCriticalVulnerabilities`,
+            `${prefix}summary.totalVulnerabilities.totalHighVulnerabilities`,
+            `${prefix}summary.totalVulnerabilities.totalMediumVulnerabilities`,
+            `${prefix}summary.totalVulnerabilities.totalLowVulnerabilities`,
+            `${prefix}summary.totalVulnerabilities.totalNegligibleVulnerabilities`
         ],
         Cell: ({row}) => {
-            const {id, summary} = row.original;
-            
+            const {id, summary} = (withAssetPrefix) ? row.original.asset : row.original;
+
             return (
                 <VulnerabilitiesDisplay minimizedTooltipId={id} counters={summary?.totalVulnerabilities} isMinimized />
             )
@@ -149,7 +154,7 @@ export const scanColumnsFiltersConfig = [
 
 export const getAssetColumnsFiltersConfig = (props) => {
     const {prefix="assetInfo", withType=true, withLabels=true} = props || {};
-    
+
     const ASSET_TYPE_ITEMS = [
         {value: "VMInfo", label: "VMInfo"},
         {value: "ContainerInfo", label: "ContainerInfo"},
@@ -157,7 +162,7 @@ export const getAssetColumnsFiltersConfig = (props) => {
         {value: "PodInfo", label: "PodInfo"},
         {value: "DirInfo", label: "DirInfo"}
     ]
-    
+
     return [
         {value: `${prefix}.instanceID`, label: "Asset name", operators: [
             {...OPERATORS.eq, valueItems: [], creatable: true},

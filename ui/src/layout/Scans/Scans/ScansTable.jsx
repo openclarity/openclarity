@@ -82,20 +82,20 @@ const ScansTable = () => {
             },
             width: 150
         },
-        getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
-        ...getFindingsColumnsConfigList(TABLE_TITLE),
+        getVulnerabilitiesColumnConfigItem({tableTile: TABLE_TITLE}),
+        ...getFindingsColumnsConfigList({tableTitle: TABLE_TITLE}),
         {
             Header: "Scanned assets",
             id: "assets",
             sortIds: ["summary.jobsCompleted"],
             accessor: original => {
                 const {jobsCompleted, jobsLeftToRun} = original.summary || {};
-                
+
                 return `${formatNumber(jobsCompleted)}/${formatNumber(jobsCompleted + jobsLeftToRun)}`;
             }
         }
     ], []);
-    
+
     return (
         <TablePage
             columns={columns}

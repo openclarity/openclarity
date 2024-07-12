@@ -8,6 +8,7 @@ import {useLocation} from "react-router-dom";
 import {FILTER_TYPES, setFilters, useFilterDispatch} from "../../../context/FiltersProvider.js";
 import {ROUTES} from "../../../utils/systemConsts.js";
 import VulnerabilitiesDisplay from "../../../components/VulnerabilitiesDisplay/index.jsx";
+import AssetCountDisplay from '../AssetCountDisplay';
 
 const TabPackageDetails = ({data}) => {
     const {pathname} = useLocation();
@@ -43,7 +44,8 @@ const TabPackageDetails = ({data}) => {
                         <TitleValueDisplay title="Licenses"><ValuesListDisplay values={licenses} /></TitleValueDisplay>
                     </TitleValueDisplayRow>
                     <FindingsDetailsCommonFields firstSeen={firstSeen} lastSeen={lastSeen} />
-                </>  
+                    {AssetCountDisplay(id)}
+                </>
             )}
             rightPlaneDisplay={() => (
                 <>

@@ -81,8 +81,8 @@ const AssetsTable = () => {
             sortIds: ["terminatedOn"],
             accessor: original => formatDate(original?.terminatedOn)
         }]),
-        getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
-        ...getFindingsColumnsConfigList(TABLE_TITLE)
+        getVulnerabilitiesColumnConfigItem({tableTile: TABLE_TITLE}),
+        ...getFindingsColumnsConfigList({tableTile: TABLE_TITLE})
     ], [hideTerminated]);
     
     if (isUndefined(hideTerminated)) {
