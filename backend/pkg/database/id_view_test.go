@@ -16,8 +16,9 @@
 package database
 
 import (
-	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 	"testing"
+
+	"github.com/openclarity/kubeclarity/api/server/restapi/operations"
 )
 
 func TestIdView(t *testing.T) {
