@@ -286,4 +286,4 @@ replace (
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
-replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240610092413-9adc7dbafe42
+replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240708093153-6040e8a3074b
