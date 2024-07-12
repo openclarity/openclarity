@@ -24,53 +24,26 @@ import (
 
 func TestStripPathFromResult(t *testing.T) {
 	type args struct {
-		result types.ScannerResult
+		result []types.Misconfiguration
 		path   string
 	}
 	tests := []struct {
 		name string
 		args args
-		want types.ScannerResult
+		want []types.Misconfiguration
 	}{
 		{
 			name: "sanity",
 			args: args{
-				result: types.ScannerResult{
-					ScannerName: "scanner1",
-					Misconfigurations: []types.Misconfiguration{
-						{
-							Location:    "/mnt/foo",
-							Category:    "test1",
-							ID:          "id1",
-							Description: "desc1",
-						},
-						{
-							Location:    "/mnt/foo2",
-							Category:    "test2",
-							ID:          "id2",
-							Description: "desc2",
-						},
-						{
-							Location:    "/foo3",
-							Category:    "test3",
-							ID:          "id3",
-							Description: "desc3",
-						},
-					},
-				},
-				path: "/mnt",
-			},
-			want: types.ScannerResult{
-				ScannerName: "scanner1",
-				Misconfigurations: []types.Misconfiguration{
+				result: []types.Misconfiguration{
 					{
-						Location:    "/foo",
+						Location:    "/mnt/foo",
 						Category:    "test1",
 						ID:          "id1",
 						Description: "desc1",
 					},
 					{
-						Location:    "/foo2",
+						Location:    "/mnt/foo2",
 						Category:    "test2",
 						ID:          "id2",
 						Description: "desc2",
@@ -82,12 +55,33 @@ func TestStripPathFromResult(t *testing.T) {
 						Description: "desc3",
 					},
 				},
+				path: "/mnt",
+			},
+			want: []types.Misconfiguration{
+				{
+					Location:    "/foo",
+					Category:    "test1",
+					ID:          "id1",
+					Description: "desc1",
+				},
+				{
+					Location:    "/foo2",
+					Category:    "test2",
+					ID:          "id2",
+					Description: "desc2",
+				},
+				{
+					Location:    "/foo3",
+					Category:    "test3",
+					ID:          "id3",
+					Description: "desc3",
+				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := StripPathFromResult(tt.args.result, tt.args.path); !reflect.DeepEqual(got, tt.want) {
+			if got := stripPathFromResult(tt.args.result, tt.args.path); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("StripPathFromResult() = %v, want %v", got, tt.want)
 			}
 		})

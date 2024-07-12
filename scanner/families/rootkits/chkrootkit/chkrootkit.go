@@ -20,87 +20,69 @@ import (
 	"fmt"
 	"os/exec"
 
-	log "github.com/sirupsen/logrus"
-
+	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/rootkits/chkrootkit/config"
 	chkrootkitutils "github.com/openclarity/vmclarity/scanner/families/rootkits/chkrootkit/utils"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits/common"
+	"github.com/openclarity/vmclarity/scanner/families/rootkits/types"
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
 	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
-const (
-	ScannerName      = "chkrootkit"
-	ChkrootkitBinary = "chkrootkit"
-)
+const ScannerName = "chkrootkit"
 
 type Scanner struct {
-	name       string
-	logger     *log.Entry
-	config     config.Config
-	resultChan chan job_manager.Result
+	config config.Config
 }
 
-func (s *Scanner) Run(ctx context.Context, sourceType utils.SourceType, userInput string) error {
-	go func(ctx context.Context) {
-		retResults := common.Results{
-			ScannedInput: userInput,
-			ScannerName:  ScannerName,
-		}
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Rootkit], error) {
+	return &Scanner{
+		config: config.Chkrootkit,
+	}, nil
+}
 
-		if !s.isValidInputType(sourceType) {
-			retResults.Error = fmt.Errorf("received invalid input type for chkrootkit scanner: %v", sourceType)
-			s.sendResults(retResults, nil)
-			return
-		}
+func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) ([]types.Rootkit, error) {
+	if !inputType.IsOneOf(common.DIR, common.ROOTFS, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR) {
+		return nil, fmt.Errorf("unsupported input type=%v", inputType)
+	}
 
-		// Locate chkrootkit binary
-		if s.config.BinaryPath == "" {
-			s.config.BinaryPath = ChkrootkitBinary
-		}
+	logger := log.GetLoggerFromContextOrDefault(ctx)
 
-		chkrootkitBinaryPath, err := exec.LookPath(s.config.BinaryPath)
-		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to lookup executable %s: %w", s.config.BinaryPath, err))
-			return
-		}
-		s.logger.Debugf("found chkrootkit binary at: %s", chkrootkitBinaryPath)
+	chkrootkitBinaryPath, err := exec.LookPath(s.config.GetBinaryPath())
+	if err != nil {
+		return nil, fmt.Errorf("failed to lookup executable %s: %w", s.config.BinaryPath, err)
+	}
+	logger.Debugf("found chkrootkit binary at: %s", chkrootkitBinaryPath)
 
-		fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(ctx, sourceType, userInput)
-		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to convert input to filesystem: %w", err))
-			return
-		}
-		defer cleanup()
+	fsPath, cleanup, err := familiesutils.ConvertInputToFilesystem(ctx, inputType, userInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert input to filesystem: %w", err)
+	}
+	defer cleanup()
 
-		args := []string{
-			"-r", // Set userInput as the path to the root volume
-			fsPath,
-		}
+	args := []string{
+		"-r", // Set userInput as the path to the root volume
+		fsPath,
+	}
 
-		// nolint:gosec
-		cmd := exec.Command(chkrootkitBinaryPath, args...)
-		s.logger.Infof("running chkrootkit command: %v", cmd.String())
-		out, err := utils.RunCommand(cmd)
-		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to run chkrootkit command: %w", err))
-			return
-		}
+	// nolint:gosec
+	cmd := exec.Command(chkrootkitBinaryPath, args...)
+	logger.Infof("running chkrootkit command: %v", cmd.String())
+	out, err := utils.RunCommand(cmd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to run chkrootkit command: %w", err)
+	}
 
-		rootkits, err := chkrootkitutils.ParseChkrootkitOutput(out)
-		if err != nil {
-			s.sendResults(retResults, fmt.Errorf("failed to parse chkrootkit output: %w", err))
-			return
-		}
-		rootkits = filterResults(rootkits)
+	parsedRootkits, err := chkrootkitutils.ParseChkrootkitOutput(out)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chkrootkit output: %w", err)
+	}
+	parsedRootkits = filterResults(parsedRootkits)
 
-		retResults.Rootkits = toResultsRootkits(rootkits)
+	rootkits := toResultsRootkits(parsedRootkits)
 
-		s.sendResults(retResults, nil)
-	}(ctx)
-
-	return nil
+	return rootkits, nil
 }
 
 func filterResults(rootkits []chkrootkitutils.Rootkit) []chkrootkitutils.Rootkit {
@@ -118,15 +100,15 @@ func filterResults(rootkits []chkrootkitutils.Rootkit) []chkrootkitutils.Rootkit
 	return ret
 }
 
-func toResultsRootkits(rootkits []chkrootkitutils.Rootkit) []common.Rootkit {
+func toResultsRootkits(rootkits []chkrootkitutils.Rootkit) []types.Rootkit {
 	// nolint:prealloc
-	var ret []common.Rootkit
+	var ret []types.Rootkit
 	for _, rootkit := range rootkits {
 		if !rootkit.Infected {
 			continue
 		}
 
-		ret = append(ret, common.Rootkit{
+		ret = append(ret, types.Rootkit{
 			Message:     rootkit.Message,
 			RootkitName: rootkit.RkName,
 			RootkitType: rootkit.RkType,
@@ -134,38 +116,4 @@ func toResultsRootkits(rootkits []chkrootkitutils.Rootkit) []common.Rootkit {
 	}
 
 	return ret
-}
-
-func New(_ string, c job_manager.IsConfig, logger *log.Entry, resultChan chan job_manager.Result) job_manager.Job {
-	conf := c.(*common.ScannersConfig) // nolint:forcetypeassert
-	return &Scanner{
-		name:       ScannerName,
-		logger:     logger.Dup().WithField("scanner", ScannerName),
-		config:     config.Config{BinaryPath: conf.Chkrootkit.BinaryPath},
-		resultChan: resultChan,
-	}
-}
-
-func (s *Scanner) isValidInputType(sourceType utils.SourceType) bool {
-	switch sourceType {
-	case utils.DIR, utils.ROOTFS, utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
-		return true
-	case utils.FILE, utils.SBOM:
-		fallthrough
-	default:
-		s.logger.Infof("source type %v is not supported for chkrootkit, skipping.", sourceType)
-	}
-	return false
-}
-
-func (s *Scanner) sendResults(results common.Results, err error) {
-	if err != nil {
-		s.logger.Error(err)
-		results.Error = err
-	}
-	select {
-	case s.resultChan <- &results:
-	default:
-		s.logger.Error("Failed to send results on channel")
-	}
 }

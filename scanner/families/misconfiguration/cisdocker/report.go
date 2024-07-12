@@ -18,8 +18,9 @@ package cisdocker
 import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 
+	"github.com/openclarity/vmclarity/scanner/common"
+
 	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
 const (
@@ -30,11 +31,11 @@ var scanDirIgnoreIDs = map[string]struct{}{
 	dockle_types.UseContentTrust: {},
 }
 
-func parseDockleReport(sourceType utils.SourceType, imageName string, assessmentMap dockle_types.AssessmentMap) []types.Misconfiguration {
+func parseDockleReport(inputType common.InputType, imageName string, assessmentMap dockle_types.AssessmentMap) []types.Misconfiguration {
 	ret := make([]types.Misconfiguration, 0, len(assessmentMap))
 
 	for _, codeInfo := range assessmentMap {
-		if sourceType == utils.ROOTFS || sourceType == utils.DIR {
+		if inputType.IsOneOf(common.ROOTFS, common.DIR) {
 			if _, ok := scanDirIgnoreIDs[codeInfo.Code]; ok {
 				continue
 			}

@@ -18,9 +18,10 @@ package sbom
 import (
 	"fmt"
 
+	"github.com/openclarity/vmclarity/scanner/utils/converter"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 
-	"github.com/openclarity/vmclarity/scanner/converter"
 	"github.com/openclarity/vmclarity/scanner/utils/cyclonedx_helper"
 )
 

@@ -23,8 +23,7 @@ import (
 	"strings"
 
 	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/common"
 	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
 )
 
@@ -57,9 +56,9 @@ func ShouldStripInputPath(inputShouldStrip *bool, familyShouldStrip bool) bool {
 	return *inputShouldStrip
 }
 
-func GetInputSize(input types.Input) (int64, error) {
+func GetInputSize(input common.ScanInput) (int64, error) {
 	switch input.InputType {
-	case string(utils.ROOTFS), string(utils.DIR), string(utils.FILE):
+	case common.ROOTFS, common.DIR, common.FILE:
 		// check if already exists in cache
 		sizeFromCache, ok := InputSizesCache[input.Input]
 		if ok {
@@ -73,6 +72,8 @@ func GetInputSize(input types.Input) (int64, error) {
 		}
 		InputSizesCache[input.Input] = size
 		return size, nil
+	case common.SBOM, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR, common.CSV:
+		fallthrough
 	default:
 		// currently other input types are not supported for size benchmarking.
 		return 0, nil
@@ -114,15 +115,15 @@ func DirSizeMB(path string) (int64, error) {
 // pass it down from the family manager to the scanners.
 var ContainerRootfsCache *containerrootfs.Cache
 
-func ConvertInputToFilesystem(ctx context.Context, sourceType utils.SourceType, userInput string) (string, func(), error) {
+func ConvertInputToFilesystem(ctx context.Context, sourceType common.InputType, userInput string) (string, func(), error) {
 	switch sourceType {
-	case utils.DIR, utils.ROOTFS:
+	case common.DIR, common.ROOTFS:
 		return userInput, func() {}, nil
-	case utils.IMAGE, utils.DOCKERARCHIVE, utils.OCIARCHIVE, utils.OCIDIR:
+	case common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR:
 		// TODO(sambetts) Remove this when we're able to pass the
 		// context all the way from the family manager.
 		ctx := containerrootfs.SetCacheForContext(ctx, ContainerRootfsCache)
-		rootfs, err := containerrootfs.ToTempDirectory(ctx, utils.CreateSource(sourceType, false)+":"+userInput)
+		rootfs, err := containerrootfs.ToTempDirectory(ctx, sourceType.GetSource(false)+":"+userInput)
 		if err != nil {
 			return "", func() {}, fmt.Errorf("failed to expand container to rootfs directory: %w", err)
 		}
@@ -133,7 +134,7 @@ func ConvertInputToFilesystem(ctx context.Context, sourceType utils.SourceType, 
 			}
 		}
 		return rootfs.Dir(), cleanup, nil
-	case utils.SBOM, utils.FILE:
+	case common.SBOM, common.FILE, common.CSV:
 		fallthrough
 	default:
 		return "", func() {}, fmt.Errorf("unable to convert %s to filesystem", sourceType)

@@ -27,16 +27,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	cli "github.com/openclarity/vmclarity/cli"
-	"github.com/openclarity/vmclarity/cli/cmd/logutil"
-
-	"github.com/openclarity/vmclarity/cli/state"
-
-	"github.com/openclarity/vmclarity/cli/presenter"
-
 	apiclient "github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/vmclarity/cli"
+	"github.com/openclarity/vmclarity/cli/cmd/logutil"
+	"github.com/openclarity/vmclarity/cli/presenter"
+	"github.com/openclarity/vmclarity/cli/state"
 	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner"
+	scannercommon "github.com/openclarity/vmclarity/scanner/common"
 )
 
 const (
@@ -48,7 +46,7 @@ const (
 var ScanCmd = &cobra.Command{
 	Use:   "scan",
 	Short: "Scan",
-	Long:  `Run scanner families`,
+	Long:  `Run scanner`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logutil.Logger.Infof("Running...")
 
@@ -111,7 +109,7 @@ var ScanCmd = &cobra.Command{
 				}
 				return err
 			}
-			families.SetMountPointsForFamiliesInput(mountPoints, config)
+			config.AddInputs(scannercommon.ROOTFS, mountPoints)
 		}
 
 		err = cli.MarkInProgress(ctx, config)
@@ -120,10 +118,10 @@ var ScanCmd = &cobra.Command{
 		}
 
 		logutil.Logger.Infof("Running scanners...")
-		runErrors := families.New(config).Run(abortCtx, cli)
+		runErrors := scanner.New(config).Run(abortCtx, cli)
 
 		if len(runErrors) > 0 {
-			logutil.Logger.Errorf("Errors when running families: %+v", runErrors)
+			logutil.Logger.Errorf("Errors when running scanners: %+v", runErrors)
 			err := cli.MarkFailed(ctx, errors.Join(runErrors...).Error())
 			if err != nil {
 				return fmt.Errorf("failed to inform the server %v that scan failed: %w", server, err)
@@ -158,7 +156,7 @@ func init() {
 }
 
 // loadConfig reads in config file and ENV variables if set.
-func loadConfig(cfgFile string) *families.Config {
+func loadConfig(cfgFile string) *scanner.Config {
 	logutil.Logger.Infof("Initializing configuration...")
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -182,7 +180,7 @@ func loadConfig(cfgFile string) *families.Config {
 	cobra.CheckErr(err)
 
 	// Load config
-	config := &families.Config{}
+	config := &scanner.Config{}
 	err = viper.Unmarshal(config)
 	cobra.CheckErr(err)
 
@@ -195,13 +193,13 @@ func loadConfig(cfgFile string) *families.Config {
 	return config
 }
 
-func newCli(config *families.Config, server, assetScanID, output string) (*cli.CLI, error) {
+func newCli(config *scanner.Config, server, assetScanID, output string) (*cli.CLI, error) {
 	var manager state.Manager
 	var presenters []presenter.Presenter
 	var err error
 
 	if config == nil {
-		return nil, errors.New("families config must not be nil")
+		return nil, errors.New("scanner config must not be nil")
 	}
 
 	if server != "" {
@@ -243,5 +241,5 @@ func newCli(config *families.Config, server, assetScanID, output string) (*cli.C
 		p = &presenter.MultiPresenter{Presenters: presenters}
 	}
 
-	return &cli.CLI{Manager: manager, Presenter: p, FamiliesConfig: config}, nil
+	return &cli.CLI{Manager: manager, Presenter: p, Config: config}, nil
 }

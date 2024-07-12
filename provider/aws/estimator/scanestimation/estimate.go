@@ -27,8 +27,8 @@ import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider/common"
-	familiestypes "github.com/openclarity/vmclarity/scanner/families/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+	familiestypes "github.com/openclarity/vmclarity/scanner/families"
 )
 
 type MarketOption string
@@ -300,7 +300,7 @@ func findMatchingStatsForInputTypeRootFS(stats *[]apitypes.AssetScanInputScanSta
 		return apitypes.AssetScanInputScanStats{}, false
 	}
 	for i, scanStats := range *stats {
-		if *scanStats.Type == string(utils.ROOTFS) {
+		if *scanStats.Type == string(scannercommon.ROOTFS) {
 			ret := *stats
 			return ret[i], true
 		}

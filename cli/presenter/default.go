@@ -21,45 +21,45 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/openclarity/vmclarity/scanner"
 	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/exploits"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder"
-	"github.com/openclarity/vmclarity/scanner/families/malware"
-	"github.com/openclarity/vmclarity/scanner/families/plugins"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits"
-	"github.com/openclarity/vmclarity/scanner/families/sbom"
-	"github.com/openclarity/vmclarity/scanner/families/secrets"
-	"github.com/openclarity/vmclarity/scanner/families/types"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities"
+	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
+	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
+	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
+	plugins "github.com/openclarity/vmclarity/scanner/families/plugins/types"
+	rootkits "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
+	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
+	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
 )
 
 type DefaultPresenter struct {
 	Writer
 
-	FamiliesConfig *families.Config
+	Config *scanner.Config
 }
 
 func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
 	var err error
 
 	switch res.FamilyType {
-	case types.SBOM:
+	case families.SBOM:
 		err = p.ExportSbomResult(ctx, res)
-	case types.Vulnerabilities:
+	case families.Vulnerabilities:
 		err = p.ExportVulResult(ctx, res)
-	case types.Secrets:
+	case families.Secrets:
 		err = p.ExportSecretsResult(ctx, res)
-	case types.Exploits:
+	case families.Exploits:
 		err = p.ExportExploitsResult(ctx, res)
-	case types.Misconfiguration:
+	case families.Misconfiguration:
 		err = p.ExportMisconfigurationResult(ctx, res)
-	case types.Rootkits:
+	case families.Rootkits:
 		err = p.ExportRootkitResult(ctx, res)
-	case types.Malware:
+	case families.Malware:
 		err = p.ExportMalwareResult(ctx, res)
-	case types.InfoFinder:
+	case families.InfoFinder:
 		err = p.ExportInfoFinderResult(ctx, res)
-	case types.Plugins:
+	case families.Plugins:
 		err = p.ExportPluginsFinderResult(ctx, res)
 	}
 
@@ -67,12 +67,12 @@ func (p *DefaultPresenter) ExportFamilyResult(ctx context.Context, res families.
 }
 
 func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res families.FamilyResult) error {
-	sbomResults, ok := res.Result.(*sbom.Results)
+	sbomResults, ok := res.Result.(*sbom.Result)
 	if !ok {
 		return errors.New("failed to convert to sbom results")
 	}
 
-	outputFormat := p.FamiliesConfig.SBOM.AnalyzersConfig.Analyzer.OutputFormat
+	outputFormat := p.Config.SBOM.GetOutputFormat()
 	sbomBytes, err := sbomResults.EncodeToBytes(outputFormat)
 	if err != nil {
 		return fmt.Errorf("failed to encode sbom results to bytes: %w", err)
@@ -86,12 +86,12 @@ func (p *DefaultPresenter) ExportSbomResult(_ context.Context, res families.Fami
 }
 
 func (p *DefaultPresenter) ExportVulResult(_ context.Context, res families.FamilyResult) error {
-	vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
+	vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Result)
 	if !ok {
 		return errors.New("failed to convert to vulnerabilities results")
 	}
 
-	bytes, err := json.Marshal(vulnerabilitiesResults.MergedResults)
+	bytes, err := json.Marshal(vulnerabilitiesResults)
 	if err != nil {
 		return fmt.Errorf("failed to output vulnerabilities results: %w", err)
 	}
@@ -103,7 +103,7 @@ func (p *DefaultPresenter) ExportVulResult(_ context.Context, res families.Famil
 }
 
 func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res families.FamilyResult) error {
-	secretsResults, ok := res.Result.(*secrets.Results)
+	secretsResults, ok := res.Result.(*secrets.Result)
 	if !ok {
 		return errors.New("failed to convert to secrets results")
 	}
@@ -120,7 +120,7 @@ func (p *DefaultPresenter) ExportSecretsResult(_ context.Context, res families.F
 }
 
 func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res families.FamilyResult) error {
-	malwareResults, ok := res.Result.(*malware.MergedResults)
+	malwareResults, ok := res.Result.(*malware.Result)
 	if !ok {
 		return errors.New("failed to convert to malware results")
 	}
@@ -137,7 +137,7 @@ func (p *DefaultPresenter) ExportMalwareResult(_ context.Context, res families.F
 }
 
 func (p *DefaultPresenter) ExportExploitsResult(_ context.Context, res families.FamilyResult) error {
-	exploitsResults, ok := res.Result.(*exploits.Results)
+	exploitsResults, ok := res.Result.(*exploits.Result)
 	if !ok {
 		return errors.New("failed to convert to exploits results")
 	}
@@ -159,7 +159,7 @@ func (p *DefaultPresenter) ExportMisconfigurationResult(context.Context, familie
 }
 
 func (p *DefaultPresenter) ExportRootkitResult(_ context.Context, res families.FamilyResult) error {
-	rootkitsResults, ok := res.Result.(*rootkits.Results)
+	rootkitsResults, ok := res.Result.(*rootkits.Result)
 	if !ok {
 		return errors.New("failed to convert to rootkits results")
 	}
@@ -180,7 +180,7 @@ func (p *DefaultPresenter) ExportInfoFinderResult(_ context.Context, res familie
 		return nil
 	}
 
-	infoFinderResults, ok := res.Result.(*infofinder.Results)
+	infoFinderResults, ok := res.Result.(*infofinder.Result)
 	if !ok {
 		return errors.New("failed to convert to infofinder results")
 	}
@@ -202,7 +202,7 @@ func (p *DefaultPresenter) ExportPluginsFinderResult(_ context.Context, res fami
 		return nil
 	}
 
-	pluginsResults, ok := res.Result.(*plugins.Results)
+	pluginsResults, ok := res.Result.(*plugins.Result)
 	if !ok {
 		return errors.New("failed to convert to plugins results")
 	}

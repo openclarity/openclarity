@@ -22,12 +22,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/openclarity/vmclarity/scanner"
+	"github.com/openclarity/vmclarity/scanner/families"
+
 	apiclient "github.com/openclarity/vmclarity/api/client"
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/types"
 )
 
 const (
@@ -78,7 +79,7 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 	}
 }
 
-func (v *VMClarityState) MarkInProgress(ctx context.Context, config *families.Config) error {
+func (v *VMClarityState) MarkInProgress(ctx context.Context, config *scanner.Config) error {
 	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
@@ -154,26 +155,26 @@ func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) er
 	return nil
 }
 
-func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyType types.FamilyType) error {
+func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyType families.FamilyType) error {
 	var err error
 	switch familyType {
-	case types.SBOM:
+	case families.SBOM:
 		err = v.markSBOMScanInProgress(ctx)
-	case types.Vulnerabilities:
+	case families.Vulnerabilities:
 		err = v.markVulnerabilitiesScanInProgress(ctx)
-	case types.Secrets:
+	case families.Secrets:
 		err = v.markSecretsScanInProgress(ctx)
-	case types.Exploits:
+	case families.Exploits:
 		err = v.markExploitsScanInProgress(ctx)
-	case types.Misconfiguration:
+	case families.Misconfiguration:
 		err = v.markMisconfigurationsScanInProgress(ctx)
-	case types.Rootkits:
+	case families.Rootkits:
 		err = v.markRootkitsScanInProgress(ctx)
-	case types.Malware:
+	case families.Malware:
 		err = v.markMalwareScanInProgress(ctx)
-	case types.InfoFinder:
+	case families.InfoFinder:
 		err = v.markInfoFinderScanInProgress(ctx)
-	case types.Plugins:
+	case families.Plugins:
 		err = v.markPluginsScanInProgress(ctx)
 	}
 	return err
@@ -425,7 +426,7 @@ func NewVMClarityState(client *apiclient.Client, id AssetScanID) (*VMClarityStat
 	}, nil
 }
 
-func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, config *families.Config) (*apitypes.Annotations, error) {
+func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, config *scanner.Config) (*apitypes.Annotations, error) {
 	var newAnnotations apitypes.Annotations
 	if annotations != nil {
 		// Add all annotations except the effective scan config one.

@@ -18,79 +18,57 @@ package infofinder
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/job"
-	infofinderTypes "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	"github.com/openclarity/vmclarity/scanner/families/interfaces"
-	"github.com/openclarity/vmclarity/scanner/families/results"
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 )
 
 type InfoFinder struct {
-	conf infofinderTypes.Config
+	conf types.Config
 }
 
-func (i InfoFinder) Run(ctx context.Context, _ *results.Results) (interfaces.IsResults, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "info finder")
-	logger.Info("InfoFinder Run...")
-
-	infoFinderResults := NewResults()
-
-	manager := job_manager.New(i.conf.ScannersList, i.conf.ScannersConfig, logger, job.Factory)
-	for _, input := range i.conf.Inputs {
-		startTime := time.Now()
-		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for info: %w", input.Input, err)
-		}
-		endTime := time.Now()
-		inputSize, err := familiesutils.GetInputSize(input)
-		if err != nil {
-			logger.Warnf("Failed to calculate input %v size: %v", input, err)
-		}
-
-		// Merge results.
-		for name, result := range managerResults {
-			logger.Infof("Merging result from %q", name)
-			if assetScan, ok := result.(*infofinderTypes.ScannerResult); ok {
-				if familiesutils.ShouldStripInputPath(input.StripPathFromResult, i.conf.StripInputPaths) {
-					assetScan = stripPathFromResult(assetScan, input.Input)
-				}
-				infoFinderResults.AddScannerResult(assetScan)
-			} else {
-				return nil, fmt.Errorf("received bad scanner result type %T, expected infofinderTypes.ScannerResult", result)
-			}
-		}
-		infoFinderResults.Metadata.InputScans = append(infoFinderResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
-	}
-
-	logger.Info("InfoFinder Done...")
-
-	return infoFinderResults, nil
-}
-
-// stripPathFromResult strip input path from results wherever it is found.
-func stripPathFromResult(result *infofinderTypes.ScannerResult, path string) *infofinderTypes.ScannerResult {
-	for i := range result.Infos {
-		result.Infos[i].Path = familiesutils.TrimMountPath(result.Infos[i].Path, path)
-	}
-	return result
-}
-
-func (i InfoFinder) GetType() types.FamilyType {
-	return types.InfoFinder
-}
-
-// ensure types implement the requisite interfaces.
-var _ interfaces.Family = &InfoFinder{}
-
-func New(conf infofinderTypes.Config) *InfoFinder {
+func New(conf types.Config) families.Family[*types.Result] {
 	return &InfoFinder{
 		conf: conf,
 	}
+}
+
+func (i InfoFinder) GetType() families.FamilyType {
+	return families.InfoFinder
+}
+
+func (i InfoFinder) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	// Run all scanners using scan manager
+	manager := scan_manager.New(i.conf.ScannersList, i.conf.ScannersConfig, Factory)
+	results, err := manager.Scan(ctx, i.conf.Inputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process inputs for infofinders: %w", err)
+	}
+
+	infos := types.NewResult()
+
+	// Merge results
+	for _, result := range results {
+		logger.Infof("Merging result from %q", result.Metadata)
+
+		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, i.conf.StripInputPaths) {
+			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		}
+		infos.Merge(result.Metadata, result.ScanResult)
+	}
+
+	return infos, nil
+}
+
+// stripPathFromResult strip input path from results wherever it is found.
+func stripPathFromResult(infos []types.Info, path string) []types.Info {
+	for i := range infos {
+		infos[i].Path = familiesutils.TrimMountPath(infos[i].Path, path)
+	}
+	return infos
 }

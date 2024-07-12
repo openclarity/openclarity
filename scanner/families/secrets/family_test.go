@@ -19,61 +19,34 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openclarity/vmclarity/scanner/families/secrets/common"
+	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
 )
 
 func TestStripPathFromResult(t *testing.T) {
 	type args struct {
-		result *common.Results
+		result []types.Finding
 		path   string
 	}
 	tests := []struct {
 		name string
 		args args
-		want *common.Results
+		want []types.Finding
 	}{
 		{
 			name: "sanity",
 			args: args{
-				result: &common.Results{
-					Findings: []common.Findings{
-						{
-							Description: "description",
-							File:        "/mnt/file1",
-							Message:     "message",
-							Fingerprint: "finger:/mnt:hello",
-						},
-						{
-							Description: "description2",
-							File:        "/mnt/file2",
-							Message:     "message",
-							Fingerprint: "finger:/mnt/foo:hello2",
-						},
-						{
-							Description: "description3",
-							File:        "file3",
-							Message:     "message",
-							Fingerprint: "finger:hello3",
-						},
-					},
-					Source:      "source",
-					ScannerName: "name",
-				},
-				path: "/mnt",
-			},
-			want: &common.Results{
-				Findings: []common.Findings{
+				result: []types.Finding{
 					{
 						Description: "description",
-						File:        "/file1",
+						File:        "/mnt/file1",
 						Message:     "message",
-						Fingerprint: "finger:/:hello",
+						Fingerprint: "finger:/mnt:hello",
 					},
 					{
 						Description: "description2",
-						File:        "/file2",
+						File:        "/mnt/file2",
 						Message:     "message",
-						Fingerprint: "finger:/foo:hello2",
+						Fingerprint: "finger:/mnt/foo:hello2",
 					},
 					{
 						Description: "description3",
@@ -82,14 +55,33 @@ func TestStripPathFromResult(t *testing.T) {
 						Fingerprint: "finger:hello3",
 					},
 				},
-				Source:      "source",
-				ScannerName: "name",
+				path: "/mnt",
+			},
+			want: []types.Finding{
+				{
+					Description: "description",
+					File:        "/file1",
+					Message:     "message",
+					Fingerprint: "finger:/:hello",
+				},
+				{
+					Description: "description2",
+					File:        "/file2",
+					Message:     "message",
+					Fingerprint: "finger:/foo:hello2",
+				},
+				{
+					Description: "description3",
+					File:        "file3",
+					Message:     "message",
+					Fingerprint: "finger:hello3",
+				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := StripPathFromResult(tt.args.result, tt.args.path); !reflect.DeepEqual(got, tt.want) {
+			if got := stripPathFromResult(tt.args.result, tt.args.path); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("StripPathFromResult() = %v, want %v", got, tt.want)
 			}
 		})

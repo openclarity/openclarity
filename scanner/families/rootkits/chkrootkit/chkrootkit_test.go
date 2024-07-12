@@ -25,7 +25,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	chkrootkitutils "github.com/openclarity/vmclarity/scanner/families/rootkits/chkrootkit/utils"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits/common"
+	"github.com/openclarity/vmclarity/scanner/families/rootkits/types"
 )
 
 func Test_toResultsRootkits(t *testing.T) {
@@ -40,14 +40,14 @@ func Test_toResultsRootkits(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []common.Rootkit
+		want []types.Rootkit
 	}{
 		{
 			name: "sanity",
 			args: args{
 				rootkits: rootkits,
 			},
-			want: []common.Rootkit{
+			want: []types.Rootkit{
 				{
 					Message:     "/usr/lib/debug/usr/.dwz /usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/.vmlinuz.hmac /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes\n/usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes",
 					RootkitName: "suspicious files and dirs",
@@ -69,7 +69,7 @@ func Test_toResultsRootkits(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := toResultsRootkits(tt.args.rootkits)
-			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b common.Rootkit) bool { return a.RootkitName < b.RootkitName })); diff != "" {
+			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(a, b types.Rootkit) bool { return a.RootkitName < b.RootkitName })); diff != "" {
 				t.Errorf("toResultsRootkits() mismatch (-want +got):\n%s", diff)
 			}
 		})
