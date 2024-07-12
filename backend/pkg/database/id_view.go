@@ -65,19 +65,17 @@ func (i *IDsViewHandler) GetIDs(params GetIDsParams, idsShouldMatch bool) ([]str
 	}
 
 	lookupIDColumnName := getIDViewColumnNameByIDType(params.LookupIDType)
+	filterIDColumnName := getIDViewColumnNameByIDType(params.FilterIDType)
 
 	// we will use Session(&gorm.Session{}) here so every call to the handler will start from scratch
 	tx := i.IDsView.
 		Session(&gorm.Session{}).
 		Select("distinct " + lookupIDColumnName)
 
-	filterIDColumnName := getIDViewColumnNameByIDType(params.FilterIDType)
-
 	if idsShouldMatch {
 		for _, id := range params.FilterIDs {
 			// for each OR filter we need to verify that lookup id column is not null to avoid failing during Find
-			tx.Or("? = ? AND ? is not null", filterIDColumnName, id,
-				lookupIDColumnName)
+			tx.Or(fmt.Sprintf("%s = ? AND %s is not null", filterIDColumnName, lookupIDColumnName), id)
 		}
 	} else {
 		for _, id := range params.FilterIDs {
