@@ -67,8 +67,8 @@ const AssetScansTable = () => {
                 return <StatusIndicator state={state} errors={message === undefined ? [] : [message]} tooltipId={original.id} />;
             }
         },
-        getVulnerabilitiesColumnConfigItem(TABLE_TITLE),
-        ...getFindingsColumnsConfigList(TABLE_TITLE)
+        getVulnerabilitiesColumnConfigItem({tableTile: TABLE_TITLE}),
+        ...getFindingsColumnsConfigList({tableTile: TABLE_TITLE})
     ], []);
 
     return (
