@@ -18,14 +18,14 @@ package state
 import (
 	"context"
 
+	"github.com/openclarity/vmclarity/scanner"
 	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/types"
 )
 
 type Manager interface {
 	WaitForReadyState(context.Context) error
-	MarkInProgress(context.Context, *families.Config) error
-	MarkFamilyScanInProgress(context.Context, types.FamilyType) error
+	MarkInProgress(context.Context, *scanner.Config) error
+	MarkFamilyScanInProgress(context.Context, families.FamilyType) error
 	MarkDone(context.Context) error
 	MarkFailed(context.Context, string) error
 	IsAborted(ctx context.Context) (bool, error)

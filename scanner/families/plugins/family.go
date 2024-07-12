@@ -18,85 +18,61 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"time"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
-	"github.com/openclarity/vmclarity/scanner/families/interfaces"
-	"github.com/openclarity/vmclarity/scanner/families/plugins/common"
+	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/plugins/runner"
-	"github.com/openclarity/vmclarity/scanner/families/results"
-	"github.com/openclarity/vmclarity/scanner/families/types"
-	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/families/plugins/types"
+	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 )
 
 type Plugins struct {
-	conf Config
+	conf types.Config
 }
 
-var _ interfaces.Family = &Plugins{}
-
-func (p *Plugins) Run(ctx context.Context, res *results.Results) (interfaces.IsResults, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "plugins")
-	logger.Info("Plugins Run...")
-
-	factory := job_manager.NewJobFactory()
-	for _, n := range p.conf.ScannersList {
-		factory.Register(n, runner.New)
-	}
-
-	// Top level BinaryMode overrides the individual scanner BinaryMode if set
-	if p.conf.BinaryMode != nil {
-		for name := range *p.conf.ScannersConfig {
-			// for _, config := range *p.conf.ScannersConfig {
-			config := (*p.conf.ScannersConfig)[name]
-			config.BinaryMode = *p.conf.BinaryMode
-			(*p.conf.ScannersConfig)[name] = config
-		}
-	}
-
-	manager := job_manager.New(p.conf.ScannersList, p.conf.ScannersConfig, logger, factory)
-
-	var pluginsResults Results
-	for _, input := range p.conf.Inputs {
-		startTime := time.Now()
-		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for plugins: %w", input.Input, err)
-		}
-		endTime := time.Now()
-		inputSize, err := familiesutils.GetInputSize(input)
-		if err != nil {
-			logger.Warnf("Failed to calculate input %v size: %v", input, err)
-		}
-
-		// Merge results from all plugins into the same output
-		var mergedResults []apitypes.FindingInfo
-		mergedPluginResult := make(map[string]plugintypes.Result)
-		for name, result := range managerResults {
-			logger.Infof("Merging result from %q", name)
-			mergedResults = append(mergedResults, result.(*common.Results).Findings...) //nolint:forcetypeassert
-			mergedPluginResult[name] = *result.(*common.Results).Output                 //nolint:forcetypeassert
-		}
-
-		pluginsResults.Findings = mergedResults
-		pluginsResults.PluginOutputs = mergedPluginResult
-		pluginsResults.Metadata.InputScans = append(pluginsResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
-	}
-
-	logger.Info("Plugins Done...")
-	return &pluginsResults, nil
-}
-
-func (p *Plugins) GetType() types.FamilyType {
-	return types.Plugins
-}
-
-func New(conf Config) *Plugins {
+func New(conf types.Config) families.Family[*types.Result] {
 	return &Plugins{
 		conf: conf,
 	}
+}
+
+func (p *Plugins) GetType() families.FamilyType {
+	return families.Plugins
+}
+
+func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	// Register plugins dynamically instead of creating a public factory. Users that
+	// want to run their own plugin scanners can do so through the config unlike for
+	// other families where they actually need the factory to run a custom family scanner.
+	factory := scan_manager.NewFactory[types.ScannersConfig, *types.ScannerResult]()
+	for _, scannerName := range p.conf.ScannersList {
+		factory.Register(scannerName, runner.New)
+	}
+
+	// Top level BinaryMode overrides the individual scanner BinaryMode if set
+	if p.conf.BinaryMode {
+		for name := range p.conf.ScannersConfig {
+			config := p.conf.ScannersConfig[name]
+			config.BinaryMode = p.conf.BinaryMode
+			p.conf.ScannersConfig[name] = config
+		}
+	}
+
+	manager := scan_manager.New(p.conf.ScannersList, p.conf.ScannersConfig, factory)
+	results, err := manager.Scan(ctx, p.conf.Inputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process inputs for plugins: %w", err)
+	}
+
+	pluginsResults := types.NewResult()
+
+	// Merge results
+	for _, result := range results {
+		logger.Infof("Merging result from %q", result.Metadata.ScannerName)
+		pluginsResults.Merge(result.Metadata, result.ScanResult)
+	}
+
+	return pluginsResults, nil
 }

@@ -23,30 +23,26 @@ import (
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families/exploits"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	"github.com/openclarity/vmclarity/scanner/families/malware"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration"
-	misconfigurationTypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits"
-	rootkitsTypes "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
-	"github.com/openclarity/vmclarity/scanner/families/sbom"
-	"github.com/openclarity/vmclarity/scanner/families/secrets"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities"
-	"github.com/openclarity/vmclarity/scanner/scanner"
+	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
+	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
+	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
+	misconfiguration "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	rootkits "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
+	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
+	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
 	"github.com/openclarity/vmclarity/scanner/utils/cyclonedx_helper"
 	"github.com/openclarity/vmclarity/scanner/utils/vulnerability"
 )
 
-func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []apitypes.Package {
+func ConvertSBOMResultToPackages(result *sbom.Result) []apitypes.Package {
 	packages := []apitypes.Package{}
 
-	if sbomResults == nil || sbomResults.SBOM == nil || sbomResults.SBOM.Components == nil {
+	if result == nil || result.SBOM == nil || result.SBOM.Components == nil {
 		return packages
 	}
 
-	for _, component := range *sbomResults.SBOM.Components {
+	for _, component := range *result.SBOM.Components {
 		packages = append(packages, apitypes.Package{
 			Cpes:     to.Ptr([]string{component.CPE}),
 			Language: to.Ptr(cyclonedx_helper.GetComponentLanguage(component)),
@@ -61,14 +57,14 @@ func ConvertSBOMResultToPackages(sbomResults *sbom.Results) []apitypes.Package {
 	return packages
 }
 
-func ConvertVulnResultToVulnerabilities(vulnerabilitiesResults *vulnerabilities.Results) []apitypes.Vulnerability {
+func ConvertVulnResultToVulnerabilities(result *vulnerabilities.Result) []apitypes.Vulnerability {
 	vuls := []apitypes.Vulnerability{}
 
-	if vulnerabilitiesResults == nil || vulnerabilitiesResults.MergedResults == nil || vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey == nil {
+	if result == nil || result.MergedVulnerabilitiesByKey == nil {
 		return vuls
 	}
 
-	for _, vulCandidates := range vulnerabilitiesResults.MergedResults.MergedVulnerabilitiesByKey {
+	for _, vulCandidates := range result.MergedVulnerabilitiesByKey {
 		if len(vulCandidates) < 1 {
 			continue
 		}
@@ -111,14 +107,14 @@ func ConvertVulnSeverityToAPIModel(severity string) *apitypes.VulnerabilitySever
 	}
 }
 
-func ConvertVulnFixToAPIModel(fix scanner.Fix) *apitypes.VulnerabilityFix {
+func ConvertVulnFixToAPIModel(fix vulnerabilities.Fix) *apitypes.VulnerabilityFix {
 	return &apitypes.VulnerabilityFix{
 		State:    to.Ptr(fix.State),
 		Versions: to.Ptr(fix.Versions),
 	}
 }
 
-func ConvertVulnDistroToAPIModel(distro scanner.Distro) *apitypes.VulnerabilityDistro {
+func ConvertVulnDistroToAPIModel(distro vulnerabilities.Distro) *apitypes.VulnerabilityDistro {
 	return &apitypes.VulnerabilityDistro{
 		IDLike:  to.Ptr(distro.IDLike),
 		Name:    to.Ptr(distro.Name),
@@ -126,22 +122,23 @@ func ConvertVulnDistroToAPIModel(distro scanner.Distro) *apitypes.VulnerabilityD
 	}
 }
 
-func ConvertVulnPackageToAPIModel(p scanner.Package) *apitypes.Package {
+func ConvertVulnPackageToAPIModel(pkg vulnerabilities.Package) *apitypes.Package {
 	return &apitypes.Package{
-		Cpes:     to.Ptr(p.CPEs),
-		Language: to.Ptr(p.Language),
-		Licenses: to.Ptr(p.Licenses),
-		Name:     to.Ptr(p.Name),
-		Purl:     to.Ptr(p.PURL),
-		Type:     to.Ptr(p.Type),
-		Version:  to.Ptr(p.Version),
+		Cpes:     to.Ptr(pkg.CPEs),
+		Language: to.Ptr(pkg.Language),
+		Licenses: to.Ptr(pkg.Licenses),
+		Name:     to.Ptr(pkg.Name),
+		Purl:     to.Ptr(pkg.PURL),
+		Type:     to.Ptr(pkg.Type),
+		Version:  to.Ptr(pkg.Version),
 	}
 }
 
-func ConvertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]apitypes.VulnerabilityCvss {
+func ConvertVulnCvssToAPIModel(cvss []vulnerabilities.CVSS) *[]apitypes.VulnerabilityCvss {
 	if cvss == nil {
 		return nil
 	}
+
 	// nolint:prealloc
 	var ret []apitypes.VulnerabilityCvss
 	for _, c := range cvss {
@@ -149,10 +146,12 @@ func ConvertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]apitypes.VulnerabilityCvs
 		if c.Metrics.ExploitabilityScore != nil {
 			exploitabilityScore = to.Ptr[float32](float32(*c.Metrics.ExploitabilityScore))
 		}
+
 		var impactScore *float32
 		if c.Metrics.ImpactScore != nil {
 			impactScore = to.Ptr[float32](float32(*c.Metrics.ImpactScore))
 		}
+
 		ret = append(ret, apitypes.VulnerabilityCvss{
 			Metrics: &apitypes.VulnerabilityCvssMetrics{
 				BaseScore:           to.Ptr(float32(c.Metrics.BaseScore)),
@@ -167,26 +166,28 @@ func ConvertVulnCvssToAPIModel(cvss []scanner.CVSS) *[]apitypes.VulnerabilityCvs
 	return &ret
 }
 
-func ConvertMalwareResultToMalwareAndMetadata(malwareResults *malware.MergedResults) ([]apitypes.Malware, []apitypes.ScannerMetadata) {
+func ConvertMalwareResultToMalwareAndMetadata(result *malware.Result) ([]apitypes.Malware, []apitypes.ScannerMetadata) {
 	malwareList := []apitypes.Malware{}
 	metadata := []apitypes.ScannerMetadata{}
 
-	if malwareResults == nil || malwareResults.DetectedMalware == nil {
+	if result == nil || result.Malwares == nil {
 		return malwareList, metadata
 	}
 
-	for _, m := range malwareResults.DetectedMalware {
-		mal := m // Prevent loop variable pointer export
+	for _, item := range result.Malwares {
 		malwareList = append(malwareList, apitypes.Malware{
-			MalwareName: to.PtrOrNil(mal.MalwareName),
-			MalwareType: to.PtrOrNil(mal.MalwareType),
-			Path:        to.PtrOrNil(mal.Path),
-			RuleName:    to.PtrOrNil(mal.RuleName),
+			MalwareName: to.PtrOrNil(item.MalwareName),
+			MalwareType: to.PtrOrNil(item.MalwareType),
+			Path:        to.PtrOrNil(item.Path),
+			RuleName:    to.PtrOrNil(item.RuleName),
 		})
 	}
 
-	for n, s := range malwareResults.ScansSummary {
-		name, summary := n, s // Prevent loop variable pointer export
+	for name, summary := range result.ScansSummary {
+		if summary == nil {
+			summary = &malware.ScanSummary{}
+		}
+
 		metadata = append(metadata, apitypes.ScannerMetadata{
 			ScannerName: &name,
 			ScannerSummary: &apitypes.ScannerSummary{
@@ -206,40 +207,36 @@ func ConvertMalwareResultToMalwareAndMetadata(malwareResults *malware.MergedResu
 	return malwareList, metadata
 }
 
-func ConvertSecretsResultToSecrets(secretsResults *secrets.Results) []apitypes.Secret {
+func ConvertSecretsResultToSecrets(result *secrets.Result) []apitypes.Secret {
 	secretsSlice := []apitypes.Secret{}
 
-	if secretsResults == nil || secretsResults.MergedResults == nil || secretsResults.MergedResults.Results == nil {
+	if result == nil || result.Findings == nil {
 		return secretsSlice
 	}
 
-	for _, resultsCandidate := range secretsResults.MergedResults.Results {
-		for i := range resultsCandidate.Findings {
-			finding := resultsCandidate.Findings[i]
-			secretsSlice = append(secretsSlice, apitypes.Secret{
-				Description: &finding.Description,
-				EndLine:     &finding.EndLine,
-				FilePath:    &finding.File,
-				Fingerprint: &finding.Fingerprint,
-				StartLine:   &finding.StartLine,
-				StartColumn: &finding.StartColumn,
-				EndColumn:   &finding.EndColumn,
-			})
-		}
+	for _, finding := range result.Findings {
+		secretsSlice = append(secretsSlice, apitypes.Secret{
+			Description: &finding.Description,
+			EndLine:     &finding.EndLine,
+			FilePath:    &finding.File,
+			Fingerprint: &finding.Fingerprint,
+			StartLine:   &finding.StartLine,
+			StartColumn: &finding.StartColumn,
+			EndColumn:   &finding.EndColumn,
+		})
 	}
 
 	return secretsSlice
 }
 
-func ConvertExploitsResultToExploits(exploitsResults *exploits.Results) []apitypes.Exploit {
+func ConvertExploitsResultToExploits(result *exploits.Result) []apitypes.Exploit {
 	retExploits := []apitypes.Exploit{}
 
-	if exploitsResults == nil || exploitsResults.Exploits == nil {
+	if result == nil || result.Exploits == nil {
 		return retExploits
 	}
 
-	for i := range exploitsResults.Exploits {
-		exploit := exploitsResults.Exploits[i]
+	for _, exploit := range result.Exploits {
 		retExploits = append(retExploits, apitypes.Exploit{
 			CveID:       &exploit.CveID,
 			Description: &exploit.Description,
@@ -253,38 +250,33 @@ func ConvertExploitsResultToExploits(exploitsResults *exploits.Results) []apityp
 	return retExploits
 }
 
-func MisconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfigurationTypes.Severity) (apitypes.MisconfigurationSeverity, error) {
+func MisconfigurationSeverityToAPIMisconfigurationSeverity(sev misconfiguration.Severity) (apitypes.MisconfigurationSeverity, error) {
 	switch sev {
-	case misconfigurationTypes.HighSeverity:
+	case misconfiguration.HighSeverity:
 		return apitypes.MisconfigurationHighSeverity, nil
-	case misconfigurationTypes.MediumSeverity:
+	case misconfiguration.MediumSeverity:
 		return apitypes.MisconfigurationMediumSeverity, nil
-	case misconfigurationTypes.LowSeverity:
+	case misconfiguration.LowSeverity:
 		return apitypes.MisconfigurationLowSeverity, nil
-	case misconfigurationTypes.InfoSeverity:
+	case misconfiguration.InfoSeverity:
 		return apitypes.MisconfigurationInfoSeverity, nil
 	default:
 		return apitypes.MisconfigurationLowSeverity, fmt.Errorf("unknown severity level %v", sev)
 	}
 }
 
-func ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfigurationResults *misconfiguration.Results) ([]apitypes.Misconfiguration, []string, error) {
+func ConvertMisconfigurationResultToMisconfigurationsAndScanners(result *misconfiguration.Result) ([]apitypes.Misconfiguration, []string, error) {
 	misconfigurations := []apitypes.Misconfiguration{}
-	scanners := []string{}
+	scanners := map[string]interface{}{}
 
-	if misconfigurationResults == nil || misconfigurationResults.Misconfigurations == nil {
-		return misconfigurations, scanners, nil
+	if result == nil || result.Misconfigurations == nil {
+		return misconfigurations, to.SortedKeys(scanners), nil
 	}
 
-	for i := range misconfigurationResults.Misconfigurations {
-		// create a separate variable for the loop because we need
-		// pointers for the API model and we can't safely take pointers
-		// to a loop variable.
-		misconfig := misconfigurationResults.Misconfigurations[i]
-
+	for _, misconfig := range result.Misconfigurations {
 		severity, err := MisconfigurationSeverityToAPIMisconfigurationSeverity(misconfig.Severity)
 		if err != nil {
-			return misconfigurations, scanners, fmt.Errorf("unable to convert scanner result severity to API severity: %w", err)
+			return misconfigurations, to.SortedKeys(scanners), fmt.Errorf("unable to convert scanner result severity to API severity: %w", err)
 		}
 
 		misconfigurations = append(misconfigurations, apitypes.Misconfiguration{
@@ -297,41 +289,44 @@ func ConvertMisconfigurationResultToMisconfigurationsAndScanners(misconfiguratio
 			Message:     &misconfig.Message,
 			Remediation: &misconfig.Remediation,
 		})
+
+		scanners[misconfig.ScannerName] = nil
 	}
 
-	return misconfigurations, misconfigurationResults.Metadata.Scanners, nil
+	return misconfigurations, to.SortedKeys(scanners), nil
 }
 
-func ConvertInfoFinderResultToInfosAndScanners(results *infofinder.Results) ([]apitypes.InfoFinderInfo, []string, error) {
+func ConvertInfoFinderResultToInfosAndScanners(result *infofinder.Result) ([]apitypes.InfoFinderInfo, []string, error) {
 	infos := []apitypes.InfoFinderInfo{}
+	scanners := map[string]interface{}{}
 
-	if results == nil || results.Infos == nil {
-		return infos, []string{}, nil
+	if result == nil || result.Infos == nil {
+		return infos, to.SortedKeys(scanners), nil
 	}
 
-	for i := range results.Infos {
-		info := results.Infos[i]
-
+	for _, info := range result.Infos {
 		infos = append(infos, apitypes.InfoFinderInfo{
 			Data:        &info.Data,
 			Path:        &info.Path,
 			ScannerName: &info.ScannerName,
 			Type:        convertInfoTypeToAPIModel(info.Type),
 		})
+
+		scanners[info.ScannerName] = nil
 	}
 
-	return infos, results.Metadata.Scanners, nil
+	return infos, to.SortedKeys(scanners), nil
 }
 
-func convertInfoTypeToAPIModel(infoType types.InfoType) *apitypes.InfoType {
+func convertInfoTypeToAPIModel(infoType infofinder.InfoType) *apitypes.InfoType {
 	switch infoType {
-	case types.SSHKnownHostFingerprint:
+	case infofinder.SSHKnownHostFingerprint:
 		return to.Ptr(apitypes.InfoTypeSSHKnownHostFingerprint)
-	case types.SSHAuthorizedKeyFingerprint:
+	case infofinder.SSHAuthorizedKeyFingerprint:
 		return to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint)
-	case types.SSHPrivateKeyFingerprint:
+	case infofinder.SSHPrivateKeyFingerprint:
 		return to.Ptr(apitypes.InfoTypeSSHPrivateKeyFingerprint)
-	case types.SSHDaemonKeyFingerprint:
+	case infofinder.SSHDaemonKeyFingerprint:
 		return to.Ptr(apitypes.InfoTypeSSHDaemonKeyFingerprint)
 	default:
 		log.Errorf("Can't convert info type %q, treating as %v", infoType, apitypes.InfoTypeUNKNOWN)
@@ -339,15 +334,14 @@ func convertInfoTypeToAPIModel(infoType types.InfoType) *apitypes.InfoType {
 	}
 }
 
-func ConvertRootkitsResultToRootkits(rootkitsResults *rootkits.Results) []apitypes.Rootkit {
+func ConvertRootkitsResultToRootkits(result *rootkits.Result) []apitypes.Rootkit {
 	rootkitsList := []apitypes.Rootkit{}
 
-	if rootkitsResults == nil || rootkitsResults.MergedResults == nil || rootkitsResults.MergedResults.Rootkits == nil {
+	if result == nil || result.Rootkits == nil {
 		return rootkitsList
 	}
 
-	for _, r := range rootkitsResults.MergedResults.Rootkits {
-		rootkit := r // Prevent loop variable pointer export
+	for _, rootkit := range result.Rootkits {
 		rootkitsList = append(rootkitsList, apitypes.Rootkit{
 			Message:     &rootkit.Message,
 			RootkitName: &rootkit.RootkitName,
@@ -358,17 +352,17 @@ func ConvertRootkitsResultToRootkits(rootkitsResults *rootkits.Results) []apityp
 	return rootkitsList
 }
 
-func ConvertRootkitTypeToAPIModel(rootkitType rootkitsTypes.RootkitType) *apitypes.RootkitType {
+func ConvertRootkitTypeToAPIModel(rootkitType rootkits.RootkitType) *apitypes.RootkitType {
 	switch rootkitType {
-	case rootkitsTypes.APPLICATION:
+	case rootkits.APPLICATION:
 		return to.Ptr(apitypes.RootkitTypeAPPLICATION)
-	case rootkitsTypes.FIRMWARE:
+	case rootkits.FIRMWARE:
 		return to.Ptr(apitypes.RootkitTypeFIRMWARE)
-	case rootkitsTypes.KERNEL:
+	case rootkits.KERNEL:
 		return to.Ptr(apitypes.RootkitTypeKERNEL)
-	case rootkitsTypes.MEMORY:
+	case rootkits.MEMORY:
 		return to.Ptr(apitypes.RootkitTypeMEMORY)
-	case rootkitsTypes.UNKNOWN:
+	case rootkits.UNKNOWN:
 		return to.Ptr(apitypes.RootkitTypeUNKNOWN)
 	default:
 		log.Errorf("Can't convert rootkit type %q, treating as %v", rootkitType, apitypes.RootkitTypeUNKNOWN)

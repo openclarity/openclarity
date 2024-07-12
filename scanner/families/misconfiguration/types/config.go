@@ -1,4 +1,4 @@
-// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
+// Copyright © 2024 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,39 +16,20 @@
 package types
 
 import (
-	"time"
-
-	cliconfig "github.com/openclarity/vmclarity/scanner/config"
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/common"
+	cisdockerconfig "github.com/openclarity/vmclarity/scanner/families/misconfiguration/cisdocker/config"
+	lynisconfig "github.com/openclarity/vmclarity/scanner/families/misconfiguration/lynis/config"
 )
 
 type Config struct {
-	Enabled         bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
-	ScannersList    []string       `yaml:"scanners_list" mapstructure:"scanners_list"`
-	StripInputPaths bool           `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
-	Inputs          []types.Input  `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig  ScannersConfig `yaml:"scanners_config" mapstructure:"scanners_config"`
+	Enabled         bool               `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	ScannersList    []string           `yaml:"scanners_list" mapstructure:"scanners_list"`
+	StripInputPaths bool               `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
+	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
+	ScannersConfig  ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config"`
 }
 
-// Add scanner specific configurations here, where the key is the scanner name,
-// and the value is the scanner specific configuration.
-//
-// For example if the scanner name is "lynis":
-//
-//	Lynis LynisConfig `yaml:"lynis" mapstructure:"lynis"`
 type ScannersConfig struct {
-	Lynis     LynisConfig     `yaml:"lynis" mapstructure:"lynis"`
-	CISDocker CISDockerConfig `yaml:"cisdocker" mapstructure:"cisdocker"`
-}
-
-func (ScannersConfig) IsConfig() {}
-
-type LynisConfig struct {
-	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
-}
-
-// nolint:musttag
-type CISDockerConfig struct {
-	Timeout  time.Duration       `yaml:"timeout" mapstructure:"timeout"`
-	Registry *cliconfig.Registry `yaml:"registry" mapstructure:"registry"`
+	Lynis     lynisconfig.Config     `yaml:"lynis" mapstructure:"lynis"`
+	CISDocker cisdockerconfig.Config `yaml:"cisdocker" mapstructure:"cisdocker"`
 }

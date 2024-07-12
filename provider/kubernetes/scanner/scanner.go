@@ -20,6 +20,9 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/openclarity/vmclarity/scanner"
+	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+
 	"gopkg.in/yaml.v3"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -32,7 +35,6 @@ import (
 	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/scanner/families"
 )
 
 var _ provider.Scanner = &Scanner{}
@@ -135,14 +137,14 @@ var (
 
 func (s *Scanner) generateScanConfig(config *provider.ScanJobConfig) ([]byte, error) {
 	// Add volume mount point to family configuration
-	familiesConfig := families.Config{}
-	err := yaml.Unmarshal([]byte(config.ScannerCLIConfig), &familiesConfig)
+	scannerConfig := scanner.Config{}
+	err := yaml.Unmarshal([]byte(config.ScannerCLIConfig), &scannerConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal family scan configuration: %w", err)
 	}
 
-	families.SetOciArchiveForFamiliesInput([]string{archiveLocation}, &familiesConfig)
-	familiesConfigByte, err := yaml.Marshal(familiesConfig)
+	scannerConfig.AddInputs(scannercommon.OCIARCHIVE, []string{archiveLocation})
+	familiesConfigByte, err := yaml.Marshal(scannerConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal family scan configuration: %w", err)
 	}

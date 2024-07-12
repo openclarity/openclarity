@@ -19,8 +19,8 @@ import (
 	"context"
 
 	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/vmclarity/scanner"
 	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/types"
 )
 
 type LocalState struct{}
@@ -29,33 +29,33 @@ func (l *LocalState) WaitForReadyState(context.Context) error {
 	return nil
 }
 
-func (l *LocalState) MarkInProgress(ctx context.Context, _ *families.Config) error {
+func (l *LocalState) MarkInProgress(ctx context.Context, _ *scanner.Config) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	logger.Info("Scanning is in progress")
 	return nil
 }
 
-func (l *LocalState) MarkFamilyScanInProgress(ctx context.Context, familyType types.FamilyType) error {
+func (l *LocalState) MarkFamilyScanInProgress(ctx context.Context, familyType families.FamilyType) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	switch familyType {
-	case types.SBOM:
+	case families.SBOM:
 		logger.Info("SBOM scan is in progress")
-	case types.Vulnerabilities:
+	case families.Vulnerabilities:
 		logger.Info("Vulnerabilities scan is in progress")
-	case types.Secrets:
+	case families.Secrets:
 		logger.Info("Secrets scan is in progress")
-	case types.Exploits:
+	case families.Exploits:
 		logger.Info("Exploits scan is in progress")
-	case types.Misconfiguration:
+	case families.Misconfiguration:
 		logger.Info("Misconfiguration scan is in progress")
-	case types.Rootkits:
+	case families.Rootkits:
 		logger.Info("Rootkit scan is in progress")
-	case types.Malware:
+	case families.Malware:
 		logger.Info("Malware scan is in progress")
-	case types.InfoFinder:
+	case families.InfoFinder:
 		logger.Info("InfoFinder scan is in progress")
-	case types.Plugins:
+	case families.Plugins:
 		logger.Info("Plugins scan is in progress")
 	}
 	return nil

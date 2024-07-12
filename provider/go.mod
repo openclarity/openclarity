@@ -249,6 +249,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
+	github.com/heimdalr/dag v1.4.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
@@ -335,6 +336,7 @@ require (
 	github.com/openclarity/vmclarity/plugins/runner v0.7.2 // indirect
 	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/openclarity/vmclarity/utils v0.7.2 // indirect
+	github.com/openclarity/vmclarity/workflow v0.7.2 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
@@ -434,7 +436,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
-	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
@@ -497,4 +499,5 @@ replace (
 	github.com/openclarity/vmclarity/plugins/sdk-go => ../plugins/sdk-go
 	github.com/openclarity/vmclarity/scanner => ../scanner
 	github.com/openclarity/vmclarity/utils => ../utils
+	github.com/openclarity/vmclarity/workflow => ../workflow
 )

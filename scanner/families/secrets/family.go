@@ -18,78 +18,59 @@ package secrets
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families/interfaces"
-	familiesresults "github.com/openclarity/vmclarity/scanner/families/results"
-	"github.com/openclarity/vmclarity/scanner/families/secrets/common"
-	"github.com/openclarity/vmclarity/scanner/families/secrets/job"
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 )
 
 type Secrets struct {
-	conf Config
+	conf types.Config
 }
 
-func (s Secrets) Run(ctx context.Context, _ *familiesresults.Results) (interfaces.IsResults, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "secrets")
-	logger.Info("Secrets Run...")
-
-	manager := job_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, logger, job.Factory)
-	mergedResults := NewMergedResults()
-
-	var secretsResults Results
-	for _, input := range s.conf.Inputs {
-		startTime := time.Now()
-		results, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for secrets: %w", input.Input, err)
-		}
-		endTime := time.Now()
-		inputSize, err := familiesutils.GetInputSize(input)
-		if err != nil {
-			logger.Warnf("Failed to calculate input %v size: %v", input, err)
-		}
-
-		// Merge results.
-		for name, result := range results {
-			secretResult := result.(*common.Results) // nolint:forcetypeassert
-			if familiesutils.ShouldStripInputPath(input.StripPathFromResult, s.conf.StripInputPaths) {
-				secretResult = StripPathFromResult(secretResult, input.Input)
-			}
-			logger.Infof("Merging result from %q", name)
-			mergedResults = mergedResults.Merge(secretResult)
-		}
-		secretsResults.Metadata.InputScans = append(secretsResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
-	}
-
-	logger.Info("Secrets Done...")
-	secretsResults.MergedResults = mergedResults
-	return &secretsResults, nil
-}
-
-// StripPathFromResult strip input path from results wherever it is found.
-func StripPathFromResult(result *common.Results, path string) *common.Results {
-	for i := range result.Findings {
-		result.Findings[i].File = familiesutils.TrimMountPath(result.Findings[i].File, path)
-		result.Findings[i].Fingerprint = familiesutils.RemoveMountPathSubStringIfNeeded(result.Findings[i].Fingerprint, path)
-	}
-	return result
-}
-
-func (s Secrets) GetType() types.FamilyType {
-	return types.Secrets
-}
-
-// ensure types implement the requisite interfaces.
-var _ interfaces.Family = &Secrets{}
-
-func New(conf Config) *Secrets {
+func New(conf types.Config) families.Family[*types.Result] {
 	return &Secrets{
 		conf: conf,
 	}
+}
+
+func (s Secrets) GetType() families.FamilyType {
+	return families.Secrets
+}
+
+func (s Secrets) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	// Run all scanners using scan manager
+	manager := scan_manager.New(s.conf.ScannersList, s.conf.ScannersConfig, Factory)
+	results, err := manager.Scan(ctx, s.conf.Inputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process inputs for secrets: %w", err)
+	}
+
+	secrets := types.NewResult()
+
+	// Merge results
+	for _, result := range results {
+		logger.Infof("Merging result from %q", result.Metadata)
+
+		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, s.conf.StripInputPaths) {
+			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		}
+		secrets.Merge(result.Metadata, result.ScanResult)
+	}
+
+	return secrets, nil
+}
+
+// StripPathFromResult strip input path from results wherever it is found.
+func stripPathFromResult(findings []types.Finding, path string) []types.Finding {
+	for i := range findings {
+		findings[i].File = familiesutils.TrimMountPath(findings[i].File, path)
+		findings[i].Fingerprint = familiesutils.RemoveMountPathSubStringIfNeeded(findings[i].Fingerprint, path)
+	}
+
+	return findings
 }

@@ -15,6 +15,11 @@
 
 package to
 
+import (
+	"cmp"
+	"sort"
+)
+
 func Ptr[T any](value T) *T {
 	return &value
 }
@@ -46,6 +51,20 @@ func Keys[K comparable, V any](m map[K]V) []K {
 	for k := range m {
 		s = append(s, k)
 	}
+
+	return s
+}
+
+// SortedKeys returns a slice of keys from m map in sorted order (ascending).
+func SortedKeys[K cmp.Ordered, V any](m map[K]V) []K {
+	s := make([]K, 0, len(m))
+	for k := range m {
+		s = append(s, k)
+	}
+
+	sort.Slice(s, func(i, j int) bool {
+		return cmp.Compare[K](s[i], s[j]) < 0
+	})
 
 	return s
 }

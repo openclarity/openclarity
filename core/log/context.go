@@ -56,3 +56,9 @@ func GetLoggerFromContext(ctx context.Context) (*log.Entry, bool) {
 func SetLoggerForContext(ctx context.Context, l *log.Entry) context.Context {
 	return context.WithValue(ctx, LoggerContextKey, l)
 }
+
+func NewContextLoggerOrDefault(ctx context.Context, fields map[string]interface{}) (context.Context, *log.Entry) {
+	logger := GetLoggerFromContextOrDefault(ctx).WithFields(fields)
+	loggerCtx := SetLoggerForContext(ctx, logger)
+	return loggerCtx, logger
+}

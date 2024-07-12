@@ -18,79 +18,58 @@ package misconfiguration
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families/interfaces"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/job"
-	misconfigurationTypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/scanner/families/results"
-	"github.com/openclarity/vmclarity/scanner/families/types"
+	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/job_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 )
 
 type Misconfiguration struct {
-	conf misconfigurationTypes.Config
+	conf types.Config
 }
 
-func (m Misconfiguration) Run(ctx context.Context, _ *results.Results) (interfaces.IsResults, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx).WithField("family", "misconfiguration")
-	logger.Info("Misconfiguration Run...")
-
-	misConfigResults := NewResults()
-
-	manager := job_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, logger, job.Factory)
-	for _, input := range m.conf.Inputs {
-		startTime := time.Now()
-		managerResults, err := manager.Run(ctx, utils.SourceType(input.InputType), input.Input)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan input %q for misconfigurations: %w", input.Input, err)
-		}
-		endTime := time.Now()
-		inputSize, err := familiesutils.GetInputSize(input)
-		if err != nil {
-			logger.Warnf("Failed to calculate input %v size: %v", input, err)
-		}
-
-		// Merge results.
-		for name, result := range managerResults {
-			logger.Infof("Merging result from %q", name)
-			if assetScan, ok := result.(misconfigurationTypes.ScannerResult); ok {
-				if familiesutils.ShouldStripInputPath(input.StripPathFromResult, m.conf.StripInputPaths) {
-					assetScan = StripPathFromResult(assetScan, input.Input)
-				}
-				misConfigResults.AddScannerResult(assetScan)
-			} else {
-				return nil, fmt.Errorf("received bad scanner result type %T, expected misconfigurationTypes.ScannerResult", result)
-			}
-		}
-		misConfigResults.Metadata.InputScans = append(misConfigResults.Metadata.InputScans, types.CreateInputScanMetadata(startTime, endTime, inputSize, input))
-	}
-
-	logger.Info("Misconfiguration Done...")
-
-	return misConfigResults, nil
-}
-
-// StripPathFromResult strip input path from results wherever it is found.
-func StripPathFromResult(result misconfigurationTypes.ScannerResult, path string) misconfigurationTypes.ScannerResult {
-	for i := range result.Misconfigurations {
-		result.Misconfigurations[i].Location = familiesutils.TrimMountPath(result.Misconfigurations[i].Location, path)
-	}
-	return result
-}
-
-func (m Misconfiguration) GetType() types.FamilyType {
-	return types.Misconfiguration
-}
-
-// ensure types implement the requisite interfaces.
-var _ interfaces.Family = &Misconfiguration{}
-
-func New(conf misconfigurationTypes.Config) *Misconfiguration {
+func New(conf types.Config) families.Family[*types.Result] {
 	return &Misconfiguration{
 		conf: conf,
 	}
+}
+
+func (m Misconfiguration) GetType() families.FamilyType {
+	return families.Misconfiguration
+}
+
+func (m Misconfiguration) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
+	// Run all scanners using scan manager
+	manager := scan_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, Factory)
+	results, err := manager.Scan(ctx, m.conf.Inputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process inputs for misconfigurations: %w", err)
+	}
+
+	misconfigurations := types.NewResult()
+
+	// Merge results
+	for _, result := range results {
+		logger.Infof("Merging result from %q", result.Metadata)
+
+		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, m.conf.StripInputPaths) {
+			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		}
+		misconfigurations.Merge(result.Metadata, result.ScanResult)
+	}
+
+	return misconfigurations, nil
+}
+
+// stripPathFromResult strip input path from results wherever it is found.
+func stripPathFromResult(items []types.Misconfiguration, path string) []types.Misconfiguration {
+	for i := range items {
+		items[i].Location = familiesutils.TrimMountPath(items[i].Location, path)
+	}
+
+	return items
 }

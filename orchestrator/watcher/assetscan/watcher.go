@@ -27,7 +27,7 @@ import (
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/orchestrator/common"
 	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	errorutils "github.com/openclarity/vmclarity/utils/errors"
 )
 
 type (
@@ -287,7 +287,7 @@ func (w *Watcher) reconcileScheduled(ctx context.Context, assetScan *apitypes.As
 		assetScan.Status = apitypes.NewAssetScanStatus(
 			apitypes.AssetScanStatusStateFailed,
 			apitypes.AssetScanStatusReasonError,
-			to.Ptr(errors.Join(utils.UnwrapErrors(err)...).Error()),
+			to.Ptr(errors.Join(errorutils.UnwrapErrors(err)...).Error()),
 		)
 	default:
 		assetScan.Status = apitypes.NewAssetScanStatus(

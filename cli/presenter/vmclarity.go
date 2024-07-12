@@ -24,16 +24,15 @@ import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/to"
 	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/exploits"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder"
-	"github.com/openclarity/vmclarity/scanner/families/malware"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration"
-	"github.com/openclarity/vmclarity/scanner/families/plugins"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits"
-	"github.com/openclarity/vmclarity/scanner/families/sbom"
-	"github.com/openclarity/vmclarity/scanner/families/secrets"
-	"github.com/openclarity/vmclarity/scanner/families/types"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities"
+	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
+	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
+	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
+	misconfiguration "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	plugins "github.com/openclarity/vmclarity/scanner/families/plugins/types"
+	rootkits "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
+	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
+	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
 	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
@@ -49,23 +48,23 @@ func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res familie
 	var err error
 
 	switch res.FamilyType {
-	case types.SBOM:
+	case families.SBOM:
 		err = v.ExportSbomResult(ctx, res)
-	case types.Vulnerabilities:
+	case families.Vulnerabilities:
 		err = v.ExportVulResult(ctx, res)
-	case types.Secrets:
+	case families.Secrets:
 		err = v.ExportSecretsResult(ctx, res)
-	case types.Exploits:
+	case families.Exploits:
 		err = v.ExportExploitsResult(ctx, res)
-	case types.Misconfiguration:
+	case families.Misconfiguration:
 		err = v.ExportMisconfigurationResult(ctx, res)
-	case types.Rootkits:
+	case families.Rootkits:
 		err = v.ExportRootkitResult(ctx, res)
-	case types.Malware:
+	case families.Malware:
 		err = v.ExportMalwareResult(ctx, res)
-	case types.InfoFinder:
+	case families.InfoFinder:
 		err = v.ExportInfoFinderResult(ctx, res)
-	case types.Plugins:
+	case families.Plugins:
 		err = v.ExportPluginsResult(ctx, res)
 	}
 
@@ -95,7 +94,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		sbomResults, ok := res.Result.(*sbom.Results)
+		sbomResults, ok := res.Result.(*sbom.Result)
 		if !ok {
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -105,7 +104,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 		} else {
 			assetScan.Sbom.Packages = to.Ptr(ConvertSBOMResultToPackages(sbomResults))
 			assetScan.Summary.TotalPackages = to.Ptr(len(*assetScan.Sbom.Packages))
-			assetScan.Stats.Sbom = getInputScanStats(sbomResults.Metadata.InputScans)
+			assetScan.Stats.Sbom = getInputScanStats(sbomResults.Metadata)
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -145,7 +144,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Results)
+		vulnerabilitiesResults, ok := res.Result.(*vulnerabilities.Result)
 		if !ok {
 			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -155,7 +154,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 		} else {
 			assetScan.Vulnerabilities.Vulnerabilities = to.Ptr(ConvertVulnResultToVulnerabilities(vulnerabilitiesResults))
 			assetScan.Summary.TotalVulnerabilities = utils.GetVulnerabilityTotalsPerSeverity(assetScan.Vulnerabilities.Vulnerabilities)
-			assetScan.Stats.Vulnerabilities = getInputScanStats(vulnerabilitiesResults.Metadata.InputScans)
+			assetScan.Stats.Vulnerabilities = getInputScanStats(vulnerabilitiesResults.Metadata)
 			assetScan.Vulnerabilities.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -195,7 +194,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		secretsResults, ok := res.Result.(*secrets.Results)
+		secretsResults, ok := res.Result.(*secrets.Result)
 		if !ok {
 			assetScan.Secrets.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -205,7 +204,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 		} else {
 			assetScan.Secrets.Secrets = to.Ptr(ConvertSecretsResultToSecrets(secretsResults))
 			assetScan.Summary.TotalSecrets = to.Ptr(len(*assetScan.Secrets.Secrets))
-			assetScan.Stats.Secrets = getInputScanStats(secretsResults.Metadata.InputScans)
+			assetScan.Stats.Secrets = getInputScanStats(secretsResults.Metadata)
 			assetScan.Secrets.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -222,22 +221,22 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 	return nil
 }
 
-func getInputScanStats(inputScans []types.InputScanMetadata) *[]apitypes.AssetScanInputScanStats {
-	if len(inputScans) == 0 {
+func getInputScanStats(metadata families.ScanMetadata) *[]apitypes.AssetScanInputScanStats {
+	if len(metadata.Inputs) == 0 {
 		return nil
 	}
 
-	ret := make([]apitypes.AssetScanInputScanStats, 0, len(inputScans))
-	for i := range inputScans {
-		scan := inputScans[i]
+	ret := make([]apitypes.AssetScanInputScanStats, 0, len(metadata.Inputs))
+	for i := range metadata.Inputs {
+		scan := metadata.Inputs[i]
 		ret = append(ret, apitypes.AssetScanInputScanStats{
 			Path: &scan.InputPath,
 			ScanTime: &apitypes.AssetScanScanTime{
-				EndTime:   &scan.ScanEndTime,
-				StartTime: &scan.ScanStartTime,
+				EndTime:   &scan.EndTime,
+				StartTime: &scan.StartTime,
 			},
 			Size: &scan.InputSize,
-			Type: &scan.InputType,
+			Type: to.Ptr[string](string(scan.InputType)),
 		})
 	}
 
@@ -267,7 +266,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		malwareResults, ok := res.Result.(*malware.MergedResults)
+		malwareResults, ok := res.Result.(*malware.Result)
 		if !ok {
 			assetScan.Sbom.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -277,7 +276,7 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 		} else {
 			mware, mdata := ConvertMalwareResultToMalwareAndMetadata(malwareResults)
 			assetScan.Summary.TotalMalware = to.Ptr(len(mware))
-			assetScan.Stats.Malware = getInputScanStats(malwareResults.Metadata.InputScans)
+			assetScan.Stats.Malware = getInputScanStats(malwareResults.Metadata)
 			assetScan.Malware.Malware = to.Ptr(mware)
 			assetScan.Malware.Metadata = to.Ptr(mdata)
 			assetScan.Malware.Status = apitypes.NewScannerStatus(
@@ -318,7 +317,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		exploitsResults, ok := res.Result.(*exploits.Results)
+		exploitsResults, ok := res.Result.(*exploits.Result)
 		if !ok {
 			assetScan.Exploits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -328,7 +327,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 		} else {
 			assetScan.Exploits.Exploits = to.Ptr(ConvertExploitsResultToExploits(exploitsResults))
 			assetScan.Summary.TotalExploits = to.Ptr(len(*assetScan.Exploits.Exploits))
-			assetScan.Stats.Exploits = getInputScanStats(exploitsResults.Metadata.InputScans)
+			assetScan.Stats.Exploits = getInputScanStats(exploitsResults.Metadata)
 			assetScan.Exploits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -368,7 +367,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		misconfigurationResults, ok := res.Result.(*misconfiguration.Results)
+		misconfigurationResults, ok := res.Result.(*misconfiguration.Result)
 		if !ok {
 			assetScan.Misconfigurations.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -393,7 +392,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 				assetScan.Misconfigurations.Scanners = to.Ptr(scanners)
 			}
 			assetScan.Summary.TotalMisconfigurations = to.Ptr(len(misconfigurationResults.Misconfigurations))
-			assetScan.Stats.Misconfigurations = getInputScanStats(misconfigurationResults.Metadata.InputScans)
+			assetScan.Stats.Misconfigurations = getInputScanStats(misconfigurationResults.Metadata)
 		}
 	}
 
@@ -428,7 +427,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		results, ok := res.Result.(*infofinder.Results)
+		results, ok := res.Result.(*infofinder.Result)
 		if !ok {
 			assetScan.InfoFinder.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -453,7 +452,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 				assetScan.InfoFinder.Scanners = to.Ptr(scanners)
 			}
 			assetScan.Summary.TotalInfoFinder = to.Ptr(len(results.Infos))
-			assetScan.Stats.InfoFinder = getInputScanStats(results.Metadata.InputScans)
+			assetScan.Stats.InfoFinder = getInputScanStats(results.Metadata)
 		}
 	}
 
@@ -488,7 +487,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		rootkitsResults, ok := res.Result.(*rootkits.Results)
+		rootkitsResults, ok := res.Result.(*rootkits.Result)
 		if !ok {
 			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -498,7 +497,7 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		} else {
 			assetScan.Rootkits.Rootkits = to.Ptr(ConvertRootkitsResultToRootkits(rootkitsResults))
 			assetScan.Summary.TotalRootkits = to.Ptr(len(*assetScan.Rootkits.Rootkits))
-			assetScan.Stats.Rootkits = getInputScanStats(rootkitsResults.Metadata.InputScans)
+			assetScan.Stats.Rootkits = getInputScanStats(rootkitsResults.Metadata)
 			assetScan.Rootkits.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateDone,
 				apitypes.ScannerStatusReasonSuccess,
@@ -537,7 +536,7 @@ func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res famili
 			to.Ptr(res.Err.Error()),
 		)
 	} else {
-		pluginResults, ok := res.Result.(*plugins.Results)
+		pluginResults, ok := res.Result.(*plugins.Result)
 		if !ok {
 			assetScan.Plugins.Status = apitypes.NewScannerStatus(
 				apitypes.ScannerStatusStateFailed,
@@ -552,8 +551,8 @@ func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res famili
 			)
 			assetScan.Plugins.FindingInfos = &pluginResults.Findings
 			// TODO Total plugins should be split by type
-			assetScan.Summary.TotalPlugins = to.Ptr(pluginResults.GetTotal())
-			assetScan.Stats.Plugins = getInputScanStats(pluginResults.Metadata.InputScans)
+			assetScan.Summary.TotalPlugins = to.Ptr(pluginResults.TotalFindings())
+			assetScan.Stats.Plugins = getInputScanStats(pluginResults.Metadata)
 		}
 	}
 

@@ -21,8 +21,8 @@ import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 	"github.com/google/go-cmp/cmp"
 
+	"github.com/openclarity/vmclarity/scanner/common"
 	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
 )
 
 func TestParseDockleReport(t *testing.T) {
@@ -167,7 +167,7 @@ func TestParseDockleReport(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := parseDockleReport(utils.IMAGE, tt.imageName, *tt.assessmentMap)
+			got := parseDockleReport(common.IMAGE, tt.imageName, *tt.assessmentMap)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("NewReportParser() mismatch (-want +got):\n%s", diff)
 			}
