@@ -8,8 +8,9 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.7.18
+	github.com/containerd/containerd v1.7.19
 	github.com/containerd/nerdctl v1.7.6
+	github.com/containerd/platforms v0.2.1
 	github.com/containers/image/v5 v5.31.1
 	github.com/docker/docker v26.1.4+incompatible
 	github.com/labstack/echo/v4 v4.12.0
@@ -28,13 +29,14 @@ require (
 	github.com/awslabs/soci-snapshotter v0.4.1 // indirect
 	github.com/containerd/cgroups/v3 v3.0.3 // indirect
 	github.com/containerd/console v1.0.4 // indirect
+	github.com/containerd/containerd/api v1.7.19 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/containerd/errdefs v0.1.0 // indirect
 	github.com/containerd/fifo v1.1.0 // indirect
 	github.com/containerd/imgcrypt v1.1.9 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter v0.15.1 // indirect
-	github.com/containerd/ttrpc v1.2.4 // indirect
+	github.com/containerd/ttrpc v1.2.5 // indirect
 	github.com/containerd/typeurl v1.0.3-0.20220422153119-7f6e6d160d67 // indirect
 	github.com/containerd/typeurl/v2 v2.1.1 // indirect
 	github.com/containers/ocicrypt v1.1.10 // indirect

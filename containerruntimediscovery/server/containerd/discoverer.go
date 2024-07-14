@@ -30,10 +30,10 @@ import (
 	"github.com/containerd/containerd/images/archive"
 	"github.com/containerd/containerd/leases"
 	criConstants "github.com/containerd/containerd/pkg/cri/constants"
-	"github.com/containerd/containerd/platforms"
 	"github.com/containerd/nerdctl/pkg/imgutil"
 	"github.com/containerd/nerdctl/pkg/imgutil/commit"
 	"github.com/containerd/nerdctl/pkg/labels/k8slabels"
+	"github.com/containerd/platforms"
 	"github.com/containers/image/v5/docker/reference"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
