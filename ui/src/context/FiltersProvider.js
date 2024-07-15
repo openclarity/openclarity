@@ -7,7 +7,7 @@ export const FILTER_TYPES = {
     SCANS: "SCANS",
     SCAN_CONFIGURATIONS: "SCAN_CONFIGURATIONS",
     FINDINGS_GENERAL: "FINDINGS_GENERAL",
-    FINDINGS_VULNERABILITIES: "FINDINGS_GENERAL",
+    FINDINGS_VULNERABILITIES: "FINDINGS_VULNERABILITIES",
     FINDINGS_EXPLOITS: "FINDINGS_EXPLOITS",
     FINDINGS_MISCONFIGURATIONS: "FINDINGS_MISCONFIGURATIONS",
     FINDINGS_SECRETS: "FINDINGS_SECRETS",
@@ -57,7 +57,7 @@ const reducer = (state, action) => {
         }
         case FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY: {
             const {filterType, filterData} = action.payload;
-            
+
             return {
                 ...state,
                 [filterType]: {
@@ -70,7 +70,7 @@ const reducer = (state, action) => {
         }
         case FITLER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY: {
             const {filterType, filterData} = action.payload;
-            
+
             return {
                 ...state,
                 [filterType]: {
@@ -113,7 +113,7 @@ const reducer = (state, action) => {
         }
         case FITLER_ACTIONS.RESET_FILTERS_BY_KEY: {
             const {filterTypes} = action.payload;
-            
+
             return {
                 ...state,
                 ...filterTypes.reduce((acc, curr) => ({
@@ -127,7 +127,7 @@ const reducer = (state, action) => {
         }
         case FITLER_ACTIONS.INITIALIZE_FILTERS: {
             const {filterType, systemFilterType, tableFilters, systemFilters, customFilters} = action.payload;
-            
+
             if (!Object.values(FILTER_TYPES).includes(filterType) || (!Object.values(FILTER_TYPES).includes(systemFilterType) && !!systemFilterType)
                 || !isArray(tableFilters || {}) || !isObject(systemFilters || {}) || !isObject(customFilters || {})) {
                 return {
