@@ -63,9 +63,9 @@ jobs:
 
       - name: Install kind for Kubernetes
         if: inputs.platform == 'kubernetes'
-        uses: engineerd/setup-kind@aa272fe2a7309878ffc2a81c56cfe3ef108ae7d0 # v0.5.0
+        uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
         with:
-          skipClusterCreation: true
+          install_only: true
 
       - name: Install helm for Kubernetes
         if: inputs.platform == 'kubernetes'
