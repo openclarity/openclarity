@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	"github.com/openclarity/vmclarity/core/log"
@@ -38,6 +39,8 @@ import (
 type Scanner struct {
 	name   string
 	config config.Config
+
+	mu sync.Mutex
 }
 
 func New(_ context.Context, name string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
@@ -101,11 +104,13 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 			Err:    nil,
 		}
 
+		s.mu.Lock()
 		if err := rr.Start(ctx); err != nil {
 			res.Err = fmt.Errorf("failed to start plugin runner: %w", err)
 			resChan <- res
 			return
 		}
+		s.mu.Unlock()
 
 		if err := rr.WaitReady(ctx); err != nil {
 			res.Err = fmt.Errorf("failed to wait for plugin scanner to be ready: %w", err)
