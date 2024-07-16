@@ -54,8 +54,8 @@ const TablePage = (props) => {
     }, [initialized, searchParams, filtersDispatch, setSearchParams]);
 
     useEffect(() => {
-        const {customDisplay, ...cleanSystemFilters} = systemFilters;
-        setSearchParams({filters: JSON.stringify({filterType, systemFilterType, tableFilters, systemFilters: cleanSystemFilters, customFilters})}, { replace: true });
+        const {...cleanSystemFilters} = systemFilters;
+        setSearchParams({filters: JSON.stringify({filterType, systemFilterType, tableFilters, systemFilters: cleanSystemFilters, customFilters})}, { replace: false });
     }, [filterType, systemFilterType, tableFilters, systemFilters, customFilters, setSearchParams]);
 
     if (!initialized) {
