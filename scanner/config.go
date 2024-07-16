@@ -90,6 +90,30 @@ func (c *Config) AddInputs(inputType common.InputType, inputs []string) {
 			})
 		}
 
+		if c.Exploits.Enabled {
+			c.Exploits.Inputs = append(c.Exploits.Inputs, common.ScanInput{
+				StripPathFromResult: to.Ptr(true),
+				Input:               mountDir,
+				InputType:           inputType,
+			})
+		}
+
+		if c.Misconfiguration.Enabled {
+			c.Misconfiguration.Inputs = append(c.Misconfiguration.Inputs, common.ScanInput{
+				StripPathFromResult: to.Ptr(true),
+				Input:               mountDir,
+				InputType:           inputType,
+			})
+		}
+
+		if c.InfoFinder.Enabled {
+			c.InfoFinder.Inputs = append(c.InfoFinder.Inputs, common.ScanInput{
+				StripPathFromResult: to.Ptr(true),
+				Input:               mountDir,
+				InputType:           inputType,
+			})
+		}
+
 		if c.Malware.Enabled {
 			c.Malware.Inputs = append(c.Malware.Inputs, common.ScanInput{
 				StripPathFromResult: to.Ptr(true),
@@ -104,28 +128,6 @@ func (c *Config) AddInputs(inputType common.InputType, inputs []string) {
 				Input:               mountDir,
 				InputType:           inputType,
 			})
-		}
-
-		if c.Misconfiguration.Enabled {
-			c.Misconfiguration.Inputs = append(
-				c.Misconfiguration.Inputs,
-				common.ScanInput{
-					StripPathFromResult: to.Ptr(true),
-					Input:               mountDir,
-					InputType:           inputType,
-				},
-			)
-		}
-
-		if c.InfoFinder.Enabled {
-			c.InfoFinder.Inputs = append(
-				c.InfoFinder.Inputs,
-				common.ScanInput{
-					StripPathFromResult: to.Ptr(true),
-					Input:               mountDir,
-					InputType:           inputType,
-				},
-			)
 		}
 
 		if c.Plugins.Enabled {
