@@ -95,7 +95,7 @@ const NavLinkItem = ({pathname, icon, resetFilterNames, resetFilterAll=false}) =
 
         navigate(pathname);
     }
-    
+
     return (
         <div className={classnames("nav-item", {active: isActive})} onClick={onClick}>
             <Icon name={icon} />
@@ -109,7 +109,8 @@ const Layout = () => {
     const pageTitle = ROUTES_CONFIG.find(({path, isIndex}) => (isIndex && !mainPath) || path === `/${mainPath}`)?.title;
 
     const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
-    
+
+    console.log("Layout rerendered")
     return (
         <div id="main-wrapper">
             <FiltersProvider>

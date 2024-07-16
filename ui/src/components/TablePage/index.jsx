@@ -42,7 +42,7 @@ const TablePage = (props) => {
     useEffect(() => {
         if (!initialized) {
             try {
-                const {filterType, systemFilterType, tableFilters, systemFilters, customFilters} = JSON.parse(searchParams.get("filters") || {});
+                const {filterType, systemFilterType, tableFilters, systemFilters, customFilters} = JSON.parse(searchParams.get("filters") ?? "{}");
 
                 initializeFilters(filtersDispatch, {filterType, systemFilterType, tableFilters, systemFilters, customFilters});
             } catch(error) {
@@ -55,6 +55,7 @@ const TablePage = (props) => {
 
     useEffect(() => {
         const {...cleanSystemFilters} = systemFilters;
+        console.log("comment out next line to stop the infinite render loop")
         setSearchParams({filters: JSON.stringify({filterType, systemFilterType, tableFilters, systemFilters: cleanSystemFilters, customFilters})}, { replace: false });
     }, [filterType, systemFilterType, tableFilters, systemFilters, customFilters, setSearchParams]);
 
