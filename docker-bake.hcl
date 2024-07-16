@@ -56,7 +56,7 @@ target "_common_args_for_go" {
 
 target "vmclarity-apiserver" {
 	context = "."
-	dockerfile = "Dockerfile.apiserver"
+	dockerfile = "./api/server/Dockerfile"
 	tags = get_tag("${target.vmclarity-apiserver.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
@@ -67,7 +67,7 @@ target "vmclarity-apiserver" {
 
 target "vmclarity-cli" {
 	context = "."
-	dockerfile = "Dockerfile.cli"
+	dockerfile = "./cli/Dockerfile"
 	tags = get_tag("${target.vmclarity-cli.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	args = {
@@ -81,7 +81,7 @@ target "vmclarity-cli" {
 
 target "vmclarity-cr-discovery-server" {
 	context = "."
-	dockerfile = "Dockerfile.cr-discovery-server"
+	dockerfile = "./containerruntimediscovery/server/Dockerfile"
 	tags = get_tag("${target.vmclarity-cr-discovery-server.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
@@ -92,7 +92,7 @@ target "vmclarity-cr-discovery-server" {
 
 target "vmclarity-orchestrator" {
 	context = "."
-	dockerfile = "Dockerfile.orchestrator"
+	dockerfile = "./orchestrator/Dockerfile"
 	tags = get_tag("${target.vmclarity-orchestrator.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
@@ -103,7 +103,7 @@ target "vmclarity-orchestrator" {
 
 target "vmclarity-ui" {
 	context = "."
-	dockerfile = "Dockerfile.ui"
+	dockerfile = "./ui/Dockerfile"
 	tags = get_tag("${target.vmclarity-ui.name}")
 	inherits = ["_common"]
 	labels = {
@@ -114,7 +114,7 @@ target "vmclarity-ui" {
 
 target "vmclarity-ui-backend" {
 	context = "."
-	dockerfile = "Dockerfile.uibackend"
+	dockerfile = "./uibackend/Dockerfile"
 	tags = get_tag("${target.vmclarity-ui-backend.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
