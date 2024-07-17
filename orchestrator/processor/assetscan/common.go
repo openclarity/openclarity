@@ -47,10 +47,9 @@ func (asp *AssetScanProcessor) createOrUpdateDBFinding(ctx context.Context, info
 		return "", fmt.Errorf("failed to create finding: %w", err)
 	}
 
-	var id string
+	id := *conflictError.ConflictingFinding.Id
 	// Update existing finding if newer
 	if conflictError.ConflictingFinding.LastSeen.Before(completedTime) {
-		id = *conflictError.ConflictingFinding.Id
 		finding := apitypes.Finding{
 			LastSeen: &completedTime,
 			LastSeenBy: &apitypes.AssetScanRelationship{

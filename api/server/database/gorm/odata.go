@@ -999,6 +999,8 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			"filePath":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"startLine":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"endLine":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"startColumn": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"endColumn":   odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"fingerprint": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
@@ -1256,7 +1258,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 			},
 			"finding": odatasql.FieldMeta{
 				FieldType:            odatasql.RelationshipFieldType,
-				RelationshipSchema:   "Finding",
+				RelationshipSchema:   findingSchemaName,
 				RelationshipProperty: "id",
 			},
 			"firstSeen":     odatasql.FieldMeta{FieldType: odatasql.DateTimeFieldType},
