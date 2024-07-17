@@ -154,10 +154,12 @@
     }
   },
   "plugins": {
-    "Enabled":false,
-    "ScannersList":null,
-    "Inputs":null,
-    "ScannersConfig":null,
-    "binary_mode":false
+    "Enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "ScannersConfig": null,
+    "BinaryMode": false,
+    "BinaryArtifactsPath": "",
+    "BinaryArtifactsClean": false
   }
 }

@@ -187,6 +187,8 @@ rootkits:
 plugins:
   enabled: false
   binary_mode: false
+  binary_artifacts_path: ""
+  binary_artifacts_clean: true
   scanners_list:
     - "kics"
   inputs: 
