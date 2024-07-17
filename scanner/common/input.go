@@ -44,6 +44,18 @@ func (s InputType) GetSource(localImage bool) string {
 	}
 }
 
+// IsOnFilesystem returns true if the InputType can be found on the filesystem.
+func (s InputType) IsOnFilesystem() bool {
+	switch s {
+	case IMAGE:
+		return false
+	case ROOTFS, DIR, DOCKERARCHIVE, OCIARCHIVE, OCIDIR, FILE, SBOM, CSV:
+		fallthrough
+	default:
+		return true
+	}
+}
+
 // IsOneOf returns true if one of provided input types matches the actual type.
 func (s InputType) IsOneOf(types ...InputType) bool {
 	for _, typ := range types {
