@@ -39,6 +39,7 @@ require (
 	github.com/yudai/gojsondiff v1.0.0
 	golang.org/x/crypto v0.24.0
 	golang.org/x/sync v0.7.0
+	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.1
 	k8s.io/client-go v0.30.2
@@ -458,7 +459,6 @@ require (
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.25.10 // indirect
 	helm.sh/helm/v3 v3.15.0 // indirect
 	k8s.io/api v0.30.2 // indirect
