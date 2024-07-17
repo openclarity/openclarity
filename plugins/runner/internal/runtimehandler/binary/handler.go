@@ -71,12 +71,19 @@ func (h *binaryRuntimeHandler) Start(ctx context.Context) error {
 	}
 	h.imageCleanup = cleanup
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("unable to determine user's home directory: %w", err)
+	var binaryArtifactsPath string
+	if h.config.BinaryArtifactsPath != "" {
+		binaryArtifactsPath = h.config.BinaryArtifactsPath
+	} else {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("unable to determine user's home directory: %w", err)
+		}
+
+		binaryArtifactsPath = filepath.Join(home, ".vmclarity/plugins")
 	}
 
-	h.pluginDir = filepath.Join(home, ".vmclarity/plugins", h.config.Name, image.Metadata.ID)
+	h.pluginDir = filepath.Join(binaryArtifactsPath, h.config.Name, image.Metadata.ID)
 
 	if _, err := os.Stat(h.pluginDir); os.IsNotExist(err) {
 		err = containerrootfs.ToDirectory(ctx, image, h.pluginDir)
@@ -232,9 +239,11 @@ func (h *binaryRuntimeHandler) Remove(ctx context.Context) error {
 	if err := syscall.Unmount(h.inputDirMountPoint, 0); err != nil {
 		removeErr = multierror.Append(removeErr, fmt.Errorf("failed to kill plugin process: %w", err))
 	} else {
-		// Call the cleanup function for the image only after the input directory is unmounted, or else it will also remove
-		// the root filesystem mounted under input
-		h.imageCleanup()
+		if h.config.BinaryArtifactsClean {
+			// Call the cleanup function for the image only after the input directory is unmounted, or else it will also remove
+			// the root filesystem mounted under input
+			h.imageCleanup()
+		}
 	}
 
 	return removeErr //nolint:wrapcheck

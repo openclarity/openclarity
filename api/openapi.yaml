@@ -2089,6 +2089,10 @@ components:
           type: boolean
         binary_mode:
           type: boolean
+        binary_artifacts_path:
+          type: string
+        binary_artifacts_clean:
+          type: boolean
         scanners_list:
           type: array
           items:

@@ -25,5 +25,9 @@ type Config struct {
 	// ScannerConfig is a json string that will be passed to the scanner in the plugin
 	ScannerConfig string `yaml:"scanner_config" mapstructure:"scanner_config"`
 	// BinaryMode is a flag to indicate that the plugin should be run as a binary
-	BinaryMode bool `json:"binary_mode,omitempty" mapstructure:"binary_mode,omitempty"`
+	BinaryMode bool `yaml:"binary_mode,omitempty" mapstructure:"binary_mode,omitempty"`
+	// BinaryArtifactsPath is the location of the extracted container images
+	BinaryArtifactsPath string `yaml:"binary_artifacts_path" mapstructure:"binary_artifacts_path"`
+	// BinaryArtifactsClean is a flag to indicate that the downloaded and extracted container image needs to be cleaned up after the plugin execution
+	BinaryArtifactsClean bool `yaml:"binary_artifacts_clean" mapstructure:"binary_artifacts_clean"`
 }
