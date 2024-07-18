@@ -21,13 +21,13 @@ import (
 )
 
 type Config struct {
-	Enabled         bool               `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
-	ScannersList    []string           `yaml:"scanners_list" mapstructure:"scanners_list"`
-	StripInputPaths bool               `yaml:"strip_input_paths" mapstructure:"strip_input_paths"`
-	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig  ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config"`
+	Enabled         bool               `yaml:"enabled" mapstructure:"enabled" json:"enabled"`
+	ScannersList    []string           `yaml:"scanners_list" mapstructure:"scanners_list" json:"scanners_list"`
+	StripInputPaths bool               `yaml:"strip_input_paths" mapstructure:"strip_input_paths" json:"strip_input_paths"`
+	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs" json:"inputs"`
+	ScannersConfig  ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config" json:"scanners_config"`
 }
 
 type ScannersConfig struct {
-	SSHTopology sshtopologyconfig.Config `yaml:"ssh_topology" mapstructure:"ssh_topology"`
+	SSHTopology sshtopologyconfig.Config `yaml:"ssh_topology" mapstructure:"ssh_topology" json:"ssh_topology"`
 }

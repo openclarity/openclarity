@@ -23,7 +23,7 @@ const (
 )
 
 type Config struct {
-	Mode   Mode              `yaml:"mode" mapstructure:"mode"`
-	Local  LocalGrypeConfig  `yaml:"local_grype_config" mapstructure:"local_grype_config"`
-	Remote RemoteGrypeConfig `yaml:"remote_grype_config" mapstructure:"remote_grype_config"`
+	Mode   Mode              `yaml:"mode" mapstructure:"mode" json:"mode"`
+	Local  LocalGrypeConfig  `yaml:"local_grype_config" mapstructure:"local_grype_config" json:"local_grype_config"`
+	Remote RemoteGrypeConfig `yaml:"remote_grype_config" mapstructure:"remote_grype_config" json:"remote_grype_config"`
 }

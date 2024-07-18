@@ -26,18 +26,18 @@ const (
 )
 
 type MergeWith struct {
-	SbomPath string `yaml:"sbom_path" mapstructure:"sbom_path"`
+	SbomPath string `yaml:"sbom_path" mapstructure:"sbom_path" json:"sbom_path"`
 }
 
 type Config struct {
-	Enabled         bool               `yaml:"enabled" mapstructure:"enabled"`
-	AnalyzersList   []string           `yaml:"analyzers_list" mapstructure:"analyzers_list"`
-	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
-	MergeWith       []MergeWith        `yaml:"merge_with" mapstructure:"merge_with"`
-	Registry        *common.Registry   `yaml:"registry" mapstructure:"registry"`
-	LocalImageScan  bool               `yaml:"local_image_scan" mapstructure:"local_image_scan"`
-	OutputFormat    string             `yaml:"output_format" mapstructure:"output_format"`
-	AnalyzersConfig AnalyzersConfig    `yaml:"analyzers_config" mapstructure:"analyzers_config"`
+	Enabled         bool               `yaml:"enabled" mapstructure:"enabled" json:"enabled"`
+	AnalyzersList   []string           `yaml:"analyzers_list" mapstructure:"analyzers_list" json:"analyzers_list"`
+	Inputs          []common.ScanInput `yaml:"inputs" mapstructure:"inputs" json:"inputs"`
+	MergeWith       []MergeWith        `yaml:"merge_with" mapstructure:"merge_with" json:"merge_with"`
+	Registry        *common.Registry   `yaml:"registry" mapstructure:"registry" json:"registry"`
+	LocalImageScan  bool               `yaml:"local_image_scan" mapstructure:"local_image_scan" json:"local_image_scan"`
+	OutputFormat    string             `yaml:"output_format" mapstructure:"output_format" json:"output_format"`
+	AnalyzersConfig AnalyzersConfig    `yaml:"analyzers_config" mapstructure:"analyzers_config" json:"analyzers_config"`
 }
 
 func (c *Config) GetOutputFormat() string {
@@ -49,6 +49,6 @@ func (c *Config) GetOutputFormat() string {
 }
 
 type AnalyzersConfig struct {
-	Syft  syft.Config  `yaml:"syft" mapstructure:"syft"`
-	Trivy trivy.Config `yaml:"trivy" mapstructure:"trivy"`
+	Syft  syft.Config  `yaml:"syft" mapstructure:"syft" json:"syft"`
+	Trivy trivy.Config `yaml:"trivy" mapstructure:"trivy" json:"trivy"`
 }

@@ -20,7 +20,7 @@ import (
 )
 
 type RemoteGrypeConfig struct {
-	GrypeServerAddress string        `yaml:"grype_server_address" mapstructure:"grype_server_address"`
-	GrypeServerSchemes []string      `yaml:"grype_server_schemes" mapstructure:"grype_server_schemes"`
-	GrypeServerTimeout time.Duration `yaml:"grype_server_timeout" mapstructure:"grype_server_timeout"`
+	GrypeServerAddress string        `yaml:"grype_server_address" mapstructure:"grype_server_address" json:"grype_server_address"`
+	GrypeServerSchemes []string      `yaml:"grype_server_schemes" mapstructure:"grype_server_schemes" json:"grype_server_schemes"`
+	GrypeServerTimeout time.Duration `yaml:"grype_server_timeout" mapstructure:"grype_server_timeout" json:"grype_server_timeout"`
 }
