@@ -34,7 +34,7 @@ require (
 	github.com/samber/slog-logrus/v2 v2.3.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
-	github.com/tdewolff/parse/v2 v2.7.14
+	github.com/tdewolff/parse/v2 v2.7.15
 	github.com/vulsio/go-exploitdb v0.4.6
 	github.com/yudai/gojsondiff v1.0.0
 	golang.org/x/crypto v0.24.0
