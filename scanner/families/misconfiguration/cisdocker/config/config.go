@@ -22,6 +22,6 @@ import (
 )
 
 type Config struct {
-	Timeout  time.Duration    `yaml:"timeout" mapstructure:"timeout"`
-	Registry *common.Registry `yaml:"registry" mapstructure:"registry"`
+	Timeout  time.Duration    `yaml:"timeout" mapstructure:"timeout" json:"timeout"`
+	Registry *common.Registry `yaml:"registry" mapstructure:"registry" json:"registry"`
 }

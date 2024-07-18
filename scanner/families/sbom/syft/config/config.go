@@ -23,10 +23,10 @@ import (
 )
 
 type Config struct {
-	Scope          string           `yaml:"scope" mapstructure:"scope"`
-	ExcludePaths   []string         `yaml:"exclude_paths" mapstructure:"exclude_paths"`
-	Registry       *common.Registry `yaml:"registry" mapstructure:"registry"`
-	LocalImageScan bool             `yaml:"local_image_scan" mapstructure:"local_image_scan"`
+	Scope          string           `yaml:"scope" mapstructure:"scope" json:"scope"`
+	ExcludePaths   []string         `yaml:"exclude_paths" mapstructure:"exclude_paths" json:"exclude_paths"`
+	Registry       *common.Registry `yaml:"registry" mapstructure:"registry" json:"registry"`
+	LocalImageScan bool             `yaml:"local_image_scan" mapstructure:"local_image_scan" json:"local_image_scan"`
 }
 
 func (c *Config) SetRegistry(registry *common.Registry) {

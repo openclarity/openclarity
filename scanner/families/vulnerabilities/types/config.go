@@ -22,16 +22,16 @@ import (
 )
 
 type Config struct {
-	Enabled        bool               `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList   []string           `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs         []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
-	InputFromSbom  bool               `yaml:"input_from_sbom" mapstructure:"input_from_sbom"`
-	Registry       *common.Registry   `yaml:"registry" mapstructure:"registry"`
-	LocalImageScan bool               `yaml:"local_image_scan" mapstructure:"local_image_scan"`
-	ScannersConfig ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config"`
+	Enabled        bool               `yaml:"enabled" mapstructure:"enabled" json:"enabled"`
+	ScannersList   []string           `yaml:"scanners_list" mapstructure:"scanners_list" json:"scanners_list"`
+	Inputs         []common.ScanInput `yaml:"inputs" mapstructure:"inputs" json:"inputs"`
+	InputFromSbom  bool               `yaml:"input_from_sbom" mapstructure:"input_from_sbom" json:"input_from_sbom"`
+	Registry       *common.Registry   `yaml:"registry" mapstructure:"registry" json:"registry"`
+	LocalImageScan bool               `yaml:"local_image_scan" mapstructure:"local_image_scan" json:"local_image_scan"`
+	ScannersConfig ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config" json:"scanners_config"`
 }
 
 type ScannersConfig struct {
-	Grype grypeconfig.Config `yaml:"grype" mapstructure:"grype"`
-	Trivy trivyconfig.Config `yaml:"trivy" mapstructure:"trivy"`
+	Grype grypeconfig.Config `yaml:"grype" mapstructure:"grype" json:"grype"`
+	Trivy trivyconfig.Config `yaml:"trivy" mapstructure:"trivy" json:"trivy"`
 }

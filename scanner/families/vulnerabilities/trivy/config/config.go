@@ -22,12 +22,12 @@ import (
 )
 
 type Config struct {
-	Timeout     int              `yaml:"timeout" mapstructure:"timeout"`
-	ServerAddr  string           `yaml:"server_addr" mapstructure:"server_addr"`
-	ServerToken string           `yaml:"server_token" mapstructure:"server_token"`
-	CacheDir    string           `yaml:"cache_dir" mapstructure:"cache_dir"`
-	TempDir     string           `yaml:"temp_dir" mapstructure:"temp_dir"`
-	Registry    *common.Registry `yaml:"registry" mapstructure:"registry"`
+	Timeout     int              `yaml:"timeout" mapstructure:"timeout" json:"timeout"`
+	ServerAddr  string           `yaml:"server_addr" mapstructure:"server_addr" json:"server_addr"`
+	ServerToken string           `yaml:"server_token" mapstructure:"server_token" json:"server_token"`
+	CacheDir    string           `yaml:"cache_dir" mapstructure:"cache_dir" json:"cache_dir"`
+	TempDir     string           `yaml:"temp_dir" mapstructure:"temp_dir" json:"temp_dir"`
+	Registry    *common.Registry `yaml:"registry" mapstructure:"registry" json:"registry"`
 }
 
 func (c *Config) SetRegistry(registry *common.Registry) {
