@@ -16,5 +16,5 @@ maintainers:
     url: https://github.com/openclarity/vmclarity
 dependencies:
   - name: postgresql
-    version: "15.5.14"
+    version: "15.5.17"
     repository: https://charts.bitnami.com/bitnami
