@@ -21,13 +21,13 @@ import (
 )
 
 type Config struct {
-	Enabled              bool               `yaml:"enabled" mapstructure:"enabled"`
-	ScannersList         []string           `yaml:"scanners_list" mapstructure:"scanners_list"`
-	Inputs               []common.ScanInput `yaml:"inputs" mapstructure:"inputs"`
-	ScannersConfig       ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config"`
-	BinaryMode           bool               `yaml:"binary_mode" mapstructure:"binary_mode"`
-	BinaryArtifactsPath  string             `yaml:"binary_artifacts_path" mapstructure:"binary_artifacts_path"`
-	BinaryArtifactsClean bool               `yaml:"binary_artifacts_clean" mapstructure:"binary_artifacts_clean"`
+	Enabled              bool               `yaml:"enabled" mapstructure:"enabled" json:"enabled"`
+	ScannersList         []string           `yaml:"scanners_list" mapstructure:"scanners_list" json:"scanners_list"`
+	Inputs               []common.ScanInput `yaml:"inputs" mapstructure:"inputs" json:"inputs"`
+	ScannersConfig       ScannersConfig     `yaml:"scanners_config" mapstructure:"scanners_config" json:"scanners_config"`
+	BinaryMode           bool               `yaml:"binary_mode" mapstructure:"binary_mode" json:"binary_mode"`
+	BinaryArtifactsPath  string             `yaml:"binary_artifacts_path" mapstructure:"binary_artifacts_path" json:"binary_artifacts_path"`
+	BinaryArtifactsClean bool               `yaml:"binary_artifacts_clean" mapstructure:"binary_artifacts_clean" json:"binary_artifacts_clean"`
 }
 
 type ScannersConfig map[string]runnerconfig.Config

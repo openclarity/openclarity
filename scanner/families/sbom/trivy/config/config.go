@@ -22,11 +22,11 @@ import (
 )
 
 type Config struct {
-	Timeout        int              `yaml:"timeout" mapstructure:"timeout"`
-	CacheDir       string           `yaml:"cache_dir" mapstructure:"cache_dir"`
-	TempDir        string           `yaml:"temp_dir" mapstructure:"temp_dir"`
-	Registry       *common.Registry `yaml:"registry" mapstructure:"registry"`
-	LocalImageScan bool             `yaml:"local_image_scan" mapstructure:"local_image_scan"`
+	Timeout        int              `yaml:"timeout" mapstructure:"timeout" json:"timeout"`
+	CacheDir       string           `yaml:"cache_dir" mapstructure:"cache_dir" json:"cache_dir"`
+	TempDir        string           `yaml:"temp_dir" mapstructure:"temp_dir" json:"temp_dir"`
+	Registry       *common.Registry `yaml:"registry" mapstructure:"registry" json:"registry"`
+	LocalImageScan bool             `yaml:"local_image_scan" mapstructure:"local_image_scan" json:"local_image_scan"`
 }
 
 func (c *Config) SetRegistry(registry *common.Registry) {

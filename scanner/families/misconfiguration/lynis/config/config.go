@@ -20,7 +20,7 @@ const (
 )
 
 type Config struct {
-	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path"`
+	BinaryPath string `yaml:"binary_path" mapstructure:"binary_path" json:"binary_path"`
 }
 
 func (c *Config) GetBinaryPath() string {

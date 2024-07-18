@@ -1,165 +1,165 @@
 {
   "sbom": {
-    "Enabled": true,
-    "AnalyzersList": [
+    "enabled": true,
+    "analyzers_list": [
       "syft"
     ],
-    "Inputs": [
+    "inputs": [
       {
         "strip_path_from_result": null,
         "input": "test",
         "input_type": "dir"
       }
     ],
-    "MergeWith": null,
-    "Registry": null,
-    "LocalImageScan": false,
-    "OutputFormat": "",
-    "AnalyzersConfig": {
-      "Syft": {
-        "Scope": "",
-        "ExcludePaths": null,
-        "Registry": null,
-        "LocalImageScan": false
+    "merge_with": null,
+    "registry": null,
+    "local_image_scan": false,
+    "output_format": "",
+    "analyzers_config": {
+      "syft": {
+        "scope": "",
+        "exclude_paths": null,
+        "registry": null,
+        "local_image_scan": false
       },
-      "Trivy": {
-        "Timeout": 0,
-        "CacheDir": "",
-        "TempDir": "",
-        "Registry": null,
-        "LocalImageScan": false
+      "trivy": {
+        "timeout": 0,
+        "cache_dir": "",
+        "temp_dir": "",
+        "registry": null,
+        "local_image_scan": false
       }
     }
   },
   "vulnerabilities": {
-    "Enabled": false,
-    "ScannersList": null,
-    "Inputs": null,
-    "InputFromSbom": false,
-    "Registry": null,
-    "LocalImageScan": false,
-    "ScannersConfig": {
-      "Grype": {
-        "Mode": "",
-        "Local": {
-          "UpdateDB": false,
-          "DBRootDir": "",
-          "ListingURL": "",
-          "MaxAllowedBuiltAge": 0,
-          "ListingFileTimeout": 0,
-          "UpdateTimeout": 0,
-          "Scope": "",
-          "Registry": null,
-          "LocalImageScan": false
+    "enabled": false,
+    "scanners_list": null,
+    "inputs": null,
+    "input_from_sbom": false,
+    "registry": null,
+    "local_image_scan": false,
+    "scanners_config": {
+      "grype": {
+        "mode": "",
+        "local_grype_config": {
+          "update_db": false,
+          "db_root_dir": "",
+          "listing_url": "",
+          "max_allowed_built_age": 0,
+          "listing_file_timeout": 0,
+          "update_timeout": 0,
+          "scope": "",
+          "registry": null,
+          "local_image_scan": false
         },
-        "Remote": {
-          "GrypeServerAddress": "",
-          "GrypeServerSchemes": null,
-          "GrypeServerTimeout": 0
+        "remote_grype_config": {
+          "grype_server_address": "",
+          "grype_server_schemes": null,
+          "grype_server_timeout": 0
         }
       },
-      "Trivy": {
-        "Timeout": 0,
-        "ServerAddr": "",
-        "ServerToken": "",
-        "CacheDir": "",
-        "TempDir": "",
-        "Registry": null
+      "trivy": {
+        "timeout": 0,
+        "server_addr": "",
+        "server_token": "",
+        "cache_dir": "",
+        "temp_dir": "",
+        "registry": null
       }
     }
   },
   "secrets": {
-    "Enabled": false,
-    "ScannersList": null,
-    "StripInputPaths": false,
-    "Inputs": null,
-    "ScannersConfig": {
-      "Gitleaks": {
-        "BinaryPath": ""
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "gitleaks": {
+        "binary_path": ""
       }
     }
   },
   "rootkits": {
-    "Enabled": false,
-    "ScannersList": null,
-    "StripInputPaths": false,
-    "Inputs": null,
-    "ScannersConfig": {
-      "Chkrootkit": {
-        "BinaryPath": ""
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "chkrootkit": {
+        "binary_path": ""
       }
     }
   },
   "malware": {
-    "Enabled": false,
-    "ScannersList": null,
-    "StripInputPaths": false,
-    "Inputs": null,
-    "ScannersConfig": {
-      "Clam": {
-        "UseClamDaemon": false,
-        "ClamScanBinaryPath": "",
-        "ClamScanExcludeFiles": null,
-        "ClamScanExcludeDirs": null,
-        "ClamDaemonClientBinaryPath": "",
-        "ClamDaemonBinaryPath": "",
-        "ClamDaemonConfigPath": "",
-        "FreshclamBinaryPath": "",
-        "FreshclamConfigPath": "",
-        "AlternativeFreshclamMirrorURL": ""
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "clam": {
+        "use_clam_daemon": false,
+        "clamscan_binary_path": "",
+        "clamscan_exclude_files": null,
+        "clamscan_exclude_dirs": null,
+        "clam_daemon_client_binary_path": "",
+        "clam_daemon_binary_path": "",
+        "clam_daemon_config_path": "",
+        "freshclam_binary_path": "",
+        "freshclam_config_path": "",
+        "alternative_freshclam_mirror_url": ""
       },
-      "Yara": {
-        "YaraBinaryPath": "",
-        "CompiledRuleURL": "",
-        "RuleSources": null,
-        "YaracBinaryPath": "",
-        "CacheDir": "",
-        "DirectoriesToScan": null
+      "yara": {
+        "yara_binary_path": "",
+        "compiled_rule_url": "",
+        "rule_sources": null,
+        "yarac_binary_path": "",
+        "cache_dir": "",
+        "directories_to_scan": null
       }
     }
   },
   "misconfiguration": {
     "enabled": false,
-    "ScannersList": null,
-    "StripInputPaths": false,
-    "Inputs": null,
-    "ScannersConfig": {
-      "Lynis": {
-        "BinaryPath": ""
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "lynis": {
+        "binary_path": ""
       },
-      "CISDocker": {
-        "Timeout": 0,
-        "Registry": null
+      "cisdocker": {
+        "timeout": 0,
+        "registry": null
       }
     }
   },
   "infofinder": {
     "enabled": false,
-    "ScannersList": null,
-    "StripInputPaths": false,
-    "Inputs": null,
-    "ScannersConfig": {
-      "SSHTopology": {}
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "ssh_topology": {}
     }
   },
   "exploits": {
     "enabled": false,
-    "ScannersList": null,
-    "Inputs": null,
-    "InputFromVuln": false,
-    "ScannersConfig": {
-      "ExploitDB": {
-        "BaseURL": ""
+    "scanners_list": null,
+    "inputs": null,
+    "input_from_vuln": false,
+    "scanners_config": {
+      "exploit_db": {
+        "base_url": ""
       }
     }
   },
   "plugins": {
-    "Enabled": false,
-    "ScannersList": null,
-    "Inputs": null,
-    "ScannersConfig": null,
-    "BinaryMode": false,
-    "BinaryArtifactsPath": "",
-    "BinaryArtifactsClean": false
+    "enabled": false,
+    "scanners_list": null,
+    "inputs": null,
+    "scanners_config": null,
+    "binary_mode": false,
+    "binary_artifacts_path": "",
+    "binary_artifacts_clean": false
   }
 }
