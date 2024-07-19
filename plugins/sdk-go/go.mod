@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/deepmap/oapi-codegen/v2 v2.2.0
 	github.com/getkin/kin-openapi v0.124.0
-	github.com/go-playground/validator/v10 v10.20.0
+	github.com/go-playground/validator/v10 v10.22.0
 	github.com/labstack/echo/v4 v4.12.0
 )
 
