@@ -2,7 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "helpers:pinGitHubActionDigestsToSemver"
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":semanticCommitTypeAll(chore)"
   ],
   "configMigration": true,
   "customManagers": [
@@ -22,7 +23,9 @@
     }
   ],
   "dependencyDashboardAutoclose": true,
-  "dependencyDashboardLabels": ["dependencies"],
+  "dependencyDashboardLabels": [
+    "dependencies"
+  ],
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "enabled": true,
   "enabledManagers": [
@@ -33,10 +36,13 @@
     "github-actions",
     "gomod",
     "helm-values",
-    "helmv3"
+    "helmv3",
+    "python"
   ],
   "forkProcessing": "disabled",
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "ignoreDeps": [
     "github.com/openclarity/vmclarity/api/server",
     "github.com/openclarity/vmclarity/api/client",
@@ -63,7 +69,9 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "matchCategories": ["golang"],
+      "matchCategories": [
+        "golang"
+      ],
       "addLabels": [
         "go"
       ],
@@ -72,58 +80,8 @@
       ]
     },
     {
-      "matchCategories": ["kubernetes"],
-      "addLabels": [
-        "kubernetes"
-      ],
-      "description": [
-        "Add kubernetes label to PRs which bumps kubernetes dependencies."
-      ]
-    },
-    {
-      "matchFileNames": [
-        "Makefile",
-        "makefile.d/*.mk"
-      ],
-      "addLabels": [
-        "build"
-      ],
-      "extractVersion": "^v(?<version>.*)$",
-      "semanticCommitType": "build",
-      "description": [
-        "Add build label to PRs which are related to build tools defined in Makefiles.",
-        "Use build type for semantic commits."
-      ]
-    },
-    {
-      "matchDatasources": [
-        "github-tags"
-      ],
-      "addLabels": [
-        "ci"
-      ],
-      "semanticCommitType": "ci",
-      "description": [
-        "Add ci label to PRs which are related to Github Actions.",
-        "Use ci type for semantic commits."
-      ]
-    },
-    {
-      "matchFileNames": [
-        "e2e/**",
-        "testenv/**"
-      ],
-      "addLabels": [
-        "test"
-      ],
-      "semanticCommitType": "test",
-      "description": [
-        "Add test label to PRs which are related to Github Actions.",
-        "Use test type for semantic commits."
-      ]
-    },
-    {
       "groupName": "Docker",
+      "groupSlug": "docker",
       "matchDatasources": [
         "go"
       ],
@@ -137,6 +95,7 @@
     },
     {
       "groupName": "gorm.io",
+      "groupSlug": "gorm",
       "matchDatasources": [
         "go"
       ],
@@ -150,6 +109,7 @@
     },
     {
       "groupName": "Azure SDK",
+      "groupSlug": "azure-sdk",
       "matchDatasources": [
         "go"
       ],
@@ -162,6 +122,7 @@
     },
     {
       "groupName": "Google SDK",
+      "groupSlug": "google-sdk",
       "matchDatasources": [
         "go"
       ],
@@ -174,6 +135,7 @@
     },
     {
       "groupName": "Containerd",
+      "groupSlug": "containerd",
       "matchDatasources": [
         "go"
       ],
@@ -186,6 +148,7 @@
     },
     {
       "groupName": "Kubernetes",
+      "groupSlug": "kubernetes",
       "matchDatasources": [
         "go"
       ],
@@ -195,6 +158,86 @@
       ],
       "description": [
         "Group Kubernetes dependency updates in single PR."
+      ]
+    },
+    {
+      "groupName": "Go patches",
+      "groupSlug": "go-patches",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "description": [
+        "Group Go dependency patch updates in single PR."
+      ]
+    },
+    {
+      "groupName": "Python",
+      "groupSlug": "python",
+      "matchCategories": [
+        "python"
+      ],
+      "addLabels": [
+        "python"
+      ],
+      "description": [
+        "Add python label to PRs which bumps python dependencies.",
+        "Group Python dependency updates in single PR."
+      ]
+    },
+    {
+      "matchCategories": [
+        "kubernetes"
+      ],
+      "addLabels": [
+        "kubernetes"
+      ],
+      "description": [
+        "Add kubernetes label to PRs which bumps kubernetes dependencies."
+      ]
+    },
+    {
+      "groupName": "Makefile",
+      "groupSlug": "makefile",
+      "matchFileNames": [
+        "Makefile",
+        "makefile.d/*.mk"
+      ],
+      "addLabels": [
+        "build"
+      ],
+      "extractVersion": "^v(?<version>.*)$",
+      "description": [
+        "Add build label to PRs which are related to build tools defined in Makefiles.",
+        "Group Makefile dependency updates in single PR."
+      ]
+    },
+    {
+      "groupName": "Github Actions",
+      "groupSlug": "github-actions",
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "addLabels": [
+        "ci"
+      ],
+      "description": [
+        "Add ci label to PRs which are related to Github Actions.",
+        "Group CI dependency updates in single PR."
+      ]
+    },
+    {
+      "matchFileNames": [
+        "e2e/**",
+        "testenv/**"
+      ],
+      "addLabels": [
+        "test"
+      ],
+      "description": [
+        "Add test label to PRs which are related to Github Actions."
       ]
     },
     {
@@ -264,6 +307,8 @@
   "timezone": "Etc/UTC",
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": [
+      "security"
+    ]
   }
 }
