@@ -380,9 +380,9 @@ require (
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/samber/lo v1.39.0 // indirect
-	github.com/samber/slog-common v0.16.0 // indirect
-	github.com/samber/slog-logrus/v2 v2.3.0 // indirect
+	github.com/samber/lo v1.44.0 // indirect
+	github.com/samber/slog-common v0.17.0 // indirect
+	github.com/samber/slog-logrus/v2 v2.5.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1 // indirect
 	github.com/sassoftware/go-rpmutils v0.4.0 // indirect
 	github.com/scylladb/go-set v1.0.3-0.20200225121959-cc7b2070d91e // indirect
