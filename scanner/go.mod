@@ -31,7 +31,7 @@ require (
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/rs/zerolog v1.33.0
-	github.com/samber/slog-logrus/v2 v2.3.0
+	github.com/samber/slog-logrus/v2 v2.5.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/tdewolff/parse/v2 v2.7.15
@@ -373,8 +373,8 @@ require (
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/samber/lo v1.39.0 // indirect
-	github.com/samber/slog-common v0.16.0 // indirect
+	github.com/samber/lo v1.44.0 // indirect
+	github.com/samber/slog-common v0.17.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1 // indirect
 	github.com/sassoftware/go-rpmutils v0.4.0 // indirect
 	github.com/scylladb/go-set v1.0.3-0.20200225121959-cc7b2070d91e // indirect
