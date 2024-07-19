@@ -31,7 +31,7 @@ func NewResult() *Result {
 }
 
 func (r *Result) Merge(meta families.ScanInputMetadata, infos []Info) {
-	r.Metadata.Merge(meta)
+	r.Metadata = r.Metadata.Merge(meta)
 
 	for i := range infos {
 		r.Infos = append(r.Infos, FlattenedInfo{

@@ -84,7 +84,7 @@ func (r *Result) ToSlice() []Vulnerability {
 	return ret
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
+func (r *Result) Merge(meta families.ScanMetadata, result *ScannerResult) {
 	r.Metadata.Merge(meta)
 
 	// Skip further merge if scanner result is empty

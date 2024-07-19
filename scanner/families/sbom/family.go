@@ -101,7 +101,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 		results := types.CreateScannerResult(cdxBOMBytes, name, with.SbomPath, common.SBOM)
 		logger.Infof("Merging result from %q", with.SbomPath)
 
-		metadata.Merge(families.ScanInputMetadata{
+		metadata.Merge(families.ScanMetadata{
 			ScannerName: name,
 			InputType:   common.SBOM,
 			InputPath:   with.SbomPath,

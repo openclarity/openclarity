@@ -30,7 +30,7 @@ func NewResult() *Result {
 	}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, misconfigurations []Misconfiguration) {
+func (r *Result) Merge(meta families.ScanMetadata, misconfigurations []Misconfiguration) {
 	r.Metadata.Merge(meta)
 
 	for i := range misconfigurations {

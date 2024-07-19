@@ -49,8 +49,7 @@ type Scanner[T any] interface {
 	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
 }
 
-// FamilyResult defines an object that FamilyNotifier receives on successful
-// Family.Run.
+// FamilyResult defines an object that FamilyNotifier receives on successful Family.Run.
 type FamilyResult struct {
 	FamilyType FamilyType
 	Result     any
@@ -64,46 +63,26 @@ type FamilyNotifier interface {
 	FamilyFinished(context.Context, FamilyResult) error
 }
 
-// ScanInputMetadata is metadata about a single input scan for a specific Family.
-type ScanInputMetadata struct {
-	ScannerName string           `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
-	InputType   common.InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
-	InputPath   string           `json:"input_path" yaml:"input_path" mapstructure:"input_path"`
-	InputSize   int64            `json:"input_size" yaml:"input_size" mapstructure:"input_size"`
-	StartTime   time.Time        `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime     time.Time        `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
+// ScanMetadata is metadata Family returns for all family-related processed inputs.
+type ScanMetadata []ScanInputMetadata
+
+func (m ScanMetadata) Merge(in ScanInputMetadata) ScanMetadata {
+	return append(m, in)
 }
 
-func NewScanInputMetadata(scannerName string, startTime, endTime time.Time, inputSize int64, input common.ScanInput) ScanInputMetadata {
-	return ScanInputMetadata{
-		ScannerName: scannerName,
-		InputType:   input.InputType,
-		InputPath:   input.Input,
-		InputSize:   inputSize,
-		StartTime:   startTime,
-		EndTime:     endTime,
-	}
+// ScanInputMetadata is metadata Scanner returns for a single processed input.
+type ScanInputMetadata struct {
+	ScannerName   string           `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
+	InputType     common.InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
+	InputPath     string           `json:"input_path" yaml:"input_path" mapstructure:"input_path"`
+	InputSize     int64            `json:"input_size" yaml:"input_size" mapstructure:"input_size"`
+	StartTime     time.Time        `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
+	EndTime       time.Time        `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
+	TotalFindings int              `json:"total_findings" yaml:"total_findings" mapstructure:"total_findings"`
 }
 
 func (m ScanInputMetadata) String() string {
-	return fmt.Sprintf("Scanner=%s Input=%s:%s InputSize=%d MB", m.ScannerName, m.InputType, m.InputPath, m.InputSize)
-}
-
-// ScanMetadata is metadata about multiple input scans for a specific Family.
-type ScanMetadata struct {
-	Inputs    []ScanInputMetadata `json:"inputs" yaml:"inputs" mapstructure:"inputs"`
-	StartTime time.Time           `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime   time.Time           `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
-}
-
-func (s *ScanMetadata) Merge(meta ScanInputMetadata) {
-	s.Inputs = append(s.Inputs, meta)
-
-	if s.StartTime.IsZero() || s.StartTime.After(meta.StartTime) {
-		s.StartTime = meta.StartTime
-	}
-
-	if s.EndTime.IsZero() || s.EndTime.Before(meta.EndTime) {
-		s.EndTime = meta.EndTime
-	}
+	return fmt.Sprintf("Scanner=%s Input=%s:%s InputSize=%d MB Findings=%d",
+		m.ScannerName, m.InputType, m.InputPath, m.InputSize, m.TotalFindings,
+	)
 }

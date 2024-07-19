@@ -37,7 +37,7 @@ func (r *Result) TotalFindings() int {
 	return len(r.Findings)
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
+func (r *Result) Merge(meta families.ScanMetadata, result *ScannerResult) {
 	r.Metadata.Merge(meta)
 
 	if result != nil {

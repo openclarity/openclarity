@@ -30,12 +30,6 @@ import (
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
 )
 
-type InputScanResult[T any] struct {
-	Metadata   families.ScanInputMetadata
-	ScanInput  common.ScanInput
-	ScanResult T
-}
-
 // Manager allows parallelized scan of inputs for a single family scanner factory.
 type Manager[CT, RT any] struct {
 	config   CT
@@ -51,7 +45,7 @@ func New[CT, RT any](scanners []string, config CT, factory *Factory[CT, RT]) *Ma
 	}
 }
 
-func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) ([]InputScanResult[RT], error) {
+func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) ([]ScanResult[RT], error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 	logger.WithField("inputs", inputs).Infof("Scanning inputs in progress...")
 
@@ -71,7 +65,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 
 	// Create worker pool and schedule all scan jobs. Do not cancel on error. Do not
 	// limit the number of parallel workers.
-	workerPool := pool.NewWithResults[InputScanResult[RT]]().WithContext(ctx)
+	workerPool := pool.NewWithResults[ScanResult[RT]]().WithContext(ctx)
 
 	for _, scannerName := range m.scanners {
 		// Override context with scanner params
@@ -89,7 +83,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 
 		// Submit scanner job for each input pair
 		for _, input := range inputs {
-			workerPool.Go(func(ctx context.Context) (InputScanResult[RT], error) {
+			workerPool.Go(func(ctx context.Context) (ScanResult[RT], error) {
 				return m.scanInput(ctx, scannerName, scanner, input)
 			})
 		}
@@ -112,7 +106,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 	return results, nil
 }
 
-func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, scanner families.Scanner[RT], input common.ScanInput) (InputScanResult[RT], error) {
+func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, scanner families.Scanner[RT], input common.ScanInput) (ScanResult[RT], error) {
 	// Override context with scan request params
 	ctx, logger := log.NewContextLoggerOrDefault(ctx, map[string]interface{}{
 		"scanner": scannerName,
@@ -125,27 +119,58 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 
 	// Run scan
 	startTime := time.Now()
-	scanResult, scanErr := scanner.Scan(ctx, input.InputType, input.Input)
+	result, err := scanner.Scan(ctx, input.InputType, input.Input)
+	if err != nil {
+		logger.WithError(err).Warnf("Scan job %q for input %s failed", scannerName, input)
 
-	// Create scan metadata
-	endTime := time.Now()
-	inputSize, _ := familiesutils.GetInputSize(input)
-	metadata := families.NewScanInputMetadata(scannerName, startTime, endTime, inputSize, input)
-
-	// Log and handle scan result
-	if scanErr != nil {
-		logger.WithError(scanErr).WithField("metadata", metadata).
-			Warnf("Scan job %q for input %s failed", scannerName, input)
-
-		return InputScanResult[RT]{}, fmt.Errorf("scan job %q for input %s failed, reason: %w", scannerName, input, scanErr)
+		return ScanResult[RT]{}, fmt.Errorf("scan job %q for input %s failed, reason: %w", scannerName, input, err)
 	}
 
-	logger.WithField("metadata", metadata).
-		Infof("Scan job %q for input %s succeeded", scannerName, input)
+	logger.Infof("Scan job %q for input %s succeeded", scannerName, input)
 
-	return InputScanResult[RT]{
-		Metadata:   metadata,
-		ScanInput:  input,
-		ScanResult: scanResult,
+	// Fetch input size
+	inputSize, _ := familiesutils.GetInputSize(input)
+
+	return ScanResult[RT]{
+		ScanMetadata: ScanMetadata{
+			ScanInput:   input,
+			InputSize:   inputSize,
+			ScannerName: scannerName,
+			StartTime:   startTime,
+			EndTime:     time.Now(),
+		},
+		Result: result,
 	}, nil
+}
+
+type ScanResult[T any] struct {
+	ScanMetadata
+	Result T
+}
+
+func (r ScanResult[T]) String() string {
+	return fmt.Sprintf("Scanner=%s Input=%s InputSize=%d MB", r.ScannerName, r.ScanInput.String(), r.InputSize)
+}
+
+type ScanMetadata struct {
+	// Input meta
+	common.ScanInput
+	InputSize int64
+
+	// Scanner meta
+	ScannerName string
+	StartTime   time.Time
+	EndTime     time.Time
+}
+
+func (m ScanMetadata) ToScanInputMeta(findings int) families.ScanInputMetadata {
+	return families.ScanInputMetadata{
+		ScannerName:   m.ScannerName,
+		InputType:     m.InputType,
+		InputPath:     m.Input,
+		InputSize:     m.InputSize,
+		StartTime:     m.StartTime,
+		EndTime:       m.EndTime,
+		TotalFindings: findings,
+	}
 }

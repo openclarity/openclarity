@@ -28,7 +28,7 @@ func NewResult() *Result {
 	return &Result{}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, findings []Finding) {
+func (r *Result) Merge(meta families.ScanMetadata, findings []Finding) {
 	r.Metadata.Merge(meta)
 
 	r.Findings = append(r.Findings, findings...)

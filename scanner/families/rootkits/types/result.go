@@ -30,7 +30,7 @@ func NewResult() *Result {
 	}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, rootkits []Rootkit) {
+func (r *Result) Merge(meta families.ScanMetadata, rootkits []Rootkit) {
 	r.Metadata.Merge(meta)
 
 	r.Rootkits = append(r.Rootkits, rootkits...)

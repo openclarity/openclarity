@@ -41,7 +41,7 @@ func Test_getInputScanStats(t *testing.T) {
 			name: "no input scans",
 			args: args{
 				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{},
+					Inputs: []families.ScanMetadata{},
 				},
 			},
 			want: nil,
@@ -50,7 +50,7 @@ func Test_getInputScanStats(t *testing.T) {
 			name: "one input scans",
 			args: args{
 				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{
+					Inputs: []families.ScanMetadata{
 						{
 							InputType: "rootfs",
 							InputPath: "/mnt/snap",
@@ -77,7 +77,7 @@ func Test_getInputScanStats(t *testing.T) {
 			name: "two input scans",
 			args: args{
 				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{
+					Inputs: []families.ScanMetadata{
 						{
 							InputType: "rootfs",
 							InputPath: "/mnt/snap",
