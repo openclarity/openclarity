@@ -3,7 +3,7 @@ module github.com/openclarity/vmclarity/uibackend/client
 go 1.22.4
 
 require (
-	github.com/deepmap/oapi-codegen/v2 v2.2.0
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/openclarity/vmclarity/uibackend/types v0.7.2
 )
