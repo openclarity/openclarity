@@ -97,7 +97,7 @@
     "inputs": null,
     "scanners_config": {
       "clam": {
-        "use_clam_daemon": false,
+        "use_native_clamscan": false,
         "clamscan_binary_path": "",
         "clamscan_exclude_files": null,
         "clamscan_exclude_dirs": null,

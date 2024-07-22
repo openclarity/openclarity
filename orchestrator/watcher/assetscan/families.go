@@ -168,11 +168,7 @@ func withMalwareConfig(config *apitypes.MalwareConfig, opts *ScannerConfig) Scan
 			Inputs:       nil, // rootfs directory will be determined by the CLI after mount.
 			ScannersConfig: malware.ScannersConfig{
 				Clam: clamconfig.Config{
-					// NOTE(ramizpolic): We disable scanning with daemon as we don't have proper
-					// default configuration in place. Once we have defined valid default
-					// configuration to use with clam daemon scan, we should re-enable this.
-					// https://github.com/openclarity/vmclarity/issues/1870
-					UseClamDaemon:                 false,
+					UseNativeClamscan:             false,
 					AlternativeFreshclamMirrorURL: opts.AlternativeFreshclamMirrorURL,
 				},
 				Yara: yaraconfig.Config{
