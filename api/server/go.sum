@@ -82,8 +82,6 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/deepmap/oapi-codegen/v2 v2.2.0 h1:FW4f7C0Xb6EaezBSB3GYw2QGwHD5ChDflG+3xSZBdvY=
-github.com/deepmap/oapi-codegen/v2 v2.2.0/go.mod h1:L4zUv7ULYDtYSb/aYk/xO3OYcQU6BoU/0viULkbi2DE=
 github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=
 github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
@@ -295,6 +293,8 @@ github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLA
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oapi-codegen/echo-middleware v1.0.2 h1:oNBqiE7jd/9bfGNk/bpbX2nqWrtPc+LL4Boya8Wl81U=
 github.com/oapi-codegen/echo-middleware v1.0.2/go.mod h1:5J6MFcGqrpWLXpbKGZtRPZViLIHyyyUHlkqg6dT2R4E=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 h1:rICjNsHbPP1LttefanBPnwsSwl09SqhCO7Ee623qR84=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.0/go.mod h1:4k+cJeSq5ntkwlcpQSxLxICCxQzCL772o30PxdibRt4=
 github.com/oapi-codegen/runtime v1.1.1 h1:EXLHh0DXIJnWhdRPN2w4MXAzFyE4CskzhNLUmtpMYro=
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/onsi/ginkgo v0.0.0-20170829012221-11459a886d9c/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

@@ -41,7 +41,6 @@ require (
 	github.com/containerd/typeurl/v2 v2.1.1 // indirect
 	github.com/containers/ocicrypt v1.1.10 // indirect
 	github.com/containers/storage v1.54.0 // indirect
-	github.com/deepmap/oapi-codegen/v2 v2.2.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/cli v26.1.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.1 // indirect
@@ -91,6 +90,7 @@ require (
 	github.com/multiformats/go-multibase v0.1.1 // indirect
 	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
