@@ -37,7 +37,7 @@
     "gomod",
     "helm-values",
     "helmv3",
-    "python"
+    "pip_setup"
   ],
   "forkProcessing": "disabled",
   "labels": [
