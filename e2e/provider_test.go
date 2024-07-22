@@ -17,7 +17,6 @@ package e2e
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -36,11 +35,11 @@ var _ = ginkgo.Describe("Posting and getting a provider", func() {
 				ctx,
 				apitypes.Provider{
 					DisplayName: to.Ptr("test-provider"),
-					Status: to.Ptr(apitypes.ProviderStatus{
-						State:              apitypes.ProviderStatusStateHealthy,
-						Reason:             apitypes.HeartbeatReceived,
-						LastTransitionTime: time.Now(),
-					}),
+					Status: apitypes.NewProviderStatus(
+						apitypes.ProviderStatusStateHealthy,
+						apitypes.HeartbeatReceived,
+						nil,
+					),
 				})
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
