@@ -81,7 +81,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(v.conf.ScannersList, v.conf, Factory)
-	results, err := manager.Scan(ctx, v.conf.Inputs)
+	results, err := manager.Scan(ctx, v.conf.Inputs, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for vulnerabilities: %w", err)
 	}

@@ -60,19 +60,21 @@ func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 		}
 	}
 
+	// Run all scanner plugins using scan manager
 	manager := scan_manager.New(p.conf.ScannersList, p.conf.ScannersConfig, factory)
-	results, err := manager.Scan(ctx, p.conf.Inputs)
+	scans, err := manager.Scan(ctx, p.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for plugins: %w", err)
 	}
 
-	pluginsResults := types.NewResult()
+	plugins := types.NewResult()
 
-	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata.ScannerName)
-		pluginsResults.Merge(result.Metadata, result.ScanResult)
+	// Merge scan results
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
+
+		plugins.Merge(scan.GetScanInputMetadata(len(scan.Result.Findings)), scan.Result)
 	}
 
-	return pluginsResults, nil
+	return plugins, nil
 }

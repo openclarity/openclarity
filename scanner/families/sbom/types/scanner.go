@@ -34,9 +34,9 @@ type ScannerResult struct {
 	AppInfo      AppInfo
 }
 
-func CreateScannerResult(sbomBytes *cdx.BOM, analyzerName, userInput string, srcType common.InputType) *ScannerResult {
+func CreateScannerResult(sbom *cdx.BOM, analyzerName, userInput string, srcType common.InputType) *ScannerResult {
 	return &ScannerResult{
-		Sbom:         sbomBytes,
+		Sbom:         sbom,
 		AnalyzerInfo: analyzerName,
 		AppInfo: AppInfo{
 			SourceMetadata: map[string]string{},

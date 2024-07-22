@@ -26,12 +26,16 @@ type Result struct {
 
 func NewResult() *Result {
 	return &Result{
+		Metadata: families.ScanMetadata{},
 		Rootkits: []Rootkit{},
 	}
 }
 
-func (r *Result) Merge(meta families.ScanMetadata, rootkits []Rootkit) {
-	r.Metadata.Merge(meta)
-
+func (r *Result) Merge(meta families.ScanInputMetadata, rootkits []Rootkit) {
+	// Merge rootkits
 	r.Rootkits = append(r.Rootkits, rootkits...)
+
+	// Update metadata
+	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
+	r.Metadata.TotalFindings = len(r.Rootkits)
 }

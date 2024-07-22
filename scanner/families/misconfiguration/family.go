@@ -45,21 +45,22 @@ func (m Misconfiguration) Run(ctx context.Context, _ *families.Results) (*types.
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(m.conf.ScannersList, m.conf.ScannersConfig, Factory)
-	results, err := manager.Scan(ctx, m.conf.Inputs)
+	scans, err := manager.Scan(ctx, m.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for misconfigurations: %w", err)
 	}
 
 	misconfigurations := types.NewResult()
 
-	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
+	// Merge scan results
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
 
-		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, m.conf.StripInputPaths) {
-			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		if familiesutils.ShouldStripInputPath(scan.StripInputPath, m.conf.StripInputPaths) {
+			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
 		}
-		misconfigurations.Merge(result.Metadata, result.ScanResult)
+
+		misconfigurations.Merge(scan.GetScanInputMetadata(len(scan.Result)), scan.Result)
 	}
 
 	return misconfigurations, nil

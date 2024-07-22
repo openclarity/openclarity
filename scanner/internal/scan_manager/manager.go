@@ -30,14 +30,15 @@ import (
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
 )
 
-// Manager allows parallelized scan of inputs for a single family scanner factory.
-type Manager[CT, RT any] struct {
+// Manager allows parallelized scan of inputs for a single families.Family that
+// consists of multiple families.Scanner.
+type Manager[CT ConfigType, RT ResultType] struct {
 	config   CT
 	scanners []string
 	factory  *Factory[CT, RT]
 }
 
-func New[CT, RT any](scanners []string, config CT, factory *Factory[CT, RT]) *Manager[CT, RT] {
+func New[CT ConfigType, RT ResultType](scanners []string, config CT, factory *Factory[CT, RT]) *Manager[CT, RT] {
 	return &Manager[CT, RT]{
 		config:   config,
 		scanners: scanners,
@@ -45,6 +46,9 @@ func New[CT, RT any](scanners []string, config CT, factory *Factory[CT, RT]) *Ma
 	}
 }
 
+// Scan scans all the inputs using pre-registered family scanners through
+// Factory. It discards errored scans and only returns successful scans.
+// If all scans fail, combined error is returned.
 func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) ([]ScanResult[RT], error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 	logger.WithField("inputs", inputs).Infof("Scanning inputs in progress...")
@@ -74,7 +78,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 		})
 
 		// Create scanner, skip scheduling scan tasks if we cannot create the scanner itself.
-		scanner, err := m.factory.createScanner(ctx, scannerName, m.config)
+		scanner, err := m.factory.newScanner(ctx, scannerName, m.config)
 		if err != nil {
 			logger.WithError(err).Errorf("Failed to create scanner %s", scannerName)
 			scanErrs = append(scanErrs, fmt.Errorf("failed to create scanner %s: %w", scannerName, err))
@@ -98,7 +102,10 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 	// Return error if all jobs failed to return results.
 	// TODO: should it be configurable? allow the user to decide failure threshold?
 	if len(results) == 0 {
-		return nil, errors.Join(scanErrs...) // nolint:wrapcheck
+		err := errors.Join(scanErrs...)
+		logger.WithError(err).Errorf("Scanning inputs failed with %d errors", len(scanErrs))
+
+		return nil, err // nolint:wrapcheck
 	}
 
 	logger.Infof("Scanning inputs finished with success")
@@ -123,7 +130,7 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 	if err != nil {
 		logger.WithError(err).Warnf("Scan job %q for input %s failed", scannerName, input)
 
-		return ScanResult[RT]{}, fmt.Errorf("scan job %q for input %s failed, reason: %w", scannerName, input, err)
+		return ScanResult[RT]{}, fmt.Errorf("scan job %q failed for input %s, reason: %w", scannerName, input, err)
 	}
 
 	logger.Infof("Scan job %q for input %s succeeded", scannerName, input)
@@ -133,44 +140,14 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 
 	return ScanResult[RT]{
 		ScanMetadata: ScanMetadata{
-			ScanInput:   input,
-			InputSize:   inputSize,
-			ScannerName: scannerName,
-			StartTime:   startTime,
-			EndTime:     time.Now(),
+			InputPath:      input.Input,
+			InputType:      input.InputType,
+			InputSize:      inputSize,
+			StripInputPath: input.StripPathFromResult,
+			ScannerName:    scannerName,
+			StartTime:      startTime,
+			EndTime:        time.Now(),
 		},
 		Result: result,
 	}, nil
-}
-
-type ScanResult[T any] struct {
-	ScanMetadata
-	Result T
-}
-
-func (r ScanResult[T]) String() string {
-	return fmt.Sprintf("Scanner=%s Input=%s InputSize=%d MB", r.ScannerName, r.ScanInput.String(), r.InputSize)
-}
-
-type ScanMetadata struct {
-	// Input meta
-	common.ScanInput
-	InputSize int64
-
-	// Scanner meta
-	ScannerName string
-	StartTime   time.Time
-	EndTime     time.Time
-}
-
-func (m ScanMetadata) ToScanInputMeta(findings int) families.ScanInputMetadata {
-	return families.ScanInputMetadata{
-		ScannerName:   m.ScannerName,
-		InputType:     m.InputType,
-		InputPath:     m.Input,
-		InputSize:     m.InputSize,
-		StartTime:     m.StartTime,
-		EndTime:       m.EndTime,
-		TotalFindings: findings,
-	}
 }

@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
 	"github.com/openclarity/vmclarity/scanner/common"
@@ -28,6 +27,7 @@ import (
 	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 	"github.com/openclarity/vmclarity/scanner/utils"
 	"github.com/openclarity/vmclarity/scanner/utils/converter"
+	"time"
 )
 
 type SBOM struct {
@@ -46,11 +46,11 @@ func (s SBOM) GetType() families.FamilyType {
 
 // nolint:cyclop
 func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
 	if len(s.conf.Inputs) == 0 {
 		return nil, errors.New("inputs list is empty")
 	}
+
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Calculate hash in a separate goroutine as it might take a while. In the
 	// meantime, run actual SBOM scanning.
@@ -69,44 +69,63 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(s.conf.AnalyzersList, s.conf, Factory)
-	results, err := manager.Scan(ctx, s.conf.Inputs)
+	scans, err := manager.Scan(ctx, s.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for sbom: %w", err)
 	}
 
-	// Get hash
+	// Get hash after processing all the scans
 	hash := <-hashCh
 	if err := <-hashErrCh; err != nil {
 		return nil, fmt.Errorf("failed to generate hash for source %s: %w", s.conf.Inputs[0].Input, err)
 	}
 
-	// Create result
-	metadata := families.ScanMetadata{}
 	mergedResults := newMergedResults(s.conf.Inputs[0].InputType, hash)
 
-	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
+	// Merge scan results
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
 
-		metadata.Merge(result.Metadata)
-		mergedResults = mergedResults.Merge(result.ScanResult)
+		var pkgCount int
+		if scan.Result.Sbom != nil && scan.Result.Sbom.Components != nil {
+			pkgCount = len(*scan.Result.Sbom.Components)
+		}
+
+		mergedResults.Merge(scan.GetScanInputMetadata(pkgCount), scan.Result)
 	}
 
+	// Merge data from config
+	//
+	// TODO(ramizpolic): This logic can be moved to a new standalone SBOM scanner
+	// that only loads the data from the filesystem (only works with SBOM input type)
+	// and returns loaded SBOM to simplify this.
 	for i, with := range s.conf.MergeWith {
-		name := fmt.Sprintf("merge_with_%d", i)
-		cdxBOMBytes, err := converter.GetCycloneDXSBOMFromFile(with.SbomPath)
+		logger.Infof("Merging result from %q", with.SbomPath)
+
+		startTime := time.Now()
+
+		// Import SBOM from file
+		cdxBOM, err := converter.GetCycloneDXSBOMFromFile(with.SbomPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %w", with.SbomPath, err)
 		}
-		results := types.CreateScannerResult(cdxBOMBytes, name, with.SbomPath, common.SBOM)
-		logger.Infof("Merging result from %q", with.SbomPath)
 
-		metadata.Merge(families.ScanMetadata{
-			ScannerName: name,
-			InputType:   common.SBOM,
-			InputPath:   with.SbomPath,
-		})
-		mergedResults = mergedResults.Merge(results)
+		// Get package count from the imported SBOM
+		var pkgCount int
+		if cdxBOM != nil && cdxBOM.Components != nil {
+			pkgCount = len(*cdxBOM.Components)
+		}
+
+		// Merge result
+		scannerName := fmt.Sprintf("merge_with_%d", i)
+		mergedResults.Merge(families.ScanInputMetadata{
+			ScannerName:   scannerName,
+			InputType:     common.SBOM,
+			InputPath:     with.SbomPath,
+			StartTime:     startTime,
+			EndTime:       time.Now(),
+			TotalFindings: pkgCount,
+		}, types.CreateScannerResult(cdxBOM, scannerName, with.SbomPath, common.SBOM))
 	}
 
 	logger.Info("Converting SBOM results...")
@@ -124,7 +143,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	}
 
 	// Create result from merged data
-	sbomResults := types.NewResult(metadata, cdxBom)
+	sbom := types.NewResult(mergedResults.Metadata, cdxBom)
 
-	return sbomResults, nil
+	return sbom, nil
 }

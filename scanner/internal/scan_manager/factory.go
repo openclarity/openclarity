@@ -19,40 +19,38 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/scanner/families"
-
 	"github.com/sirupsen/logrus"
+
+	"github.com/openclarity/vmclarity/scanner/families"
 )
 
-type CreateScannerFunc[ConfigType, ScannerResultType any] func(context.Context, string, ConfigType) (families.Scanner[ScannerResultType], error)
-
-type Factory[ConfigType, ScannerResultType any] struct {
-	scanners map[string]CreateScannerFunc[ConfigType, ScannerResultType]
+type Factory[CT ConfigType, RT ResultType] struct {
+	scanners map[string]NewScannerFunc[CT, RT]
 }
 
-func NewFactory[ConfigType, ScannerResultType any]() *Factory[ConfigType, ScannerResultType] {
-	return &Factory[ConfigType, ScannerResultType]{
-		scanners: make(map[string]CreateScannerFunc[ConfigType, ScannerResultType]),
+func NewFactory[CT ConfigType, RT ResultType]() *Factory[CT, RT] {
+	return &Factory[CT, RT]{
+		scanners: make(map[string]NewScannerFunc[CT, RT]),
 	}
 }
 
-func (f *Factory[CT, RT]) Register(name string, createScannerFunc CreateScannerFunc[CT, RT]) {
+func (f *Factory[CT, RT]) Register(name string, newScannerFunc NewScannerFunc[CT, RT]) {
 	if f.scanners == nil {
-		f.scanners = make(map[string]CreateScannerFunc[CT, RT])
+		f.scanners = make(map[string]NewScannerFunc[CT, RT])
 	}
 
 	if _, ok := f.scanners[name]; ok {
 		logrus.Fatalf("%q already registered", name)
 	}
 
-	f.scanners[name] = createScannerFunc
+	f.scanners[name] = newScannerFunc
 }
 
-func (f *Factory[CT, RT]) createScanner(ctx context.Context, name string, config CT) (families.Scanner[RT], error) {
-	createFunc, ok := f.scanners[name]
+func (f *Factory[CT, RT]) newScanner(ctx context.Context, name string, config CT) (families.Scanner[RT], error) {
+	newScannerFunc, ok := f.scanners[name]
 	if !ok {
 		return nil, fmt.Errorf("%v not a registered scanner", name)
 	}
 
-	return createFunc(ctx, name, config)
+	return newScannerFunc(ctx, name, config)
 }

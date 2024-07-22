@@ -49,7 +49,7 @@ type Scanner[T any] interface {
 	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
 }
 
-// FamilyResult defines an object that FamilyNotifier receives on successful Family.Run.
+// FamilyResult defines an object that FamilyNotifier receives on finished Family.Run.
 type FamilyResult struct {
 	FamilyType FamilyType
 	Result     any
@@ -57,20 +57,21 @@ type FamilyResult struct {
 }
 
 // FamilyNotifier is used to subscribe to family scanning progress.
-// Implementation should be concurrently-safe.
 type FamilyNotifier interface {
 	FamilyStarted(context.Context, FamilyType) error
 	FamilyFinished(context.Context, FamilyResult) error
 }
 
-// ScanMetadata is metadata Family returns for all family-related processed inputs.
-type ScanMetadata []ScanInputMetadata
-
-func (m ScanMetadata) Merge(in ScanInputMetadata) ScanMetadata {
-	return append(m, in)
+// ScanMetadata is unified metadata Family returns for all family-processed
+// inputs and operations.
+type ScanMetadata struct {
+	Inputs        []ScanInputMetadata `json:"inputs" yaml:"inputs" mapstructure:"inputs"`
+	StartTime     time.Time           `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
+	EndTime       time.Time           `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
+	TotalFindings int                 `json:"total_findings" yaml:"total_findings" mapstructure:"total_findings"`
 }
 
-// ScanInputMetadata is metadata Scanner returns for a single processed input.
+// ScanInputMetadata is metadata Scanner returns for a successfully processed input.
 type ScanInputMetadata struct {
 	ScannerName   string           `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
 	InputType     common.InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`

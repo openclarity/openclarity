@@ -25,11 +25,16 @@ type Result struct {
 }
 
 func NewResult() *Result {
-	return &Result{}
+	return &Result{
+		Metadata: families.ScanMetadata{},
+		Findings: []Finding{},
+	}
 }
 
-func (r *Result) Merge(meta families.ScanMetadata, findings []Finding) {
-	r.Metadata.Merge(meta)
-
+func (r *Result) Merge(meta families.ScanInputMetadata, findings []Finding) {
 	r.Findings = append(r.Findings, findings...)
+
+	// Update metadata
+	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
+	r.Metadata.TotalFindings = len(r.Findings)
 }

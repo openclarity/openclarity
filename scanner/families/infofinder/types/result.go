@@ -26,17 +26,21 @@ type Result struct {
 
 func NewResult() *Result {
 	return &Result{
-		Infos: []FlattenedInfo{},
+		Metadata: families.ScanMetadata{},
+		Infos:    []FlattenedInfo{},
 	}
 }
 
 func (r *Result) Merge(meta families.ScanInputMetadata, infos []Info) {
-	r.Metadata = r.Metadata.Merge(meta)
-
+	// Append all infos
 	for i := range infos {
 		r.Infos = append(r.Infos, FlattenedInfo{
 			Info:        infos[i],
 			ScannerName: meta.ScannerName,
 		})
 	}
+
+	// Update metadata
+	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
+	r.Metadata.TotalFindings = len(r.Infos)
 }

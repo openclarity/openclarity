@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
 	"github.com/openclarity/vmclarity/scanner/utils/converter"
 
@@ -33,6 +34,7 @@ import (
 type componentKey string // Unique identification of a package (name and version)
 
 type mergedResults struct {
+	Metadata             families.ScanMetadata
 	MergedComponentByKey map[componentKey]*mergedComponent
 	Source               common.InputType
 	SourceHash           string
@@ -49,19 +51,16 @@ type mergedComponent struct {
 
 func newMergedResults(sourceType common.InputType, hash string) *mergedResults {
 	return &mergedResults{
+		Metadata:             families.ScanMetadata{},
 		MergedComponentByKey: map[componentKey]*mergedComponent{},
 		Source:               sourceType,
 		SourceHash:           hash,
 	}
 }
 
-func (m *mergedResults) Merge(other *types.ScannerResult) *mergedResults {
-	if other == nil {
-		return m
-	}
-
-	if other.Sbom == nil {
-		return m
+func (m *mergedResults) Merge(meta families.ScanInputMetadata, other *types.ScannerResult) {
+	if other == nil || other.Sbom == nil {
+		return
 	}
 
 	bom := other.Sbom
@@ -93,7 +92,9 @@ func (m *mergedResults) Merge(other *types.ScannerResult) *mergedResults {
 		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
 	}
 
-	return m
+	// Update metadata
+	m.Metadata.Inputs = append(m.Metadata.Inputs, meta)
+	m.Metadata.TotalFindings = len(m.MergedComponentByKey)
 }
 
 func (m *mergedResults) mergeMainComponent(bom *cdx.BOM) {

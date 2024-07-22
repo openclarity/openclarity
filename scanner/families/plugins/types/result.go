@@ -29,19 +29,19 @@ type Result struct {
 
 func NewResult() *Result {
 	return &Result{
+		Metadata:      families.ScanMetadata{},
+		Findings:      []apitypes.FindingInfo{},
 		PluginOutputs: make(map[string]plugintypes.Result),
 	}
 }
 
-func (r *Result) TotalFindings() int {
-	return len(r.Findings)
-}
-
-func (r *Result) Merge(meta families.ScanMetadata, result *ScannerResult) {
-	r.Metadata.Merge(meta)
-
+func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
 	if result != nil {
 		r.Findings = append(r.Findings, result.Findings...)
 		r.PluginOutputs[meta.ScannerName] = result.Output
 	}
+
+	// Update metadata
+	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
+	r.Metadata.TotalFindings = len(r.Findings)
 }
