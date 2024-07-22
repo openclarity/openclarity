@@ -59,6 +59,10 @@ func newMergedResults(sourceType common.InputType, hash string) *mergedResults {
 }
 
 func (m *mergedResults) Merge(meta families.ScanInputMetadata, other *types.ScannerResult) {
+	// Update metadata
+	m.Metadata.Inputs = append(m.Metadata.Inputs, meta)
+
+	// Skip further merge if scanner result is empty
 	if other == nil || other.Sbom == nil {
 		return
 	}
@@ -93,7 +97,6 @@ func (m *mergedResults) Merge(meta families.ScanInputMetadata, other *types.Scan
 	}
 
 	// Update metadata
-	m.Metadata.Inputs = append(m.Metadata.Inputs, meta)
 	m.Metadata.TotalFindings = len(m.MergedComponentByKey)
 }
 

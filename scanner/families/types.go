@@ -57,6 +57,7 @@ type FamilyResult struct {
 }
 
 // FamilyNotifier is used to subscribe to family scanning progress.
+// Implementation should be concurrently-safe.
 type FamilyNotifier interface {
 	FamilyStarted(context.Context, FamilyType) error
 	FamilyFinished(context.Context, FamilyResult) error

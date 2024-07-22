@@ -32,7 +32,6 @@ func NewResult() *Result {
 }
 
 func (r *Result) Merge(meta families.ScanInputMetadata, rootkits []Rootkit) {
-	// Merge rootkits
 	r.Rootkits = append(r.Rootkits, rootkits...)
 
 	// Update metadata

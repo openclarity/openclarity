@@ -19,6 +19,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
 	"github.com/openclarity/vmclarity/scanner/common"
@@ -27,7 +29,6 @@ import (
 	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 	"github.com/openclarity/vmclarity/scanner/utils"
 	"github.com/openclarity/vmclarity/scanner/utils/converter"
-	"time"
 )
 
 type SBOM struct {

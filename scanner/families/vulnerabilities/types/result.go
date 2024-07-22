@@ -85,6 +85,9 @@ func (r *Result) ToSlice() []Vulnerability {
 }
 
 func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
+	// Update metadata
+	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
+
 	// Skip further merge if scanner result is empty
 	if result == nil {
 		return
@@ -109,6 +112,5 @@ func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
 	}
 
 	// Update metadata
-	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
 	r.Metadata.TotalFindings = len(r.MergedVulnerabilitiesByKey)
 }
