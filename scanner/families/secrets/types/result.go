@@ -15,26 +15,24 @@
 
 package types
 
-import (
-	"github.com/openclarity/vmclarity/scanner/families"
-)
-
 type Result struct {
-	Metadata families.ScanMetadata `json:"Metadata"`
-	Findings []Finding             `json:"Findings"`
+	Findings []Finding `json:"Findings"`
 }
 
 func NewResult() *Result {
 	return &Result{
-		Metadata: families.ScanMetadata{},
 		Findings: []Finding{},
 	}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, findings []Finding) {
-	r.Findings = append(r.Findings, findings...)
+func (r *Result) GetTotalFindings() int {
+	return len(r.Findings)
+}
 
-	// Update metadata
-	r.Metadata.Inputs = append(r.Metadata.Inputs, meta)
-	r.Metadata.TotalFindings = len(r.Findings)
+func (r *Result) Merge(scan *ScannerResult) {
+	if scan == nil {
+		return
+	}
+
+	r.Findings = append(r.Findings, scan.Findings...)
 }

@@ -312,12 +312,13 @@ func TestMergedResults_Merge(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mergedResults{
+			got := &mergedResults{
 				MergedComponentByKey: tt.fields.MergedComponentByKey,
 				Source:               tt.fields.Source,
 				SrcMetaData:          tt.fields.SrcMetaData,
 			}
-			if got := m.Merge(tt.args.other); !reflect.DeepEqual(got, tt.want) {
+			got.Merge(tt.args.other)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Logf("encoded %v\n", expectedSbom)
 				t.Errorf("Merge() = %v, want %v", got, tt.want)
 			}

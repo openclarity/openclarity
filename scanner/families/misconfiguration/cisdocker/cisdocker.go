@@ -34,13 +34,13 @@ type Scanner struct {
 	config config.Config
 }
 
-func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Misconfiguration], error) {
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{
 		config: config.CISDocker,
 	}, nil
 }
 
-func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) ([]types.Misconfiguration, error) {
+func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) (*types.ScannerResult, error) {
 	// Validate this is an input type supported by the scanner,
 	// otherwise return skipped.
 	if !inputType.IsOneOf(common.IMAGE, common.DOCKERARCHIVE, common.ROOTFS, common.DIR) {
@@ -64,5 +64,8 @@ func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 
 	misconfigurations := parseDockleReport(inputType, userInput, assessmentMap)
 
-	return misconfigurations, nil
+	return &types.ScannerResult{
+		ScannerName:       ScannerName,
+		Misconfigurations: misconfigurations,
+	}, nil
 }

@@ -21,6 +21,11 @@ import (
 )
 
 type ScannerResult struct {
-	Findings []types.FindingInfo
-	Output   plugintypes.Result
+	ScannerName string
+	Findings    []types.FindingInfo
+	Output      plugintypes.Result
+}
+
+func (scan *ScannerResult) GetTotalFindings() int {
+	return len(scan.Findings)
 }

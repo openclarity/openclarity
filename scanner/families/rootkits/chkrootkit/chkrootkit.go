@@ -36,13 +36,13 @@ type Scanner struct {
 	config config.Config
 }
 
-func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Rootkit], error) {
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{
 		config: config.Chkrootkit,
 	}, nil
 }
 
-func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) ([]types.Rootkit, error) {
+func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) (*types.ScannerResult, error) {
 	if !inputType.IsOneOf(common.DIR, common.ROOTFS, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR) {
 		return nil, fmt.Errorf("unsupported input type=%v", inputType)
 	}
@@ -82,7 +82,9 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 
 	rootkits := toResultsRootkits(parsedRootkits)
 
-	return rootkits, nil
+	return &types.ScannerResult{
+		Rootkits: rootkits,
+	}, nil
 }
 
 func filterResults(rootkits []chkrootkitutils.Rootkit) []chkrootkitutils.Rootkit {

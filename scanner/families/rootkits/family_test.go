@@ -24,41 +24,45 @@ import (
 
 func TestStripPathFromResult(t *testing.T) {
 	type args struct {
-		result []types.Rootkit
+		result *types.ScannerResult
 		path   string
 	}
 	tests := []struct {
 		name string
 		args args
-		want []types.Rootkit
+		want *types.ScannerResult
 	}{
 		{
 			name: "sanity",
 			args: args{
-				result: []types.Rootkit{
-					{
-						Message:     "rootkit found in /mnt/foo path",
-						RootkitName: "rk1",
-						RootkitType: "t1",
-					},
-					{
-						Message:     "rootkit found in /mnt/bar path",
-						RootkitName: "rk2",
-						RootkitType: "t2",
+				result: &types.ScannerResult{
+					Rootkits: []types.Rootkit{
+						{
+							Message:     "rootkit found in /mnt/foo path",
+							RootkitName: "rk1",
+							RootkitType: "t1",
+						},
+						{
+							Message:     "rootkit found in /mnt/bar path",
+							RootkitName: "rk2",
+							RootkitType: "t2",
+						},
 					},
 				},
 				path: "/mnt",
 			},
-			want: []types.Rootkit{
-				{
-					Message:     "rootkit found in /foo path",
-					RootkitName: "rk1",
-					RootkitType: "t1",
-				},
-				{
-					Message:     "rootkit found in /bar path",
-					RootkitName: "rk2",
-					RootkitType: "t2",
+			want: &types.ScannerResult{
+				Rootkits: []types.Rootkit{
+					{
+						Message:     "rootkit found in /foo path",
+						RootkitName: "rk1",
+						RootkitType: "t1",
+					},
+					{
+						Message:     "rootkit found in /bar path",
+						RootkitName: "rk2",
+						RootkitType: "t2",
+					},
 				},
 			},
 		},

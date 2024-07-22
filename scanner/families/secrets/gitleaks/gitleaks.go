@@ -38,13 +38,13 @@ type Scanner struct {
 	config config.Config
 }
 
-func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Finding], error) {
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{
 		config: config.Gitleaks,
 	}, nil
 }
 
-func (a *Scanner) Scan(ctx context.Context, sourceType common.InputType, userInput string) ([]types.Finding, error) {
+func (a *Scanner) Scan(ctx context.Context, sourceType common.InputType, userInput string) (*types.ScannerResult, error) {
 	if !sourceType.IsOneOf(common.DIR, common.ROOTFS, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR) {
 		return nil, fmt.Errorf("unsupported input type=%v", sourceType)
 	}
@@ -105,5 +105,7 @@ func (a *Scanner) Scan(ctx context.Context, sourceType common.InputType, userInp
 		return nil, fmt.Errorf("failed to unmarshal results. out: %s. err: %w", out, err)
 	}
 
-	return findings, nil
+	return &types.ScannerResult{
+		Findings: findings,
+	}, nil
 }

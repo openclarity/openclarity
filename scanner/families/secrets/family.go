@@ -60,18 +60,22 @@ func (s Secrets) Run(ctx context.Context, _ *families.Results) (*types.Result, e
 			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
 		}
 
-		secrets.Merge(scan.GetScanInputMetadata(len(scan.Result)), scan.Result)
+		secrets.Merge(scan.Result)
 	}
 
 	return secrets, nil
 }
 
 // StripPathFromResult strip input path from results wherever it is found.
-func stripPathFromResult(findings []types.Finding, path string) []types.Finding {
-	for i := range findings {
-		findings[i].File = familiesutils.TrimMountPath(findings[i].File, path)
-		findings[i].Fingerprint = familiesutils.RemoveMountPathSubStringIfNeeded(findings[i].Fingerprint, path)
+func stripPathFromResult(result *types.ScannerResult, path string) *types.ScannerResult {
+	if result == nil {
+		return nil
 	}
 
-	return findings
+	for i := range result.Findings {
+		result.Findings[i].File = familiesutils.TrimMountPath(result.Findings[i].File, path)
+		result.Findings[i].Fingerprint = familiesutils.RemoveMountPathSubStringIfNeeded(result.Findings[i].Fingerprint, path)
+	}
+
+	return result
 }

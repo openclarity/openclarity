@@ -92,7 +92,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types
 	for _, scan := range scans {
 		logger.Infof("Merging result from %q", scan)
 
-		vulnerabilities.Merge(scan.GetScanInputMetadata(len(scan.Result.Vulnerabilities)), scan.Result)
+		vulnerabilities.Merge(scan.Result)
 	}
 
 	// TODO:

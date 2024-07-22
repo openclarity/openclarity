@@ -19,8 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/core/version"
 	"github.com/openclarity/vmclarity/scanner/common"
@@ -87,12 +85,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	for _, scan := range scans {
 		logger.Infof("Merging result from %q", scan)
 
-		var pkgCount int
-		if scan.Result.Sbom != nil && scan.Result.Sbom.Components != nil {
-			pkgCount = len(*scan.Result.Sbom.Components)
-		}
-
-		mergedResults.Merge(scan.GetScanInputMetadata(pkgCount), scan.Result)
+		mergedResults.Merge(scan.Result)
 	}
 
 	// Merge data from config
@@ -103,30 +96,15 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	for i, with := range s.conf.MergeWith {
 		logger.Infof("Merging result from %q", with.SbomPath)
 
-		startTime := time.Now()
-
 		// Import SBOM from file
 		cdxBOM, err := converter.GetCycloneDXSBOMFromFile(with.SbomPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get CDX SBOM from path=%s: %w", with.SbomPath, err)
 		}
 
-		// Get package count from the imported SBOM
-		var pkgCount int
-		if cdxBOM != nil && cdxBOM.Components != nil {
-			pkgCount = len(*cdxBOM.Components)
-		}
-
 		// Merge result
-		scannerName := fmt.Sprintf("merge_with_%d", i)
-		mergedResults.Merge(families.ScanInputMetadata{
-			ScannerName:   scannerName,
-			InputType:     common.SBOM,
-			InputPath:     with.SbomPath,
-			StartTime:     startTime,
-			EndTime:       time.Now(),
-			TotalFindings: pkgCount,
-		}, types.CreateScannerResult(cdxBOM, scannerName, with.SbomPath, common.SBOM))
+		result := types.CreateScannerResult(cdxBOM, fmt.Sprintf("merge_with_%d", i), with.SbomPath, common.SBOM)
+		mergedResults.Merge(result)
 	}
 
 	logger.Info("Converting SBOM results...")
@@ -144,7 +122,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	}
 
 	// Create result from merged data
-	sbom := types.NewResult(mergedResults.Metadata, cdxBom)
+	sbom := types.NewResult(cdxBom)
 
 	return sbom, nil
 }

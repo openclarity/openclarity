@@ -60,17 +60,21 @@ func (m Misconfiguration) Run(ctx context.Context, _ *families.Results) (*types.
 			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
 		}
 
-		misconfigurations.Merge(scan.GetScanInputMetadata(len(scan.Result)), scan.Result)
+		misconfigurations.Merge(scan.Result)
 	}
 
 	return misconfigurations, nil
 }
 
 // stripPathFromResult strip input path from results wherever it is found.
-func stripPathFromResult(items []types.Misconfiguration, path string) []types.Misconfiguration {
-	for i := range items {
-		items[i].Location = familiesutils.TrimMountPath(items[i].Location, path)
+func stripPathFromResult(result *types.ScannerResult, path string) *types.ScannerResult {
+	if result == nil {
+		return nil
 	}
 
-	return items
+	for i := range result.Misconfigurations {
+		result.Misconfigurations[i].Location = familiesutils.TrimMountPath(result.Misconfigurations[i].Location, path)
+	}
+
+	return result
 }

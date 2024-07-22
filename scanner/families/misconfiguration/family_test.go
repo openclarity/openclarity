@@ -24,26 +24,51 @@ import (
 
 func TestStripPathFromResult(t *testing.T) {
 	type args struct {
-		result []types.Misconfiguration
+		result *types.ScannerResult
 		path   string
 	}
 	tests := []struct {
 		name string
 		args args
-		want []types.Misconfiguration
+		want *types.ScannerResult
 	}{
 		{
 			name: "sanity",
 			args: args{
-				result: []types.Misconfiguration{
+				result: &types.ScannerResult{
+					Misconfigurations: []types.Misconfiguration{
+						{
+							Location:    "/mnt/foo",
+							Category:    "test1",
+							ID:          "id1",
+							Description: "desc1",
+						},
+						{
+							Location:    "/mnt/foo2",
+							Category:    "test2",
+							ID:          "id2",
+							Description: "desc2",
+						},
+						{
+							Location:    "/foo3",
+							Category:    "test3",
+							ID:          "id3",
+							Description: "desc3",
+						},
+					},
+				},
+				path: "/mnt",
+			},
+			want: &types.ScannerResult{
+				Misconfigurations: []types.Misconfiguration{
 					{
-						Location:    "/mnt/foo",
+						Location:    "/foo",
 						Category:    "test1",
 						ID:          "id1",
 						Description: "desc1",
 					},
 					{
-						Location:    "/mnt/foo2",
+						Location:    "/foo2",
 						Category:    "test2",
 						ID:          "id2",
 						Description: "desc2",
@@ -54,27 +79,6 @@ func TestStripPathFromResult(t *testing.T) {
 						ID:          "id3",
 						Description: "desc3",
 					},
-				},
-				path: "/mnt",
-			},
-			want: []types.Misconfiguration{
-				{
-					Location:    "/foo",
-					Category:    "test1",
-					ID:          "id1",
-					Description: "desc1",
-				},
-				{
-					Location:    "/foo2",
-					Category:    "test2",
-					ID:          "id2",
-					Description: "desc2",
-				},
-				{
-					Location:    "/foo3",
-					Category:    "test3",
-					ID:          "id3",
-					Description: "desc3",
 				},
 			},
 		},

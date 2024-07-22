@@ -60,17 +60,21 @@ func (r Rootkits) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
 		}
 
-		rootkits.Merge(scan.GetScanInputMetadata(len(scan.Result)), scan.Result)
+		rootkits.Merge(scan.Result)
 	}
 
 	return rootkits, nil
 }
 
 // StripPathFromResult strip input path from results wherever it is found.
-func stripPathFromResult(rootkits []types.Rootkit, path string) []types.Rootkit {
-	for i := range rootkits {
-		rootkits[i].Message = familiesutils.RemoveMountPathSubStringIfNeeded(rootkits[i].Message, path)
+func stripPathFromResult(result *types.ScannerResult, path string) *types.ScannerResult {
+	if result == nil {
+		return nil
 	}
 
-	return rootkits
+	for i := range result.Rootkits {
+		result.Rootkits[i].Message = familiesutils.RemoveMountPathSubStringIfNeeded(result.Rootkits[i].Message, path)
+	}
+
+	return result
 }

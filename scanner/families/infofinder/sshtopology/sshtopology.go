@@ -42,14 +42,14 @@ type Scanner struct {
 	config config.Config
 }
 
-func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Info], error) {
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{
 		config: config.SSHTopology,
 	}, nil
 }
 
 // nolint:cyclop,gocognit
-func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) ([]types.Info, error) {
+func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) (*types.ScannerResult, error) {
 	// Validate this is an input type supported by the scanner
 	if !inputType.IsOneOf(common.ROOTFS, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR) {
 		return nil, fmt.Errorf("unsupported input type=%s", inputType)
@@ -146,7 +146,10 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		logger.Error(retErr)
 	}
 
-	return infos, nil
+	return &types.ScannerResult{
+		ScannerName: ScannerName,
+		Infos:       infos,
+	}, nil
 }
 
 func (s *Scanner) getSSHDaemonKeysFingerprints(ctx context.Context, rootPath string) ([]types.Info, error) {

@@ -24,29 +24,54 @@ import (
 
 func TestStripPathFromResult(t *testing.T) {
 	type args struct {
-		result []types.Finding
+		result *types.ScannerResult
 		path   string
 	}
 	tests := []struct {
 		name string
 		args args
-		want []types.Finding
+		want *types.ScannerResult
 	}{
 		{
 			name: "sanity",
 			args: args{
-				result: []types.Finding{
+				result: &types.ScannerResult{
+					Findings: []types.Finding{
+						{
+							Description: "description",
+							File:        "/mnt/file1",
+							Message:     "message",
+							Fingerprint: "finger:/mnt:hello",
+						},
+						{
+							Description: "description2",
+							File:        "/mnt/file2",
+							Message:     "message",
+							Fingerprint: "finger:/mnt/foo:hello2",
+						},
+						{
+							Description: "description3",
+							File:        "file3",
+							Message:     "message",
+							Fingerprint: "finger:hello3",
+						},
+					},
+				},
+				path: "/mnt",
+			},
+			want: &types.ScannerResult{
+				Findings: []types.Finding{
 					{
 						Description: "description",
-						File:        "/mnt/file1",
+						File:        "/file1",
 						Message:     "message",
-						Fingerprint: "finger:/mnt:hello",
+						Fingerprint: "finger:/:hello",
 					},
 					{
 						Description: "description2",
-						File:        "/mnt/file2",
+						File:        "/file2",
 						Message:     "message",
-						Fingerprint: "finger:/mnt/foo:hello2",
+						Fingerprint: "finger:/foo:hello2",
 					},
 					{
 						Description: "description3",
@@ -54,27 +79,6 @@ func TestStripPathFromResult(t *testing.T) {
 						Message:     "message",
 						Fingerprint: "finger:hello3",
 					},
-				},
-				path: "/mnt",
-			},
-			want: []types.Finding{
-				{
-					Description: "description",
-					File:        "/file1",
-					Message:     "message",
-					Fingerprint: "finger:/:hello",
-				},
-				{
-					Description: "description2",
-					File:        "/file2",
-					Message:     "message",
-					Fingerprint: "finger:/foo:hello2",
-				},
-				{
-					Description: "description3",
-					File:        "file3",
-					Message:     "message",
-					Fingerprint: "finger:hello3",
 				},
 			},
 		},

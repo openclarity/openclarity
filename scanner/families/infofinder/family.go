@@ -60,16 +60,21 @@ func (i InfoFinder) Run(ctx context.Context, _ *families.Results) (*types.Result
 			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
 		}
 
-		infos.Merge(scan.GetScanInputMetadata(len(scan.Result)), scan.Result)
+		infos.Merge(scan.Result)
 	}
 
 	return infos, nil
 }
 
 // stripPathFromResult strip input path from results wherever it is found.
-func stripPathFromResult(infos []types.Info, path string) []types.Info {
-	for i := range infos {
-		infos[i].Path = familiesutils.TrimMountPath(infos[i].Path, path)
+func stripPathFromResult(result *types.ScannerResult, path string) *types.ScannerResult {
+	if result == nil {
+		return nil
 	}
-	return infos
+
+	for i := range result.Infos {
+		result.Infos[i].Path = familiesutils.TrimMountPath(result.Infos[i].Path, path)
+	}
+
+	return result
 }

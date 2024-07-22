@@ -39,14 +39,14 @@ type Scanner struct {
 	config config.Config
 }
 
-func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[[]types.Misconfiguration], error) {
+func New(_ context.Context, _ string, config types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{
 		config: config.Lynis,
 	}, nil
 }
 
 // nolint: cyclop
-func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) ([]types.Misconfiguration, error) {
+func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInput string) (*types.ScannerResult, error) {
 	// Validate this is an input type supported by the scanner
 	if !inputType.IsOneOf(common.ROOTFS, common.IMAGE, common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR) {
 		return nil, fmt.Errorf("unsupported source type=%s", inputType)
@@ -124,5 +124,8 @@ func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		return nil, fmt.Errorf("failed to parse report file %v: %w", reportPath, err)
 	}
 
-	return misconfigurations, nil
+	return &types.ScannerResult{
+		ScannerName:       ScannerName,
+		Misconfigurations: misconfigurations,
+	}, nil
 }

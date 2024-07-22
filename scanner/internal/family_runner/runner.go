@@ -18,8 +18,6 @@ package family_runner // nolint:revive,stylecheck
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 )
@@ -51,7 +49,6 @@ func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, r
 	}
 
 	// Run family
-	startTime := time.Now()
 	result, err := r.family.Run(ctx, results)
 	familyResult := families.FamilyResult{
 		Result:     result,
@@ -73,11 +70,11 @@ func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, r
 	} else {
 		logger.Infof("Family %q finished with success", familyType)
 
-		// Update family result metadata
-		if metadata := getFamilyScanMetadata(result); metadata != nil {
-			metadata.StartTime = startTime
-			metadata.EndTime = time.Now()
-		}
+		//// Update family result metadata
+		//if metadata := getFamilyScanMetadata(result); metadata != nil {
+		//	metadata.StartTime = startTime
+		//	metadata.EndTime = time.Now()
+		//}
 
 		// Set result in shared object for the family
 		results.SetFamilyResult(result)

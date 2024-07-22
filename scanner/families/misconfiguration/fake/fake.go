@@ -27,14 +27,15 @@ const ScannerName = "fake"
 
 type Scanner struct{}
 
-func New(_ context.Context, _ string, _ types.ScannersConfig) (families.Scanner[[]types.Misconfiguration], error) {
+func New(_ context.Context, _ string, _ types.ScannersConfig) (families.Scanner[*types.ScannerResult], error) {
 	return &Scanner{}, nil
 }
 
-func (a *Scanner) Scan(_ context.Context, _ common.InputType, _ string) ([]types.Misconfiguration, error) {
-	misconfigurations := createFakeMisconfigurationReport()
-
-	return misconfigurations, nil
+func (a *Scanner) Scan(_ context.Context, _ common.InputType, _ string) (*types.ScannerResult, error) {
+	return &types.ScannerResult{
+		ScannerName:       ScannerName,
+		Misconfigurations: createFakeMisconfigurationReport(),
+	}, nil
 }
 
 func createFakeMisconfigurationReport() []types.Misconfiguration {

@@ -13,16 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package secrets
+package types
 
-import (
-	"github.com/openclarity/vmclarity/scanner/families/secrets/gitleaks"
-	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
-)
+type ScannerResult struct {
+	ScannerName       string
+	Misconfigurations []Misconfiguration
+}
 
-var Factory = scan_manager.NewFactory[types.ScannersConfig, *types.ScannerResult]()
-
-func init() {
-	Factory.Register(gitleaks.ScannerName, gitleaks.New)
+func (scan *ScannerResult) GetTotalFindings() int {
+	return len(scan.Misconfigurations)
 }

@@ -34,6 +34,14 @@ type ScannerResult struct {
 	AppInfo      AppInfo
 }
 
+func (scan *ScannerResult) GetTotalFindings() int {
+	if scan.Sbom != nil && scan.Sbom.Components != nil {
+		return len(*scan.Sbom.Components)
+	}
+
+	return 0
+}
+
 func CreateScannerResult(sbom *cdx.BOM, analyzerName, userInput string, srcType common.InputType) *ScannerResult {
 	return &ScannerResult{
 		Sbom:         sbom,

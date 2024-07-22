@@ -177,8 +177,9 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		}
 
 		return &types.ScannerResult{
-			Findings: r.Result.Findings,
-			Output:   r.Result.Output,
+			ScannerName: s.name,
+			Findings:    r.Result.Findings,
+			Output:      r.Result.Output,
 		}, nil
 	}
 }

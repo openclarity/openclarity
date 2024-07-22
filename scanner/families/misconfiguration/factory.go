@@ -23,7 +23,7 @@ import (
 	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
 )
 
-var Factory = scan_manager.NewFactory[types.ScannersConfig, []types.Misconfiguration]()
+var Factory = scan_manager.NewFactory[types.ScannersConfig, *types.ScannerResult]()
 
 func init() {
 	Factory.Register(fake.ScannerName, fake.New)

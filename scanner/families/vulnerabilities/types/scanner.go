@@ -20,7 +20,11 @@ type ScannerInfo struct {
 }
 
 type ScannerResult struct {
-	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 	Source          Source          `json:"source"`
 	Scanner         ScannerInfo     `json:"scanner"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
+}
+
+func (scan *ScannerResult) GetTotalFindings() int {
+	return len(scan.Vulnerabilities)
 }

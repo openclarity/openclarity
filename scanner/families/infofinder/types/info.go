@@ -31,6 +31,6 @@ type Info struct {
 }
 
 type FlattenedInfo struct {
-	Info
+	Info        `json:",squash"`
 	ScannerName string `json:"scannerName"`
 }
