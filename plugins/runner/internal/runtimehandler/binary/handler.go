@@ -30,6 +30,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/google/uuid"
 	multierror "github.com/hashicorp/go-multierror"
 
 	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler"
@@ -45,18 +46,20 @@ type binaryRuntimeHandler struct {
 	stdoutPipe io.ReadCloser
 	stderrPipe io.ReadCloser
 
+	pluginServerEndpoint string
+	outputFilePath       string
 	pluginDir            string
 	inputDirMountPoint   string
-	pluginServerEndpoint string
-	ready                bool
 	imageCleanup         func()
+	ready                bool
 
 	mu sync.Mutex
 }
 
 func New(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginRuntimeHandler, error) {
 	return &binaryRuntimeHandler{
-		config: config,
+		config:         config,
+		outputFilePath: fmt.Sprintf("/tmp/%s.json", uuid.New().String()),
 	}, nil
 }
 
@@ -196,6 +199,10 @@ func (h *binaryRuntimeHandler) GetPluginServerEndpoint(ctx context.Context) (str
 	return h.pluginServerEndpoint, nil
 }
 
+func (h *binaryRuntimeHandler) GetOutputFilePath(ctx context.Context) (string, error) {
+	return h.outputFilePath, nil
+}
+
 func (h *binaryRuntimeHandler) Logs(ctx context.Context) (io.ReadCloser, error) {
 	if h.cmd == nil {
 		return nil, errors.New("plugin process is not running")
@@ -216,7 +223,7 @@ func (h *binaryRuntimeHandler) Logs(ctx context.Context) (io.ReadCloser, error) 
 }
 
 func (h *binaryRuntimeHandler) Result(ctx context.Context) (io.ReadCloser, error) {
-	f, err := os.Open(filepath.Join(h.pluginDir, runtimehandler.RemoteScanResultFileOverride))
+	f, err := os.Open(filepath.Join(h.pluginDir, h.outputFilePath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to open result file: %w", err)
 	}

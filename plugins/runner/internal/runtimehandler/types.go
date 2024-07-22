@@ -33,6 +33,7 @@ type PluginRuntimeHandler interface {
 	Start(ctx context.Context) error
 	Ready() (bool, error)
 	GetPluginServerEndpoint(ctx context.Context) (string, error)
+	GetOutputFilePath(ctx context.Context) (string, error)
 	Logs(ctx context.Context) (io.ReadCloser, error)
 	Result(ctx context.Context) (io.ReadCloser, error)
 	Remove(ctx context.Context) error
@@ -43,7 +44,7 @@ type PluginRuntimeHandler interface {
 func WithOverrides(c plugintypes.Config) plugintypes.Config {
 	return plugintypes.Config{
 		InputDir:       RemoteScanInputDirOverride,
-		OutputFile:     RemoteScanResultFileOverride,
+		OutputFile:     c.OutputFile,
 		ScannerConfig:  c.ScannerConfig,
 		TimeoutSeconds: c.TimeoutSeconds,
 	}

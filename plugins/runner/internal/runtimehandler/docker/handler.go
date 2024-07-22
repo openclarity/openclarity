@@ -229,6 +229,10 @@ func (h *containerRuntimeHandler) GetPluginServerEndpoint(ctx context.Context) (
 	return "http://" + net.JoinHostPort("127.0.0.1", hostPorts[0].HostPort), nil
 }
 
+func (h *containerRuntimeHandler) GetOutputFilePath(ctx context.Context) (string, error) {
+	return runtimehandler.RemoteScanResultFileOverride, nil
+}
+
 func (h *containerRuntimeHandler) Result(ctx context.Context) (io.ReadCloser, error) {
 	// Copy result file from container
 	reader, _, err := h.client.CopyFromContainer(ctx, h.containerID, runtimehandler.RemoteScanResultFileOverride)

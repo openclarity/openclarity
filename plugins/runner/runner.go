@@ -142,9 +142,14 @@ func (r *pluginRunner) Run(ctx context.Context) error {
 		return errors.New("client missing, did not wait for ready state")
 	}
 
-	_, err := r.client.PostConfigWithResponse(
+	outputFilePath, err := r.runtimeHandler.GetOutputFilePath(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get plugin output file path: %w", err)
+	}
+	_, err = r.client.PostConfigWithResponse(
 		ctx,
 		runtimehandler.WithOverrides(plugintypes.Config{
+			OutputFile:     outputFilePath,
 			ScannerConfig:  to.Ptr(r.config.ScannerConfig),
 			TimeoutSeconds: int(types.ScanTimeout.Seconds()),
 		}),
