@@ -88,16 +88,13 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install modules
-        working-directory: ./ui
-        run: npm install
+        run: make ui-install
 
       - name: Run ESLint
-        working-directory: ./ui
-        run: npm run lint
+        run: make lint-js
 
       - name: Run tests
-        working-directory: ./ui
-        run: npm run test
+        run: make test-js
 
   go:
     runs-on: ubuntu-latest
@@ -144,7 +141,7 @@ jobs:
 
       - name: Verify APIs
         run: |
-          make gen-api
+          make gen-api-go
           [[ -z "$(git status --porcelain)" ]] || exit 1
 
       - name: Verify go modules
@@ -171,4 +168,4 @@ jobs:
         run: make lint-go
 
       - name: Run tests
-        run: make test
+        run: make test-go

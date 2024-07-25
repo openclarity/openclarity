@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Route, Routes, BrowserRouter, Outlet, useNavigate, useMatch, useLocation} from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import classnames from 'classnames';
 import Icon, { ICON_NAMES } from 'components/Icon';
 import IconTemplates from 'components/Icon/IconTemplates';
@@ -18,6 +19,8 @@ import AssetScans from 'layout/AssetScans';
 import brandImage from 'utils/images/brand.svg';
 
 import './app.scss';
+
+const queryClient = new QueryClient();
 
 const ROUTES_CONFIG = [
     {
@@ -147,17 +150,19 @@ const Layout = () => {
 
 const App = () => (
     <div className="app-wrapper">
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    {
-                        ROUTES_CONFIG.map(({path, component: Component, isIndex}) => (
-                            <Route key={path} path={isIndex ? undefined : `${path}/*`} index={isIndex} element={(<Component />)} />
-                        ))
-                    }
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        {
+                            ROUTES_CONFIG.map(({path, component: Component, isIndex}) => (
+                                <Route key={path} path={isIndex ? undefined : `${path}/*`} index={isIndex} element={(<Component />)} />
+                            ))
+                        }
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </QueryClientProvider>
         <IconTemplates />
     </div>
 )
