@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/Checkmarx/kics/pkg/model"
+	"github.com/Checkmarx/kics/v2/pkg/model"
 
 	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
 )
