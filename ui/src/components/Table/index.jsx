@@ -1,325 +1,398 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
-import classnames from 'classnames';
-import { isEmpty, isEqual, pickBy, isNull, isUndefined } from 'lodash';
-import { useTable, usePagination, useResizeColumns, useFlexLayout, useRowSelect } from 'react-table';
-import Icon, { ICON_NAMES } from 'components/Icon';
-import Loader from 'components/Loader';
-import { useFetch, usePrevious } from 'hooks';
-import Pagination from './Pagination';
-import * as utils from './utils';
+import React, { useMemo, useCallback, useEffect, useState } from "react";
+import classnames from "classnames";
+import { isEmpty, isEqual, pickBy, isNull, isUndefined } from "lodash";
+import {
+  useTable,
+  usePagination,
+  useResizeColumns,
+  useFlexLayout,
+  useRowSelect,
+} from "react-table";
+import Icon, { ICON_NAMES } from "components/Icon";
+import Loader from "components/Loader";
+import { useFetch, usePrevious } from "hooks";
+import Pagination from "./Pagination";
+import * as utils from "./utils";
 
-import './table.scss';
-import { ValueWithFallback } from 'components/ValueWithFallback';
+import "./table.scss";
+import { ValueWithFallback } from "components/ValueWithFallback";
 
-export {
-    utils
-}
+export { utils };
 
 const ACTIONS_COLUMN_ID = "ACTIONS";
 const STATIC_COLUMN_IDS = [ACTIONS_COLUMN_ID];
 
-const Table = props => {
-    const {columns, defaultSortBy, onSortChnage, onLineClick, paginationItemsName, url, formatFetchedData, filters, defaultPageIndex=0, defaultPageSize=50,
-        onPageChange, noResultsTitle="items", refreshTimestamp, withPagination=true, data: externalData, onRowSelect,
-        actionsComponent: ActionsComponent, customEmptyResultsDisplay: CustomEmptyResultsDisplay, showCustomEmptyDisplay=true,
-        actionsColumnWidth=80} = props;
+const Table = (props) => {
+  const {
+    columns,
+    defaultSortBy,
+    onSortChnage,
+    onLineClick,
+    paginationItemsName,
+    url,
+    formatFetchedData,
+    filters,
+    defaultPageIndex = 0,
+    defaultPageSize = 50,
+    onPageChange,
+    noResultsTitle = "items",
+    refreshTimestamp,
+    withPagination = true,
+    data: externalData,
+    onRowSelect,
+    actionsComponent: ActionsComponent,
+    customEmptyResultsDisplay: CustomEmptyResultsDisplay,
+    showCustomEmptyDisplay = true,
+    actionsColumnWidth = 80,
+  } = props;
 
-    const [sortBy, setSortBy] = useState(defaultSortBy || {});
-    const prevSortBy = usePrevious(sortBy);
+  const [sortBy, setSortBy] = useState(defaultSortBy || {});
+  const prevSortBy = usePrevious(sortBy);
 
-    useEffect(() => {
-        if (!!onSortChnage && !isEqual(prevSortBy, sortBy)) {
-            onSortChnage(sortBy);
-        }
-    }, [prevSortBy, sortBy, onSortChnage]);
+  useEffect(() => {
+    if (!!onSortChnage && !isEqual(prevSortBy, sortBy)) {
+      onSortChnage(sortBy);
+    }
+  }, [prevSortBy, sortBy, onSortChnage]);
 
+  const defaultColumn = React.useMemo(
+    () => ({
+      minWidth: 30,
+      width: 100,
+    }),
+    [],
+  );
 
-    const defaultColumn = React.useMemo(() => ({
-        minWidth: 30,
-        width: 100
-    }), []);
+  const [{ loading, data, error }, fetchData] = useFetch(url, {
+    loadOnMount: false,
+    formatFetchedData,
+  });
+  const prevLoading = usePrevious(loading);
+  const tableData = !!url ? data : externalData;
+  const { items, count } = tableData || {};
+  const tableItems = useMemo(() => items || [], [items]);
 
-    const [{loading, data, error}, fetchData] = useFetch(url, {loadOnMount: false, formatFetchedData});
-    const prevLoading = usePrevious(loading);
-    const tableData = !!url ? data : externalData;
-    const {items, count} = tableData || {};
-    const tableItems = useMemo(() => items || [], [items]);
+  const withRowActions = !!ActionsComponent;
 
-    const withRowActions = !!ActionsComponent;
+  const [inititalLoaded, setInititalLoaded] = useState(!!externalData);
 
-    const [inititalLoaded, setInititalLoaded] = useState(!!externalData);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    prepareRow,
+    page,
+    canPreviousPage,
+    nextPage,
+    previousPage,
+    gotoPage,
+    state: { pageIndex, pageSize, selectedRowIds },
+  } = useTable(
+    {
+      columns,
+      getRowId: (rowData, rowIndex) => (!!rowData.id ? rowData.id : rowIndex),
+      data: tableItems,
+      defaultColumn,
+      initialState: {
+        pageIndex: defaultPageIndex,
+        pageSize: defaultPageSize,
+        selectedRowIds: {},
+      },
+      manualPagination: true,
+      pageCount: -1,
+      disableMultiSort: true,
+    },
+    useResizeColumns,
+    useFlexLayout,
+    usePagination,
+    useRowSelect,
+    (hooks) => {
+      hooks.useInstanceBeforeDimensions.push(({ headerGroups }) => {
+        // fix the parent group of the framework columns to not be resizable
+        headerGroups[0].headers.forEach((header) => {
+          if (STATIC_COLUMN_IDS.includes(header.originalId)) {
+            header.canResize = false;
+          }
+        });
+      });
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        prepareRow,
-        page,
-        canPreviousPage,
-        nextPage,
-        previousPage,
-        gotoPage,
-        state: {
-            pageIndex,
-            pageSize,
-            selectedRowIds
-        }
-    } = useTable({
-            columns,
-            getRowId: (rowData, rowIndex) => !!rowData.id ? rowData.id : rowIndex,
-            data: tableItems,
-            defaultColumn,
-            initialState: {
-                pageIndex: defaultPageIndex,
-                pageSize: defaultPageSize,
-                selectedRowIds: {}
-            },
-            manualPagination: true,
-            pageCount: -1,
-            disableMultiSort: true
-        },
-        useResizeColumns,
-        useFlexLayout,
-        usePagination,
-        useRowSelect,
-        hooks => {
-            hooks.useInstanceBeforeDimensions.push(({headerGroups}) => {
-                // fix the parent group of the framework columns to not be resizable
-                headerGroups[0].headers.forEach(header => {
-                    if (STATIC_COLUMN_IDS.includes(header.originalId)) {
-                        header.canResize = false;
-                    }
-                });
-            });
+      hooks.visibleColumns.push((columns) => {
+        const updatedColumns = columns;
 
-            hooks.visibleColumns.push(columns => {
-                const updatedColumns = columns;
-
-                if (withRowActions) {
-                    updatedColumns.push({
-                        Header: () => null, // No header
-                        id: ACTIONS_COLUMN_ID,
-                        accessor: original => (
-                            <div className="actions-column-container">
-                                {!!ActionsComponent && <ActionsComponent original={original} />}
-                            </div>
-                        ),
-                        disableResizing: true,
-                        minWidth: actionsColumnWidth,
-                        width: actionsColumnWidth,
-                        maxWidth: actionsColumnWidth
-                    });
-                }
-
-                return updatedColumns;
-            })
-        }
-    );
-
-    const updatePage = useCallback(pageIndex => {
-        if (!!onPageChange) {
-            onPageChange(pageIndex);
-        }
-
-        gotoPage(pageIndex);
-    }, [gotoPage, onPageChange]);
-
-    const cleanFilters = pickBy(filters, value => !isNull(value) && value !== "");
-    const prevCleanFilters = usePrevious(cleanFilters);
-    const filtersChanged = !isEqual(cleanFilters, prevCleanFilters) && !isUndefined(prevCleanFilters);
-
-    const prevPageIndex = usePrevious(pageIndex);
-
-    const {sortIds: sortKeys, desc: sortDesc} = sortBy || {};
-    const prevSortKeys = usePrevious(sortKeys);
-    const prevSortDesc = usePrevious(sortDesc);
-    const sortingChanged = !isEqual(sortKeys, prevSortKeys) || sortDesc !== prevSortDesc;
-
-    const prevRefreshTimestamp = usePrevious(refreshTimestamp);
-
-    const getQueryParams = useCallback(() => {
-        const queryParams = {
-            ...cleanFilters,
-            "$count": true
+        if (withRowActions) {
+          updatedColumns.push({
+            Header: () => null, // No header
+            id: ACTIONS_COLUMN_ID,
+            accessor: (original) => (
+              <div className="actions-column-container">
+                {!!ActionsComponent && <ActionsComponent original={original} />}
+              </div>
+            ),
+            disableResizing: true,
+            minWidth: actionsColumnWidth,
+            width: actionsColumnWidth,
+            maxWidth: actionsColumnWidth,
+          });
         }
 
-        if (withPagination) {
-            queryParams["$skip"] = pageIndex * pageSize;
-            queryParams["$top"] = pageSize;
-        }
+        return updatedColumns;
+      });
+    },
+  );
 
-        if (!isEmpty(sortKeys)) {
-            queryParams["$orderby"] = sortKeys.map(sortKey => `${sortKey} ${sortDesc ? "desc" : "asc"}`);
-        }
+  const updatePage = useCallback(
+    (pageIndex) => {
+      if (!!onPageChange) {
+        onPageChange(pageIndex);
+      }
 
-        return queryParams;
-    }, [pageIndex, pageSize, sortKeys, sortDesc, cleanFilters, withPagination]);
+      gotoPage(pageIndex);
+    },
+    [gotoPage, onPageChange],
+  );
 
-    const doFetchWithQueryParams = useCallback(() => {
-        if (loading) {
-            return;
-        }
+  const cleanFilters = pickBy(
+    filters,
+    (value) => !isNull(value) && value !== "",
+  );
+  const prevCleanFilters = usePrevious(cleanFilters);
+  const filtersChanged =
+    !isEqual(cleanFilters, prevCleanFilters) && !isUndefined(prevCleanFilters);
 
-        fetchData({queryParams: {...getQueryParams()}});
-    }, [fetchData, getQueryParams, loading])
+  const prevPageIndex = usePrevious(pageIndex);
 
-    useEffect(() => {
-        if (!filtersChanged && pageIndex === prevPageIndex && !sortingChanged && prevRefreshTimestamp === refreshTimestamp) {
-            return;
-        }
+  const { sortIds: sortKeys, desc: sortDesc } = sortBy || {};
+  const prevSortKeys = usePrevious(sortKeys);
+  const prevSortDesc = usePrevious(sortDesc);
+  const sortingChanged =
+    !isEqual(sortKeys, prevSortKeys) || sortDesc !== prevSortDesc;
 
-        if (filtersChanged && pageIndex !== 0) {
-            updatePage(0);
+  const prevRefreshTimestamp = usePrevious(refreshTimestamp);
 
-            return;
-        }
+  const getQueryParams = useCallback(() => {
+    const queryParams = {
+      ...cleanFilters,
+      $count: true,
+    };
 
-        if (!!url) {
-            doFetchWithQueryParams();
-        }
-    }, [filtersChanged, pageIndex, prevPageIndex, doFetchWithQueryParams, updatePage, sortingChanged, refreshTimestamp, prevRefreshTimestamp, url]);
-
-    const selectedRows = Object.keys(selectedRowIds);
-    const prevSelectedRows = usePrevious(selectedRows);
-
-    useEffect(() => {
-        if (!!onRowSelect && !isEqual(selectedRows, prevSelectedRows)) {
-            onRowSelect(selectedRows);
-        }
-    }, [prevSelectedRows, selectedRows, onRowSelect]);
-
-    useEffect(() => {
-        if (prevLoading && !loading && !inititalLoaded) {
-            setInititalLoaded(true);
-        }
-    }, [prevLoading, loading, inititalLoaded]);
-
-    if (!!error) {
-        return null;
+    if (withPagination) {
+      queryParams["$skip"] = pageIndex * pageSize;
+      queryParams["$top"] = pageSize;
     }
 
-    if (!inititalLoaded) {
-        return (
-            <Loader />
-        )
+    if (!isEmpty(sortKeys)) {
+      queryParams["$orderby"] = sortKeys.map(
+        (sortKey) => `${sortKey} ${sortDesc ? "desc" : "asc"}`,
+      );
     }
 
-    if (isEmpty(page) && !loading && showCustomEmptyDisplay && !!CustomEmptyResultsDisplay) {
-        return (
-            <CustomEmptyResultsDisplay />
-        )
+    return queryParams;
+  }, [pageIndex, pageSize, sortKeys, sortDesc, cleanFilters, withPagination]);
+
+  const doFetchWithQueryParams = useCallback(() => {
+    if (loading) {
+      return;
     }
 
-    return (
-        <div className="table-wrapper">
-            {!withPagination ? <div className="no-pagination-results-total">{`Showing ${count} entries`}</div> :
-                <Pagination
-                    canPreviousPage={canPreviousPage}
-                    nextPage={nextPage}
-                    previousPage={previousPage}
-                    pageIndex={pageIndex}
-                    pageSize={pageSize}
-                    displayName={paginationItemsName}
-                    gotoPage={updatePage}
-                    loading={loading}
-                    total={count}
-                    page={page}
-                />
-            }
-            <div className="table" {...getTableProps()}>
-                <div className="table-head">
-                    {
-                        headerGroups.map(headerGroup => {
-                            return (
-                                <div className="table-tr" {...headerGroup.getHeaderGroupProps()}>
-                                    {
-                                        headerGroup.headers.map(column => {
-                                            const {sortIds} = column;
-                                            const isSorted = isEqual(sortIds, sortKeys);
+    fetchData({ queryParams: { ...getQueryParams() } });
+  }, [fetchData, getQueryParams, loading]);
 
-                                            return (
-                                                <div className="table-th" {...column.getHeaderProps()}>
-                                                    <span className="table-th-content">{column.render('Header')}</span>
-                                                    {!isEmpty(sortIds) &&
-                                                        <Icon
-                                                            className={classnames("table-sort-icon", {sorted: isSorted}, {rotate: isSorted && sortDesc})}
-                                                            name={ICON_NAMES.SORT}
-                                                            size={9}
-                                                            onClick={() => setSortBy(({sortIds, desc}) =>
-                                                                ({sortIds: column.sortIds, desc: isEqual(column.sortIds, sortIds) ? !desc : false})
-                                                            )}
-                                                        />
-                                                    }
-                                                    {column.canResize &&
-                                                        <div
-                                                            {...column.getResizerProps()}
-                                                            className={classnames("resizer", {"isResizing": column.isResizing})}
-                                                        />
-                                                    }
-                                                </div>
-                                            )
-                                        })
-                                    }
-                                </div>
-                            )
-                        })
-                    }
-                </div>
-                <div className="table-body" {...getTableBodyProps()}>
-                    {isEmpty(page) && !loading && <div className="empty-results-display-wrapper">{`No results available for ${noResultsTitle}`}</div>}
-                    {loading && <div className="table-loading"><Loader /></div>}
-                    {
-                        page.map((row) => {
-                            prepareRow(row);
+  useEffect(() => {
+    if (
+      !filtersChanged &&
+      pageIndex === prevPageIndex &&
+      !sortingChanged &&
+      prevRefreshTimestamp === refreshTimestamp
+    ) {
+      return;
+    }
 
-                            return (
-                                <React.Fragment key={row.id}>
-                                    <div
-                                        className={classnames("table-tr", {clickable: !!onLineClick}, {"with-row-actions": withRowActions})}
-                                        {...row.getRowProps()}
-                                        onClick={() => {
-                                            if (!!onLineClick) {
-                                                onLineClick(row.original);
-                                            }
-                                        }}
-                                    >
-                                        {
-                                            row.cells.map(cell => {
-                                                const {className, alignToTop} = cell.column;
-                                                const cellClassName = classnames(
-                                                    "table-td",
-                                                    {"align-to-top": alignToTop},
-                                                    {[className]: className}
-                                                );
+    if (filtersChanged && pageIndex !== 0) {
+      updatePage(0);
 
-                                                const isTextValue = !!cell.column.accessor;
+      return;
+    }
 
-                                                return (
-                                                    <div className={cellClassName} {...cell.getCellProps()}>
-                                                        <ValueWithFallback>
-                                                            {isTextValue ? cell.value : cell.render('Cell')}
-                                                        </ValueWithFallback>
-                                                    </div>
-                                                )
-                                            })
-                                        }
-                                    </div>
-                                </React.Fragment>
-                            )
-                        })
-                    }
-                </div>
-            </div>
+    if (!!url) {
+      doFetchWithQueryParams();
+    }
+  }, [
+    filtersChanged,
+    pageIndex,
+    prevPageIndex,
+    doFetchWithQueryParams,
+    updatePage,
+    sortingChanged,
+    refreshTimestamp,
+    prevRefreshTimestamp,
+    url,
+  ]);
 
+  const selectedRows = Object.keys(selectedRowIds);
+  const prevSelectedRows = usePrevious(selectedRows);
+
+  useEffect(() => {
+    if (!!onRowSelect && !isEqual(selectedRows, prevSelectedRows)) {
+      onRowSelect(selectedRows);
+    }
+  }, [prevSelectedRows, selectedRows, onRowSelect]);
+
+  useEffect(() => {
+    if (prevLoading && !loading && !inititalLoaded) {
+      setInititalLoaded(true);
+    }
+  }, [prevLoading, loading, inititalLoaded]);
+
+  if (!!error) {
+    return null;
+  }
+
+  if (!inititalLoaded) {
+    return <Loader />;
+  }
+
+  if (
+    isEmpty(page) &&
+    !loading &&
+    showCustomEmptyDisplay &&
+    !!CustomEmptyResultsDisplay
+  ) {
+    return <CustomEmptyResultsDisplay />;
+  }
+
+  return (
+    <div className="table-wrapper">
+      {!withPagination ? (
+        <div className="no-pagination-results-total">{`Showing ${count} entries`}</div>
+      ) : (
+        <Pagination
+          canPreviousPage={canPreviousPage}
+          nextPage={nextPage}
+          previousPage={previousPage}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          displayName={paginationItemsName}
+          gotoPage={updatePage}
+          loading={loading}
+          total={count}
+          page={page}
+        />
+      )}
+      <div className="table" {...getTableProps()}>
+        <div className="table-head">
+          {headerGroups.map((headerGroup) => {
+            return (
+              <div className="table-tr" {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => {
+                  const { sortIds } = column;
+                  const isSorted = isEqual(sortIds, sortKeys);
+
+                  return (
+                    <div className="table-th" {...column.getHeaderProps()}>
+                      <span className="table-th-content">
+                        {column.render("Header")}
+                      </span>
+                      {!isEmpty(sortIds) && (
+                        <Icon
+                          className={classnames(
+                            "table-sort-icon",
+                            { sorted: isSorted },
+                            { rotate: isSorted && sortDesc },
+                          )}
+                          name={ICON_NAMES.SORT}
+                          size={9}
+                          onClick={() =>
+                            setSortBy(({ sortIds, desc }) => ({
+                              sortIds: column.sortIds,
+                              desc: isEqual(column.sortIds, sortIds)
+                                ? !desc
+                                : false,
+                            }))
+                          }
+                        />
+                      )}
+                      {column.canResize && (
+                        <div
+                          {...column.getResizerProps()}
+                          className={classnames("resizer", {
+                            isResizing: column.isResizing,
+                          })}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
-    )
-}
+        <div className="table-body" {...getTableBodyProps()}>
+          {isEmpty(page) && !loading && (
+            <div className="empty-results-display-wrapper">{`No results available for ${noResultsTitle}`}</div>
+          )}
+          {loading && (
+            <div className="table-loading">
+              <Loader />
+            </div>
+          )}
+          {page.map((row) => {
+            prepareRow(row);
+
+            return (
+              <React.Fragment key={row.id}>
+                <div
+                  className={classnames(
+                    "table-tr",
+                    { clickable: !!onLineClick },
+                    { "with-row-actions": withRowActions },
+                  )}
+                  {...row.getRowProps()}
+                  onClick={() => {
+                    if (!!onLineClick) {
+                      onLineClick(row.original);
+                    }
+                  }}
+                >
+                  {row.cells.map((cell) => {
+                    const { className, alignToTop } = cell.column;
+                    const cellClassName = classnames(
+                      "table-td",
+                      { "align-to-top": alignToTop },
+                      { [className]: className },
+                    );
+
+                    const isTextValue = !!cell.column.accessor;
+
+                    return (
+                      <div className={cellClassName} {...cell.getCellProps()}>
+                        <ValueWithFallback>
+                          {isTextValue ? cell.value : cell.render("Cell")}
+                        </ValueWithFallback>
+                      </div>
+                    );
+                  })}
+                </div>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default React.memo(Table, (prevProps, nextProps) => {
-    const {filters: prevFilters, refreshTimestamp: prevRefreshTimestamp, data: prevData} = prevProps;
-    const {filters, refreshTimestamp, data} = nextProps;
+  const {
+    filters: prevFilters,
+    refreshTimestamp: prevRefreshTimestamp,
+    data: prevData,
+  } = prevProps;
+  const { filters, refreshTimestamp, data } = nextProps;
 
-    const shouldRefresh = !isEqual(prevFilters, filters) || prevRefreshTimestamp !== refreshTimestamp || !isEqual(prevData, data);
+  const shouldRefresh =
+    !isEqual(prevFilters, filters) ||
+    prevRefreshTimestamp !== refreshTimestamp ||
+    !isEqual(prevData, data);
 
-    return !shouldRefresh;
+  return !shouldRefresh;
 });

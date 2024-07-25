@@ -1,41 +1,41 @@
-import React from 'react';
-import { isUndefined } from 'lodash';
+import React from "react";
+import { isUndefined } from "lodash";
 
 export const create = (reducer, initialState) => {
-    const StateContext = React.createContext();
-    const DispatchContext = React.createContext();
+  const StateContext = React.createContext();
+  const DispatchContext = React.createContext();
 
-    const Provider = ({children}) => {
-        const [state, dispatch] = React.useReducer(reducer, initialState);
+  const Provider = ({ children }) => {
+    const [state, dispatch] = React.useReducer(reducer, initialState);
 
-        return (
-            <StateContext.Provider value={state}>
-                <DispatchContext.Provider value={dispatch}>
-                    {children}
-                </DispatchContext.Provider>
-            </StateContext.Provider>
-        )
+    return (
+      <StateContext.Provider value={state}>
+        <DispatchContext.Provider value={dispatch}>
+          {children}
+        </DispatchContext.Provider>
+      </StateContext.Provider>
+    );
+  };
+
+  const useState = () => {
+    const context = React.useContext(StateContext);
+
+    if (isUndefined(context)) {
+      throw Error("useState is not within the related provider");
     }
 
-    const useState = () => {
-        const context = React.useContext(StateContext);
+    return context;
+  };
 
-        if (isUndefined(context)) {
-            throw Error("useState is not within the related provider")
-        }
+  const useDispatch = () => {
+    const context = React.useContext(DispatchContext);
 
-        return context;
+    if (isUndefined(context)) {
+      throw Error("useDispatch is not within the related provider");
     }
 
-    const useDispatch = () => {
-        const context = React.useContext(DispatchContext);
+    return context;
+  };
 
-        if (isUndefined(context)) {
-            throw Error("useDispatch is not within the related provider")
-        }
-
-        return context;
-    }
-
-    return [Provider, useState, useDispatch];
-}
+  return [Provider, useState, useDispatch];
+};

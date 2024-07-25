@@ -90,6 +90,9 @@ jobs:
       - name: Install modules
         run: make ui-install
 
+      - name: Run format
+        run: make format-ui-check
+
       - name: Run ESLint
         run: make lint-js
 

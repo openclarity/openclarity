@@ -1,16 +1,16 @@
-@import 'utils/scss_variables.module.scss';
+@import "utils/scss_variables.module.scss";
 
 .findings-filters {
-    display: flex;
-    gap: 16px;
+  display: flex;
+  gap: 16px;
 
-    .findings-filter-button {
-        height: 30px;
-        box-sizing: border-box;
-        padding: 5px 10px;
-        border: 1px solid $color-grey-light;
-        border-radius: 50px;
-        background-color: $color-grey-off-white;
-        cursor: pointer;
-    }
+  .findings-filter-button {
+    height: 30px;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    border: 1px solid $color-grey-light;
+    border-radius: 50px;
+    background-color: $color-grey-off-white;
+    cursor: pointer;
+  }
 }

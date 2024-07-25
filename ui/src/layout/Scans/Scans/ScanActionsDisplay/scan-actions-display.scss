@@ -1,12 +1,12 @@
-@import 'utils/scss_variables.module.scss';
+@import "utils/scss_variables.module.scss";
 
 .scan-actions-display {
-    display: flex;
+  display: flex;
 
-    .icon:not(:disabled) {
-        color: $color-main;
-    }
-    .icon-with-tooltip-wrapper:not(:last-child) {
-        margin-right: 5px;
-    }
+  .icon:not(:disabled) {
+    color: $color-main;
+  }
+  .icon-with-tooltip-wrapper:not(:last-child) {
+    margin-right: 5px;
+  }
 }
