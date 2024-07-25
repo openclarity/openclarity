@@ -46,6 +46,7 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "happy-dom": "^14.12.0",
+    "prettier": "3.3.3",
     "vite": "^5.0.13",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^1.6.0"
@@ -54,6 +55,8 @@
     "start": "vite",
     "build": "tsc  && vite build",
     "preview": "vite preview",
+    "prettier:format": "prettier --log-level warn --write .",
+    "prettier:check": "prettier --check .",
     "lint": "eslint ./src --ext .ts,.tsx",
     "test": "vitest",
     "generate-api": "npx @openapitools/openapi-generator-cli generate -i ../api/openapi.yaml -g typescript-axios -o ./src/api/generated-api --openapi-normalizer SET_TAGS_FOR_ALL_OPERATIONS=VMClarity && npx @openapitools/openapi-generator-cli generate -i ../uibackend/openapi.yaml -g typescript-axios -o ./src/api/generated-ui-backend --openapi-normalizer SET_TAGS_FOR_ALL_OPERATIONS=VMClarityUIBackend",

@@ -1,11 +1,13 @@
-import React from 'react';
-import ListAndDetailsRouter from 'components/ListAndDetailsRouter';
-import PackagesTable from './PackagesTable';
-import PackageDetails from './PackageDetails';
+import React from "react";
+import ListAndDetailsRouter from "components/ListAndDetailsRouter";
+import PackagesTable from "./PackagesTable";
+import PackageDetails from "./PackageDetails";
 
 const Packages = () => (
-    <ListAndDetailsRouter listComponent={PackagesTable} detailsComponent={PackageDetails} />
-)
-
+  <ListAndDetailsRouter
+    listComponent={PackagesTable}
+    detailsComponent={PackageDetails}
+  />
+);
 
 export default Packages;

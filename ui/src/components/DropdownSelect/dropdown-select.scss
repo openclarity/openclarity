@@ -1,10 +1,10 @@
 .dropdown-select {
-    &.small {
-        .dropdown-select__multi-value__label {
-            font-size: 9px;
-        }
+  &.small {
+    .dropdown-select__multi-value__label {
+      font-size: 9px;
     }
-    .dropdown-select__input-container {
-        margin: 0 2px;
-    }
+  }
+  .dropdown-select__input-container {
+    margin: 0 2px;
+  }
 }
