@@ -53,7 +53,7 @@ $(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
 
 BICEP_BIN := $(BIN_DIR)/bicep
 # renovate: datasource=github-releases depName=Azure/bicep versioning=semver
-BICEP_VERSION := 0.28.1
+BICEP_VERSION := 0.29.47
 BICEP_OSTYPE := $(OSTYPE)
 BICEP_ARCH := $(ARCHTYPE)
 
@@ -146,7 +146,7 @@ bin/helm-$(HELM_VERSION): | $(BIN_DIR)
 
 HELMDOCS_BIN := $(BIN_DIR)/helm-docs
 # renovate: datasource=github-releases depName=norwoodj/helm-docs versioning=semver
-HELMDOCS_VERSION := 1.13.1
+HELMDOCS_VERSION := 1.14.2
 HELMDOCS_OSTYPE := $(OSTYPE)
 HELMDOCS_ARCH := $(ARCHTYPE)
 
@@ -206,7 +206,7 @@ bin/git-cliff-$(GITCLIFF_VERSION): | $(BIN_DIR)
 
 TYPOS_BIN := $(BIN_DIR)/typos
 # renovate: datasource=github-releases depName=crate-ci/typos versioning=semver
-TYPOS_VERSION := 1.23.2
+TYPOS_VERSION := 1.23.3
 TYPOS_OSTYPE := $(OSTYPE)
 TYPOS_ARCH := $(ARCHTYPE)
 TYPOS_URL =
