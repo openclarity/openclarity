@@ -103,11 +103,11 @@ When working only on one stack component, the component in question can be comme
 file](installation/docker/docker-compose.yml) and ran separately with `go run`, or in the case of the UI, with the
 following commands:
 
-```shell
-cd ui
-npm install
-npm start
-```
+`make ui-dev` to create UI development environment.
+Alternatively you can run them separately with:
+
+- `make ui-install` can be used to install the UI dependencies.
+- `make ui-start` can be used to start the UI development server.
 
 Update the [NGINX config](installation/docker/gateway.conf) accordingly if the components in question are affected to
 ensure that Docker can communicate with them if they are ran on local network.
@@ -153,24 +153,30 @@ header.
 - `make lint-cfn` lints Cloudformation files.
 - `make lint-go` runs `golangci-lint` on the Go files. Rules and config can be viewed in the `.golangci.yml` file in the
 root of the repo.
+- `make lint-js` runs `npm run lint` on the frontend files. Rules and config can be viewed in the `ui/.eslintrc` file.
 - `make lint-helm` lints the Helm chart.
 
 `make fix` is also provided which can automatically resolve lint issues such as formatting.
 
 ### Unit tests
 
-`make test` can be used run all the unit tests in the repo. Alternatively you can use the standard go test CLI to run a
-specific package or test like:
+`make test` to run both go and js unit tests.
+Alternatively you can run them separately with:
+
+- `make test-go` can be used run all go unit tests in the repo. Alternatively you
+can use the standard go test CLI to run a specific package or test like:
 
 ```shell
 go test ./cli/cmd/... -run Test_isSupportedFS
 ```
 
+- `make test-js` can be used to run all js unit tests in the repo.
+
 ### Generators
 
 `make gen` runs the following targets that can be ran separately as well:
 
-- After making changes to the API schema in `api/openapi.yaml`, you can run `make gen-api` to regenerate the model,
+- After making changes to the API schema in `api/openapi.yaml`, you can run `make gen-api-go` and `make gen-api-js` to regenerate the models,
 client and server code.
 - Run `make gen-bicep` for generating bicep files after modifying them for installing VMClarity on Azure.
 - Run `make gen-helm-docs` for generating the docs after making changes to VMClarity's Helm chart.

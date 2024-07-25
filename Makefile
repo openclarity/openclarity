@@ -132,6 +132,19 @@ ui: ## Build UI component
 	@(cd ui && npm i && npm run build)
 	@ls -l ui/build
 
+.PHONY: ui-dev
+ui-dev: ui-install ui-start ## Create UI development environment
+
+.PHONY: ui-install
+ui-install: ## Install UI dependencies
+	$(info Installing UI dependencies ...)
+	@(cd ui && npm install)
+
+.PHONY: ui-start
+ui-start: ## Start UI development server
+	$(info Starting UI development server ...)
+	@(cd ui && npm start)
+
 ##@ Testing
 
 .PHONY: check
@@ -205,7 +218,7 @@ $(LICENSECACHEMODULES):
 license-cache: bin/licensei $(LICENSECACHEMODULES) ## Generate license cache
 
 .PHONY: lint
-lint: license-check lint-actions lint-bicep lint-cfn lint-go lint-helm ## Run all the linters
+lint: license-check lint-actions lint-bicep lint-cfn lint-js lint-go lint-helm ## Run all the linters
 
 .PHONY: lint-actions
 lint-actions: bin/actionlint ## Lint Github Actions
@@ -219,12 +232,23 @@ lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
 lint-cfn: bin/cfn-lint ## Lint AWS CloudFormation template
 	$(CFNLINT_BIN) installation/aws/VmClarity.cfn
 
+.PHONY: lint-js
+lint-js: ## Lint Javascript source code
+	@(cd ui && npm run lint)
+
 .PHONY: lint-go
 lint-go: bin/golangci-lint $(LINTGOMODULES) ## Lint Go source code
 
 .PHONY: lint-helm
 lint-helm: ## Lint Helm charts
 	docker run --rm --workdir /workdir --volume "$(ROOT_DIR):/workdir" quay.io/helmpack/chart-testing:v3.8.0 ct lint --all
+
+.PHONY: test
+test: test-js test-go ## Run all tests
+
+.PHONY: test-js
+test-js: ## Run Javascript unit tests
+	@(cd ui && npm test)
 
 GOTEST_OPTS := -failfast -timeout 30m -short
 GOTEST_OPTS += $(BUILD_OPTS)
@@ -237,8 +261,8 @@ TESTGOMODULES = $(addprefix test-, $(GOMODULES))
 $(TESTGOMODULES):
 	go -C $(@:test-%=%) test $(GOTEST_OPTS) ./...
 
-.PHONY: test
-test: $(TESTGOMODULES) ## Run Go unit tests
+.PHONY: test-go
+test-go: $(TESTGOMODULES) ## Run Go unit tests
 
 GOVET_OPTS := $(BUILD_OPTS)
 VETGOMODULES = $(addprefix vet-, $(GOMODULES))
@@ -318,10 +342,15 @@ docker-scanner-plugins: ## Build scanner plugin container images
 ##@ Code generation
 
 .PHONY: gen
-gen: gen-api gen-bicep gen-helm-docs ## Generating all code, manifests, docs
+gen: gen-api-js gen-api-go gen-bicep gen-helm-docs ## Generating all code, manifests, docs
 
-.PHONY: gen-api
-gen-api: gen-apiserver-api gen-uibackend-api gen-plugin-sdk ## Generating API code
+.PHONY: gen-api-js
+gen-api-js: ## Generating Javascript library for API specification
+	$(info Generating API for UI code ...)
+	@(cd ui && npm run generate-api)
+
+.PHONY: gen-api-go
+gen-api-go: gen-apiserver-api gen-uibackend-api gen-plugin-sdk ## Generating Go API code
 
 .PHONY: gen-apiserver-api
 gen-apiserver-api: ## Generating Go library for API specification
