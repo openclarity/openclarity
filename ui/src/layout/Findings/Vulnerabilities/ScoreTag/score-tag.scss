@@ -1,10 +1,10 @@
-@import 'utils/scss_variables.module.scss';
+@import "utils/scss_variables.module.scss";
 
 .score-tag {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    .icon {
-        margin-left: 5px;
-    }
+  .icon {
+    margin-left: 5px;
+  }
 }

@@ -1,28 +1,31 @@
-@import 'utils/scss_variables.module.scss';
+@import "utils/scss_variables.module.scss";
 
 .dashboard-page-wrapper {
-    padding: $main-content-padding;
-    display: grid;
-    grid-template-areas:
+  padding: $main-content-padding;
+  display: grid;
+  grid-template-areas:
     ". . ."
     "riskiest-regions findings-trend findings-trend"
     "riskiest-regions riskiest-assets findings-impact";
-    grid-template-rows: 50px minmax(320px, 1fr) minmax(320px, 1fr);
-    grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr) minmax(420px, 1fr);
-    gap: 20px;
-    height: calc(100vh - #{$top-bar-height} - 2 * #{$main-content-padding});
-    overflow: auto;
+  grid-template-rows: 50px minmax(320px, 1fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr) minmax(
+      420px,
+      1fr
+    );
+  gap: 20px;
+  height: calc(100vh - #{$top-bar-height} - 2 * #{$main-content-padding});
+  overflow: auto;
 
-    .riskiest-regions {
-        grid-area: riskiest-regions;
-    }
-    .findings-trend {
-        grid-area: findings-trend;
-    }
-    .riskiest-assets {
-        grid-area: riskiest-assets;
-    }
-    .findings-impact {
-        grid-area: findings-impact;
-    }
+  .riskiest-regions {
+    grid-area: riskiest-regions;
+  }
+  .findings-trend {
+    grid-area: findings-trend;
+  }
+  .riskiest-assets {
+    grid-area: riskiest-assets;
+  }
+  .findings-impact {
+    grid-area: findings-impact;
+  }
 }

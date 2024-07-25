@@ -193,6 +193,17 @@ E2E_ENV_K8S += VMCLARITY_E2E_PLATFORM=kubernetes
 e2e-k8s: $(E2E_TARGETS) ## Run end-to-end test suite on Kubernetes
 	$(E2E_ENV_K8S) $(E2E_COMMAND)
 
+.PHONY: format
+format: format-ui ## Format all source code
+
+.PHONY: format-ui
+format-ui: ## Format UI source code
+	@(cd ui && npm run prettier:format)
+
+.PHONY: format-ui-check
+format-ui-check: ## Format UI source code
+	@(cd ui && npm run prettier:check)
+
 VENDORMODULES = $(addprefix vendor-, $(GOMODULES))
 
 $(VENDORMODULES):

@@ -1,58 +1,68 @@
-import { isEmpty, isNull } from 'lodash';
+import { isEmpty, isNull } from "lodash";
 
 export const SCANS_PATHS = {
-    SCANS: "scans",
-    CONFIGURATIONS: "configurations"
-}
+  SCANS: "scans",
+  CONFIGURATIONS: "configurations",
+};
 
-export const formatStringInstancesToTags = items => items.map(item => {
+export const formatStringInstancesToTags = (items) =>
+  items.map((item) => {
     const [key, value] = item.split("=");
 
-    return {key, value};
-});
+    return { key, value };
+  });
 
-export const formatRegionsToStrings = regions => {
-    const SEPARATOR = "/";
-    
-    return regions?.reduce((acc, curr) => {
-        const {name: region, vpcs} = curr;
+export const formatRegionsToStrings = (regions) => {
+  const SEPARATOR = "/";
 
-        const formattedVpcs = vpcs?.reduce((acc, curr) => {
-            const {id: vpc, securityGroups} = curr;
+  return regions?.reduce((acc, curr) => {
+    const { name: region, vpcs } = curr;
 
-            if (!vpc) {
-                return acc;
-            }
+    const formattedVpcs = vpcs?.reduce((acc, curr) => {
+      const { id: vpc, securityGroups } = curr;
 
-            return [
-                ...acc,
-                ...(isEmpty(securityGroups) ? [vpc] : securityGroups.map(({id: group}) => `${vpc}${SEPARATOR}${group}`))
-            ];
-        }, []);
-        
-        return [
-            ...acc,
-            ...(isEmpty(formattedVpcs) ? [region] : formattedVpcs.map(formattedVpc => `${region}${SEPARATOR}${formattedVpc}`))
-        ]
+      if (!vpc) {
+        return acc;
+      }
+
+      return [
+        ...acc,
+        ...(isEmpty(securityGroups)
+          ? [vpc]
+          : securityGroups.map(
+              ({ id: group }) => `${vpc}${SEPARATOR}${group}`,
+            )),
+      ];
     }, []);
-}
 
-export const getEnabledScanTypesList = scanFamiliesConfig => (
-    Object.keys(scanFamiliesConfig).map(scanType => {
-        const {enabled} = scanFamiliesConfig[scanType];
+    return [
+      ...acc,
+      ...(isEmpty(formattedVpcs)
+        ? [region]
+        : formattedVpcs.map(
+            (formattedVpc) => `${region}${SEPARATOR}${formattedVpc}`,
+          )),
+    ];
+  }, []);
+};
 
-        return enabled ? scanType : null;
+export const getEnabledScanTypesList = (scanFamiliesConfig) =>
+  Object.keys(scanFamiliesConfig)
+    .map((scanType) => {
+      const { enabled } = scanFamiliesConfig[scanType];
+
+      return enabled ? scanType : null;
     })
-).filter(scanType => !isNull(scanType));
+    .filter((scanType) => !isNull(scanType));
 
-export const getScanTimeTypeTag = ({operationTime, cronLine}) => {
-    if (!!cronLine) {
-        return "Repetitive";
-    }
-    
-    if (Date.now() - (new Date(operationTime)).valueOf() <= 0) {
-        return "Scheduled";
-    }
+export const getScanTimeTypeTag = ({ operationTime, cronLine }) => {
+  if (!!cronLine) {
+    return "Repetitive";
+  }
 
-    return "Once";
-}
+  if (Date.now() - new Date(operationTime).valueOf() <= 0) {
+    return "Scheduled";
+  }
+
+  return "Once";
+};

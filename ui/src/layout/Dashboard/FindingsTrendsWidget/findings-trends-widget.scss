@@ -1,24 +1,24 @@
-@import 'utils/scss_variables.module.scss';
+@import "utils/scss_variables.module.scss";
 
 .findings-trends-widget {
-    position: relative;
+  position: relative;
 
-    .findings-trends-widget-header {
-        position: absolute;
-        top: 30px;
-        right: 30px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
+  .findings-trends-widget-header {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 
-        .dropdown-select {
-            width: 140px;
-        }
+    .dropdown-select {
+      width: 140px;
     }
-    .findings-trends-widget-chart {
-        .recharts-cartesian-axis-line,
-        .recharts-cartesian-axis-tick-line {
-            stroke: $color-grey-lighter;
-        }
+  }
+  .findings-trends-widget-chart {
+    .recharts-cartesian-axis-line,
+    .recharts-cartesian-axis-tick-line {
+      stroke: $color-grey-lighter;
     }
+  }
 }

@@ -83,7 +83,8 @@ use (
   ./uibackend/server
   ./uibackend/types
   ./utils
-    ./workflow)
+  ./workflow
+)
 ```
 
 ### Running the VMClarity stack locally using Docker
@@ -147,7 +148,7 @@ You must be logged into the docker registry locally before using this target.
 ran:
 
 - `make license-check` can be used to validate that all the files in the repo have the correctly formatted license
-header.
+  header.
 - `make lint-actions` checks Github Actions workflow files.
 - `make lint-bicep` lints Bicep files.
 - `make lint-cfn` lints Cloudformation files.
@@ -180,6 +181,24 @@ go test ./cli/cmd/... -run Test_isSupportedFS
 client and server code.
 - Run `make gen-bicep` for generating bicep files after modifying them for installing VMClarity on Azure.
 - Run `make gen-helm-docs` for generating the docs after making changes to VMClarity's Helm chart.
+
+### Formatting
+
+Prettier is enabled (so you can use autoformatting plugins), and its use is enforced for files under the `ui/`
+directory. For example you could use something similar in VSCode's `settings.json`:
+
+```json
+}
+  "[javascriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  ...
+}
+```
+
+`make format` can be used to format everything at once with Prettier which is also being checked by the CI.
 
 ### Testing End to End
 
