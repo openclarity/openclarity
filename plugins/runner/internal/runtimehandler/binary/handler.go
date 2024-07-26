@@ -52,9 +52,9 @@ type binaryRuntimeHandler struct {
 	inputDirMountPoint   string
 	imageCleanup         func()
 	ready                bool
-
-	mu sync.Mutex
 }
+
+var mu sync.Mutex
 
 func New(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginRuntimeHandler, error) {
 	return &binaryRuntimeHandler{
@@ -65,8 +65,8 @@ func New(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginR
 
 //nolint:cyclop
 func (h *binaryRuntimeHandler) Start(ctx context.Context) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 
 	image, cleanup, err := containerrootfs.GetImageWithCleanup(ctx, h.config.ImageName)
 	if err != nil {
