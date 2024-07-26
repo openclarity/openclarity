@@ -24,8 +24,8 @@ var logger *slog.Logger
 
 func init() {
 	var logLevel slog.Level
-	if err := logLevel.UnmarshalText([]byte(getLogLevel())); err != nil {
-		logLevel = slog.LevelInfo
+	if err := logLevel.UnmarshalText([]byte(GetLogLevel())); err != nil {
+		logLevel = DefaultLogLevel
 	}
 
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{

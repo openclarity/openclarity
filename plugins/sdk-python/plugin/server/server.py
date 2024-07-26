@@ -20,6 +20,7 @@ _config = _ServerConfig()
 
 # Init logger
 _logger = logging.getLogger('plugin.scanner')
+_logger.setLevel(_config.get_log_level())
 _logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
