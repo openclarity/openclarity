@@ -39,7 +39,7 @@ func GetLoggerFromContextOrDiscard(ctx context.Context) *log.Entry {
 	if !ok {
 		logger = log.NewEntry(&log.Logger{
 			Out:   io.Discard,
-			Level: 0,
+			Level: log.PanicLevel,
 		}).WithContext(ctx)
 	}
 	return logger

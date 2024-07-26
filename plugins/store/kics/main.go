@@ -70,6 +70,10 @@ func (s *Scanner) SetStatus(newStatus *types.Status) {
 func (s *Scanner) Start(config types.Config) {
 	go func() {
 		logger := plugin.GetLogger()
+		err := printer.LogLevel(plugin.GetLogLevel(), false) //nolint:forbidigo
+		if err != nil {
+			logger.Error("Failed to set log level", slog.Any("error", err))
+		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.TimeoutSeconds)*time.Second)
 		s.cancel = cancel

@@ -16,23 +16,24 @@
 package plugin
 
 import (
+	"log/slog"
 	"os"
 )
 
 const (
 	EnvLogLevel     = "PLUGIN_SERVER_LOG_LEVEL"
-	DefaultLogLevel = "info"
+	DefaultLogLevel = slog.LevelError
 
 	EnvListenAddress     = "PLUGIN_SERVER_LISTEN_ADDRESS"
 	DefaultListenAddress = "http://0.0.0.0:8080"
 )
 
-func getLogLevel() string {
+func GetLogLevel() string {
 	if logLevel := os.Getenv(EnvLogLevel); logLevel != "" {
 		return logLevel
 	}
 
-	return DefaultLogLevel
+	return DefaultLogLevel.String()
 }
 
 func getListenAddress() string {
