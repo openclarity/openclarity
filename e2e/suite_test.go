@@ -31,6 +31,8 @@ import (
 	uibackendclient "github.com/openclarity/vmclarity/uibackend/client"
 )
 
+const DefaultLogLevel = logrus.DebugLevel
+
 var (
 	testEnv types.Environment
 	cfg     *config.Config
@@ -52,7 +54,7 @@ func beforeSuite(ctx context.Context) {
 	var err error
 
 	ginkgo.By("initializing test environment")
-	log.InitLogger(logrus.DebugLevel.String(), ginkgo.GinkgoWriter)
+	log.InitLogger(DefaultLogLevel.String(), ginkgo.GinkgoWriter)
 	logger := logrus.WithContext(ctx)
 	ctx = log.SetLoggerForContext(ctx, logger)
 

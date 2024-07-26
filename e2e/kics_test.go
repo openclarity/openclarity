@@ -22,7 +22,9 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/sirupsen/logrus"
 
+	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner"
 	scannercommon "github.com/openclarity/vmclarity/scanner/common"
 	"github.com/openclarity/vmclarity/scanner/families"
@@ -51,6 +53,10 @@ var _ = ginkgo.Describe("Running KICS scan", func() {
 				ginkgo.Skip("KICS plugin image not provided")
 			}
 
+			log.InitLogger(logrus.ErrorLevel.String(), ginkgo.GinkgoWriter)
+			logger := logrus.WithContext(ctx)
+			specCtx := log.SetLoggerForContext(ctx, logger)
+
 			input, err := filepath.Abs("./testdata")
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 			notifier := &Notifier{}
@@ -74,7 +80,7 @@ var _ = ginkgo.Describe("Running KICS scan", func() {
 						},
 					},
 				},
-			}).Run(ctx, notifier)
+			}).Run(specCtx, notifier)
 			gomega.Expect(errs).To(gomega.BeEmpty())
 
 			gomega.Eventually(func() bool {
@@ -106,6 +112,10 @@ var _ = ginkgo.Describe("Running a KICS scan", func() {
 				ginkgo.Skip("KICS plugin image not provided")
 			}
 
+			log.InitLogger(logrus.ErrorLevel.String(), ginkgo.GinkgoWriter)
+			logger := logrus.WithContext(ctx)
+			specCtx := log.SetLoggerForContext(ctx, logger)
+
 			input, err := filepath.Abs("./testdata")
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 			notifier := &Notifier{}
@@ -129,7 +139,7 @@ var _ = ginkgo.Describe("Running a KICS scan", func() {
 						},
 					},
 				},
-			}).Run(ctx, notifier)
+			}).Run(specCtx, notifier)
 			gomega.Expect(errs).To(gomega.BeEmpty())
 
 			gomega.Eventually(func() bool {
