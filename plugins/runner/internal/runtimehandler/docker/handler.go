@@ -26,6 +26,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -62,6 +63,8 @@ type containerRuntimeHandler struct {
 	runningErr       atomic.Pointer[error]
 }
 
+var mu sync.Mutex
+
 func New(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginRuntimeHandler, error) {
 	// Load docker client
 	client, err := newDockerClient()
@@ -76,6 +79,9 @@ func New(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginR
 }
 
 func (h *containerRuntimeHandler) Start(ctx context.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	// Pull scanner image if required
 	err := h.pullPluginImage(ctx)
 	if err != nil {
