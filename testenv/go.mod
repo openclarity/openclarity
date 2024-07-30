@@ -19,7 +19,7 @@ require (
 	github.com/distribution/reference v0.6.0
 	github.com/docker/cli v26.1.4+incompatible
 	github.com/docker/compose/v2 v2.27.1
-	github.com/docker/docker v26.1.4+incompatible
+	github.com/docker/docker v26.1.5+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/onsi/gomega v1.33.1
