@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags="-s -w -extldflags -static" \
     -o /bin/vmclarity-scanner ./main.go
 
-FROM alpine:3.20@sha256:b89d9c93e9ed3597455c90a0b88a8bbb5cb7188438f70953fede212a0c4394e0
+FROM alpine:3.20@sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
 
 COPY --from=builder /bin/vmclarity-scanner /bin/vmclarity-scanner
 COPY --from=builder /artifacts/assets/queries /queries
