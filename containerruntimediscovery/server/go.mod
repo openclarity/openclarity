@@ -12,7 +12,7 @@ require (
 	github.com/containerd/nerdctl v1.7.6
 	github.com/containerd/platforms v0.2.1
 	github.com/containers/image/v5 v5.31.1
-	github.com/docker/docker v26.1.4+incompatible
+	github.com/docker/docker v26.1.5+incompatible
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/openclarity/vmclarity/core v0.7.2
 	github.com/sirupsen/logrus v1.9.3
