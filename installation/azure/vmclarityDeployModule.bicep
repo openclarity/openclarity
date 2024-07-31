@@ -196,7 +196,7 @@ var maaEndpoint = substring('emptystring', 0, 0)
 
 var vmClarityServerCustomScriptName = 'VmClarityServerCustomScript'
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2023-11-01' = {
+resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
   name: networkInterfaceName
   location: location
   properties: {
@@ -220,7 +220,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-11-01' = {
   }
 }
 
-resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
+resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
   name: vmClarityServerSecurityGroupName
   location: location
   properties: {
@@ -245,7 +245,7 @@ resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2
 // Declare subnets inside of virtualNet so that they don't get deleted when
 // re-applying the template
 // https://github.com/Azure/bicep/issues/4653
-resource vmClarityNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+resource vmClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
   name: vmClarityNetName
   location: location
   properties: {
@@ -288,7 +288,7 @@ resource vmClarityNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   }
 }
 
-resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = {
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
   name: publicIPAddressName
   location: location
   sku: {
@@ -381,7 +381,7 @@ resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensio
   }
 }
 
-resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
+resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
   name: vmClarityScannerSecurityGroupName
   location: location
   properties: {
