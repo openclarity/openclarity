@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "3994536931161644383"
+      "templateHash": "13927729476504818038"
     }
   },
   "parameters": {
@@ -577,7 +577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12282980518322422643"
+              "templateHash": "11450816723859992713"
             }
           },
           "parameters": {
@@ -878,7 +878,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2024-01-01",
               "name": "[variables('networkInterfaceName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -908,7 +908,7 @@
             },
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2024-01-01",
               "name": "[variables('vmClarityServerSecurityGroupName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -931,7 +931,7 @@
             },
             {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2024-01-01",
               "name": "[variables('vmClarityNetName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -967,7 +967,7 @@
             },
             {
               "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2024-01-01",
               "name": "[variables('publicIPAddressName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -1072,7 +1072,7 @@
             },
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2024-01-01",
               "name": "[variables('vmClarityScannerSecurityGroupName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -1157,11 +1157,11 @@
             },
             "hostname": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2023-11-01').dnsSettings.fqdn]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2024-01-01').dnsSettings.fqdn]"
             },
             "sshCommand": {
               "type": "string",
-              "value": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2023-11-01').dnsSettings.fqdn)]"
+              "value": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2024-01-01').dnsSettings.fqdn)]"
             }
           }
         }
