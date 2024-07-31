@@ -240,7 +240,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"16.3.0-debian-12-r19"` | Postgresql container tag |
+| postgresql.image.tag | string | `"16.3.0-debian-12-r22"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.resources.limits | object | `{}` | The resources limits for the postgresql containers |
