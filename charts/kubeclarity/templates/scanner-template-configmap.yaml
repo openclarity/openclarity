@@ -35,7 +35,7 @@ data:
           affinity: {{- toYaml $affinity | nindent 12 }}
           {{- end }}
           {{- if $tolerations }}
-          tolerations: {{- toYaml $tolerations | nindent 8 }}
+          tolerations: {{- toYaml $tolerations | nindent 12 }}
           {{- end }}
           {{- if $nodeSelector }}
           nodeSelector: {{- toYaml $nodeSelector | nindent 12 }}

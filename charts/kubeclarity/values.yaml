@@ -23,7 +23,7 @@ global:
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
 
-  ## Overrides global.tolerations
+  ## Tolerations
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   # tolerations: {}
 
