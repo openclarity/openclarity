@@ -14,7 +14,7 @@
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
 {{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
-{{- $tolerations := (coalesce (index .Values "kubeclarity-grype-server" "tolerations") .Values.global.tolerations) -}}
+{{- $tolerations := (coalesce .Values.kubeclarity.tolerations .Values.global.tolerations) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment

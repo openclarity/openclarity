@@ -1,5 +1,5 @@
 {{- $affinity := (coalesce (index .Values "kubeclarity-sbom-db" "affinity") .Values.global.affinity) -}}
-{{- $tolerations := (coalesce (index .Values "kubeclarity-grype-server" "tolerations") .Values.global.tolerations) -}}
+{{- $tolerations := (coalesce (index .Values "kubeclarity-sbom-db" "tolerations") .Values.global.tolerations) -}}
 {{- $nodeSelector := (coalesce (index .Values "kubeclarity-sbom-db" "nodeSelector") .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment

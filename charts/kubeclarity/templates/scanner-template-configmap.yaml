@@ -6,7 +6,7 @@
 {{- $noproxy = append $noproxy (print ((index .Values "kubeclarity-trivy-server" "service" "name") | default (include "trivy.fullname" (index .Subcharts "kubeclarity-trivy-server"))) "." .Release.Namespace ":" (index .Values "kubeclarity-trivy-server" "service" "port")) -}}
 {{- end -}}
 {{- $affinity := (coalesce (index .Values "kubeclarity-runtime-scan" "affinity") .Values.global.affinity) -}}
-{{- $tolerations := (coalesce (index .Values "kubeclarity-grype-server" "tolerations") .Values.global.tolerations) -}}
+{{- $tolerations := (coalesce (index .Values "kubeclarity-runtime-scan" "tolerations") .Values.global.tolerations) -}}
 {{- $nodeSelector := (coalesce (index .Values "kubeclarity-runtime-scan" "nodeSelector") .Values.global.nodeSelector) -}}
 apiVersion: v1
 kind: ConfigMap
