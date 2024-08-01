@@ -14,6 +14,7 @@
   {{- $secretName = index .Values "kubeclarity-postgresql-external" "auth" "existingSecret" -}}
 {{ end }}
 {{- $affinity := (coalesce .Values.kubeclarity.affinity .Values.global.affinity) -}}
+{{- $tolerations := (coalesce (index .Values "kubeclarity-grype-server" "tolerations") .Values.global.tolerations) -}}
 {{- $nodeSelector := (coalesce .Values.kubeclarity.nodeSelector .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -38,6 +39,9 @@ spec:
       serviceAccountName: {{ include "kubeclarity.name" . }}
       {{- if $affinity }}
       affinity: {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- if $tolerations }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
       {{- end }}
       {{- if $nodeSelector }}
       nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}

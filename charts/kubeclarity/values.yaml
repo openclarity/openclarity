@@ -22,6 +22,11 @@ global:
   ## Affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
+
+  ## Overrides global.tolerations
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # tolerations: {}
+
   nodeSelector:
     kubernetes.io/os: linux
     kubernetes.io/arch: amd64
@@ -119,6 +124,10 @@ kubeclarity:
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
 
+  ## Overrides global.tolerations
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # tolerations: {}
+
   ## Overrides global.nodeSelector
   # nodeSelector:
   #   key1: value1
@@ -163,6 +172,10 @@ kubeclarity-runtime-scan:
   ## Scanner pods Affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
+
+  ## Overrides global.tolerations
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # tolerations: {}
 
   registry:
     skipVerifyTlS: "false"
@@ -285,6 +298,10 @@ kubeclarity-grype-server:
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
 
+  ## Overrides global.tolerations
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # tolerations: {}
+
   ## Overrides global.nodeSelector
   # nodeSelector:
   #   key1: value1
@@ -362,6 +379,10 @@ kubeclarity-sbom-db:
   ## Overrides global.affinity
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # affinity: {}
+
+  ## Overrides global.tolerations
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # tolerations: {}
 
   ## Overrides global.nodeSelector
   # nodeSelector:

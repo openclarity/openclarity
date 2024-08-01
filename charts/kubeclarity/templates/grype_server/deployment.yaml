@@ -1,5 +1,6 @@
 {{- if index .Values "kubeclarity-grype-server" "enabled" }}
 {{- $affinity := (coalesce (index .Values "kubeclarity-grype-server" "affinity") .Values.global.affinity) -}}
+{{- $tolerations := (coalesce (index .Values "kubeclarity-grype-server" "tolerations") .Values.global.tolerations) -}}
 {{- $nodeSelector := (coalesce (index .Values "kubeclarity-grype-server" "nodeSelector") .Values.global.nodeSelector) -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -28,6 +29,9 @@ spec:
       {{- end }}
       {{- if $affinity }}
       affinity: {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- if $tolerations }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
       {{- end }}
       {{- if $nodeSelector }}
       nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
