@@ -15,18 +15,15 @@
 
 package types
 
+import "github.com/openclarity/vmclarity/scanner/families"
+
 type Result struct {
-	Rootkits []Rootkit `json:"Rootkits"`
+	Metadata families.FamilyMetadata `json:"Metadata"`
+	Rootkits []Rootkit               `json:"Rootkits"`
 }
 
 func NewResult() *Result {
-	return &Result{
-		Rootkits: []Rootkit{},
-	}
-}
-
-func (r *Result) GetTotalFindings() int {
-	return len(r.Rootkits)
+	return &Result{}
 }
 
 func (r *Result) Merge(scan *ScannerResult) {
@@ -34,5 +31,16 @@ func (r *Result) Merge(scan *ScannerResult) {
 		return
 	}
 
+	// Sync metadata
+	defer r.patchMetadata(scan.Metadata)
+
+	// Merge all rootkits
 	r.Rootkits = append(r.Rootkits, scan.Rootkits...)
+}
+
+func (r *Result) patchMetadata(scanMeta families.ScannerMetadata) {
+	r.Metadata.Scans = append(r.Metadata.Scans, scanMeta)
+	r.Metadata.Summary = &families.FamilySummary{
+		FindingsCount: len(r.Rootkits),
+	}
 }

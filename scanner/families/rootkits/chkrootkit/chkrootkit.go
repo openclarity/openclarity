@@ -82,9 +82,7 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 
 	rootkits := toResultsRootkits(parsedRootkits)
 
-	return &types.ScannerResult{
-		Rootkits: rootkits,
-	}, nil
+	return types.NewScannerResult(rootkits), nil
 }
 
 func filterResults(rootkits []chkrootkitutils.Rootkit) []chkrootkitutils.Rootkit {

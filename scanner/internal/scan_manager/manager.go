@@ -30,6 +30,12 @@ import (
 	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
 )
 
+// ScanResult is result of a successfully scanned input.
+type ScanResult[RT ResultType] struct {
+	common.ScanInput
+	Result RT
+}
+
 // Manager allows parallelized scan of inputs for a single families.Family that
 // consists of multiple families.Scanner.
 type Manager[CT ConfigType, RT ResultType] struct {
@@ -94,14 +100,14 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 	}
 
 	// Start workers and collect results and errs
-	results, err := workerPool.Wait()
+	scans, err := workerPool.Wait()
 	if err != nil {
 		scanErrs = append(scanErrs, err)
 	}
 
 	// Return error if all jobs failed to return results.
 	// TODO: should it be configurable? allow the user to decide failure threshold?
-	if len(results) == 0 {
+	if len(scans) == 0 {
 		err := errors.Join(scanErrs...)
 		logger.WithError(err).Errorf("Scanning inputs failed with %d errors", len(scanErrs))
 
@@ -110,7 +116,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 
 	logger.Infof("Scanning inputs finished with success")
 
-	return results, nil
+	return scans, nil
 }
 
 func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, scanner families.Scanner[RT], input common.ScanInput) (ScanResult[RT], error) {
@@ -138,16 +144,18 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 	// Fetch input size
 	inputSize, _ := familiesutils.GetInputSize(input)
 
+	// Patch scanner result metadata
+	result.PatchMetadata(common.ScanMetadata{
+		ScannerName: scannerName,
+		InputPath:   input.Input,
+		InputType:   input.InputType,
+		InputSize:   inputSize,
+		StartTime:   startTime,
+		EndTime:     time.Now(),
+	})
+
 	return ScanResult[RT]{
-		ScanMetadata: ScanMetadata{
-			InputPath:      input.Input,
-			InputType:      input.InputType,
-			InputSize:      inputSize,
-			StripInputPath: input.StripPathFromResult,
-			ScannerName:    scannerName,
-			StartTime:      startTime,
-			EndTime:        time.Now(),
-		},
-		Result: result,
+		ScanInput: input,
+		Result:    result,
 	}, nil
 }

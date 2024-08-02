@@ -17,9 +17,6 @@ package families
 
 import (
 	"context"
-	"fmt"
-	"time"
-
 	"github.com/openclarity/vmclarity/scanner/common"
 )
 
@@ -37,20 +34,8 @@ const (
 	Plugins          FamilyType = "plugins"
 )
 
-// Family defines interface required to fully run a family.
-type Family[T any] interface {
-	GetType() FamilyType
-	Run(context.Context, *Results) (T, error)
-}
-
-// Scanner defines implementation of a family scanner. It should be
-// concurrently-safe as Scan can be called concurrently.
-type Scanner[T any] interface {
-	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
-}
-
-// FamilyResult defines an object that FamilyNotifier receives on finished Family.Run.
-type FamilyResult struct {
+// FamilyNotification defines an object that FamilyNotifier receives on finished Family.Run.
+type FamilyNotification struct {
 	FamilyType FamilyType
 	Result     any
 	Err        error
@@ -60,31 +45,60 @@ type FamilyResult struct {
 // Implementation should be concurrently-safe.
 type FamilyNotifier interface {
 	FamilyStarted(context.Context, FamilyType) error
-	FamilyFinished(context.Context, FamilyResult) error
+	FamilyFinished(context.Context, FamilyNotification) error
 }
 
-// ScanMetadata is unified metadata Family returns for all family-processed
-// inputs and operations.
-type ScanMetadata struct {
-	Inputs        []ScanInputMetadata `json:"inputs" yaml:"inputs" mapstructure:"inputs"`
-	StartTime     time.Time           `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime       time.Time           `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
-	TotalFindings int                 `json:"total_findings" yaml:"total_findings" mapstructure:"total_findings"`
+// Family defines interface required to fully run a family.
+type Family[T any] interface {
+	GetType() FamilyType
+	Run(context.Context, *Results) (T, error)
 }
 
-// ScanInputMetadata is metadata Scanner returns for a successfully processed input.
-type ScanInputMetadata struct {
-	ScannerName   string           `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
-	InputType     common.InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
-	InputPath     string           `json:"input_path" yaml:"input_path" mapstructure:"input_path"`
-	InputSize     int64            `json:"input_size" yaml:"input_size" mapstructure:"input_size"`
-	StartTime     time.Time        `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime       time.Time        `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
-	TotalFindings int              `json:"total_findings" yaml:"total_findings" mapstructure:"total_findings"`
+// FamilySummary defines shared Family result summary data.
+type FamilySummary struct {
+	FindingsCount int `json:"findings_count"`
+
+	// can be extended with additional general or family-specific properties
+	// e.g. PluginScansCount *int
 }
 
-func (m ScanInputMetadata) String() string {
-	return fmt.Sprintf("Scanner=%s Input=%s:%s InputSize=%d MB Findings=%d",
-		m.ScannerName, m.InputType, m.InputPath, m.InputSize, m.TotalFindings,
-	)
+// FamilyMetadata defines shared Family result metadata.
+// Internal business logic should not rely on metadata.
+type FamilyMetadata struct {
+	Annotations map[string]string `json:"annotations"`
+	Scans       []ScannerMetadata `json:"scans"`
+	Summary     *FamilySummary    `json:"summary"`
+
+	// can be extended with additional general or family-specific properties
+	// e.g. PluginScannerVersions *map[string]string
+}
+
+// Scanner defines implementation of a family scanner. It should be
+// concurrently-safe as Scan can be called concurrently.
+type Scanner[T ScannerResulter] interface {
+	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
+}
+
+// ScannerResulter defines scanner-specific result interface.
+type ScannerResulter interface {
+	PatchMetadata(scan common.ScanMetadata)
+}
+
+// ScannerSummary defines shared Scanner result summary data.
+type ScannerSummary struct {
+	FindingsCount int `json:"findings_count"`
+
+	// can be extended with additional general or scanner-specific properties
+	// e.g. MalwareScannerVersion *string
+}
+
+// ScannerMetadata defines shared Scanner result metadata.
+// Internal business logic should not rely on metadata.
+type ScannerMetadata struct {
+	Annotations map[string]string    `json:"annotations"`
+	Scan        *common.ScanMetadata `json:"scan"`
+	Summary     *ScannerSummary      `json:"summary"`
+
+	// can be extended with additional general or scanner-specific properties
+	// e.g. MalwareCount *int
 }

@@ -146,10 +146,7 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		logger.Error(retErr)
 	}
 
-	return &types.ScannerResult{
-		ScannerName: ScannerName,
-		Infos:       infos,
-	}, nil
+	return types.NewScannerResult(ScannerName, infos), nil
 }
 
 func (s *Scanner) getSSHDaemonKeysFingerprints(ctx context.Context, rootPath string) ([]types.Info, error) {

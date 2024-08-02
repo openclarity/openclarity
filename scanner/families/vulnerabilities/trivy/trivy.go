@@ -222,18 +222,14 @@ func (a *Scanner) createResult(logger *logrus.Entry, trivyJSON []byte, hash stri
 		}
 	}
 
-	return &types.ScannerResult{
-		Vulnerabilities: vulnerabilities,
-		Source: types.Source{
-			Name:     report.ArtifactName,
-			Type:     string(report.ArtifactType),
-			Hash:     hash,
-			Metadata: metadata,
-		},
-		Scanner: types.ScannerInfo{
-			Name: ScannerName,
-		},
-	}, nil
+	source := types.Source{
+		Name:     report.ArtifactName,
+		Type:     string(report.ArtifactType),
+		Hash:     hash,
+		Metadata: metadata,
+	}
+
+	return types.NewScannerResult(ScannerName, source, vulnerabilities), nil
 }
 
 func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag.Options, error) {

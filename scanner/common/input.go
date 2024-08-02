@@ -15,8 +15,6 @@
 
 package common
 
-import "fmt"
-
 type InputType string
 
 const (
@@ -72,15 +70,4 @@ func getImageSource(local bool) string {
 		return "docker"
 	}
 	return "registry"
-}
-
-type ScanInput struct {
-	// StripPathFromResult overrides global StripInputPaths value
-	StripPathFromResult *bool     `json:"strip_path_from_result" yaml:"strip_path_from_result" mapstructure:"strip_path_from_result"`
-	Input               string    `json:"input" yaml:"input" mapstructure:"input"`
-	InputType           InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
-}
-
-func (s ScanInput) String() string {
-	return fmt.Sprintf("%s:%s", s.InputType, s.Input)
 }

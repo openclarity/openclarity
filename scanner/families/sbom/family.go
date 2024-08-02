@@ -103,7 +103,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 		}
 
 		// Merge result
-		result := types.CreateScannerResult(cdxBOM, fmt.Sprintf("merge_with_%d", i), with.SbomPath, common.SBOM)
+		result := types.NewScannerResult(cdxBOM, fmt.Sprintf("merge_with_%d", i), with.SbomPath, common.SBOM)
 		mergedResults.Merge(result)
 	}
 
@@ -122,7 +122,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	}
 
 	// Create result from merged data
-	sbom := types.NewResult(cdxBom)
+	sbom := types.NewResult(mergedResults.Metadata, cdxBom)
 
 	return sbom, nil
 }

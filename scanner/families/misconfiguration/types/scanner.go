@@ -15,11 +15,27 @@
 
 package types
 
+import (
+	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/vmclarity/scanner/families"
+)
+
 type ScannerResult struct {
+	Metadata          families.ScannerMetadata
 	ScannerName       string
 	Misconfigurations []Misconfiguration
 }
 
-func (scan *ScannerResult) GetTotalFindings() int {
-	return len(scan.Misconfigurations)
+func NewScannerResult(scannerName string, misconfigurations []Misconfiguration) *ScannerResult {
+	return &ScannerResult{
+		ScannerName:       scannerName,
+		Misconfigurations: misconfigurations,
+	}
+}
+
+func (s *ScannerResult) PatchMetadata(scan common.ScanMetadata) {
+	s.Metadata.Scan = &scan
+	s.Metadata.Summary = &families.ScannerSummary{
+		FindingsCount: len(s.Misconfigurations),
+	}
 }

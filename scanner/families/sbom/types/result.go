@@ -17,6 +17,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/openclarity/vmclarity/scanner/families"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 
@@ -24,21 +25,15 @@ import (
 )
 
 type Result struct {
-	SBOM *cdx.BOM `json:"sbom"`
+	Metadata families.FamilyMetadata `json:"Metadata"`
+	SBOM     *cdx.BOM                `json:"sbom"`
 }
 
-func NewResult(sbom *cdx.BOM) *Result {
+func NewResult(metadata families.FamilyMetadata, sbom *cdx.BOM) *Result {
 	return &Result{
-		SBOM: sbom,
+		Metadata: metadata,
+		SBOM:     sbom,
 	}
-}
-
-func (r *Result) GetTotalFindings() int {
-	if r.SBOM != nil && r.SBOM.Components != nil {
-		return len(*r.SBOM.Components)
-	}
-
-	return 0
 }
 
 func (r *Result) EncodeToBytes(outputFormat string) ([]byte, error) {

@@ -17,6 +17,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/openclarity/vmclarity/scanner/families"
 
 	log "github.com/sirupsen/logrus"
 
@@ -83,9 +84,9 @@ func (r *Result) ToSlice() []Vulnerability {
 	return ret
 }
 
-func (r *Result) Merge(result *ScannerResult) {
+func (r *Result) Merge(scan *ScannerResult) {
 	// Skip further merge if scanner result is empty
-	if result == nil {
+	if scan == nil {
 		return
 	}
 
@@ -104,6 +105,13 @@ func (r *Result) Merge(result *ScannerResult) {
 	// TODO: what should we do with other.Source
 	// Set Source only once
 	if r.Source.Type == "" {
-		r.Source = result.Source
+		r.Source = scan.Source
+	}
+}
+
+func (r *Result) patchMetadata(scanMeta families.ScannerMetadata) {
+	r.Metadata.Scans = append(r.Metadata.Scans, scanMeta)
+	r.Metadata.Summary = &families.FamilySummary{
+		FindingsCount: len(r.MergedVulnerabilitiesByKey),
 	}
 }

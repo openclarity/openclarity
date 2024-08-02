@@ -79,7 +79,7 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 	}
 
 	cdxBom := cyclonedxhelpers.ToFormatModel(*sbom)
-	result := types.CreateScannerResult(cdxBom, AnalyzerName, userInput, sourceType)
+	result := types.NewScannerResult(cdxBom, AnalyzerName, userInput, sourceType)
 
 	// Syft uses ManifestDigest to fill version information in the case of an image.
 	// We need RepoDigest/ImageID as well which is not set by Syft if we're using cycloneDX output.

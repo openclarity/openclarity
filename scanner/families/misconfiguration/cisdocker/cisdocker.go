@@ -64,8 +64,5 @@ func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 
 	misconfigurations := parseDockleReport(inputType, userInput, assessmentMap)
 
-	return &types.ScannerResult{
-		ScannerName:       ScannerName,
-		Misconfigurations: misconfigurations,
-	}, nil
+	return types.NewScannerResult(ScannerName, misconfigurations), nil
 }

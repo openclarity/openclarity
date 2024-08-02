@@ -59,7 +59,7 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 	}
 
 	// Return sbom
-	result := types.CreateScannerResult(bom, AnalyzerName, userInput, sourceType)
+	result := types.NewScannerResult(bom, AnalyzerName, userInput, sourceType)
 
 	return result, nil
 }

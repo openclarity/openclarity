@@ -105,7 +105,5 @@ func (a *Scanner) Scan(ctx context.Context, sourceType common.InputType, userInp
 		return nil, fmt.Errorf("failed to unmarshal results. out: %s. err: %w", out, err)
 	}
 
-	return &types.ScannerResult{
-		Findings: findings,
-	}, nil
+	return types.NewScannerResult(findings), nil
 }

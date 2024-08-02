@@ -124,8 +124,5 @@ func (a *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 		return nil, fmt.Errorf("failed to parse report file %v: %w", reportPath, err)
 	}
 
-	return &types.ScannerResult{
-		ScannerName:       ScannerName,
-		Misconfigurations: misconfigurations,
-	}, nil
+	return types.NewScannerResult(ScannerName, misconfigurations), nil
 }

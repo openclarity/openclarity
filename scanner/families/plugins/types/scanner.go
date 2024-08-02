@@ -18,14 +18,28 @@ package types
 import (
 	"github.com/openclarity/vmclarity/api/types"
 	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/vmclarity/scanner/families"
 )
 
 type ScannerResult struct {
+	Metadata    families.ScannerMetadata
 	ScannerName string
 	Findings    []types.FindingInfo
 	Output      plugintypes.Result
 }
 
-func (scan *ScannerResult) GetTotalFindings() int {
-	return len(scan.Findings)
+func NewScannerResult(scannerName string, output plugintypes.Result, findings []types.FindingInfo) *ScannerResult {
+	return &ScannerResult{
+		ScannerName: scannerName,
+		Findings:    findings,
+		Output:      output,
+	}
+}
+
+func (s *ScannerResult) PatchMetadata(scan common.ScanMetadata) {
+	s.Metadata.Scan = &scan
+	s.Metadata.Summary = &families.ScannerSummary{
+		FindingsCount: len(s.Findings),
+	}
 }

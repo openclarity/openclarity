@@ -90,7 +90,7 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 	}
 	assertLicenses(bom)
 
-	result := types.CreateScannerResult(bom, AnalyzerName, userInput, sourceType)
+	result := types.NewScannerResult(bom, AnalyzerName, userInput, sourceType)
 
 	return result, nil
 }

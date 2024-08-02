@@ -136,7 +136,7 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 		return nil, fmt.Errorf("unable to decode BOM data: %w", err)
 	}
 
-	result := types.CreateScannerResult(bom, AnalyzerName, userInput, sourceType)
+	result := types.NewScannerResult(bom, AnalyzerName, userInput, sourceType)
 
 	// Trivy doesn't include the version information in the
 	// component of CycloneDX, but it does include the RepoDigest and the ImageID as

@@ -32,10 +32,9 @@ func New(_ context.Context, _ string, _ types.ScannersConfig) (families.Scanner[
 }
 
 func (a *Scanner) Scan(_ context.Context, _ common.InputType, _ string) (*types.ScannerResult, error) {
-	return &types.ScannerResult{
-		ScannerName:       ScannerName,
-		Misconfigurations: createFakeMisconfigurationReport(),
-	}, nil
+	misconfigurations := createFakeMisconfigurationReport()
+
+	return types.NewScannerResult(ScannerName, misconfigurations), nil
 }
 
 func createFakeMisconfigurationReport() []types.Misconfiguration {

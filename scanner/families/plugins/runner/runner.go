@@ -176,11 +176,7 @@ func (s *Scanner) Scan(ctx context.Context, inputType common.InputType, userInpu
 			return nil, fmt.Errorf("error during plugin execution: %w", r.Err)
 		}
 
-		return &types.ScannerResult{
-			ScannerName: s.name,
-			Findings:    r.Result.Findings,
-			Output:      r.Result.Output,
-		}, nil
+		return types.NewScannerResult(s.name, r.Result.Output, r.Result.Findings), nil
 	}
 }
 

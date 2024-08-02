@@ -56,8 +56,8 @@ func (r Rootkits) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 	for _, scan := range scans {
 		logger.Infof("Merging result from %q", scan)
 
-		if familiesutils.ShouldStripInputPath(scan.StripInputPath, r.conf.StripInputPaths) {
-			scan.Result = stripPathFromResult(scan.Result, scan.InputPath)
+		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, r.conf.StripInputPaths) {
+			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
 
 		rootkits.Merge(scan.Result)

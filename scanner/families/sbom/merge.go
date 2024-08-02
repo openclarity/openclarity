@@ -17,6 +17,7 @@ package sbom
 
 import (
 	"fmt"
+	"github.com/openclarity/vmclarity/scanner/families"
 	"sort"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ import (
 type componentKey string // Unique identification of a package (name and version)
 
 type mergedResults struct {
+	Metadata             families.FamilyMetadata
 	MergedComponentByKey map[componentKey]*mergedComponent
 	Source               common.InputType
 	SourceHash           string
@@ -55,32 +57,35 @@ func newMergedResults(sourceType common.InputType, hash string) *mergedResults {
 	}
 }
 
-func (m *mergedResults) Merge(other *types.ScannerResult) {
+func (m *mergedResults) Merge(scan *types.ScannerResult) {
 	// Skip further merge if scanner result is empty
-	if other == nil || other.Sbom == nil {
+	if scan == nil || scan.Sbom == nil {
 		return
 	}
 
-	bom := other.Sbom
+	// Sync metadata
+	defer m.patchMetadata(scan.Metadata)
+
+	bom := scan.Sbom
 
 	// merge bom.Metadata.Component if it exists
 	m.mergeMainComponent(bom)
 
-	if other.AppInfo.SourceHash != "" {
-		m.addSourceHash(other.AppInfo.SourceHash)
+	if scan.AppInfo.SourceHash != "" {
+		m.addSourceHash(scan.AppInfo.SourceHash)
 	}
 
-	m.addSourceMetadata(other.AppInfo.SourceMetadata)
+	m.addSourceMetadata(scan.AppInfo.SourceMetadata)
 
 	if bom.Components != nil {
 		otherComponentsByKey := toComponentByKey(bom.Components)
 		for key, otherComponent := range otherComponentsByKey {
 			if mergedComponent, ok := m.MergedComponentByKey[key]; !ok {
-				log.Debugf("Adding new component results from %v. key=%v", other.AnalyzerInfo, key)
-				m.MergedComponentByKey[key] = newMergedComponent(otherComponent, other.AnalyzerInfo)
+				log.Debugf("Adding new component results from %v. key=%v", scan.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = newMergedComponent(otherComponent, scan.AnalyzerInfo)
 			} else {
-				log.Debugf("Adding existing component results from %v. key=%v", other.AnalyzerInfo, key)
-				m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, other.AnalyzerInfo)
+				log.Debugf("Adding existing component results from %v. key=%v", scan.AnalyzerInfo, key)
+				m.MergedComponentByKey[key] = handleComponentWithExistingKey(mergedComponent, otherComponent, scan.AnalyzerInfo)
 			}
 		}
 	}
@@ -88,6 +93,13 @@ func (m *mergedResults) Merge(other *types.ScannerResult) {
 	if bom.Dependencies != nil {
 		newDependencies := m.normalizeDependencies(bom.Dependencies)
 		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
+	}
+}
+
+func (m *mergedResults) patchMetadata(scanMeta families.ScannerMetadata) {
+	m.Metadata.Scans = append(m.Metadata.Scans, scanMeta)
+	m.Metadata.Summary = &families.FamilySummary{
+		FindingsCount: len(m.MergedComponentByKey),
 	}
 }
 

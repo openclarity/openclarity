@@ -18,29 +18,38 @@ package types
 import (
 	apitypes "github.com/openclarity/vmclarity/api/types"
 	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	"github.com/openclarity/vmclarity/scanner/families"
 )
 
 type Result struct {
-	Findings      []apitypes.FindingInfo        `json:"Findings"`
-	PluginOutputs map[string]plugintypes.Result `json:"PluginOutputs"`
+	Metadata      families.FamilyMetadata `json:"Metadata"`
+	Findings      []apitypes.FindingInfo  `json:"Findings"`
+	PluginOutputs []plugintypes.Result    `json:"PluginOutputs"`
 }
 
 func NewResult() *Result {
-	return &Result{
-		Findings:      []apitypes.FindingInfo{},
-		PluginOutputs: make(map[string]plugintypes.Result),
-	}
+	return &Result{}
 }
 
-func (r *Result) GetTotalFindings() int {
-	return len(r.Findings)
-}
-
-func (r *Result) Merge(result *ScannerResult) {
-	if result == nil {
+func (r *Result) Merge(scan *ScannerResult) {
+	if scan == nil {
 		return
 	}
 
-	r.Findings = append(r.Findings, result.Findings...)
-	r.PluginOutputs[result.ScannerName] = result.Output
+	// Sync result data
+	defer r.patchResult(scan)
+
+	// Merge all findings
+	r.Findings = append(r.Findings, scan.Findings...)
+}
+
+func (r *Result) patchResult(scan *ScannerResult) {
+	// Update metadata
+	r.Metadata.Scans = append(r.Metadata.Scans, scan.Metadata)
+	r.Metadata.Summary = &families.FamilySummary{
+		FindingsCount: len(r.Findings),
+	}
+
+	// Add scanner outputs
+	r.PluginOutputs = append(r.PluginOutputs, scan.Output)
 }
