@@ -60,28 +60,26 @@ func ConvertSBOMResultToPackages(result *sbom.Result) []apitypes.Package {
 func ConvertVulnResultToVulnerabilities(result *vulnerabilities.Result) []apitypes.Vulnerability {
 	vuls := []apitypes.Vulnerability{}
 
-	if result == nil || result.MergedVulnerabilitiesByKey == nil {
+	if result == nil || result.VulnerabilitiesByKey == nil {
 		return vuls
 	}
 
-	for _, vulCandidates := range result.MergedVulnerabilitiesByKey {
-		if len(vulCandidates) < 1 {
+	for _, vulCandidate := range result.VulnerabilitiesByKey {
+		if vulCandidate.ID == "" {
 			continue
 		}
 
-		vulCandidate := vulCandidates[0]
-
 		vul := apitypes.Vulnerability{
-			Cvss:              ConvertVulnCvssToAPIModel(vulCandidate.Vulnerability.CVSS),
-			Description:       to.Ptr(vulCandidate.Vulnerability.Description),
-			Distro:            ConvertVulnDistroToAPIModel(vulCandidate.Vulnerability.Distro),
-			Fix:               ConvertVulnFixToAPIModel(vulCandidate.Vulnerability.Fix),
-			LayerId:           to.Ptr(vulCandidate.Vulnerability.LayerID),
-			Links:             to.Ptr(vulCandidate.Vulnerability.Links),
-			Package:           ConvertVulnPackageToAPIModel(vulCandidate.Vulnerability.Package),
-			Path:              to.Ptr(vulCandidate.Vulnerability.Path),
-			Severity:          ConvertVulnSeverityToAPIModel(vulCandidate.Vulnerability.Severity),
-			VulnerabilityName: to.Ptr(vulCandidate.Vulnerability.ID),
+			Cvss:              ConvertVulnCvssToAPIModel(vulCandidate.CVSS),
+			Description:       to.Ptr(vulCandidate.Description),
+			Distro:            ConvertVulnDistroToAPIModel(vulCandidate.Distro),
+			Fix:               ConvertVulnFixToAPIModel(vulCandidate.Fix),
+			LayerId:           to.Ptr(vulCandidate.LayerID),
+			Links:             to.Ptr(vulCandidate.Links),
+			Package:           ConvertVulnPackageToAPIModel(vulCandidate.Package),
+			Path:              to.Ptr(vulCandidate.Path),
+			Severity:          ConvertVulnSeverityToAPIModel(vulCandidate.Severity),
+			VulnerabilityName: to.Ptr(vulCandidate.ID),
 		}
 		vuls = append(vuls, vul)
 	}

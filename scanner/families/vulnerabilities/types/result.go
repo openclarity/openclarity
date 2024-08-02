@@ -33,14 +33,14 @@ type Source struct {
 }
 
 type Result struct {
-	Metadata                   families.ScanMetadata                      `json:"Metadata"`
-	Source                     Source                                     `json:"Source"`
-	MergedVulnerabilitiesByKey map[VulnerabilityKey][]MergedVulnerability `json:"MergedVulnerabilitiesByKey"`
+	Metadata             families.ScanMetadata              `json:"Metadata"`
+	Source               Source                             `json:"Source"`
+	VulnerabilitiesByKey map[VulnerabilityKey]Vulnerability `json:"VulnerabilitiesByKey"`
 }
 
 func NewResult() *Result {
 	return &Result{
-		MergedVulnerabilitiesByKey: make(map[VulnerabilityKey][]MergedVulnerability),
+		VulnerabilitiesByKey: make(map[VulnerabilityKey]Vulnerability),
 	}
 }
 
@@ -74,10 +74,10 @@ func (r *Result) GetSourceImageInfo() (*apitypes.ContainerImageInfo, error) {
 	return containerImageInfo, nil
 }
 
-// ToSlice returns MergedResults in a slice format and not by key.
-func (r *Result) ToSlice() [][]MergedVulnerability {
-	ret := make([][]MergedVulnerability, 0)
-	for _, vulnerabilities := range r.MergedVulnerabilitiesByKey {
+// ToSlice returns Result in a slice format and not by key.
+func (r *Result) ToSlice() []Vulnerability {
+	ret := make([]Vulnerability, 0)
+	for _, vulnerabilities := range r.VulnerabilitiesByKey {
 		ret = append(ret, vulnerabilities)
 	}
 
@@ -92,19 +92,15 @@ func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
 		return
 	}
 
-	otherVulnerabilityByKey := toVulnerabilityByKey(result.Vulnerabilities)
+	for _, vulnerability := range result.Vulnerabilities {
+		key := NewVulnerabilityKey(vulnerability)
 
-	// go over other vulnerabilities list
-	// 1. merge mutual vulnerabilities
-	// 2. add non mutual vulnerabilities
-	for key, otherVulnerability := range otherVulnerabilityByKey {
 		// look for other vulnerability key in the current merged vulnerabilities list
-		if mergedVulnerabilities, ok := r.MergedVulnerabilitiesByKey[key]; !ok {
-			// add non mutual vulnerability
+		if existingVulnerability, ok := r.VulnerabilitiesByKey[key]; !ok {
 			log.Debugf("Adding new vulnerability results from %v. key=%v", result.Scanner, key)
-			r.MergedVulnerabilitiesByKey[key] = []MergedVulnerability{*NewMergedVulnerability(otherVulnerability, result.Scanner)}
+			r.VulnerabilitiesByKey[key] = vulnerability
 		} else {
-			r.MergedVulnerabilitiesByKey[key] = handleVulnerabilityWithExistingKey(mergedVulnerabilities, otherVulnerability, result.Scanner)
+			r.VulnerabilitiesByKey[key] = handleVulnerabilityWithExistingKey(existingVulnerability, vulnerability)
 		}
 	}
 
