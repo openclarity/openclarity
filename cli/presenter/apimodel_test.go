@@ -161,108 +161,98 @@ func Test_ConvertVulnResultToVulnerabilities(t *testing.T) {
 			name: "Vuls",
 			args: args{
 				result: &vulnerabilities.Result{
-					MergedVulnerabilitiesByKey: map[vulnerabilities.VulnerabilityKey][]vulnerabilities.MergedVulnerability{
+					VulnerabilitiesByKey: map[vulnerabilities.VulnerabilityKey]vulnerabilities.Vulnerability{
 						"vulkey1": {
-							{
-								ID: "id1",
-								Vulnerability: vulnerabilities.Vulnerability{
-									ID:          "CVE-test-test-foo",
-									Description: "testbleed",
-									Links:       []string{"link1", "link2"},
-									Distro: vulnerabilities.Distro{
-										Name:    "distro1",
-										Version: "distrov1",
-										IDLike:  []string{"IDLike1", "IDLike2"},
+							ID:          "CVE-test-test-foo",
+							Description: "testbleed",
+							Links:       []string{"link1", "link2"},
+							Distro: vulnerabilities.Distro{
+								Name:    "distro1",
+								Version: "distrov1",
+								IDLike:  []string{"IDLike1", "IDLike2"},
+							},
+							CVSS: []vulnerabilities.CVSS{
+								{
+									Version: "v1",
+									Vector:  "vector1",
+									Metrics: vulnerabilities.CvssMetrics{
+										BaseScore:           1,
+										ExploitabilityScore: nil,
+										ImpactScore:         nil,
 									},
-									CVSS: []vulnerabilities.CVSS{
-										{
-											Version: "v1",
-											Vector:  "vector1",
-											Metrics: vulnerabilities.CvssMetrics{
-												BaseScore:           1,
-												ExploitabilityScore: nil,
-												ImpactScore:         nil,
-											},
-										},
-										{
-											Version: "v2",
-											Vector:  "vector2",
-											Metrics: vulnerabilities.CvssMetrics{
-												BaseScore:           2,
-												ExploitabilityScore: to.Ptr(2.1),
-												ImpactScore:         to.Ptr(2.2),
-											},
-										},
+								},
+								{
+									Version: "v2",
+									Vector:  "vector2",
+									Metrics: vulnerabilities.CvssMetrics{
+										BaseScore:           2,
+										ExploitabilityScore: to.Ptr(2.1),
+										ImpactScore:         to.Ptr(2.2),
 									},
-									Fix: vulnerabilities.Fix{
-										Versions: []string{"fv1", "fv2"},
-										State:    "fixed",
-									},
-									Severity: string(apitypes.CRITICAL),
-									Package: vulnerabilities.Package{
-										Name:     "package1",
-										Version:  "pv1",
-										Type:     "pt1",
-										Language: "pl1",
-										Licenses: []string{"plic1", "plic2"},
-										CPEs:     []string{"cpe1", "cpe2"},
-										PURL:     "purl1",
-									},
-									LayerID: "lid1",
-									Path:    "path1",
 								},
 							},
+							Fix: vulnerabilities.Fix{
+								Versions: []string{"fv1", "fv2"},
+								State:    "fixed",
+							},
+							Severity: string(apitypes.CRITICAL),
+							Package: vulnerabilities.Package{
+								Name:     "package1",
+								Version:  "pv1",
+								Type:     "pt1",
+								Language: "pl1",
+								Licenses: []string{"plic1", "plic2"},
+								CPEs:     []string{"cpe1", "cpe2"},
+								PURL:     "purl1",
+							},
+							LayerID: "lid1",
+							Path:    "path1",
 						},
 						"vulkey2": {
-							{
-								ID: "id2",
-								Vulnerability: vulnerabilities.Vulnerability{
-									ID:          "CVE-test-test-bar",
-									Description: "solartest",
-									Links:       []string{"link3", "link4"},
-									Distro: vulnerabilities.Distro{
-										Name:    "distro2",
-										Version: "distrov2",
-										IDLike:  []string{"IDLike3", "IDLike4"},
+							ID:          "CVE-test-test-bar",
+							Description: "solartest",
+							Links:       []string{"link3", "link4"},
+							Distro: vulnerabilities.Distro{
+								Name:    "distro2",
+								Version: "distrov2",
+								IDLike:  []string{"IDLike3", "IDLike4"},
+							},
+							CVSS: []vulnerabilities.CVSS{
+								{
+									Version: "v3",
+									Vector:  "vector3",
+									Metrics: vulnerabilities.CvssMetrics{
+										BaseScore:           3,
+										ExploitabilityScore: nil,
+										ImpactScore:         nil,
 									},
-									CVSS: []vulnerabilities.CVSS{
-										{
-											Version: "v3",
-											Vector:  "vector3",
-											Metrics: vulnerabilities.CvssMetrics{
-												BaseScore:           3,
-												ExploitabilityScore: nil,
-												ImpactScore:         nil,
-											},
-										},
-										{
-											Version: "v4",
-											Vector:  "vector4",
-											Metrics: vulnerabilities.CvssMetrics{
-												BaseScore:           4,
-												ExploitabilityScore: to.Ptr(4.1),
-												ImpactScore:         to.Ptr(4.2),
-											},
-										},
+								},
+								{
+									Version: "v4",
+									Vector:  "vector4",
+									Metrics: vulnerabilities.CvssMetrics{
+										BaseScore:           4,
+										ExploitabilityScore: to.Ptr(4.1),
+										ImpactScore:         to.Ptr(4.2),
 									},
-									Fix: vulnerabilities.Fix{
-										Versions: []string{"fv3", "fv4"},
-										State:    "not-fixed",
-									},
-									Severity: string(apitypes.HIGH),
-									Package: vulnerabilities.Package{
-										Name:     "package2",
-										Version:  "pv2",
-										Type:     "pt2",
-										Language: "pl2",
-										Licenses: []string{"plic3", "plic4"},
-										CPEs:     []string{"cpe3", "cpe4"},
-										PURL:     "purl2",
-									},
-									LayerID: "lid2",
-									Path:    "path2",
 								},
 							},
+							Fix: vulnerabilities.Fix{
+								Versions: []string{"fv3", "fv4"},
+								State:    "not-fixed",
+							},
+							Severity: string(apitypes.HIGH),
+							Package: vulnerabilities.Package{
+								Name:     "package2",
+								Version:  "pv2",
+								Type:     "pt2",
+								Language: "pl2",
+								Licenses: []string{"plic3", "plic4"},
+								CPEs:     []string{"cpe3", "cpe4"},
+								PURL:     "purl2",
+							},
+							LayerID: "lid2",
+							Path:    "path2",
 						},
 						"vulkey3": {},
 					},

@@ -78,3 +78,31 @@ func Values[K comparable, V any](m map[K]V) []V {
 
 	return s
 }
+
+// UniqueSlice returns a slice without duplicate elements.
+func UniqueSlice[T comparable](items []T) []T {
+	var filtered []T
+	unique := make(map[T]bool, len(items))
+	for _, item := range items {
+		if !unique[item] {
+			filtered = append(filtered, item)
+			unique[item] = true
+		}
+	}
+	return filtered
+}
+
+// UniqueSliceByKey returns a slice without duplicate elements using a custom get key function.
+func UniqueSliceByKey[T any](items []T, getKey func(T) string) []T {
+	var filtered []T
+
+	unique := make(map[string]bool, len(items))
+	for _, item := range items {
+		if key := getKey(item); key != "" && !unique[key] {
+			filtered = append(filtered, item)
+			unique[key] = true
+		}
+	}
+
+	return filtered
+}
