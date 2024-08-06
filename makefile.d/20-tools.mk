@@ -114,7 +114,7 @@ bin/golangci-lint-$(GOLANGCI_VERSION): | $(BIN_DIR)
 
 YQ_BIN := $(BIN_DIR)/yq
 # renovate: datasource=github-releases depName=mikefarah/yq versioning=semver
-YQ_VERSION := 4.44.2
+YQ_VERSION := 4.44.3
 
 bin/yq: bin/yq-$(YQ_VERSION)
 	@ln -sf $(notdir $<) $@
@@ -206,7 +206,7 @@ bin/git-cliff-$(GITCLIFF_VERSION): | $(BIN_DIR)
 
 TYPOS_BIN := $(BIN_DIR)/typos
 # renovate: datasource=github-releases depName=crate-ci/typos versioning=semver
-TYPOS_VERSION := 1.23.5
+TYPOS_VERSION := 1.23.6
 TYPOS_OSTYPE := $(OSTYPE)
 TYPOS_ARCH := $(ARCHTYPE)
 TYPOS_URL =
