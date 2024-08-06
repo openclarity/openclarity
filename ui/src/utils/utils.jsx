@@ -4,7 +4,7 @@ import CVSS from "@turingpointde/cvss.js";
 import { isEmpty, orderBy } from "lodash";
 import {
   FINDINGS_MAPPING,
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
 } from "utils/systemConsts";
 import IconWithTooltip from "components/IconWithTooltip";
 import VulnerabilitiesDisplay, {
@@ -47,7 +47,7 @@ export const formatNumber = (value) =>
 export const getScanName = ({ name, startTime }) =>
   `${name} ${formatDate(startTime)}`;
 
-export const getHigestVersionCvssData = (cvssData) => {
+export const getHighestVersionCvssData = (cvssData) => {
   if (isEmpty(cvssData)) {
     return {};
   }
@@ -106,7 +106,7 @@ export const getVulnerabilitiesColumnConfigItem = (props) => {
   const { tableTitle, withAssetPrefix = false } = props;
   const prefix = withAssetPrefix ? "asset." : "";
   const { title: vulnerabilitiesTitle, icon: vulnerabilitiesIcon } =
-    VULNERABIITY_FINDINGS_ITEM;
+    VULNERABILITY_FINDINGS_ITEM;
 
   return {
     Header: (
@@ -143,10 +143,10 @@ export const getVulnerabilitiesColumnConfigItem = (props) => {
 
 export const findingsColumnsFiltersConfig = Object.values(FINDINGS_MAPPING).map(
   ({ totalKey, title }) => {
-    const fitlerKey = `summary.${totalKey}`;
+    const filterKey = `summary.${totalKey}`;
 
     return {
-      value: fitlerKey,
+      value: filterKey,
       label: title,
       isNumber: true,
       operators: [
@@ -162,10 +162,10 @@ export const findingsColumnsFiltersConfig = Object.values(FINDINGS_MAPPING).map(
 export const vulnerabilitiesCountersColumnsFiltersConfig = Object.values(
   VULNERABILITY_SEVERITY_ITEMS,
 ).map(({ totalKey, title }) => {
-  const fitlerKey = `summary.totalVulnerabilities.${totalKey}`;
+  const filterKey = `summary.totalVulnerabilities.${totalKey}`;
 
   return {
-    value: fitlerKey,
+    value: filterKey,
     label: `${title} vulnerabilities`,
     isNumber: true,
     operators: [

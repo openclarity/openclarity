@@ -4,14 +4,14 @@ import VulnerabilitiesDisplay, {
 } from "components/VulnerabilitiesDisplay";
 import {
   APIS,
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
   FINDINGS_MAPPING,
 } from "utils/systemConsts";
 import { formatNumber } from "utils/utils";
 import FindingsTabsWidget from "../FindingsTabsWidget";
 
 const FINDINGS_ITEMS = [
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
   ...Object.values(FINDINGS_MAPPING).filter(
     ({ value }) => value !== FINDINGS_MAPPING.PACKAGES.value,
   ),
@@ -30,7 +30,7 @@ const RiskiestAssetsWidget = ({ className }) => (
       { dataKey: "assetInfo.type" },
       {
         customDisplay: ({ count, assetInfo, ...props }) => {
-          if (selectedId === VULNERABIITY_FINDINGS_ITEM.dataKey) {
+          if (selectedId === VULNERABILITY_FINDINGS_ITEM.dataKey) {
             const counters = Object.values(VULNERABILITY_SEVERITY_ITEMS).reduce(
               (acc, curr) => {
                 const { totalKey, countKey } = curr;
