@@ -85,12 +85,12 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "github.com/docker",
-        "github.com/compose-spec"
-      ],
       "description": [
         "Group Docker dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/docker{/,}**",
+        "github.com/compose-spec{/,}**"
       ]
     },
     {
@@ -99,12 +99,12 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "gorm.io/gorm",
-        "gorm.io/driver"
-      ],
       "description": [
         "Group gorm.io dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "gorm.io/gorm{/,}**",
+        "gorm.io/driver{/,}**"
       ]
     },
     {
@@ -113,11 +113,11 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "github.com/Azure/azure-sdk-for-go"
-      ],
       "description": [
         "Group Azure SDK dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/Azure/azure-sdk-for-go{/,}**"
       ]
     },
     {
@@ -126,11 +126,11 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "cloud.google.com/go"
-      ],
       "description": [
         "Group Google SDK dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "cloud.google.com/go{/,}**"
       ]
     },
     {
@@ -139,11 +139,11 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "github.com/containerd"
-      ],
       "description": [
         "Group Containerd dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/containerd{/,}**"
       ]
     },
     {
@@ -152,12 +152,12 @@
       "matchDatasources": [
         "go"
       ],
-      "matchPackagePrefixes": [
-        "k8s.io",
-        "sigs.k8s.io"
-      ],
       "description": [
         "Group Kubernetes dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "k8s.io{/,}**",
+        "sigs.k8s.io{/,}**"
       ]
     },
     {
@@ -265,14 +265,14 @@
       "matchDatasources": [
         "docker"
       ],
-      "matchPackagePrefixes": [
-        "ghcr.io/openclarity/vmclarity-"
-      ],
       "allowedVersions": "/^latest$/",
       "pinDigests": false,
       "description": [
         "Always use latest version for VMClarity container images.",
         "Do not pin by digest."
+      ],
+      "matchPackageNames": [
+        "ghcr.io/openclarity/vmclarity-{/,}**"
       ]
     },
     {
