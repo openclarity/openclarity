@@ -120,6 +120,16 @@ func TestGetComponentHash(t *testing.T) {
 			},
 			want: "sha256Value",
 		},
+		{
+			name: "sha256 from purl",
+			args: args{
+				component: &cdx.Component{
+					Type:       cdx.ComponentTypeContainer,
+					PackageURL: "pkg:oci/image@sha256%3Asha256Value?arch=amd64&repository_url=index.docker.io%2Frepo%2Fimage",
+				},
+			},
+			want: "sha256Value",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

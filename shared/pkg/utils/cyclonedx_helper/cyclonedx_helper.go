@@ -17,6 +17,7 @@ package cyclonedx_helper // nolint:revive,stylecheck
 
 import (
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -49,6 +50,27 @@ func GetComponentHash(component *cdx.Component) (string, error) {
 	if component.Type == cdx.ComponentTypeContainer {
 		if component.Version != "" {
 			hashParts := strings.Split(component.Version, "sha256:")
+			if len(hashParts) == expectedHashPartsLen {
+				lastHash = hashParts[1]
+			}
+		} else if component.PackageURL != "" {
+			purl, err := url.Parse(component.PackageURL)
+			if err != nil {
+				return "", fmt.Errorf("unable to parse purl of container component: %w", err)
+			}
+			purlParts := strings.Split(purl.Opaque, "/")
+			if len(purlParts) != 2 {
+				return "", fmt.Errorf("unexpected format of purl: %s", component.PackageURL)
+			}
+			if purlParts[0] != "oci" {
+				return "", fmt.Errorf("purl type of container wasn't 'oci")
+			}
+			_, version, _ := strings.Cut(purlParts[len(purlParts)-1], "@")
+			decoded, err := url.QueryUnescape(version)
+			if err != nil {
+				return "", fmt.Errorf("unable to decode purl oci version: %s", component.PackageURL)
+			}
+			hashParts := strings.Split(decoded, "sha256:")
 			if len(hashParts) == expectedHashPartsLen {
 				lastHash = hashParts[1]
 			}
