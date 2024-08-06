@@ -38,6 +38,8 @@ BICEP_DIR := $(INSTALLATION_DIR)/azure
 CFN_DIR := $(INSTALLATION_DIR)/aws
 DOCKER_COMPOSE_DIR := $(INSTALLATION_DIR)/docker
 GCP_DM_DIR := $(INSTALLATION_DIR)/gcp/dm
+API_DIR := $(ROOT_DIR)/api
+UI_DIR := $(ROOT_DIR)/ui
 
 ####
 ## Load additional makefiles
@@ -586,6 +588,8 @@ multimod-prerelease: bin/multimod
 
 ##@ Renovate
 
+.PHONY: renovate-fix
+renovate-fix: renovate-fix-gomod renovate-fix-helm-docs renovate-fix-bicep renovate-fix-api renovate-fix-format ## Fix all Renovate issues, recommended to run it with the "-i" flag
 
 .PHONY: renovate-fix-gomod
 renovate-fix-gomod: gomod-tidy ## Fix go.mod files after bumping Go dependency versions
@@ -597,10 +601,23 @@ renovate-fix-gomod: gomod-tidy ## Fix go.mod files after bumping Go dependency v
 renovate-fix-helm-docs: gen-helm-docs ## Fix Helm Chart documentation after version update
 	$(info --- Fix Helm Chart documentation after version update)
 	git add ':$(subst $(ROOT_DIR),,$(HELM_CHART_DIR))' \
-	&& git commit -m "docs: update helm docs"
+	&& git commit -m "docs: update Helm docs"
 
 .PHONY: renovate-fix-bicep
 renovate-fix-bicep: gen-bicep ## Fix Azure Bicep files after version update
 	$(info --- Fix Azure Bicep files after version update)
 	git add ':$(subst $(ROOT_DIR),,$(BICEP_DIR))' \
-	&& git commit -m "fix: generate bicep template"
+	&& git commit -m "fix: generate Bicep template"
+
+.PHONY: renovate-fix-api
+renovate-fix-api: gen-api-go gen-api-js ## Fix generated API code after version update
+	$(info --- Generate API code after version update)
+	git add ':$(subst $(ROOT_DIR),,$(API_DIR))' \
+	git add ':$(subst $(ROOT_DIR),,$(UI_DIR))' \
+	&& git commit -m "fix: generate API code"
+
+.PHONY: renovate-fix-format
+renovate-fix-format: format ## Format files after version update
+	$(info --- Run formatters after version update)
+	git add ':$(subst $(ROOT_DIR),,$(UI_DIR))' \
+	&& git commit -m "style: format code"
