@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.3.0-debian-12-r22}
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.3.0-debian-12-r23}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
