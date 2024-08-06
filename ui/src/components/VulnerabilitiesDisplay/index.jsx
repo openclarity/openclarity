@@ -2,7 +2,7 @@ import React from "react";
 import { TooltipWrapper } from "components/Tooltip";
 import Icon from "components/Icon";
 import { SEVERITY_ITEMS } from "components/SeverityDisplay";
-import { VULNERABIITY_FINDINGS_ITEM } from "utils/systemConsts";
+import { VULNERABILITY_FINDINGS_ITEM } from "utils/systemConsts";
 import { formatNumber } from "utils/utils";
 
 import COLORS from "utils/scss_variables.module.scss";
@@ -61,7 +61,7 @@ const TooltipContentDisplay = ({ total, counters }) => (
         ({ totalKey, color }) => (
           <div key={totalKey} className="vulnerabilities-tooltip-counters-item">
             <Icon
-              name={VULNERABIITY_FINDINGS_ITEM.icon}
+              name={VULNERABILITY_FINDINGS_ITEM.icon}
               style={{ color }}
               size={18}
             />
@@ -119,7 +119,7 @@ const VulnerabilitiesDisplay = ({ highestSeverity, total, counters }) => {
     color: vulnerabilitiesColor,
     title: vulnerabilitiesTitle,
     icon: vulnerabilitiesIcon,
-  } = VULNERABIITY_FINDINGS_ITEM;
+  } = VULNERABILITY_FINDINGS_ITEM;
 
   return (
     <div className="vulnerabilities-display-wrapper">

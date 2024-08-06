@@ -65,7 +65,7 @@ const FindingsTablePage = ({
         />
         <div style={{ marginLeft: "5px" }}>
           <InfoIcon
-            tooltipId="hide-hostory-info-icon"
+            tooltipId="hide-history-info-icon"
             tooltipText="Hide findings that were replaced by a newer asset asset scans of that type"
           />
         </div>

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import TabbedPage from "components/TabbedPage";
 import {
   FINDINGS_MAPPING,
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
   ROUTES,
 } from "utils/systemConsts";
 import Vulnerabilities from "./Vulnerabilities";
@@ -20,7 +20,7 @@ const FINDINGS_TAB_ITEMS = {
     path: "vulnerabilities",
     title: "Vulnerabilities",
     component: Vulnerabilities,
-    findingsType: VULNERABIITY_FINDINGS_ITEM.value,
+    findingsType: VULNERABILITY_FINDINGS_ITEM.value,
   },
   EXPLOITS: {
     id: "exploits",

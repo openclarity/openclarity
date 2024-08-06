@@ -26,7 +26,7 @@ const Table = (props) => {
   const {
     columns,
     defaultSortBy,
-    onSortChnage,
+    onSortChange,
     onLineClick,
     paginationItemsName,
     url,
@@ -50,10 +50,10 @@ const Table = (props) => {
   const prevSortBy = usePrevious(sortBy);
 
   useEffect(() => {
-    if (!!onSortChnage && !isEqual(prevSortBy, sortBy)) {
-      onSortChnage(sortBy);
+    if (!!onSortChange && !isEqual(prevSortBy, sortBy)) {
+      onSortChange(sortBy);
     }
-  }, [prevSortBy, sortBy, onSortChnage]);
+  }, [prevSortBy, sortBy, onSortChange]);
 
   const defaultColumn = React.useMemo(
     () => ({

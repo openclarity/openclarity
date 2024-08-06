@@ -82,8 +82,8 @@ export const FINDINGS_MAPPING = {
   },
 };
 
-export const VULNERABIITY_FINDINGS_ITEM = {
-  value: "VULNERABIITIES",
+export const VULNERABILITY_FINDINGS_ITEM = {
+  value: "VULNERABILITIES",
   dataKey: "vulnerabilities",
   typeKey: "VULNERABILITY",
   title: "Vulnerabilities",

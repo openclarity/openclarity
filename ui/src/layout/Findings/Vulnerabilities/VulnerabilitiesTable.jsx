@@ -4,7 +4,7 @@ import SeverityWithCvssDisplay, {
   SEVERITY_ITEMS,
 } from "components/SeverityWithCvssDisplay";
 import { OPERATORS } from "components/Filter";
-import { getHigestVersionCvssData, toCapitalized } from "utils/utils";
+import { getHighestVersionCvssData, toCapitalized } from "utils/utils";
 import { getScanColumnsConfigList } from "layout/Findings/utils";
 import { FILTER_TYPES } from "context/FiltersProvider";
 import FindingsTablePage from "../FindingsTablePage";
@@ -31,7 +31,7 @@ const VulnerabilitiesTable = () => {
         Cell: ({ row }) => {
           const { id, findingInfo } = row.original;
           const { severity, cvss } = findingInfo || {};
-          const cvssScoreData = getHigestVersionCvssData(cvss);
+          const cvssScoreData = getHighestVersionCvssData(cvss);
 
           return (
             <SeverityWithCvssDisplay

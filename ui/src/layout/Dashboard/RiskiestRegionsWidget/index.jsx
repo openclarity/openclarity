@@ -15,7 +15,7 @@ import Loader from "components/Loader";
 import {
   APIS,
   FINDINGS_MAPPING,
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
 } from "utils/systemConsts";
 import { BoldText, formatNumber } from "utils/utils";
 import WidgetWrapper from "../WidgetWrapper";
@@ -24,11 +24,11 @@ import FindingsFilters from "../FindingsFilters";
 
 import COLORS from "utils/scss_variables.module.scss";
 
-import "./reskiest-regions-widget.scss";
+import "./riskiest-regions-widget.scss";
 
 const BAR_STACK_ID = 1;
 const WIDGET_FINDINGS_ITEMS = [
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
   ...Object.values(FINDINGS_MAPPING).filter(
     ({ value }) => value !== FINDINGS_MAPPING.PACKAGES.value,
   ),

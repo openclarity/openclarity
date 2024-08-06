@@ -33,7 +33,7 @@ const initialState = {
   initialized: false,
 };
 
-const FITLER_ACTIONS = {
+const FILTER_ACTIONS = {
   SET_TABLE_FILTERS_BY_KEY: "SET_TABLE_FILTERS_BY_KEY",
   SET_SYSTEM_FILTERS_BY_KEY: "SET_SYSTEM_FILTERS_BY_KEY",
   SET_CUSTOM_FILTERS_BY_KEY: "SET_CUSTOM_FILTERS_BY_KEY",
@@ -46,7 +46,7 @@ const FITLER_ACTIONS = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case FITLER_ACTIONS.SET_TABLE_FILTERS_BY_KEY: {
+    case FILTER_ACTIONS.SET_TABLE_FILTERS_BY_KEY: {
       const { filterType, filterData } = action.payload;
 
       return {
@@ -58,7 +58,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY: {
+    case FILTER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY: {
       const { filterType, filterData } = action.payload;
 
       return {
@@ -71,7 +71,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case FITLER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY: {
+    case FILTER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY: {
       const { filterType, filterData } = action.payload;
 
       return {
@@ -83,7 +83,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case FITLER_ACTIONS.SET_TABLE_PAGE_BY_KEY: {
+    case FILTER_ACTIONS.SET_TABLE_PAGE_BY_KEY: {
       const { filterType, pageIndex } = action.payload;
 
       return {
@@ -94,7 +94,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case FITLER_ACTIONS.SET_TABLE_SORT_BY_KEY: {
+    case FILTER_ACTIONS.SET_TABLE_SORT_BY_KEY: {
       const { filterType, tableSort } = action.payload;
 
       return {
@@ -105,7 +105,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case FITLER_ACTIONS.RESET_ALL_FILTERS: {
+    case FILTER_ACTIONS.RESET_ALL_FILTERS: {
       return Object.keys(initialState).reduce(
         (acc, curr) => ({
           ...acc,
@@ -117,7 +117,7 @@ const reducer = (state, action) => {
         {},
       );
     }
-    case FITLER_ACTIONS.RESET_FILTERS_BY_KEY: {
+    case FILTER_ACTIONS.RESET_FILTERS_BY_KEY: {
       const { filterTypes } = action.payload;
 
       return {
@@ -134,7 +134,7 @@ const reducer = (state, action) => {
         ),
       };
     }
-    case FITLER_ACTIONS.INITIALIZE_FILTERS: {
+    case FILTER_ACTIONS.INITIALIZE_FILTERS: {
       const {
         filterType,
         systemFilterType,
@@ -193,33 +193,33 @@ const setFilters = (
 ) =>
   dispatch({
     type: isSystem
-      ? FITLER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY
+      ? FILTER_ACTIONS.SET_SYSTEM_FILTERS_BY_KEY
       : isCustom
-        ? FITLER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY
-        : FITLER_ACTIONS.SET_TABLE_FILTERS_BY_KEY,
+        ? FILTER_ACTIONS.SET_CUSTOM_FILTERS_BY_KEY
+        : FILTER_ACTIONS.SET_TABLE_FILTERS_BY_KEY,
     payload: { filterType: type, filterData: filters },
   });
 const setPage = (dispatch, { type, pageIndex }) =>
   dispatch({
-    type: FITLER_ACTIONS.SET_TABLE_PAGE_BY_KEY,
+    type: FILTER_ACTIONS.SET_TABLE_PAGE_BY_KEY,
     payload: { filterType: type, pageIndex },
   });
 const setSort = (dispatch, { type, tableSort }) =>
   dispatch({
-    type: FITLER_ACTIONS.SET_TABLE_SORT_BY_KEY,
+    type: FILTER_ACTIONS.SET_TABLE_SORT_BY_KEY,
     payload: { filterType: type, tableSort },
   });
 const resetAllFilters = (dispatch) =>
-  dispatch({ type: FITLER_ACTIONS.RESET_ALL_FILTERS });
+  dispatch({ type: FILTER_ACTIONS.RESET_ALL_FILTERS });
 const resetFilters = (dispatch, filterTypes) =>
   dispatch({
-    type: FITLER_ACTIONS.RESET_FILTERS_BY_KEY,
+    type: FILTER_ACTIONS.RESET_FILTERS_BY_KEY,
     payload: { filterTypes },
   });
 const resetSystemFilters = (dispatch, type) =>
   setFilters(dispatch, { type, filters: {}, isSystem: true });
 const initializeFilters = (dispatch, filtersData) =>
-  dispatch({ type: FITLER_ACTIONS.INITIALIZE_FILTERS, payload: filtersData });
+  dispatch({ type: FILTER_ACTIONS.INITIALIZE_FILTERS, payload: filtersData });
 
 export {
   FiltersProvider,
