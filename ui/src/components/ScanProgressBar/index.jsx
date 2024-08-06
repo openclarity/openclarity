@@ -1,5 +1,5 @@
 import React from "react";
-import ProgressBar, { STATUS_MAPPPING } from "components/ProgressBar";
+import ProgressBar, { STATUS_MAPPING } from "components/ProgressBar";
 import ErrorMessageDisplay from "components/ErrorMessageDisplay";
 
 import "./scan-progress-bar.scss";
@@ -17,49 +17,49 @@ const SCAN_STATES_AND_REASONS_MAPPINGS = [
   {
     ...SCAN_STATES.Pending,
     reason: "Created",
-    status: STATUS_MAPPPING.IN_PROGRESS.value,
+    status: STATUS_MAPPING.IN_PROGRESS.value,
   },
   {
     ...SCAN_STATES.Discovered,
     reason: "AssetsDiscovered",
-    status: STATUS_MAPPPING.IN_PROGRESS.value,
+    status: STATUS_MAPPING.IN_PROGRESS.value,
   },
   {
     ...SCAN_STATES.InProgress,
     reason: "AssetScansRunning",
-    status: STATUS_MAPPPING.IN_PROGRESS.value,
+    status: STATUS_MAPPING.IN_PROGRESS.value,
   },
   {
     ...SCAN_STATES.Failed,
     reason: "Cancellation",
-    status: STATUS_MAPPPING.STOPPED.value,
+    status: STATUS_MAPPING.STOPPED.value,
   },
   {
     ...SCAN_STATES.Failed,
     reason: "Timeout",
-    status: STATUS_MAPPPING.ERROR.value,
+    status: STATUS_MAPPING.ERROR.value,
     errorTitle: "Scan has been timed out",
   },
   {
     ...SCAN_STATES.Failed,
     reason: "AssetScanFailed",
-    status: STATUS_MAPPPING.ERROR.value,
+    status: STATUS_MAPPING.ERROR.value,
     errorTitle: "Some of the elements were failed to be scanned",
   },
   {
     ...SCAN_STATES.Done,
     reason: "NothingToScan",
-    status: STATUS_MAPPPING.SUCCESS.value,
+    status: STATUS_MAPPING.SUCCESS.value,
   },
   {
     ...SCAN_STATES.Done,
     reason: "Success",
-    status: STATUS_MAPPPING.SUCCESS.value,
+    status: STATUS_MAPPING.SUCCESS.value,
   },
   {
     ...SCAN_STATES.Aborted,
     reason: "Cancellation",
-    status: STATUS_MAPPPING.STOPPED.value,
+    status: STATUS_MAPPING.STOPPED.value,
   },
 ];
 

@@ -16,7 +16,7 @@ import DropdownSelect from "components/DropdownSelect";
 import {
   APIS,
   FINDINGS_MAPPING,
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
 } from "utils/systemConsts";
 import { formatDate } from "utils/utils";
 import WidgetWrapper from "../WidgetWrapper";
@@ -28,7 +28,7 @@ import COLORS from "utils/scss_variables.module.scss";
 import "./findings-trends-widget.scss";
 
 const WIDGET_FINDINGS_ITEMS = [
-  VULNERABIITY_FINDINGS_ITEM,
+  VULNERABILITY_FINDINGS_ITEM,
   ...Object.values(FINDINGS_MAPPING),
 ];
 
