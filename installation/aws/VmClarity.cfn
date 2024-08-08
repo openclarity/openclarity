@@ -1,0 +1,1439 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  VMClarity is a tool for agentless detection and management of Virtual Machine
+  Software Bill Of Materials (SBOM) and vulnerabilities
+Resources:
+  # Create separate VPC to host the VMClarity components and scans so that we
+  # keep VM Clarity resources completely separate from the VMs being scanned.
+  VmClarityVPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      CidrBlock: 10.0.0.0/16
+  # Subnet for the VmClarityServer. Will be public.
+  VmClarityServerSubnet:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+      CidrBlock: 10.0.0.0/24
+  # Subnet for the VmClarityScanners. Will be private.
+  VmClarityScannerSubnet:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+      CidrBlock: 10.0.1.0/24
+  # Elastic IP address that will be used to serve the VMClarity UI, API and SSH
+  # access.
+  VmClarityServerElasticIp:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+  # Elastic IP address that will be used by the NAT gateway to allow the
+  # private scanner VMs to access the internet without requiring a public
+  # address themselves.
+  VmClarityScannerNatElasticIp:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+  # VmClarityServer network interface definition.
+  VmClarityServerNetworkInterface:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      GroupSet:
+        - !Ref VmClarityServerSecurityGroup
+      SubnetId: !Ref VmClarityServerSubnet
+  # Associate the VmClarityServer elastic IP address directly to the
+  # VMClarityServers private network interface for now. In the future we might
+  # want to replace this with a load balancer.
+  VmClarityServerEipAssociation:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt
+        - VmClarityServerElasticIp
+        - AllocationId
+      NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
+  # VmClarityServer will host the VMClarity services which orchestrate the scans
+  # as well as serve the user interface and API
+  VmClarityServer:
+    Type: "AWS::EC2::Instance"
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT7M
+        Count: "1"
+    Properties:
+      InstanceType: !Ref InstanceType
+      Tags:
+        - Key: Name
+          Value: "VMClarity Server"
+        - Key: Owner
+          Value: "VMClarity"
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref "AWS::Region"
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref InstanceType
+          - Arch
+      KeyName: !Ref KeyName
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: '30'
+            DeleteOnTermination: 'true'
+            Encrypted: 'false'
+      IamInstanceProfile:
+        Ref: VmClarityServerInstanceProfile
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
+          DeviceIndex: "0"
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/bash -xe
+            apt-get update -y
+
+            apt-get -y install python3-pip
+
+            pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+
+            ln -s /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
+
+            /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
+            /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource VmClarityServer --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          full_install:
+            - install_and_enable_cfn_hup
+            - install_vmclarity
+        install_and_enable_cfn_hup:
+          files:
+            "/etc/cfn/cfn-hup.conf":
+              content:
+                Fn::Sub: |
+                  [main]
+                  stack=${AWS::StackId}
+                  region=${AWS::Region}
+                  interval=5
+              mode: "000400"
+              owner: root
+              group: root
+            "/etc/cfn/hooks.d/cfn-auto-reloader.conf":
+              content:
+                Fn::Sub: |
+                  [cfn-auto-reloader-hook]
+                  triggers=post.update
+                  path=Resources.VmClarityServer.Metadata.AWS::CloudFormation::Init
+                  action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
+                  runas=root
+            "/lib/systemd/system/cfn-hup.service":
+              content: |
+                [Unit]
+                Description=cfn-hup daemon
+
+                [Service]
+                Type=simple
+                ExecStart=/usr/local/bin/cfn-hup
+                Restart=always
+
+                [Install]
+                WantedBy=multi-user.target
+          commands:
+            01reload_systemctl:
+              command: systemctl daemon-reload
+            02enable_cfn_hup:
+              command: systemctl enable cfn-hup.service
+            03start_restart_cfn_hup:
+              command: systemctl restart cfn-hup.service
+        install_vmclarity:
+          files:
+            "/etc/vmclarity/deploy.sh":
+              content:
+                Fn::Sub: |
+                  #!/bin/bash
+                  set -euo pipefail
+
+                  # Install the latest version of docker from the offical
+                  # docker repository instead of the older version built into
+                  # ubuntu, so that we can use docker compose v2.
+                  #
+                  # To install this we need to add the docker apt repo gpg key
+                  # to the apt keyring, and then add the apt sources based on
+                  # our version of ubuntu. Then we can finally apt install all
+                  # the required docker components.
+                  apt-get update
+                  apt-get install -y ca-certificates curl gnupg
+                  mkdir -p /etc/apt/keyrings
+                  chmod 755 /etc/apt/keyrings
+                  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --yes --dearmor -o /etc/apt/keyrings/docker.gpg
+                  chmod a+r /etc/apt/keyrings/docker.gpg
+                  echo \
+                    "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+                    "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+                    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                  apt-get update
+                  apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+                  if [ "${DatabaseToUse}" == "Postgresql" ]; then
+                    # Configure the VMClarity backend to use the local postgres
+                    # service
+                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+                  elif [ "${DatabaseToUse}" == "External Postgresql" ]; then
+                    # Configure the VMClarity backend to use the postgres
+                    # database configured by the user.
+                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+                  elif [ "${DatabaseToUse}" == "SQLite" ]; then
+                    # Configure the VMClarity backend to use the SQLite DB
+                    # driver and configure the storage location so that it
+                    # persists.
+                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
+                    echo "VMCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+                  fi
+
+                  # Replace anywhere in the config.env __CONTROLPLANE_HOST__
+                  # with the local ipv4 IP address of the VMClarity server.
+                  local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+                  sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/vmclarity/orchestrator.env
+
+                  # Reload the systemd daemon to ensure that the VMClarity unit
+                  # has been detected.
+                  systemctl daemon-reload
+
+                  # Create directory required for grype-server
+                  /usr/bin/mkdir -p /opt/grype-server
+                  /usr/bin/chown -R 1000:1000 /opt/grype-server
+
+                  # Create directory required for vmclarity apiserver
+                  /usr/bin/mkdir -p /opt/vmclarity
+
+                  # Create directory for exploit db server
+                  /usr/bin/mkdir -p /opt/exploits
+
+                  # Create directory for trivy server
+                  /usr/bin/mkdir -p /opt/trivy-server
+
+                  # Create directory required for yara-rule-server
+                  /usr/bin/mkdir -p /opt/yara-rule-server
+                  /usr/bin/chown -R 1000:1000 /opt/yara-rule-server
+
+                  # Enable and start/restart VMClarity backend
+                  systemctl enable vmclarity.service
+                  systemctl restart vmclarity.service
+
+                  # Add ubuntu user to docker group
+                  usermod -a -G docker ubuntu
+              mode: "000744"
+
+            "/etc/vmclarity/vmclarity.yaml":
+              content:
+                Fn::Sub:
+                  - |
+                    services:
+                      apiserver:
+                        image: ${APIServerContainerImage}
+                        command:
+                          - run
+                          - --log-level
+                          - info
+                        ports:
+                          - "8888:8888"
+                        env_file: ./apiserver.env
+                        volumes:
+                          - type: bind
+                            source: /opt/vmclarity
+                            target: /data
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        healthcheck:
+                          test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8081/healthz/ready || exit 1
+                          interval: 10s
+                          retries: 60
+
+                      orchestrator:
+                        image: ${OrchestratorContainerImage}
+                        command:
+                          - run
+                          - --log-level
+                          - info
+                        env_file: ./orchestrator.env
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
+                        healthcheck:
+                          test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+                          interval: 10s
+                          retries: 60
+
+                      ui:
+                        image: ${UIContainerImage}
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
+
+                      uibackend:
+                        image: ${UIBackendContainerImage}
+                        command:
+                          - run
+                          - --log-level
+                          - info
+                        env_file: ./uibackend.env
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        depends_on:
+                          apiserver:
+                            condition: service_healthy
+                        healthcheck:
+                          test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
+                          interval: 10s
+                          retries: 60
+
+                      gateway:
+                        image: nginx
+                        ports:
+                          - "80:80"
+                        configs:
+                          - source: gateway_config
+                            target: /etc/nginx/nginx.conf
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+
+                      exploit-db-server:
+                        image: ${ExploitDBServerContainerImage}
+                        ports:
+                          - "1326:1326"
+                        volumes:
+                          - type: bind
+                            source: /opt/exploits
+                            target: /vuls
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        healthcheck:
+                          test: ["CMD", "nc", "-z", "127.0.0.1", "1326"]
+                          interval: 10s
+                          retries: 60
+
+                      trivy-server:
+                        image: ${TrivyServerContainerImage}
+                        command:
+                          - server
+                        ports:
+                          - "9992:9992"
+                        env_file: ./trivy-server.env
+                        volumes:
+                          - type: bind
+                            source: /opt/trivy-server
+                            target: /home/scanner/.cache
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        healthcheck:
+                          test: ["CMD", "nc", "-z", "127.0.0.1", "9992"]
+                          interval: 10s
+                          retries: 60
+
+                      grype-server:
+                        image: ${GrypeServerContainerImage}
+                        command:
+                          - run
+                          - --log-level
+                          - warning
+                        ports:
+                          - "9991:9991"
+                        volumes:
+                          - type: bind
+                            source: /opt/grype-server
+                            target: /data
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        healthcheck:
+                          test: wget --no-verbose --tries=10 --spider http://127.0.0.1:8080/healthz/ready || exit 1
+                          interval: 10s
+                          retries: 60
+
+                      freshclam-mirror:
+                        image: ${FreshclamMirrorContainerImage}
+                        ports:
+                          - "1000:80"
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+
+                      yara-rule-server:
+                        image: ${YaraRuleServerContainerImage}
+                        command:
+                          - run
+                        ports:
+                          - "9993:8080"
+                        configs:
+                          - source: yara_rule_server_config
+                            target: /etc/yara-rule-server/config.yaml
+                        volumes:
+                          - type: bind
+                            source: /opt/yara-rule-server
+                            target: /var/lib/yara-rule-server
+                        logging:
+                          driver: journald
+                        deploy:
+                          mode: replicated
+                          replicas: 1
+                          restart_policy:
+                            condition: on-failure
+                        healthcheck:
+                          test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+                          interval: 10s
+                          retries: 60
+
+                      swagger-ui:
+                        image: swaggerapi/swagger-ui:v5.17.14
+                        environment:
+                          CONFIG_URL: /apidocs/swagger-config.json
+                        configs:
+                          - source: swagger_config
+                            target: /usr/share/nginx/html/swagger-config.json
+
+                    configs:
+                      gateway_config:
+                        file: ./gateway.conf
+                      swagger_config:
+                        file: ./swagger-config.json
+                      yara_rule_server_config:
+                        file: ./yara-rule-server.yaml
+
+                  - APIServerContainerImage: !If [ APIServerContainerImageOverridden, !Ref APIServerContainerImageOverride, "ghcr.io/openclarity/vmclarity-apiserver:latest" ]
+                    OrchestratorContainerImage: !If [ OrchestratorContainerImageOverridden, !Ref OrchestratorContainerImageOverride, "ghcr.io/openclarity/vmclarity-orchestrator:latest" ]
+                    UIContainerImage: !If [ UIContainerImageOverridden, !Ref UIContainerImageOverride, "ghcr.io/openclarity/vmclarity-ui:latest" ]
+                    UIBackendContainerImage: !If [ UIBackendContainerImageOverridden, !Ref UIBackendContainerImageOverride, "ghcr.io/openclarity/vmclarity-ui-backend:latest" ]
+                    ExploitDBServerContainerImage: !If [ExploitDBServerContainerImageOverridden, !Ref ExploitDBServerContainerImageOverride, "ghcr.io/openclarity/exploit-db-server:v0.3.0"]
+                    TrivyServerContainerImage: !If [TrivyServerContainerImageOverridden, !Ref TrivyServerContainerImageOverride, "docker.io/aquasec/trivy:0.52.1"]
+                    GrypeServerContainerImage: !If [GrypeServerContainerImageOverridden, !Ref GrypeServerContainerImageOverride, "ghcr.io/openclarity/grype-server:v0.7.3"]
+                    YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.3.0"]
+                    FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.1"]
+
+            "/etc/vmclarity/vmclarity.override.yaml":
+              content:
+                Fn::If:
+                  - DatabaseIsLocalPostgresql
+                  - Fn::Sub:
+                    - |
+                      services:
+                        postgresql:
+                          image: ${PostgresqlContainerImage}
+                          env_file: ./postgres.env
+                          ports:
+                            - "5432:5432"
+                          logging:
+                            driver: journald
+                          deploy:
+                            mode: replicated
+                            replicas: 1
+                            restart_policy:
+                              condition: on-failure
+                          healthcheck:
+                            test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+                            interval: 10s
+                            retries: 60
+
+                        apiserver:
+                          depends_on:
+                            postgresql:
+                              condition: service_healthy
+
+                    - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:16.3.0-debian-12-r13"]
+                  - "\n"
+
+            "/etc/vmclarity/uibackend.env":
+              content: |
+                ##
+                ## UIBackend configuration
+                ##
+                # VMClarity API server address
+                VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
+
+
+            "/etc/vmclarity/swagger-config.json":
+              content: |
+                {
+                    "urls": [
+                        {
+                            "name": "VMClarity API",
+                            "url": "/api/openapi.json"
+                        }
+                    ]
+                }
+
+            "/etc/vmclarity/orchestrator.env":
+              content:
+                Fn::Sub:
+                  - |
+                    ##
+                    ## Orchestrator configuration
+                    ##
+                    # VMClarity API server address
+                    VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
+                    # Container image for Scanner instance
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
+                    # API Server Address for the Scanner to connect to
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
+                    # Exploits DB server address
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
+                    # Trivy server address
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
+                    # Grype server address
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
+                    # FreshClam mirror URL
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
+                    # Yara rule server address
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
+                    # Resource cleanup policy
+                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY=${AssetScanDeletePolicy}
+                    # Provider to use
+                    VMCLARITY_ORCHESTRATOR_PROVIDER=aws
+
+                    ##
+                    ## Provider configuration
+                    ##
+                    # The AWS region where the provider is deployed
+                    AWS_REGION=${AWS::Region}
+                    # Region where the Scanner instance needs to be created
+                    VMCLARITY_AWS_SCANNER_REGION=${AWS::Region}
+                    # SubnetID where the Scanner instance needs to be created
+                    VMCLARITY_AWS_SUBNET_ID=${VmClarityScannerSubnet}
+                    # SecurityGroupId which needs to be attached to the Scanner instance
+                    VMCLARITY_AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    # Name of the SSH KeyPair to use for Scanner instance launch
+                    VMCLARITY_AWS_KEYPAIR_NAME=${KeyName}
+                    # The AMI image used for creating Scanner instance
+                    VMCLARITY_AWS_SCANNER_AMI_ID=${ScannerImageID}
+                    # The instance type used for Scanner instance
+                    VMCLARITY_AWS_SCANNER_INSTANCE_TYPE=${ScannerInstanceType}
+                    # Block device name used for attaching Scanner volume to the Scanner instance
+                    #VMCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
+                  - ScannerImageID: !FindInMap
+                      - AWSRegionArch2AMI
+                      - !Ref "AWS::Region"
+                      - !FindInMap
+                        - AWSInstanceType2Arch
+                        - !Ref ScannerInstanceType
+                        - Arch
+                    ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
+              mode: "000644"
+
+            "/etc/vmclarity/trivy-server.env":
+              content: |
+                TRIVY_LISTEN=0.0.0.0:9992
+                TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
+              mode: "000644"
+
+            "/etc/vmclarity/yara-rule-server.yaml":
+              content: |
+                enable_json_log: true
+                rule_update_schedule: "0 0 * * *"
+                rule_sources:
+                  - name: "base"
+                    url: "https://github.com/Yara-Rules/rules/archive/refs/heads/master.zip"
+                    exclude_regex: ".*index.*.yar|.*/utils/.*|.*/deprecated/.*|.*index_.*|.*MALW_AZORULT.yar"
+                  - name: "magic"
+                    url: "https://github.com/securitymagic/yara/archive/refs/heads/main.zip"
+                    exclude_regex: ".*index.*.yar"
+              mode: "000644"
+
+            "/etc/vmclarity/postgres.env":
+              content:
+                Fn::Sub: |
+                    POSTGRESQL_USERNAME=vmclarity
+                    POSTGRESQL_PASSWORD=${PostgresDBPassword}
+                    POSTGRESQL_DATABASE=vmclarity
+              mode: "000644"
+
+            "/etc/vmclarity/gateway.conf":
+              content: |
+                events {
+                    worker_connections 1024;
+                }
+
+                http {
+                    upstream ui {
+                        server ui:80;
+                    }
+
+                    upstream uibackend {
+                        server uibackend:8890;
+                    }
+
+                    upstream apiserver {
+                        server apiserver:8888;
+                    }
+
+                    server {
+                        listen 80;
+                        absolute_redirect off;
+
+                        location / {
+                            proxy_pass http://ui/;
+                        }
+
+                        location /ui/api/ {
+                            proxy_pass http://uibackend/;
+                        }
+
+                        location /api/ {
+                            proxy_set_header X-Forwarded-Host $http_host;
+                            proxy_set_header X-Forwarded-Prefix /api;
+                            proxy_set_header X-Forwarded-Proto $scheme;
+                            proxy_pass http://apiserver/;
+                        }
+
+                        location /apidocs/ {
+                            proxy_pass http://swagger-ui:8080/;
+                        }
+                    }
+                }
+              mode: "000644"
+
+            "/lib/systemd/system/vmclarity.service":
+              content: |
+                [Unit]
+                Description=VmClarity
+                After=docker.service
+                Requires=docker.service
+
+                [Service]
+                TimeoutStartSec=0
+                Type=oneshot
+                RemainAfterExit=true
+                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
+                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
+
+                [Install]
+                WantedBy=multi-user.target
+              mode: "000644"
+          commands:
+            01deploy_vmclarity:
+              command: /etc/vmclarity/deploy.sh
+
+    DependsOn:
+      - VmClarityServerPublicRoute
+  # Create a Security Group for the VMClarity server. Allow on the public
+  # address, SSH access can be restricted by source CIDR range during
+  # installation of the stack through the SSHLocation parameter.
+  # TODO(sambetts) Enable HTTP access from the public address for the UI and
+  # API
+  VmClarityServerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+      GroupDescription: Allow only required network traffic for VMClarity server
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+  # Create a Security Group for the VMClarity scanner VMs. Restrict all ingress
+  # except SSH access from the VMClarityServerSecurityGroup, the
+  # VMClarityServer can act as a bastion for debugging the scanners.
+  VmClarityScannerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+      GroupDescription: Allow only required network traffic for VMClarity scanners
+  # Allow the VMClarity Server in the VmClarityScannerSecurityGroup to access
+  # the Scanner VMs through SSH by adding an ingress rule to the
+  # VmClarityScannerSecurityGroup.
+  VmClarityScannerSecurityGroupServerIngressToSSH:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityScannerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      SourceSecurityGroupId: !Ref VmClarityServerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # VMClarity server API on 8888 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToAPI:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 8888
+      ToPort: 8888
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Exploits DB server on port 1326 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToExploitDB:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 1326
+      ToPort: 1326
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Trivy Server on port 9992 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToTrivyServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9992
+      ToPort: 9992
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Grype Server on port 9992 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToGrypeServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9991
+      ToPort: 9991
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # FreshClam mirror on port 1000 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToFreshClamMirror:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 1000
+      ToPort: 1000
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+  # Yara Rule Server on port 9993 by adding an ingress rule to the
+  # VmClarityServerSecurityGroup.
+  VmClarityServerSecurityGroupScannerIngressToYaraRuleServer:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref VmClarityServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9993
+      ToPort: 9993
+      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+
+  # Create an Internet Gateway to allow VMClarityServer to talk to the internet
+  # and the internet to talk to it for SSH/HTTP.
+  VmClarityServerInternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties: {}
+  # Attach our VPC to the InternetGateway above
+  VmClarityServerInternetGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+      InternetGatewayId: !Ref VmClarityServerInternetGateway
+  # Create a route table to host the routes required for our VPC.
+  VmClarityServerRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+  # Associate the route table with our subnet so that VMs in that subnet get
+  # the routes from the route table.
+  VmClarityServerSubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref VmClarityServerSubnet
+      RouteTableId: !Ref VmClarityServerRouteTable
+  # Create a route with forwards all non-local traffic to the internet gateway
+  # for routing.
+  VmClarityServerPublicRoute:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref VmClarityServerRouteTable
+      GatewayId: !Ref VmClarityServerInternetGateway
+      DestinationCidrBlock: 0.0.0.0/0
+    DependsOn:
+      - VmClarityServerInternetGatewayAttachment
+
+  # Create a NAT gateway to allow VMClarity Scanner instances to access the
+  # internet without needing an internet routable IP address. This goes into
+  # the VmClarityServerSubnet so that it has public access to the internet.
+  VmClarityScannerNatGateway:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId: !GetAtt
+        - VmClarityScannerNatElasticIp
+        - AllocationId
+      SubnetId: !Ref VmClarityServerSubnet
+  # Create route table for VMClarity Scanner instances to access the NAT
+  # gateway
+  VmClarityScannerNatRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VmClarityVPC
+  # Create route rule the pushes all non-local traffic to the NAT gateway for
+  # routing.
+  VMClarityScannerNatRoute:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref VmClarityScannerNatRouteTable
+      NatGatewayId: !Ref VmClarityScannerNatGateway
+      DestinationCidrBlock: 0.0.0.0/0
+  # Associate the VMClarity Scanner subnet with the Scanner route table that
+  # goes to the NAT gateway.
+  VmClarityScannerSubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref VmClarityScannerSubnet
+      RouteTableId: !Ref VmClarityScannerNatRouteTable
+
+  # Create a IAM policy which allows the VMClarityServer to perform all the
+  # tasks required to discover instances running on the AWS account, snapshot
+  # their volumes, and then create the scanner instances with those volumes
+  # attached.
+  VmClarityServerPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: VmClarityServerPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # ##########################
+          # Allow snapshots everywhere in the AWS account to ensure that we can
+          # snapshot all the VMs. Enforce that we tag those snapshots with the
+          # VMClarity Owner tag so that we can control deleting them.
+          - Effect: "Allow"
+            Action: "ec2:CreateSnapshot"
+            Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
+          - Effect: "Allow"
+            Action: "ec2:CreateSnapshot"
+            Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
+          #
+          # ##########################
+
+          # ##########################
+
+          #
+          # ##########################
+          # Allow VMClarity server to call the pricing list API in order to get the latest prices for scan cost estimation.
+          - Effect: "Allow"
+            Action:
+            - "pricing:GetProducts"
+            - "ec2:DescribeSpotPriceHistory"
+            Resource: "*"
+          #
+          # ##########################
+          # ##########################
+          # Allow copying snapshots to the VMClarity Server region for
+          # scanning. Only allow copy if the copy will have the VMClarity Owner
+          # tag.
+          # TODO(sambetts) Only allow us to copy snapshots which have the
+          # OwnerVMClarity tag.
+          - Effect: "Allow"
+            Action: "ec2:CopySnapshot"
+            Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
+          #
+          # ##########################
+
+          - Effect: "Allow"
+            Action:
+              - "ec2:CreateVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+                  - VMClarity.AssetVolumeID
+
+          # ##########################
+          # Only allow RunInstances inside of the VMClarity VPC by enforcing
+          # that the Subnet the Instance is created in belongs to the VmClarity
+          # VPC.
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:subnet/*"
+            Condition:
+              ArnEquals:
+                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarityVPC}"
+          # Force that we tag the instance when we create it, this is so that
+          # we can limit the instances we're allow to terminate. The only tag
+          # keys allowed are:
+          #  * Owner
+          #  * VMClarity.ScanID
+          #  * VMClarity.AssetScanID
+          #  * VMClarity.AssetID
+          # "Owner" must be set to "VmClarity".
+          - Effect: "Allow"
+            Action:
+              - "ec2:RunInstances"
+              - "ec2:CreateVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:RequestTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+          # Allow instance to be created using snapshots, only if the snapshot
+          # has the Owner:VMClarity tag.
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource:
+              !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
+              "ForAllValues:StringEquals":
+                "aws:TagKeys":
+                  - Owner
+                  - Name
+                  - VMClarity.ScanID
+                  - VMClarity.AssetScanID
+                  - VMClarity.AssetID
+          # Allow the creation of network interfaces, and allow instances to be
+          # created with any security group and image in our account and
+          # region.
+          # Also allow creation with any key-pair from our account, so that it
+          # can be used to access the scanner VMs via SSH and debug them.
+          # TODO(sambetts) Add lock it down to just the scanner image and
+          # create a security group for the scanners
+          - Effect: "Allow"
+            Action: "ec2:RunInstances"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:security-group/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:key-pair/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}::image/*"
+          #
+          # ##########################
+
+          # ##########################
+          # Limit CreateTags to just creating an instance, volume or snapshot
+          # otherwise we could modify existing resources to allow us to delete
+          # them.
+          - Effect: "Allow"
+            Action: "ec2:CreateTags"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:instance/*"
+              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "ec2:CreateAction":
+                  - RunInstances
+                  - CreateVolume
+                  - CreateSnapshot
+                  - CreateSnapshots
+                  - CopySnapshot
+          #
+          # ##########################
+
+          # ##########################
+          # Only allow to start, stop and terminate the instances, volumes and
+          # snapshots that we created using the tags to identify them.
+          - Effect: "Allow"
+            Action:
+              - "ec2:StartInstances"
+              - "ec2:StopInstances"
+              - "ec2:TerminateInstances"
+              - "ec2:DeleteVolume"
+              - "ec2:DeleteSnapshot"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+              - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
+          #
+          # ##########################
+
+          # ##########################
+          # Allow VMClarity to query everything
+          - Effect: "Allow"
+            Action:
+            - "ec2:DescribeImages"
+            - "ec2:DescribeInstances"
+            - "ec2:DescribeVolumeStatus"
+            - "ec2:DescribeVolumes"
+            - "ec2:DescribeVolumesModifications"
+            - "ec2:DescribeSnapshots"
+            - "ec2:DescribeInstanceStatus"
+            - "ec2:DescribeVolumeAttribute"
+            - "ec2:DescribeRegions"
+            - "ec2:DescribeVpcs"
+            - "ec2:DescribeSecurityGroups"
+            Resource: "*"
+          #
+          # ##########################
+
+          # ##########################
+          # Only allow to attach volumes to instances that we created
+          # using the tags to identify them.
+          - Effect: "Allow"
+            Action:
+            - "ec2:AttachVolume"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Owner": "VMClarity"
+          #
+          # ##########################
+      Roles:
+        - !Ref VmClarityServerRole
+  # Create a IAM role which will contain the policy above.
+  VmClarityServerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+  # Create an InstanceProfile which binds the role to the VmClarityServer.
+  VmClarityServerInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: /
+      Roles:
+        - !Ref VmClarityServerRole
+Parameters:
+  # Provide some choice of instance type, these are all 2 VCPU 8GB RAM systems
+  # and should perform similarly.
+  InstanceType:
+    Description: VmClarity Server Instance Type
+    Type: String
+    Default: t2.large
+    AllowedValues:
+      - m6i.large
+      - t2.large
+      - t3.large
+      - t4g.large
+    ConstraintDescription: must be a valid EC2 instance type.
+  ScannerInstanceType:
+    Description: VmClarity Scanner Instance Type
+    Type: String
+    Default: t2.large
+    AllowedValues:
+      - m6i.large
+      - t2.large
+      - t3.large
+    ConstraintDescription: must be a valid EC2 instance type.
+  KeyName:
+    Description: Name of an EC2 KeyPair to enable SSH access to the instance.
+    Type: "AWS::EC2::KeyPair::KeyName"
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+  SSHLocation:
+    Description: "The IP address range that can be used to access the web server using SSH."
+    Type: String
+    MinLength: "9"
+    MaxLength: "18"
+    Default: 0.0.0.0/0
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  APIServerContainerImageOverride:
+    Description: >
+      Name of the container image used for deploying VMClarity API server.
+      "ghcr.io/openclarity/vmclarity-apiserver:latest" will be used if not overridden.
+    Type: String
+    Default: ''
+  OrchestratorContainerImageOverride:
+    Description: >
+      Name of the container image used for deploying VMClarity orchestrator.
+      "ghcr.io/openclarity/vmclarity-orchestrator:latest" will be used if not overridden.
+    Type: String
+    Default: ''
+  UIContainerImageOverride:
+    Description: >
+      Name of the container image used for deploying VMClarity UI.
+      "ghcr.io/openclarity/vmclarity-ui:latest" will be used if not overridden.
+    Type: String
+    Default: ''
+  UIBackendContainerImageOverride:
+    Description: >
+      Name of the container image used for deploying VMClarity UI backend.
+      "ghcr.io/openclarity/vmclarity-ui-backend:latest" will be used if not overridden.
+    Type: String
+    Default: ''
+  ScannerContainerImageOverride:
+    Description: >
+      Name of the container image used for running scans on assets.
+      "ghcr.io/openclarity/vmclarity-cli:latest" will be used if not overridden.
+    Type: String
+    Default: ''
+  FreshclamMirrorContainerImageOverride:
+    Description: >
+      Name of the container image used for the freshclam mirror server.
+      "ghcr.io/openclarity/freshclam-mirror:v0.3.1" will be used if not overridden.
+    Type: String
+    Default: ''
+  TrivyServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the trivy server.
+      "docker.io/aquasec/trivy:0.52.1" will be used if not overridden.
+    Type: String
+    Default: ''
+  GrypeServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the grype server.
+      "ghcr.io/openclarity/grype-server:v0.7.3" will be used if not overridden.
+    Type: String
+    Default: ''
+  YaraRuleServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the yara rule server.
+      "ghcr.io/openclarity/yara-rule-server:v0.3.0" will be used if not overridden.
+    Type: String
+    Default: ''
+  ExploitDBServerContainerImageOverride:
+    Description: >
+      Name of the container image used for the exploit db server.
+      "ghcr.io/openclarity/exploit-db-server:v0.3.0" will be used if not overridden.
+    Type: String
+    Default: ''
+  PostgresqlContainerImageOverride:
+    Description: >
+      Name of the container image used for the postgres database server.
+      "bitnami/postgresql:16.3.0-debian-12-r13" will be used if not overridden.
+    Type: String
+    Default: ''
+  AssetScanDeletePolicy:
+    Description: When VMClarity should delete resources after a completed asset scan.
+    Type: String
+    Default: Always
+    AllowedValues:
+      - Always
+      - OnSuccess
+      - Never
+  DatabaseToUse:
+    Description: Database VMClarity should use to store its objects.
+    Type: String
+    Default: SQLite
+    AllowedValues:
+      - Postgresql
+      - External Postgresql
+      - SQLite
+  PostgresDBPassword:
+    Description: >
+      Password to configure Postgresql with on first install.
+      Required if Postgres is selected as the Database To Use.
+      Do not change this on stack update.
+    Type: String
+    Default: password123
+  ExternalDBHost:
+    Description: Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use.
+    Type: String
+    Default: ''
+  ExternalDBPort:
+    Description: Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use.
+    Type: Number
+    MinValue: 0
+    Default: 0
+  ExternalDBName:
+    Description: Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
+    Default: ''
+  ExternalDBUsername:
+    Description: Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
+    Default: ''
+  ExternalDBPassword:
+    Description: Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use.
+    Type: String
+    Default: ''
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: EC2 Configuration
+        Parameters:
+          - InstanceType
+          - ScannerInstanceType
+          - KeyName
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - SSHLocation
+      - Label:
+          default: Database Configuration
+        Parameters:
+          - DatabaseToUse
+          - PostgresDBPassword
+          - ExternalDBHost
+          - ExternalDBPort
+          - ExternalDBName
+          - ExternalDBUsername
+          - ExternalDBPassword
+      - Label:
+          default: Advanced Configuration
+        Parameters:
+          - APIServerContainerImageOverride
+          - OrchestratorContainerImageOverride
+          - UIContainerImageOverride
+          - UIBackendContainerImageOverride
+          - ScannerContainerImageOverride
+          - TrivyServerContainerImageOverride
+          - GrypeServerContainerImageOverride
+          - YaraRuleServerContainerImageOverride
+          - ExploitDBServerContainerImageOverride
+          - PostgresqlContainerImageOverride
+          - FreshclamMirrorContainerImageOverride
+          - AssetScanDeletePolicy
+    ParameterLabels:
+      InstanceType:
+        default: VMClarity Server Instance Type
+      ScannerInstanceType:
+        default: Scanner Job Instance Type
+      APIServerContainerImageOverride:
+        default: API Server Container Image Override
+      OrchestratorContainerImageOverride:
+        default: Orchestrator Container Image Override
+      UIContainerImageOverride:
+        default: UI Container Image Override
+      UIBackendContainerImageOverride:
+        default: UI Backend Container Image Override
+      ScannerContainerImageOverride:
+        default: Scanner Container Image Override
+      TrivyServerContainerImageOverride:
+        default: Trivy Server Container Image Override
+      GrypeServerContainerImageOverride:
+        default: Grype Server Container Image Override
+      YaraRuleServerContainerImageOverride:
+        default: Yara Rule Server Container Image Override
+      ExploitDBServerContainerImageOverride:
+        default: Exploit DB Server Container Image Override
+      FreshclamMirrorContainerImageOverride:
+        default: freshclam-mirror Container Image Override
+      PostgresqlContainerImageOverride:
+        default: Postgresql Container Image Override
+      AssetScanDeletePolicy:
+        default: Asset Scan Delete Policy
+      DatabaseToUse:
+        default: Database To Use
+      PostgresDBPassword:
+        default: Postgresql DB Password
+      ExternalDBHost:
+        default: External DB Hostname or IP
+      ExternalDBPort:
+        default: External DB Port
+      ExternalDBName:
+        default: External DB Database Name
+      ExternalDBUsername:
+        default: External DB Username
+      ExternalDBPassword:
+        default: External DB Password
+Mappings:
+  # For every type we want AWS hardware virtualisation on amd64 (HVMAMD64) or arm64 (HVMARM64)
+  AWSInstanceType2Arch:
+    t2.large:
+      Arch: HVMAMD64
+    t3.large:
+      Arch: HVMAMD64
+    m6i.large:
+      Arch: HVMAMD64
+    t4g.large:
+      Arch: HVMARM64
+  # These are all Ubuntu 22.04 LTS AMIs in the different regions.
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVMAMD64: ami-003d3d03cfe1b0468
+      HVMARM64: ami-02ab023e2241aff10
+    us-west-2:
+      HVMAMD64: ami-032f8589b3e7f4e5b
+      HVMARM64: ami-0bb09f28fa3de6298
+    us-west-1:
+      HVMAMD64: ami-0ff832bdf91944651
+      HVMARM64: ami-0b2f351d88c5c03dd
+    eu-west-1:
+      HVMAMD64: ami-0786f5bc3943ad52d
+      HVMARM64: ami-0747265b1c957b8cd
+    eu-west-2:
+      HVMAMD64: ami-0ccdcf8ea5cace030
+      HVMARM64: ami-09481d16f06cadc93
+    eu-west-3:
+      HVMAMD64: ami-0b108d96bcb0de81c
+      HVMARM64: ami-094a403c3fb2189b4
+    eu-central-1:
+      HVMAMD64: ami-03f1cc6c8b9c0b899
+      HVMARM64: ami-0510240bfdd000cbd
+    ap-northeast-1:
+      HVMAMD64: ami-0c597cc9c10ca9088
+      HVMARM64: ami-0734302e3a97c15aa
+    ap-northeast-2:
+      HVMAMD64: ami-0502b8f5f0ca3ed7d
+      HVMARM64: ami-0f5af9692dd8c9001
+    ap-northeast-3:
+      HVMAMD64: ami-040b504c67641f0cc
+      HVMARM64: ami-0dc09d2ec91f3cd2d
+    ap-southeast-1:
+      HVMAMD64: ami-0d21214905506a7f4
+      HVMARM64: ami-0fb06180bf4530b97
+    ap-southeast-2:
+      HVMAMD64: ami-09fb5e610ae14ee00
+      HVMARM64: ami-078461a42ad80548f
+    ap-south-1:
+      HVMAMD64: ami-0dc886bce1f85f67e
+      HVMARM64: ami-08f9f13acda603405
+    us-east-2:
+      HVMAMD64: ami-05f4e4084abd205cf
+      HVMARM64: ami-0d4f35727a2f5871a
+    ca-central-1:
+      HVMAMD64: ami-02da4d5de61d161c5
+      HVMARM64: ami-05e8e847352a9a24b
+    sa-east-1:
+      HVMAMD64: ami-0cd79c08dc1353a91
+      HVMARM64: ami-024a366117a13dd61
+    cn-north-1:
+      HVMAMD64: ami-00194330730a60fd2
+      HVMARM64: ami-0b16f17a8c721c8e7
+    cn-northwest-1:
+      HVMAMD64: ami-0502019189405b959
+      HVMARM64: ami-0c2e6de34735afcac
+Conditions:
+  APIServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref APIServerContainerImageOverride
+      - ''
+  OrchestratorContainerImageOverridden: !Not
+    - !Equals
+      - !Ref OrchestratorContainerImageOverride
+      - ''
+  UIContainerImageOverridden: !Not
+    - !Equals
+      - !Ref UIContainerImageOverride
+      - ''
+  UIBackendContainerImageOverridden: !Not
+    - !Equals
+      - !Ref UIBackendContainerImageOverride
+      - ''
+  ScannerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref ScannerContainerImageOverride
+      - ''
+  TrivyServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref TrivyServerContainerImageOverride
+      - ''
+  FreshclamMirrorContainerImageOverridden: !Not
+    - !Equals
+      - !Ref FreshclamMirrorContainerImageOverride
+      - ''
+  GrypeServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref GrypeServerContainerImageOverride
+      - ''
+  YaraRuleServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref YaraRuleServerContainerImageOverride
+      - ''
+  ExploitDBServerContainerImageOverridden: !Not
+    - !Equals
+      - !Ref ExploitDBServerContainerImageOverride
+      - ''
+  PostgresqlContainerImageOverridden: !Not
+    - !Equals
+      - !Ref PostgresqlContainerImageOverride
+      - ''
+  DatabaseIsLocalPostgresql: !Equals
+    - !Ref DatabaseToUse
+    - 'Postgresql'
+Outputs:
+  URL:
+    Value: !Sub "${VmClarityServer.PublicIp}"
+    Description: VmClarity SSH Address

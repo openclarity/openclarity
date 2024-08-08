@@ -1,0 +1,556 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+    "view": {
+        "kind": "Form",
+        "properties": {
+            "title": "VMClarity",
+            "steps": [
+                {
+                    "name": "basics",
+                    "label": "Basics",
+                    "elements": [
+                        {
+                            "name": "resourceScope",
+                            "type": "Microsoft.Common.ResourceScope",
+                            "location": {
+                                "resourceTypes": []
+                            }
+                        },
+                        {
+                            "name": "deploypostfix",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "VMClarity Deploy Postfix",
+                            "placeholder": "postfix",
+                            "subLabel": "[concat('Resource Group for VMClarity will be named ', concat('vmclarity-', steps('basics').deploypostfix))]",
+                            "defaultValue": "",
+                            "toolTip": "Specify the postfix to add to 'vmclarity' which will be used as the resource group name to identify this VMClarity installation.",
+                            "constraints": {
+                                "required": true,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "adminUsername",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "VMClarity Server SSH Username",
+                            "subLabel": "",
+                            "defaultValue": "",
+                            "toolTip": "Username for the Virtual Machine.",
+                            "constraints": {
+                                "required": true,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": [
+                                    {
+                                        "isValid": "[or(or(empty(steps('basics').adminUsername),and(not(startsWith(steps('basics').adminUsername,'[[')),startsWith(steps('basics').adminUsername,'['),endsWith(steps('basics').adminUsername,']'),greater(indexOf(steps('basics').adminUsername,'('),-1),greater(indexOf(steps('basics').adminUsername,')'),-1))),and(not(regex(steps('basics').adminUsername,'/[\\\\/\\\"\\\"\\[\\]:|<>+=;,$ ?*@]+/')),not(endsWith(steps('basics').adminUsername,'.'))),regex(steps('basics').adminUsername,'^[a-zA-Z0-9-]+$'))]",
+                                        "message": "User name cannot contain special characters \\/\\\"[]:|<>+=;,?*@ or end with '.', and must be between 1 and 15 characters."
+                                    },
+                                    {
+                                        "isValid": "[or(or(empty(steps('basics').adminUsername),and(not(startsWith(steps('basics').adminUsername,'[[')),startsWith(steps('basics').adminUsername,'['),endsWith(steps('basics').adminUsername,']'),greater(indexOf(steps('basics').adminUsername,'('),-1),greater(indexOf(steps('basics').adminUsername,')'),-1))),equals(length(filter(parse('[\"administrator\", \"admin\", \"user\", \"user1\", \"test\", \"user2\", \"test1\", \"user3\", \"admin1\", \"1\", \"123\", \"a\", \"actuser\", \"adm\", \"admin2\", \"aspnet\", \"backup\", \"console\", \"david\", \"guest\", \"john\", \"owner\", \"root\", \"server\", \"sql\", \"support\", \"support_388945a0\", \"sys\", \"test2\", \"test3\", \"user4\", \"user5\"]'),(item) => equals(toLower(item),toLower(steps('basics').adminUsername)))),0))]",
+                                        "message": "The specified username is not allowed. Please choose a different value."
+                                    }
+                                ]
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "adminSSHKey",
+                            "type": "Microsoft.Compute.CredentialsCombo",
+                            "label": {
+                                "authenticationType": "",
+                                "password": "",
+                                "sshPublicKey": "VMClarity Server SSH Public Key"
+                            },
+                            "toolTip": {
+                                "authenticationType": "",
+                                "password": "",
+                                "sshPublicKey": "SSH Public Key for the VMClarity Server VM."
+                            },
+                            "defaultValue": {
+                                "sshPublicKey": "",
+                                "authenticationType": ""
+                            },
+                            "constraints": {
+                                "required": true
+                            },
+                            "options": {
+                                "hideConfirmation": true,
+                                "hidePassword": true
+                            },
+                            "osPlatform": "Linux",
+                            "visible": true
+                        },
+                        {
+                            "name": "serverVmSize",
+                            "type": "Microsoft.Compute.SizeSelector",
+                            "label": "VMClarity Server VM Size",
+                            "toolTip": "The size of the VMClarity Server VM",
+                            "recommendedSizes": [
+                                "Standard_D2s_v3"
+                            ],
+                            "constraints": {
+                                "required": true,
+                                "allowedSizes": [
+                                    "Standard_D2s_v3"
+                                ]
+                            },
+                            "imageReference": {
+                                "publisher": "Canonical",
+                                "offer": "0001-com-ubuntu-server-focal",
+                                "sku": "20_04-lts-gen2"
+                            },
+                            "visible": true,
+                            "scope": {
+                                "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]",
+                                "location": "[steps('basics').resourceScope.location.name]"
+                            },
+                            "osPlatform": "Linux"
+                        },
+                        {
+                            "name": "scannerVmSize",
+                            "type": "Microsoft.Compute.SizeSelector",
+                            "label": "VMClarity Scanner VMs Size",
+                            "toolTip": "The size of the VMClarity Scanner VMs",
+                            "recommendedSizes": [
+                                "Standard_D2s_v3"
+                            ],
+                            "constraints": {
+                                "required": true,
+                                "allowedSizes": [
+                                    "Standard_D2s_v3"
+                                ]
+                            },
+                            "imageReference": {
+                                "publisher": "Canonical",
+                                "offer": "0001-com-ubuntu-server-focal",
+                                "sku": "20_04-lts-gen2"
+                            },
+                            "visible": true,
+                            "scope": {
+                                "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]",
+                                "location": "[steps('basics').resourceScope.location.name]"
+                            },
+                            "osPlatform": "Linux"
+                        },
+                        {
+                            "name": "securityType",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Security Type",
+                            "subLabel": "",
+                            "defaultValue": "TrustedLaunch",
+                            "toolTip": "Security Type of the VMClarity Server VM.",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "Standard",
+                                        "value": "Standard"
+                                    },
+                                    {
+                                        "label": "TrustedLaunch",
+                                        "value": "TrustedLaunch"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        }
+                    ]
+                },
+                {
+                    "name": "advanced",
+                    "label": "Advanced",
+                    "elements": [
+                        {
+                            "name": "orchestratorContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Orchestrator Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-orchestrator:latest",
+                            "toolTip": "VMClarity Orchestrator Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "apiserverContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "APIServer Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-apiserver:latest",
+                            "toolTip": "VMClarity APIServer Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "uiContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "UI Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui:latest",
+                            "toolTip": "VMClarity UI Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "uibackendContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "UI Backend Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
+                            "toolTip": "VMClarity UI Backend Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "scannerContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Scanner Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+                            "toolTip": "VMClarity Scanner Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "trivyServerContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Trivy Server Container Image",
+                            "subLabel": "",
+                            "defaultValue": "docker.io/aquasec/trivy:0.52.1",
+                            "toolTip": "Trivy Server Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "grypeServerContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Grype Server Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.3",
+                            "toolTip": "Grype Server Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "exploitDBContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Exploit DB Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/exploit-db-server:v0.3.0",
+                            "toolTip": "Exploit DB Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "freshclamMirrorContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Freshclam Mirror Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/freshclam-mirror:v0.3.1",
+                            "toolTip": "Freshclam Mirror Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "yaraRuleServerContainerImage",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Yara Rule Server Container Image",
+                            "subLabel": "",
+                            "defaultValue": "ghcr.io/openclarity/yara-rule-server:v0.3.0",
+                            "toolTip": "Yara Rule Server Container Image",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "assetScanDeletePolicy",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Asset Scan Delete Policy",
+                            "subLabel": "",
+                            "defaultValue": "Always",
+                            "toolTip": "Asset Scan Delete Policy",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "Always",
+                                        "value": "Always"
+                                    },
+                                    {
+                                        "label": "OnSuccess",
+                                        "value": "OnSuccess"
+                                    },
+                                    {
+                                        "label": "Never",
+                                        "value": "Never"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "databaseSection",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Database Configuration",
+                            "elements": [
+                                {
+                                    "name": "databaseToUse",
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Database To Use",
+                                    "subLabel": "",
+                                    "defaultValue": "SQLite",
+                                    "toolTip": "Database to Use",
+                                    "constraints": {
+                                        "required": false,
+                                        "allowedValues": [
+                                            {
+                                                "label": "Postgresql",
+                                                "value": "Postgresql"
+                                            },
+                                            {
+                                                "label": "External Postgresql",
+                                                "value": "External Postgresql"
+                                            },
+                                            {
+                                                "label": "SQLite",
+                                                "value": "SQLite"
+                                            }
+                                        ],
+                                        "validations": []
+                                    },
+                                    "infoMessages": [],
+                                    "visible": true
+                                },
+                                {
+                                    "name": "postgresContainerImage",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Postgres Container Image",
+                                    "subLabel": "",
+                                    "defaultValue": "docker.io/bitnami/postgresql:16.3.0-debian-12-r13",
+                                    "toolTip": "Postgres Container Image",
+                                    "constraints": {
+                                        "required": false,
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "infoMessages": [],
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'Postgresql')]"
+                                },
+                                {
+                                    "name": "postgresDBPassword",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "label": {
+                                        "password": "Postgres DB Password",
+                                        "confirmPassword": "Confirm password"
+                                    },
+                                    "defaultValue": "",
+                                    "toolTip": "Password to configure Postgresql with on first install. Required if Postgres is selected as the Database To Use. Do not change this on stack update.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "options": {
+                                        "hideConfirmation": true
+                                    },
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'Postgresql')]"
+                                },
+                                {
+                                    "name": "externalDBHost",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "External DB Host",
+                                    "subLabel": "",
+                                    "defaultValue": "",
+                                    "toolTip": "Hostname or IP address of the External DB to connect to. Required if an external database type is selected as the Database To Use.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "infoMessages": [],
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]"
+                                },
+                                {
+                                    "name": "externalDBPort",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "External DB Port",
+                                    "subLabel": "",
+                                    "defaultValue": "0",
+                                    "toolTip": "Network Port of the External DB to connect to. Required if an external database type is selected as the Database To Use.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": [
+                                            {
+                                                "isValid": "[or(or(empty(steps('basics').externalDBPort),and(not(startsWith(steps('basics').externalDBPort,'[[')),startsWith(steps('basics').externalDBPort,'['),endsWith(steps('basics').externalDBPort,']'),greater(indexOf(steps('basics').externalDBPort,'('),-1),greater(indexOf(steps('basics').externalDBPort,')'),-1))),greaterOrEquals(if(regex(steps('basics').externalDBPort,'[a-zA-Z]+'),-1,steps('basics').externalDBPort),0))]",
+                                                "message": "The value must be at least 0."
+                                            }
+                                        ]
+                                    },
+                                    "infoMessages": [],
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]"
+                                },
+                                {
+                                    "name": "externalDBName",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "External DB Name",
+                                    "subLabel": "",
+                                    "defaultValue": "",
+                                    "toolTip": "Name of the Database to use on the External DB. Required if an external database type is selected as the Database To Use.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "infoMessages": [],
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]"
+                                },
+                                {
+                                    "name": "externalDBUsername",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "External DB Username",
+                                    "subLabel": "",
+                                    "defaultValue": "",
+                                    "toolTip": "Username to use to connect to the External DB. Required if an external database type is selected as the Database To Use.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "infoMessages": [],
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]"
+                                },
+                                {
+                                    "name": "externalDBPassword",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "label": {
+                                        "password": "External DB Password",
+                                        "confirmPassword": "Confirm password"
+                                    },
+                                    "defaultValue": "",
+                                    "toolTip": "Password to use to connect to the External DB. Required if an external database type is selected as the Database To Use.",
+                                    "constraints": {
+                                        "required": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]",
+                                        "regex": "",
+                                        "validationMessage": "",
+                                        "validations": []
+                                    },
+                                    "options": {
+                                        "hideConfirmation": true
+                                    },
+                                    "visible": "[equals(steps('advanced').databaseSection.databaseToUse, 'External Postgresql')]"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "outputs": {
+            "parameters": {
+                "location": "[steps('basics').resourceScope.location.name]",
+                "adminUsername": "[steps('basics').adminUsername]",
+                "adminSSHKey": "[steps('basics').adminSSHKey.sshPublicKey]",
+                "serverVmSize": "[steps('basics').serverVmSize]",
+                "scannerVmSize": "[steps('basics').scannerVmSize]",
+                "securityType": "[steps('basics').securityType]",
+                "deploypostfix": "[steps('basics').deploypostfix]",
+                "orchestratorContainerImage": "[steps('advanced').orchestratorContainerImage]",
+                "apiserverContainerImage": "[steps('advanced').apiserverContainerImage]",
+                "uiContainerImage": "[steps('advanced').uiContainerImage]",
+                "uibackendContainerImage": "[steps('advanced').uibackendContainerImage]",
+                "scannerContainerImage": "[steps('advanced').scannerContainerImage]",
+                "trivyServerContainerImage": "[steps('advanced').trivyServerContainerImage]",
+                "grypeServerContainerImage": "[steps('advanced').grypeServerContainerImage]",
+                "exploitDBContainerImage": "[steps('advanced').exploitDBContainerImage]",
+                "freshclamMirrorContainerImage": "[steps('advanced').freshclamMirrorContainerImage]",
+                "yaraRuleServerContainerImage": "[steps('advanced').yaraRuleServerContainerImage]",
+                "assetScanDeletePolicy": "[steps('advanced').assetScanDeletePolicy]",
+                "databaseToUse": "[steps('advanced').databaseSection.databaseToUse]",
+                "postgresContainerImage": "[steps('advanced').databaseSection.postgresContainerImage]",
+                "postgresDBPassword": "[steps('advanced').databaseSection.postgresDBPassword]",
+                "externalDBHost": "[steps('advanced').databaseSection.externalDBHost]",
+                "externalDBPort": "[steps('advanced').databaseSection.externalDBPort]",
+                "externalDBName": "[steps('advanced').databaseSection.externalDBName]",
+                "externalDBUsername": "[steps('advanced').databaseSection.externalDBUsername]",
+                "externalDBPassword": "[steps('advanced').databaseSection.externalDBPassword]"
+            },
+            "kind": "Subscription",
+            "location": "[steps('basics').resourceScope.location.name]",
+            "subscriptionId": "[steps('basics').resourceScope.subscription.id]"
+        }
+    }
+}

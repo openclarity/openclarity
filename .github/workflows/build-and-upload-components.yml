@@ -1,0 +1,103 @@
+name: Build and Upload Components
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to use.'
+      registry_name:
+        required: false
+        type: string
+        description: 'Name of the registry.'
+        default: openclarity.io
+      bake-group:
+        required: false
+        type: string
+        description: 'Name of the Docker Bake group of targets'
+        default: default
+
+jobs:
+  prepare-build:
+    runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+      targets: ${{ steps.targets.outputs.targets }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Set timestamp
+        id: timestamp
+        run: |
+          ##
+          ## Set timestamp variable
+          ##
+
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: List targets
+        id: targets
+        uses: docker/bake-action/subaction/list-targets@a4d7f0b5b91c14a296d792d4ec53a9db17f02e67 # v5.5.0
+        with:
+          target: ${{ inputs.bake-group }}
+
+  build-and-upload:
+    needs: prepare-build
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILD_RECORD_UPLOAD: false
+    strategy:
+      fail-fast: false
+      matrix:
+        targets: ${{ fromJson(needs.prepare-build.outputs.targets) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+
+      - name: Cache Docker layers
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          restore-keys: ${{ runner.os }}-buildx-
+
+      - name: Build
+        uses: docker/bake-action@a4d7f0b5b91c14a296d792d4ec53a9db17f02e67 # v5.5.0
+        id: bake
+        with:
+          targets: ${{ matrix.targets }}
+          set: |
+            *.platform=linux/amd64
+            *.output=type=docker,dest=/tmp/${{ matrix.targets }}.tar
+            *.cache-to=type=local,dest=/tmp/.buildx-cache
+            *.cache-from=type=local,src=/tmp/.buildx-cache
+        env:
+          VERSION: ${{ inputs.image_tag }}
+          BUILD_TIMESTAMP: ${{ needs.prepare-build.outputs.timestamp }}
+          COMMIT_HASH: ${{ github.sha }}
+          DOCKER_REGISTRY: ${{ inputs.registry_name }}
+          DOCKER_TAG: ${{ inputs.image_tag }}
+          BUILD_OPTS: -tags=exclude_graphdriver_btrfs,exclude_graphdriver_devicemapper
+
+      - name: Save artifact
+        run: |
+          mkdir -p /tmp/artifacts
+          mv "/tmp/${{ matrix.targets }}.tar" /tmp/artifacts/
+          ARTIFACT_NAME="$(echo ${{ matrix.targets }}-${{ inputs.image_tag }} | tr '/' '-')"
+          echo ARTIFACT_NAME="$ARTIFACT_NAME" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        id: upload-artifacts
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp/artifacts/${{ matrix.targets }}.tar
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+          overwrite: true

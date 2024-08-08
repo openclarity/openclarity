@@ -1,0 +1,26 @@
+{
+  "name": "test-bundle",
+  "version": "1.2.3",
+  "schemaVersion": "v1.0.0",
+  "description": "Test bundle",
+  "license": "Apache-2.0",
+  "maintainers": [
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "url": "www.example.com"
+    },
+    {
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com",
+      "url": "www.example.com"
+    }
+  ],
+  "parameters": {
+    "key1": "value1",
+    "key2": {
+      "key3": 100,
+      "key4": ["value41", "value42"]
+    }
+  }
+}

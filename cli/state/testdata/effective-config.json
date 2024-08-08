@@ -1,0 +1,165 @@
+{
+  "sbom": {
+    "enabled": true,
+    "analyzers_list": [
+      "syft"
+    ],
+    "inputs": [
+      {
+        "strip_path_from_result": null,
+        "input": "test",
+        "input_type": "dir"
+      }
+    ],
+    "merge_with": null,
+    "registry": null,
+    "local_image_scan": false,
+    "output_format": "",
+    "analyzers_config": {
+      "syft": {
+        "scope": "",
+        "exclude_paths": null,
+        "registry": null,
+        "local_image_scan": false
+      },
+      "trivy": {
+        "timeout": 0,
+        "cache_dir": "",
+        "temp_dir": "",
+        "registry": null,
+        "local_image_scan": false
+      }
+    }
+  },
+  "vulnerabilities": {
+    "enabled": false,
+    "scanners_list": null,
+    "inputs": null,
+    "input_from_sbom": false,
+    "registry": null,
+    "local_image_scan": false,
+    "scanners_config": {
+      "grype": {
+        "mode": "",
+        "local_grype_config": {
+          "update_db": false,
+          "db_root_dir": "",
+          "listing_url": "",
+          "max_allowed_built_age": 0,
+          "listing_file_timeout": 0,
+          "update_timeout": 0,
+          "scope": "",
+          "registry": null,
+          "local_image_scan": false
+        },
+        "remote_grype_config": {
+          "grype_server_address": "",
+          "grype_server_schemes": null,
+          "grype_server_timeout": 0
+        }
+      },
+      "trivy": {
+        "timeout": 0,
+        "server_addr": "",
+        "server_token": "",
+        "cache_dir": "",
+        "temp_dir": "",
+        "registry": null
+      }
+    }
+  },
+  "secrets": {
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "gitleaks": {
+        "binary_path": ""
+      }
+    }
+  },
+  "rootkits": {
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "chkrootkit": {
+        "binary_path": ""
+      }
+    }
+  },
+  "malware": {
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "clam": {
+        "use_native_clamscan": false,
+        "clamscan_binary_path": "",
+        "clamscan_exclude_files": null,
+        "clamscan_exclude_dirs": null,
+        "clam_daemon_client_binary_path": "",
+        "clam_daemon_binary_path": "",
+        "clam_daemon_config_path": "",
+        "freshclam_binary_path": "",
+        "freshclam_config_path": "",
+        "alternative_freshclam_mirror_url": ""
+      },
+      "yara": {
+        "yara_binary_path": "",
+        "compiled_rule_url": "",
+        "rule_sources": null,
+        "yarac_binary_path": "",
+        "cache_dir": "",
+        "directories_to_scan": null
+      }
+    }
+  },
+  "misconfiguration": {
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "lynis": {
+        "binary_path": ""
+      },
+      "cisdocker": {
+        "timeout": 0,
+        "registry": null
+      }
+    }
+  },
+  "infofinder": {
+    "enabled": false,
+    "scanners_list": null,
+    "strip_input_paths": false,
+    "inputs": null,
+    "scanners_config": {
+      "ssh_topology": {}
+    }
+  },
+  "exploits": {
+    "enabled": false,
+    "scanners_list": null,
+    "inputs": null,
+    "input_from_vuln": false,
+    "scanners_config": {
+      "exploit_db": {
+        "base_url": ""
+      }
+    }
+  },
+  "plugins": {
+    "enabled": false,
+    "scanners_list": null,
+    "inputs": null,
+    "scanners_config": null,
+    "binary_mode": false,
+    "binary_artifacts_path": "",
+    "binary_artifacts_clean": false
+  }
+}
