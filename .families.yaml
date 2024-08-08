@@ -1,0 +1,200 @@
+sbom:
+  enabled: false
+  analyzers_list:
+    - "syft"
+    - "trivy"
+    - "windows"
+    - "gomod"
+  inputs:
+    - input: "node:slim"
+      input_type: "image"
+    # - input: "/mnt"
+    #   input_type: "rootfs"
+    # - input: "nginx:1.10"
+    #   input_type: "image"
+  # merge_with:
+  #  - sbom_path: "nginx.11.cdx.json"
+  local_image_scan: true
+  registry:
+    skip-verify-tls: false
+    use-http: false
+    auths:
+      authority: "authority"
+      username: "username"
+      password: "password"
+      token: "token"
+  output_format: "cyclonedx-json"
+  analyzers_config:
+    syft:
+      scope: "Squashed"
+      exclude_paths:
+        - "./dev"
+        - "./proc"
+      ## Overrides parent sbom configs
+      # local_image_scan: ...
+      # registry: ...
+    trivy:
+      timeout: 300 # timeout in seconds
+      cache_dir: /tmp/.trivy/cache
+      temp_dir: /tmp/.trivy/
+      ## Overrides parent sbom configs
+      # local_image_scan: ...
+      # registry: ...
+
+vulnerabilities:
+  enabled: false
+  scanners_list:
+    - "grype"
+    - "trivy"
+  inputs:
+    - input: "nginx:1.12"
+      input_type: "image"
+    # - input: "nginx:1.13"
+    #   input_type: "image"
+  input_from_sbom: true
+  local_image_scan: true
+  registry:
+    skip-verify-tls: false
+    use-http: false
+    auths:
+      authority: "authority"
+      username: "username"
+      password: "password"
+      token: "token"
+  scanners_config:
+    grype:
+      mode: "LOCAL"
+      local_grype_config:
+        update_db: true
+        db_root_dir: "/tmp/"
+        listing_url: "https://toolbox-data.anchore.io/grype/databases/listing.json"
+        max_allowed_built_age: "120h"
+        listing_file_timeout: "60s"
+        update_timeout: "60s"
+        scope: "squashed"
+        ## Overrides parent sbom configs
+        # local_image_scan: ...
+        # registry: ...
+      remote_grype_config:
+        grype_server_address: ""
+        grype_server_timeout: "2m"
+    trivy:
+      timeout: 300 # timeout in seconds
+      cache_dir: /tmp/.trivy/cache
+      temp_dir: /tmp/.trivy/
+      server_addr: "trivy.example.com"
+      server_token: "token"
+      ## Overrides parent sbom configs
+      # registry: ...
+
+secrets:
+  enabled: false
+  scanners_list:
+    - "gitleaks"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    gitleaks:
+      binary_path: "/usr/local/bin/gitleaks"
+
+exploits:
+  enabled: false
+  scanners_list:
+    - "exploitdb"
+  inputs:
+    - input: "CVE-2024-5535,CVE-2023-3446"
+      input_type: "csv"
+  input_from_vuln: true
+  scanners_config:
+    exploit_db:
+      base_url: "http://localhost:1326"
+
+misconfiguration:
+  enabled: false
+  scanners_list:
+    - "cisdocker"
+    - "lynis"
+    - "fake"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    cisdocker:
+      timeout: "60s"
+      registry:
+        skip-verify-tls: false
+        use-http: false
+        auths:
+          authority: "authority"
+          username: "username"
+          password: "password"
+          token: "token"
+      lynis:
+        binary_path: "/usr/local/bin/lynis"
+
+infofinder:
+  enabled: false
+  scanners_list:
+    - "sshTopology"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config: {}
+
+malware:
+  enabled: false
+  scanners_list:
+    - "clam"
+    - "yara"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    clam:
+      freshclam_binary_path: "/usr/local/bin/freshclam"
+      freshclam_config_path: "/etc/clamav/freshclam.conf"
+      alternative_freshclam_mirror_url: "" # config option cannot include servers under *.clamav.net.
+      use_native_clamscan: false # scan using native (clamscan) command instead of daemon (clamdscan)
+      clamscan_binary_path: "/usr/local/bin/clamscan"
+      clamscan_exclude_files:
+        - "^.*\\.log$"
+      clamscan_exclude_dirs:
+        - "^/sys"
+      clam_daemon_binary_path: "/usr/local/bin/clamd"
+      clam_daemon_config_path: "/etc/clamav/clamd.conf"
+      clam_daemon_client_binary_path: "/usr/local/bin/clamdscan"
+    yara:
+      yara_binary_path: "/usr/local/bin/yara"
+      compiled_rule_url: ""
+      rule_sources:
+        - name: ""
+          url: ""
+      yarac_binary_path: "/usr/local/bin/yarac"
+      cache_dir: "/tmp/.yara"
+
+rootkits:
+  enabled: false
+  scanners_list:
+    - "chkrootkit"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    chkrootkit:
+      binary_path: "/usr/local/bin/chkrootkit"
+
+plugins:
+  enabled: false
+  binary_mode: false
+  binary_artifacts_path: ""
+  binary_artifacts_clean: true
+  scanners_list:
+    - "kics"
+  inputs: 
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    kics:
+      image_name: "ghcr.io/openclarity/vmclarity-plugin-kics:latest"
+      config: "{}"

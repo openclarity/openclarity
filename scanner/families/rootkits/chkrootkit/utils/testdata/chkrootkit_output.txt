@@ -1,0 +1,15 @@
+ROOTDIR is `/'
+Checking `amd'... not found
+Checking `basename'... not infected
+Checking `aliens'... /usr/lib/pt07
+Searching for sniffer's logs, it may take a while... nothing found
+Searching for suspicious files and dirs, it may take a while...
+/usr/lib/debug/usr/.dwz /usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/.vmlinuz.hmac /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes
+/usr/lib/debug/.dwz /usr/lib/debug/.build-id /usr/lib/.build-id /usr/lib/modules/6.1.21-1.45.amzn2023.x86_64/vdso/.build-id /usr/lib/python3.9/site-packages/awscli/botocore/.changes
+Searching for Showtee... Warning: Possible Showtee Rootkit installed
+Searching for Romanian rootkit...  /usr/include/file.h /usr/include/proc.h /usr/include/addr.h /usr/include/syslogs.h
+Searching for Linux/Ebury - Operation Windigo ssh... not tested
+Checking `asp'... not infected
+Checking `lkm'... not tested: can't exec ./chkproc ./chkdirs
+Checking `sniffer'... enX0: PF_PACKET(/usr/lib/systemd/systemd-networkd)
+Checking `wted'... chkwtmp: nothing deleted

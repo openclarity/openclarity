@@ -1,0 +1,12 @@
+.github
+.git
+bin
+docs
+e2e
+assets
+installation
+scanner_boot_test
+.envrc
+Dockerfile*
+dist
+go.work*

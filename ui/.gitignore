@@ -1,0 +1,4 @@
+/node_modules
+/build
+/src/api/generated-api
+/src/api/generated-ui-backend
