@@ -18,7 +18,6 @@ package secrets
 import (
 	"context"
 	"fmt"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
@@ -40,7 +39,7 @@ func (s Secrets) GetType() families.FamilyType {
 	return families.Secrets
 }
 
-func (s Secrets) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (s Secrets) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Run all scanners using scan manager

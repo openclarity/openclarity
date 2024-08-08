@@ -138,7 +138,7 @@ func (m *Scanner) Run(ctx context.Context, notifier families.FamilyNotifier) []e
 		// completed. Same workflow parameters are passed to all family runners.
 		err = processor.Run(ctx, workflowParams{
 			Notifier: notifier,
-			Results:  families.NewResults(),
+			Store:    families.NewResultStore(),
 			ErrCh:    errCh,
 		})
 		if err != nil {
@@ -181,7 +181,7 @@ func (m *Scanner) Run(ctx context.Context, notifier families.FamilyNotifier) []e
 // workflowParams defines parameters for familyRunner workflow tasks.
 type workflowParams struct {
 	Notifier families.FamilyNotifier
-	Results  *families.Results
+	Store    families.ResultStore
 	ErrCh    chan<- error
 }
 
@@ -208,7 +208,7 @@ func newFamilyTask[T any](name string, family families.Family[T], deps ...string
 			}
 
 			// Execute family and forward collected errors
-			errs := family_runner.New(family).Run(ctx, params.Notifier, params.Results)
+			errs := family_runner.New(family).Run(ctx, params.Notifier, params.Store)
 			for _, err := range errs {
 				params.ErrCh <- err
 			}

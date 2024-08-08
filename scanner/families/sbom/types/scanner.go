@@ -17,8 +17,6 @@ package types
 
 import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/openclarity/vmclarity/scanner/families"
-
 	"github.com/openclarity/vmclarity/scanner/common"
 )
 
@@ -30,7 +28,6 @@ type AppInfo struct {
 }
 
 type ScannerResult struct {
-	Metadata     families.ScannerMetadata
 	Sbom         *cdx.BOM
 	AnalyzerInfo string
 	AppInfo      AppInfo
@@ -48,16 +45,11 @@ func NewScannerResult(sbom *cdx.BOM, analyzerName, userInput string, srcType com
 	}
 }
 
-func (s *ScannerResult) PatchMetadata(scan common.ScanMetadata) {
-	// Get total number of packages found from SBOM
-	var findings int
-	if s.Sbom != nil && s.Sbom.Components != nil {
-		findings = len(*s.Sbom.Components)
-	}
-
-	// Patch metadata
-	s.Metadata.Scan = &scan
-	s.Metadata.Summary = &families.ScannerSummary{
-		FindingsCount: findings,
-	}
-}
+//
+//func (s *ScannerResult) PatchMetadata(scan common.ScanInfo) {
+//	// Get total number of packages found from SBOM
+//	var findings int
+//	if s.Sbom != nil && s.Sbom.Components != nil {
+//		findings = len(*s.Sbom.Components)
+//	}
+//}

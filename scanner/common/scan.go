@@ -31,8 +31,11 @@ func (s ScanInput) String() string {
 	return fmt.Sprintf("%s:%s", s.InputType, s.Input)
 }
 
-// ScanMetadata defines metadata for a successfully processed ScanInput.
-type ScanMetadata struct {
+type ScanID string
+
+// ScanInfo defines basic metadata for a successfully processed ScanInput.
+type ScanInfo struct {
+	ScanID      ScanID    `json:"scan_id" yaml:"scan_id" mapstructure:"scan_id"`
 	ScannerName string    `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
 	InputType   InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
 	InputPath   string    `json:"input_path" yaml:"input_path" mapstructure:"input_path"`
@@ -41,7 +44,7 @@ type ScanMetadata struct {
 	EndTime     time.Time `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
 }
 
-func (m *ScanMetadata) String() string {
+func (m *ScanInfo) String() string {
 	return fmt.Sprintf("Scanner=%s Input=%s:%s Size=%d MB",
 		m.ScannerName, m.InputType, m.InputPath, m.InputSize,
 	)

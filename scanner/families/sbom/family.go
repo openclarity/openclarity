@@ -44,7 +44,7 @@ func (s SBOM) GetType() families.FamilyType {
 }
 
 // nolint:cyclop
-func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (s SBOM) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	if len(s.conf.Inputs) == 0 {
 		return nil, errors.New("inputs list is empty")
 	}
@@ -122,7 +122,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	}
 
 	// Create result from merged data
-	sbom := types.NewResult(mergedResults.Metadata, cdxBom)
+	sbom := types.NewResult(cdxBom)
 
 	return sbom, nil
 }

@@ -18,7 +18,6 @@ package infofinder
 import (
 	"context"
 	"fmt"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
@@ -40,7 +39,7 @@ func (i InfoFinder) GetType() families.FamilyType {
 	return families.InfoFinder
 }
 
-func (i InfoFinder) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (i InfoFinder) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Run all scanners using scan manager

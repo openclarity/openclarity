@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"math/rand"
 	"time"
 
@@ -33,6 +34,7 @@ import (
 // ScanResult is result of a successfully scanned input.
 type ScanResult[RT ResultType] struct {
 	common.ScanInput
+	Scan   common.ScanInfo
 	Result RT
 }
 
@@ -144,18 +146,17 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 	// Fetch input size
 	inputSize, _ := familiesutils.GetInputSize(input)
 
-	// Patch scanner result metadata
-	result.PatchMetadata(common.ScanMetadata{
-		ScannerName: scannerName,
-		InputPath:   input.Input,
-		InputType:   input.InputType,
-		InputSize:   inputSize,
-		StartTime:   startTime,
-		EndTime:     time.Now(),
-	})
-
 	return ScanResult[RT]{
 		ScanInput: input,
-		Result:    result,
+		Scan: common.ScanInfo{
+			ScanID:      common.ScanID(uuid.New().String()),
+			ScannerName: scannerName,
+			InputType:   input.InputType,
+			InputPath:   input.Input,
+			InputSize:   inputSize,
+			StartTime:   startTime,
+			EndTime:     time.Now(),
+		},
+		Result: result,
 	}, nil
 }

@@ -18,7 +18,6 @@ package rootkits
 import (
 	"context"
 	"fmt"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/rootkits/types"
@@ -40,7 +39,7 @@ func (r Rootkits) GetType() families.FamilyType {
 	return families.Rootkits
 }
 
-func (r Rootkits) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (r Rootkits) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Run all scanners using scan manager

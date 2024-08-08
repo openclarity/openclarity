@@ -15,17 +15,11 @@
 
 package types
 
-import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-)
-
 type ScannerInfo struct {
 	Name string `json:"name"`
 }
 
 type ScannerResult struct {
-	Metadata        families.ScannerMetadata
 	Source          Source
 	Scanner         ScannerInfo
 	Vulnerabilities []Vulnerability
@@ -38,12 +32,5 @@ func NewScannerResult(scannerName string, source Source, vulnerabilities []Vulne
 			Name: scannerName,
 		},
 		Vulnerabilities: vulnerabilities,
-	}
-}
-
-func (s *ScannerResult) PatchMetadata(scan common.ScanMetadata) {
-	s.Metadata.Scan = &scan
-	s.Metadata.Summary = &families.ScannerSummary{
-		FindingsCount: len(s.Vulnerabilities),
 	}
 }

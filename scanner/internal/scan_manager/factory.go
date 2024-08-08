@@ -28,7 +28,7 @@ import (
 type ConfigType any
 
 // ResultType define families.Scanner scan result type
-type ResultType families.ScannerResulter
+type ResultType any
 
 // NewScannerFunc defines a function that creates a new families.Scanner
 type NewScannerFunc[CT ConfigType, RT ResultType] func(context.Context, string, CT) (families.Scanner[RT], error)

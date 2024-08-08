@@ -17,7 +17,6 @@ package sbom
 
 import (
 	"fmt"
-	"github.com/openclarity/vmclarity/scanner/families"
 	"sort"
 	"strings"
 	"time"
@@ -34,7 +33,6 @@ import (
 type componentKey string // Unique identification of a package (name and version)
 
 type mergedResults struct {
-	Metadata             families.FamilyMetadata
 	MergedComponentByKey map[componentKey]*mergedComponent
 	Source               common.InputType
 	SourceHash           string
@@ -63,9 +61,6 @@ func (m *mergedResults) Merge(scan *types.ScannerResult) {
 		return
 	}
 
-	// Sync metadata
-	defer m.patchMetadata(scan.Metadata)
-
 	bom := scan.Sbom
 
 	// merge bom.Metadata.Component if it exists
@@ -93,13 +88,6 @@ func (m *mergedResults) Merge(scan *types.ScannerResult) {
 	if bom.Dependencies != nil {
 		newDependencies := m.normalizeDependencies(bom.Dependencies)
 		m.Dependencies = mergeDependencies(m.Dependencies, newDependencies)
-	}
-}
-
-func (m *mergedResults) patchMetadata(scanMeta families.ScannerMetadata) {
-	m.Metadata.Scans = append(m.Metadata.Scans, scanMeta)
-	m.Metadata.Summary = &families.FamilySummary{
-		FindingsCount: len(m.MergedComponentByKey),
 	}
 }
 

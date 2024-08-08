@@ -48,13 +48,13 @@ func (v Vulnerabilities) GetType() families.FamilyType {
 	return families.Vulnerabilities
 }
 
-func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types.Result, error) {
+func (v Vulnerabilities) Run(ctx context.Context, res families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if v.conf.InputFromSbom {
 		logger.Infof("Using input from SBOM results")
 
-		sbomResults, err := families.GetFamilyResult[*sbomtypes.Result](res)
+		sbomResults, err := families.GetFamilyResultByType[*sbomtypes.Result](res)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get sbom results: %w", err)
 		}

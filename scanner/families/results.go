@@ -20,35 +20,58 @@ import (
 	"sync"
 )
 
-// Results stores results from all families. Safe for concurrent usage.
-type Results struct {
+// results stores data from all families. Safe for concurrent usage.
+type results struct {
 	mu      sync.RWMutex
-	results []any
+	results map[FamilyType]any
 }
 
-func NewResults() *Results {
-	return &Results{}
+func NewResultStore() ResultStore {
+	return &results{
+		results: make(map[FamilyType]any),
+	}
 }
 
-func (r *Results) SetFamilyResult(result any) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	r.results = append(r.results, result)
-}
-
-// GetFamilyResult returns results for a specific family from the given results.
-func GetFamilyResult[familyType any](r *Results) (familyType, error) {
+func (r *results) GetAllFamilyResults() []any {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
+	var ret []any
 	for _, result := range r.results {
-		res, ok := result.(familyType)
+		ret = append(ret, result)
+	}
+
+	return ret
+}
+
+func (r *results) GetFamilyResult(family FamilyType) (any, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	if result, ok := r.results[family]; ok {
+		return result, true
+	}
+
+	return nil, false
+}
+
+func (r *results) SetFamilyResult(family FamilyType, result any) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.results[family] = result
+}
+
+// GetFamilyResultByType returns results for a specific family from the given
+// results but using type instead of interface.
+func GetFamilyResultByType[FamilyResultType any](store ResultStore) (FamilyResultType, error) {
+	for _, result := range store.GetAllFamilyResults() {
+		typedResult, ok := result.(FamilyResultType)
 		if ok {
-			return res, nil
+			return typedResult, nil
 		}
 	}
 
-	var res familyType
+	var res FamilyResultType
 	return res, errors.New("missing result")
 }

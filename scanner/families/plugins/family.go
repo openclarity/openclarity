@@ -18,7 +18,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-
 	"github.com/openclarity/vmclarity/core/log"
 	"github.com/openclarity/vmclarity/scanner/families"
 	"github.com/openclarity/vmclarity/scanner/families/plugins/runner"
@@ -40,7 +39,7 @@ func (p *Plugins) GetType() families.FamilyType {
 	return families.Plugins
 }
 
-func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (p *Plugins) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Register plugins dynamically instead of creating a public factory. Users that

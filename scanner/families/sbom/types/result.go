@@ -17,22 +17,17 @@ package types
 
 import (
 	"fmt"
-	"github.com/openclarity/vmclarity/scanner/families"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
-
 	"github.com/openclarity/vmclarity/scanner/utils/converter"
 )
 
 type Result struct {
-	Metadata families.FamilyMetadata `json:"Metadata"`
-	SBOM     *cdx.BOM                `json:"sbom"`
+	SBOM *cdx.BOM `json:"sbom"`
 }
 
-func NewResult(metadata families.FamilyMetadata, sbom *cdx.BOM) *Result {
+func NewResult(sbom *cdx.BOM) *Result {
 	return &Result{
-		Metadata: metadata,
-		SBOM:     sbom,
+		SBOM: sbom,
 	}
 }
 

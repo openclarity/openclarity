@@ -34,71 +34,81 @@ const (
 	Plugins          FamilyType = "plugins"
 )
 
-// FamilyNotification defines an object that FamilyNotifier receives on finished Family.Run.
-type FamilyNotification struct {
-	FamilyType FamilyType
-	Result     any
-	Err        error
-}
-
-// FamilyNotifier is used to subscribe to family scanning progress.
-// Implementation should be concurrently-safe.
-type FamilyNotifier interface {
-	FamilyStarted(context.Context, FamilyType) error
-	FamilyFinished(context.Context, FamilyNotification) error
+type ResultStore interface {
+	GetFamilyResult(family FamilyType) (any, bool)
+	GetAllFamilyResults() []any
+	SetFamilyResult(family FamilyType, result any)
 }
 
 // Family defines interface required to fully run a family.
 type Family[T any] interface {
 	GetType() FamilyType
-	Run(context.Context, *Results) (T, error)
-}
-
-// FamilySummary defines shared Family result summary data.
-type FamilySummary struct {
-	FindingsCount int `json:"findings_count"`
-
-	// can be extended with additional general or family-specific properties
-	// e.g. PluginScansCount *int
-}
-
-// FamilyMetadata defines shared Family result metadata.
-// Internal business logic should not rely on metadata.
-type FamilyMetadata struct {
-	Annotations map[string]string `json:"annotations"`
-	Scans       []ScannerMetadata `json:"scans"`
-	Summary     *FamilySummary    `json:"summary"`
-
-	// can be extended with additional general or family-specific properties
-	// e.g. PluginScannerVersions *map[string]string
+	Run(ctx context.Context, store ResultStore) (T, error)
 }
 
 // Scanner defines implementation of a family scanner. It should be
 // concurrently-safe as Scan can be called concurrently.
-type Scanner[T ScannerResulter] interface {
+type Scanner[T any] interface {
 	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
 }
 
-// ScannerResulter defines scanner-specific result interface.
-type ScannerResulter interface {
-	PatchMetadata(scan common.ScanMetadata)
+// FamilyNotifier is used to subscribe to family scanning progress.
+// Implementation should be concurrently-safe.
+type FamilyNotifier interface {
+	FamilyStarted(ctx context.Context, familyType FamilyType) error
+	FamilyFinished(ctx context.Context, result FamilyNotifierResult) error
 }
 
-// ScannerSummary defines shared Scanner result summary data.
-type ScannerSummary struct {
-	FindingsCount int `json:"findings_count"`
-
-	// can be extended with additional general or scanner-specific properties
-	// e.g. MalwareScannerVersion *string
+type FamilyMetadataObject interface {
+	GetAnnotations() map[string]string
+	GetScans() map[common.ScanID]ScannerMetadata
+	GetSummary() FamilySummary
+	SetAnnotations(annotations map[string]string)
+	AddScan(scan ScannerMetadata)
+	SetScans(scans map[common.ScanID]ScannerMetadata)
+	SetSummary(summary FamilySummary)
+	ToMetadata() FamilyMetadata
 }
 
-// ScannerMetadata defines shared Scanner result metadata.
-// Internal business logic should not rely on metadata.
+type ScannerMetadataObject interface {
+	GetScanInfo() common.ScanInfo
+	GetSummary() ScannerSummary
+	SetScanInfo(scanInfo common.ScanInfo)
+	SetSummary(summary ScannerSummary)
+	ToMetadata() ScannerMetadata
+}
+
+type FamilyMetadataEnricherFunc func(meta FamilyMetadata) FamilyMetadata
+
+type ScannerMetadataEnricherFunc func(meta ScannerMetadata) ScannerMetadata
+
+// FamilyNotifierResult defines an object that FamilyNotifier receives on finished Family.Run.
+type FamilyNotifierResult struct {
+	FamilyType FamilyType
+	Result     any
+	Err        error
+}
+
+// FamilyMetadata defines common family-specific result metadata.
+type FamilyMetadata struct {
+	Annotations map[string]string                 `json:"annotations"`
+	Scans       map[common.ScanID]ScannerMetadata `json:"scans"`
+	Summary     FamilySummary                     `json:"summary"`
+}
+
+// FamilySummary defines common family-specific result summary data.
+type FamilySummary struct {
+	TotalFindings int `json:"total_findings"`
+}
+
+// ScannerMetadata defines common (family) scanner-specific result metadata.
 type ScannerMetadata struct {
-	Annotations map[string]string    `json:"annotations"`
-	Scan        *common.ScanMetadata `json:"scan"`
-	Summary     *ScannerSummary      `json:"summary"`
+	common.ScanInfo `json:"info"` // embed scan info
 
-	// can be extended with additional general or scanner-specific properties
-	// e.g. MalwareCount *int
+	Summary ScannerSummary `json:"summary"`
+}
+
+// ScannerSummary defines common (family) scanner-specific result summary data.
+type ScannerSummary struct {
+	TotalFindings int `json:"total_findings"`
 }
