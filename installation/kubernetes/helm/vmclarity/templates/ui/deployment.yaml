@@ -38,9 +38,13 @@ spec:
               name: tmpfs-1
             - mountPath: /var/cache/nginx
               name: tmpfs-2
+            - mountPath: /tmp
+              name: tmpfs-3
       volumes:
         - name: tmpfs-1
           emptyDir: {}
         - name: tmpfs-2
+          emptyDir: {}
+        - name: tmpfs-3
           emptyDir: {}
       serviceAccountName: {{ include "vmclarity.ui.serviceAccountName" . }}

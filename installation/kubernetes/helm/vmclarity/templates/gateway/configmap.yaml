@@ -12,7 +12,7 @@ data:
     
     http {
         upstream ui {
-            server {{ printf "%s" (include "vmclarity.ui.name" .) }}:80;
+            server {{ printf "%s" (include "vmclarity.ui.name" .) }}:8080;
         }
     
         upstream uibackend {
