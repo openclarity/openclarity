@@ -16,6 +16,7 @@ import {
 import { formatDate, calculateDuration } from "utils/utils";
 import { SCANS_PATHS } from "layout/Scans";
 import StatusIndicator from "./StatusIndicator";
+import { getAssetName } from "utils/utils";
 
 import COLORS from "utils/scss_variables.module.scss";
 
@@ -111,7 +112,7 @@ const TabAssetScanDetails = ({ data }) => {
 
   const { scan, asset, status, stats } = data || {};
   const { id: assetId, assetInfo } = asset || {};
-  const { instanceID, objectType, location } = assetInfo || {};
+  const { objectType, location, repoDigests, image } = assetInfo || {};
   const { id: scanId, startTime, endTime } = scan || {};
   const { state, message } = status || {};
 
@@ -126,9 +127,13 @@ const TabAssetScanDetails = ({ data }) => {
             Asset
           </Title>
           <TitleValueDisplayRow>
-            <TitleValueDisplay title="Name">{instanceID}</TitleValueDisplay>
+            <TitleValueDisplay title="Name">
+              {getAssetName(assetInfo)}
+            </TitleValueDisplay>
             <TitleValueDisplay title="Type">{objectType}</TitleValueDisplay>
-            <TitleValueDisplay title="Location">{location}</TitleValueDisplay>
+            <TitleValueDisplay title="Location">
+              {location || repoDigests?.[0] || image.repoDigests?.[0]}
+            </TitleValueDisplay>
           </TitleValueDisplayRow>
           <Title
             medium
