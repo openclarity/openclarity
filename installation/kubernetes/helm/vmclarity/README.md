@@ -293,7 +293,7 @@ secrets.
 | trivyServer.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | ui.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | ui.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
-| ui.containerSecurityContext.enabled | bool | `false` | Container security context enabled |
+| ui.containerSecurityContext.enabled | bool | `true` | Container security context enabled |
 | ui.containerSecurityContext.privileged | bool | `false` | Whether the container should run in privileged mode |
 | ui.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container file system as ReadOnly |
 | ui.containerSecurityContext.runAsGroup | int | `101` | Group ID which the containers should run as |
@@ -304,7 +304,7 @@ secrets.
 | ui.image.registry | string | `"ghcr.io"` | UI image registry |
 | ui.image.repository | string | `"openclarity/vmclarity-ui"` | UI image repository |
 | ui.image.tag | string | `"latest"` | UI image tag |
-| ui.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
+| ui.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | ui.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | ui.replicas | int | `1` | Number of replicas for the UI service |
 | ui.resources.limits | object | `{}` | The resources limits for the UI containers |

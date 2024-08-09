@@ -259,13 +259,13 @@ ui:
 
   podSecurityContext:
     # -- Pod security context enabled
-    enabled: false
+    enabled: true
     # -- Pod security context fsGroup
     fsGroup: 101
 
   containerSecurityContext:
     # -- Container security context enabled
-    enabled: false
+    enabled: true
     # -- User ID which the containers should run as
     runAsUser: 101
     # -- Group ID which the containers should run as

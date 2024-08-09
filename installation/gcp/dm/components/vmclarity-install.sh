@@ -429,7 +429,7 @@ events {{
 
 http {{
     upstream ui {{
-        server ui:80;
+        server ui:8080;
     }}
 
     upstream uibackend {{

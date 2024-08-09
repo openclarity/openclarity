@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/src/ui/node_modules \
 RUN --mount=type=cache,target=/src/ui/node_modules \
     npm run build --prefix /src/ui
 
-FROM nginx:1.27.0@sha256:6af79ae5de407283dcea8b00d5c37ace95441fd58a8b1d2aa1ed93f5511bb18c
+FROM nginxinc/nginx-unprivileged:1.27.0
 
 COPY --from=site-build ["/src/ui/build", "/usr/share/nginx/html"]
 
