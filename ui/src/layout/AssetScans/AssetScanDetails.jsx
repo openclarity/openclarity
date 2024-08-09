@@ -3,13 +3,12 @@ import { useLocation } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
 import TabbedPage from "components/TabbedPage";
 import { APIS } from "utils/systemConsts";
-import { formatDate, getScanName } from "utils/utils";
+import { formatDate } from "utils/utils";
 import { Findings } from "layout/detail-displays";
 import TabAssetScanDetails from "./TabAssetScanDetails";
 
 const ASSET_SCAN_DETAILS_PATHS = {
-  ASSET_SCAN_DETAILS: "",
-  FINDINGHS: "findings",
+  FINDINGS: "findings",
 };
 
 const DetailsContent = ({ data }) => {
@@ -30,7 +29,7 @@ const DetailsContent = ({ data }) => {
         {
           id: "findings",
           title: "Findings",
-          path: ASSET_SCAN_DETAILS_PATHS.FINDINGHS,
+          path: ASSET_SCAN_DETAILS_PATHS.FINDINGS,
           component: () => (
             <Findings
               findingsSummary={summary}

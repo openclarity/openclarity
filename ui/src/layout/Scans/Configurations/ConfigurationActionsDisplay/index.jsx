@@ -27,8 +27,8 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
   const disableStartScan =
     Date.now() - new Date(operationTime).valueOf() <= 0 && !cronLine;
 
-  const [deleteConfigmationData, setDeleteConfigmationData] = useState(null);
-  const closeDeleteConfigmation = () => setDeleteConfigmationData(null);
+  const [deleteConfirmationData, setDeleteConfirmationData] = useState(null);
+  const closeDeleteConfirmation = () => setDeleteConfirmationData(null);
 
   const [{ deleting }, deleteConfiguration] = useDelete(APIS.SCAN_CONFIGS);
   const prevDeleting = usePrevious(deleting);
@@ -109,28 +109,28 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
             event.stopPropagation();
             event.preventDefault();
 
-            setDeleteConfigmationData(data);
+            setDeleteConfirmationData(data);
           }}
         />
       </div>
-      {!isNull(deleteConfigmationData) && (
+      {!isNull(deleteConfirmationData) && (
         <Modal
-          title="Delete configmation"
+          title="Delete confirmation"
           isMediumTitle
           className="scan-config-delete-confirmation"
-          onClose={closeDeleteConfigmation}
+          onClose={closeDeleteConfirmation}
           height={250}
           doneTitle="Delete"
           onDone={() => {
-            deleteConfiguration(deleteConfigmationData.id);
-            closeDeleteConfigmation();
+            deleteConfiguration(deleteConfirmationData.id);
+            closeDeleteConfirmation();
           }}
         >
           <span>{`Once `}</span>
-          <BoldText>{deleteConfigmationData.name}</BoldText>
+          <BoldText>{deleteConfirmationData.name}</BoldText>
           <span>{` will be deleted, the action cannot be reverted`}</span>
           <br />
-          <span>{`Are you sure you want to delete ${deleteConfigmationData.name}?`}</span>
+          <span>{`Are you sure you want to delete ${deleteConfirmationData.name}?`}</span>
         </Modal>
       )}
     </>

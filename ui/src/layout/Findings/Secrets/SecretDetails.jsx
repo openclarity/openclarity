@@ -6,7 +6,6 @@ import TabSecretDetails from "./TabSecretDetails";
 import AssetsForFindingTable from "layout/Assets/AssetsForFindingTable";
 
 const SECRET_DETAILS_PATHS = {
-  SECRET_DETAILS: "",
   ASSET_LIST: "assets",
 };
 
@@ -23,7 +22,6 @@ const DetailsContent = ({ data }) => {
           id: "general",
           title: "Secret details",
           isIndex: true,
-          path: SECRET_DETAILS_PATHS.SECRET_DETAILS,
           component: () => <TabSecretDetails data={data} />,
         },
         {
