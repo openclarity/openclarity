@@ -113,6 +113,7 @@ const ScansTable = () => {
     <TablePage
       columns={columns}
       url={APIS.SCANS}
+      select="id,name,startTime,endTime,scope,status,summary"
       tableTitle={TABLE_TITLE}
       filterType={FILTER_TYPES.SCANS}
       filtersConfig={[

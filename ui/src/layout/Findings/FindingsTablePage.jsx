@@ -19,6 +19,7 @@ const FindingsTablePage = ({
   columns,
   filterType,
   filtersConfig,
+  select,
 }) => {
   const filtersDispatch = useFilterDispatch();
   const filtersState = useFilterState();
@@ -73,6 +74,7 @@ const FindingsTablePage = ({
       <TablePage
         columns={columns}
         url={APIS.FINDINGS}
+        select={select}
         tableTitle={tableTitle}
         filterType={filterType}
         filtersConfig={[

@@ -38,7 +38,7 @@ const ConfigurationScansDisplay = ({ configId, configName }) => {
   };
 
   const [{ loading, data, error }] = useFetch(APIS.SCANS, {
-    queryParams: { $filter: scansFilter, $count: true },
+    queryParams: { $filter: scansFilter, $count: true, $select: "count" },
   });
 
   if (error) {

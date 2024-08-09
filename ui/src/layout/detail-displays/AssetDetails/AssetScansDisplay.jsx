@@ -33,7 +33,7 @@ export const AssetScansDisplay = ({ assetName, assetId }) => {
     queryParams: {
       $filter: filter,
       $count: true,
-      $select: "id,asset,summary,scan",
+      $select: "count",
     },
   });
 
