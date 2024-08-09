@@ -9,7 +9,6 @@ import {
 } from "layout/detail-displays";
 
 const ASSET_DETAILS_PATHS = {
-  ASSET_DETAILS: "",
   FINDINGS: "findings",
 };
 

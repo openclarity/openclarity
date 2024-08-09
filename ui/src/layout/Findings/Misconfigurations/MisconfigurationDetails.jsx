@@ -6,7 +6,6 @@ import TabMisconfigurationDetails from "./TabMisconfigurationDetails";
 import AssetsForFindingTable from "layout/Assets/AssetsForFindingTable";
 
 const MISCONFIGURATION_DETAILS_PATHS = {
-  MISCONFIGURATION_DETAILS: "",
   ASSET_LIST: "assets",
 };
 
@@ -23,7 +22,6 @@ const DetailsContent = ({ data }) => {
           id: "general",
           title: "Misconfiguration details",
           isIndex: true,
-          path: MISCONFIGURATION_DETAILS_PATHS.MISCONFIGURATION_DETAILS,
           component: () => <TabMisconfigurationDetails data={data} />,
         },
         {

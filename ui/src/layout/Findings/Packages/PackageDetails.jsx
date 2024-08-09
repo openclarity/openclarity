@@ -6,7 +6,6 @@ import TabPackageDetails from "./TabPackageDetails";
 import AssetsForFindingTable from "layout/Assets/AssetsForFindingTable";
 
 const PACKAGE_DETAILS_PATHS = {
-  PACKAGE_DETAILS: "",
   ASSET_LIST: "assets",
 };
 
@@ -23,7 +22,6 @@ const DetailsContent = ({ data }) => {
           id: "general",
           title: "Package details",
           isIndex: true,
-          path: PACKAGE_DETAILS_PATHS.PACKAGE_DETAILS,
           component: () => <TabPackageDetails data={data} />,
         },
         {

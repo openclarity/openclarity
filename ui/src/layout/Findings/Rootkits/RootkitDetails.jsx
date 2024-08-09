@@ -6,7 +6,6 @@ import TabRootkitDetails from "./TabRootkitDetails";
 import AssetsForFindingTable from "layout/Assets/AssetsForFindingTable";
 
 const ROOTKIT_DETAILS_PATHS = {
-  ROOTKIT_DETAILS: "",
   ASSET_LIST: "assets",
 };
 
@@ -23,7 +22,6 @@ const DetailsContent = ({ data }) => {
           id: "general",
           title: "Rootkit details",
           isIndex: true,
-          path: ROOTKIT_DETAILS_PATHS.ROOTKIT_DETAILS,
           component: () => <TabRootkitDetails data={data} />,
         },
         {

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
 import TabbedPage from "components/TabbedPage";
 import { APIS } from "utils/systemConsts";
-import { formatDate, getScanName } from "utils/utils";
+import { formatDate } from "utils/utils";
 import {
   ScanDetails as ScanDetailsTab,
   Findings,
@@ -11,14 +11,13 @@ import {
 import ScanActionsDisplay from "./ScanActionsDisplay";
 
 export const SCAN_DETAILS_PATHS = {
-  SCAN_DETALS: "",
   FINDINGS: "findings",
 };
 
 const DetailsContent = ({ data, fetchData }) => {
   const { pathname } = useLocation();
 
-  const { id, name, startTime } = data;
+  const { id, name } = data;
 
   return (
     <TabbedPage

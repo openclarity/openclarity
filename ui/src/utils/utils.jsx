@@ -44,9 +44,6 @@ export const cronExpressionToHuman = (value) =>
 export const formatNumber = (value) =>
   new Intl.NumberFormat("en-US").format(parseInt(value || 0, 10));
 
-export const getScanName = ({ name, startTime }) =>
-  `${name} ${formatDate(startTime)}`;
-
 export const getHighestVersionCvssData = (cvssData) => {
   if (isEmpty(cvssData)) {
     return {};
