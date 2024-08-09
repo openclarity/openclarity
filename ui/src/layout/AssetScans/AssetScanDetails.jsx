@@ -49,7 +49,7 @@ const AssetScanDetails = () => (
   <DetailsPageWrapper
     backTitle="Asset scans"
     url={APIS.ASSET_SCANS}
-    select="id,scan,asset,summary,status,stats,sbom,vulnerabilities,exploits,misconfigurations,secrets,malware,rootkits"
+    select="id,scan,asset,summary,status,stats,sbom/status,vulnerabilities/status,exploits/status,misconfigurations/status,secrets/status,malware/status,rootkits/status"
     expand="scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status,stats"
     getTitleData={({ scan, asset }) => {
       const { startTime, name } = scan || {};

@@ -47,8 +47,16 @@ const ScansTabbedPage = () => {
   }, [prevOpenConfigForm, openConfigForm, openDisplayModal]);
 
   const [{ data, error, loading }, fetchData] = useMountMultiFetch([
-    { key: "scans", url: APIS.SCANS },
-    { key: "scanConfigs", url: APIS.SCAN_CONFIGS },
+    {
+      key: "scans",
+      url: APIS.SCANS,
+      queryParams: { $count: true, $select: "count" },
+    },
+    {
+      key: "scanConfigs",
+      url: APIS.SCAN_CONFIGS,
+      queryParams: { $count: true, $select: "count" },
+    },
   ]);
 
   if (loading) {
@@ -63,7 +71,7 @@ const ScansTabbedPage = () => {
 
   return (
     <>
-      {scans?.length === 0 && scanConfigs?.total === 0 ? (
+      {scans?.count === 0 && scanConfigs?.count === 0 ? (
         <EmptyDisplay
           message={
             <>

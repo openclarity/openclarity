@@ -12,7 +12,7 @@ export const ScanCounterDisplay = () => {
     queryParams: {
       $count: true,
       $top: 1,
-      $select: "id",
+      $select: "count",
       $filter:
         "status/state eq 'Aborted' or status/state eq 'Failed' or status/state eq 'Done'",
     },

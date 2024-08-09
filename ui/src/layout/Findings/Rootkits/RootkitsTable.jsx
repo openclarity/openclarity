@@ -27,6 +27,7 @@ const RootkitsTable = () => {
   return (
     <FindingsTablePage
       columns={columns}
+      select="id,findingInfo,firstSeen,lastSeen"
       filterType={FILTER_TYPES.FINDINGS_ROOTKITS}
       filtersConfig={[
         {

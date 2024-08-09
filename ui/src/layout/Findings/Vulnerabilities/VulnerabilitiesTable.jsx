@@ -73,6 +73,7 @@ const VulnerabilitiesTable = () => {
   return (
     <FindingsTablePage
       columns={columns}
+      select="id,findingInfo,firstSeen,lastSeen"
       filterType={FILTER_TYPES.FINDINGS_VULNERABILITIES}
       filtersConfig={[
         {

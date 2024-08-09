@@ -27,7 +27,9 @@ const COUNTERS_CONFIG = [
 ];
 
 const Dashboard = () => {
-  const [{ data, error, loading }] = useFetch(APIS.SCANS);
+  const [{ data, error, loading }] = useFetch(APIS.SCANS, {
+    queryParams: { $count: true, $select: "count" },
+  });
 
   if (loading) {
     return <Loader />;
@@ -37,7 +39,7 @@ const Dashboard = () => {
     return null;
   }
 
-  if (data.length === 0) {
+  if (data.count === 0) {
     return <EmptyScansDisplay />;
   }
 
