@@ -8,7 +8,7 @@ import {
   getEnabledScanTypesList,
   getScanTimeTypeTag,
 } from "layout/Scans/utils";
-import { cronExpressionToHuman, formatDate } from "utils/utils";
+import { cronExpressionToHuman, formatDate, formatNumber } from "utils/utils";
 
 const FlagPropDisplay = ({ checked, label }) => (
   <div
@@ -43,7 +43,7 @@ const ConfigurationReadOnlyDisplay = ({ configData }) => {
       <TitleValueDisplayRow>
         <TitleValueDisplay title="Scope">{scope}</TitleValueDisplay>
         <TitleValueDisplay title="Maximum parallel scans">
-          {maxParallelScanners}
+          {formatNumber(maxParallelScanners)}
         </TitleValueDisplay>
       </TitleValueDisplayRow>
       <Title medium>Asset Scan Configuration</Title>
@@ -76,7 +76,7 @@ export const ScanReadOnlyDisplay = ({ scanData }) => {
       <TitleValueDisplayRow>
         <TitleValueDisplay title="Scope">{scope}</TitleValueDisplay>
         <TitleValueDisplay title="Maximum parallel scans">
-          {maxParallelScanners}
+          {formatNumber(maxParallelScanners)}
         </TitleValueDisplay>
       </TitleValueDisplayRow>
       <Title medium>Asset Scan Configuration</Title>

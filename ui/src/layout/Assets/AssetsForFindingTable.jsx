@@ -119,7 +119,8 @@ const AssetsForFindingTable = (props) => {
         sortIds: LOCATION_SORT_IDS,
         accessor: (original) =>
           original.asset.assetInfo.location ||
-          original.asset.assetInfo.repoDigests?.[0],
+          original.asset.assetInfo.repoDigests?.[0] ||
+          original.asset.assetInfo.image.repoDigests?.[0],
       },
       {
         Header: "Last Seen",
