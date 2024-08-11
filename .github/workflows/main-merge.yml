@@ -1,0 +1,21 @@
+name: Main Merge
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  packages: write
+
+jobs:
+  verification:
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  build-and-push:
+    needs: verification
+    uses: ./.github/workflows/build-and-push-components.yml
+    with:
+      image_tag: latest

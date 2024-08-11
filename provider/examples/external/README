@@ -1,0 +1,15 @@
+External GRPC Plugin example:
+
+Motivation:
+Use VMClarity orchestration mechanism in order to orchestrate scans in your own custom environment.
+Write your own scanning logic that runs on the platform of your choice. It can be a cloud provider,
+a local file system, or whatever you want to scan.
+VMClarity control plane is agnostic to the platform in which the scanner runs and the way the actual scanning is happening.
+
+Requirements:
+The plugin needs to listen on a grpc port, which is accessible from VMClarity control plane.
+
+Write your own plugin:
+1. Implement the proto methods.
+2. Run the plugin as a grpc server.
+3. Run VMClarity and provide the plugin address via VMCLARITY_EXTERNAL_PROVIDER_PLUGIN_ADDRESS env var.

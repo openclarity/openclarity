@@ -1,0 +1,121 @@
+info:
+  title: VMClarity Server
+  author: sambetts
+  description: Creates a VMClarity server instance
+  version: 1.0
+
+imports:
+- path: vmclarity_install_script.py
+
+required:
+  - zone
+  - staticIp
+  - machineType
+  - network
+  - sshPublicKey
+
+properties:
+  # Required properties
+  region:
+    type: string
+    description: the region to locate vmclarity
+  sshPublicKey:
+    type: string
+    description: SSH Public Key to use to access the VMClarity server
+  zone:
+    type: string
+    description: The Zone to locate the VMClarity server
+  machineType:
+    type: string
+    description: The machine type for the VMClarity server
+  network:
+    type: string
+    description: The network to run the VMClarity server
+  staticIp:
+    type: string
+    description: The static IP address to assign to VMClarity server
+  serviceAccount:
+    type: string
+    description: The service account to use for VMClarity
+
+  # Properties with defaults
+  scannerMachineType:
+    type: string 
+    description: Machine type to use for the Scanner instances
+    default: e2-standard-2
+  scannerSourceImage:
+    type: string
+    description: Source image to use for the Scanner instances
+    default: "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20230630"
+  databaseToUse:
+    type: string
+    default: SQLite
+    description: The database that VMClarity should use.
+  apiserverContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-apiserver:latest
+    description: The container image to use for the apiserver
+  orchestratorContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-orchestrator:latest
+    description: The container image to use for the orchestrator
+  uiContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-ui:latest
+    description: The container image to use for the ui
+  uibackendContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-ui-backend:latest
+    description: The container image to use for the uibackend
+  scannerContainerImage:
+    type: string
+    default: ghcr.io/openclarity/vmclarity-cli:latest
+    description: The container image to use for the scanner
+  exploitDBServerContainerImage:
+    type: string
+    default: ghcr.io/openclarity/exploit-db-server:v0.3.0
+    description: The container image to use for the exploit db server
+  trivyServerContainerImage:
+    type: string
+    default: docker.io/aquasec/trivy:0.52.1
+    description: The container image to use for the trivy server
+  grypeServerContainerImage:
+    type: string
+    default: ghcr.io/openclarity/grype-server:v0.7.3
+    description: The container image to use for the grype server
+  freshclamMirrorContainerImage:
+    type: string
+    default: ghcr.io/openclarity/freshclam-mirror:v0.3.1
+    description: The container image to use for the fresh clam mirror server
+  yaraRuleServerContainerImage:
+    type: string
+    default: ghcr.io/openclarity/yara-rule-server:v0.3.0
+    description: The container image to use for the yara rule server
+  postgresqlContainerImage:
+    type: string
+    default: docker.io/bitnami/postgresql:16.3.0-debian-12-r13
+    description: The container image to use for the postgresql server
+  assetScanDeletePolicy:
+    type: string
+    default: Always
+    description: When asset scans should be cleaned up after scanning
+
+  # Optional properties
+  postgresDBPassword:
+    type: string
+    description: Postgres DB password. Only required if DatabaseToUse is Postgresql
+  externalDBName:
+    type: string
+    description: DB to use in the external DB. Only required if DatabaseToUse is External
+  externalDBUsername:
+    type: string
+    description: Username for the external DB. Only required if the DatabaseToUse is External
+  externalDBPassword:
+    type: string
+    description: Password for the external DB. Only required if the DatabaseToUse is External
+  externalDBHost:
+    type: string
+    description: Hostname or IP for the external DB. Only required if the DatabaseToUse is External
+  externalDBPort:
+    type: string
+    description: Port for the external DB. Only required if the DatabaseToUse is External

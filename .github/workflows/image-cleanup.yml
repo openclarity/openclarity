@@ -1,0 +1,83 @@
+name: Container Image Cleanup
+
+on:
+  pull_request:
+    types:
+      - closed
+  schedule:
+    # At minute 0 on every day-of-week from Monday through Friday.
+    # https://crontab.guru/#0_*_*_*_1-5
+    - cron: '0 * * * 1-5'
+  workflow_dispatch:
+    inputs:
+      cut-off:
+        required: false
+        type: string
+        description: |
+          The timezone-aware datetime you want to delete container versions that are older than.
+          The parsed datetime must contain a timezone.
+
+          Examples:
+            - 14days 1min 7s
+            - 7years 4min 14us
+        default: '14days'
+      dry-run:
+        required: false
+        type: boolean
+        description: Prints output showing images which would be deleted but does not actually delete any images.
+        default: true
+
+env:
+  images: vmclarity-apiserver-dev,vmclarity-orchestrator-dev,vmclarity-cli-dev,vmclarity-ui-backend-dev,vmclarity-ui-dev
+
+permissions:
+  packages: write
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Cleanup container images for Pull Request
+    steps:
+      - name: Remove images for PR#${{ github.event.pull_request.number }}
+        uses: snok/container-retention-policy@4f22ef80902ad409ed55a99dc5133cc1250a0d03 # v3.0.0
+        with:
+          image-names: ${{ env.images }}
+          cut-off: 1s
+          timestamp-to-use: created_at
+          account: openclarity
+          token: ${{ secrets.PAT }}
+          image-tags: "${{ format( 'pr{0}-*', github.event.pull_request.number) }}"
+          dry-run: false
+
+  schedule:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    name: Cleanup stale container images
+    steps:
+      - name: Remove stale images
+        uses: snok/container-retention-policy@4f22ef80902ad409ed55a99dc5133cc1250a0d03 # v3.0.0
+        with:
+          image-names: ${{ env.images }}
+          cut-off: 7days
+          timestamp-to-use: created_at
+          account: openclarity
+          token: ${{ secrets.PAT }}
+          tag-selection: both
+          dry-run: false
+
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Cleanup stale container images
+    steps:
+      - name: Remove stale images
+        uses: snok/container-retention-policy@4f22ef80902ad409ed55a99dc5133cc1250a0d03 # v3.0.0
+        with:
+          image-names: ${{ env.images }}
+          cut-off: ${{ inputs.cut-off }}
+          timestamp-to-use: created_at
+          account: openclarity
+          token: ${{ secrets.PAT }}
+          tag-selection: both
+          dry-run: ${{ inputs.dry-run }}
