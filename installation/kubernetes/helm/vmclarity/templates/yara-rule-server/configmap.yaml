@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vmclarity.yaraRuleServer.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.yaraRuleServer.labels.standard" . | nindent 4 }}
+data:
+  yara-rule-server.yaml: |
+    enable_json_log: true
+    rule_update_schedule: "0 0 * * *"
+    rule_sources:
+      - name: "base"
+        url: "https://github.com/Yara-Rules/rules/archive/refs/heads/master.zip"
+        exclude_regex: ".*index.*.yar|.*/utils/.*|.*/deprecated/.*|.*index_.*|.*MALW_AZORULT.yar"
+      - name: "magic"
+        url: "https://github.com/securitymagic/yara/archive/refs/heads/main.zip"
+        exclude_regex: ".*index.*.yar"

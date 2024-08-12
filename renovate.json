@@ -1,0 +1,314 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "configMigration": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^Makefile$",
+        "^makefile.d/.*.mk$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?( registryUrl=(?<registryUrl>.*?))?\\s.*?_VERSION\\s?:?=\\s?(?<currentValue>.*)\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+      "description": [
+        "Custom dependency manager for updating tools defined in Makefiles."
+      ]
+    }
+  ],
+  "dependencyDashboardAutoclose": true,
+  "dependencyDashboardLabels": [
+    "dependencies"
+  ],
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "enabled": true,
+  "enabledManagers": [
+    "bicep",
+    "custom.regex",
+    "docker-compose",
+    "dockerfile",
+    "github-actions",
+    "gomod",
+    "helm-values",
+    "helmv3",
+    "pip_setup"
+  ],
+  "forkProcessing": "disabled",
+  "labels": [
+    "dependencies"
+  ],
+  "ignoreDeps": [
+    "github.com/openclarity/vmclarity/api/server",
+    "github.com/openclarity/vmclarity/api/client",
+    "github.com/openclarity/vmclarity/api/types",
+    "github.com/openclarity/vmclarity/cli",
+    "github.com/openclarity/vmclarity/containerruntimediscovery/server",
+    "github.com/openclarity/vmclarity/containerruntimediscovery/client",
+    "github.com/openclarity/vmclarity/containerruntimediscovery/types",
+    "github.com/openclarity/vmclarity/core",
+    "github.com/openclarity/vmclarity/e2e",
+    "github.com/openclarity/vmclarity/installation",
+    "github.com/openclarity/vmclarity/orchestrator",
+    "github.com/openclarity/vmclarity/plugins/runner",
+    "github.com/openclarity/vmclarity/plugins/sdk-go",
+    "github.com/openclarity/vmclarity/provider",
+    "github.com/openclarity/vmclarity/testenv",
+    "github.com/openclarity/vmclarity/uibackend/client",
+    "github.com/openclarity/vmclarity/uibackend/server",
+    "github.com/openclarity/vmclarity/uibackend/types",
+    "github.com/openclarity/vmclarity/utils",
+    "github.com/openclarity/vmclarity/scanner",
+    "github.com/openclarity/vmclarity/workflow"
+  ],
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchCategories": [
+        "golang"
+      ],
+      "addLabels": [
+        "go"
+      ],
+      "description": [
+        "Add go label to PRs which bumps go dependencies."
+      ]
+    },
+    {
+      "groupName": "Docker",
+      "groupSlug": "docker",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group Docker dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/docker{/,}**",
+        "github.com/compose-spec{/,}**"
+      ]
+    },
+    {
+      "groupName": "gorm.io",
+      "groupSlug": "gorm",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group gorm.io dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "gorm.io/gorm{/,}**",
+        "gorm.io/driver{/,}**"
+      ]
+    },
+    {
+      "groupName": "Azure SDK",
+      "groupSlug": "azure-sdk",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group Azure SDK dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/Azure/azure-sdk-for-go{/,}**"
+      ]
+    },
+    {
+      "groupName": "Google SDK",
+      "groupSlug": "google-sdk",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group Google SDK dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "cloud.google.com/go{/,}**"
+      ]
+    },
+    {
+      "groupName": "Containerd",
+      "groupSlug": "containerd",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group Containerd dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "github.com/containerd{/,}**"
+      ]
+    },
+    {
+      "groupName": "Kubernetes",
+      "groupSlug": "kubernetes",
+      "matchDatasources": [
+        "go"
+      ],
+      "description": [
+        "Group Kubernetes dependency updates in single PR."
+      ],
+      "matchPackageNames": [
+        "k8s.io{/,}**",
+        "sigs.k8s.io{/,}**"
+      ]
+    },
+    {
+      "groupName": "Go patches",
+      "groupSlug": "go-patches",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "description": [
+        "Group Go dependency patch updates in single PR."
+      ]
+    },
+    {
+      "groupName": "Python",
+      "groupSlug": "python",
+      "matchCategories": [
+        "python"
+      ],
+      "addLabels": [
+        "python"
+      ],
+      "description": [
+        "Add python label to PRs which bumps python dependencies.",
+        "Group Python dependency updates in single PR."
+      ]
+    },
+    {
+      "matchCategories": [
+        "kubernetes"
+      ],
+      "addLabels": [
+        "kubernetes"
+      ],
+      "description": [
+        "Add kubernetes label to PRs which bumps kubernetes dependencies."
+      ]
+    },
+    {
+      "groupName": "Makefile",
+      "groupSlug": "makefile",
+      "matchFileNames": [
+        "Makefile",
+        "makefile.d/*.mk"
+      ],
+      "addLabels": [
+        "build"
+      ],
+      "extractVersion": "^v(?<version>.*)$",
+      "description": [
+        "Add build label to PRs which are related to build tools defined in Makefiles.",
+        "Group Makefile dependency updates in single PR."
+      ]
+    },
+    {
+      "groupName": "Github Actions",
+      "groupSlug": "github-actions",
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "addLabels": [
+        "ci"
+      ],
+      "description": [
+        "Add ci label to PRs which are related to Github Actions.",
+        "Group CI dependency updates in single PR."
+      ]
+    },
+    {
+      "matchFileNames": [
+        "e2e/**",
+        "testenv/**"
+      ],
+      "addLabels": [
+        "test"
+      ],
+      "description": [
+        "Add test label to PRs which are related to Github Actions."
+      ]
+    },
+    {
+      "groupName": "Azure Bicep",
+      "matchDatasources": [
+        "azure-bicep-resource"
+      ],
+      "description": [
+        "Group Azure Bicep dependency updates in single PR."
+      ]
+    },
+    {
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackageNames": [
+        "github.com/aquasecurity/trivy-db"
+      ],
+      "allowedVersions": "!/^v1/",
+      "description": [
+        "Ignore versions starting with v1 for trivy-db as v1 is deprecated."
+      ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "/^latest$/",
+      "pinDigests": false,
+      "description": [
+        "Always use latest version for VMClarity container images.",
+        "Do not pin by digest."
+      ],
+      "matchPackageNames": [
+        "ghcr.io/openclarity/vmclarity-{/,}**"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "matchFileNames": [
+        "testenv/**/docker-compose.override.yml"
+      ],
+      "allowedVersions": "3.18.2",
+      "description": [
+        "Pin version of the Alpine container image used for testing."
+      ]
+    }
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths",
+    "helmUpdateSubChartArchives"
+  ],
+  "prConcurrentLimit": 20,
+  "printConfig": false,
+  "rebaseWhen": "conflicted",
+  "reviewersFromCodeOwners": true,
+  "schedule": [
+    "after 8am on Monday"
+  ],
+  "semanticCommits": "enabled",
+  "timezone": "Etc/UTC",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ]
+  }
+}

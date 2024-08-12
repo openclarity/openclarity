@@ -1,0 +1,10 @@
+package: server
+output: internal/server/server.gen.go
+additional-imports:
+  - package: github.com/openclarity/vmclarity/uibackend/types
+    alias: .
+generate:
+  echo-server: true
+  embedded-spec: true
+output-options:
+  skip-prune: true

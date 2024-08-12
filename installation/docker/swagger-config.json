@@ -1,0 +1,8 @@
+{
+    "urls": [
+        {
+            "name": "VMClarity API",
+            "url": "/api/openapi.json"
+        }
+    ]
+}

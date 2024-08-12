@@ -1,0 +1,9 @@
+package: client
+output: internal/client/client.gen.go
+additional-imports:
+  - package: github.com/openclarity/vmclarity/api/types
+    alias: .
+generate:
+  client: true
+output-options:
+  skip-prune: true
