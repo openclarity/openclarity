@@ -92,4 +92,5 @@ replace (
 	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
 	github.com/openclarity/openclarity/scanner => ../../scanner
 	github.com/openclarity/openclarity/utils => ../../utils
+	github.com/openclarity/openclarity/workflow => ../workflow
 )
