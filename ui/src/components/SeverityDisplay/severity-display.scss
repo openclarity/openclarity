@@ -1,0 +1,19 @@
+.severity-display {
+    display: flex;
+    align-items: center;
+
+    .severity-title {
+        margin-left: 5px;
+    }
+}
+
+.severity-with-cvss-display {
+    display: flex;
+    align-items: center;
+
+    .cvss-score-display {
+        margin-left: 3px;
+        font-size: 10px;
+        line-height: 18px;
+    }
+}

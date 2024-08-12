@@ -1,0 +1,3601 @@
+openapi: 3.0.1
+
+info:
+  title: VMClarity APIs
+  version: 1.0.0
+
+paths:
+  /openapi.json:
+    get:
+      summary: Get this OpenAPI spec
+      operationId: GetOpenAPISpec
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /assets:
+    get:
+      summary: Get assets
+      operationId: GetAssets
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assets'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create asset
+      operationId: PostAssets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+        required: true
+      responses:
+        201:
+          description: A new asset was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        400:
+          description: Invalid asset supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /assets/{assetID}:
+    get:
+      summary: Get asset.
+      operationId: GetAssetsAssetID
+      parameters:
+        - $ref: '#/components/parameters/assetID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        404:
+          description: Asset ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update asset.
+      operationId: PutAssetsAssetID
+      parameters:
+        - $ref: '#/components/parameters/assetID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+        required: true
+      responses:
+        200:
+          description: Updated asset successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        400:
+          description: Invalid asset supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Asset ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Update asset.
+      operationId: PatchAssetsAssetID
+      parameters:
+        - $ref: '#/components/parameters/assetID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+        required: true
+      responses:
+        200:
+          description: Updated asset successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        404:
+          description: Asset ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Asset already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete asset.
+      operationId: DeleteAssetsAssetID
+      parameters:
+        - $ref: '#/components/parameters/assetID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        400:
+          description: Invalid asset supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Asset ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /assetScans:
+    get:
+      summary: Get asset scans according to the given filters
+      operationId: GetAssetScans
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScans'
+
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create an asset scan for a specified asset
+      operationId: PostAssetScans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScan'
+        required: true
+      responses:
+        201:
+          description: AssetScan was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScan'
+        400:
+          description: Invalid asset scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /assetScans/{assetScanID}:
+    get:
+      summary: Get an asset scan.
+      operationId: GetAssetScansAssetScanID
+      parameters:
+        - $ref: '#/components/parameters/assetScanID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScan'
+        404:
+          description: AssetScan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update an asset scan.
+      operationId: PutAssetScansAssetScanID
+      parameters:
+        - $ref: '#/components/parameters/assetScanID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScan'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScan'
+        400:
+          description: Invalid asset scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch an asset scan
+      operationId: PatchAssetScansAssetScanID
+      parameters:
+        - $ref: '#/components/parameters/assetScanID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScan'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScan'
+        400:
+          description: Invalid asset scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /scans:
+    get:
+      summary: Get all scans. Each scan contains details about a multi-asset scheduled scan.
+      operationId: GetScans
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scans'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a multi-asset scheduled scan
+      operationId: PostScans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scan'
+        required: true
+      responses:
+        201:
+          description: A new scan was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /scans/{scanID}:
+    get:
+      summary: Get the details for a given multi-asset scheduled scan.
+      operationId: GetScansScanID
+      parameters:
+        - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scan'
+        404:
+          description: Scan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a scan.
+      operationId: PutScansScanID
+      parameters:
+        - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scan'
+        required: true
+      responses:
+        200:
+          description: Updated scan successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a scan.
+      operationId: PatchScansScanID
+      parameters:
+        - $ref: '#/components/parameters/scanID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scan'
+        required: true
+      responses:
+        200:
+          description: Patched scan successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scan'
+        400:
+          description: Invalid scan supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a scan.
+      operationId: DeleteScansScanID
+      parameters:
+        - $ref: '#/components/parameters/scanID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Scan ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /scanConfigs:
+    get:
+      summary: Get all scan configs.
+      operationId: GetScanConfigs
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfigs'
+
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a scan config
+      operationId: PostScanConfigs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanConfig'
+        required: true
+      responses:
+        201:
+          description: A new scan config was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan config already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfigExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /scanConfigs/{scanConfigID}:
+    get:
+      summary: Get the details for a scan config.
+      operationId: GetScanConfigsScanConfigID
+      parameters:
+        - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfig'
+        404:
+          description: Scan config ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a scan config.
+      operationId: PutScanConfigsScanConfigID
+      parameters:
+        - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanConfig'
+        required: true
+      responses:
+        200:
+          description: Updated scan config successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan config ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan config already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfigExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a scan config.
+      operationId: PatchScanConfigsScanConfigID
+      parameters:
+        - $ref: '#/components/parameters/scanConfigID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanConfig'
+        required: true
+      responses:
+        200:
+          description: Patched scan config successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfig'
+        400:
+          description: Invalid scan config supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan config ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Scan config already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfigExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a scan config.
+      operationId: DeleteScanConfigsScanConfigID
+      parameters:
+        - $ref: '#/components/parameters/scanConfigID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Scan config ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /findings:
+    get:
+      summary: Get all findings.
+      operationId: GetFindings
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Findings'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a finding
+      operationId: PostFindings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        201:
+          description: A new finding was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Finding conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /findings/{findingID}:
+    get:
+      summary: Get the details for a finding.
+      operationId: GetFindingsFindingID
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a finding.
+      operationId: PutFindingsFindingID
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        200:
+          description: Updated finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a finding.
+      operationId: PatchFindingsFindingID
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finding'
+        required: true
+      responses:
+        200:
+          description: Patched finding successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        400:
+          description: Invalid finding supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a finding.
+      operationId: DeleteFindingsFindingID
+      parameters:
+        - $ref: '#/components/parameters/findingID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Finding ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /scanEstimations:
+    get:
+      summary: Get all scan estimations. Each scan estimation contains details about a multi-asset scan estimation.
+      operationId: GetScanEstimations
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimations'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create a multi-asset scan estimation
+      operationId: PostScanEstimations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        201:
+          description: A new scan estimation was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /scanEstimations/{scanEstimationID}:
+    get:
+      summary: Get the details for a given multi-asset scan estimation.
+      operationId: GetScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update a scan estimation.
+      operationId: PutScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch a scan estimation.
+      operationId: PatchScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Patched scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEstimation'
+        400:
+          description: Invalid scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a scan estimation.
+      operationId: DeleteScanEstimationsScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/scanEstimationID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /assetScanEstimations:
+    get:
+      summary: Get asset scan estimations according to the given filters
+      operationId: GetAssetScanEstimations
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimations'
+
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create an asset scan estimation for a specified asset
+      operationId: PostAssetScanEstimations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        201:
+          description: AssetScanEstimation was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /assetScanEstimations/{assetScanEstimationID}:
+    get:
+      summary: Get an asset scan estimation.
+      operationId: GetAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update an asset scan estimation.
+      operationId: PutAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Patch an asset scan estimation
+      operationId: PatchAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetScanEstimation'
+        required: true
+      responses:
+        200:
+          description: Updated an asset scan estimation successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimation'
+        400:
+          description: Invalid asset scan estimation supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: AssetScanEstimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Conflicting asset scan estimation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetScanEstimationExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete an asset scan estimation.
+      operationId: DeleteAssetScanEstimationsAssetScanEstimationID
+      parameters:
+        - $ref: '#/components/parameters/assetScanEstimationID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        404:
+          description: Asset scan estimation ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /providers:
+    get:
+      summary: Get providers
+      operationId: GetProviders
+      parameters:
+        - $ref: '#/components/parameters/odataFilter'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataCount'
+        - $ref: '#/components/parameters/odataTop'
+        - $ref: '#/components/parameters/odataSkip'
+        - $ref: '#/components/parameters/odataExpand'
+        - $ref: '#/components/parameters/odataOrderBy'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Providers'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    post:
+      summary: Create provider
+      operationId: PostProviders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        201:
+          description: A new provider was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+
+  /providers/{providerID}:
+    get:
+      summary: Get provider.
+      operationId: GetProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/odataSelect'
+        - $ref: '#/components/parameters/odataExpand'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+    put:
+      summary: Update provider.
+      operationId: PutProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        200:
+          description: Updated provider successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    patch:
+      summary: Update provider.
+      operationId: PatchProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+        - $ref: '#/components/parameters/ifmatch'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+        required: true
+      responses:
+        200:
+          description: Updated provider successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        409:
+          description: Provider already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderExists'
+        412:
+          description: Etag didn't match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete provider.
+      operationId: DeleteProvidersProviderID
+      parameters:
+        - $ref: '#/components/parameters/providerID'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        400:
+          description: Invalid provider supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Provider ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          readOnly: true
+      description: An object that is returned in all cases of failures.
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          readOnly: true
+      description: An object that is returned in cases of success that returns nothing.
+
+    Metadata:
+      type: object
+      properties:
+        annotations:
+          $ref: '#/components/schemas/Annotations'
+
+    MetadataReadOnly:
+      type: object
+      properties:
+        annotations:
+          $ref: '#/components/schemas/Annotations'
+          readOnly: true
+
+    Annotations:
+      type: array
+      description: Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+
+    CloudProvider:
+      type: string
+      enum:
+        - AWS
+        - Azure
+        - GCP
+        - Docker
+        - External
+        - Kubernetes
+
+    Scans:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total scans count according to the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of scans according to the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/Scan'
+          readOnly: true
+
+    ScanRelationship:
+      type: object
+      description: Describes an expandable relationship to Scan object
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+              readOnly: true
+            revision:
+              type: integer
+              readOnly: true
+            startTime:
+              type: string
+              format: date-time
+              readOnly: true
+            endTime:
+              type: string
+              format: date-time
+              readOnly: true
+            scanConfig:
+              $ref: '#/components/schemas/ScanConfigRelationship'
+              readOnly: true
+            scope:
+              description: |
+                The query used to limit the scope of this scan. It uses
+                the ODATA $filter query language to limit the collection of assets
+                that this scan will operate over. For example
+                `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+                to just assets in the eu-west-2 AWS region.
+              type: string
+            assetScanTemplate:
+              $ref: '#/components/schemas/AssetScanTemplate'
+              readOnly: true
+            assetIDs:
+              description: List of asset IDs to be scanned
+              type: array
+              items:
+                type: string
+              nullable: true
+              readOnly: true
+            state:
+              description: The lifecycle state of this scan.
+              type: string
+              enum:
+                - Pending
+                - Discovered
+                - InProgress
+                - Aborted
+                - Failed
+                - Done
+              readOnly: true
+            stateMessage:
+              description: Human-readable message indicating details about the last state transition.
+              type: string
+              readOnly: true
+            stateReason:
+              description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+              type: string
+              enum:
+                - Aborted
+                - TimedOut
+                - OneOrMoreAssetFailedToScan
+                - DiscoveryFailed
+                - Unexpected
+                - NothingToScan
+                - Success
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanSummary'
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/ScanTemplateReadOnly'
+
+    ScanTemplate:
+      type: object
+      properties:
+        scope:
+          description: |
+            The query used to limit the scope of this scan. It uses
+            the ODATA $filter query language to limit the collection of assets
+            that this scan will operate over. For example
+            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+            to just assets in the eu-west-2 AWS region.
+          type: string
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          description: "The maximum number of asset scans that can be scheduled in parallel for this scan"
+        assetScanTemplate:
+          $ref: '#/components/schemas/AssetScanTemplate'
+
+    ScanTemplateReadOnly:
+      type: object
+      properties:
+        scope:
+          description: |
+            The query used to limit the scope of this scan. It uses
+            the ODATA $filter query language to limit the collection of assets
+            that this scan will operate over. For example
+            `startswith(assetInfo.location, 'eu-west-2')` will limit this scan
+            to just assets in the eu-west-2 AWS region.
+          type: string
+          readOnly: true
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          description: |
+            The maximum time in seconds that a scan started from this config
+            should run for before being automatically aborted.
+          readOnly: true
+        maxParallelScanners:
+          type: 'integer'
+          minimum: 1
+          maximum: 20
+          description: "The maximum number of asset scans that can be scheduled in parallel for this scan"
+        assetScanTemplate:
+          $ref: '#/components/schemas/AssetScanTemplate'
+          readOnly: true
+
+    # NOTE(sambetts) Any changes made to Scan must be reflected in
+    # ScanRelationship to ensure correct operation of the API when $expanding
+    Scan:
+      type: object
+      description: Describes a multi-asset scheduled scan.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            name:
+              type: string
+            revision:
+              type: integer
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            scanConfig:
+              $ref: '#/components/schemas/ScanConfigRelationship'
+            assetIDs:
+              description: List of asset IDs to be scanned
+              type: array
+              items:
+                type: string
+              nullable: true
+            state:
+              description: The lifecycle state of this scan.
+              type: string
+              enum:
+                - Pending
+                - Discovered
+                - InProgress
+                - Aborted
+                - Failed
+                - Done
+            stateMessage:
+              description: Human-readable message indicating details about the last state transition.
+              type: string
+            stateReason:
+              description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+              type: string
+              enum:
+                - Aborted
+                - TimedOut
+                - OneOrMoreAssetFailedToScan
+                - DiscoveryFailed
+                - Unexpected
+                - NothingToScan
+                - Success
+            summary:
+              $ref: '#/components/schemas/ScanSummary'
+        - $ref: '#/components/schemas/ScanTemplate'
+
+    ScanSummary:
+      description: A summary of the progress of a scan for informational purposes.
+      allOf:
+        - $ref: '#/components/schemas/ScanFindingsSummary'
+        - type: object
+          properties:
+            jobsLeftToRun:
+              type: integer
+            jobsCompleted:
+              type: integer
+
+    ScanFindingsSummary:
+      description: A summary of the scan findings.
+      type: object
+      properties:
+        totalPackages:
+          type: integer
+        totalExploits:
+          type: integer
+        totalMalware:
+          type: integer
+        totalMisconfigurations:
+          type: integer
+        totalRootkits:
+          type: integer
+        totalSecrets:
+          type: integer
+        totalInfoFinder:
+          type: integer
+        totalVulnerabilities:
+          $ref: '#/components/schemas/VulnerabilityScanSummary'
+
+    VulnerabilityScanSummary:
+      description: A summary of number of vulnerabilities found per severity.
+      type: object
+      properties:
+        totalCriticalVulnerabilities:
+          type: integer
+        totalHighVulnerabilities:
+          type: integer
+        totalMediumVulnerabilities:
+          type: integer
+        totalLowVulnerabilities:
+          type: integer
+        totalNegligibleVulnerabilities:
+          type: integer
+
+    ScanExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        scan:
+          $ref: '#/components/schemas/Scan'
+
+    ScanFamiliesConfig:
+      type: object
+      description: The configuration of the scanner families within a scan config
+      properties:
+        sbom:
+          $ref: '#/components/schemas/SBOMConfig'
+        vulnerabilities:
+          $ref: '#/components/schemas/VulnerabilitiesConfig'
+        malware:
+          $ref: '#/components/schemas/MalwareConfig'
+        rootkits:
+          $ref: '#/components/schemas/RootkitsConfig'
+        secrets:
+          $ref: '#/components/schemas/SecretsConfig'
+        misconfigurations:
+          $ref: '#/components/schemas/MisconfigurationsConfig'
+        exploits:
+          $ref: '#/components/schemas/ExploitsConfig'
+        infoFinder:
+          $ref: '#/components/schemas/InfoFinderConfig'
+
+    InfoFinderConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    VulnerabilitiesConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    SBOMConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        analyzers:
+          type: array
+          items:
+            type: string
+
+    MalwareConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    RootkitsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    SecretsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    MisconfigurationsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    ExploitsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanners:
+          type: array
+          items:
+            type: string
+
+    ScanConfigs:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total scan config count according to the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of scan configs according to the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/ScanConfig'
+          readOnly: true
+
+    ScannerInstanceCreationConfig:
+      type: object
+      description: Configuration of scanner instance
+      properties:
+        useSpotInstances:
+          type: boolean
+        retryMaxAttempts:
+          type: integer
+        maxPrice:
+          type: string
+      required:
+        - useSpotInstances
+
+    ScanConfigRelationship:
+      type: object
+      description: Describes a relationship to a scan config which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            name:
+              type: string
+              readOnly: true
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+              readOnly: true
+            scheduled:
+              $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+              readOnly: true
+            disabled:
+              description: 'if true, the scan config is disabled and no scan should run from it'
+              type: boolean
+              readOnly: true
+          required: ['id']
+
+    # NOTE(sambetts) Any changes made to ScanConfig must be reflected in
+    # ScanConfigRelationship to ensure correct operation of the API when $expanding
+    ScanConfig:
+      type: object
+      description: Describes a multi-asset scheduled scan config.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+            name:
+              type: string
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+            scheduled:
+              $ref: '#/components/schemas/RuntimeScheduleScanConfig'
+            disabled:
+              description: 'if true, the scan config is disabled and no scan should run from it'
+              type: boolean
+
+    ScanConfigExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        scanConfig:
+          $ref: '#/components/schemas/ScanConfig'
+
+    SecurityGroup:
+      type: object
+      description: general cloud security group
+      properties:
+        id:
+          type: string
+          minLength: 1
+      required:
+        - id
+      additionalProperties: false
+
+    Tag:
+      type: object
+      description: general cloud tag / label
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
+      additionalProperties: false
+
+    RootVolume:
+      type: object
+      description: Information about VM root volume
+      properties:
+        sizeGB:
+          type: integer
+        encrypted:
+          type: string
+          enum:
+            - Yes
+            - No
+            - Unknown
+      required:
+        - sizeGB
+        - encrypted
+      additionalProperties: false
+
+    RuntimeScheduleScanConfig:
+      type: object
+      minProperties: 1 # Require that at least 1 property will be set
+      additionalProperties: false
+      description: 'Runtime schedule scan configuration.
+          If only operationTime is set, it will be a single scan scheduled for the operationTime.
+          If only cronLine is set, the current time will be the "from time" to start the scheduling according to the cronLine.
+          If both operationTime and cronLine are set, the first scan will run at operationTime 
+          and the operationTime will be the first time that the cronLine will be effective from.'
+      properties:
+        cronLine:
+          description: 'Cron schedule expressions.'
+          example: '5 4 * * 1'
+          type: string
+        operationTime:
+          description: 'The next time this ScanConfig should trigger a scan.'
+          type: string
+          format: date-time
+
+    Assets:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total assets count according the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of assets in the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/Asset'
+          readOnly: true
+
+    AssetCommon:
+      type: object
+
+    # NOTE(sambetts) Any changes made to Asset must be reflected in
+    # AssetRelationship to ensure correct operation of the API when $expanding
+    Asset:
+      type: object
+      description: Describes an asset object.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            assetInfo:
+              $ref: '#/components/schemas/AssetType'
+            firstSeen:
+              type: string
+              format: date-time
+            terminatedOn:
+              type: string
+              format: date-time
+            lastSeen:
+              type: string
+              format: date-time
+            scansCount:
+              description: Total number of scans that have ever run for this asset
+              type: integer
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+            providers:
+              type: array
+              description: List of providers which discover the asset.
+              items:
+                $ref: '#/components/schemas/ProviderRelationship'
+
+    AssetRelationship:
+      type: object
+      description: Describes a relationship to an asset which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            assetInfo:
+              $ref: '#/components/schemas/AssetType'
+              readOnly: true
+            scansCount:
+              description: Total number of scans that have ever run for this asset
+              type: integer
+              readOnly: true
+            firstSeen:
+              type: string
+              format: date-time
+            terminatedOn:
+              type: string
+              format: date-time
+              readOnly: true
+            lastSeen:
+              type: string
+              format: date-time
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+              readOnly: true
+            providers:
+              type: array
+              description: List of providers which discover the asset.
+              items:
+                $ref: '#/components/schemas/ProviderRelationship'
+              readOnly: true
+          required: ['id']
+
+    AssetExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        asset:
+          $ref: '#/components/schemas/Asset'
+
+    AssetType:
+      type: object
+      anyOf:
+        - $ref: '#/components/schemas/VMInfo'
+        - $ref: '#/components/schemas/PodInfo'
+        - $ref: '#/components/schemas/DirInfo'
+        - $ref: '#/components/schemas/ContainerImageInfo'
+        - $ref: '#/components/schemas/ContainerInfo'
+      discriminator:
+        propertyName: objectType
+        mapping:
+          VMInfo: '#/components/schemas/VMInfo'
+          PodInfo: '#/components/schemas/PodInfo'
+          DirInfo: '#/components/schemas/DirInfo'
+          ContainerImageInfo: '#/components/schemas/ContainerImageInfo'
+          ContainerInfo: '#/components/schemas/ContainerInfo'
+
+    VMInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        instanceID:
+          type: string
+        instanceProvider:
+          $ref: '#/components/schemas/CloudProvider'
+        location:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+        securityGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityGroup'
+          nullable: true
+        image:
+          type: string
+        instanceType:
+          type: string
+        platform:
+          type: string
+        launchTime:
+          type: string
+          format: date-time
+        rootVolume:
+          $ref: '#/components/schemas/RootVolume'
+      required:
+        - objectType
+        - instanceID
+        - location
+        - instanceType
+        - image
+        - platform
+        - launchTime
+        - rootVolume
+
+    PodInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        podName:
+          type: string
+        location:
+          type: string
+      required:
+        - objectType
+
+    ContainerInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        containerName:
+          type: string
+        location:
+          type: string
+        image:
+          $ref: '#/components/schemas/ContainerImageInfo' 
+        containerID:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+      required:
+        - objectType
+        - containerID
+
+    ContainerImageInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        imageID:
+          type: string
+        repoTags:
+          type: array
+          items:
+            type: string
+        repoDigests:
+          type: array
+          items:
+            type: string
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          nullable: true
+        architecture:
+          type: string
+        os:
+          type: string
+        size:
+          type: integer
+      required:
+        - objectType
+        - imageID
+
+    DirInfo:
+      type: object
+      properties:
+        objectType:
+          type: string
+        dirName:
+          type: string
+        location:
+          type: string
+      required:
+        - objectType
+
+    AssetScans:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total asset scans count according to the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of asset scans according to the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/AssetScan'
+          readOnly: true
+
+    ResourceCleanupStatus:
+      type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
+      properties:
+        state:
+          description: |
+            Describes the state of resource cleanup.
+            
+            | State   | Description                                                |
+            | ------- | ---------------------------------------------------------- |
+            | Pending | Initial state for cleaning up resources                    |
+            | Skipped | Resource cleanup has been skipped due to Delete Job Policy |
+            | Failed  | Cleaning up resources has been failed                      |
+            | Done    | Resources have been successfully cleaned up                |
+          type: string
+          enum:
+            - Pending
+            - Skipped
+            - Failed
+            - Done
+        reason:
+          description: |
+            Machine readable reason for state transition.
+
+            | State   | Reason          | Description                                                            |
+            | ------- | --------------- | ---------------------------------------------------------------------- |
+            | Pending | AssetScanCreate | AssetScan created                                                      |
+            | Skipped | NotApplicable   | Resource cleanup is not required as it is managed outside of VMClarity |
+            | Skipped | DeletePolicy    | Resource cleanup has been skipped due to Delete Job Policy             |
+            | Failed  | ProviderError   | Failed due to Provider error                                           |
+            | Failed  | InternalError   | Failed due to internal error                                           |
+            | Done    | Success         | Successfully completed                                                 |
+          type: string
+          enum:
+            - AssetScanCreated
+            - NotApplicable
+            - DeletePolicy
+            - ProviderError
+            - InternalError
+            - Success
+        message:
+          description: Human readable message.
+          type: string
+        lastTransitionTime:
+          description: Last date time when the status has changed.
+          type: string
+          format: date-time
+
+    AssetScanTemplate:
+      type: object
+      properties:
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+
+    AssetScan:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            scan:
+              $ref: '#/components/schemas/ScanRelationship'
+            status:
+              $ref: '#/components/schemas/AssetScanStatus'
+            sboms:
+              $ref: '#/components/schemas/SbomScan'
+            vulnerabilities:
+              $ref: '#/components/schemas/VulnerabilityScan'
+            malware:
+              $ref: '#/components/schemas/MalwareScan'
+            rootkits:
+              $ref: '#/components/schemas/RootkitScan'
+            secrets:
+              $ref: '#/components/schemas/SecretScan'
+            misconfigurations:
+              $ref: '#/components/schemas/MisconfigurationScan'
+            exploits:
+              $ref: '#/components/schemas/ExploitScan'
+            infoFinder:
+              $ref: '#/components/schemas/InfoFinderScan'
+            findingsProcessed:
+              type: boolean
+            resourceCleanupStatus:
+              $ref: '#/components/schemas/ResourceCleanupStatus'
+            stats:
+              $ref: '#/components/schemas/AssetScanStats'
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+            provider:
+              $ref: "#/components/schemas/ProviderRelationship"
+              description: Provider responsible for picking up and running the asset scan.
+        - $ref: '#/components/schemas/AssetScanTemplate'
+      # TODO(sambetts) Decide if we want the validation here by having
+      # separate schemas for GET, POST and PATCH.
+      #
+      # We can't make anything readOnly or required here if we want to
+      # use the same schema for PATCH otherwise it will require you
+      # always send the required fields and remove the readOnly fields
+      # on the client side.
+      #
+      # required:
+      #  - asset
+      #  - scan
+
+    AssetScanStats:
+      type: object
+      properties:
+        general:
+          $ref: '#/components/schemas/AssetScanGeneralStats'
+        sbom:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        malware:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        rootkits:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        misconfigurations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        exploits:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+        infoFinder:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanInputScanStats'
+
+    AssetScanTemplateReadOnly:
+      type: object
+      properties:
+        scanFamiliesConfig:
+          $ref: '#/components/schemas/ScanFamiliesConfig'
+        scannerInstanceCreationConfig:
+          $ref: '#/components/schemas/ScannerInstanceCreationConfig'
+
+    AssetScanRelationship:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH.
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            revision:
+              type: integer
+              readOnly: true
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+              readOnly: true
+            scan:
+              $ref: '#/components/schemas/ScanRelationship'
+              readOnly: true
+            status:
+              $ref: '#/components/schemas/AssetScanStatus'
+              readOnly: true
+            sboms:
+              $ref: '#/components/schemas/SbomScan'
+              readOnly: true
+            vulnerabilities:
+              $ref: '#/components/schemas/VulnerabilityScan'
+              readOnly: true
+            malware:
+              $ref: '#/components/schemas/MalwareScan'
+              readOnly: true
+            rootkits:
+              $ref: '#/components/schemas/RootkitScan'
+              readOnly: true
+            secrets:
+              $ref: '#/components/schemas/SecretScan'
+              readOnly: true
+            misconfigurations:
+              $ref: '#/components/schemas/MisconfigurationScan'
+              readOnly: true
+            exploits:
+              $ref: '#/components/schemas/ExploitScan'
+              readOnly: true
+            infoFinder:
+              $ref: '#/components/schemas/InfoFinderScan'
+              readOnly: true
+            findingsProcessed:
+              type: boolean
+              readOnly: true
+            resourceCleanupStatus:
+              $ref: '#/components/schemas/ResourceCleanupStatus'
+              readOnly: true
+            stats:
+              $ref: '#/components/schemas/AssetScanStats'
+              readOnly: true
+            summary:
+              $ref: '#/components/schemas/ScanFindingsSummary'
+              readOnly: true
+          required: [id]
+        - $ref: '#/components/schemas/AssetScanTemplateReadOnly'
+
+    AssetScanGeneralStats:
+      type: object
+      description: Global statistics for asset scan of all families.
+      properties:
+        scanTime:
+          $ref: '#/components/schemas/AssetScanScanTime'
+
+    AssetScanInputScanStats:
+      type: object
+      description: Statistics per asset scan input.
+      properties:
+        type:
+          description: The input type (ROOTFS, DIR, IMAGE etc.)
+          type: string
+        path:
+          description: The input path (/mnt/snapshot for ex.)
+          type: string
+        size:
+          description: The input size in MB.
+          type: integer
+          format: int64
+        scanTime:
+          $ref: '#/components/schemas/AssetScanScanTime'
+
+    AssetScanScanTime:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+
+    AssetScanExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          readOnly: true
+          type: string
+        assetScan:
+          $ref: '#/components/schemas/AssetScan'
+
+    AssetScanStatus:
+      type: object
+      properties:
+        general:
+          $ref: '#/components/schemas/AssetScanState'
+        sbom:
+          $ref: '#/components/schemas/AssetScanState'
+        vulnerabilities:
+          $ref: '#/components/schemas/AssetScanState'
+        malware:
+          $ref: '#/components/schemas/AssetScanState'
+        rootkits:
+          $ref: '#/components/schemas/AssetScanState'
+        secrets:
+          $ref: '#/components/schemas/AssetScanState'
+        misconfigurations:
+          $ref: '#/components/schemas/AssetScanState'
+        exploits:
+          $ref: '#/components/schemas/AssetScanState'
+        infoFinder:
+          $ref: '#/components/schemas/AssetScanState'
+
+    AssetScanState:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+            - NotScanned
+            - Pending
+            - Scheduled
+            - ReadyToScan
+            - InProgress
+            - Aborted
+            - Done
+        lastTransitionTime:
+          type: string
+          format: date-time
+        errors:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    AssetScanEstimationState:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+            - Pending
+            - Aborted
+            - Failed
+            - Done
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - Unexpected
+            - Success
+        lastTransitionTime:
+          type: string
+          format: date-time
+
+    Providers:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total providers count according the given filters
+          readOnly: true
+        items:
+          type: array
+          description: List of providers in the given filters and page.
+            List length must be lower or equal to pageSize.
+          items:
+            $ref: '#/components/schemas/Provider'
+          readOnly: true
+
+    # NOTE Any changes made to Provider must be reflected in
+    # ProviderRelationship to ensure correct operation of the API when $expanding
+    Provider:
+      type: object
+      description: Describes a provider object.
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+            displayName:
+              description: Human-readable name for the provider.
+              type: string
+            lastHeartbeatTime:
+              description: Timestamp of the last heartbeat from the provider.
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/ProviderStatus'
+            providerRuntimeVersion:
+              description: Version of the provider runtime that the provider was compiled with.
+              type: string
+
+    ProviderRelationship:
+      type: object
+      description: Describes a relationship to a provider which can be expanded.
+      allOf:
+        - $ref: '#/components/schemas/MetadataReadOnly'
+        - type: object
+          properties:
+            id:
+              type: string
+            revision:
+              type: integer
+              readOnly: true
+            displayName:
+              description: Human-readable name for the provider.
+              type: string
+              readOnly: true
+            lastHeartbeatTime:
+              description: Timestamp of the last heartbeat from the provider.
+              type: string
+              format: date-time
+              readOnly: true
+            status:
+              $ref: '#/components/schemas/ProviderStatus'
+              readOnly: true
+            providerRuntimeVersion:
+              description: Version of the provider runtime that the provider was compiled with.
+              type: string
+              readOnly: true
+
+    ProviderExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        provider:
+          $ref: '#/components/schemas/Provider'
+
+    ProviderStatus:
+      type: object
+      required:
+        - state
+        - reason
+        - lastTransitionTime
+      properties:
+        state:
+          description: |
+            Describes the health state of the provider.
+
+            | State     | Description                                    |
+            | --------- | ---------------------------------------------- |
+            | Healthy   | Provider is healthy.                           |
+            | Unhealthy | Heartbeat received, but Provider is unhealthy. |
+            | Unknown   | No heartbeat received from Provider.           |
+          type: string
+          enum:
+            - Healthy
+            - Unhealthy
+            - Unknown
+        reason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - HeartbeatReceived
+            - NoHeartbeatReceived
+        message:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        lastTransitionTime:
+          description: Last date-time when the status has changed.
+          type: string
+          format: date-time
+
+    Package:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        type:
+          type: string
+        language:
+          type: string
+        licenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+        cpes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        purl:
+          type: string
+
+    Vulnerability:
+      type: object
+      properties:
+        vulnerabilityName:
+          type: string
+        description:
+          type: string
+        severity:
+          $ref: '#/components/schemas/VulnerabilitySeverity'
+        links:
+          type: array
+          items:
+            type: string
+          nullable: true
+        distro:
+          $ref: '#/components/schemas/VulnerabilityDistro'
+        cvss:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilityCvss'
+          nullable: true
+        package:
+          $ref: '#/components/schemas/Package'
+        fix:
+          $ref: '#/components/schemas/VulnerabilityFix'
+        layerId:
+          type: string
+        path:
+          type: string
+
+    VulnerabilityFix:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            type: string
+          nullable: true
+        state:
+          type: string
+
+    VulnerabilityCvss:
+      type: object
+      properties:
+        version:
+          type: string
+        vector:
+          type: string
+        metrics:
+          $ref: '#/components/schemas/VulnerabilityCvssMetrics'
+
+    VulnerabilityCvssMetrics:
+      type: object
+      properties:
+        baseScore:
+          type: number
+        exploitabilityScore:
+          type: number
+        impactScore:
+          type: number
+
+    VulnerabilityDistro:
+      type: object
+      description: Distro provides information about a detected Linux distribution.
+      properties:
+        name:
+          description: Name of the Linux distribution
+          type: string
+        version:
+          description: Version of the Linux distribution (major or major.minor version)
+          type: string
+        IDLike:
+          description: the ID_LIKE field found within the /etc/os-release file
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    VulnerabilitySeverity:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - NEGLIGIBLE
+
+    ScannerSummary:
+      type: object
+      properties:
+        KnownViruses:
+          type: integer
+        EngineVersion:
+          type: string
+        ScannedDirectories:
+          type: integer
+        ScannedFiles:
+          type: integer
+        InfectedFiles:
+          type: integer
+        SuspectedFiles:
+          type: integer
+        DataScanned:
+          type: string
+        DataRead:
+          type: string
+        TimeTaken:
+          type: string
+
+    ScannerMetadata:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        scannerSummary:
+          $ref: '#/components/schemas/ScannerSummary'
+
+    Malware:
+      type: object
+      properties:
+        malwareName:
+          type: string
+        malwareType:
+          $ref: '#/components/schemas/MalwareType'
+        ruleName:
+          type: string
+        path:
+          type: string
+          description: Path of the file that contains malware
+
+    Rootkit:
+      type: object
+      properties:
+        rootkitName:
+          type: string
+        rootkitType:
+          $ref: '#/components/schemas/RootkitType'
+        message:
+          type: string
+
+    MisconfigurationSeverity:
+      type: string
+      enum:
+        - MisconfigurationHighSeverity
+        - MisconfigurationMediumSeverity
+        - MisconfigurationLowSeverity
+
+    Misconfiguration:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        scannedPath:
+          type: string
+        testCategory:
+          type: string
+        testID:
+          type: string
+        testDescription:
+          type: string
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
+        message:
+          type: string
+        remediation:
+          type: string
+
+    Secret:
+      type: object
+      properties:
+        description:
+          type: string
+        filePath:
+          description: "Name of the file containing the secret"
+          type: string
+        startLine:
+          type: integer
+        endLine:
+          type: integer
+        startColumn:
+          type: integer
+        endColumn:
+          type: integer
+        fingerprint:
+          description: "Note: this is not unique"
+          type: string
+
+    Exploit:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        cveID:
+          type: string
+        sourceDB:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    SbomScan:
+      type: object
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Package'
+          nullable: true
+
+    VulnerabilityScan:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vulnerability'
+          nullable: true
+
+    MalwareScan:
+      type: object
+      properties:
+        malware:
+          type: array
+          items:
+            $ref: '#/components/schemas/Malware'
+          nullable: true
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScannerMetadata'
+          nullable: true
+
+    RootkitScan:
+      type: object
+      properties:
+        rootkits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rootkit'
+          nullable: true
+
+    SecretScan:
+      type: object
+      properties:
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Secret'
+          nullable: true
+
+    MisconfigurationScan:
+      type: object
+      properties:
+        scanners:
+          type: array
+          items:
+            type: string
+          nullable: true
+        misconfigurations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Misconfiguration'
+          nullable: true
+
+    InfoFinderScan:
+      type: object
+      properties:
+        scanners:
+          type: array
+          items:
+            type: string
+          nullable: true
+        infos:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfoFinderInfo'
+          nullable: true
+
+    InfoFinderInfo:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        type:
+          $ref: '#/components/schemas/InfoType'
+        path:
+          type: string
+          description: "File path containing the info"
+        data:
+          type: string
+          description: "The data found by the scanner in the specific path for a specific type. See example for SSHKnownHostFingerprint info type"
+          example: "2048 SHA256:YQuPOM8ld6FOA9HbKCgkCJWHuGt4aTRD7hstjJpRhxc xxxx (RSA)"
+
+    InfoType:
+      type: string
+      enum:
+        - SSHKnownHostFingerprint
+        - SSHAuthorizedKeyFingerprint
+        - SSHPrivateKeyFingerprint
+        - SSHDaemonKeyFingerprint
+        - UNKNOWN
+
+    ExploitScan:
+      type: object
+      properties:
+        exploits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exploit'
+          nullable: true
+
+    MalwareType:
+      type: string
+
+    RootkitType:
+      type: string
+      enum:
+        - MEMORY
+        - KERNEL
+        - APPLICATION
+        - FIRMWARE
+        - UNKNOWN
+
+    ScanType:
+      type: string
+      enum:
+        - SBOM
+        - VULNERABILITY
+        - MALWARE
+        - SECRET
+        - MISCONFIGURATION
+        - ROOTKIT
+        - EXPLOIT
+        - INFOFINDER
+
+    FindingExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        finding:
+          $ref: '#/components/schemas/Finding'
+
+    Findings:
+      type: object
+      properties:
+        count:
+          description: Total findings count according to the given filters
+          type: integer
+        items:
+          description: List of findings according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
+
+    PackageFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Package'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    VulnerabilityFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Vulnerability'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    MalwareFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Malware'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    SecretFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Secret'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    MisconfigurationFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Misconfiguration'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    RootkitFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Rootkit'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    ExploitFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Exploit'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [objectType]
+
+    InfoFinderFindingInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/InfoFinderInfo'
+        - type: object
+          properties:
+            objectType:
+              type: string
+          required: [ objectType ]
+
+    Finding:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+              # TODO(sambetts) Decide if we want the validation here by having
+              # separate schemas for GET, POST and PATCH
+              #
+              # We can't make anything readOnly or required here if we want to
+              # use the same schema for PATCH otherwise it will require you
+              # always send the required fields and remove the readOnly fields
+              # on the client side.
+              #
+              # readOnly: true
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            foundBy:
+              $ref: '#/components/schemas/AssetScanRelationship'
+            foundOn:
+              description: When this finding was discovered by a scan
+              type: string
+              format: date-time
+            invalidatedOn:
+              description: When this finding was invalidated by a newer scan
+              type: string
+              format: date-time
+            findingInfo:
+              anyOf:
+                - $ref: '#/components/schemas/PackageFindingInfo'
+                - $ref: '#/components/schemas/VulnerabilityFindingInfo'
+                - $ref: '#/components/schemas/MalwareFindingInfo'
+                - $ref: '#/components/schemas/SecretFindingInfo'
+                - $ref: '#/components/schemas/MisconfigurationFindingInfo'
+                - $ref: '#/components/schemas/RootkitFindingInfo'
+                - $ref: '#/components/schemas/ExploitFindingInfo'
+                - $ref: '#/components/schemas/InfoFinderFindingInfo'
+              discriminator:
+                propertyName: objectType
+                mapping:
+                  Package: '#/components/schemas/PackageFindingInfo'
+                  Vulnerability: '#/components/schemas/VulnerabilityFindingInfo'
+                  Malware: '#/components/schemas/MalwareFindingInfo'
+                  Secret: '#/components/schemas/SecretFindingInfo'
+                  Misconfiguration: '#/components/schemas/MisconfigurationFindingInfo'
+                  Rootkit: '#/components/schemas/RootkitFindingInfo'
+                  Exploit: '#/components/schemas/ExploitFindingInfo'
+                  InfoFinder: '#/components/schemas/InfoFinderFindingInfo'
+
+    ScanEstimations:
+      type: object
+      properties:
+        count:
+          description: Total ScanEstimations count according to the given filters
+          type: integer
+        items:
+          description: List of ScanEstimations according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanEstimation'
+
+    ScanEstimation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            assetIDs:
+              description: List of asset IDs to be estimated
+              type: array
+              items:
+                type: string
+            state:
+              $ref: '#/components/schemas/ScanEstimationState'
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            assetScanEstimations:
+              description: AssetScanEstimations which make up this ScanEstimation
+              type: array
+              items:
+                $ref: '#/components/schemas/AssetScanEstimationRelationship'
+            scanTemplate:
+              $ref: '#/components/schemas/ScanTemplate'
+            summary:
+              $ref: '#/components/schemas/ScanEstimationSummary'
+            revision:
+              type: integer
+            ttlSecondsAfterFinished:
+              description: The duration in seconds this resource should last until it is deleted.
+              x-go-name: TTLSecondsAfterFinished
+              type: integer
+            deleteAfter:
+              description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+                This should not be set by the user, but use ttlSecondsAfterFinished instead.
+              type: string
+              format: date-time
+
+    ## TODO fill out the rest of the fields for the ScanEstimationRelationship.
+    ScanEstimationRelationship:
+      type: object
+      properties:
+        id:
+          type: string
+
+    ScanEstimationState:
+      type: object
+      properties:
+        state:
+          description: The lifecycle state of this scan estimation.
+          type: string
+          enum:
+            - Pending
+            - Discovered
+            - InProgress
+            - Aborted
+            - Failed
+            - Done
+        stateMessage:
+          description: Human-readable message indicating details about the last state transition.
+          type: string
+        stateReason:
+          description: Machine-readable, UpperCamelCase text indicating the reason for the condition's last transition.
+          type: string
+          enum:
+            - Aborted
+            - TimedOut
+            - OneOrMoreAssetFailedToEstimate
+            - DiscoveryFailed
+            - Unexpected
+            - NothingToEstimate
+            - Success
+
+    Estimation:
+      type: object
+      properties:
+        duration:
+          description: The estimated scan duration (seconds)
+          type: integer
+        size:
+          description: The estimated scan size (GB)
+          type: integer
+        cost:
+          description: The estimated scan cost ($)
+          type: number
+          format: float
+        costBreakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/CostBreakdownComponent'
+
+    CostBreakdownComponent:
+      type: object
+      properties:
+        operation:
+          type: string
+        cost:
+          type: number
+          format: float
+      required: ['operation','cost']
+
+    AssetScanEstimations:
+      type: object
+      properties:
+        count:
+          description: Total AssetScanEstimations count according to the given filters
+          type: integer
+        items:
+          description: List of AssetScanEstimations according to the given filters
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetScanEstimation'
+
+    AssetScanEstimation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            id:
+              type: string
+            asset:
+              $ref: '#/components/schemas/AssetRelationship'
+            scanEstimation:
+              $ref: '#/components/schemas/ScanEstimationRelationship'
+            state:
+              $ref: '#/components/schemas/AssetScanEstimationState'
+            estimation:
+              $ref: '#/components/schemas/Estimation'
+            assetScanTemplate:
+              $ref: '#/components/schemas/AssetScanTemplate'
+            revision:
+              type: integer
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            ttlSecondsAfterFinished:
+              x-go-name: TTLSecondsAfterFinished
+              description: The duration in seconds this resource should last until it is deleted.
+              type: integer
+            deleteAfter:
+              description: The time this resource should be deleted. This value is calculated by endTime + ttlSecondsAfterFinished.
+                This should not be set by the user, but use ttlSecondsAfterFinished instead.
+              type: string
+              format: date-time
+
+    ## TODO fill out the rest of the fields for the AssetScanEstimationRelationship.
+    AssetScanEstimationRelationship:
+      type: object
+      properties:
+        id:
+          type: string
+
+    AssetScanEstimationExists:
+      type: object
+      properties:
+        message:
+          description: Describes which unique constraint combination causes the conflict.
+          type: string
+          readOnly: true
+        assetScanEstimation:
+          $ref: '#/components/schemas/AssetScanEstimation'
+
+    ScanEstimationSummary:
+      type: object
+      description: A summary of the AssetScanEstimations under this ScanEstimation
+      properties:
+        jobsLeftToRun:
+          type: integer
+        jobsCompleted:
+          type: integer
+        totalScanTime:
+          description: Total estimated time the scan will take (seconds)
+          type: integer
+        totalScanSize:
+          description: Total estimated size of the scan (GB)
+          type: integer
+        totalScanCost:
+          description: Total estimated cost of the scan ($)
+          type: number
+          format: float
+
+  responses:
+    Success:
+      description: Success message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponse'
+
+    UnknownError:
+      description: Unknown error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+  parameters:
+    assetID:
+      name: assetID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    odataFilter:
+      name: "$filter"
+      in: query
+      schema:
+        type: string
+
+    odataSelect:
+      name: "$select"
+      in: query
+      schema:
+        type: string
+
+    odataCount:
+      name: "$count"
+      in: query
+      schema:
+        type: boolean
+
+    odataTop:
+      name: "$top"
+      in: query
+      schema:
+        type: integer
+
+    odataSkip:
+      name: "$skip"
+      in: query
+      schema:
+        type: integer
+
+    odataExpand:
+      name: "$expand"
+      in: query
+      schema:
+        type: string
+
+    odataOrderBy:
+      name: "$orderby"
+      in: query
+      schema:
+        type: string
+      x-go-name: "OrderBy"
+
+    scanID:
+      name: scanID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    assetScanID:
+      name: assetScanID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    scanConfigID:
+      name: scanConfigID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    findingID:
+      name: findingID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    scanEstimationID:
+      name: scanEstimationID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    assetScanEstimationID:
+      name: assetScanEstimationID
+      in: path
+      required: true
+      schema:
+        type: string
+
+    ifmatch:
+      name: If-Match
+      in: header
+      schema:
+        type: integer
+
+    providerID:
+      name: providerID
+      in: path
+      required: true
+      schema:
+        type: string

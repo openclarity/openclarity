@@ -1,0 +1,137 @@
+name: Build & Push
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      push:
+        required: false
+        type: boolean
+        description: 'If set to true, push the image.'
+        default: false
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image is pushed to the release repository otherwise it is pushed to the development.'
+        default: false
+      post_image_tags:
+        required: false
+        type: boolean
+        description: |
+          If set to true the image tags pushed to the repository are posted as comment for the Pull Request.
+          Only works if the event type is `pull_request`.
+
+jobs:
+  timestamp:
+    runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set timestamp
+        id: timestamp
+        run: |
+          ##
+          ## Set timestamp variable
+          ##
+          
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+  images:
+    uses: ./.github/workflows/reusable-image-names.yml
+    with:
+      use_release_repository: ${{ inputs.use_release_repository }}
+
+  vmclarity-apiserver:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.apiserver
+      image_name: ${{ needs.images.outputs.apiserver-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
+  vmclarity-orchestrator:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.orchestrator
+      image_name: ${{ needs.images.outputs.orchestrator-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
+  vmclarity-ui-backend:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.uibackend
+      image_name: ${{ needs.images.outputs.ui-backend-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
+  vmclarity-ui:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.ui
+      image_name: ${{ needs.images.outputs.ui-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
+  vmclarity-cli:
+    needs:
+      - images
+      - timestamp
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      dockerfile: Dockerfile.cli
+      image_name: ${{ needs.images.outputs.cli-image }}
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.timestamp.outputs.timestamp }}
+
+  post-images:
+    if: github.event_name == 'pull_request' && inputs.post_image_tags
+    runs-on: ubuntu-latest
+    needs:
+      - images
+      - vmclarity-apiserver
+      - vmclarity-orchestrator
+      - vmclarity-ui-backend
+      - vmclarity-ui
+      - vmclarity-cli
+    steps:
+      - name: Post comment with image tags
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          hide_and_recreate: true
+          hide_classify: "OUTDATED"
+          skip_unchanged: true
+          header: image-tags
+          message: |
+            Hey!
+            
+            Your images are ready:
+            * `${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}`
+            * `${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}`
+

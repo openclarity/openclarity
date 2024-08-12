@@ -1,0 +1,13 @@
+@import 'utils/scss_variables.module.scss';
+
+.modal-inner-wrapper.scan-config-delete-confirmation {
+    padding: 30px;
+
+    .modal-title {
+        color: $color-main;
+    }
+    .clarity-button.modal-submit-button {
+        background-color: $color-error;
+        color: white;
+    }
+}

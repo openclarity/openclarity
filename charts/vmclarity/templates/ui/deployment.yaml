@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.ui.name" . }}
+  labels: {{- include "vmclarity.ui.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.ui.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.ui.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.ui.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.ui.affinity }}
+      affinity: {{- .Values.ui.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ui.nodeSelector }}
+      nodeSelector: {{- .Values.ui.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ui.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.ui.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ui.tolerations }}
+      tolerations: {{- .Values.ui.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: ui
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.ui.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.ui.image.pullPolicy | quote }}
+          {{- if .Values.ui.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.ui.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ui.resources }}
+          resources: {{- toYaml .Values.ui.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /var/run
+              name: tmpfs-1
+            - mountPath: /var/cache/nginx
+              name: tmpfs-2
+      volumes:
+        - name: tmpfs-1
+          emptyDir: {}
+        - name: tmpfs-2
+          emptyDir: {}
+      serviceAccountName: {{ include "vmclarity.ui.serviceAccountName" . }}

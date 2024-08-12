@@ -1,0 +1,43 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - docker.io
+write_files:
+  - path: /opt/vmclarity/scanconfig.yaml
+    permissions: "0644"
+    content: |
+      {{- .ScannerCLIConfig | nindent 6 }}
+  - path: /etc/systemd/system/vmclarity-scanner.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=VMClarity scanner job
+      Requires=docker.service
+      After=network.asset docker.service
+      
+      [Service]
+      Type=oneshot
+      WorkingDirectory=/opt/vmclarity
+      ExecStartPre=mkdir -p /var/opt/vmclarity
+      ExecStartPre=docker pull {{ .ScannerImage }}
+      ExecStart=docker run --rm --name %n --privileged \
+          -v /:/hostfs \
+          -v /dev:/dev \
+          -v /opt/vmclarity:/opt/vmclarity \
+          -v /run:/run \
+          -v /var/opt/vmclarity:/var/opt/vmclarity \
+          {{ .ScannerImage }} \
+          scan \
+          --config /opt/vmclarity/scanconfig.yaml \
+          --server {{ .VMClarityAddress }} \
+          --mount-attached-volume \
+          --asset-scan-id {{ .AssetScanID }} \
+          --output /var/opt/vmclarity
+      
+      [Install]
+      WantedBy=multi-user.asset
+
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, start, docker.service ]
+  - [ systemctl, start, vmclarity-scanner.service ]

@@ -1,0 +1,8 @@
+.DS_Store
+.idea/
+bin/
+**/.vagrant
+/cloud-config.cfg
+db.db
+ui/build/
+site/

@@ -1,0 +1,147 @@
+name: 'Build and Push Component'
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+        description: 'Dockerfile to build and push'
+      image_name:
+        required: true
+        type: string
+        description: 'Name of the image to publish'
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      push:
+        required: false
+        type: boolean
+        description: 'If set to true, push the image.'
+        default: false
+      timestamp:
+        required: true
+        type: string
+        description: 'The build timestamp to be used for binaries.'
+
+jobs:
+  build-vars:
+    runs-on: ubuntu-latest
+    outputs:
+      digests-cache-name: ${{ steps.build-vars.outputs.digests-cache-name }}
+    steps:
+      - name: Set build variables
+        id: build-vars
+        run: |
+          
+          ##
+          ## Extract the image name
+          ##
+          ##    $ basename ghcr.io/openclarity/vmclarity-ui-dev
+          ##    vmclarity-ui-dev
+          ##
+          image_name="$(basename ${{ inputs.image_name }})"
+          
+          ##
+          ## Set digests cache name
+          ##
+
+          echo "digests-cache-name=digests-${{ github.run_id }}-${image_name}" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: build-vars
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        uses: docker/build-push-action@v5
+        id: build
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          file: ${{ inputs.dockerfile }}
+          outputs: type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            VERSION=${{ inputs.image_tag }}
+            BUILD_TIMESTAMP=${{ inputs.timestamp }}
+            COMMIT_HASH=${{ github.sha }}
+
+      - name: Export digest
+        if: inputs.push
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digests
+        if: inputs.push
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ needs.build-vars.outputs.digests-cache-name }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge-and-push:
+    if: inputs.push
+    runs-on: ubuntu-latest
+    needs:
+      - build-vars
+      - build-and-push
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build-vars.outputs.digests-cache-name }}
+          path: /tmp/digests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            --tag "${{ inputs.image_name }}:${{ inputs.image_tag }}" \
+            $(printf '${{ inputs.image_name }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ inputs.image_name }}:${{ inputs.image_tag }} 

@@ -1,0 +1,9 @@
+@import 'utils/scss_variables.module.scss';
+
+.dashboard-widget-wrapper {
+    background: linear-gradient(292.93deg, #F9F9F9 -0.56%, #FFFFFF 100%);
+    border: 1px solid $color-grey-light;
+    box-sizing: border-box;
+    padding: 30px;
+    overflow: hidden;
+}

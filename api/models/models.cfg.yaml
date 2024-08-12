@@ -1,0 +1,6 @@
+package: models
+generate:
+  models: true
+output: models/models.gen.go
+output-options:
+  skip-prune: true

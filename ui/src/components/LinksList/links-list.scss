@@ -1,0 +1,23 @@
+@import 'utils/scss_variables.module.scss';
+
+.links-list-wrapper {
+    .links-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        min-height: 50px;
+        box-sizing: border-box;
+        box-shadow: 0px 0px 10px rgba(177, 171, 189, 0.2);
+        border: 1px solid $color-grey-light;
+        overflow: hidden;
+        cursor: pointer;
+
+        &:not(:last-child) {
+            margin-bottom: 10px;
+        }
+        &:hover {
+            background-color: $color-blue-light;
+        }
+    }
+}

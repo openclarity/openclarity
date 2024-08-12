@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+.findings-system-filters-links {
+    display: flex;
+    align-items: center;
+
+    .findings-system-filters-title {
+        margin-right: 10px;
+        white-space: nowrap;
+    }
+    .finging-filter-link {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+        white-space: nowrap;
+
+        .icon {
+            color: $color-main;
+            margin-right: 5px;
+        }
+    }
+}

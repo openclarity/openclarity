@@ -1,0 +1,92 @@
+# https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#force-deleting-cache-entries
+
+name: Cache cleanup
+on:
+  pull_request:
+    types:
+      - closed
+  schedule:
+    # At 06:00 on every day-of-week from Monday through Friday.
+    # https://crontab.guru/#0_6_*_*_1-5
+    - cron: '0 6 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      operation_mode:
+        required: true
+        type: choice
+        description: |
+          Use "by-ref" if cleaning up cache entries for a specific git reference is desired.
+          Otherwise use "by-age" to cleanup cache entries older then the provided time interval.
+        options:
+          - by-ref
+          - by-age
+      pr_number:
+        type: string
+        description: Id for the Pull Request to clean up. It is used only if the operation_mode is set to "by-ref".
+      older_than:
+        type: string
+        description: Time interval to be used for cleaning up cache entries by age. It is used only if the operation_mode is set to "by-age".
+        default: 7 days ago
+      dry_run:
+        type: boolean
+        description: Whether run the cleanup job in dry-run mode or not. Default is to running cleanup in dry-run mode.
+        default: true
+
+permissions:
+  actions: write
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Cleanup cache entries for PR
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cleanup
+        run: ./.github/scripts/cache-cleanup.sh
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: refs/pull/${{ github.event.pull_request.number }}/merge
+          OPERATION_MODE: by-ref
+          DRY_RUN: false
+
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Cleanup cache entries manually
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cleanup
+        run: ./.github/scripts/cache-cleanup.sh
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: refs/pull/${{ inputs.pr_number }}/merge
+          OPERATION_MODE: ${{ inputs.operation_mode }}
+          OLDER_THAN: ${{ inputs.older_than }}
+          DRY_RUN: ${{ inputs.dry_run }}
+
+  schedule:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    name: Cleanup cache entries by age
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cleanup
+        run: ./.github/scripts/cache-cleanup.sh
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          OPERATION_MODE: by-age
+          OLDER_THAN: 7 days ago
+          DRY_RUN: false
