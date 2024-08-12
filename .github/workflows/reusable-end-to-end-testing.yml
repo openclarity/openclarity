@@ -1,0 +1,107 @@
+name: End to End Testing
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to use.'
+      platform:
+        required: true
+        type: string
+        description: 'Platform used to run end-to-end tests. Supported values are `docker` and `kubernetes`.'
+      registry_name:
+        required: false
+        type: string
+        description: 'Name of the registry.'
+        default: openclarity.io
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Set up Go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
+        with:
+          # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
+          # as it provides better flexibility like setting the cache key which reduces cache misses significantly.
+          cache: false
+          go-version-file: '.go-version'
+
+      - name: Free up disk space
+        run: |
+          df -h
+
+          # Remove .NET related tooling
+          sudo du -sh /usr/share/dotnet
+          sudo rm -rf /usr/share/dotnet
+
+          # Remove Android related tooling
+          sudo du -sh /usr/local/lib/android
+          sudo rm -rf /usr/local/lib/android
+
+          # Remove CodeQL
+          sudo du -sh /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          df -h
+
+      - name: Setup Go caching
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ github.ref_name }}-
+            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+
+      - name: Install kind for Kubernetes
+        if: inputs.platform == 'kubernetes'
+        uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
+        with:
+          install_only: true
+
+      - name: Install helm for Kubernetes
+        if: inputs.platform == 'kubernetes'
+        uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
+
+      - name: Install btrfs
+        run: sudo apt-get install libbtrfs-dev -y
+
+      - name: Download artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          path: tmp/artifacts
+          merge-multiple: true
+
+      - name: Load images to local Docker registry
+        run: |
+          for image_archive in tmp/artifacts/*.tar; do
+            docker load --input "$image_archive"
+          done
+          docker images
+
+      - name: Run end to end tests
+        env:
+          VMCLARITY_E2E_APISERVER_IMAGE: ${{ inputs.registry_name }}/vmclarity-apiserver:${{ inputs.image_tag }}
+          VMCLARITY_E2E_ORCHESTRATOR_IMAGE: ${{ inputs.registry_name }}/vmclarity-orchestrator:${{ inputs.image_tag }}
+          VMCLARITY_E2E_UI_IMAGE: ${{ inputs.registry_name }}/vmclarity-ui:${{ inputs.image_tag }}
+          VMCLARITY_E2E_UIBACKEND_IMAGE: ${{ inputs.registry_name }}/vmclarity-ui-backend:${{ inputs.image_tag }}
+          VMCLARITY_E2E_SCANNER_IMAGE: ${{ inputs.registry_name }}/vmclarity-cli:${{ inputs.image_tag }}
+          VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ inputs.registry_name }}/vmclarity-cr-discovery-server:${{ inputs.image_tag }}
+          VMCLARITY_E2E_PLUGIN_KICS_IMAGE: ${{ inputs.registry_name }}/vmclarity-plugin-kics:${{ inputs.image_tag }}
+          VMCLARITY_E2E_PLATFORM: ${{ inputs.platform }}
+        run: |
+          if [[ "${{ inputs.platform }}" == "kubernetes" ]]; then
+            make e2e-k8s
+          elif [[ "${{ inputs.platform }}" == "docker" ]]; then
+            make e2e-docker
+          else
+            echo "Invalid platform"
+          fi

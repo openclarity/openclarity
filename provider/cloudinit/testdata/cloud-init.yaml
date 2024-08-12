@@ -1,0 +1,55 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - docker.io
+write_files:
+  - path: /opt/vmclarity/scanconfig.yaml
+    permissions: "0644"
+    content: |
+      sbom:
+        enabled: true
+      secrets:
+        enabled: true
+      rootkits:
+        enabled: true
+      malware:
+        enabled: true
+      misconfiguration:
+        enabled: true
+
+  - path: /etc/systemd/system/vmclarity-scanner.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=VMClarity scanner job
+      Requires=docker.service
+      After=network.target docker.service
+      
+      [Service]
+      Type=oneshot
+      WorkingDirectory=/opt/vmclarity
+      ExecStartPre=mkdir -p /var/opt/vmclarity
+      ExecStartPre=docker pull ghcr.io/openclarity/vmclarity-cli:latest
+      ExecStartPre=docker network create vmclarity
+      ExecStart=docker run --rm --name %n --privileged \
+          -v /:/hostfs \
+          -v /dev:/dev \
+          -v /opt/vmclarity:/opt/vmclarity \
+          -v /run:/run \
+          -v /var/opt/vmclarity:/var/opt/vmclarity \
+          -v /mnt:/mnt \
+          --network vmclarity \
+          ghcr.io/openclarity/vmclarity-cli:latest \
+          scan \
+          --config /opt/vmclarity/scanconfig.yaml \
+          --server 10.1.1.1:8888 \
+          --mount-attached-volume \
+          --asset-scan-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \
+          --output /var/opt/vmclarity
+      
+      [Install]
+      WantedBy=multi-user.target
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, start, docker.service ]
+  - [ systemctl, start, vmclarity-scanner.service ]
