@@ -1,0 +1,91 @@
+@import 'utils/scss_variables.module.scss';
+
+$actions-panel-height: 49px;
+$top-padding: 40px;
+$inner-padding: 25px;
+$navigation-width: 180px;
+
+.wizard-modal {
+    padding-top: $top-padding;
+
+    .modal-title {
+        padding: 0 $inner-padding;
+    }
+    .wizard-wrapper {
+        .wizard-content {
+            display: flex;
+            padding: 0 $inner-padding;
+            
+            .wizard-navigation {
+                margin: 0;
+                padding: 0 20px;
+                width: $navigation-width;
+                border-right: 1px dashed $color-grey-dark;
+    
+                .wizard-navigation-item {
+                    cursor: pointer;
+                    color: $color-main;
+    
+                    &.is-active {
+                        font-weight: bold;
+                        cursor: auto;
+                    }
+                    &.disabled {
+                        cursor: not-allowed;
+                    }
+                    &:not(.is-active) {
+                        text-decoration: underline;
+                    }
+                }
+            }
+            .wizard-step-display {
+                padding: 0 20px;
+                width: calc(100% - #{$navigation-width});
+                height: calc(100vh - #{$top-bar-height} - #{$actions-panel-height} - #{$top-padding} - 85px);
+                overflow-y: auto;
+
+                .main-error-message {
+                    background-color: $color-error-light;
+                    padding: 5px 10px;
+                    margin-bottom: 27px;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 18px;
+                }
+                .form-field-label-wrapper{
+                    margin-top: 30px;
+                }
+                .wizard-next-step-wrapper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    margin: 40px 0;
+                    color: $color-main;
+                    cursor: pointer;
+                    
+                    &.disabled {
+                        cursor: not-allowed;
+                    }
+                    .wizard-next-step-title {
+                        font-weight: 400;
+                        font-size: 14px;
+                        text-decoration: underline;
+                        margin-right: 5px;
+                    }
+                }
+            }
+        }
+        .wizard-action-buttons {
+            height: $actions-panel-height;
+            border-top: 3px solid $color-grey-lighter;
+            padding: 0 $inner-padding;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            
+            .clarity-button:not(:last-child) {
+                margin-right: 10px;
+            }
+        }
+    }
+}

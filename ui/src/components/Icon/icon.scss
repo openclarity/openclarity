@@ -1,0 +1,16 @@
+@import 'utils/scss_variables.module.scss';
+
+.icon {
+    display: inline-block;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+
+    &.clickable:not(.disabled) {
+        cursor: pointer;
+    }
+    &.disabled {
+        cursor: not-allowed;
+        color: $color-grey;
+    }
+}

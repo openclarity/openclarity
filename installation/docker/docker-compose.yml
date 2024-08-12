@@ -1,0 +1,197 @@
+services:
+  apiserver:
+    image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-apiserver:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    ports:
+      - "8888:8888"
+    env_file: ./apiserver.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - type: volume
+        source: apiserver-db-data
+        target: /data
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8081/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
+  orchestrator:
+    image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-orchestrator:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    env_file: ./orchestrator.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    depends_on:
+      apiserver:
+        condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
+  ui:
+    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui:latest}
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      apiserver:
+        condition: service_healthy
+
+  uibackend:
+    image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/vmclarity-ui-backend:latest}
+    command:
+      - run
+      - --log-level
+      - info
+    env_file: ./uibackend.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      apiserver:
+        condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8083/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
+  gateway:
+    image: nginxinc/nginx-unprivileged:1.26.0
+    ports:
+      - "8080:80"
+    configs:
+      - source: gateway_config
+        target: /etc/nginx/conf.d/default.conf
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  exploit-db-server:
+    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.3.0}
+    ports:
+      - "1326:1326"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "1326"]
+      interval: 10s
+      retries: 60
+
+  trivy-server:
+    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.52.1}
+    command:
+      - server
+    ports:
+      - "9992:9992"
+    env_file: ./trivy-server.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9992"]
+      interval: 10s
+      retries: 60
+
+  grype-server:
+    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.2}
+    command:
+      - run
+      - --log-level
+      - warning
+    ports:
+      - "9991:9991"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - type: volume
+        source: grype-server-db
+        target: /data
+    healthcheck:
+      test: wget --no-verbose --tries=10 --spider http://127.0.0.1:8080/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
+  freshclam-mirror:
+    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.1}
+    ports:
+      - "1000:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  yara-rule-server:
+    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.3.0}
+    command:
+      - run
+    ports:
+      - "9993:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    configs:
+      - source: yara_rule_server_config
+        target: /etc/yara-rule-server/config.yaml
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8082/healthz/ready || exit 1
+      interval: 10s
+      retries: 60
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.17.14
+    environment:
+      CONFIG_URL: /apidocs/swagger-config.json
+    configs:
+      - source: swagger_config
+        target: /usr/share/nginx/html/swagger-config.json
+
+configs:
+  gateway_config:
+    file: ./gateway.conf
+  swagger_config:
+    file: ./swagger-config.json
+  yara_rule_server_config:
+    file: ./yara-rule-server.yaml
+
+volumes:
+  apiserver-db-data:
+  grype-server-db:
+
+networks:
+  default:
+    name: ${COMPOSE_PROJECT_NAME}

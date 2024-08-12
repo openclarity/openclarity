@@ -1,0 +1,10 @@
+@import 'utils/scss_variables.module.scss';
+
+.riskiest-regions-widget {
+    position: relative;
+    
+    .recharts-cartesian-axis-line,
+    .recharts-cartesian-axis-tick-line {
+        stroke: $color-grey-lighter;
+    }
+}

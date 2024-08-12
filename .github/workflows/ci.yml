@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  packages: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verification:
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  build:
+    needs: verification
+    name: Build
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      push: true
+      use_release_repository: false
+      post_image_tags: true
+
+  e2e-docker:
+    needs: build
+    name: End-to-End Tests on Docker
+    uses: ./.github/workflows/reusable-end-to-end-testing.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      use_release_repository: false
+      platform: docker
+
+  e2e-k8s:
+    needs: build
+    name: End-to-End Tests on Kubernetes
+    uses: ./.github/workflows/reusable-end-to-end-testing.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      use_release_repository: false
+      platform: kubernetes
+
+  success:
+    # https://github.com/actions/runner/issues/2566
+    # https://github.com/actions/toolkit/issues/581
+    if: ${{ !cancelled() && !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
+    needs:
+      - build
+      - e2e-docker
+      - e2e-k8s
+    name: Success
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo Success
+        run: |
+          echo "::notice Success!"

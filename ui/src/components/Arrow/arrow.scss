@@ -1,0 +1,11 @@
+.arrow-icon {
+    &.right-arrow {
+        transform: rotate(180deg);
+    }
+    &.top-arrow {
+        transform: rotate(90deg);
+    }
+    &.bottom-arrow {
+        transform: rotate(-90deg);
+    }
+}

@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+.clarity-title {
+    color: $color-grey-black;
+    font-weight: 300;
+    font-size: 35px;
+    line-height: 48px;
+
+    &:not(.no-margin) {
+        margin-bottom: 30px;
+    }
+    &.clickable {
+        color: $color-main;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    &.medium {
+        font-weight: 350;
+        font-size: 26px;
+        line-height: 30px;
+    }
+}

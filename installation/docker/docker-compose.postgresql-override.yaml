@@ -1,0 +1,20 @@
+services:
+  postgresql:
+    image: ${VMCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.3.0-debian-12-r13}
+    env_file: ./postgres.env
+    ports:
+      - "5432:5432"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      interval: 10s
+      retries: 60
+
+  apiserver:
+    depends_on:
+      postgresql:
+        condition: service_healthy

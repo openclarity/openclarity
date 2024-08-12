@@ -1,0 +1,515 @@
+---
+openapi: 3.0.1
+info:
+  title: Scanner Plugin API
+  version: 1.0.0
+paths:
+
+  /healthz:
+    get:
+      summary: Check the scanner plugin's health.
+      responses:
+        200:
+          description: The scanner is healthy and can start receiving requests.
+        503:
+          description: The scanner is not healthy and cannot start receiving requests.
+
+  /metadata:
+    get:
+      summary: Get metadata from the scanner plugin.
+      responses:
+        200:
+          description: Scanner metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metadata'
+
+  /config:
+    post:
+      summary: Post config to the scanner plugin and start scanner.
+      responses:
+        201:
+          description: A new scan has been created.
+        400:
+          description: The request body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        409:
+          description: The scanner is not in ready state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+
+  /status:
+    get:
+      summary: Get the status of the scanner.
+      responses:
+        200:
+          description: The status of the scanner.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+
+  /stop:
+    post:
+      summary: Stop the scanner.
+      responses:
+        201:
+          description: The server will be stopped.
+
+        400:
+          description: The request body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stop'
+
+components:
+  schemas:
+
+    Annotations:
+      type: object
+      description: Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+      additionalProperties:
+        type: string
+
+    Metadata:
+      type: object
+      description: Describes the scanner plugin.
+      properties:
+        annotations:
+          $ref: '#/components/schemas/Annotations'
+        name:
+          type: string
+        version:
+          type: string
+        apiVersion:
+          description: This value will be automatically set by the SDK.
+          type: string
+
+    State:
+      description: |
+        Describes the status of scanner.
+        | Status         | Description                                                   |
+        | -------------- | ------------------------------------------------------------- |
+        | NotReady       | Initial state when the scanner container starts               |
+        | Ready          | Scanner setup is complete and it is ready to receive requests |
+        | Running        | Scanner config was received and the scanner is running        |
+        | Failed         | Scanner failed                                                |
+        | Done           | Scanner completed successfully                                |
+      type: string
+      enum:
+        - NotReady
+        - Ready
+        - Running
+        - Failed
+        - Done
+      x-enum-varnames:
+        - StateNotReady
+        - StateReady
+        - StateRunning
+        - StateFailed
+        - StateDone
+
+    Status:
+      type: object
+      description: Describes the scanner status.
+      required:
+        - state
+        - lastTransitionTime
+      properties:
+        state:
+          $ref: '#/components/schemas/State'
+        message:
+          description: Human readable message.
+          type: string
+        lastTransitionTime:
+          description: Last date time when the status has changed.
+          type: string
+          format: date-time
+
+    Config:
+      type: object
+      description: Describes config for scanner to start the scanning process.
+      required:
+        - inputDir
+        - outputFile
+        - timeoutSeconds
+      properties:
+        scannerConfig:
+          type: string
+          description: |
+            Optional JSON string of internal scanner configuration used to override default scanner behaviour.
+            The config schema needs to be documented and payload manually parsed by the developer of scanner plugin.
+        inputDir:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: required
+          description: |
+            The directory which should be scanned by the scanner plugin.
+        outputFile:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: required
+          description: |
+            Path to JSON file where the scanner plugin should store its results.
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          x-oapi-codegen-extra-tags:
+            validate: required,gt=0
+          description: |
+            The maximum time in seconds that a scan started from this scan
+            should run for before being automatically aborted.
+
+    Stop:
+      type: object
+      description: Describes data for scanner to stop the scanning process.
+      required:
+        - timeoutSeconds
+      properties:
+        timeoutSeconds:
+          type: integer
+          minimum: 0
+          x-oapi-codegen-extra-tags:
+            validate: required,gt=0
+          description: After this timeout the server will be stopped.
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      description: An object that is returned for a failed API request.
+
+    ## --------------------------------
+    ##   Models for scan result data
+    ## --------------------------------
+    Result:
+      type: object
+      description: Describes data saved to a JSON file when a scan finishes successfully.
+      required:
+        - vmclarity
+        - rawJSON
+      properties:
+        annotations:
+          # Can be used to attach some scan data consumable by third-party service.
+          # Optional.
+          $ref: '#/components/schemas/Annotations'
+        vmclarity:
+          # Specifies concrete scan result data that can be consumed by VMClarity API.
+          # Required.
+          $ref: '#/components/schemas/VMClarityData'
+        rawJSON:
+          # Specifies raw scan result data.
+          # Required.
+          type: null
+          description: Defines scan result data that is not consumed by VMClarity API.
+
+    VMClarityData:
+      type: object
+      description: Defines scan result data that can be consumed by VMClarity API.
+      properties:
+        packages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Package'
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vulnerability'
+        malware:
+          type: array
+          items:
+            $ref: '#/components/schemas/Malware'
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Secret'
+        misconfigurations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Misconfiguration'
+        rootkits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rootkit'
+        exploits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exploit'
+        infoFinder:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfoFinder'
+
+    Vulnerability:
+      type: object
+      properties:
+        vulnerabilityName:
+          type: string
+        description:
+          type: string
+        severity:
+          $ref: '#/components/schemas/VulnerabilitySeverity'
+        links:
+          type: array
+          items:
+            type: string
+          nullable: true
+        distro:
+          $ref: '#/components/schemas/VulnerabilityDistro'
+        cvss:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilityCvss'
+          nullable: true
+        package:
+          $ref: '#/components/schemas/Package'
+        fix:
+          $ref: '#/components/schemas/VulnerabilityFix'
+        layerId:
+          type: string
+        path:
+          type: string
+
+    VulnerabilityFix:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            type: string
+          nullable: true
+        state:
+          type: string
+
+    VulnerabilityCvss:
+      type: object
+      properties:
+        version:
+          type: string
+        vector:
+          type: string
+        baseScore:
+          type: number
+        exploitabilityScore:
+          type: number
+        impactScore:
+          type: number
+
+    VulnerabilityDistro:
+      type: object
+      description: Distro provides information about a detected Linux distribution.
+      properties:
+        name:
+          description: Name of the Linux distribution
+          type: string
+        version:
+          description: Version of the Linux distribution (major or major.minor version)
+          type: string
+        IDLike:
+          description: the ID_LIKE field found within the /etc/os-release file
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    VulnerabilitySeverity:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - NEGLIGIBLE
+      x-enum-varnames:
+        - VulnerabilitySeverityCritical
+        - VulnerabilitySeverityHigh
+        - VulnerabilitySeverityMedium
+        - VulnerabilitySeverityLow
+        - VulnerabilitySeverityNegligible
+
+    Package:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        type:
+          type: string
+        language:
+          type: string
+        licenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+        cpes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        purl:
+          type: string
+
+    Malware:
+      type: object
+      properties:
+        malwareName:
+          type: string
+        malwareType:
+          type: string
+        ruleName:
+          type: string
+        path:
+          type: string
+          description: Path of the file that contains malware
+
+    Rootkit:
+      type: object
+      properties:
+        rootkitName:
+          type: string
+        rootkitType:
+          $ref: '#/components/schemas/RootkitType'
+        message:
+          type: string
+
+    RootkitType:
+      type: string
+      enum:
+        - UNKNOWN
+        - MEMORY
+        - KERNEL
+        - APPLICATION
+        - FIRMWARE
+      x-enum-varnames:
+        - RootkitTypeUnknown
+        - RootkitTypeMemory
+        - RootkitTypeKernel
+        - RootkitTypeApplication
+        - RootkitTypeFirmware
+
+    Misconfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
+        location:
+          type: string
+          description: Location within the asset where the misconfiguration was recorded (e.g. filesystem path)
+        category:
+          type: string
+          description: Specifies misconfiguration impact category
+        message:
+          type: string
+          description: Short info about the misconfiguration
+        description:
+          type: string
+          description: Additional context such as the potential impact
+        remediation:
+          type: string
+          description: Possible fix for the misconfiguration
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
+
+    MisconfigurationSeverity:
+      type: string
+      enum:
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+      x-enum-varnames:
+        - MisconfigurationSeverityHigh
+        - MisconfigurationSeverityMedium
+        - MisconfigurationSeverityLow
+        - MisconfigurationSeverityInfo
+
+    Secret:
+      type: object
+      properties:
+        description:
+          type: string
+        filePath:
+          description: "Name of the file containing the secret"
+          type: string
+        startLine:
+          type: integer
+        endLine:
+          type: integer
+        startColumn:
+          type: integer
+        endColumn:
+          type: integer
+        fingerprint:
+          description: "Note: this is not unique"
+          type: string
+
+    Exploit:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        cveID:
+          type: string
+        sourceDB:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    InfoFinder:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/InfoFinderType'
+        path:
+          type: string
+          description: "File path containing the info"
+        data:
+          type: string
+          description: "The data found by the scanner in the specific path for a specific type. See example for SSHKnownHostFingerprint info type"
+          example: "2048 SHA256:YQuPOM8ld6FOA9HbKCgkCJWHuGt4aTRD7hstjJpRhxc xxxx (RSA)"
+
+    InfoFinderType:
+      type: string
+      enum:
+        - UNKNOWN
+        - SSHKnownHostFingerprint
+        - SSHAuthorizedKeyFingerprint
+        - SSHPrivateKeyFingerprint
+        - SSHDaemonKeyFingerprint
+      x-enum-varnames:
+        - InfoFinderTypeUnknown
+        - InfoFinderTypeSSHKnownHostFingerprint
+        - InfoFinderTypeSSHAuthorizedKeyFingerprint
+        - InfoFinderTypeSSHPrivateKeyFingerprint
+        - InfoFinderTypeSSHDaemonKeyFingerprint

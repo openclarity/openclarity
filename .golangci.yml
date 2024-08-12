@@ -1,0 +1,93 @@
+run:
+  timeout: 20m
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/openclarity/vmclarity
+  errorlint:
+    # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
+    errorf: true
+  gomoddirectives:
+    # Allow local `replace` directives. Default is false.
+    replace-local: true
+    # List of allowed `replace` directives. Default is empty.
+    replace-allow-list:
+      # Viper
+      - helm.sh/helm/v3
+      - golang.org/x/exp
+      - github.com/testcontainers/testcontainers-go
+      - github.com/mholt/archiver/v3
+
+  gosec:
+    # To specify a set of rules to explicitly exclude.
+    # Available rules: https://github.com/securego/gosec#available-rules
+#    excludes:
+#      - G404 # Insecure random number source (rand)
+  forbidigo:
+    # Forbid the following identifiers (identifiers are written using regexp):
+    forbid:
+      - ^print.*$
+
+  cyclop:
+    max-complexity: 15
+
+  goheader:
+    values:
+      const:
+        COMPANY: Cisco Systems, Inc.
+      regexp:
+        YEAR: 202[2-4]
+    template: |-
+      Copyright © {{ YEAR }} {{ COMPANY }} and its affiliates.
+      All rights reserved.
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+linters:
+  enable-all: true
+  disable:
+    - musttag
+    - revive
+    - funlen
+    - dupl
+    - nestif
+    - wsl
+    - lll
+    - nlreturn
+    - gocritic
+    - gochecknoglobals
+    - testpackage
+    - err113
+    - paralleltest
+    - godox # Allow TODOs
+    - tagliatelle # Allow json(camel)
+    - gomnd # deprecated
+    - execinquery # deprecated
+    - gochecknoinits # Allow init function
+    - nolintlint # Allow nolint
+    - varnamelen # Allow short var names
+    - ireturn # Allow returning with interfaces
+    - exhaustruct # Allow structures with uninitialized fields
+    - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/vmclarity)"`
+    - depguard # NOTE(chrisgacsal): need discussion before enabling it
+    - tagalign # NOTE(chrisgacsal): does not seem to provide much value
+    - protogetter # FIXME(chrisgacsal): needs code changes to enable
+    - inamedparam # FIXME(chrisgacsal): needs code changes to enable
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - govet

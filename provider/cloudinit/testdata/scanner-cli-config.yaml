@@ -1,0 +1,10 @@
+sbom:
+  enabled: true
+secrets:
+  enabled: true
+rootkits:
+  enabled: true
+malware:
+  enabled: true
+misconfiguration:
+  enabled: true

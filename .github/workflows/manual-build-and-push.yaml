@@ -1,0 +1,106 @@
+name: Build & Push manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      registry_name:
+        required: false
+        type: string
+        description: 'Registry name used for container image names. Default is `ghcr.io/openclarity`.'
+        default: ghcr.io/openclarity
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      git_ref:
+        required: true
+        type: string
+        description: 'The branch, tag or SHA to build.'
+      push:
+        required: false
+        type: boolean
+        description: 'If set to true, push the image.'
+        default: false
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image is pushed to the release repository otherwise it is pushed to the development.'
+        default: false
+      bake-group:
+        required: false
+        type: string
+        description: 'Name of the Docker Bake group of targets'
+        default: default
+
+permissions:
+  packages: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+      registry: ${{ steps.registry.outputs.registry }}
+      suffix: ${{ steps.suffix.outputs.suffix }}
+      targets: ${{ steps.targets.outputs.targets }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+
+      - name: Set timestamp
+        id: timestamp
+        run: |
+          ##
+          ## Set timestamp variable
+          ##
+
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Set registry
+        id: registry
+        run: |
+          ##
+          ## Determine the image name registry
+          ##
+
+          # Remove trailing slash characters(s)
+          # shellcheck disable=SC2001
+          echo "registry=$(sed -e 's@/*$@@' <<< ${{ inputs.registry_name }})" >> "$GITHUB_OUTPUT"
+
+      - name: Set suffix
+        id: suffix
+        run: |
+          ##
+          ## Determine the image name suffix based on the release type
+          ##
+
+          # Set image name suffix
+          suffix=-dev
+          if [ "${{ inputs.use_release_repository }}" == "true" ]; then
+            suffix=
+          fi
+
+          echo "suffix=${suffix}" >> "$GITHUB_OUTPUT"
+
+      - name: List targets
+        id: targets
+        uses: docker/bake-action/subaction/list-targets@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # v4.5.0
+        with:
+          target: ${{ inputs.bake-group }}
+
+  build-and-push:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.prepare.outputs.targets) }}
+    uses: ./.github/workflows/build-and-push-component.yaml
+    with:
+      image_name: "${{ needs.prepare.outputs.registry }}/${{ matrix.target }}${{ needs.prepare.outputs.suffix }}"
+      image_tag: ${{ inputs.image_tag }}
+      push: ${{ inputs.push }}
+      timestamp: ${{ needs.prepare.outputs.timestamp }}
+      bake_target_name: ${{ matrix.target }}
