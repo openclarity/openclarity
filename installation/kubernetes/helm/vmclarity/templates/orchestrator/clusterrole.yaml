@@ -1,0 +1,23 @@
+{{- if eq .Values.orchestrator.provider "kubernetes" }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "vmclarity.orchestrator.name" . }}
+  labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - "namespaces"
+      - "pods"
+    verbs: ["get", "list"]
+# TODO(sambetts) If possible move this to a namespace role instead of a cluster
+# role
+  - apiGroups: [""]
+    resources:
+      - "configmaps"
+    verbs: ["get", "list", "create", "delete", "patch"]
+  - apiGroups: ["batch"]
+    resources:
+      - "jobs"
+    verbs: ["get", "list", "create", "delete"]
+{{- end }}

@@ -1,0 +1,14 @@
+@import 'utils/scss_variables.module.scss';
+
+.configuration-details-page-wrapper {
+    .configuration-details-content {
+        .configuration-details-content-header {
+            height: 40px;
+            border-bottom: 1px solid $color-grey-light;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-right: $main-content-padding;
+        }
+    }
+}

@@ -1,0 +1,13 @@
+@import 'utils/scss_variables.module.scss';
+
+.scan-progres-bar-wrapper {
+    .error-display-wrapper {
+        margin-top: 25px;
+
+        .error-display-title {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 18px;
+        }
+    }
+}

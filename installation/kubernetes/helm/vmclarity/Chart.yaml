@@ -1,0 +1,20 @@
+apiVersion: v2
+name: vmclarity
+description: |
+  VMClarity is an open source tool for agentless detection and management of
+  Virtual Machine Software Bill Of Materials (SBOM) and security threats such
+  as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked
+  secrets.
+version: 0.0.0
+appVersion: "latest"
+type: application
+home: https://openclarity.io
+sources:
+  - https://github.com/openclarity/vmclarity
+maintainers:
+  - name: VMClarity Maintainers
+    url: https://github.com/openclarity/vmclarity
+dependencies:
+  - name: postgresql
+    version: "12.7.1"
+    repository: https://charts.bitnami.com/bitnami

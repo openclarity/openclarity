@@ -1,0 +1,12 @@
+services:
+  alpine:
+    image: alpine:3.18.2
+    command: ["sleep", "infinity"]
+    networks:
+      - asset
+    labels:
+      scanconfig: test
+
+networks:
+  asset:
+    name: ${COMPOSE_PROJECT_NAME}-asset

@@ -1,0 +1,94 @@
+// Params
+$top-bar-height: 60px;
+$side-bar-width: 60px;
+$main-content-padding: 30px;
+$dashboard-padding: 20px;
+$dashboard-widget-height: 324px;
+$field-height: 36px;
+$field-height-small: 20px;
+
+// Brand
+$color-main: #27446E;
+$color-main-dark: #13274A;
+$color-main-light: #00BCEB;
+$color-main-lighter: #1ad6ff;
+
+// Greys
+$color-grey: #AEB5BC;
+$color-grey-off-white: #F9FCFE;
+$color-grey-light: #DFE2E5;
+$color-grey-lighter: #E8EDF2;
+$color-grey-black: #222529;
+$color-grey-dark: #596068;
+$color-grey-grid: #E4EAF1;
+
+// Blues
+$color-blue: #CFEBFB;
+$color-blue-light: #EEF7FC;
+$color-blue-lilac: #E6EBFC;
+
+// Shadows
+$color-shadow-main: #20264d;
+$color-shadow-dark: #222b36;
+
+// Background:
+$color-background: #F5F5F5;
+
+// Status
+$color-error: #D0392A;
+$color-error-dark: #771F16;
+$color-error-light: #F1D8D5;
+$color-success: #38CDA0;
+$color-warning: #F0AD42;
+$color-warning-dark: #D48931;
+$color-warning-low: #EAD246;
+$color-status-violet: #721BD5;
+$color-status-blue: #30749E;
+$color-status-yellow: #FAEFDB;
+
+//Findings:
+$color-findings-1: #2C5A9C;
+$color-findings-2: #3984B6;
+$color-findings-3: #52BAE6;
+$color-findings-4: #7FCFCE;
+$color-findings-5: #8DD7C9;
+
+//dark background variations:
+$color-main-dark-variation-dark: #5D677E;
+$color-main-variation-dark: #6C7C97;
+$color-findings-1-variation-dark: #718AB6;
+
+//Gradients:
+$color-gradient-green: linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), linear-gradient(87.46deg, #38CDA0 0%, #7EC6E4 102.96%);
+$color-gradient-blue: linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), linear-gradient(87.46deg, #3861CD 0%, #7ED8E4 102.96%);
+$color-gradient-yellow: linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), linear-gradient(87.46deg, #CD9A38 0%, #E4E07E 102.96%);
+
+:export {
+    color-main: $color-main;
+    color-main-dark: $color-main-dark;
+    color-main-light: $color-main-light;
+    color-grey: $color-grey;
+    color-grey-light: $color-grey-light;
+    color-grey-lighter: $color-grey-lighter;
+    color-grey-dark: $color-grey-dark;
+    color-blue: $color-blue;
+    color-blue-light: $color-blue-light;
+    color-success: $color-success;
+    color-error-dark: $color-error-dark;
+    color-error: $color-error;
+    color-warning: $color-warning;
+    color-warning-low: $color-warning-low;
+    color-status-blue: $color-status-blue;
+    color-grey-black: $color-grey-black;
+    color-findings-1: $color-findings-1;
+    color-findings-2: $color-findings-2;
+    color-findings-3: $color-findings-3;
+    color-findings-4: $color-findings-4;
+    color-findings-5: $color-findings-5;
+    color-gradient-green: $color-gradient-green;
+    color-gradient-blue: $color-gradient-blue;
+    color-gradient-yellow: $color-gradient-yellow;
+    color-main-dark-variation-dark: $color-main-dark-variation-dark;
+    color-main-variation-dark: $color-main-variation-dark;
+    color-findings-1-variation-dark: $color-findings-1-variation-dark;
+}

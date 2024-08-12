@@ -1,0 +1,25 @@
+@import 'utils/scss_variables.module.scss';
+
+.expandable-list-display-wrapper {
+    display: flex;
+    flex-direction: column;
+    
+    .arrow-icon {
+        align-self: center;
+    }
+    .expandable-list-items {
+        .expandable-list-item-wrapper {
+            &:not(:last-child) {
+                margin-bottom: 7px;
+            }
+            .expandable-list-item {
+                width: 100%;
+                display: inline-block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+        
+    }
+}

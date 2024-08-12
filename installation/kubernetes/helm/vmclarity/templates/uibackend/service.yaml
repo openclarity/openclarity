@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vmclarity.uibackend.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.uibackend.labels.standard" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8890
+      targetPort: 8890
+  selector: {{- include "vmclarity.uibackend.labels.matchLabels" . | nindent 4 }}

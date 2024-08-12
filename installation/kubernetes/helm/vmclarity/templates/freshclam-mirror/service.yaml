@@ -1,0 +1,19 @@
+{{/*
+Headless Service does not include a ClusterIP so that the DNS record includes
+all Pod addresses. This makes it possible for the API Gateway to load balance
+all replicas instead of relying on kube-proxy to do it.
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vmclarity.freshclamMirror.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.freshclamMirror.labels.standard" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 1000
+      targetPort: 80
+  selector: {{- include "vmclarity.freshclamMirror.labels.matchLabels" . | nindent 4 }}

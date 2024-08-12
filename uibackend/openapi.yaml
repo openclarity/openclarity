@@ -1,0 +1,532 @@
+openapi: 3.0.1
+
+info:
+  title: VMClarity UI APIs
+  version: 1.0.0
+
+paths:
+  /dashboard/riskiestRegions:
+    get:
+      summary: Get a list of riskiest regions for the dashboard.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskiestRegions'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /dashboard/riskiestAssets:
+    get:
+      summary: Get a list of riskiest assets for the dashboard.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskiestAssets'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /dashboard/findingsImpact:
+    get:
+      summary: Get a list of findings impact for the dashboard.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingsImpact'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+  /dashboard/findingsTrends:
+    get:
+      summary: Get a list of finding trends for all finding types.
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingsTrends'
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          readOnly: true
+      description: An object that is returned in all cases of failures.
+
+    FindingsImpact:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          description: Top 5 vulnerability findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/VulnerabilityFindingImpact'
+          readOnly: true
+        malware:
+          type: array
+          description: Top 5 malware findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/MalwareFindingImpact'
+          readOnly: true
+        rootkits:
+          type: array
+          description: Top 5 rootkit findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/RootkitFindingImpact'
+          readOnly: true
+        secrets:
+          type: array
+          description: Top 5 secret findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/SecretFindingImpact'
+          readOnly: true
+        misconfigurations:
+          type: array
+          description: Top 5 misconfiguration findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/MisconfigurationFindingImpact'
+          readOnly: true
+        exploits:
+          type: array
+          description: Top 5 exploit findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/ExploitFindingImpact'
+          readOnly: true
+        packages:
+          type: array
+          description: Top 5 package findings sorted by impacted assets count
+          items:
+            $ref: '#/components/schemas/PackageFindingImpact'
+          readOnly: true
+
+    PackageFindingImpact:
+      type: object
+      properties:
+        package:
+          $ref: '#/components/schemas/Package'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Package:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        purl:
+          type: string
+
+    ExploitFindingImpact:
+      type: object
+      properties:
+        exploit:
+          $ref: '#/components/schemas/Exploit'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Exploit:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        cveID:
+          type: string
+        sourceDB:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    MisconfigurationFindingImpact:
+      type: object
+      properties:
+        misconfiguration:
+          $ref: '#/components/schemas/Misconfiguration'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Misconfiguration:
+      type: object
+      properties:
+        scannerName:
+          type: string
+        scannedPath:
+          type: string
+        testCategory:
+          type: string
+        testID:
+          type: string
+        testDescription:
+          type: string
+        severity:
+          $ref: '#/components/schemas/MisconfigurationSeverity'
+        message:
+          type: string
+        remediation:
+          type: string
+
+    MisconfigurationSeverity:
+      type: string
+      enum:
+        - MisconfigurationHighSeverity
+        - MisconfigurationMediumSeverity
+        - MisconfigurationLowSeverity
+
+    SecretFindingImpact:
+      type: object
+      properties:
+        secret:
+          $ref: '#/components/schemas/Secret'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Secret:
+      type: object
+      properties:
+        filePath:
+          description: "Name of the file containing the secret"
+          type: string
+        startLine:
+          type: integer
+        endLine:
+          type: integer
+        startColumn:
+          type: integer
+        endColumn:
+          type: integer
+        fingerprint:
+          description: "Note: this is not unique"
+          type: string
+
+    RootkitFindingImpact:
+      type: object
+      properties:
+        rootkit:
+          $ref: '#/components/schemas/Rootkit'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Rootkit:
+      type: object
+      properties:
+        rootkitName:
+          type: string
+        rootkitType:
+          $ref: '#/components/schemas/RootkitType'
+        message:
+          type: string
+
+    RootkitType:
+      type: string
+      enum:
+        - MEMORY
+        - KERNEL
+        - APPLICATION
+        - FIRMWARE
+
+    MalwareFindingImpact:
+      type: object
+      properties:
+        malware:
+          $ref: '#/components/schemas/Malware'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Malware:
+      type: object
+      properties:
+        malwareName:
+          type: string
+        malwareType:
+          $ref: '#/components/schemas/MalwareType'
+        ruleName:
+          type: string
+        path:
+          type: string
+          description: Path of the file that contains malware
+
+    MalwareType:
+      type: string
+
+    VulnerabilityFindingImpact:
+      type: object
+      properties:
+        vulnerability:
+          $ref: '#/components/schemas/Vulnerability'
+        affectedAssetsCount:
+          type: integer
+          readOnly: true
+
+    Vulnerability:
+      type: object
+      readOnly: true
+      properties:
+        vulnerabilityName:
+          type: string
+        severity:
+          $ref: '#/components/schemas/VulnerabilitySeverity'
+        cvss:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilityCvss'
+          nullable: true
+
+    VulnerabilitiesFindingImpact:
+      type: array
+      items:
+        $ref: '#/components/schemas/VulnerabilityFindingImpact'
+      readOnly: true
+
+    VulnerabilityCvss:
+      type: object
+      properties:
+        version:
+          type: string
+        vector:
+          type: string
+        metrics:
+          $ref: '#/components/schemas/VulnerabilityCvssMetrics'
+
+    VulnerabilityCvssMetrics:
+      type: object
+      properties:
+        baseScore:
+          type: number
+        exploitabilityScore:
+          type: number
+        impactScore:
+          type: number
+
+    VulnerabilitySeverity:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - NEGLIGIBLE
+
+    FindingsTrends:
+      description: List of finding trends for all finding types.
+      type: array
+      items:
+        $ref: '#/components/schemas/FindingTrends'
+      readOnly: true
+
+    FindingTrends:
+      description: List of the total number of findings per time slot for the specific findingType.
+      type: object
+      properties:
+        findingType:
+          $ref: '#/components/schemas/FindingType'
+        trends:
+          type: array
+          items:
+            $ref: '#/components/schemas/FindingTrend'
+          readOnly: true
+
+    FindingTrend:
+      description: Represents the total number of findings at a specific time
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+        count:
+          type: integer
+
+    FindingType:
+      type: string
+      enum:
+        - PACKAGE
+        - VULNERABILITY
+        - MALWARE
+        - SECRET
+        - MISCONFIGURATION
+        - ROOTKIT
+        - EXPLOIT
+
+    RiskiestRegions:
+      type: object
+      properties:
+        regions:
+          type: array
+          description: List of regions with the findings that was found on them. 
+            Regions with no findings will not be reported.
+          items:
+            $ref: '#/components/schemas/RegionFindings'
+          readOnly: true
+
+    RegionFindings:
+      type: object
+      description: Total findings for a region
+      properties:
+        regionName:
+          type: string
+        findingsCount:
+          $ref: '#/components/schemas/FindingsCount'
+
+    FindingsCount:
+      type: object
+      description: total count of each finding type
+      properties:
+        vulnerabilities:
+          type: integer
+        malware:
+          type: integer
+        rootkits:
+          type: integer
+        secrets:
+          type: integer
+        misconfigurations:
+          type: integer
+        exploits:
+          type: integer
+
+    RiskiestAssets:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          description: Top 5 riskiest assets sorted by vulnerabilities
+          items:
+            $ref: '#/components/schemas/VulnerabilityRiskyAsset'
+          readOnly: true
+        malware:
+          type: array
+          description: Top 5 riskiest assets sorted by malware count
+          items:
+            $ref: '#/components/schemas/RiskyAsset'
+          readOnly: true
+        rootkits:
+          type: array
+          description: Top 5 riskiest assets sorted by rootkits count
+          items:
+            $ref: '#/components/schemas/RiskyAsset'
+          readOnly: true
+        secrets:
+          type: array
+          description: Top 5 riskiest assets sorted by secrets count
+          items:
+            $ref: '#/components/schemas/RiskyAsset'
+          readOnly: true
+        misconfigurations:
+          type: array
+          description: Top 5 riskiest assets sorted by misconfigurations count
+          items:
+            $ref: '#/components/schemas/RiskyAsset'
+          readOnly: true
+        exploits:
+          type: array
+          description: Top 5 riskiest assets sorted by exploits count
+          items:
+            $ref: '#/components/schemas/RiskyAsset'
+          readOnly: true
+
+    RiskyAsset:
+      type: object
+      description: Total number of findings for an asset
+      properties:
+        assetInfo:
+          $ref: '#/components/schemas/AssetInfo'
+        count:
+          type: integer
+
+    VulnerabilityRiskyAsset:
+      type: object
+      description: Total number of vulnerability findings for an asset
+      properties:
+        assetInfo:
+          $ref: '#/components/schemas/AssetInfo'
+        criticalVulnerabilitiesCount:
+          type: integer
+        highVulnerabilitiesCount:
+          type: integer
+        mediumVulnerabilitiesCount:
+          type: integer
+        lowVulnerabilitiesCount:
+          type: integer
+        negligibleVulnerabilitiesCount:
+          type: integer
+
+    AssetInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        type:
+          $ref: '#/components/schemas/AssetType'
+
+    AssetType:
+      type: string
+      enum:
+        - 'AWS EC2 Instance'
+        - 'Azure Instance'
+        - 'GCP Instance'
+        - 'Docker Instance'
+        - 'External Instance'
+        - 'Container'
+        - 'Container Image'
+
+  responses:
+    UnknownError:
+      description: Unknown error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+  parameters:
+    exampleFilter:
+      name: "example"
+      in: query
+      schema:
+        type: string
+
+    startTime:
+      name: 'startTime'
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: true
+
+    endTime:
+      name: 'endTime'
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: true

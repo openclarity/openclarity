@@ -1,0 +1,88 @@
+{
+  "sbom": {
+    "Enabled": true,
+    "AnalyzersList": [
+      "syft"
+    ],
+    "Inputs": [
+      {
+        "StripPathFromResult": null,
+        "Input": "test",
+        "InputType": "dir"
+      }
+    ],
+    "MergeWith": null,
+    "AnalyzersConfig": {
+      "Registry": null,
+      "Analyzer": {
+        "OutputFormat": "",
+        "AnalyzerList": [
+          "syft"
+        ],
+        "Scope": "",
+        "TrivyConfig": {
+          "Timeout": 0,
+          "CacheDir": "",
+          "TempDir": ""
+        }
+      },
+      "Scanner": null,
+      "LocalImageScan": false
+    }
+  },
+  "vulnerabilities": {
+    "Enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "InputFromSbom": false,
+    "ScannersConfig": null
+  },
+  "secrets": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": null
+  },
+  "rootkits": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": null
+  },
+  "malware": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": null
+  },
+  "misconfiguration": {
+    "enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "Lynis": {
+        "BinaryPath": ""
+      }
+    }
+  },
+  "infofinder": {
+    "enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "SSHTopology": {}
+    }
+  },
+  "exploits": {
+    "enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "InputFromVuln": false,
+    "ScannersConfig": null
+  }
+}
