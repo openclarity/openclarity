@@ -10,10 +10,10 @@ appVersion: "latest"
 type: application
 home: https://openclarity.io
 sources:
-  - https://github.com/openclarity/vmclarity
+  - https://github.com/openclarity/openclarity
 maintainers:
-  - name: VMClarity Maintainers
-    url: https://github.com/openclarity/vmclarity
+  - name: OpenClarity Maintainers
+    url: https://github.com/openclarity/openclarity
 dependencies:
   - name: postgresql
     version: "15.5.20"

@@ -73,9 +73,9 @@ ifneq ($(strip $(GO_BUILD_TAGS)),)
 endif
 
 LDFLAGS = -s -w
-LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.Version=$(VERSION)'
-LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.CommitHash=$(COMMIT_HASH)'
-LDFLAGS += -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
+LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.Version=$(VERSION)'
+LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.CommitHash=$(COMMIT_HASH)'
+LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
 bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
 	go -C $(ROOT_DIR)/orchestrator build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go

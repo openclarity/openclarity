@@ -1,30 +1,30 @@
 module-sets:
   vmclarity:
-    version: v0.7.2
+    version: v0.0.0
     modules:
-      - github.com/openclarity/vmclarity/uibackend/types
-      - github.com/openclarity/vmclarity/uibackend/server
-      - github.com/openclarity/vmclarity/uibackend/client
-      - github.com/openclarity/vmclarity/core
-      - github.com/openclarity/vmclarity/provider
-      - github.com/openclarity/vmclarity/utils
-      - github.com/openclarity/vmclarity/installation
-      - github.com/openclarity/vmclarity/cli
-      - github.com/openclarity/vmclarity/scanner
-      - github.com/openclarity/vmclarity/testenv
-      - github.com/openclarity/vmclarity/api/types
-      - github.com/openclarity/vmclarity/api/server
-      - github.com/openclarity/vmclarity/api/client
-      - github.com/openclarity/vmclarity/e2e
-      - github.com/openclarity/vmclarity/containerruntimediscovery/types
-      - github.com/openclarity/vmclarity/containerruntimediscovery/server
-      - github.com/openclarity/vmclarity/containerruntimediscovery/client
-      - github.com/openclarity/vmclarity/orchestrator
-      - github.com/openclarity/vmclarity/workflow
-      - github.com/openclarity/vmclarity/plugins/runner
-      - github.com/openclarity/vmclarity/plugins/sdk-go
-      - github.com/openclarity/vmclarity/plugins/sdk-go/example
-      - github.com/openclarity/vmclarity/plugins/store/kics
+      - github.com/openclarity/openclarity/uibackend/types
+      - github.com/openclarity/openclarity/uibackend/server
+      - github.com/openclarity/openclarity/uibackend/client
+      - github.com/openclarity/openclarity/core
+      - github.com/openclarity/openclarity/provider
+      - github.com/openclarity/openclarity/utils
+      - github.com/openclarity/openclarity/installation
+      - github.com/openclarity/openclarity/cli
+      - github.com/openclarity/openclarity/scanner
+      - github.com/openclarity/openclarity/testenv
+      - github.com/openclarity/openclarity/api/types
+      - github.com/openclarity/openclarity/api/server
+      - github.com/openclarity/openclarity/api/client
+      - github.com/openclarity/openclarity/e2e
+      - github.com/openclarity/openclarity/containerruntimediscovery/types
+      - github.com/openclarity/openclarity/containerruntimediscovery/server
+      - github.com/openclarity/openclarity/containerruntimediscovery/client
+      - github.com/openclarity/openclarity/orchestrator
+      - github.com/openclarity/openclarity/workflow
+      - github.com/openclarity/openclarity/plugins/runner
+      - github.com/openclarity/openclarity/plugins/sdk-go
+      - github.com/openclarity/openclarity/plugins/sdk-go/example
+      - github.com/openclarity/openclarity/plugins/store/kics
 
 excluded-modules:
-  - github.com/openclarity/vmclarity/e2e/testdata
+  - github.com/openclarity/openclarity/e2e/testdata
