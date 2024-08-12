@@ -1,12 +1,12 @@
-module github.com/openclarity/vmclarity/api/types
+module github.com/openclarity/openclarity/api/types
 
 go 1.22.4
 
 require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 )
 
 require (
@@ -28,6 +28,6 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
+	github.com/openclarity/openclarity/core => ../../core
+	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
 )

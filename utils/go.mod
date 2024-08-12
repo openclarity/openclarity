@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/utils
+module github.com/openclarity/openclarity/utils
 
 go 1.22.4
 
@@ -7,7 +7,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/vmclarity/core v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
 )
 
 require (
@@ -90,4 +90,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/openclarity/vmclarity/core => ../core
+replace github.com/openclarity/openclarity/core => ../core

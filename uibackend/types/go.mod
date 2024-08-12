@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/uibackend/types
+module github.com/openclarity/openclarity/uibackend/types
 
 go 1.22.4
 

@@ -1,8 +1,8 @@
-module github.com/openclarity/vmclarity/containerruntimediscovery/types
+module github.com/openclarity/openclarity/containerruntimediscovery/types
 
 go 1.22.4
 
-require github.com/openclarity/vmclarity/api/types v0.7.2
+require github.com/openclarity/openclarity/api/types v0.7.2
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
@@ -16,8 +16,8 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/vmclarity/core v0.7.2 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
+	github.com/openclarity/openclarity/core v0.7.2 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
@@ -27,7 +27,7 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/api/types => ../../api/types
-	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
+	github.com/openclarity/openclarity/api/types => ../../api/types
+	github.com/openclarity/openclarity/core => ../../core
+	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
 )

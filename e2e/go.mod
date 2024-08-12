@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/e2e
+module github.com/openclarity/openclarity/e2e
 
 go 1.22.4
 
@@ -7,13 +7,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/vmclarity/api/client v0.7.2
-	github.com/openclarity/vmclarity/api/types v0.7.2
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/scanner v0.7.2
-	github.com/openclarity/vmclarity/testenv v0.7.2
-	github.com/openclarity/vmclarity/uibackend/client v0.7.2
-	github.com/openclarity/vmclarity/uibackend/types v0.7.2
+	github.com/openclarity/openclarity/api/client v0.7.2
+	github.com/openclarity/openclarity/api/types v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/scanner v0.7.2
+	github.com/openclarity/openclarity/testenv v0.7.2
+	github.com/openclarity/openclarity/uibackend/client v0.7.2
+	github.com/openclarity/openclarity/uibackend/types v0.7.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
 )
@@ -362,11 +362,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.64.1 // indirect
 	github.com/openclarity/grype-server/api v0.0.0-20240619144520-b9ba72524a9c // indirect
-	github.com/openclarity/vmclarity/installation v0.7.2 // indirect
-	github.com/openclarity/vmclarity/plugins/runner v0.7.2 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
-	github.com/openclarity/vmclarity/utils v0.7.2 // indirect
-	github.com/openclarity/vmclarity/workflow v0.7.2 // indirect
+	github.com/openclarity/openclarity/installation v0.7.2 // indirect
+	github.com/openclarity/openclarity/plugins/runner v0.7.2 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
+	github.com/openclarity/openclarity/utils v0.7.2 // indirect
+	github.com/openclarity/openclarity/workflow v0.7.2 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
@@ -544,20 +544,20 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/api/client => ../api/client
-	github.com/openclarity/vmclarity/api/types => ../api/types
-	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
-	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
-	github.com/openclarity/vmclarity/core => ../core
-	github.com/openclarity/vmclarity/installation => ../installation
-	github.com/openclarity/vmclarity/plugins/runner => ../plugins/runner
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../plugins/sdk-go
-	github.com/openclarity/vmclarity/scanner => ../scanner
-	github.com/openclarity/vmclarity/testenv => ../testenv
-	github.com/openclarity/vmclarity/uibackend/client => ../uibackend/client
-	github.com/openclarity/vmclarity/uibackend/types => ../uibackend/types
-	github.com/openclarity/vmclarity/utils => ../utils
-	github.com/openclarity/vmclarity/workflow => ../workflow
+	github.com/openclarity/openclarity/api/client => ../api/client
+	github.com/openclarity/openclarity/api/types => ../api/types
+	github.com/openclarity/openclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
+	github.com/openclarity/openclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
+	github.com/openclarity/openclarity/core => ../core
+	github.com/openclarity/openclarity/installation => ../installation
+	github.com/openclarity/openclarity/plugins/runner => ../plugins/runner
+	github.com/openclarity/openclarity/plugins/sdk-go => ../plugins/sdk-go
+	github.com/openclarity/openclarity/scanner => ../scanner
+	github.com/openclarity/openclarity/testenv => ../testenv
+	github.com/openclarity/openclarity/uibackend/client => ../uibackend/client
+	github.com/openclarity/openclarity/uibackend/types => ../uibackend/types
+	github.com/openclarity/openclarity/utils => ../utils
+	github.com/openclarity/openclarity/workflow => ../workflow
 )
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:

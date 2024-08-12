@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/api/server
+module github.com/openclarity/openclarity/api/server
 
 go 1.22.4
 
@@ -16,9 +16,9 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/vmclarity/api/types v0.7.2
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/scanner v0.7.2
+	github.com/openclarity/openclarity/api/types v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/scanner v0.7.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -55,7 +55,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -85,11 +85,11 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/api/client => ../client
-	github.com/openclarity/vmclarity/api/types => ../types
-	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/runner => ../../plugins/runner
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
-	github.com/openclarity/vmclarity/scanner => ../../scanner
-	github.com/openclarity/vmclarity/utils => ../../utils
+	github.com/openclarity/openclarity/api/client => ../client
+	github.com/openclarity/openclarity/api/types => ../types
+	github.com/openclarity/openclarity/core => ../../core
+	github.com/openclarity/openclarity/plugins/runner => ../../plugins/runner
+	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
+	github.com/openclarity/openclarity/scanner => ../../scanner
+	github.com/openclarity/openclarity/utils => ../../utils
 )

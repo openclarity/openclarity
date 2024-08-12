@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/core
+module github.com/openclarity/openclarity/core
 
 go 1.22.4
 

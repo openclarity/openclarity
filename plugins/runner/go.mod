@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/plugins/runner
+module github.com/openclarity/openclarity/plugins/runner
 
 go 1.22.4
 
@@ -8,9 +8,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2
-	github.com/openclarity/vmclarity/utils v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
+	github.com/openclarity/openclarity/utils v0.7.2
 )
 
 require (
@@ -122,8 +122,8 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/core => ../../core
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../sdk-go
-	github.com/openclarity/vmclarity/scanner => ../../scanner
-	github.com/openclarity/vmclarity/utils => ../../utils
+	github.com/openclarity/openclarity/core => ../../core
+	github.com/openclarity/openclarity/plugins/sdk-go => ../sdk-go
+	github.com/openclarity/openclarity/scanner => ../../scanner
+	github.com/openclarity/openclarity/utils => ../../utils
 )

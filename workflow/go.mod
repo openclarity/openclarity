@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/workflow
+module github.com/openclarity/openclarity/workflow
 
 go 1.22.4
 

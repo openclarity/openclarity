@@ -1,11 +1,11 @@
-module github.com/openclarity/vmclarity/uibackend/client
+module github.com/openclarity/openclarity/uibackend/client
 
 go 1.22.4
 
 require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/openclarity/vmclarity/uibackend/types v0.7.2
+	github.com/openclarity/openclarity/uibackend/types v0.7.2
 )
 
 require (
@@ -27,6 +27,6 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../../plugins/sdk-go
-	github.com/openclarity/vmclarity/uibackend/types => ../types
+	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
+	github.com/openclarity/openclarity/uibackend/types => ../types
 )
