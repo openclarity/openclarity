@@ -1,0 +1,29 @@
+@import 'utils/scss_variables.module.scss';
+
+$loader-border-radius: 3px;
+
+.progress-bar-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .progress-bar-container {
+        position: relative;
+        height: 6px;
+        background-color: $color-grey-light;
+        border-radius: $loader-border-radius;
+
+        .progress-bar-filler {
+            border-radius: $loader-border-radius;
+            height: 100%;
+        }
+    }
+    .progress-bar-title,
+    .icon {
+        margin-left: 10px;
+    }
+    .progress-bar-title {
+        font-size: 14px;
+        line-height: 16px;
+    }
+}

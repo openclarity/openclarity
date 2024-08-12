@@ -1,0 +1,22 @@
+.form-field-wrapper.multiselect-field-wrapper {
+    position: relative;
+    
+    .dropdown-select__value-container {
+        .multi-select-custom-item-with-connector {
+            display: flex;
+            align-items: center;
+    
+            .multi-select-connector {
+                margin: 0 10px;
+            }
+            &:first-child .multi-select-connector {
+                display: none;
+            }
+        }
+    }
+    .dropdown-select__control.multi-select-custom-control-with-label {
+        .multi-select-control-label {
+            margin-left: 10px;
+        }
+    }
+}

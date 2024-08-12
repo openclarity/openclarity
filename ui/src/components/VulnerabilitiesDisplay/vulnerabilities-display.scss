@@ -1,0 +1,69 @@
+@import 'utils/scss_variables.module.scss';
+
+$inner-padding: 21px;
+
+.vulnerabilities-minimized-display-wrapper {
+    display: inline-block;
+    text-align: left;
+
+    .vulnerabilities-minimized-display-summary-item {
+        padding: 2px 5px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 18px;
+    }
+}
+
+.vulnerabilities-minimized-tooltip-content {
+    .vulnerabilities-tooltip-counters {
+        display: flex;
+        border-top: 1px solid $color-grey-dark;
+        padding-top: 5px;
+        margin-top: 5px;
+
+        .vulnerabilities-tooltip-counters-item {
+            display: flex;
+            align-items: center;
+
+            &:not(:last-child) {
+                margin-right: 10px;
+            }
+            .icon {
+                margin-right: 2px;
+            }
+        }
+    }
+}
+
+.vulnerabilities-display-wrapper {
+    display: flex;
+    align-items: center;
+
+    .icon {
+        margin-right: 5px;
+    }
+    .vulnerabilities-display-summary {
+        display: flex;
+        align-items: center;
+        border-right: 1px solid $color-grey-light;
+        padding-right: $inner-padding;
+    }
+    .vulnerabilities-display-counters {
+        display: flex;
+        align-items: center;
+        
+        .vulnerabilities-display-counter-item {
+            padding-left: $inner-padding;
+        }
+    }
+    .vulnerabilities-display-counter-item {
+        min-width: 42px;
+        
+        .vulnerabilities-counter-item-count {
+            font-size: 22px;
+        }
+        .vulnerabilities-counter-item-title {
+            font-size: 11px;
+        }
+    }
+}

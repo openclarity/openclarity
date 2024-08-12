@@ -1,0 +1,22 @@
+@import 'utils/scss_variables.module.scss';
+
+.findings-item-display {
+    display: flex;
+    align-items: center;
+
+    .icon {
+        color: $color-main;
+    }
+    .findings-item-counter {
+        font-weight: 400;
+        font-size: 22px;
+        line-height: 18px;
+        margin-left: 5px;
+    }
+    .findings-item-title {
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 18px;
+        margin-left: 10px;
+    }
+}

@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1.2
+ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base:v0.2.0@sha256:0e0ed706dc297366af44d736c71aefa350b54a0214290aa81b3603462e39872b
+FROM --platform=$BUILDPLATFORM golang:1.20.5-alpine AS builder
+
+
+RUN apk add --update --no-cache ca-certificates git
+RUN apk add build-base
+
+# Copy vmclarity code to /build
+COPY . /build
+
+# Build cli code
+WORKDIR /build/cli
+
+ARG COMMIT_HASH
+ARG TARGETOS
+ARG TARGETARCH
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 \
+    go build \
+    -ldflags="-s -w -X 'github.com/openclarity/vmclarity/cli/pkg.GitRevision=${COMMIT_HASH}'" \
+    -o cli \
+    ./main.go
+
+FROM ${VMCLARITY_TOOLS_BASE}
+
+RUN apk upgrade
+RUN apk add util-linux
+
+WORKDIR /app
+
+COPY --from=builder /build/cli/cli ./vmclarity-cli
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+ENTRYPOINT ["/app/vmclarity-cli"]
