@@ -1,0 +1,58 @@
+@import 'utils/scss_variables.module.scss';
+
+$box-size: 30px;
+
+.pagination-container {
+    height: $box-size;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: $color-grey-black;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-bottom: 3px solid $color-grey-lighter;
+
+    .pagination-results {
+        font-weight: 400;
+        color: $color-grey-black;
+    }
+    .pagination-navigation {
+        margin-left: 15px;
+        display: flex;
+
+        .pagination-item {
+            min-width: $box-size;
+            height: $box-size;
+            box-sizing: border-box;
+            padding: 0 5px;
+            background-color: $color-grey-lighter;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            cursor: pointer;
+            
+            &:not(:last-child) {
+                margin-right: 4px;
+            }
+            &.pagination-arrow {
+                color: $color-grey;
+
+                &.left .icon {
+                    transform: rotate(180deg);
+                }
+                &.disabled {
+                    cursor: not-allowed;
+                    color: $color-grey;
+                }
+            }
+            &.pagination-dots {
+                background-color: transparent;
+                cursor: auto;
+            }
+            &.is-active {
+                background-color: $color-main-light;
+            }
+        }
+    }
+    
+}

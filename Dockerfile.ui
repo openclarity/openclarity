@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1@sha256:ac85f380a63b13dfcefa89046420e1781752bab202122f8f50032edf31be0021
+
+FROM --platform=$BUILDPLATFORM node:20-slim AS site-build
+
+WORKDIR /src
+
+COPY --link ./ui /src
+
+RUN --mount=type=cache,target=/src/node_modules \
+    npm install
+
+RUN --mount=type=cache,target=/src/node_modules \
+    npm run build
+
+FROM nginx:1.25.4@sha256:c26ae7472d624ba1fafd296e73cecc4f93f853088e6a9c13c0d52f6ca5865107
+
+COPY --from=site-build ["/src/build", "/usr/share/nginx/html"]
+
+COPY --link ["ui/nginx.conf", "/etc/nginx/conf.d/default.conf"]

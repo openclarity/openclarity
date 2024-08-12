@@ -1,0 +1,53 @@
+@import 'utils/scss_variables.module.scss';
+
+$padding: 30px;
+
+.modal-outer-wrapper {
+    position: absolute;
+    top: 0;
+    left: $side-bar-width;
+    width: calc(100% - #{$side-bar-width});
+    height: 100%;
+    background-color: rgba(#E4E6E8, 0.8);
+    z-index: 1;
+
+    .modal-inner-wrapper {
+        position: absolute;
+        background: white;
+        box-sizing: border-box;
+        box-shadow: -8px 12px 19px rgba(55, 72, 95, 0.13);
+
+        &:not(.stick-left) {
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        &.stick-left {
+            top: 0;
+            bottom: 0;
+            left: 0;
+        }
+        .close-button {
+            position: absolute;
+            top: $padding;
+            right: $padding;
+        }
+        .modal-content {
+            font-size: 14px;
+            line-height: 18px;
+            color: $color-grey-black;
+        }
+        .modal-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            position: absolute;
+            right: $padding;
+            bottom: $padding;
+
+            button:not(:last-child) {
+                margin-right: 10px;
+            }
+        }
+    }
+}

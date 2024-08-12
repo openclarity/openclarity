@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.gateway.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.gateway.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.gateway.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 8 }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/gateway/configmap.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.gateway.affinity }}
+      affinity: {{- .Values.gateway.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.gateway.nodeSelector }}
+      nodeSelector: {{- .Values.gateway.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.gateway.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.gateway.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.gateway.tolerations }}
+      tolerations: {{- .Values.gateway.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: gateway
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.gateway.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy | quote }}
+          volumeMounts:
+            - name: gateway-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - mountPath: /var/run
+              name: tmpfs-1
+            - mountPath: /var/cache/nginx
+              name: tmpfs-2
+          {{- if .Values.gateway.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.gateway.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.gateway.resources }}
+          resources: {{- toYaml .Values.gateway.resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 8080
+              name: gateway-http
+      volumes:
+        - name: gateway-config
+          configMap:
+            name: {{ include "vmclarity.gateway.name" . }}
+        - name: tmpfs-1
+          emptyDir: {}
+        - name: tmpfs-2
+          emptyDir: {}
+      serviceAccountName: {{ include "vmclarity.gateway.serviceAccountName" . }}

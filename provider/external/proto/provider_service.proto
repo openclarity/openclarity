@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package provider;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "proto/provider_service";
+
+// The provider service definition.
+service Provider {
+
+  rpc DiscoverAssets(DiscoverAssetsParams) returns (DiscoverAssetsResult){}
+  // RunAssetScan is a non-blocking call which takes a ScanJobConfig and creates resources for performing Scan.
+  // It may return FatalError or RetryableError to indicate if the error is permanent or transient.
+  // It is expected to return RetryableError in case the resources are not ready or are still being created.
+  // It must return nil if all the resources are created and ready.
+  // It also must be idempotent.
+
+  // RunAssetScan should never return an error, instead use the err field in RunAssetScanResult:
+  // If err is of type ErrorRetryable, then RunAssetScan will be called again in the next iteration.
+  // If err is of type ErrorFatal, then AssetScan will be aborted, and RunAssetScan will not be called again.
+  // if err is of type ErrorNone, then AssetScan state shift to Ready, and the scanner can run.
+
+  // The VMClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
+  // In case you don't use the VMClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
+  rpc RunAssetScan(RunAssetScanParams) returns (RunAssetScanResult){}
+
+  rpc RemoveAssetScan(RemoveAssetScanParams) returns (RemoveAssetScanResult){}
+}
+
+message DiscoverAssetsParams {}
+
+message DiscoverAssetsResult {
+  repeated Asset assets = 1;
+}
+
+message RunAssetScanParams {
+    ScanJobConfig scanJobConfig = 1;
+}
+
+message RunAssetScanResult {
+  Error err = 1;
+}
+
+message RemoveAssetScanParams {
+  ScanJobConfig scanJobConfig = 1;
+}
+
+message RemoveAssetScanResult {}
+
+message Error {
+  oneof errorType {
+    ErrorNone errNone = 1;
+    ErrorRetryable errRetry = 2;
+    ErrorFatal errFatal = 3;
+  }
+}
+
+message Asset {
+  oneof assetType {
+    VMInfo vminfo = 1;
+    DirInfo dirinfo = 2;
+    PodInfo podinfo = 3;
+  }
+}
+
+// ScanJobConfig
+// Scanner instance - the VM that runs the VMClarity CLI.
+// Scanner CLI - VMClarity CLI tool that does the actual scanning.
+message ScanJobConfig {
+  // The container image of the scanner CLI. contains the vmclarity-cli and other required scanning tools.
+  string scannerImage = 1;
+  // Scanner CLI config yaml (families config yaml) serialized in json format.
+  string scannerCLIConfig = 2;
+  // The VMClarity API address.
+  string vmClarityAddress = 3;
+  // The ID of the AssetScan that the scanner CLI should update in the backend.
+  ScanMetadata scanMetadata = 4;
+  // Configuration for how to run the scanner instance (optional).
+  ScannerInstanceCreationConfig scannerInstanceCreationConfig = 5;
+  // The asset to scan.
+  Asset asset = 6;
+}
+
+message ScanMetadata {
+   string ScanID = 1;
+   string AssetScanID = 2;
+   string AssetID = 3;
+}
+
+message ScannerInstanceCreationConfig {
+  string MaxPrice = 1;
+  int32 RetryMaxAttempts = 2;
+  bool UseSpotInstances = 3;
+}
+
+message DirInfo {
+  string dirName = 1;
+  string location = 2;
+}
+
+message PodInfo {
+  string podName = 1;
+  string location = 2;
+}
+
+message VMInfo {
+  string id = 1;
+  string Location = 2;
+  string image = 3;
+  string instanceType = 4;
+  string platform = 5;
+  repeated Tag tags  = 6;
+  google.protobuf.Timestamp launchTime = 7;
+}
+
+message Tag {
+  string key = 1;
+  string val = 2;
+}
+
+message ErrorNone {}
+
+message ErrorFatal {
+  string err = 1;
+}
+
+message ErrorRetryable {
+  string err = 1;
+  // The duration in seconds that needs to wait until next retry.
+  uint32 after = 2;
+}

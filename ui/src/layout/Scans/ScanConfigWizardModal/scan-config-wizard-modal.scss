@@ -1,0 +1,31 @@
+@import 'utils/scss_variables.module.scss';
+
+.wizard-modal {
+    .scan-config-scan-types-step {
+        .checkbox-field-wrapper {
+            margin-bottom: 10px;
+        }
+    }
+    .scan-config-general-step {
+        .scan-config-instances .form-field-wrapper {
+            margin-bottom: 17px;
+        }
+    }
+    .scan-config-time-config-step {
+        .schedule-later-form-fields {
+            display: flex;
+    
+            .date-field-wrapper {
+                min-width: 100px;
+            }
+        }
+        .repetitive-later-form-fields {
+            margin-top: 30px;
+        }
+    }
+    .scan-config-advanced-settings-step {
+        .checkbox-field-wrapper {
+            margin-top: 30px;
+        }
+    }
+}
