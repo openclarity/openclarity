@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.orchestrator.name" . }}
+  labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.orchestrator.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.orchestrator.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.orchestrator.affinity }}
+      affinity: {{- .Values.orchestrator.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.orchestrator.nodeSelector }}
+      nodeSelector: {{- .Values.orchestrator.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.orchestrator.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.orchestrator.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.orchestrator.tolerations }}
+      tolerations: {{- .Values.orchestrator.tolerations | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "vmclarity.orchestrator.serviceAccountName" . }}
+      containers:
+        - name: orchestrator
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.orchestrator.image.pullPolicy | quote }}
+          {{- if .Values.orchestrator.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.orchestrator.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.orchestrator.resources }}
+          resources: {{- toYaml .Values.orchestrator.resources | nindent 12 }}
+          {{- end }}
+          args:
+            - run
+            - --log-level
+            - {{ .Values.orchestrator.logLevel }}
+          ports:
+            - name: health
+              containerPort: 8082
+          startupProbe:
+            tcpSocket:
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: health
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: health
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          env:
+            - name: VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS
+              value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY
+              value: {{ .Values.orchestrator.deleteJobPolicy }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE
+              value: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS
+              value: {{ .Values.orchestrator.scannerApiServerAddress | default (printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS
+              value: {{ .Values.orchestrator.exploitsDBAddress | default (printf "http://%s:%s" (include "vmclarity.exploitDBServer.name" .) "1326") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS
+              value: {{ .Values.orchestrator.trivyServerAddress | default (printf "http://%s:%s" (include "vmclarity.trivyServer.name" .) "9992") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS
+              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "%s:%s" (include "vmclarity.grypeServer.name" .) "9991") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
+              value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "vmclarity.freshclamMirror.name" .) "1000") }}
+            - name: VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_YARA_RULE_SERVER_ADDRESS
+              value: {{ .Values.orchestrator.yaraRuleServerAddress | default (printf "http://%s:%s" (include "vmclarity.yaraRuleServer.name" .) "9993") }}
+            - name: VMCLARITY_ORCHESTRATOR_PROVIDER
+              value: {{ .Values.orchestrator.provider }}
+
+            {{- if eq .Values.orchestrator.provider "aws" -}}
+            {{- with .Values.orchestrator.aws }}
+            - name: AWS_REGION
+              value: {{ .region }}
+            - name: VMCLARITY_AWS_SCANNER_REGION
+              value: {{ .scannerRegion }}
+            - name: VMCLARITY_AWS_SUBNET_ID
+              value: {{ .subnetId }}
+            - name: VMCLARITY_AWS_SECURITY_GROUP_ID
+              value: {{ .securityGroupId }}
+            - name: VMCLARITY_AWS_KEYPAIR_NAME
+              value: {{ .keypairName }}
+            - name: VMCLARITY_AWS_SCANNER_AMI_ID
+              value: {{ .scannerAmiId }}
+            - name: VMCLARITY_AWS_SCANNER_INSTANCE_TYPE
+              value: {{ .scannerInstanceType }}
+            {{- end -}}
+            {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "gcp" -}}
+            {{- with .Values.orchestrator.gcp }}
+            - name: VMCLARITY_GCP_PROJECT_ID
+              value: {{ .projectId }}
+            - name: VMCLARITY_GCP_SCANNER_ZONE
+              value: {{ .scannerZone }}
+            - name: VMCLARITY_GCP_SCANNER_SUBNETWORK
+              value: {{ .scannerSubnet }}
+            - name: VMCLARITY_GCP_SCANNER_MACHINE_TYPE
+              value: {{ .scannerMachineType }}
+            - name: VMCLARITY_GCP_SCANNER_SOURCE_IMAGE
+              value: {{ .scannerSourceImage }}
+            {{- end -}}
+            {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "azure" -}}
+            {{- with .Values.orchestrator.azure }}
+            - name: VMCLARITY_AZURE_SUBSCRIPTION_ID
+              value: .subscriptionId
+            - name: VMCLARITY_AZURE_SCANNER_LOCATION
+              value: .scannerLocation
+            - name: VMCLARITY_AZURE_SCANNER_RESOURCE_GROUP
+              value: .scannerResourceGroup
+            - name: VMCLARITY_AZURE_SCANNER_SUBNET_ID
+              value: .scannerSubnetId
+            - name: VMCLARITY_AZURE_SCANNER_PUBLIC_KEY
+              value: .scannerPublicKey
+            - name: VMCLARITY_AZURE_SCANNER_VM_SIZE
+              value: .scannerVmSize
+            - name: VMCLARITY_AZURE_SCANNER_IMAGE_PUBLISHER
+              value: .scannerImagePublisher
+            - name: VMCLARITY_AZURE_SCANNER_IMAGE_OFFER
+              value: .scannerImageOffer
+            - name: VMCLARITY_AZURE_SCANNER_IMAGE_SKU
+              value: .scannerImageSku
+            - name: VMCLARITY_AZURE_SCANNER_IMAGE_VERSION
+              value: .scannerImageVersion
+            - name: VMCLARITY_AZURE_SCANNER_SECURITY_GROUP
+              value: .scannerSecurityGroup
+            - name: VMCLARITY_AZURE_SCANNER_STORAGE_ACCOUNT_NAME
+              value: .scannerStorageAccountName
+            - name: VMCLARITY_AZURE_SCANNER_STORAGE_CONTAINER_NAME
+              value: .scannerStorageContainerName
+            {{- end -}}
+            {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "kubernetes" }}
+            - name: VMCLARITY_KUBERNETES_CONTAINER_RUNTIME_DISCOVERY_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: VMCLARITY_KUBERNETES_SCANNER_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            {{- with .Values.orchestrator.kubernetes }}
+            {{- end -}}
+            {{- end }}
+
+            {{- if eq .Values.orchestrator.provider "docker" }}
+            {{- with .Values.orchestrator.docker }}
+            {{- end -}}
+            {{- end }}

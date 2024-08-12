@@ -1,0 +1,18 @@
+@import 'utils/scss_variables.module.scss';
+
+.content-container-wrapper {
+    background-color: white;
+    border: 1px solid $color-grey-light;
+    box-shadow: 0px 0px 10px rgba(34, 43, 54, 0.12);
+    min-height: 500px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    &.with-margin {
+        margin: $main-content-padding;
+    }
+    > * {
+        flex-grow: 1;
+    }
+}

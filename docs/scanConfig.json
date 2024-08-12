@@ -1,0 +1,23 @@
+{
+  "name": "test",
+  "scanTemplate": {
+    "scope": "contains(assetInfo.tags, '{\"key\":\"scanconfig\",\"value\":\"test\"}')",
+    "assetScanTemplate": {
+      "scanFamiliesConfig": {
+        "sbom": {
+          "enabled": true
+        },
+        "vulnerabilities": {
+          "enabled": true
+        },
+        "exploits": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "scheduled": {
+    "cronLine": "0 */4 * * *",
+    "operationTime": "2023-01-20T15:46:18+00:00"
+  }
+}
