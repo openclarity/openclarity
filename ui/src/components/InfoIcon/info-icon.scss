@@ -1,0 +1,27 @@
+@import 'utils/scss_variables.module.scss';
+
+$size: 12px;
+$size-large: 14px;
+
+.info-icon-wrapper {
+    background-color: $color-grey-light;
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: space-around;
+    
+    &.large {
+        width: $size-large;
+        height: $size-large;
+        background-color: $color-main;
+
+        .icon {
+            color: white;
+        }
+    }
+    .icon {
+        color: $color-grey-black;
+    }
+}

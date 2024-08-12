@@ -1,0 +1,15 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-label-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .form-field-label {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 22px;
+        color: $color-grey-black;
+        margin-right: 10px;
+    }
+}

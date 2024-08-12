@@ -1,0 +1,3 @@
+python_dateutil >= 2.6.0
+setuptools >= 21.0.0
+Flask >= 3.0.3

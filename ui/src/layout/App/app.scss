@@ -1,0 +1,109 @@
+@import 'utils/scss_variables.module.scss';
+
+$main-height: calc(100vh - #{$top-bar-height});
+
+html body {
+    margin: 0;
+    font-family: CiscoSansTT, sans-serif;
+    color: $color-grey-black;
+    box-sizing: border-box;
+
+    #root {
+        min-width: 1070px;
+
+        .app-wrapper {
+            position: relative;
+
+            #main-wrapper {
+                .topbar-container {
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    left: 0;
+                    background-color: $color-main;
+                    z-index: 1;
+                    height: $top-bar-height;
+                    display: flex;
+                    align-items: center;
+                    
+                    img {
+                        margin: 4px 15px;
+                    }
+                    .topbar-page-title {
+                        display: flex;
+                        align-items: center;
+                        border-left: 1px solid $color-grey;
+                        padding-left: 20px;
+                        margin-left: 15px;
+                        
+                        .clarity-title {
+                            color: $color-grey;
+                        }
+                        .icon {
+                            color: $color-grey;
+                            margin-left: 10px;
+                        }
+                    }
+                    .topbar-menu-items {
+                        display: flex;
+                        flex-grow: 1;
+                        align-items: center;
+                        justify-content: flex-end;
+                        margin-left: 30px;
+
+                        .topbar-api-link {
+                            display: flex;
+                            align-items: center;
+                            margin-right: 20px;
+                            color: $color-grey;
+                            text-decoration: none;
+                        }
+                    }
+                }
+                .sidebar-container {
+                    background-color: $color-main-dark;
+                    box-shadow: 0px 2px 43px rgba($color-shadow-main, 0.21);
+                    position: fixed;
+                    top: $top-bar-height;
+                    bottom: 0;
+                    left: 0;
+                    width: $side-bar-width;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 22px 0;
+                    z-index: 2;
+
+                    .nav-item {
+                        width: $side-bar-width;
+                        height: 42px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-around;
+                        margin-bottom: 10px;
+                        cursor: pointer;
+
+                        &:hover,
+                        &.active {
+                            background-color: $color-main;
+                        }
+                        .icon {
+                            color: white;
+                        }
+                    }
+                }
+                [role="main"] {
+                    margin-top: $top-bar-height;
+                    margin-left: $side-bar-width;
+                    background-color: $color-background;
+                    height: $main-height;
+                    max-height: $main-height;
+                    overflow: auto;
+                    width: calc(100% - $side-bar-width);
+                    position: relative;
+                }
+            }
+        }
+    }
+}
+

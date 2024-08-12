@@ -1,0 +1,50 @@
+openapi: 3.0.1
+
+info:
+  title: VMClarity APIs
+  version: 1.0.0
+
+paths:
+  /openapi.json:
+    get:
+      summary: Get this OpenAPI spec
+      operationId: GetOpenAPISpec
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
+        default:
+          $ref: '#/components/responses/UnknownError'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          readOnly: true
+      description: An object that is returned in all cases of failures.
+
+    Annotations:
+      type: array
+      description: Generic map of string keys and string values to attach arbitrary non-identifying metadata to objects.
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+
+  responses:
+    UnknownError:
+      description: Unknown error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'

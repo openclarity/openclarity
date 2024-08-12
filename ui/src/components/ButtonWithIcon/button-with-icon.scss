@@ -1,0 +1,10 @@
+@import 'utils/scss_variables.module.scss';
+
+.button-with-icon.clarity-button {
+    display: flex;
+    align-items: center;
+
+    .icon {
+        margin-right: 5px;
+    }
+}

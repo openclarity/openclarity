@@ -1,0 +1,170 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
+
+permissions:
+  packages: write
+  contents: write
+
+jobs:
+  artifacts:
+    name: Create artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Set up Go
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
+        with:
+          # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
+          # as it provides better flexibility like setting the cache key which reduces cache misses significantly.
+          cache: false
+          go-version-file: '.go-version'
+
+      - name: Free up disk space
+        run: |
+          df -h
+
+          # Remove .NET related tooling
+          sudo du -sh /usr/share/dotnet
+          sudo rm -rf /usr/share/dotnet
+
+          # Remove Android related tooling
+          sudo du -sh /usr/local/lib/android
+          sudo rm -rf /usr/local/lib/android
+
+          # Remove CodeQL
+          sudo du -sh /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          df -h
+
+      - name: Setup Go caching
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ github.ref_name }}-
+            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+
+      - name: Create vmclarity-cli manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-vmclarity-cli
+
+      - name: Create Cloudformation manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-cloudformation
+
+      - name: Create Azure Bicep manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-bicep
+
+      - name: Create Docker Compose manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-docker-compose
+
+      - name: Create Google Cloud Deployment manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-gcp-deployment
+
+      - name: Upload
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
+        with:
+          name: artifacts
+          path: |
+            dist/*.tar.gz
+            dist/*.tgz
+            dist/*.sha256sum
+            dist/bicep/vmclarity.json
+            dist/bicep/vmclarity-UI.json
+          if-no-files-found: error
+          compression-level: 0
+
+  verification:
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  publish-helm-chart:
+    needs: verification
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Create Helm Chart package
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-helm-chart
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and Publish Helm Chart
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make publish-helm-chart
+
+  build-and-push:
+    needs:
+      - artifacts
+      - verification
+      - publish-helm-chart
+    name: Build
+    uses: ./.github/workflows/build-and-push-components.yml
+    with:
+      image_tag: ${{ github.ref_name }}
+
+  main-release:
+    needs:
+      - artifacts
+      - verification
+      - publish-helm-chart
+      - build-and-push
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: artifacts
+          path: dist
+
+      - name: Generate changelog
+        env:
+          VERSION: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make generate-release-notes
+
+      - name: Upload release
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "dist/*.tar.gz,dist/*.sha256sum,dist/bicep/vmclarity.json,dist/bicep/vmclarity-UI.json"
+          bodyFile: "dist/CHANGELOG.md"
+          draft: true
+          name: "Release ${{ github.ref_name }}"
+          updateOnlyUnreleased: true

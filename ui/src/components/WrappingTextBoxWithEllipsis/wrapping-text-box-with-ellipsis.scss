@@ -1,0 +1,14 @@
+.wrapping-text-box-with-ellipsis-wrapper {
+    display: flex;
+    align-items: end;
+
+    .wrapping-text-box-with-ellipsis-content {
+        flex: 1;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        overflow-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

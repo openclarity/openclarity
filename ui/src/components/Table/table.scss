@@ -1,0 +1,127 @@
+@import 'utils/scss_variables.module.scss';
+
+$cell-padding: 10px;
+
+.table-wrapper {
+    .no-pagination-results-total {
+        font-size: 14px;
+        line-height: 19px;
+        color: $color-grey-black;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .table {
+        color: $color-grey-black;
+        overflow-x: hidden;
+        padding: 0 18px;
+
+        .table-head {
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 18px;
+            letter-spacing: 0.27px;
+            overflow-y: hidden;
+
+            .table-tr {
+                border-bottom: 2px solid $color-grey-lighter;
+                
+                .table-th {
+                    padding: $cell-padding;
+                    margin: auto 0;
+                    display: flex;
+                    align-items: center;
+
+                    .resizer {
+                        right: 0;
+                        width: 10px;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                        touch-action: none;
+                    }
+                    .table-sort-icon {
+                        margin-left: 5px;
+
+                        &:not(.sorted) {
+                            display: none;
+                        }
+                        &.rotate {
+                            transform: rotate(180deg);
+                        }
+                    }
+                    &:hover {
+                        .table-sort-icon {
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+        }
+        .table-body {
+            font-size: 14px;
+            line-height: 18px;
+            overflow-y: hidden;
+
+            .empty-results-display-wrapper {
+                margin: 30px 10px;
+            }
+            .table-loading {
+                position: relative;
+                height: 200px;
+            }
+            &:not(:hover) {
+                .table-tr.with-row-actions:first-child {
+                    background-color: $color-blue-light;
+
+                    .table-td .actions-column-container {
+                        visibility: visible;
+                    }
+                }
+            }
+            .table-tr {
+                border-bottom: 1px solid $color-grey-lighter;
+
+                &:hover,
+                &.marked {
+                    background-color: $color-blue-light;
+
+                    &.clickable {
+                        cursor: pointer;
+                    }
+                }
+                &:hover {
+                    .actions-column-container {
+                        visibility: visible !important;
+                    }
+                }
+                .table-td {
+                    padding: $cell-padding;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    overflow-x: hidden;
+
+                    &.align-to-top {
+                        align-self: flex-start;
+                    }
+                    .actions-column-container {
+                        visibility: hidden;
+
+                        .icon {
+                            color: $color-main;
+
+                            &.disabled {
+                                color: $color-grey;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //----- table utils -----
+            .table-empty-value {
+                color: $color-grey;
+            }
+        }
+    }
+}

@@ -1,0 +1,163 @@
+{
+  "sbom": {
+    "Enabled": true,
+    "AnalyzersList": [
+      "syft"
+    ],
+    "Inputs": [
+      {
+        "strip_path_from_result": null,
+        "input": "test",
+        "input_type": "dir"
+      }
+    ],
+    "MergeWith": null,
+    "Registry": null,
+    "LocalImageScan": false,
+    "OutputFormat": "",
+    "AnalyzersConfig": {
+      "Syft": {
+        "Scope": "",
+        "ExcludePaths": null,
+        "Registry": null,
+        "LocalImageScan": false
+      },
+      "Trivy": {
+        "Timeout": 0,
+        "CacheDir": "",
+        "TempDir": "",
+        "Registry": null,
+        "LocalImageScan": false
+      }
+    }
+  },
+  "vulnerabilities": {
+    "Enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "InputFromSbom": false,
+    "Registry": null,
+    "LocalImageScan": false,
+    "ScannersConfig": {
+      "Grype": {
+        "Mode": "",
+        "Local": {
+          "UpdateDB": false,
+          "DBRootDir": "",
+          "ListingURL": "",
+          "MaxAllowedBuiltAge": 0,
+          "ListingFileTimeout": 0,
+          "UpdateTimeout": 0,
+          "Scope": "",
+          "Registry": null,
+          "LocalImageScan": false
+        },
+        "Remote": {
+          "GrypeServerAddress": "",
+          "GrypeServerSchemes": null,
+          "GrypeServerTimeout": 0
+        }
+      },
+      "Trivy": {
+        "Timeout": 0,
+        "ServerAddr": "",
+        "ServerToken": "",
+        "CacheDir": "",
+        "TempDir": "",
+        "Registry": null
+      }
+    }
+  },
+  "secrets": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "Gitleaks": {
+        "BinaryPath": ""
+      }
+    }
+  },
+  "rootkits": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "Chkrootkit": {
+        "BinaryPath": ""
+      }
+    }
+  },
+  "malware": {
+    "Enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "Clam": {
+        "UseClamDaemon": false,
+        "ClamScanBinaryPath": "",
+        "ClamScanExcludeFiles": null,
+        "ClamScanExcludeDirs": null,
+        "ClamDaemonClientBinaryPath": "",
+        "ClamDaemonBinaryPath": "",
+        "ClamDaemonConfigPath": "",
+        "FreshclamBinaryPath": "",
+        "FreshclamConfigPath": "",
+        "AlternativeFreshclamMirrorURL": ""
+      },
+      "Yara": {
+        "YaraBinaryPath": "",
+        "CompiledRuleURL": "",
+        "RuleSources": null,
+        "YaracBinaryPath": "",
+        "CacheDir": "",
+        "DirectoriesToScan": null
+      }
+    }
+  },
+  "misconfiguration": {
+    "enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "Lynis": {
+        "BinaryPath": ""
+      },
+      "CISDocker": {
+        "Timeout": 0,
+        "Registry": null
+      }
+    }
+  },
+  "infofinder": {
+    "enabled": false,
+    "ScannersList": null,
+    "StripInputPaths": false,
+    "Inputs": null,
+    "ScannersConfig": {
+      "SSHTopology": {}
+    }
+  },
+  "exploits": {
+    "enabled": false,
+    "ScannersList": null,
+    "Inputs": null,
+    "InputFromVuln": false,
+    "ScannersConfig": {
+      "ExploitDB": {
+        "BaseURL": ""
+      }
+    }
+  },
+  "plugins": {
+    "Enabled":false,
+    "ScannersList":null,
+    "Inputs":null,
+    "ScannersConfig":null,
+    "binary_mode":false
+  }
+}

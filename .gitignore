@@ -1,0 +1,14 @@
+.DS_Store
+.idea/
+bin/
+**/.vagrant
+/cloud-config.cfg
+db.db
+site/
+dist
+go.work*
+.envrc
+.licensei.cache
+vendor
+pyvenv.cfg
+/queries/

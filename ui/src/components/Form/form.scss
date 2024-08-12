@@ -1,0 +1,25 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-wrapper {
+    .main-error-message {
+        font-size: 10px;
+        line-height: 14px;
+        color: $color-grey-black;
+        background-color: $color-error-light;
+        border: 1px solid $color-error;
+        padding: 10px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+
+        .icon {
+            color: $color-error;
+            margin-right: 10px;
+            min-width: 22px;
+        }
+    }
+    .form-field-wrapper {
+        min-width: 200px;
+        margin-bottom: 30px;
+    }
+}

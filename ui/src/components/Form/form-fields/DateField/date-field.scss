@@ -1,0 +1,96 @@
+@import 'utils/scss_variables.module.scss';
+
+$calendar-font-size: 11px;
+$calendar-backgroud-color: white;
+
+.form-field-wrapper.date-field-wrapper {
+    .react-datetime-picker.date-field-select {
+        height: 36px;
+        background-color: white;
+        
+        .react-datetime-picker__wrapper {
+            border: 1px solid $color-grey-light;
+            border-radius: 2px;
+
+            .react-datetime-picker__inputGroup {
+                padding: 0 8px;
+                
+                .react-datetime-picker__inputGroup__input,
+                .react-datetime-picker__inputGroup__leadingZero {
+                    color: $color-grey-black;
+                    font-size: 14px;
+    
+                    &:invalid {
+                        background-color: white;
+                    }
+                    &:focus-visible {
+                        outline: none;
+                    }
+                }
+            }
+        }
+    }
+    .react-datetime-picker__calendar {
+        width: 230px;
+        
+        .react-calendar.date-field-select-calendar {
+            border: 1px solid $color-grey-light;
+            border-radius: 2px;
+
+            .react-calendar__navigation {
+                margin-bottom: 0;
+    
+                .react-calendar__navigation__label {
+                    background-color: $calendar-backgroud-color;
+                    color: $color-main;
+                    font-size: $calendar-font-size;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                .react-calendar__navigation__arrow {
+                    color: $color-grey-dark;
+        
+                    &:disabled {
+                        background-color: $calendar-backgroud-color;
+                        color: $color-grey-light;
+                    }
+                    &:hover,
+                    &:focus {
+                        background-color: $calendar-backgroud-color;
+                    }
+                }
+            }
+            .react-calendar__month-view__weekdays__weekday {
+                color: $color-grey-dark;
+                font-size: $calendar-font-size;
+                font-weight: normal;
+    
+                abbr {
+                    text-decoration: none;
+                    text-transform: none;
+                }
+            }
+            .react-calendar__tile {
+                padding-top: 7px;
+                padding-bottom: 7px;
+                color: $color-grey-dark;
+                font-size: $calendar-font-size;
+
+                &:disabled {
+                    background-color: $calendar-backgroud-color;
+                    color: $color-grey-light;
+                }
+                &.react-calendar__tile--now {
+                    background-color: $calendar-backgroud-color;
+                }
+                &.react-calendar__tile--active {
+                    background-color: $color-main;
+                    color: white;
+                }
+                &:hover {
+                    background-color: $color-grey-light;
+                }
+            }
+        }
+    }
+}
