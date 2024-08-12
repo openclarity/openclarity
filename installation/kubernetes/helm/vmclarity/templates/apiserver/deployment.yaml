@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vmclarity.apiserver.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.apiserver.labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "vmclarity.apiserver.labels.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.apiserver.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "vmclarity.apiserver.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if .Values.apiserver.affinity }}
+      affinity: {{- .Values.apiserver.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.apiserver.nodeSelector }}
+      nodeSelector: {{- .Values.apiserver.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.apiserver.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.apiserver.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.apiserver.tolerations }}
+      tolerations: {{- .Values.apiserver.tolerations | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "vmclarity.apiserver.serviceAccountName" . }}
+      containers:
+        - name: apiserver
+          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.apiserver.image "global" .Values.global ) }}
+          imagePullPolicy: {{ .Values.apiserver.image.pullPolicy | quote }}
+          args:
+            - run
+            - --log-level
+            - {{ .Values.apiserver.logLevel }}
+          {{- if .Values.apiserver.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.apiserver.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          env:
+            - name: DATABASE_DRIVER
+              value: POSTGRES
+            - name: DB_HOST
+              value: {{ include "postgresql.primary.fullname" .Subcharts.postgresql }}
+            - name: DB_PORT_NUMBER
+              value: "5432"
+            - name: DB_NAME
+              value: vmclarity
+            - name: DB_USER
+              value: {{ .Values.postgresql.auth.username }}
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgresql.secretName" .Subcharts.postgresql }}
+                  key: password
+          ports:
+            - name: http
+              containerPort: 8888
+            - name: health
+              containerPort: 8081
+          startupProbe:
+            tcpSocket:
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: health
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: health
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          {{- if .Values.apiserver.resources }}
+          resources: {{- toYaml .Values.apiserver.resources | nindent 12 }}
+          {{- end }}

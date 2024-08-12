@@ -1,0 +1,10 @@
+# This is the CT (chart testing) config file
+# More infos under https://github.com/helm/chart-testing#configuration
+kubectl-timeout: 60s
+remote: origin
+target-branch: main
+chart-dirs:
+  - installation/kubernetes/helm
+validate-maintainers: false
+chart-repos:
+  - bitnami=https://charts.bitnami.com/bitnami

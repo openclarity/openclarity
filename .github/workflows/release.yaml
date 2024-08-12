@@ -1,0 +1,173 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
+
+permissions:
+  packages: write
+  contents: write
+
+jobs:
+  verification:
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  build_and_push:
+    needs:
+      - verification
+      - artifacts
+      - publish_helm
+    name: Build & Push
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: ${{ github.ref_name }}
+      push: true
+      use_release_repository: true
+
+  publish_helm:
+    needs: verification
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Helm Chart package
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-helm-chart
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and Publish Helm Chart
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make publish-helm-chart
+
+  artifacts:
+    name: Create artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
+          # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
+          cache: false
+          go-version-file: 'go.mod'
+
+      - name: Setup Go caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ github.ref_name }}-
+            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+
+      - name: Create vmclarity-cli manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-vmclarity-cli
+
+      - name: Create Cloudformation manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-cloudformation
+
+      - name: Create Azure Bicep manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-bicep
+
+      - name: Create Docker Compose manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-docker-compose
+
+      - name: Create Google Cloud Deployment manifest(s)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make dist-gcp-deployment
+
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: |
+            dist/*.tar.gz
+            dist/*.tgz
+            dist/*.sha256sum
+            dist/bicep/vmclarity.json
+            dist/bicep/vmclarity-UI.json
+          if-no-files-found: error
+
+  main_release:
+    needs:
+      - verification
+      - build_and_push
+      - publish_helm
+      - artifacts
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: dist
+
+      - name: Generate changelog
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: make generate-release-notes
+
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "dist/*.tar.gz,dist/*.sha256sum,dist/bicep/vmclarity.json,dist/bicep/vmclarity-UI.json"
+          bodyFile: "dist/CHANGELOG.md"
+          draft: true
+          name: "Release ${{ github.ref_name }}"
+          updateOnlyUnreleased: true
+
+  # TODO(sambetts) We need to publish a tag in the format "api/<version>" tag
+  # so that go mod is able to import the api module without overriding. We need
+  # to work out how to do this cleanly from github actions on release so that
+  # we don't need to manage it manually. We could do something this which will
+  # create another release:
+  #
+  # api_release:
+  #   needs: release
+  #   name: Release API Module
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Release API
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: VMClarity {{ github.ref }} API
+  #         body: See main {{ github.ref }} release for release notes.
+  #         tag_name: api/{{ github.ref }}

@@ -1,0 +1,11 @@
+.github
+.git
+bin
+docs
+e2e
+img
+installation
+scanner_boot_test
+.envrc
+Dockerfile*
+dist

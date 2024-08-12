@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vmclarity.gateway.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 4 }}
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream ui {
+            server {{ printf "%s" (include "vmclarity.ui.name" .) }}:80;
+        }
+    
+        upstream uibackend {
+            server {{ printf "%s" (include "vmclarity.uibackend.name" .) }}:8890;
+        }
+    
+        upstream apiserver {
+            server {{ printf "%s" (include "vmclarity.apiserver.name" .) }}:8888;
+        }
+
+        upstream swaggerui {
+          server {{ printf "%s" (include "vmclarity.swaggerUI.name" .) }}:8080;
+        }
+    
+        server {
+            listen 8080;
+            absolute_redirect off;
+    
+            location / {
+                proxy_pass http://ui/;
+            }
+    
+            location /ui/api/ {
+                proxy_pass http://uibackend/;
+            }
+    
+            location /api/ {
+                proxy_set_header X-Forwarded-Host $http_host;
+                proxy_set_header X-Forwarded-Prefix /api;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_pass http://apiserver/;
+            }
+
+            location /apidocs/ {
+                proxy_pass http://swaggerui/;
+            }
+        }
+    }

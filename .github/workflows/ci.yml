@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  packages: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-verification:
+    name: API Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
+          # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
+          cache: false
+          go-version-file: 'api/go.mod'
+
+      - name: Setup Go caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-api-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-api-${{ github.ref_name }}-
+            ${{ runner.os }}-go-api-${{ github.event.repository.default_branch }}-
+
+      - name: Generate API code
+        run: make gen-api
+
+      # This step will evaluate the repo status and exit if found changes
+      # This should detect if the most up-to-date generated API code was pushed
+      - name: Changes validation
+        run: |
+          [[ -z "$(git status --porcelain)" ]] || exit 1
+
+  helm-docs-verification:
+    name: Helm Docs Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Helm Docs
+        run: make gen-helm-docs
+
+      # This step will evaluate the repo status and exit if found changes
+      # This should detect if the most up-to-date generated helm docs were pushed
+      - name: Changes validation
+        run: |
+          [[ -z "$(git status --porcelain)" ]] || exit 1
+
+  verification:
+    needs: api-verification
+    name: Verification
+    uses: ./.github/workflows/reusable-verification.yml
+    secrets: inherit
+
+  build:
+    needs: verification
+    name: Build
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      push: true
+      use_release_repository: false
+      post_image_tags: true
+
+  e2e:
+    needs: build
+    name: End-to-End
+    uses: ./.github/workflows/reusable-end-to-end-testing.yml
+    with:
+      image_tag: ${{ format('pr{0}-{1}', github.event.pull_request.number, github.sha) }}
+      use_release_repository: false
+
+  success:
+    needs:
+      - build
+      - e2e
+      - helm-docs-verification
+    name: Success
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo Success
+        run: |
+          echo "::notice Success!"

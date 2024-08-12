@@ -1,0 +1,120 @@
+sbom:
+  enabled: false
+  analyzers_list:
+    - "syft"
+    - "gomod"
+  inputs:
+    - input: "node:slim"
+      input_type: "image"
+#    - input: "nginx:1.10"
+#      input_type: "image"
+#  merge_with:
+#    - sbom_path: "nginx.11.cdx.json"
+  analyzers_config:
+    analyzer:
+      output_format: "cyclonedx-json"
+      scope: "Squashed"
+      trivy_config:
+        timeout: 300
+    registry:
+      skip-verify-tls: false
+      use-http: false
+      auths:
+        authority: "authority"
+        username: "username"
+        password: "password"
+        token: "token"
+
+vulnerabilities:
+  enabled: false
+  scanners_list:
+    - "grype"
+  inputs:
+#    - input: "nginx:1.12"
+#      input_type: "image"
+#    - input: "nginx:1.13"
+#      input_type: "image"
+  input_from_sbom: true
+  scanners_config:
+    scanner:
+      grype_config:
+        mode: "LOCAL"
+        local_grype_config:
+          update_db: true
+          db_root_dir: "/tmp/"
+          listing_url: "https://toolbox-data.anchore.io/grype/databases/listing.json"
+          scope: "squashed"
+        remote_grype_config:
+          grype_server_address: ""
+          grype_server_timeout: "2m"
+    registry:
+      skip-verify-tls: false
+      use-http: false
+      auths:
+        authority: "authority"
+        username: "username"
+        password: "password"
+        token: "token"
+
+secrets:
+  enabled: false
+  scanners_list:
+    - "gitleaks"
+  inputs:
+    - input: "./"
+      input_type: "dir"
+  scanners_config:
+    gitleaks:
+      binary_path: "/usr/local/bin/gitleaks"
+
+exploits:
+  enabled: false
+  scanners_list:
+    - "exploitdb"
+  inputs: []
+  input_from_vuln: true
+  scanners_config:
+    exploit_db:
+      base_url: "http://localhost:1326"
+
+misconfiguration:
+  enabled: false
+  scanners_list:
+    - "fake"
+  inputs:
+    - input: "./"
+      input_type: "rootfs"
+  scanners_config: {}
+
+
+infofinder:
+  enabled: true
+  scanners_list:
+    - "sshTopology"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config: {}
+
+malware:
+  enabled: true
+  scanners_list:
+    - "clam"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    clam:
+      freshclam_binary_path: freshclam
+      clamscan_binary_path: clamscan
+
+rootkits:
+  enabled: true
+  scanners_list:
+    - "chkrootkit"
+  inputs:
+    - input: "/"
+      input_type: "rootfs"
+  scanners_config:
+    chkrootkit:
+      binary_path: chkrootkit

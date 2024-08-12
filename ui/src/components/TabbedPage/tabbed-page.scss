@@ -1,0 +1,20 @@
+@import 'utils/scss_variables.module.scss';
+
+.tabbed-page-container{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .tab-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+
+        > * {
+            flex-grow: 1;
+        }
+        &.with-padding {
+            padding: $main-content-padding;
+        }
+    }
+}

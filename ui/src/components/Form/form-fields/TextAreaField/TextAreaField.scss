@@ -1,0 +1,31 @@
+@import 'utils/scss_variables.module.scss';
+
+.form-field-wrapper.textarea-field {
+    & .form-field {
+        color: $color-grey-black;
+        border: 1px solid $color-grey-light;
+        border-radius: 4px;
+        padding: 2px 8px;
+        box-sizing: border-box;
+        outline: none;
+        font-size: 14px;
+        line-height: 18px;
+        font-family: CiscoSansTT;
+        background-color: white;
+        width: 100%;
+
+        &::placeholder {
+            color: $color-grey-dark;
+        }
+
+        &:disabled {
+            background-color: white;
+            color: $color-grey;
+            cursor: not-allowed;
+
+            &::placeholder {
+                color: $color-grey;
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+@import 'utils/scss_variables.module.scss';
+
+.double-pane-display-wrapper {
+    display: flex;
+    height: 100%;
+
+    > * {
+        width: 50%;
+        padding: $main-content-padding;
+        overflow-x: auto;
+    }
+    .left-pane-display {
+        border-right: 1px solid $color-grey-light;
+    }
+}

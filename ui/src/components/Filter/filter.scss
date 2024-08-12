@@ -1,0 +1,61 @@
+@import 'utils/scss_variables.module.scss';
+
+.general-filter-wrapper {
+    .show-filters-button {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        &.pressed {
+            background-color: $color-grey-lighter;
+        }
+        .icon {
+            height: 16px;
+            width: 16px;
+            margin-right: 5px;
+        }
+    }
+    .filter-form-wrapper {
+        margin-top: 14px;
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+    
+            .form-field-wrapper {
+                margin-right: 10px;
+                margin-bottom: 0;
+                min-width: 150px;
+            }
+            .add-filter-button {
+                height: 30px;
+                padding: 7px;
+                border-radius: 2px;
+            }
+        }
+    }
+    .filters-display-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        
+        &:not(.is-empty) {
+            margin-top: 14px;
+        }
+        .filter-display-item {
+            color: $color-grey-black;
+            background-color: $color-blue-light;
+            border: 1px solid $color-blue;
+            box-sizing: border-box;
+            font-size: 10px;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+
+            .icon {
+                margin-left: 10px;
+            }
+        }
+    }
+}

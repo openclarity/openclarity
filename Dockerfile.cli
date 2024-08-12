@@ -1,0 +1,53 @@
+# syntax=docker/dockerfile:1
+
+ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base:v0.5.1@sha256:43a1d8d9fed33e0561edb8d422a1b2645633e0ec9055519aac070186fb1ce770
+# xx is a helper for cross-compilation
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.3.0@sha256:904fe94f236d36d65aeb5a2462f88f2c537b8360475f6342e7599194f291fb7e AS xx
+
+FROM --platform=$BUILDPLATFORM golang:1.21.4-bullseye AS builder
+
+COPY --link --from=xx / /
+
+ARG TARGETPLATFORM
+
+RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=locked \
+    apt-get update \
+    && xx-apt-get install -y --no-install-recommends \
+      gcc \
+      libc6-dev
+
+WORKDIR /build
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=bind,source=.,target=/build,ro \
+    xx-go mod download -x
+
+ARG VERSION
+ARG BUILD_TIMESTAMP
+ARG COMMIT_HASH
+
+ENV CGO_ENABLED=0
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=bind,source=.,target=/build,ro \
+    xx-go build -ldflags="-s -w -extldflags -static \
+     -X 'github.com/openclarity/vmclarity/pkg/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/vmclarity/pkg/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/vmclarity/pkg/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+    -o /bin/vmclarity-cli cmd/vmclarity-cli/main.go
+
+FROM ${VMCLARITY_TOOLS_BASE}
+
+RUN apk upgrade --quiet --no-cache
+
+RUN apk add --update --no-cache \
+    util-linux \
+    ca-certificates
+
+COPY --from=builder /bin/vmclarity-cli /bin/vmclarity-cli
+
+ENTRYPOINT ["/bin/vmclarity-cli"]
+
+CMD ["--help"]

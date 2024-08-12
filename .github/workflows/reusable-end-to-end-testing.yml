@@ -1,0 +1,57 @@
+name: End-to-End testing
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag to build and push.'
+      use_release_repository:
+        required: false
+        type: boolean
+        description: 'If set to true the image published to the release repository is used otherwise the development.'
+        default: false
+
+jobs:
+  images:
+    uses: ./.github/workflows/reusable-image-names.yml
+    with:
+      use_release_repository: ${{ inputs.use_release_repository }}
+
+  run:
+    runs-on: ubuntu-latest
+    needs: images
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          # NOTE(chrisgacsal): Use actions/cache for caching Go dependency and build caches
+          # as if provides better flexibility like setting the cache key which reduces cache misses significantly.
+          cache: false
+          go-version-file: 'e2e/go.mod'
+
+      - name: Setup Go caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ github.ref_name }}-
+            ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
+
+      - name: Run end to end tests
+        env:
+          VMCLARITY_APISERVER_CONTAINER_IMAGE:  ${{ format('{0}:{1}', needs.images.outputs.apiserver-image, inputs.image_tag) }}
+          VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.orchestrator-image, inputs.image_tag) }}
+          VMCLARITY_UI_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-image, inputs.image_tag) }}
+          VMCLARITY_UIBACKEND_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.ui-backend-image, inputs.image_tag) }}
+          VMCLARITY_SCANNER_CONTAINER_IMAGE: ${{ format('{0}:{1}', needs.images.outputs.cli-image, inputs.image_tag) }}
+        run: |
+          cd e2e \
+          && go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
