@@ -4,7 +4,7 @@
 
 ```python
 # Plugin package installed from:
-# git+https://github.com/openclarity/vmclarity#egg=plugin&subdirectory=plugins/sdk-python
+# git+https://github.com/openclarity/openclarity#egg=plugin&subdirectory=plugins/sdk-python
 
 from plugin.scanner import AbstractScanner
 from plugin.server import Server

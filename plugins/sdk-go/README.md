@@ -6,8 +6,8 @@
 package main
 
 import (
-	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
-	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/plugins/sdk-go/plugin"
+	"github.com/openclarity/openclarity/plugins/sdk-go/types"
 )
 
 // Your scanner plugin should implement required types.Scanner interface

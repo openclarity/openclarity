@@ -70,7 +70,7 @@ Please note that the release tag is not necessarily associated with the "release
 
 * Wait until the release workflow is completed successfully.
 
-* Navigate to the [Releases page](https://github.com/openclarity/vmclarity/releases) and verify the draft release description as well as the assets listed.
+* Navigate to the [Releases page](https://github.com/openclarity/openclarity/releases) and verify the draft release description as well as the assets listed.
 
 * Once the draft release has been verified, click on `Edit` release and then on `Publish Release`.
 
