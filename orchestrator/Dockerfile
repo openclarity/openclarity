@@ -36,16 +36,16 @@ RUN --mount=type=cache,target=/go/pkg/mod \
      -X 'github.com/openclarity/openclarity/core/version.Version=${VERSION}' \
      -X 'github.com/openclarity/openclarity/core/version.CommitHash=${COMMIT_HASH}' \
      -X 'github.com/openclarity/openclarity/core/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
-    -o /bin/vmclarity-orchestrator ./cmd/main.go
+    -o /bin/openclarity-orchestrator ./cmd/main.go
 
-RUN xx-verify /bin/vmclarity-orchestrator
+RUN xx-verify /bin/openclarity-orchestrator
 
 FROM alpine:3.20@sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
 
-COPY --from=builder ["/bin/vmclarity-orchestrator", "/bin/vmclarity-orchestrator"]
+COPY --from=builder ["/bin/openclarity-orchestrator", "/bin/openclarity-orchestrator"]
 
 RUN apk add --update --no-cache \
     ca-certificates \
     libc6-compat
 
-ENTRYPOINT ["/bin/vmclarity-orchestrator"]
+ENTRYPOINT ["/bin/openclarity-orchestrator"]

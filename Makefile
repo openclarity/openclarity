@@ -65,7 +65,7 @@ help: ## Display this help
 build: ui build-all-go ## Build all components
 
 .PHONY: build-all-go
-build-all-go: bin/vmclarity-apiserver bin/vmclarity-cli bin/vmclarity-orchestrator bin/vmclarity-ui-backend bin/vmclarity-cr-discovery-server ## Build all go components
+build-all-go: bin/openclarity-api-server bin/openclarity-cli bin/openclarity-orchestrator bin/openclarity-ui-backend bin/openclarity-cr-discovery-server ## Build all go components
 
 BUILD_OPTS = -race
 ifneq ($(strip $(GO_BUILD_TAGS)),)
@@ -77,19 +77,19 @@ LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.Version=$(VERSION
 LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.CommitHash=$(COMMIT_HASH)'
 LDFLAGS += -X 'github.com/openclarity/openclarity/core/version.BuildTimestamp=$(BUILD_TIMESTAMP)'
 
-bin/vmclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
+bin/openclarity-orchestrator: $(shell find api provider orchestrator utils core) | $(BIN_DIR)
 	go -C $(ROOT_DIR)/orchestrator build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-apiserver: $(shell find api api/server) | $(BIN_DIR)
+bin/openclarity-api-server: $(shell find api api/server) | $(BIN_DIR)
 	go -C $(ROOT_DIR)/api/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cli: $(shell find api cli utils core) | $(BIN_DIR)
+bin/openclarity-cli: $(shell find api cli utils core) | $(BIN_DIR)
 	go -C $(ROOT_DIR)/cli build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
+bin/openclarity-ui-backend: $(shell find api uibackend/server)  | $(BIN_DIR)
 	go -C $(ROOT_DIR)/uibackend/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
-bin/vmclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils core) | $(BIN_DIR)
+bin/openclarity-cr-discovery-server: $(shell find api containerruntimediscovery/server utils core) | $(BIN_DIR)
 	go -C $(ROOT_DIR)/containerruntimediscovery/server build $(BUILD_OPTS) -ldflags="$(LDFLAGS)" -o $(ROOT_DIR)/$@ cmd/main.go
 
 .PHONY: clean
@@ -97,7 +97,7 @@ clean: clean-ui clean-go clean-vendor ## Clean all build artifacts
 
 .PHONY: clean-go
 clean-go: ## Clean all Go build artifacts
-	@rm -rf bin/vmclarity*
+	@rm -rf bin/openclarity*
 	$(info GO executables cleanup done)
 
 .PHONY: clean-ui

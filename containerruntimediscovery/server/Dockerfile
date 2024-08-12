@@ -36,16 +36,16 @@ RUN --mount=type=cache,target=/go/pkg/mod \
          -X 'github.com/openclarity/openclarity/core/version.Version=${VERSION}' \
          -X 'github.com/openclarity/openclarity/core/version.CommitHash=${COMMIT_HASH}' \
          -X 'github.com/openclarity/openclarity/core/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
-        -o /bin/vmclarity-cr-discovery-server cmd/main.go
+        -o /bin/openclarity-cr-discovery-server cmd/main.go
 
-RUN xx-verify /bin/vmclarity-cr-discovery-server
+RUN xx-verify /bin/openclarity-cr-discovery-server
 
 FROM alpine:3.20@sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
 
-COPY --from=builder ["/bin/vmclarity-cr-discovery-server", "/bin/vmclarity-cr-discovery-server"]
+COPY --from=builder ["/bin/openclarity-cr-discovery-server", "/bin/openclarity-cr-discovery-server"]
 
 RUN apk add --update --no-cache \
     ca-certificates \
     libc6-compat
 
-ENTRYPOINT ["/bin/vmclarity-cr-discovery-server"]
+ENTRYPOINT ["/bin/openclarity-cr-discovery-server"]
