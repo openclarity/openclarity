@@ -20,9 +20,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
 
 	"github.com/anchore/clio"
 	"github.com/anchore/grype/grype"
@@ -42,9 +42,9 @@ import (
 	"github.com/anchore/syft/syft"
 	"github.com/anchore/syft/syft/cataloging"
 
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/grype/config"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	"github.com/openclarity/vmclarity/scanner/utils/sbom"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/grype/config"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/utils/sbom"
 )
 
 const (

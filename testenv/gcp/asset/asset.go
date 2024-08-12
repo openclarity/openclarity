@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 
 	compute "cloud.google.com/go/compute/apiv1"
 	"cloud.google.com/go/compute/apiv1/computepb"

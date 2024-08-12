@@ -26,13 +26,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/asset"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/kind"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/types"
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
-	"github.com/openclarity/vmclarity/testenv/utils"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/testenv/kubernetes/asset"
+	"github.com/openclarity/openclarity/testenv/kubernetes/helm"
+	"github.com/openclarity/openclarity/testenv/kubernetes/kind"
+	"github.com/openclarity/openclarity/testenv/kubernetes/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/utils"
 )
 
 type ContextKeyType string

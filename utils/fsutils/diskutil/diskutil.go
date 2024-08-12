@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openclarity/vmclarity/utils/command"
+	"github.com/openclarity/openclarity/utils/command"
 )
 
 type Diskutil struct {

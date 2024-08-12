@@ -19,7 +19,7 @@ import (
 	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/compose/v2/pkg/api"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

@@ -23,14 +23,14 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	discovery "github.com/openclarity/vmclarity/orchestrator/discoverer"
-	assetscanprocessor "github.com/openclarity/vmclarity/orchestrator/processor/assetscan"
-	assetscanwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/assetscan"
-	assetscanestimationwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/assetscanestimation"
-	scanwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/scan"
-	scanconfigwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/scanconfig"
-	scanestimationwatcher "github.com/openclarity/vmclarity/orchestrator/watcher/scanestimation"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	discovery "github.com/openclarity/openclarity/orchestrator/discoverer"
+	assetscanprocessor "github.com/openclarity/openclarity/orchestrator/processor/assetscan"
+	assetscanwatcher "github.com/openclarity/openclarity/orchestrator/watcher/assetscan"
+	assetscanestimationwatcher "github.com/openclarity/openclarity/orchestrator/watcher/assetscanestimation"
+	scanwatcher "github.com/openclarity/openclarity/orchestrator/watcher/scan"
+	scanconfigwatcher "github.com/openclarity/openclarity/orchestrator/watcher/scanconfig"
+	scanestimationwatcher "github.com/openclarity/openclarity/orchestrator/watcher/scanestimation"
 )
 
 const (

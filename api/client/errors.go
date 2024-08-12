@@ -18,7 +18,7 @@ package client
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/openclarity/api/types"
 )
 
 type AssetConflictError struct {

@@ -19,7 +19,7 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/uibackend/types"
+	"github.com/openclarity/openclarity/uibackend/types"
 )
 
 // nolint:wrapcheck,unparam

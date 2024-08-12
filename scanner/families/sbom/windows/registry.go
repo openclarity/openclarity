@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/uuid"

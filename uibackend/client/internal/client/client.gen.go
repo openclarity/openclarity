@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/oapi-codegen/runtime"
-	. "github.com/openclarity/vmclarity/uibackend/types"
+	. "github.com/openclarity/openclarity/uibackend/types"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function

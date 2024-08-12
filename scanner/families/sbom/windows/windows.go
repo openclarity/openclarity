@@ -19,10 +19,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
 )
 
 const AnalyzerName = "windows"

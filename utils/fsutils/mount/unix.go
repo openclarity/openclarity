@@ -25,7 +25,7 @@ import (
 
 	"github.com/moby/sys/mountinfo"
 
-	"github.com/openclarity/vmclarity/utils/command"
+	"github.com/openclarity/openclarity/utils/command"
 )
 
 const (

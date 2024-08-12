@@ -21,11 +21,11 @@ import (
 
 	dockle_run "github.com/Portshift/dockle/pkg"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/cisdocker/config"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/cisdocker/config"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 const ScannerName = "cisdocker"

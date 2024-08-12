@@ -28,7 +28,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 	"github.com/aws/aws-sdk-go-v2/service/pricing/types"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 type PriceFetcher interface {

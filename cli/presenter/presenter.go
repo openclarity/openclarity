@@ -18,7 +18,7 @@ package presenter
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Presenter interface {

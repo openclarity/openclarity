@@ -23,12 +23,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/aws/discoverer"
-	"github.com/openclarity/vmclarity/provider/aws/estimator"
-	"github.com/openclarity/vmclarity/provider/aws/estimator/scanestimation"
-	"github.com/openclarity/vmclarity/provider/aws/scanner"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/aws/discoverer"
+	"github.com/openclarity/openclarity/provider/aws/estimator"
+	"github.com/openclarity/openclarity/provider/aws/estimator/scanestimation"
+	"github.com/openclarity/openclarity/provider/aws/scanner"
 )
 
 var _ provider.Provider = &Provider{}

@@ -33,11 +33,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/version"
-	server "github.com/openclarity/vmclarity/uibackend/server"
-	apiserver "github.com/openclarity/vmclarity/uibackend/server/internal/server"
+	"github.com/openclarity/openclarity/api/client"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/version"
+	server "github.com/openclarity/openclarity/uibackend/server"
+	apiserver "github.com/openclarity/openclarity/uibackend/server/internal/server"
 )
 
 const (

@@ -28,7 +28,7 @@ import (
 	"github.com/anchore/stereoscope/pkg/filetree/filenode"
 	"github.com/anchore/stereoscope/pkg/image"
 
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 const perFileReadLimit = 2 * file.GB

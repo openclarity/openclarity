@@ -21,10 +21,10 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
-	provider_service "github.com/openclarity/vmclarity/provider/external/utils/proto"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
+	provider_service "github.com/openclarity/openclarity/provider/external/utils/proto"
 )
 
 func ConvertAssetToModels(asset *provider_service.Asset) (apitypes.Asset, error) {

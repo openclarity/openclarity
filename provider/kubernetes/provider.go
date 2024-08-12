@@ -23,11 +23,11 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/kubernetes/discoverer"
-	"github.com/openclarity/vmclarity/provider/kubernetes/estimator"
-	"github.com/openclarity/vmclarity/provider/kubernetes/scanner"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/kubernetes/discoverer"
+	"github.com/openclarity/openclarity/provider/kubernetes/estimator"
+	"github.com/openclarity/openclarity/provider/kubernetes/scanner"
 )
 
 var crDiscovererLabels = map[string]string{

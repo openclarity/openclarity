@@ -16,8 +16,8 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	gitleaksconfig "github.com/openclarity/vmclarity/scanner/families/secrets/gitleaks/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	gitleaksconfig "github.com/openclarity/openclarity/scanner/families/secrets/gitleaks/config"
 )
 
 type Config struct {

@@ -25,14 +25,14 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/openclarity/vmclarity/cli/presenter"
-	"github.com/openclarity/vmclarity/cli/state"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/utils/fsutils/blockdevice"
-	"github.com/openclarity/vmclarity/utils/fsutils/filesystem"
-	"github.com/openclarity/vmclarity/utils/fsutils/mount"
+	"github.com/openclarity/openclarity/cli/presenter"
+	"github.com/openclarity/openclarity/cli/state"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/utils/fsutils/blockdevice"
+	"github.com/openclarity/openclarity/utils/fsutils/filesystem"
+	"github.com/openclarity/openclarity/utils/fsutils/mount"
 )
 
 const (

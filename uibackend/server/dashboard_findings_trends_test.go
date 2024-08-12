@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"gotest.tools/v3/assert"
 
-	"github.com/openclarity/vmclarity/uibackend/types"
+	"github.com/openclarity/openclarity/uibackend/types"
 )
 
 func Test_createTimes(t *testing.T) {

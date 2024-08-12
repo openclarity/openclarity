@@ -18,7 +18,7 @@ package main
 import (
 	"os"
 
-	"github.com/openclarity/vmclarity/plugins/runner/types"
+	"github.com/openclarity/openclarity/plugins/runner/types"
 )
 
 const DefaultTimeoutSeconds = 15 * 60 // 15 minutes

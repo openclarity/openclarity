@@ -29,7 +29,7 @@ import (
 
 	"github.com/sourcegraph/conc/iter"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 
 	log "github.com/sirupsen/logrus"
 )

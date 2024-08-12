@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

@@ -16,9 +16,9 @@
 package infofinder
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/sshtopology"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/families/infofinder/sshtopology"
+	"github.com/openclarity/openclarity/scanner/families/infofinder/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 var Factory = scan_manager.NewFactory[types.ScannersConfig, []types.Info]()

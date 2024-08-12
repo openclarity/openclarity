@@ -22,7 +22,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/utils/fsutils/diskutil"
+	"github.com/openclarity/openclarity/utils/fsutils/diskutil"
 )
 
 type BlockDevice = diskutil.BlockDevice

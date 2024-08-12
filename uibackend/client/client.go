@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"net/http"
 
-	apiclient "github.com/openclarity/vmclarity/uibackend/client/internal/client"
-	"github.com/openclarity/vmclarity/uibackend/types"
+	apiclient "github.com/openclarity/openclarity/uibackend/client/internal/client"
+	"github.com/openclarity/openclarity/uibackend/types"
 )
 
 type Client struct {

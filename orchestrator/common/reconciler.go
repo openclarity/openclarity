@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 type RequeueAfterError struct {

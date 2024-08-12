@@ -16,7 +16,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
-	. "github.com/openclarity/vmclarity/uibackend/types"
+	. "github.com/openclarity/openclarity/uibackend/types"
 )
 
 // ServerInterface represents all server handlers.

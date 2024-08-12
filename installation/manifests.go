@@ -18,7 +18,7 @@ package installation
 import (
 	"embed"
 
-	"github.com/openclarity/vmclarity/utils/manifest"
+	"github.com/openclarity/openclarity/utils/manifest"
 )
 
 //go:embed all:aws

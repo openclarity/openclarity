@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	logrusTest "github.com/sirupsen/logrus/hooks/test"
 
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 func TestNewReportParser(t *testing.T) {

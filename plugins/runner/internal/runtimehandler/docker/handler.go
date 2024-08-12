@@ -30,9 +30,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler"
-	"github.com/openclarity/vmclarity/plugins/runner/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/plugins/runner/internal/runtimehandler"
+	"github.com/openclarity/openclarity/plugins/runner/types"
 
 	dockertypes "github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
@@ -42,7 +42,7 @@ import (
 	dockerclient "github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 
-	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
+	"github.com/openclarity/openclarity/plugins/sdk-go/plugin"
 )
 
 const (

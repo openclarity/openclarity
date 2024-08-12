@@ -23,7 +23,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/openclarity/vmclarity/testenv/utils"
+	"github.com/openclarity/openclarity/testenv/utils"
 
 	"github.com/docker/cli/cli/connhelper"
 	"github.com/docker/docker/client"

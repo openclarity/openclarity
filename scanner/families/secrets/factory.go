@@ -16,9 +16,9 @@
 package secrets
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/secrets/gitleaks"
-	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/families/secrets/gitleaks"
+	"github.com/openclarity/openclarity/scanner/families/secrets/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 var Factory = scan_manager.NewFactory[types.ScannersConfig, []types.Finding]()

@@ -18,7 +18,7 @@ package scanconfig
 import (
 	log "github.com/sirupsen/logrus"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 type ScanConfigReconcileEvent struct {

@@ -23,16 +23,16 @@ import (
 	"fmt"
 	"io"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/plugins/runner"
-	runnertypes "github.com/openclarity/vmclarity/plugins/runner/types"
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/plugins/runner/config"
-	"github.com/openclarity/vmclarity/scanner/families/plugins/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/plugins/runner"
+	runnertypes "github.com/openclarity/openclarity/plugins/runner/types"
+	plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/plugins/runner/config"
+	"github.com/openclarity/openclarity/scanner/families/plugins/types"
 )
 
 type Scanner struct {

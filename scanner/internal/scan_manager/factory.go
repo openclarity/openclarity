@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families"
 
 	"github.com/sirupsen/logrus"
 )

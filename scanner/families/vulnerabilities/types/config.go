@@ -16,9 +16,9 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	grypeconfig "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/grype/config"
-	trivyconfig "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/trivy/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	grypeconfig "github.com/openclarity/openclarity/scanner/families/vulnerabilities/grype/config"
+	trivyconfig "github.com/openclarity/openclarity/scanner/families/vulnerabilities/trivy/config"
 )
 
 type Config struct {

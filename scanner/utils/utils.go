@@ -23,8 +23,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 type CmdRunError struct {

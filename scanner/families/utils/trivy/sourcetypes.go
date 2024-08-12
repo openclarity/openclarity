@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 
 	stereoscopeFile "github.com/anchore/stereoscope/pkg/file"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"

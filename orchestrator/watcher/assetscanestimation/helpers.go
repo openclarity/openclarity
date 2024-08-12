@@ -21,8 +21,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 // getLatestAssetScanStats - for each family, find the latest AssetScan that has AssetScanStats of this family,

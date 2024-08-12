@@ -24,10 +24,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/cli/cmd/logutil"
-	cliutils "github.com/openclarity/vmclarity/scanner/utils"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/cli/cmd/logutil"
+	cliutils "github.com/openclarity/openclarity/scanner/utils"
 )
 
 // AssetCreateCmd represents the standalone command.

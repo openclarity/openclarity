@@ -24,8 +24,8 @@ import (
 	"github.com/sirupsen/logrus"
 	logrusTest "github.com/sirupsen/logrus/hooks/test"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/cisdocker/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/cisdocker/config"
 )
 
 func TestCreateDockleConfig(t *testing.T) {

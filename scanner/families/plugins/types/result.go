@@ -16,9 +16,9 @@
 package types
 
 import (
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	plugintypes "github.com/openclarity/vmclarity/plugins/sdk-go/types"
-	"github.com/openclarity/vmclarity/scanner/families"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Result struct {

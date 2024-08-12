@@ -16,8 +16,8 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	sshtopologyconfig "github.com/openclarity/vmclarity/scanner/families/infofinder/sshtopology/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	sshtopologyconfig "github.com/openclarity/openclarity/scanner/families/infofinder/sshtopology/config"
 )
 
 type Config struct {

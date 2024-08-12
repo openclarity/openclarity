@@ -23,8 +23,8 @@ import (
 	"github.com/onsi/gomega/types"
 	"k8s.io/apimachinery/pkg/util/uuid"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func TestNewAssetScanFromScan(t *testing.T) {

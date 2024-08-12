@@ -23,7 +23,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 
-	"github.com/openclarity/vmclarity/provider"
+	"github.com/openclarity/openclarity/provider"
 )
 
 func HandleAzureRequestError(err error, actionTmpl string, parts ...interface{}) (bool, error) {

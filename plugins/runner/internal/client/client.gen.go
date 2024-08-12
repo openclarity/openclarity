@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"strings"
 
-	. "github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	. "github.com/openclarity/openclarity/plugins/sdk-go/types"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function

@@ -31,7 +31,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/openclarity/vmclarity/api/server/database/odatasql/jsonsql"
+	"github.com/openclarity/openclarity/api/server/database/odatasql/jsonsql"
 )
 
 type SubOption struct {

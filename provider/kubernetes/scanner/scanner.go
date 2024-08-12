@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/openclarity/vmclarity/scanner"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
 
 	"gopkg.in/yaml.v3"
 	batchv1 "k8s.io/api/batch/v1"
@@ -31,10 +31,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	discoveryclient "github.com/openclarity/vmclarity/containerruntimediscovery/client"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	discoveryclient "github.com/openclarity/openclarity/containerruntimediscovery/client"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
 )
 
 var _ provider.Scanner = &Scanner{}

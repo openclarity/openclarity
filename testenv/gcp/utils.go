@@ -24,9 +24,9 @@ import (
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"google.golang.org/api/deploymentmanager/v2"
 
-	"github.com/openclarity/vmclarity/installation"
-	"github.com/openclarity/vmclarity/testenv/utils"
-	"github.com/openclarity/vmclarity/testenv/utils/docker"
+	"github.com/openclarity/openclarity/installation"
+	"github.com/openclarity/openclarity/testenv/utils"
+	"github.com/openclarity/openclarity/testenv/utils/docker"
 )
 
 const (

@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	misconfigurationtypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	misconfigurationtypes "github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 type familyNotifierSpy struct {

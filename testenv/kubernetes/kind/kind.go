@@ -27,8 +27,8 @@ import (
 	kindcluster "sigs.k8s.io/kind/pkg/cluster"
 	"sigs.k8s.io/kind/pkg/log"
 
-	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	k8senvtypes "github.com/openclarity/openclarity/testenv/kubernetes/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

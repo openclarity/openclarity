@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/openclarity/vmclarity/workflow/types"
+	"github.com/openclarity/openclarity/workflow/types"
 )
 
 type Dispatcher[S any, R types.Runnable[S]] struct {

@@ -22,8 +22,8 @@ import (
 	"io"
 	"net/http"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/containerruntimediscovery/types"
 )
 
 type Client struct {

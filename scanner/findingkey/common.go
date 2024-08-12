@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 func GenerateFindingKey(findingInfo *apitypes.FindingInfo) (string, error) {

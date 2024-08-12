@@ -24,7 +24,7 @@ import (
 
 	"github.com/Checkmarx/kics/v2/pkg/model"
 
-	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/plugins/sdk-go/types"
 )
 
 var mapKICSSeverity = map[model.Severity]types.MisconfigurationSeverity{

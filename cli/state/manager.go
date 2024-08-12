@@ -18,8 +18,8 @@ package state
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/scanner"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Manager interface {

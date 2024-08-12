@@ -21,13 +21,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 
-	"github.com/openclarity/vmclarity/core/log"
-	sbomtypes "github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/core/log"
+	sbomtypes "github.com/openclarity/openclarity/scanner/families/sbom/types"
 )
 
 const (

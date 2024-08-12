@@ -22,10 +22,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 
 	grype_models "github.com/anchore/grype/grype/presenter/models"
 	transport "github.com/go-openapi/runtime/client"
@@ -34,7 +34,7 @@ import (
 	grype_client_operations "github.com/openclarity/grype-server/api/client/client/operations"
 	grype_client_models "github.com/openclarity/grype-server/api/client/models"
 
-	sbom "github.com/openclarity/vmclarity/scanner/utils/sbom"
+	sbom "github.com/openclarity/openclarity/scanner/utils/sbom"
 )
 
 type RemoteScanner struct {

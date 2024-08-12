@@ -22,10 +22,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/aws/estimator/scanestimation"
-	"github.com/openclarity/vmclarity/provider/aws/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/aws/estimator/scanestimation"
+	"github.com/openclarity/openclarity/provider/aws/types"
 )
 
 var _ provider.Estimator = &Estimator{}

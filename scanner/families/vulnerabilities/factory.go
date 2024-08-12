@@ -16,10 +16,10 @@
 package vulnerabilities
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/grype"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/trivy"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/grype"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/trivy"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 // Factory receives parent config that contains shared fields to enable override.

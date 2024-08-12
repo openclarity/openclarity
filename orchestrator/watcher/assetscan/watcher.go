@@ -21,13 +21,13 @@ import (
 	"fmt"
 	"time"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/orchestrator/common"
-	"github.com/openclarity/vmclarity/provider"
-	errorutils "github.com/openclarity/vmclarity/utils/errors"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/orchestrator/common"
+	"github.com/openclarity/openclarity/provider"
+	errorutils "github.com/openclarity/openclarity/utils/errors"
 )
 
 type (

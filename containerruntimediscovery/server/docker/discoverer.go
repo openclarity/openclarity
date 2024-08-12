@@ -26,10 +26,10 @@ import (
 	imagetypes "github.com/docker/docker/api/types/image"
 	dclient "github.com/docker/docker/client"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/containerruntimediscovery/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 type discoverer struct {

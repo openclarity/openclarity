@@ -20,8 +20,8 @@ import (
 
 	"github.com/docker/docker/client"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
 )
 
 var _ provider.Discoverer = &Discoverer{}

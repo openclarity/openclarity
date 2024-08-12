@@ -18,7 +18,7 @@ package gcp
 import (
 	"context"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 //nolint:containedctx

@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 const (

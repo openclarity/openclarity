@@ -18,8 +18,8 @@ package estimator
 import (
 	"context"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
 )
 
 type Estimator struct{}

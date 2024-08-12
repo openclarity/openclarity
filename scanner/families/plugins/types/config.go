@@ -16,8 +16,8 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	runnerconfig "github.com/openclarity/vmclarity/scanner/families/plugins/runner/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	runnerconfig "github.com/openclarity/openclarity/scanner/families/plugins/runner/config"
 )
 
 type Config struct {

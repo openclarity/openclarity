@@ -22,9 +22,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler"
-	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler/docker"
-	"github.com/openclarity/vmclarity/plugins/runner/types"
+	"github.com/openclarity/openclarity/plugins/runner/internal/runtimehandler"
+	"github.com/openclarity/openclarity/plugins/runner/internal/runtimehandler/docker"
+	"github.com/openclarity/openclarity/plugins/runner/types"
 )
 
 func getPluginRuntimeHandler(ctx context.Context, config types.PluginConfig) (runtimehandler.PluginRuntimeHandler, error) {

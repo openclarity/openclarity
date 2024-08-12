@@ -16,8 +16,8 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	chrootkitconfig "github.com/openclarity/vmclarity/scanner/families/rootkits/chkrootkit/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	chrootkitconfig "github.com/openclarity/openclarity/scanner/families/rootkits/chkrootkit/config"
 )
 
 type Config struct {

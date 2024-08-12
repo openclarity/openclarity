@@ -33,10 +33,10 @@ import (
 	"github.com/google/uuid"
 	multierror "github.com/hashicorp/go-multierror"
 
-	"github.com/openclarity/vmclarity/plugins/runner/internal/runtimehandler"
-	"github.com/openclarity/vmclarity/plugins/runner/types"
-	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
-	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
+	"github.com/openclarity/openclarity/plugins/runner/internal/runtimehandler"
+	"github.com/openclarity/openclarity/plugins/runner/types"
+	"github.com/openclarity/openclarity/plugins/sdk-go/plugin"
+	"github.com/openclarity/openclarity/utils/fsutils/containerrootfs"
 )
 
 type binaryRuntimeHandler struct {

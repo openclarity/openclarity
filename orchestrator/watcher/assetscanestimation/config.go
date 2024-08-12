@@ -18,8 +18,8 @@ package assetscanestimation
 import (
 	"time"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/provider"
+	"github.com/openclarity/openclarity/api/client"
+	"github.com/openclarity/openclarity/provider"
 )
 
 const (

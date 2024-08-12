@@ -16,7 +16,7 @@
 package kubernetes
 
 import (
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 type Service struct {

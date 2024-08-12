@@ -26,11 +26,11 @@ import (
 	syftsbom "github.com/anchore/syft/syft/sbom"
 	syftsrc "github.com/anchore/syft/syft/source"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/syft/config"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	"github.com/openclarity/vmclarity/scanner/utils/image_helper"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/sbom/syft/config"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/scanner/utils/image_helper"
 )
 
 const AnalyzerName = "syft"

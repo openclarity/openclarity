@@ -18,7 +18,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func TestTrimMountPath(t *testing.T) {

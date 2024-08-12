@@ -25,14 +25,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/openclarity/vmclarity/plugins/sdk-go/plugin"
-	"github.com/openclarity/vmclarity/plugins/store/kics/formatter"
+	"github.com/openclarity/openclarity/plugins/sdk-go/plugin"
+	"github.com/openclarity/openclarity/plugins/store/kics/formatter"
 
 	"github.com/Checkmarx/kics/v2/pkg/printer"
 	"github.com/Checkmarx/kics/v2/pkg/progress"
 	"github.com/Checkmarx/kics/v2/pkg/scan"
 
-	"github.com/openclarity/vmclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/plugins/sdk-go/types"
 )
 
 //nolint:containedctx

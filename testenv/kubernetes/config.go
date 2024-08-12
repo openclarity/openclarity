@@ -22,9 +22,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/types"
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/kubernetes/helm"
+	"github.com/openclarity/openclarity/testenv/kubernetes/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

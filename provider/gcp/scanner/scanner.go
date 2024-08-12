@@ -24,10 +24,10 @@ import (
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"github.com/sirupsen/logrus"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/gcp/utils"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/gcp/utils"
 )
 
 type Scanner struct {

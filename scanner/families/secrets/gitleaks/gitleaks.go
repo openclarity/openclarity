@@ -22,14 +22,14 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
 
-	"github.com/openclarity/vmclarity/scanner/families/secrets/gitleaks/config"
-	"github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/openclarity/scanner/families/secrets/gitleaks/config"
+	"github.com/openclarity/openclarity/scanner/families/secrets/types"
+	familiesutils "github.com/openclarity/openclarity/scanner/families/utils"
+	"github.com/openclarity/openclarity/scanner/utils"
 )
 
 const ScannerName = "gitleaks"

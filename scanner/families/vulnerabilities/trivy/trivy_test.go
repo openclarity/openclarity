@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 )
 
 func Test_getTypeFromPurl(t *testing.T) {

@@ -19,8 +19,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 // Runner handles a specific family execution.

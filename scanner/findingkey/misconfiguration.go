@@ -18,7 +18,7 @@ package findingkey
 import (
 	"fmt"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 // MisconfigurationKey One test can report multiple misconfigurations so we need to include the

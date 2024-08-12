@@ -28,9 +28,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 
-	"github.com/openclarity/vmclarity/installation"
-	"github.com/openclarity/vmclarity/testenv/utils"
-	dockerhelper "github.com/openclarity/vmclarity/testenv/utils/docker"
+	"github.com/openclarity/openclarity/installation"
+	"github.com/openclarity/openclarity/testenv/utils"
+	dockerhelper "github.com/openclarity/openclarity/testenv/utils/docker"
 )
 
 func (e *AWSEnv) prepareStack(ctx context.Context) error {

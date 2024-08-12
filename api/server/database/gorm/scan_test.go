@@ -18,7 +18,7 @@ package gorm
 import (
 	"testing"
 
-	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/openclarity/api/types"
 )
 
 func Test_validateScanConfigID(t *testing.T) {

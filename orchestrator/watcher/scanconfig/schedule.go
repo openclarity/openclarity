@@ -21,7 +21,7 @@ import (
 
 	"github.com/aptible/supercronic/cronexpr"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 // The ScheduleWindow represents a timeframe defined by the start and end timestamps.

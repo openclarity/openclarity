@@ -29,11 +29,11 @@ import (
 	zero_log "github.com/rs/zerolog/log"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/cdx_gomod/config"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/sbom/cdx_gomod/config"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
 )
 
 const AnalyzerName = "gomod"

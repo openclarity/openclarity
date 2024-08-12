@@ -27,14 +27,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/cli"
-	"github.com/openclarity/vmclarity/cli/cmd/logutil"
-	"github.com/openclarity/vmclarity/cli/presenter"
-	"github.com/openclarity/vmclarity/cli/state"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	"github.com/openclarity/openclarity/cli"
+	"github.com/openclarity/openclarity/cli/cmd/logutil"
+	"github.com/openclarity/openclarity/cli/presenter"
+	"github.com/openclarity/openclarity/cli/state"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
 )
 
 const (

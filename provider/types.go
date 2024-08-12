@@ -18,7 +18,7 @@ package provider
 import (
 	"context"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 type Provider interface {

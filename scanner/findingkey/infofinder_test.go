@@ -19,8 +19,8 @@ import (
 	"reflect"
 	"testing"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func TestGenerateInfoFinderKey(t *testing.T) {

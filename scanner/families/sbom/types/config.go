@@ -16,9 +16,9 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	syft "github.com/openclarity/vmclarity/scanner/families/sbom/syft/config"
-	trivy "github.com/openclarity/vmclarity/scanner/families/sbom/trivy/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	syft "github.com/openclarity/openclarity/scanner/families/sbom/syft/config"
+	trivy "github.com/openclarity/openclarity/scanner/families/sbom/trivy/config"
 )
 
 const (

@@ -22,10 +22,10 @@ import (
 
 	"cloud.google.com/go/compute/apiv1/computepb"
 
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/cloudinit"
-	"github.com/openclarity/vmclarity/provider/gcp/utils"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/cloudinit"
+	"github.com/openclarity/openclarity/provider/gcp/utils"
 )
 
 var (

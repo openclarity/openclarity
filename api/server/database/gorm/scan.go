@@ -23,10 +23,10 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/vmclarity/api/server/common"
-	"github.com/openclarity/vmclarity/api/server/database/types"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/api/server/common"
+	"github.com/openclarity/openclarity/api/server/database/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 const (

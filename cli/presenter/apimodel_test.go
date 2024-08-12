@@ -23,16 +23,16 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
-	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
-	misconfigurations "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	vulnerabilityutils "github.com/openclarity/vmclarity/scanner/utils/vulnerability"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	exploits "github.com/openclarity/openclarity/scanner/families/exploits/types"
+	infofinder "github.com/openclarity/openclarity/scanner/families/infofinder/types"
+	malware "github.com/openclarity/openclarity/scanner/families/malware/types"
+	misconfigurations "github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
+	sbom "github.com/openclarity/openclarity/scanner/families/sbom/types"
+	secrets "github.com/openclarity/openclarity/scanner/families/secrets/types"
+	vulnerabilities "github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
+	vulnerabilityutils "github.com/openclarity/openclarity/scanner/utils/vulnerability"
 )
 
 func Test_ConvertSBOMResultToPackages(t *testing.T) {

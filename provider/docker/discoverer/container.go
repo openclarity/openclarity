@@ -26,9 +26,9 @@ import (
 	containertypes "github.com/docker/docker/api/types/container"
 	"golang.org/x/sync/errgroup"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func (d *Discoverer) getContainerAssets(ctx context.Context) ([]apitypes.AssetType, error) {
