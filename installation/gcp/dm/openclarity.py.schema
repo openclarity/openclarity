@@ -1,11 +1,11 @@
 info:
-  title: VMClarity
+  title: OpenClarity
   author: sambetts
-  description: Install the VMClarity stack
+  description: Install the OpenClarity stack
   version: 1.0
 
 imports:
- - path: components/vmclarity-server.py
+ - path: components/openclarity-server.py
  - path: components/network.py
  - path: components/firewall-rules.py
  - path: components/static-ip.py
@@ -22,13 +22,13 @@ properties:
   # Required properties
   region:
     type: string
-    description: the region to locate VMClarity
+    description: the region to locate OpenClarity
   zone:
     type: string
-    description: The Zone to locate the VMClarity server
+    description: The Zone to locate the OpenClarity server
   machineType:
     type: string
-    description: The machine type for the VMClarity server
+    description: The machine type for the OpenClarity server
 
   # Properties with defaults
   scannerMachineType:
@@ -42,7 +42,7 @@ properties:
   databaseToUse:
     type: string
     default: SQLite
-    description: The database that VMClarity should use.
+    description: The database that OpenClarity should use.
   apiserverContainerImage:
     type: string
     default: ghcr.io/openclarity/openclarity-api-server:latest
@@ -110,5 +110,5 @@ properties:
 
 outputs:
   ip:
-    description: The IP Address to access VMClarity
+    description: The IP Address to access OpenClarity
     type: string

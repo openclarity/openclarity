@@ -57,11 +57,11 @@ elif [ "{DatabaseToUse}" == "SQLite" ]; then
 fi
 
 # Replace anywhere in the config.env __CONTROLPLANE_HOST__
-# with the local ipv4 IP address of the VMClarity server.
+# with the local ipv4 IP address of the OpenClarity server.
 local_ip_address="$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H "Metadata-Flavor: Google")"
 sed -i "s/__CONTROLPLANE_HOST__/${{local_ip_address}}/" /etc/vmclarity/orchestrator.env
 
-# Reload the systemd daemon to ensure that the VMClarity unit
+# Reload the systemd daemon to ensure that the OpenClarity unit
 # has been detected.
 systemctl daemon-reload
 
@@ -81,7 +81,7 @@ systemctl daemon-reload
 # Create directory for yara rule server
 /usr/bin/mkdir -p /opt/yara-rule-server
 
-# Enable and start/restart VMClarity backend
+# Enable and start/restart OpenClarity backend
 systemctl enable vmclarity.service
 systemctl restart vmclarity.service
 
@@ -469,7 +469,7 @@ chmod 644 /etc/vmclarity/gateway.conf
 
 cat << 'EOF' > /lib/systemd/system/vmclarity.service
 [Unit]
-Description=VmClarity
+Description=OpenClarity
 After=docker.service
 Requires=docker.service
 

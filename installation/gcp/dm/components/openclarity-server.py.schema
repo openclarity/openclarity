@@ -1,11 +1,11 @@
 info:
-  title: VMClarity Server
+  title: OpenClarity Server
   author: sambetts
-  description: Creates a VMClarity server instance
+  description: Creates a OpenClarity server instance
   version: 1.0
 
 imports:
-- path: vmclarity_install_script.py
+- path: openclarity_install_script.py
 
 required:
   - zone
@@ -18,25 +18,25 @@ properties:
   # Required properties
   region:
     type: string
-    description: the region to locate vmclarity
+    description: the region to locate openclarity
   sshPublicKey:
     type: string
-    description: SSH Public Key to use to access the VMClarity server
+    description: SSH Public Key to use to access the OpenClarity server
   zone:
     type: string
-    description: The Zone to locate the VMClarity server
+    description: The Zone to locate the OpenClarity server
   machineType:
     type: string
-    description: The machine type for the VMClarity server
+    description: The machine type for the OpenClarity server
   network:
     type: string
-    description: The network to run the VMClarity server
+    description: The network to run the OpenClarity server
   staticIp:
     type: string
-    description: The static IP address to assign to VMClarity server
+    description: The static IP address to assign to OpenClarity server
   serviceAccount:
     type: string
-    description: The service account to use for VMClarity
+    description: The service account to use for OpenClarity
 
   # Properties with defaults
   scannerMachineType:
@@ -50,7 +50,7 @@ properties:
   databaseToUse:
     type: string
     default: SQLite
-    description: The database that VMClarity should use.
+    description: The database that OpenClarity should use.
   apiserverContainerImage:
     type: string
     default: ghcr.io/openclarity/openclarity-api-server:latest

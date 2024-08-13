@@ -523,8 +523,8 @@ $(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz: $(DIST_DIR)/gcp-deployment-$(VERSI
 $(DIST_DIR)/gcp-deployment-$(VERSION).bundle: $(GCP_DM_FILES) | $(GCP_DM_DIST_DIR)
 	$(info --- Generate Google Cloud Deployment bundle)
 	cp -vR $(GCP_DM_DIR)/* $(GCP_DM_DIST_DIR)/
-	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
-		$(GCP_DM_DIST_DIR)/vmclarity.py.schema $(GCP_DM_DIST_DIR)/components/vmclarity-server.py.schema
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
+		$(GCP_DM_DIST_DIR)/openclarity.py.schema $(GCP_DM_DIST_DIR)/components/openclarity-server.py.schema
 	@touch $@
 
 $(GCP_DM_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(GCP_DM_DIST_DIR)

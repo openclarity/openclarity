@@ -15,7 +15,7 @@
 
 """Creates the virtual machine with environment variables and startup script."""
 
-import installation.gcp.dm.components.openclarity_install_script as openclarity_install_script
+import openclarity_install_script
 
 COMPUTE_URL_BASE = "https://www.googleapis.com/compute/v1/"
 
@@ -35,7 +35,7 @@ def GenerateConfig(context):
                 "zone": context.properties["zone"],
                 "tags": {
                     "items": [
-                        "vmclarity-control-plane",
+                        "openclarity-control-plane",
                     ],
                 },
                 "machineType": (
@@ -89,7 +89,7 @@ def GenerateConfig(context):
                         },
                         {
                             "key": "ssh-keys",
-                            "value": f"vmclarity:{context.properties['sshPublicKey']}",
+                            "value": f"openclarity:{context.properties['sshPublicKey']}",
                         },
                     ],
                 },

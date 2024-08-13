@@ -1,9 +1,9 @@
 imports:
-- path: vmclarity.py
+- path: openclarity.py
 
 resources:
-- name: vmclarity
-  type: vmclarity.py
+- name: openclarity
+  type: openclarity.py
   properties:
     region: us-central1
     zone: us-central1-f
@@ -11,5 +11,5 @@ resources:
     sshPublicKey: <SSH Public Key>
 
 outputs:
-  - name: vmclarity-ip
-    value: $(ref.vmclarity.ip)
+  - name: openclarity-ip
+    value: $(ref.openclarity.ip)

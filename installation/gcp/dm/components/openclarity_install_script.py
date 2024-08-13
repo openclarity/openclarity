@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper for generating vmclarity server install script."""
+"""Helper for generating openclarity server install script."""
 
 
 def GenerateInstallScript(context):
-    template = context.imports["vmclarity-install.sh"]
+    template = context.imports["openclarity-install.sh"]
 
     values = {
         "DatabaseToUse": context.properties["databaseToUse"],

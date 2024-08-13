@@ -1,2 +1,2 @@
 imports:
-- path: vmclarity-install.sh
+- path: openclarity-install.sh

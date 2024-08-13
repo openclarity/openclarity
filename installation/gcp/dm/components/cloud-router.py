@@ -19,7 +19,7 @@
 def GenerateConfig(context):
     """Creates the cloud NAT"""
 
-    vmclarity_scanner_nat = {
+    openclarity_scanner_nat = {
         "name": f"{context.env['name']}-scanner-nat",
         "natIpAllocateOption": "AUTO_ONLY",
         "sourceSubnetworkIpRangesToNat": "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES",
@@ -33,7 +33,7 @@ def GenerateConfig(context):
                 "network": f"$(ref.{context.properties['network']}.selfLink)",
                 "region": context.properties["region"],
                 "nats": [
-                    vmclarity_scanner_nat,
+                    openclarity_scanner_nat,
                 ],
             },
         }

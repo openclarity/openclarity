@@ -13,21 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Creates VMClarity"""
+"""Creates OpenClarity"""
 
 from hashlib import sha1
 
 
 def GenerateConfig(context):
-    """Creates VMClarity"""
+    """Creates OpenClarity"""
 
     deployment_name_hash = sha1(context.env["deployment"].encode("utf8")).hexdigest()[:10]
-    prefix = f"vmclarity-{context.env['deployment']}"
+    prefix = f"openclarity-{context.env['deployment']}"
 
     network_name = f"{prefix}-network"
     staticip_name = f"{prefix}-static-ip"
     server_name = f"{prefix}-server"
-    service_account_name = f"vmclarity-{deployment_name_hash}-sa"
+    service_account_name = f"openclarity-{deployment_name_hash}-sa"
     cloud_router_name = f"{prefix}-cloud-router"
 
     resources = [
@@ -70,7 +70,7 @@ def GenerateConfig(context):
         },
         {
             "name": server_name,
-            "type": "components/vmclarity-server.py",
+            "type": "components/openclarity-server.py",
             "properties": {
                 "machineType": context.properties["machineType"],
                 "zone": context.properties["zone"],
