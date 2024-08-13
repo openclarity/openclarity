@@ -21,8 +21,8 @@ const StepAdvancedSettings = () => (
       tooltipText={
         <div style={{ width: "350px" }}>
           <div>
-            When selected, Spot instances will be used for the VM scanners to
-            lower billing prices.
+            When selected, Spot instances will be used for the scanners to lower
+            billing prices.
           </div>
           <div>
             However, this can result in unexpected Asset Scan failures if a spot

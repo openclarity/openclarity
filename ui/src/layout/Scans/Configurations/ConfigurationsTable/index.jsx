@@ -188,9 +188,7 @@ const ConfigurationsTable = () => {
             message={
               <>
                 <div>No scan configurations detected.</div>
-                <div>
-                  Create your first scan configuration to see your VM's issues.
-                </div>
+                <div>Create your first scan configuration to see issues.</div>
               </>
             }
             title="New scan configuration"
